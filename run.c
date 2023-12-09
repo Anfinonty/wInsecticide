@@ -173,6 +173,7 @@ void GrSprite(HWND hwnd, HDC hdc, PAINTSTRUCT ps,  double x1, double y1, LPCWSTR
     DeleteDC(hdcMem);
     DeleteObject(hBitmap);
     DeleteObject(hBitmapMask);
+    DeleteObject(oldBitmap);
   }
 }
 
@@ -196,15 +197,15 @@ void GrPrint(HWND hwnd, HDC hdc, PAINTSTRUCT ps, double x1, double y1, LPCWSTR t
 
 //Player
 struct player {
-  bool rst_left,rst_right,rst_up,is_left;
-  int grav, jump_height, sprite_timer;
-  double x,y;
+  bool rst_left,rst_right,rst_up,is_left,in_air;
+  int jump_height, sprite_timer;
+  double grav,x,y;
 } player;
 
 void InitPlayer() {
   player.grav=1;
   player.sprite_timer=0;
-  player.rst_left=player.rst_right=player.rst_up=false;
+  player.in_air=player.rst_left=player.rst_right=player.rst_up=false;
   player.is_left=false;
   player.jump_height=0;
   player.x=GR_WIDTH/2;
@@ -216,6 +217,10 @@ void PlayerAct() {
   if (player.jump_height<-10 && player.grav<2) {
     player.grav++;
   }
+  if (player.grav>1) {
+    player.in_air=true;
+  }
+
   player.y+=1;
   player.jump_height--;
   //movement
@@ -227,6 +232,7 @@ void PlayerAct() {
   }
   if (0<player.jump_height && player.jump_height<51) {
     player.y-=2;
+    player.in_air=true;
   }
   if (player.rst_left && player.x>0) {
     player.x--;
@@ -239,6 +245,8 @@ void PlayerAct() {
     if (player.sprite_timer==0)
       player.sprite_timer=20;
   }
+
+  //Sprite timer
   if (player.sprite_timer>0) {
     player.sprite_timer--;
   }
@@ -246,10 +254,14 @@ void PlayerAct() {
 
 
 void DrawPlayer(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
-  if (player.sprite_timer<10) {
-    GrSprite(hwnd,hdc,ps,player.x,player.y,L"player1.bmp",player.is_left);
+  if (player.in_air) {
+    GrSprite(hwnd,hdc,ps,player.x,player.y-6,L"player3-1.bmp",player.is_left);
   } else {
-    GrSprite(hwnd,hdc,ps,player.x,player.y,L"player2.bmp",player.is_left);
+    if (player.sprite_timer<10) {
+      GrSprite(hwnd,hdc,ps,player.x,player.y,L"player1.bmp",player.is_left);
+    } else {
+      GrSprite(hwnd,hdc,ps,player.x,player.y,L"player2.bmp",player.is_left);
+    }
   }
   //GrRect(hwnd,hdc,ps,player.x,player.y,PLAYER_WIDTH,PLAYER_HEIGHT,RGB(0, 76, 255));
 }
@@ -304,6 +316,7 @@ void PlatformAct(int pid,int g) {
     player.grav=1;
     player.jump_height=64;
     player.y-=2;
+    player.in_air=false;
   }
 }
 
@@ -432,7 +445,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
 
-
+//
 
 
 
