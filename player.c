@@ -68,18 +68,15 @@ void PlayerAct() {
 
 void DrawPlayer(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
   if (player.in_air) {
-//      GrSprite(hwnd,hdc,ps,player.x,player.y-6,L"player3-1.bmp",player.is_left);
       GrSprite(hwnd,hdc,ps,player.x,player.y-6,player.sprite_jump,player.is_left);
   } else {
     if (player.sprite_timer<10) {
-//      GrSprite(hwnd,hdc,ps,player.x,player.y,L"player1.bmp",player.is_left);
       GrSprite(hwnd,hdc,ps,player.x,player.y,player.sprite_1,player.is_left);
     } else {
-//      GrSprite(hwnd,hdc,ps,player.x,player.y,L"player2.bmp",player.is_left);
       GrSprite(hwnd,hdc,ps,player.x,player.y,player.sprite_2,player.is_left);
     }
   }
-  GrRect(hwnd,hdc,ps,player.x,player.y,PLAYER_WIDTH,PLAYER_HEIGHT,RGB(0, 76, 255));
+  //GrRect(hwnd,hdc,ps,player.x,player.y,PLAYER_WIDTH,PLAYER_HEIGHT,RGB(0, 76, 255));
 }
 
 

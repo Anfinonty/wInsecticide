@@ -4,7 +4,7 @@
 //Dec-09-2023 Added GrSprite
 //Dec-10-2023 Added Sprite Flipping
 //Dec-14-2023 Added Sprite Win32 Compatibility && fixed sluggishness for win32
-//Dec-21-2023 Delay works across different windows machines
+//Dec-21-2023 Sleep() for while loop, Fixed memleak caused by flipping sprite
 
 //Command
 //i686-w64-mingw32-gcc-win32 run.c -o run.exe -lopengl32 -lglu32 -lgdi32 -municode
@@ -76,7 +76,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
       }
       PlayerAct();
     }
-    Sleep(1); //Returned from sharoyveduchi's and sledixyz's feedback'
+    Sleep(4); //Returned from sharoyveduchi's and sledixyz's feedback'
   }
 }
 

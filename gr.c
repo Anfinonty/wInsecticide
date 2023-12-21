@@ -175,29 +175,8 @@ HBITMAP ResizeBitmap(HDC hdc, HBITMAP source)
     return hBitmap1;
 }
 
-
-HBITMAP FlipBitmapHorz(HDC hWC, HBITMAP hBitmap )
-{
 //https://forums.codeguru.com/showthread.php?118153-Flipping-graphics-using-StretchBlt
-  BITMAP bm;
-  GetObject(hBitmap, sizeof(bm), &bm);
-  HWND hWnd = GetDesktopWindow();
-  HDC hSC = CreateCompatibleDC(hWC);
-  HDC hDC = CreateCompatibleDC(hWC);
-  HBITMAP hRetBitmap = CreateCompatibleBitmap(hWC, bm.bmWidth, bm.bmHeight);
-  HGDIOBJ hSCBMOld = SelectObject(hSC, hBitmap);
-  HGDIOBJ hDCBMOld = SelectObject(hDC, hRetBitmap);
-  SetMapMode(hDC, MM_ANISOTROPIC);
-  ScaleViewportExtEx(hDC, -1, 1, 1, 1, NULL);
-  SetViewportOrgEx(hDC, bm.bmWidth - 1, 0, NULL);
-  BitBlt(hDC, 0, 0, bm.bmWidth, bm.bmHeight, hSC, 0, 0, SRCCOPY);
-  SelectObject(hDC, hDCBMOld);
-  SelectObject(hSC, hSCBMOld);
-  ReleaseDC(hWnd, hWC);
-  DeleteDC(hDC);
-  DeleteDC(hSC);
-  return hRetBitmap;
-}
+
 
 
 void GrSprite(HWND hwnd, HDC hdc, PAINTSTRUCT ps,  double x1, double y1, HBITMAP src_Bitmap, bool is_left) {
