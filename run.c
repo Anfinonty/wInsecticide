@@ -33,15 +33,7 @@
 
 //#include <commctrl.h>
 
-
-
-
-
-
-
-
-
-
+int MACHINE_SPEED = 30;
 
 
 
@@ -63,6 +55,7 @@ void DrawTexts(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
 void Init() {
   InitPlayer();
   InitPlatform();
+  MACHINE_SPEED = (int)machinespeed();
 }
 
 
@@ -75,7 +68,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
   bool b=1;
   char x;
   int t;
-  int j=134217728*2/30; //2^27
+  int j=134217728*2/MACHINE_SPEED; //2^27*2/MACHINE_SPEED
   //int j=134217728*2/(350); //2^27 ** win32
   while (b) {
     if (player.y>GR_HEIGHT+8) {//restart if fell out of the world

@@ -2,6 +2,25 @@
 int RandNum(int min, int max) {return rand()%(max-min + 1) + min;}
 
 
+
+int machinespeed() {
+  struct timeval time_start,time_now;
+  int tick,i,j,c=2048,d=5;
+  double sum=0,sum2=0;
+  for (j=0;j<d;j++) { //5 times & generate avg
+    for (i=0;i<c;i++) { //count to 65546 2048 times & generate avg
+      mingw_gettimeofday(&time_start, NULL); //get time in msec
+      for (tick=0;tick<65536;tick++);
+      mingw_gettimeofday(&time_now, NULL); //get time in msec after for count
+      sum += (time_now.tv_sec - time_start.tv_sec) * 1000000 + time_now.tv_usec - time_start.tv_usec;
+    }
+    sum2+=sum/c;
+    sum=0;
+  }
+  return (int) sum2/d; //return machine speed
+}
+
+
 //----------------------------------------
 double GetGradient(double x1,double y1,double x2,double y2) 
 {
