@@ -13,11 +13,9 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <conio.h>
-//#include <graphics.h>
 #include <stdbool.h>
 #include <time.h>
 #include <math.h>
-
 
 #define GR_WIDTH    640
 #define GR_HEIGHT   480
@@ -77,17 +75,21 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
   bool b=1;
   char x;
   int t;
+  int j=134217728*2/30; //2^27
+  //int j=134217728*2/(350); //2^27 ** win32
   while (b) {
     if (player.y>GR_HEIGHT+8) {//restart if fell out of the world
       Init();
     }
+
     for (int j=0;j<player.grav;j++) {
       for (int i=0;i<PLATFORM_NUM;i++) { //gravity platform
         PlatformAct(i,j);
       }
       PlayerAct();
     }
-    for (t=0;t<12000000;t++); //usleep replacement idk lmao this works XDDD
+    //for (t=0;t<1200000;t++); //usleep replacement idk lmao this works XDDD ,win32
+    for (t=0;t<j;t++);
   }
 }
 
