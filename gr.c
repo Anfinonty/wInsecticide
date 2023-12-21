@@ -27,7 +27,7 @@ void GrLine(HWND hwnd, HDC hdc, PAINTSTRUCT ps,double x1,double y1,double x2,dou
 }
 
 //http://www.winprog.org/tutorial/transparency.html
-HBITMAP CreateBitmapMask(HBITMAP hbmColour, COLORREF crTransparent)
+HBITMAP CreateBitmapMask(HDC hdc, HBITMAP hbmColour, COLORREF crTransparent)
 {
   HDC hdcMem, hdcMem2;
   HBITMAP hbmMask;
@@ -38,8 +38,8 @@ HBITMAP CreateBitmapMask(HBITMAP hbmColour, COLORREF crTransparent)
   hbmMask = CreateBitmap(bm.bmWidth, bm.bmHeight, 1, 1, NULL);
 
     // Get some HDCs that are compatible with the display driver
-  hdcMem = CreateCompatibleDC(0);
-  hdcMem2 = CreateCompatibleDC(0);
+  hdcMem = CreateCompatibleDC(hdc);
+  hdcMem2 = CreateCompatibleDC(hdc);
 
   SelectObject(hdcMem, hbmColour);
   SelectObject(hdcMem2, hbmMask);
@@ -64,6 +64,88 @@ HBITMAP CreateBitmapMask(HBITMAP hbmColour, COLORREF crTransparent)
 
   return hbmMask;
 }
+
+/*
+//https://www.codeguru.com/multimedia/rotate-a-bitmap-image/
+HBITMAP GetRotatedBitmap(HBITMAP hBitmap, float radians, COLORREF clrBack )
+{
+	// Create a memory DC compatible with the display
+	HDC sourceDC, destDC;
+	sourceDC->CreateCompatibleDC( NULL );
+	destDC->CreateCompatibleDC( NULL );
+
+	// Get logical coordinates
+	BITMAP bm;
+	::GetObject( hBitmap, sizeof( bm ), &bm );
+
+	float cosine = (float)cos(radians);
+	float sine = (float)sin(radians);
+
+	// Compute dimensions of the resulting bitmap
+	// First get the coordinates of the 3 corners other than origin
+	int x1 = (int)(-bm.bmHeight * sine);
+	int y1 = (int)(bm.bmHeight * cosine);
+	int x2 = (int)(bm.bmWidth * cosine - bm.bmHeight * sine);
+	int y2 = (int)(bm.bmHeight * cosine + bm.bmWidth * sine);
+	int x3 = (int)(bm.bmWidth * cosine);
+	int y3 = (int)(bm.bmWidth * sine);
+
+	int minx = min(0,min(x1, min(x2,x3)));
+	int miny = min(0,min(y1, min(y2,y3)));
+	int maxx = max(x1, max(x2,x3));
+	int maxy = max(y1, max(y2,y3));
+
+	int w = maxx - minx;
+	int h = maxy - miny;
+
+
+	// Create a bitmap to hold the result
+	HBITMAP hbmResult = ::CreateCompatibleBitmap(CClientDC(NULL), w, h);
+
+	HBITMAP hbmOldSource = (HBITMAP)::SelectObject( sourceDC.m_hDC, hBitmap );
+	HBITMAP hbmOldDest = (HBITMAP)::SelectObject( destDC.m_hDC, hbmResult );
+
+	// Draw the background color before we change mapping mode
+	HBRUSH hbrBack = CreateSolidBrush( clrBack );
+	HBRUSH hbrOld = (HBRUSH)::SelectObject( destDC.m_hDC, hbrBack );
+	destDC.PatBlt( 0, 0, w, h, PATCOPY );
+	::DeleteObject( ::SelectObject( destDC.m_hDC, hbrOld ) );
+
+	// Set mapping mode so that +ve y axis is upwords
+	sourceDC->SetMapMode(MM_ISOTROPIC);
+	sourceDC->SetWindowExt(1,1);
+	sourceDC->SetViewportExt(1,-1);
+	sourceDC->SetViewportOrg(0, bm.bmHeight-1);
+
+	destDC->SetMapMode(MM_ISOTROPIC);
+	destDC->SetWindowExt(1,1);
+	destDC->SetViewportExt(1,-1);
+	destDC->SetWindowOrg(minx, maxy);
+
+	// Now do the actual rotating - a pixel at a time
+	// Computing the destination point for each source point
+	// will leave a few pixels that do not get covered
+	// So we use a reverse transform - e.i. compute the source point
+	// for each destination point
+
+	for( int y = miny; y < maxy; y++ )
+	{
+		for( int x = minx; x < maxx; x++ )
+		{
+			int sourcex = (int)(x*cosine + y*sine);
+			int sourcey = (int)(y*cosine - x*sine);
+			if( sourcex >= 0 && sourcex < bm.bmWidth && sourcey >= 0
+					&& sourcey < bm.bmHeight )
+				destDC.SetPixel(x,y,sourceDC.GetPixel(sourcex,sourcey));
+		}
+	}
+
+	// Restore DCs
+	::SelectObject( sourceDC.m_hDC, hbmOldSource );
+	::SelectObject( destDC.m_hDC, hbmOldDest );
+
+	return hbmResult;
+}*/
 
 
 //https://stackoverflow.com/questions/60922844/hbitmap-stretchblt-caused-image-saturation
@@ -94,40 +176,50 @@ HBITMAP ResizeBitmap(HDC hdc, HBITMAP source)
 }
 
 
-void GrSprite(HWND hwnd, HDC hdc, PAINTSTRUCT ps,  double x1, double y1, LPCWSTR filename, BOOL is_left) {
-  static HBITMAP hBitmap;
-  HBITMAP hBitmapMask;
+HBITMAP FlipBitmapHorz(HDC hWC, HBITMAP hBitmap )
+{
+//https://forums.codeguru.com/showthread.php?118153-Flipping-graphics-using-StretchBlt
+  BITMAP bm;
+  GetObject(hBitmap, sizeof(bm), &bm);
+  HWND hWnd = GetDesktopWindow();
+  HDC hSC = CreateCompatibleDC(hWC);
+  HDC hDC = CreateCompatibleDC(hWC);
+  HBITMAP hRetBitmap = CreateCompatibleBitmap(hWC, bm.bmWidth, bm.bmHeight);
+  HGDIOBJ hSCBMOld = SelectObject(hSC, hBitmap);
+  HGDIOBJ hDCBMOld = SelectObject(hDC, hRetBitmap);
+  SetMapMode(hDC, MM_ANISOTROPIC);
+  ScaleViewportExtEx(hDC, -1, 1, 1, 1, NULL);
+  SetViewportOrgEx(hDC, bm.bmWidth - 1, 0, NULL);
+  BitBlt(hDC, 0, 0, bm.bmWidth, bm.bmHeight, hSC, 0, 0, SRCCOPY);
+  SelectObject(hDC, hDCBMOld);
+  SelectObject(hSC, hSCBMOld);
+  ReleaseDC(hWnd, hWC);
+  DeleteDC(hDC);
+  DeleteDC(hSC);
+  return hRetBitmap;
+}
+
+
+void GrSprite(HWND hwnd, HDC hdc, PAINTSTRUCT ps,  double x1, double y1, HBITMAP src_Bitmap, bool is_left) {
   BITMAP bitmap;
+  HBITMAP oldBitmap;
   HDC hdcMem;
-  HGDIOBJ oldBitmap;
 
-  if (!is_left) {
-    hBitmap=(HBITMAP) LoadImageW(NULL, filename, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-  } else {
-    hBitmap=ResizeBitmap(hdc,(HBITMAP) LoadImageW(NULL, filename, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE));
-  }
+  if (src_Bitmap!=NULL) {
+    hdcMem=CreateCompatibleDC(hdc);
+    oldBitmap = SelectObject(hdcMem, src_Bitmap);
+    GetObject(src_Bitmap, sizeof(bitmap), &bitmap); //hBitmap point to bitmap var
 
-  hBitmapMask = CreateBitmapMask(hBitmap, RGB(0,0,0));
+    //Draws Bitmap on Axis -- OLDBITMAP
+    //BitBlt(hdc, x1-bitmap.bmWidth/2, y1-bitmap.bmHeight, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0, 0, SRCAND);
+    if (is_left) { //Flip Horizontally (X)
+      StretchBlt(hdc, x1+bitmap.bmWidth/2, y1-bitmap.bmHeight, -bitmap.bmWidth-1, bitmap.bmHeight, hdcMem, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCCOPY);
+    } else { //Regular
+      StretchBlt(hdc, x1-bitmap.bmWidth/2, y1-bitmap.bmHeight, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCCOPY);
+    }
 
-  if (hBitmap!=NULL) {
-    hdcMem = CreateCompatibleDC(hdc);
-
-    oldBitmap = SelectObject(hdcMem, hBitmap);
-    GetObject(hBitmap, sizeof(bitmap), &bitmap);
-
-    BitBlt(hdc, x1-bitmap.bmWidth/2, y1-bitmap.bmHeight, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0, 0, SRCAND);
     SelectObject(hdcMem, oldBitmap);
-
-    SelectObject(hdcMem, hBitmapMask);
-    BitBlt(hdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0, 0, SRCAND);
-
-    SelectObject(hdcMem, hBitmap);
-    BitBlt(hdc, 0, bitmap.bmHeight, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0, 0, SRCPAINT);
-
     DeleteDC(hdcMem);
-    DeleteObject(hBitmap);
-    DeleteObject(hBitmapMask);
-    DeleteObject(oldBitmap);
   }
 }
 

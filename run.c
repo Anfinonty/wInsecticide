@@ -4,6 +4,7 @@
 //Dec-09-2023 Added GrSprite
 //Dec-10-2023 Added Sprite Flipping
 //Dec-14-2023 Added Sprite Win32 Compatibility && fixed sluggishness for win32
+//Dec-21-2023 Delay works across different windows machines
 
 //Command
 //i686-w64-mingw32-gcc-win32 run.c -o run.exe -lopengl32 -lglu32 -lgdi32 -municode
@@ -16,9 +17,10 @@
 #include <stdbool.h>
 #include <time.h>
 #include <math.h>
+#include <synchapi.h>
 
-#define GR_WIDTH    640
-#define GR_HEIGHT   480
+#define GR_WIDTH    800
+#define GR_HEIGHT   600
 
 
 #define PLATFORM_NUM    100
@@ -31,18 +33,16 @@
 #include "player.c"
 #include "platform.c"
 
-//#include <commctrl.h>
-
-int MACHINE_SPEED = 30;
-
-
+//#include <commctrl.h>assign bitmap variable C win32
 
 
 
 
 //Background
 void DrawBackground(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
-  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(253, 2, 139));
+//  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(253, 2, 139));
+//  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(173, 216, 230));
+  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(8,39,245));
 }
 
 
@@ -55,7 +55,6 @@ void DrawTexts(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
 void Init() {
   InitPlayer();
   InitPlatform();
-  MACHINE_SPEED = (int)machinespeed();
 }
 
 
@@ -65,11 +64,7 @@ void Init() {
 
 
 DWORD WINAPI AnimateTask01(LPVOID lpArg) {
-  bool b=1;
-  char x;
-  int t;
-  int j=134217728*2/MACHINE_SPEED; //2^27*2/MACHINE_SPEED
-  //int j=134217728*2/(350); //2^27 ** win32
+  bool b=true;
   while (b) {
     if (player.y>GR_HEIGHT+8) {//restart if fell out of the world
       Init();
@@ -81,8 +76,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
       }
       PlayerAct();
     }
-    //for (t=0;t<1200000;t++); //usleep replacement idk lmao this works XDDD ,win32
-    for (t=0;t<j;t++);
+    Sleep(1); //Returned from sharoyveduchi's and sledixyz's feedback'
   }
 }
 
