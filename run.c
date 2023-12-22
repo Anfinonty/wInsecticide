@@ -62,7 +62,6 @@ void Init() {
 
 
 
-
 DWORD WINAPI AnimateTask01(LPVOID lpArg) {
   bool b=true;
   while (b) {
@@ -83,6 +82,10 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
 
 
 
+DWORD WINAPI SongTask(LPVOID lpArg) {
+  //PlaySoundA("Linkin_Park_08-In_The_End.wav", NULL, SND_FILENAME);
+  PlaySoundA("music/bfmv.wav",NULL,SND_FILENAME);
+}
 
 
 
@@ -179,9 +182,14 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   int *lpArgPtr;
   HANDLE hHandles[1];
   DWORD ThreadId;
-  lpArgPtr=(int *)malloc(sizeof(int));
-  *lpArgPtr=i;
-  hHandles[i]=CreateThread(NULL,0,AnimateTask01,lpArgPtr,0,&ThreadId);
+  for (i=0;i<2;i++) {
+    lpArgPtr=(int *)malloc(sizeof(int));
+    *lpArgPtr=i;
+    switch (i) {
+      case 0: hHandles[i]=CreateThread(NULL,0,AnimateTask01,lpArgPtr,0,&ThreadId);break;
+      case 1: hHandles[i]=CreateThread(NULL,0,SongTask,lpArgPtr,0,&ThreadId);break;
+    }
+  }
 
   MSG  msg;
   while (GetMessage(&msg,NULL,0,0)) {
