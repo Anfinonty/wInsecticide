@@ -31,23 +31,16 @@ HBITMAP Rotate(HDC hDC, HBITMAP hSourceBitmap, double radians) {
 
    int minx = min(0,min(x1, min(x2,x3)));
    int miny = min(0,min(y1, min(y2,y3)));
-//   int minx = min(0,min(x1, min(x2,x3)));
-//   int miny = min(0,min(y1, min(y2,y3)));
-
    int maxx = max(0,max(x1, max(x2,x3)));
    int maxy = max(0, max(y1, max(y2,y3)));
 
    int width = maxx - minx;
    int height = maxy - miny;
 
-   //int width = iSrcBitmap.bmWidth;
-   //int height = iSrcBitmap.bmHeight;
-
    // Step 3: Select the source bitmap into the source DC. Create a
    //         destination bitmap, and select it into the destination DC.
    hOldSourceBitmap = SelectObject(hMemSrc, hSourceBitmap);
    //hDestBitmap = CreateBitmap(height, width, iSrcBitmap.bmPlanes, iSrcBitmap.bmBitsPixel, NULL);
-
    hDestBitmap = CreateCompatibleBitmap(hDC, width, height);   
 
    if (!hDestBitmap)
@@ -57,7 +50,7 @@ HBITMAP Rotate(HDC hDC, HBITMAP hSourceBitmap, double radians) {
 
 
 	// Draw the background color before we change mapping mode
-    COLORREF clrBack;
+    COLORREF clrBack = RGB(255,255,255); //For transparent background
 	HBRUSH hbrBack = CreateSolidBrush( clrBack );
 	HBRUSH hbrOld = (HBRUSH) SelectObject( hMemDest, hbrBack );
 	PatBlt(hMemDest, 0, 0, width, height, PATCOPY );
@@ -68,7 +61,7 @@ HBITMAP Rotate(HDC hDC, HBITMAP hSourceBitmap, double radians) {
 	SetMapMode(hMemSrc, MM_ISOTROPIC);
 	SetWindowExtEx(hMemSrc, 1,1,NULL);
 	SetViewportExtEx(hMemSrc, 1,-1,NULL);
-	SetViewportOrgEx(hMemSrc, 0, iSrcBitmap.bmHeight,NULL);
+	SetViewportOrgEx(hMemSrc, 0, iSrcBitmap.bmHeight-1,NULL);
 
 	SetMapMode(hMemDest, MM_ISOTROPIC);
 	SetWindowExtEx(hMemDest, 1,1,NULL);
@@ -88,18 +81,11 @@ HBITMAP Rotate(HDC hDC, HBITMAP hSourceBitmap, double radians) {
 	  }
 	}
 
-   /*int i,j;
-   for (i = 0; i < width; ++i)
-       for (j = 0; j < height; ++j)
-           SetPixel(hMemDest, j, width - 1 - i,
-                                             GetPixel(hMemSrc, i, j));*/
-
-
    // Step 5: Destroy the DCs.
    SelectObject(hMemSrc, hOldSourceBitmap);
    SelectObject(hMemDest, hOldDestBitmap);
-   //DeleteDC(hMemDest);
-   //DeleteDC(hMemSrc);
+   DeleteDC(hMemDest);
+   DeleteDC(hMemSrc);
 
    // Step 6: Return the rotated bitmap.
    return(hDestBitmap);
@@ -147,18 +133,15 @@ void GrSprite(HWND hwnd, HDC hdc, PAINTSTRUCT ps,  double x1, double y1, HBITMAP
     hdcMem=CreateCompatibleDC(hdc);
     oldBitmap = SelectObject(hdcMem, src_Bitmap);
     GetObject(src_Bitmap, sizeof(bitmap), &bitmap); //hBitmap point to bitmap var
-    BitBlt(hdc, x1-bitmap.bmWidth/2, y1-bitmap.bmHeight, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0, 0, SRCAND);
+    //BitBlt(hdc, x1-bitmap.bmWidth/2, y1-bitmap.bmHeight, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0, 0, SRCAND);
 
-
-    /*if (is_left) { //Flip Horizontally (X)
+    if (is_left) { //Flip Horizontally (X)
       StretchBlt(hdcMem, x1+bitmap.bmWidth/2, y1-bitmap.bmHeight, -bitmap.bmWidth-1, bitmap.bmHeight, hdc, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCCOPY);
       StretchBlt(hdc, x1+bitmap.bmWidth/2, y1-bitmap.bmHeight, -bitmap.bmWidth-1, bitmap.bmHeight, hdcMem, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCAND);
     } else { //Regular
       StretchBlt(hdcMem, x1-bitmap.bmWidth/2, y1-bitmap.bmHeight, bitmap.bmWidth, bitmap.bmHeight, hdc, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCCOPY);
       StretchBlt(hdc, x1-bitmap.bmWidth/2, y1-bitmap.bmHeight, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCAND);
-    } */
-
-
+    }
     SelectObject(hdcMem, oldBitmap);
     DeleteDC(hdcMem);
   }

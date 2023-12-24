@@ -74,7 +74,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
         PlatformAct(i,j);
       }
       PlayerAct();
-//      le_angle=M_PI_2;
+//      le_angle=M_PI_4;
         le_angle+=0.01;
     }
     Sleep(4); //Returned from sharoyveduchi's and sledixyz's feedback'
