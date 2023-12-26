@@ -409,3 +409,30 @@ HBITMAP GetRotatedBitmap( HBITMAP hBitmap, float radians, COLORREF clrBack )
 }
 
 
+
+
+
+/*
+void SetStaticPicture(){
+   HBITMAP bmpFrom = (HBITMAP) LoadImage( NULL, "popupbk.bmp", IMAGE_BITMAP, 0, 0,
+                      LR_CREATEDIBSECTION | LR_DEFAULTSIZE | LR_LOADFROMFILE );   if( !bmpFrom ) return;
+   BITMAP                     bm;
+   GetObject( bmpFrom, sizeof(bm), &bm );
+   HDC     hdc     = GetDC( hwnd );
+   HDC     hdcFrom = CreateCompatibleDC( hdc );
+   HDC     hdcTo   = CreateCompatibleDC( hdc );
+   HBITMAP bmpTo   = CreateCompatibleBitmap( hdcTo, width, height );
+   HGDIOBJ hobFrom = SelectObject( hdcFrom, bmpFrom );
+   HGDIOBJ hobTo   = SelectObject( hdcTo, bmpTo );
+   StretchBlt( hdcTo,   0, 0, width,      height,               hdcFrom, 0, 0, bm.bmWidth, bm.bmHeight, SRCCOPY );
+   SelectObject( hdcFrom, hobFrom );
+   SelectObject( hdcTo, hobTo );
+   DeleteObject( bmpFrom );
+   ReleaseDC( hwnd, hdc );
+   DeleteDC( hdcFrom );
+   DeleteDC( hdcTo );
+   bkgdImage = bmpTo; // <<<< assuming bkgdImage is a HBITMAP member var here
+   SendMessage( hwnd, STM_SETIMAGE, (WPARAM) IMAGE_BITMAP, (LPARAM) bkgdImage );
+}*/
+
+//https://www.gamedev.net/forums/topic/583799-win32-load-bitmap-resize-copy-to-static-control/4713803/
