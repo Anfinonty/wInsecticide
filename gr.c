@@ -124,13 +124,15 @@ void GrLine(HWND hwnd, HDC hdc, PAINTSTRUCT ps,double x1,double y1,double x2,dou
 
 void GrSprite(HWND hwnd, HDC hDC, PAINTSTRUCT ps,  double _x1, double _y1, HBITMAP hSourceBitmap, bool is_left) {
    HBITMAP hOldSourceBitmap, hOldDestBitmap, hDestBitmap;
-   HDC hMemSrc,hMemDest;
+   HDC hMemSrc,hMemDest,hdcMem;
    BITMAP iSrcBitmap;
 
    // Step 1: Create a memory DC for the source and destination bitmaps
    //         compatible with the device used.
    hMemSrc = CreateCompatibleDC(hDC);
    hMemDest= CreateCompatibleDC(hDC);
+   hdcMem = CreateCompatibleDC(hDC);
+
 
   // Step 2: Get the height and width of the source bitmap.
    GetObject(hSourceBitmap, sizeof(iSrcBitmap), (LPSTR)&iSrcBitmap);
@@ -159,8 +161,8 @@ void GrSprite(HWND hwnd, HDC hDC, PAINTSTRUCT ps,  double _x1, double _y1, HBITM
    // Step 3: Select the source bitmap into the source DC. Create a
    //         destination bitmap, and select it into the destination DC.
 
-   hDestBitmap = NULL;//CreateCompatibleBitmap(hMemDest, width, height);
-   //hDestBitmap = CreateCompatibleBitmap(hDC, width, height);
+   //hDestBitmap = NULL;//CreateCompatibleBitmap(hMemDest, width, height);
+   hDestBitmap = CreateCompatibleBitmap(hdcMem, width, height);
 
 
    hOldSourceBitmap = SelectObject(hMemSrc, hSourceBitmap);
@@ -197,34 +199,30 @@ void GrSprite(HWND hwnd, HDC hDC, PAINTSTRUCT ps,  double _x1, double _y1, HBITM
 	  }
 	}
 
-
-  // GetObject(hDC, sizeof(iSrcBitmap), &iSrcBitmap); //hBitmap point to bitmap var
    // Step 5: Destroy the DCs.
    SelectObject(hMemSrc, hOldSourceBitmap);
    SelectObject(hMemDest, hOldDestBitmap);
    DeleteDC(hMemDest);
    DeleteDC(hMemSrc);
 
+
 /*    src_Bitmap=Rotate(hdc, src_Bitmap, le_angle);*/
    HBITMAP oldBitmap;
-   HDC hdcMem;
-
-   hdcMem=CreateCompatibleDC(hDC);
+   BITMAP bitmap;
    oldBitmap = SelectObject(hdcMem, hDestBitmap);
-   GetObject(hDestBitmap, sizeof(iSrcBitmap), &iSrcBitmap); //hBitmap point to bitmap var
+   GetObject(hDestBitmap, sizeof(BITMAP), &bitmap); //hBitmap point to bitmap var
 
    if (is_left) { //Flip Horizontally (X)
-     StretchBlt(hdcMem, _x1+iSrcBitmap.bmWidth/2, _y1-iSrcBitmap.bmHeight, -iSrcBitmap.bmWidth-1, iSrcBitmap.bmHeight, hDC, 0,0, iSrcBitmap.bmWidth, iSrcBitmap.bmHeight, SRCCOPY);
-     StretchBlt(hDC, _x1+iSrcBitmap.bmWidth/2, _y1-iSrcBitmap.bmHeight, -iSrcBitmap.bmWidth-1, iSrcBitmap.bmHeight, hdcMem, 0,0, iSrcBitmap.bmWidth, iSrcBitmap.bmHeight, SRCAND);
+     StretchBlt(hdcMem, _x1+bitmap.bmWidth/2, _y1-bitmap.bmHeight, -bitmap.bmWidth-1, bitmap.bmHeight, hDC, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCCOPY);
+     StretchBlt(hDC, _x1+bitmap.bmWidth/2, _y1-bitmap.bmHeight, -bitmap.bmWidth-1, bitmap.bmHeight, hdcMem, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCAND);
    } else { //Regular
-     StretchBlt(hdcMem, _x1-iSrcBitmap.bmWidth/2, _y1-iSrcBitmap.bmHeight, iSrcBitmap.bmWidth, iSrcBitmap.bmHeight, hDC, 0,0, iSrcBitmap.bmWidth, iSrcBitmap.bmHeight, SRCCOPY);
-     StretchBlt(hDC, _x1-iSrcBitmap.bmWidth/2, _y1-iSrcBitmap.bmHeight, iSrcBitmap.bmWidth, iSrcBitmap.bmHeight, hdcMem, 0,0, iSrcBitmap.bmWidth, iSrcBitmap.bmHeight, SRCAND);
+     StretchBlt(hdcMem, _x1-bitmap.bmWidth/2, _y1-bitmap.bmHeight, bitmap.bmWidth, bitmap.bmHeight, hDC, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCCOPY);
+     StretchBlt(hDC, _x1-bitmap.bmWidth/2, _y1-bitmap.bmHeight, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCAND);
    }
+   //BitBlt(hDC, _x1-bitmap.bmWidth/2, _y1-bitmap.bmHeight, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0, 0, SRCAND); //This works
 
-   //BitBlt(hDC, _x1-iSrcBitmap.bmWidth/2, _y1-iSrcBitmap.bmHeight, iSrcBitmap.bmWidth, iSrcBitmap.bmHeight, hdcMem, 0, 0, SRCAND);
-   SelectObject(hdcMem, oldBitmap);
+   DeleteObject(SelectObject(hdcMem, oldBitmap)); //https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-createcompatiblebitmap https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-deleteobject
    DeleteDC(hdcMem);
-  //}
 }
 
 
