@@ -436,3 +436,97 @@ void SetStaticPicture(){
 }*/
 
 //https://www.gamedev.net/forums/topic/583799-win32-load-bitmap-resize-copy-to-static-control/4713803/
+
+
+
+
+//https://ftp.zx.net.nz/pub/Patches/ftp.microsoft.com/MISC/KB/en-us/77/127.HTM
+HBITMAP Rotate(HDC hDC, HBITMAP hSourceBitmap, double radians) {
+   HBITMAP hOldSourceBitmap, hOldDestBitmap, hDestBitmap;
+   HDC hMemSrc, hMemDest;
+   BITMAP iSrcBitmap;
+
+   // Step 1: Create a memory DC for the source and destination bitmaps
+   //         compatible with the device used.
+   hMemSrc = CreateCompatibleDC(hDC);
+   hMemDest= CreateCompatibleDC(hDC);
+
+  // Step 2: Get the height and width of the source bitmap.
+   GetObject(hSourceBitmap, sizeof(iSrcBitmap), (LPSTR)&iSrcBitmap);
+
+// Get logical coordinates
+   double cosine = (double)cos(radians);
+   double sine = (double)sin(radians);
+
+	// Compute dimensions of the resulting bitmap
+	// First get the coordinates of the 3 corners other than origin
+   int x1 = (int)(-iSrcBitmap.bmHeight * sine);
+   int y1 = (int)(iSrcBitmap.bmHeight * cosine);
+   int x2 = (int)(iSrcBitmap.bmWidth * cosine - iSrcBitmap.bmHeight * sine);
+   int y2 = (int)(iSrcBitmap.bmHeight * cosine + iSrcBitmap.bmWidth * sine);
+   int x3 = (int)(iSrcBitmap.bmWidth * cosine);
+   int y3 = (int)(iSrcBitmap.bmWidth * sine);
+
+   int minx = min(0,min(x1, min(x2,x3)));
+   int miny = min(0,min(y1, min(y2,y3)));
+   int maxx = max(0,max(x1, max(x2,x3)));
+   int maxy = max(0, max(y1, max(y2,y3)));
+
+   int width = maxx - minx;
+   int height = maxy - miny;
+
+   // Step 3: Select the source bitmap into the source DC. Create a
+   //         destination bitmap, and select it into the destination DC.
+   hOldSourceBitmap = SelectObject(hMemSrc, hSourceBitmap);
+   //hDestBitmap = CreateBitmap(height, width, iSrcBitmap.bmPlanes, iSrcBitmap.bmBitsPixel, NULL);
+   hDestBitmap = CreateCompatibleBitmap(hDC, width, height);   
+
+   if (!hDestBitmap)
+     return(hDestBitmap);
+
+   hOldDestBitmap = SelectObject(hMemDest, hDestBitmap);
+
+
+	// Draw the background color before we change mapping mode
+    COLORREF clrBack = RGB(255,255,255); //For transparent background
+	HBRUSH hbrBack = CreateSolidBrush( clrBack );
+	HBRUSH hbrOld = (HBRUSH) SelectObject( hMemDest, hbrBack );
+	PatBlt(hMemDest, 0, 0, width, height, PATCOPY );
+	DeleteObject( SelectObject(hMemDest, hbrOld ) );
+
+
+	// Set mapping mode so that +ve y axis is upwords
+	SetMapMode(hMemSrc, MM_ISOTROPIC);
+	SetWindowExtEx(hMemSrc, 1,1,NULL);
+	SetViewportExtEx(hMemSrc, 1,-1,NULL);
+	SetViewportOrgEx(hMemSrc, 0, iSrcBitmap.bmHeight-1,NULL);
+
+	SetMapMode(hMemDest, MM_ISOTROPIC);
+	SetWindowExtEx(hMemDest, 1,1,NULL);
+	SetViewportExtEx(hMemDest, 1,-1,NULL);
+	SetWindowOrgEx(hMemDest, minx, maxy,NULL);
+
+
+
+   // Step 4: Copy the pixels from the source to the destination.
+   for (int y=miny;y<maxy;y++) {
+	 for(int x=minx;x<maxx;x++) {
+	   int sourcex = (int)(x*cosine+y*sine);
+	   int sourcey = (int)(y*cosine-x*sine);
+	   if(sourcex>=0 && sourcex<iSrcBitmap.bmWidth && sourcey>=0
+	   	   && sourcey<iSrcBitmap.bmHeight )
+	     SetPixel(hMemDest, x, y, GetPixel(hMemSrc,sourcex,sourcey));
+	  }
+	}
+
+   // Step 5: Destroy the DCs.
+   SelectObject(hMemSrc, hOldSourceBitmap);
+   SelectObject(hMemDest, hOldDestBitmap);
+   DeleteDC(hMemDest);
+   DeleteDC(hMemSrc);
+
+   // Step 6: Return the rotated bitmap.
+   return(hDestBitmap);
+}
+
+
