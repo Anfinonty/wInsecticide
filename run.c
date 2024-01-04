@@ -123,7 +123,6 @@
 
 
 
-
 //Background
 void DrawBackground(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(253, 2, 139));
@@ -190,6 +189,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   HDC hdc, hdcBackbuff;
   HBITMAP bitmap;
   PAINTSTRUCT ps;
+  Sleep(4);
   switch(msg) {
     case WM_KEYDOWN:
       switch (wParam) {
@@ -290,10 +290,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
     }
   }
 
-  MSG  msg;
+  MSG msg;
   while (GetMessage(&msg,NULL,0,0)) {
     TranslateMessage(&msg);
     DispatchMessage(&msg);
+//    Sleep(4);
   }
   return (int) msg.wParam;
 }
