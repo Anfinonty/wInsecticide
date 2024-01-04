@@ -3,7 +3,7 @@ int RandNum(int min, int max) {return rand()%(max-min + 1) + min;}
 
 
 
-int machinespeed() {
+/*int machinespeed() {
   struct timeval time_start,time_now;
   int tick,i,j,c=2048,d=5;
   double sum=0,sum2=0;
@@ -18,7 +18,7 @@ int machinespeed() {
     sum=0;
   }
   return (int) sum2/d; //return machine speed
-}
+}*/
 
 
 //----------------------------------------
