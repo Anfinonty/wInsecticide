@@ -279,7 +279,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   //threads
   int i=0;
   int *lpArgPtr;
-  HANDLE hHandles[1];
+  HANDLE hHandles[2];
   DWORD ThreadId;
   for (i=0;i<2;i++) {
     lpArgPtr=(int *)malloc(sizeof(int));
@@ -294,7 +294,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   while (GetMessage(&msg,NULL,0,0)) {
     TranslateMessage(&msg);
     DispatchMessage(&msg);
-//    Sleep(4);
+    Sleep(4);
   }
   return (int) msg.wParam;
 }
