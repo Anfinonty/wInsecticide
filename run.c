@@ -17,7 +17,7 @@
 #include <stdbool.h>
 #include <time.h>
 #include <math.h>
-#include <synchapi.h>
+//#include <synchapi.h>
 
 #define GR_WIDTH    800
 #define GR_HEIGHT   800
@@ -121,7 +121,7 @@
 
 //#include <commctrl.h>assign bitmap variable C win32
 
-
+//int machine_speed;
 
 //Background
 void DrawBackground(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
@@ -136,8 +136,13 @@ void DrawTexts(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
 }
 
 
+
+int machine_speed=999999;
+
+
 //Init
 void Init() {
+//  machine_speed=134217728*2/machinespeed();
   InitGrid();
   InitNodeGrid();
   InitGround();
@@ -157,18 +162,9 @@ void Init() {
 DWORD WINAPI AnimateTask01(LPVOID lpArg) {
   bool b=true;
   while (b) {
-    if (player.y>GR_HEIGHT+8) {//restart if fell out of the world
-      Init();
-    }
-
     PlayerAct();
-    /*for (int j=0;j<player.grav;j++) {
-      for (int i=0;i<GROUND_NUM;i++) { //gravity ground
-        GroundAct(i,j);
-      }
-      PlayerAct();
-    }*/
-    Sleep(4); //Returned from sharoyveduchi's and sledixyz's feedback'
+    usleep(6000); //Returned from sharoyveduchi's and sledixyz's feedback'
+    //for (int t=0;t<machine_speed;t++);
   }
 }
 
@@ -188,8 +184,6 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   HDC hdc, hdcBackbuff;
   HBITMAP bitmap;
-  PAINTSTRUCT ps;
-  Sleep(4);
   switch(msg) {
     case WM_KEYDOWN:
       switch (wParam) {
@@ -209,10 +203,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       }
       break;
     case WM_ERASEBKGND:
-      InvalidateRect(hwnd,NULL,1);
-      return 1;
+      InvalidateRect(hwnd,NULL,true);
+      return true;
       break;
     case WM_PAINT: //https://cplusplus.com/forum/beginner/269434/
+    {
+      PAINTSTRUCT ps;
       hdc=BeginPaint(hwnd, &ps);
       hdcBackbuff=CreateCompatibleDC(hdc);
       bitmap=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
@@ -222,15 +218,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       DrawGrid(hwnd,hdcBackbuff,ps);
       DrawGrounds(hwnd,hdcBackbuff,ps);
       DrawPlayer(hwnd,hdcBackbuff,ps);
-      DrawTexts(hwnd,hdcBackbuff,ps);
+      //DrawTexts(hwnd,hdcBackbuff,ps);
 
       BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0, SRCCOPY);
 //      StretchBlt(hdc, GR_WIDTH/2, -GR_HEIGHT, -GR_WIDTH-1, GR_HEIGHT, hdcBackbuff, 0, 0, GR_WIDTH, GR_HEIGHT, SRCCOPY);
+      SwapBuffers(hdc); //instead of Sleep();
 
       DeleteDC(hdcBackbuff);
       DeleteObject(bitmap);
+
       EndPaint(hwnd, &ps);
-      return 1;
+      return 0;
+    }
       break;
     case WM_DESTROY:
       PostQuitMessage(0);
@@ -291,10 +290,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   }
 
   MSG msg;
-  while (GetMessage(&msg,NULL,0,0)) {
-    TranslateMessage(&msg);
-    DispatchMessage(&msg);
-    Sleep(4);
+  while (true) {
+    if (PeekMessage(&msg,NULL,0,0, PM_REMOVE)) {
+      if (msg.message==WM_QUIT) break;
+      TranslateMessage(&msg);
+      DispatchMessage(&msg);
+    }
   }
   return (int) msg.wParam;
 }
