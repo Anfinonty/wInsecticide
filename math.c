@@ -27,6 +27,24 @@ int machinespeed() {
 }
 
 
+/*int machinespeed() {
+  int tick=0;
+  long long start_time=current_timestamp();
+  long long current_time=LLONG_MAX;
+
+  long long time_diff;
+  while (true) {
+    time_diff=current_time-start_time;
+    if (time_diff<100) {
+      current_time=current_timestamp();
+      tick++;
+    } else {
+      return tick/100;
+    }
+  }
+}*/
+
+
 //----------------------------------------
 double GetGradient(double x1,double y1,double x2,double y2) 
 {

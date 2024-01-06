@@ -10,8 +10,10 @@
 //i686-w64-mingw32-gcc-win32 run.c -o run.exe  -lgdi32 -municode -lwinmm
 //-lopengl32 -lglu32 is not used for now Jan-06-2024 -credit: sothea.dev
 
+//https://learncgames.com/using-small-delays-in-c-with-sdl-ticks/
 
 #include <windows.h>
+//#include <profileapi.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -145,7 +147,7 @@ long long saved_time,current_time;
 
 
 bool _Sleep(int msec) {
-  current_time=current_timestamp();
+  current_time=GetTickCount();
   long long time_diff=current_time-saved_time;
   if (time_diff>=msec) { //if timediff is above 6 millisecs,
     saved_time=current_time; 
@@ -153,19 +155,44 @@ bool _Sleep(int msec) {
   }
   //if timediff is less than 6 millisecs
   //Sleep(1);
+  YieldProcessor();
   return false;
 }
 
 void delay(unsigned int mseconds)
 {
     clock_t goal = mseconds + clock();
-    while (goal > clock());
+    while (goal > clock())
+      YieldProcessor();
 }
+
+
+
 //Init
 void Init() {
 //  machine_speed=134217728*2/machinespeed();
   saved_time=0;
   current_time=LLONG_MAX;
+
+//https://learn.microsoft.com/en-us/windows/win32/sysinfo/acquiring-high-resolution-time-stamps?redirectedfrom=MSDN
+/*
+LARGE_INTEGER StartingTime, EndingTime, ElapsedMicroseconds;
+LARGE_INTEGER Frequency;
+
+QueryPerformanceFrequency(&Frequency); 
+QueryPerformanceCounter(&StartingTime);
+
+// Activity to be timed
+//for (int t=0;t<65536;t++);
+PlayerAct();
+delay(1);
+
+QueryPerformanceCounter(&EndingTime);
+ElapsedMicroseconds.QuadPart = EndingTime.QuadPart - StartingTime.QuadPart;
+
+ElapsedMicroseconds.QuadPart *= 1000000;
+ElapsedMicroseconds.QuadPart /= Frequency.QuadPart;
+printf("EMS: %d\n",ElapsedMicroseconds.QuadPart);*/
 
   InitGrid();
   InitNodeGrid();
@@ -180,20 +207,67 @@ void Init() {
 
 
 
+LARGE_INTEGER m_high_perf_timer_freq;
+LARGE_INTEGER m_prev_end_of_frame;  
 
 
 
 DWORD WINAPI AnimateTask01(LPVOID lpArg) {
   bool b=true;
-  while (b) {
-    if (_Sleep(1)) {
-      PlayerAct();
-    }
-    //delay(6);
-    //usleep(6000); //Returned from sharoyveduchi's and sledixyz's feedback'
-  }
-}
 
+    //printf("%lld\n",GetTickCount());
+    //if (_Sleep(1)) {
+
+  
+  LARGE_INTEGER t;
+  int max_fps = 507;
+  timeBeginPeriod(1);
+
+  while (b) {
+    PlayerAct();
+
+    QueryPerformanceCounter(&t);
+
+    if (m_prev_end_of_frame.QuadPart != 0) //http://www.geisswerks.com/ryan/FAQS/timing.html https://github.com/geissomatik
+    {
+      int ticks_to_wait = (int)m_high_perf_timer_freq.QuadPart / max_fps;
+      int done = 0;
+      do
+      {
+        QueryPerformanceCounter(&t);
+        
+        int ticks_passed = (int)((int)t.QuadPart - (int)m_prev_end_of_frame.QuadPart);
+        int ticks_left = ticks_to_wait - ticks_passed;
+
+        if (t.QuadPart < m_prev_end_of_frame.QuadPart)    // time wrap
+          done = 1;
+        if (ticks_passed >= ticks_to_wait)
+          done = 1;
+       
+        if (!done)
+        {
+            // if > 0.002s left, do Sleep(1), which will actually sleep some 
+            //   steady amount, probably 1-2 ms,
+            //   and do so in a nice way (cpu meter drops; laptop battery spared).
+            // otherwise, do a few Sleep(0)'s, which just give up the timeslice,
+            //   but don't really save cpu or battery, but do pass a tiny
+            //   amount of time.
+          if (ticks_left > m_high_perf_timer_freq.QuadPart*2/1000)
+            Sleep(1);
+          else                        
+            for (int i=0; i<10; i++) 
+              Sleep(0);  // causes thread to give up its timeslice
+        }
+      } while (!done);            
+    }
+    m_prev_end_of_frame = t;
+  }
+  timeEndPeriod(1);
+
+    //delay(1);
+    //usleep(6000); //Returned from sharoyveduchi's and sledixyz's feedback'
+  //}
+}
 
 
 
@@ -250,11 +324,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 //      StretchBlt(hdc, GR_WIDTH/2, -GR_HEIGHT, -GR_WIDTH-1, GR_HEIGHT, hdcBackbuff, 0, 0, GR_WIDTH, GR_HEIGHT, SRCCOPY);
       //PlayerAct(); //vsync is slow
       SwapBuffers(hdc); //instead of Sleep();
-
-      //Sleep(1);
       DeleteDC(hdcBackbuff);
       DeleteObject(bitmap);
-
       EndPaint(hwnd, &ps);
       return 0;
     }
@@ -303,12 +374,15 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   srand(time(NULL));
   Init();
 
+  if (!QueryPerformanceFrequency(&m_high_perf_timer_freq))
+      m_high_perf_timer_freq.QuadPart = 0;
+  m_prev_end_of_frame.QuadPart = 0;
+
   //threads
-  int i=0;
   int *lpArgPtr;
   HANDLE hHandles[2];
   DWORD ThreadId;
-  for (i=0;i<2;i++) {
+  for (int i=0;i<2;i++) {
     lpArgPtr=(int *)malloc(sizeof(int));
     *lpArgPtr=i;
     switch (i) {
@@ -323,7 +397,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
       if (msg.message==WM_QUIT) break;
       TranslateMessage(&msg);
       DispatchMessage(&msg);
-     // PlayerAct();
     }
   }
   return (int) msg.wParam;
