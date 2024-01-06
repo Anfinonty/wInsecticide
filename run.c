@@ -7,7 +7,7 @@
 //Dec-21-2023 Sleep() for while loop, Fixed memleak caused by flipping sprite
 
 //Command
-//i686-w64-mingw32-gcc-win32 run.c -o run.exe -lopengl32 -lglu32 -lgdi32 -municode
+//i686-w64-mingw32-gcc-win32 run.c -o run.exe -lopengl32 -lglu32 -lgdi32 -municode -lwinmm
 
 #include <windows.h>
 #include <stdio.h>
@@ -137,12 +137,34 @@ void DrawTexts(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
 
 
 
-int machine_speed=999999;
+//int machine_speed=999999;
+long long saved_time,current_time;
 
 
+
+bool _Sleep(int msec) {
+  current_time=current_timestamp();
+  long long time_diff=current_time-saved_time;
+  if (time_diff>=msec) { //if timediff is above 6 millisecs,
+    saved_time=current_time; 
+    return true;
+  }
+  //if timediff is less than 6 millisecs
+  //Sleep(1);
+  return false;
+}
+
+void delay(unsigned int mseconds)
+{
+    clock_t goal = mseconds + clock();
+    while (goal > clock());
+}
 //Init
 void Init() {
 //  machine_speed=134217728*2/machinespeed();
+  saved_time=0;
+  current_time=LLONG_MAX;
+
   InitGrid();
   InitNodeGrid();
   InitGround();
@@ -162,9 +184,11 @@ void Init() {
 DWORD WINAPI AnimateTask01(LPVOID lpArg) {
   bool b=true;
   while (b) {
-    PlayerAct();
-    usleep(6000); //Returned from sharoyveduchi's and sledixyz's feedback'
-    //for (int t=0;t<machine_speed;t++);
+    if (_Sleep(6)) {
+      PlayerAct();
+    }
+    //delay(6);
+    //usleep(6000); //Returned from sharoyveduchi's and sledixyz's feedback'
   }
 }
 
@@ -218,12 +242,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       DrawGrid(hwnd,hdcBackbuff,ps);
       DrawGrounds(hwnd,hdcBackbuff,ps);
       DrawPlayer(hwnd,hdcBackbuff,ps);
-      //DrawTexts(hwnd,hdcBackbuff,ps);
+      DrawTexts(hwnd,hdcBackbuff,ps);
 
       BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0, SRCCOPY);
 //      StretchBlt(hdc, GR_WIDTH/2, -GR_HEIGHT, -GR_WIDTH-1, GR_HEIGHT, hdcBackbuff, 0, 0, GR_WIDTH, GR_HEIGHT, SRCCOPY);
+      //PlayerAct(); //vsync is slow
       SwapBuffers(hdc); //instead of Sleep();
 
+      //Sleep(1);
       DeleteDC(hdcBackbuff);
       DeleteObject(bitmap);
 
@@ -284,8 +310,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
     lpArgPtr=(int *)malloc(sizeof(int));
     *lpArgPtr=i;
     switch (i) {
-      case 0: hHandles[i]=CreateThread(NULL,0,AnimateTask01,lpArgPtr,0,&ThreadId);break;
-      case 1: hHandles[i]=CreateThread(NULL,0,SongTask,lpArgPtr,0,&ThreadId);break;
+      case 0: hHandles[i]=CreateThread(NULL,0,SongTask,lpArgPtr,0,&ThreadId);break;
+      case 1: hHandles[i]=CreateThread(NULL,0,AnimateTask01,lpArgPtr,0,&ThreadId);break;
     }
   }
 
@@ -295,6 +321,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
       if (msg.message==WM_QUIT) break;
       TranslateMessage(&msg);
       DispatchMessage(&msg);
+     // PlayerAct();
     }
   }
   return (int) msg.wParam;

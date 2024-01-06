@@ -2,6 +2,12 @@
 int RandNum(int min, int max) {return rand()%(max-min + 1) + min;}
 
 
+long long current_timestamp() {//https://copyprogramming.com/howto/c-sleep-in-milliseconds-in-c-code-example
+  struct timeval te;
+  mingw_gettimeofday(&te, NULL); //get current time
+  long long millisec = te.tv_sec*1000LL + te.tv_usec/1000; //calc millisecs
+  return millisec;
+}
 
 int machinespeed() {
   struct timeval time_start,time_now;
