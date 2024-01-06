@@ -239,6 +239,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   HDC hdc, hdcBackbuff;
   HBITMAP bitmap;
+  Sleep(6);
   switch(msg) {
     case WM_KEYDOWN:
       switch (wParam) {
@@ -281,7 +282,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       DeleteDC(hdcBackbuff);
       DeleteObject(bitmap);
       EndPaint(hwnd, &ps);
-      Sleep(1);
       return 0;
     }
       break;
@@ -343,12 +343,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   }
 
   MSG msg;
-  while (true) {
-    if (PeekMessage(&msg,NULL,0,0, PM_REMOVE)) {
-      if (msg.message==WM_QUIT) break;
-      TranslateMessage(&msg);
-      DispatchMessage(&msg);
-    }
+  while (GetMessage(&msg,NULL,0,0)) {
+    TranslateMessage(&msg);
+    DispatchMessage(&msg);
   }
   return (int) msg.wParam;
 }
