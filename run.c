@@ -173,7 +173,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
   bool b=true;
   
   LARGE_INTEGER t;
-  int max_fps = 507;
+  int max_fps = 60;
   timeBeginPeriod(1);
 
   while (b) {
@@ -281,6 +281,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       DeleteDC(hdcBackbuff);
       DeleteObject(bitmap);
       EndPaint(hwnd, &ps);
+      Sleep(1);
       return 0;
     }
       break;
