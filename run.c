@@ -5,12 +5,12 @@
 //Dec-10-2023 Added Sprite Flipping
 //Dec-14-2023 Added Sprite Win32 Compatibility && fixed sluggishness for win32
 //Dec-21-2023 Sleep() for while loop, Fixed memleak caused by flipping sprite
+//Jan-06-2023 Added FPS Sleep. Code Credit: geissomatik
 
 //Command
 //i686-w64-mingw32-gcc-win32 run.c -o run.exe  -lgdi32 -municode -lwinmm
 //-lopengl32 -lglu32 is not used for now Jan-06-2024 -credit: sothea.dev
 
-//https://learncgames.com/using-small-delays-in-c-with-sdl-ticks/
 
 #include <windows.h>
 //#include <profileapi.h>
@@ -142,57 +142,12 @@ void DrawTexts(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
 
 
 //int machine_speed=999999;
-long long saved_time,current_time;
 
-
-
-bool _Sleep(int msec) {
-  current_time=GetTickCount();
-  long long time_diff=current_time-saved_time;
-  if (time_diff>=msec) { //if timediff is above 6 millisecs,
-    saved_time=current_time; 
-    return true;
-  }
-  //if timediff is less than 6 millisecs
-  //Sleep(1);
-  YieldProcessor();
-  return false;
-}
-
-void delay(unsigned int mseconds)
-{
-    clock_t goal = mseconds + clock();
-    while (goal > clock())
-      YieldProcessor();
-}
-
-
-
+LARGE_INTEGER m_high_perf_timer_freq;
+LARGE_INTEGER m_prev_end_of_frame;  
 //Init
 void Init() {
 //  machine_speed=134217728*2/machinespeed();
-  saved_time=0;
-  current_time=LLONG_MAX;
-
-//https://learn.microsoft.com/en-us/windows/win32/sysinfo/acquiring-high-resolution-time-stamps?redirectedfrom=MSDN
-/*
-LARGE_INTEGER StartingTime, EndingTime, ElapsedMicroseconds;
-LARGE_INTEGER Frequency;
-
-QueryPerformanceFrequency(&Frequency); 
-QueryPerformanceCounter(&StartingTime);
-
-// Activity to be timed
-//for (int t=0;t<65536;t++);
-PlayerAct();
-delay(1);
-
-QueryPerformanceCounter(&EndingTime);
-ElapsedMicroseconds.QuadPart = EndingTime.QuadPart - StartingTime.QuadPart;
-
-ElapsedMicroseconds.QuadPart *= 1000000;
-ElapsedMicroseconds.QuadPart /= Frequency.QuadPart;
-printf("EMS: %d\n",ElapsedMicroseconds.QuadPart);*/
 
   InitGrid();
   InitNodeGrid();
@@ -202,22 +157,20 @@ printf("EMS: %d\n",ElapsedMicroseconds.QuadPart);*/
   InitNodeGridAttributes();
   //BackgroundInit;
   InitPlayer();
+
   //GroundInit2;
+
+  if (!QueryPerformanceFrequency(&m_high_perf_timer_freq))
+      m_high_perf_timer_freq.QuadPart = 0;
+  m_prev_end_of_frame.QuadPart = 0;
+
 }
 
-
-
-LARGE_INTEGER m_high_perf_timer_freq;
-LARGE_INTEGER m_prev_end_of_frame;  
 
 
 
 DWORD WINAPI AnimateTask01(LPVOID lpArg) {
   bool b=true;
-
-    //printf("%lld\n",GetTickCount());
-    //if (_Sleep(1)) {
-
   
   LARGE_INTEGER t;
   int max_fps = 507;
@@ -263,17 +216,19 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
     m_prev_end_of_frame = t;
   }
   timeEndPeriod(1);
-
-    //delay(1);
-    //usleep(6000); //Returned from sharoyveduchi's and sledixyz's feedback'
-  //}
 }
 
 
 
 DWORD WINAPI SongTask(LPVOID lpArg) {
   //PlaySoundA("Linkin_Park_08-In_The_End.wav", NULL, SND_FILENAME);
-  PlaySoundA("music/bfmv.wav",NULL,SND_FILENAME);
+  srand(time(NULL));
+  char songname[11];
+  int rand_song=RandNum(0,9);
+  //printf("%d\n",rand_song);
+  sprintf(songname,"music/%d.wav",rand_song);
+  //printf("%s\n",songname);
+  PlaySoundA(songname,NULL,SND_FILENAME);
 }
 
 
@@ -322,7 +277,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0, SRCCOPY);
 //      StretchBlt(hdc, GR_WIDTH/2, -GR_HEIGHT, -GR_WIDTH-1, GR_HEIGHT, hdcBackbuff, 0, 0, GR_WIDTH, GR_HEIGHT, SRCCOPY);
-      //PlayerAct(); //vsync is slow
       SwapBuffers(hdc); //instead of Sleep();
       DeleteDC(hdcBackbuff);
       DeleteObject(bitmap);
@@ -373,10 +327,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   //Init
   srand(time(NULL));
   Init();
-
-  if (!QueryPerformanceFrequency(&m_high_perf_timer_freq))
-      m_high_perf_timer_freq.QuadPart = 0;
-  m_prev_end_of_frame.QuadPart = 0;
 
   //threads
   int *lpArgPtr;

@@ -530,3 +530,50 @@ HBITMAP Rotate(HDC hDC, HBITMAP hSourceBitmap, double radians) {
 }
 
 
+
+
+
+
+bool _Sleep(int msec) {
+  current_time=GetTickCount();
+  long long time_diff=current_time-saved_time;
+  if (time_diff>=msec) { //if timediff is above 6 millisecs,
+    saved_time=current_time; 
+    return true;
+  }
+  //if timediff is less than 6 millisecs
+  //Sleep(1);
+  YieldProcessor();
+  return false;
+}
+
+void delay(unsigned int mseconds)
+{
+    clock_t goal = mseconds + clock();
+    while (goal > clock())
+      YieldProcessor();
+}
+
+
+//https://learn.microsoft.com/en-us/windows/win32/sysinfo/acquiring-high-resolution-time-stamps?redirectedfrom=MSDN
+/*
+LARGE_INTEGER StartingTime, EndingTime, ElapsedMicroseconds;
+LARGE_INTEGER Frequency;
+
+QueryPerformanceFrequency(&Frequency); 
+QueryPerformanceCounter(&StartingTime);
+
+// Activity to be timed
+//for (int t=0;t<65536;t++);
+PlayerAct();
+delay(1);
+
+QueryPerformanceCounter(&EndingTime);
+ElapsedMicroseconds.QuadPart = EndingTime.QuadPart - StartingTime.QuadPart;
+
+ElapsedMicroseconds.QuadPart *= 1000000;
+ElapsedMicroseconds.QuadPart /= Frequency.QuadPart;
+printf("EMS: %d\n",ElapsedMicroseconds.QuadPart);*/
+
+//https://learncgames.com/using-small-delays-in-c-with-sdl-ticks/
+
