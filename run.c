@@ -7,7 +7,9 @@
 //Dec-21-2023 Sleep() for while loop, Fixed memleak caused by flipping sprite
 
 //Command
-//i686-w64-mingw32-gcc-win32 run.c -o run.exe -lopengl32 -lglu32 -lgdi32 -municode -lwinmm
+//i686-w64-mingw32-gcc-win32 run.c -o run.exe  -lgdi32 -municode -lwinmm
+//-lopengl32 -lglu32 is not used for now Jan-06-2024 -credit: sothea.dev
+
 
 #include <windows.h>
 #include <stdio.h>
@@ -184,7 +186,7 @@ void Init() {
 DWORD WINAPI AnimateTask01(LPVOID lpArg) {
   bool b=true;
   while (b) {
-    if (_Sleep(6)) {
+    if (_Sleep(1)) {
       PlayerAct();
     }
     //delay(6);
