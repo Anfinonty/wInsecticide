@@ -153,7 +153,7 @@ void InitFPS() { //https://cboard.cprogramming.com/windows-programming/30730-fin
   DEVMODE screen; 
   memset(&screen, 0, sizeof(DEVMODE));
   while(EnumDisplaySettings(NULL, index++, &screen)){
-    printf("The current refresh rate is %i\n", screen.dmDisplayFrequency);
+    //printf("The current refresh rate is %i\n", screen.dmDisplayFrequency); //debug
     currentfps=(int)screen.dmDisplayFrequency;
     //MessageBox(NULL, message, "Refresh Rate:", MB_OK);
     memset(&screen, 0, sizeof(DEVMODE));
@@ -219,7 +219,7 @@ void FrameRateSleep(int max_fps)
         }
       } while (!done);            
     }
-  m_prev_end_of_frame = t;
+    m_prev_end_of_frame = t;
 }
 
 
@@ -236,10 +236,14 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
 
 DWORD WINAPI SongTask(LPVOID lpArg) {
   srand(time(NULL));
-  char songname[11];
-  int rand_song=RandNum(0,9);
+  char songname[14];
+  int rand_song1=RandNum(0,9);
+  int rand_song2=RandNum(0,9);
   //printf("%d\n",rand_song); //debug
-  sprintf(songname,"music/%d.wav",rand_song);
+  if (rand_song1<10)
+    sprintf(songname,"music/0%d/%d.wav",rand_song1,rand_song2);
+  else
+    sprintf(songname,"music/%d/%d.wav",rand_song1,rand_song2);
   //printf("%s\n",songname); //debug
   PlaySoundA(songname,NULL,SND_FILENAME);
 }
