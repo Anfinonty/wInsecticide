@@ -13,7 +13,6 @@
 
 
 #include <windows.h>
-//#include <profileapi.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -21,7 +20,7 @@
 #include <stdbool.h>
 #include <time.h>
 #include <math.h>
-//#include <synchapi.h>
+#include <synchapi.h>
 
 #define GR_WIDTH    800
 #define GR_HEIGHT   800
@@ -162,22 +161,14 @@ void Init() {
 
 }
 
-
-
-
-DWORD WINAPI AnimateTask01(LPVOID lpArg) {
-  bool b=true;
-  
-  LARGE_INTEGER t;
-  int max_fps = 60;
-  timeBeginPeriod(1);
-
-  while (b) {
-    PlayerAct();
+void FrameRateSleep(int max_fps)
+{//http://www.geisswerks.com/ryan/FAQS/timing.html https://github.com/geissomatik
+    LARGE_INTEGER t;
     QueryPerformanceCounter(&t);
 
-    if (m_prev_end_of_frame.QuadPart != 0) //http://www.geisswerks.com/ryan/FAQS/timing.html https://github.com/geissomatik
+    if (m_prev_end_of_frame.QuadPart != 0) 
     {
+
       int ticks_to_wait = (int) (m_high_perf_timer_freq.QuadPart / max_fps);
       bool done = false;
       do
@@ -208,21 +199,27 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
         }
       } while (!done);            
     }
-    m_prev_end_of_frame = t;
+  m_prev_end_of_frame = t;
+}
+
+
+DWORD WINAPI AnimateTask01(LPVOID lpArg) {
+  bool b=true;
+  while (b) {
+    PlayerAct();
+    Sleep(6);
   }
-  timeEndPeriod(1);
 }
 
 
 
 DWORD WINAPI SongTask(LPVOID lpArg) {
-  //PlaySoundA("Linkin_Park_08-In_The_End.wav", NULL, SND_FILENAME);
   srand(time(NULL));
   char songname[11];
   int rand_song=RandNum(0,9);
-  //printf("%d\n",rand_song);
+  //printf("%d\n",rand_song); //debug
   sprintf(songname,"music/%d.wav",rand_song);
-  //printf("%s\n",songname);
+  //printf("%s\n",songname); //debug
   PlaySoundA(songname,NULL,SND_FILENAME);
 }
 
@@ -234,7 +231,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   HDC hdc, hdcBackbuff;
   HBITMAP bitmap;
-  //Sleep(6);
+  FrameRateSleep(60); //60 fps Credit: ayevdood/sharoyveduchi - move it here
   switch(msg) {
     case WM_KEYDOWN:
       switch (wParam) {
@@ -273,8 +270,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0, SRCCOPY);
 //      StretchBlt(hdc, GR_WIDTH/2, -GR_HEIGHT, -GR_WIDTH-1, GR_HEIGHT, hdcBackbuff, 0, 0, GR_WIDTH, GR_HEIGHT, SRCCOPY);
-      SwapBuffers(hdc); //instead of Sleep();
-      //Sleep(6); //instead of swap buffers
       DeleteDC(hdcBackbuff);
       DeleteObject(bitmap);
       EndPaint(hwnd, &ps);
@@ -299,6 +294,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nCmdShow) {
   //Window Class
+  timeBeginPeriod(1);
+
   WNDCLASSW wc = {0};
   wc.style = 0;//CS_HREDRAW | CS_VREDRAW;
   wc.lpszClassName = L"DrawIt";
@@ -349,5 +346,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
     TranslateMessage(&msg);
     DispatchMessage(&msg);
   }
+
+  timeEndPeriod(1);
   return (int) msg.wParam;
 }
