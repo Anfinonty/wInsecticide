@@ -140,18 +140,34 @@ void DrawTexts(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
 
 LARGE_INTEGER m_high_perf_timer_freq;
 LARGE_INTEGER m_prev_end_of_frame;  
-
+void InitTickFrequency() {
+  if (!QueryPerformanceFrequency(&m_high_perf_timer_freq))
+      m_high_perf_timer_freq.QuadPart = 0;
+  m_prev_end_of_frame.QuadPart = 0;
+}
 //Init
-void Init() {
-  /*int index = 0;
+
+int FPS = 60;
+void InitFPS() { //https://cboard.cprogramming.com/windows-programming/30730-finding-monitor-refresh-rate.html
+  int index=0, currentfps=0;
   DEVMODE screen; 
   memset(&screen, 0, sizeof(DEVMODE));
   while(EnumDisplaySettings(NULL, index++, &screen)){
     printf("The current refresh rate is %i\n", screen.dmDisplayFrequency);
+    currentfps=(int)screen.dmDisplayFrequency;
     //MessageBox(NULL, message, "Refresh Rate:", MB_OK);
     memset(&screen, 0, sizeof(DEVMODE));
-  }*/
+    if (currentfps>FPS) FPS=currentfps;
+  }
+}
 
+
+void InitOnce() {
+  InitTickFrequency();
+  InitFPS();
+}
+
+void Init() {
   InitGrid();
   InitNodeGrid();
   InitGround();
@@ -236,7 +252,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   HDC hdc, hdcBackbuff;
   HBITMAP bitmap;
-  FrameRateSleep(60); //60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
+  FrameRateSleep(FPS); //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
   switch(msg) {
     case WM_KEYDOWN:
       switch (wParam) {
@@ -326,11 +342,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   //Init
   srand(time(NULL));
 
-  //cannot be repeatedly run
-  if (!QueryPerformanceFrequency(&m_high_perf_timer_freq))
-      m_high_perf_timer_freq.QuadPart = 0;
-  m_prev_end_of_frame.QuadPart = 0;
-
+  InitOnce();//cannot be repeatedly run
   Init();
 
   //threads
