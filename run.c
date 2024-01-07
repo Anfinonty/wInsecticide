@@ -122,9 +122,6 @@
 #include "player.c"
 #include "grid.c"
 
-//#include <commctrl.h>assign bitmap variable C win32
-
-//int machine_speed;
 
 //Background
 void DrawBackground(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
@@ -134,19 +131,26 @@ void DrawBackground(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
 }
 
 
+
 void DrawTexts(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
   //GrPrint(hwnd,hdc,ps,0,0,L"Hello Game!");
 }
 
 
 
-//int machine_speed=999999;
-
 LARGE_INTEGER m_high_perf_timer_freq;
 LARGE_INTEGER m_prev_end_of_frame;  
+
 //Init
 void Init() {
-//  machine_speed=134217728*2/machinespeed();
+  /*int index = 0;
+  DEVMODE screen; 
+  memset(&screen, 0, sizeof(DEVMODE));
+  while(EnumDisplaySettings(NULL, index++, &screen)){
+    printf("The current refresh rate is %i\n", screen.dmDisplayFrequency);
+    //MessageBox(NULL, message, "Refresh Rate:", MB_OK);
+    memset(&screen, 0, sizeof(DEVMODE));
+  }*/
 
   InitGrid();
   InitNodeGrid();
@@ -156,10 +160,10 @@ void Init() {
   InitNodeGridAttributes();
   //BackgroundInit;
   InitPlayer();
-
   //GroundInit2;
-
 }
+
+
 
 void FrameRateSleep(int max_fps)
 {//http://www.geisswerks.com/ryan/FAQS/timing.html https://github.com/geissomatik
@@ -203,6 +207,7 @@ void FrameRateSleep(int max_fps)
 }
 
 
+
 DWORD WINAPI AnimateTask01(LPVOID lpArg) {
   bool b=true;
   while (b) {
@@ -231,7 +236,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   HDC hdc, hdcBackbuff;
   HBITMAP bitmap;
-  FrameRateSleep(60); //60 fps Credit: ayevdood/sharoyveduchi - move it here
+  FrameRateSleep(60); //60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
   switch(msg) {
     case WM_KEYDOWN:
       switch (wParam) {
