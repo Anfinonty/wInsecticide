@@ -131,13 +131,13 @@ void GrSprite(HWND hwnd, HDC hDC, PAINTSTRUCT ps,  double _x1, double _y1, doubl
 }
 
 
-void GrPrint(HWND hwnd, HDC hdc, PAINTSTRUCT ps, double x1, double y1, LPCWSTR txt) {
+void GrPrint(HWND hwnd, HDC hdc, PAINTSTRUCT ps, double x1, double y1, LPCSTR txt) {
  // DWORD color;
  // HFONT hFont, holdFont;
  // color=GetSysColor(COLOR_BTNFACE);
 //  SetBkColor(hdc,TRANSPARENT);
 //  hFont=CreateFontW(15,0,0,0,FW_MEDIUM,0,0,0,0,0,0,0,0,L"Calbri");
 //  holdFont=SelectObject(hdc,hFont);
-  TextOutW(hdc, x1, y1, txt, lstrlenW(txt));
+  TextOutA(hdc, x1, y1, txt, strlen(txt));
 }
 

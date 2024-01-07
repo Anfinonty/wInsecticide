@@ -22,6 +22,8 @@
 #include <math.h>
 #include <synchapi.h>
 
+#define SONG_NUM 10
+
 #define GR_WIDTH    800
 #define GR_HEIGHT   800
 
@@ -132,10 +134,20 @@ void DrawBackground(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
 
 
 
-void DrawTexts(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
-  //GrPrint(hwnd,hdc,ps,0,0,L"Hello Game!");
-}
 
+/*long long current_timestamp() {//https://copyprogramming.com/howto/c-sleep-in-milliseconds-in-c-code-example
+  struct timeval te;
+  mingw_gettimeofday(&te, NULL); //get current time
+  long long millisec = te.tv_sec*1000LL + te.tv_usec/1000; //calc millisecs
+  return millisec;
+}*/
+
+
+int int_current_timestamp() {
+  struct timeval te;
+  mingw_gettimeofday(&te, NULL);
+  return te.tv_sec;
+}
 
 
 LARGE_INTEGER m_high_perf_timer_freq;
@@ -224,31 +236,122 @@ void FrameRateSleep(int max_fps)
 
 
 
+int song_duration0[SONG_NUM]={
+180 + 43,//0 Dirty Harry - Gorillaz 
+180 + 43,//1 Feel Good Inc - Gorillaz 
+120 + 41,//2 November Has Come (Ft. MF DOOM) - Gorillaz 
+300 + 12,//3 Blood Sugar - Pendulum 
+240 + 45,//4 Self vs. Self - Pendulum 
+240 + 29,//5 Demon Days - Gorillaz 
+300 + 39,//6 Clint Eastwood - Gorillaz 
+180 + 34,//7 Ink - Finch 
+180 + 17,//8 Wake The Dead - Comeback Kid 
+60 + 39//9 Track99 - Marilyn Manson 
+};
+
+char *song_name0[SONG_NUM]={
+"Dirty Harry - Gorillaz",
+"Feel Good Inc - Gorillaz",
+"November Has Come (Ft. MF DOOM) - Gorillaz", 
+"Blood Sugar - Pendulum",
+"Self vs. Self - Pendulum", 
+"Demon Days - Gorillaz",
+"Clint Eastwood - Gorillaz",
+"Ink - Finch",
+"Wake The Dead - Comeback Kid",
+"Track99 - Marilyn Manson"
+};
+
+char *album_name0[SONG_NUM]={
+"Demon Days",
+"Demon Days",
+"Demon Days",
+"Hold Your Colour",
+"Immersion",
+"Demon Days",
+"Gorillaz",
+"Say Hello to Sunshine",
+"Wake The Dead",
+"Antichrist Superstar"
+};
+
+
+int *song_durations[1]={
+  song_duration0
+};
+
+char **song_names[1]={
+  song_name0
+};
+
+char **album_names[1]={
+  album_name0
+};
+
+
+int song_time_end=0;
+int time_now=0;
+bool play_new_song=false;
+
+
 DWORD WINAPI AnimateTask01(LPVOID lpArg) {
   bool b=true;
   while (b) {
     PlayerAct();
+
+    time_now=int_current_timestamp();//get time in seconds
+    //printf("diff:%d\n",song_time_end-time_now);
+    if (time_now>song_time_end && !play_new_song) {
+      PlaySound(NULL, NULL, SND_ASYNC); //stop song
+      play_new_song=true;
+    }
+    Sleep(6);
+  }
+}
+
+int rand_song1,rand_song2;
+DWORD WINAPI SongTask(LPVOID lpArg) {
+  srand(time(NULL));
+  char songname[14];
+  while (true) {
+    if (play_new_song) { //play a song
+      rand_song1=0;
+      //rand_song1=RandNum(0,9)
+      rand_song2=RandNum(0,9);
+      time_now=int_current_timestamp();//get time in seconds
+      song_time_end=time_now+song_durations[rand_song1][rand_song2]+2;
+
+      //printf("%d\n",rand_song2); //debug
+      //printf("%s",song_name0[rand_song2]);
+      if (rand_song1<10)
+        sprintf(songname,"music/0%d/%d.wav",rand_song1,rand_song2);
+      else
+        sprintf(songname,"music/%d/%d.wav",rand_song1,rand_song2);
+      //printf("%s\n",songname); //debug
+      //printf("%d",rand_song2);
+      //printf("%d",time_end);
+      play_new_song=false;
+      PlaySoundA(songname,NULL,SND_FILENAME); //at here song plays but other steps hang
+    }
     Sleep(6);
   }
 }
 
 
 
-DWORD WINAPI SongTask(LPVOID lpArg) {
-  srand(time(NULL));
-  char songname[14];
-  int rand_song1=RandNum(0,9);
-  int rand_song2=RandNum(0,9);
-  //printf("%d\n",rand_song); //debug
-  if (rand_song1<10)
-    sprintf(songname,"music/0%d/%d.wav",rand_song1,rand_song2);
-  else
-    sprintf(songname,"music/%d/%d.wav",rand_song1,rand_song2);
-  //printf("%s\n",songname); //debug
-  PlaySoundA(songname,NULL,SND_FILENAME);
+void DrawTexts(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
+  char txt[64];
+  char *song_name=song_names[rand_song1][rand_song2];
+  sprintf(txt,"%s, %d",song_name,song_time_end-time_now);
+  LPCSTR _txt = txt;
+  GrPrint(hwnd,hdc,ps,0,0,_txt);
+
+  char txt2[64];
+  char *album_name=album_names[rand_song1][rand_song2];
+  sprintf(txt2,"%s",album_name);
+  LPCSTR _txt2 = txt2;
+  GrPrint(hwnd,hdc,ps,0,16,_txt2);
 }
-
-
 
 
 
@@ -273,6 +376,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         case 'D':case VK_RIGHT:if(player.rst_right)player.rst_right=false;break;
         case 'A':case VK_LEFT:if(player.rst_left)player.rst_left=false;break;
         case 'W':case VK_UP:if(player.rst_up)player.rst_up=false;break;
+        case 'M':song_time_end=0;play_new_song=false;break;//end current song
       }
       break;
     case WM_ERASEBKGND:
