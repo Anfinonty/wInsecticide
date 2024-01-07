@@ -160,10 +160,6 @@ void Init() {
 
   //GroundInit2;
 
-  if (!QueryPerformanceFrequency(&m_high_perf_timer_freq))
-      m_high_perf_timer_freq.QuadPart = 0;
-  m_prev_end_of_frame.QuadPart = 0;
-
 }
 
 
@@ -178,24 +174,23 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
 
   while (b) {
     PlayerAct();
-
     QueryPerformanceCounter(&t);
 
     if (m_prev_end_of_frame.QuadPart != 0) //http://www.geisswerks.com/ryan/FAQS/timing.html https://github.com/geissomatik
     {
-      int ticks_to_wait = (int)m_high_perf_timer_freq.QuadPart / max_fps;
-      int done = 0;
+      int ticks_to_wait = (int) (m_high_perf_timer_freq.QuadPart / max_fps);
+      bool done = false;
       do
       {
         QueryPerformanceCounter(&t);
         
-        int ticks_passed = (int)((int)t.QuadPart - (int)m_prev_end_of_frame.QuadPart);
+        int ticks_passed = (int)(t.QuadPart - m_prev_end_of_frame.QuadPart);
         int ticks_left = ticks_to_wait - ticks_passed;
 
         if (t.QuadPart < m_prev_end_of_frame.QuadPart)    // time wrap
-          done = 1;
+          done = true;
         if (ticks_passed >= ticks_to_wait)
-          done = 1;
+          done = true;
        
         if (!done)
         {
@@ -205,7 +200,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
             // otherwise, do a few Sleep(0)'s, which just give up the timeslice,
             //   but don't really save cpu or battery, but do pass a tiny
             //   amount of time.
-          if (ticks_left > m_high_perf_timer_freq.QuadPart*2/1000)
+          if (ticks_left > (int) (m_high_perf_timer_freq.QuadPart*2/1000))
             Sleep(1);
           else                        
             for (int i=0; i<10; i++) 
@@ -239,7 +234,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   HDC hdc, hdcBackbuff;
   HBITMAP bitmap;
-  Sleep(6);
+  //Sleep(6);
   switch(msg) {
     case WM_KEYDOWN:
       switch (wParam) {
@@ -279,6 +274,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0, SRCCOPY);
 //      StretchBlt(hdc, GR_WIDTH/2, -GR_HEIGHT, -GR_WIDTH-1, GR_HEIGHT, hdcBackbuff, 0, 0, GR_WIDTH, GR_HEIGHT, SRCCOPY);
       SwapBuffers(hdc); //instead of Sleep();
+      //Sleep(6); //instead of swap buffers
       DeleteDC(hdcBackbuff);
       DeleteObject(bitmap);
       EndPaint(hwnd, &ps);
@@ -327,6 +323,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 
   //Init
   srand(time(NULL));
+
+  //cannot be repeatedly run
+  if (!QueryPerformanceFrequency(&m_high_perf_timer_freq))
+      m_high_perf_timer_freq.QuadPart = 0;
+  m_prev_end_of_frame.QuadPart = 0;
+
   Init();
 
   //threads
