@@ -307,7 +307,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       DrawGrid(hwnd,hdcBackbuff,ps);
       DrawGrounds(hwnd,hdcBackbuff,ps);
       DrawPlayer(hwnd,hdcBackbuff,ps);
-      DrawTexts(hwnd,hdcBackbuff,ps);
+      //DrawTexts(hwnd,hdcBackbuff,ps);
 
       BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0, SRCCOPY);
 //      StretchBlt(hdc, GR_WIDTH/2, -GR_HEIGHT, -GR_WIDTH-1, GR_HEIGHT, hdcBackbuff, 0, 0, GR_WIDTH, GR_HEIGHT, SRCCOPY);
