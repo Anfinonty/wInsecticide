@@ -9,8 +9,6 @@ long long current_timestamp() {//https://copyprogramming.com/howto/c-sleep-in-mi
   return millisec;
 }
 
-
-
 int int_current_timestamp() {
   struct timeval te;
   mingw_gettimeofday(&te, NULL);

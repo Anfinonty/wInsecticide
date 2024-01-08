@@ -134,16 +134,6 @@ void DrawBackground(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
 }
 
 
-
-
-/*long long current_timestamp() {//https://copyprogramming.com/howto/c-sleep-in-milliseconds-in-c-code-example
-  struct timeval te;
-  mingw_gettimeofday(&te, NULL); //get current time
-  long long millisec = te.tv_sec*1000LL + te.tv_usec/1000; //calc millisecs
-  return millisec;
-}*/
-
-
 LARGE_INTEGER m_high_perf_timer_freq;
 LARGE_INTEGER m_prev_end_of_frame;  
 void InitTickFrequency() {
@@ -234,13 +224,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
   bool b=true;
   while (b) {
     PlayerAct();
-
-    time_now=int_current_timestamp();//get time in seconds
-    //printf("diff:%d\n",song_time_end-time_now);
-    if (time_now>song_time_end && !play_new_song) {
-      PlaySound(NULL, NULL, SND_ASYNC); //stop song
-      play_new_song=true;
-    }
+    SongAct();
     Sleep(6);
   }
 }
@@ -307,7 +291,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       DrawGrid(hwnd,hdcBackbuff,ps);
       DrawGrounds(hwnd,hdcBackbuff,ps);
       DrawPlayer(hwnd,hdcBackbuff,ps);
-      //DrawTexts(hwnd,hdcBackbuff,ps);
+      DrawTexts(hwnd,hdcBackbuff,ps);
 
       BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0, SRCCOPY);
 //      StretchBlt(hdc, GR_WIDTH/2, -GR_HEIGHT, -GR_WIDTH-1, GR_HEIGHT, hdcBackbuff, 0, 0, GR_WIDTH, GR_HEIGHT, SRCCOPY);
@@ -367,14 +351,14 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 
   //threads
   int *lpArgPtr;
-  HANDLE hHandles[2];
+  HANDLE hHandles[1];
   DWORD ThreadId;
-  for (int i=0;i<2;i++) {
+  for (int i=0;i<1;i++) {
     lpArgPtr=(int *)malloc(sizeof(int));
     *lpArgPtr=i;
     switch (i) {
-      case 0: hHandles[i]=CreateThread(NULL,0,SongTask,lpArgPtr,0,&ThreadId);break;
-      case 1: hHandles[i]=CreateThread(NULL,0,AnimateTask01,lpArgPtr,0,&ThreadId);break;
+//      case 0: hHandles[i]=CreateThread(NULL,0,SongTask,lpArgPtr,0,&ThreadId);break;
+      case 0: hHandles[i]=CreateThread(NULL,0,AnimateTask01,lpArgPtr,0,&ThreadId);break;
     }
   }
 

@@ -631,10 +631,11 @@ bool play_new_song=false;
 
 
 int rand_song1,rand_song2;
-DWORD WINAPI SongTask(LPVOID lpArg) {
+//DWORD WINAPI SongTask(LPVOID lpArg) {
+void SongAct() {
   srand(time(NULL));
   char songname[14];
-  while (true) {
+//  while (true) {
     if (play_new_song) { //play a song
       rand_song1=RandNum(0,SONG_FOLDER_NUM-1);
       rand_song2=RandNum(0,SONG_NUM-1);
@@ -651,9 +652,16 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
       //printf("%d",rand_song2);
       //printf("%d",time_end);
       play_new_song=false;
-      PlaySoundA(songname,NULL,SND_FILENAME); //at here song plays but other steps hang
+      PlaySoundA(songname,NULL,SND_FILENAME | SND_ASYNC); //at here song plays but other steps hang
     }
-    Sleep(6);
-  }
+
+    time_now=int_current_timestamp();//get time in seconds
+    //printf("diff:%d\n",song_time_end-time_now);
+    if (time_now>song_time_end && !play_new_song) {
+      PlaySound(NULL, NULL, SND_ASYNC); //stop song
+      play_new_song=true;
+    }
+//    Sleep(6);
+//  }
 }
 
