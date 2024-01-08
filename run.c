@@ -131,6 +131,7 @@ void DrawBackground(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(253, 2, 139));
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(173, 216, 230));
   GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(8,39,245));
+//  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255))); //RAVE
 }
 
 
@@ -240,13 +241,16 @@ void DrawTexts(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
     sprintf(txt,"%s [%d:0%d]",song_name,(song_time_end-time_now)/60,sec);
 
   LPCSTR _txt = txt;
-  GrPrint(hwnd,hdc,ps,0,0,_txt);
+  GrPrint(hwnd,hdc,ps,0,0,_txt,RGB(255,255,255));
+
+//  GrPrint(hwnd,hdc,ps,0,0,_txt,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
 
   char txt2[64];
   char *album_name=album_names[rand_song1][rand_song2];
   sprintf(txt2,"%s",album_name);
   LPCSTR _txt2 = txt2;
-  GrPrint(hwnd,hdc,ps,0,16,_txt2);
+  GrPrint(hwnd,hdc,ps,0,16,_txt2,RGB(255,255,255));
+  //GrPrint(hwnd,hdc,ps,0,16,_txt2,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
 }
 
 

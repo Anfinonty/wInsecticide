@@ -263,6 +263,7 @@ void GroundAct(int pid,int g) {
 void DrawGrounds(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
   for (int i=0;i<GROUND_NUM;i++) {
     GrLine(hwnd,hdc,ps,Ground[i].x1,Ground[i].y1,Ground[i].x2,Ground[i].y2,RGB(255,255,255));
+    //GrLine(hwnd,hdc,ps,Ground[i].x1,Ground[i].y1,Ground[i].x2,Ground[i].y2,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
   }
 }
 

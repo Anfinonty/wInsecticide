@@ -131,13 +131,16 @@ void GrSprite(HWND hwnd, HDC hDC, PAINTSTRUCT ps,  double _x1, double _y1, doubl
 }
 
 
-void GrPrint(HWND hwnd, HDC hdc, PAINTSTRUCT ps, double x1, double y1, LPCSTR txt) {
- // DWORD color;
- // HFONT hFont, holdFont;
- // color=GetSysColor(COLOR_BTNFACE);
-//  SetBkColor(hdc,TRANSPARENT);
-//  hFont=CreateFontW(15,0,0,0,FW_MEDIUM,0,0,0,0,0,0,0,0,L"Calbri");
-//  holdFont=SelectObject(hdc,hFont);
+void GrPrint(HWND hwnd, HDC hdc, PAINTSTRUCT ps, double x1, double y1, LPCSTR txt, int color) {
+  //DWORD color;
+  //HFONT hFont, holdFont;
+  //color=GetSysColor(COLOR_BTNFACE);
+  //SetBkColor(hdc,color);
+  //hFont=CreateFontW(15,0,0,0,FW_MEDIUM,0,0,0,0,0,0,0,0,L"Times New Roman");
+  //holdFont=SelectObject(hdc,hFont);
+
+  SetTextColor(hdc, color);
+  SetBkMode(hdc, TRANSPARENT);   //https://stackoverflow.com/questions/10571966/draw-print-text-with-transparent-background-in-c-win32
   TextOutA(hdc, x1, y1, txt, strlen(txt));
 }
 
