@@ -27,16 +27,16 @@ char *song_name0[SONG_NUM]={
 };
 
 char *album_name0[SONG_NUM]={
-"Demon Days",
-"Demon Days",
-"Demon Days",
-"Hold Your Colour",
-"Immersion",
-"Demon Days",
-"Gorillaz",
-"Say Hello to Sunshine",
-"Wake The Dead",
-"Antichrist Superstar"
+"Demon Days (2005)",
+"Demon Days (2005)",
+"Demon Days (2005)",
+"Hold Your Colour (2005)",
+"Immersion (2010)",
+"Demon Days (2005)",
+"Gorillaz (2001)",
+"Say Hello to Sunshine (2005)",
+"Wake The Dead (2005)",
+"Antichrist Superstar (1996)"
 };
 
 
@@ -68,16 +68,16 @@ char *song_name1[SONG_NUM]={
 };
 
 char *album_name1[SONG_NUM]={
-"Turned Against This Land",
-"City of Evil",
-"[WITH_TEETH]",
-"From First To Last",
-"Hand of Blood",
-"Hybrid Theory",
-"As Daylight Dies",
-"Music For the Jilted Generation",
-"Under My Skin",
-"Chocolate Starfish and The Hot Dog Flavored Water"
+"Turned Against This Land (2005)",
+"City Of Evil (2005)",
+"[WITH_TEETH] (2005)",
+"From First To Last (2008)",
+"Hand of Blood (2005)",
+"Hybrid Theory (2000)",
+"As Daylight Dies (2006)",
+"Music For the Jilted Generation (1999)",
+"Under My Skin (2004)",
+"Chocolate Starfish and The Hot Dog Flavored Water (2000)"
 };
 
 
@@ -112,16 +112,16 @@ char *song_name2[SONG_NUM]={
 };
 
 char *album_name2[SONG_NUM]={
-"Hybrid Theory",
-"Hold Your Colour",
-"In Silico",
-"The Devil And God Are Raging Inside Me",
-"Here's To The Mourning",
-"30 Seconds to Mars",
-"Antichrist Superstar",
-"Mechanical Animals",
-"Immersion",
-"Fallen"
+"Hybrid Theory (2000)",
+"Hold Your Colour (2005)",
+"In Silico (2008)",
+"The Devil And God Are Raging Inside Me (2006)",
+"Here's To The Mourning (2005)",
+"30 Seconds to Mars (2002)",
+"Antichrist Superstar (1996)",
+"Mechanical Animals (1998)",
+"Immersion (2010)",
+"Fallen (2003)"
 };
 
 
@@ -151,22 +151,22 @@ char *song_name3[SONG_NUM]={
 "Today - JunkieXL",
 "Liquid Blue - DJ Seph",
 "Heard That Sound - MxPx",
-"Animal Alpha - Bundy",
+"Bundy - Animal Alpha",
 "All The Rage - Funeral For A Friend",
 "An Honest Mistake (Superdiscount Remix)- The Bravery"
 };
 
 char *album_name3[SONG_NUM]={
-"The Fashion",
-"The Fashion",
-"The Fashion",
-"Antichrist Superstar",
-"Today",
-"DJ Seph",
-"Panic",
-"Pheromones",
-"Hours",
-"Superdiscount"
+"The Fashion (2007)",
+"The Fashion (2007)",
+"The Fashion (2007)",
+"Antichrist Superstar (1996)",
+"Today (2006)",
+"DJ Seph (2006)",
+"Panic (2005)",
+"Pheromones (2005)",
+"Hours (2005)",
+"Superdiscount (2005)"
 };
 
 
@@ -185,7 +185,7 @@ int song_duration4[SONG_NUM]={
 300 + 4, //6 Mister Superstar - Marilyn Manson
 180 + 39, //7 New Model No 15 - Marilyn Manson
 240 + 6, //8 Surrender - Billy Talent
-180 + 25, //9 Top of the World - The All American Rejects
+180 + 25, //9 Top of the World - The All-American Rejects
 };
 
 char *song_name4[SONG_NUM]={
@@ -198,20 +198,20 @@ char *song_name4[SONG_NUM]={
 "Mister Superstar - Marilyn Manson",
 "New Model No 15 - Marilyn Manson",
 "Surrender - Billy Talent",
-"Top of the World - The All American Rejects",
+"Top of the World - The All-American Rejects",
 };
 
 char *album_name4[SONG_NUM]={
-"Lullabies To Paralyze",
-"Disconnection Notice",
-"The Devil And God Are Raging Inside Me",
-"In Silico",
-"Hold Your Colour",
-"In Silico",
-"Antichrist Superstar",
-"Mechanical Animals",
-"Billy Talent II",
-"Move Along"
+"Lullabies To Paralyze (2005)",
+"Disconnection Notice (2004)",
+"The Devil And God Are Raging Inside Me (2006)",
+"In Silico (2008)",
+"Hold Your Colour (2005)",
+"In Silico (2008)",
+"Antichrist Superstar (1996)",
+"Mechanical Animals (1998)",
+"Billy Talent II (2006)",
+"Move Along (2005)"
 };
 
 
@@ -226,7 +226,7 @@ int song_duration5[SONG_NUM]={
 300 + 49, //2 Echelon - 30 Seconds to Mars
 180 + 19, //3 Fallen Leaves - Billy Talent
 240 + 1, //4 In My Head - Queens of the Stone Age
-180 + 25, //5 Night Drive - The All American Rejects
+180 + 25, //5 Night Drive - The All-American Rejects
 180 + 4, //6 Runaway - Linkin Park
 300 + 7, //7 Sounds of Life - Pendulum
 180 + 5, //8 Welcome to Cambodia - Brand New
@@ -239,24 +239,24 @@ char *song_name5[SONG_NUM]={
 "Echelon - 30 Seconds to Mars",
 "Fallen Leaves - Billy Talent",
 "In My Head - Queens of the Stone Age",
-"Night Drive - The All American Rejects",
+"Night Drive - The All-American Rejects",
 "Runaway - Linkin Park",
 "Sounds of Life - Pendulum",
 "Welcome to Cambodia - Brand New",
-"Bad Girl - Avril Lavigne"
+"Bad Girl (ft. Marilyn Manson) - Avril Lavigne"
 };
 
 char *album_name5[SONG_NUM]={
-"Fallen",
-"The Devil And God Are Raging Inside Me",
-"30 Seconds to Mars",
-"Billy Talent II",
-"Lullabies To Paralyze",
-"Move Along",
-"Hybrid Theory",
-"Hold Your Colour",
-"The Devil And God Are Raging Inside Me",
-"Avril Lavigne"
+"Fallen (2003)",
+"The Devil And God Are Raging Inside Me (2006)",
+"30 Seconds to Mars (2002)",
+"Billy Talent II (2006)",
+"Lullabies To Paralyze (2005)",
+"Move Along (2005)",
+"Hybrid Theory (2000)",
+"Hold Your Colour (2005)",
+"The Devil And God Are Raging Inside Me (2006)",
+"Avril Lavigne (2013)"
 };
 
 
@@ -292,16 +292,16 @@ char *song_name6[SONG_NUM]={
 };
 
 char *album_name6[SONG_NUM]={
-"Immersion",
-"Silent Alarm",
-"Hold Your Colour",
-"Let Go",
-"30 Seconds to Mars",
-"Mechanical Animals",
-"Antichrist Superstar",
-"Billy Talent II",
-"Hybrid Theory",
-"Immersion"
+"Immersion (2010)",
+"Silent Alarm (2006)",
+"Hold Your Colour (2005)",
+"Let Go (2002)",
+"30 Seconds to Mars (2002)",
+"Mechanical Animals (1998)",
+"Antichrist Superstar (1996)",
+"Billy Talent II (2006)",
+"Hybrid Theory (2000)",
+"Immersion (2010)"
 };
 
 
@@ -317,7 +317,7 @@ int song_duration7[SONG_NUM]={
 360 + 34, //3 Blinded in Chains - Avenged Sevenfold
 180 + 40, //4 Celebration Song - Unwritten Law
 240 + 33, //5 Mechanical Animals - Marilyn Manson
-240 + 0, //6 Move Along - The All American Rejects
+240 + 0, //6 Move Along - The All-American Rejects
 300 + 13, //7 Propane Nightmares - Pendulum
 240 + 35, //8 Reason Is Treason - Kasabian
 180 + 24, //9 Sk8er Boi - Avril Lavigne
@@ -330,23 +330,23 @@ char *song_name7[SONG_NUM]={
 "Blinded in Chains - Avenged Sevenfold",
 "Celebration Song - Unwritten Law",
 "Mechanical Animals - Marilyn Manson",
-"Move Along - The All American Rejects",
+"Move Along - The All-American Rejects",
 "Propane Nightmares - Pendulum",
 "Reason Is Treason - Kasabian",
 "Sk8er Boi - Avril Lavigne"
 };
 
 char *album_name7[SONG_NUM]={
-"Hold Your Colour",
-"Antichrist Superstar",
-"BT",
-"City Of Evil",
-"Here's To The Mourning",
-"Mechanical Animals",
-"Move Along",
-"In Silico",
-"Kasabian",
-"Let Go"
+"Hold Your Colour (2005)",
+"Antichrist Superstar (1996)",
+"BT (2004)",
+"City Of Evil (2005)",
+"Here's To The Mourning (2005)",
+"Mechanical Animals (1998)",
+"Move Along (2005)",
+"In Silico (2008)",
+"Kasabian (2004)",
+"Let Go (2002)"
 };
 
 
@@ -382,16 +382,16 @@ char *song_name8[SONG_NUM]={
 };
 
 char *album_name8[SONG_NUM]={
-"Lights and Sounds",
-"Fallen",
-"Silent Alarm",
-"The Devil And God Are Raging Inside Me",
-"City of Evil",
-"Let Go",
-"30 Seconds to Mars",
-"Avril Lavigne",
-"Hybrid Theory",
-"Billy Talent II"
+"Lights and Sounds (2006)",
+"Fallen (2003)",
+"Silent Alarm (2005)",
+"The Devil And God Are Raging Inside Me (2006)",
+"City Of Evil (2005)",
+"Let Go (2002)",
+"30 Seconds to Mars (2002)",
+"Avril Lavigne (2013)",
+"Hybrid Theory (2000)",
+"Billy Talent II (2006)"
 };
 
 
@@ -427,16 +427,16 @@ char *song_name9[SONG_NUM]={
 };
 
 char *album_name9[SONG_NUM]={
-"Fallen",
-"Disconnection Notice",
-"City of Evil",
-"30 Seconds to Mars",
-"Kasabian",
-"Antichrist Superstar",
-"Let Go",
-"Hybrid Theory",
-"Avril Lavigne",
-"Scream Aim Fire"
+"Fallen (2003)",
+"Disconnection Notice (2004)",
+"City Of Evil (2005)",
+"30 Seconds to Mars (2002)",
+"Kasabian (2004)",
+"Antichrist Superstar (1996)",
+"Let Go (2002)",
+"Hybrid Theory (2000)",
+"Avril Lavigne (2013)",
+"Scream Aim Fire (2005)"
 };
 
 
@@ -472,16 +472,16 @@ char *song_name10[SONG_NUM]={
 };
 
 char *album_name10[SONG_NUM]={
-"With Love and Squalor",
-"Chocolate Starfish and The Hot Dog Flavored Water",
-"Lullabies To Paralyze",
-"With Love and Squalor",
-"Chocolate Starfish and The Hot Dog Flavored Water",
-"Chocolate Starfish and The Hot Dog Flavored Water",
-"Chocolate Starfish and The Hot Dog Flavored Water",
-"With Love and Squalor",
-"Saosin",
-"Saosin"
+"With Love and Squalor (2005)",
+"Chocolate Starfish and The Hot Dog Flavored Water (2000)",
+"Lullabies To Paralyze (2005)",
+"With Love and Squalor (2005)",
+"Chocolate Starfish and The Hot Dog Flavored Water (2000)",
+"Chocolate Starfish and The Hot Dog Flavored Water (2000)",
+"Chocolate Starfish and The Hot Dog Flavored Water (2000)",
+"With Love and Squalor (2005)",
+"Saosin (2006)",
+"Saosin (2006)"
 };
 
 
@@ -517,16 +517,16 @@ char *song_name11[SONG_NUM]={
 };
 
 char *album_name11[SONG_NUM]={
-"Saosin",
-"Saosin",
-"Saosin",
-"Saosin",
-"Saosin",
-"Saosin",
-"Saosin",
-"Saosin",
-"Saosin",
-"Saosin"
+"Saosin (2006)",
+"Saosin (2006)",
+"Saosin (2006)",
+"Saosin (2006)",
+"Saosin (2006)",
+"Saosin (2006)",
+"Saosin (2006)",
+"Saosin (2006)",
+"Saosin (2006)",
+"Saosin (2006)"
 };
 
 
@@ -562,16 +562,16 @@ char *song_name12[SONG_NUM]={
 };
 
 char *album_name12[SONG_NUM]={
-"The Bravery",
-"Surfing the Void",
-"Myths of the Near Future",
-"The Bravery",
-"The Bravery",
-"The Bravery",
-"With Love and Squalor",
-"Surfing the Void",
-"The Bravery",
-""
+"The Bravery (2005)",
+"Surfing The Void (2010)",
+"Myths of the Near Future (2007)",
+"The Bravery (2005)",
+"The Bravery (2005)",
+"The Bravery (2005)",
+"With Love and Squalor (2005)",
+"Surfing The Void (2010)",
+"The Bravery (2005)",
+"(2005)"
 };
 
 
