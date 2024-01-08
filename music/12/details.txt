@@ -1,0 +1,11 @@
+180 + 40 //0 An Honest Mistake - The Bravery
+180 + 45 //1 Echoes - Klaxons
+240 + 18 //2 Two Recievers - Klaxons
+180 + 4 //3 No Brakes - The Bravery
+180 + 7 //4 Fearless - The Bravery
+240 + 44 //5 Tyrant - The Bravery
+180 + 26 //6 It's a Hit - We Are Scientists
+240 + 19 //7 Twin Flames - Klaxons
+180 + 19 //8 Unconditional - The Bravery
+300 + 4 //9 Voodoo People (Pendulum Remix) - The Prodigy
+

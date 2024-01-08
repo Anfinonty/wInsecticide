@@ -1,0 +1,10 @@
+120 + 54 //0 Little Sister - Queens of the Stone Age
+120 + 21 //1 I Want - Goldfinger
+180 + 9 //2 Not the Sun - Brand New
+360 + 27 //3 9000 Miles - Pendulum
+300 + 2 //4 Tarantula - Pendulum
+240 + 21 //5 Granite - Pendulum
+300 + 4 //6 Mister Superstart - Marilyn Manson
+180 + 39 //7 New Model No 15 - Marilyn Manson
+240 + 6 //8 Surrender - Billy Talent
+180 + 25 //9 Top of the World - The All American Rejects

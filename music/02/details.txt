@@ -1,0 +1,10 @@
+180 + 14 //0 Forgotten - Linkin Park
+300 + 20 //1 Hold Your Colour - Pendulum
+420 + 12 //2 The Tempest - Pendulum
+240 + 14 //3 The Archer's Bows Have Broken - Brand New
+120 + 48 //4 F.I.G.H.T - Unwritten Law
+420 + 52 //5 Year Zero - The Struggle
+300 + 14 //6 Antichrist Superstar
+300 + 34 //7 Coma White - Marilyn Manson
+240 + 12 //8 Witchcraft - Pendulum
+360 + 32 //9 OCTOBER - Evanescence

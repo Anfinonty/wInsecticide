@@ -1,0 +1,10 @@
+300 + 39 //0 Slam
+180 + 38 //1 The Beautiful People
+300 + 7 //2 The Other Side Remix - The Doors vs BT
+360 + 34 //3 Blinded in Chains - Avenged Sevenfold
+180 + 40 //4 Celebration Song - Unwritten Law
+240 + 33 //5 Mechanical Animals - Marilyn Manson
+240 + 0 //6 Move Along - The All American Rejects
+300 + 13 //7 Propane Nightmares - Pendulum
+240 + 35 //8 Reason Is Treason - Kasabian
+180 + 24 //9 Sk8er Boi - Avril Lavigne

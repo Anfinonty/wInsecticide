@@ -1,0 +1,10 @@
+180 +12 //0 Nobody Move, Nobody Get Hurt - We Are Scientists
+180 + 50 //1 Hot Dog - Limp Bizkit
+60 + 54 //2 Medication - Queens of the Stone Age
+180 + 43 //3 This Scene is Dead - We Are Scientists
+180 + 41//4 My Generation - Limp Bizkit
+240 + 33 //5 My Way - Limp Bizkit
+240 + 24 //6 Livin' It Up - Limp Bizkit
+180 + 18 //7 The Great Escape - We Are Scientists
+180 + 34 //8 Bury Your Head - Saosin
+240 + 0 //9 Some Sense of Security - Saosin
