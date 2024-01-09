@@ -49,7 +49,7 @@ int song_duration1[SONG_NUM]={
 180 + 37, //4 Hand of Blood - Bullet For My Valetine
 180 + 36, //5 In The End - Linkin Park
 240 + 4, //6 My Curse - Killswitch Engage
-360 + 29, //7 Voodoo People - The Priodigy
+360 + 29, //7 Voodoo People - The Prodigy
 240 + 2, //8 My Happy Ending - Avril Lavigne
 180 + 33 //9 Rollin' - Limp Bizkit
 };
@@ -62,7 +62,7 @@ char *song_name1[SONG_NUM]={
 "Hand of Blood - Bullet For My Valetine",
 "In The End - Linkin Park",
 "My Curse - Killswitch Engage",
-"Voodoo People - The Priodigy",
+"Voodoo People - The Prodigy",
 "My Happy Ending - Avril Lavigne",
 "Rollin' - Limp Bizkit"
 };
@@ -91,7 +91,8 @@ int song_duration2[SONG_NUM]={
 420 + 12, //2 The Tempest - Pendulum
 240 + 14, //3 The Archer's Bows Have Broken - Brand New
 120 + 48, //4 F.I.G.H.T - Unwritten Law
-420 + 52, //5 Year Zero - The Struggle
+180 + 4, //5 Friction - B'z
+//420 + 52, //5 Year Zero - The Struggle
 300 + 14, //6 Antichrist Superstar
 300 + 34, //7 Coma White - Marilyn Manson
 240 + 12, //8 Witchcraft - Pendulum
@@ -104,7 +105,8 @@ char *song_name2[SONG_NUM]={
 "The Tempest - Pendulum",
 "The Archer's Bows Have Broken - Brand New",
 "F.I.G.H.T - Unwritten Law",
-"Year Zero - The Struggle",
+//"Year Zero - The Struggle",
+"Friction - B'z",
 "Antichrist Superstar - Marilyn Manson",
 "Coma White - Marilyn Manson",
 "Witchcraft - Pendulum",
@@ -117,7 +119,8 @@ char *album_name2[SONG_NUM]={
 "In Silico (2008)",
 "The Devil And God Are Raging Inside Me (2006)",
 "Here's To The Mourning (2005)",
-"30 Seconds to Mars (2002)",
+//"30 Seconds to Mars (2002)",
+"Action (2007)",
 "Antichrist Superstar (1996)",
 "Mechanical Animals (1998)",
 "Immersion (2010)",
@@ -630,7 +633,7 @@ int time_now=0;
 bool play_new_song=false;
 
 
-int rand_song1,rand_song2;
+int rand_song1=0,rand_song2=0;
 //DWORD WINAPI SongTask(LPVOID lpArg) {
 void SongAct() {
   srand(time(NULL));
@@ -652,7 +655,7 @@ void SongAct() {
       //printf("%d",rand_song2);
       //printf("%d",time_end);
       play_new_song=false;
-      PlaySoundA(songname,NULL,SND_FILENAME | SND_ASYNC); //at here song plays but other steps hang
+      PlaySoundA(songname,NULL,SND_FILENAME | SND_ASYNC); //plays sound async
     }
 
     time_now=int_current_timestamp();//get time in seconds
