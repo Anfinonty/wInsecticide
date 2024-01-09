@@ -59,27 +59,6 @@ struct player
 } player;
 
 
-void CameraInit(double x,double y)
-{
-  while (x<GR_WIDTH/2) {
-    player.cam_x++;
-    x++;
-  }
-  while (x>GR_WIDTH/2) {
-    player.cam_x--;
-    x--;
-  }
-  while (y<GR_HEIGHT/2) {
-    player.cam_y++;
-    y++;
-  }
-  while (y>GR_HEIGHT/2) {
-    player.cam_y--;
-    y--;
-  }  
-}
-
-
 struct RenderDistanceGrid
 {
   int x,y;

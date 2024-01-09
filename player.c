@@ -78,6 +78,26 @@ void InitRDGrid()
 }
 
 
+void CameraInit(double x,double y)
+{
+  while (x<GR_WIDTH/2) {
+    player.cam_x++;
+    x++;
+  }
+  while (x>GR_WIDTH/2) {
+    player.cam_x--;
+    x--;
+  }
+  while (y<GR_HEIGHT/2) {
+    player.cam_y++;
+    y++;
+  }
+  while (y>GR_HEIGHT/2) {
+    player.cam_y--;
+    y--;
+  }  
+}
+
 void InitPlayerCamera()
 {
 //set camera
@@ -86,7 +106,8 @@ void InitPlayerCamera()
   //bg_cam_fall_cooldown=0;
   //background_cam_move_x=0;
   //background_cam_move_y=0;
-  CameraInit(player.saved_x,player.saved_y+PLAYER_HEIGHT/2);
+  CameraInit(player.saved_x,player.saved_y+PLAYER_HEIGHT/2+2); //idk scaling is weird for sprite
+  //CameraInit(player.saved_x,player.saved_y+10); //idk scaling is weird for sprite
 }
 
 
@@ -191,7 +212,7 @@ bool YesInitRDGrid()
 void PlayerAct() {
   //Initialize RD Grid
   if (YesInitRDGrid) {
-    //InitRDGrid();
+    InitRDGrid();
   }
   //Trigger movements
   if (player.rst_left || player.rst_right) {
