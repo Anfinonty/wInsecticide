@@ -86,8 +86,7 @@ void InitPlayerCamera()
   //bg_cam_fall_cooldown=0;
   //background_cam_move_x=0;
   //background_cam_move_y=0;
-//  CameraInit(saved_player_x-PLAYER_WIDTH/2,saved_player_y-PLAYER_HEIGHT/2);
-  CameraInit(player.saved_x-PLAYER_WIDTH/2,player.saved_y-PLAYER_HEIGHT/2);
+  CameraInit(player.saved_x,player.saved_y+PLAYER_HEIGHT/2);
 }
 
 
@@ -522,7 +521,6 @@ void PlayerAct() {
   } else if (player_in_air_cooldown>0) {
     player_in_air_cooldown--;
   }*/
-
 }
 
 

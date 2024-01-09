@@ -110,7 +110,10 @@ void InitGround() {
   Ground[1].x2=700;
   Ground[1].y2=750;
 
-
+  Ground[2].x1=50;
+  Ground[2].y1=200;
+  Ground[2].x2=400;
+  Ground[2].y2=350;
 
   for (i=0;i<GROUND_NUM;i++) {
     for (j=0;j<GRID_NUM;j++) {
@@ -232,17 +235,6 @@ int GetOnGroundId(double x,double y,double min_range_1,double min_range_2,bool i
 
 
 void GroundAct(int pid,int g) {
-  //gravity
-  //collision
-  /*if ((Ground[pid].y1-2<=player.y && player.y<=Ground[pid].y2) &&
-       ((Ground[pid].x1-16<=player.x && player.x<=Ground[pid].x2+16) ||
-        (Ground[pid].x1-16<=player.x && player.x<=Ground[pid].x2+16)
-      )) {
-    player.grav=1;
-    player.jump_height=64;
-    player.y-=2;
-//    player.in_air=false;
-  }*/
 }
 
 

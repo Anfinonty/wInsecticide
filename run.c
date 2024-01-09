@@ -39,10 +39,13 @@
 #define DEFAULT_PLAYER_SPEED			1
 
 
-#define GROUND_NUM    2
+#define GROUND_NUM    3
 #define ENEMY_NUM     1
-#define PLAYER_WIDTH 	25
-#define PLAYER_HEIGHT 	15
+//#define PLAYER_WIDTH 	25
+//#define PLAYER_HEIGHT 	15
+
+#define PLAYER_WIDTH 	32
+#define PLAYER_HEIGHT 	16
 
 #define GRID_SIZE	160
 #define GRID_NUM	(MAP_WIDTH/GRID_SIZE) * (MAP_HEIGHT/GRID_SIZE)
