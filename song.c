@@ -632,7 +632,18 @@ char **album_names[SONG_FOLDER_NUM]={
 //create public array of folders with songs
 int song_folder_num=0;
 int music_folder_arr[SONG_FOLDER_NUM];
+
+int song_time_end=0;
+int time_now=0;
+bool play_new_song=false;
+
+
+int rand_song1=1,rand_song2=0;
+
+
+
 void InitSongBank() {
+  song_folder_num=0;
   for (int f=0;f<SONG_FOLDER_NUM;f++) {
     int f_tmp = f;
     char folder[8];
@@ -646,11 +657,22 @@ void InitSongBank() {
       closedir(dir);
       music_folder_arr[song_folder_num]=f;
       song_folder_num++;
+    } else {
+      music_folder_arr[song_folder_num]=1;    
     }
   }
+  if (song_folder_num>0) {
+    song_names[1][0]="Tuned to a Different Station - Dogs";
+    album_names[1][0]="Turned Against This Land (2005)";
+  } else {
+    song_names[1][0]="No Songs Available";
+    album_names[1][0]="";
 
-  if (song_folder_num==0) {
-    song_folder_num=1;
+    song_time_end=0;
+    time_now=0;
+    play_new_song=false;
+    rand_song1=1;
+    rand_song2=0;
   }
 }
 
@@ -660,43 +682,39 @@ void InitSongBank() {
 
 
 
-int song_time_end=0;
-int time_now=0;
-bool play_new_song=false;
-
-
-int rand_song1=1,rand_song2=0;
 //DWORD WINAPI SongTask(LPVOID lpArg) {
 void SongAct() {
   srand(time(NULL));
   char songname[14];
 //  while (true) {
-    if (play_new_song) { //play a song
-      rand_song1=music_folder_arr[RandNum(0,song_folder_num-1)]; //dynamic songbank version
+    if (song_folder_num>0) {
+      if (play_new_song) { //play a song
+        rand_song1=music_folder_arr[RandNum(0,song_folder_num-1)]; //dynamic songbank version
       //rand_song1=RandNum(0,SONG_FOLDER_NUM-1); //full version
       //rand_song1=1; //demo version
-      rand_song2=RandNum(0,SONG_NUM-1);
-      time_now=int_current_timestamp();//get time in seconds
-      song_time_end=time_now+song_durations[rand_song1][rand_song2]+2;
+        rand_song2=RandNum(0,SONG_NUM-1);
+        time_now=int_current_timestamp();//get time in seconds
+        song_time_end=time_now+song_durations[rand_song1][rand_song2]+2;
 
       //printf("%d\n",rand_song2); //debug
       //printf("%s",song_name0[rand_song2]);
-      if (rand_song1<10)
-        sprintf(songname,"music/0%d/%d.wav",rand_song1,rand_song2);
-      else
-        sprintf(songname,"music/%d/%d.wav",rand_song1,rand_song2);
+        if (rand_song1<10)
+          sprintf(songname,"music/0%d/%d.wav",rand_song1,rand_song2);
+        else
+          sprintf(songname,"music/%d/%d.wav",rand_song1,rand_song2);
       //printf("%s\n",songname); //debug
       //printf("%d",rand_song2);
       //printf("%d",time_end);
-      play_new_song=false;
-      PlaySoundA(songname,NULL,SND_FILENAME | SND_ASYNC); //plays sound async
-    }
+        play_new_song=false;
+        PlaySoundA(songname,NULL,SND_FILENAME | SND_ASYNC); //plays sound async
+      }
 
-    time_now=int_current_timestamp();//get time in seconds
+      time_now=int_current_timestamp();//get time in seconds
     //printf("diff:%d\n",song_time_end-time_now);
-    if (time_now>song_time_end && !play_new_song) {
-      PlaySound(NULL, NULL, SND_ASYNC); //stop song
-      play_new_song=true;
+      if (time_now>song_time_end && !play_new_song) {
+        PlaySound(NULL, NULL, SND_ASYNC); //stop song
+        play_new_song=true;
+      }
     }
 //    Sleep(6);
 //  }

@@ -162,12 +162,12 @@ void InitFPS() { //https://cboard.cprogramming.com/windows-programming/30730-fin
 
 
 void InitOnce() {
-  InitSongBank();
   InitTickFrequency();
   InitFPS();
 }
 
 void Init() {
+  InitSongBank();
   InitGrid();
   InitNodeGrid();
   InitGround();
