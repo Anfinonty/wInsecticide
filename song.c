@@ -640,7 +640,8 @@ void SongAct() {
   char songname[14];
 //  while (true) {
     if (play_new_song) { //play a song
-      rand_song1=RandNum(0,SONG_FOLDER_NUM-1);
+      //rand_song1=RandNum(0,SONG_FOLDER_NUM-1);
+      rand_song1=1; //demo version
       rand_song2=RandNum(0,SONG_NUM-1);
       time_now=int_current_timestamp();//get time in seconds
       song_time_end=time_now+song_durations[rand_song1][rand_song2]+2;
