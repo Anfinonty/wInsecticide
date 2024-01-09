@@ -2,6 +2,8 @@
 
 Game made with Win32 C
 
+Extra music and files for the game:
+https://github.com/Anfinonty/wInsecticide-xtra
 
 Useful Resources:
 - http://www.winprog.org/tutorial/ 
