@@ -259,8 +259,10 @@ void DrawTexts(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   HDC hdc, hdcBackbuff;
   HBITMAP bitmap;
-  FrameRateSleep(FPS); //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
   switch(msg) {
+    case  WM_MOUSEMOVE: //https://stackoverflow.com/questions/22039413/moving-the-mouse-blocks-wm-timer-and-wm-paint
+      UpdateWindow(hwnd);
+      break;
     case WM_KEYDOWN:
       switch (wParam) {
         case 'S':case VK_DOWN:player.rst_down=true;break;
@@ -285,6 +287,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       break;
     case WM_PAINT: //https://cplusplus.com/forum/beginner/269434/
     {
+      FrameRateSleep(FPS); // (Uncapped) 35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
+      //FrameRateSleep(35); //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
       PAINTSTRUCT ps;
       hdc=BeginPaint(hwnd, &ps);
       hdcBackbuff=CreateCompatibleDC(hdc);
