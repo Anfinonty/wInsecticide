@@ -628,20 +628,53 @@ char **album_names[SONG_FOLDER_NUM]={
 };
 
 
+
+//create public array of folders with songs
+int song_folder_num=0;
+int music_folder_arr[SONG_FOLDER_NUM];
+void InitSongBank() {
+  for (int f=0;f<SONG_FOLDER_NUM;f++) {
+    int f_tmp = f;
+    char folder[8];
+    if (f<10) {
+      sprintf(folder,"music/0%d",f_tmp);
+    } else {
+      sprintf(folder,"music/%d",f_tmp);
+    }
+    DIR *dir=opendir(folder);
+    if (dir) { // if folder exists
+      closedir(dir);
+      music_folder_arr[song_folder_num]=f;
+      song_folder_num++;
+    }
+  }
+
+  if (song_folder_num==0) {
+    song_folder_num=1;
+  }
+}
+
+
+
+
+
+
+
 int song_time_end=0;
 int time_now=0;
 bool play_new_song=false;
 
 
-int rand_song1=0,rand_song2=0;
+int rand_song1=1,rand_song2=0;
 //DWORD WINAPI SongTask(LPVOID lpArg) {
 void SongAct() {
   srand(time(NULL));
   char songname[14];
 //  while (true) {
     if (play_new_song) { //play a song
-      //rand_song1=RandNum(0,SONG_FOLDER_NUM-1);
-      rand_song1=1; //demo version
+      rand_song1=music_folder_arr[RandNum(0,song_folder_num-1)]; //dynamic songbank version
+      //rand_song1=RandNum(0,SONG_FOLDER_NUM-1); //full version
+      //rand_song1=1; //demo version
       rand_song2=RandNum(0,SONG_NUM-1);
       time_now=int_current_timestamp();//get time in seconds
       song_time_end=time_now+song_durations[rand_song1][rand_song2]+2;

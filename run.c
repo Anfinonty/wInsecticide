@@ -21,6 +21,8 @@
 #include <time.h>
 #include <math.h>
 #include <synchapi.h>
+#include <dirent.h>
+#include <errno.h>
 
 #define SONG_NUM 10
 #define SONG_FOLDER_NUM 13
@@ -160,6 +162,7 @@ void InitFPS() { //https://cboard.cprogramming.com/windows-programming/30730-fin
 
 
 void InitOnce() {
+  InitSongBank();
   InitTickFrequency();
   InitFPS();
 }
