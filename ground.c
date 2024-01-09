@@ -182,28 +182,14 @@ void InitGround() {
       Ground[i].is_ghost=FALSE;
     }*/
     //Ground[i].health=-1;
-    //rendered_ground_num=0;
+      player.rendered_ground_num=0;
       Ground[i].height_from_player_x=0;
-    //Ground[i].within_render_distance=FALSE;
+      Ground[i].within_render_distance=FALSE;
       Ground[i].angle=0;
       SetGround(i);
     }
   }
 }
-
-
-int GetGridId(int x,int y,int width, int size,int max)
-{
-  int id=-1,row=0,column=0;
-  row=y/size;
-  column=x/size;
-  id=row*(width/size)+column;
-  if (-1<id && id<max && 0<x && x<width) {
-    return id;
-  }
-  return -1;
-}
-
 
 int GetOnGroundId(double x,double y,double min_range_1,double min_range_2,bool is_player)
 {
@@ -261,9 +247,24 @@ void GroundAct(int pid,int g) {
 
 
 void DrawGrounds(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
-  for (int i=0;i<GROUND_NUM;i++) {
-    GrLine(hwnd,hdc,ps,Ground[i].x1,Ground[i].y1,Ground[i].x2,Ground[i].y2,RGB(255,255,255));
-    //GrLine(hwnd,hdc,ps,Ground[i].x1,Ground[i].y1,Ground[i].x2,Ground[i].y2,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
+  int id;
+  for (int i=0;i<player.rendered_ground_num;i++) {
+    id = player.render_grounds[i];
+    if (id!=-1) {
+      GrLine(hwnd,hdc,ps,
+        Ground[id].x1+player.cam_x,
+        Ground[id].y1+player.cam_y,
+        Ground[id].x2+player.cam_x,
+        Ground[id].y2+player.cam_y,
+        RGB(255,255,255)
+      );     
+      /*GrLine(hwnd,hdc,ps,
+        Ground[id].x1,
+        Ground[id].y1,
+        Ground[id].x2,
+        Ground[id].y2,
+        RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));*/
+    }
   }
 }
 

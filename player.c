@@ -1,28 +1,111 @@
-bool once=true;
 //Player
 
 void move_x(double x) {
   player.x+=x;
+  player.cam_x-=x;
 }
 
 
 void move_y(double y) {
   player.y+=y;
+  player.cam_y-=y;
 }
 
+
+void InitRDGrid()
+{
+  int i=0,j=0,k=0,on_grid_id=0,column=0,row=0,
+      start_x=0,start_y=0;
+  //reset
+  for (i=0;i<player.rendered_grid_num;i++) {
+    Grid[player.render_grids[i]].within_render_distance=FALSE; //all rendered-grids are no-longer within render distance
+    player.render_grids[i]=-1;  //unrender all rendered grids
+  }
+  /*for (i=0;i<player.rendered_enemy_num;i++) {
+    Enemy[player.render_enemies[i]].within_render_distance=FALSE; //all rendered-enemies are no-longer within render distance
+    player.render_enemies[i]=-1; //unrender all rendered enemies
+  }*/
+  for (i=0;i<player.rendered_ground_num;i++) {
+    Ground[player.render_grounds[i]].within_render_distance=FALSE; //All rendered-grounds are no-longer within render distance
+    player.render_grounds[i]=-1; //unrender all rendered grounds
+  }
+  player.rendered_grid_num=0;
+  //player.rendered_enemy_num=0;
+  player.rendered_ground_num=0;
+
+  //Begin rendering
+  start_x=player.x-(RENDER_DIST/2*GRID_SIZE), //Top left corner of render distance grids to bottom right corner
+  start_y=player.y-(RENDER_DIST/2*GRID_SIZE);
+  //"What happens when you lose everything? You just art again. Start all over again" - Maximo Park
+  for (i=0;i<RDGRID_NUM;i++) { //all render distance grids from top-left to bottom-right
+    RDGrid[i].x=start_x+column*GRID_SIZE;
+    RDGrid[i].y=start_y+row*GRID_SIZE;
+    if (0<RDGrid[i].x && RDGrid[i].x<MAP_WIDTH && //render distance grid is within range
+        0<RDGrid[i].y && RDGrid[i].y<MAP_HEIGHT) {
+
+      //grid
+      on_grid_id=GetGridId(RDGrid[i].x,RDGrid[i].y,MAP_WIDTH,GRID_SIZE,GRID_NUM);//get grid id based on renderdistance grid axes
+      Grid[on_grid_id].within_render_distance=TRUE; //append grid to render_grids array
+      player.render_grids[player.rendered_grid_num]=on_grid_id;//cannot be i (what if out of bounds)
+      player.rendered_grid_num++; //count amount of grids rendered
+
+      //enemy
+      /*for (j=0;j<Grid[on_grid_id].enemy_occupy_num;j++) { //fetch enemies that are occupying the grid
+	    k=Grid[on_grid_id].enemy_occupy[j]; //enemy_id in grid
+ 	    if (!Enemy[k].within_render_distance) { //enemy is now within render distance
+	      Enemy[k].within_render_distance=TRUE;
+          player.render_enemies[player.rendered_enemy_num]=k; //append grid to render_enemies array
+	      player.rendered_enemy_num++; //count number of rendered enemies 
+	    }
+      }*/
+
+      //grounds
+      for (j=0;j<Grid[on_grid_id].max_ground_num;j++) { //fetch all grounds that are occupying the grid
+	    k=Grid[on_grid_id].ground_ids[j]; //ground_id in grid
+ 	    if (!Ground[k].within_render_distance) { //ground is now within render distance
+	      Ground[k].within_render_distance=TRUE;
+          player.render_grounds[player.rendered_ground_num]=k; //append ground to render_grounds array
+	      player.rendered_ground_num++; //count number of rendered grounds
+	    } 
+      }
+    }
+    column++; //Next column
+    if (column>=RENDER_DIST) { //if the column is beyond the render distance
+      row++; //move to the next row
+      column=0; //go back to first column
+    }
+  } 
+}
+
+
+void InitPlayerCamera()
+{
+//set camera
+  player.cam_x=0;
+  player.cam_y=0;
+  //bg_cam_fall_cooldown=0;
+  //background_cam_move_x=0;
+  //background_cam_move_y=0;
+//  CameraInit(saved_player_x-PLAYER_WIDTH/2,saved_player_y-PLAYER_HEIGHT/2);
+  CameraInit(player.saved_x-PLAYER_WIDTH/2,player.saved_y-PLAYER_HEIGHT/2);
+}
+
+
 void InitPlayer() {
-  player.rst_down=false;
-  player.rst_left=false;
-  player.rst_right=false;
-  player.rst_up=false;
-  player.last_left=false;
+  int i;
+  player.saved_x=300;
+  player.saved_y=200;
+
+  player.rst_down=FALSE;
+  player.rst_left=FALSE;
+  player.rst_right=FALSE;
+  player.rst_up=FALSE;
+  player.last_left=FALSE;
 
 
   player.angle=0;
-  player.x=GR_WIDTH/2;
-  player.y=GR_HEIGHT/2;
-  player.WIDTH=PLAYER_WIDTH;
-  player.HEIGHT=PLAYER_HEIGHT;
+  player.x=player.saved_x;
+  player.y=player.saved_y;
   player.player_jump_height=DEFAULT_PLAYER_JUMP_HEIGHT;
   player.jump_height=0;
   player.speed=DEFAULT_PLAYER_SPEED;
@@ -47,38 +130,76 @@ void InitPlayer() {
 
 
 //Bool
-  //player.hiding=false;
-  //player.attack=false;
-  //player.uppercut=false;
-  //player.valid_web=false;
-  player.jump=false;
-  //player.change_view=false;
-  //player.rst_speed_break=false;
+  //player.hiding=FALSE;
+  //player.attack=FALSE;
+  //player.uppercut=FALSE;
+  //player.valid_web=FALSE;
+  player.jump=FALSE;
+  //player.change_view=FALSE;
+  //player.rst_speed_break=FALSE;
   
 //Ground
-  //player.print_current_above=false;
-  //player.print_current_below=false;
-  player.current_above=false;
-  player.current_below=false;
-  player.previous_above=false;
-  player.previous_below=false;
-  //player.destroy_ground=false;
+  //player.print_current_above=FALSE;
+  //player.print_current_below=FALSE;
+  player.current_above=FALSE;
+  player.current_below=FALSE;
+  player.previous_above=FALSE;
+  player.previous_below=FALSE;
+  //player.destroy_ground=FALSE;
 
-  if (once) {
-    player.sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/player1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    player.sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/player2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    player.sprite_jump = (HBITMAP) LoadImageW(NULL, L"sprites/player3-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    once=false;
+  player.rendered_grid_num=0;
+  //player.rendered_enemy_num=0;
+  player.rendered_ground_num=0;
+
+  for (i=0;i<RDGRID_NUM;i++) {
+    player.render_grids[i]=-1;
   }
+  /*for (i=0;i<ENEMY_NUM;i++) {
+    player.render_enemies[i]=-1;
+  }*/
+  for (i=0;i<GROUND_NUM/*+MAX_WEB_NUM*/;i++) {
+    player.render_grounds[i]=-1;
+  }
+
+
+  //if (once) {
+  player.sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/player1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+  player.sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/player2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+  player.sprite_jump = (HBITMAP) LoadImageW(NULL, L"sprites/player3-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+  //once=FALSE;
+  //}
+  InitPlayerCamera();
+  InitRDGrid();
 }
 
+bool YesInitRDGrid()
+{
+  if (GRID_SIZE*2<player.x && player.x<MAP_WIDTH-GRID_SIZE*2) {
+    if (player.x<RDGrid[0].x+GRID_SIZE*2 || player.x>RDGrid[RENDER_DIST-1].x-GRID_SIZE*2) {
+      return TRUE;
+    }
+  }
+  if (GRID_SIZE*2<player.y && player.y<MAP_HEIGHT-GRID_SIZE*2) {
+    if (player.y<RDGrid[0].y+GRID_SIZE*2 || player.y>RDGrid[RDGRID_NUM-1].y-GRID_SIZE*2) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
+
+
 void PlayerAct() {
+  //Initialize RD Grid
+  if (YesInitRDGrid) {
+    //InitRDGrid();
+  }
   //Trigger movements
   if (player.rst_left || player.rst_right) {
     if (player.rst_left) {
-      player.last_left=true;
+      player.last_left=TRUE;
     } else {
-      player.last_left=false;
+      player.last_left=FALSE;
     }
     player.walk_cycle++; //Walk sprite cycle
     if (player.walk_cycle>=4) {
@@ -90,7 +211,7 @@ void PlayerAct() {
 
   //Trigger jump
   if (player.rst_up && 5<=player.on_ground_timer && player.on_ground_timer<=10) {
-    player.jump=true;
+    player.jump=TRUE;
     player.on_ground_timer=0;
     player.key_jump_timer=player.player_jump_height;
   }
@@ -103,15 +224,15 @@ void PlayerAct() {
  //player.speed
   int i=0,speed=0,grav_speed=0;
   double cur_dist=0,cur_angle=0;//,grad_x1=0,grad_y1=0,grad_x2=0,grad_y2=0;
-  bool allow_act=false;
+  bool allow_act=FALSE;
   for (speed=0;speed<player.speed;speed++) {
     for (grav_speed=0;grav_speed<player.grav;grav_speed++) {
-      player.on_ground_id=GetOnGroundId(player.x,player.y,5,4,true);    //Get Ground id
+      player.on_ground_id=GetOnGroundId(player.x,player.y,5,4,TRUE);    //Get Ground id
    //hiding?
       /*if (NodeGrid[GetGridId(above_player.x,above_player.y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM)].node_solid) {
         player.hiding=TRUE;
       } else {
-        player.hiding=false;
+        player.hiding=FALSE;
       }*/
    //Destroy Ground (regainable)
       /*if (destroy_ground) {
@@ -119,7 +240,7 @@ void PlayerAct() {
           DestroyGround(on_ground_id);  
 	  RegainWeb(on_ground_id);
         }
-        destroy_ground=false;
+        destroy_ground=FALSE;
       }*/
 
    //Ground action
@@ -128,12 +249,12 @@ void PlayerAct() {
       if (player.saved_ground_id!=player.on_ground_id) {
       //outwards from ground
         if (0<=Ground[player.saved_ground_id].height_from_player_x && Ground[player.saved_ground_id].height_from_player_x<10) { //above ground
-          player.previous_above=true;
+          player.previous_above=TRUE;
           move_x(-cos(Ground[player.saved_ground_id].angle+M_PI_2));
           move_y(-sin(Ground[player.saved_ground_id].angle+M_PI_2));
         } else if (Ground[player.saved_ground_id].height_from_player_x>-10 &&
                  Ground[player.saved_ground_id].height_from_player_x<0) { //below ground
-          player.previous_below=true;
+          player.previous_below=TRUE;
           move_x(-cos(Ground[player.saved_ground_id].angle-M_PI_2));
           move_y(-sin(Ground[player.saved_ground_id].angle-M_PI_2));
         }
@@ -152,12 +273,12 @@ void PlayerAct() {
           player.angle=Ground[player.on_ground_id].angle;
         //outwards from ground
           if (0<=Ground[player.on_ground_id].height_from_player_x && Ground[player.on_ground_id].height_from_player_x<10) { //above ground
-            player.current_above=true;
+            player.current_above=TRUE;
             move_x(-cos(player.angle+M_PI_2));
             move_y(-sin(player.angle+M_PI_2));
           } else if (Ground[player.on_ground_id].height_from_player_x>-10 &&
 		     Ground[player.on_ground_id].height_from_player_x<0) { //below ground
-            player.current_below=true;
+            player.current_below=TRUE;
             move_x(-cos(player.angle-M_PI_2));
             move_y(-sin(player.angle-M_PI_2));
           }
@@ -166,14 +287,14 @@ void PlayerAct() {
             move_x(cos(player.angle+M_PI_2));
             move_y(sin(player.angle+M_PI_2));
           } else {//below ground
-	        allow_act=false;
+	        allow_act=FALSE;
 	        if (Ground[player.on_ground_id].height_from_player_x>-10) {
 	          if (abs(Ground[player.on_ground_id].gradient)>0.4 &&
                 Ground[player.on_ground_id].height_from_player_x<-5) {
-	            allow_act=true;
+	            allow_act=TRUE;
               } else if (abs(Ground[player.on_ground_id].gradient)<=0.4 &&
 		        Ground[player.on_ground_id].height_from_player_x<-3) {
-	            allow_act=true;
+	            allow_act=TRUE;
 	          }
 	        }
 	        //^^ condition
@@ -206,19 +327,19 @@ void PlayerAct() {
     //Condition to jump
       if (player.on_ground_id==-1 && player.rst_down) {
 	    player.jump_height=0;
-        player.jump=false;
+        player.jump=FALSE;
       }
       if (player.current_above && player.on_ground_id!=-1) {
         player.on_ground_timer=10;
       } else if (player.current_below) {
         player.on_ground_timer=2;
         player.jump_height=0;
-        player.jump=false;
+        player.jump=FALSE;
       }
       if (abs(Ground[player.on_ground_id].angle)>M_PI_2-0.01) {
         player.on_ground_timer=2;
         player.jump_height=0;
-        player.jump=false;
+        player.jump=FALSE;
       }
     //Gravity
       if (grav_speed==0 && speed==0) {
@@ -236,7 +357,7 @@ void PlayerAct() {
           player.key_jump_timer--;
         } else {
           player.jump_height=0;
-          player.jump=false;
+          player.jump=FALSE;
         }
       }
       if (speed==0) {
@@ -248,7 +369,7 @@ void PlayerAct() {
 	        cam_move_y+=0.4;
 	      }*/
           if (player.jump_height<=0) {
-            player.jump=false;
+            player.jump=FALSE;
           }
         } else {
           player.player_grav=0.5;
@@ -274,18 +395,18 @@ void PlayerAct() {
           player.player_grav=0.5;
         }
       }
-      if (player.y-player.HEIGHT/2<0) { //Y axis cap
+      if (player.y-PLAYER_HEIGHT/2<0) { //Y axis cap
         move_y(player.player_grav);
-      } else if (player.y+player.HEIGHT/2>MAP_HEIGHT) {
+      } else if (player.y+PLAYER_HEIGHT/2>MAP_HEIGHT) {
         move_y(-player.player_grav);
         //player.health--;
       }
      //X movement
-      //allow_act=false;
+      //allow_act=FALSE;
       //if (player.on_ground_id==-1) { //player is not on ground
-	  //  allow_act=true;
+	  //  allow_act=TRUE;
       //} /*else if (player.block_timer==0) { //OR player is not blocking
-	  //  allow_act=true;
+	  //  allow_act=TRUE;
       //}*/
 
 
@@ -315,9 +436,9 @@ void PlayerAct() {
         }
       }
      //x-axis cap
-      if (player.x-player.WIDTH/2<0) {
+      if (player.x-PLAYER_WIDTH/2<0) {
         move_x(1);
-      } else if (player.x+player.WIDTH/2>MAP_WIDTH) {
+      } else if (player.x+PLAYER_WIDTH/2>MAP_WIDTH) {
         move_x(-1);
       }
      //misc
@@ -337,10 +458,10 @@ void PlayerAct() {
         player.sprite_angle*=-1;
       }
 
-      player.current_above=false;
-      player.current_below=false;
-      player.previous_above=false;
-      player.previous_below=false;
+      player.current_above=FALSE;
+      player.current_below=FALSE;
+      player.previous_above=FALSE;
+      player.previous_below=FALSE;
       player.saved_ground_id=player.on_ground_id;
    //Set Character's Axis
       /*if (print_current_above) {
@@ -406,15 +527,18 @@ void PlayerAct() {
 
 
 void DrawPlayer(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
-  //GrRect(hwnd,hdc,ps,player.x-player.WIDTH,player.y-player.HEIGHT,player.WIDTH,player.HEIGHT,RGB(34,139,34));
+  //GrRect(hwnd,hdc,ps,player.x-PLAYER_WIDTH,player.y-PLAYER_HEIGHT,PLAYER_WIDTH,PLAYER_HEIGHT,RGB(34,139,34));
   if (player.on_ground_timer>0) {
     if (player.walk_cycle<2) {
-      GrSprite(hwnd,hdc,ps,player.x,player.y,player.sprite_angle,player.sprite_1,player.last_left);
+      GrSprite(hwnd,hdc,ps,GR_WIDTH/2,GR_HEIGHT/2,player.sprite_angle,player.sprite_1,player.last_left);
+      //GrSprite(hwnd,hdc,ps,player.x,player.y,player.sprite_angle,player.sprite_1,player.last_left);
     } else {
-      GrSprite(hwnd,hdc,ps,player.x,player.y,player.sprite_angle,player.sprite_2,player.last_left);
+      GrSprite(hwnd,hdc,ps,GR_WIDTH/2,GR_HEIGHT/2,player.sprite_angle,player.sprite_2,player.last_left);
+      //GrSprite(hwnd,hdc,ps,player.x,player.y,player.sprite_angle,player.sprite_2,player.last_left);
     }
   } else { //in_air
-    GrSprite(hwnd,hdc,ps,player.x,player.y-6,0,player.sprite_jump,player.last_left);
+    GrSprite(hwnd,hdc,ps,GR_WIDTH/2,GR_HEIGHT/2-6,0,player.sprite_jump,player.last_left);
+    //GrSprite(hwnd,hdc,ps,player.x,player.y-6,0,player.sprite_jump,player.last_left);
   }
 }
 

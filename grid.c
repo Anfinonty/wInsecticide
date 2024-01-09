@@ -1,16 +1,29 @@
 
+int GetGridId(int x,int y,int width, int size,int max)
+{
+  int id=-1,row=0,column=0;
+  row=y/size;
+  column=x/size;
+  id=row*(width/size)+column;
+  if (-1<id && id<max && 0<x && x<width) {
+    return id;
+  }
+  return -1;
+}
+
+
 void SetGridLineArray(int grid_id,int ground_id)
 {
-  if (!Ground[ground_id].already_in_grid[grid_id] &&  
-      Grid[grid_id].max_ground_num<MAX_GROUNDS_WITHIN_GRID) {//if not in the grid
+  if (!Ground[ground_id].already_in_grid[grid_id] && Grid[grid_id].max_ground_num<MAX_GROUNDS_WITHIN_GRID) {//if not in the grid
     //Ground related
     Ground[ground_id].saved_pos_in_grid[grid_id]=Grid[grid_id].max_ground_num;
-    Ground[ground_id].already_in_grid[grid_id]=true;
+    Ground[ground_id].already_in_grid[grid_id]=TRUE;
     //grid related
     Grid[grid_id].ground_ids[Grid[grid_id].max_ground_num]=ground_id;
     Grid[grid_id].max_ground_num++;
   }
 }
+
 
 void UnSetGridLineArray(int grid_id,int ground_id)
 {
@@ -24,22 +37,23 @@ void UnSetGridLineArray(int grid_id,int ground_id)
     Grid[grid_id].ground_ids[Grid[grid_id].max_ground_num-1]=-1;
     Grid[grid_id].max_ground_num--;
    //ground related
-    Ground[ground_id].already_in_grid[grid_id]=false;
+    Ground[ground_id].already_in_grid[grid_id]=FALSE;
     Ground[ground_id].saved_pos_in_grid[grid_id]=-1;
   }
 }
+
 
 void InitGrid() 
 {
   int i=0,j=0,x=0,y=0;
   for (i=0;i<GRID_NUM;i++) {
-    //Grid[i].within_render_distance=false;
+    Grid[i].within_render_distance=FALSE;
     Grid[i].max_ground_num=0;
     for (j=0;j<MAX_GROUNDS_WITHIN_GRID;j++) {
       Grid[i].ground_ids[j]=-1;
     }
-    /*Grid[i].enemy_occupy_num=0;
-    for (j=0;j<ENEMY_NUM;j++) {
+    //Grid[i].enemy_occupy_num=0;
+    /*for (j=0;j<ENEMY_NUM;j++) {
       Grid[i].enemy_occupy[j]=-1;
     }*/
     Grid[i].x1=x;
@@ -66,10 +80,10 @@ void DrawGrid(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
 //    GrLine(hwnd,hdc,ps,Grid[i].x2,Grid[i].y1,Grid[i].x2,Grid[i].y2,RGB(255,255,255));
 //    GrLine(hwnd,hdc,ps,Grid[i].x1,Grid[i].y2,Grid[i].x2,Grid[i].y2,RGB(255,255,255));
 
-    GrLine(hwnd,hdc,ps,Grid[i].x1,Grid[i].y1,Grid[i].x2,Grid[i].y1,RGB(8,39,225));
-    GrLine(hwnd,hdc,ps,Grid[i].x1,Grid[i].y1,Grid[i].x1,Grid[i].y2,RGB(8,39,225));
-    GrLine(hwnd,hdc,ps,Grid[i].x2,Grid[i].y1,Grid[i].x2,Grid[i].y2,RGB(8,39,225));
-    GrLine(hwnd,hdc,ps,Grid[i].x1,Grid[i].y2,Grid[i].x2,Grid[i].y2,RGB(8,39,225));
+    GrLine(hwnd,hdc,ps,Grid[i].x1+player.cam_x,Grid[i].y1+player.cam_y,Grid[i].x2+player.cam_x,Grid[i].y1+player.cam_y,RGB(8,39,225));
+    GrLine(hwnd,hdc,ps,Grid[i].x1+player.cam_x,Grid[i].y1+player.cam_y,Grid[i].x1+player.cam_x,Grid[i].y2+player.cam_y,RGB(8,39,225));
+    GrLine(hwnd,hdc,ps,Grid[i].x2+player.cam_x,Grid[i].y1+player.cam_y,Grid[i].x2+player.cam_x,Grid[i].y2+player.cam_y,RGB(8,39,225));
+    GrLine(hwnd,hdc,ps,Grid[i].x1+player.cam_x,Grid[i].y2+player.cam_y,Grid[i].x2+player.cam_x,Grid[i].y2+player.cam_y,RGB(8,39,225));
   }
 }
 
@@ -84,7 +98,7 @@ void InitNodeGrid()
 {
   int i=0,x=0,y=0;
   for (i=0;i<MAP_NODE_NUM;i++) {
-    NodeGrid[i].node_solid=false;
+    NodeGrid[i].node_solid=FALSE;
     NodeGrid[i].x1=x;
     NodeGrid[i].y1=y;
     NodeGrid[i].x2=NodeGrid[i].x1+NODE_SIZE;
@@ -106,7 +120,7 @@ bool IsCollideSolid(double x1,double y1,double x2,double y2,double gradient,doub
       lg_y=x*gradient+c;
       node_grid_id=GetGridId(x,lg_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
       if (NodeGrid[node_grid_id].node_solid) {
-	return true;
+	return TRUE;
       }
     }
   } else { // x=(y-c)/m
@@ -121,11 +135,11 @@ bool IsCollideSolid(double x1,double y1,double x2,double y2,double gradient,doub
       lg_x=(y-c)/gradient;
       node_grid_id=GetGridId(lg_x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
       if (NodeGrid[node_grid_id].node_solid) {
-        return true;
+        return TRUE;
       }
     }
   }
-  return false;
+  return FALSE;
 }
 
 bool IsHasNeighbours(int nx,int ny) 
@@ -167,11 +181,11 @@ bool IsHasNeighbours(int nx,int ny)
     if (0<x && x<MAP_WIDTH && 0<y && y<MAP_HEIGHT) {
       node_grid_id=GetGridId(x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
       if (NodeGrid[node_grid_id].node_solid) {
-        return true;
+        return TRUE;
       }
     }
   }
-  return false;
+  return FALSE;
 }
 
 /*void SetNodeGridAttributes2(int i)
@@ -237,7 +251,7 @@ void SetNodeGridAttributes(int i)
       SetGridLineArray(lg_grid_id,i);
       //if (!Ground[i].is_ghost) { //Not a ghost
         node_grid_id=GetGridId(x,lg_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
-        NodeGrid[node_grid_id].node_solid=true;
+        NodeGrid[node_grid_id].node_solid=TRUE;
       //}
     }
   } else { // x=(y-c)/m
@@ -254,7 +268,7 @@ void SetNodeGridAttributes(int i)
       SetGridLineArray(lg_grid_id,i);
       //if (!Ground[i].is_ghost) {
         node_grid_id=GetGridId(lg_x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
-        NodeGrid[node_grid_id].node_solid=true;
+        NodeGrid[node_grid_id].node_solid=TRUE;
       //}
     }
   }

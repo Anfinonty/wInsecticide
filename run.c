@@ -40,6 +40,7 @@
 
 
 #define GROUND_NUM    2
+#define ENEMY_NUM     1
 #define PLAYER_WIDTH 	25
 #define PLAYER_HEIGHT 	15
 
@@ -52,6 +53,9 @@
 #define MAP_NODE_NUM     (MAP_WIDTH/NODE_SIZE) * (MAP_HEIGHT/NODE_SIZE)
 
 #define MAX_GROUNDS_WITHIN_GRID	(GRID_SIZE/NODE_SIZE)*(GRID_SIZE/NODE_SIZE)/2
+
+#define RENDER_DIST	 9
+#define RDGRID_NUM	 RENDER_DIST*RENDER_DIST
 
 /*
 #define ENEMY_I64_ATTRIBUTES_NUM 26
@@ -123,9 +127,10 @@
 //#include "classvalues.c" //Set Class default amount
 //#include "class.c" //Call all classes
 
+#include "grid.c"
 #include "ground.c"
 #include "player.c"
-#include "grid.c"
+//#include "enemy.c"
 #include "song.c"
 
 //Background
@@ -228,6 +233,9 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
   bool b=true;
   while (b) {
     PlayerAct();
+    /*for (int i=0;i<player.rendered_enemy_num;i++) {
+      EnemyAct(player.render_enemies[i]);
+    }*/
     SongAct();
     Sleep(6);
   }
