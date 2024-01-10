@@ -114,7 +114,7 @@ int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
 #define MAX_GROUNDS_WITHIN_GRID	(GRID_SIZE/NODE_SIZE)*(GRID_SIZE/NODE_SIZE)/2
 
 
-#define RENDER_DIST	 6
+#define RENDER_DIST	 9
 #define RDGRID_NUM	 RENDER_DIST*RENDER_DIST
 
 #define DEFAULT_SLEEP_TIMER			6
@@ -328,6 +328,7 @@ void DrawTexts(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
 //bool once=true;
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   HDC hdc, hdcBackbuff;
+  FrameRateSleep(FPS); // (Uncapped)
   switch(msg) {
     case  WM_MOUSEMOVE: //https://stackoverflow.com/questions/22039413/moving-the-mouse-blocks-wm-timer-and-wm-paint
       UpdateWindow(hwnd);
@@ -359,10 +360,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     case WM_PAINT: //https://cplusplus.com/forum/beginner/269434/
     {
       //FrameRateSleep(35); //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
-      FrameRateSleep(FPS); // (Uncapped)
-
-
-      RECT rect;
+      //FrameRateSleep(FPS); // (Uncapped)
+      /*RECT rect;
       if(GetWindowRect(hwnd, &rect))
       {
         GR_WIDTH = rect.right - rect.left;
@@ -379,7 +378,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         CameraInit(player.x,player.y+PLAYER_HEIGHT/2+2); //idk scaling is weird for sprite
         OLD_GR_WIDTH = GR_WIDTH;
         OLD_GR_HEIGHT = GR_HEIGHT;
-      }
+      }*/
         PAINTSTRUCT ps;
         hdc=BeginPaint(hwnd, &ps);
         hdcBackbuff=CreateCompatibleDC(hdc);
