@@ -108,11 +108,13 @@ int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
 #define NODE_SIZE  	 10
 #define MAX_FOLLOW_RANGE 100
 #define MAX_NODE_NUM	 MAX_FOLLOW_RANGE*MAX_FOLLOW_RANGE
+
 #define MAP_NODE_NUM     (MAP_WIDTH/NODE_SIZE) * (MAP_HEIGHT/NODE_SIZE)
 
 #define MAX_GROUNDS_WITHIN_GRID	(GRID_SIZE/NODE_SIZE)*(GRID_SIZE/NODE_SIZE)/2
 
-#define RENDER_DIST	 9
+
+#define RENDER_DIST	 6
 #define RDGRID_NUM	 RENDER_DIST*RENDER_DIST
 
 #define DEFAULT_SLEEP_TIMER			6
@@ -298,28 +300,32 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
 
 
 void DrawTexts(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
+  int c;
   char txt[64];
   char *song_name=song_names[rand_song1][rand_song2];
   int sec = (song_time_end-time_now)%60;
+  if (!IsInvertedBackground()) {
+    c=WHITE;
+  } else {
+    c=BLACK;
+  }
   if (sec>9)
     sprintf(txt,"%s [%d:%d]",song_name,(song_time_end-time_now)/60,sec);
   else 
     sprintf(txt,"%s [%d:0%d]",song_name,(song_time_end-time_now)/60,sec);
 
-  GrPrint(hwnd,hdc,ps,0,0,txt,RGB(255,255,255));
-
+  GrPrint(hwnd,hdc,ps,0,0,txt,c);
 //  GrPrint(hwnd,hdc,ps,0,0,_txt,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
-
   char txt2[64];
   char *album_name=album_names[rand_song1][rand_song2];
-  sprintf(txt2,"%s",album_name);
-  GrPrint(hwnd,hdc,ps,0,16,txt2,RGB(255,255,255));
+  sprintf(txt2,"%s",album_name);  
+  GrPrint(hwnd,hdc,ps,0,16,txt2,c);
   //GrPrint(hwnd,hdc,ps,0,16,_txt2,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
 }
 
 
 
-bool once=true;
+//bool once=true;
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   HDC hdc, hdcBackbuff;
   switch(msg) {
@@ -394,51 +400,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         DeleteDC(hdcBackbuff);
         DeleteObject(bitmap);
         EndPaint(hwnd, &ps);
-
-      //DrawGrid(hwnd,hdcBackbuff,ps);
-      /*if (!once) {
-        PAINTSTRUCT ps;
-        hdc=BeginPaint(hwnd, &ps);
-        hdcBackbuff=CreateCompatibleDC(hdc);
-        HBITMAP bitmap=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
-        SelectObject(hdcBackbuff,bitmap);
-        //DrawBackground(hwnd,hdcBackbuff,ps);
-        DrawMap(hwnd,hdcBackbuff,ps);
-        if (map==NULL) {
-          printf("Map is empty");
-        } else {
-          printf("Map is not empty");
-        }
-        DrawPlayer(hwnd,hdcBackbuff,ps);
-        DrawTexts(hwnd,hdcBackbuff,ps);
-        if (!IsInvertedBackground()){
-          BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
-        } else {
-          BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
-        }
-  //      StretchBlt(hdc, GR_WIDTH/2, -GR_HEIGHT, -GR_WIDTH-1, GR_HEIGHT, hdcBackbuff, 0, 0, GR_WIDTH, GR_HEIGHT,     SRCCOPY);
-        /*DeleteDC(hdcBackbuff);
-        DeleteObject(bitmap);
-        EndPaint(hwnd, &ps);
-      } else {
-        PAINTSTRUCT ps;
-        hdc=BeginPaint(hwnd, &ps);
-        hdcBackbuff=CreateCompatibleDC(hdc);
-        HBITMAP bitmap=CreateCompatibleBitmap(hdc,MAP_WIDTH,MAP_HEIGHT);
-        SelectObject(hdcBackbuff,bitmap);
-
-        DrawGroundTriFill(hwnd,hdcBackbuff,ps);
-        DrawGround(hwnd,hdcBackbuff,ps);
-        DrawGroundText(hwnd,hdcBackbuff,ps);
-
-        BitBlt(hdc, 0, 0, MAP_WIDTH, MAP_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
-        map=bitmap;
-        DeleteDC(hdcBackbuff);
-        EndPaint(hwnd, &ps);
-
-        DeleteObject(bitmap);
-        once=false;
-      }*/
       return 0;
     }
       break;

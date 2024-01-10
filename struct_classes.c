@@ -24,7 +24,6 @@ struct Ground
 
 } Ground[GROUND_NUM];
 
-
 struct player 
 {
   bool  rst_down,
