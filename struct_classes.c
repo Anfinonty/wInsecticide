@@ -83,6 +83,9 @@ struct player
 } player;
 
 
+//HBITMAP map;
+
+
 struct RenderDistanceGrid
 {
   int x,y;

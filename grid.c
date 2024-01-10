@@ -188,7 +188,7 @@ bool IsHasNeighbours(int nx,int ny)
   return FALSE;
 }
 
-/*void SetNodeGridAttributes2(int i)
+void SetNodeGridAttributes2(int i)
 {
   int j=0,x=0,y=0,lg_grid_id=0;
   double gradient[2],c[2],
@@ -236,7 +236,7 @@ bool IsHasNeighbours(int nx,int ny)
       }
     }
   }
-}*/
+}
 
 
 
@@ -249,10 +249,10 @@ void SetNodeGridAttributes(int i)
       lg_y=x*Ground[i].gradient+Ground[i].c;
       lg_grid_id=GetGridId(x,lg_y,MAP_WIDTH,GRID_SIZE,GRID_NUM);
       SetGridLineArray(lg_grid_id,i);
-      //if (!Ground[i].is_ghost) { //Not a ghost
+      if (!Ground[i].is_ghost) { //Not a ghost
         node_grid_id=GetGridId(x,lg_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
         NodeGrid[node_grid_id].node_solid=TRUE;
-      //}
+      }
     }
   } else { // x=(y-c)/m
     if (Ground[i].y1<Ground[i].y2) {
@@ -266,15 +266,15 @@ void SetNodeGridAttributes(int i)
       lg_x=(y-Ground[i].c)/Ground[i].gradient;
       lg_grid_id=GetGridId(lg_x,y,MAP_WIDTH,GRID_SIZE,GRID_NUM);
       SetGridLineArray(lg_grid_id,i);
-      //if (!Ground[i].is_ghost) {
+      if (!Ground[i].is_ghost) {
         node_grid_id=GetGridId(lg_x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
         NodeGrid[node_grid_id].node_solid=TRUE;
-      //}
+      }
     }
   }
-  //if (Ground[i].type==3) {//triangle
-    //SetNodeGridAttributes2(i);
-  //}
+  if (Ground[i].type==3) {//triangle
+    SetNodeGridAttributes2(i);
+  }
 }
 
 void InitNodeGridAttributes()

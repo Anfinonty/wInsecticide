@@ -42,8 +42,8 @@ void GrPrint(HWND hwnd, HDC hdc, PAINTSTRUCT ps, double x1, double y1, char *_tx
 }
 
 void GrSprite(HWND hwnd, HDC hDC, PAINTSTRUCT ps,  double _x1, double _y1, double radians,HBITMAP hSourceBitmap,bool is_left) {
-  if (hSourceBitmap != NULL) {
-    HBITMAP hOldSourceBitmap, hOldDestBitmap, hDestBitmap;
+  if (hSourceBitmap != NULL) { ////https://ftp.zx.net.nz/pub/Patches/ftp.microsoft.com/MISC/KB/en-us/77/127.HTM
+    HBITMAP hOldSourceBitmap, hOldDestBitmap, hDestBitmap; ////https://www.codeguru.com/multimedia/rotate-a-bitmap-image/
     HDC hMemSrc,hMemDest,hdcMem;
     BITMAP iSrcBitmap;
 

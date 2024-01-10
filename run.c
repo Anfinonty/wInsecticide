@@ -24,6 +24,8 @@
 #include <dirent.h>
 #include <errno.h>
 
+
+#define COLORS_NUM  16
 #define BLACK       RGB(0,0,0)
 #define BLUE        RGB(0,0,255)
 #define GREEN    	RGB(0,128,0)
@@ -43,7 +45,7 @@
 
 
 
-int color_arr[16]={
+int color_arr[COLORS_NUM]={
 BLACK,
 BLUE,
 GREEN,
@@ -63,11 +65,33 @@ WHITE
 };
 
 
+/*int palette_dark_arr[COLORS_NUM]={
+BLACK,
+BLUE,
+GREEN,
+CYAN,
+RED,
+PURPLE,
+BROWN,
+LTGRAY,
+DKGRAY,
+LTBLUE,
+LTGREEN,
+LTCYAN,
+LTRED,
+LTPURPLE,
+YELLOW,
+WHITE
+};*/
+
+
 #define SONG_NUM 10
 #define SONG_FOLDER_NUM 13
 
-#define GR_WIDTH    800
-#define GR_HEIGHT   800
+#define SCREEN_WIDTH    GetSystemMetrics(SM_CXSCREEN)
+#define SCREEN_HEIGHT   GetSystemMetrics(SM_CYSCREEN)
+
+int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
 
 #define DEFAULT_PLAYER_JUMP_HEIGHT 		85//100
 #define DEFAULT_PLAYER_SPEED			1
@@ -94,7 +118,11 @@ WHITE
 #define DEFAULT_SLEEP_TIMER			6
 #define SLOWDOWN_SLEEP_TIMER			30
 
-#include "saves/Level001.c"
+
+//#include "saves/Level001.c"
+#include "saves/Level002.c"
+//#include "saves/Level003.c"
+//#include "saves/Level004.c"
 
 /*
 #define ENEMY_I64_ATTRIBUTES_NUM 26
@@ -111,8 +139,6 @@ WHITE
 
 
 #define MAX_WEB_NUM      100
-
-#define RDGRID_NUM	 RENDER_DIST*RENDER_DIST
 
 #define BULLET_NUM	5000
 #define MAX_BULLET_PER_FIRE 10
@@ -189,11 +215,17 @@ void InitFPS() { //https://cboard.cprogramming.com/windows-programming/30730-fin
 
 
 void InitOnce() {
+  GR_WIDTH=SCREEN_WIDTH;
+  GR_HEIGHT=SCREEN_HEIGHT;
+
+  //InitCreateMapBitmap();
   InitTickFrequency();
   InitFPS();
 }
 
 void Init() {
+  OLD_GR_WIDTH=GR_WIDTH;
+  OLD_GR_HEIGHT=GR_HEIGHT;
   InitSongBank();
   InitGrid();
   InitNodeGrid();
@@ -287,10 +319,9 @@ void DrawTexts(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
 
 
 
-
+bool once=true;
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   HDC hdc, hdcBackbuff;
-  HBITMAP bitmap;
   switch(msg) {
     case  WM_MOUSEMOVE: //https://stackoverflow.com/questions/22039413/moving-the-mouse-blocks-wm-timer-and-wm-paint
       UpdateWindow(hwnd);
@@ -323,26 +354,91 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     {
       //FrameRateSleep(35); //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
       FrameRateSleep(FPS); // (Uncapped)
-      PAINTSTRUCT ps;
-      hdc=BeginPaint(hwnd, &ps);
-      hdcBackbuff=CreateCompatibleDC(hdc);
-      bitmap=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
-      SelectObject(hdcBackbuff,bitmap);
 
-      DrawBackground(hwnd,hdcBackbuff,ps);
+
+      RECT rect;
+      if(GetWindowRect(hwnd, &rect))
+      {
+        GR_WIDTH = rect.right - rect.left;
+        GR_HEIGHT = rect.bottom - rect.top;        
+      }
+
+      if (GR_WIDTH!=OLD_GR_WIDTH || GR_HEIGHT!=OLD_GR_HEIGHT) {
+        InitPlayerCamera();
+        player.cam_x=0;
+        player.cam_y=0;
+        //bg_cam_fall_cooldown=0;
+        //background_cam_move_x=0;
+        //background_cam_move_y=0;
+        CameraInit(player.x,player.y+PLAYER_HEIGHT/2+2); //idk scaling is weird for sprite
+        OLD_GR_WIDTH = GR_WIDTH;
+        OLD_GR_HEIGHT = GR_HEIGHT;
+      }
+        PAINTSTRUCT ps;
+        hdc=BeginPaint(hwnd, &ps);
+        hdcBackbuff=CreateCompatibleDC(hdc);
+        HBITMAP bitmap=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+        SelectObject(hdcBackbuff,bitmap);
+        DrawBackground(hwnd,hdcBackbuff,ps);
+        DrawGroundTriFill(hwnd,hdcBackbuff,ps);
+        DrawGround(hwnd,hdcBackbuff,ps);
+        DrawGroundText(hwnd,hdcBackbuff,ps);
+        DrawPlayer(hwnd,hdcBackbuff,ps);
+        DrawTexts(hwnd,hdcBackbuff,ps);
+        if (!IsInvertedBackground()){
+          BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
+        } else {
+          BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
+        }
+  //      StretchBlt(hdc, GR_WIDTH/2, -GR_HEIGHT, -GR_WIDTH-1, GR_HEIGHT, hdcBackbuff, 0, 0, GR_WIDTH, GR_HEIGHT,     SRCCOPY);
+        DeleteDC(hdcBackbuff);
+        DeleteObject(bitmap);
+        EndPaint(hwnd, &ps);
+
       //DrawGrid(hwnd,hdcBackbuff,ps);
-      DrawGroundTriFill(hwnd,hdcBackbuff,ps);
-      DrawGround(hwnd,hdcBackbuff,ps); //limited
-      DrawGroundText(hwnd,hdcBackbuff,ps);
+      /*if (!once) {
+        PAINTSTRUCT ps;
+        hdc=BeginPaint(hwnd, &ps);
+        hdcBackbuff=CreateCompatibleDC(hdc);
+        HBITMAP bitmap=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+        SelectObject(hdcBackbuff,bitmap);
+        //DrawBackground(hwnd,hdcBackbuff,ps);
+        DrawMap(hwnd,hdcBackbuff,ps);
+        if (map==NULL) {
+          printf("Map is empty");
+        } else {
+          printf("Map is not empty");
+        }
+        DrawPlayer(hwnd,hdcBackbuff,ps);
+        DrawTexts(hwnd,hdcBackbuff,ps);
+        if (!IsInvertedBackground()){
+          BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
+        } else {
+          BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
+        }
+  //      StretchBlt(hdc, GR_WIDTH/2, -GR_HEIGHT, -GR_WIDTH-1, GR_HEIGHT, hdcBackbuff, 0, 0, GR_WIDTH, GR_HEIGHT,     SRCCOPY);
+        /*DeleteDC(hdcBackbuff);
+        DeleteObject(bitmap);
+        EndPaint(hwnd, &ps);
+      } else {
+        PAINTSTRUCT ps;
+        hdc=BeginPaint(hwnd, &ps);
+        hdcBackbuff=CreateCompatibleDC(hdc);
+        HBITMAP bitmap=CreateCompatibleBitmap(hdc,MAP_WIDTH,MAP_HEIGHT);
+        SelectObject(hdcBackbuff,bitmap);
 
-      DrawPlayer(hwnd,hdcBackbuff,ps);
-      DrawTexts(hwnd,hdcBackbuff,ps);
+        DrawGroundTriFill(hwnd,hdcBackbuff,ps);
+        DrawGround(hwnd,hdcBackbuff,ps);
+        DrawGroundText(hwnd,hdcBackbuff,ps);
 
-      BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0, SRCCOPY);
-//      StretchBlt(hdc, GR_WIDTH/2, -GR_HEIGHT, -GR_WIDTH-1, GR_HEIGHT, hdcBackbuff, 0, 0, GR_WIDTH, GR_HEIGHT, SRCCOPY);
-      DeleteDC(hdcBackbuff);
-      DeleteObject(bitmap);
-      EndPaint(hwnd, &ps);
+        BitBlt(hdc, 0, 0, MAP_WIDTH, MAP_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
+        map=bitmap;
+        DeleteDC(hdcBackbuff);
+        EndPaint(hwnd, &ps);
+
+        DeleteObject(bitmap);
+        once=false;
+      }*/
       return 0;
     }
       break;
@@ -365,6 +461,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nCmdShow) {
   //Window Class
   timeBeginPeriod(1);
+  //Init
+  srand(time(NULL));
+  InitOnce();//cannot be repeatedly run
+  Init();
 
   WNDCLASSW wc = {0};
   wc.style = 0;//CS_HREDRAW | CS_VREDRAW;
@@ -388,11 +488,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
                 hInstance,
                 NULL);
 
-  //Init
-  srand(time(NULL));
-
-  InitOnce();//cannot be repeatedly run
-  Init();
 
   //threads
   int *lpArgPtr;

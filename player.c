@@ -181,12 +181,11 @@ void InitPlayer() {
   }
 
 
-  //if (once) {
   player.sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/player1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
   player.sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/player2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
   player.sprite_jump = (HBITMAP) LoadImageW(NULL, L"sprites/player3-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-  //once=FALSE;
-  //}
+
+
   InitPlayerCamera();
   InitRDGrid();
 }
@@ -559,14 +558,11 @@ void DrawPlayer(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
   if (player.on_ground_timer>0) {
     if (player.walk_cycle<2) {
       GrSprite(hwnd,hdc,ps,GR_WIDTH/2,GR_HEIGHT/2,player.sprite_angle,player.sprite_1,player.last_left);
-      //GrSprite(hwnd,hdc,ps,player.x,player.y,player.sprite_angle,player.sprite_1,player.last_left);
     } else {
       GrSprite(hwnd,hdc,ps,GR_WIDTH/2,GR_HEIGHT/2,player.sprite_angle,player.sprite_2,player.last_left);
-      //GrSprite(hwnd,hdc,ps,player.x,player.y,player.sprite_angle,player.sprite_2,player.last_left);
     }
   } else { //in_air
     GrSprite(hwnd,hdc,ps,GR_WIDTH/2,GR_HEIGHT/2-6,0,player.sprite_jump,player.last_left);
-    //GrSprite(hwnd,hdc,ps,player.x,player.y-6,0,player.sprite_jump,player.last_left);
   }
 }
 

@@ -1,5 +1,13 @@
 
-
+bool IsInvertedBackground()
+{
+  if (map_background==1) {
+    return TRUE;
+  } else if (is_inverted && map_background==2) {
+    return TRUE;
+  }
+  return FALSE;
+}
 
 //Ground
 double GetLineTargetAngle(int Ground_id,double x,double y)
@@ -149,7 +157,11 @@ void InitGround() {
       if (Ground[i].y3==Ground[i].y2) {
 	    Ground[i].y3+=2;
       }
+      //if (!IsInvertedBackground()) {
       Ground[i].color=color_arr[saved_ground_color[i]];
+      /*} else {
+        Ground[i].color=palette_dark_arr[saved_ground_color[i]];
+      }*/
       Ground[i].text=saved_ground_text[i];
       if (saved_ground_is_ghost[i]) {
         Ground[i].is_ghost=TRUE;
@@ -319,6 +331,7 @@ void DrawGround(HWND hwnd, HDC hdc, PAINTSTRUCT ps)
     //} else {
       //i=GROUND_NUM+(j-rendered_ground_num);
     //}
+  //for (i=0;i<GROUND_NUM;i++) {
     if (Ground[i].type==0) {
       if (!IsOutOfBounds(Ground[i].x1,Ground[i].y1,1,MAP_WIDTH,MAP_HEIGHT) &&
           !IsOutOfBounds(Ground[i].x2,Ground[i].y2,1,MAP_WIDTH,MAP_HEIGHT)) {
@@ -344,7 +357,12 @@ void DrawGround(HWND hwnd, HDC hdc, PAINTSTRUCT ps)
               dc->color=CYAN;
             }
       	  }*/
-          GrLine(hwnd,hdc,ps,Ground[i].sprite_x1,Ground[i].sprite_y1,Ground[i].sprite_x2,Ground[i].sprite_y2,Ground[i].color);
+          GrLine(hwnd,hdc,ps,
+                Ground[i].sprite_x1,
+                Ground[i].sprite_y1,
+                Ground[i].sprite_x2,
+                Ground[i].sprite_y2,
+                Ground[i].color);
           /*if (i>=GROUND_NUM) {//Web
             if (Ground[i].x1<=player_x<=Ground[i].x2) { //pos of hearts
 	          DrawHeart(task,dc,
@@ -377,11 +395,16 @@ void DrawGroundText(HWND hwnd, HDC hdc, PAINTSTRUCT ps)
   int i=0,j=0;
   for (j=0;j<player.rendered_ground_num;j++) {
     i=player.render_grounds[j];
+  //for (i=0;i<GROUND_NUM;i++) {
     if (Ground[i].type==2) { 
       //Highlight(!IsInvertedBackground,Ground[i].color,palette_dark_arr[Ground[i].color],dc);
       if (!IsOutOfBounds(Ground[i].x1,Ground[i].y1,1,MAP_WIDTH,MAP_HEIGHT) &&
           !IsOutOfBounds(Ground[i].x2,Ground[i].y2,1,MAP_WIDTH,MAP_HEIGHT)) {
-	    GrPrint(hwnd,hdc,ps,Ground[i].sprite_x1,Ground[i].sprite_y1,Ground[i].text,Ground[i].color);
+	    GrPrint(hwnd,hdc,ps,
+            Ground[i].sprite_x1,
+            Ground[i].sprite_y1,
+            Ground[i].text,
+            Ground[i].color);
       }
     }
   }
@@ -391,14 +414,15 @@ void DrawGroundText(HWND hwnd, HDC hdc, PAINTSTRUCT ps)
 
 void DrawGroundTriFill(HWND hwnd, HDC hdc, PAINTSTRUCT ps)
 {
-  int i=0,j=0,c=0;
+  int i=0,c=0,j=0;
   for (j=0;j<player.rendered_ground_num;j++) {
     i=player.render_grounds[j];
+  //for (i=0;i<GROUND_NUM;i++) {
     if (Ground[i].type==3) { 
-      //if (!IsInvertedBackground) {
+      //if (!IsInvertedBackground()) {
 	  c=Ground[i].color;
       /*} else {
-	    c=palette_dark_arr[Ground[i].color]+WHITE<<16+ROPF_DITHER;
+	    c=palette_dark_arr[Ground[i].color];//+WHITE<<16+ROPF_DITHER;
       }*/
       if (!IsOutOfBounds(Ground[i].x1,Ground[i].y1,1,MAP_WIDTH,MAP_HEIGHT) &&
           !IsOutOfBounds(Ground[i].x2,Ground[i].y2,1,MAP_WIDTH,MAP_HEIGHT)) {
@@ -413,7 +437,6 @@ void DrawGroundTriFill(HWND hwnd, HDC hdc, PAINTSTRUCT ps)
     }
   }
 }
-
 
 
 
