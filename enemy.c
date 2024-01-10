@@ -1051,9 +1051,9 @@ void EnemyInit()
     Enemy[i].dist_from_player=999;
     Enemy[i].x=saved_enemy_x[i];
     Enemy[i].y=saved_enemy_y[i];
-    Enemy[i].sprite_x=
-    Enemy[i].sprite_y=-20;
-    Enemy[i].current_sm=0;
+    //Enemy[i].sprite_x=
+    //Enemy[i].sprite_y=-20;
+    /*Enemy[i].current_sm=0;
     Enemy[i].msprite_hold_timer=0;
     for (j=0;j<MULTI_SPRITE_NUM;j++) {
       Enemy[i].msprite_x[j]=
@@ -1063,7 +1063,7 @@ void EnemyInit()
       Enemy[i].msprite_last_left[j]=FALSE;
       Enemy[i].msprite_angle[j]=0;
       Enemy[i].msprite_in_air_timer[j]=0;
-    }
+    }*/
     SetEnemyByType(i,saved_enemy_type[i]);
     if (Enemy[i].x<5) {
       Enemy[i].x=25;

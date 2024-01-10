@@ -68,4 +68,14 @@ double GetRotateAngle(double x,double y)
   }
   return E;
 }
+
+//------------------------------------------------------------
+bool IsOutOfBounds(double x,double y,int r,int max_width,int max_height)
+{
+  if (x<=r || x>=max_width-r ||  //more than or less than
+      y<=r || y>=max_height-r) { //
+    return TRUE;
+  }
+  return FALSE;
+}
 //------------------------------------------------------

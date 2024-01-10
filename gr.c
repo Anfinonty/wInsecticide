@@ -149,3 +149,58 @@ void GrSprite(HWND hwnd, HDC hDC, PAINTSTRUCT ps,  double _x1, double _y1, doubl
 
 
 
+
+
+
+void DrawTriFill(HWND hwnd, HDC hdc, PAINTSTRUCT ps,int tri_color,double x1,double y1,double x2,double y2,double x3,double y3)
+{
+  double x_1,x_2,
+      gradient_middle1,gradient_middle2,gradient_largest,
+      c_middle1,c_middle2,c_largest,
+      smallest=9999,largest=0,
+      x_arr[3],y_arr[3];
+  x_arr[0]=x1;
+  x_arr[1]=x2;
+  x_arr[2]=x3;
+  y_arr[0]=y1;
+  y_arr[1]=y2;
+  y_arr[2]=y3;
+  int i,saved_largest=0,saved_smallest=0,saved_middle=0;
+  for (i=0;i<3;i++) {
+    if (y_arr[i]<smallest) {
+      smallest=y_arr[i];
+      saved_smallest=i;
+    }
+  }
+  for (i=0;i<3;i++) {
+    if (y_arr[i]>largest) {
+      largest=y_arr[i];
+      saved_largest=i;
+    }
+  }
+  for (i=0;i<3;i++) {
+    if (i!=saved_smallest && i!=saved_largest) {
+      saved_middle=i;
+    }
+  }
+  gradient_middle1=GetGradient(x_arr[saved_smallest],y_arr[saved_smallest],x_arr[saved_middle],y_arr[saved_middle]); //Gradient of main line
+  c_middle1=GetGroundC(x_arr[saved_smallest],y_arr[saved_smallest],gradient_middle1);
+
+  gradient_middle2=GetGradient(x_arr[saved_largest],y_arr[saved_largest],x_arr[saved_middle],y_arr[saved_middle]);
+  c_middle2=GetGroundC(x_arr[saved_largest],y_arr[saved_largest],gradient_middle2);
+
+  gradient_largest=GetGradient(x_arr[saved_largest],y_arr[saved_largest],x_arr[saved_smallest],y_arr[saved_smallest]);
+  c_largest=GetGroundC(x_arr[saved_smallest],y_arr[saved_smallest],gradient_largest);
+  for (i=smallest;i<y_arr[saved_middle];i+=1) {//small to middle
+    x_1=GetX(i,gradient_middle1,c_middle1);
+    x_2=GetX(i,gradient_largest,c_largest);
+    GrLine(hwnd,hdc,ps,x_1,i,x_2,i,tri_color);
+  }
+  for (i=y_arr[saved_middle];i<largest;i+=1) {//middle to largest
+    x_1=GetX(i,gradient_middle2,c_middle2);
+    x_2=GetX(i,gradient_largest,c_largest);
+    GrLine(hwnd,hdc,ps,x_1,i,x_2,i,tri_color);
+  }
+}
+
+

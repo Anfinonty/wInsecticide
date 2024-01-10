@@ -107,21 +107,20 @@ void InitPlayerCamera()
   //background_cam_move_x=0;
   //background_cam_move_y=0;
   CameraInit(player.saved_x,player.saved_y+PLAYER_HEIGHT/2+2); //idk scaling is weird for sprite
-  //CameraInit(player.saved_x,player.saved_y+10); //idk scaling is weird for sprite
 }
 
 
 void InitPlayer() {
   int i;
-  player.saved_x=300;
-  player.saved_y=200;
+  player.saved_x=saved_player_x;
+  player.saved_y=saved_player_y;
 
   player.rst_down=FALSE;
   player.rst_left=FALSE;
   player.rst_right=FALSE;
   player.rst_up=FALSE;
   player.last_left=FALSE;
-
+  player.rst_key_sprint=FALSE;
 
   player.angle=0;
   player.x=player.saved_x;
@@ -211,8 +210,18 @@ bool YesInitRDGrid()
 
 void PlayerAct() {
   //Initialize RD Grid
-  if (YesInitRDGrid) {
+  if (YesInitRDGrid()) {
     InitRDGrid();
+  }
+
+  //Sprinting
+  if (player.rst_key_sprint) {
+    if (player.on_ground_id!=-1) {//on ground
+      player.speed=3;
+      /*if (IsSpeedBreaking()) {
+        player_speed=5;
+      }*/
+    }
   }
   //Trigger movements
   if (player.rst_left || player.rst_right) {
@@ -281,12 +290,12 @@ void PlayerAct() {
       }
       if (player.on_ground_id!=-1) {
 	//
-        /*if (!IsSpeedBreaking) {//reset stats when normal
-          player.jump_height=DEFAULT_player.JUMP_HEIGHT;
-	      if (!rst_key_sprint) {
-            player.speed=DEFAULT_player.SPEED;
+        //if (!IsSpeedBreaking()) {//reset stats when normal
+          //player.jump_height=DEFAULT_PLAYER_JUMP_HEIGHT;
+	      if (!player.rst_key_sprint) {
+            player.speed=DEFAULT_PLAYER_SPEED;
 	      }
-        }*/
+        //}
         if ((Ground[player.on_ground_id].x1-5<=player.x && player.x<=Ground[player.on_ground_id].x2+5) && //within x
             ((Ground[player.on_ground_id].y1-5<=player.y && player.y<=Ground[player.on_ground_id].y2+5) ||
              (Ground[player.on_ground_id].y2-5<=player.y && player.y<=Ground[player.on_ground_id].y1+5))) {

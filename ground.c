@@ -2,8 +2,6 @@
 
 
 //Ground
-
-
 double GetLineTargetAngle(int Ground_id,double x,double y)
 {
 
@@ -100,20 +98,6 @@ void InitGround() {
 //Set ground default and Web
   //current_gsm=0;
   //gsm_hold_timer=0;
-  Ground[0].x1=200;
-  Ground[0].y1=100;
-  Ground[0].x2=400;
-  Ground[0].y2=150;
-
-  Ground[1].x1=100;
-  Ground[1].y1=100;
-  Ground[1].x2=700;
-  Ground[1].y2=750;
-
-  Ground[2].x1=50;
-  Ground[2].y1=200;
-  Ground[2].x2=400;
-  Ground[2].y2=350;
 
   for (i=0;i<GROUND_NUM;i++) {
     for (j=0;j<GRID_NUM;j++) {
@@ -129,14 +113,14 @@ void InitGround() {
     }*/
     if (i<GROUND_NUM) {
     //set the saved data
-      /*Ground[i].x1=saved_ground_x1[i];
+      Ground[i].x1=saved_ground_x1[i];
       Ground[i].y1=saved_ground_y1[i];
       Ground[i].x2=saved_ground_x2[i];
       Ground[i].y2=saved_ground_y2[i];
       Ground[i].x3=saved_ground_x3[i];
-      Ground[i].y3=saved_ground_y3[i];*/
+      Ground[i].y3=saved_ground_y3[i];
  
-      //Ground[i].type=saved_ground_type[i];
+      Ground[i].type=saved_ground_type[i];
       if (Ground[i].x1<1) {
         Ground[i].x1++;
       }
@@ -149,30 +133,30 @@ void InitGround() {
       if (Ground[i].x2<=Ground[i].x1) {
         Ground[i].x2=Ground[i].x1+1;
       }
-      /*if (Ground[i].x3==Ground[i].x1 || Ground[i].x3==Ground[i].x2) {
+      if (Ground[i].x3==Ground[i].x1 || Ground[i].x3==Ground[i].x2) {
 	    Ground[i].x3++;
-      }*/
+      }
 
 
-/*      if (Ground[i].type==3) {//trifill
-	if (Ground[i].y1==Ground[i].y2) {
-	  Ground[i].y2++;
+      if (Ground[i].type==3) {//trifill
+	    if (Ground[i].y1==Ground[i].y2) {
+	      Ground[i].y2++;
         }
       }
       if (Ground[i].y3==Ground[i].y1) {
-	Ground[i].y3+=2;
+	    Ground[i].y3+=2;
       }
       if (Ground[i].y3==Ground[i].y2) {
-	Ground[i].y3+=2;
+	    Ground[i].y3+=2;
       }
-      Ground[i].color=saved_ground_color[i];
+      Ground[i].color=color_arr[saved_ground_color[i]];
       Ground[i].text=saved_ground_text[i];
       if (saved_ground_is_ghost[i]) {
         Ground[i].is_ghost=TRUE;
       } else {
         Ground[i].is_ghost=FALSE;
       }
-    } else { 
+    /*} else { 
       Ground[i].x1=-25;
       Ground[i].y1=2;
       Ground[i].x2=-20;
@@ -184,7 +168,7 @@ void InitGround() {
       Ground[i].text="";
       Ground[i].is_ghost=FALSE;
     }*/
-    //Ground[i].health=-1;
+      Ground[i].health=-1;
       player.rendered_ground_num=0;
       Ground[i].height_from_player_x=0;
       Ground[i].within_render_distance=FALSE;
@@ -193,6 +177,20 @@ void InitGround() {
     }
   }
 }
+
+void InitGround2()
+{
+  int i=0;
+  for (i=0;i<GROUND_NUM/*TOTAL_GROUNDS*/;i++) {
+    Ground[i].sprite_x1=Ground[i].x1+player.cam_x;//+cam_move_x-PLAYER_WIDTH/2;
+    Ground[i].sprite_y1=Ground[i].y1+player.cam_y;//+cam_move_y-PLAYER_HEIGHT/2;
+    Ground[i].sprite_x2=Ground[i].x2+player.cam_x;//+cam_move_x-PLAYER_WIDTH/2;
+    Ground[i].sprite_y2=Ground[i].y2+player.cam_y;//+cam_move_y-PLAYER_HEIGHT/2;
+    Ground[i].sprite_x3=Ground[i].x3+player.cam_x;//+cam_move_x-PLAYER_WIDTH/2;
+    Ground[i].sprite_y3=Ground[i].y3+player.cam_y;//+cam_move_y-PLAYER_HEIGHT/2;
+  }
+}
+
 
 int GetOnGroundId(double x,double y,double min_range_1,double min_range_2,bool is_player)
 {
@@ -234,11 +232,62 @@ int GetOnGroundId(double x,double y,double min_range_1,double min_range_2,bool i
 }
 
 
-void GroundAct(int pid,int g) {
+void GroundAct() //Mainly for graphics
+{
+  int i=0,j=0;//,k=0;
+  //gsm_hold_timer++;
+  for (j=0;j<player.rendered_ground_num/*+MAX_WEB_NUM*/;j++) {
+    /*if (j<rendered_ground_num) {
+      i=render_grounds[j];
+    } else {
+      i=GROUND_NUM+(j-rendered_ground_num);
+    }*/
+    i=player.render_grounds[j];    
+    /*Ground[i].sprite_x1=Ground[i].x1+cam_x+cam_move_x-PLAYER_WIDTH/2;
+    Ground[i].sprite_y1=Ground[i].y1+cam_y+cam_move_y-PLAYER_HEIGHT/2;
+    Ground[i].sprite_x2=Ground[i].x2+cam_x+cam_move_x-PLAYER_WIDTH/2;
+    Ground[i].sprite_y2=Ground[i].y2+cam_y+cam_move_y-PLAYER_HEIGHT/2;
+    Ground[i].sprite_x3=Ground[i].x3+cam_x+cam_move_x-PLAYER_WIDTH/2;
+    Ground[i].sprite_y3=Ground[i].y3+cam_y+cam_move_y-PLAYER_HEIGHT/2;*/
+
+    Ground[i].sprite_x1=Ground[i].x1+player.cam_x;
+    Ground[i].sprite_y1=Ground[i].y1+player.cam_y;
+    Ground[i].sprite_x2=Ground[i].x2+player.cam_x;
+    Ground[i].sprite_y2=Ground[i].y2+player.cam_y;
+    Ground[i].sprite_x3=Ground[i].x3+player.cam_x;
+    Ground[i].sprite_y3=Ground[i].y3+player.cam_y;
+
+
+//multisprite
+    //if (fade_ground) {
+      //k=0;
+      /*if (gsm_hold_timer>1) {
+        if (YesLongFade2 || player_in_air_cooldown>0) {
+          Ground[i].appear_timer[current_gsm]=50;
+        }
+        Ground[i].msprite_x1[current_gsm]=Ground[i].sprite_x1;
+        Ground[i].msprite_y1[current_gsm]=Ground[i].sprite_y1;
+        Ground[i].msprite_x2[current_gsm]=Ground[i].sprite_x2;
+        Ground[i].msprite_y2[current_gsm]=Ground[i].sprite_y2;
+      }*/
+      /*for (k=0;k<MULTI_SPRITE_NUM;k++) {
+        if (Ground[i].appear_timer[k]>0 && !the_bravery_tyrant) {
+          Ground[i].appear_timer[k]--;
+        }    
+      }*/
+    //}
+  } //
+  /*if (fade_ground && gsm_hold_timer>1) {    
+    gsm_hold_timer=0;
+    current_gsm++;
+    if (current_gsm>=MULTI_SPRITE_NUM-1) {
+      current_gsm=0;
+    }
+  }*/
 }
 
 
-void DrawGrounds(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
+/*void DrawGrounds(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
   int id;
   for (int i=0;i<player.rendered_ground_num;i++) {
     id = player.render_grounds[i];
@@ -256,11 +305,114 @@ void DrawGrounds(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
         Ground[id].x2,
         Ground[id].y2,
         RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));*/
+    /*}
+  }
+}*/
+
+
+void DrawGround(HWND hwnd, HDC hdc, PAINTSTRUCT ps)
+{
+  int i=0,j=0;
+  for (j=0;j<player.rendered_ground_num/*+MAX_WEB_NUM*/;j++) {
+    //if (j<player.rendered_ground_num) {
+    i=player.render_grounds[j];
+    //} else {
+      //i=GROUND_NUM+(j-rendered_ground_num);
+    //}
+    if (Ground[i].type==0) {
+      if (!IsOutOfBounds(Ground[i].x1,Ground[i].y1,1,MAP_WIDTH,MAP_HEIGHT) &&
+          !IsOutOfBounds(Ground[i].x2,Ground[i].y2,1,MAP_WIDTH,MAP_HEIGHT)) {
+	      /*if (fade_ground) {
+      	    if (i<GROUND_NUM) {
+              Highlight(!IsInvertedBackground,Ground[i].color,palette_dark_arr[Ground[i].color],dc);
+            } else {
+              dc->color=CYAN+TRANSPARENT<<16+ROPF_DITHER;
+      	    }
+	        /*int k=0;
+      	    for (k=0;k<MULTI_SPRITE_NUM;k++) {
+	          if (Ground[i].appear_timer[k]>0) {
+       	        GrLine(dc,Ground[i].msprite_x1[k],Ground[i].msprite_y1[k],Ground[i].msprite_x2[k],Ground[i].msprite_y2[k]);
+	          }
+	        }*/
+	      //}//
+      	  /*if (i<GROUND_NUM) {
+            Highlight(!IsInvertedBackground,Ground[i].color,palette_dark_arr[Ground[i].color]/*+WHITE<<16+ROPF_DITHER,dc);
+          } else {
+            if (Ground[i].health<=player_web_health/2) {
+              dc->color=CYAN+TRANSPARENT<<16+ROPF_DITHER;
+            } else {
+              dc->color=CYAN;
+            }
+      	  }*/
+          GrLine(hwnd,hdc,ps,Ground[i].sprite_x1,Ground[i].sprite_y1,Ground[i].sprite_x2,Ground[i].sprite_y2,Ground[i].color);
+          /*if (i>=GROUND_NUM) {//Web
+            if (Ground[i].x1<=player_x<=Ground[i].x2) { //pos of hearts
+	          DrawHeart(task,dc,
+			    (Ground[i].x1+Ground[i].x2)/2,
+			    (Ground[i].y1+Ground[i].y2)/2,
+			     Ground[i].health,
+			    1);
+	      } else if (player_x<Ground[i].x1) {
+	        DrawHeart(task,dc,
+			  Ground[i].x1,
+			  Ground[i].y1,
+			  Ground[i].health,
+			  1);
+          } else {
+	        DrawHeart(task,dc,
+			  Ground[i].x2,
+			  Ground[i].y2,
+			  Ground[i].health,
+			  1);
+          }*/
+      }
     }
   }
 }
 
 
+
+void DrawGroundText(HWND hwnd, HDC hdc, PAINTSTRUCT ps)
+{
+  int i=0,j=0;
+  for (j=0;j<player.rendered_ground_num;j++) {
+    i=player.render_grounds[j];
+    if (Ground[i].type==2) { 
+      //Highlight(!IsInvertedBackground,Ground[i].color,palette_dark_arr[Ground[i].color],dc);
+      if (!IsOutOfBounds(Ground[i].x1,Ground[i].y1,1,MAP_WIDTH,MAP_HEIGHT) &&
+          !IsOutOfBounds(Ground[i].x2,Ground[i].y2,1,MAP_WIDTH,MAP_HEIGHT)) {
+	    GrPrint(hwnd,hdc,ps,Ground[i].sprite_x1,Ground[i].sprite_y1,Ground[i].text,Ground[i].color);
+      }
+    }
+  }
+}
+
+
+
+void DrawGroundTriFill(HWND hwnd, HDC hdc, PAINTSTRUCT ps)
+{
+  int i=0,j=0,c=0;
+  for (j=0;j<player.rendered_ground_num;j++) {
+    i=player.render_grounds[j];
+    if (Ground[i].type==3) { 
+      //if (!IsInvertedBackground) {
+	  c=Ground[i].color;
+      /*} else {
+	    c=palette_dark_arr[Ground[i].color]+WHITE<<16+ROPF_DITHER;
+      }*/
+      if (!IsOutOfBounds(Ground[i].x1,Ground[i].y1,1,MAP_WIDTH,MAP_HEIGHT) &&
+          !IsOutOfBounds(Ground[i].x2,Ground[i].y2,1,MAP_WIDTH,MAP_HEIGHT)) {
+	    DrawTriFill(hwnd,hdc,ps,c,
+                Ground[i].sprite_x1,
+				Ground[i].sprite_y1,
+				Ground[i].sprite_x2,
+				Ground[i].sprite_y2,
+				Ground[i].sprite_x3,
+				Ground[i].sprite_y3);
+      }
+    }
+  }
+}
 
 
 

@@ -46,7 +46,7 @@ int song_duration1[SONG_NUM]={
 300 + 32, //1 Seize the Day - Avenged Sevenfold
 180 + 31, //2 Bite The Hand That Feeds - NIИ
 180 + 38, //3 I was Once lost but I am now Profound - From First To Last
-180 + 37, //4 Hand of Blood - Bullet For My Valetine
+180 + 37, //4 Hand of Blood - Bullet For My Valentine
 180 + 36, //5 In The End - Linkin Park
 240 + 4, //6 My Curse - Killswitch Engage
 360 + 29, //7 Voodoo People - The Prodigy
@@ -59,7 +59,7 @@ char *song_name1[SONG_NUM]={
 "Seize the Day - Avenged Sevenfold",
 "Bite The Hand That Feeds - NIN",
 "I was Once lost but I am now Profound - From First To Last",
-"Hand of Blood - Bullet For My Valetine",
+"Hand of Blood - Bullet For My Valentine",
 "In The End - Linkin Park",
 "My Curse - Killswitch Engage",
 "Voodoo People - The Prodigy",

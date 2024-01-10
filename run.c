@@ -24,25 +24,56 @@
 #include <dirent.h>
 #include <errno.h>
 
+#define BLACK       RGB(0,0,0)
+#define BLUE        RGB(0,0,255)
+#define GREEN    	RGB(0,128,0)
+#define CYAN        RGB(0,128,128)
+#define RED         RGB(255,0,0)
+#define PURPLE      RGB(128,0,128)
+#define BROWN       RGB(150,75,0)
+#define LTGRAY      RGB(211,211,211)
+#define DKGRAY      RGB(169,169,169)
+#define LTBLUE      RGB(8,39,245)
+#define LTGREEN     RGB(0,255,0)
+#define LTCYAN      RGB(0,191,255)
+#define LTRED       RGB(255,71,76)
+#define LTPURPLE    RGB(255,0,255)
+#define YELLOW      RGB(255,255,0)
+#define WHITE       RGB(255,255,255)
+
+
+
+int color_arr[16]={
+BLACK,
+BLUE,
+GREEN,
+CYAN,
+RED,
+PURPLE,
+BROWN,
+LTGRAY,
+DKGRAY,
+LTBLUE,
+LTGREEN,
+LTCYAN,
+LTRED,
+LTPURPLE,
+YELLOW,
+WHITE
+};
+
+
 #define SONG_NUM 10
 #define SONG_FOLDER_NUM 13
 
 #define GR_WIDTH    800
 #define GR_HEIGHT   800
 
-#define MAP_WIDTH GR_WIDTH
-#define MAP_HEIGHT GR_HEIGHT
-
-
-
 #define DEFAULT_PLAYER_JUMP_HEIGHT 		85//100
 #define DEFAULT_PLAYER_SPEED			1
 
+#define ENEMY_TYPE_NUM                         10
 
-#define GROUND_NUM    3
-#define ENEMY_NUM     1
-//#define PLAYER_WIDTH 	25
-//#define PLAYER_HEIGHT 	15
 
 #define PLAYER_WIDTH 	32
 #define PLAYER_HEIGHT 	32
@@ -60,6 +91,11 @@
 #define RENDER_DIST	 9
 #define RDGRID_NUM	 RENDER_DIST*RENDER_DIST
 
+#define DEFAULT_SLEEP_TIMER			6
+#define SLOWDOWN_SLEEP_TIMER			30
+
+#include "saves/Level001.c"
+
 /*
 #define ENEMY_I64_ATTRIBUTES_NUM 26
 #define ENEMY_F64_ATTRIBUTES_NUM 4
@@ -72,19 +108,10 @@
 
 #define PLAYER_COMBO_TIME_LIMIT 351
 #define BUILD_RANGE   	60
-#define GRID_SIZE	160
-#define GRID_NUM	(MAP_WIDTH/GRID_SIZE) * (MAP_HEIGHT/GRID_SIZE)
 
-#define NODE_SIZE  	 10
-#define MAX_FOLLOW_RANGE 100
-#define MAX_NODE_NUM	 MAX_FOLLOW_RANGE*MAX_FOLLOW_RANGE
-#define MAP_NODE_NUM     (MAP_WIDTH/NODE_SIZE) * (MAP_HEIGHT/NODE_SIZE)
-
-#define MAX_GROUNDS_WITHIN_GRID	(GRID_SIZE/NODE_SIZE)*(GRID_SIZE/NODE_SIZE)/2
 
 #define MAX_WEB_NUM      100
 
-#define RENDER_DIST	 9
 #define RDGRID_NUM	 RENDER_DIST*RENDER_DIST
 
 #define BULLET_NUM	5000
@@ -94,11 +121,6 @@
 #define DEFAULT_PLAYER_ATTACK_STRENGTH  	1
 #define DEFAULT_PLAYER_KNOCKBACK_STRENGTH	50
 
-#define DEFAULT_SLEEP_TIMER			6
-#define SLOWDOWN_SLEEP_TIMER			30
-
-#define DEFAULT_SLEEP_TIMER_ZEAL		3
-#define SLOWDOWN_SLEEP_TIMER_ZEAL		20
 
 #define DEFAULT_PLAYER_BUILD_RANGE		100//12
 #define DEFAULT_PLAYER_SHORT_BUILD_RANGE	10
@@ -118,8 +140,6 @@
 #define GAMEMODE_NUM	2
 #define OPTION_NUM	4
 #define COMBO_NUM	3
-
-#define DEFAULT_MUSIC_TEMPO	5.100
 */
 
 #include "math.c"
@@ -127,21 +147,20 @@
 
 #include "struct_classes.c"
 
-//#include "classvalues.c" //Set Class default amount
-//#include "class.c" //Call all classes
-
 #include "grid.c"
 #include "ground.c"
 #include "player.c"
 //#include "enemy.c"
+//#include "bullet.c"
 #include "song.c"
 
 //Background
 void DrawBackground(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(253, 2, 139));
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(173, 216, 230));
-  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(8,39,245));
+//  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(8,39,245));
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255))); //RAVE
+  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,custom_map_background_color);
 }
 
 
@@ -179,12 +198,12 @@ void Init() {
   InitGrid();
   InitNodeGrid();
   InitGround();
-  //BulletInit;
-  //EnemyInit;
+  //InitBullet();
+  //InitEnemy();
   InitNodeGridAttributes();
-  //BackgroundInit;
+  //InitBackground;
   InitPlayer();
-  //GroundInit2;
+  InitGround2();
 }
 
 
@@ -198,7 +217,7 @@ void FrameRateSleep(int max_fps)
     {
 
       int ticks_to_wait = (int) (m_high_perf_timer_freq.QuadPart / max_fps);
-      bool done = false;
+      bool done = FALSE;
       do
       {
         QueryPerformanceCounter(&t);
@@ -207,9 +226,9 @@ void FrameRateSleep(int max_fps)
         int ticks_left = ticks_to_wait - ticks_passed;
 
         if (t.QuadPart < m_prev_end_of_frame.QuadPart)    // time wrap
-          done = true;
+          done = TRUE;
         if (ticks_passed >= ticks_to_wait)
-          done = true;
+          done = TRUE;
        
         if (!done)
         {
@@ -233,14 +252,15 @@ void FrameRateSleep(int max_fps)
 
 
 DWORD WINAPI AnimateTask01(LPVOID lpArg) {
-  bool b=true;
+  bool b=TRUE;
   while (b) {
     PlayerAct();
     /*for (int i=0;i<player.rendered_enemy_num;i++) {
       EnemyAct(player.render_enemies[i]);
     }*/
+    GroundAct();
     SongAct();
-    Sleep(6);
+    Sleep(DEFAULT_SLEEP_TIMER);
   }
 }
 
@@ -277,25 +297,27 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       break;
     case WM_KEYDOWN:
       switch (wParam) {
-        case 'S':case VK_DOWN:player.rst_down=true;break;
-        case 'D':case VK_RIGHT:player.rst_right=true;break;
-        case 'A':case VK_LEFT:player.rst_left=true;break;
-        case 'W':case VK_UP:player.rst_up=true;break;
+        case 'S':case VK_DOWN:player.rst_down=TRUE;break;
+        case 'D':case VK_RIGHT:player.rst_right=TRUE;break;
+        case 'A':case VK_LEFT:player.rst_left=TRUE;break;
+        case 'W':case VK_UP:player.rst_up=TRUE;break;
         case VK_RETURN:Init();break;
+        case ' ':player.rst_key_sprint=TRUE;break;
       }
       break;
     case WM_KEYUP:
       switch (wParam) {
-        case 'S':case VK_DOWN:if(player.rst_down)player.rst_down=false;break;
-        case 'D':case VK_RIGHT:if(player.rst_right)player.rst_right=false;break;
-        case 'A':case VK_LEFT:if(player.rst_left)player.rst_left=false;break;
-        case 'W':case VK_UP:if(player.rst_up)player.rst_up=false;break;
-        case 'M':song_time_end=0;play_new_song=false;break;//end current song
+        case 'S':case VK_DOWN:if(player.rst_down)player.rst_down=FALSE;break;
+        case 'D':case VK_RIGHT:if(player.rst_right)player.rst_right=FALSE;break;
+        case 'A':case VK_LEFT:if(player.rst_left)player.rst_left=FALSE;break;
+        case 'W':case VK_UP:if(player.rst_up)player.rst_up=FALSE;break;
+        case 'M':song_time_end=0;play_new_song=FALSE;break;//end current song
+        case ' ':if(player.rst_key_sprint)player.rst_key_sprint=FALSE;break;
       }
       break;
     case WM_ERASEBKGND:
-      InvalidateRect(hwnd,NULL,true);
-      return true;
+      InvalidateRect(hwnd,NULL,TRUE);
+      return TRUE;
       break;
     case WM_PAINT: //https://cplusplus.com/forum/beginner/269434/
     {
@@ -308,8 +330,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       SelectObject(hdcBackbuff,bitmap);
 
       DrawBackground(hwnd,hdcBackbuff,ps);
-      DrawGrid(hwnd,hdcBackbuff,ps);
-      DrawGrounds(hwnd,hdcBackbuff,ps);
+      //DrawGrid(hwnd,hdcBackbuff,ps);
+      DrawGroundTriFill(hwnd,hdcBackbuff,ps);
+      DrawGround(hwnd,hdcBackbuff,ps); //limited
+      DrawGroundText(hwnd,hdcBackbuff,ps);
+
       DrawPlayer(hwnd,hdcBackbuff,ps);
       DrawTexts(hwnd,hdcBackbuff,ps);
 
