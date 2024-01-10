@@ -361,7 +361,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     {
       //FrameRateSleep(35); //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
       //FrameRateSleep(FPS); // (Uncapped)
-      /*RECT rect;
+      RECT rect;
       if(GetWindowRect(hwnd, &rect))
       {
         GR_WIDTH = rect.right - rect.left;
@@ -378,27 +378,28 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         CameraInit(player.x,player.y+PLAYER_HEIGHT/2+2); //idk scaling is weird for sprite
         OLD_GR_WIDTH = GR_WIDTH;
         OLD_GR_HEIGHT = GR_HEIGHT;
-      }*/
-        PAINTSTRUCT ps;
-        hdc=BeginPaint(hwnd, &ps);
-        hdcBackbuff=CreateCompatibleDC(hdc);
-        HBITMAP bitmap=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
-        SelectObject(hdcBackbuff,bitmap);
-        DrawBackground(hwnd,hdcBackbuff,ps);
-        DrawGroundTriFill(hwnd,hdcBackbuff,ps);
-        DrawGround(hwnd,hdcBackbuff,ps);
-        DrawGroundText(hwnd,hdcBackbuff,ps);
-        DrawPlayer(hwnd,hdcBackbuff,ps);
-        DrawTexts(hwnd,hdcBackbuff,ps);
-        if (!IsInvertedBackground()){
-          BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
-        } else {
-          BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
-        }
+      }
+
+      PAINTSTRUCT ps;
+      hdc=BeginPaint(hwnd, &ps);
+      hdcBackbuff=CreateCompatibleDC(hdc);
+      HBITMAP bitmap=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+      SelectObject(hdcBackbuff,bitmap);
+      DrawBackground(hwnd,hdcBackbuff,ps);
+      DrawGroundTriFill(hwnd,hdcBackbuff,ps);
+      DrawGround(hwnd,hdcBackbuff,ps);
+      DrawGroundText(hwnd,hdcBackbuff,ps);
+      DrawPlayer(hwnd,hdcBackbuff,ps);
+      DrawTexts(hwnd,hdcBackbuff,ps);
+      if (!IsInvertedBackground()){
+        BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
+      } else {
+        BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
+      }
   //      StretchBlt(hdc, GR_WIDTH/2, -GR_HEIGHT, -GR_WIDTH-1, GR_HEIGHT, hdcBackbuff, 0, 0, GR_WIDTH, GR_HEIGHT,     SRCCOPY);
-        DeleteDC(hdcBackbuff);
-        DeleteObject(bitmap);
-        EndPaint(hwnd, &ps);
+      DeleteDC(hdcBackbuff);
+      DeleteObject(bitmap);
+      EndPaint(hwnd, &ps);
       return 0;
     }
       break;
