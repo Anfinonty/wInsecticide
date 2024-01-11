@@ -52,10 +52,10 @@ void InitGrid()
     for (j=0;j<MAX_GROUNDS_WITHIN_GRID;j++) {
       Grid[i].ground_ids[j]=-1;
     }
-    //Grid[i].enemy_occupy_num=0;
-    /*for (j=0;j<ENEMY_NUM;j++) {
+    Grid[i].enemy_occupy_num=0;
+    for (j=0;j<ENEMY_NUM;j++) {
       Grid[i].enemy_occupy[j]=-1;
-    }*/
+    }
     Grid[i].x1=x;
     Grid[i].y1=y;
     Grid[i].x2=Grid[i].x1+GRID_SIZE;

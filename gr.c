@@ -28,6 +28,46 @@ void GrLine(HWND hwnd, HDC hdc, PAINTSTRUCT ps,double x1,double y1,double x2,dou
 }
 
 
+void GrCircle(HWND hwnd, HDC hdc, PAINTSTRUCT ps, double x, double y, int size, int COLOR) {
+//Shape Coordinates
+  double x1=x-size;
+  double y1=y-size;
+  double x2=x+size;
+  double y2=y+size;
+
+  int left = min(x1, x2);
+  int top = min(y1, y2);
+  int right = max(x1, x2);
+  int bottom = max(y1, y2);
+
+  int length = min(abs(x2-x1), abs(y2-y1));
+  if (x2 < x1)
+    left = right - length;
+  else
+    right = left + length;
+
+  if (y2 < y1)
+    top = bottom - length;
+  else
+    bottom = top + length;
+
+  HBRUSH hBrush,holdBrush;
+  HPEN hPen,holdPen;
+
+  hBrush = CreateSolidBrush(COLOR);
+  hPen=CreatePen(PS_NULL,1,COLOR);
+  holdPen=SelectObject(hdc,hPen);
+  holdBrush=(HBRUSH) SelectObject(hdc,hBrush);
+
+  Ellipse(hdc, left, top, right, bottom);
+
+  SelectObject(hdc, holdBrush);
+  SelectObject(hdc, holdPen);
+  DeleteObject(hPen);
+  DeleteObject(hBrush);
+}
+
+
 void GrPrint(HWND hwnd, HDC hdc, PAINTSTRUCT ps, double x1, double y1, char *_txt, int color) {
   //DWORD color;
   //HFONT hFont, holdFont;

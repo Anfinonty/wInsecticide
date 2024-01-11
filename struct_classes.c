@@ -26,7 +26,8 @@ struct Ground
 
 struct player 
 {
-  bool  rst_down,
+  bool  hiding,
+        rst_down,
         rst_left,
         rst_right,
         rst_up,
@@ -57,8 +58,8 @@ struct player
     rendered_grid_num,
     render_grids[RDGRID_NUM],
  
-   //rendered_enemy_num,
-    //render_enemies[ENEMY_NUM],
+    rendered_enemy_num,
+    render_enemies[ENEMY_NUM],
 
     rendered_ground_num,
     render_grounds[GROUND_NUM];
@@ -67,6 +68,10 @@ struct player
          saved_y,
          x,
          y,
+         above_x,
+         above_y,
+         above_x2,
+         above_y2,
          sprite_angle,
          angle,
          player_grav;
@@ -101,8 +106,8 @@ struct Grid
   bool within_render_distance;
   int max_ground_num, //how many grounds are occupying this grid
     ground_ids[MAX_GROUNDS_WITHIN_GRID], //id of grounds that are occupying this grid
-    //enemy_occupy_num, //how many enemies are occupying this grid
-    //enemy_occupy[ENEMY_NUM], //id of enemies occupying this grid
+    enemy_occupy_num, //how many enemies are occupying this grid
+    enemy_occupy[ENEMY_NUM], //id of enemies occupying this grid
     x1,y1,x2,y2; //grid axes
 } Grid[GRID_NUM];
 
@@ -113,14 +118,34 @@ struct Node
   int x1,y1,x2,y2;
 } NodeGrid[MAP_NODE_NUM];
 
+int current_bullet_id=0;
+struct Bullet
+{
+  bool shot,left,near_miss;
+  int color,
+      speed_multiplier,
+      damage,
+      from_enemy_id,
+      graphics_type,
+      saved_pos;
+  double sprite_x,sprite_y,start_x,start_y,
+      x,y,angle,speed,range;
+  //msprite
+  /*I64 msprite_hold_timer,
+      msprite_hold_timer_max,
+      current_sm,
+      appear_timer[MULTI_SPRITE_NUM];
+  F64 msprite_x[MULTI_SPRITE_NUM],
+      msprite_y[MULTI_SPRITE_NUM];*/
+} Bullet[BULLET_NUM];
 
-/*struct Enemy
+struct Enemy
 {
   //Line Of Sight bullet
-  //bool LOS_left,LOS_shot;
-  //double LOS_x,LOS_y,LOS_angle,LOS_target_x,LOS_target_y;
+  bool LOS_left,LOS_shot;
+  double LOS_x,LOS_y,LOS_angle,LOS_target_x,LOS_target_y;
   //Bullet
-  /*int bullet_cooldown_max,
+  int bullet_cooldown_max,
       bullet_cooldown,
       bullet_fire_at_once_max,
       bullet_fire_cooldown_max,
@@ -135,12 +160,12 @@ struct Node
       bullet_graphics_type,
       bullet_head_x[MAX_BULLET_PER_FIRE],
       bullet_head_y[MAX_BULLET_PER_FIRE],
-      bullet_shot_arr[BULLET_NUM*1];*/
-  //double bullet_speed;
+      bullet_shot_arr[BULLET_NUM*1];
+  double bullet_speed;
 
 
   //Grid interaction
-  /*int grid_queue[GRID_NUM],
+  int grid_queue[GRID_NUM],
       saved_grid_id;
 
 
@@ -159,9 +184,9 @@ struct Node
 
 
   //Attacked
-  bool knockback_left;
+  /*bool knockback_left;
   double knockback_angle;
-  int knockback_timer;
+  int knockback_timer;*/
 
 
   //Enemy Attributes
@@ -199,7 +224,7 @@ struct Node
       health,
       max_health,
       time_breaker_rare,
-      time_breaker_length;*/
+      time_breaker_length;
      //snd
       /*snd_dur,
       snd_dur_max,
@@ -207,14 +232,15 @@ struct Node
       snd_rand,
       death_snd_dur_max,
       death_snd_pitch,
-      death_snd_rand;
+      death_snd_rand;*/
 
 
-  /*double shoot_target_x,shoot_target_y,
+  double shoot_target_x,shoot_target_y,
       x,y,angle,dist_from_player,
-      //sprite_x,
-      //sprite_y,
-      speed;*/
+      sprite_x,
+      sprite_y,
+      speed;
+
 //msprite
   /*bool msprite_last_left[MULTI_SPRITE_NUM];
   double msprite_x[MULTI_SPRITE_NUM],
@@ -229,7 +255,7 @@ struct Node
 
 
   //Pathfinding attributes
-/*  int current_node,
+  int current_node,
       node_neighbour[8],
       start_node,
       end_node,
@@ -244,6 +270,9 @@ struct Node
       search_timer,
       idle_timer,
       forgor_timer;
-} Enemy[ENEMY_NUM];*/
 
+} Enemy[ENEMY_NUM];
+
+HBITMAP enemy1_sprite_1;
+HBITMAP enemy1_sprite_2;
 

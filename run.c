@@ -121,6 +121,8 @@ int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
 #define DEFAULT_SLEEP_TIMER			6
 #define SLOWDOWN_SLEEP_TIMER			30
 
+#define BULLET_NUM	5000
+#define MAX_BULLET_PER_FIRE 10
 
 //#include "saves/Level001.c"
 #include "saves/Level002.c"
@@ -143,8 +145,6 @@ int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
 
 #define MAX_WEB_NUM      100
 
-#define BULLET_NUM	5000
-#define MAX_BULLET_PER_FIRE 10
 #define DEFAULT_PLAYER_HEALTH			20
 #define DEFAULT_PLAYER_JUMP_HEIGHT 		85//100
 #define DEFAULT_PLAYER_ATTACK_STRENGTH  	1
@@ -179,8 +179,8 @@ int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
 #include "grid.c"
 #include "ground.c"
 #include "player.c"
-//#include "enemy.c"
-//#include "bullet.c"
+#include "bullet.c"
+#include "enemy.c"
 #include "song.c"
 
 //Background
@@ -236,8 +236,8 @@ void Init() {
   InitGrid();
   InitNodeGrid();
   InitGround();
-  //InitBullet();
-  //InitEnemy();
+  InitBullet();
+  InitEnemy();
   InitNodeGridAttributes();
   //InitBackground;
   InitPlayer();
@@ -293,8 +293,11 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
   bool b=TRUE;
   while (b) {
     PlayerAct();
-    /*for (int i=0;i<player.rendered_enemy_num;i++) {
+    for (int i=0;i<player.rendered_enemy_num;i++) {
       EnemyAct(player.render_enemies[i]);
+    }
+    /*for (int i=0;i<ENEMY_NUM;i++) {
+      EnemyAct(i);
     }*/
     GroundAct();
     SongAct();
@@ -394,7 +397,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       DrawGroundTriFill(hwnd,hdcBackbuff,ps);
       DrawGround(hwnd,hdcBackbuff,ps);
       DrawGroundText(hwnd,hdcBackbuff,ps);
+      DrawEnemy(hwnd,hdcBackbuff,ps);
       DrawPlayer(hwnd,hdcBackbuff,ps);
+
       DrawTexts(hwnd,hdcBackbuff,ps);
       if (!IsInvertedBackground()){
         BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);

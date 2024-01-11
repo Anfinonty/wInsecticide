@@ -21,16 +21,16 @@ void InitRDGrid()
     Grid[player.render_grids[i]].within_render_distance=FALSE; //all rendered-grids are no-longer within render distance
     player.render_grids[i]=-1;  //unrender all rendered grids
   }
-  /*for (i=0;i<player.rendered_enemy_num;i++) {
+  for (i=0;i<player.rendered_enemy_num;i++) {
     Enemy[player.render_enemies[i]].within_render_distance=FALSE; //all rendered-enemies are no-longer within render distance
     player.render_enemies[i]=-1; //unrender all rendered enemies
-  }*/
+  }
   for (i=0;i<player.rendered_ground_num;i++) {
     Ground[player.render_grounds[i]].within_render_distance=FALSE; //All rendered-grounds are no-longer within render distance
     player.render_grounds[i]=-1; //unrender all rendered grounds
   }
   player.rendered_grid_num=0;
-  //player.rendered_enemy_num=0;
+  player.rendered_enemy_num=0;
   player.rendered_ground_num=0;
 
   //Begin rendering
@@ -50,14 +50,14 @@ void InitRDGrid()
       player.rendered_grid_num++; //count amount of grids rendered
 
       //enemy
-      /*for (j=0;j<Grid[on_grid_id].enemy_occupy_num;j++) { //fetch enemies that are occupying the grid
+      for (j=0;j<Grid[on_grid_id].enemy_occupy_num;j++) { //fetch enemies that are occupying the grid
 	    k=Grid[on_grid_id].enemy_occupy[j]; //enemy_id in grid
  	    if (!Enemy[k].within_render_distance) { //enemy is now within render distance
 	      Enemy[k].within_render_distance=TRUE;
           player.render_enemies[player.rendered_enemy_num]=k; //append grid to render_enemies array
 	      player.rendered_enemy_num++; //count number of rendered enemies 
 	    }
-      }*/
+      }
 
       //grounds
       for (j=0;j<Grid[on_grid_id].max_ground_num;j++) { //fetch all grounds that are occupying the grid
@@ -123,9 +123,15 @@ void InitPlayer() {
   player.last_left=FALSE;
   player.rst_key_sprint=FALSE;
 
+  player.hiding=FALSE;
+
   player.angle=0;
   player.x=player.saved_x;
   player.y=player.saved_y;
+
+  player.above_x=player.above_x2=player.x;
+  player.above_y=player.above_y2=player.y;
+
   player.player_jump_height=DEFAULT_PLAYER_JUMP_HEIGHT;
   player.jump_height=0;
   player.speed=DEFAULT_PLAYER_SPEED;
@@ -171,15 +177,15 @@ void InitPlayer() {
   //player.destroy_ground=FALSE;
 
   player.rendered_grid_num=0;
-  //player.rendered_enemy_num=0;
+  player.rendered_enemy_num=0;
   player.rendered_ground_num=0;
 
   for (i=0;i<RDGRID_NUM;i++) {
     player.render_grids[i]=-1;
   }
-  /*for (i=0;i<ENEMY_NUM;i++) {
+  for (i=0;i<ENEMY_NUM;i++) {
     player.render_enemies[i]=-1;
-  }*/
+  }
   for (i=0;i<GROUND_NUM/*+MAX_WEB_NUM*/;i++) {
     player.render_grounds[i]=-1;
   }
@@ -254,18 +260,18 @@ void PlayerAct() {
 
  //Get player grid id
  //player.speed
-  int i=0,speed=0,grav_speed=0;
+  int i=0,speed=0,grav_speed=0,claws_l=NODE_SIZE;
   double cur_dist=0,cur_angle=0;//,grad_x1=0,grad_y1=0,grad_x2=0,grad_y2=0;
   bool allow_act=FALSE;
   for (speed=0;speed<player.speed;speed++) {
     for (grav_speed=0;grav_speed<player.grav;grav_speed++) {
       player.on_ground_id=GetOnGroundId(player.x,player.y,5,4,TRUE);    //Get Ground id
    //hiding?
-      /*if (NodeGrid[GetGridId(above_player.x,above_player.y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM)].node_solid) {
+      if (NodeGrid[GetGridId(player.above_x,player.above_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM)].node_solid) {
         player.hiding=TRUE;
       } else {
         player.hiding=FALSE;
-      }*/
+      }
    //Destroy Ground (regainable)
       /*if (destroy_ground) {
         if (on_ground_id>=GROUND_NUM && on_ground_id!=web_being_shot) {
@@ -496,43 +502,43 @@ void PlayerAct() {
       player.previous_below=FALSE;
       player.saved_ground_id=player.on_ground_id;
    //Set Character's Axis
-      /*if (print_current_above) {
-        above_player.x=player.x+(claws_l)*Cos(player.angle-pi/2);
-        above_player.y=player.y+(claws_l)*Sin(player.angle-pi/2);
-        above_player.x2=player.x+(claws_l*2)*Cos(player.angle-pi/2);
-        above_player.y2=player.y+(claws_l*2)*Sin(player.angle-pi/2);
-        if (last_left) {
+      if (player.print_current_above) {
+        player.above_x=player.x+(claws_l)*cos(player.angle-M_PI/2);
+        player.above_y=player.y+(claws_l)*sin(player.angle-M_PI/2);
+        player.above_x2=player.x+(claws_l*2)*cos(player.angle-M_PI/2);
+        player.above_y2=player.y+(claws_l*2)*sin(player.angle-M_PI/2);
+        /*if (last_left) {
           player.claws_x=player.x-(claws_l)*Cos(player.angle);
           player.claws_y=player.y-(claws_l)*Sin(player.angle);
         } else {
           player.claws_x=player.x+(claws_l)*Cos(player.angle);
           player.claws_y=player.y+(claws_l)*Sin(player.angle);
-        }
-      } else if (print_current_below) {
-        above_player.x=player.x+(claws_l)*Cos(player.angle+pi/2);
-        above_player.y=player.y+(claws_l)*Sin(player.angle+pi/2);
-        above_player.x2=player.x+(claws_l*2)*Cos(player.angle+pi/2);
-        above_player.y2=player.y+(claws_l*2)*Sin(player.angle+pi/2);
-        if (last_left) {
+        }*/
+      } else if (player.print_current_below) {
+        player.above_x=player.x+(claws_l)*cos(player.angle+M_PI/2);
+        player.above_y=player.y+(claws_l)*sin(player.angle+M_PI/2);
+        player.above_x2=player.x+(claws_l*2)*cos(player.angle+M_PI/2);
+        player.above_y2=player.y+(claws_l*2)*sin(player.angle+M_PI/2);
+        /*if (last_left) {
           player.claws_x=player.x+(claws_l)*Cos(player.angle);
           player.claws_y=player.y+(claws_l)*Sin(player.angle);
         } else {
           player.claws_x=player.x-(claws_l)*Cos(player.angle);
           player.claws_y=player.y-(claws_l)*Sin(player.angle);
-        }
+        }*/
       } else {
-        above_player.x=player.x;
-        above_player.y=player.y;
-        above_player.x2=player.x;
-        above_player.y2=player.y;
-        if (last_left) {
+        player.above_x=player.x;
+        player.above_y=player.y;
+        player.above_x2=player.x;
+        player.above_y2=player.y;
+        /*if (last_left) {
          player.claws_x=player.x-(claws_l);
           player.claws_y=player.y;
         } else {
           player.claws_x=player.x+(claws_l);
           player.claws_y=player.y;
-        }
-      }*/
+        }*/
+      }
     }
   }
  //misc
