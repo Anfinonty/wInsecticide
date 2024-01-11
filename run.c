@@ -13,6 +13,7 @@
 
 
 #include <windows.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -86,7 +87,7 @@ WHITE
 
 
 #define SONG_NUM 10
-#define SONG_FOLDER_NUM 13
+#define SONG_FOLDER_NUM 14
 
 #define SCREEN_WIDTH    GetSystemMetrics(SM_CXSCREEN)
 #define SCREEN_HEIGHT   GetSystemMetrics(SM_CYSCREEN)
@@ -317,7 +318,7 @@ void DrawTexts(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
   GrPrint(hwnd,hdc,ps,0,0,txt,c);
 //  GrPrint(hwnd,hdc,ps,0,0,_txt,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
   char txt2[64];
-  char *album_name=album_names[rand_song1][rand_song2];
+  char *album_name=album_name_arr[album_names[rand_song1][rand_song2]];
   sprintf(txt2,"%s",album_name);  
   GrPrint(hwnd,hdc,ps,0,16,txt2,c);
   //GrPrint(hwnd,hdc,ps,0,16,_txt2,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));

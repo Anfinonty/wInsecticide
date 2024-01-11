@@ -1,4 +1,187 @@
 
+
+#define ALBUM_NUM   56
+char *album_name_arr[ALBUM_NUM]={
+//Gorillaz
+"Gorillaz (2001)", //0
+"Demon Days (2005)", //1
+
+//Pendulum
+"Hold Your Colour (2005)", //2
+"In Silico (2008)", //3
+"Immersion (2010)", //4
+
+//NINE INCH NAILS [NIN]
+"[WITH_TEETH] (2005)", //5
+
+//Marilyn Manson
+"Antichrist Superstar (1996)", //6
+"Mechanical Animals (1998)", //7
+
+//Linkin Park
+"Hybrid Theory (2000)", //8
+
+//Brand New
+"The Devil And God Are Raging Inside Me (2006)", //9
+
+//Unwritten Law
+"Here's To The Mourning (2005)", //10
+
+//B'z
+"Action (2007)", //11
+
+//Evanescence
+"Fallen (2003)", //12
+
+//Limp Bizkit
+"Chocolate Starfish and The Hot Dog Flavored Water (2000)", //13
+
+//Finch
+"Say Hello to Sunshine (2005)", //14
+
+//Comeback Kid
+"Wake The Dead (2005)", //15
+
+//DOGS
+"Turned Against This Land (2005)", //16
+
+//Avenged Sevenfold
+"City Of Evil (2005)", //17
+
+//From First To Last
+"From First To Last (2008)", //18
+
+//Bullet For My Valentine
+"Hand of Blood (2005)", //19
+"Scream Aim Fire (2005)", //20
+
+//Killswitch Engage
+"As Daylight Dies (2006)", //21
+
+
+//The Pridogy
+"Music For the Jilted Generation (1999)", //22
+
+
+
+//Avril Lavigne
+"Let Go (2002)", //23
+"Under My Skin (2004)", //24
+"Avril Lavigne (2013)", //25
+
+
+//The Fashion
+"The Fashion (2007)", //26
+
+//JunkieXL
+"Today (2006)", //27
+
+//DJ Seph
+"DJ Seph (2006)", //28
+
+
+//MxPx
+"Panic (2005)", //29
+
+
+//Bundy
+"Pheromones (2005)", //30
+
+
+//Funeral For a Friend
+"Hours (2005)", //31
+
+
+//Superdiscount
+"Superdiscount (2005)", //32
+
+
+//Queens of the Stone Age
+"Lullabies To Paralyze (2005)", //33
+
+
+//Goldfinger
+"Disconnection Notice (2004)", //34
+
+
+//Billy Talent
+"Billy Talent II (2006)", //35
+
+
+//The All-American Rejects
+"Move Along (2005)", //36
+
+
+//Bloc Party
+"Silent Alarm (2005)", //37
+
+//BT
+"BT (2004)", //38
+
+
+//Kasabian
+"Kasabian (2004)", //39
+
+
+//Saosin
+"Saosin (2006)", //40
+
+
+//We Are Scientists
+"With Love and Squalor (2005)", //41
+
+
+//Klaxons
+"Surfing The Void (2010)", //42
+"Myths of the Near Future (2007)", //43
+
+
+//The Bravery
+"The Bravery (2005)", //44
+
+
+//Ash
+"Meltdown (2004)", //45
+
+
+//The FUps
+"All The Young Dudes (2004)", //46
+
+
+//Jimmy Eat World
+"Futures (2004)", //47
+
+//Pilot To Gunner
+"Get Saved (2004)", //48
+
+//Motioncity Soundtrack
+"I Am the Movie (2003)", //49
+
+//Mannie Fresh
+"The Mind of Mannie Fresh (2004)", //50
+
+
+//Mudmen
+"Overrated (2003)", //51
+
+//Fallout Boy
+"Take This To Your Grave (2003)", //52
+
+
+
+//30 seconds to mars
+"30 Seconds to Mars (2002)", //53
+
+
+//Yellowcard
+"Lights and Sounds (2006)", //54
+
+//NIL
+"(2005)" //55
+};
+
+
+
 //0
 int song_duration0[SONG_NUM]={
 180 + 43,//0 Dirty Harry - Gorillaz 
@@ -26,18 +209,6 @@ char *song_name0[SONG_NUM]={
 "Track99 - Marilyn Manson"
 };
 
-char *album_name0[SONG_NUM]={
-"Demon Days (2005)",
-"Demon Days (2005)",
-"Demon Days (2005)",
-"Hold Your Colour (2005)",
-"Immersion (2010)",
-"Demon Days (2005)",
-"Gorillaz (2001)",
-"Say Hello to Sunshine (2005)",
-"Wake The Dead (2005)",
-"Antichrist Superstar (1996)"
-};
 
 
 //1
@@ -55,7 +226,7 @@ int song_duration1[SONG_NUM]={
 };
 
 char *song_name1[SONG_NUM]={
-"Tuned to a Different Station - Dogs",
+"Tuned to a Different Station - DOGS",
 "Seize the Day - Avenged Sevenfold",
 "Bite The Hand That Feeds - NIN",
 "I was Once lost but I am now Profound - From First To Last",
@@ -66,21 +237,6 @@ char *song_name1[SONG_NUM]={
 "My Happy Ending - Avril Lavigne",
 "Rollin' - Limp Bizkit"
 };
-
-char *album_name1[SONG_NUM]={
-"Turned Against This Land (2005)",
-"City Of Evil (2005)",
-"[WITH_TEETH] (2005)",
-"From First To Last (2008)",
-"Hand of Blood (2005)",
-"Hybrid Theory (2000)",
-"As Daylight Dies (2006)",
-"Music For the Jilted Generation (1999)",
-"Under My Skin (2004)",
-"Chocolate Starfish and The Hot Dog Flavored Water (2000)"
-};
-
-
 
 
 
@@ -113,23 +269,6 @@ char *song_name2[SONG_NUM]={
 "OCTOBER - Evanescence"
 };
 
-char *album_name2[SONG_NUM]={
-"Hybrid Theory (2000)",
-"Hold Your Colour (2005)",
-"In Silico (2008)",
-"The Devil And God Are Raging Inside Me (2006)",
-"Here's To The Mourning (2005)",
-//"30 Seconds to Mars (2002)",
-"Action (2007)",
-"Antichrist Superstar (1996)",
-"Mechanical Animals (1998)",
-"Immersion (2010)",
-"Fallen (2003)"
-};
-
-
-
-
 
 
 //3
@@ -158,22 +297,6 @@ char *song_name3[SONG_NUM]={
 "All The Rage - Funeral For A Friend",
 "An Honest Mistake (Superdiscount Remix)- The Bravery"
 };
-
-char *album_name3[SONG_NUM]={
-"The Fashion (2007)",
-"The Fashion (2007)",
-"The Fashion (2007)",
-"Antichrist Superstar (1996)",
-"Today (2006)",
-"DJ Seph (2006)",
-"Panic (2005)",
-"Pheromones (2005)",
-"Hours (2005)",
-"Superdiscount (2005)"
-};
-
-
-
 
 
 
@@ -204,22 +327,6 @@ char *song_name4[SONG_NUM]={
 "Top of the World - The All-American Rejects",
 };
 
-char *album_name4[SONG_NUM]={
-"Lullabies To Paralyze (2005)",
-"Disconnection Notice (2004)",
-"The Devil And God Are Raging Inside Me (2006)",
-"In Silico (2008)",
-"Hold Your Colour (2005)",
-"In Silico (2008)",
-"Antichrist Superstar (1996)",
-"Mechanical Animals (1998)",
-"Billy Talent II (2006)",
-"Move Along (2005)"
-};
-
-
-
-
 
 
 //5
@@ -248,22 +355,6 @@ char *song_name5[SONG_NUM]={
 "Welcome to Cambodia - Brand New",
 "Bad Girl (ft. Marilyn Manson) - Avril Lavigne"
 };
-
-char *album_name5[SONG_NUM]={
-"Fallen (2003)",
-"The Devil And God Are Raging Inside Me (2006)",
-"30 Seconds to Mars (2002)",
-"Billy Talent II (2006)",
-"Lullabies To Paralyze (2005)",
-"Move Along (2005)",
-"Hybrid Theory (2000)",
-"Hold Your Colour (2005)",
-"The Devil And God Are Raging Inside Me (2006)",
-"Avril Lavigne (2013)"
-};
-
-
-
 
 
 
@@ -294,22 +385,6 @@ char *song_name6[SONG_NUM]={
 "Crush - Pendulum"
 };
 
-char *album_name6[SONG_NUM]={
-"Immersion (2010)",
-"Silent Alarm (2006)",
-"Hold Your Colour (2005)",
-"Let Go (2002)",
-"30 Seconds to Mars (2002)",
-"Mechanical Animals (1998)",
-"Antichrist Superstar (1996)",
-"Billy Talent II (2006)",
-"Hybrid Theory (2000)",
-"Immersion (2010)"
-};
-
-
-
-
 
 
 //7
@@ -338,22 +413,6 @@ char *song_name7[SONG_NUM]={
 "Reason Is Treason - Kasabian",
 "Sk8er Boi - Avril Lavigne"
 };
-
-char *album_name7[SONG_NUM]={
-"Hold Your Colour (2005)",
-"Antichrist Superstar (1996)",
-"BT (2004)",
-"City Of Evil (2005)",
-"Here's To The Mourning (2005)",
-"Mechanical Animals (1998)",
-"Move Along (2005)",
-"In Silico (2008)",
-"Kasabian (2004)",
-"Let Go (2002)"
-};
-
-
-
 
 
 
@@ -384,22 +443,6 @@ char *song_name8[SONG_NUM]={
 "Red Flag - Billy Talent"
 };
 
-char *album_name8[SONG_NUM]={
-"Lights and Sounds (2006)",
-"Fallen (2003)",
-"Silent Alarm (2005)",
-"The Devil And God Are Raging Inside Me (2006)",
-"City Of Evil (2005)",
-"Let Go (2002)",
-"30 Seconds to Mars (2002)",
-"Avril Lavigne (2013)",
-"Hybrid Theory (2000)",
-"Billy Talent II (2006)"
-};
-
-
-
-
 
 
 //9
@@ -428,22 +471,6 @@ char *song_name9[SONG_NUM]={
 "Rock N Roll - Avril Lavigne",
 "Scream Aim Fire - Bullet For My Valentine"
 };
-
-char *album_name9[SONG_NUM]={
-"Fallen (2003)",
-"Disconnection Notice (2004)",
-"City Of Evil (2005)",
-"30 Seconds to Mars (2002)",
-"Kasabian (2004)",
-"Antichrist Superstar (1996)",
-"Let Go (2002)",
-"Hybrid Theory (2000)",
-"Avril Lavigne (2013)",
-"Scream Aim Fire (2005)"
-};
-
-
-
 
 
 
@@ -474,22 +501,6 @@ char *song_name10[SONG_NUM]={
 "Some Sense of Security - Saosin"
 };
 
-char *album_name10[SONG_NUM]={
-"With Love and Squalor (2005)",
-"Chocolate Starfish and The Hot Dog Flavored Water (2000)",
-"Lullabies To Paralyze (2005)",
-"With Love and Squalor (2005)",
-"Chocolate Starfish and The Hot Dog Flavored Water (2000)",
-"Chocolate Starfish and The Hot Dog Flavored Water (2000)",
-"Chocolate Starfish and The Hot Dog Flavored Water (2000)",
-"With Love and Squalor (2005)",
-"Saosin (2006)",
-"Saosin (2006)"
-};
-
-
-
-
 
 
 //11
@@ -518,22 +529,6 @@ char *song_name11[SONG_NUM]={
 "Collapse - Saosin",
 "You're Not Alone - Saosin",
 };
-
-char *album_name11[SONG_NUM]={
-"Saosin (2006)",
-"Saosin (2006)",
-"Saosin (2006)",
-"Saosin (2006)",
-"Saosin (2006)",
-"Saosin (2006)",
-"Saosin (2006)",
-"Saosin (2006)",
-"Saosin (2006)",
-"Saosin (2006)"
-};
-
-
-
 
 
 
@@ -564,18 +559,35 @@ char *song_name12[SONG_NUM]={
 "Voodoo People (Pendulum Remix) - The Prodigy",
 };
 
-char *album_name12[SONG_NUM]={
-"The Bravery (2005)",
-"Surfing The Void (2010)",
-"Myths of the Near Future (2007)",
-"The Bravery (2005)",
-"The Bravery (2005)",
-"The Bravery (2005)",
-"With Love and Squalor (2005)",
-"Surfing The Void (2010)",
-"The Bravery (2005)",
-"(2005)"
+
+
+//13
+int song_duration13[SONG_NUM]={
+180 + 41,//You Know What You Are? - NIN
+140 + 16,//Orpheus - Ash
+120 + 18,//Reinventing the Wheel to Run Myself Over - Fallout Boy
+120 + 24,//The Lazy Generation - The FUps
+180 + 23,//Meltdown - Ash
+180 + 1,//Pain - Jimmy Eat World
+120 + 55,//Barrio Superstarrio - Pilot To Gunner
+180 + 20,//Favorite Accident - Motion City Soundtrack
+180 + 56,//Real Big - Mannie Fresh
+180 + 35//Animal - Mudmen
 };
+
+char *song_name13[SONG_NUM]={
+"You Know What You Are? - NIN",
+"Orpheus - Ash",
+"Reinventing the Wheel to Run Myself Over - Fallout Boy",
+"The Lazy Generation - The FUps",
+"Meltdown - Ash",
+"Pain - Jimmy Eat World",
+"Barrio Superstarrio - Pilot To Gunner",
+"My Favorite Accident - Motion City Soundtrack",
+"Real Big - Mannie Fresh",
+"Animal - Mudmen"
+};
+
 
 
 
@@ -592,7 +604,8 @@ int *song_durations[SONG_FOLDER_NUM]={
   song_duration9,
   song_duration10,
   song_duration11,
-  song_duration12
+  song_duration12,
+  song_duration13
 };
 
 char **song_names[SONG_FOLDER_NUM]={
@@ -608,10 +621,28 @@ char **song_names[SONG_FOLDER_NUM]={
   song_name9,
   song_name10,
   song_name11,
-  song_name12
+  song_name12,
+  song_name13
 };
 
-char **album_names[SONG_FOLDER_NUM]={
+
+int album_name0[SONG_NUM]={1,1,1,2,4,1,0,14,15,6};
+int album_name1[SONG_NUM]={16,17,5,18,19,8,21,22,24,13};
+int album_name2[SONG_NUM]={8,2,3,9,10,11,6,7,4,12};
+int album_name3[SONG_NUM]={26,26,26,6,27,28,29,30,31,32};
+int album_name4[SONG_NUM]={33,34,9,3,2,3,6,7,35,36};
+int album_name5[SONG_NUM]={12,9,53,35,33,36,8,2,9,25};
+int album_name6[SONG_NUM]={4,37,2,23,53,7,6,35,8,4};
+int album_name7[SONG_NUM]={2,6,38,17,10,7,36,3,39,23};
+int album_name8[SONG_NUM]={54,12,37,9,17,23,53,25,8,35};
+int album_name9[SONG_NUM]={12,34,17,53,39,6,23,8,25,20};
+int album_name10[SONG_NUM]={41,13,33,41,13,13,13,41,40,40};
+int album_name11[SONG_NUM]={40,40,40,40,40,40,40,40,40,40};
+int album_name12[SONG_NUM]={44,42,43,44,44,44,41,42,44,55};
+int album_name13[SONG_NUM]={5,45,52,46,45,47,48,49,50,51};
+
+
+int *album_names[SONG_FOLDER_NUM]={
   album_name0,
   album_name1,
   album_name2,
@@ -624,7 +655,8 @@ char **album_names[SONG_FOLDER_NUM]={
   album_name9,
   album_name10,
   album_name11,
-  album_name12
+  album_name12,
+  album_name13
 };
 
 
@@ -662,11 +694,11 @@ void InitSongBank() {
     }
   }
   if (song_folder_num>0) {
-    song_names[1][0]="Tuned to a Different Station - Dogs";
-    album_names[1][0]="Turned Against This Land (2005)";
+    //song_names[1][0]="Tuned to a Different Station - Dogs";
+    //album_names[1][0]="Turned Against This Land (2005)";
   } else {
-    song_names[1][0]="No Songs Available";
-    album_names[1][0]="";
+    //song_names[1][0]="No Songs Available";
+    //album_names[1][0]="";
 
     song_time_end=0;
     time_now=0;
