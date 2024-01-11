@@ -223,8 +223,8 @@ void EnemyPathFinding(int enemy_id)
             break;
         }
       }
-      if (0<x<NODE_SIZE*Enemy[enemy_id].follow_range
-          && 0<y<NODE_SIZE*Enemy[enemy_id].follow_range) {//node is within range
+      if (0<x && x<NODE_SIZE*Enemy[enemy_id].follow_range
+          && 0<y && y<NODE_SIZE*Enemy[enemy_id].follow_range) {//node is within range
         Enemy[enemy_id].node_neighbour[i]=GetGridId(x,y,Enemy[enemy_id].follow_range*NODE_SIZE,NODE_SIZE,Enemy[enemy_id].node_num);
       } else { //not within range
         Enemy[enemy_id].node_neighbour[i]=Enemy[enemy_id].start_node;
@@ -352,8 +352,8 @@ void EnemyMove(int enemy_id)
       }
       break;
   }
-  if (path_node_center_y-1<=Enemy[enemy_id].y<=path_node_center_y+1 &&
-      path_node_center_x-1<=Enemy[enemy_id].x<=path_node_center_x+1) {
+  if (path_node_center_y-1<=Enemy[enemy_id].y && Enemy[enemy_id].y<=path_node_center_y+1 &&
+      path_node_center_x-1<=Enemy[enemy_id].x && Enemy[enemy_id].x<=path_node_center_x+1) {
     Enemy[enemy_id].path_nodes_num--;
     if (path_node_arr_id<=0) { //all nodes followed
       Enemy[enemy_id].idling=TRUE;
@@ -921,7 +921,7 @@ void EnemyAct(int i)
                 Enemy[i].player_at_above=FALSE;
                 Enemy[i].player_at_below=FALSE;
               }
-	      if (Enemy[i].chase_range/2*NODE_SIZE<Enemy[i].dist_from_player<Enemy[i].unchase_range/2*NODE_SIZE //in unchase range
+	      if (Enemy[i].chase_range/2*NODE_SIZE<Enemy[i].dist_from_player && Enemy[i].dist_from_player<Enemy[i].unchase_range/2*NODE_SIZE //in unchase range
       	         ) //not in chase range) 
 	      {
 	        Enemy[i].in_unchase_range=TRUE;
