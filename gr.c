@@ -152,7 +152,7 @@ void GrSprite(HWND hwnd, HDC hDC, PAINTSTRUCT ps,  double _x1, double _y1, doubl
 
 
 
-void DrawTriFill(HWND hwnd, HDC hdc, PAINTSTRUCT ps,int tri_color,double x1,double y1,double x2,double y2,double x3,double y3)
+/*void DrawTriFill(HWND hwnd, HDC hdc, PAINTSTRUCT ps,int tri_color,double x1,double y1,double x2,double y2,double x3,double y3)
 {
   double x_1,x_2,
       gradient_middle1,gradient_middle2,gradient_largest,
@@ -201,6 +201,25 @@ void DrawTriFill(HWND hwnd, HDC hdc, PAINTSTRUCT ps,int tri_color,double x1,doub
     x_2=GetX(i,gradient_largest,c_largest);
     GrLine(hwnd,hdc,ps,x_1,i,x_2,i,tri_color);
   }
+}*/
+
+
+
+
+void DrawTriFill(HWND hwnd, HDC hdc, PAINTSTRUCT ps,int tri_color,double x1,double y1,double x2,double y2,double x3,double y3)
+{//https://stackoverflow.com/questions/33447305/c-windows32-gdi-fill-triangle
+  HPEN hPen = CreatePen(PS_SOLID, 2, tri_color);
+  HPEN hOldPen = SelectObject(hdc, hPen);
+
+  HBRUSH hBrush = CreateSolidBrush(tri_color);
+  HBRUSH hOldBrush = SelectObject(hdc, hBrush);
+
+  POINT vertices[] = { {x1, y1}, {x2, y2}, {x3, y3} };
+  Polygon(hdc, vertices, sizeof(vertices) / sizeof(vertices[0]));
+
+  SelectObject(hdc, hOldBrush);
+  DeleteObject(hBrush);
+
+  SelectObject(hdc, hOldPen);
+  DeleteObject(hPen);
 }
-
-
