@@ -221,6 +221,9 @@ void InitOnce() {
   GR_WIDTH=SCREEN_WIDTH;
   GR_HEIGHT=SCREEN_HEIGHT;
 
+  player.cam_move_x=0,
+  player.cam_move_y=0,
+
   //InitCreateMapBitmap();
   InitTickFrequency();
   InitFPS();
@@ -316,9 +319,9 @@ void DrawTexts(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
     sprintf(txt,"%s [%d:0%d]",song_name,(song_time_end-time_now)/60,sec);
 
   GrPrint(hwnd,hdc,ps,0,0,txt,c);
-//  GrPrint(hwnd,hdc,ps,0,0,_txt,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
+  //GrPrint(hwnd,hdc,ps,0,0,_txt,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
   char txt2[64];
-  char *album_name=album_name_arr[album_names[rand_song1][rand_song2]];
+  char *album_name=/*album_name_arr[*/album_names[rand_song1][rand_song2]/*]*/;
   sprintf(txt2,"%s",album_name);  
   GrPrint(hwnd,hdc,ps,0,16,txt2,c);
   //GrPrint(hwnd,hdc,ps,0,16,_txt2,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
@@ -362,6 +365,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     {
       //FrameRateSleep(35); //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
       FrameRateSleep(FPS); // (Uncapped)
+      PlayerCameraShake();
       RECT rect;
       if(GetWindowRect(hwnd, &rect))
       {

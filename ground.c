@@ -262,12 +262,12 @@ void GroundAct() //Mainly for graphics
     Ground[i].sprite_x3=Ground[i].x3+cam_x+cam_move_x-PLAYER_WIDTH/2;
     Ground[i].sprite_y3=Ground[i].y3+cam_y+cam_move_y-PLAYER_HEIGHT/2;*/
 
-    Ground[i].sprite_x1=Ground[i].x1+player.cam_x;
-    Ground[i].sprite_y1=Ground[i].y1+player.cam_y;
-    Ground[i].sprite_x2=Ground[i].x2+player.cam_x;
-    Ground[i].sprite_y2=Ground[i].y2+player.cam_y;
-    Ground[i].sprite_x3=Ground[i].x3+player.cam_x;
-    Ground[i].sprite_y3=Ground[i].y3+player.cam_y;
+    Ground[i].sprite_x1=Ground[i].x1+player.cam_x+player.cam_move_x;
+    Ground[i].sprite_y1=Ground[i].y1+player.cam_y+player.cam_move_y;
+    Ground[i].sprite_x2=Ground[i].x2+player.cam_x+player.cam_move_x;
+    Ground[i].sprite_y2=Ground[i].y2+player.cam_y+player.cam_move_y;
+    Ground[i].sprite_x3=Ground[i].x3+player.cam_x+player.cam_move_x;
+    Ground[i].sprite_y3=Ground[i].y3+player.cam_y+player.cam_move_y;
 
 
 //multisprite

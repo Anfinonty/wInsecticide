@@ -101,6 +101,7 @@ void CameraInit(double x,double y)
 void InitPlayerCamera()
 {
 //set camera
+
   player.cam_x=0;
   player.cam_y=0;
   //bg_cam_fall_cooldown=0;
@@ -142,6 +143,9 @@ void InitPlayer() {
   player.saved_ground_id=-1;
 
 
+  player.sprite_x=GR_WIDTH/2;
+  player.sprite_y=GR_HEIGHT/2;
+
   //player.in_air_cooldown=0;
 
 //  player_attack_timer=0;
@@ -158,8 +162,8 @@ void InitPlayer() {
   //player.rst_speed_break=FALSE;
   
 //Ground
-  //player.print_current_above=FALSE;
-  //player.print_current_below=FALSE;
+  player.print_current_above=FALSE;
+  player.print_current_below=FALSE;
   player.current_above=FALSE;
   player.current_below=FALSE;
   player.previous_above=FALSE;
@@ -415,9 +419,9 @@ void PlayerAct() {
           player.in_air_timer=0;
 	      if (player.grav>=3) {
 	        if (player.grav>7) {
-	          //cam_move_x*=-1;
+	          player.cam_move_x*=-1;
 	        }
-	        //cam_move_y/=-1.5;
+	        player.cam_move_y/=-1.5;
 	      }
           player.grav=2;
           player.player_grav=0.5;
@@ -470,8 +474,8 @@ void PlayerAct() {
         move_x(-1);
       }
      //misc
-      /*print_current_above=current_above;
-      print_current_below=current_below;*/
+      player.print_current_above=player.current_above;
+      player.print_current_below=player.current_below;
 
 
       if (player.current_above) {
@@ -535,9 +539,138 @@ void PlayerAct() {
   if (player.on_ground_timer>0) {
     player.on_ground_timer--;
   }
+ //camshake
+
+
+  player.sprite_x=GR_WIDTH/2+player.cam_move_x;
+  player.sprite_y=GR_HEIGHT/2+player.cam_move_y;
  //
  //
-  /*if (player.grav>4) {
+}
+
+
+void PlayerCameraShake()
+{
+  int i;
+//camshake
+  //if (!the_bravery_tyrant && IsNormalView) {
+    float y_bob=0,x_bob=0;
+    //if (sprint_bobbing) {  //if sprint_bobbing
+      if (player.on_ground_id!=-1) {//not in air
+        //if (!player_blocking) {
+          if (player.rst_left || player.rst_right) {
+	        if (player.rst_key_sprint || player.speed>=5) {
+              x_bob=2.5;
+	          //if (bg_cam_fall_cooldown==0) {
+	            player.cam_move_x+=0.75*RandNum(-2,2);//shaky cam
+	            player.cam_move_y+=0.75*RandNum(-2,2);
+	          //}
+	        } else {
+              x_bob=1.5;
+	        }
+            if (player.print_current_below) {//upside down
+	          x_bob=-abs(x_bob);
+      	    }
+      	    if (player.rst_left) {
+              player.cam_move_x+=x_bob*cos(player.angle);
+              player.cam_move_y+=x_bob*sin(player.angle);
+      	    }
+      	    if (player.rst_right) {
+              player.cam_move_x-=x_bob*cos(player.angle);
+              player.cam_move_y-=x_bob*sin(player.angle);
+      	    }
+	      }
+        //}
+      }
+    //}
+    //if (fall_camera) { //falling_camera
+      if (player.grav>3 || player.speed>=5) { //falling cam effect
+        y_bob=(player.grav-2)/2;
+        switch (player.speed) {
+    	  case 1:
+    	  case 2:
+            x_bob=RandNum(1,2)*0.5;//move x	
+    	    break;
+    	  case 3:
+            x_bob=RandNum(1,2);//move x		
+    	    break;
+        }
+        if (player.rst_left) {
+	      player.cam_move_x+=x_bob;
+        }
+        if (player.rst_right) {
+	      player.cam_move_x-=x_bob;
+        }
+        player.cam_move_y-=y_bob;//increase y
+        if (player.grav>5 || player.speed>=5) {
+    	  player.cam_move_x+=RandNum(-2,2);//shaky x
+          player.cam_move_y+=RandNum(-2,2);//shaky y
+        }
+      }
+    //}
+    x_bob=0;
+    y_bob=0;
+  //}
+  for (i=0;i<abs(player.cam_move_x);i++) { //cam stablizer
+    if (player.cam_move_x>0) {
+      player.cam_move_x-=0.1;
+    } else if (player.cam_move_x<0) {
+      player.cam_move_x+=0.1;
+    }
+  }
+  for (i=0;i<abs(player.cam_move_y);i++) {
+    if (player.cam_move_y>0) {
+      player.cam_move_y-=0.1;
+    }  else if(player.cam_move_y<0) {
+      player.cam_move_y+=0.1;
+    }
+  }
+  if (-0.1<=player.cam_move_x && player.cam_move_x<=0.1) { //prevent spam shake
+    player.cam_move_x=0;
+  }
+  if (-0.1<=player.cam_move_y && player.cam_move_y<=0.1) {
+    player.cam_move_y=0;
+  }
+  /*if (bg_cam_fall_cooldown==0) {
+    background_cam_move_x=cam_move_x/2;
+    background_cam_move_y=cam_move_y/2;
+  } else if (bg_cam_fall_cooldown<=46) {
+    if (background_cam_move_x<cam_move_x/2) {
+      background_cam_move_x+=1;
+    } else {
+      background_cam_move_x-=1;
+    }
+    if (background_cam_move_y<cam_move_y/2) {
+      background_cam_move_y+=1;
+    } else {
+      background_cam_move_y-=1;
+    }  
+    if (cam_move_x/2-1<=background_cam_move_x<=cam_move_x/2+1 &&
+	cam_move_y/2-1<=background_cam_move_y<=cam_move_y/2+1) {
+      bg_cam_fall_cooldown--;
+    }
+  } else if (47<=bg_cam_fall_cooldown<=48) {
+    background_cam_move_x/=-1;
+    if (rst_left||rst_right) {
+      background_cam_move_y/=-1.5;
+    } else {
+      background_cam_move_y/=-3.5;
+    }
+  } else {
+    if (background_cam_move_x<cam_move_x) {
+      background_cam_move_x+=1;
+    } else {
+      background_cam_move_x-=1;
+    }
+    if (background_cam_move_y<cam_move_y) {
+      background_cam_move_y+=1;
+    } else {
+      background_cam_move_y-=1;
+    }  
+  }*/
+ //
+ //
+  /*if (grav>4) {
     bg_cam_fall_cooldown=50;
   } else if (bg_cam_fall_cooldown>0) {
     bg_cam_fall_cooldown--;
@@ -550,6 +683,7 @@ void PlayerAct() {
   } else if (player_in_air_cooldown>0) {
     player_in_air_cooldown--;
   }*/
+
 }
 
 
@@ -557,12 +691,12 @@ void DrawPlayer(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
   //GrRect(hwnd,hdc,ps,player.x-PLAYER_WIDTH,player.y-PLAYER_HEIGHT,PLAYER_WIDTH,PLAYER_HEIGHT,RGB(34,139,34));
   if (player.on_ground_timer>0) {
     if (player.walk_cycle<2) {
-      GrSprite(hwnd,hdc,ps,GR_WIDTH/2,GR_HEIGHT/2,player.sprite_angle,player.sprite_1,player.last_left);
+      GrSprite(hwnd,hdc,ps,player.sprite_x,player.sprite_y,player.sprite_angle,player.sprite_1,player.last_left);
     } else {
-      GrSprite(hwnd,hdc,ps,GR_WIDTH/2,GR_HEIGHT/2,player.sprite_angle,player.sprite_2,player.last_left);
+      GrSprite(hwnd,hdc,ps,player.sprite_x,player.sprite_y,player.sprite_angle,player.sprite_2,player.last_left);
     }
   } else { //in_air
-    GrSprite(hwnd,hdc,ps,GR_WIDTH/2,GR_HEIGHT/2-6,0,player.sprite_jump,player.last_left);
+    GrSprite(hwnd,hdc,ps,player.sprite_x,player.sprite_y-6,0,player.sprite_jump,player.last_left);
   }
 }
 

@@ -36,7 +36,9 @@ struct player
         current_above,
         current_below,
         previous_above,
-        previous_below;
+        previous_below,
+        print_current_above,
+        print_current_below;
 
 
   int grav,
@@ -69,9 +71,11 @@ struct player
          angle,
          player_grav;
 
-  double cam_x,cam_y;
-    //cam_move_x=0,
-    //cam_move_y=0,
+  double cam_x,cam_y,
+    cam_move_x,
+    cam_move_y,
+    sprite_x,
+    sprite_y;
     //background_cam_move_x=0,
     //background_cam_move_y=0;
 
