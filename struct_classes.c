@@ -84,10 +84,6 @@ struct player
     //background_cam_move_x=0,
     //background_cam_move_y=0;
 
-//sprites
-  HBITMAP sprite_1;
-  HBITMAP sprite_2;
-  HBITMAP sprite_jump;
 } player;
 
 
@@ -273,6 +269,15 @@ struct Enemy
 
 } Enemy[ENEMY_NUM];
 
-HBITMAP enemy1_sprite_1;
-HBITMAP enemy1_sprite_2;
+
+
+
+//sprites
+static HBITMAP player_sprite_1;
+static HBITMAP player_sprite_2;
+static HBITMAP player_sprite_jump;
+
+//HBITMAP map_background_sprite;
+static HBITMAP enemy1_sprite_1;
+static HBITMAP enemy1_sprite_2;
 

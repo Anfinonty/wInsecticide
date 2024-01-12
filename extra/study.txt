@@ -1,0 +1,51 @@
+void MakeTexture(GLuint& texId)
+{
+    Bitmap offscreen(512, 512, PixelFormat32bppARGB);
+    Graphics gr(&offscreen);
+
+    gr.Clear(Color(128, 255, 0, 0));
+    Gdiplus::SolidBrush brush(Color(255, 0, 0, 255));
+    Pen pen(Color(128, 255, 0, 0), 16.f);
+    Font font(L"Arial", 48.f);
+    Rect r(25, 25, 100, 100);
+    gr.DrawRectangle(&pen, r);
+    gr.DrawString(TEXT("TEST STRING"), -1, &font, PointF(50, 50), &brush);
+
+    vector<DWORD> argb;
+    GetBitsLockBits(offscreen, argb, 1);
+    genTexture(texId, offscreen.GetWidth(), offscreen.GetHeight(), argb);
+}
+
+void GetBitsLockBits(Bitmap& bmp, vector<DWORD>& argb, bool invert = 0)
+{
+    BitmapData bmpData;
+    RectF rectf;
+    Unit unit;
+    bmp.GetBounds(&rectf, &unit);
+    Rect rect(rectf.X, rectf.Y, rectf.Width, rectf.Height);
+    printf("Got rect %d %d %d %d\n", rect.X, rect.Y, rect.Width, rect.Height);
+    bmp.LockBits(&rect, ImageLockModeRead, PixelFormat32bppARGB, &bmpData);
+    printf("BMP has w=%d h=%d stride=%d\n", bmpData.Width, bmpData.Height, bmpData.Stride);
+    argb.resize(bmpData.Width * bmpData.Height);
+
+    if (invert)
+        for (int i = 0; i < bmpData.Height; i++)
+            memcpy(&argb[i * bmpData.Width], (GLuint*)bmpData.Scan0 + (bmpData.Height - 1 - i) * bmpData.Width, bmpData.Width * 4);
+    else if (bmpData.Stride == bmpData.Width * 4)
+        memcpy(&argb[0], bmpData.Scan0, bmpData.Width * bmpData.Height * 4); // If the bmp is padded then
+    // this won't read the image correctly (it will read it with pad bits between)
+    else
+        for (int i = 0; i < bmpData.Height; i++)
+            memcpy(&argb[i * bmpData.Width], (GLuint*)bmpData.Scan0 + i * bmpData.Width, bmpData.Width * 4);
+    bmp.UnlockBits(&bmpData);
+}
+
+void genTexture(GLuint& texId, int w, int h, const vector<DWORD>& argb)
+{
+    glGenTextures(1, &texId);  CHECK_GL;
+    glBindTexture(GL_TEXTURE_2D, texId);  CHECK_GL;
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);  CHECK_GL;
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);  CHECK_GL;
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);  CHECK_GL;
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, w, h, 0, GL_BGRA_EXT, GL_UNSIGNED_BYTE, &argb[0]);  CHECK_GL;
+}

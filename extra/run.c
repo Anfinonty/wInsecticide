@@ -128,8 +128,8 @@ int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
 #define BULLET_NUM	5000
 #define MAX_BULLET_PER_FIRE 10
 
-#include "saves/Level001.c"
-//#include "saves/Level002.c"
+//#include "saves/Level001.c"
+#include "saves/Level002.c"
 //#include "saves/Level003.c"
 //#include "saves/Level004.c"
 
@@ -367,9 +367,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     case  WM_MOUSEMOVE: //https://stackoverflow.com/questions/22039413/moving-the-mouse-blocks-wm-timer-and-wm-paint
       UpdateWindow(hwnd);
       break;
-    /*case WM_CREATE:
-
-      break;*/
     case WM_KEYDOWN:
       switch (wParam) {
         case 'S':case VK_DOWN:player.rst_down=TRUE;break;
@@ -422,18 +419,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       PAINTSTRUCT ps;
       hdc=BeginPaint(hwnd, &ps);
       hdcBackbuff=CreateCompatibleDC(hdc);
-      //HBITMAP hBitmap=CreateBitmap(GR_WIDTH,GR_HEIGHT,1,1,NULL);
-      HBITMAP hBitmap=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
-
-      SelectObject(hdcBackbuff, hBitmap);      
+      HBITMAP bitmap=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+      SelectObject(hdcBackbuff,bitmap);
       DrawBackground(hwnd,hdcBackbuff,ps);
-      DrawGroundTriFill(hwnd,hdcBackbuff,ps,IsInvertedBackground());
+      DrawGroundTriFill(hwnd,hdcBackbuff,ps);
       DrawGround(hwnd,hdcBackbuff,ps);
       DrawGroundText(hwnd,hdcBackbuff,ps);
       DrawEnemy(hwnd,hdcBackbuff,ps);
       DrawPlayer(hwnd,hdcBackbuff,ps);
-      DrawTexts(hwnd,hdcBackbuff,ps);
 
+      DrawTexts(hwnd,hdcBackbuff,ps);
       if (!IsInvertedBackground()){
         BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
       } else {
@@ -442,7 +437,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   //      StretchBlt(hdc, GR_WIDTH/2, -GR_HEIGHT, -GR_WIDTH-1, GR_HEIGHT, hdcBackbuff, 0, 0, GR_WIDTH, GR_HEIGHT,     SRCCOPY);
   //    SwapBuffers(hdc); //Will slow down game
       DeleteDC(hdcBackbuff);
-      DeleteObject(hBitmap);
+      DeleteObject(bitmap);
       EndPaint(hwnd, &ps);
       return 0;
     }
@@ -456,6 +451,86 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
 
+HWND CreateOpenGLWindow(char* title, int x, int y, int width, int height, BYTE type, DWORD flags)
+{
+    int         pf;
+    HDC         hDC;
+    HWND        hWnd;
+    WNDCLASS    wc;
+    DXGK_PRESENTATIONCAPS->SupportKernelModeCommandBuffer = TRUE;
+    PIXELFORMATDESCRIPTOR pfd;
+    static HINSTANCE hInstance = 0;
+
+    /* only register the window class once - use hInstance as a flag. */
+    if (!hInstance) {
+	    hInstance = GetModuleHandle(NULL);
+	    wc.style         = CS_OWNDC;
+	    wc.lpfnWndProc   = (WNDPROC)WndProc;
+	    wc.cbClsExtra    = 0;
+	    wc.cbWndExtra    = 0;
+	    wc.hInstance     = hInstance;
+	    wc.hIcon         = LoadIcon(NULL, IDI_WINLOGO);
+	    wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
+	    wc.hbrBackground = NULL;
+	    wc.lpszMenuName  = NULL;
+	    wc.lpszClassName = L"OpenGL";
+    }
+    RegisterClass(&wc);
+	/*if (!RegisterClass(&wc)) {
+	    MessageBoxA(NULL, "RegisterClass() failed:  "
+		       "Cannot register window class.", "Error", MB_OK);
+	    return NULL;
+	  }
+    }*/
+
+    hWnd = CreateWindowA("OpenGL", title, 
+            WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+			x, 
+            y, 
+            width, 
+            height, 
+            NULL, 
+            NULL, 
+            hInstance, 
+            NULL);
+
+    if (hWnd == NULL) {
+	MessageBoxA(NULL, "CreateWindow() failed:  Cannot create a window.",
+		   "Error", MB_OK);
+	return NULL;
+    }
+
+    hDC = GetDC(hWnd);
+
+    /* there is no guarantee that the contents of the stack that become
+       the pfd are zeroed, therefore _make sure_ to clear these bits. */
+    memset(&pfd, 0, sizeof(pfd));
+    pfd.nSize        = sizeof(pfd);
+    pfd.nVersion     = 1;
+    pfd.dwFlags      = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | flags;
+    pfd.iPixelType   = type;
+    pfd.cColorBits   = 32;
+
+    pf = ChoosePixelFormat(hDC, &pfd);
+    /*if (pf == 0) {
+	MessageBoxA(NULL, "ChoosePixelFormat() failed:  "
+		   "Cannot find a suitable pixel format.", "Error", MB_OK); 
+	return 0;
+    } */
+ 
+    SetPixelFormat(hDC, pf, &pfd);
+    /*if (SetPixelFormat(hDC, pf, &pfd) == FALSE) {
+	MessageBoxA(NULL, "SetPixelFormat() failed:  "
+		   "Cannot set format specified.", "Error", MB_OK);
+	return 0;
+    } */
+
+    DescribePixelFormat(hDC, pf, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
+
+    ReleaseDC(hWnd,hDC);
+    return hWnd;
+} 
+
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nCmdShow) {
   //Window Class https://stackoverflow.com/questions/6287660/win32-opengl-window-creation
@@ -463,28 +538,20 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   InitOnce();//cannot be repeatedly run
   Init();
 
-  //GLuint PixelFormat;
-  WNDCLASSW wc = {0};
-  wc.style = CS_HREDRAW | CS_VREDRAW;
-  wc.lpszClassName = L"DrawIt";
-  wc.hInstance     = hInstance;
-  wc.hbrBackground = GetSysColorBrush(COLOR_3DFACE);
-  wc.lpfnWndProc   = WndProc;
-  wc.hCursor       = LoadCursor(0, IDC_ARROW);
-  RegisterClassW(&wc);
+  HDC hDC;				/* device context */
+  HGLRC hRC;				/* opengl context */
+  HWND  hWnd;				/* window */
 
-  //create window
-  CreateWindow(wc.lpszClassName,
-                L"wInsecticide (Press [Enter] to Restart)",
-                WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-                0,
-                0,
-                GR_WIDTH+7,
-                GR_HEIGHT+27,
-                NULL,
-                NULL,
-                hInstance,
-                NULL);
+  hWnd = CreateOpenGLWindow("wInsecticide", 0, 0, GR_WIDTH, GR_HEIGHT, PFD_TYPE_RGBA, 0);
+  if (hWnd == NULL)
+    exit(1);
+
+  hDC = GetDC(hWnd);
+  hRC = wglCreateContext(hDC);
+  wglMakeCurrent(hDC, hRC);
+
+  ShowWindow(hWnd, nCmdShow);
+
 
 
   //threads
@@ -503,14 +570,25 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 
 
 
-  MSG msg;
-  //while (GetMessage(&msg,hWnd,0,0)) {
-  while (GetMessage(&msg,NULL,0,0)) {
+  MSG   msg;				/* message */
+  while (GetMessage(&msg,hWnd,0,0)) {
     TranslateMessage(&msg);
     DispatchMessage(&msg);
   }
 
   timeEndPeriod(1);
+  wglMakeCurrent(NULL, NULL);
+  ReleaseDC(hWnd,hDC);
+  wglDeleteContext(hRC);
+  DestroyWindow(hWnd);
+
+
+
   return (int) msg.wParam;
 }
 
+/*int main()
+{
+  printf("buddy");
+  return 0;
+}*/
