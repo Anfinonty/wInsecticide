@@ -9,10 +9,13 @@
 
 //Command
 //i686-w64-mingw32-gcc-win32 run.c -o run.exe  -lgdi32 -municode -lwinmm
+//i686-w64-mingw32-gcc-win32 run.c -o run.exe  -lgdi32 -lopengl32 -lglu32 -lglut32 -lglaux32 -municode -lwinmm
+
 //-lopengl32 -lglu32 is not used for now Jan-06-2024 -credit: sothea.dev
 
 
 #include <windows.h>
+//#include <libgdi32.a>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -24,7 +27,10 @@
 #include <synchapi.h>
 #include <dirent.h>
 #include <errno.h>
-
+#include <GL/gl.h>
+#include <GL/glu.h>
+//#include <GL/wgl.h>
+//#include <GL/GLAUX.h>
 
 #define COLORS_NUM  16
 #define BLACK       RGB(0,0,0)
@@ -171,6 +177,7 @@ int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
 #define COMBO_NUM	3
 */
 
+
 #include "math.c"
 #include "gr.c"
 
@@ -189,7 +196,11 @@ void DrawBackground(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(173, 216, 230));
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(8,39,245));
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255))); //RAVE
+  //if (!IsInvertedBackground()) {
   GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,custom_map_background_color);
+  /*} else {
+    GrSprite(hwnd,hdc,ps,0,0,0,map_background_sprite,FALSE);
+  }*/
 }
 
 
@@ -220,6 +231,10 @@ void InitFPS() { //https://cboard.cprogramming.com/windows-programming/30730-fin
 void InitOnce() {
   GR_WIDTH=SCREEN_WIDTH;
   GR_HEIGHT=SCREEN_HEIGHT;
+
+  /*if (IsInvertedBackground()) {
+    map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+  }*/
 
   player.cam_move_x=0,
   player.cam_move_y=0,
@@ -360,6 +375,44 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         case ' ':if(player.rst_key_sprint)player.rst_key_sprint=FALSE;break;
       }
       break;
+    case WM_CREATE:
+		{
+		PIXELFORMATDESCRIPTOR pfd =
+		{
+			sizeof(PIXELFORMATDESCRIPTOR),
+			1,
+			PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER,    //Flags
+			PFD_TYPE_RGBA,        // The kind of framebuffer. RGBA or palette.
+			32,                   // Colordepth of the framebuffer.
+			0, 0, 0, 0, 0, 0,
+			0,
+			0,
+			0,
+			0, 0, 0, 0,
+			24,                   // Number of bits for the depthbuffer
+			8,                    // Number of bits for the stencilbuffer
+			0,                    // Number of Aux buffers in the framebuffer.
+			PFD_MAIN_PLANE,
+			0,
+			0, 0, 0
+		};
+
+		HDC ourWindowHandleToDeviceContext = GetDC(hwnd);
+
+		int  letWindowsChooseThisPixelFormat;
+		letWindowsChooseThisPixelFormat = ChoosePixelFormat(ourWindowHandleToDeviceContext, &pfd); 
+		SetPixelFormat(ourWindowHandleToDeviceContext,letWindowsChooseThisPixelFormat, &pfd);
+
+		HGLRC ourOpenGLRenderingContext = wglCreateContext(ourWindowHandleToDeviceContext);
+		wglMakeCurrent (ourWindowHandleToDeviceContext, ourOpenGLRenderingContext);
+
+		MessageBoxA(0,(char*)glGetString(GL_VERSION), "OPENGL VERSION",0);
+
+		//wglMakeCurrent(ourWindowHandleToDeviceContext, NULL); Unnecessary; wglDeleteContext will make the context not current
+		wglDeleteContext(ourOpenGLRenderingContext);
+		//PostQuitMessage(0);
+		}
+      break;
     case WM_ERASEBKGND:
       InvalidateRect(hwnd,NULL,TRUE);
       return TRUE;
@@ -422,23 +475,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
 
-
-
-//
-
-
-
-
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nCmdShow) {
-  //Window Class
+  //Window Class https://stackoverflow.com/questions/6287660/win32-opengl-window-creation
   timeBeginPeriod(1);
   //Init
   srand(time(NULL));
   InitOnce();//cannot be repeatedly run
   Init();
 
+  //GLuint PixelFormat;
   WNDCLASSW wc = {0};
-  wc.style = 0;//CS_HREDRAW | CS_VREDRAW;
+  wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
   wc.lpszClassName = L"DrawIt";
   wc.hInstance     = hInstance;
   wc.hbrBackground = GetSysColorBrush(COLOR_3DFACE);
@@ -447,7 +494,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   RegisterClassW(&wc);
 
   //create window
-  CreateWindowW(wc.lpszClassName,
+  CreateWindow(wc.lpszClassName,
                 L"wInsecticide (Press [Enter] to Restart)",
                 WS_OVERLAPPEDWINDOW | WS_VISIBLE,
                 0,
@@ -482,3 +529,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   timeEndPeriod(1);
   return (int) msg.wParam;
 }
+
+/*int main()
+{
+  printf("buddy");
+  return 0;
+}*/

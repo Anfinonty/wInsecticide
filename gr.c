@@ -251,6 +251,7 @@ void DrawTriFill(HWND hwnd, HDC hdc, PAINTSTRUCT ps,int tri_color,double x1,doub
   HPEN hPen = CreatePen(PS_SOLID, 2, tri_color);
   HPEN hOldPen = SelectObject(hdc, hPen);
 
+  //HBRUSH hBrush = CreateHatchBrush(HS_BDIAGONAL,tri_color);
   HBRUSH hBrush = CreateSolidBrush(tri_color);
   HBRUSH hOldBrush = SelectObject(hdc, hBrush);
 

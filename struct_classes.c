@@ -273,6 +273,8 @@ struct Enemy
 
 } Enemy[ENEMY_NUM];
 
+
+//HBITMAP map_background_sprite;
 HBITMAP enemy1_sprite_1;
 HBITMAP enemy1_sprite_2;
 
