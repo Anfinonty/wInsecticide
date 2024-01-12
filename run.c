@@ -422,7 +422,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       HBITMAP bitmap=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
       SelectObject(hdcBackbuff,bitmap);
       DrawBackground(hwnd,hdcBackbuff,ps);
-      DrawGroundTriFill(hwnd,hdcBackbuff,ps);
+      DrawGroundTriFill(hwnd,hdcBackbuff,ps,IsInvertedBackground());
       DrawGround(hwnd,hdcBackbuff,ps);
       DrawGroundText(hwnd,hdcBackbuff,ps);
       DrawEnemy(hwnd,hdcBackbuff,ps);

@@ -246,13 +246,17 @@ void GrSprite(HWND hwnd, HDC hDC, PAINTSTRUCT ps,  double _x1, double _y1, doubl
 
 
 
-void DrawTriFill(HWND hwnd, HDC hdc, PAINTSTRUCT ps,int tri_color,double x1,double y1,double x2,double y2,double x3,double y3)
+void DrawTriFill(HWND hwnd, HDC hdc, PAINTSTRUCT ps,int tri_color,double x1,double y1,double x2,double y2,double x3,double y3,bool isHatch)
 {//https://stackoverflow.com/questions/33447305/c-windows32-gdi-fill-triangle
   HPEN hPen = CreatePen(PS_SOLID, 2, tri_color);
   HPEN hOldPen = SelectObject(hdc, hPen);
 
-  //HBRUSH hBrush = CreateHatchBrush(HS_BDIAGONAL,tri_color);
-  HBRUSH hBrush = CreateSolidBrush(tri_color);
+  HBRUSH hBrush;
+  if (!isHatch) {
+    hBrush = CreateSolidBrush(tri_color);
+  } else {
+    hBrush = CreateHatchBrush(HS_BDIAGONAL,tri_color); //more cpu, but i may use for night levels
+  }
   HBRUSH hOldBrush = SelectObject(hdc, hBrush);
 
   POINT vertices[] = { {x1, y1}, {x2, y2}, {x3, y3} };
