@@ -452,11 +452,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
 HWND CreateOpenGLWindow(char* title, int x, int y, int width, int height, BYTE type, DWORD flags)
-{//https://www.opengl.org/archives/resources/code/samples/win32_tutorial/minimal.c
+{
     int         pf;
     HDC         hDC;
     HWND        hWnd;
     WNDCLASS    wc;
+    DXGK_PRESENTATIONCAPS->SupportKernelModeCommandBuffer = TRUE;
     PIXELFORMATDESCRIPTOR pfd;
     static HINSTANCE hInstance = 0;
 
@@ -475,6 +476,13 @@ HWND CreateOpenGLWindow(char* title, int x, int y, int width, int height, BYTE t
 	    wc.lpszClassName = L"OpenGL";
     }
     RegisterClass(&wc);
+	/*if (!RegisterClass(&wc)) {
+	    MessageBoxA(NULL, "RegisterClass() failed:  "
+		       "Cannot register window class.", "Error", MB_OK);
+	    return NULL;
+	  }
+    }*/
+
     hWnd = CreateWindowA("OpenGL", title, 
             WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
 			x, 
@@ -487,8 +495,9 @@ HWND CreateOpenGLWindow(char* title, int x, int y, int width, int height, BYTE t
             NULL);
 
     if (hWnd == NULL) {
-	  MessageBoxA(NULL, "CreateWindow() failed:  Cannot create a window.","Error", MB_OK);
-	  return NULL;
+	MessageBoxA(NULL, "CreateWindow() failed:  Cannot create a window.",
+		   "Error", MB_OK);
+	return NULL;
     }
 
     hDC = GetDC(hWnd);
@@ -502,8 +511,20 @@ HWND CreateOpenGLWindow(char* title, int x, int y, int width, int height, BYTE t
     pfd.iPixelType   = type;
     pfd.cColorBits   = 32;
 
-    pf = ChoosePixelFormat(hDC, &pfd); 
+    pf = ChoosePixelFormat(hDC, &pfd);
+    /*if (pf == 0) {
+	MessageBoxA(NULL, "ChoosePixelFormat() failed:  "
+		   "Cannot find a suitable pixel format.", "Error", MB_OK); 
+	return 0;
+    } */
+ 
     SetPixelFormat(hDC, pf, &pfd);
+    /*if (SetPixelFormat(hDC, pf, &pfd) == FALSE) {
+	MessageBoxA(NULL, "SetPixelFormat() failed:  "
+		   "Cannot set format specified.", "Error", MB_OK);
+	return 0;
+    } */
+
     DescribePixelFormat(hDC, pf, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
 
     ReleaseDC(hWnd,hDC);
@@ -522,12 +543,15 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   HWND  hWnd;				/* window */
 
   hWnd = CreateOpenGLWindow("wInsecticide", 0, 0, GR_WIDTH, GR_HEIGHT, PFD_TYPE_RGBA, 0);
-  if (hWnd == NULL) exit(1);
+  if (hWnd == NULL)
+    exit(1);
 
   hDC = GetDC(hWnd);
   hRC = wglCreateContext(hDC);
   wglMakeCurrent(hDC, hRC);
+
   ShowWindow(hWnd, nCmdShow);
+
 
 
   //threads
@@ -544,9 +568,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   }
 
 
+
+
   MSG   msg;				/* message */
-  //while (GetMessage(&msg,hWnd,0,0)) {
-  while (GetMessage(&msg,NULL,0,0)) {
+  while (GetMessage(&msg,hWnd,0,0)) {
     TranslateMessage(&msg);
     DispatchMessage(&msg);
   }
@@ -561,3 +586,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 
   return (int) msg.wParam;
 }
+
+/*int main()
+{
+  printf("buddy");
+  return 0;
+}*/
