@@ -190,10 +190,10 @@ void InitPlayer() {
     player.render_grounds[i]=-1;
   }
 
-  player_sprite_1= (HBITMAP) LoadImageW(NULL, L"sprites/player1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+  player_sprite_1= (HBITMAP) LoadImageW(NULL, L"sprites/player-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
   //player_sprite_1= (HBITMAP) ReplaceColor((HBITMAP) LoadImageW(NULL, L"sprites/player1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE),BLACK, BLUE,NULL);
-  player_sprite_2=  (HBITMAP) LoadImageW(NULL, L"sprites/player2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-  player_sprite_jump=  (HBITMAP) LoadImageW(NULL, L"sprites/player3-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+  player_sprite_2=  (HBITMAP) LoadImageW(NULL, L"sprites/player-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+  player_sprite_jump=  (HBITMAP) LoadImageW(NULL, L"sprites/player-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
   //player.sprite_1 = ReplaceColor(player.sprite_1,RGB(0,0,0),RGB(0,128,255),NULL);
 

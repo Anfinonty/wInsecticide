@@ -1,4 +1,47 @@
 
+HBITMAP CreateBitmapMask(HBITMAP hbmColour, COLORREF crTransparent)
+{
+    HDC hdcMem, hdcMem2;
+    HBITMAP hbmMask;
+    BITMAP bm;
+
+    // Create monochrome (1 bit) mask bitmap.  
+
+    GetObject(hbmColour, sizeof(bm), &bm);
+    hbmMask = CreateBitmap(bm.bmWidth, bm.bmHeight, 1, 1, NULL);
+
+    // Get some HDCs that are compatible with the display driver
+
+    hdcMem = CreateCompatibleDC(0);
+    hdcMem2 = CreateCompatibleDC(0);
+
+    SelectObject(hdcMem, hbmColour);
+    SelectObject(hdcMem2, hbmMask);
+
+    // Set the background colour of the colour image to the colour
+    // you want to be transparent.
+    SetBkColor(hdcMem, crTransparent);
+
+    // Copy the bits from the colour image to the B+W mask... everything
+    // with the background colour ends up white while everythig else ends up
+    // black...Just what we wanted.
+
+    BitBlt(hdcMem2, 0, 0, bm.bmWidth, bm.bmHeight, hdcMem, 0, 0, SRCCOPY);
+
+    // Take our new mask and use it to turn the transparent colour in our
+    // original colour image to black so the transparency effect will
+    // work right.
+    BitBlt(hdcMem, 0, 0, bm.bmWidth, bm.bmHeight, hdcMem2, 0, 0, NOTSRCCOPY);
+
+    // Clean up.
+
+    DeleteDC(hdcMem);
+    DeleteDC(hdcMem2);
+
+    return hbmMask;
+}
+
+
 //Graphics
 void GrRect(HWND hwnd, HDC hdc, PAINTSTRUCT ps,double x,double y,int l, int h,int COLOR)
 {
@@ -133,13 +176,13 @@ void GrSprite(HWND hwnd, HDC hDC, PAINTSTRUCT ps,  double _x1, double _y1, doubl
     hDestBitmap = CreateBitmap(width, height, iSrcBitmap.bmPlanes, iSrcBitmap.bmBitsPixel, NULL);
     hOldDestBitmap = SelectObject(hMemDest, hDestBitmap);
 
-
+    //01-14-2024 Deprecated, off to a flight now bye!!
 	// Draw the background color before we change mapping mode
-     COLORREF clrBack = RGB(255,255,255); //For transparent background
+     /*COLORREF clrBack = RGB(255,255,255); //For transparent background
 	 HBRUSH hbrBack = CreateSolidBrush( clrBack );
 	 HBRUSH hbrOld = (HBRUSH) SelectObject( hMemDest, hbrBack );
 	 PatBlt(hMemDest, 0, 0, width, height, PATCOPY );
-	 DeleteObject( SelectObject(hMemDest, hbrOld ) );
+	 DeleteObject( SelectObject(hMemDest, hbrOld ) );*/
 
 	// Set mapping mode so that +ve y axis is upwords
 	 SetMapMode(hMemSrc, MM_ISOTROPIC);
@@ -171,40 +214,35 @@ void GrSprite(HWND hwnd, HDC hDC, PAINTSTRUCT ps,  double _x1, double _y1, doubl
     DeleteDC(hMemSrc);
 
     //Draw
+    HDC hdcMem = CreateCompatibleDC(hDC);
+
+
     //Transparency: http://www.winprog.org/tutorial/transparency.html
     BITMAP bitmap;
-    GetObject(hDestBitmap, sizeof(BITMAP), &bitmap); //handle bitmap
-   // HBITMAP hbmMask = CreateBitmap(bitmap.bmWidth,bitmap.bmHeight,1,1,NULL);
-
-
-    HDC hdcMem = CreateCompatibleDC(hDC);
-   // HDC hdcMem2 = CreateCompatibleDC(hDC);
-
-    HGDIOBJ oldBitmap = SelectObject(hdcMem, hDestBitmap);
-    //HBITMAP oldBitmapMask = SelectObject(hdcMem2, hbmMask);
-    SetBkColor(hDC, TRANSPARENT);
+    static HBITMAP hBitmapMask;
+    HBITMAP hDestBitmapCopy = CopyImage(hDestBitmap, IMAGE_BITMAP, 0,0, LR_DEFAULTSIZE);
+    hBitmapMask = CreateBitmapMask(hDestBitmapCopy,BLACK);
+    GetObject(hBitmapMask, sizeof(BITMAP), &bitmap); //handle bitmap
+    HGDIOBJ oldBitmap = SelectObject(hdcMem, hBitmapMask);
 
     if (is_left) { //Flip Horizontally (X)
-      //StretchBlt(hdcMem2, _x1+bitmap.bmWidth/2, _y1-bitmap.bmHeight, -bitmap.bmWidth-1, bitmap.bmHeight, hdcMem, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCCOPY); //Create Mask for
-      //StretchBlt(hdcMem, _x1+bitmap.bmWidth/2, _y1-bitmap.bmHeight, -bitmap.bmWidth-1, bitmap.bmHeight, hdcMem2, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCINVERT); //Transparent Background
-      StretchBlt(hDC, _x1+bitmap.bmWidth/2, _y1-bitmap.bmHeight, -bitmap.bmWidth-1, bitmap.bmHeight, hdcMem, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCCOPY); //Create Mask for
+      StretchBlt(hDC, _x1+bitmap.bmWidth/2, _y1-bitmap.bmHeight, -bitmap.bmWidth-1, bitmap.bmHeight, hdcMem, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCAND); //Create Mask for
     } else { //Regular
-      //StretchBlt(hdcMem2, _x1-bitmap.bmWidth/2, _y1-bitmap.bmHeight, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCCOPY); //Create Mask for
-      //StretchBlt(hdcMem, _x1-bitmap.bmWidth/2, _y1-bitmap.bmHeight, bitmap.bmWidth, bitmap.bmHeight, hdcMem2, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCINVERT); //Trasnparent Background
-      StretchBlt(hDC, _x1-bitmap.bmWidth/2, _y1-bitmap.bmHeight, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCCOPY); //Trasnparent Background
+      StretchBlt(hDC, _x1-bitmap.bmWidth/2, _y1-bitmap.bmHeight, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCAND);
     }
 
-    //SelectObject(hdcMem,hbmMask);
-    //BitBlt(hDC, _x1-bitmap.bmWidth/2, _y1-bitmap.bmHeight, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0, 0, SRCAND); //This works (Demo, background and color)//Works with color
-    //SelectObject(hdcMem,oldBitmap);
-    //BitBlt(hDC, _x1-bitmap.bmWidth/2, _y1-bitmap.bmHeight, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0, 0, SRCPAINT); //This works (Demo, background and color)//Works with color
-    
-    //BitBlt(hDC, _x1-bitmap.bmWidth/2, _y1-bitmap.bmHeight, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0, 0, SRCCOPY); //This works (Demo, background and color)//Works with color
+    SelectObject(hdcMem,hDestBitmap);
+    if (is_left) { //Flip Horizontally (X)
+      StretchBlt(hDC, _x1+bitmap.bmWidth/2, _y1-bitmap.bmHeight, -bitmap.bmWidth-1, bitmap.bmHeight, hdcMem, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCPAINT); //Create Mask for
+    } else { //Regular
+      StretchBlt(hDC, _x1-bitmap.bmWidth/2, _y1-bitmap.bmHeight, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCPAINT);
+    }
 
+    //BitBlt(hDC, _x1-bitmap.bmWidth/2, _y1-bitmap.bmHeight, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0, 0, COPY); //This works (Demo, background and color)//Works with color
+    
+    DeleteObject(SelectObject(hdcMem, hDestBitmapCopy));
     DeleteObject(SelectObject(hdcMem, oldBitmap)); //https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-createcompatiblebitmap https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-deleteobject
-    //DeleteObject(SelectObject(hdcMem2, oldBitmapMask));
     DeleteDC(hdcMem);
-    //DeleteDC(hdcMem2);
   } else {
     GrPrint(hwnd,hDC,ps,_x1,_y1,"(No Sprite)",RGB(255,255,255)); //Print Message if sprite cannot be loaded
   }

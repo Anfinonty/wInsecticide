@@ -1158,8 +1158,8 @@ void InitEnemy()
     EnemyAct(i);
   }
 
-  enemy1_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy1-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-  enemy1_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy1-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+  enemy1_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy-1-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+  enemy1_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy-1-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 }
 
 

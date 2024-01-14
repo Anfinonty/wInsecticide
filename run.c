@@ -422,18 +422,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       PAINTSTRUCT ps;
       hdc=BeginPaint(hwnd, &ps);
       hdcBackbuff=CreateCompatibleDC(hdc);
-      HBITMAP bitmap=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
-      SelectObject(hdcBackbuff,bitmap);
+      //HBITMAP hBitmap=CreateBitmap(GR_WIDTH,GR_HEIGHT,1,1,NULL);
+      HBITMAP hBitmap=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
 
-
+      SelectObject(hdcBackbuff, hBitmap);      
       DrawBackground(hwnd,hdcBackbuff,ps);
       DrawGroundTriFill(hwnd,hdcBackbuff,ps,IsInvertedBackground());
       DrawGround(hwnd,hdcBackbuff,ps);
       DrawGroundText(hwnd,hdcBackbuff,ps);
       DrawEnemy(hwnd,hdcBackbuff,ps);
       DrawPlayer(hwnd,hdcBackbuff,ps);
-
       DrawTexts(hwnd,hdcBackbuff,ps);
+
       if (!IsInvertedBackground()){
         BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
       } else {
@@ -442,7 +442,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   //      StretchBlt(hdc, GR_WIDTH/2, -GR_HEIGHT, -GR_WIDTH-1, GR_HEIGHT, hdcBackbuff, 0, 0, GR_WIDTH, GR_HEIGHT,     SRCCOPY);
   //    SwapBuffers(hdc); //Will slow down game
       DeleteDC(hdcBackbuff);
-      DeleteObject(bitmap);
+      DeleteObject(hBitmap);
       EndPaint(hwnd, &ps);
       return 0;
     }
