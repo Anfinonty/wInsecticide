@@ -190,12 +190,10 @@ void InitPlayer() {
     player.render_grounds[i]=-1;
   }
 
-  player_sprite_1= (HBITMAP) LoadImageW(NULL, L"sprites/player-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-  //player_sprite_1= (HBITMAP) ReplaceColor((HBITMAP) LoadImageW(NULL, L"sprites/player1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE),BLACK, BLUE,NULL);
-  player_sprite_2=  (HBITMAP) LoadImageW(NULL, L"sprites/player-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-  player_sprite_jump=  (HBITMAP) LoadImageW(NULL, L"sprites/player-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
-  //player.sprite_1 = ReplaceColor(player.sprite_1,RGB(0,0,0),RGB(0,128,255),NULL);
+  player.sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/player1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+  player.sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/player2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+  player.sprite_jump = (HBITMAP) LoadImageW(NULL, L"sprites/player3-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
 
   InitPlayerCamera();
@@ -697,15 +695,14 @@ void PlayerCameraShake()
 
 void DrawPlayer(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
   //GrRect(hwnd,hdc,ps,player.x-PLAYER_WIDTH,player.y-PLAYER_HEIGHT,PLAYER_WIDTH,PLAYER_HEIGHT,RGB(34,139,34));
-
   if (player.on_ground_timer>0) {
     if (player.walk_cycle<2) {
-      GrSprite(hwnd,hdc,ps,player.sprite_x,player.sprite_y,player.sprite_angle,player_sprite_1,player.last_left);
+      GrSprite(hwnd,hdc,ps,player.sprite_x,player.sprite_y,player.sprite_angle,player.sprite_1,player.last_left);
     } else {
-      GrSprite(hwnd,hdc,ps,player.sprite_x,player.sprite_y,player.sprite_angle,player_sprite_2,player.last_left);
+      GrSprite(hwnd,hdc,ps,player.sprite_x,player.sprite_y,player.sprite_angle,player.sprite_2,player.last_left);
     }
   } else { //in_air
-    GrSprite(hwnd,hdc,ps,player.sprite_x,player.sprite_y-6,0,player_sprite_jump,player.last_left);
+    GrSprite(hwnd,hdc,ps,player.sprite_x,player.sprite_y-6,0,player.sprite_jump,player.last_left);
   }
 }
 

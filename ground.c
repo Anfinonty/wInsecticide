@@ -412,7 +412,7 @@ void DrawGroundText(HWND hwnd, HDC hdc, PAINTSTRUCT ps)
 
 
 
-void DrawGroundTriFill(HWND hwnd, HDC hdc, PAINTSTRUCT ps,bool isHatch)
+void DrawGroundTriFill(HWND hwnd, HDC hdc, PAINTSTRUCT ps)
 {
   int i=0,c=0,j=0;
   for (j=0;j<player.rendered_ground_num;j++) {
@@ -432,7 +432,7 @@ void DrawGroundTriFill(HWND hwnd, HDC hdc, PAINTSTRUCT ps,bool isHatch)
 				Ground[i].sprite_x2,
 				Ground[i].sprite_y2,
 				Ground[i].sprite_x3,
-				Ground[i].sprite_y3,isHatch);
+				Ground[i].sprite_y3);
       }
     }
   }

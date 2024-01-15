@@ -9,13 +9,10 @@
 
 //Command
 //i686-w64-mingw32-gcc-win32 run.c -o run.exe  -lgdi32 -municode -lwinmm
-//i686-w64-mingw32-gcc-win32 run.c -o run.exe  -lgdi32 -lopengl32 -lglu32 -lglut32 -lglaux32 -municode -lwinmm
-
 //-lopengl32 -lglu32 is not used for now Jan-06-2024 -credit: sothea.dev
 
 
 #include <windows.h>
-#include <gdiplus.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,8 +24,7 @@
 #include <synchapi.h>
 #include <dirent.h>
 #include <errno.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
+
 
 #define COLORS_NUM  16
 #define BLACK       RGB(0,0,0)
@@ -128,8 +124,8 @@ int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
 #define BULLET_NUM	5000
 #define MAX_BULLET_PER_FIRE 10
 
-#include "saves/Level001.c"
-//#include "saves/Level002.c"
+//#include "saves/Level001.c"
+#include "saves/Level002.c"
 //#include "saves/Level003.c"
 //#include "saves/Level004.c"
 
@@ -175,7 +171,6 @@ int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
 #define COMBO_NUM	3
 */
 
-
 #include "math.c"
 #include "gr.c"
 
@@ -194,27 +189,7 @@ void DrawBackground(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(173, 216, 230));
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(8,39,245));
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255))); //RAVE
-  //if (!IsInvertedBackground()) {
   GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,custom_map_background_color);
-  /*} else {
-    GrSprite(hwnd,hdc,ps,0,0,0,map_background_sprite,FALSE);
-  }*/
-}
-
-
-void display()
-{
-    /* rotate a triangle around */
-    glClear(GL_COLOR_BUFFER_BIT);
-    glBegin(GL_TRIANGLES);
-    glColor3f(1.0f, 0.0f, 0.0f);
-    glVertex2i(0,  1);
-    glColor3f(0.0f, 1.0f, 0.0f);
-    glVertex2i(-1, -1);
-    glColor3f(0.0f, 0.0f, 1.0f);
-    glVertex2i(1, -1);
-    glEnd();
-    glFlush();
 }
 
 
@@ -243,15 +218,8 @@ void InitFPS() { //https://cboard.cprogramming.com/windows-programming/30730-fin
 
 
 void InitOnce() {
-  timeBeginPeriod(1);
-  srand(time(NULL));
-
   GR_WIDTH=SCREEN_WIDTH;
   GR_HEIGHT=SCREEN_HEIGHT;
-
-  /*if (IsInvertedBackground()) {
-    map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-  }*/
 
   player.cam_move_x=0,
   player.cam_move_y=0,
@@ -328,6 +296,9 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
     for (int i=0;i<player.rendered_enemy_num;i++) {
       EnemyAct(player.render_enemies[i]);
     }
+    /*for (int i=0;i<ENEMY_NUM;i++) {
+      EnemyAct(i);
+    }*/
     GroundAct();
     SongAct();
     Sleep(DEFAULT_SLEEP_TIMER);
@@ -359,6 +330,8 @@ void DrawTexts(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
   //GrPrint(hwnd,hdc,ps,0,16,_txt2,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
 }
 
+
+
 //bool once=true;
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   HDC hdc, hdcBackbuff;
@@ -367,9 +340,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     case  WM_MOUSEMOVE: //https://stackoverflow.com/questions/22039413/moving-the-mouse-blocks-wm-timer-and-wm-paint
       UpdateWindow(hwnd);
       break;
-    /*case WM_CREATE:
-
-      break;*/
     case WM_KEYDOWN:
       switch (wParam) {
         case 'S':case VK_DOWN:player.rst_down=TRUE;break;
@@ -397,7 +367,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     case WM_PAINT: //https://cplusplus.com/forum/beginner/269434/
     {
       //FrameRateSleep(35); //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
-      //display();
       FrameRateSleep(FPS); // (Uncapped)
       PlayerCameraShake();
       RECT rect;
@@ -422,27 +391,24 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       PAINTSTRUCT ps;
       hdc=BeginPaint(hwnd, &ps);
       hdcBackbuff=CreateCompatibleDC(hdc);
-      //HBITMAP hBitmap=CreateBitmap(GR_WIDTH,GR_HEIGHT,1,1,NULL);
-      HBITMAP hBitmap=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
-
-      SelectObject(hdcBackbuff, hBitmap);      
+      HBITMAP bitmap=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+      SelectObject(hdcBackbuff,bitmap);
       DrawBackground(hwnd,hdcBackbuff,ps);
-      DrawGroundTriFill(hwnd,hdcBackbuff,ps,IsInvertedBackground());
+      DrawGroundTriFill(hwnd,hdcBackbuff,ps);
       DrawGround(hwnd,hdcBackbuff,ps);
       DrawGroundText(hwnd,hdcBackbuff,ps);
       DrawEnemy(hwnd,hdcBackbuff,ps);
       DrawPlayer(hwnd,hdcBackbuff,ps);
-      DrawTexts(hwnd,hdcBackbuff,ps);
 
+      DrawTexts(hwnd,hdcBackbuff,ps);
       if (!IsInvertedBackground()){
         BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
       } else {
         BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
       }
   //      StretchBlt(hdc, GR_WIDTH/2, -GR_HEIGHT, -GR_WIDTH-1, GR_HEIGHT, hdcBackbuff, 0, 0, GR_WIDTH, GR_HEIGHT,     SRCCOPY);
-  //    SwapBuffers(hdc); //Will slow down game
       DeleteDC(hdcBackbuff);
-      DeleteObject(hBitmap);
+      DeleteObject(bitmap);
       EndPaint(hwnd, &ps);
       return 0;
     }
@@ -457,15 +423,22 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
 
+
+//
+
+
+
+
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nCmdShow) {
-  //Window Class https://stackoverflow.com/questions/6287660/win32-opengl-window-creation
+  //Window Class
+  timeBeginPeriod(1);
   //Init
+  srand(time(NULL));
   InitOnce();//cannot be repeatedly run
   Init();
 
-  //GLuint PixelFormat;
   WNDCLASSW wc = {0};
-  wc.style = CS_HREDRAW | CS_VREDRAW;
+  wc.style = 0;//CS_HREDRAW | CS_VREDRAW;
   wc.lpszClassName = L"DrawIt";
   wc.hInstance     = hInstance;
   wc.hbrBackground = GetSysColorBrush(COLOR_3DFACE);
@@ -474,7 +447,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   RegisterClassW(&wc);
 
   //create window
-  CreateWindow(wc.lpszClassName,
+  CreateWindowW(wc.lpszClassName,
                 L"wInsecticide (Press [Enter] to Restart)",
                 WS_OVERLAPPEDWINDOW | WS_VISIBLE,
                 0,
@@ -500,11 +473,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
     }
   }
 
-
-
-
   MSG msg;
-  //while (GetMessage(&msg,hWnd,0,0)) {
   while (GetMessage(&msg,NULL,0,0)) {
     TranslateMessage(&msg);
     DispatchMessage(&msg);
@@ -513,4 +482,3 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   timeEndPeriod(1);
   return (int) msg.wParam;
 }
-
