@@ -1158,8 +1158,8 @@ void InitEnemy()
     EnemyAct(i);
   }
 
-  enemy1_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy1-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-  enemy1_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy1-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+  enemy1_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy-1-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+  enemy1_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy-1-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 }
 
 
@@ -1186,16 +1186,26 @@ void DrawEnemy(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
             break;
           case 1: //placeholder sprites
             if (Enemy[i].sprite_timer%2==0) {
+<<<<<<< HEAD
               GrSprite(hwnd,hdc,ps,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].angle,player.sprite_1,Enemy[i].last_left,LTGREEN,Enemy[i].color);
             } else {
               GrSprite(hwnd,hdc,ps,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].angle,player.sprite_2,Enemy[i].last_left,LTGREEN,Enemy[i].color);
+=======
+              GrSprite(hwnd,hdc,ps,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].angle,player_sprite_1,Enemy[i].last_left);
+            } else {
+              GrSprite(hwnd,hdc,ps,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].angle,player_sprite_2,Enemy[i].last_left);
+>>>>>>> 6d6a5189a3d5e5e97d37d7f1d166c042c8addb6c
             }
             break;
         }
       } else {
         switch (Enemy[i].species) {
           case 1: //placeholder sprites
+<<<<<<< HEAD
             GrSprite(hwnd,hdc,ps,Enemy[i].sprite_x,Enemy[i].sprite_y,0,player.sprite_jump,Enemy[i].last_left,LTGREEN,Enemy[i].color);
+=======
+            GrSprite(hwnd,hdc,ps,Enemy[i].sprite_x,Enemy[i].sprite_y,0,player_sprite_jump,Enemy[i].last_left);
+>>>>>>> 6d6a5189a3d5e5e97d37d7f1d166c042c8addb6c
             break;
         }
       }
