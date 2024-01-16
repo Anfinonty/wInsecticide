@@ -44,6 +44,8 @@
 #define YELLOW      RGB(255,255,0)
 #define WHITE       RGB(255,255,255)
 
+#define DKBLACK     RGB(5,5,5) //For drawing
+
 
 
 int color_arr[COLORS_NUM]={
@@ -125,8 +127,8 @@ int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
 #define MAX_BULLET_PER_FIRE 10
 
 //#include "saves/Level001.c"
-#include "saves/Level002.c"
-//#include "saves/Level003.c"
+//#include "saves/Level002.c"
+#include "saves/Level003.c"
 //#include "saves/Level004.c"
 
 /*

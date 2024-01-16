@@ -1015,7 +1015,7 @@ void SetEnemyByType(int i,int type)
     Enemy[i].unchase_range=0;
     Enemy[i].chase_range=0;
   }
-  Enemy[i].color=saved_enemy_type_color[type];
+  Enemy[i].color=color_arr[saved_enemy_type_color[type]];
   Enemy[i].speed=saved_enemy_type_speed[type];
   Enemy[i].speed_multiplier=saved_enemy_type_speed_multiplier[type];
 //bool
@@ -1179,23 +1179,23 @@ void DrawEnemy(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
         switch (Enemy[i].species) {
           case 0:
             if (Enemy[i].sprite_timer%2==0) {
-              GrSprite(hwnd,hdc,ps,Enemy[i].sprite_x,Enemy[i].sprite_y,0,enemy1_sprite_1,Enemy[i].last_left);
+              GrSprite(hwnd,hdc,ps,Enemy[i].sprite_x,Enemy[i].sprite_y,0,enemy1_sprite_1,Enemy[i].last_left,LTGREEN,Enemy[i].color);
             } else {
-              GrSprite(hwnd,hdc,ps,Enemy[i].sprite_x,Enemy[i].sprite_y,0,enemy1_sprite_2,Enemy[i].last_left);
+              GrSprite(hwnd,hdc,ps,Enemy[i].sprite_x,Enemy[i].sprite_y,0,enemy1_sprite_2,Enemy[i].last_left,LTGREEN,Enemy[i].color);
             }
             break;
           case 1: //placeholder sprites
             if (Enemy[i].sprite_timer%2==0) {
-              GrSprite(hwnd,hdc,ps,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].angle,player.sprite_1,Enemy[i].last_left);
+              GrSprite(hwnd,hdc,ps,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].angle,player.sprite_1,Enemy[i].last_left,LTGREEN,Enemy[i].color);
             } else {
-              GrSprite(hwnd,hdc,ps,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].angle,player.sprite_2,Enemy[i].last_left);
+              GrSprite(hwnd,hdc,ps,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].angle,player.sprite_2,Enemy[i].last_left,LTGREEN,Enemy[i].color);
             }
             break;
         }
       } else {
         switch (Enemy[i].species) {
           case 1: //placeholder sprites
-            GrSprite(hwnd,hdc,ps,Enemy[i].sprite_x,Enemy[i].sprite_y,0,player.sprite_jump,Enemy[i].last_left);
+            GrSprite(hwnd,hdc,ps,Enemy[i].sprite_x,Enemy[i].sprite_y,0,player.sprite_jump,Enemy[i].last_left,LTGREEN,Enemy[i].color);
             break;
         }
       }
