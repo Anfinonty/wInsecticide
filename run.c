@@ -626,17 +626,17 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   Init();
 
   //GLuint PixelFormat;
-  WNDCLASSW wc = {0};
+  /*WNDCLASSW wc = {0};
   wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
   wc.lpszClassName = L"DrawIt";
   wc.hInstance     = hInstance;
   wc.hbrBackground = GetSysColorBrush(COLOR_3DFACE);
   wc.lpfnWndProc   = WndProc;
   wc.hCursor       = LoadCursor(0, IDC_ARROW);
-  RegisterClassW(&wc);
+  RegisterClassW(&wc);*/
 
   //create window
-  CreateWindow(wc.lpszClassName,
+  /*CreateWindow(wc.lpszClassName,
                 L"wInsecticide (Press [Enter] to Restart)",
                 WS_OVERLAPPEDWINDOW | WS_VISIBLE,
                 0,
@@ -646,12 +646,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
                 NULL,
                 NULL,
                 hInstance,
-                NULL);
+                NULL);*/
   HDC hDC;				/* device context */
   HGLRC hRC;				/* opengl context */
   HWND  hWnd;				/* window */
 
-  hWnd = CreateOpenGLWindow("wInsecticide", 0, 0, GR_WIDTH, GR_HEIGHT, PFD_TYPE_RGBA, 0);
+  hWnd = CreateOpenGLWindow("wInsecticide - OpenGL Test (Press [Enter] to Restart)", 0, 0, GR_WIDTH, GR_HEIGHT, PFD_TYPE_RGBA, 0);
   if (hWnd == NULL) exit(1);
 
   hDC = GetDC(hWnd);
