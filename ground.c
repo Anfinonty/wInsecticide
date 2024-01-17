@@ -304,14 +304,14 @@ void GroundAct() //Mainly for graphics
   for (int i=0;i<player.rendered_ground_num;i++) {
     id = player.render_grounds[i];
     if (id!=-1) {
-      GrLine(hwnd,hdc,ps,
+      GrLine(hdc,
         Ground[id].x1+player.cam_x,
         Ground[id].y1+player.cam_y,
         Ground[id].x2+player.cam_x,
         Ground[id].y2+player.cam_y,
         RGB(255,255,255)
       );     
-      /*GrLine(hwnd,hdc,ps,
+      /*GrLine(hdc,
         Ground[id].x1,
         Ground[id].y1,
         Ground[id].x2,
@@ -322,7 +322,7 @@ void GroundAct() //Mainly for graphics
 }*/
 
 
-void DrawGround(HWND hwnd, HDC hdc, PAINTSTRUCT ps)
+void DrawGround(HDC hdc)
 {
   int i=0,j=0;
   for (j=0;j<player.rendered_ground_num/*+MAX_WEB_NUM*/;j++) {
@@ -357,7 +357,7 @@ void DrawGround(HWND hwnd, HDC hdc, PAINTSTRUCT ps)
               dc->color=CYAN;
             }
       	  }*/
-          GrLine(hwnd,hdc,ps,
+          GrLine(hdc,
                 Ground[i].sprite_x1,
                 Ground[i].sprite_y1,
                 Ground[i].sprite_x2,
@@ -390,7 +390,7 @@ void DrawGround(HWND hwnd, HDC hdc, PAINTSTRUCT ps)
 
 
 
-void DrawGroundText(HWND hwnd, HDC hdc, PAINTSTRUCT ps)
+void DrawGroundText(HDC hdc)
 {
   int i=0,j=0;
   for (j=0;j<player.rendered_ground_num;j++) {
@@ -400,7 +400,7 @@ void DrawGroundText(HWND hwnd, HDC hdc, PAINTSTRUCT ps)
       //Highlight(!IsInvertedBackground,Ground[i].color,palette_dark_arr[Ground[i].color],dc);
       if (!IsOutOfBounds(Ground[i].x1,Ground[i].y1,1,MAP_WIDTH,MAP_HEIGHT) &&
           !IsOutOfBounds(Ground[i].x2,Ground[i].y2,1,MAP_WIDTH,MAP_HEIGHT)) {
-	    GrPrint(hwnd,hdc,ps,
+	    GrPrint(hdc,
             Ground[i].sprite_x1,
             Ground[i].sprite_y1,
             Ground[i].text,
@@ -412,7 +412,7 @@ void DrawGroundText(HWND hwnd, HDC hdc, PAINTSTRUCT ps)
 
 
 
-void DrawGroundTriFill(HWND hwnd, HDC hdc, PAINTSTRUCT ps)
+void DrawGroundTriFill(HDC hdc)
 {
   int i=0,c=0,j=0;
   for (j=0;j<player.rendered_ground_num;j++) {
@@ -426,13 +426,23 @@ void DrawGroundTriFill(HWND hwnd, HDC hdc, PAINTSTRUCT ps)
       }*/
       if (!IsOutOfBounds(Ground[i].x1,Ground[i].y1,1,MAP_WIDTH,MAP_HEIGHT) &&
           !IsOutOfBounds(Ground[i].x2,Ground[i].y2,1,MAP_WIDTH,MAP_HEIGHT)) {
-	    DrawTriFill(hwnd,hdc,ps,c,
+        if (!IsInvertedBackground()) {
+	      DrawTriFill(hdc,c,
                 Ground[i].sprite_x1,
 				Ground[i].sprite_y1,
 				Ground[i].sprite_x2,
 				Ground[i].sprite_y2,
 				Ground[i].sprite_x3,
-				Ground[i].sprite_y3);
+				Ground[i].sprite_y3,FALSE,0);
+        } else {
+	      DrawTriFill(hdc,c,
+                Ground[i].sprite_x1,
+				Ground[i].sprite_y1,
+				Ground[i].sprite_x2,
+				Ground[i].sprite_y2,
+				Ground[i].sprite_x3,
+				Ground[i].sprite_y3,TRUE,HS_BDIAGONAL);
+        }
       }
     }
   }

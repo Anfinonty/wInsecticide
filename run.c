@@ -127,8 +127,8 @@ int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
 #define MAX_BULLET_PER_FIRE 10
 
 //#include "saves/Level001.c"
-//#include "saves/Level002.c"
-#include "saves/Level003.c"
+#include "saves/Level002.c"
+//#include "saves/Level003.c"
 //#include "saves/Level004.c"
 
 /*
@@ -186,12 +186,12 @@ int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
 #include "song.c"
 
 //Background
-void DrawBackground(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
+void DrawBackground(HDC hdc) {
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(253, 2, 139));
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(173, 216, 230));
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(8,39,245));
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255))); //RAVE
-  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,custom_map_background_color);
+  GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,custom_map_background_color);
 }
 
 
@@ -298,9 +298,6 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
     for (int i=0;i<player.rendered_enemy_num;i++) {
       EnemyAct(player.render_enemies[i]);
     }
-    /*for (int i=0;i<ENEMY_NUM;i++) {
-      EnemyAct(i);
-    }*/
     GroundAct();
     SongAct();
     Sleep(DEFAULT_SLEEP_TIMER);
@@ -323,12 +320,12 @@ void DrawTexts(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
   else 
     sprintf(txt,"%s [%d:0%d]",song_name,(song_time_end-time_now)/60,sec);
 
-  GrPrint(hwnd,hdc,ps,0,0,txt,c);
+  GrPrint(hdc,0,0,txt,c);
   //GrPrint(hwnd,hdc,ps,0,0,_txt,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
   char txt2[64];
   char *album_name=/*album_name_arr[*/album_names[rand_song1][rand_song2]/*]*/;
   sprintf(txt2,"%s",album_name);  
-  GrPrint(hwnd,hdc,ps,0,16,txt2,c);
+  GrPrint(hdc,0,16,txt2,c);
   //GrPrint(hwnd,hdc,ps,0,16,_txt2,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
 }
 
@@ -371,6 +368,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //FrameRateSleep(35); //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
       FrameRateSleep(FPS); // (Uncapped)
       PlayerCameraShake();
+      for (int i=0;i<player.rendered_enemy_num;i++) {
+        Enemy[player.render_enemies[i]].seed=rand();
+      }
       RECT rect;
       if(GetWindowRect(hwnd, &rect))
       {
@@ -395,12 +395,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       hdcBackbuff=CreateCompatibleDC(hdc);
       HBITMAP bitmap=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
       SelectObject(hdcBackbuff,bitmap);
-      DrawBackground(hwnd,hdcBackbuff,ps);
-      DrawGroundTriFill(hwnd,hdcBackbuff,ps);
-      DrawGround(hwnd,hdcBackbuff,ps);
-      DrawGroundText(hwnd,hdcBackbuff,ps);
-      DrawEnemy(hwnd,hdcBackbuff,ps);
-      DrawPlayer(hwnd,hdcBackbuff,ps);
+      DrawBackground(hdcBackbuff);
+      DrawGroundTriFill(hdcBackbuff);
+      DrawGround(hdcBackbuff);
+      DrawGroundText(hdcBackbuff);
+      DrawEnemy(hdcBackbuff);
+      DrawPlayer(hdcBackbuff);
 
       DrawTexts(hwnd,hdcBackbuff,ps);
       if (!IsInvertedBackground()){
@@ -415,9 +415,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       return 0;
     }
       break;
+    case WM_CREATE:
+      srand(time(NULL));
+      timeBeginPeriod(1);
+
+      return 0;
     case WM_DESTROY:
       PostQuitMessage(0);
       return 0;
+    //default:
+     //break;
   }
   return DefWindowProcW(hwnd, msg, wParam, lParam);
 }
@@ -433,9 +440,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nCmdShow) {
   //Window Class
-  timeBeginPeriod(1);
   //Init
-  srand(time(NULL));
   InitOnce();//cannot be repeatedly run
   Init();
 

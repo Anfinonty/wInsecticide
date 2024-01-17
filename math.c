@@ -1,5 +1,3 @@
-//Maths
-int RandNum(int min, int max) {return rand()%(max-min + 1) + min;}
 
 
 long long current_timestamp() {//https://copyprogramming.com/howto/c-sleep-in-milliseconds-in-c-code-example
@@ -16,6 +14,16 @@ int int_current_timestamp() {
 }
 
 
+//Maths
+//public_seed = rand() in WM_PAINT
+int RandNum(int min, int max,int seed) {
+  //srand(int_current_timestamp());
+  int m=0;
+  if (min<0) {
+    m=min-1;
+  }
+  return (rand()*seed)%(max-m + 1) + m;
+}
 
 //----------------------------------------
 double GetGradient(double x1,double y1,double x2,double y2) 

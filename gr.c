@@ -43,7 +43,7 @@ HBITMAP CreateBitmapMask(HBITMAP hbmColour, COLORREF crTransparent, HDC hdc)
 }
 
 //Graphics
-void GrRect(HWND hwnd, HDC hdc, PAINTSTRUCT ps,double x,double y,int l, int h,int COLOR) {
+void GrRect(HDC hdc, double x,double y,int l, int h,int COLOR) {
   HBRUSH hBrush,holdBrush;
   HPEN hPen,holdPen;
 
@@ -61,7 +61,7 @@ void GrRect(HWND hwnd, HDC hdc, PAINTSTRUCT ps,double x,double y,int l, int h,in
 }
 
 
-void GrLine(HWND hwnd, HDC hdc, PAINTSTRUCT ps,double x1,double y1,double x2,double y2,int COLOR) {
+void GrLine(HDC hdc, double x1,double y1,double x2,double y2,int COLOR) {
   HPEN hPen = CreatePen(PS_SOLID, 1, COLOR);
   HPEN hOldPen = SelectObject(hdc, hPen);
   MoveToEx(hdc,x1,y1,NULL);
@@ -71,7 +71,7 @@ void GrLine(HWND hwnd, HDC hdc, PAINTSTRUCT ps,double x1,double y1,double x2,dou
 }
 
 
-void GrCircle(HWND hwnd, HDC hdc, PAINTSTRUCT ps, double x, double y, int size, int COLOR) {
+void GrCircle(HDC hdc, double x, double y, int size, int COLOR) {
 //Shape Coordinates
   double x1=x-size;
   double y1=y-size;
@@ -111,7 +111,7 @@ void GrCircle(HWND hwnd, HDC hdc, PAINTSTRUCT ps, double x, double y, int size, 
 }
 
 
-void GrPrint(HWND hwnd, HDC hdc, PAINTSTRUCT ps, double x1, double y1, char *_txt, int color) {
+void GrPrint(HDC hdc, double x1, double y1, char *_txt, int color) {
   //DWORD color;
   //HFONT hFont, holdFont;
   //color=GetSysColor(COLOR_BTNFACE);
@@ -124,7 +124,7 @@ void GrPrint(HWND hwnd, HDC hdc, PAINTSTRUCT ps, double x1, double y1, char *_tx
   TextOutA(hdc, x1, y1, txt, strlen(txt)); //draw text to screen
 }
 
-void GrSprite(HWND hwnd, HDC hDC, PAINTSTRUCT ps,  double _x1, double _y1, double radians,HBITMAP hSourceBitmap,bool is_left,int rTransparent, int sprite_color) {
+void GrSprite(HDC hDC,double _x1,double _y1,double radians,HBITMAP hSourceBitmap,bool is_left,int rTransparent, int sprite_color) {
   if (hSourceBitmap != NULL) { ////https://ftp.zx.net.nz/pub/Patches/ftp.microsoft.com/MISC/KB/en-us/77/127.HTM
     HBITMAP hOldSourceBitmap, hOldDestBitmap, hDestBitmap; ////https://www.codeguru.com/multimedia/rotate-a-bitmap-image/
     HDC hMemSrc,hMemDest;
@@ -171,14 +171,6 @@ void GrSprite(HWND hwnd, HDC hDC, PAINTSTRUCT ps,  double _x1, double _y1, doubl
     hOldSourceBitmap = SelectObject(hMemSrc, hSourceBitmap);
     hOldDestBitmap = SelectObject(hMemDest, hDestBitmap);
 
-
-	// Draw the background color before we change mapping mode
-     /*COLORREF clrBack = rTransparent; //For transparent background
-	 HBRUSH hbrBack = CreateSolidBrush( clrBack );
-	 HBRUSH hbrOld = (HBRUSH) SelectObject( hMemDest, hbrBack );
-	 PatBlt(hMemDest, 0, 0, width, height, PATCOPY );
-	 DeleteObject( SelectObject(hMemDest, hbrOld ) );*/
-
 	// Set mapping mode so that +ve y axis is upwords
 	 SetMapMode(hMemSrc, MM_ISOTROPIC);
 	 SetWindowExtEx(hMemSrc, 1,1,NULL);
@@ -190,25 +182,24 @@ void GrSprite(HWND hwnd, HDC hDC, PAINTSTRUCT ps,  double _x1, double _y1, doubl
 	 SetViewportExtEx(hMemDest, 1,-1,NULL);
 	 SetWindowOrgEx(hMemDest, minx, maxy-1,NULL);
 
-
    // Step 4: Copy the pixels from the source to the destination.
     int current_pixel=0;
-    for (int y=miny;y<maxy;y++) {
-	  for(int x=minx;x<maxx;x++) {
-	    int sourcex = (int)(x*cosine+y*sine);
-	    int sourcey = (int)(y*cosine-x*sine);
+    for (int y=miny;y<maxy;y++) { //0 to max height of bitmap
+	  for(int x=minx;x<maxx;x++) { //0 to max width of bitmap
+	    int sourcex = (int)(x*cosine+y*sine); //get pixel from sprite, x-axis
+	    int sourcey = (int)(y*cosine-x*sine); //get pixel from sprite, y-axis
 	    if(sourcex>=0 && sourcex<iSrcBitmap.bmWidth && sourcey>=0
 	   	   && sourcey<iSrcBitmap.bmHeight ) {
-           current_pixel=GetPixel(hMemSrc,sourcex,sourcey);
-          if (current_pixel==rTransparent) {
+           current_pixel=GetPixel(hMemSrc,sourcex,sourcey); //get current pixel color
+          if (current_pixel==rTransparent) { //Set Target Transparent color (i.e. LTGREEN) to BLACK
 	        SetPixel(hMemDest, x, y, BLACK);
           } else if (current_pixel==BLACK){
-            if (sprite_color!=BLACK) {
+            if (sprite_color!=BLACK) { //Set BLACK to Custom Color
 	          SetPixel(hMemDest, x, y, sprite_color);
-            } else {
+            } else { //change BLACK to DKBLACK 
 	          SetPixel(hMemDest, x, y, DKBLACK);
             }
-          } else {
+          } else { //Set pixel, no change to color
 	        SetPixel(hMemDest, x, y, current_pixel);
           }
         }
@@ -300,18 +291,24 @@ void GrSprite(HWND hwnd, HDC hDC, PAINTSTRUCT ps,  double _x1, double _y1, doubl
     DeleteDC(hdcMemA);
     DeleteDC(hdcMemB);
   } else {
-    GrPrint(hwnd,hDC,ps,_x1,_y1,"(No Sprite)",RGB(255,255,255)); //Print Message if sprite cannot be loaded
+    GrPrint(hDC,_x1,_y1,"(No Sprite)",RGB(255,255,255)); //Print Message if sprite cannot be loaded
   }
 }
 
 
 
-void DrawTriFill(HWND hwnd, HDC hdc, PAINTSTRUCT ps,int tri_color,double x1,double y1,double x2,double y2,double x3,double y3)
+void DrawTriFill(HDC hdc, int tri_color,double x1,double y1,double x2,double y2,double x3,double y3,bool IsHatch,int hatch_type)
 {//https://stackoverflow.com/questions/33447305/c-windows32-gdi-fill-triangle
   HPEN hPen = CreatePen(PS_SOLID, 2, tri_color);
   HPEN hOldPen = SelectObject(hdc, hPen);
 
-  HBRUSH hBrush = CreateSolidBrush(tri_color);
+  HBRUSH hBrush;
+
+  if (!IsHatch) {
+    hBrush=CreateSolidBrush(tri_color);
+  } else {
+    hBrush=CreateHatchBrush(hatch_type,tri_color);
+  }  
   HBRUSH hOldBrush = SelectObject(hdc, hBrush);
 
   POINT vertices[] = { {x1, y1}, {x2, y2}, {x3, y3} };

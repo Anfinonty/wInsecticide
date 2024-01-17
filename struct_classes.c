@@ -271,6 +271,8 @@ struct Enemy
       idle_timer,
       forgor_timer;
 
+  int seed;
+
 } Enemy[ENEMY_NUM];
 
 HBITMAP enemy1_sprite_1;

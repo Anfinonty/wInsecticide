@@ -305,7 +305,7 @@ void EnemySpecies1Gravity(int enemy_id)
       Enemy[enemy_id].below_ground=TRUE;
       if (player.print_current_above && Enemy[enemy_id].saw_player) {
       	if (player.y-60<Enemy[enemy_id].y && Enemy[enemy_id].y<player.y-30 && !Enemy[enemy_id].idling) {//enemy above
-	      if (!Enemy[enemy_id].ignore_player && RandNum(0,5)==1) {
+	      if (!Enemy[enemy_id].ignore_player && RandNum(0,5,Enemy[enemy_id].seed)==1) {
             Enemy[enemy_id].y+=0.25;
 	      }
         }
@@ -402,8 +402,8 @@ void EnemyTargetPlayer(int i)
     Enemy[i].idling=FALSE;
     Enemy[i].search_target=TRUE;
     Enemy[i].idle_timer=0;
-    target_x=Enemy[i].x+RandNum(-Enemy[i].follow_range/4*NODE_SIZE,abs(Enemy[i].follow_range/4*NODE_SIZE));
-    target_y=Enemy[i].y+RandNum(-Enemy[i].follow_range/4*NODE_SIZE,abs(Enemy[i].follow_range/4*NODE_SIZE));
+    target_x=Enemy[i].x+RandNum(-Enemy[i].follow_range/4*NODE_SIZE,abs(Enemy[i].follow_range/4*NODE_SIZE),Enemy[i].seed);
+    target_y=Enemy[i].y+RandNum(-Enemy[i].follow_range/4*NODE_SIZE,abs(Enemy[i].follow_range/4*NODE_SIZE),Enemy[i].seed);
     target_node=GetGridId(target_x-Enemy[i].node_x[0],
 			target_y-Enemy[i].node_y[0],
                         Enemy[i].follow_range*NODE_SIZE,
@@ -526,7 +526,7 @@ void EnemyAct(int i)
   bool allow_act=FALSE,allow_act_1=FALSE;
   //timebreaker enemy
   //if (Enemy[i].time_breaker_immune/* && !the_bravery_tyrant*/) {
-    dice=RandNum(0,Enemy[i].time_breaker_rare);
+    dice=RandNum(0,Enemy[i].time_breaker_rare,Enemy[i].seed);
     if (dice==1) {
       slash_time=Enemy[i].time_breaker_length;
       /*if (Enemy[i].saw_player) {
@@ -767,8 +767,8 @@ void EnemyAct(int i)
           if (Enemy[i].bullet_fire_cooldown<=0) {
 	    if (Enemy[i].bullet_length==0) {
 	      for (j=0;j<Enemy[i].bullet_fire_at_once_max;j++) {//shoot several bullets at once
-	        Enemy[i].bullet_head_x[j]=player.x+RandNum(-Enemy[i].aim_rand,Enemy[i].aim_rand);
-	        Enemy[i].bullet_head_y[j]=player.y+RandNum(-Enemy[i].aim_rand,Enemy[i].aim_rand);
+	        Enemy[i].bullet_head_x[j]=player.x+RandNum(-Enemy[i].aim_rand,Enemy[i].aim_rand,Enemy[i].seed);
+	        Enemy[i].bullet_head_y[j]=player.y+RandNum(-Enemy[i].aim_rand,Enemy[i].aim_rand,Enemy[i].seed);
 	      }
 	    }
 
@@ -854,12 +854,12 @@ void EnemyAct(int i)
             EnemyTargetPlayer(i); //target player
           } else if (Enemy[i].idle_timer>100) {//idling over
             Enemy[i].target_player=FALSE;
-            dice=RandNum(0,5);
+            dice=RandNum(0,5,i);
             Enemy[i].idle_timer=0;
             if (dice==1) { //Start searching
 	    //total ignore player (still hostile)
-              target_x=Enemy[i].x+RandNum(-Enemy[i].follow_range/4*NODE_SIZE,abs(Enemy[i].follow_range/4*NODE_SIZE));
-              target_y=Enemy[i].y+RandNum(-Enemy[i].follow_range/4*NODE_SIZE,abs(Enemy[i].follow_range/4*NODE_SIZE));
+              target_x=Enemy[i].x+RandNum(-Enemy[i].follow_range/4*NODE_SIZE,abs(Enemy[i].follow_range/4*NODE_SIZE),Enemy[i].seed);
+              target_y=Enemy[i].y+RandNum(-Enemy[i].follow_range/4*NODE_SIZE,abs(Enemy[i].follow_range/4*NODE_SIZE),Enemy[i].seed);
               target_node=GetGridId(target_x-Enemy[i].node_x[0],
 			                        target_y-Enemy[i].node_y[0],
                                     Enemy[i].follow_range*NODE_SIZE,
@@ -1056,6 +1056,7 @@ void InitEnemy()
 {
   int i=0,j=0,x=0,y=0;
   for (i=0;i<ENEMY_NUM;i++) {
+    Enemy[i].seed=0;
     Enemy[i].dist_from_player=999;
     Enemy[i].x=saved_enemy_x[i];
     Enemy[i].y=saved_enemy_y[i];
@@ -1164,13 +1165,13 @@ void InitEnemy()
 
 
 
-void DrawEnemy(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
+void DrawEnemy(HDC hdc) {
   int i=0,j=0,k=0;
   for (j=0;j<player.rendered_enemy_num;j++) {  
     i=player.render_enemies[j];
     if (Enemy[i].health>0) {
       for (k=0;k<Enemy[i].bullet_shot_num;k++) {
-        DrawBullet(hwnd,hdc,ps,Enemy[i].bullet_shot_arr[k]);
+        DrawBullet(hdc,Enemy[i].bullet_shot_arr[k]);
       }
     }
 
@@ -1179,23 +1180,23 @@ void DrawEnemy(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
         switch (Enemy[i].species) {
           case 0:
             if (Enemy[i].sprite_timer%2==0) {
-              GrSprite(hwnd,hdc,ps,Enemy[i].sprite_x,Enemy[i].sprite_y,0,enemy1_sprite_1,Enemy[i].last_left,LTGREEN,Enemy[i].color);
+              GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,0,enemy1_sprite_1,Enemy[i].last_left,LTGREEN,Enemy[i].color);
             } else {
-              GrSprite(hwnd,hdc,ps,Enemy[i].sprite_x,Enemy[i].sprite_y,0,enemy1_sprite_2,Enemy[i].last_left,LTGREEN,Enemy[i].color);
+              GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,0,enemy1_sprite_2,Enemy[i].last_left,LTGREEN,Enemy[i].color);
             }
             break;
           case 1: //placeholder sprites
             if (Enemy[i].sprite_timer%2==0) {
-              GrSprite(hwnd,hdc,ps,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].angle,player.sprite_1,Enemy[i].last_left,LTGREEN,Enemy[i].color);
+              GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].angle,player.sprite_1,Enemy[i].last_left,LTGREEN,Enemy[i].color);
             } else {
-              GrSprite(hwnd,hdc,ps,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].angle,player.sprite_2,Enemy[i].last_left,LTGREEN,Enemy[i].color);
+              GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].angle,player.sprite_2,Enemy[i].last_left,LTGREEN,Enemy[i].color);
             }
             break;
         }
       } else {
         switch (Enemy[i].species) {
           case 1: //placeholder sprites
-            GrSprite(hwnd,hdc,ps,Enemy[i].sprite_x,Enemy[i].sprite_y,0,player.sprite_jump,Enemy[i].last_left,LTGREEN,Enemy[i].color);
+            GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,0,player.sprite_jump,Enemy[i].last_left,LTGREEN,Enemy[i].color);
             break;
         }
       }

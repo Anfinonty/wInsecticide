@@ -332,32 +332,32 @@ void BulletAct(int bullet_id)
   }
 }
 
-void DrawBullet2(HWND hwnd, HDC hdc, PAINTSTRUCT ps,int i,double x,double y,int color)
+void DrawBullet2(HDC hdc,int i,double x,double y,int color)
 {
   int j=0;
   switch (Bullet[i].graphics_type) {
     case 0:
-      GrCircle(hwnd,hdc,ps,x,y,2,color);
+      GrCircle(hdc,x,y,2,color);
       break;
     case 1:
-      GrCircle(hwnd,hdc,ps,x,y,1,color);
+      GrCircle(hdc,x,y,1,color);
       break;
     case 2:
-      GrCircle(hwnd,hdc,ps,x,y,1,color);
-      GrCircle(hwnd,hdc,ps,x,y,2,color);
+      GrCircle(hdc,x,y,1,color);
+      GrCircle(hdc,x,y,2,color);
       break;
     case 3:
-      GrCircle(hwnd,hdc,ps,x,y,RandNum(0,3),color);
+      GrCircle(hdc,x,y,RandNum(0,3,i),color);
       break;
     case 4:
-      for (j=RandNum(0,3);j>0;j--) {
-        GrCircle(hwnd,hdc,ps,x,y,j,color);
+      for (j=RandNum(0,3,i);j>0;j--) {
+        GrCircle(hdc,x,y,j,color);
       }
       break;
   }
 }
 
-void DrawBullet(HWND hwnd, HDC hdc, PAINTSTRUCT ps,int i)
+void DrawBullet(HDC hdc,int i)
 {
   //if (!change_view || (on_ground_timer<=0)) {//default view
     /*if (fade_bullet) {
@@ -370,7 +370,7 @@ void DrawBullet(HWND hwnd, HDC hdc, PAINTSTRUCT ps,int i)
       }
     }*/
     //Highlight(!IsInvertedBackground,Bullet[i].color,palette_dark_arr[Bullet[i].color],dc);
-  DrawBullet2(hwnd,hdc,ps,i,Bullet[i].sprite_x,Bullet[i].sprite_y,Bullet[i].color);
+  DrawBullet2(hdc,i,Bullet[i].sprite_x,Bullet[i].sprite_y,Bullet[i].color);
   /*} else { //pov view
     double bullet_view_angle=0,
         bullet_angle_x=0,
