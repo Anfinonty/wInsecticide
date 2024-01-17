@@ -325,7 +325,7 @@ void EnemyMove(int enemy_id)
       path_node_center_y=Enemy[enemy_id].node_y[path_node_id]+NODE_SIZE/2;
   if (Enemy[enemy_id].species==1) {
     Enemy[enemy_id].sprite_timer++;
-    if (Enemy[enemy_id].sprite_timer>3) {
+    if (Enemy[enemy_id].sprite_timer>16) {
       Enemy[enemy_id].sprite_timer=0;
     }
   }
@@ -986,6 +986,7 @@ void EnemyAct(int i)
           Enemy[i].sprite_timer=0;
         }
       }
+
     }//end of tbt
   }//end of health
   /*if (fade_enemy) {//fade enemy
@@ -999,6 +1000,7 @@ void EnemyAct(int i)
   }*/
   Enemy[i].sprite_x=Enemy[i].x+player.cam_x+player.cam_move_x;
   Enemy[i].sprite_y=Enemy[i].y+player.cam_y+player.cam_move_y;
+
 }
 
 void SetEnemyByType(int i,int type)
@@ -1161,6 +1163,10 @@ void InitEnemy()
 
   enemy1_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy1-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
   enemy1_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy1-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+  enemy2_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+  enemy2_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+  enemy2_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 }
 
 
@@ -1180,23 +1186,23 @@ void DrawEnemy(HDC hdc) {
         switch (Enemy[i].species) {
           case 0:
             if (Enemy[i].sprite_timer%2==0) {
-              GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,0,enemy1_sprite_1,Enemy[i].last_left,LTGREEN,Enemy[i].color);
+              GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].angle,enemy1_sprite_1,Enemy[i].last_left,LTGREEN,Enemy[i].color);
             } else {
-              GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,0,enemy1_sprite_2,Enemy[i].last_left,LTGREEN,Enemy[i].color);
+              GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].angle,enemy1_sprite_2,Enemy[i].last_left,LTGREEN,Enemy[i].color);
             }
             break;
-          case 1: //placeholder sprites
-            if (Enemy[i].sprite_timer%2==0) {
-              GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].angle,player.sprite_1,Enemy[i].last_left,LTGREEN,Enemy[i].color);
+          case 1:
+            if (Enemy[i].sprite_timer%8==0) {
+              GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].angle,enemy2_sprite_1,Enemy[i].last_left,LTGREEN,Enemy[i].color);
             } else {
-              GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].angle,player.sprite_2,Enemy[i].last_left,LTGREEN,Enemy[i].color);
+              GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].angle,enemy2_sprite_2,Enemy[i].last_left,LTGREEN,Enemy[i].color);
             }
             break;
         }
       } else {
         switch (Enemy[i].species) {
           case 1: //placeholder sprites
-            GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,0,player.sprite_jump,Enemy[i].last_left,LTGREEN,Enemy[i].color);
+            GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,0,enemy2_sprite_3,Enemy[i].last_left,LTGREEN,Enemy[i].color);
             break;
         }
       }

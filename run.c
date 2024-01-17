@@ -128,9 +128,9 @@ int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
 #define BULLET_NUM	5000
 #define MAX_BULLET_PER_FIRE 10
 
-#include "saves/Level001.c"
+//#include "saves/Level001.c"
 //#include "saves/Level002.c"
-//#include "saves/Level003.c"
+#include "saves/Level003.c"
 //#include "saves/Level004.c"
 
 /*
@@ -472,7 +472,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         //bg_cam_fall_cooldown=0;
         //background_cam_move_x=0;
         //background_cam_move_y=0;
-        CameraInit(player.x,player.y+PLAYER_HEIGHT/2+2); //idk scaling is weird for sprite
+        CameraInit(player.x,player.y+PLAYER_HEIGHT/2); //idk scaling is weird for sprite
         OLD_GR_WIDTH = GR_WIDTH;
         OLD_GR_HEIGHT = GR_HEIGHT;
       }

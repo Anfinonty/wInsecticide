@@ -277,4 +277,7 @@ struct Enemy
 
 HBITMAP enemy1_sprite_1;
 HBITMAP enemy1_sprite_2;
+HBITMAP enemy2_sprite_1;
+HBITMAP enemy2_sprite_2;
+HBITMAP enemy2_sprite_3;
 

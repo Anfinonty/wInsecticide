@@ -107,7 +107,7 @@ void InitPlayerCamera()
   //bg_cam_fall_cooldown=0;
   //background_cam_move_x=0;
   //background_cam_move_y=0;
-  CameraInit(player.saved_x,player.saved_y+PLAYER_HEIGHT/2+2); //idk scaling is weird for sprite
+  CameraInit(player.saved_x,player.saved_y); //idk scaling is weird for sprite
 }
 
 
@@ -552,7 +552,7 @@ void PlayerAct() {
 
 
   player.sprite_x=GR_WIDTH/2+player.cam_move_x;
-  player.sprite_y=GR_HEIGHT/2+player.cam_move_y;
+  player.sprite_y=GR_HEIGHT/2+player.cam_move_y-PLAYER_HEIGHT/2;
  //
  //
 }

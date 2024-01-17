@@ -270,17 +270,17 @@ void GrSprite(HDC hDC,double _x1,double _y1,double radians,HBITMAP hSourceBitmap
 
     oldbitmap = SelectObject(hdcMemA, hBitmapMask);
     if (is_left) { //Flip Horizontally (X)
-      StretchBlt(hDC, _x1+bitmap.bmWidth/2, _y1-bitmap.bmHeight, -bitmap.bmWidth-1, bitmap.bmHeight, hdcMemA, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCAND); //Create Mask for
+      StretchBlt(hDC, _x1+bitmap.bmWidth/2, _y1-bitmap.bmHeight/2, -bitmap.bmWidth-1, bitmap.bmHeight, hdcMemA, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCAND); //Create Mask for
     } else { //Regular
-      StretchBlt(hDC, _x1-bitmap.bmWidth/2, _y1-bitmap.bmHeight, bitmap.bmWidth, bitmap.bmHeight, hdcMemA, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCAND); //Create Mask for
+      StretchBlt(hDC, _x1-bitmap.bmWidth/2, _y1-bitmap.bmHeight/2, bitmap.bmWidth, bitmap.bmHeight, hdcMemA, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCAND); //Create Mask for
     }
 
 
     oldbitmap2 = SelectObject(hdcMemB,hDestBitmap);
     if (is_left) { //Flip Horizontally (X)
-      StretchBlt(hDC, _x1+bitmap.bmWidth/2, _y1-bitmap.bmHeight, -bitmap.bmWidth-1, bitmap.bmHeight, hdcMemB, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCPAINT); //Create Mask for
+      StretchBlt(hDC, _x1+bitmap.bmWidth/2, _y1-bitmap.bmHeight/2, -bitmap.bmWidth-1, bitmap.bmHeight, hdcMemB, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCPAINT); //Create Mask for
     } else { //Regular
-      StretchBlt(hDC, _x1-bitmap.bmWidth/2, _y1-bitmap.bmHeight, bitmap.bmWidth, bitmap.bmHeight, hdcMemB, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCPAINT); //Create Mask for
+      StretchBlt(hDC, _x1-bitmap.bmWidth/2, _y1-bitmap.bmHeight/2, bitmap.bmWidth, bitmap.bmHeight, hdcMemB, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCPAINT); //Create Mask for
     }
     //BitBlt(hDC, _x1-bitmap.bmWidth/2, _y1-bitmap.bmHeight, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0, 0, SRCAND); //This works (Demo, no flip transparent background)
 
@@ -291,7 +291,7 @@ void GrSprite(HDC hDC,double _x1,double _y1,double radians,HBITMAP hSourceBitmap
     DeleteDC(hdcMemA);
     DeleteDC(hdcMemB);
   } else {
-    GrPrint(hDC,_x1,_y1,"(No Sprite)",RGB(255,255,255)); //Print Message if sprite cannot be loaded
+    GrPrint(hDC,_x1,_y1,"(No Sprite)",WHITE); //Print Message if sprite cannot be loaded
   }
 }
 
