@@ -25,6 +25,8 @@
 #include <dirent.h>
 #include <errno.h>
 
+#include <GL/glu.h>
+
 
 #define COLORS_NUM  16
 #define BLACK       RGB(0,0,0)
@@ -126,9 +128,9 @@ int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
 #define BULLET_NUM	5000
 #define MAX_BULLET_PER_FIRE 10
 
-//#include "saves/Level001.c"
+#include "saves/Level001.c"
 //#include "saves/Level002.c"
-#include "saves/Level003.c"
+//#include "saves/Level003.c"
 //#include "saves/Level004.c"
 
 /*
@@ -328,6 +330,91 @@ void DrawTexts(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
   GrPrint(hdc,0,16,txt2,c);
   //GrPrint(hwnd,hdc,ps,0,16,_txt2,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//https://community.khronos.org/t/how-to-get-hdc-for-back-buffer/36596/8
+/*void EnableOpenGL(HDC *hdc, HGLRC *hrc )
+{
+  PIXELFORMATDESCRIPTOR pfd;
+  int iFormat;
+
+// set the pixel format for the DC
+  ZeroMemory( &pfd, sizeof( pfd ) );
+  pfd.nSize = sizeof( pfd );
+  pfd.nVersion = 1;
+  pfd.dwFlags = PFD_DRAW_TO_BITMAP |
+  PFD_SUPPORT_OPENGL;
+  pfd.iPixelType = PFD_TYPE_RGBA;
+  pfd.cColorBits = 24;
+  pfd.cDepthBits = 16;
+  pfd.iLayerType = PFD_MAIN_PLANE;
+  iFormat = ChoosePixelFormat( *hdc, &pfd );
+  SetPixelFormat( *hdc, iFormat, &pfd );
+
+// create and enable the render context (RC)
+  *hrc = wglCreateContext( *hdc );
+  iFormat = wglMakeCurrent( *hdc, *hrc );
+  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+}*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -569,6 +656,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 
   hDC = GetDC(hWnd);
   hRC = wglCreateContext(hDC);
+ // EnableOpenGL(&hDC,&hRC);
   wglMakeCurrent(hDC, hRC);
   ShowWindow(hWnd, nCmdShow);
 
