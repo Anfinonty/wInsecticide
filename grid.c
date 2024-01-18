@@ -14,18 +14,18 @@ int GetGridId(int x,int y,int width, int size,int max)
 
 void SetGridLineArray(int grid_id,int ground_id)
 {
-  if (!Ground[ground_id].already_in_grid[grid_id] && Grid[grid_id].max_ground_num<MAX_GROUNDS_WITHIN_GRID) {//if not in the grid
+  if (!Ground[ground_id].already_in_grid[grid_id] && VGrid[grid_id].max_ground_num<MAX_GROUNDS_WITHIN_GRID) {//if not in the grid
     //Ground related
-    Ground[ground_id].saved_pos_in_grid[grid_id]=Grid[grid_id].max_ground_num;
+    Ground[ground_id].saved_pos_in_grid[grid_id]=VGrid[grid_id].max_ground_num;
     Ground[ground_id].already_in_grid[grid_id]=TRUE;
     //grid related
-    Grid[grid_id].ground_ids[Grid[grid_id].max_ground_num]=ground_id;
-    Grid[grid_id].max_ground_num++;
+    VGrid[grid_id].ground_ids[VGrid[grid_id].max_ground_num]=ground_id;
+    VGrid[grid_id].max_ground_num++;
   }
 }
 
 
-void UnSetGridLineArray(int grid_id,int ground_id)
+/*void UnSetGridLineArray(int grid_id,int ground_id)
 {
   int i=0;
   if (Ground[ground_id].already_in_grid[grid_id]) {
@@ -40,18 +40,33 @@ void UnSetGridLineArray(int grid_id,int ground_id)
     Ground[ground_id].already_in_grid[grid_id]=FALSE;
     Ground[ground_id].saved_pos_in_grid[grid_id]=-1;
   }
-}
+}*/
 
 
 void InitGrid() 
 {
   int i=0,j=0,x=0,y=0;
+  for (i=0;i<VGRID_NUM;i++) {
+    VGrid[i].within_render_distance=FALSE;
+    VGrid[i].max_ground_num=0;
+    for (j=0;j<MAX_GROUNDS_WITHIN_GRID;j++) {
+      VGrid[i].ground_ids[j]=-1;
+    }
+    VGrid[i].x1=x;
+    VGrid[i].y1=y;
+    VGrid[i].x2=VGrid[i].x1+VGRID_SIZE;
+    VGrid[i].y2=VGrid[i].y1+VGRID_SIZE;
+    x+=VGRID_SIZE;
+    if (x>MAP_WIDTH-VGRID_SIZE) {
+      x=0;
+      y+=VGRID_SIZE;
+    }
+  }
+
+  x=0;
+  y=0;
   for (i=0;i<GRID_NUM;i++) {
     Grid[i].within_render_distance=FALSE;
-    Grid[i].max_ground_num=0;
-    for (j=0;j<MAX_GROUNDS_WITHIN_GRID;j++) {
-      Grid[i].ground_ids[j]=-1;
-    }
     Grid[i].enemy_occupy_num=0;
     for (j=0;j<ENEMY_NUM;j++) {
       Grid[i].enemy_occupy[j]=-1;
@@ -218,7 +233,7 @@ void SetNodeGridAttributes2(int i)
       }
       for (x=min;x<max;x++) {
         lg_y=x*gradient[j]+c[j];
-        lg_grid_id=GetGridId(x,lg_y,MAP_WIDTH,GRID_SIZE,GRID_NUM);
+        lg_grid_id=GetGridId(x,lg_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
         SetGridLineArray(lg_grid_id,i);
       }
     } else {// x=(y-c)/m
@@ -231,7 +246,7 @@ void SetNodeGridAttributes2(int i)
       }
       for (y=min;y<max;y++) {
         lg_x=(y-c[j])/gradient[j];
-        lg_grid_id=GetGridId(lg_x,y,MAP_WIDTH,GRID_SIZE,GRID_NUM);
+        lg_grid_id=GetGridId(lg_x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
         SetGridLineArray(lg_grid_id,i);
       }
     }
@@ -247,7 +262,7 @@ void SetNodeGridAttributes(int i)
   if (-1<Ground[i].gradient && Ground[i].gradient<1) { // y=mx+c
     for (x=Ground[i].x1;x<Ground[i].x2;x++) {
       lg_y=x*Ground[i].gradient+Ground[i].c;
-      lg_grid_id=GetGridId(x,lg_y,MAP_WIDTH,GRID_SIZE,GRID_NUM);
+      lg_grid_id=GetGridId(x,lg_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
       SetGridLineArray(lg_grid_id,i);
       if (!Ground[i].is_ghost) { //Not a ghost
         node_grid_id=GetGridId(x,lg_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
@@ -264,7 +279,7 @@ void SetNodeGridAttributes(int i)
     }
     for (y=min;y<max;y++) {
       lg_x=(y-Ground[i].c)/Ground[i].gradient;
-      lg_grid_id=GetGridId(lg_x,y,MAP_WIDTH,GRID_SIZE,GRID_NUM);
+      lg_grid_id=GetGridId(lg_x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
       SetGridLineArray(lg_grid_id,i);
       if (!Ground[i].is_ghost) {
         node_grid_id=GetGridId(lg_x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);

@@ -187,7 +187,8 @@ void BulletAct(int bullet_id)
       //
     if (enemy_id!=-1) { //Enemy bullet
       hit_player=HitPlayer(bullet_id);
-      bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,0.5,0.5,FALSE);
+      //bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,0.5,0.5,FALSE);
+      bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2,FALSE);
 	  allow_act=FALSE;
 	  if (hit_player) {
 	    allow_act=TRUE;

@@ -108,7 +108,7 @@ void InitGround() {
   //gsm_hold_timer=0;
 
   for (i=0;i<GROUND_NUM;i++) {
-    for (j=0;j<GRID_NUM;j++) {
+    for (j=0;j<VGRID_NUM;j++) {
       Ground[i].saved_pos_in_grid[j]=-1;
       Ground[i].already_in_grid[j]=FALSE;
     }
@@ -209,9 +209,9 @@ int GetOnGroundId(double x,double y,double min_range_1,double min_range_2,bool i
   int i=0,j=-1,ground_id=0,on_grid_id=0;
   double ground_entity_E=0,height_from_ground=0;
   if (0<x && x<MAP_WIDTH && 0<y && y<MAP_HEIGHT) { //within bounderies
-    on_grid_id=GetGridId(x,y,MAP_WIDTH,GRID_SIZE,GRID_NUM);//maths to get grid
-    for (i=0;i<Grid[on_grid_id].max_ground_num;i++) {
-      ground_id=Grid[on_grid_id].ground_ids[i];
+    on_grid_id=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);//maths to get grid
+    for (i=0;i<VGrid[on_grid_id].max_ground_num;i++) {
+      ground_id=VGrid[on_grid_id].ground_ids[i];
       ground_entity_E=GetLineTargetAngle(ground_id,x,y);
       height_from_ground=GetLineTargetHeight(ground_id,ground_entity_E,x,y);
       if (is_player) {
@@ -221,10 +221,10 @@ int GetOnGroundId(double x,double y,double min_range_1,double min_range_2,bool i
         if ((Ground[ground_id].y1-min_range_1<=y && y<=Ground[ground_id].y2+min_range_1) ||
             (Ground[ground_id].y2-min_range_1<=y && y<=Ground[ground_id].y1+min_range_1)) {//within y
           if (is_player && -min_range_2<Ground[ground_id].height_from_player_x && Ground[ground_id].height_from_player_x<min_range_2) { //change in ground
-	        if (ground_id!=player.saved_ground_id /*&& !Ground[ground_id].is_ghost*/) {
+	        if (ground_id!=player.saved_ground_id && !Ground[ground_id].is_ghost) {
               j=ground_id;
 	        }
-          } else if (/*!Ground[ground_id].is_ghost &&*/ -min_range_2<height_from_ground && height_from_ground<min_range_2) {
+          } else if (!Ground[ground_id].is_ghost && -min_range_2<height_from_ground && height_from_ground<min_range_2) {
 	        return ground_id;
 	      }
 	    }

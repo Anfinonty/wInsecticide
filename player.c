@@ -11,6 +11,57 @@ void move_y(double y) {
   player.cam_y-=y;
 }
 
+void InitVRDGrid()
+{
+  int i=0,j=0,k=0,on_grid_id=0,column=0,row=0,
+      start_x=0,start_y=0;
+
+  for (i=0;i<player.rendered_vgrid_num;i++) {
+    VGrid[player.render_vgrids[i]].within_render_distance=FALSE; //all rendered-grids are no-longer within render distance
+    player.render_vgrids[i]=-1;  //unrender all rendered grids
+  }
+  for (i=0;i<player.rendered_ground_num;i++) {
+    Ground[player.render_grounds[i]].within_render_distance=FALSE; //All rendered-grounds are no-longer within render distance
+    player.render_grounds[i]=-1; //unrender all rendered grounds
+  }
+
+  player.rendered_ground_num=0;
+  player.rendered_vgrid_num=0;
+
+  //Begin rendering
+  start_x=player.x-(dyn_vrenderdist/2*VGRID_SIZE); //Top left corner of render distance grids to bottom right corner
+  start_y=player.y-(dyn_vrenderdist/2*VGRID_SIZE);
+  //"What happens when you lose everything? You just art again. Start all over again" - Maximo Park
+  for (i=0;i<dyn_vrenderdist_num;i++) { //all render distance grids from top-left to bottom-right
+    VRDGrid[i].x=start_x+column*VGRID_SIZE;
+    VRDGrid[i].y=start_y+row*VGRID_SIZE;
+    if (0<VRDGrid[i].x && VRDGrid[i].x<MAP_WIDTH && //render distance grid is within range
+        0<VRDGrid[i].y && VRDGrid[i].y<MAP_HEIGHT) {
+
+      //vgrid
+      on_grid_id=GetGridId(VRDGrid[i].x,VRDGrid[i].y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);//get grid id based on renderdistance grid axes
+      VGrid[on_grid_id].within_render_distance=TRUE; //append grid to render_grids array
+      player.render_vgrids[player.rendered_vgrid_num]=on_grid_id;//cannot be i (what if out of bounds)
+      player.rendered_vgrid_num++; //count amount of grids rendered
+
+      //grounds
+      for (j=0;j<VGrid[on_grid_id].max_ground_num;j++) { //fetch all grounds that are occupying the grid
+	    k=VGrid[on_grid_id].ground_ids[j]; //ground_id in grid
+ 	    if (!Ground[k].within_render_distance) { //ground is now within render distance
+	      Ground[k].within_render_distance=TRUE;
+          player.render_grounds[player.rendered_ground_num]=k; //append ground to render_grounds array
+	      player.rendered_ground_num++; //count number of rendered grounds
+	    } 
+      }
+
+    }
+    column++; //Next column
+    if (column>=dyn_vrenderdist) { //if the column is beyond the render distance
+      row++; //move to the next row
+      column=0; //go back to first column
+    }
+  } 
+}
 
 void InitRDGrid()
 {
@@ -25,16 +76,12 @@ void InitRDGrid()
     Enemy[player.render_enemies[i]].within_render_distance=FALSE; //all rendered-enemies are no-longer within render distance
     player.render_enemies[i]=-1; //unrender all rendered enemies
   }
-  for (i=0;i<player.rendered_ground_num;i++) {
-    Ground[player.render_grounds[i]].within_render_distance=FALSE; //All rendered-grounds are no-longer within render distance
-    player.render_grounds[i]=-1; //unrender all rendered grounds
-  }
+
   player.rendered_grid_num=0;
   player.rendered_enemy_num=0;
-  player.rendered_ground_num=0;
 
   //Begin rendering
-  start_x=player.x-(RENDER_DIST/2*GRID_SIZE), //Top left corner of render distance grids to bottom right corner
+  start_x=player.x-(RENDER_DIST/2*GRID_SIZE); //Top left corner of render distance grids to bottom right corner
   start_y=player.y-(RENDER_DIST/2*GRID_SIZE);
   //"What happens when you lose everything? You just art again. Start all over again" - Maximo Park
   for (i=0;i<RDGRID_NUM;i++) { //all render distance grids from top-left to bottom-right
@@ -58,23 +105,13 @@ void InitRDGrid()
 	      player.rendered_enemy_num++; //count number of rendered enemies 
 	    }
       }
-
-      //grounds
-      for (j=0;j<Grid[on_grid_id].max_ground_num;j++) { //fetch all grounds that are occupying the grid
-	    k=Grid[on_grid_id].ground_ids[j]; //ground_id in grid
- 	    if (!Ground[k].within_render_distance) { //ground is now within render distance
-	      Ground[k].within_render_distance=TRUE;
-          player.render_grounds[player.rendered_ground_num]=k; //append ground to render_grounds array
-	      player.rendered_ground_num++; //count number of rendered grounds
-	    } 
-      }
     }
     column++; //Next column
     if (column>=RENDER_DIST) { //if the column is beyond the render distance
       row++; //move to the next row
       column=0; //go back to first column
     }
-  } 
+  }
 }
 
 
@@ -107,7 +144,7 @@ void InitPlayerCamera()
   //bg_cam_fall_cooldown=0;
   //background_cam_move_x=0;
   //background_cam_move_y=0;
-  CameraInit(player.saved_x,player.saved_y); //idk scaling is weird for sprite
+  CameraInit(player.saved_x,player.saved_y+PLAYER_HEIGHT/2); //idk scaling is weird for sprite
 }
 
 
@@ -180,11 +217,15 @@ void InitPlayer() {
   //player.destroy_ground=FALSE;
 
   player.rendered_grid_num=0;
+  player.rendered_vgrid_num=0;
   player.rendered_enemy_num=0;
   player.rendered_ground_num=0;
 
   for (i=0;i<RDGRID_NUM;i++) {
     player.render_grids[i]=-1;
+  }
+  for (i=0;i<VRDGRID_NUM;i++) {
+    player.render_vgrids[i]=-1;
   }
   for (i=0;i<ENEMY_NUM;i++) {
     player.render_enemies[i]=-1;
@@ -201,6 +242,7 @@ void InitPlayer() {
 
   InitPlayerCamera();
   InitRDGrid();
+  InitVRDGrid();
 }
 
 bool YesInitRDGrid()
@@ -219,11 +261,33 @@ bool YesInitRDGrid()
 }
 
 
+bool YesInitVRDGrid()
+{
+  int dyn=2;
+  if (GR_WIDTH>=1440) { //increased frequency
+    dyn=4;
+  }
+  if (VGRID_SIZE*2<player.x && player.x<MAP_WIDTH-VGRID_SIZE*2) {
+    if (player.x<VRDGrid[0].x+VGRID_SIZE*dyn || player.x>VRDGrid[dyn_vrenderdist-1].x-VGRID_SIZE*dyn) {
+      return TRUE;
+    }
+  }
+  if (VGRID_SIZE*2<player.y && player.y<MAP_HEIGHT-VGRID_SIZE*2) {
+    if (player.y<VRDGrid[0].y+VGRID_SIZE*dyn || player.y>VRDGrid[dyn_vrenderdist_num-1].y-VGRID_SIZE*dyn) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}
+
 
 void PlayerAct() {
   //Initialize RD Grid
   if (YesInitRDGrid()) {
     InitRDGrid();
+  }
+  if (YesInitVRDGrid()) {
+    InitVRDGrid();
   }
 
   //Sprinting
@@ -268,7 +332,9 @@ void PlayerAct() {
   bool allow_act=FALSE;
   for (speed=0;speed<player.speed;speed++) {
     for (grav_speed=0;grav_speed<player.grav;grav_speed++) {
-      player.on_ground_id=GetOnGroundId(player.x,player.y,5,4,TRUE);    //Get Ground id
+//      player.on_ground_id=GetOnGroundId(player.x,player.y,5,4,TRUE);    //Get Ground id
+      player.on_ground_id=GetOnGroundId(player.x,player.y,4,3,TRUE);    //Get Ground id
+
    //hiding?
       if (NodeGrid[GetGridId(player.above_x,player.above_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM)].node_solid) {
         player.hiding=TRUE;

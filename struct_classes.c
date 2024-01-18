@@ -4,12 +4,12 @@ struct Ground
 {
   bool is_ghost, //Can be colided or not collided
        within_render_distance, //Is the ground within the player's Render Distance Grid'
-       already_in_grid[GRID_NUM]; //Is the Ground occupying the Grid it is in
+       already_in_grid[VGRID_NUM]; //Is the Ground occupying the Grid it is in
 
   int health, //For Webs, health of ground
       color, //Color of ground, RGB()
       type, //Regular, Text ground or TriFill 
-      saved_pos_in_grid[GRID_NUM];
+      saved_pos_in_grid[VGRID_NUM];
 
 
   double x1,y1,x2,y2,x3,y3, //3 Axes of ground
@@ -57,6 +57,9 @@ struct player
     //Render
     rendered_grid_num,
     render_grids[RDGRID_NUM],
+
+    rendered_vgrid_num,
+    render_vgrids[VRDGRID_NUM],
  
     rendered_enemy_num,
     render_enemies[ENEMY_NUM],
@@ -101,15 +104,30 @@ struct RenderDistanceGrid
 
 
 
+struct VRenderDistanceGrid
+{
+  int x,y;
+} VRDGrid[VRDGRID_NUM];
+
+
 struct Grid 
 {
   bool within_render_distance;
-  int max_ground_num, //how many grounds are occupying this grid
-    ground_ids[MAX_GROUNDS_WITHIN_GRID], //id of grounds that are occupying this grid
+  int 
     enemy_occupy_num, //how many enemies are occupying this grid
     enemy_occupy[ENEMY_NUM], //id of enemies occupying this grid
     x1,y1,x2,y2; //grid axes
 } Grid[GRID_NUM];
+
+
+struct VGrid
+{
+  bool within_render_distance;
+  int
+    max_ground_num, //how many grounds are occupying this grid
+    ground_ids[MAX_GROUNDS_WITHIN_GRID], //id of grounds that are occupying this grid
+    x1,y1,x2,y2; //grid axes
+} VGrid[VGRID_NUM];
 
 
 struct Node

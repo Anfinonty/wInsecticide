@@ -93,10 +93,11 @@ WHITE
 #define SONG_NUM 10
 #define SONG_FOLDER_NUM 14
 
-#define SCREEN_WIDTH    GetSystemMetrics(SM_CXSCREEN)
-#define SCREEN_HEIGHT   GetSystemMetrics(SM_CYSCREEN)
+#define SCREEN_WIDTH    (GetSystemMetrics(SM_CXSCREEN))
+#define SCREEN_HEIGHT   (GetSystemMetrics(SM_CYSCREEN))
 
 int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
+int dyn_vrenderdist=0,dyn_vrenderdist_num=0;
 
 #define DEFAULT_PLAYER_JUMP_HEIGHT 		85//100
 #define DEFAULT_PLAYER_SPEED			1
@@ -108,7 +109,9 @@ int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
 #define PLAYER_HEIGHT 	32
 
 #define GRID_SIZE	160
+#define VGRID_SIZE	160
 #define GRID_NUM	(MAP_WIDTH/GRID_SIZE) * (MAP_HEIGHT/GRID_SIZE)
+#define VGRID_NUM	(MAP_WIDTH/VGRID_SIZE) * (MAP_HEIGHT/VGRID_SIZE)
 
 #define NODE_SIZE  	 10
 #define MAX_FOLLOW_RANGE 100
@@ -116,8 +119,11 @@ int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
 
 #define MAP_NODE_NUM     (MAP_WIDTH/NODE_SIZE) * (MAP_HEIGHT/NODE_SIZE)
 
-#define MAX_GROUNDS_WITHIN_GRID	(GRID_SIZE/NODE_SIZE)*(GRID_SIZE/NODE_SIZE)/2
+#define MAX_GROUNDS_WITHIN_GRID	(VGRID_SIZE/NODE_SIZE)*(VGRID_SIZE/NODE_SIZE)/2
 
+
+#define VRENDER_DIST      20
+#define VRDGRID_NUM       VRENDER_DIST*VRENDER_DIST
 
 #define RENDER_DIST	 9
 #define RDGRID_NUM	 RENDER_DIST*RENDER_DIST
@@ -228,6 +234,9 @@ void InitOnce() {
   player.cam_move_x=0,
   player.cam_move_y=0,
 
+  dyn_vrenderdist=ceil(GR_WIDTH/100)+1;
+  dyn_vrenderdist_num=dyn_vrenderdist*dyn_vrenderdist;
+
   //InitCreateMapBitmap();
   InitTickFrequency();
   InitFPS();
@@ -328,6 +337,12 @@ void DrawTexts(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
   char *album_name=/*album_name_arr[*/album_names[rand_song1][rand_song2]/*]*/;
   sprintf(txt2,"%s",album_name);  
   GrPrint(hdc,0,16,txt2,c);
+
+
+  char txt3[19];
+  sprintf(txt3,"Render Distance: %d",dyn_vrenderdist);  
+  GrPrint(hdc,0,32,txt3,c);
+
   //GrPrint(hwnd,hdc,ps,0,16,_txt2,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
 }
 
@@ -469,6 +484,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         InitPlayerCamera();
         player.cam_x=0;
         player.cam_y=0;
+        dyn_vrenderdist=ceil(GR_WIDTH/100)+1;
+        dyn_vrenderdist_num=dyn_vrenderdist*dyn_vrenderdist;
+        InitVRDGrid();
         //bg_cam_fall_cooldown=0;
         //background_cam_move_x=0;
         //background_cam_move_y=0;
