@@ -203,6 +203,7 @@ void DrawBackground(HDC hdc) {
 }
 
 
+//Init
 LARGE_INTEGER m_high_perf_timer_freq;
 LARGE_INTEGER m_prev_end_of_frame;  
 void InitTickFrequency() {
@@ -210,7 +211,6 @@ void InitTickFrequency() {
       m_high_perf_timer_freq.QuadPart = 0;
   m_prev_end_of_frame.QuadPart = 0;
 }
-//Init
 
 int FPS = 60;
 void InitFPS() { //https://cboard.cprogramming.com/windows-programming/30730-finding-monitor-refresh-rate.html
@@ -242,6 +242,7 @@ void InitOnce() {
   InitFPS();
 }
 
+bool once=true;
 void Init() {
   OLD_GR_WIDTH=GR_WIDTH;
   OLD_GR_HEIGHT=GR_HEIGHT;
@@ -500,12 +501,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       hdcBackbuff=CreateCompatibleDC(hdc);
       HBITMAP bitmap=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
       SelectObject(hdcBackbuff,bitmap);
-      DrawBackground(hdcBackbuff);
+      
+DrawBackground(hdcBackbuff);
       DrawGroundTriFill(hdcBackbuff);
       DrawGround(hdcBackbuff);
       DrawGroundText(hdcBackbuff);
       DrawEnemy(hdcBackbuff);
       DrawPlayer(hdcBackbuff);
+
+      //DrawSprite(hdcBackbuff,0,0,live_player_sprite1);
 
       DrawTexts(hwnd,hdcBackbuff,ps);
       if (!IsInvertedBackground()){
@@ -524,10 +528,46 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       srand(time(NULL));
       timeBeginPeriod(1);
 
+
+      player.sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/player1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      player.sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/player2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      player.sprite_jump = (HBITMAP) LoadImageW(NULL, L"sprites/player3-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+      enemy1_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy1-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      enemy1_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy1-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+      enemy2_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      enemy2_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      enemy2_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+
+      player.sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,player.sprite_angle,LTGREEN,BLACK);
+      player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,BLACK);
+      player.sprite_2_cache = RotateSprite(NULL, player.sprite_2,player.sprite_angle,LTGREEN,BLACK);
+
+      for (int i=0;i<ENEMY_NUM;i++) {
+        if (Enemy[i].species==0) {
+          Enemy[i].sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,Enemy[i].color);
+          Enemy[i].sprite_2=RotateSprite(NULL, enemy1_sprite_2,0,LTGREEN,Enemy[i].color);
+          Enemy[i].sprite_3=NULL;
+        } else {
+          Enemy[i].sprite_1=RotateSprite(NULL, enemy2_sprite_1,Enemy[i].angle,LTGREEN,Enemy[i].color);
+          Enemy[i].sprite_2=RotateSprite(NULL, enemy2_sprite_2,Enemy[i].angle,LTGREEN,Enemy[i].color);
+          Enemy[i].sprite_3=RotateSprite(NULL, enemy2_sprite_3,Enemy[i].angle,LTGREEN,Enemy[i].color);
+        }
+      }
+
+
+      //HDC hdcMem = CreateCompatibleDC(hdc);
+      //Select(Objec)
       return 0;
+      break;
     case WM_DESTROY:
+      CleanUpPlayer();
+      CleanUpEnemy();
       PostQuitMessage(0);
       return 0;
+      break;
     //default:
      //break;
   }

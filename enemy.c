@@ -1053,10 +1053,19 @@ void SetEnemyByType(int i,int type)
   //Enemy[i].msprite_hold_timer_max=1;
 }
 
+void CleanUpEnemy()
+{
+  for (int i=0;i<ENEMY_NUM;i++) {
+    DeleteObject(Enemy[i].sprite_1);
+    DeleteObject(Enemy[i].sprite_2);
+    DeleteObject(Enemy[i].sprite_3);
+  }
+}
 
 void InitEnemy()
 {
   int i=0,j=0,x=0,y=0;
+  //CleanUpEnemy();
   for (i=0;i<ENEMY_NUM;i++) {
     Enemy[i].seed=0;
     Enemy[i].dist_from_player=999;
@@ -1086,6 +1095,8 @@ void InitEnemy()
     Enemy[i].below_ground=FALSE;
     Enemy[i].in_air_timer=0;
     Enemy[i].angle=0;
+    Enemy[i].sprite_angle=0;
+    Enemy[i].saved_angle=0;
   //bullet
     Enemy[i].bullet_shot_num=0;
     for (j=0;j<BULLET_NUM*1;j++) {
@@ -1108,6 +1119,7 @@ void InitEnemy()
     Enemy[i].LOS_angle=0;
     Enemy[i].LOS_target_x=-20;
     Enemy[i].LOS_target_y=-20;
+    Enemy[i].doRotateSprite=FALSE;
   //init default bool
     player.rendered_enemy_num=0;
     Enemy[i].target_player=FALSE;
@@ -1160,15 +1172,7 @@ void InitEnemy()
     }
     EnemyAct(i);
   }
-
-  enemy1_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy1-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-  enemy1_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy1-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-
-  enemy2_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-  enemy2_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-  enemy2_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 }
-
 
 
 void DrawEnemy(HDC hdc) {
@@ -1181,28 +1185,41 @@ void DrawEnemy(HDC hdc) {
       }
     }
 
+    if (Enemy[i].species==1) {
+      if (Enemy[i].angle!=Enemy[i].saved_angle) {
+        DeleteObject(Enemy[i].sprite_1);
+        DeleteObject(Enemy[i].sprite_2);
+        DeleteObject(Enemy[i].sprite_3);
+        
+        Enemy[i].sprite_1=RotateSprite(hdc, enemy2_sprite_1,Enemy[i].angle,LTGREEN,Enemy[i].color);
+        Enemy[i].sprite_2=RotateSprite(hdc, enemy2_sprite_2,Enemy[i].angle,LTGREEN,Enemy[i].color);
+        Enemy[i].sprite_3=RotateSprite(hdc, enemy2_sprite_3,Enemy[i].angle,LTGREEN,Enemy[i].color);
+        Enemy[i].saved_angle=Enemy[i].angle;
+      }
+    }
+
     if (Enemy[i].saw_player) {
       if (Enemy[i].in_air_timer==0) {
         switch (Enemy[i].species) {
           case 0:
             if (Enemy[i].sprite_timer%2==0) {
-              GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].angle,enemy1_sprite_1,Enemy[i].last_left,LTGREEN,Enemy[i].color);
+              GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_1,Enemy[i].last_left);
             } else {
-              GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].angle,enemy1_sprite_2,Enemy[i].last_left,LTGREEN,Enemy[i].color);
+              GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_2,Enemy[i].last_left);
             }
             break;
           case 1:
             if (Enemy[i].sprite_timer%8==0) {
-              GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].angle,enemy2_sprite_1,Enemy[i].last_left,LTGREEN,Enemy[i].color);
+              GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_1,Enemy[i].last_left);
             } else {
-              GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].angle,enemy2_sprite_2,Enemy[i].last_left,LTGREEN,Enemy[i].color);
+              GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_2,Enemy[i].last_left);
             }
             break;
         }
       } else {
         switch (Enemy[i].species) {
           case 1: //placeholder sprites
-            GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,0,enemy2_sprite_3,Enemy[i].last_left,LTGREEN,Enemy[i].color);
+            GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_3,Enemy[i].last_left);
             break;
         }
       }

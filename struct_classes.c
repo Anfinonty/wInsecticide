@@ -77,6 +77,7 @@ struct player
          above_y2,
          sprite_angle,
          angle,
+         saved_angle,
          player_grav;
 
   double cam_x,cam_y,
@@ -91,6 +92,10 @@ struct player
   HBITMAP sprite_1;
   HBITMAP sprite_2;
   HBITMAP sprite_jump;
+
+  HBITMAP sprite_1_cache;
+  HBITMAP sprite_2_cache;
+  HBITMAP sprite_jump_cache;
 } player;
 
 
@@ -254,10 +259,11 @@ struct Enemy
 
 
   double shoot_target_x,shoot_target_y,
-      x,y,angle,dist_from_player,
+      x,y,angle,saved_angle,sprite_angle,dist_from_player,
       sprite_x,
       sprite_y,
       speed;
+  bool doRotateSprite;
 
 //msprite
   /*bool msprite_last_left[MULTI_SPRITE_NUM];
@@ -291,7 +297,14 @@ struct Enemy
 
   int seed;
 
+  HBITMAP sprite_1;
+  HBITMAP sprite_2;
+  HBITMAP sprite_3;
 } Enemy[ENEMY_NUM];
+
+//HBITMAP live_player_sprite1;
+//HBITMAP player_sprite_jump_cache;
+
 
 HBITMAP enemy1_sprite_1;
 HBITMAP enemy1_sprite_2;

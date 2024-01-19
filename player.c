@@ -148,8 +148,16 @@ void InitPlayerCamera()
 }
 
 
+void CleanUpPlayer()
+{
+  DeleteObject(player.sprite_1_cache);
+  DeleteObject(player.sprite_2_cache);
+}
+
+
 void InitPlayer() {
   int i;
+  //CleanUpPlayer();
   player.saved_x=saved_player_x;
   player.saved_y=saved_player_y;
 
@@ -188,6 +196,7 @@ void InitPlayer() {
   player.on_ground_id=-1;
   player.saved_ground_id=-1;
 
+  player.saved_angle=0;
 
   player.sprite_x=GR_WIDTH/2;
   player.sprite_y=GR_HEIGHT/2;
@@ -233,13 +242,6 @@ void InitPlayer() {
   for (i=0;i<GROUND_NUM/*+MAX_WEB_NUM*/;i++) {
     player.render_grounds[i]=-1;
   }
-
-
-  player.sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/player1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-  player.sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/player2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-  player.sprite_jump = (HBITMAP) LoadImageW(NULL, L"sprites/player3-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-
-
   InitPlayerCamera();
   InitRDGrid();
   InitVRDGrid();
@@ -616,7 +618,10 @@ void PlayerAct() {
   }
  //camshake
 
-
+  /*player.sprite_angle+=0.1;
+  if (player.sprite_angle>M_PI*2) {
+    player.sprite_angle=0;
+  }*/
   player.sprite_x=GR_WIDTH/2+player.cam_move_x;
   player.sprite_y=GR_HEIGHT/2+player.cam_move_y-PLAYER_HEIGHT/2;
  //
@@ -761,17 +766,25 @@ void PlayerCameraShake()
 
 }
 
-
 void DrawPlayer(HDC hdc) {
   //GrRect(hdc,player.x-PLAYER_WIDTH,player.y-PLAYER_HEIGHT,PLAYER_WIDTH,PLAYER_HEIGHT,RGB(34,139,34));
+  if (player.sprite_angle!=player.saved_angle) {
+    DeleteObject(player.sprite_1_cache);
+    DeleteObject(player.sprite_2_cache);
+    player.sprite_1_cache = RotateSprite(hdc, player.sprite_1,player.sprite_angle,LTGREEN,BLACK);
+    player.sprite_2_cache = RotateSprite(hdc, player.sprite_2,player.sprite_angle,LTGREEN,BLACK);
+
+    player.saved_angle=player.sprite_angle;
+  }
   if (player.on_ground_timer>0) {
     if (player.walk_cycle<2) {
-      GrSprite(hdc,player.sprite_x,player.sprite_y,player.sprite_angle,player.sprite_1,player.last_left,LTGREEN,BLACK);
+      GrSprite(hdc,player.sprite_x,player.sprite_y,player.sprite_1_cache,player.last_left);
     } else {
-      GrSprite(hdc,player.sprite_x,player.sprite_y,player.sprite_angle,player.sprite_2,player.last_left,LTGREEN,BLACK);
+      GrSprite(hdc,player.sprite_x,player.sprite_y,player.sprite_2_cache,player.last_left);
     }
   } else { //in_air
-    GrSprite(hdc,player.sprite_x,player.sprite_y-6,0,player.sprite_jump,player.last_left,LTGREEN,BLACK);
+    GrSprite(hdc,player.sprite_x,player.sprite_y-6,player.sprite_jump_cache,player.last_left);
+    //DrawSprite(hdc,player.sprite_x,player.sprite_y-6,player_sprite_jump_cache);
   }
 }
 
