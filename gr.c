@@ -125,14 +125,16 @@ void GrPrint(HDC hdc, double x1, double y1, char *_txt, int color) {
 }
 
 
-void DrawSprite(HDC hDC,double _x1,double _y1, HBITMAP hSourceBitmap)
+void DrawBitmap(HDC hDC,double _x1,double _y1, int width, int height, HBITMAP hSourceBitmap,int _SRCTYPE)
 {
-  BITMAP bitmap;
-  HDC hdcMem = CreateCompatibleDC(hDC);
-  GetObject(hSourceBitmap,sizeof(bitmap),&bitmap);
-  SelectObject(hdcMem,hSourceBitmap);
-  StretchBlt(hDC, _x1-bitmap.bmWidth/2, _y1-bitmap.bmHeight/2, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCCOPY); //draw to 
-  DeleteDC(hdcMem);
+  if (hSourceBitmap!=NULL) {
+    BITMAP bitmap;
+    HDC hdcMem = CreateCompatibleDC(hDC);
+    GetObject(hSourceBitmap,sizeof(bitmap),&bitmap);
+    SelectObject(hdcMem,hSourceBitmap);
+    StretchBlt(hDC, _x1, _y1, width, height, hdcMem, 0,0, bitmap.bmWidth, bitmap.bmHeight, _SRCTYPE); //draw to 
+    DeleteDC(hdcMem);
+  }
 }
 
 HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, float radians,int rTransparent, int sprite_color) 

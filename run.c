@@ -135,8 +135,8 @@ int dyn_vrenderdist=0,dyn_vrenderdist_num=0;
 #define MAX_BULLET_PER_FIRE 10
 
 //#include "saves/Level001.c"
-//#include "saves/Level002.c"
-#include "saves/Level003.c"
+#include "saves/Level002.c"
+//#include "saves/Level003.c"
 //#include "saves/Level004.c"
 
 /*
@@ -199,7 +199,17 @@ void DrawBackground(HDC hdc) {
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(173, 216, 230));
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(8,39,245));
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255))); //RAVE
-  GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,custom_map_background_color);
+  switch (map_background) {
+    case 0:
+      DrawBitmap(hdc,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY);
+      break;
+    case 1:
+      DrawBitmap(hdc,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,NOTSRCCOPY);
+      break;
+    default:
+      GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,custom_map_background_color);
+      break;
+  }
 }
 
 
@@ -502,7 +512,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       HBITMAP bitmap=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
       SelectObject(hdcBackbuff,bitmap);
       
-DrawBackground(hdcBackbuff);
+      DrawBackground(hdcBackbuff);
       DrawGroundTriFill(hdcBackbuff);
       DrawGround(hdcBackbuff);
       DrawGroundText(hdcBackbuff);
@@ -557,7 +567,17 @@ DrawBackground(hdcBackbuff);
         }
       }
 
-
+      switch (map_background) {
+        case 0:
+          map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+          break;
+        case 1:
+          map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+          break;
+        default:
+          map_background_sprite=NULL;
+          break;
+      } 
       //HDC hdcMem = CreateCompatibleDC(hdc);
       //Select(Objec)
       return 0;
