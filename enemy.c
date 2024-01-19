@@ -1189,11 +1189,11 @@ void DrawEnemy(HDC hdc) {
       if (Enemy[i].angle!=Enemy[i].saved_angle) {
         DeleteObject(Enemy[i].sprite_1);
         DeleteObject(Enemy[i].sprite_2);
-        DeleteObject(Enemy[i].sprite_3);
+        //DeleteObject(Enemy[i].sprite_3);
         
         Enemy[i].sprite_1=RotateSprite(hdc, enemy2_sprite_1,Enemy[i].angle,LTGREEN,Enemy[i].color);
         Enemy[i].sprite_2=RotateSprite(hdc, enemy2_sprite_2,Enemy[i].angle,LTGREEN,Enemy[i].color);
-        Enemy[i].sprite_3=RotateSprite(hdc, enemy2_sprite_3,Enemy[i].angle,LTGREEN,Enemy[i].color);
+        //Enemy[i].sprite_3=RotateSprite(hdc, enemy2_sprite_3,Enemy[i].angle,LTGREEN,Enemy[i].color);
         Enemy[i].saved_angle=Enemy[i].angle;
       }
     }
