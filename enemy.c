@@ -284,11 +284,13 @@ void EnemyPathFinding(int enemy_id)
 void EnemySpecies1Gravity(int enemy_id)
 {
   int enemy_on_ground_id=0;
-  enemy_on_ground_id=GetOnGroundId(Enemy[enemy_id].x,Enemy[enemy_id].y,30,29,FALSE);    //Get Ground id
+//  enemy_on_ground_id=GetOnGroundId(Enemy[enemy_id].x,Enemy[enemy_id].y,30,29,FALSE);    //Get Ground id
+  enemy_on_ground_id=GetOnGroundId(Enemy[enemy_id].x,Enemy[enemy_id].y,32,31,FALSE);    //Get Ground id
   if (enemy_on_ground_id==-1) {//not on ground
     Enemy[enemy_id].y+=1; //falling down
     Enemy[enemy_id].in_air_timer=2;
     Enemy[enemy_id].angle=0;
+    Enemy[enemy_id].saved_angle=0;
     Enemy[enemy_id].above_ground=
       Enemy[enemy_id].below_ground=FALSE;
   } else {//on ground
@@ -332,9 +334,15 @@ void EnemyMove(int enemy_id)
   if (Enemy[enemy_id].x<path_node_center_x) {
     Enemy[enemy_id].last_left=FALSE;
     Enemy[enemy_id].x+=Enemy[enemy_id].speed;
+    if (Enemy[enemy_id].below_ground) {
+      Enemy[enemy_id].last_left=TRUE;
+    }
   } else {
     Enemy[enemy_id].last_left=TRUE;
     Enemy[enemy_id].x-=Enemy[enemy_id].speed;  
+    if (Enemy[enemy_id].below_ground) {
+      Enemy[enemy_id].last_left=FALSE;
+    }
   }
   switch (Enemy[enemy_id].species) {
     case 0://fly

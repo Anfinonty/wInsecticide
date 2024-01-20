@@ -47,7 +47,7 @@
 #define WHITE       RGB(255,255,255)
 
 #define DKBLACK     RGB(5,5,5) //For drawing
-
+#define MYCOLOR1    RGB(123,123,123)
 
 
 int color_arr[COLORS_NUM]={
@@ -135,9 +135,10 @@ int dyn_vrenderdist=0,dyn_vrenderdist_num=0;
 #define MAX_BULLET_PER_FIRE 10
 
 //#include "saves/Level001.c"
-#include "saves/Level002.c"
-//#include "saves/Level003.c"
+//#include "saves/Level002.c"
+#include "saves/Level003.c"
 //#include "saves/Level004.c"
+//#include "saves/Level005.c"
 
 /*
 #define ENEMY_I64_ATTRIBUTES_NUM 26
@@ -201,15 +202,34 @@ void DrawBackground(HDC hdc) {
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255))); //RAVE
   switch (map_background) {
     case 0:
-      DrawBitmap(hdc,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY);
+      DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,TRUE);
       break;
     case 1:
-      DrawBitmap(hdc,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,NOTSRCCOPY);
+      DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,NOTSRCCOPY,TRUE);
       break;
     default:
-      GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,custom_map_background_color);
       break;
   }
+}
+
+void DrawPlatforms(HDC hDC)
+{ //Dynamically scale with window size 
+  //Draw platforms bitmap mask
+  DrawBitmap(hDC,player.cam_move_x+player.cam_x+player.x-GR_WIDTH/2,
+                 player.cam_move_y+player.cam_y+player.y-GR_HEIGHT/2,
+                 player.x-GR_WIDTH/2,
+                 player.y-GR_HEIGHT/2,
+                 GR_WIDTH,
+                 GR_HEIGHT,
+                map_platforms_sprite_mask,SRCAND,FALSE);
+  //Draw platforms paint
+  DrawBitmap(hDC,player.cam_move_x+player.cam_x+player.x-GR_WIDTH/2,
+                 player.cam_move_y+player.cam_y+player.y-GR_HEIGHT/2,
+                 player.x-GR_WIDTH/2,
+                 player.y-GR_HEIGHT/2,
+                 GR_WIDTH,
+                 GR_HEIGHT,
+                map_platforms_sprite,SRCPAINT,FALSE);
 }
 
 
@@ -247,7 +267,6 @@ void InitOnce() {
   dyn_vrenderdist=ceil(GR_WIDTH/100)+1;
   dyn_vrenderdist_num=dyn_vrenderdist*dyn_vrenderdist;
 
-  //InitCreateMapBitmap();
   InitTickFrequency();
   InitFPS();
 }
@@ -327,7 +346,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
 }
 
 
-void DrawTexts(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
+void DrawTexts(HDC hdc) {
   int c;
   char txt[64];
   char *song_name=song_names[rand_song1][rand_song2];
@@ -497,7 +516,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         player.cam_y=0;
         dyn_vrenderdist=ceil(GR_WIDTH/100)+1;
         dyn_vrenderdist_num=dyn_vrenderdist*dyn_vrenderdist;
-        InitVRDGrid();
         //bg_cam_fall_cooldown=0;
         //background_cam_move_x=0;
         //background_cam_move_y=0;
@@ -509,19 +527,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       PAINTSTRUCT ps;
       hdc=BeginPaint(hwnd, &ps);
       hdcBackbuff=CreateCompatibleDC(hdc);
-      HBITMAP bitmap=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
-      SelectObject(hdcBackbuff,bitmap);
+      HBITMAP screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+      SelectObject(hdcBackbuff,screen);
       
       DrawBackground(hdcBackbuff);
-      DrawGroundTriFill(hdcBackbuff);
-      DrawGround(hdcBackbuff);
-      DrawGroundText(hdcBackbuff);
+      DrawPlatforms(hdcBackbuff);
       DrawEnemy(hdcBackbuff);
       DrawPlayer(hdcBackbuff);
+      DrawTexts(hdcBackbuff);
 
-      //DrawSprite(hdcBackbuff,0,0,live_player_sprite1);
-
-      DrawTexts(hwnd,hdcBackbuff,ps);
       if (!IsInvertedBackground()){
         BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
       } else {
@@ -529,7 +543,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       }
   //      StretchBlt(hdc, GR_WIDTH/2, -GR_HEIGHT, -GR_WIDTH-1, GR_HEIGHT, hdcBackbuff, 0, 0, GR_WIDTH, GR_HEIGHT,     SRCCOPY);
       DeleteDC(hdcBackbuff);
-      DeleteObject(bitmap);
+      DeleteObject(screen);
       EndPaint(hwnd, &ps);
       return 0;
     }
@@ -549,6 +563,42 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       enemy2_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       enemy2_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       enemy2_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+
+
+
+
+
+
+
+
+
+
+      //Create Platforms Sprite
+      //BITMAP bm;
+      PAINTSTRUCT ps; //Suggestion Credit: https://git.xslendi.xyz
+      hdc=BeginPaint(hwnd, &ps);
+      HDC hdc2=CreateCompatibleDC(hdc);
+      HBITMAP tmp_map_platforms_sprite=CreateCompatibleBitmap(hdc,MAP_WIDTH,MAP_HEIGHT);
+
+      SelectObject(hdc2,tmp_map_platforms_sprite);
+      if (map_background==2)
+        GrRect(hdc2,0,0,MAP_WIDTH,MAP_HEIGHT,custom_map_background_color);
+      else 
+        GrRect(hdc2,0,0,MAP_WIDTH,MAP_HEIGHT,MYCOLOR1);
+
+      DrawGroundTriFill(hdc2);
+      DrawGround(hdc2);
+      DrawGroundText(hdc2);
+
+      DeleteDC(hdc2);
+      EndPaint(hwnd, &ps);
+
+      map_platforms_sprite=ReplaceColor(tmp_map_platforms_sprite,MYCOLOR1,BLACK,NULL);
+      map_platforms_sprite_mask=CreateBitmapMask(map_platforms_sprite,BLACK,NULL);
+
+      
+      DeleteObject(tmp_map_platforms_sprite);
 
 
       player.sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,player.sprite_angle,LTGREEN,BLACK);

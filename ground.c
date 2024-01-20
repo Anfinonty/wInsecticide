@@ -324,10 +324,11 @@ void GroundAct() //Mainly for graphics
 
 void DrawGround(HDC hdc)
 {
-  int i=0,j=0;
-  for (j=0;j<player.rendered_ground_num/*+MAX_WEB_NUM*/;j++) {
+  int i=0;//,j=0;
+  for (i=0;i<GROUND_NUM;i++) {
+  //for (j=0;j<player.rendered_ground_num/*+MAX_WEB_NUM*/;j++) {
     //if (j<player.rendered_ground_num) {
-    i=player.render_grounds[j];
+    //i=player.render_grounds[j];
     //} else {
       //i=GROUND_NUM+(j-rendered_ground_num);
     //}
@@ -358,10 +359,10 @@ void DrawGround(HDC hdc)
             }
       	  }*/
           GrLine(hdc,
-                Ground[i].sprite_x1,
-                Ground[i].sprite_y1,
-                Ground[i].sprite_x2,
-                Ground[i].sprite_y2,
+                Ground[i].x1,
+                Ground[i].y1,
+                Ground[i].x2,
+                Ground[i].y2,
                 Ground[i].color);
           /*if (i>=GROUND_NUM) {//Web
             if (Ground[i].x1<=player_x<=Ground[i].x2) { //pos of hearts
@@ -392,17 +393,17 @@ void DrawGround(HDC hdc)
 
 void DrawGroundText(HDC hdc)
 {
-  int i=0,j=0;
-  for (j=0;j<player.rendered_ground_num;j++) {
-    i=player.render_grounds[j];
-  //for (i=0;i<GROUND_NUM;i++) {
+  int i=0;//,j=0;
+  //for (j=0;j<player.rendered_ground_num;j++) {
+    //i=player.render_grounds[j];
+  for (i=0;i<GROUND_NUM;i++) {
     if (Ground[i].type==2) { 
       //Highlight(!IsInvertedBackground,Ground[i].color,palette_dark_arr[Ground[i].color],dc);
       if (!IsOutOfBounds(Ground[i].x1,Ground[i].y1,1,MAP_WIDTH,MAP_HEIGHT) &&
           !IsOutOfBounds(Ground[i].x2,Ground[i].y2,1,MAP_WIDTH,MAP_HEIGHT)) {
 	    GrPrint(hdc,
-            Ground[i].sprite_x1,
-            Ground[i].sprite_y1,
+            Ground[i].x1,
+            Ground[i].y1,
             Ground[i].text,
             Ground[i].color);
       }
@@ -414,10 +415,10 @@ void DrawGroundText(HDC hdc)
 
 void DrawGroundTriFill(HDC hdc)
 {
-  int i=0,c=0,j=0;
-  for (j=0;j<player.rendered_ground_num;j++) {
-    i=player.render_grounds[j];
-  //for (i=0;i<GROUND_NUM;i++) {
+  int i=0,c=0;//,j=0;
+  //for (j=0;j<player.rendered_ground_num;j++) {
+    //i=player.render_grounds[j];
+  for (i=0;i<GROUND_NUM;i++) {
     if (Ground[i].type==3) { 
       //if (!IsInvertedBackground()) {
 	  c=Ground[i].color;
@@ -428,20 +429,20 @@ void DrawGroundTriFill(HDC hdc)
           !IsOutOfBounds(Ground[i].x2,Ground[i].y2,1,MAP_WIDTH,MAP_HEIGHT)) {
         if (!IsInvertedBackground()) {
 	      DrawTriFill(hdc,c,
-                Ground[i].sprite_x1,
-				Ground[i].sprite_y1,
-				Ground[i].sprite_x2,
-				Ground[i].sprite_y2,
-				Ground[i].sprite_x3,
-				Ground[i].sprite_y3,FALSE,0);
+                Ground[i].x1,
+				Ground[i].y1,
+				Ground[i].x2,
+				Ground[i].y2,
+				Ground[i].x3,
+				Ground[i].y3,FALSE,0);
         } else {
 	      DrawTriFill(hdc,c,
-                Ground[i].sprite_x1,
-				Ground[i].sprite_y1,
-				Ground[i].sprite_x2,
-				Ground[i].sprite_y2,
-				Ground[i].sprite_x3,
-				Ground[i].sprite_y3,TRUE,HS_BDIAGONAL);
+                Ground[i].x1,
+				Ground[i].y1,
+				Ground[i].x2,
+				Ground[i].y2,
+				Ground[i].x3,
+				Ground[i].y3,TRUE,HS_BDIAGONAL);
         }
       }
     }
