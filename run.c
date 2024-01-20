@@ -583,9 +583,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       SelectObject(hdc2,tmp_map_platforms_sprite);
       if (map_background==2)
-        GrRect(hdc2,0,0,MAP_WIDTH,MAP_HEIGHT,custom_map_background_color);
+        GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,custom_map_background_color);
       else 
-        GrRect(hdc2,0,0,MAP_WIDTH,MAP_HEIGHT,MYCOLOR1);
+        GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,MYCOLOR1);
 
       DrawGroundTriFill(hdc2);
       DrawGround(hdc2);
