@@ -305,6 +305,10 @@ struct Enemy
 //HBITMAP live_player_sprite1;
 //HBITMAP player_sprite_jump_cache;
 
+int mouse_x;
+int mouse_y;
+HBITMAP mouse_cursor_sprite;
+HBITMAP mouse_cursor_sprite_cache;
 
 HBITMAP enemy1_sprite_1;
 HBITMAP enemy1_sprite_2;

@@ -134,9 +134,9 @@ int dyn_vrenderdist=0,dyn_vrenderdist_num=0;
 #define BULLET_NUM	5000
 #define MAX_BULLET_PER_FIRE 10
 
-//#include "saves/Level001.c"
+#include "saves/Level001.c"
 //#include "saves/Level002.c"
-#include "saves/Level003.c"
+//#include "saves/Level003.c"
 //#include "saves/Level004.c"
 //#include "saves/Level005.c"
 
@@ -232,6 +232,14 @@ void DrawPlatforms(HDC hDC)
                 map_platforms_sprite,SRCPAINT,FALSE);
 }
 
+
+void DrawCursor(HDC hDC)
+{
+  //DrawBitmap(hDC,mouse_x,mouse_y,0,0,64,64,mouse_cursor_sprite,SRCAND,FALSE);
+  //DrawBitmap(hDC,mouse_x,mouse_y,0,0,64,64,mouse_cursor_sprite_mask,SRCPAINT,FALSE);
+  GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_cache,FALSE);
+  GrCircle(hDC,mouse_x,mouse_y,1,WHITE);
+}
 
 //Init
 LARGE_INTEGER m_high_perf_timer_freq;
@@ -469,7 +477,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   //FrameRateSleep(FPS); // (Uncapped)
   switch(msg) {
     case  WM_MOUSEMOVE: //https://stackoverflow.com/questions/22039413/moving-the-mouse-blocks-wm-timer-and-wm-paint
-      UpdateWindow(hwnd);
+      {
+        POINT point;
+        if (GetCursorPos(&point)) {
+          mouse_x=point.x;
+          mouse_y=point.y;
+        }
+        UpdateWindow(hwnd);
+      }
       break;
     case WM_KEYDOWN:
       switch (wParam) {
@@ -534,6 +549,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       DrawPlatforms(hdcBackbuff);
       DrawEnemy(hdcBackbuff);
       DrawPlayer(hdcBackbuff);
+      DrawCursor(hdcBackbuff);
       DrawTexts(hdcBackbuff);
 
       if (!IsInvertedBackground()){
@@ -551,7 +567,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     case WM_CREATE:
       srand(time(NULL));
       timeBeginPeriod(1);
-
+      ShowCursor(FALSE);
 
       player.sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/player1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       player.sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/player2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
@@ -565,13 +581,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       enemy2_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
 
-
-
-
-
-
-
-
+      mouse_cursor_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/player_cursor1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
 
       //Create Platforms Sprite
@@ -605,6 +615,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,BLACK);
       player.sprite_2_cache = RotateSprite(NULL, player.sprite_2,player.sprite_angle,LTGREEN,BLACK);
 
+      mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK);
+
+
       for (int i=0;i<ENEMY_NUM;i++) {
         if (Enemy[i].species==0) {
           Enemy[i].sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,Enemy[i].color);
@@ -628,8 +641,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           map_background_sprite=NULL;
           break;
       } 
-      //HDC hdcMem = CreateCompatibleDC(hdc);
-      //Select(Objec)
       return 0;
       break;
     case WM_DESTROY:
