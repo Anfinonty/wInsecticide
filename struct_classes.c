@@ -263,7 +263,7 @@ struct Enemy
       sprite_x,
       sprite_y,
       speed;
-  bool doRotateSprite;
+  bool flip_sprite;
 
 //msprite
   /*bool msprite_last_left[MULTI_SPRITE_NUM];

@@ -293,6 +293,7 @@ void EnemySpecies1Gravity(int enemy_id)
     Enemy[enemy_id].saved_angle=0;
     Enemy[enemy_id].above_ground=
       Enemy[enemy_id].below_ground=FALSE;
+      Enemy[enemy_id].flip_sprite=FALSE;
   } else {//on ground
     double ground_entity_angle=GetLineTargetAngle(enemy_on_ground_id,Enemy[enemy_id].x,Enemy[enemy_id].y);
     double height_from_ground=GetLineTargetHeight(enemy_on_ground_id,ground_entity_angle,Enemy[enemy_id].x,Enemy[enemy_id].y);
@@ -301,10 +302,16 @@ void EnemySpecies1Gravity(int enemy_id)
       Enemy[enemy_id].angle=Ground[enemy_on_ground_id].angle;
       Enemy[enemy_id].above_ground=TRUE;
       Enemy[enemy_id].below_ground=FALSE;
+      Enemy[enemy_id].flip_sprite=FALSE;
     } else {    //species 1 below ground
-      Enemy[enemy_id].angle=M_PI+Ground[enemy_on_ground_id].angle;
+      Enemy[enemy_id].angle=-Ground[enemy_on_ground_id].angle-M_PI;
       Enemy[enemy_id].above_ground=FALSE;
       Enemy[enemy_id].below_ground=TRUE;
+      if(Enemy[enemy_id].last_left) {
+        Enemy[enemy_id].flip_sprite=FALSE;
+      } else {
+        Enemy[enemy_id].flip_sprite=TRUE;
+      }
       if (player.print_current_above && Enemy[enemy_id].saw_player) {
       	if (player.y-60<Enemy[enemy_id].y && Enemy[enemy_id].y<player.y-30 && !Enemy[enemy_id].idling) {//enemy above
 	      if (!Enemy[enemy_id].ignore_player && RandNum(0,5,Enemy[enemy_id].seed)==1) {
@@ -334,15 +341,9 @@ void EnemyMove(int enemy_id)
   if (Enemy[enemy_id].x<path_node_center_x) {
     Enemy[enemy_id].last_left=FALSE;
     Enemy[enemy_id].x+=Enemy[enemy_id].speed;
-    if (Enemy[enemy_id].below_ground) {
-      Enemy[enemy_id].last_left=TRUE;
-    }
   } else {
     Enemy[enemy_id].last_left=TRUE;
     Enemy[enemy_id].x-=Enemy[enemy_id].speed;  
-    if (Enemy[enemy_id].below_ground) {
-      Enemy[enemy_id].last_left=FALSE;
-    }
   }
   switch (Enemy[enemy_id].species) {
     case 0://fly
@@ -1127,13 +1128,13 @@ void InitEnemy()
     Enemy[i].LOS_angle=0;
     Enemy[i].LOS_target_x=-20;
     Enemy[i].LOS_target_y=-20;
-    Enemy[i].doRotateSprite=FALSE;
   //init default bool
     player.rendered_enemy_num=0;
     Enemy[i].target_player=FALSE;
     Enemy[i].saw_player=FALSE;
     Enemy[i].within_render_distance=FALSE;
     Enemy[i].idling=TRUE;
+    Enemy[i].last_left=FALSE;
     Enemy[i].last_left=FALSE;
     Enemy[i].found_target=FALSE;
     Enemy[i].search_target=FALSE;
@@ -1217,10 +1218,18 @@ void DrawEnemy(HDC hdc) {
             }
             break;
           case 1:
-            if (Enemy[i].sprite_timer%8==0) {
-              GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_1,Enemy[i].last_left);
-            } else {
-              GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_2,Enemy[i].last_left);
+            if (Enemy[i].above_ground) {
+              if (Enemy[i].sprite_timer%8==0) {
+                GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_1,Enemy[i].last_left);
+              } else {
+                GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_2,Enemy[i].last_left);
+              }
+            } else if (Enemy[i].below_ground) {
+              if (Enemy[i].sprite_timer%8==0) {
+                GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_1,Enemy[i].flip_sprite);
+              } else {
+                GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_2,Enemy[i].flip_sprite);
+              }
             }
             break;
         }
