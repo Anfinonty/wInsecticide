@@ -22,71 +22,121 @@ struct Ground
 
   char *text; //for type 1 which is Text_ground
 
-} Ground[GROUND_NUM];
+} Ground[GROUND_NUM+MAX_WEB_NUM];
 
 struct player 
 {
-  bool  hiding,
-        rst_down,
-        rst_left,
-        rst_right,
-        rst_up,
-        rst_key_sprint,
-        last_left,
-        jump,
-        current_above,
-        current_below,
-        previous_above,
-        previous_below,
-        print_current_above,
-        print_current_below;
+  bool hiding;
+  bool left_click;
+  bool right_click;
+  bool rst_left_click;
+  bool rst_right_click;
+  bool rst_down;
+  bool rst_left;
+  bool rst_right;
+  bool rst_up;
+  bool rst_key_sprint;
+  bool last_left;
+  bool jump;
+  bool current_above;
+  bool current_below;
+  bool previous_above;
+  bool previous_below;
+  bool print_current_above;
+  bool print_current_below;
+  bool time_breaker;
+  bool rst_speed_break;
+  bool attack;
+  bool blocking;
+  bool print_valid_web;
+  bool valid_web;
+  bool attack_rst;
 
 
-  int grav,
-    jump_height,
-    sprite_timer,
-    in_air_timer, 
-    speed, 
-    on_ground_timer, 
-    on_ground_id, 
-    saved_ground_id,
-    walk_cycle,
-    player_jump_height,
-    key_jump_timer,
+  int grav;
+  int jump_height;
+  int sprite_timer;
+  int in_air_timer;
+  int speed;
+  int on_ground_timer;
+  int on_ground_id;
+  int saved_ground_id;
+  int walk_cycle;
+  int player_jump_height;
+  int key_jump_timer;
 
     //Render
-    rendered_grid_num,
-    render_grids[RDGRID_NUM],
+  int rendered_grid_num;
+  int render_grids[RDGRID_NUM];
 
-    rendered_vgrid_num,
-    render_vgrids[VRDGRID_NUM],
+  int rendered_vgrid_num;
+  int render_vgrids[VRDGRID_NUM];
  
-    rendered_enemy_num,
-    render_enemies[ENEMY_NUM],
+  int rendered_enemy_num;
+  int render_enemies[ENEMY_NUM];
 
-    rendered_ground_num,
-    render_grounds[GROUND_NUM];
+  int rendered_ground_num;
+  int render_grounds[GROUND_NUM];
 
-  double saved_x,
-         saved_y,
-         x,
-         y,
-         above_x,
-         above_y,
-         above_x2,
-         above_y2,
-         sprite_angle,
-         angle,
-         saved_angle,
-         player_grav;
+  double saved_x;
+  double saved_y;
+  double x;
+  double y;
+  double above_x;
+  double above_y;
+  double above_x2;
+  double above_y2;
+  double sprite_angle;
+  double angle;
+  double saved_angle;
+  double player_grav;
 
-  double cam_x,cam_y,
-    cam_move_x,
-    cam_move_y,
-    sprite_x,
-    sprite_y;
+  double cam_x;
+  double cam_y;
+  double cam_move_x;
+  double cam_move_y;
+  double sprite_x;
+  double sprite_y;
     //background_cam_move_x=0,
     //background_cam_move_y=0;
+  //misc
+  double speed_breaker_units;
+  double speed_breaker_cooldown;
+  double speed_breaker_max;
+  double speed_breaker_cooldown_max;
+  double speed_breaker_recharge_cooldown;
+  double speed_breaker_recharge_cooldown_max;
+
+  int left_click_hold_timer;
+  int right_click_hold_timer;
+  int attack_timer;
+  int sleep_timer;
+  int hit_cooldown_timer;
+  int block_timer;
+
+  double health;
+  double block_health;
+
+
+  int lock_web_type;
+  int max_web_num;
+
+  int bullet_shot;
+
+  int placed_web_pos;
+  int placed_web_num;
+
+  int web_type;
+  int web_being_shot;
+  int web_storage[MAX_WEB_NUM];
+
+  int cdweb_pos;
+  int cdweb_player_pos;
+  int cdweb_num;
+  int cdwebs[MAX_WEB_NUM];
+
+  int destroyed_web_pos;
+
 
 //sprites
   HBITMAP sprite_1;
@@ -97,9 +147,6 @@ struct player
   HBITMAP sprite_2_cache;
   HBITMAP sprite_jump_cache;
 } player;
-
-
-//HBITMAP map;
 
 
 struct RenderDistanceGrid
@@ -302,8 +349,6 @@ struct Enemy
   HBITMAP sprite_3;
 } Enemy[ENEMY_NUM];
 
-//HBITMAP live_player_sprite1;
-//HBITMAP player_sprite_jump_cache;
 
 int mouse_x;
 int mouse_y;

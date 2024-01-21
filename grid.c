@@ -25,22 +25,22 @@ void SetGridLineArray(int grid_id,int ground_id)
 }
 
 
-/*void UnSetGridLineArray(int grid_id,int ground_id)
+void UnSetGridLineArray(int grid_id,int ground_id)
 {
   int i=0;
   if (Ground[ground_id].already_in_grid[grid_id]) {
    //grid related
-    for (i=Ground[ground_id].saved_pos_in_grid[grid_id];i<Grid[grid_id].max_ground_num-1;i++) {
-      Grid[grid_id].ground_ids[i]=Grid[grid_id].ground_ids[i+1];
-      Ground[Grid[grid_id].ground_ids[i]].saved_pos_in_grid[grid_id]--;
+    for (i=Ground[ground_id].saved_pos_in_grid[grid_id];i<VGrid[grid_id].max_ground_num-1;i++) {
+      VGrid[grid_id].ground_ids[i]=VGrid[grid_id].ground_ids[i+1];
+      Ground[VGrid[grid_id].ground_ids[i]].saved_pos_in_grid[grid_id]--;
     }
-    Grid[grid_id].ground_ids[Grid[grid_id].max_ground_num-1]=-1;
-    Grid[grid_id].max_ground_num--;
+    VGrid[grid_id].ground_ids[VGrid[grid_id].max_ground_num-1]=-1;
+    VGrid[grid_id].max_ground_num--;
    //ground related
     Ground[ground_id].already_in_grid[grid_id]=FALSE;
     Ground[ground_id].saved_pos_in_grid[grid_id]=-1;
   }
-}*/
+}
 
 
 void InitGrid() 
@@ -298,3 +298,89 @@ void InitNodeGridAttributes()
     SetNodeGridAttributes(i);
   }
 }
+
+
+
+
+
+
+void DestroyGround(int i)
+{
+  int lg_grid_id=0,node_grid_id=0,x=0,y=0,min=0,max=0;
+  double lg_x=0,lg_y=0;
+  if (-1<Ground[i].gradient<1) {
+    for (x=Ground[i].x1;x<Ground[i].x2;x++) {
+      lg_y=x*Ground[i].gradient+Ground[i].c;
+      lg_grid_id=GetGridId(x,lg_y,MAP_WIDTH,GRID_SIZE,GRID_NUM);
+      UnSetGridLineArray(lg_grid_id,i);
+      node_grid_id=GetGridId(x,lg_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
+      NodeGrid[node_grid_id].node_solid=FALSE;
+    }
+  } else { // x=(y-c)/m
+    if (Ground[i].y1>Ground[i].y2) {
+      min=Ground[i].y2;
+      max=Ground[i].y1;
+    } else {
+      min=Ground[i].y1;
+      max=Ground[i].y2;
+    }
+    for (y=min;y<max;y++) {
+      lg_x=(y-Ground[i].c)/Ground[i].gradient;
+      lg_grid_id=GetGridId(lg_x,y,MAP_WIDTH,GRID_SIZE,GRID_NUM);
+      UnSetGridLineArray(lg_grid_id,i);
+      node_grid_id=GetGridId(lg_x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
+      NodeGrid[node_grid_id].node_solid=FALSE;
+    }
+  }
+  Ground[i].health=-1;
+  Ground[i].x1=Ground[i].y1=Ground[i].x2=Ground[i].y2=-20;
+}
+
+
+
+
+bool IsCollideCrawler(double x1,double y1,double x2,double y2,double gradient,double c)
+{
+  int on_grid_id=0,i=0,enemy_id=0,x=0,y=0,min=0,max=0;
+  double lg_x=0,lg_y=0;
+  if (x1!=x2) {
+    if (-1<gradient<1) { // y=mx+c
+      for (x=x1;x<=x2;x++) {
+        lg_y=x*gradient+c;
+        on_grid_id=GetGridId(x,lg_y,MAP_WIDTH,GRID_SIZE,GRID_NUM);
+        for (i=0;i<Grid[on_grid_id].enemy_occupy_num;i++) {
+	  enemy_id=Grid[on_grid_id].enemy_occupy[i];
+          if (Enemy[enemy_id].species==1 && Enemy[enemy_id].health>0) {
+	    if (GetDistance(x,lg_y,Enemy[enemy_id].x,Enemy[enemy_id].y)<=NODE_SIZE*2) {
+	      return TRUE;
+	    }
+          }
+        }
+      }
+    } else { // x=(y-c)/m
+      if (y1<y2) {
+        min=y1;
+        max=y2;
+      } else {
+        min=y2;
+        max=y1;
+      }
+      for (y=min;y<=max;y++) {
+        lg_x=(y-c)/gradient;
+        on_grid_id=GetGridId(lg_x,y,MAP_WIDTH,GRID_SIZE,GRID_NUM);
+        for (i=0;i<Grid[on_grid_id].enemy_occupy_num;i++) {
+	  enemy_id=Grid[on_grid_id].enemy_occupy[i];
+          if (Enemy[enemy_id].species==1 && Enemy[enemy_id].health>0) {
+	    if (GetDistance(lg_x,y,Enemy[enemy_id].x,Enemy[enemy_id].y)<=NODE_SIZE*2) {
+	      return TRUE;
+	    }
+          }
+        }
+      }
+    }
+  } else {
+    return TRUE;
+  }
+  return FALSE;
+}
+

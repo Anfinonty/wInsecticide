@@ -107,7 +107,7 @@ void InitGround() {
   //current_gsm=0;
   //gsm_hold_timer=0;
 
-  for (i=0;i<GROUND_NUM;i++) {
+  for (i=0;i<GROUND_NUM+MAX_WEB_NUM;i++) {
     for (j=0;j<VGRID_NUM;j++) {
       Ground[i].saved_pos_in_grid[j]=-1;
       Ground[i].already_in_grid[j]=FALSE;
@@ -168,7 +168,7 @@ void InitGround() {
       } else {
         Ground[i].is_ghost=FALSE;
       }
-    /*} else { 
+    } else { 
       Ground[i].x1=-25;
       Ground[i].y1=2;
       Ground[i].x2=-20;
@@ -179,21 +179,20 @@ void InitGround() {
       Ground[i].type=0;
       Ground[i].text="";
       Ground[i].is_ghost=FALSE;
-    }*/
-      Ground[i].health=-1;
-      player.rendered_ground_num=0;
-      Ground[i].height_from_player_x=0;
-      Ground[i].within_render_distance=FALSE;
-      Ground[i].angle=0;
-      SetGround(i);
     }
+    Ground[i].health=-1;
+    player.rendered_ground_num=0;
+    Ground[i].height_from_player_x=0;
+    Ground[i].within_render_distance=FALSE;
+    Ground[i].angle=0;
+    SetGround(i);
   }
 }
 
 void InitGround2()
 {
   int i=0;
-  for (i=0;i<GROUND_NUM/*TOTAL_GROUNDS*/;i++) {
+  for (i=0;i<GROUND_NUM+MAX_WEB_NUM/*TOTAL_GROUNDS*/;i++) {
     Ground[i].sprite_x1=Ground[i].x1+player.cam_x;//+cam_move_x-PLAYER_WIDTH/2;
     Ground[i].sprite_y1=Ground[i].y1+player.cam_y;//+cam_move_y-PLAYER_HEIGHT/2;
     Ground[i].sprite_x2=Ground[i].x2+player.cam_x;//+cam_move_x-PLAYER_WIDTH/2;

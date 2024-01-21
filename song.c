@@ -719,7 +719,7 @@ void SongAct() {
 //  while (true) {
     if (song_folder_num>0) {
       if (play_new_song) { //play a song
-        rand_song1=music_folder_arr[RandNum(0,song_folder_num-1,1)]; //dynamic songbank version
+        rand_song1=music_folder_arr[ RandNum(0,song_folder_num-1,1)]; //dynamic songbank version
       //rand_song1=RandNum(0,SONG_FOLDER_NUM-1); //full version
       //rand_song1=1; //demo version
         rand_song2=RandNum(0,SONG_NUM-1,1);
@@ -736,17 +736,36 @@ void SongAct() {
       //printf("%d",rand_song2);
       //printf("%d",time_end);
         play_new_song=false;
-        PlaySoundA(songname,NULL,SND_FILENAME | SND_ASYNC); //plays sound async
+        PlaySoundA(songname,NULL,SND_ASYNC); //plays sound async
+        //mciSendStringA(songname,NULL,0,NULL); //plays sound async
       }
 
       time_now=int_current_timestamp();//get time in seconds
     //printf("diff:%d\n",song_time_end-time_now);
       if (time_now>song_time_end && !play_new_song) {
-        PlaySound(NULL, NULL, SND_ASYNC); //stop song
+        PlaySound(NULL, NULL, SND_SYNC); //stop song
         play_new_song=true;
       }
     }
-//    Sleep(6);
-//  }
+    //Sleep(1000); //eepy loop
+  //}
 }
+
+
+
+
+
+
+/*
+https://copyprogramming.com/howto/playsound-in-c-console-application
+DWORD WINAPI SoundTask(LPVOID lpArg) {
+  while (true) {
+    if (play_a_sound==1) {
+      mciSendStringA("play music/00/5.wav",NULL,0,NULL); 
+    } else if (play_a_sound==2) {
+      mciSendStringA("play music/00/4.wav",NULL,0,NULL); 
+    }
+    Sleep(1000); //eepy loop
+  }
+}*/
 

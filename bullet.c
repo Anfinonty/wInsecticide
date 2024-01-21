@@ -88,12 +88,12 @@ void ShootBullet(
 
 bool HitPlayer(int bullet_id)
 {
-  //if (/*!the_bravery_tyrant && */player_hit_cooldown_timer<=0) {//near miss
+  if (!player.time_breaker && player.hit_cooldown_timer<=0) {//near miss
     if (GetDistance(player.x,player.y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
       //combo_timer[0]=PLAYER_COMBO_TIME_LIMIT,
       Bullet[bullet_id].near_miss=TRUE;
     }
-  //}
+  }
   if (GetDistance(player.x,player.y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=5) {
     return TRUE;
   }
@@ -117,15 +117,15 @@ void StopBullet(int bullet_id,bool is_player)
   }
 }
 
-/*void PlayerPlaceWeb()
+void PlayerPlaceWeb()
 {
-  player_web_storage[placed_web_pos]=-1;
-  placed_web_pos++;
-  placed_web_num++;
-  if (placed_web_pos>=player_max_web_num) {
-    placed_web_pos=0;
+  player.web_storage[player.placed_web_pos]=-1;
+  player.placed_web_pos++;
+  player.placed_web_num++;
+  if (player.placed_web_pos>=player.max_web_num) {
+    player.placed_web_pos=0;
   }
-}*/
+}
 
 void BulletAct(int bullet_id)
 {
@@ -140,11 +140,11 @@ void BulletAct(int bullet_id)
       Bullet[bullet_id].sprite_x=Bullet[bullet_id].x+player.cam_x+player.cam_move_x;
       Bullet[bullet_id].sprite_y=Bullet[bullet_id].y+player.cam_y+player.cam_move_y;
   //----------------
-      /*if (enemy_id==-1) {//player
+      if (enemy_id==-1) {//player
 	    allow_act=TRUE;
-      } else*/ //if (/*!the_bravery_tyrant ||*/ Enemy[enemy_id].time_breaker_immune) {//enemy
+      } else if (!player.time_breaker || Enemy[enemy_id].time_breaker_immune) {//enemy
 	    allow_act=TRUE;
-      //}
+      }
       if (allow_act) {
         if (Bullet[bullet_id].left) {
           Bullet[bullet_id].x-=cos(Bullet[bullet_id].angle)*Bullet[bullet_id].speed;
@@ -167,11 +167,11 @@ void BulletAct(int bullet_id)
 	      bm_x2=Bullet[bullet_id].x;
 	      bm_y2=Bullet[bullet_id].y;
         }
-        if (placed_web_pos<player_max_web_num) {      
-          while (player_web_storage[placed_web_pos]==-1) {
-            placed_web_pos=LimitValue(placed_web_pos+1,0,player_max_web_num);
+        if (player.placed_web_pos<player.max_web_num) {      
+          while (player.web_storage[player.placed_web_pos]==-1) {
+            player.placed_web_pos=LimitValue(player.placed_web_pos+1,0,player.max_web_num);
           }
-          web_id=player_web_storage[placed_web_pos];
+          web_id=player.web_storage[player.placed_web_pos];
           if (web_id!=-1) {
             Ground[web_id].x1=bm_x1;
             Ground[web_id].y1=bm_y1;
@@ -180,76 +180,79 @@ void BulletAct(int bullet_id)
             SetGround(web_id);
             SetNodeGridAttributes(web_id);
             double q=0.2*(((DEFAULT_PLAYER_BUILD_RANGE/2*NODE_SIZE)-Bullet[bullet_id].range)/10);
-	    Ground[web_id].health=10-q;
+	        Ground[web_id].health=10-q;
+	      }
 	    }
-	  }*/
-    } 
+      }*/
+
+
+ 
       //
-    if (enemy_id!=-1) { //Enemy bullet
-      hit_player=HitPlayer(bullet_id);
+      if (enemy_id!=-1) { //Enemy bullet
+        hit_player=HitPlayer(bullet_id);
       //bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,0.5,0.5,FALSE);
-      bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2,FALSE);
-	  allow_act=FALSE;
-	  if (hit_player) {
-	    allow_act=TRUE;
-	  } else if ( //Bullet has hit something
+        bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2,FALSE);
+	    allow_act=FALSE;
+	    if (hit_player) {
+	      allow_act=TRUE;
+	    } else if ( //Bullet has hit something
 	        bullet_on_ground_id!=-1 || //on a gound
             IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT) ||
 	        Bullet[bullet_id].range<=0 //end of range
         ) {
 	      allow_act=TRUE;
-      }
+        }
 	//^^ condition
-      if (allow_act) {
-        //if (hit_player) {
-          //if (!player_blocking) {
-            //player_health-=Bullet[bullet_id].damage;
+        if (allow_act) {
+          if (hit_player) {
+            if (!player.blocking) {
+              player.health-=Bullet[bullet_id].damage;
             //player_snd_dur=DEFAULT_PLAYER_SND_DURATION;
 	    //cancel combos
 	        /*player_hit_cooldown_timer=player_hit_cooldown_timer_max;
     	    if (player_speed_breaker_recharge_minus>0) {
       	        player_speed_breaker_recharge_minus-=2;
     	    }*/
-	      /*} else {//player is blocking
-	        if (player_block_timer>15) {//non-perfect block
-	          double blocked_bullet_dmg=Bullet[bullet_id].damage;
-	          if (on_ground_id!=-1) {//on ground
-		        if (player_block_timer<25) {
-	              player_block_health-=blocked_bullet_dmg/2;
-		        } else {
-	              player_block_health-=blocked_bullet_dmg/4;
-		        }
-	          } else {//in air
-		        if (player_block_timer<25) {
-	              player_block_health-=blocked_bullet_dmg/4;
-		        } else {
-	              player_block_health-=blocked_bullet_dmg/8;
-		        }
-	          }
-	          blocked_bullet_dmg=0;*/
+	        } else {//player is blocking
+	          if (player.block_timer>15) {//non-perfect block
+	            double blocked_bullet_dmg=Bullet[bullet_id].damage;
+	            if (player.on_ground_id!=-1) {//on ground
+		          if (player.block_timer<25) {
+	                player.block_health-=blocked_bullet_dmg/2;
+		          } else {
+	                player.block_health-=blocked_bullet_dmg/4;
+		          }
+	            } else {//in air
+		          if (player.block_timer<25) {
+	                player.block_health-=blocked_bullet_dmg/4;
+		          } else {
+	                player.block_health-=blocked_bullet_dmg/8;
+		          }
+	            }
+	            blocked_bullet_dmg=0;
 	        /*if (sound_on) {
                   player_snd_dur=2;
                   player_snd_dur=PlaySound(player_snd_dur,50,7);
 	        }*/
-	        //}// else {//perfect block
+	        } else {//perfect block
 	        /*if (sound_on) {
                 player_snd_dur=5;
                 player_snd_dur=PlaySound(player_snd_dur,100,15);
 	        }*/
-	        //}
-	      //}
-        /*} else if (bullet_on_ground_id>=GROUND_NUM && bullet_on_ground_id!=web_being_shot) { //Not on web being shot
-	      Ground[bullet_on_ground_id].health-=Bullet[bullet_id].damage;
+	        }
+	      } //end of hit player
+        } //else if (bullet_on_ground_id>=GROUND_NUM && bullet_on_ground_id!=player.web_being_shot) { //Not on web being shot
+	      /*Ground[bullet_on_ground_id].health-=Bullet[bullet_id].damage;
 	      if (Ground[bullet_on_ground_id].health<=0) {//completely destroy web at 0 health (can be regained after '4')
             DestroyGround(bullet_on_ground_id); 
-            cdwebs[cdweb_pos]=bullet_on_ground_id;
-            cdweb_pos++;
-            if (cdweb_pos>=player_max_web_num) {
-              cdweb_pos=0;
+            player.cdwebs[player.cdweb_pos]=bullet_on_ground_id;
+            player.cdweb_pos++;
+            if (player.cdweb_pos>=player.max_web_num) {
+              player.cdweb_pos=0;
             }
-            cdweb_num++;
-	      }*/
-	    //}
+            player.cdweb_num++;
+	      }
+	    }*/
 	//bullet dodged
 	  /*if (player_hit_cooldown_timer==0 && !player_blocking) {
 	    if (Bullet[bullet_id].near_miss) {
@@ -272,38 +275,38 @@ void BulletAct(int bullet_id)
 	  Enemy[enemy_id].bullet_shot_arr[Enemy[enemy_id].bullet_shot_num-1]=-1;
       Enemy[enemy_id].bullet_shot_num--;
     }
-    //}// else {//player bullet
-    /*bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,NODE_SIZE,NODE_SIZE,FALSE);
+  } else {//player bullet
+    bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,NODE_SIZE,NODE_SIZE,FALSE);
     allow_act=FALSE;
-	if (bullet_on_ground_id!=-1/* && bullet_on_ground_id!=web_id) {//not hit self but another platform
-	/*  allow_act=TRUE;
-    } else if (Ground[web_id].health<=0 || IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) {//out of bounds
+	if (bullet_on_ground_id!=-1/* && bullet_on_ground_id!=web_id*/) {//not hit self but another platform
+	  allow_act=TRUE;
+    } else if (/*Ground[web_id].health<=0 ||*/ IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) {//out of bounds
 	  allow_act=TRUE;
     } else if (Bullet[bullet_id].range<=0) { 
 	  allow_act=TRUE;
-	}*/
-	/*if (allow_act) {/ //reaching end of range
-	  if (Ground[web_id].health<=0 || IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) {*/
-        /*DestroyGround(web_id); //completely destroy web (can be regained after '4')
-        cdwebs[cdweb_pos]=web_id;
-        cdweb_pos++;
-        if (cdweb_pos>=player_max_web_num) {
-          cdweb_pos=0;
+	}
+	if (allow_act) {//reaching end of range
+	  /*if (Ground[web_id].health<=0 || IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) {
+        DestroyGround(web_id); //completely destroy web (can be regained after '4')
+        player.cdwebs[player.cdweb_pos]=web_id;
+        player.cdweb_pos++;
+        if (player.cdweb_pos>=player.max_web_num) {
+          player.cdweb_pos=0;
         }
-        cdweb_num++;
+        player.cdweb_num++;
       }*/
-/*      StopBullet(bullet_id,TRUE);
+      StopBullet(bullet_id,TRUE);
 	  //---web related-------
-    if (bullet_on_ground_id>=GROUND_NUM) {
-      Ground[bullet_on_ground_id].health+=2;//heal ground
-    }
-    PlayerPlaceWeb;
-    web_being_shot=-1;
-    player_bullet_shot=-1;
+      /*if (bullet_on_ground_id>=GROUND_NUM) {
+        Ground[bullet_on_ground_id].health+=2;//heal ground
+      }*/
+      //PlayerPlaceWeb();
+      player.web_being_shot=-1;
+      player.bullet_shot=-1;
       //---------------------
-	  }
-    }
-  } *///speed multiplier
+	  //}
+    //}
+  //} //speed multiplier
     /*if (fade_bullet) {
       Bullet[bullet_id].msprite_hold_timer++;
       if (Bullet[bullet_id].msprite_hold_timer>Bullet[bullet_id].msprite_hold_timer_max) {
@@ -329,8 +332,10 @@ void BulletAct(int bullet_id)
       Bullet[bullet_id].current_sm=0;
     }
   }*/
-    }
-  }
+        }
+      }
+    } // end of speedy for loop
+  } // end of if bullet shot
 }
 
 void DrawBullet2(HDC hdc,int i,double x,double y,int color)

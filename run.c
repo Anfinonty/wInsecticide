@@ -10,8 +10,6 @@
 //Command
 //i686-w64-mingw32-gcc-win32 run.c -o run.exe  -lgdi32 -municode -lwinmm
 //-lopengl32 -lglu32 is not used for now Jan-06-2024 -credit: sothea.dev
-
-
 #include <windows.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -49,6 +47,7 @@
 #define DKBLACK     RGB(5,5,5) //For drawing
 #define MYCOLOR1    RGB(123,123,123)
 
+//int play_a_sound;
 
 int color_arr[COLORS_NUM]={
 BLACK,
@@ -134,6 +133,31 @@ int dyn_vrenderdist=0,dyn_vrenderdist_num=0;
 #define BULLET_NUM	5000
 #define MAX_BULLET_PER_FIRE 10
 
+
+#define DEFAULT_PLAYER_HEALTH			20
+#define DEFAULT_PLAYER_JUMP_HEIGHT 		85//100
+#define DEFAULT_PLAYER_ATTACK_STRENGTH  	1
+#define DEFAULT_PLAYER_KNOCKBACK_STRENGTH	50
+
+
+#define DEFAULT_PLAYER_BUILD_RANGE		100//12
+#define DEFAULT_PLAYER_SHORT_BUILD_RANGE	10
+#define DEFAULT_PLAYER_WEB_HEALTH		10
+#define DEFAULT_PLAYER_WEB_NUM			20
+#define DEFAULT_PLAYER_SPEED			1
+#define DEFAULT_PLAYER_SPEED_BREAKER_MAX	275
+#define DEFAULT_PLAYER_SPEED_BREAKER_COOLDOWN   100
+#define DEFAULT_PLAYER_SPEED_BREAKER_RECHARGE_COOLDOWN	100
+#define DEFAULT_PLAYER_BLOCK_HEALTH_MAX 20
+
+#define MAX_WEB_NUM      100
+
+
+
+
+
+
+
 #include "saves/Level001.c"
 //#include "saves/Level002.c"
 //#include "saves/Level003.c"
@@ -153,27 +177,9 @@ int dyn_vrenderdist=0,dyn_vrenderdist_num=0;
 #define PLAYER_COMBO_TIME_LIMIT 351
 #define BUILD_RANGE   	60
 
-
-#define MAX_WEB_NUM      100
-
-#define DEFAULT_PLAYER_HEALTH			20
-#define DEFAULT_PLAYER_JUMP_HEIGHT 		85//100
-#define DEFAULT_PLAYER_ATTACK_STRENGTH  	1
-#define DEFAULT_PLAYER_KNOCKBACK_STRENGTH	50
-
-
-#define DEFAULT_PLAYER_BUILD_RANGE		100//12
-#define DEFAULT_PLAYER_SHORT_BUILD_RANGE	10
-#define DEFAULT_PLAYER_WEB_HEALTH		10
-#define DEFAULT_PLAYER_WEB_NUM			20
-#define DEFAULT_PLAYER_SPEED			1
-#define DEFAULT_PLAYER_SPEED_BREAKER_MAX	275
-#define DEFAULT_PLAYER_SPEED_BREAKER_COOLDOWN   100
-#define DEFAULT_PLAYER_SPEED_BREAKER_RECHARGE_COOLDOWN	100
 #define DEFAULT_PLAYER_SND_DURATION	10
 #define DEFAULT_PLAYER_SND_PITCH	90
 #define DEFAULT_PLAYER_SND_RAND		10
-#define DEFAULT_PLAYER_BLOCK_HEALTH_MAX 20
 
 #define PERFORMANCE_TXT_TIMER_MAX	201
 
@@ -187,10 +193,19 @@ int dyn_vrenderdist=0,dyn_vrenderdist_num=0;
 
 #include "struct_classes.c"
 
+
+bool IsSpeedBreaking()
+{
+  if (player.rst_speed_break && player.speed_breaker_units>0) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
 #include "grid.c"
 #include "ground.c"
-#include "player.c"
 #include "bullet.c"
+#include "player.c"
 #include "enemy.c"
 #include "song.c"
 
@@ -349,7 +364,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
     }
     GroundAct();
     SongAct();
-    Sleep(DEFAULT_SLEEP_TIMER);
+    Sleep(player.sleep_timer);
   }
 }
 
@@ -364,23 +379,32 @@ void DrawTexts(HDC hdc) {
   } else {
     c=BLACK;
   }
-  if (sec>9)
-    sprintf(txt,"%s [%d:%d]",song_name,(song_time_end-time_now)/60,sec);
-  else 
-    sprintf(txt,"%s [%d:0%d]",song_name,(song_time_end-time_now)/60,sec);
+  if (sec>0) {
+    if (sec>9)
+      sprintf(txt,"%s [%d:%d]",song_name,(song_time_end-time_now)/60,sec);
+    else 
+      sprintf(txt,"%s [%d:0%d]",song_name,(song_time_end-time_now)/60,sec);
 
-  GrPrint(hdc,0,0,txt,c);
+
+    char txt2[64];
+    char *album_name=/*album_name_arr[*/album_names[rand_song1][rand_song2]/*]*/;
+    sprintf(txt2,"%s",album_name);  
+
+
+    GrPrint(hdc,0,0,txt,c);
+    GrPrint(hdc,0,16,txt2,c);
+  } else {
+    GrPrint(hdc,0,0,"Choosing Song...",c);
+  }
   //GrPrint(hwnd,hdc,ps,0,0,_txt,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
-  char txt2[64];
-  char *album_name=/*album_name_arr[*/album_names[rand_song1][rand_song2]/*]*/;
-  sprintf(txt2,"%s",album_name);  
-  GrPrint(hdc,0,16,txt2,c);
-
 
   char txt3[19];
   sprintf(txt3,"Render Distance: %d",dyn_vrenderdist);  
   GrPrint(hdc,0,32,txt3,c);
 
+  /*char txt3[19];
+  sprintf(txt3,"Render Distance: %d",play_a_sound);  
+  GrPrint(hdc,0,32,txt3,c);*/
   //GrPrint(hwnd,hdc,ps,0,16,_txt2,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
 }
 
@@ -476,6 +500,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   HDC hdc, hdcBackbuff;
   //FrameRateSleep(FPS); // (Uncapped)
   switch(msg) {
+    case WM_LBUTTONDOWN:
+      player.rst_left_click=TRUE;
+      break;
+    case WM_LBUTTONUP:
+      player.rst_left_click=FALSE;
+      break;
+    case WM_RBUTTONDOWN:
+      player.rst_right_click=TRUE;
+      break;
+    case WM_RBUTTONUP:
+      player.rst_right_click=FALSE;
+      break;
     case  WM_MOUSEMOVE: //https://stackoverflow.com/questions/22039413/moving-the-mouse-blocks-wm-timer-and-wm-paint
       {
         POINT point;
@@ -568,6 +604,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       srand(time(NULL));
       timeBeginPeriod(1);
       ShowCursor(FALSE);
+
+//      play_a_sound=0;
 
       player.sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/player1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       player.sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/player2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
@@ -714,6 +752,8 @@ HWND CreateOpenGLWindow(char* title, int x, int y, int width, int height, BYTE t
     switch (i) {
 //      case 0: hHandles[i]=CreateThread(NULL,0,SongTask,lpArgPtr,0,&ThreadId);break;
       case 0: hHandles[i]=CreateThread(NULL,0,AnimateTask01,lpArgPtr,0,&ThreadId);break;
+      //case 1: hHandles[i]=CreateThread(NULL,0,SongTask,lpArgPtr,0,&ThreadId);break;
+      //case 1: hHandles[i]=CreateThread(NULL,0,SoundTask,lpArgPtr,0,&ThreadId);break;
     }
   }
 
