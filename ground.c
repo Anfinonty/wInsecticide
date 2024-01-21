@@ -243,23 +243,11 @@ int GetOnGroundId(double x,double y,double min_range_1,double min_range_2,bool i
 }
 
 
-void GroundAct() //Mainly for graphics
+/*void GroundAct() //Mainly for graphics
 {
   int i=0,j=0;//,k=0;
-  //gsm_hold_timer++;
-  for (j=0;j<player.rendered_ground_num/*+MAX_WEB_NUM*/;j++) {
-    /*if (j<rendered_ground_num) {
-      i=render_grounds[j];
-    } else {
-      i=GROUND_NUM+(j-rendered_ground_num);
-    }*/
+  for (j=0;j<player.rendered_ground_num;j++) {
     i=player.render_grounds[j];    
-    /*Ground[i].sprite_x1=Ground[i].x1+cam_x+cam_move_x-PLAYER_WIDTH/2;
-    Ground[i].sprite_y1=Ground[i].y1+cam_y+cam_move_y-PLAYER_HEIGHT/2;
-    Ground[i].sprite_x2=Ground[i].x2+cam_x+cam_move_x-PLAYER_WIDTH/2;
-    Ground[i].sprite_y2=Ground[i].y2+cam_y+cam_move_y-PLAYER_HEIGHT/2;
-    Ground[i].sprite_x3=Ground[i].x3+cam_x+cam_move_x-PLAYER_WIDTH/2;
-    Ground[i].sprite_y3=Ground[i].y3+cam_y+cam_move_y-PLAYER_HEIGHT/2;*/
 
     Ground[i].sprite_x1=Ground[i].x1+player.cam_x+player.cam_move_x;
     Ground[i].sprite_y1=Ground[i].y1+player.cam_y+player.cam_move_y;
@@ -267,122 +255,40 @@ void GroundAct() //Mainly for graphics
     Ground[i].sprite_y2=Ground[i].y2+player.cam_y+player.cam_move_y;
     Ground[i].sprite_x3=Ground[i].x3+player.cam_x+player.cam_move_x;
     Ground[i].sprite_y3=Ground[i].y3+player.cam_y+player.cam_move_y;
-
-
-//multisprite
-    //if (fade_ground) {
-      //k=0;
-      /*if (gsm_hold_timer>1) {
-        if (YesLongFade2 || player_in_air_cooldown>0) {
-          Ground[i].appear_timer[current_gsm]=50;
-        }
-        Ground[i].msprite_x1[current_gsm]=Ground[i].sprite_x1;
-        Ground[i].msprite_y1[current_gsm]=Ground[i].sprite_y1;
-        Ground[i].msprite_x2[current_gsm]=Ground[i].sprite_x2;
-        Ground[i].msprite_y2[current_gsm]=Ground[i].sprite_y2;
-      }*/
-      /*for (k=0;k<MULTI_SPRITE_NUM;k++) {
-        if (Ground[i].appear_timer[k]>0 && !the_bravery_tyrant) {
-          Ground[i].appear_timer[k]--;
-        }    
-      }*/
-    //}
-  } //
-  /*if (fade_ground && gsm_hold_timer>1) {    
-    gsm_hold_timer=0;
-    current_gsm++;
-    if (current_gsm>=MULTI_SPRITE_NUM-1) {
-      current_gsm=0;
-    }
-  }*/
-}
-
-
-/*void DrawGrounds(HWND hwnd, HDC hdc, PAINTSTRUCT ps) {
-  int id;
-  for (int i=0;i<player.rendered_ground_num;i++) {
-    id = player.render_grounds[i];
-    if (id!=-1) {
-      GrLine(hdc,
-        Ground[id].x1+player.cam_x,
-        Ground[id].y1+player.cam_y,
-        Ground[id].x2+player.cam_x,
-        Ground[id].y2+player.cam_y,
-        RGB(255,255,255)
-      );     
-      /*GrLine(hdc,
-        Ground[id].x1,
-        Ground[id].y1,
-        Ground[id].x2,
-        Ground[id].y2,
-        RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));*/
-    /*}
-  }
 }*/
+
+
+void DrawWebs(HDC hdc)
+{ int id;
+  for (int i=GROUND_NUM;i<GROUND_NUM+player.placed_web_num+1;i++) {
+    id=i;
+    if (id<GROUND_NUM+MAX_WEB_NUM) {
+      GrLine(hdc,
+        Ground[id].x1+player.cam_x+player.cam_move_x,
+        Ground[id].y1+player.cam_y+player.cam_move_y,
+        Ground[id].x2+player.cam_x+player.cam_move_x,
+        Ground[id].y2+player.cam_y+player.cam_move_y,
+        CYAN
+      );
+    }
+  }
+}
 
 
 void DrawGround(HDC hdc)
 {
   int i=0;//,j=0;
   for (i=0;i<GROUND_NUM;i++) {
-  //for (j=0;j<player.rendered_ground_num/*+MAX_WEB_NUM*/;j++) {
-    //if (j<player.rendered_ground_num) {
-    //i=player.render_grounds[j];
-    //} else {
-      //i=GROUND_NUM+(j-rendered_ground_num);
-    //}
-  //for (i=0;i<GROUND_NUM;i++) {
     if (Ground[i].type==0) {
       if (!IsOutOfBounds(Ground[i].x1,Ground[i].y1,1,MAP_WIDTH,MAP_HEIGHT) &&
           !IsOutOfBounds(Ground[i].x2,Ground[i].y2,1,MAP_WIDTH,MAP_HEIGHT)) {
-	      /*if (fade_ground) {
-      	    if (i<GROUND_NUM) {
-              Highlight(!IsInvertedBackground,Ground[i].color,palette_dark_arr[Ground[i].color],dc);
-            } else {
-              dc->color=CYAN+TRANSPARENT<<16+ROPF_DITHER;
-      	    }
-	        /*int k=0;
-      	    for (k=0;k<MULTI_SPRITE_NUM;k++) {
-	          if (Ground[i].appear_timer[k]>0) {
-       	        GrLine(dc,Ground[i].msprite_x1[k],Ground[i].msprite_y1[k],Ground[i].msprite_x2[k],Ground[i].msprite_y2[k]);
-	          }
-	        }*/
-	      //}//
-      	  /*if (i<GROUND_NUM) {
-            Highlight(!IsInvertedBackground,Ground[i].color,palette_dark_arr[Ground[i].color]/*+WHITE<<16+ROPF_DITHER,dc);
-          } else {
-            if (Ground[i].health<=player_web_health/2) {
-              dc->color=CYAN+TRANSPARENT<<16+ROPF_DITHER;
-            } else {
-              dc->color=CYAN;
-            }
-      	  }*/
           GrLine(hdc,
                 Ground[i].x1,
                 Ground[i].y1,
                 Ground[i].x2,
                 Ground[i].y2,
                 Ground[i].color);
-          /*if (i>=GROUND_NUM) {//Web
-            if (Ground[i].x1<=player_x<=Ground[i].x2) { //pos of hearts
-	          DrawHeart(task,dc,
-			    (Ground[i].x1+Ground[i].x2)/2,
-			    (Ground[i].y1+Ground[i].y2)/2,
-			     Ground[i].health,
-			    1);
-	      } else if (player_x<Ground[i].x1) {
-	        DrawHeart(task,dc,
-			  Ground[i].x1,
-			  Ground[i].y1,
-			  Ground[i].health,
-			  1);
-          } else {
-	        DrawHeart(task,dc,
-			  Ground[i].x2,
-			  Ground[i].y2,
-			  Ground[i].health,
-			  1);
-          }*/
+
       }
     }
   }
@@ -393,11 +299,8 @@ void DrawGround(HDC hdc)
 void DrawGroundText(HDC hdc)
 {
   int i=0;//,j=0;
-  //for (j=0;j<player.rendered_ground_num;j++) {
-    //i=player.render_grounds[j];
   for (i=0;i<GROUND_NUM;i++) {
     if (Ground[i].type==2) { 
-      //Highlight(!IsInvertedBackground,Ground[i].color,palette_dark_arr[Ground[i].color],dc);
       if (!IsOutOfBounds(Ground[i].x1,Ground[i].y1,1,MAP_WIDTH,MAP_HEIGHT) &&
           !IsOutOfBounds(Ground[i].x2,Ground[i].y2,1,MAP_WIDTH,MAP_HEIGHT)) {
 	    GrPrint(hdc,
@@ -411,19 +314,12 @@ void DrawGroundText(HDC hdc)
 }
 
 
-
 void DrawGroundTriFill(HDC hdc)
 {
   int i=0,c=0;//,j=0;
-  //for (j=0;j<player.rendered_ground_num;j++) {
-    //i=player.render_grounds[j];
   for (i=0;i<GROUND_NUM;i++) {
     if (Ground[i].type==3) { 
-      //if (!IsInvertedBackground()) {
 	  c=Ground[i].color;
-      /*} else {
-	    c=palette_dark_arr[Ground[i].color];//+WHITE<<16+ROPF_DITHER;
-      }*/
       if (!IsOutOfBounds(Ground[i].x1,Ground[i].y1,1,MAP_WIDTH,MAP_HEIGHT) &&
           !IsOutOfBounds(Ground[i].x2,Ground[i].y2,1,MAP_WIDTH,MAP_HEIGHT)) {
         if (!IsInvertedBackground()) {

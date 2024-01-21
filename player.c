@@ -306,7 +306,7 @@ void InitPlayer() {
   player.web_type=1;
   player.web_being_shot=-1;
   for (i=0;i<MAX_WEB_NUM;i++) {
-    player.web_storage[i]=-1;
+    player.web_storage[i]=GROUND_NUM+i;
   }
 
   player.cdweb_player_pos=0;
@@ -520,7 +520,7 @@ void PlayerAct() {
         allow_act=FALSE;
         if (player.right_click_hold_timer==62 &&  //Right click to shoot
 	        !NearCrawler()) {
-          if (/*player.placed_web_num<player.max_web_num &&*/ //webs > 0 
+          if (player.placed_web_num<player.max_web_num && //webs > 0 
 	        player.bullet_shot==-1) {
 	        allow_act=TRUE;
 	      }
@@ -532,7 +532,6 @@ void PlayerAct() {
           /*if (YesLongFade) {
     	    player_bullet_type=4;
     	  }*/
-          printf("%3.2f",player.above_y);
           ShootBullet(current_bullet_id,
 		-1,
 		CYAN,

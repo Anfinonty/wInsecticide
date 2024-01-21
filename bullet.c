@@ -155,7 +155,7 @@ void BulletAct(int bullet_id)
         }
         Bullet[bullet_id].range-=Bullet[bullet_id].speed;
       }
-      /*if (enemy_id==-1) {//player place web
+      if (enemy_id==-1) {//player place web
         if (Bullet[bullet_id].left) {
 	      bm_x2=Bullet[bullet_id].start_x;
 	      bm_y2=Bullet[bullet_id].start_y;
@@ -167,9 +167,9 @@ void BulletAct(int bullet_id)
 	      bm_x2=Bullet[bullet_id].x;
 	      bm_y2=Bullet[bullet_id].y;
         }
-        if (player.placed_web_pos<player.max_web_num) {      
-          while (player.web_storage[player.placed_web_pos]==-1) {
-            player.placed_web_pos=LimitValue(player.placed_web_pos+1,0,player.max_web_num);
+        if (player.placed_web_pos<player.max_web_num) { //if pointer to web is less than the no. of webs player has currently     
+          while (player.web_storage[player.placed_web_pos]==-1) { //find player.web_storage that is not empty
+            player.placed_web_pos=LimitValue(player.placed_web_pos+1,0,player.max_web_num); //reset back to 0 if over the max
           }
           web_id=player.web_storage[player.placed_web_pos];
           if (web_id!=-1) {
@@ -183,7 +183,7 @@ void BulletAct(int bullet_id)
 	        Ground[web_id].health=10-q;
 	      }
 	    }
-      }*/
+      }
 
 
  
@@ -206,7 +206,7 @@ void BulletAct(int bullet_id)
         if (allow_act) {
           if (hit_player) {
             if (!player.blocking) {
-              player.health-=Bullet[bullet_id].damage;
+              //player.health-=Bullet[bullet_id].damage;
             //player_snd_dur=DEFAULT_PLAYER_SND_DURATION;
 	    //cancel combos
 	        /*player_hit_cooldown_timer=player_hit_cooldown_timer_max;
@@ -241,8 +241,8 @@ void BulletAct(int bullet_id)
 	        }*/
 	        }
 	      } //end of hit player
-        } //else if (bullet_on_ground_id>=GROUND_NUM && bullet_on_ground_id!=player.web_being_shot) { //Not on web being shot
-	      /*Ground[bullet_on_ground_id].health-=Bullet[bullet_id].damage;
+        } else if (bullet_on_ground_id>=GROUND_NUM && bullet_on_ground_id!=player.web_being_shot) { //Not on web being shot
+	      Ground[bullet_on_ground_id].health-=Bullet[bullet_id].damage;
 	      if (Ground[bullet_on_ground_id].health<=0) {//completely destroy web at 0 health (can be regained after '4')
             DestroyGround(bullet_on_ground_id); 
             player.cdwebs[player.cdweb_pos]=bullet_on_ground_id;
@@ -252,7 +252,7 @@ void BulletAct(int bullet_id)
             }
             player.cdweb_num++;
 	      }
-	    }*/
+	    }
 	//bullet dodged
 	  /*if (player_hit_cooldown_timer==0 && !player_blocking) {
 	    if (Bullet[bullet_id].near_miss) {
@@ -278,15 +278,15 @@ void BulletAct(int bullet_id)
   } else {//player bullet
     bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,NODE_SIZE,NODE_SIZE,FALSE);
     allow_act=FALSE;
-	if (bullet_on_ground_id!=-1/* && bullet_on_ground_id!=web_id*/) {//not hit self but another platform
+	if (bullet_on_ground_id!=-1 && bullet_on_ground_id!=web_id) {//not hit self but another platform
 	  allow_act=TRUE;
-    } else if (/*Ground[web_id].health<=0 ||*/ IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) {//out of bounds
+    } else if (Ground[web_id].health<=0 || IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) {//out of bounds
 	  allow_act=TRUE;
     } else if (Bullet[bullet_id].range<=0) { 
 	  allow_act=TRUE;
 	}
 	if (allow_act) {//reaching end of range
-	  /*if (Ground[web_id].health<=0 || IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) {
+	  if (Ground[web_id].health<=0 || IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) {
         DestroyGround(web_id); //completely destroy web (can be regained after '4')
         player.cdwebs[player.cdweb_pos]=web_id;
         player.cdweb_pos++;
@@ -294,13 +294,13 @@ void BulletAct(int bullet_id)
           player.cdweb_pos=0;
         }
         player.cdweb_num++;
-      }*/
+      }
       StopBullet(bullet_id,TRUE);
 	  //---web related-------
-      /*if (bullet_on_ground_id>=GROUND_NUM) {
+      if (bullet_on_ground_id>=GROUND_NUM) {
         Ground[bullet_on_ground_id].health+=2;//heal ground
-      }*/
-      //PlayerPlaceWeb();
+      }
+      PlayerPlaceWeb();
       player.web_being_shot=-1;
       player.bullet_shot=-1;
       //---------------------

@@ -311,7 +311,7 @@ void DestroyGround(int i)
   if (-1<Ground[i].gradient<1) {
     for (x=Ground[i].x1;x<Ground[i].x2;x++) {
       lg_y=x*Ground[i].gradient+Ground[i].c;
-      lg_grid_id=GetGridId(x,lg_y,MAP_WIDTH,GRID_SIZE,GRID_NUM);
+      lg_grid_id=GetGridId(x,lg_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
       UnSetGridLineArray(lg_grid_id,i);
       node_grid_id=GetGridId(x,lg_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
       NodeGrid[node_grid_id].node_solid=FALSE;
@@ -326,7 +326,7 @@ void DestroyGround(int i)
     }
     for (y=min;y<max;y++) {
       lg_x=(y-Ground[i].c)/Ground[i].gradient;
-      lg_grid_id=GetGridId(lg_x,y,MAP_WIDTH,GRID_SIZE,GRID_NUM);
+      lg_grid_id=GetGridId(lg_x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
       UnSetGridLineArray(lg_grid_id,i);
       node_grid_id=GetGridId(lg_x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
       NodeGrid[node_grid_id].node_solid=FALSE;
@@ -347,13 +347,13 @@ bool IsCollideCrawler(double x1,double y1,double x2,double y2,double gradient,do
     if (-1<gradient<1) { // y=mx+c
       for (x=x1;x<=x2;x++) {
         lg_y=x*gradient+c;
-        on_grid_id=GetGridId(x,lg_y,MAP_WIDTH,GRID_SIZE,GRID_NUM);
+        on_grid_id=GetGridId(x,lg_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
         for (i=0;i<Grid[on_grid_id].enemy_occupy_num;i++) {
-	  enemy_id=Grid[on_grid_id].enemy_occupy[i];
+    	  enemy_id=Grid[on_grid_id].enemy_occupy[i];
           if (Enemy[enemy_id].species==1 && Enemy[enemy_id].health>0) {
-	    if (GetDistance(x,lg_y,Enemy[enemy_id].x,Enemy[enemy_id].y)<=NODE_SIZE*2) {
-	      return TRUE;
-	    }
+    	    if (GetDistance(x,lg_y,Enemy[enemy_id].x,Enemy[enemy_id].y)<=NODE_SIZE*2) {
+    	      return TRUE;
+    	    }
           }
         }
       }
@@ -367,13 +367,13 @@ bool IsCollideCrawler(double x1,double y1,double x2,double y2,double gradient,do
       }
       for (y=min;y<=max;y++) {
         lg_x=(y-c)/gradient;
-        on_grid_id=GetGridId(lg_x,y,MAP_WIDTH,GRID_SIZE,GRID_NUM);
+        on_grid_id=GetGridId(lg_x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
         for (i=0;i<Grid[on_grid_id].enemy_occupy_num;i++) {
-	  enemy_id=Grid[on_grid_id].enemy_occupy[i];
+	      enemy_id=Grid[on_grid_id].enemy_occupy[i];
           if (Enemy[enemy_id].species==1 && Enemy[enemy_id].health>0) {
-	    if (GetDistance(lg_x,y,Enemy[enemy_id].x,Enemy[enemy_id].y)<=NODE_SIZE*2) {
-	      return TRUE;
-	    }
+    	    if (GetDistance(lg_x,y,Enemy[enemy_id].x,Enemy[enemy_id].y)<=NODE_SIZE*2) {
+    	      return TRUE;
+    	    }
           }
         }
       }

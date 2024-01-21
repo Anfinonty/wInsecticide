@@ -362,7 +362,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
     for (int i=0;i<player.rendered_enemy_num;i++) {
       EnemyAct(player.render_enemies[i]);
     }
-    GroundAct();
+    //GroundAct();
     SongAct();
     Sleep(player.sleep_timer);
   }
@@ -583,6 +583,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       
       DrawBackground(hdcBackbuff);
       DrawPlatforms(hdcBackbuff);
+      DrawWebs(hdcBackbuff);
       DrawEnemy(hdcBackbuff);
       DrawPlayer(hdcBackbuff);
       DrawCursor(hdcBackbuff);
