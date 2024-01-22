@@ -1139,8 +1139,8 @@ void DrawPlayer(HDC hdc)
   if (player.sprite_angle!=player.saved_angle) {
     DeleteObject(player.sprite_1_cache);
     DeleteObject(player.sprite_2_cache);
-    player.sprite_1_cache = RotateSprite(hdc, player.sprite_1,player.sprite_angle,LTGREEN,BLACK);
-    player.sprite_2_cache = RotateSprite(hdc, player.sprite_2,player.sprite_angle,LTGREEN,BLACK);
+    player.sprite_1_cache = RotateSprite(hdc, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,-1);
+    player.sprite_2_cache = RotateSprite(hdc, player.sprite_2,player.sprite_angle,LTGREEN,BLACK,-1);
 
     player.saved_angle=player.sprite_angle;
   }

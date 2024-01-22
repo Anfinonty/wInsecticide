@@ -709,7 +709,7 @@ void EnemyAct(int i)
         if ((Enemy[i].species==1 && Enemy[i].in_air_timer>0/*GetOnGroundId(Enemy[i].x,Enemy[i].y,10,9,FALSE)==-1*/)) {
           Enemy[i].health-=player.attack_strength*2;
         }
-        //if (Enemy[i].health<=0) {//killed
+          
         /*if (sound_on) {
             Enemy[i].snd_dur=Enemy[i].death_snd_dur_max;
             Enemy[i].snd_pitch=Enemy[i].death_snd_pitch;
@@ -722,9 +722,8 @@ void EnemyAct(int i)
 	      }
           enemy_kills++;
           souls_taken++;*/
-/*        } else {
-          Enemy[i].snd_dur=Enemy[i].snd_dur_max;
-        }*/
+        //} else {
+          //Enemy[i].snd_dur=Enemy[i].snd_dur_max;
       }
     }
 
@@ -1194,21 +1193,38 @@ void DrawEnemy(HDC hdc)
       for (k=0;k<Enemy[i].bullet_shot_num;k++) {
         DrawBullet(hdc,Enemy[i].bullet_shot_arr[k]);
       }
-    }
 
-    if (Enemy[i].species==1) {
-      if (Enemy[i].angle!=Enemy[i].saved_angle) {
-        DeleteObject(Enemy[i].sprite_1);
-        DeleteObject(Enemy[i].sprite_2);
+      if (Enemy[i].species==1) {
+        if (Enemy[i].angle!=Enemy[i].saved_angle) {
+          DeleteObject(Enemy[i].sprite_1);
+          DeleteObject(Enemy[i].sprite_2);
         //DeleteObject(Enemy[i].sprite_3);
         
-        Enemy[i].sprite_1=RotateSprite(hdc, enemy2_sprite_1,Enemy[i].angle,LTGREEN,Enemy[i].color);
-        Enemy[i].sprite_2=RotateSprite(hdc, enemy2_sprite_2,Enemy[i].angle,LTGREEN,Enemy[i].color);
+          Enemy[i].sprite_1=RotateSprite(hdc, enemy2_sprite_1,Enemy[i].angle,LTGREEN,Enemy[i].color,-1);
+          Enemy[i].sprite_2=RotateSprite(hdc, enemy2_sprite_2,Enemy[i].angle,LTGREEN,Enemy[i].color,-1);
         //Enemy[i].sprite_3=RotateSprite(hdc, enemy2_sprite_3,Enemy[i].angle,LTGREEN,Enemy[i].color);
-        Enemy[i].saved_angle=Enemy[i].angle;
+          Enemy[i].saved_angle=Enemy[i].angle;
+        }
+      }
+
+
+    } else if (Enemy[i].health>-200 && Enemy[i].health<=0){
+    
+      Enemy[i].health=-99999;
+      DeleteObject(Enemy[i].sprite_1);
+      DeleteObject(Enemy[i].sprite_2);
+      if (Enemy[i].sprite_3!=NULL) {
+        DeleteObject(Enemy[i].sprite_3);
+      }
+      if (Enemy[i].species==1) { 
+        Enemy[i].sprite_1=RotateSprite(hdc, enemy2_sprite_1,Enemy[i].angle,LTGREEN,DKGRAY,TRANSPARENT);
+        Enemy[i].sprite_2=RotateSprite(hdc, enemy2_sprite_2,Enemy[i].angle,LTGREEN,DKGRAY,TRANSPARENT);
+        Enemy[i].sprite_3=RotateSprite(hdc, enemy2_sprite_3,Enemy[i].angle,LTGREEN,DKGRAY,TRANSPARENT);
+      } else {
+        Enemy[i].sprite_1=RotateSprite(hdc, enemy1_sprite_1,Enemy[i].angle,LTGREEN,DKGRAY,TRANSPARENT);
+        Enemy[i].sprite_2=RotateSprite(hdc, enemy1_sprite_2,Enemy[i].angle,LTGREEN,DKGRAY,TRANSPARENT);
       }
     }
-
     if (Enemy[i].saw_player) {
       if (Enemy[i].in_air_timer==0) {
         switch (Enemy[i].species) {

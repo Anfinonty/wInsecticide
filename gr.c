@@ -257,7 +257,7 @@ void DrawBitmap(HDC hDC,double _x1,double _y1, double _x2, double _y2, int width
 
 
 
-HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, float radians,int rTransparent, int sprite_color) 
+HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, float radians,int rTransparent, int sprite_color, int sprite_color_2) 
 { //if (hSourceBitmap != NULL) { ////https://ftp.zx.net.nz/pub/Patches/ftp.microsoft.com/MISC/KB/en-us/77/127.HTM
   HBITMAP hOldSourceBitmap, hOldDestBitmap, hDestBitmap; ////https://www.codeguru.com/multimedia/rotate-a-bitmap-image/
   HDC hMemSrc,hMemDest;
@@ -327,10 +327,30 @@ HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, float radians,int rTranspar
         if (current_pixel==rTransparent) { //Set Target Transparent color (i.e. LTGREEN) to BLACK
 	      SetPixel(hMemDest, x, y, BLACK);
         } else if (current_pixel==BLACK){
-          if (sprite_color!=BLACK) { //Set BLACK to Custom Color
-	        SetPixel(hMemDest, x, y, sprite_color);
-          } else { //change BLACK to DKBLACK 
-	        SetPixel(hMemDest, x, y, DKBLACK);
+          if (sprite_color_2==-1) {
+            if (sprite_color!=BLACK) { //Set BLACK to Custom Color
+	          SetPixel(hMemDest, x, y, sprite_color);
+            } else { //change BLACK to DKBLACK 
+	          SetPixel(hMemDest, x, y, DKBLACK);
+            }
+          } else {
+            if (sprite_color!=BLACK) { //Set BLACK to Custom Color
+              if (y%2==0) {
+                if (x%2==0) {
+	              SetPixel(hMemDest, x, y, sprite_color_2);
+                } else {
+	              SetPixel(hMemDest, x, y, sprite_color);
+                }
+              } else {
+                if (x%2!=0) {
+	              SetPixel(hMemDest, x, y, sprite_color_2);
+                } else {
+	              SetPixel(hMemDest, x, y, sprite_color);
+                }
+              }
+            } else { //change BLACK to DKBLACK 
+	          SetPixel(hMemDest, x, y, DKBLACK);
+            }
           }
         } else { //Set pixel, no change to color
 	      SetPixel(hMemDest, x, y, current_pixel);

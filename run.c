@@ -158,9 +158,9 @@ int dyn_vrenderdist=0,dyn_vrenderdist_num=0;
 
 
 
-#include "saves/Level001.c"
+//#include "saves/Level001.c"
 //#include "saves/Level002.c"
-//#include "saves/Level003.c"
+#include "saves/Level003.c"
 //#include "saves/Level004.c"
 //#include "saves/Level005.c"
 
@@ -641,22 +641,22 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       DeleteObject(tmp_map_platforms_sprite);
 
 
-      player.sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,player.sprite_angle,LTGREEN,BLACK);
-      player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,BLACK);
-      player.sprite_2_cache = RotateSprite(NULL, player.sprite_2,player.sprite_angle,LTGREEN,BLACK);
+      player.sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,player.sprite_angle,LTGREEN,BLACK,-1);
+      player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,-1);
+      player.sprite_2_cache = RotateSprite(NULL, player.sprite_2,player.sprite_angle,LTGREEN,BLACK,-1);
 
-      mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK);
+      mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,-1);
 
 
       for (int i=0;i<ENEMY_NUM;i++) {
         if (Enemy[i].species==0) {
-          Enemy[i].sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,Enemy[i].color);
-          Enemy[i].sprite_2=RotateSprite(NULL, enemy1_sprite_2,0,LTGREEN,Enemy[i].color);
+          Enemy[i].sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,Enemy[i].color,-1);
+          Enemy[i].sprite_2=RotateSprite(NULL, enemy1_sprite_2,0,LTGREEN,Enemy[i].color,-1);
           Enemy[i].sprite_3=NULL;
         } else {
-          Enemy[i].sprite_1=RotateSprite(NULL, enemy2_sprite_1,Enemy[i].angle,LTGREEN,Enemy[i].color);
-          Enemy[i].sprite_2=RotateSprite(NULL, enemy2_sprite_2,Enemy[i].angle,LTGREEN,Enemy[i].color);
-          Enemy[i].sprite_3=RotateSprite(NULL, enemy2_sprite_3,Enemy[i].angle,LTGREEN,Enemy[i].color);
+          Enemy[i].sprite_1=RotateSprite(NULL, enemy2_sprite_1,Enemy[i].angle,LTGREEN,Enemy[i].color,-1);
+          Enemy[i].sprite_2=RotateSprite(NULL, enemy2_sprite_2,Enemy[i].angle,LTGREEN,Enemy[i].color,-1);
+          Enemy[i].sprite_3=RotateSprite(NULL, enemy2_sprite_3,Enemy[i].angle,LTGREEN,Enemy[i].color,-1);
         }
       }
 
