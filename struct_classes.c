@@ -24,6 +24,28 @@ struct Ground
 
 } Ground[GROUND_NUM+MAX_WEB_NUM];
 
+
+void InitGround();
+void InitGround2();
+double GetLineTargetAngle(int Ground_id,double x,double y);
+double GetLineTargetHeight(int Ground_id,double E,double x,double y);
+void SetGround(int i);
+int GetOnGroundId(double x,double y,double min_range_1,double min_range_2,bool is_player);
+void DestroyGround(int i);
+
+void DrawWebs(HDC hdc);
+void DrawGround(HDC hdc);
+void DrawGroundText(HDC hdc);
+void DrawGroundTriFill(HDC hdc);
+
+
+
+
+
+
+
+
+
 struct player 
 {
   bool hiding;
@@ -51,7 +73,8 @@ struct player
   bool print_valid_web;
   bool valid_web;
   bool attack_rst;
-
+  bool destroy_ground;
+  bool uppercut;
 
   int grav;
   int jump_height;
@@ -64,6 +87,10 @@ struct player
   int walk_cycle;
   int player_jump_height;
   int key_jump_timer;
+  double knockback_speed;
+  int knockback_speed_multiplier;
+  double attack_strength;
+  int knockback_strength;
 
     //Render
   int rendered_grid_num;
@@ -97,6 +124,8 @@ struct player
   double cam_move_y;
   double sprite_x;
   double sprite_y;
+  double claws_x;
+  double claws_y;
     //background_cam_move_x=0,
     //background_cam_move_y=0;
   //misc
@@ -149,6 +178,36 @@ struct player
 } player;
 
 
+void InitPlayer();
+bool IsInvertedBackground();
+bool IsSpeedBreaking();
+bool IsCollideCrawler(double x1,double y1,double x2,double y2,double gradient,double c);
+void Click();
+void move_x(double x);
+void move_y(double y);
+void InitRDGrid();
+void InitVRDGrid();
+void CameraInit(double x,double y);
+void InitPlayerCamera();
+bool NearCrawler();
+void CleanUpPlayer();
+bool YesInitRDGrid();
+bool YesInitVRDGrid();
+void RegainWeb(int web_id);
+void PlayerAct();
+void PlayerCameraShake();
+void DrawPlayer(HDC hdc);
+
+
+
+
+
+
+
+
+
+
+
 struct RenderDistanceGrid
 {
   int x,y;
@@ -188,6 +247,33 @@ struct Node
   int x1,y1,x2,y2;
 } NodeGrid[MAP_NODE_NUM];
 
+
+
+int GetGridId(int x,int y,int width, int size,int max);
+void SetGridLineArray(int grid_id,int ground_id);
+void UnSetGridLineArray(int grid_id,int ground_id);
+void InitGrid();
+void DrawGrid(HDC hdc);
+void InitNodeGrid();
+bool IsCollideSolid(double x1,double y1,double x2,double y2,double gradient,double c);
+bool IsHasNeighbours(int nx,int ny);
+void SetNodeGridAttributes2(int i);
+void SetNodeGridAttributes(int i);
+void InitNodeGridAttributes();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 int current_bullet_id=0;
 struct Bullet
 {
@@ -208,6 +294,20 @@ struct Bullet
   F64 msprite_x[MULTI_SPRITE_NUM],
       msprite_y[MULTI_SPRITE_NUM];*/
 } Bullet[BULLET_NUM];
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 struct Enemy
 {
@@ -254,9 +354,9 @@ struct Enemy
 
 
   //Attacked
-  /*bool knockback_left;
+  bool knockback_left;
   double knockback_angle;
-  int knockback_timer;*/
+  int knockback_timer;
 
 
   //Enemy Attributes
@@ -349,11 +449,26 @@ struct Enemy
   HBITMAP sprite_3;
 } Enemy[ENEMY_NUM];
 
+int CalculateDistanceCost(int enemy_id,int a, int b);
+int smallest_f_cost(int enemy_id);
+void InitEnemyPathfinding(int enemy_id,double target_x,double target_y);
+void EnemyPathFinding(int enemy_id);
+void EnemySpecies1Gravity(int enemy_id);
+void EnemyMove(int enemy_id);
+void EnemyTargetPlayer(int i);
+void EnemyAct(int i);
+void SetEnemyByType(int i,int type);
+void InitEnemy();
+void DrawEnemy(HDC hdc);
+
+
 
 int mouse_x;
 int mouse_y;
 HBITMAP mouse_cursor_sprite;
 HBITMAP mouse_cursor_sprite_cache;
+
+
 
 HBITMAP enemy1_sprite_1;
 HBITMAP enemy1_sprite_2;
@@ -363,7 +478,6 @@ HBITMAP enemy2_sprite_3;
 
 
 HBITMAP map_background_sprite;
-
 
 HBITMAP map_platforms_sprite;
 HBITMAP map_platforms_sprite_mask;

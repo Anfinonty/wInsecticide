@@ -192,16 +192,6 @@ int dyn_vrenderdist=0,dyn_vrenderdist_num=0;
 #include "gr.c"
 
 #include "struct_classes.c"
-
-
-bool IsSpeedBreaking()
-{
-  if (player.rst_speed_break && player.speed_breaker_units>0) {
-    return TRUE;
-  }
-  return FALSE;
-}
-
 #include "grid.c"
 #include "ground.c"
 #include "bullet.c"
@@ -534,6 +524,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       break;
     case WM_KEYUP:
       switch (wParam) {
+        case 'Q':player.destroy_ground=TRUE;break;
         case 'S':case VK_DOWN:if(player.rst_down)player.rst_down=FALSE;break;
         case 'D':case VK_RIGHT:if(player.rst_right)player.rst_right=FALSE;break;
         case 'A':case VK_LEFT:if(player.rst_left)player.rst_left=FALSE;break;

@@ -84,7 +84,8 @@ void InitGrid()
 }
 
 
-void DrawGrid(HDC hdc) {
+void DrawGrid(HDC hdc)
+{
   /*GrLine(dc,Grid[i].x1+cam_x-PLAYER_WIDTH/2,Grid[i].y1+cam_y-PLAYER_HEIGHT/2,Grid[i].x2+cam_x-PLAYER_WIDTH/2,Grid[i].y1+cam_y-PLAYER_HEIGHT/2);
   GrLine(dc,Grid[i].x1+cam_x-PLAYER_WIDTH/2,Grid[i].y1+cam_y-PLAYER_HEIGHT/2,Grid[i].x1+cam_x-PLAYER_WIDTH/2,Grid[i].y2+cam_y-PLAYER_HEIGHT/2);
   GrLine(dc,Grid[i].x2+cam_x-PLAYER_WIDTH/2,Grid[i].y1+cam_y-PLAYER_HEIGHT/2,Grid[i].x2+cam_x-PLAYER_WIDTH/2,Grid[i].y2+cam_y-PLAYER_HEIGHT/2);
@@ -94,7 +95,6 @@ void DrawGrid(HDC hdc) {
 //    GrLine(hdc,Grid[i].x1,Grid[i].y1,Grid[i].x1,Grid[i].y2,RGB(255,255,255));
 //    GrLine(hdc,Grid[i].x2,Grid[i].y1,Grid[i].x2,Grid[i].y2,RGB(255,255,255));
 //    GrLine(hdc,Grid[i].x1,Grid[i].y2,Grid[i].x2,Grid[i].y2,RGB(255,255,255));
-
     GrLine(hdc,Grid[i].x1+player.cam_x,Grid[i].y1+player.cam_y,Grid[i].x2+player.cam_x,Grid[i].y1+player.cam_y,RGB(8,39,225));
     GrLine(hdc,Grid[i].x1+player.cam_x,Grid[i].y1+player.cam_y,Grid[i].x1+player.cam_x,Grid[i].y2+player.cam_y,RGB(8,39,225));
     GrLine(hdc,Grid[i].x2+player.cam_x,Grid[i].y1+player.cam_y,Grid[i].x2+player.cam_x,Grid[i].y2+player.cam_y,RGB(8,39,225));
@@ -107,8 +107,6 @@ void DrawGrid(HDC hdc) {
 
 
 //Node Grid
-
-
 void InitNodeGrid()
 {
   int i=0,x=0,y=0;
@@ -292,6 +290,8 @@ void SetNodeGridAttributes(int i)
   }
 }
 
+
+
 void InitNodeGridAttributes()
 {
   for (int i=0;i<GROUND_NUM;i++) {
@@ -300,87 +300,4 @@ void InitNodeGridAttributes()
 }
 
 
-
-
-
-
-void DestroyGround(int i)
-{
-  int lg_grid_id=0,node_grid_id=0,x=0,y=0,min=0,max=0;
-  double lg_x=0,lg_y=0;
-  if (-1<Ground[i].gradient<1) {
-    for (x=Ground[i].x1;x<Ground[i].x2;x++) {
-      lg_y=x*Ground[i].gradient+Ground[i].c;
-      lg_grid_id=GetGridId(x,lg_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
-      UnSetGridLineArray(lg_grid_id,i);
-      node_grid_id=GetGridId(x,lg_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
-      NodeGrid[node_grid_id].node_solid=FALSE;
-    }
-  } else { // x=(y-c)/m
-    if (Ground[i].y1>Ground[i].y2) {
-      min=Ground[i].y2;
-      max=Ground[i].y1;
-    } else {
-      min=Ground[i].y1;
-      max=Ground[i].y2;
-    }
-    for (y=min;y<max;y++) {
-      lg_x=(y-Ground[i].c)/Ground[i].gradient;
-      lg_grid_id=GetGridId(lg_x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
-      UnSetGridLineArray(lg_grid_id,i);
-      node_grid_id=GetGridId(lg_x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
-      NodeGrid[node_grid_id].node_solid=FALSE;
-    }
-  }
-  Ground[i].health=-1;
-  Ground[i].x1=Ground[i].y1=Ground[i].x2=Ground[i].y2=-20;
-}
-
-
-
-
-bool IsCollideCrawler(double x1,double y1,double x2,double y2,double gradient,double c)
-{
-  int on_grid_id=0,i=0,enemy_id=0,x=0,y=0,min=0,max=0;
-  double lg_x=0,lg_y=0;
-  if (x1!=x2) {
-    if (-1<gradient<1) { // y=mx+c
-      for (x=x1;x<=x2;x++) {
-        lg_y=x*gradient+c;
-        on_grid_id=GetGridId(x,lg_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
-        for (i=0;i<Grid[on_grid_id].enemy_occupy_num;i++) {
-    	  enemy_id=Grid[on_grid_id].enemy_occupy[i];
-          if (Enemy[enemy_id].species==1 && Enemy[enemy_id].health>0) {
-    	    if (GetDistance(x,lg_y,Enemy[enemy_id].x,Enemy[enemy_id].y)<=NODE_SIZE*2) {
-    	      return TRUE;
-    	    }
-          }
-        }
-      }
-    } else { // x=(y-c)/m
-      if (y1<y2) {
-        min=y1;
-        max=y2;
-      } else {
-        min=y2;
-        max=y1;
-      }
-      for (y=min;y<=max;y++) {
-        lg_x=(y-c)/gradient;
-        on_grid_id=GetGridId(lg_x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
-        for (i=0;i<Grid[on_grid_id].enemy_occupy_num;i++) {
-	      enemy_id=Grid[on_grid_id].enemy_occupy[i];
-          if (Enemy[enemy_id].species==1 && Enemy[enemy_id].health>0) {
-    	    if (GetDistance(lg_x,y,Enemy[enemy_id].x,Enemy[enemy_id].y)<=NODE_SIZE*2) {
-    	      return TRUE;
-    	    }
-          }
-        }
-      }
-    }
-  } else {
-    return TRUE;
-  }
-  return FALSE;
-}
 

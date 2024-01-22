@@ -1,13 +1,4 @@
 
-bool IsInvertedBackground()
-{
-  if (map_background==1) {
-    return TRUE;
-  } else if (is_inverted && map_background==2) {
-    return TRUE;
-  }
-  return FALSE;
-}
 
 //Ground
 double GetLineTargetAngle(int Ground_id,double x,double y)
@@ -79,7 +70,8 @@ double GetLineTargetHeight(int Ground_id,double E,double x,double y)
   return h;
 }
 
-void SetGround(int i) {
+void SetGround(int i)
+{
   //Set Ground's gradient
   Ground[i].gradient=GetGradient(
     Ground[i].x1,
@@ -101,7 +93,8 @@ void SetGround(int i) {
 }
 
 
-void InitGround() {
+void InitGround()
+{
   int i,j;
 //Set ground default and Web
   //current_gsm=0;
@@ -192,7 +185,7 @@ void InitGround() {
 void InitGround2()
 {
   int i=0;
-  for (i=0;i<GROUND_NUM+MAX_WEB_NUM/*TOTAL_GROUNDS*/;i++) {
+  for (i=0;i<GROUND_NUM+MAX_WEB_NUM;i++) {
     Ground[i].sprite_x1=Ground[i].x1+player.cam_x;//+cam_move_x-PLAYER_WIDTH/2;
     Ground[i].sprite_y1=Ground[i].y1+player.cam_y;//+cam_move_y-PLAYER_HEIGHT/2;
     Ground[i].sprite_x2=Ground[i].x2+player.cam_x;//+cam_move_x-PLAYER_WIDTH/2;
@@ -242,7 +235,6 @@ int GetOnGroundId(double x,double y,double min_range_1,double min_range_2,bool i
   return -1;
 }
 
-
 /*void GroundAct() //Mainly for graphics
 {
   int i=0,j=0;//,k=0;
@@ -258,9 +250,43 @@ int GetOnGroundId(double x,double y,double min_range_1,double min_range_2,bool i
 }*/
 
 
+void DestroyGround(int i)
+{
+  int lg_grid_id=0,node_grid_id=0,x=0,y=0,min=0,max=0;
+  double lg_x=0,lg_y=0;
+  if (-1<Ground[i].gradient<1) {
+    for (x=Ground[i].x1;x<Ground[i].x2;x++) {
+      lg_y=x*Ground[i].gradient+Ground[i].c;
+      lg_grid_id=GetGridId(x,lg_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
+      UnSetGridLineArray(lg_grid_id,i);
+      node_grid_id=GetGridId(x,lg_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
+      NodeGrid[node_grid_id].node_solid=FALSE;
+    }
+  } else { // x=(y-c)/m
+    if (Ground[i].y1>Ground[i].y2) {
+      min=Ground[i].y2;
+      max=Ground[i].y1;
+    } else {
+      min=Ground[i].y1;
+      max=Ground[i].y2;
+    }
+    for (y=min;y<max;y++) {
+      lg_x=(y-Ground[i].c)/Ground[i].gradient;
+      lg_grid_id=GetGridId(lg_x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
+      UnSetGridLineArray(lg_grid_id,i);
+      node_grid_id=GetGridId(lg_x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
+      NodeGrid[node_grid_id].node_solid=FALSE;
+    }
+  }
+  Ground[i].health=-1;
+  Ground[i].x1=Ground[i].y1=Ground[i].x2=Ground[i].y2=-20;
+}
+
+
+
 void DrawWebs(HDC hdc)
 { int id;
-  for (int i=GROUND_NUM;i<GROUND_NUM+player.placed_web_num+1;i++) {
+  for (int i=GROUND_NUM;i<GROUND_NUM+player.max_web_num;i++) {
     id=i;
     if (id<GROUND_NUM+MAX_WEB_NUM) {
       GrLine(hdc,
