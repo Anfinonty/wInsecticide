@@ -327,7 +327,7 @@ HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, float radians,int rTranspar
         if (current_pixel==rTransparent) { //Set Target Transparent color (i.e. LTGREEN) to BLACK
 	      SetPixel(hMemDest, x, y, BLACK);
         } else if (current_pixel==BLACK){
-          if (sprite_color_2==-1) {
+          if (sprite_color_2==-1) { //custom flag to disallow dithreing
             if (sprite_color!=BLACK) { //Set BLACK to Custom Color
 	          SetPixel(hMemDest, x, y, sprite_color);
             } else { //change BLACK to DKBLACK 

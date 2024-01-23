@@ -304,34 +304,6 @@ void BulletAct(int bullet_id)
       player.web_being_shot=-1;
       player.bullet_shot=-1;
       //---------------------
-	  //}
-    //}
-  //} //speed multiplier
-    /*if (fade_bullet) {
-      Bullet[bullet_id].msprite_hold_timer++;
-      if (Bullet[bullet_id].msprite_hold_timer>Bullet[bullet_id].msprite_hold_timer_max) {
-	if (Bullet[bullet_id].speed_multiplier>=2 || YesLongFade2 || player_in_air_cooldown>0) {
-          Bullet[bullet_id].appear_timer[Bullet[bullet_id].current_sm]=50;
-        }
-        Bullet[bullet_id].msprite_x[Bullet[bullet_id].current_sm]=Bullet[bullet_id].sprite_x;
-        Bullet[bullet_id].msprite_y[Bullet[bullet_id].current_sm]=Bullet[bullet_id].sprite_y;
-      }
-      if (!the_bravery_tyrant) {
-        for (i=0;i<MULTI_SPRITE_NUM;i++) {
-          if (Bullet[bullet_id].appear_timer[i]>0) {
-            Bullet[bullet_id].appear_timer[i]--;
-          }
-        }
-      }
-    }
-  }*/ //if bullet shot
-  /*if (fade_bullet && Bullet[bullet_id].msprite_hold_timer>Bullet[bullet_id].msprite_hold_timer_max) {
-    Bullet[bullet_id].msprite_hold_timer=0;
-    Bullet[bullet_id].current_sm++;
-    if (Bullet[bullet_id].current_sm>=MULTI_SPRITE_NUM-1) {
-      Bullet[bullet_id].current_sm=0;
-    }
-  }*/
         }
       }
     } // end of speedy for loop
@@ -365,31 +337,5 @@ void DrawBullet2(HDC hdc,int i,double x,double y,int color)
 
 void DrawBullet(HDC hdc,int i)
 {
-  //if (!change_view || (on_ground_timer<=0)) {//default view
-    /*if (fade_bullet) {
-      int k=0;
-      for (k=0;k<MULTI_SPRITE_NUM;k++) {
-	    if (Bullet[i].appear_timer[k]>0) {
-    	  Highlight(!IsInvertedBackground,Bullet[i].color+custom_map_background_color<<16+ROPF_DITHER,palette_dark_arr[Bullet[i].color]+palette_dark_arr[custom_map_background_color]<<16+ROPF_DITHER,dc);
-          DrawBullet2(task,dc,i,Bullet[i].msprite_x[k],Bullet[i].msprite_y[k]);
-	    }
-      }
-    }*/
-    //Highlight(!IsInvertedBackground,Bullet[i].color,palette_dark_arr[Bullet[i].color],dc);
   DrawBullet2(hdc,i,Bullet[i].sprite_x,Bullet[i].sprite_y,Bullet[i].color);
-  /*} else { //pov view
-    double bullet_view_angle=0,
-        bullet_angle_x=0,
-        bullet_angle_y=0;
-    bullet_view_angle=GetRotateAngle(Bullet[i].x,Bullet[i].y);
-    if (print_current_above) {
-      bullet_angle_x=GetDistance(Bullet[i].x,Bullet[i].y,0,0)*cos(bullet_view_angle-Ground[on_ground_id].angle);
-      bullet_angle_y=GetDistance(Bullet[i].x,Bullet[i].y,0,0)*sin(bullet_view_angle-Ground[on_ground_id].angle);
-    } else {
-      bullet_angle_x=GetDistance(Bullet[i].x,Bullet[i].y,0,0)*cos(pi+bullet_view_angle-Ground[on_ground_id].angle);
-      bullet_angle_y=GetDistance(Bullet[i].x,Bullet[i].y,0,0)*sin(pi+bullet_view_angle-Ground[on_ground_id].angle);
-    }
-    Highlight(!IsInvertedBackground,Bullet[i].color,palette_dark_arr[Bullet[i].color],dc);
-    DrawBullet2(task,dc,i,GR_WIDTH/2+bullet_angle_x-player_angle_x,GR_HEIGHT/2+bullet_angle_y-player_angle_y);
-  }*/
 }

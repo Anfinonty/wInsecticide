@@ -263,8 +263,27 @@ bool NearCrawler()
 
 void CleanUpPlayer()
 {
-  DeleteObject(player.sprite_1_cache);
-  DeleteObject(player.sprite_2_cache);
+  if (player.sprite_1_cache!=NULL) {
+    DeleteObject(player.sprite_1_cache);
+  }
+  if (player.sprite_2_cache!=NULL) { 
+    DeleteObject(player.sprite_2_cache);
+  }
+  if (player.sprite_jump_cache!=NULL) { 
+    DeleteObject(player.sprite_jump_cache);
+  }
+  if (player.attack_sprite_1_cache!=NULL) { 
+    DeleteObject(player.attack_sprite_1_cache);
+  }
+  if (player.attack_sprite_2_cache!=NULL) { 
+    DeleteObject(player.attack_sprite_2_cache);
+  }
+  if (player.attack_sprite_3_cache!=NULL) { 
+    DeleteObject(player.attack_sprite_3_cache);
+  }
+  if (player.attack_sprite_4_cache!=NULL) { 
+    DeleteObject(player.attack_sprite_4_cache);
+  }
 }
 
 
@@ -366,9 +385,14 @@ void InitPlayer() {
   player.sleep_timer=DEFAULT_SLEEP_TIMER;
   player.hit_cooldown_timer=0;
   player.block_timer=0;
+  player.block_recharge_timer=0;
+  player.block_recharge_timer_max=300;
+  player.block_cooldown=0;
+  player.block_cooldown_max=300;
+  player.block_health_max=DEFAULT_PLAYER_BLOCK_HEALTH_MAX;
+  player.block_health=DEFAULT_PLAYER_BLOCK_HEALTH_MAX;
 
   player.health=DEFAULT_PLAYER_HEALTH;
-  player.block_health=DEFAULT_PLAYER_BLOCK_HEALTH_MAX;
   player.knockback_strength=DEFAULT_PLAYER_KNOCKBACK_STRENGTH;
   player.knockback_speed=0.5;
   player.knockback_speed_multiplier=2;
@@ -524,7 +548,7 @@ void PlayerAct() {
 
   //Clicking
   if (player.bullet_shot!=-1) {
-    //player.web_being_shot=player.web_storage[player.placed_web_pos];
+    player.web_being_shot=player.web_storage[player.placed_web_pos];
     BulletAct(player.bullet_shot);
   }
   Click();
@@ -878,15 +902,13 @@ void PlayerAct() {
         //player.health--;
       }
      //X movement
-      //allow_act=FALSE;
-      //if (player.on_ground_id==-1) { //player is not on ground
-	  //  allow_act=TRUE;
-      //} /*else if (player.block_timer==0) { //OR player is not blocking
-	  //  allow_act=TRUE;
-      //}*/
-
-
-      if (grav_speed==0 /*&& allow_act*/) {
+      allow_act=FALSE;
+      if (player.on_ground_id==-1) { //player is not on ground
+	    allow_act=TRUE;
+      } else if (player.block_timer==0) { //OR player is not blocking
+	    allow_act=TRUE;
+      }
+      if (grav_speed==0 && allow_act) {
         if (player.current_above) {
           if (player.rst_right) {
             move_x(cos(player.angle));
@@ -983,7 +1005,51 @@ void PlayerAct() {
   if (player.on_ground_timer>0) {
     player.on_ground_timer--;
   }
- //camshake
+  //
+//block
+  allow_act=FALSE;
+  if (player.attack_timer<=0) {
+    if (player.rst_down) {
+      if (player.on_ground_id==-1 || player.print_current_above) {
+        allow_act=TRUE;
+      }
+    } else if (player.rst_up && player.print_current_below) {
+      allow_act=TRUE;
+    }
+  }
+  if (allow_act) {
+    player.blocking=TRUE;
+  } else {
+    player.blocking=FALSE;
+  }
+  if (player.blocking) {
+    if (player.block_health>0) {//above 0
+      player.block_cooldown=player.block_cooldown_max;
+      player.block_recharge_timer=player.block_recharge_timer_max;
+      if (player.block_timer<30) {
+        player.block_timer++;
+      }
+    } else { //below 0
+      if (player.block_health<=0) {
+        player.block_health=0;
+      }
+      player.blocking=FALSE; //disable blocking
+    }
+  } else {//player not blocking -regen block
+    if (player.block_timer>0) {
+      player.block_timer--;
+    }
+    if (player.block_cooldown>0) {
+      player.block_cooldown--;
+    } else {//3 seconds has passed
+      if (player.block_recharge_timer>0) {
+	    player.block_recharge_timer--;
+      } else if (player.block_health<player.block_health_max) {//below max
+        player.block_health++;
+	    player.block_recharge_timer=player.block_recharge_timer_max;
+      }
+    }
+  }
 
   /*player.sprite_angle+=0.1;
   if (player.sprite_angle>M_PI*2) {
@@ -1004,7 +1070,7 @@ void PlayerCameraShake()
     float y_bob=0,x_bob=0;
     //if (sprint_bobbing) {  //if sprint_bobbing
       if (player.on_ground_id!=-1) {//not in air
-        //if (!player_blocking) {
+        if (!player.blocking) {
           if (player.rst_left || player.rst_right) {
 	        if (player.rst_key_sprint || player.speed>=5) {
               x_bob=2.5;
@@ -1027,7 +1093,7 @@ void PlayerCameraShake()
               player.cam_move_y-=x_bob*sin(player.angle);
       	    }
 	      }
-        //}
+        }
       }
     //}
     //if (fall_camera) { //falling_camera
@@ -1142,18 +1208,41 @@ void DrawPlayer(HDC hdc)
     player.sprite_1_cache = RotateSprite(hdc, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,-1);
     player.sprite_2_cache = RotateSprite(hdc, player.sprite_2,player.sprite_angle,LTGREEN,BLACK,-1);
 
+    DeleteObject(player.attack_sprite_1_cache);
+    DeleteObject(player.attack_sprite_2_cache);
+    DeleteObject(player.attack_sprite_3_cache);
+    DeleteObject(player.attack_sprite_4_cache);
+    player.attack_sprite_1_cache = RotateSprite(hdc, player.attack_sprite_1,player.sprite_angle,LTGREEN,BLACK,-1);
+    player.attack_sprite_2_cache = RotateSprite(hdc, player.attack_sprite_2,player.sprite_angle,LTGREEN,BLACK,-1);
+    player.attack_sprite_3_cache = RotateSprite(hdc, player.attack_sprite_3,player.sprite_angle,LTGREEN,BLACK,-1);
+    player.attack_sprite_4_cache = RotateSprite(hdc, player.attack_sprite_4,player.sprite_angle,LTGREEN,BLACK,-1);
+
     player.saved_angle=player.sprite_angle;
   }
-  if (player.on_ground_timer>0) {
-    if (player.walk_cycle<2) {
-      GrSprite(hdc,player.sprite_x,player.sprite_y,player.sprite_1_cache,player.last_left);
-    } else {
-      GrSprite(hdc,player.sprite_x,player.sprite_y,player.sprite_2_cache,player.last_left);
-    }
-  } else { //in_air
-    GrSprite(hdc,player.sprite_x,player.sprite_y-6,player.sprite_jump_cache,player.last_left);
+
+  if (player.attack_timer==-1) {
+    if (player.on_ground_timer>0) {
+      if (player.walk_cycle<2) {
+        GrSprite(hdc,player.sprite_x,player.sprite_y,player.sprite_1_cache,player.last_left);
+      } else {
+        GrSprite(hdc,player.sprite_x,player.sprite_y,player.sprite_2_cache,player.last_left);
+      }
+    } else { //in_air
+      GrSprite(hdc,player.sprite_x,player.sprite_y-6,player.sprite_jump_cache,player.last_left);
     //DrawSprite(hdc,player.sprite_x,player.sprite_y-6,player_sprite_jump_cache);
+    }
+  } else {
+    if (30<player.attack_timer && player.attack_timer<=40) {//attack sprite
+      GrSprite(hdc,player.sprite_x,player.sprite_y,player.attack_sprite_1_cache,player.last_left);
+    } else if (20<player.attack_timer && player.attack_timer<=30) {
+      GrSprite(hdc,player.sprite_x,player.sprite_y,player.attack_sprite_2_cache,player.last_left);
+    } else if (10<player.attack_timer && player.attack_timer<=20) {
+      GrSprite(hdc,player.sprite_x,player.sprite_y,player.attack_sprite_3_cache,player.last_left);
+    } else if (-1<player.attack_timer && player.attack_timer<=10) {
+      GrSprite(hdc,player.sprite_x,player.sprite_y,player.attack_sprite_4_cache,player.last_left);
+    }
   }
+
   if (player.bullet_shot!=-1) {
     DrawBullet(hdc,player.bullet_shot);
   }

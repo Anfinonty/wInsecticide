@@ -158,9 +158,9 @@ int dyn_vrenderdist=0,dyn_vrenderdist_num=0;
 
 
 
-//#include "saves/Level001.c"
+#include "saves/Level001.c"
 //#include "saves/Level002.c"
-#include "saves/Level003.c"
+//#include "saves/Level003.c"
 //#include "saves/Level004.c"
 //#include "saves/Level005.c"
 
@@ -244,6 +244,17 @@ void DrawCursor(HDC hDC)
   //DrawBitmap(hDC,mouse_x,mouse_y,0,0,64,64,mouse_cursor_sprite_mask,SRCPAINT,FALSE);
   GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_cache,FALSE);
   GrCircle(hDC,mouse_x,mouse_y,1,WHITE);
+
+
+  char txt[2];
+  sprintf(txt,"%d",player.max_web_num-player.placed_web_num);
+  GrPrint(hDC,mouse_x+32,mouse_y+32,txt,WHITE);
+
+  sprintf(txt,"%1.0f",player.health);
+  GrPrint(hDC,mouse_x-32,mouse_y+32,txt,LTRED);
+
+  sprintf(txt,"%1.0f",player.block_health);
+  GrPrint(hDC,mouse_x,mouse_y+32,txt, BLACK);
 }
 
 //Init
@@ -284,7 +295,6 @@ void InitOnce() {
   InitFPS();
 }
 
-bool once=true;
 void Init() {
   OLD_GR_WIDTH=GR_WIDTH;
   OLD_GR_HEIGHT=GR_HEIGHT;
@@ -369,23 +379,23 @@ void DrawTexts(HDC hdc) {
   } else {
     c=BLACK;
   }
-  if (sec>0) {
-    if (sec>9)
-      sprintf(txt,"%s [%d:%d]",song_name,(song_time_end-time_now)/60,sec);
-    else 
-      sprintf(txt,"%s [%d:0%d]",song_name,(song_time_end-time_now)/60,sec);
+  //if (sec>0) {
+  if (sec>9)
+    sprintf(txt,"%s [%d:%d]",song_name,(song_time_end-time_now)/60,sec);
+  else 
+    sprintf(txt,"%s [%d:0%d]",song_name,(song_time_end-time_now)/60,sec);
 
 
-    char txt2[64];
-    char *album_name=/*album_name_arr[*/album_names[rand_song1][rand_song2]/*]*/;
-    sprintf(txt2,"%s",album_name);  
+  char txt2[64];
+  char *album_name=/*album_name_arr[*/album_names[rand_song1][rand_song2]/*]*/;
+  sprintf(txt2,"%s",album_name);  
 
 
-    GrPrint(hdc,0,0,txt,c);
-    GrPrint(hdc,0,16,txt2,c);
-  } else {
+  GrPrint(hdc,0,0,txt,c);
+  GrPrint(hdc,0,16,txt2,c);
+  /*} else {
     GrPrint(hdc,0,0,"Choosing Song...",c);
-  }
+  }*/
   //GrPrint(hwnd,hdc,ps,0,0,_txt,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
 
   char txt3[19];
@@ -520,6 +530,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         case 'W':case VK_UP:player.rst_up=TRUE;break;
         case VK_RETURN:Init();break;
         case ' ':player.rst_key_sprint=TRUE;break;
+	    case 'E':
+	      player.uppercut=TRUE;
+	      break;
       }
       break;
     case WM_KEYUP:
@@ -531,6 +544,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         case 'W':case VK_UP:if(player.rst_up)player.rst_up=FALSE;break;
         case 'M':song_time_end=0;play_new_song=FALSE;break;//end current song
         case ' ':if(player.rst_key_sprint)player.rst_key_sprint=FALSE;break;
+	    case '1':
+	      player.attack_rst=FALSE;
+	      player.attack=TRUE;
+	      player.blocking=FALSE;
+	      break;
+	    case 'E':
+	      player.uppercut=FALSE;
+	      break;
       }
       break;
     case WM_ERASEBKGND:
@@ -603,6 +624,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       player.sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/player2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       player.sprite_jump = (HBITMAP) LoadImageW(NULL, L"sprites/player3-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
+      player.attack_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/player-attack-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      player.attack_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/player-attack-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      player.attack_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/player-attack-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      player.attack_sprite_4 = (HBITMAP) LoadImageW(NULL, L"sprites/player-attack-4.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+
       enemy1_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy1-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       enemy1_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy1-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
@@ -645,10 +672,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,-1);
       player.sprite_2_cache = RotateSprite(NULL, player.sprite_2,player.sprite_angle,LTGREEN,BLACK,-1);
 
+      player.attack_sprite_1_cache = RotateSprite(NULL, player.attack_sprite_1,player.sprite_angle,LTGREEN,BLACK,-1);
+      player.attack_sprite_2_cache = RotateSprite(NULL, player.attack_sprite_2,player.sprite_angle,LTGREEN,BLACK,-1);
+      player.attack_sprite_3_cache = RotateSprite(NULL, player.attack_sprite_3,player.sprite_angle,LTGREEN,BLACK,-1);
+      player.attack_sprite_4_cache = RotateSprite(NULL, player.attack_sprite_4,player.sprite_angle,LTGREEN,BLACK,-1);
+
+
+
       mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,-1);
 
 
-      for (int i=0;i<ENEMY_NUM;i++) {
+      /*for (int i=0;i<ENEMY_NUM;i++) {
         if (Enemy[i].species==0) {
           Enemy[i].sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,Enemy[i].color,-1);
           Enemy[i].sprite_2=RotateSprite(NULL, enemy1_sprite_2,0,LTGREEN,Enemy[i].color,-1);
@@ -658,7 +692,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           Enemy[i].sprite_2=RotateSprite(NULL, enemy2_sprite_2,Enemy[i].angle,LTGREEN,Enemy[i].color,-1);
           Enemy[i].sprite_3=RotateSprite(NULL, enemy2_sprite_3,Enemy[i].angle,LTGREEN,Enemy[i].color,-1);
         }
-      }
+      }*/
+      InitEnemySprites();
 
       switch (map_background) {
         case 0:
@@ -675,7 +710,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       break;
     case WM_DESTROY:
       CleanUpPlayer();
-      CleanUpEnemy();
+      CleanUpEnemySprites();
       PostQuitMessage(0);
       return 0;
       break;

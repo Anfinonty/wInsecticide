@@ -290,6 +290,7 @@ void EnemySpecies1Gravity(int enemy_id)
     Enemy[enemy_id].y+=1; //falling down
     Enemy[enemy_id].in_air_timer=2;
     Enemy[enemy_id].angle=0;
+    Enemy[enemy_id].sprite_angle=0;
     Enemy[enemy_id].saved_angle=0;
     Enemy[enemy_id].above_ground=
       Enemy[enemy_id].below_ground=FALSE;
@@ -300,11 +301,13 @@ void EnemySpecies1Gravity(int enemy_id)
     Enemy[enemy_id].in_air_timer=0;
     if (height_from_ground>0) {    //species 1 above ground (positive)
       Enemy[enemy_id].angle=Ground[enemy_on_ground_id].angle;
+      Enemy[enemy_id].sprite_angle=Ground[enemy_on_ground_id].angle;
       Enemy[enemy_id].above_ground=TRUE;
       Enemy[enemy_id].below_ground=FALSE;
       Enemy[enemy_id].flip_sprite=FALSE;
     } else {    //species 1 below ground
-      Enemy[enemy_id].angle=-Ground[enemy_on_ground_id].angle-M_PI;
+      Enemy[enemy_id].angle=Ground[enemy_on_ground_id].angle+M_PI;
+      Enemy[enemy_id].sprite_angle=-Ground[enemy_on_ground_id].angle-M_PI;
       Enemy[enemy_id].above_ground=FALSE;
       Enemy[enemy_id].below_ground=TRUE;
       if(Enemy[enemy_id].last_left) {
@@ -321,7 +324,7 @@ void EnemySpecies1Gravity(int enemy_id)
       }
     }
     if (!Enemy[enemy_id].last_left) {
-      Enemy[enemy_id].angle*=-1;
+      Enemy[enemy_id].sprite_angle*=-1;
     }
   }
 }
@@ -648,10 +651,10 @@ void EnemyAct(int i)
 	        break;
 	      case 1:
 	        if (player.attack_timer<=39) {
-		      if (player.attack_timer>34) {
+		      if (player.attack_timer>34) { //more damage to roach at underside when player is upside down
 		        if (Enemy[i].above_ground && player.print_current_below) {
   		          allow_act_1=TRUE;
-		        } else if (Enemy[i].below_ground) {
+		        } else if (Enemy[i].below_ground) { //more damage to roach at underside when player isnot upside down
 		          if (player.print_current_above || player.on_ground_id==-1) {
 		            allow_act_1=TRUE;
 		          }
@@ -706,7 +709,7 @@ void EnemyAct(int i)
         }*/
       //
         Enemy[i].health-=player.attack_strength;
-        if ((Enemy[i].species==1 && Enemy[i].in_air_timer>0/*GetOnGroundId(Enemy[i].x,Enemy[i].y,10,9,FALSE)==-1*/)) {
+        if ((Enemy[i].species==1 && Enemy[i].in_air_timer>0)) {
           Enemy[i].health-=player.attack_strength*2;
         }
           
@@ -945,68 +948,17 @@ void EnemyAct(int i)
               }
             }
           }
-        }
-      //}//end of slash_time
-  //other
-      /*if (fade_enemy) {
-        int k=0;
-	    allow_act=FALSE;
-        Enemy[i].msprite_hold_timer++;
-        if (Enemy[i].msprite_hold_timer>Enemy[i].msprite_hold_timer_max) {
-          if (Enemy[i].speed_multiplier>=2) {//fast
-            if (Enemy[i].move_to_target) {
-	      switch (Enemy[i].species) {
-		case 0:
-	      	  Enemy[i].msprite_hold_timer_max=2;
-		  break;
-		case 1:
-	      	  Enemy[i].msprite_hold_timer_max=3;
-		  break;
-	      }
-            } else {
-	      Enemy[i].msprite_hold_timer_max=1;
-            }
-          }*/
-	  /*if (Enemy[i].saw_player) {
-	    if (Enemy[i].speed_multiplier>=2 && Enemy[i].move_to_target) {
-	      allow_act=TRUE;
-	    } else if (YesLongFade2 || player_in_air_cooldown>0) {
-	      allow_act=TRUE;
-	    }
-	  }*/
-          /*if (allow_act) {
-            Enemy[i].appear_timer[Enemy[i].current_sm]=50;
-          }
-          Enemy[i].msprite_x[Enemy[i].current_sm]=Enemy[i].sprite_x;
-          Enemy[i].msprite_y[Enemy[i].current_sm]=Enemy[i].sprite_y;
-          Enemy[i].msprite_timer[Enemy[i].current_sm]=Enemy[i].sprite_timer;
-          Enemy[i].msprite_last_left[Enemy[i].current_sm]=Enemy[i].last_left;
-          Enemy[i].msprite_angle[Enemy[i].current_sm]=Enemy[i].angle;
-          Enemy[i].msprite_in_air_timer[Enemy[i].current_sm]=Enemy[i].in_air_timer;
-        }
-        for (k=0;k<MULTI_SPRITE_NUM;k++) {
-          if (Enemy[i].appear_timer[k]>0 && !the_bravery_tyrant) {
-            Enemy[i].appear_timer[k]--;
+        }//end of slash_time
+      //other
+        if (Enemy[i].species==0) {
+          Enemy[i].sprite_timer++;
+          if (Enemy[i].sprite_timer>3) {
+            Enemy[i].sprite_timer=0;
           }
         }
-      }*/
-      if (Enemy[i].species==0) {
-        Enemy[i].sprite_timer++;
-        if (Enemy[i].sprite_timer>3) {
-          Enemy[i].sprite_timer=0;
-        }
-      }
       }
     }//end of tbt
   }//end of health
-  /*if (fade_enemy) {//fade enemy
-    if (Enemy[i].msprite_hold_timer>Enemy[i].msprite_hold_timer_max) {
-      Enemy[i].msprite_hold_timer=0;
-      Enemy[i].current_sm++;
-      if (Enemy[i].current_sm>=MULTI_SPRITE_NUM-1) {
-        Enemy[i].current_sm=0;
-      }
-    }*/
   Enemy[i].sprite_x=Enemy[i].x+player.cam_x+player.cam_move_x;
   Enemy[i].sprite_y=Enemy[i].y+player.cam_y+player.cam_move_y;
 
@@ -1062,15 +1014,39 @@ void SetEnemyByType(int i,int type)
   //Enemy[i].msprite_hold_timer_max=1;
 }
 
-void CleanUpEnemy()
+void CleanUpEnemySprites()
 {
   for (int i=0;i<ENEMY_NUM;i++) {
-    DeleteObject(Enemy[i].sprite_1);
-    DeleteObject(Enemy[i].sprite_2);
-    DeleteObject(Enemy[i].sprite_3);
+    if (Enemy[i].sprite_1!=NULL) {
+      DeleteObject(Enemy[i].sprite_1);
+    }
+    if (Enemy[i].sprite_2!=NULL) {
+      DeleteObject(Enemy[i].sprite_2);
+    }
+    if (Enemy[i].sprite_3!=NULL) {
+      DeleteObject(Enemy[i].sprite_3);
+    }
   }
 }
 
+
+void InitEnemySprites()
+{
+  for (int i=0;i<ENEMY_NUM;i++) {
+    if (Enemy[i].species==0) {
+      Enemy[i].sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,Enemy[i].color,-1);
+      Enemy[i].sprite_2=RotateSprite(NULL, enemy1_sprite_2,0,LTGREEN,Enemy[i].color,-1);
+      Enemy[i].sprite_3=NULL;
+    } else {
+      Enemy[i].sprite_1=RotateSprite(NULL, enemy2_sprite_1,Enemy[i].sprite_angle,LTGREEN,Enemy[i].color,-1);
+      Enemy[i].sprite_2=RotateSprite(NULL, enemy2_sprite_2,Enemy[i].sprite_angle,LTGREEN,Enemy[i].color,-1);
+      Enemy[i].sprite_3=RotateSprite(NULL, enemy2_sprite_3,Enemy[i].sprite_angle,LTGREEN,Enemy[i].color,-1);
+    }
+  }
+}
+
+
+bool once=TRUE;
 void InitEnemy()
 {
   int i=0,j=0,x=0,y=0;
@@ -1181,6 +1157,13 @@ void InitEnemy()
     }
     EnemyAct(i);
   }
+  if (!once) {
+    CleanUpEnemySprites();
+    InitEnemySprites();
+  }
+  if (once) {
+    once=FALSE;
+  }
 }
 
 
@@ -1195,15 +1178,15 @@ void DrawEnemy(HDC hdc)
       }
 
       if (Enemy[i].species==1) {
-        if (Enemy[i].angle!=Enemy[i].saved_angle) {
+        if (Enemy[i].sprite_angle!=Enemy[i].saved_angle) {
           DeleteObject(Enemy[i].sprite_1);
           DeleteObject(Enemy[i].sprite_2);
         //DeleteObject(Enemy[i].sprite_3);
         
-          Enemy[i].sprite_1=RotateSprite(hdc, enemy2_sprite_1,Enemy[i].angle,LTGREEN,Enemy[i].color,-1);
-          Enemy[i].sprite_2=RotateSprite(hdc, enemy2_sprite_2,Enemy[i].angle,LTGREEN,Enemy[i].color,-1);
+          Enemy[i].sprite_1=RotateSprite(hdc, enemy2_sprite_1,Enemy[i].sprite_angle,LTGREEN,Enemy[i].color,-1);
+          Enemy[i].sprite_2=RotateSprite(hdc, enemy2_sprite_2,Enemy[i].sprite_angle,LTGREEN,Enemy[i].color,-1);
         //Enemy[i].sprite_3=RotateSprite(hdc, enemy2_sprite_3,Enemy[i].angle,LTGREEN,Enemy[i].color);
-          Enemy[i].saved_angle=Enemy[i].angle;
+          Enemy[i].saved_angle=Enemy[i].sprite_angle;
         }
       }
 
@@ -1217,12 +1200,12 @@ void DrawEnemy(HDC hdc)
         DeleteObject(Enemy[i].sprite_3);
       }
       if (Enemy[i].species==1) { 
-        Enemy[i].sprite_1=RotateSprite(hdc, enemy2_sprite_1,Enemy[i].angle,LTGREEN,DKGRAY,TRANSPARENT);
-        Enemy[i].sprite_2=RotateSprite(hdc, enemy2_sprite_2,Enemy[i].angle,LTGREEN,DKGRAY,TRANSPARENT);
-        Enemy[i].sprite_3=RotateSprite(hdc, enemy2_sprite_3,Enemy[i].angle,LTGREEN,DKGRAY,TRANSPARENT);
+        Enemy[i].sprite_1=RotateSprite(hdc, enemy2_sprite_1,Enemy[i].sprite_angle,LTGREEN,DKGRAY,TRANSPARENT);
+        Enemy[i].sprite_2=RotateSprite(hdc, enemy2_sprite_2,Enemy[i].sprite_angle,LTGREEN,DKGRAY,TRANSPARENT);
+        Enemy[i].sprite_3=RotateSprite(hdc, enemy2_sprite_3,Enemy[i].sprite_angle,LTGREEN,DKGRAY,TRANSPARENT);
       } else {
-        Enemy[i].sprite_1=RotateSprite(hdc, enemy1_sprite_1,Enemy[i].angle,LTGREEN,DKGRAY,TRANSPARENT);
-        Enemy[i].sprite_2=RotateSprite(hdc, enemy1_sprite_2,Enemy[i].angle,LTGREEN,DKGRAY,TRANSPARENT);
+        Enemy[i].sprite_1=RotateSprite(hdc, enemy1_sprite_1,Enemy[i].sprite_angle,LTGREEN,DKGRAY,TRANSPARENT);
+        Enemy[i].sprite_2=RotateSprite(hdc, enemy1_sprite_2,Enemy[i].sprite_angle,LTGREEN,DKGRAY,TRANSPARENT);
       }
     }
     if (Enemy[i].saw_player) {

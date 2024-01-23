@@ -136,6 +136,14 @@ struct player
   double speed_breaker_recharge_cooldown;
   double speed_breaker_recharge_cooldown_max;
 
+
+  int block_recharge_timer_max;
+  int block_recharge_timer;
+  int block_cooldown_max;
+  int block_cooldown;
+  double block_health_max;
+  double block_health;
+
   int left_click_hold_timer;
   int right_click_hold_timer;
   int attack_timer;
@@ -144,7 +152,6 @@ struct player
   int block_timer;
 
   double health;
-  double block_health;
 
 
   int lock_web_type;
@@ -171,10 +178,18 @@ struct player
   HBITMAP sprite_1;
   HBITMAP sprite_2;
   HBITMAP sprite_jump;
+  HBITMAP attack_sprite_1;
+  HBITMAP attack_sprite_2;
+  HBITMAP attack_sprite_3;
+  HBITMAP attack_sprite_4;
 
   HBITMAP sprite_1_cache;
   HBITMAP sprite_2_cache;
   HBITMAP sprite_jump_cache;
+  HBITMAP attack_sprite_1_cache;
+  HBITMAP attack_sprite_2_cache;
+  HBITMAP attack_sprite_3_cache;
+  HBITMAP attack_sprite_4_cache;
 } player;
 
 
