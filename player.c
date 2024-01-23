@@ -1164,6 +1164,10 @@ void DrawPlayer(HDC hdc)
     if (!player.last_left) {
       player.sprite_angle*=-1;
     }
+  } else {
+    if (player.attack_timer>=0) {
+      player.sprite_angle=0;
+    }
   }
   if (player.saved_sprite_angle!=player.sprite_angle && player.on_ground_id!=-1) {
     DeleteObject(player.sprite_1_cache);
@@ -1195,7 +1199,6 @@ void DrawPlayer(HDC hdc)
     player.attack_sprite_2_cache = RotateSprite(hdc, player.attack_sprite_2,player.sprite_angle,LTGREEN,BLACK,-1);
     player.attack_sprite_3_cache = RotateSprite(hdc, player.attack_sprite_3,player.sprite_angle,LTGREEN,BLACK,-1);
     player.attack_sprite_4_cache = RotateSprite(hdc, player.attack_sprite_4,player.sprite_angle,LTGREEN,BLACK,-1);
-
     player.saved_attack_sprite_angle=player.sprite_angle;
   }
 
