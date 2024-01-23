@@ -182,6 +182,9 @@ struct player
   HBITMAP attack_sprite_2;
   HBITMAP attack_sprite_3;
   HBITMAP attack_sprite_4;
+  HBITMAP block_sprite_1;
+  HBITMAP block_sprite_2;
+  HBITMAP block_sprite_3;
 
   HBITMAP sprite_1_cache;
   HBITMAP sprite_2_cache;
@@ -190,6 +193,9 @@ struct player
   HBITMAP attack_sprite_2_cache;
   HBITMAP attack_sprite_3_cache;
   HBITMAP attack_sprite_4_cache;
+  HBITMAP block_sprite_1_cache;
+  HBITMAP block_sprite_2_cache;
+  HBITMAP block_sprite_3_cache;
 } player;
 
 

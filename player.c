@@ -55,7 +55,7 @@ bool IsCollideCrawler(double x1,double y1,double x2,double y2,double gradient,do
   int on_grid_id=0,i=0,enemy_id=0,x=0,y=0,min=0,max=0;
   double lg_x=0,lg_y=0;
   if (x1!=x2) {
-    if (-1<gradient<1) { // y=mx+c
+    if (-1<gradient && gradient<1) { // y=mx+c
       for (x=x1;x<=x2;x++) {
         lg_y=x*gradient+c;
         on_grid_id=GetGridId(x,lg_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
@@ -943,17 +943,22 @@ void PlayerAct() {
       player.print_current_above=player.current_above;
       player.print_current_below=player.current_below;
 
-
-      if (player.current_above) {
-        player.sprite_angle=player.angle;
-      } else if (player.current_below) {
-        player.sprite_angle=M_PI+player.angle;
+      if (player.on_ground_id!=1) {
+        if (player.current_above) {
+          player.sprite_angle=player.angle;
+        } else if (player.current_below) {
+          player.sprite_angle=M_PI+player.angle;
+        }
       } else {
-        player.sprite_angle=0;
+        if (player.block_timer<1) {
+          player.sprite_angle=0;
+        }
       }
 
-      if (!player.last_left) {
-        player.sprite_angle*=-1;
+      if (player.block_timer<1) {
+        if (!player.last_left) {
+          player.sprite_angle*=-1;
+        }
       }
 
       player.current_above=FALSE;
@@ -1055,6 +1060,11 @@ void PlayerAct() {
   if (player.sprite_angle>M_PI*2) {
     player.sprite_angle=0;
   }*/
+
+  if (player.on_ground_id==-1 && player.block_timer>0) {
+    player.sprite_angle-=0.1;
+  }
+
   player.sprite_x=GR_WIDTH/2+player.cam_move_x;
   player.sprite_y=GR_HEIGHT/2+player.cam_move_y-PLAYER_HEIGHT/2;
  //
@@ -1144,59 +1154,6 @@ void PlayerCameraShake()
   if (-0.1<=player.cam_move_y && player.cam_move_y<=0.1) {
     player.cam_move_y=0;
   }
-  /*if (bg_cam_fall_cooldown==0) {
-    background_cam_move_x=cam_move_x/2;
-    background_cam_move_y=cam_move_y/2;
-  } else if (bg_cam_fall_cooldown<=46) {
-    if (background_cam_move_x<cam_move_x/2) {
-      background_cam_move_x+=1;
-    } else {
-      background_cam_move_x-=1;
-    }
-    if (background_cam_move_y<cam_move_y/2) {
-      background_cam_move_y+=1;
-    } else {
-      background_cam_move_y-=1;
-    }  
-    if (cam_move_x/2-1<=background_cam_move_x<=cam_move_x/2+1 &&
-	cam_move_y/2-1<=background_cam_move_y<=cam_move_y/2+1) {
-      bg_cam_fall_cooldown--;
-    }
-  } else if (47<=bg_cam_fall_cooldown<=48) {
-    background_cam_move_x/=-1;
-    if (rst_left||rst_right) {
-      background_cam_move_y/=-1.5;
-    } else {
-      background_cam_move_y/=-3.5;
-    }
-  } else {
-    if (background_cam_move_x<cam_move_x) {
-      background_cam_move_x+=1;
-    } else {
-      background_cam_move_x-=1;
-    }
-    if (background_cam_move_y<cam_move_y) {
-      background_cam_move_y+=1;
-    } else {
-      background_cam_move_y-=1;
-    }  
-  }*/
- //
- //
-  /*if (grav>4) {
-    bg_cam_fall_cooldown=50;
-  } else if (bg_cam_fall_cooldown>0) {
-    bg_cam_fall_cooldown--;
-  }
-  if (grav>5) {
-    player_in_air_cooldown+=5;
-    if (player_in_air_cooldown>20) {
-      player_in_air_cooldown=20;
-    }
-  } else if (player_in_air_cooldown>0) {
-    player_in_air_cooldown--;
-  }*/
-
 }
 
 void DrawPlayer(HDC hdc)
@@ -1212,24 +1169,43 @@ void DrawPlayer(HDC hdc)
     DeleteObject(player.attack_sprite_2_cache);
     DeleteObject(player.attack_sprite_3_cache);
     DeleteObject(player.attack_sprite_4_cache);
+
     player.attack_sprite_1_cache = RotateSprite(hdc, player.attack_sprite_1,player.sprite_angle,LTGREEN,BLACK,-1);
     player.attack_sprite_2_cache = RotateSprite(hdc, player.attack_sprite_2,player.sprite_angle,LTGREEN,BLACK,-1);
     player.attack_sprite_3_cache = RotateSprite(hdc, player.attack_sprite_3,player.sprite_angle,LTGREEN,BLACK,-1);
     player.attack_sprite_4_cache = RotateSprite(hdc, player.attack_sprite_4,player.sprite_angle,LTGREEN,BLACK,-1);
 
+
+    DeleteObject(player.block_sprite_1_cache);
+    DeleteObject(player.block_sprite_2_cache);
+    DeleteObject(player.block_sprite_3_cache);
+
+
+    player.block_sprite_1_cache = RotateSprite(hdc, player.block_sprite_1,player.sprite_angle,LTGREEN,BLACK,-1);
+    player.block_sprite_2_cache = RotateSprite(hdc, player.block_sprite_2,player.sprite_angle,LTGREEN,BLACK,-1);
+    player.block_sprite_3_cache = RotateSprite(hdc, player.block_sprite_3,player.sprite_angle,LTGREEN,BLACK,-1);
+
     player.saved_angle=player.sprite_angle;
   }
-
   if (player.attack_timer==-1) {
-    if (player.on_ground_timer>0) {
-      if (player.walk_cycle<2) {
-        GrSprite(hdc,player.sprite_x,player.sprite_y,player.sprite_1_cache,player.last_left);
-      } else {
-        GrSprite(hdc,player.sprite_x,player.sprite_y,player.sprite_2_cache,player.last_left);
+    if (player.block_timer==0) {
+      if (player.on_ground_timer>0) {
+        if (player.walk_cycle<2) {
+          GrSprite(hdc,player.sprite_x,player.sprite_y,player.sprite_1_cache,player.last_left);
+        } else {
+          GrSprite(hdc,player.sprite_x,player.sprite_y,player.sprite_2_cache,player.last_left);
+        }
+      } else { //in_air
+        GrSprite(hdc,player.sprite_x,player.sprite_y-6,player.sprite_jump_cache,player.last_left);
       }
-    } else { //in_air
-      GrSprite(hdc,player.sprite_x,player.sprite_y-6,player.sprite_jump_cache,player.last_left);
-    //DrawSprite(hdc,player.sprite_x,player.sprite_y-6,player_sprite_jump_cache);
+    } else {
+      if (0<player.block_timer && player.block_timer<=5) {
+        GrSprite(hdc,player.sprite_x,player.sprite_y,player.block_sprite_1_cache,player.last_left);
+      } else if (5<player.block_timer && player.block_timer<=10) {
+        GrSprite(hdc,player.sprite_x,player.sprite_y,player.block_sprite_2_cache,player.last_left);
+      } else {
+        GrSprite(hdc,player.sprite_x,player.sprite_y,player.block_sprite_3_cache,player.last_left);
+      }
     }
   } else {
     if (30<player.attack_timer && player.attack_timer<=40) {//attack sprite
@@ -1246,6 +1222,5 @@ void DrawPlayer(HDC hdc)
   if (player.bullet_shot!=-1) {
     DrawBullet(hdc,player.bullet_shot);
   }
-  //GrCircle(hdc,player.claws_x+player.cam_x+player.cam_move_y,player.claws_y+player.cam_y+player.cam_move_y,2,RED);
 }
 
