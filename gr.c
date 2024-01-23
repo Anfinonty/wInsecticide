@@ -236,6 +236,7 @@ void GrPrint(HDC hdc, double x1, double y1, char *_txt, int color) {
   SetTextColor(hdc, color); //set color of the text to be drawn
   SetBkMode(hdc, TRANSPARENT); //makes background of txt transparent  //https://stackoverflow.com/questions/10571966/draw-print-text-with-transparent-background-in-c-win32
   TextOutA(hdc, x1, y1, txt, strlen(txt)); //draw text to screen
+  SetTextColor(hdc, TRANSPARENT);
 }
 
 

@@ -287,7 +287,7 @@ void EnemySpecies1Gravity(int enemy_id)
 //  enemy_on_ground_id=GetOnGroundId(Enemy[enemy_id].x,Enemy[enemy_id].y,30,29,FALSE);    //Get Ground id
 //  enemy_on_ground_id=GetOnGroundId(Enemy[enemy_id].x,Enemy[enemy_id].y,32,31,FALSE);    //Get Ground id
 
-  Enemy[enemy_id].on_ground_id=GetOnGroundId(Enemy[enemy_id].x,Enemy[enemy_id].y,15,14,FALSE);    //Get Ground id
+  Enemy[enemy_id].on_ground_id=GetOnGroundId(Enemy[enemy_id].x,Enemy[enemy_id].y,7,6,FALSE);    //Get Ground id
   enemy_on_ground_id=Enemy[enemy_id].on_ground_id;
   if (enemy_on_ground_id==-1) {//not on ground
     Enemy[enemy_id].y+=1; //falling down
@@ -497,7 +497,7 @@ void EnemyKnockbackMove(int i)
       }
       break;
     case 1:
-      if (GetOnGroundId(Enemy[i].x,Enemy[i].y,10,9,FALSE)!=-1) {
+      if (GetOnGroundId(Enemy[i].x,Enemy[i].y,6,5,FALSE)!=-1) {
 	    allow_act=TRUE;
       }
       break;
@@ -626,7 +626,8 @@ void EnemyAct(int i)
           player.bullet_shot=-1;
           break;
       }
-    } else {
+    } else { //within player claws
+      allow_act=FALSE;
 	  if (!player.time_breaker) {
 	    if (Enemy[i].knockback_timer==0) {
 	      allow_act=TRUE;
@@ -643,7 +644,7 @@ void EnemyAct(int i)
 	    switch (Enemy[i].species) {
 	      case 0:
 	        if (player.attack_timer>34) {
-		      allow_act_1=TRUE;
+              allow_act_1=TRUE;
 	        }
 	        break;
 	      case 1:
@@ -664,12 +665,14 @@ void EnemyAct(int i)
 	        }
 	        break;
 	    }
+        if (player.on_ground_id==-1 && player.block_timer>0) {
+          allow_act_1=TRUE;
+        }
       }
 	// ^^ condition
 	  if (allow_act && allow_act_1) {  //player meelee
 	    allow_act=allow_act_1=FALSE;
         deduct_health=TRUE;
-        Enemy[i].knockback_timer=player.knockback_strength;
 	    if (!player.uppercut && !player.rst_up && !player.rst_down) {//normal
           Enemy[i].knockback_angle=player.angle;
 	    } else if (player.uppercut) {//uppercut
@@ -685,6 +688,7 @@ void EnemyAct(int i)
             Enemy[i].knockback_angle=player.angle-M_PI/2;
 	      }
         }
+
         if (player.print_current_above || player.on_ground_id==-1) {
           if (player.last_left) {
             Enemy[i].knockback_left=TRUE;
@@ -694,6 +698,20 @@ void EnemyAct(int i)
             Enemy[i].knockback_left=TRUE;
           }
         }
+      }
+
+      if (player.on_ground_id==-1 && player.block_timer>0) {
+        Enemy[i].knockback_angle=player.angle;
+        Enemy[i].knockback_timer=player.knockback_strength*2;
+        deduct_health=FALSE;
+        if ((player.block_timer<30 && player.block_timer>28) || (player.block_timer<10 && player.block_timer>1)) {
+          deduct_health=TRUE;
+        }
+        if (player.last_left) {
+          Enemy[i].knockback_left=TRUE;
+        }
+      } else {
+        Enemy[i].knockback_timer=player.knockback_strength;
       }
     }
     //Deduct health
@@ -1217,6 +1235,16 @@ void DrawEnemy(HDC hdc)
       }
     }
     if (Enemy[i].saw_player) {
+      if (Enemy[i].health>0) {
+        char txt[2];
+        int print_health=Enemy[i].health;
+        sprintf(txt,"%d",print_health);
+        if (Enemy[i].species==1) {
+          GrPrint(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y-64,txt,Enemy[i].color);
+        } else {
+          GrPrint(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y-32,txt,Enemy[i].color);
+        }
+      }
       if (Enemy[i].in_air_timer==0) {
         switch (Enemy[i].species) {
           case 0:

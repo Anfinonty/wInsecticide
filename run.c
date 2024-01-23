@@ -247,13 +247,16 @@ void DrawCursor(HDC hDC)
 
 
   char txt[2];
-  sprintf(txt,"%d",player.max_web_num-player.placed_web_num);
+  int print_web_num=player.max_web_num-player.placed_web_num;
+  sprintf(txt,"%d",print_web_num);
   GrPrint(hDC,mouse_x+32,mouse_y+32,txt,WHITE);
 
-  sprintf(txt,"%1.0f",player.health);
+  int print_player_health=player.health;
+  sprintf(txt,"%d",print_player_health);
   GrPrint(hDC,mouse_x-32,mouse_y+32,txt,LTRED);
 
-  sprintf(txt,"%1.0f",player.block_health);
+  int print_block_health=player.block_health;
+  sprintf(txt,"%d",print_block_health);
   GrPrint(hDC,mouse_x,mouse_y+32,txt, BLACK);
 }
 
@@ -364,6 +367,9 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
     }
     //GroundAct();
     SongAct();
+    if (player.health<1) {
+      Init();
+    }
     Sleep(player.sleep_timer);
   }
 }
@@ -399,7 +405,8 @@ void DrawTexts(HDC hdc) {
   //GrPrint(hwnd,hdc,ps,0,0,_txt,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
 
   char txt3[19];
-  sprintf(txt3,"Render Distance: %d",dyn_vrenderdist);  
+  int print_dynrenderdist=dyn_vrenderdist;
+  sprintf(txt3,"Render Distance: %d",print_dynrenderdist);  
   GrPrint(hdc,0,32,txt3,c);
 
   /*char txt3[19];
