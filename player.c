@@ -361,6 +361,8 @@ void InitPlayer() {
   player.above_x2=player.x;
   player.above_y2=player.y;
   player.saved_sprite_angle=0;
+  player.saved_attack_sprite_angle=0;
+  player.saved_block_sprite_angle=0;
   player.sprite_angle=0;
   player.angle=0;
   player.saved_angle=0;
@@ -1163,13 +1165,27 @@ void DrawPlayer(HDC hdc)
       player.sprite_angle*=-1;
     }
   }
-  if (player.saved_sprite_angle!=player.sprite_angle/* || player.saved_angle!=player.angle*/) {
-
+  if (player.saved_sprite_angle!=player.sprite_angle && player.on_ground_id!=-1) {
     DeleteObject(player.sprite_1_cache);
     DeleteObject(player.sprite_2_cache);
+
     player.sprite_1_cache = RotateSprite(hdc, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,-1);
     player.sprite_2_cache = RotateSprite(hdc, player.sprite_2,player.sprite_angle,LTGREEN,BLACK,-1);
 
+    player.saved_sprite_angle=player.sprite_angle;
+  }
+  if (player.block_timer>0 && player.saved_block_sprite_angle!=player.sprite_angle) {
+    DeleteObject(player.block_sprite_1_cache);
+    DeleteObject(player.block_sprite_2_cache);
+    DeleteObject(player.block_sprite_3_cache);
+
+    player.block_sprite_1_cache = RotateSprite(hdc, player.block_sprite_1,player.sprite_angle,LTGREEN,BLACK,-1);
+    player.block_sprite_2_cache = RotateSprite(hdc, player.block_sprite_2,player.sprite_angle,LTGREEN,BLACK,-1);
+    player.block_sprite_3_cache = RotateSprite(hdc, player.block_sprite_3,player.sprite_angle,LTGREEN,BLACK,-1);
+
+    player.saved_block_sprite_angle=player.sprite_angle;
+  }
+  if (player.attack_timer>=0 && player.saved_attack_sprite_angle!=player.sprite_angle) {
     DeleteObject(player.attack_sprite_1_cache);
     DeleteObject(player.attack_sprite_2_cache);
     DeleteObject(player.attack_sprite_3_cache);
@@ -1180,19 +1196,9 @@ void DrawPlayer(HDC hdc)
     player.attack_sprite_3_cache = RotateSprite(hdc, player.attack_sprite_3,player.sprite_angle,LTGREEN,BLACK,-1);
     player.attack_sprite_4_cache = RotateSprite(hdc, player.attack_sprite_4,player.sprite_angle,LTGREEN,BLACK,-1);
 
-
-    DeleteObject(player.block_sprite_1_cache);
-    DeleteObject(player.block_sprite_2_cache);
-    DeleteObject(player.block_sprite_3_cache);
-
-
-    player.block_sprite_1_cache = RotateSprite(hdc, player.block_sprite_1,player.sprite_angle,LTGREEN,BLACK,-1);
-    player.block_sprite_2_cache = RotateSprite(hdc, player.block_sprite_2,player.sprite_angle,LTGREEN,BLACK,-1);
-    player.block_sprite_3_cache = RotateSprite(hdc, player.block_sprite_3,player.sprite_angle,LTGREEN,BLACK,-1);
-
-    //player.saved_angle=player.angle;
-    player.saved_sprite_angle=player.sprite_angle;
+    player.saved_attack_sprite_angle=player.sprite_angle;
   }
+
   if (player.attack_timer==-1) { //not attacking
     if (player.block_timer==0) { //not blocking
       if (player.on_ground_timer>0) { // on ground

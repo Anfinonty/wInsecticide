@@ -117,6 +117,8 @@ struct player
   double angle;
   double saved_angle;
   double saved_sprite_angle;
+  double saved_block_sprite_angle;
+  double saved_attack_sprite_angle;
   double player_grav;
 
   double cam_x;
