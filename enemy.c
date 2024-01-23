@@ -285,13 +285,15 @@ void EnemySpecies1Gravity(int enemy_id)
 {
   int enemy_on_ground_id=0;
 //  enemy_on_ground_id=GetOnGroundId(Enemy[enemy_id].x,Enemy[enemy_id].y,30,29,FALSE);    //Get Ground id
-  enemy_on_ground_id=GetOnGroundId(Enemy[enemy_id].x,Enemy[enemy_id].y,32,31,FALSE);    //Get Ground id
+//  enemy_on_ground_id=GetOnGroundId(Enemy[enemy_id].x,Enemy[enemy_id].y,32,31,FALSE);    //Get Ground id
+
+  Enemy[enemy_id].on_ground_id=GetOnGroundId(Enemy[enemy_id].x,Enemy[enemy_id].y,15,14,FALSE);    //Get Ground id
+  enemy_on_ground_id=Enemy[enemy_id].on_ground_id;
   if (enemy_on_ground_id==-1) {//not on ground
     Enemy[enemy_id].y+=1; //falling down
     Enemy[enemy_id].in_air_timer=2;
     Enemy[enemy_id].angle=0;
-    Enemy[enemy_id].sprite_angle=0;
-    Enemy[enemy_id].saved_angle=0;
+    //Enemy[enemy_id].saved_angle=0;
     Enemy[enemy_id].above_ground=
       Enemy[enemy_id].below_ground=FALSE;
       Enemy[enemy_id].flip_sprite=FALSE;
@@ -301,13 +303,11 @@ void EnemySpecies1Gravity(int enemy_id)
     Enemy[enemy_id].in_air_timer=0;
     if (height_from_ground>0) {    //species 1 above ground (positive)
       Enemy[enemy_id].angle=Ground[enemy_on_ground_id].angle;
-      Enemy[enemy_id].sprite_angle=Ground[enemy_on_ground_id].angle;
       Enemy[enemy_id].above_ground=TRUE;
       Enemy[enemy_id].below_ground=FALSE;
       Enemy[enemy_id].flip_sprite=FALSE;
     } else {    //species 1 below ground
-      Enemy[enemy_id].angle=Ground[enemy_on_ground_id].angle+M_PI;
-      Enemy[enemy_id].sprite_angle=-Ground[enemy_on_ground_id].angle-M_PI;
+      Enemy[enemy_id].angle=-Ground[enemy_on_ground_id].angle-M_PI;
       Enemy[enemy_id].above_ground=FALSE;
       Enemy[enemy_id].below_ground=TRUE;
       if(Enemy[enemy_id].last_left) {
@@ -316,15 +316,12 @@ void EnemySpecies1Gravity(int enemy_id)
         Enemy[enemy_id].flip_sprite=TRUE;
       }
       if (player.print_current_above && Enemy[enemy_id].saw_player) {
-      	if (player.y-60<Enemy[enemy_id].y && Enemy[enemy_id].y<player.y-30 && !Enemy[enemy_id].idling) {//enemy above
+      	if (player.y>Enemy[enemy_id].y-60 && player.y<Enemy[enemy_id].y-30 && !Enemy[enemy_id].idling) {//enemy above
 	      if (!Enemy[enemy_id].ignore_player && RandNum(0,5,Enemy[enemy_id].seed)==1) {
             Enemy[enemy_id].y+=0.25;
 	      }
         }
       }
-    }
-    if (!Enemy[enemy_id].last_left) {
-      Enemy[enemy_id].sprite_angle*=-1;
     }
   }
 }
@@ -652,10 +649,12 @@ void EnemyAct(int i)
 	      case 1:
 	        if (player.attack_timer<=39) {
 		      if (player.attack_timer>34) { //more damage to roach at underside when player is upside down
-		        if (Enemy[i].above_ground && player.print_current_below) {
-  		          allow_act_1=TRUE;
+		        if (Enemy[i].above_ground) {
+                  if (player.print_current_below && player.y<Enemy[i].y-6) {
+  		            allow_act_1=TRUE;
+                  }
 		        } else if (Enemy[i].below_ground) { //more damage to roach at underside when player isnot upside down
-		          if (player.print_current_above || player.on_ground_id==-1) {
+		          if ((player.print_current_above || player.on_ground_id==-1) && player.y>Enemy[i].y+6) {
 		            allow_act_1=TRUE;
 		          }
 		        }
@@ -1040,7 +1039,7 @@ void InitEnemySprites()
     } else {
       Enemy[i].sprite_1=RotateSprite(NULL, enemy2_sprite_1,Enemy[i].sprite_angle,LTGREEN,Enemy[i].color,-1);
       Enemy[i].sprite_2=RotateSprite(NULL, enemy2_sprite_2,Enemy[i].sprite_angle,LTGREEN,Enemy[i].color,-1);
-      Enemy[i].sprite_3=RotateSprite(NULL, enemy2_sprite_3,Enemy[i].sprite_angle,LTGREEN,Enemy[i].color,-1);
+      Enemy[i].sprite_3=RotateSprite(NULL, enemy2_sprite_3,0,LTGREEN,Enemy[i].color,-1);
     }
   }
 }
@@ -1052,6 +1051,7 @@ void InitEnemy()
   int i=0,j=0,x=0,y=0;
   //CleanUpEnemy();
   for (i=0;i<ENEMY_NUM;i++) {
+    Enemy[i].on_ground_id=-1;
     Enemy[i].seed=0;
     Enemy[i].dist_from_player=999;
     Enemy[i].x=saved_enemy_x[i];
@@ -1172,13 +1172,21 @@ void DrawEnemy(HDC hdc)
   int i=0,j=0,k=0;
   for (j=0;j<player.rendered_enemy_num;j++) {  
     i=player.render_enemies[j];
-    if (Enemy[i].health>0) {
+    if (Enemy[i].species==1) {//rotate sprite
+      if (Enemy[i].on_ground_id!=-1) {
+        Enemy[i].sprite_angle=Enemy[i].angle;
+      }
+      if (!Enemy[i].last_left) {
+        Enemy[i].sprite_angle*=-1;
+      }
+    }
+    if (Enemy[i].health>0) { //enemy is alive
       for (k=0;k<Enemy[i].bullet_shot_num;k++) {
         DrawBullet(hdc,Enemy[i].bullet_shot_arr[k]);
       }
 
       if (Enemy[i].species==1) {
-        if (Enemy[i].sprite_angle!=Enemy[i].saved_angle) {
+        if (Enemy[i].sprite_angle!=Enemy[i].saved_angle && Enemy[i].on_ground_id!=-1) {
           DeleteObject(Enemy[i].sprite_1);
           DeleteObject(Enemy[i].sprite_2);
         //DeleteObject(Enemy[i].sprite_3);
@@ -1191,7 +1199,7 @@ void DrawEnemy(HDC hdc)
       }
 
 
-    } else if (Enemy[i].health>-200 && Enemy[i].health<=0){
+    } else if (Enemy[i].health>-200 && Enemy[i].health<=0){ //enemy has died
     
       Enemy[i].health=-99999;
       DeleteObject(Enemy[i].sprite_1);

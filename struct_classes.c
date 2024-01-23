@@ -116,6 +116,7 @@ struct player
   double sprite_angle;
   double angle;
   double saved_angle;
+  double saved_sprite_angle;
   double player_grav;
 
   double cam_x;
@@ -415,7 +416,8 @@ struct Enemy
       health,
       max_health,
       time_breaker_rare,
-      time_breaker_length;
+      time_breaker_length,
+      on_ground_id;
      //snd
       /*snd_dur,
       snd_dur_max,
