@@ -950,15 +950,13 @@ void PlayerAct() {
           player.sprite_angle=M_PI+player.angle;
         }
       } else {
-        if (player.block_timer<1) {
+        if (player.block_timer<1) { //player is falling
           player.sprite_angle=0;
         }
       }
 
-      if (player.block_timer<1) {
-        if (!player.last_left) {
-          player.sprite_angle*=-1;
-        }
+      if (!player.last_left && player.on_ground_id!=-1) {
+        player.sprite_angle*=-1;
       }
 
       player.current_above=FALSE;
@@ -1063,6 +1061,9 @@ void PlayerAct() {
 
   if (player.on_ground_id==-1 && player.block_timer>0) {
     player.sprite_angle-=0.1;
+  }
+  if (player.sprite_angle<-M_PI*2) {
+    player.sprite_angle=0;
   }
 
   player.sprite_x=GR_WIDTH/2+player.cam_move_x;
