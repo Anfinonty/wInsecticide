@@ -241,9 +241,6 @@ void InitPlayerCamera()
 
   player.cam_x=0;
   player.cam_y=0;
-  //bg_cam_fall_cooldown=0;
-  //background_cam_move_x=0;
-  //background_cam_move_y=0;
   CameraInit(player.saved_x,player.saved_y+PLAYER_HEIGHT/2); //idk scaling is weird for sprite
 }
 
@@ -260,6 +257,18 @@ bool NearCrawler()
   }
   return FALSE;
 }
+
+
+void PlayerPlaceWeb()
+{
+  player.web_storage[player.placed_web_pos]=-1;
+  player.placed_web_pos++;
+  player.placed_web_num++;
+  if (player.placed_web_pos>=player.max_web_num) {
+    player.placed_web_pos=0;
+  }
+}
+
 
 void CleanUpPlayer()
 {
@@ -423,6 +432,9 @@ void InitPlayer() {
     player.cdwebs[i]=-1;
   }
 
+  player.pivot_x=-20;
+  player.pivot_y=-20;
+  player.pivot_angle=-20;
 
   InitPlayerCamera();
   InitRDGrid();
@@ -656,14 +668,9 @@ void PlayerAct() {
         if (allow_act) {
           player.attack=TRUE; 
     	  player.bullet_shot=current_bullet_id;
-          //int player_bullet_type=0;
-          /*if (YesLongFade) {
-    	    player_bullet_type=4;
-    	  }*/
           ShootBullet(current_bullet_id,
 		-1,
 		CYAN,
-//		player_bullet_type,//graphics type
         2, //graphics type
 		DEFAULT_PLAYER_BUILD_RANGE, //range
 	    1, //speed
@@ -937,6 +944,19 @@ void PlayerAct() {
           }
         }
       }
+
+      /*if (player.right_click_hold_timer>0) {
+      //double launch_angle=GetCosAngle(GR_WIDTH/2-mouse_x+player.cam_x,0.01);
+        double launch_angle=GetCosAngle(GR_WIDTH/2-mouse_x,GetDistance(mouse_x,mouse_y,GR_WIDTH/2,GR_HEIGHT/2));
+        //double launch_angle=M_PI;
+        move_x(-cos(-launch_angle));
+        if (mouse_y<GR_HEIGHT/2)
+          move_y(sin(-launch_angle));
+        else
+          move_y(-sin(-launch_angle));
+
+      }*/
+
      //x-axis cap
       if (player.x-PLAYER_WIDTH/2<0) {
         move_x(1);
@@ -1048,7 +1068,7 @@ void PlayerAct() {
     } else {//3 seconds has passed
       if (player.block_recharge_timer>0) {
 	    player.block_recharge_timer--;
-      } else if (player.block_health<player.block_health_max-1) {//below max
+      } else if (player.block_health<player.block_health_max) {//below max
         player.block_health++;
 	    player.block_recharge_timer=player.block_recharge_timer_max;
       }

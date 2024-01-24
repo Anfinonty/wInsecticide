@@ -117,15 +117,6 @@ void StopBullet(int bullet_id,bool is_player)
   }
 }
 
-void PlayerPlaceWeb()
-{
-  player.web_storage[player.placed_web_pos]=-1;
-  player.placed_web_pos++;
-  player.placed_web_num++;
-  if (player.placed_web_pos>=player.max_web_num) {
-    player.placed_web_pos=0;
-  }
-}
 
 void BulletAct(int bullet_id)
 {

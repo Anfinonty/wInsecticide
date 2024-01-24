@@ -665,7 +665,7 @@ void EnemyAct(int i)
 	        }
 	        break;
 	    }
-        if (player.on_ground_id==-1 && player.block_timer>0) {
+        if (player.on_ground_id==-1 && player.block_timer>1) {
           allow_act_1=TRUE;
         }
       }
@@ -673,6 +673,7 @@ void EnemyAct(int i)
 	  if (allow_act && allow_act_1) {  //player meelee
 	    allow_act=allow_act_1=FALSE;
         deduct_health=TRUE;
+        Enemy[i].knockback_timer=player.knockback_strength;
 	    if (!player.uppercut && !player.rst_up && !player.rst_down) {//normal
           Enemy[i].knockback_angle=player.angle;
 	    } else if (player.uppercut) {//uppercut
@@ -700,18 +701,16 @@ void EnemyAct(int i)
         }
       }
 
-      if (player.on_ground_id==-1 && player.block_timer>0) {
+      if (player.on_ground_id==-1 && player.block_timer>1) {
         Enemy[i].knockback_angle=player.angle;
         Enemy[i].knockback_timer=player.knockback_strength*2;
         deduct_health=FALSE;
-        if ((player.block_timer<30 && player.block_timer>28) || (player.block_timer<10 && player.block_timer>1)) {
+        if ((player.block_timer<30 && player.block_timer>28) || (player.block_timer<10)) {
           deduct_health=TRUE;
         }
         if (player.last_left) {
           Enemy[i].knockback_left=TRUE;
         }
-      } else {
-        Enemy[i].knockback_timer=player.knockback_strength;
       }
     }
     //Deduct health

@@ -177,6 +177,11 @@ struct player
   int destroyed_web_pos;
 
 
+  double pivot_x;
+  double pivot_y;
+  double pivot_angle;
+
+
 //sprites
   HBITMAP sprite_1;
   HBITMAP sprite_2;
@@ -219,6 +224,7 @@ bool YesInitRDGrid();
 bool YesInitVRDGrid();
 void RegainWeb(int web_id);
 void PlayerAct();
+void PlayerPlaceWeb();
 void PlayerCameraShake();
 void DrawPlayer(HDC hdc);
 
@@ -310,16 +316,32 @@ struct Bullet
       saved_pos;
   double sprite_x,sprite_y,start_x,start_y,
       x,y,angle,speed,range;
-  //msprite
-  /*I64 msprite_hold_timer,
-      msprite_hold_timer_max,
-      current_sm,
-      appear_timer[MULTI_SPRITE_NUM];
-  F64 msprite_x[MULTI_SPRITE_NUM],
-      msprite_y[MULTI_SPRITE_NUM];*/
+
 } Bullet[BULLET_NUM];
 
+void InitBullet();
+void ShootBullet(
+  int bullet_id,
+  int saved_pos,
+  int color,
+  int graphics_type,
+  int range,
+  double speed,
+  int speed_multiplier,
+  int damage,
+  int enemy_id,
+  double start_x,
+  double start_y,
+  double source_x,
+  double source_y,
+  double target_x,
+  double target_y);
 
+bool HitPlayer(int bullet_id);
+void StopBullet(int bullet_id,bool is_player);
+void BulletAct(int bullet_id);
+void DrawBullet2(HDC hdc,int i,double x,double y,int color);
+void DrawBullet(HDC hdc,int i);
 
 
 
@@ -420,15 +442,6 @@ struct Enemy
       time_breaker_rare,
       time_breaker_length,
       on_ground_id;
-     //snd
-      /*snd_dur,
-      snd_dur_max,
-      snd_pitch,
-      snd_rand,
-      death_snd_dur_max,
-      death_snd_pitch,
-      death_snd_rand;*/
-
 
   double shoot_target_x,shoot_target_y,
       x,y,angle,saved_angle,sprite_angle,dist_from_player,
@@ -436,19 +449,6 @@ struct Enemy
       sprite_y,
       speed;
   bool flip_sprite;
-
-//msprite
-  /*bool msprite_last_left[MULTI_SPRITE_NUM];
-  double msprite_x[MULTI_SPRITE_NUM],
-      msprite_y[MULTI_SPRITE_NUM],
-      msprite_angle[MULTI_SPRITE_NUM]; 
-  int msprite_hold_timer,
-      msprite_hold_timer_max,
-      current_sm,
-      appear_timer[MULTI_SPRITE_NUM],
-      msprite_in_air_timer[MULTI_SPRITE_NUM],
-      msprite_timer[MULTI_SPRITE_NUM];*/
-
 
   //Pathfinding attributes
   int current_node,
