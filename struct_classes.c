@@ -180,7 +180,11 @@ struct player
   double pivot_x;
   double pivot_y;
   double pivot_angle;
-
+  double pivot_length;
+  bool is_swinging;
+  double potential_energy;
+  double counter_potential_energy;
+  double launch_angle;
 
 //sprites
   HBITMAP sprite_1;

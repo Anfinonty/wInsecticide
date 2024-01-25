@@ -411,6 +411,8 @@ void InitPlayer() {
   player.attack_strength=DEFAULT_PLAYER_ATTACK_STRENGTH;
 
   player.lock_web_type=1;
+//  player.lock_web_type=2;
+
   player.max_web_num=DEFAULT_PLAYER_WEB_NUM;
 
   player.bullet_shot=-1;
@@ -420,6 +422,7 @@ void InitPlayer() {
   player.destroyed_web_pos=0;
 
   player.web_type=1;
+//  player.web_type=2;
   player.web_being_shot=-1;
   for (i=0;i<MAX_WEB_NUM;i++) {
     player.web_storage[i]=GROUND_NUM+i;
@@ -435,6 +438,11 @@ void InitPlayer() {
   player.pivot_x=-20;
   player.pivot_y=-20;
   player.pivot_angle=-20;
+  player.pivot_length=-20;
+  player.is_swinging=FALSE;
+  player.potential_energy=-20;
+  player.counter_potential_energy=-20;
+  player.launch_angle=0;
 
   InitPlayerCamera();
   InitRDGrid();
@@ -690,8 +698,21 @@ void PlayerAct() {
           } 
         }
         break;
+      case 2:
+        if (player.right_click_hold_timer==62) {
+          player.pivot_x=mouse_x-player.cam_x;
+          player.pivot_y=mouse_y-player.cam_y;
+          //player.pivot_length=GetDistance(player.pivot_x,player.pivot_y,player.x,player.y);
+          //player.potential_energy=player.y-player.pivot_length;
+          player.potential_energy=0;
+          player.counter_potential_energy=0;
+          player.is_swinging=TRUE;
+          //player.cam_x=0;
+          //player.cam_y=0;
+          //CameraInit(player.x,player.y+PLAYER_HEIGHT/2);
+        }
     }//end switch
-  } else {
+  } else { //meelee attack only
     if (player.right_click_hold_timer==62) {
       player.attack=TRUE;
       player.blocking=FALSE; //unblock
@@ -786,11 +807,13 @@ void PlayerAct() {
             player.current_above=TRUE;
             move_x(-cos(player.angle+M_PI_2));
             move_y(-sin(player.angle+M_PI_2));
+            player.launch_angle=player.angle+M_PI_2;
           } else if (Ground[player.on_ground_id].height_from_player_x>-10 &&
 		     Ground[player.on_ground_id].height_from_player_x<0) { //below ground
             player.current_below=TRUE;
             move_x(-cos(player.angle-M_PI_2));
             move_y(-sin(player.angle-M_PI_2));
+            player.launch_angle=player.angle-M_PI_2;
           }
         //inwards to ground
           if (3<=Ground[player.on_ground_id].height_from_player_x && Ground[player.on_ground_id].height_from_player_x<10){ //above ground
@@ -811,6 +834,7 @@ void PlayerAct() {
 	        if (allow_act) {
               move_x(cos(player.angle-M_PI_2));
               move_y(sin(player.angle-M_PI_2));
+              player.on_ground_timer=2;
 	        }
           }
           if (!player.current_above && !player.current_below) {
@@ -822,6 +846,11 @@ void PlayerAct() {
 	        player.on_ground_id=-1;
             move_x(-cos(player.angle-M_PI_2));
             move_y(-sin(player.angle-M_PI_2));
+
+            player.jump=TRUE;
+            player.on_ground_timer=0;
+            player.key_jump_timer=player.player_jump_height;
+
           }
         } else {
       //not on ground
@@ -831,25 +860,25 @@ void PlayerAct() {
       } else { //not on a ground
     //fall down normally
         player.on_ground_id=-1;
-        player.angle=0;
+        //player.angle=0;
       }
     //Y movement
     //Condition to jump
-      if (player.on_ground_id==-1 && player.rst_down) {
+      /*if (player.on_ground_id==-1 && player.rst_down) {
 	    player.jump_height=0;
         player.jump=FALSE;
-      }
+      }*/
       if (player.current_above && player.on_ground_id!=-1) {
         player.on_ground_timer=10;
       } else if (player.current_below) {
         player.on_ground_timer=2;
-        player.jump_height=0;
-        player.jump=FALSE;
+        //player.jump_height=0;
+        //player.jump=FALSE;
       }
       if (abs(Ground[player.on_ground_id].angle)>M_PI_2-0.01) {
         player.on_ground_timer=2;
-        player.jump_height=0;
-        player.jump=FALSE;
+        //player.jump_height=0;
+        //player.jump=FALSE;
       }
     //Gravity
       if (grav_speed==0 && speed==0) {
@@ -859,6 +888,9 @@ void PlayerAct() {
             if (player.in_air_timer%20==0 && player.grav<=100) {
               player.grav++;
 	          player.player_grav=0.5;
+              if (player.is_swinging) {
+                player.grav=3;
+              }
             }
 	      }
         }
@@ -870,28 +902,37 @@ void PlayerAct() {
           player.jump=FALSE;
         }
       }
-
+      //if (player.on_ground_id==-1) {
+        //player.launch_angle=0;
+      //} else {
+      //}
       if (speed==0) {
         if (player.jump_height>0) {
-          player.player_grav=1;
+          //player.player_grav=0.5;
           player.jump_height-=player.player_grav;
-          move_y(-player.player_grav*2); //jump go against gravity
-          /*if (fall_camera) {
-	        cam_move_y+=0.4;
-	      }*/
+          move_x(2*player.player_grav*-cos(player.launch_angle));
+          move_y(2*player.player_grav*-sin(player.launch_angle));
+	      player.cam_move_y+=0.4;
+          //move_x(-player.player_grav*2);
+          //move_y(-player.player_grav*2); //jump go against gravity
           if (player.jump_height<=0) {
             player.jump=FALSE;
           }
         } else {
           player.player_grav=0.5;
         }
-        if (player.on_ground_id==-1) {
-          if (player.in_air_timer>11) {
-            move_y(player.player_grav); //Falling via gravity
-	      } else {
-	        move_y(-1);//grav switch
-	        if (player.grav>2) {
-	          move_y(1);
+        if (player.on_ground_id==-1 && player.jump_height<=0) {
+          if (!player.is_swinging) {
+            if (player.in_air_timer>11) {
+              //move_x(-player.player_grav*2*cos(player.launch_angle));
+              //move_y(player.player_grav*2*sin(player.launch_angle)); //Falling via gravity
+              move_y(player.player_grav);
+	        } else {
+              move_x(-player.player_grav*2*cos(player.launch_angle));
+              move_y(player.player_grav*2*sin(player.launch_angle)); //grav switch
+	          if (player.grav>2) { //Falling via gravity
+	            move_y(1);
+              }
             }
           }
         } else { //on ground
@@ -910,14 +951,16 @@ void PlayerAct() {
         move_y(player.player_grav);
       } else if (player.y+PLAYER_HEIGHT/2>MAP_HEIGHT) {
         move_y(-player.player_grav);
-        //player.health--;
+        player.health--;
       }
      //X movement
       allow_act=FALSE;
-      if (player.on_ground_id==-1) { //player is not on ground
-	    allow_act=TRUE;
-      } else if (player.block_timer==0) { //OR player is not blocking
-	    allow_act=TRUE;
+      if (!player.is_swinging) {
+        if (player.on_ground_id==-1) { //player is not on ground
+	      allow_act=TRUE;
+        } else if (player.block_timer==0) { //OR player is not blocking
+	      allow_act=TRUE;
+        }
       }
       if (grav_speed==0 && allow_act) {
         if (player.current_above) {
@@ -944,7 +987,7 @@ void PlayerAct() {
           }
         }
       }
-
+      if (player.is_swinging && grav_speed==0) {
       /*if (player.right_click_hold_timer>0) {
       //double launch_angle=GetCosAngle(GR_WIDTH/2-mouse_x+player.cam_x,0.01);
         double launch_angle=GetCosAngle(GR_WIDTH/2-mouse_x,GetDistance(mouse_x,mouse_y,GR_WIDTH/2,GR_HEIGHT/2));
@@ -956,6 +999,88 @@ void PlayerAct() {
           move_y(-sin(-launch_angle));
 
       }*/
+        player.pivot_length=GetDistance(player.pivot_x,player.pivot_y,player.x,player.y);
+        player.pivot_angle=GetCosAngle(player.x-player.pivot_x,player.pivot_length);
+        if (player.in_air_timer>0) {
+          if (player.y>player.pivot_y) { //below pivot
+            if (player.rst_left) {
+              move_x(-cos(-player.pivot_angle+M_PI_2));
+              move_y(sin(-player.pivot_angle+M_PI_2));
+              player.potential_energy=0;
+              player.counter_potential_energy=0;
+            } else if (player.rst_right) {
+              move_x(cos(-player.pivot_angle+M_PI_2));
+              move_y(-sin(-player.pivot_angle+M_PI_2));
+              player.potential_energy=0;
+              player.counter_potential_energy=0;
+            } else if (player.rst_up){
+              move_x(-cos(-player.pivot_angle));
+              move_y(sin(-player.pivot_angle));
+              player.potential_energy=0;
+              player.counter_potential_energy=0;
+            } else if (player.rst_down) {
+              move_x(cos(-player.pivot_angle));
+              move_y(-sin(-player.pivot_angle));
+              player.potential_energy=0;
+              player.counter_potential_energy=0;
+            } else {//nokey default movement
+              if (player.x<player.pivot_x) {
+                if (player.counter_potential_energy>0){
+                  move_x(-cos(-player.pivot_angle+M_PI_2));
+                  move_y(sin(-player.pivot_angle+M_PI_2));
+                  player.counter_potential_energy-=1;
+                /*if (player.on_ground_id!=-1) {
+                  player.counter_potential_energy=0;
+                }*/
+                } else {
+                  move_x(cos(-player.pivot_angle+M_PI_2));
+                  move_y(-sin(-player.pivot_angle+M_PI_2));
+                  player.potential_energy+=1;
+                }
+              //player.potential_energy+=1;
+              } else {
+                if (player.potential_energy>0) {
+                  move_x(cos(-player.pivot_angle+M_PI_2));
+                  move_y(-sin(-player.pivot_angle+M_PI_2));
+                  player.potential_energy-=1;
+                /*if (player.on_ground_id!=-1) {
+                  player.potential_energy=0;
+                }*/
+                } else {
+                  move_x(-cos(-player.pivot_angle+M_PI_2));
+                  move_y(sin(-player.pivot_angle+M_PI_2));
+                  player.counter_potential_energy+=1;
+                }
+              }
+            }
+          } else { //above pivot
+            if (player.rst_left) {
+              move_x(cos(-player.pivot_angle+M_PI_2));
+              move_y(sin(-player.pivot_angle+M_PI_2));
+            } else if (player.rst_right) {
+              move_x(-cos(-player.pivot_angle+M_PI_2));
+              move_y(-sin(-player.pivot_angle+M_PI_2));
+            } else if (player.rst_up){
+              move_x(-cos(-player.pivot_angle));
+              move_y(-sin(-player.pivot_angle));
+            } else if (player.rst_down) {
+              move_x(cos(-player.pivot_angle));
+              move_y(sin(-player.pivot_angle));
+            } else {//nokey default movement
+              if (player.x<player.pivot_x) {
+                move_x(-cos(-player.pivot_angle+M_PI_2));
+                move_y(-sin(-player.pivot_angle+M_PI_2));
+              } else { //right side of pivot
+                move_x(cos(-player.pivot_angle+M_PI_2));
+                move_y(sin(-player.pivot_angle+M_PI_2));
+              }
+            }
+          }
+        }
+      } else {
+        //player.is_swinging=FALSE;
+      }
+
 
      //x-axis cap
       if (player.x-PLAYER_WIDTH/2<0) {
@@ -1040,6 +1165,8 @@ void PlayerAct() {
       }
     } else if (player.rst_up && player.print_current_below) {
       allow_act=TRUE;
+    } else if (player.is_swinging) {
+      allow_act=TRUE;
     }
   }
   if (allow_act) {
@@ -1056,7 +1183,7 @@ void PlayerAct() {
     if (player.block_health<=0) {
       player.block_health=0;
     }
-    if (player.on_ground_id==-1) { //player jumping
+    if (player.on_ground_id==-1) { //player jumping && blocking
       player.speed=3;
     }
   } else {//player not blocking -regen block
@@ -1072,6 +1199,12 @@ void PlayerAct() {
         player.block_health++;
 	    player.block_recharge_timer=player.block_recharge_timer_max;
       }
+    }
+  }
+
+  if (player.is_swinging) { //fast when swinging
+    if (player.y>player.pivot_y) {
+      player.speed=5;
     }
   }
 
@@ -1252,6 +1385,10 @@ void DrawPlayer(HDC hdc)
     } else if (-1<player.attack_timer && player.attack_timer<=10) {
       GrSprite(hdc,player.sprite_x,player.sprite_y,player.attack_sprite_4_cache,player.last_left);
     }
+  }
+
+  if (player.is_swinging) {
+    GrLine(hdc,player.sprite_x,player.sprite_y,player.pivot_x+player.cam_x,player.pivot_y+player.cam_y,LTCYAN);
   }
 
   if (player.bullet_shot!=-1) {
