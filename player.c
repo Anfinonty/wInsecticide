@@ -936,7 +936,7 @@ void PlayerAct() {
             }
           }
         } else { //on ground
-          player.in_air_timer=0;
+          //player.in_air_timer=0;
 	      if (player.grav>=3) {
 	        if (player.grav>7) {
 	          player.cam_move_x*=-1;
