@@ -593,7 +593,7 @@ void PlayerAct() {
   grad_x2=mouse_x-player.cam_x+player.cam_move_x;
   grad_y2=mouse_y-player.cam_y+player.cam_move_y;
   edge_node_grid_id=GetGridId(mouse_x+player.cam_x+player.cam_move_x,mouse_y+player.cam_y+player.cam_move_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
-  if (!player.attack_rst) {
+  if (!player.attack_rst && !player.is_swinging) {
     switch (player.web_type) {
       case 0://legacy
         /*player.valid_web=FALSE;
@@ -685,7 +685,7 @@ void PlayerAct() {
 		4, //speed multiplier
    		1, //damage
 		-1,
-		player.above_x,
+		player.above_x, //so it doest get stuck to ground
 		player.above_y,
 		grad_x1,
 		grad_y1,
@@ -700,25 +700,53 @@ void PlayerAct() {
         break;
       case 2:
         if (player.right_click_hold_timer==62) {
-          player.pivot_x=mouse_x-player.cam_x;
-          player.pivot_y=mouse_y-player.cam_y;
           //player.pivot_length=GetDistance(player.pivot_x,player.pivot_y,player.x,player.y);
           //player.potential_energy=player.y-player.pivot_length;
-          player.potential_energy=0;
-          player.counter_potential_energy=0;
-          player.is_swinging=TRUE;
           //player.cam_x=0;
           //player.cam_y=0;
           //CameraInit(player.x,player.y+PLAYER_HEIGHT/2);
         }
+        break;
     }//end switch
   } else { //meelee attack only
     if (player.right_click_hold_timer==62) {
       player.attack=TRUE;
       player.blocking=FALSE; //unblock
+
+      if (player.is_swinging) {
+        player.is_swinging=FALSE;
+        double bm_x1=0,bm_y1=0,bm_x2=0,bm_y2=0;
+    //player place web after swing
+        if (player.x<player.pivot_x) {
+          bm_x2=player.pivot_x;
+          bm_y2=player.pivot_y;
+          bm_x1=player.x;
+          bm_y1=player.y;	
+        } else {
+          bm_x1=player.pivot_x;
+          bm_y1=player.pivot_y;
+          bm_x2=player.x;
+          bm_y2=player.y;
+        }
+        if (player.placed_web_pos<player.max_web_num) { //if pointer to web is less than the no. of webs player has currently     
+          while (player.web_storage[player.placed_web_pos]==-1) { //find player.web_storage that is not empty
+            player.placed_web_pos=LimitValue(player.placed_web_pos+1,0,player.max_web_num); //reset back to 0 if over the max
+          }
+          int web_id=player.web_storage[player.placed_web_pos];
+          if (web_id!=-1) {
+            Ground[web_id].x1=bm_x1;
+            Ground[web_id].y1=bm_y1;
+            Ground[web_id].x2=bm_x2;
+            Ground[web_id].y2=bm_y2;
+            SetGround(web_id);
+            SetNodeGridAttributes(web_id);
+            //double q=0.2*(((DEFAULT_PLAYER_BUILD_RANGE/2*NODE_SIZE)-Bullet[bullet_id].range)/10);
+            Ground[web_id].health=10;//-q;
+          }
+        }
+      }
     }
   }
-
 
   //Trigger movements
   if (player.rst_left || player.rst_right) {
@@ -1018,7 +1046,7 @@ void PlayerAct() {
               move_y(sin(-player.pivot_angle));
               player.potential_energy=0;
               player.counter_potential_energy=0;
-            } else if (player.rst_down) {
+            } else if (player.rst_down && player.pivot_length<NODE_SIZE*DEFAULT_PLAYER_BUILD_RANGE/2) {
               move_x(cos(-player.pivot_angle));
               move_y(-sin(-player.pivot_angle));
               player.potential_energy=0;
@@ -1063,7 +1091,7 @@ void PlayerAct() {
             } else if (player.rst_up){
               move_x(-cos(-player.pivot_angle));
               move_y(-sin(-player.pivot_angle));
-            } else if (player.rst_down) {
+            } else if (player.rst_down && player.pivot_length<NODE_SIZE*DEFAULT_PLAYER_BUILD_RANGE/2) {
               move_x(cos(-player.pivot_angle));
               move_y(sin(-player.pivot_angle));
             } else {//nokey default movement
@@ -1203,9 +1231,7 @@ void PlayerAct() {
   }
 
   if (player.is_swinging) { //fast when swinging
-    if (player.y>player.pivot_y) {
-      player.speed=5;
-    }
+    player.speed=5;
   }
 
   if (player.on_ground_id==-1 && player.block_timer>0) {
@@ -1388,11 +1414,12 @@ void DrawPlayer(HDC hdc)
   }
 
   if (player.is_swinging) {
-    GrLine(hdc,player.sprite_x,player.sprite_y,player.pivot_x+player.cam_x,player.pivot_y+player.cam_y,LTCYAN);
+    GrLine(hdc,player.sprite_x,player.sprite_y,player.pivot_x+player.cam_x+player.cam_move_x,player.pivot_y+player.cam_y+player.cam_move_y,LTCYAN);
   }
 
   if (player.bullet_shot!=-1) {
     DrawBullet(hdc,player.bullet_shot);
+    GrLine(hdc,player.sprite_x,player.sprite_y,Bullet[player.bullet_shot].sprite_x,Bullet[player.bullet_shot].sprite_y,LTCYAN);    
   }
 }
 

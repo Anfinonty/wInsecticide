@@ -112,6 +112,7 @@ void InitNodeGrid()
   int i=0,x=0,y=0;
   for (i=0;i<MAP_NODE_NUM;i++) {
     NodeGrid[i].node_solid=FALSE;
+    NodeGrid[i].non_web=FALSE;
     NodeGrid[i].x1=x;
     NodeGrid[i].y1=y;
     NodeGrid[i].x2=NodeGrid[i].x1+NODE_SIZE;
@@ -265,6 +266,9 @@ void SetNodeGridAttributes(int i)
       if (!Ground[i].is_ghost) { //Not a ghost
         node_grid_id=GetGridId(x,lg_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
         NodeGrid[node_grid_id].node_solid=TRUE;
+        if (i<GROUND_NUM) {
+          NodeGrid[node_grid_id].non_web=TRUE;
+        }
       }
     }
   } else { // x=(y-c)/m
@@ -282,6 +286,9 @@ void SetNodeGridAttributes(int i)
       if (!Ground[i].is_ghost) {
         node_grid_id=GetGridId(lg_x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
         NodeGrid[node_grid_id].node_solid=TRUE;
+        if (i<GROUND_NUM) {
+          NodeGrid[node_grid_id].non_web=TRUE;
+        }
       }
     }
   }

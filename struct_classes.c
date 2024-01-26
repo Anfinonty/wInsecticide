@@ -277,7 +277,7 @@ struct VGrid
 
 struct Node
 {
-  bool node_solid;
+  bool node_solid,non_web;
   int x1,y1,x2,y2;
 } NodeGrid[MAP_NODE_NUM];
 

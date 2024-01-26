@@ -260,7 +260,9 @@ void DestroyGround(int i)
       lg_grid_id=GetGridId(x,lg_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
       UnSetGridLineArray(lg_grid_id,i);
       node_grid_id=GetGridId(x,lg_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
-      NodeGrid[node_grid_id].node_solid=FALSE;
+      if (!NodeGrid[node_grid_id].non_web) { //only unsolid web nodegrids
+        NodeGrid[node_grid_id].node_solid=FALSE;
+      }
     }
   } else { // x=(y-c)/m
     if (Ground[i].y1>Ground[i].y2) {
@@ -275,7 +277,9 @@ void DestroyGround(int i)
       lg_grid_id=GetGridId(lg_x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
       UnSetGridLineArray(lg_grid_id,i);
       node_grid_id=GetGridId(lg_x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
-      NodeGrid[node_grid_id].node_solid=FALSE;
+      if (!NodeGrid[node_grid_id].non_web) { //only unsolid web nodegrids
+        NodeGrid[node_grid_id].node_solid=FALSE;
+      }
     }
   }
   Ground[i].health=-1;

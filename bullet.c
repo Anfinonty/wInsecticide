@@ -124,7 +124,7 @@ void BulletAct(int bullet_id)
       web_id=0,
       bullet_on_ground_id=-1,
       enemy_id=Bullet[bullet_id].from_enemy_id;
-  double bm_x1=0,bm_y1=0,bm_x2=0,bm_y2=0;
+  //double bm_x1=0,bm_y1=0,bm_x2=0,bm_y2=0;
   bool hit_player=FALSE,allow_act=FALSE;
   if (Bullet[bullet_id].shot) {
     for (i=0;i<Bullet[bullet_id].speed_multiplier;i++) {
@@ -146,7 +146,7 @@ void BulletAct(int bullet_id)
         }
         Bullet[bullet_id].range-=Bullet[bullet_id].speed;
       }
-      if (enemy_id==-1) {//player place web
+      /*if (enemy_id==-1) {//player place web
         if (Bullet[bullet_id].left) {
 	      bm_x2=Bullet[bullet_id].start_x;
 	      bm_y2=Bullet[bullet_id].start_y;
@@ -174,7 +174,7 @@ void BulletAct(int bullet_id)
 	        Ground[web_id].health=10-q;
 	      }
 	    }
-      }
+      }*/
 
 
  
@@ -266,18 +266,18 @@ void BulletAct(int bullet_id)
 	  Enemy[enemy_id].bullet_shot_arr[Enemy[enemy_id].bullet_shot_num-1]=-1;
       Enemy[enemy_id].bullet_shot_num--;
     }
-  } else {//player bullet
+  } else {//player bullet while travelling
     bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,NODE_SIZE,NODE_SIZE,FALSE);
     allow_act=FALSE;
 	if (bullet_on_ground_id!=-1 && bullet_on_ground_id!=web_id) {//not hit self but another platform
 	  allow_act=TRUE;
-    } else if (Ground[web_id].health<=0 || IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) {//out of bounds
+    } else if (/*Ground[web_id].health<=0 || */IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) {//out of bounds
 	  allow_act=TRUE;
     } else if (Bullet[bullet_id].range<=0) { 
 	  allow_act=TRUE;
 	}
 	if (allow_act) {//reaching end of range
-	  if (Ground[web_id].health<=0 || IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) {
+	  if (/*Ground[web_id].health<=0 || */IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) {
         DestroyGround(web_id); //completely destroy web (can be regained after '4')
         player.cdwebs[player.cdweb_pos]=web_id;
         player.cdweb_pos++;
@@ -285,6 +285,13 @@ void BulletAct(int bullet_id)
           player.cdweb_pos=0;
         }
         player.cdweb_num++;
+      } else if (bullet_on_ground_id!=-1) {
+      //player_web_swinging related
+        player.pivot_x=Bullet[bullet_id].x;
+        player.pivot_y=Bullet[bullet_id].y;
+        player.potential_energy=0;
+        player.counter_potential_energy=0;
+        player.is_swinging=TRUE;
       }
       StopBullet(bullet_id,TRUE);
 	  //---web related-------
