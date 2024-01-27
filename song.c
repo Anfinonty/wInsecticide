@@ -675,11 +675,11 @@ void InitSongBank() {
   //printf("%s",NPath);
   for (int f=0;f<SONG_FOLDER_NUM;f++) {
     int f_tmp = f;
-    char folder[10];
+    char folder[8];
     if (f<10) {
-      sprintf(folder,"./music/0%d",f_tmp);
+      sprintf(folder,"music/0%d",f_tmp);
     } else {
-      sprintf(folder,"./music/%d",f_tmp);
+      sprintf(folder,"music/%d",f_tmp);
     }
     DIR *dir=opendir(folder);
     if (dir) { // if folder exists
@@ -687,11 +687,11 @@ void InitSongBank() {
       music_folder_arr[song_folder_num]=f;
       song_folder_num++;
     } else {
-      music_folder_arr[song_folder_num]=1;    
+      music_folder_arr[f]=1;    
     }
   }
   if (song_folder_num>0) {
-    song_names[1][0]="Tuned to a Different Station - Dogs";
+    song_names[1][0]="Tuned to a Different Station - DOGS";
     album_names[1][0]="Turned Against This Land (2005)";
   } else {
     song_names[1][0]="No Songs Available";
