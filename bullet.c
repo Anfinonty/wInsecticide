@@ -313,21 +313,21 @@ void DrawBullet2(HDC hdc,int i,double x,double y,int color)
   int j=0;
   switch (Bullet[i].graphics_type) {
     case 0:
-      GrCircle(hdc,x,y,2,color);
+      GrCircle(hdc,x,y,2,color,-1);
       break;
     case 1:
-      GrCircle(hdc,x,y,1,color);
+      GrCircle(hdc,x,y,1,color,-1);
       break;
     case 2:
-      GrCircle(hdc,x,y,1,color);
-      GrCircle(hdc,x,y,2,color);
+      GrCircle(hdc,x,y,1,color,-1);
+      GrCircle(hdc,x,y,2,color,-1);
       break;
     case 3:
-      GrCircle(hdc,x,y,RandNum(0,3,i),color);
+      GrCircle(hdc,x,y,RandNum(0,3,i),color,-1);
       break;
     case 4:
       for (j=RandNum(0,3,i);j>0;j--) {
-        GrCircle(hdc,x,y,j,color);
+        GrCircle(hdc,x,y,j,color,-1);
       }
       break;
   }

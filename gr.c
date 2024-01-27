@@ -185,7 +185,7 @@ void GrLine(HDC hdc, double x1,double y1,double x2,double y2,int COLOR) {
 }
 
 
-void GrCircle(HDC hdc, double x, double y, int size, int COLOR) {
+void GrCircle(HDC hdc, double x, double y, int size, int COLOR, int COLOR_2) {
 //Shape Coordinates
   double x1=x-size;
   double y1=y-size;
@@ -208,20 +208,32 @@ void GrCircle(HDC hdc, double x, double y, int size, int COLOR) {
   else
     bottom = top + length;
 
-  HBRUSH hBrush,holdBrush;
-  HPEN hPen,holdPen;
+  //Draw circle
+  SelectObject(hdc, GetStockObject(DC_PEN));
+  if (COLOR_2==-1) {
+    SelectObject(hdc, GetStockObject(HOLLOW_BRUSH)); //Draw circle with no fill
+  } else {
+    SelectObject(hdc, GetStockObject(DC_BRUSH));
+    SetDCBrushColor(hdc, COLOR); //SOLID FILL
+  }
 
-  hBrush = CreateSolidBrush(COLOR);
-  hPen=CreatePen(PS_NULL,1,COLOR);
-  holdPen=SelectObject(hdc,hPen);
-  holdBrush=(HBRUSH) SelectObject(hdc,hBrush);
-
+  SetDCPenColor(hdc, COLOR); //BORDER
   Ellipse(hdc, left, top, right, bottom);
 
-  SelectObject(hdc, holdBrush);
-  SelectObject(hdc, holdPen);
-  DeleteObject(hPen);
-  DeleteObject(hBrush);
+
+  //HBRUSH hBrush,holdBrush;
+  //HPEN hPen,holdPen;
+
+  //hBrush=CreateSolidBrush(COLOR);
+  //holdBrush=(HBRUSH) SelectObject(hdc,hBrush);
+  //hPen=CreatePen(PS_NULL,1,COLOR);
+  //holdPen=SelectObject(hdc,hPen);
+  //HBRUSH holdBrush = SelectObject(hdc, GetStockObject(HOLLOW_BRUSH));  
+  //Ellipse(hdc, left, top, right, bottom);
+  //SelectObject(hdc, holdBrush);
+  //DeleteObject(hBrush);
+  //SelectObject(hdc, holdPen);
+  //DeleteObject(hPen);
 }
 
 

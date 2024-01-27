@@ -1389,11 +1389,13 @@ void DrawPlayer(HDC hdc)
 
   if (player.is_swinging) {
     GrLine(hdc,player.sprite_x,player.sprite_y,player.pivot_x+player.cam_x+player.cam_move_x,player.pivot_y+player.cam_y+player.cam_move_y,LTCYAN);
+  GrCircle(hdc,player.pivot_x+player.cam_x+player.cam_move_x,player.pivot_y+player.cam_y+player.cam_move_y,DEFAULT_PLAYER_BUILD_RANGE/2*NODE_SIZE,WHITE,-1);
   }
 
   if (player.bullet_shot!=-1) {
     DrawBullet(hdc,player.bullet_shot);
     GrLine(hdc,player.sprite_x,player.sprite_y,Bullet[player.bullet_shot].sprite_x,Bullet[player.bullet_shot].sprite_y,LTCYAN);    
   }
+
 }
 
