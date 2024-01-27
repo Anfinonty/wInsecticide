@@ -581,12 +581,21 @@ void PlayerAct() {
     player.attack=TRUE;
     player.blocking=FALSE; //unblock
   }
+  if (player.right_click_hold_timer==62) {//Right click to Shoot Agsin
+    if (player.bullet_shot!=-1 && !player.is_swinging) {
+      StopBullet(player.bullet_shot,TRUE);
+      player.web_being_shot=-1;
+      player.bullet_shot=-1;
+    }
+  }
   if (player.web_type==0 && player.on_ground_id==-1) {//in air
     player.web_type=1;
   }
   if (player.lock_web_type==0 && player.web_type==1 && player.on_ground_id!=-1) {
     player.web_type=player.lock_web_type;//go back to mode 0
   }
+
+
   int pivot_node_grid_id=0,edge_node_grid_id=0;
   int edge_x=0,edge_y=0;
   double bm_x1=0,bm_y1=0,bm_x2=0,bm_y2=0,bm_gradient=0,pivot_x=0,pivot_y=0;
@@ -617,7 +626,7 @@ void PlayerAct() {
         2, //graphics type
 		DEFAULT_PLAYER_BUILD_RANGE, //range
 	    1, //speed
-		4, //speed multiplier
+		6, //speed multiplier
    		1, //damage
 		-1,
 		player.above_x, //so it doest get stuck to ground
@@ -638,7 +647,10 @@ void PlayerAct() {
     if (player.right_click_hold_timer==62) {
       player.attack=TRUE;
       player.blocking=FALSE; //unblock
-
+     /* if (player.bullet_shot!=-1) {
+          player.web_being_shot=-1;
+          player.bullet_shot=-1;
+      }else*/
       if (player.is_swinging) {
         if (player.y>player.pivot_y) {
           player.launch_angle=player.pivot_angle+M_PI_2;
@@ -1204,9 +1216,9 @@ void PlayerAct() {
   if (player.is_swinging && player.on_ground_id==-1) { //fast when swinging
     player.speed=5;
   }
-  if (player.fling_distance>0) {
+  /*if (player.fling_distance>0) {
     player.speed=3;
-  }
+  }*/
 
   if (player.on_ground_id==-1 && player.block_timer>0) {
     player.sprite_angle-=0.1;
@@ -1389,7 +1401,11 @@ void DrawPlayer(HDC hdc)
 
   if (player.is_swinging) {
     GrLine(hdc,player.sprite_x,player.sprite_y,player.pivot_x+player.cam_x+player.cam_move_x,player.pivot_y+player.cam_y+player.cam_move_y,LTCYAN);
-  GrCircle(hdc,player.pivot_x+player.cam_x+player.cam_move_x,player.pivot_y+player.cam_y+player.cam_move_y,DEFAULT_PLAYER_BUILD_RANGE/2*NODE_SIZE,WHITE,-1);
+    if (!IsInvertedBackground()) {
+      GrCircle(hdc,player.pivot_x+player.cam_x+player.cam_move_x,player.pivot_y+player.cam_y+player.cam_move_y,DEFAULT_PLAYER_BUILD_RANGE/2*NODE_SIZE,WHITE,-1);
+    } else {
+      GrCircle(hdc,player.pivot_x+player.cam_x+player.cam_move_x,player.pivot_y+player.cam_y+player.cam_move_y,DEFAULT_PLAYER_BUILD_RANGE/2*NODE_SIZE,BLACK,-1);
+    }
   }
 
   if (player.bullet_shot!=-1) {

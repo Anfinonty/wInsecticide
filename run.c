@@ -158,8 +158,8 @@ int dyn_vrenderdist=0,dyn_vrenderdist_num=0;
 
 
 
-#include "saves/Level001.c"
-//#include "saves/Level002.c"
+//#include "saves/Level001.c"
+#include "saves/Level002.c"
 //#include "saves/Level003.c"
 //#include "saves/Level004.c"
 //#include "saves/Level005.c"
@@ -249,7 +249,11 @@ void DrawCursor(HDC hDC)
   char txt[2];
   int print_web_num=player.max_web_num-player.placed_web_num;
   sprintf(txt,"%d",print_web_num);
-  GrPrint(hDC,mouse_x+32,mouse_y+32,txt,WHITE);
+  if (!IsInvertedBackground()) {
+    GrPrint(hDC,mouse_x+32,mouse_y+32,txt,WHITE);
+  } else {
+    GrPrint(hDC,mouse_x+32,mouse_y+32,txt,BLACK);
+  }
 
   int print_player_health=player.health;
   sprintf(txt,"%d",print_player_health);

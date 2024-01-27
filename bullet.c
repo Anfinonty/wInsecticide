@@ -132,7 +132,31 @@ void BulletAct(int bullet_id)
       Bullet[bullet_id].sprite_y=Bullet[bullet_id].y+player.cam_y+player.cam_move_y;
   //----------------
       if (enemy_id==-1) {//player
-	    allow_act=TRUE;
+        if (Bullet[bullet_id].range>0) {
+	      allow_act=TRUE;
+        } else {
+          if (Bullet[bullet_id].left) {
+            if (Bullet[bullet_id].angle>-M_PI_2) {
+              if ((int)Bullet[bullet_id].range%10==0) {
+                Bullet[bullet_id].angle-=0.02;
+              }
+            }
+            Bullet[bullet_id].x-=cos(Bullet[bullet_id].angle)*Bullet[bullet_id].speed/2;
+            Bullet[bullet_id].y-=sin(Bullet[bullet_id].angle)*Bullet[bullet_id].speed/2;
+          } else {
+            if (Bullet[bullet_id].angle<M_PI_2) {
+              if ((int)Bullet[bullet_id].range%10==0) {
+                Bullet[bullet_id].angle+=0.02;
+              }
+            }
+            Bullet[bullet_id].x+=cos(Bullet[bullet_id].angle)*Bullet[bullet_id].speed/2;
+            Bullet[bullet_id].y+=sin(Bullet[bullet_id].angle)*Bullet[bullet_id].speed/2;
+          }
+          Bullet[bullet_id].range--;
+          /*if (i==0) {
+            Bullet[bullet_id].speed_multiplier+=exp(abs(Bullet[bullet_id].range))/1000;
+          }*/
+        }
       } else if (!player.time_breaker || Enemy[enemy_id].time_breaker_immune) {//enemy
 	    allow_act=TRUE;
       }
@@ -189,7 +213,8 @@ void BulletAct(int bullet_id)
 	    } else if ( //Bullet has hit something
 	        bullet_on_ground_id!=-1 || //on a gound
             IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT) ||
-	        Bullet[bullet_id].range<=0 //end of range
+	        Bullet[bullet_id].range<=0 || //end of range
+            GetDistance(Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22
         ) {
 	      allow_act=TRUE;
         }
@@ -273,11 +298,11 @@ void BulletAct(int bullet_id)
 	  allow_act=TRUE;
     } else if (/*Ground[web_id].health<=0 || */IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) {//out of bounds
 	  allow_act=TRUE;
-    } else if (Bullet[bullet_id].range<=0) { 
-	  allow_act=TRUE;
-	}
+    }// else if (Bullet[bullet_id].range<=0) { 
+	  //allow_act=TRUE;
+	//}
 	if (allow_act) {//reaching end of range
-	  if (/*Ground[web_id].health<=0 || */IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) {
+	  if (IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) { //Destroy ground
         DestroyGround(web_id); //completely destroy web (can be regained after '4')
         player.cdwebs[player.cdweb_pos]=web_id;
         player.cdweb_pos++;
