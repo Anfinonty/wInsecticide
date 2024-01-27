@@ -158,9 +158,9 @@ int dyn_vrenderdist=0,dyn_vrenderdist_num=0;
 
 
 
-//#include "saves/Level001.c"
+#include "saves/Level001.c"
 //#include "saves/Level002.c"
-#include "saves/Level003.c"
+//#include "saves/Level003.c"
 //#include "saves/Level004.c"
 //#include "saves/Level005.c"
 
@@ -408,6 +408,13 @@ void DrawTexts(HDC hdc) {
   int print_dynrenderdist=dyn_vrenderdist;
   sprintf(txt3,"Render Distance: %d",print_dynrenderdist);  
   GrPrint(hdc,0,32,txt3,c);
+
+
+  char txt4[2];
+  int print_left = player.fling_left;
+  sprintf(txt4,"flingleft: %d",print_left);  
+  GrPrint(hdc,0,48,txt4,c);
+
 
   /*char txt3[19];
   sprintf(txt3,"Render Distance: %d",play_a_sound);  

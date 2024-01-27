@@ -269,7 +269,7 @@ void BulletAct(int bullet_id)
   } else {//player bullet while travelling
     bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,NODE_SIZE,NODE_SIZE,FALSE);
     allow_act=FALSE;
-	if (bullet_on_ground_id!=-1 && bullet_on_ground_id!=web_id) {//not hit self but another platform
+	if (bullet_on_ground_id!=-1/* && bullet_on_ground_id!=web_id*/) {//not hit self but another platform
 	  allow_act=TRUE;
     } else if (/*Ground[web_id].health<=0 || */IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) {//out of bounds
 	  allow_act=TRUE;

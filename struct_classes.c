@@ -185,6 +185,8 @@ struct player
   double potential_energy;
   double counter_potential_energy;
   double launch_angle;
+  double fling_distance;
+  bool fling_left;
 
 //sprites
   HBITMAP sprite_1;
