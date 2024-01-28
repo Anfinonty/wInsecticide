@@ -422,9 +422,11 @@ void DrawTexts(HDC hdc) {
   GrPrint(hdc,0,48,txt4,c);
 
 
-  /*char txt3[19];
-  sprintf(txt3,"Render Distance: %d",play_a_sound);  
-  GrPrint(hdc,0,32,txt3,c);*/
+  char txt5[10];
+  int print_speed=player.speed;
+  int print_grav_speed=player.grav;
+  sprintf(txt5,"Speed:%d  %d",print_grav_speed, print_speed);  
+  GrPrint(hdc,0,64,txt5,c);
   //GrPrint(hwnd,hdc,ps,0,16,_txt2,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
 }
 

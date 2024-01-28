@@ -531,10 +531,11 @@ void PlayerAct() {
   //Sprinting
   if (player.rst_key_sprint) {
     if (player.on_ground_id!=-1) {//on ground
-      player.speed=3;
-      if (IsSpeedBreaking()) {
+      if (player.speed<3) 
+        player.speed++;
+      /*if (IsSpeedBreaking()) {
         player.speed=5;
-      }
+      }*/
     }
   }
 
@@ -542,7 +543,7 @@ void PlayerAct() {
 
 
   //Speed Breaker
-  if (!player.time_breaker && IsSpeedBreaking()) {
+  /*if (!player.time_breaker && IsSpeedBreaking()) {
     allow_act=TRUE;
   }
   //^^ condition
@@ -573,7 +574,7 @@ void PlayerAct() {
 	      player.speed_breaker_recharge_cooldown_max;
       }
     }
-  }
+  }*/
 
 
 
@@ -634,9 +635,9 @@ void PlayerAct() {
 		-1,
 		CYAN,
         2, //graphics type
-		DEFAULT_PLAYER_BUILD_RANGE, //range
+		DEFAULT_PLAYER_BUILD_RANGE+player.speed*2, //range
 	    1, //speed
-		10, //speed multiplier
+		10+player.speed, //speed multiplier
    		1, //damage
 		-1,
 		player.above_x, //so it doest get stuck to ground
@@ -698,6 +699,7 @@ void PlayerAct() {
             SetNodeGridAttributes(web_id);
             //double q=0.2*(((DEFAULT_PLAYER_BUILD_RANGE/2*NODE_SIZE)-Bullet[bullet_id].range)/10);
             Ground[web_id].health=10;//-q;
+            player.speed++;
           }
         }
       }
@@ -726,9 +728,9 @@ void PlayerAct() {
   }
 
   //Trigger jump
-  if (player.rst_up && 5<=player.on_ground_timer && player.on_ground_timer<=10 && player.fling_distance<=0) {
+  if (player.rst_up && 1<=player.on_ground_timer && player.on_ground_timer<=10 && player.fling_distance<=0) {
     player.jump=TRUE;
-    player.on_ground_timer=0;
+    //player.on_ground_timer=0;
     player.key_jump_timer=player.player_jump_height;
   }
   if (player.jump && player.jump_height==0) {
@@ -778,9 +780,15 @@ void PlayerAct() {
 	//
         if (!IsSpeedBreaking()) {//reset stats when normal
           //player.jump_height=DEFAULT_PLAYER_JUMP_HEIGHT;
-	      if (!player.rst_key_sprint) {
-            player.speed=DEFAULT_PLAYER_SPEED;
-	      }
+          if (player.fling_distance<=0 && player.on_ground_timer>=1 && speed==0 && grav_speed==0) {
+	        if (!player.rst_key_sprint) {
+              if (player.speed>DEFAULT_PLAYER_SPEED)
+                player.speed--;
+	        } else {
+              if (player.speed>3)
+                player.speed--;
+            }
+          }
         }
         if ((Ground[player.on_ground_id].x1-5<=player.x && player.x<=Ground[player.on_ground_id].x2+5) && //within x
             ((Ground[player.on_ground_id].y1-5<=player.y && player.y<=Ground[player.on_ground_id].y2+5) ||
@@ -828,24 +836,24 @@ void PlayerAct() {
 	        if (allow_act) {
               move_x(cos(player.angle-M_PI_2));
               move_y(sin(player.angle-M_PI_2));
-              player.on_ground_timer=2;
+              if (player.on_ground_timer<2)
+                player.on_ground_timer++;
 	        }
           }
           if (!player.current_above && !player.current_below) {
             player.angle=0;
             player.on_ground_id=-1;
           }
-          if (player.current_below && player.rst_down) { //unstick (un-inwards)
+          /*if (player.current_below && player.rst_down) { //unstick (un-inwards)
 	        player.in_air_timer=20;
 	        player.on_ground_id=-1;
             move_x(-cos(player.angle-M_PI_2));
             move_y(-sin(player.angle-M_PI_2));
 
             player.jump=TRUE;
-            player.on_ground_timer=0;
             player.key_jump_timer=player.player_jump_height;
 
-          }
+          }*/
         } else {
       //not on ground
           player.in_air_timer=0;
@@ -856,6 +864,11 @@ void PlayerAct() {
         player.on_ground_id=-1;
         //player.angle=0;
       }
+
+
+
+
+
     //Y movement
     //Condition to jump
       /*if (player.on_ground_id==-1 && player.rst_down) {
@@ -863,20 +876,30 @@ void PlayerAct() {
         player.jump=FALSE;
       }*/
       if (player.current_above && player.on_ground_id!=-1) {
-        player.on_ground_timer=10;
+        if (player.on_ground_timer<10)
+          player.on_ground_timer++;
       } else if (player.current_below) {
-        player.on_ground_timer=2;
+        if (player.on_ground_timer<10)
+          player.on_ground_timer++;
         //player.jump_height=0;
         //player.jump=FALSE;
       }
       if (abs(Ground[player.on_ground_id].angle)>M_PI_2-0.01) {
-        player.on_ground_timer=2;
+        if (player.on_ground_timer<10)
+          player.on_ground_timer++;
         //player.jump_height=0;
         //player.jump=FALSE;
       }
       if (player.on_ground_timer>0) {
         player.previous_web_placed=-1;
       }
+
+
+
+
+
+
+
     //Gravity
       if (grav_speed==0 && speed==0) {
         if (player.on_ground_id==-1 && player.fling_distance<=0) {
@@ -952,6 +975,10 @@ void PlayerAct() {
       }
 
 
+
+
+
+
      //X movement
       allow_act=FALSE;
       if (player.fling_distance<=0) {
@@ -996,15 +1023,21 @@ void PlayerAct() {
 
 
       //fling movement
-      if (grav_speed==0 && player.fling_distance>0) {
+      if (grav_speed==0 && player.fling_distance>0 && !player.is_swinging) {
         if (!player.fling_left) {
           move_x(-cos(player.launch_angle));
           move_y(-sin(player.launch_angle));
-        } else {
+          /*if (player.rst_left) {
+            player.fling_distance=1;
+          }*/
+        } else { //fling left
           move_x(cos(player.launch_angle));
           move_y(sin(player.launch_angle));
+          /*if (player.rst_right) {
+            player.fling_distance=1;
+          }*/
         }          
-        player.fling_distance--;
+        player.fling_distance--;        
       }
 
 
@@ -1211,11 +1244,9 @@ void PlayerAct() {
     if (player.rst_down) {
       if (player.on_ground_id==-1 || player.print_current_above) {
         allow_act=TRUE;
+      } else if (player.print_current_below) {
+        allow_act=TRUE;
       }
-    } else if (player.rst_up && player.print_current_below) {
-      allow_act=TRUE;
-    } else if (player.is_swinging && player.on_ground_id==-1) {
-      allow_act=TRUE;
     }
   }
   if (allow_act) {
@@ -1233,7 +1264,8 @@ void PlayerAct() {
       player.block_health=0;
     }
     if (player.on_ground_id==-1) { //player jumping && blocking
-      player.speed=3;
+      if (player.speed<3)
+        player.speed++;
     }
   } else {//player not blocking -regen block
     if (player.block_timer>0) {
@@ -1251,11 +1283,13 @@ void PlayerAct() {
     }
   }
 
-  if (player.is_swinging && player.on_ground_id==-1) { //fast when swinging
-    player.speed=5;
+  //swinging
+  if (player.is_swinging && player.speed<5 && player.on_ground_id==-1) { //fast when swinging
+    player.speed++;
   }
-  if (player.fling_distance>0) {
-    player.speed=5;
+
+  if (player.fling_distance>0  && player.speed<5) {
+    player.speed++;
   }
 
   if (player.on_ground_id==-1 && player.block_timer>0) {
