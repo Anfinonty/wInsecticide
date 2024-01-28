@@ -23,7 +23,7 @@
 #include <dirent.h>
 #include <errno.h>
 
-#include <GL/glu.h>
+//#include <GL/glu.h>
 
 
 #define COLORS_NUM  16
@@ -636,8 +636,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       timeBeginPeriod(1);
       ShowCursor(FALSE);
 
-//      play_a_sound=0;
+      InitOnce();//cannot be repeatedly run
+      Init();
 
+
+//      play_a_sound=0;
       player.sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/player1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       player.sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/player2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       player.sprite_jump = (HBITMAP) LoadImageW(NULL, L"sprites/player3-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
@@ -749,48 +752,29 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
 
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nCmdShow) {
+  //Window Class
+  WNDCLASSW wc = {0};
+  wc.style = 0;//CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+  wc.lpszClassName = L"DrawIt";
+  wc.hInstance     = hInstance;
+  wc.hbrBackground = GetSysColorBrush(COLOR_3DFACE);
+  wc.lpfnWndProc   = WndProc;
+  wc.hCursor       = LoadCursor(0, IDC_ARROW);
+  RegisterClassW(&wc);
 
-
-
-
-
-
-HWND CreateOpenGLWindow(char* title, int x, int y, int width, int height, BYTE type, DWORD flags)
-{//https://www.opengl.org/archives/resources/code/samples/win32_tutorial/minimal.c
-    int         pf;
-    HDC         hDC;
-    HWND        hWnd;
-    WNDCLASS    wc;
-    PIXELFORMATDESCRIPTOR pfd;
-    static HINSTANCE hInstance = 0;
-
-    /* only register the window class once - use hInstance as a flag. */
-    if (!hInstance) {
-	    hInstance = GetModuleHandle(NULL);
-	    wc.style         = CS_OWNDC;
-	    wc.lpfnWndProc   = (WNDPROC)WndProc;
-	    wc.cbClsExtra    = 0;
-	    wc.cbWndExtra    = 0;
-	    wc.hInstance     = hInstance;
-	    wc.hIcon         = LoadIcon(NULL, IDI_WINLOGO);
-	    wc.hCursor       = LoadCursor(NULL, IDC_ARROW);
-	    wc.hbrBackground = NULL;
-	    wc.lpszMenuName  = NULL;
-	    wc.lpszClassName = L"OpenGL";
-    }
-    RegisterClass(&wc);
-    hWnd = CreateWindowA("OpenGL", title, 
-            WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-			x, 
-            y, 
-            width, 
-            height, 
-            NULL, 
-            NULL, 
-            hInstance, 
-            NULL);
-
-
+  //create window
+  CreateWindowW(wc.lpszClassName,
+                L"wInsecticide (Press [Enter] to Restart)",
+                WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+                0,
+                0,
+                SCREEN_WIDTH,//GR_WIDTH+7,
+                SCREEN_HEIGHT,//GR_HEIGHT+27,
+                NULL,
+                NULL,
+                hInstance, 
+                NULL);
 
 
   //threads
@@ -809,103 +793,15 @@ HWND CreateOpenGLWindow(char* title, int x, int y, int width, int height, BYTE t
   }
 
 
-
-
-
-
-
-
-
-    if (hWnd == NULL) {
-	  MessageBoxA(NULL, "CreateWindow() failed:  Cannot create a window.","Error", MB_OK);
-	  return NULL;
-    }
-
-    hDC = GetDC(hWnd);
-
-    /* there is no guarantee that the contents of the stack that become
-       the pfd are zeroed, therefore _make sure_ to clear these bits. */
-    memset(&pfd, 0, sizeof(pfd));
-    pfd.nSize        = sizeof(pfd);
-    pfd.nVersion     = 1;
-    pfd.dwFlags      = PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | flags;
-    pfd.iPixelType   = type;
-    pfd.cColorBits   = 32;
-
-    pf = ChoosePixelFormat(hDC, &pfd); 
-    SetPixelFormat(hDC, pf, &pfd);
-    DescribePixelFormat(hDC, pf, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
-
-    ReleaseDC(hWnd,hDC);
-    return hWnd;
-} 
-
-
-
-
-
-
-
-
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nCmdShow) {
-  //Window Class https://stackoverflow.com/questions/6287660/win32-opengl-window-creation
-  timeBeginPeriod(1);
-  //Init
-  srand(time(NULL));
-  InitOnce();//cannot be repeatedly run
-  Init();
-
-  //GLuint PixelFormat;
-  /*WNDCLASSW wc = {0};
-  wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-  wc.lpszClassName = L"DrawIt";
-  wc.hInstance     = hInstance;
-  wc.hbrBackground = GetSysColorBrush(COLOR_3DFACE);
-  wc.lpfnWndProc   = WndProc;
-  wc.hCursor       = LoadCursor(0, IDC_ARROW);
-  RegisterClassW(&wc);*/
-
-  //create window
-  /*CreateWindow(wc.lpszClassName,
-                L"wInsecticide (Press [Enter] to Restart)",
-                WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-                0,
-                0,
-                GR_WIDTH+7,
-                GR_HEIGHT+27,
-                NULL,
-                NULL,
-                hInstance,
-                NULL);*/
-  HDC hDC;				/* device context */
-  HGLRC hRC;				/* opengl context */
-  HWND  hWnd;				/* window */
-
-  hWnd = CreateOpenGLWindow("wInsecticide - OpenGL Test (Press [Enter] to Restart)", 0, 0, GR_WIDTH, GR_HEIGHT, PFD_TYPE_RGBA, 0);
-  if (hWnd == NULL) exit(1);
-
-  hDC = GetDC(hWnd);
-  hRC = wglCreateContext(hDC);
- // EnableOpenGL(&hDC,&hRC);
-  wglMakeCurrent(hDC, hRC);
-  ShowWindow(hWnd, nCmdShow);
-
-
-  MSG   msg;				/* message */
-  //while (GetMessage(&msg,hWnd,0,0)) {
+  MSG msg;
   while (GetMessage(&msg,NULL,0,0)) {
     TranslateMessage(&msg);
     DispatchMessage(&msg);
   }
-
   timeEndPeriod(1);
-  wglMakeCurrent(NULL, NULL);
-  ReleaseDC(hWnd,hDC);
-  wglDeleteContext(hRC);
-  DestroyWindow(hWnd);
-
-
-
   return (int) msg.wParam;
 }
+
+
+
 
