@@ -187,7 +187,7 @@ struct player
   double launch_angle;
   double fling_distance;
   bool fling_left;
-
+  int previous_web_placed;
 //sprites
   HBITMAP sprite_1;
   HBITMAP sprite_2;

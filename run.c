@@ -415,9 +415,10 @@ void DrawTexts(HDC hdc) {
   GrPrint(hdc,0,32,txt3,c);
 
 
-  char txt4[2];
-  int print_left = player.fling_left;
-  sprintf(txt4,"flingleft: %d",print_left);  
+  char txt4[10];
+  int print_left = player.previous_web_placed;
+  int print_left2= player.on_ground_id;
+  sprintf(txt4,"%d webplaced: %d",print_left2, print_left);  
   GrPrint(hdc,0,48,txt4,c);
 
 
