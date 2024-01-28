@@ -687,11 +687,12 @@ void InitSongBank() {
     }
     DIR *dir=opendir(folder);
     if (dir) { // if folder exists
+      printf("Found\n");
       closedir(dir);
       music_folder_arr[song_folder_num]=f;
       song_folder_num++;
     } else {
-      music_folder_arr[f]=1;    
+      printf("Not Found\n");
     }
   }
   if (song_folder_num>0) {
@@ -711,7 +712,15 @@ void InitSongBank() {
     rand_song1=1;
     rand_song2=0;
   }
+
+  for (int i=song_folder_num;i<SONG_FOLDER_NUM;i++) {
+    music_folder_arr[i]=-1;
+  }
+  for (int j=0;j<SONG_FOLDER_NUM;j++) {
+    printf("i:%d\n",music_folder_arr[j]);
+  }
 }
+
 
 
 
@@ -726,9 +735,11 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
     if (song_folder_num>0) {
       char songname[14];
       if (play_new_song) { //play a song
+        
         rand_song1=music_folder_arr[ RandNum(0,song_folder_num-1,1)]; //dynamic songbank version
       //rand_song1=RandNum(0,SONG_FOLDER_NUM-1); //full version
       //rand_song1=1; //demo version
+        if (rand_song1!=-1) {
         rand_song2=RandNum(0,SONG_NUM-1,1);
         //time_now=int_current_timestamp();//get time in seconds
         //song_time_end=time_now+song_durations[rand_song1][rand_song2]+2;
@@ -750,7 +761,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
         PlaySoundA(songname,NULL,SND_ASYNC); //plays sound async
         //mciSendStringA(songname,NULL,0,NULL); //plays sound async
       }
-
+      }
       //time_now=int_current_timestamp();//get time in seconds
       //song_seconds_run=0;
       //song_seconds_run_max=-1;
