@@ -390,7 +390,7 @@ void DrawTexts(HDC hdc) {
   } else {
     c=BLACK;
   }
-  if (sec>0) {
+  if (sec>-1) {
     if (sec>9)
       //sprintf(txt,"%s [%d:%d]",song_name,(song_time_end-time_now)/60,sec);
       sprintf(txt,"%s [%d:%d]",song_name,(song_seconds_run_max-song_seconds_run)/60,sec);
@@ -426,90 +426,6 @@ void DrawTexts(HDC hdc) {
   GrPrint(hdc,0,32,txt3,c);*/
   //GrPrint(hwnd,hdc,ps,0,16,_txt2,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//https://community.khronos.org/t/how-to-get-hdc-for-back-buffer/36596/8
-/*void EnableOpenGL(HDC *hdc, HGLRC *hrc )
-{
-  PIXELFORMATDESCRIPTOR pfd;
-  int iFormat;
-
-// set the pixel format for the DC
-  ZeroMemory( &pfd, sizeof( pfd ) );
-  pfd.nSize = sizeof( pfd );
-  pfd.nVersion = 1;
-  pfd.dwFlags = PFD_DRAW_TO_BITMAP |
-  PFD_SUPPORT_OPENGL;
-  pfd.iPixelType = PFD_TYPE_RGBA;
-  pfd.cColorBits = 24;
-  pfd.cDepthBits = 16;
-  pfd.iLayerType = PFD_MAIN_PLANE;
-  iFormat = ChoosePixelFormat( *hdc, &pfd );
-  SetPixelFormat( *hdc, iFormat, &pfd );
-
-// create and enable the render context (RC)
-  *hrc = wglCreateContext( *hdc );
-  iFormat = wglMakeCurrent( *hdc, *hrc );
-  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-}*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

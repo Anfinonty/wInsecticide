@@ -1409,8 +1409,8 @@ void DrawPlayer(HDC hdc)
   }
 
   if (player.bullet_shot!=-1) {
-    DrawBullet(hdc,player.bullet_shot);
-    if (Bullet[player.bullet_shot].x!=-20) {
+    if (Bullet[player.bullet_shot].sprite_x-(player.cam_x+player.cam_move_x)>0) { //calculate x based on sprite_x 
+      DrawBullet(hdc,player.bullet_shot);
       GrLine(hdc,player.sprite_x,player.sprite_y,Bullet[player.bullet_shot].sprite_x,Bullet[player.bullet_shot].sprite_y,LTCYAN);    
     }
   }

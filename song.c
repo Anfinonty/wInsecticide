@@ -687,13 +687,13 @@ void InitSongBank() {
     }
     DIR *dir=opendir(folder);
     if (dir) { // if folder exists
-      printf("Found\n");
+      //printf("Found\n");
       closedir(dir);
       music_folder_arr[song_folder_num]=f;
       song_folder_num++;
-    } else {
+    }/* else {
       printf("Not Found\n");
-    }
+    }*/
   }
   if (song_folder_num>0) {
     song_names[1][0]="Tuned to a Different Station - DOGS";
@@ -716,9 +716,9 @@ void InitSongBank() {
   for (int i=song_folder_num;i<SONG_FOLDER_NUM;i++) {
     music_folder_arr[i]=-1;
   }
-  for (int j=0;j<SONG_FOLDER_NUM;j++) {
+  /*for (int j=0;j<SONG_FOLDER_NUM;j++) {
     printf("i:%d\n",music_folder_arr[j]);
-  }
+  }*/
 }
 
 
