@@ -659,8 +659,12 @@ char **album_names[SONG_FOLDER_NUM]={
 int song_folder_num=0;
 int music_folder_arr[SONG_FOLDER_NUM];
 
-int song_time_end=0;
-int time_now=0;
+//int song_time_end=0;
+//int time_now=0;
+
+int song_seconds_run=0;
+int song_seconds_run_max=-1;
+
 bool play_new_song=false;
 
 
@@ -698,8 +702,11 @@ void InitSongBank() {
     album_names[1][0]="";
     //album_name_arr[16]="";
 
-    song_time_end=0;
-    time_now=0;
+    //song_time_end=0;
+    //time_now=0;
+    song_seconds_run=0;
+    song_seconds_run_max=-1;
+
     play_new_song=false;
     rand_song1=1;
     rand_song2=0;
@@ -712,19 +719,23 @@ void InitSongBank() {
 
 
 
-//DWORD WINAPI SongTask(LPVOID lpArg) {
-void SongAct() {
+DWORD WINAPI SongTask(LPVOID lpArg) {
+//void SongAct() {
   srand(time(NULL));
-  char songname[14];
-//  while (true) {
+  while (true) {
     if (song_folder_num>0) {
+      char songname[14];
       if (play_new_song) { //play a song
         rand_song1=music_folder_arr[ RandNum(0,song_folder_num-1,1)]; //dynamic songbank version
       //rand_song1=RandNum(0,SONG_FOLDER_NUM-1); //full version
       //rand_song1=1; //demo version
         rand_song2=RandNum(0,SONG_NUM-1,1);
-        time_now=int_current_timestamp();//get time in seconds
-        song_time_end=time_now+song_durations[rand_song1][rand_song2]+2;
+        //time_now=int_current_timestamp();//get time in seconds
+        //song_time_end=time_now+song_durations[rand_song1][rand_song2]+2;
+
+        song_seconds_run=0;
+        song_seconds_run_max=song_durations[rand_song1][rand_song2];
+
 
       //printf("%d\n",rand_song2); //debug
       //printf("%s",song_name0[rand_song2]);
@@ -740,15 +751,18 @@ void SongAct() {
         //mciSendStringA(songname,NULL,0,NULL); //plays sound async
       }
 
-      time_now=int_current_timestamp();//get time in seconds
+      //time_now=int_current_timestamp();//get time in seconds
+      //song_seconds_run=0;
+      //song_seconds_run_max=-1;
     //printf("diff:%d\n",song_time_end-time_now);
-      if (time_now>song_time_end && !play_new_song) {
+      if (song_seconds_run>song_seconds_run_max && !play_new_song) {
         PlaySound(NULL, NULL, SND_SYNC); //stop song
         play_new_song=true;
       }
     }
-    //Sleep(1000); //eepy loop
-  //}
+    song_seconds_run++;
+    Sleep(1000); //eepy loop
+  }
 }
 
 

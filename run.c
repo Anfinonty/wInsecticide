@@ -370,7 +370,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
       EnemyAct(player.render_enemies[i]);
     }
     //GroundAct();
-    SongAct();
+    //SongAct();
     if (player.health<1) {
       Init();
     }
@@ -383,29 +383,30 @@ void DrawTexts(HDC hdc) {
   int c;
   char txt[64];
   char *song_name=song_names[rand_song1][rand_song2];
-  int sec = (song_time_end-time_now)%60;
+  //int sec = (song_time_end-time_now)%60;
+  int sec = (song_seconds_run_max-song_seconds_run)%60;
   if (!IsInvertedBackground()) {
     c=WHITE;
   } else {
     c=BLACK;
   }
-  //if (sec>0) {
-  if (sec>9)
-    sprintf(txt,"%s [%d:%d]",song_name,(song_time_end-time_now)/60,sec);
-  else 
-    sprintf(txt,"%s [%d:0%d]",song_name,(song_time_end-time_now)/60,sec);
+  if (sec>0) {
+    if (sec>9)
+      //sprintf(txt,"%s [%d:%d]",song_name,(song_time_end-time_now)/60,sec);
+      sprintf(txt,"%s [%d:%d]",song_name,(song_seconds_run_max-song_seconds_run)/60,sec);
+    else 
+      //sprintf(txt,"%s [%d:0%d]",song_name,(song_time_end-time_now)/60,sec);
+      sprintf(txt,"%s [%d:0%d]",song_name,(song_seconds_run_max-song_seconds_run)/60,sec);
 
+    char txt2[64];
+    char *album_name=/*album_name_arr[*/album_names[rand_song1][rand_song2]/*]*/;
+    sprintf(txt2,"%s",album_name);  
 
-  char txt2[64];
-  char *album_name=/*album_name_arr[*/album_names[rand_song1][rand_song2]/*]*/;
-  sprintf(txt2,"%s",album_name);  
-
-
-  GrPrint(hdc,0,0,txt,c);
-  GrPrint(hdc,0,16,txt2,c);
-  /*} else {
+    GrPrint(hdc,0,0,txt,c);
+    GrPrint(hdc,0,16,txt2,c);
+  } else {
     GrPrint(hdc,0,0,"Choosing Song...",c);
-  }*/
+  }
   //GrPrint(hwnd,hdc,ps,0,0,_txt,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
 
   char txt3[19];
@@ -560,7 +561,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         case 'D':case VK_RIGHT:if(player.rst_right)player.rst_right=FALSE;break;
         case 'A':case VK_LEFT:if(player.rst_left)player.rst_left=FALSE;break;
         case 'W':case VK_UP:if(player.rst_up)player.rst_up=FALSE;break;
-        case 'M':song_time_end=0;play_new_song=FALSE;break;//end current song
+        case 'M':song_seconds_run_max=-1;play_new_song=FALSE;break;//end current song
         case ' ':if(player.rst_key_sprint)player.rst_key_sprint=FALSE;break;
 	    case '1':
 	      player.attack_rst=FALSE;
@@ -779,16 +780,15 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 
   //threads
   int *lpArgPtr;
-  HANDLE hHandles[1];
+  HANDLE hHandles[2];
   DWORD ThreadId;
-  for (int i=0;i<1;i++) {
+  for (int i=0;i<2;i++) {
     lpArgPtr=(int *)malloc(sizeof(int));
     *lpArgPtr=i;
     switch (i) {
-//      case 0: hHandles[i]=CreateThread(NULL,0,SongTask,lpArgPtr,0,&ThreadId);break;
       case 0: hHandles[i]=CreateThread(NULL,0,AnimateTask01,lpArgPtr,0,&ThreadId);break;
-      //case 1: hHandles[i]=CreateThread(NULL,0,SongTask,lpArgPtr,0,&ThreadId);break;
-      //case 1: hHandles[i]=CreateThread(NULL,0,SoundTask,lpArgPtr,0,&ThreadId);break;
+      case 1: hHandles[i]=CreateThread(NULL,0,SongTask,lpArgPtr,0,&ThreadId);break;
+      //case 2: hHandles[i]=CreateThread(NULL,0,SoundTask,lpArgPtr,0,&ThreadId);break;
     }
   }
 
