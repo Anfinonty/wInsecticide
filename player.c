@@ -740,7 +740,7 @@ void PlayerAct() {
       }
    //Destroy Ground (regainable)
       if (player.destroy_ground) {
-        if (player.on_ground_id>=GROUND_NUM && player.on_ground_id!=player.web_being_shot) {
+        if (player.on_ground_id>=GROUND_NUM /*&& player.on_ground_id!=player.web_being_shot*/) {
           DestroyGround(player.on_ground_id);  
     	  RegainWeb(player.on_ground_id);
         }
@@ -1410,7 +1410,9 @@ void DrawPlayer(HDC hdc)
 
   if (player.bullet_shot!=-1) {
     DrawBullet(hdc,player.bullet_shot);
-    GrLine(hdc,player.sprite_x,player.sprite_y,Bullet[player.bullet_shot].sprite_x,Bullet[player.bullet_shot].sprite_y,LTCYAN);    
+    if (Bullet[player.bullet_shot].x!=-20) {
+      GrLine(hdc,player.sprite_x,player.sprite_y,Bullet[player.bullet_shot].sprite_x,Bullet[player.bullet_shot].sprite_y,LTCYAN);    
+    }
   }
 
 }
