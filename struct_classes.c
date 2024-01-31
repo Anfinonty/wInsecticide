@@ -188,6 +188,14 @@ struct player
   double fling_distance;
   bool fling_left;
   int previous_web_placed;
+
+
+  int rebound_timer;
+  double angle_of_incidence;
+  double angle_of_reflection;
+  bool rebound_above;
+  bool rebound_below;
+
 //sprites
   HBITMAP sprite_1;
   HBITMAP sprite_2;

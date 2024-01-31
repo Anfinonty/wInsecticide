@@ -428,6 +428,12 @@ void DrawTexts(HDC hdc) {
   sprintf(txt5,"Speed:%d  %d",print_grav_speed, print_speed);  
   GrPrint(hdc,0,64,txt5,c);
   //GrPrint(hwnd,hdc,ps,0,16,_txt2,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
+
+
+  char txt6[16];
+  int print_jump=player.on_ground_timer;
+  sprintf(txt6,"ongroundtimer: %d",print_jump);  
+  GrPrint(hdc,0,80,txt6,c);
 }
 
 
