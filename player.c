@@ -956,6 +956,23 @@ void PlayerAct() {
           player.jump=FALSE;
         }
       }
+
+
+
+      //REBOUND ACTIONS
+      if (player.rebound_timer>0 && grav_speed==0) {
+        player.rebound_timer--;
+
+        if (player.rebound_above) {
+          move_x(cos(player.angle_of_reflection));
+          move_y(sin(player.angle_of_reflection));
+        }
+        if (player.rebound_below){
+          move_x(-cos(player.angle_of_reflection));
+          move_y(-sin(player.angle_of_reflection));
+        }
+      }
+
       if (speed==0) {
         if (player.jump_height>0) {
           player.player_grav=0.5;
@@ -1057,22 +1074,6 @@ void PlayerAct() {
           }
         }
       }
-
-
-      //REBOUND ACTIONS
-      if (grav_speed==0 && player.rebound_timer>0) {
-        player.rebound_timer--;
-
-        if (player.rebound_above) {
-          move_x(cos(player.angle_of_reflection));
-          move_y(sin(player.angle_of_reflection));
-        }
-        if (player.rebound_below){
-          move_x(-cos(player.angle_of_reflection));
-          move_y(-sin(player.angle_of_reflection));
-        }
-      }
-
       //fling movement
       if (grav_speed==0 && player.fling_distance>0 && !player.is_swinging) {
         if (!player.fling_left) {
@@ -1105,6 +1106,7 @@ void PlayerAct() {
           move_y(-sin(-launch_angle));
 
       }*/
+        player.rebound_timer=0;
         player.pivot_length=GetDistance(player.pivot_x,player.pivot_y,player.x,player.y);
         player.pivot_angle=GetCosAngle(player.x-player.pivot_x,player.pivot_length);
 
@@ -1131,7 +1133,7 @@ void PlayerAct() {
                 move_y(-sin(-player.pivot_angle+M_PI_2));
                 player.potential_energy=0;
                 player.counter_potential_energy=0;
-              } else if (player.rst_up){
+              } else if (player.rst_up && player.on_ground_id==-1){
                 move_x(-cos(-player.pivot_angle));
                 move_y(sin(-player.pivot_angle));
                 player.potential_energy=0;
@@ -1144,17 +1146,17 @@ void PlayerAct() {
               } else {//nokey default movement
                 if (player.x<player.pivot_x) {
                   if (!player.rst_right) {
-                  if (player.counter_potential_energy>0){
-                    player.fling_left=TRUE;
-                    move_x(-cos(-player.pivot_angle+M_PI_2));
-                    move_y(sin(-player.pivot_angle+M_PI_2));
-                    player.counter_potential_energy-=1;
-                  } else {
-                    player.fling_left=FALSE;
-                    move_x(cos(-player.pivot_angle+M_PI_2));
-                    move_y(-sin(-player.pivot_angle+M_PI_2));
-                    player.potential_energy+=1;
-                  }
+                    if (player.counter_potential_energy>0){
+                      player.fling_left=TRUE;
+                      move_x(-cos(-player.pivot_angle+M_PI_2));
+                      move_y(sin(-player.pivot_angle+M_PI_2));
+                      player.counter_potential_energy-=1;
+                    } else {
+                      player.fling_left=FALSE;
+                      move_x(cos(-player.pivot_angle+M_PI_2));
+                      move_y(-sin(-player.pivot_angle+M_PI_2));
+                      player.potential_energy+=1;
+                    }
                   }
                 } else if (!player.rst_right) {
                   if (player.potential_energy>0) {
@@ -1180,7 +1182,7 @@ void PlayerAct() {
                 player.fling_left=TRUE;
                 move_x(-cos(-player.pivot_angle+M_PI_2));
                 move_y(-sin(-player.pivot_angle+M_PI_2));
-              } else if (player.rst_up){
+              } else if (player.rst_up && player.on_ground_id==-1){
                 move_x(-cos(-player.pivot_angle));
                 move_y(-sin(-player.pivot_angle));
               } else if (player.rst_down && player.pivot_length<NODE_SIZE*DEFAULT_PLAYER_BUILD_RANGE/2) {

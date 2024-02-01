@@ -282,6 +282,7 @@ void BulletAct(int bullet_id)
         }
 	  }*/
 	  StopBullet(bullet_id,FALSE);
+
         //Enemy bullet shot array arrangement
 	  for (j=Bullet[bullet_id].saved_pos;j<Enemy[enemy_id].bullet_shot_num-1;j++) {
 	    Enemy[enemy_id].bullet_shot_arr[j]=Enemy[enemy_id].bullet_shot_arr[j+1];
@@ -291,6 +292,10 @@ void BulletAct(int bullet_id)
 	  Enemy[enemy_id].bullet_shot_arr[Enemy[enemy_id].bullet_shot_num-1]=-1;
       Enemy[enemy_id].bullet_shot_num--;
     }
+
+
+
+
   } else {//player bullet while travelling
     bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,NODE_SIZE,NODE_SIZE,FALSE);
     allow_act=FALSE;
