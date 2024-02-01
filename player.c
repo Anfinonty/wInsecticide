@@ -846,14 +846,14 @@ void PlayerAct() {
               player.fling_distance=0;
             }
 
-            /*if (Ground[player.on_ground_id].gradient>0) {
+            player.rebound_above=FALSE;
+            player.rebound_below=TRUE;
+            if (Ground[player.on_ground_id].gradient>0) {
               player.angle_of_reflection=player.angle-player.angle_of_incidence;
             } else {
               player.angle_of_reflection=player.angle+M_PI+player.angle_of_incidence;
-            }*/
-            player.rebound_above=FALSE;
-            player.rebound_below=TRUE;
-            player.angle_of_reflection=player.angle-M_PI_2;
+            }
+            //player.angle_of_reflection=player.angle-M_PI_2;
             if (player.blocking) {
               player.rebound_timer=1000;
             }
