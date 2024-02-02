@@ -195,6 +195,7 @@ struct player
   double angle_of_reflection;
   bool rebound_above;
   bool rebound_below;
+  int grav_in_air_timer;
 
 //sprites
   HBITMAP sprite_1;

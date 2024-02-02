@@ -307,7 +307,7 @@ void BulletAct(int bullet_id)
 	  //allow_act=TRUE;
 	//}
 	if (allow_act) {//reaching end of range
-	  if (IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) { //Destroy ground
+	  /*if (IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) { //Destroy ground
         DestroyGround(web_id); //completely destroy web (can be regained after '4')
         player.cdwebs[player.cdweb_pos]=web_id;
         player.cdweb_pos++;
@@ -315,7 +315,8 @@ void BulletAct(int bullet_id)
           player.cdweb_pos=0;
         }
         player.cdweb_num++;
-      } else if (bullet_on_ground_id!=-1) {
+      } else*/ 
+      if (bullet_on_ground_id!=-1) {
       //player_web_swinging related
         player.pivot_x=Bullet[bullet_id].x;
         player.pivot_y=Bullet[bullet_id].y;
@@ -328,7 +329,6 @@ void BulletAct(int bullet_id)
       if (bullet_on_ground_id>=GROUND_NUM) {
         Ground[bullet_on_ground_id].health+=2;//heal ground
       }
-      PlayerPlaceWeb();
       player.web_being_shot=-1;
       player.bullet_shot=-1;
       //---------------------

@@ -261,10 +261,10 @@ bool NearCrawler()
 
 void PlayerPlaceWeb()
 {
-  player.web_storage[player.placed_web_pos]=-1;
-  player.placed_web_pos++;
-  player.placed_web_num++;
-  if (player.placed_web_pos>=player.max_web_num) {
+  player.web_storage[player.placed_web_pos]=-1; //make current web empty
+  player.placed_web_pos++; //move to next web
+  player.placed_web_num++; //increase number of placed web
+  if (player.placed_web_pos>=player.max_web_num) { //go back to index 0 if over the limit
     player.placed_web_pos=0;
   }
 }
@@ -453,6 +453,7 @@ void InitPlayer() {
 
   player.rebound_above=FALSE;
   player.rebound_below=FALSE;
+  player.grav_in_air_timer=0;
 
   InitPlayerCamera();
   InitRDGrid();
@@ -595,7 +596,14 @@ void PlayerAct() {
   if (player.left_click_hold_timer==62) {//Left click to Attack
     player.attack=TRUE;
     player.blocking=FALSE; //unblock
+
+    if (player.bullet_shot!=-1) {
+      StopBullet(player.bullet_shot,TRUE); //stop all bullets from acting
+      player.web_being_shot=-1;
+      player.bullet_shot=-1;
+    }
   }
+
   if (player.right_click_hold_timer==62) {//Right click to Shoot Agsin
     if (player.bullet_shot!=-1 && !player.is_swinging) {
       StopBullet(player.bullet_shot,TRUE);
@@ -662,24 +670,23 @@ void PlayerAct() {
         break;
     }//end switch
   } else { //meelee attack only
-    if (player.right_click_hold_timer==62) {
-      player.attack=TRUE;
-      player.blocking=FALSE; //unblock
-     /* if (player.bullet_shot!=-1) {
-          player.web_being_shot=-1;
-          player.bullet_shot=-1;
-      }else*/
-      if (player.is_swinging) { //fling
-        /*if (player.y>player.pivot_y) { //player is below pivot
-          player.launch_angle=-player.pivot_angle+M_PI_2;
-        } else { //player is above pivot
-          player.launch_angle=-player.pivot_angle-M_PI_2;
-        }*/
+    if (player.left_click_hold_timer==62) { //swing but no web is placed
+      if (player._is_swinging) {
         player.is_swinging=FALSE;
         player.fling_distance+=player.pivot_length*2;
         player.key_jump_timer=player.player_jump_height;
-        double bm_x1=0,bm_y1=0,bm_x2=0,bm_y2=0;
+        player.speed++;
+      }
+    } else if (player.right_click_hold_timer==62) {
+      player.attack=TRUE;
+      player.blocking=FALSE; //unblock
+      if (player.is_swinging) { //fling
+        player.is_swinging=FALSE;
+        player.fling_distance+=player.pivot_length*2;
+        player.key_jump_timer=player.player_jump_height;
+
     //player place web after swing
+        double bm_x1=0,bm_y1=0,bm_x2=0,bm_y2=0;
         if (player.x<player.pivot_x) {
           bm_x2=player.pivot_x;
           bm_y2=player.pivot_y;
@@ -692,7 +699,12 @@ void PlayerAct() {
           bm_y2=player.y;
         }
         if (player.placed_web_pos<player.max_web_num) { //if pointer to web is less than the no. of webs player has currently     
-          while (player.web_storage[player.placed_web_pos]==-1) { //find player.web_storage that is not empty
+          PlayerPlaceWeb();
+          if (player.max_web_num-player.placed_web_num>0) {
+            while (player.web_storage[player.placed_web_pos]==-1) { //find player.web_storage that is not empty
+              player.placed_web_pos=LimitValue(player.placed_web_pos+1,0,player.max_web_num); //reset back to 0 if over the max
+            }
+          } else {
             player.placed_web_pos=LimitValue(player.placed_web_pos+1,0,player.max_web_num); //reset back to 0 if over the max
           }
           int web_id=player.web_storage[player.placed_web_pos];
