@@ -190,12 +190,11 @@ struct player
   int previous_web_placed;
 
 
-  int rebound_timer;
+  bool is_rebounding;
   double angle_of_incidence;
   double angle_of_reflection;
   bool rebound_above;
   bool rebound_below;
-  int grav_in_air_timer;
 
 //sprites
   HBITMAP sprite_1;
