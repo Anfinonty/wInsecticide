@@ -836,9 +836,9 @@ void PlayerAct() {
 
 
             if (Ground[player.on_ground_id].gradient>0) {
-              player.angle_of_reflection=player.angle-player.angle_of_incidence;
+              player.angle_of_reflection=-player.angle-player.angle_of_incidence;
             } else {
-              player.angle_of_reflection=player.angle+M_PI+player.angle_of_incidence;
+              player.angle_of_reflection=-player.angle+M_PI+player.angle_of_incidence;
             }
 
             if (player.blocking) {
@@ -846,10 +846,12 @@ void PlayerAct() {
             }
 
 
-
           } else if (Ground[player.on_ground_id].height_from_player_x>-10 &&
 		    Ground[player.on_ground_id].height_from_player_x<0) { //below ground
             player.current_below=TRUE;
+            player.rebound_above=FALSE;
+            player.rebound_below=TRUE;
+
             if (player.in_air_timer>0) {
               player.in_air_timer--;
             }
@@ -861,9 +863,6 @@ void PlayerAct() {
             } else {            
               player.fling_distance=0;
             }
-
-            player.rebound_above=FALSE;
-            player.rebound_below=TRUE;
             if (Ground[player.on_ground_id].gradient>0) {
               player.angle_of_reflection=player.angle-player.angle_of_incidence;
             } else {
@@ -918,7 +917,6 @@ void PlayerAct() {
 
 
 
-
     //Y movement
     //Condition to jump
       /*if (player.on_ground_id==-1 && player.rst_down) {
@@ -946,8 +944,19 @@ void PlayerAct() {
 
 
 
+      //REBOUND ACTIONS
+      if (player.rebound_timer>0 && grav_speed==0) {
+        player.rebound_timer--;
 
-
+        if (player.rebound_above) {
+          move_x(cos(player.angle_of_reflection));
+          move_y(sin(player.angle_of_reflection));
+        }
+        else if (player.rebound_below){
+          move_x(-cos(player.angle_of_reflection));
+          move_y(-sin(player.angle_of_reflection));
+        }
+      }
 
 
     //Gravity
@@ -974,21 +983,7 @@ void PlayerAct() {
       }
 
 
-
-      //REBOUND ACTIONS
-      if (player.rebound_timer>0 && grav_speed==0) {
-        player.rebound_timer--;
-
-        if (player.rebound_above) {
-          move_x(cos(player.angle_of_reflection));
-          move_y(sin(player.angle_of_reflection));
-        }
-        if (player.rebound_below){
-          move_x(-cos(player.angle_of_reflection));
-          move_y(-sin(player.angle_of_reflection));
-        }
-      }
-
+      //PLAYER GRAVITY MOVEMENT
       if (speed==0) {
         if (player.jump_height>0) {
           player.player_grav=0.5;
@@ -1041,14 +1036,14 @@ void PlayerAct() {
 
      //X movement
       allow_act=FALSE;
-      if (player.fling_distance<=0) {
+      if (player.fling_distance<=0) { //player's fling distance is 0'
         player.previous_web_placed=-1;
-        if (!player.is_swinging) {
+        if (!player.is_swinging) { // player is not swinging
           if (player.on_ground_id==-1) { //player is not on ground
 	        allow_act=TRUE;
-          } else if (player.on_ground_id!=-1) {
+          } else if (player.on_ground_id!=-1 && !player.blocking) { //on a ground but not blocking
             allow_act=TRUE;
-          } 
+          }  
         } else if (player.on_ground_id!=-1) { //is swinging but on ground
           if (player.pivot_length<DEFAULT_PLAYER_BUILD_RANGE/2*NODE_SIZE) {
             allow_act=TRUE;
@@ -1059,7 +1054,7 @@ void PlayerAct() {
         if (player.rst_left || player.rst_right) {
           player.rebound_timer=0;
         }
-        if (player.current_above) {
+        if (player.current_above) { //player is above ground
           if (player.rst_right) {
             move_x(cos(player.angle));
             move_y(sin(player.angle));
@@ -1067,7 +1062,7 @@ void PlayerAct() {
             move_x(-cos(player.angle));
             move_y(-sin(player.angle));
           }
-        } else if (player.current_below) {
+        } else if (player.current_below) { //player is below ground
           if (player.rst_right) {
             move_x(-cos(player.angle));
             move_y(-sin(player.angle));
@@ -1075,22 +1070,26 @@ void PlayerAct() {
             move_x(cos(player.angle));
             move_y(sin(player.angle));
           }
-        } else {
+        } else { //player is not on ground
           if (player.rst_left) {
             move_x(-1);
           } else if (player.rst_right) {
             move_x(1);
-          }
-          /*if (player.rst_down && player.speed>3) {
-            if (player.fling_left) {
-              move_x(-1);
-            } else {
-              move_x(1);
+          } /*else {
+            if (player.rst_down && player.speed>3) {
+              if (player.fling_left) {
+                move_x(-1);
+              } else {
+                move_x(1);
+              }
             }
           }*/
         }
       }
-      //fling movement
+
+
+
+      //======FLING MOVEMENT======
       if (grav_speed==0 && player.fling_distance>0 && !player.is_swinging) {
         if (!player.fling_left) {
           move_x(-cos(player.launch_angle));
@@ -1109,7 +1108,8 @@ void PlayerAct() {
       }
 
 
-      //====Player }swinging movement======
+
+      //====PLAYER CIRCULAR WEB SWINGING MOVEMENT======
       if (player.is_swinging && (grav_speed==0 || grav_speed==1)) {
       /*if (player.right_click_hold_timer>0) {
       //double launch_angle=GetCosAngle(GR_WIDTH/2-mouse_x+player.cam_x,0.01);
@@ -1127,6 +1127,7 @@ void PlayerAct() {
         player.pivot_angle=GetCosAngle(player.x-player.pivot_x,player.pivot_length);
 
 
+        //>>>Calculate the Launch Angle of player when swung from pivot
         if (player.y>player.pivot_y) { //player is below pivot
           player.launch_angle=player.pivot_angle+M_PI_2;
         } else { //player is above pivot
@@ -1219,7 +1220,7 @@ void PlayerAct() {
               }
             }
           }
-        } else if (grav_speed==1){
+        } else if (grav_speed==1) {//only occurs right after grav_speed==0
           if (player.pivot_length>NODE_SIZE*DEFAULT_PLAYER_BUILD_RANGE/2) { //rubber band back if pivot length too long
             if (player.y>player.pivot_y) {
               move_x(-cos(-player.pivot_angle));
@@ -1239,6 +1240,10 @@ void PlayerAct() {
       } else if (player.x+PLAYER_WIDTH/2>MAP_WIDTH) {
         move_x(-1);
       }
+
+
+
+
      //misc
       if (player.print_current_above!=player.current_above) {
         player.previous_above=player.current_above;
@@ -1292,11 +1297,10 @@ void PlayerAct() {
       }
     }
   }
+
+
   double grav_dist=GetDistance(player.speed,0,0,player.grav);
   player.angle_of_incidence=GetCosAngle(player.speed,grav_dist);
-  /*if (player.last_left) {
-    player.angle_of_incidence=-M_PI-GetCosAngle(player.speed,grav_dist);
-  }*/
 
   if (player.fling_distance>0) {
     if (player.fling_left) {
@@ -1306,10 +1310,8 @@ void PlayerAct() {
     }
   }
 
-  //if (player.last_left) {
-  /*} else {
-    player.angle_of_reflection=player.angle+player.angle_of_incidence;
-  }*/
+
+
 
  //misc
   if (player.on_ground_timer>0) {
