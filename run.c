@@ -488,6 +488,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         case 'W':case VK_UP:if(player.rst_up)player.rst_up=FALSE;break;
         case 'M':song_seconds_run_max=-1;play_new_song=FALSE;break;//end current song
         case ' ':if(player.rst_key_sprint)player.rst_key_sprint=FALSE;break;
+        case 'C':
+          if (player.sleep_timer==DEFAULT_SLEEP_TIMER) {
+            player.sleep_timer=SLOWDOWN_SLEEP_TIMER;
+          } else {
+            player.sleep_timer=DEFAULT_SLEEP_TIMER;
+          }
+          break;
 	    case '1':
 	      player.attack_rst=FALSE;
 	      player.attack=TRUE;
