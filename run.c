@@ -431,8 +431,8 @@ void DrawTexts(HDC hdc) {
 
 
   char txt6[16];
-  int print_jump=player.on_ground_timer;
-  sprintf(txt6,"ongroundtimer: %d",print_jump);  
+  int print_jump=player.in_air_timer;
+  sprintf(txt6,"inairtimer: %d",print_jump);  
   GrPrint(hdc,0,80,txt6,c);
 }
 

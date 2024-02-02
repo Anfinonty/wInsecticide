@@ -699,13 +699,13 @@ void PlayerAct() {
           bm_y2=player.y;
         }
         if (player.placed_web_pos<player.max_web_num) { //if pointer to web is less than the no. of webs player has currently     
-          if (player.max_web_num-player.placed_web_num>0) {
+          //if (player.max_web_num-player.placed_web_num>0) {
             while (player.web_storage[player.placed_web_pos]==-1) { //find player.web_storage that is not empty
               player.placed_web_pos=LimitValue(player.placed_web_pos+1,0,player.max_web_num); //reset back to 0 if over the max
             }
-          } else {
+          /*} else {
             player.placed_web_pos=LimitValue(player.placed_web_pos+1,0,player.max_web_num); //reset back to 0 if over the max
-          }
+          }*/
           int web_id=player.web_storage[player.placed_web_pos];
           if (web_id!=-1) {
             player.previous_web_placed=web_id;
@@ -799,12 +799,16 @@ void PlayerAct() {
         if (!IsSpeedBreaking()) {//reset stats when normal
           //player.jump_height=DEFAULT_PLAYER_JUMP_HEIGHT;
           if (player.fling_distance<=0 && player.on_ground_timer>=1 && speed==0 && grav_speed==0) {
-	        if (!player.rst_key_sprint) {
-              if (player.speed>DEFAULT_PLAYER_SPEED)
-                player.speed--;
-	        } else {
-              if (player.speed>3)
-                player.speed--;
+            if (player.rebound_timer<=0) {
+	          if (!player.rst_key_sprint) {
+                if (player.speed>DEFAULT_PLAYER_SPEED)
+                  player.speed--;
+	          } else {
+                if (player.speed>3)
+                  player.speed--;
+              }
+            } else {
+              //player.speed=3;
             }
           }
         }
@@ -948,7 +952,7 @@ void PlayerAct() {
 
     //Gravity
       if (grav_speed==0 && speed==0) {
-        if (player.on_ground_id==-1 && player.fling_distance<=0) {
+        if (player.on_ground_id==-1/* && player.fling_distance<=0*/) {
           player.in_air_timer++;
 	      if (player.jump_height==0) {
             if (player.in_air_timer%20==0 && player.grav<=100) {
@@ -1077,13 +1081,13 @@ void PlayerAct() {
           } else if (player.rst_right) {
             move_x(1);
           }
-          if (player.rst_down && player.speed>3) {
+          /*if (player.rst_down && player.speed>3) {
             if (player.fling_left) {
               move_x(-1);
             } else {
               move_x(1);
             }
-          }
+          }*/
         }
       }
       //fling movement
