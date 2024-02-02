@@ -204,6 +204,12 @@ void BulletAct(int bullet_id)
  
       //
       if (enemy_id!=-1) { //Enemy bullet
+        if (GetDistance(Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
+          Bullet[bullet_id].angle=RandNum(-M_PI,M_PI,enemy_id);
+        }
+
+
+
         hit_player=HitPlayer(bullet_id);
       //bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,0.5,0.5,FALSE);
         bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2,FALSE);
@@ -213,8 +219,7 @@ void BulletAct(int bullet_id)
 	    } else if ( //Bullet has hit something
 	        bullet_on_ground_id!=-1 || //on a gound
             IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT) ||
-	        Bullet[bullet_id].range<=0 || //end of range
-            GetDistance(Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22
+	        Bullet[bullet_id].range<=0 //end of range
         ) {
 	      allow_act=TRUE;
         }
@@ -230,6 +235,7 @@ void BulletAct(int bullet_id)
       	        player_speed_breaker_recharge_minus-=2;
     	    }*/
 	        } else {//player is blocking
+              Bullet[bullet_id].angle=RandNum(-M_PI,M_PI,enemy_id);
 	          if (player.block_timer>15) {//non-perfect block
 	            double blocked_bullet_dmg=Bullet[bullet_id].damage;
 	            if (player.on_ground_id!=-1) {//on ground
@@ -281,8 +287,9 @@ void BulletAct(int bullet_id)
 	      }
         }
 	  }*/
-	  StopBullet(bullet_id,FALSE);
-
+      if (!(hit_player && player.is_rebounding)) {
+        StopBullet(bullet_id,FALSE);
+      }
         //Enemy bullet shot array arrangement
 	  for (j=Bullet[bullet_id].saved_pos;j<Enemy[enemy_id].bullet_shot_num-1;j++) {
 	    Enemy[enemy_id].bullet_shot_arr[j]=Enemy[enemy_id].bullet_shot_arr[j+1];

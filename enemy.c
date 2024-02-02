@@ -708,6 +708,9 @@ void EnemyAct(int i)
         if ((player.block_timer<30 && player.block_timer>28) || (player.block_timer<10)) {
           deduct_health=TRUE;
         }
+        if (player.is_rebounding && player.speed>5) {
+          deduct_health=TRUE;        
+        }
         if (player.last_left) {
           Enemy[i].knockback_left=TRUE;
         }

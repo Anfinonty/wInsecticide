@@ -1405,13 +1405,16 @@ void PlayerAct() {
     player.speed++;
   }
 
-  if (player.on_ground_id==-1 && player.block_timer>0) {
-    player.sprite_angle-=0.1;
+  if (player.on_ground_id==-1) {
+    if (player.block_timer>0) {
+      player.sprite_angle-=0.1;
+    } else {
+      player.sprite_angle=0;
+    }
   }
   if (player.sprite_angle<-M_PI*2) {
     player.sprite_angle=0;
   }
-
   player.sprite_x=GR_WIDTH/2+player.cam_move_x;
   player.sprite_y=GR_HEIGHT/2+player.cam_move_y-PLAYER_HEIGHT/2;
  //
