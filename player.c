@@ -832,12 +832,22 @@ void PlayerAct() {
               player.fling_distance=0;
             }
 
-
-            if (Ground[player.on_ground_id].gradient>0) {
-              player.angle_of_reflection=-player.angle-player.angle_of_incidence;
+            if (abs(Ground[player.on_ground_id].gradient)<=1) {
+              if (Ground[player.on_ground_id].gradient>0) {
+                player.angle_of_reflection=-player.angle-player.angle_of_incidence;
+              } else {
+                player.angle_of_reflection=-player.angle+M_PI+player.angle_of_incidence;
+              }
             } else {
-              player.angle_of_reflection=-player.angle+M_PI+player.angle_of_incidence;
+              if (Ground[player.on_ground_id].gradient>0) {
+                player.angle_of_reflection=-player.angle+player.angle_of_incidence;
+              } else {
+                player.angle_of_reflection=-player.angle+M_PI-player.angle_of_incidence;
+              }
             }
+
+
+
 
             if (player.blocking && player.in_air_timer>0) {
               player.is_rebounding=TRUE;
@@ -956,7 +966,11 @@ void PlayerAct() {
 
 
       //REBOUND ACTIONS
-      if (player.is_rebounding && grav_speed==0) {
+      allow_act=FALSE;
+      if (grav_speed==0) {
+        allow_act=TRUE;
+      } 
+      if (player.is_rebounding && allow_act) {
         if (player.rebound_above) {
           move_x(cos(player.angle_of_reflection));
           move_y(sin(player.angle_of_reflection));
@@ -975,6 +989,9 @@ void PlayerAct() {
 	      if (player.jump_height==0) {
             if (player.in_air_timer%20==0 && player.grav<=100) {
               player.grav++;
+              if (player.is_rebounding && player.speed<4) {
+                player.speed++;
+              }
 	          player.player_grav=0.5;
               if (player.is_swinging) {
                 player.grav=3;
@@ -1591,8 +1608,8 @@ void DrawPlayer(HDC hdc)
   }
 
   //Draw angle of incidence
-  GrLine(hdc,player.sprite_x,player.sprite_y,player.sprite_x+cos(player.angle_of_incidence)*100,player.sprite_y+sin(player.angle_of_incidence)*100,BROWN);
-  GrLine(hdc,player.sprite_x,player.sprite_y,player.sprite_x+cos(player.angle_of_reflection)*100,player.sprite_y+sin(player.angle_of_reflection)*100,YELLOW);
+  //GrLine(hdc,player.sprite_x,player.sprite_y,player.sprite_x+cos(player.angle_of_incidence)*100,player.sprite_y+sin(player.angle_of_incidence)*100,BROWN);
+  //GrLine(hdc,player.sprite_x,player.sprite_y,player.sprite_x+cos(player.angle_of_reflection)*100,player.sprite_y+sin(player.angle_of_reflection)*100,YELLOW);
 
 }
 
