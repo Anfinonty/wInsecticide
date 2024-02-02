@@ -671,7 +671,7 @@ void PlayerAct() {
     }//end switch
   } else { //meelee attack only
     if (player.left_click_hold_timer==62) { //swing but no web is placed
-      if (player._is_swinging) {
+      if (player.is_swinging) {
         player.is_swinging=FALSE;
         player.fling_distance+=player.pivot_length*2;
         player.key_jump_timer=player.player_jump_height;
@@ -699,7 +699,6 @@ void PlayerAct() {
           bm_y2=player.y;
         }
         if (player.placed_web_pos<player.max_web_num) { //if pointer to web is less than the no. of webs player has currently     
-          PlayerPlaceWeb();
           if (player.max_web_num-player.placed_web_num>0) {
             while (player.web_storage[player.placed_web_pos]==-1) { //find player.web_storage that is not empty
               player.placed_web_pos=LimitValue(player.placed_web_pos+1,0,player.max_web_num); //reset back to 0 if over the max
@@ -717,6 +716,7 @@ void PlayerAct() {
             SetGround(web_id);
             SetNodeGridAttributes(web_id);
             //double q=0.2*(((DEFAULT_PLAYER_BUILD_RANGE/2*NODE_SIZE)-Bullet[bullet_id].range)/10);
+            PlayerPlaceWeb();
             Ground[web_id].health=10;//-q;
             player.speed++;
           }
