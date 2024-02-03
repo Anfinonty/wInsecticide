@@ -168,7 +168,7 @@ void InitGround()
       Ground[i].y2=2;
       Ground[i].x3=-15;
       Ground[i].y3=2;
-      Ground[i].color=TRANSPARENT;
+      Ground[i].color=CYAN;//TRANSPARENT;
       Ground[i].type=0;
       Ground[i].text="";
       Ground[i].is_ghost=FALSE;

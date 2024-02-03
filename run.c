@@ -312,7 +312,6 @@ void Init() {
   InitBullet();
   InitEnemy();
   InitNodeGridAttributes();
-  //InitBackground;
   InitPlayer();
   InitGround2();
 }
@@ -375,6 +374,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
       Init();
     }
     Sleep(player.sleep_timer);
+    //Sleep(6);
   }
 }
 

@@ -204,47 +204,52 @@ bool IsHasNeighbours(int nx,int ny)
 
 void SetNodeGridAttributes2(int i)
 {
-  int j=0,x=0,y=0,lg_grid_id=0;
-  double gradient[2],c[2],
-      min=0,max=0,x1=0,y1=0,lg_x=0,lg_y=0;
-  gradient[0]=GetGradient(Ground[i].x1,Ground[i].y1,Ground[i].x3,Ground[i].y3);
-  gradient[1]=GetGradient(Ground[i].x2,Ground[i].y2,Ground[i].x3,Ground[i].y3);
-  c[0]=GetGroundC(Ground[i].x3,Ground[i].y3,gradient[0]);
-  c[1]=GetGroundC(Ground[i].x3,Ground[i].y3,gradient[1]);
+  int j=0,x=0,y=0,lg_grid_id=0,min=0,max=0,x1=0,y1=0;
+  double gradient1,gradient2,c1,c2,lg_x=0,lg_y=0,gradient=0,c=0;
+  gradient1=GetGradient(Ground[i].x1,Ground[i].y1,Ground[i].x3,Ground[i].y3);
+  gradient2=GetGradient(Ground[i].x2,Ground[i].y2,Ground[i].x3,Ground[i].y3);
+  c1=GetGroundC(Ground[i].x3,Ground[i].y3,gradient1);
+  c2=GetGroundC(Ground[i].x3,Ground[i].y3,gradient2);
   for (j=0;j<2;j++) {
     switch (j) {
       case 0:
-	x1=Ground[i].x1;
-	y1=Ground[i].y1;
-	break;
+	    x1=Ground[i].x1;
+	    y1=Ground[i].y1;
+        gradient=gradient1;
+        c=c1;
+	    break;
       case 1:
-	x1=Ground[i].x2;
-	y1=Ground[i].y2;
-	break;
+	    x1=Ground[i].x2;
+	    y1=Ground[i].y2;
+        gradient=gradient2;
+        c=c2;
+	    break;
     }
-    if (-1<gradient[i] && gradient[i]<1) {//y=mx+c
+
+
+    if (-1<gradient && gradient<1) {//y=mx+c
       if (x1<Ground[i].x3) { //x1 is lower than x3
-	min=x1;
-	max=Ground[i].x3;
+	    min=x1;
+	    max=Ground[i].x3;
       } else {
-	min=Ground[i].x3;
-	max=x1;
+	    min=Ground[i].x3;
+	    max=x1;
       }
       for (x=min;x<max;x++) {
-        lg_y=x*gradient[j]+c[j];
+        lg_y=x*gradient+c;
         lg_grid_id=GetGridId(x,lg_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
         SetGridLineArray(lg_grid_id,i);
       }
     } else {// x=(y-c)/m
       if (y1<Ground[i].y3) { //y1 is lower than x3
-	min=y1;
-	max=Ground[i].y3;
+	    min=y1;
+	    max=Ground[i].y3;
       } else {
-	min=Ground[i].y3;
-	max=y1;
+	    min=Ground[i].y3;
+	    max=y1;
       }
       for (y=min;y<max;y++) {
-        lg_x=(y-c[j])/gradient[j];
+        lg_x=(y-c)/gradient;
         lg_grid_id=GetGridId(lg_x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
         SetGridLineArray(lg_grid_id,i);
       }
