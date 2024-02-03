@@ -457,6 +457,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       player.rst_right_click=FALSE;
       break;
     case  WM_MOUSEMOVE: //https://stackoverflow.com/questions/22039413/moving-the-mouse-blocks-wm-timer-and-wm-paint
+      if (!IsIconic(hwnd)) //no action when minimized
       {
         POINT point;
         if (GetCursorPos(&point)) {
@@ -506,11 +507,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       }
       break;
     case WM_ERASEBKGND:
-      InvalidateRect(hwnd,NULL,TRUE);
+      if (!IsIconic(hwnd)) //no action when minimized
+        InvalidateRect(hwnd,NULL,TRUE);
       return TRUE;
       break;
     case WM_PAINT: //https://cplusplus.com/forum/beginner/269434/
-    {
+    if (!IsIconic(hwnd)) //no action when minimized, prevents crash https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-isiconic?redirectedfrom=MSDN
+    { //https://stackoverflow.com/questions/752593/win32-app-suspends-on-minimize-window-animation
       //FrameRateSleep(35); //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
       FrameRateSleep(FPS); // (Uncapped)
       PlayerCameraShake();
