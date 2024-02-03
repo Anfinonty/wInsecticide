@@ -205,7 +205,7 @@ void BulletAct(int bullet_id)
       //
       if (enemy_id!=-1) { //Enemy bullet
         if (GetDistance(Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
-          Bullet[bullet_id].angle=RandNum(-M_PI,M_PI,enemy_id);
+          Bullet[bullet_id].angle=RandNum(-M_PI,M_PI,Enemy[enemy_id].seed);
         }
 
 
@@ -235,7 +235,7 @@ void BulletAct(int bullet_id)
       	        player_speed_breaker_recharge_minus-=2;
     	    }*/
 	        } else {//player is blocking
-              Bullet[bullet_id].angle=RandNum(-M_PI,M_PI,enemy_id);
+              Bullet[bullet_id].angle=RandNum(-M_PI,M_PI,Enemy[enemy_id].seed);
 	          if (player.block_timer>15) {//non-perfect block
 	            double blocked_bullet_dmg=Bullet[bullet_id].damage;
 	            if (player.on_ground_id!=-1) {//on ground
@@ -287,9 +287,7 @@ void BulletAct(int bullet_id)
 	      }
         }
 	  }*/
-      if (!(hit_player && player.is_rebounding)) {
-        StopBullet(bullet_id,FALSE);
-      }
+       StopBullet(bullet_id,FALSE);
         //Enemy bullet shot array arrangement
 	  for (j=Bullet[bullet_id].saved_pos;j<Enemy[enemy_id].bullet_shot_num-1;j++) {
 	    Enemy[enemy_id].bullet_shot_arr[j]=Enemy[enemy_id].bullet_shot_arr[j+1];

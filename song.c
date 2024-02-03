@@ -740,27 +740,27 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
       //rand_song1=RandNum(0,SONG_FOLDER_NUM-1); //full version
       //rand_song1=1; //demo version
         if (rand_song1!=-1) {
-        rand_song2=RandNum(0,SONG_NUM-1,1);
+          rand_song2=RandNum(0,SONG_NUM-1,1);
         //time_now=int_current_timestamp();//get time in seconds
         //song_time_end=time_now+song_durations[rand_song1][rand_song2]+2;
 
-        song_seconds_run=0;
-        song_seconds_run_max=song_durations[rand_song1][rand_song2];
+          song_seconds_run=0;
+          song_seconds_run_max=song_durations[rand_song1][rand_song2];
 
 
       //printf("%d\n",rand_song2); //debug
       //printf("%s",song_name0[rand_song2]);
-        if (rand_song1<10)
-          sprintf(songname,"music/0%d/%d.wav",rand_song1,rand_song2);
-        else
-          sprintf(songname,"music/%d/%d.wav",rand_song1,rand_song2);
+          if (rand_song1<10)
+            sprintf(songname,"music/0%d/%d.wav",rand_song1,rand_song2);
+          else
+            sprintf(songname,"music/%d/%d.wav",rand_song1,rand_song2);
       //printf("%s\n",songname); //debug
       //printf("%d",rand_song2);
       //printf("%d",time_end);
-        play_new_song=false;
-        PlaySoundA(songname,NULL,SND_ASYNC); //plays sound async
+          play_new_song=false;
+          PlaySoundA(songname,NULL,SND_ASYNC); //plays sound async
         //mciSendStringA(songname,NULL,0,NULL); //plays sound async
-      }
+        }
       }
       //time_now=int_current_timestamp();//get time in seconds
       //song_seconds_run=0;
