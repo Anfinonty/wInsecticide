@@ -186,12 +186,12 @@ void InitGround2()
 {
   int i=0;
   for (i=0;i<GROUND_NUM+MAX_WEB_NUM;i++) {
-    Ground[i].sprite_x1=Ground[i].x1+player.cam_x;//+cam_move_x-PLAYER_WIDTH/2;
-    Ground[i].sprite_y1=Ground[i].y1+player.cam_y;//+cam_move_y-PLAYER_HEIGHT/2;
-    Ground[i].sprite_x2=Ground[i].x2+player.cam_x;//+cam_move_x-PLAYER_WIDTH/2;
-    Ground[i].sprite_y2=Ground[i].y2+player.cam_y;//+cam_move_y-PLAYER_HEIGHT/2;
-    Ground[i].sprite_x3=Ground[i].x3+player.cam_x;//+cam_move_x-PLAYER_WIDTH/2;
-    Ground[i].sprite_y3=Ground[i].y3+player.cam_y;//+cam_move_y-PLAYER_HEIGHT/2;
+    Ground[i].sprite_x1=-20;//Ground[i].x1+player.cam_x;//+cam_move_x-PLAYER_WIDTH/2;
+    Ground[i].sprite_y1=-20;//Ground[i].y1+player.cam_y;//+cam_move_y-PLAYER_HEIGHT/2;
+    Ground[i].sprite_x2=-20;//Ground[i].x2+player.cam_x;//+cam_move_x-PLAYER_WIDTH/2;
+    Ground[i].sprite_y2=-20;//Ground[i].y2+player.cam_y;//+cam_move_y-PLAYER_HEIGHT/2;
+    Ground[i].sprite_x3=-20;//Ground[i].x3+player.cam_x;//+cam_move_x-PLAYER_WIDTH/2;
+    Ground[i].sprite_y3=-20;//Ground[i].y3+player.cam_y;//+cam_move_y-PLAYER_HEIGHT/2;
   }
 }
 

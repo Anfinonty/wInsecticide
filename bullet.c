@@ -16,8 +16,8 @@ void InitBullet()
     Bullet[i].from_enemy_id=-1;
     Bullet[i].start_x=Bullet[i].x=-20;
     Bullet[i].start_y=Bullet[i].y=-20;
-    Bullet[i].sprite_x=Bullet[i].x+player.cam_x+player.cam_move_x;
-    Bullet[i].sprite_y=Bullet[i].y+player.cam_y+player.cam_move_y;
+    Bullet[i].sprite_x=-20;//Bullet[i].x+player.cam_x+player.cam_move_x;
+    Bullet[i].sprite_y=-20;//Bullet[i].y+player.cam_y+player.cam_move_y;
     Bullet[i].graphics_type=0;
     Bullet[i].angle=0;
 //
@@ -110,8 +110,8 @@ void StopBullet(int bullet_id,bool is_player)
   Bullet[bullet_id].speed_multiplier=0;
   Bullet[bullet_id].x=-20;
   Bullet[bullet_id].y=-20;
-  Bullet[bullet_id].sprite_x=Bullet[bullet_id].x+player.cam_x+player.cam_move_x;
-  Bullet[bullet_id].sprite_y=Bullet[bullet_id].y+player.cam_y+player.cam_move_y;
+  Bullet[bullet_id].sprite_x=-20;//Bullet[bullet_id].x+player.cam_x+player.cam_move_x;
+  Bullet[bullet_id].sprite_y=-20;//Bullet[bullet_id].y+player.cam_y+player.cam_move_y;
   if (is_player) {
     Bullet[bullet_id].saved_pos=-1;
   }

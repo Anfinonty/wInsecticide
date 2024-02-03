@@ -103,7 +103,7 @@ struct player
   int render_enemies[ENEMY_NUM];
 
   int rendered_ground_num;
-  int render_grounds[GROUND_NUM];
+  int render_grounds[GROUND_NUM+MAX_WEB_NUM];
 
   double saved_x;
   double saved_y;
