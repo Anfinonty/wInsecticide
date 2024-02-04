@@ -488,9 +488,9 @@ Right Click - Swing with Wceb Placement
   if (display_controls) {
   GrPrint(hdc,4,GR_HEIGHT-80-16*23,"Controls:",c);
   GrPrint(hdc,4,GR_HEIGHT-80-16*22,"'W' - Jump from Surface",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*21,"'A' - Move Left (Anti-Clockwise)",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*21,"'A' - Move Left (Clockwise)",c);
   GrPrint(hdc,4,GR_HEIGHT-80-16*20,"'S' - Block or Spin",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*19,"'D' - Move Right (Clockwise)",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*19,"'D' - Move Right (Anti-Clockwise)",c);
   GrPrint(hdc,4,GR_HEIGHT-80-16*18,"'Q' - Pick Up Web",c);
   GrPrint(hdc,4,GR_HEIGHT-80-16*17,"'1' - Attack",c);
   GrPrint(hdc,4,GR_HEIGHT-80-16*16,"'E' - Hold with Attack for Uppercut",c);
@@ -504,9 +504,9 @@ Right Click - Swing with Wceb Placement
 
   GrPrint(hdc,4,GR_HEIGHT-80-16*7,"Controls While Swinging:",c);
   GrPrint(hdc,4,GR_HEIGHT-80-16*6,"'W' - Decrease Web Length",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*5,"'A' - Swing Anti-clockwise",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*5,"'A' - Swing Clockwise",c);
   GrPrint(hdc,4,GR_HEIGHT-80-16*4,"'S' - Increase Web Length",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*3,"'D' - Swing Clockwise",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*3,"'D' - Swing Anti-Clockwise",c);
   GrPrint(hdc,4,GR_HEIGHT-80-16*2,"[Left Click] - Swing without Web Placement",c);
   GrPrint(hdc,4,GR_HEIGHT-80-16,"[Right Click] - Swing with Web Placement",c);
   }
