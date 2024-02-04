@@ -376,27 +376,27 @@ void DrawTexts(HDC hdc) {
 
 
   if (song_folder_num>0) {
-  char txt[64];
-  char *song_name=song_names[rand_song1][rand_song2];
-  //int sec = (song_time_end-time_now)%60;
-  int sec = (song_seconds_run_max-song_seconds_run)%60;
-  if (sec>-1) {
-    if (sec>9)
-      //sprintf(txt,"%s [%d:%d]",song_name,(song_time_end-time_now)/60,sec);
-      sprintf(txt,"%s [%d:%d]",song_name,(song_seconds_run_max-song_seconds_run)/60,sec);
-    else 
-      //sprintf(txt,"%s [%d:0%d]",song_name,(song_time_end-time_now)/60,sec);
-      sprintf(txt,"%s [%d:0%d]",song_name,(song_seconds_run_max-song_seconds_run)/60,sec);
+    char txt[64];
+    char *song_name=song_names[rand_song1][rand_song2];
+    //int sec = (song_time_end-time_now)%60;
+    int sec = (song_seconds_run_max-song_seconds_run)%60;
+    if (sec>-1) {
+      if (sec>9)
+        //sprintf(txt,"%s [%d:%d]",song_name,(song_time_end-time_now)/60,sec);
+        sprintf(txt,"%s [%d:%d]",song_name,(song_seconds_run_max-song_seconds_run)/60,sec);
+      else 
+        //sprintf(txt,"%s [%d:0%d]",song_name,(song_time_end-time_now)/60,sec);
+        sprintf(txt,"%s [%d:0%d]",song_name,(song_seconds_run_max-song_seconds_run)/60,sec);
 
-    char txt2[128];
-    char *album_name=/*album_name_arr[*/album_names[rand_song1][rand_song2]/*]*/;
-    sprintf(txt2,"%s",album_name);  
+      char txt2[128];
+      char *album_name=/*album_name_arr[*/album_names[rand_song1][rand_song2]/*]*/;
+      sprintf(txt2,"%s",album_name);  
 
-    GrPrint(hdc,4,0,txt,c);
-    GrPrint(hdc,4,16,txt2,c);
-  } else {
-    GrPrint(hdc,4,0,"Choosing Song...",c);
-  }
+      GrPrint(hdc,4,0,txt,c);
+      GrPrint(hdc,4,16,txt2,c);
+    } else {
+      GrPrint(hdc,4,0,"Choosing Song...",c);
+    }
   }
   //GrPrint(hwnd,hdc,ps,0,0,_txt,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
 
@@ -484,11 +484,12 @@ Right Click - Swing with Wceb Placement
 */
 
   if (display_controls) {
-  GrPrint(hdc,4,GR_HEIGHT-80-16*20,"Controls:",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*19,"'W' - Jump from Surface",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*18,"'A' - Move Left (Anti-Clockwise)",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*17,"'S' - Block or Spin",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*16,"'D' - Move Right (Clockwise)",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*21,"Controls:",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*20,"'W' - Jump from Surface",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*19,"'A' - Move Left (Anti-Clockwise)",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*18,"'S' - Block or Spin",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*17,"'D' - Move Right (Clockwise)",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*16,"'Q' - Pick Up Web",c);
   GrPrint(hdc,4,GR_HEIGHT-80-16*15,"'Z' - Time Breaker Ability",c);
   GrPrint(hdc,4,GR_HEIGHT-80-16*14,"'C' - Increase Reaction Time",c);
   GrPrint(hdc,4,GR_HEIGHT-80-16*13,"'M' - New Random Music",c);
