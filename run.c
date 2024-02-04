@@ -225,7 +225,7 @@ void DrawPlatforms(HDC hDC)
                  player.x-GR_WIDTH/2,
                  player.y-GR_HEIGHT/2,
                  GR_WIDTH,
-                 GR_HEIGHT,
+                 GR_HEIGHT+player.grav*2,
                 map_platforms_sprite_mask,SRCAND,FALSE);
   //Draw platforms paint
   DrawBitmap(hDC,player.cam_move_x+player.cam_x+player.x-GR_WIDTH/2,
@@ -233,7 +233,7 @@ void DrawPlatforms(HDC hDC)
                  player.x-GR_WIDTH/2,
                  player.y-GR_HEIGHT/2,
                  GR_WIDTH,
-                 GR_HEIGHT,
+                 GR_HEIGHT+player.grav*2,
                 map_platforms_sprite,SRCPAINT,FALSE);
 }
 

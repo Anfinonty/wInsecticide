@@ -129,16 +129,6 @@ struct player
   double sprite_y;
   double claws_x;
   double claws_y;
-    //background_cam_move_x=0,
-    //background_cam_move_y=0;
-  //misc
-  double speed_breaker_units;
-  double speed_breaker_cooldown;
-  double speed_breaker_max;
-  double speed_breaker_cooldown_max;
-  double speed_breaker_recharge_cooldown;
-  double speed_breaker_recharge_cooldown_max;
-
 
   int block_recharge_timer_max;
   int block_recharge_timer;
@@ -157,7 +147,6 @@ struct player
   double health;
 
 
-  int lock_web_type;
   int max_web_num;
 
   int bullet_shot;
@@ -165,7 +154,6 @@ struct player
   int placed_web_pos;
   int placed_web_num;
 
-  int web_type;
   int web_being_shot;
   int web_storage[MAX_WEB_NUM];
 
@@ -188,6 +176,8 @@ struct player
   double fling_distance;
   bool fling_left;
   int previous_web_placed;
+
+
 
 
   bool is_rebounding;
