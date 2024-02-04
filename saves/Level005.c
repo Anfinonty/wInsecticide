@@ -42,7 +42,7 @@ int saved_enemy_type_snd_rand[ENEMY_TYPE_NUM]={5,5,126,1,1,1,1,1,1,1};
 int saved_enemy_type_death_snd_dur[ENEMY_TYPE_NUM]={20,30,30,30,30,30,30,30,30,30};
 int saved_enemy_type_death_snd_pitch[ENEMY_TYPE_NUM]={0,0,0,0,0,0,0,0,0,0};
 int saved_enemy_type_death_snd_rand[ENEMY_TYPE_NUM]={126,126,126,126,126,126,126,126,126,126};
-int saved_enemy_type_time_breaker_rare[ENEMY_TYPE_NUM]={60,0,0,0,0,0,0,0,0,0};
+int saved_enemy_type_time_breaker_rare[ENEMY_TYPE_NUM]={600,0,0,0,0,0,0,0,0,0};
 int saved_enemy_type_time_breaker_length[ENEMY_TYPE_NUM]={15000,0,0,0,0,0,0,0,0,0};
 bool saved_enemy_type_time_breaker_immune[ENEMY_TYPE_NUM]={1,0,0,0,0,0,0,0,0,0};
 float saved_player_x=961,saved_player_y=1253;

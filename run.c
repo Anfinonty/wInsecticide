@@ -484,16 +484,17 @@ Right Click - Swing with Wceb Placement
 */
 
   if (display_controls) {
-  GrPrint(hdc,4,GR_HEIGHT-80-16*21,"Controls:",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*20,"'W' - Jump from Surface",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*19,"'A' - Move Left (Anti-Clockwise)",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*18,"'S' - Block or Spin",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*17,"'D' - Move Right (Clockwise)",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*16,"'Q' - Pick Up Web",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*23,"Controls:",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*22,"'W' - Jump from Surface",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*21,"'A' - Move Left (Anti-Clockwise)",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*20,"'S' - Block or Spin",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*19,"'D' - Move Right (Clockwise)",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*18,"'Q' - Pick Up Web",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*17,"'1' - Attack",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*16,"'E' - Hold with Attack for Uppercut",c);
   GrPrint(hdc,4,GR_HEIGHT-80-16*15,"'Z' - Time Breaker Ability",c);
   GrPrint(hdc,4,GR_HEIGHT-80-16*14,"'C' - Increase Reaction Time",c);
   GrPrint(hdc,4,GR_HEIGHT-80-16*13,"'M' - New Random Music",c);
-
   GrPrint(hdc,4,GR_HEIGHT-80-16*12,"[Space] - Sprint",c);
   GrPrint(hdc,4,GR_HEIGHT-80-16*11,"[Left Click] - Attack and Stop Web Shooting",c);
   GrPrint(hdc,4,GR_HEIGHT-80-16*10,"[Right Click] - Shoot web",c);
@@ -658,7 +659,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	      player.blocking=FALSE;
 	      break;
 	    case 'E':
-	      player.uppercut=FALSE;
+          if (player.uppercut) {
+	        player.uppercut=FALSE;
+          }
 	      break;
       }
       break;

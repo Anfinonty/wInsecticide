@@ -969,7 +969,8 @@ void PlayerAct() {
         }
         if (player.on_ground_id==-1 && player.jump_height<=0) {
           if (!player.is_swinging && player.fling_distance<=0) {
-            if (player.in_air_timer>15) {
+//            if (player.in_air_timer>15) {
+            if (player.in_air_timer>11) {
               move_y(player.player_grav);
 	        } else {
               move_x(-player.player_grav*2*cos(player.launch_angle));
