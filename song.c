@@ -363,6 +363,8 @@ int song_duration12[SONG_NUM]={
 300 + 4 //9 Voodoo People (Pendulum Remix) - The Prodigy
 };
 
+
+
 char *song_name12[SONG_NUM]={
 "An Honest Mistake - The Bravery",
 "Echoes - Klaxons",
@@ -406,6 +408,34 @@ char *song_name13[SONG_NUM]={
 };
 
 
+//14
+int song_duration14[SONG_NUM]={
+120 + 46,
+120 + 42,
+120 + 15,
+60 + 29,
+120 + 20,
+180 + 6,
+180 + 6,
+120 + 6,
+180 + 41,
+57
+};
+
+
+char *song_name14[SONG_NUM]={
+"3aqad-al3azm",    //120 + 46
+"ahlaan_belashbal",    //120 + 42
+"anjoom_la7at",    //120 + 15
+"atalmah",         //60 + 29
+"awall_hofdee",    //120 + 20
+"bayetn_saeed",    //180 + 6
+"n7o_beet_allah",  //180 + 6
+"Rsmt_Asrtna_lo7tha",  //120 + 6
+"yalalh_lalee",    //180 + 41
+"Ya_Rfeeq"        //57
+};
+
 
 
 int *song_durations[SONG_FOLDER_NUM]={
@@ -422,7 +452,8 @@ int *song_durations[SONG_FOLDER_NUM]={
   song_duration10,
   song_duration11,
   song_duration12,
-  song_duration13
+  song_duration13,
+  song_duration14
 };
 
 char **song_names[SONG_FOLDER_NUM]={
@@ -439,7 +470,8 @@ char **song_names[SONG_FOLDER_NUM]={
   song_name10,
   song_name11,
   song_name12,
-  song_name13
+  song_name13,
+  song_name14
 };
 
 
@@ -635,6 +667,20 @@ char *album_name13[SONG_NUM]={
 "Overrated (2003)"
 };
 
+char *album_name14[SONG_NUM]={
+"https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
+"https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
+"https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
+"https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
+"https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
+"https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
+"https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
+"https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
+"https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
+"https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
+};
+
+
 
 char **album_names[SONG_FOLDER_NUM]={
   album_name0,
@@ -650,7 +696,8 @@ char **album_names[SONG_FOLDER_NUM]={
   album_name10,
   album_name11,
   album_name12,
-  album_name13
+  album_name13,
+  album_name14
 };
 
 
