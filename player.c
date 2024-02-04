@@ -13,7 +13,7 @@ bool IsInvertedBackground()
 
 bool IsSpeedBreaking()
 {
-  if (player.rst_speed_break) {
+  if (player.sleep_timer==SLOWDOWN_SLEEP_TIMER) {
     return TRUE;
   }
   return FALSE;
@@ -318,7 +318,6 @@ void InitPlayer() {
   player.print_current_above=FALSE;
   player.print_current_below=FALSE;
   player.time_breaker=FALSE;
-  player.rst_speed_break=FALSE;
   player.attack=FALSE;
   player.blocking=FALSE;
   player.print_valid_web=FALSE;
@@ -400,6 +399,15 @@ void InitPlayer() {
   player.block_cooldown_max=300;
   player.block_health_max=DEFAULT_PLAYER_BLOCK_HEALTH_MAX;
   player.block_health=DEFAULT_PLAYER_BLOCK_HEALTH_MAX;
+
+  player.time_breaker_units=0;
+  player.time_breaker_units_max=DEFAULT_PLAYER_TIME_BREAKER_MAX;
+  player.time_breaker_cooldown=0;
+  player.time_breaker_cooldown_max=DEFAULT_PLAYER_TIME_BREAKER_COOLDOWN_MAX;
+  player.time_breaker_recharge_timer=0;
+  player.time_breaker_recharge_timer_max=DEFAULT_PLAYER_TIME_BREAKER_RECHARGE_MAX;
+  player.time_breaker_units_tick=DEFAULT_PLAYER_TIME_BREAKER_TICK_MAX;
+  player.time_breaker_units_tick_max=DEFAULT_PLAYER_TIME_BREAKER_TICK_MAX;
 
   player.health=DEFAULT_PLAYER_HEALTH;
   player.knockback_strength=DEFAULT_PLAYER_KNOCKBACK_STRENGTH;
@@ -738,7 +746,7 @@ void PlayerAct() {
       }
       if (player.on_ground_id!=-1 && player.on_ground_id!=player.previous_web_placed) {
 	//
-        if (!IsSpeedBreaking()) {//reset stats when normal
+        //if (!IsSpeedBreaking()) {//reset stats when normal
           //player.jump_height=DEFAULT_PLAYER_JUMP_HEIGHT;
           if (player.fling_distance<=0 && player.on_ground_timer>=1 && speed==0 && grav_speed==0) {
             if (!player.is_rebounding) {
@@ -749,11 +757,9 @@ void PlayerAct() {
                 if (player.speed>3)
                   player.speed--;
               }
-            } else {
-              //player.speed=3;
             }
           }
-        }
+        //}
         if ((Ground[player.on_ground_id].x1-5<=player.x && player.x<=Ground[player.on_ground_id].x2+5) && //within x
             ((Ground[player.on_ground_id].y1-5<=player.y && player.y<=Ground[player.on_ground_id].y2+5) ||
              (Ground[player.on_ground_id].y2-5<=player.y && player.y<=Ground[player.on_ground_id].y1+5))) {
@@ -982,7 +988,8 @@ void PlayerAct() {
         }
       }
       if (player.y<0) { //Y axis cap
-        player.y=10;
+        move_y(player.player_grav);
+        player.in_air_timer++;
       } else if (player.y+PLAYER_HEIGHT/2>MAP_HEIGHT) {
         move_y(-player.player_grav);
         player.health--;
@@ -1272,6 +1279,9 @@ void PlayerAct() {
   if (player.on_ground_timer>0) {
     player.on_ground_timer--;
   }
+
+
+
  //sprite rotation
   /*if (player.print_current_above) {
     player.print_current_below=FALSE;
@@ -1331,6 +1341,40 @@ void PlayerAct() {
     }
   }
 
+
+  //Time breaker
+  if (!player.time_breaker) {
+    if (IsSpeedBreaking()) {
+      if (player.time_breaker_units>0) {
+        player.time_breaker_units--;
+      }
+      player.time_breaker_recharge_timer=player.time_breaker_recharge_timer_max;
+      player.time_breaker_cooldown=player.time_breaker_cooldown_max;
+    }
+    if (player.time_breaker_cooldown>0) {
+      player.time_breaker_cooldown--;
+    } else {
+      if (player.time_breaker_recharge_timer>0) {
+        player.time_breaker_recharge_timer--;
+      } else if (player.time_breaker_units<player.time_breaker_units_max) {
+        player.time_breaker_units++;
+        player.time_breaker_recharge_timer=player.time_breaker_recharge_timer_max;
+      }
+    }
+  } else {
+    if (player.time_breaker_units>0) {
+      if (player.time_breaker_units_tick>0) {
+        player.time_breaker_units_tick--;
+      } else {
+        player.time_breaker_units--;
+        player.time_breaker_units_tick=player.time_breaker_units_tick_max;
+        if (player.time_breaker_units==0) {
+          player.time_breaker=FALSE;
+        }
+      }
+    }
+  }
+
   //swinging
   if (player.is_swinging && player.speed<5 && player.on_ground_id==-1) { //fast when swinging
     player.speed++;
@@ -1339,6 +1383,7 @@ void PlayerAct() {
   if (player.fling_distance>0  && player.speed<5) {
     player.speed++;
   }
+
 
   if (player.on_ground_id==-1) {
     if (player.block_timer>0) {

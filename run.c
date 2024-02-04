@@ -97,6 +97,7 @@ WHITE
 
 int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
 int dyn_vrenderdist=0,dyn_vrenderdist_num=0;
+int frame_tick=0;
 
 #define DEFAULT_PLAYER_JUMP_HEIGHT 		85//100
 #define DEFAULT_PLAYER_SPEED			1
@@ -145,9 +146,12 @@ int dyn_vrenderdist=0,dyn_vrenderdist_num=0;
 #define DEFAULT_PLAYER_WEB_HEALTH		10
 #define DEFAULT_PLAYER_WEB_NUM			20
 #define DEFAULT_PLAYER_SPEED			1
-#define DEFAULT_PLAYER_SPEED_BREAKER_MAX	275
-#define DEFAULT_PLAYER_SPEED_BREAKER_COOLDOWN   100
-#define DEFAULT_PLAYER_SPEED_BREAKER_RECHARGE_COOLDOWN	100
+
+#define DEFAULT_PLAYER_TIME_BREAKER_MAX	10 //10 seconds to charge
+#define DEFAULT_PLAYER_TIME_BREAKER_COOLDOWN_MAX   700 //5 seconds after usage
+#define DEFAULT_PLAYER_TIME_BREAKER_RECHARGE_MAX	400 //3 seconds
+#define DEFAULT_PLAYER_TIME_BREAKER_TICK_MAX	45 
+
 #define DEFAULT_PLAYER_BLOCK_HEALTH_MAX 20
 
 #define MAX_WEB_NUM      100
@@ -158,8 +162,8 @@ int dyn_vrenderdist=0,dyn_vrenderdist_num=0;
 
 
 
-//#include "saves/Level001.c"
-#include "saves/Level002.c"
+#include "saves/Level001.c"
+//#include "saves/Level002.c"
 //#include "saves/Level003.c"
 //#include "saves/Level004.c"
 //#include "saves/Level005.c"
@@ -360,18 +364,22 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
   }
 }
 
-
+bool display_controls=FALSE;
 void DrawTexts(HDC hdc) {
   int c;
-  char txt[64];
-  char *song_name=song_names[rand_song1][rand_song2];
-  //int sec = (song_time_end-time_now)%60;
-  int sec = (song_seconds_run_max-song_seconds_run)%60;
   if (!IsInvertedBackground()) {
     c=WHITE;
   } else {
     c=BLACK;
   }
+
+
+
+  if (song_folder_num>0) {
+  char txt[64];
+  char *song_name=song_names[rand_song1][rand_song2];
+  //int sec = (song_time_end-time_now)%60;
+  int sec = (song_seconds_run_max-song_seconds_run)%60;
   if (sec>-1) {
     if (sec>9)
       //sprintf(txt,"%s [%d:%d]",song_name,(song_time_end-time_now)/60,sec);
@@ -384,10 +392,11 @@ void DrawTexts(HDC hdc) {
     char *album_name=/*album_name_arr[*/album_names[rand_song1][rand_song2]/*]*/;
     sprintf(txt2,"%s",album_name);  
 
-    GrPrint(hdc,0,0,txt,c);
-    GrPrint(hdc,0,16,txt2,c);
+    GrPrint(hdc,4,0,txt,c);
+    GrPrint(hdc,4,16,txt2,c);
   } else {
-    GrPrint(hdc,0,0,"Choosing Song...",c);
+    GrPrint(hdc,4,0,"Choosing Song...",c);
+  }
   }
   //GrPrint(hwnd,hdc,ps,0,0,_txt,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
 
@@ -417,21 +426,117 @@ void DrawTexts(HDC hdc) {
 
   //draw player block health
   for (i=0;i<player.block_health;i++) {
-    j=i/10; //new row of hearts
+    j=i/10; //new row
     GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2,player.sprite_y+32+8*j,4,YELLOW,-1);
   }
 
   //draw player speed
   for (i=0;i<player.speed;i++) {
-    j=i/10; //new row of hearts
-    GrCircle(hdc,player.sprite_x-64+8*j,player.sprite_y+8*(i%10)-(11*8)/2,3,LTGREEN,-1);
+    j=i/10; //new row
+    GrCircle(hdc,player.sprite_x-64+8*j,player.sprite_y+8*(i%10)-(11*8)/2,3,LTGREEN,GREEN);
   }
 
   //draw player web left
   for (i=0;i<player.max_web_num-player.placed_web_num;i++) {
-    j=i/10; //new row of hearts
-    GrCircle(hdc,player.sprite_x+64+8*j,player.sprite_y+8*(i%10)-(11*8)/2,3,LTCYAN,-1);
+    j=i/10; //new row
+    GrCircle(hdc,player.sprite_x+64+8*j,player.sprite_y+8*(i%10)-(11*8)/2,3,LTCYAN,CYAN);
   }
+
+  //draw player time breaker
+  if (player.time_breaker_units<player.time_breaker_units_max) {
+    for (i=0;i<player.time_breaker_units;i++) {
+      j=i/10; //new row
+      GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2,player.sprite_y-64+8*j,2,PURPLE,PURPLE);
+    }
+  } else {
+    int c2;
+    if (frame_tick%10<5) {
+      c2=PURPLE;
+    } else {
+      c2=LTPURPLE;
+    }
+    for (i=0;i<player.time_breaker_units;i++) {
+      j=i/10; //new row
+      GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2,player.sprite_y-64+8*j,3,c2,c2);
+    }
+  }
+
+/*
+Controls:
+W - Jump from Surface
+A - Move Left (Anti-Clockwise)
+S - Block or Spin
+D - Move Right (Clockwise)
+Z - Time Breaker Ability
+C - Increase Reaction Time
+Space - Sprint
+Left Click - Attack and Stop Web Shooting
+Right Click - Shoot web
+Enter - Restart Level
+
+*While Swinging
+W - Decrease Web Length
+A - Swing Anti-clockwise
+S - Increase Web Length
+D - Swing Clockwise
+Left Click - Swing without Web Placement
+Right Click - Swing with Wceb Placement
+*/
+
+  if (display_controls) {
+  GrPrint(hdc,4,GR_HEIGHT-80-16*20,"Controls:",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*19,"'W' - Jump from Surface",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*18,"'A' - Move Left (Anti-Clockwise)",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*17,"'S' - Block or Spin",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*16,"'D' - Move Right (Clockwise)",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*15,"'Z' - Time Breaker Ability",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*14,"'C' - Increase Reaction Time",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*13,"'M' - New Random Music",c);
+
+  GrPrint(hdc,4,GR_HEIGHT-80-16*12,"[Space] - Sprint",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*11,"[Left Click] - Attack and Stop Web Shooting",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*10,"[Right Click] - Shoot web",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*9,"[Enter] - Restart Level",c);
+
+  GrPrint(hdc,4,GR_HEIGHT-80-16*7,"Controls While Swinging:",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*6,"'W' - Decrease Web Length",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*5,"'A' - Swing Anti-clockwise",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*4,"'S' - Increase Web Length",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*3,"'D' - Swing Clockwise",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*2,"[Left Click] - Swing without Web Placement",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16,"[Right Click] - Swing with Web Placement",c);
+  }
+
+  GrPrint(hdc,4,GR_HEIGHT-80+16,"Press '0' for Controls Help",c);
+
+
+
+  /*char txt3[10];
+  int print_1=frame_tick;
+  sprintf(txt3,"%d",print_1);  
+  GrPrint(hdc,0,32,txt3,c);*/
+
+  /*char txt3[10];
+  int print_1=player.time_breaker_recharge_timer;
+  sprintf(txt3,"%d",print_1);  
+  GrPrint(hdc,0,32,txt3,c);
+
+
+  char txt4[10];
+  int print_2= player.time_breaker_cooldown;
+  sprintf(txt4,"%d",print_2);  
+  GrPrint(hdc,0,48,txt4,c);
+
+
+  char txt5[10];
+  int print_3=player.time_breaker_units;
+  sprintf(txt5,"%d",print_3);  
+  GrPrint(hdc,0,64,txt5,c);*/
+
+
+
+
+
 
 
   /*for (int i=player.block_health;i>0;i--) {
@@ -472,9 +577,6 @@ void DrawTexts(HDC hdc) {
 }
 
 
-
-
-//bool once=true;
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   HDC hdc, hdcBackbuff;
   //FrameRateSleep(FPS); // (Uncapped)
@@ -523,12 +625,30 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         case 'A':case VK_LEFT:if(player.rst_left)player.rst_left=FALSE;break;
         case 'W':case VK_UP:if(player.rst_up)player.rst_up=FALSE;break;
         case 'M':song_seconds_run_max=-1;play_new_song=FALSE;break;//end current song
+        case '0':
+          if (!display_controls) {
+            display_controls=TRUE;
+          } else {
+            display_controls=FALSE;
+          }
+          break;
         case ' ':if(player.rst_key_sprint)player.rst_key_sprint=FALSE;break;
         case 'C':
-          if (player.sleep_timer==DEFAULT_SLEEP_TIMER) {
-            player.sleep_timer=SLOWDOWN_SLEEP_TIMER;
+          if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
+            player.time_breaker=TRUE;
+            player.time_breaker_cooldown=player.time_breaker_cooldown_max;
           } else {
-            player.sleep_timer=DEFAULT_SLEEP_TIMER;
+            if (player.sleep_timer==DEFAULT_SLEEP_TIMER) {
+              player.sleep_timer=SLOWDOWN_SLEEP_TIMER;
+            } else {
+              player.sleep_timer=DEFAULT_SLEEP_TIMER;
+            }
+          }
+          break;
+        case 'Z':
+          if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
+            player.time_breaker=TRUE;
+            player.time_breaker_cooldown=player.time_breaker_cooldown_max;
           }
           break;
 	    case '1':
@@ -550,6 +670,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     if (!IsIconic(hwnd)) //no action when minimized, prevents crash https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-isiconic?redirectedfrom=MSDN
     { //https://stackoverflow.com/questions/752593/win32-app-suspends-on-minimize-window-animation
       //FrameRateSleep(35); //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
+      frame_tick++;
+      if (frame_tick>100) {
+        frame_tick=0;
+      }
       FrameRateSleep(FPS); // (Uncapped)
       PlayerCameraShake();
       for (int i=0;i<player.rendered_enemy_num;i++) {
@@ -591,9 +715,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       DrawTexts(hdcBackbuff);
 
       if (!IsInvertedBackground()){
-        BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
+        if (!player.time_breaker) {
+          BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
+        } else {
+          BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
+        }
       } else {
-        BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
+        if (!player.time_breaker) {
+          BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
+        } else {
+          BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
+        }
       }
   //      StretchBlt(hdc, GR_WIDTH/2, -GR_HEIGHT, -GR_WIDTH-1, GR_HEIGHT, hdcBackbuff, 0, 0, GR_WIDTH, GR_HEIGHT,     SRCCOPY);
       DeleteDC(hdcBackbuff);

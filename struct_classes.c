@@ -67,7 +67,6 @@ struct player
   bool print_current_above;
   bool print_current_below;
   bool time_breaker;
-  bool rst_speed_break;
   bool attack;
   bool blocking;
   bool print_valid_web;
@@ -185,6 +184,16 @@ struct player
   double angle_of_reflection;
   bool rebound_above;
   bool rebound_below;
+
+  int time_breaker_units;
+  int time_breaker_units_max;
+  int time_breaker_cooldown;
+  int time_breaker_cooldown_max;
+  int time_breaker_recharge_timer;
+  int time_breaker_recharge_timer_max;
+  int time_breaker_units_tick;
+  int time_breaker_units_tick_max;
+
 
 //sprites
   HBITMAP sprite_1;

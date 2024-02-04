@@ -534,7 +534,7 @@ void EnemyAct(int i)
   double target_x=0,target_y=0;
   bool allow_act=FALSE,allow_act_1=FALSE;
   //timebreaker enemy
-  if (Enemy[i].time_breaker_immune/* && !the_bravery_tyrant*/) {
+  if (Enemy[i].time_breaker_immune && !player.time_breaker) {
     dice=RandNum(0,Enemy[i].time_breaker_rare,Enemy[i].seed);
     if (dice==1) {
       slash_time=Enemy[i].time_breaker_length;
@@ -708,7 +708,7 @@ void EnemyAct(int i)
         if ((player.block_timer<30 && player.block_timer>28) || (player.block_timer<10)) {
           deduct_health=TRUE;
         }
-        if (player.block_timer>10 && player.speed>4) {
+        if (player.block_timer>10 && player.speed>4 && !player.is_swinging) {
           deduct_health=TRUE;        
         }
         if (player.last_left) {
