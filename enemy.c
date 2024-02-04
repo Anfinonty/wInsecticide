@@ -716,7 +716,7 @@ void EnemyAct(int i)
         if ((player.block_timer<30 && player.block_timer>28) || (player.block_timer<10)) {
           deduct_health=TRUE;
         }
-        if (player.block_timer>10 && player.speed>4 && !player.is_swinging) {
+        if (player.block_timer>10 && player.speed>5 && !player.is_swinging) {
           deduct_health=TRUE;        
         }
         if (player.last_left) {

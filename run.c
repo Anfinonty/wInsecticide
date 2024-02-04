@@ -420,6 +420,8 @@ void DrawTexts(HDC hdc) {
   //sprintf(txt,"%d",print_player_health);
   //GrPrint(hDC,mouse_x-32,mouse_y+32,txt,LTRED);
   int i=0,j=0;
+  int c2;
+
   //draw player health
   for (i=0;i<player.health;i++) {
     j=i/10; //new row of hearts
@@ -435,7 +437,12 @@ void DrawTexts(HDC hdc) {
   //draw player speed
   for (i=0;i<player.speed;i++) {
     j=i/10; //new row
-    GrCircle(hdc,player.sprite_x-64+8*j,player.sprite_y+8*(i%10)-(11*8)/2,3,LTGREEN,GREEN);
+    if (i>5) {
+      c2=LTGREEN;
+    } else {
+      c2=GREEN;
+    }
+    GrCircle(hdc,player.sprite_x-64+8*j,player.sprite_y+8*(i%10)-(11*8)/2,3,c2,c2);
   }
 
   //draw player web left
@@ -451,7 +458,6 @@ void DrawTexts(HDC hdc) {
       GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2,player.sprite_y-64+8*j,2,PURPLE,PURPLE);
     }
   } else {
-    int c2;
     if (frame_tick%10<5) {
       c2=YELLOW;
     } else {
