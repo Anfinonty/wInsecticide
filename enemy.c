@@ -677,11 +677,19 @@ void EnemyAct(int i)
 	    if (!player.uppercut && !player.rst_up && !player.rst_down) {//normal
           Enemy[i].knockback_angle=player.angle;
 	    } else if (player.uppercut) {//uppercut
-          if (!player.last_left) {
-            Enemy[i].knockback_angle=player.launch_angle+M_PI;//player.angle-M_PI/2;
-	      } else {
-            Enemy[i].knockback_angle=player.launch_angle;//player.angle+M_PI/2;
-	      }
+          if (player.print_current_above) {
+            if (!player.last_left) {
+              Enemy[i].knockback_angle=player.launch_angle+M_PI;//player.angle-M_PI/2;
+	        } else {
+              Enemy[i].knockback_angle=player.launch_angle;//player.angle+M_PI/2;
+	        }
+          } else if (player.print_current_below) {
+            if (!player.last_left) {
+              Enemy[i].knockback_angle=-player.launch_angle+M_PI_2;//player.angle+M_PI/2;
+	        } else {
+              Enemy[i].knockback_angle=-player.launch_angle-M_PI_2;//player.angle-M_PI/2;
+	        }
+          }
 	    } else { //drag enemy down
           if (!player.last_left) {//drag enemy to player
             Enemy[i].knockback_angle=player.angle+M_PI_2;
