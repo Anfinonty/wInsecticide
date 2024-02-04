@@ -832,13 +832,13 @@ void PlayerAct() {
               player.fling_distance=0;
             }
 
-            if (abs(Ground[player.on_ground_id].gradient)<=1) {
+            if (abs(Ground[player.on_ground_id].gradient)<=1) { //nonsteep slope
               if (Ground[player.on_ground_id].gradient>0) {
                 player.angle_of_reflection=-player.angle-player.angle_of_incidence;
               } else {
                 player.angle_of_reflection=-player.angle+M_PI+player.angle_of_incidence;
               }
-            } else {
+            } else { //steep slope
               if (Ground[player.on_ground_id].gradient>0) {
                 player.angle_of_reflection=-player.angle+player.angle_of_incidence;
               } else {
@@ -1323,8 +1323,13 @@ void PlayerAct() {
 
 
   double grav_dist=GetDistance(player.speed,0,0,player.grav);
-  player.angle_of_incidence=GetCosAngle(player.speed,grav_dist);
+  /*if (player.grav>player.speed) {
+    player.angle_of_incidence=GetCosAngle(player.grav,grav_dist);
+  } else {
+    player.angle_of_incidence=GetCosAngle(player.speed,grav_dist);
+  }*/
 
+  player.angle_of_incidence=GetCosAngle(player.speed,grav_dist);
   if (player.fling_distance>0) {
     if (player.fling_left) {
       player.angle_of_incidence=player.launch_angle;
