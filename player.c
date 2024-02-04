@@ -746,20 +746,34 @@ void PlayerAct() {
       }
       if (player.on_ground_id!=-1 && player.on_ground_id!=player.previous_web_placed) {
 	//
-        //if (!IsSpeedBreaking()) {//reset stats when normal
-          //player.jump_height=DEFAULT_PLAYER_JUMP_HEIGHT;
-          if (player.fling_distance<=0 && player.on_ground_timer>=1 && speed==0 && grav_speed==0) {
-            if (!player.is_rebounding) {
-	          if (!player.rst_key_sprint) {
+        if (!IsSpeedBreaking()) {//reset stats when normal
+          player.player_jump_height=DEFAULT_PLAYER_JUMP_HEIGHT;
+        } else {
+          player.player_jump_height=150;
+          if (player.speed<5) {
+            player.speed++;
+          }
+        }
+
+
+        if (player.fling_distance<=0 && player.on_ground_timer>=1 && speed==0 && grav_speed==0) {
+          if (!player.is_rebounding) {
+            if (!IsSpeedBreaking()) {//reset stats when normal            
+              if (!player.rst_key_sprint) {
                 if (player.speed>DEFAULT_PLAYER_SPEED)
                   player.speed--;
-	          } else {
+              } else {
                 if (player.speed>3)
                   player.speed--;
               }
+            } else {
+              if (player.speed>5)
+                player.speed--;
             }
           }
-        //}
+        }
+
+
         if ((Ground[player.on_ground_id].x1-5<=player.x && player.x<=Ground[player.on_ground_id].x2+5) && //within x
             ((Ground[player.on_ground_id].y1-5<=player.y && player.y<=Ground[player.on_ground_id].y2+5) ||
              (Ground[player.on_ground_id].y2-5<=player.y && player.y<=Ground[player.on_ground_id].y1+5))) {

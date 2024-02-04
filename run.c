@@ -99,7 +99,6 @@ int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
 int dyn_vrenderdist=0,dyn_vrenderdist_num=0;
 int frame_tick=0;
 
-#define DEFAULT_PLAYER_JUMP_HEIGHT 		85//100
 #define DEFAULT_PLAYER_SPEED			1
 
 #define ENEMY_TYPE_NUM                         10
@@ -163,13 +162,13 @@ int frame_tick=0;
 
 
 //#include "saves/Level001.c"
-//#include "saves/Level002.c"
+#include "saves/Level002.c"
 //#include "saves/Level003.c"
 //#include "saves/Level004.c"
 //#include "saves/Level005.c"
 //#include "saves/Level006.c"
 //#include "saves/Level007.c"
-#include "saves/Level008.c"
+//#include "saves/Level008.c"
 
 /*
 #define ENEMY_I64_ATTRIBUTES_NUM 26
@@ -454,7 +453,7 @@ void DrawTexts(HDC hdc) {
   } else {
     int c2;
     if (frame_tick%10<5) {
-      c2=PURPLE;
+      c2=YELLOW;
     } else {
       c2=LTPURPLE;
     }
@@ -642,12 +641,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
             player.time_breaker=TRUE;
             player.time_breaker_cooldown=player.time_breaker_cooldown_max;
+          }
+          if (player.sleep_timer==DEFAULT_SLEEP_TIMER) {
+            player.sleep_timer=SLOWDOWN_SLEEP_TIMER;
           } else {
-            if (player.sleep_timer==DEFAULT_SLEEP_TIMER) {
-              player.sleep_timer=SLOWDOWN_SLEEP_TIMER;
-            } else {
-              player.sleep_timer=DEFAULT_SLEEP_TIMER;
-            }
+            player.sleep_timer=DEFAULT_SLEEP_TIMER;
           }
           break;
         case 'Z':
