@@ -604,9 +604,9 @@ void EnemyAct(int i)
 	   break;
    }
   //^^ condition
-  if (allow_act || dist_from_bullet<=NODE_SIZE+NODE_SIZE/4) {
+  if (allow_act || dist_from_bullet<=NODE_SIZE+NODE_SIZE/2) {
     //player bullet
-    if (dist_from_bullet<=NODE_SIZE+NODE_SIZE/4) {
+    if (dist_from_bullet<=NODE_SIZE+NODE_SIZE/2) {
       switch (Enemy[i].species) {
     	case 0://fly
           deduct_health=TRUE;
@@ -708,7 +708,7 @@ void EnemyAct(int i)
         if ((player.block_timer<30 && player.block_timer>28) || (player.block_timer<10)) {
           deduct_health=TRUE;
         }
-        if (player.is_rebounding && player.speed>4) {
+        if (player.block_timer>10 && player.speed>4) {
           deduct_health=TRUE;        
         }
         if (player.last_left) {

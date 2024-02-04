@@ -208,20 +208,20 @@ void BulletAct(int bullet_id)
           Bullet[bullet_id].angle=RandNum(-M_PI,M_PI,Enemy[enemy_id].seed);
         }
 
-
-
         hit_player=HitPlayer(bullet_id);
       //bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,0.5,0.5,FALSE);
         bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2,FALSE);
 	    allow_act=FALSE;
-	    if (hit_player) {
-	      allow_act=TRUE;
-	    } else if ( //Bullet has hit something
+        if (Enemy[enemy_id].health>0) {
+	      if (hit_player) {
+	        allow_act=TRUE;
+	      } else if ( //Bullet has hit something
 	        bullet_on_ground_id!=-1 || //on a gound
             IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT) ||
 	        Bullet[bullet_id].range<=0 //end of range
-        ) {
-	      allow_act=TRUE;
+          ) {
+	        allow_act=TRUE;
+          }
         }
 	//^^ condition
         if (allow_act) {

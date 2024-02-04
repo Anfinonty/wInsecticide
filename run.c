@@ -244,24 +244,6 @@ void DrawCursor(HDC hDC)
   //DrawBitmap(hDC,mouse_x,mouse_y,0,0,64,64,mouse_cursor_sprite_mask,SRCPAINT,FALSE);
   GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_cache,FALSE);
   GrCircle(hDC,mouse_x,mouse_y,1,WHITE,-1);
-
-
-  char txt[2];
-  int print_web_num=player.max_web_num-player.placed_web_num;
-  sprintf(txt,"%d",print_web_num);
-  if (!IsInvertedBackground()) {
-    GrPrint(hDC,mouse_x+32,mouse_y+32,txt,WHITE);
-  } else {
-    GrPrint(hDC,mouse_x+32,mouse_y+32,txt,BLACK);
-  }
-
-  int print_player_health=player.health;
-  sprintf(txt,"%d",print_player_health);
-  GrPrint(hDC,mouse_x-32,mouse_y+32,txt,LTRED);
-
-  int print_block_health=player.block_health;
-  sprintf(txt,"%d",print_block_health);
-  GrPrint(hDC,mouse_x,mouse_y+32,txt, BLACK);
 }
 
 //Init
@@ -398,7 +380,7 @@ void DrawTexts(HDC hdc) {
       //sprintf(txt,"%s [%d:0%d]",song_name,(song_time_end-time_now)/60,sec);
       sprintf(txt,"%s [%d:0%d]",song_name,(song_seconds_run_max-song_seconds_run)/60,sec);
 
-    char txt2[64];
+    char txt2[128];
     char *album_name=/*album_name_arr[*/album_names[rand_song1][rand_song2]/*]*/;
     sprintf(txt2,"%s",album_name);  
 
@@ -409,7 +391,60 @@ void DrawTexts(HDC hdc) {
   }
   //GrPrint(hwnd,hdc,ps,0,0,_txt,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
 
-  char txt3[19];
+
+//Print player details
+
+  //print player web amount
+  /*char txt[2];
+  int print_web_num=player.max_web_num-player.placed_web_num;
+  sprintf(txt,"%d",print_web_num);
+  if (!IsInvertedBackground()) {
+    GrPrint(hDC,mouse_x+32,mouse_y+32,txt,WHITE);
+  } else {
+    GrPrint(hDC,mouse_x+32,mouse_y+32,txt,BLACK);
+  }*/
+
+  //print player health
+  //int print_player_health=player.health;
+  //sprintf(txt,"%d",print_player_health);
+  //GrPrint(hDC,mouse_x-32,mouse_y+32,txt,LTRED);
+  int i=0,j=0;
+  //draw player health
+  for (i=0;i<player.health;i++) {
+    j=i/10; //new row of hearts
+    GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2,player.sprite_y+32+8*j,2,RED,RED);
+  }
+
+  //draw player block health
+  for (i=0;i<player.block_health;i++) {
+    j=i/10; //new row of hearts
+    GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2,player.sprite_y+32+8*j,4,YELLOW,-1);
+  }
+
+  //draw player speed
+  for (i=0;i<player.speed;i++) {
+    j=i/10; //new row of hearts
+    GrCircle(hdc,player.sprite_x-64+8*j,player.sprite_y+8*(i%10)-(11*8)/2,3,LTGREEN,-1);
+  }
+
+  //draw player web left
+  for (i=0;i<player.max_web_num-player.placed_web_num;i++) {
+    j=i/10; //new row of hearts
+    GrCircle(hdc,player.sprite_x+64+8*j,player.sprite_y+8*(i%10)-(11*8)/2,3,LTCYAN,-1);
+  }
+
+
+  /*for (int i=player.block_health;i>0;i--) {
+    GrCircle(hdc,player.sprite_x+8*i,player.sprite_y+32,2,LTGRAY,LTGRAY);
+  }*/
+
+  //Print Player Block Health
+  //int print_block_health=player.block_health;
+  //sprintf(txt,"%d",print_block_health);
+  //GrPrint(hDC,mouse_x,mouse_y+32,txt, BLACK);
+
+
+/*  char txt3[19];
   int print_dynrenderdist=dyn_vrenderdist;
   sprintf(txt3,"Render Distance: %d",print_dynrenderdist);  
   GrPrint(hdc,0,32,txt3,c);
@@ -419,21 +454,21 @@ void DrawTexts(HDC hdc) {
   int print_left = player.previous_web_placed;
   int print_left2= player.on_ground_id;
   sprintf(txt4,"%d webplaced: %d",print_left2, print_left);  
-  GrPrint(hdc,0,48,txt4,c);
+  GrPrint(hdc,0,48,txt4,c);*/
 
 
-  char txt5[10];
+  /*char txt5[10];
   int print_speed=player.speed;
   int print_grav_speed=player.grav;
   sprintf(txt5,"Speed:%d  %d",print_grav_speed, print_speed);  
-  GrPrint(hdc,0,64,txt5,c);
+  GrPrint(hdc,0,64,txt5,c);*/
   //GrPrint(hwnd,hdc,ps,0,16,_txt2,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
 
 
-  char txt6[16];
+  /*char txt6[16];
   int print_jump=player.in_air_timer;
   sprintf(txt6,"inairtimer: %d",print_jump);  
-  GrPrint(hdc,0,80,txt6,c);
+  GrPrint(hdc,0,80,txt6,c);*/
 }
 
 

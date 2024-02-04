@@ -984,8 +984,11 @@ void PlayerAct() {
 
     //Gravity
       if (grav_speed==0 && speed==0) {
-        if (player.on_ground_id==-1/* && player.fling_distance<=0*/) {
-          player.in_air_timer+=1;
+        if (player.on_ground_id==-1 && !player.is_swinging) {
+          player.in_air_timer++;
+          if (player.in_air_timer>2002) {
+            player.in_air_timer--;
+          }
 	      if (player.jump_height==0) {
             if (player.in_air_timer%20==0 && player.grav<=100) {
               player.grav++;
@@ -1396,6 +1399,9 @@ void PlayerAct() {
 	    player.block_recharge_timer--;
       } else if (player.block_health<player.block_health_max) {//below max
         player.block_health++;
+        if (player.block_health>player.block_health_max) {
+          player.block_health=player.block_health_max;
+        }
 	    player.block_recharge_timer=player.block_recharge_timer_max;
       }
     }
@@ -1607,9 +1613,7 @@ void DrawPlayer(HDC hdc)
   }
 
   if (player.bullet_shot!=-1) {
-    if (Bullet[player.bullet_shot].sprite_x-(player.cam_x+player.cam_move_x)>0 &&
-        Bullet[player.bullet_shot].sprite_y-(player.cam_y+player.cam_move_y)>0
-    ) { //calculate x based on sprite_x 
+    if (player.right_click_hold_timer<62) {
       DrawBullet(hdc,player.bullet_shot);
       GrLine(hdc,player.sprite_x,player.sprite_y,Bullet[player.bullet_shot].sprite_x,Bullet[player.bullet_shot].sprite_y,LTCYAN);    
     }
