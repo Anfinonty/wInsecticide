@@ -784,7 +784,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       PAINTSTRUCT ps; //Suggestion Credit: https://git.xslendi.xyz
       hdc=BeginPaint(hwnd, &ps);
       HDC hdc2=CreateCompatibleDC(hdc);
-      HBITMAP tmp_map_platforms_sprite=CreateCompatibleBitmap(hdc,MAP_WIDTH,MAP_HEIGHT);
+      //HBITMAP tmp_map_platforms_sprite=CreateCompatibleBitmap(hdc,MAP_WIDTH,MAP_HEIGHT);
+      unsigned char* lpBitmapBits;
+
+      BITMAPINFO bi;
+      ZeroMemory(&bi, sizeof(BITMAPINFO));
+      bi.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
+      bi.bmiHeader.biWidth=MAP_WIDTH;
+      bi.bmiHeader.biHeight=-MAP_HEIGHT;
+      bi.bmiHeader.biPlanes=1;
+      bi.bmiHeader.biBitCount=32;
+      HBITMAP tmp_map_platforms_sprite=CreateDIBSection(hdc2,&bi,DIB_RGB_COLORS, (VOID**)&lpBitmapBits,NULL,0);
 
       SelectObject(hdc2,tmp_map_platforms_sprite);
       if (map_background==2)
@@ -804,6 +814,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       
       DeleteObject(tmp_map_platforms_sprite);
+      //end of platform sprite creation
+
 
 
       player.sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,player.sprite_angle,LTGREEN,BLACK,-1);
