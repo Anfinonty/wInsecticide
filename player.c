@@ -793,11 +793,11 @@ void PlayerAct() {
                 if (player.speed>DEFAULT_PLAYER_SPEED)
                   player.speed--;
               } else {
-                if (player.speed>3)
+                if (player.speed>6)
                   player.speed--;
               }
             } else {
-              if (player.speed>5)
+              if (player.speed>8)
                 player.speed--;
             }
           }
