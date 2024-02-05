@@ -194,7 +194,7 @@ struct player
   int time_breaker_units_tick;
   int time_breaker_units_tick_max;
 
-
+  int spin_timer;
 //sprites
   HBITMAP sprite_1;
   HBITMAP sprite_2;
@@ -206,6 +206,7 @@ struct player
   HBITMAP block_sprite_1;
   HBITMAP block_sprite_2;
   HBITMAP block_sprite_3;
+  HBITMAP spin_sprite;
 
   HBITMAP sprite_1_cache;
   HBITMAP sprite_2_cache;
@@ -217,6 +218,10 @@ struct player
   HBITMAP block_sprite_1_cache;
   HBITMAP block_sprite_2_cache;
   HBITMAP block_sprite_3_cache;
+  HBITMAP spin_sprite_1_cache;
+  HBITMAP spin_sprite_2_cache;
+  HBITMAP spin_sprite_3_cache;
+  HBITMAP spin_sprite_4_cache;
 } player;
 
 

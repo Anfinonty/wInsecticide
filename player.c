@@ -272,6 +272,7 @@ void PlayerPlaceWeb()
 
 void CleanUpPlayer()
 {
+  //Walk sprites
   if (player.sprite_1_cache!=NULL) {
     DeleteObject(player.sprite_1_cache);
   }
@@ -281,6 +282,8 @@ void CleanUpPlayer()
   if (player.sprite_jump_cache!=NULL) { 
     DeleteObject(player.sprite_jump_cache);
   }
+
+  //Attack sprites
   if (player.attack_sprite_1_cache!=NULL) { 
     DeleteObject(player.attack_sprite_1_cache);
   }
@@ -292,6 +295,31 @@ void CleanUpPlayer()
   }
   if (player.attack_sprite_4_cache!=NULL) { 
     DeleteObject(player.attack_sprite_4_cache);
+  }
+
+  //Block sprites
+  if (player.block_sprite_1_cache!=NULL) {
+    DeleteObject(player.block_sprite_1_cache);
+  }
+  if (player.block_sprite_2_cache!=NULL) {
+    DeleteObject(player.block_sprite_2_cache);
+  }
+  if (player.block_sprite_3_cache!=NULL) {
+    DeleteObject(player.block_sprite_3_cache);
+  }
+
+  //spin sprites
+  if (player.spin_sprite_1_cache!=NULL) {
+    DeleteObject(player.spin_sprite_1_cache);
+  }
+  if (player.spin_sprite_2_cache!=NULL) {
+    DeleteObject(player.spin_sprite_2_cache);
+  }
+  if (player.spin_sprite_3_cache!=NULL) {
+    DeleteObject(player.spin_sprite_3_cache);
+  }
+  if (player.spin_sprite_4_cache!=NULL) {
+    DeleteObject(player.spin_sprite_4_cache);
   }
 }
 
@@ -455,6 +483,8 @@ void InitPlayer() {
 
   player.rebound_above=FALSE;
   player.rebound_below=FALSE;
+
+  player.spin_timer=0;
 
   InitPlayerCamera();
   InitRDGrid();
@@ -774,22 +804,43 @@ void PlayerAct() {
         }
 
 
-        if ((Ground[player.on_ground_id].x1-5<=player.x && player.x<=Ground[player.on_ground_id].x2+5) && //within x
-            ((Ground[player.on_ground_id].y1-5<=player.y && player.y<=Ground[player.on_ground_id].y2+5) ||
-             (Ground[player.on_ground_id].y2-5<=player.y && player.y<=Ground[player.on_ground_id].y1+5))) {
-          player.angle=Ground[player.on_ground_id].angle;
+        if ((Ground[player.on_ground_id].x1-10<=player.x && player.x<=Ground[player.on_ground_id].x2+10) && //within x
+            ((Ground[player.on_ground_id].y1-10<=player.y && player.y<=Ground[player.on_ground_id].y2+10) || //within y
+             (Ground[player.on_ground_id].y2-10<=player.y && player.y<=Ground[player.on_ground_id].y1+10))) {
+
+         //Within ground axes
+          player.angle=Ground[player.on_ground_id].angle; //set player angle
+          if (player.in_air_timer>0) {
+            if (player.in_air_timer>1000) { //make player rebound
+              player.in_air_timer=1000;
+              player.speed--; //lower speed on landing
+            }
+            if (player.rst_down) { //spinning
+              player.is_rebounding=TRUE;
+              if (player.rst_left || player.rst_right) { //continue spin-rebound
+                player.in_air_timer=1000;
+              }
+            } else { //not reboubding
+              player.is_rebounding=FALSE;
+              player.in_air_timer=1;
+            }
+            player.in_air_timer--;
+          }
+
+
+
+
         //outwards from ground
           if (0<=Ground[player.on_ground_id].height_from_player_x && Ground[player.on_ground_id].height_from_player_x<10) { //above ground
             player.current_above=TRUE;
             player.rebound_above=TRUE;
             player.rebound_below=FALSE;
-          //if (Ground[player.on_ground_id].gradient>0) {
             move_x(-cos(player.angle+M_PI_2));
             move_y(-sin(player.angle+M_PI_2));
 
-            if (player.fling_distance<=0) {
+            if (player.fling_distance<=0) { //regular jumping
               player.launch_angle=player.angle+M_PI_2;
-            } else {
+            } else { //stop flinging upon ground contact
               player.fling_distance=0;
             }
 
@@ -807,24 +858,7 @@ void PlayerAct() {
               }
             }
 
-
-
-
-            if (player.blocking && player.in_air_timer>0) {
-              player.is_rebounding=TRUE;
-            } else {
-              player.is_rebounding=FALSE;
-            }
-            if (player.in_air_timer>1000) {
-              player.in_air_timer=1000;
-              player.speed--;
-            }
-            if (player.in_air_timer>0) {
-              player.in_air_timer--;
-            }
-
-          } else if (Ground[player.on_ground_id].height_from_player_x>-10 &&
-		    Ground[player.on_ground_id].height_from_player_x<0) { //below ground
+          } else if (Ground[player.on_ground_id].height_from_player_x>-10 && Ground[player.on_ground_id].height_from_player_x<0) { //below ground
             player.current_below=TRUE;
             player.rebound_above=FALSE;
             player.rebound_below=TRUE;
@@ -836,28 +870,31 @@ void PlayerAct() {
             } else {            
               player.fling_distance=0;
             }
+ 
+           //bouncing below the surface the steepness doesnt matter
             if (Ground[player.on_ground_id].gradient>0) {
               player.angle_of_reflection=player.angle-player.angle_of_incidence;
             } else {
               player.angle_of_reflection=player.angle+M_PI+player.angle_of_incidence;
             }
-            if (player.blocking && player.in_air_timer>0) {
-              player.is_rebounding=TRUE;
-            } else {
-              player.is_rebounding=FALSE;
-            }
-            if (player.in_air_timer>1000) {
-              player.in_air_timer=1000;
-              player.speed--;
-            }
-            if (player.in_air_timer>0) {
-              player.in_air_timer--;
-            }
           }
+
+
+
+
+
+
+
+
+
+
         //inwards to ground
           if (3<=Ground[player.on_ground_id].height_from_player_x && Ground[player.on_ground_id].height_from_player_x<10){ //above ground
             move_x(cos(player.angle+M_PI_2));
             move_y(sin(player.angle+M_PI_2));
+            if (player.on_ground_timer<2) {
+              player.on_ground_timer++;
+            }
           } else {//below ground
 	        allow_act=FALSE;
 	        if (Ground[player.on_ground_id].height_from_player_x>-10) {
@@ -873,8 +910,9 @@ void PlayerAct() {
 	        if (allow_act) {
               move_x(cos(player.angle-M_PI_2));
               move_y(sin(player.angle-M_PI_2));
-              if (player.on_ground_timer<2)
+              if (player.on_ground_timer<2) {
                 player.on_ground_timer++;
+              }
 	        }
           }
           if (!player.current_above && !player.current_below) {
@@ -896,24 +934,16 @@ void PlayerAct() {
 
     //Y movement
     //Condition to jump
-      /*if (player.on_ground_id==-1 && player.rst_down) {
-	    player.jump_height=0;
-        player.jump=FALSE;
-      }*/
       if (player.current_above && player.on_ground_id!=-1) {
         if (player.on_ground_timer<10)
           player.on_ground_timer++;
       } else if (player.current_below) {
         if (player.on_ground_timer<10)
           player.on_ground_timer++;
-        //player.jump_height=0;
-        //player.jump=FALSE;
       }
       if (abs(Ground[player.on_ground_id].angle)>M_PI_2-0.01) {
         if (player.on_ground_timer<10)
           player.on_ground_timer++;
-        //player.jump_height=0;
-        //player.jump=FALSE;
       }
       if (player.on_ground_timer>0) {
         player.previous_web_placed=-1;
@@ -1067,15 +1097,9 @@ void PlayerAct() {
         if (!player.fling_left) {
           move_x(-cos(player.launch_angle));
           move_y(-sin(player.launch_angle));
-          /*if (player.rst_left) {
-            player.fling_distance=1;
-          }*/
         } else { //fling left
           move_x(cos(player.launch_angle));
           move_y(sin(player.launch_angle));
-          /*if (player.rst_right) {
-            player.fling_distance=1;
-          }*/
         }
         player.fling_distance--;
       }
@@ -1099,7 +1123,6 @@ void PlayerAct() {
       }*/
 
 
-        player.grav=3;
         player.is_rebounding=FALSE;
         player.pivot_length=GetDistance(player.pivot_x,player.pivot_y,player.x,player.y);
         player.pivot_angle=GetCosAngle(player.x-player.pivot_x,player.pivot_length);
@@ -1287,34 +1310,19 @@ void PlayerAct() {
     }
   }
 
-
-
-
  //misc
   if (player.on_ground_timer>0) {
     player.on_ground_timer--;
   }
 
 
-
- //sprite rotation
-  /*if (player.print_current_above) {
-    player.print_current_below=FALSE;
-  } else if (player.print_current_below) {
-    player.print_current_above=FALSE;
-  }*/
-  
-  /*if (!player.last_left && on_ground_id!=-1) {
-    player.sprite_angle*=-1;
-  }*/
-
 //block
   allow_act=FALSE;
-  if (player.attack_timer<=0) {
-    if (player.rst_down) {
-      if (player.on_ground_id==-1 || player.print_current_above) {
+  if (player.attack_timer<=0) { // not attacking
+    if (player.rst_down) { //pressing down button
+      if (player.on_ground_id==-1 || player.print_current_above) { //in air or on above ground
         allow_act=TRUE;
-      } else if (player.print_current_below) {
+      } else if (player.print_current_below) { // below ground
         allow_act=TRUE;
       }
     }
@@ -1362,6 +1370,7 @@ void PlayerAct() {
     if (IsSpeedBreaking()) {
       if (player.time_breaker_units>0) {
         player.time_breaker_units--;
+        player.speed++;
       }
       player.time_breaker_recharge_timer=player.time_breaker_recharge_timer_max;
       player.time_breaker_cooldown=player.time_breaker_cooldown_max;
@@ -1399,17 +1408,24 @@ void PlayerAct() {
     player.speed++;
   }
 
-
-  if (player.on_ground_id==-1) {
-    if (player.block_timer>0) {
-      player.sprite_angle-=0.1;
-    } else {
-      player.sprite_angle=0;
+  //Spinning
+  if (player.rst_down && player.on_ground_id==-1) { //not on ground and in air
+    player.spin_timer++;
+  } else {
+    if (player.spin_timer>0) {
+      player.spin_timer++;
     }
+  }
+  if (player.spin_timer>40) {
+    player.spin_timer=0;
   }
   if (player.sprite_angle<-M_PI*2) {
     player.sprite_angle=0;
   }
+
+
+
+  //sprite axes
   player.sprite_x=GR_WIDTH/2+player.cam_move_x;
   player.sprite_y=GR_HEIGHT/2+player.cam_move_y-PLAYER_HEIGHT/2;
  //
@@ -1517,7 +1533,7 @@ void DrawPlayer(HDC hdc)
       player.sprite_angle=0;
     }
   }
-  if (player.saved_sprite_angle!=player.sprite_angle && player.on_ground_id!=-1) {
+  if (player.saved_sprite_angle!=player.sprite_angle && player.on_ground_id!=-1) { //detect chnage in walk sprite angle
     DeleteObject(player.sprite_1_cache);
     DeleteObject(player.sprite_2_cache);
 
@@ -1526,7 +1542,7 @@ void DrawPlayer(HDC hdc)
 
     player.saved_sprite_angle=player.sprite_angle;
   }
-  if (player.block_timer>0 && player.saved_block_sprite_angle!=player.sprite_angle) {
+  if (player.block_timer>0 && player.saved_block_sprite_angle!=player.sprite_angle) { //detect change in block sprite angle
     DeleteObject(player.block_sprite_1_cache);
     DeleteObject(player.block_sprite_2_cache);
     DeleteObject(player.block_sprite_3_cache);
@@ -1537,7 +1553,7 @@ void DrawPlayer(HDC hdc)
 
     player.saved_block_sprite_angle=player.sprite_angle;
   }
-  if (player.attack_timer>=0 && player.saved_attack_sprite_angle!=player.sprite_angle) {
+  if (player.attack_timer>=0 && player.saved_attack_sprite_angle!=player.sprite_angle) {//detect change in attack sprite angle
     DeleteObject(player.attack_sprite_1_cache);
     DeleteObject(player.attack_sprite_2_cache);
     DeleteObject(player.attack_sprite_3_cache);
@@ -1559,15 +1575,27 @@ void DrawPlayer(HDC hdc)
           GrSprite(hdc,player.sprite_x,player.sprite_y,player.sprite_2_cache,player.last_left);
         }
       } else { //in_air
-        GrSprite(hdc,player.sprite_x,player.sprite_y-6,player.sprite_jump_cache,player.last_left);
+        GrSprite(hdc,player.sprite_x,player.sprite_y,player.sprite_jump_cache,player.last_left);
       }
     } else { //blocking
-      if (0<player.block_timer && player.block_timer<=5) {
-        GrSprite(hdc,player.sprite_x,player.sprite_y,player.block_sprite_1_cache,player.last_left);
-      } else if (5<player.block_timer && player.block_timer<=10) {
-        GrSprite(hdc,player.sprite_x,player.sprite_y,player.block_sprite_2_cache,player.last_left);
-      } else {
-        GrSprite(hdc,player.sprite_x,player.sprite_y,player.block_sprite_3_cache,player.last_left);
+      if (player.on_ground_id==-1 && player.spin_timer>0) { //not on ground
+        if (player.spin_timer<10) {
+          GrSprite(hdc,player.sprite_x,player.sprite_y,player.spin_sprite_1_cache,!player.last_left);
+        } else if (player.spin_timer>10 && player.spin_timer<20) {
+          GrSprite(hdc,player.sprite_x,player.sprite_y,player.spin_sprite_2_cache,!player.last_left);
+        } else if (player.spin_timer>20 && player.spin_timer<30) {
+          GrSprite(hdc,player.sprite_x,player.sprite_y,player.spin_sprite_3_cache,!player.last_left);
+        } else {
+          GrSprite(hdc,player.sprite_x,player.sprite_y,player.spin_sprite_4_cache,!player.last_left);
+        }
+      } else { //on ground
+        if (0<player.block_timer && player.block_timer<=5) {
+          GrSprite(hdc,player.sprite_x,player.sprite_y,player.block_sprite_1_cache,player.last_left);
+        } else if (5<player.block_timer && player.block_timer<=10) {
+          GrSprite(hdc,player.sprite_x,player.sprite_y,player.block_sprite_2_cache,player.last_left);
+        } else {
+          GrSprite(hdc,player.sprite_x,player.sprite_y,player.block_sprite_3_cache,player.last_left);
+        }
       }
     }
   } else {
@@ -1582,6 +1610,8 @@ void DrawPlayer(HDC hdc)
     }
   }
 
+
+  //Shapes Drawn when swinging to show direction of swing
   if (player.is_swinging) {
     GrLine(hdc,player.sprite_x,player.sprite_y,player.pivot_x+player.cam_x+player.cam_move_x,player.pivot_y+player.cam_y+player.cam_move_y,LTCYAN);
     if (!IsInvertedBackground()) {
@@ -1596,6 +1626,7 @@ void DrawPlayer(HDC hdc)
     }
   }
 
+  //Draw the bullet the player shoots
   if (player.bullet_shot!=-1) {
     if (player.right_click_hold_timer<62) {
       DrawBullet(hdc,player.bullet_shot);

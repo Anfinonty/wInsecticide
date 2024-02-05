@@ -146,10 +146,10 @@ int frame_tick=0;
 #define DEFAULT_PLAYER_WEB_NUM			20
 #define DEFAULT_PLAYER_SPEED			1
 
-#define DEFAULT_PLAYER_TIME_BREAKER_MAX	10 //10 seconds to charge
+#define DEFAULT_PLAYER_TIME_BREAKER_MAX	20 //10 seconds to charge
 #define DEFAULT_PLAYER_TIME_BREAKER_COOLDOWN_MAX   700 //5 seconds after usage
-#define DEFAULT_PLAYER_TIME_BREAKER_RECHARGE_MAX	400 //3 seconds
-#define DEFAULT_PLAYER_TIME_BREAKER_TICK_MAX	45 
+#define DEFAULT_PLAYER_TIME_BREAKER_RECHARGE_MAX	200 //1 seconds
+#define DEFAULT_PLAYER_TIME_BREAKER_TICK_MAX	22 //45
 
 #define DEFAULT_PLAYER_BLOCK_HEALTH_MAX 20
 
@@ -425,25 +425,55 @@ void DrawTexts(HDC hdc) {
   //draw player health
   for (i=0;i<player.health;i++) {
     j=i/10; //new row of hearts
-    GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2,player.sprite_y+32+8*j,2,RED,RED);
+    GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2,player.sprite_y+48+8*j,2,RED,RED);
   }
 
   //draw player block health
   for (i=0;i<player.block_health;i++) {
     j=i/10; //new row
-    GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2,player.sprite_y+32+8*j,4,YELLOW,-1);
+    GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2,player.sprite_y+48+8*j,4,YELLOW,-1);
   }
 
   //draw player speed
+  //hehehehe
   for (i=0;i<player.speed;i++) {
-    j=i/10; //new row
-    if (i>5) {
-      c2=LTGREEN;
+    double speed_angle=i*0.1;
+    double speed_dist=64;
+    double angle_limit=M_PI_4+M_PI_2;
+    if (speed_angle>angle_limit) {
+      int speed_times=speed_angle/angle_limit;
+      speed_angle-=angle_limit*speed_times;
+      speed_dist=64+8*speed_times;
+      if (!IsInvertedBackground()) {
+        c2=LTCYAN;
+      } else {
+        c2=RED;
+      }      
     } else {
-      c2=GREEN;
+      if (!IsInvertedBackground()) {
+        if (i<5)
+         c2=GREEN;
+        else if (i<10)
+          c2=LTGREEN;
+        else 
+          c2=RED;
+      } else {
+        if (i<5)
+          c2=DKGRAY;
+        else if (i<10)
+          c2=LTPURPLE;
+        else
+          c2=LTCYAN;
+      }
     }
-    GrCircle(hdc,player.sprite_x-64+8*j,player.sprite_y+8*(i%10)-(11*8)/2,3,c2,c2);
+    //GrCircle(hdc,player.sprite_x-64,player.sprite_y-8*i+(10*8)/2,3,c2,c2);
+      GrCircle(hdc,
+        player.sprite_x-speed_dist*cos(speed_angle),
+        player.sprite_y-speed_dist*sin(speed_angle),
+        3,c2,c2
+      );
   }
+
 
   //draw player web left
   for (i=0;i<player.max_web_num-player.placed_web_num;i++) {
@@ -451,21 +481,24 @@ void DrawTexts(HDC hdc) {
     GrCircle(hdc,player.sprite_x+64+8*j,player.sprite_y+8*(i%10)-(11*8)/2,3,LTCYAN,CYAN);
   }
 
+
+
   //draw player time breaker
+  bool allow_act=FALSE;
   if (player.time_breaker_units<player.time_breaker_units_max) {
-    for (i=0;i<player.time_breaker_units;i++) {
-      j=i/10; //new row
-      GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2,player.sprite_y-64+8*j,2,PURPLE,PURPLE);
-    }
+    allow_act=TRUE;
   } else {
     if (frame_tick%10<5) {
-      c2=YELLOW;
-    } else {
-      c2=LTPURPLE;
+      allow_act=TRUE;
     }
-    for (i=0;i<player.time_breaker_units;i++) {
-      j=i/10; //new row
-      GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2,player.sprite_y-64+8*j,3,c2,c2);
+  }
+  if (allow_act) { 
+   for (i=0;i<player.time_breaker_units;i++) {
+      double tb_angle=M_PI_2+2*M_PI_2/player.time_breaker_units_max*i*2;
+      GrCircle(hdc,
+        player.sprite_x-32*cos(tb_angle),
+        player.sprite_y-32*sin(tb_angle),
+        2,PURPLE,PURPLE);
     }
   }
 
@@ -647,6 +680,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
             player.time_breaker=TRUE;
             player.time_breaker_cooldown=player.time_breaker_cooldown_max;
+            player.speed+=player.time_breaker_units_max;
           }
           if (player.sleep_timer==DEFAULT_SLEEP_TIMER) {
             player.sleep_timer=SLOWDOWN_SLEEP_TIMER;
@@ -658,6 +692,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
             player.time_breaker=TRUE;
             player.time_breaker_cooldown=player.time_breaker_cooldown_max;
+            player.speed+=player.time_breaker_units_max;
           }
           break;
 	    case '1':
@@ -754,7 +789,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       Init();
 
 
-//      play_a_sound=0;
+      //Load Player Sprites
       player.sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/player1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       player.sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/player2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       player.sprite_jump = (HBITMAP) LoadImageW(NULL, L"sprites/player3-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
@@ -768,6 +803,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       player.block_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/player-block-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       player.block_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/player-block-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
+      player.spin_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/player-spin.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+
+
+      //Load Enemy Sprites
       enemy1_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy1-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       enemy1_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy1-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
@@ -785,9 +825,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       hdc=BeginPaint(hwnd, &ps);
       HDC hdc2=CreateCompatibleDC(hdc);
       //HBITMAP tmp_map_platforms_sprite=CreateCompatibleBitmap(hdc,MAP_WIDTH,MAP_HEIGHT);
-      unsigned char* lpBitmapBits;
+      //https://forums.codeguru.com/showthread.php?526563-Accessing-Pixels-with-CreateDIBSection
+      unsigned char* lpBitmapBits; 
 
-      BITMAPINFO bi;
+      BITMAPINFO bi; 
       ZeroMemory(&bi, sizeof(BITMAPINFO));
       bi.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
       bi.bmiHeader.biWidth=MAP_WIDTH;
@@ -818,6 +859,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
 
+      //Load Player cache Sprites
       player.sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,player.sprite_angle,LTGREEN,BLACK,-1);
       player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,-1);
       player.sprite_2_cache = RotateSprite(NULL, player.sprite_2,player.sprite_angle,LTGREEN,BLACK,-1);
@@ -831,23 +873,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       player.block_sprite_2_cache = RotateSprite(NULL, player.block_sprite_2,player.sprite_angle,LTGREEN,BLACK,-1);
       player.block_sprite_3_cache = RotateSprite(NULL, player.block_sprite_3,player.sprite_angle,LTGREEN,BLACK,-1);
 
+      player.spin_sprite_1_cache = RotateSprite(NULL, player.spin_sprite,0.1,LTGREEN,BLACK,-1);
+      player.spin_sprite_2_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI_2,LTGREEN,BLACK,-1);
+      player.spin_sprite_3_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI,LTGREEN,BLACK,-1);
+      player.spin_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,BLACK,-1);
 
       mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,-1);
 
-
-      /*for (int i=0;i<ENEMY_NUM;i++) {
-        if (Enemy[i].species==0) {
-          Enemy[i].sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,Enemy[i].color,-1);
-          Enemy[i].sprite_2=RotateSprite(NULL, enemy1_sprite_2,0,LTGREEN,Enemy[i].color,-1);
-          Enemy[i].sprite_3=NULL;
-        } else {
-          Enemy[i].sprite_1=RotateSprite(NULL, enemy2_sprite_1,Enemy[i].angle,LTGREEN,Enemy[i].color,-1);
-          Enemy[i].sprite_2=RotateSprite(NULL, enemy2_sprite_2,Enemy[i].angle,LTGREEN,Enemy[i].color,-1);
-          Enemy[i].sprite_3=RotateSprite(NULL, enemy2_sprite_3,Enemy[i].angle,LTGREEN,Enemy[i].color,-1);
-        }
-      }*/
+      //Load Enemy cache sprites
       InitEnemySprites();
 
+
+
+      //Load Map Background sprites
       switch (map_background) {
         case 0:
           map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
