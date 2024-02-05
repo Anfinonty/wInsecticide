@@ -422,18 +422,22 @@ void DrawTexts(HDC hdc) {
   int i=0,j=0;
   int c2;
 
-  //draw player health
-  for (i=0;i<player.health;i++) {
-    j=i/10; //new row of hearts
-    GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2,player.sprite_y+48+8*j,2,RED,RED);
-  }
 
   //draw player block health
   for (i=0;i<player.block_health;i++) {
     j=i/10; //new row
-    GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2,player.sprite_y+48+8*j,4,YELLOW,-1);
+    GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2+4,player.sprite_y+48+8*j,6,DKGRAY,-1);
+    GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2+4,player.sprite_y+48+8*j,4,DKGRAY,-1);
+    GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2+4,player.sprite_y+48+8*j,2,DKGRAY,-1);
   }
 
+  //draw player health
+  for (i=0;i<player.health;i++) {
+    j=i/10; //new row of hearts
+    GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2+4,player.sprite_y+48+8*j,2,RED,RED);
+  }
+
+  //GrLine(hdc,GR_WIDTH/2,0,GR_WIDTH/2,GR_HEIGHT,BLACK);
   //draw player speed
   //hehehehe
   for (i=0;i<player.speed;i++) {
@@ -484,21 +488,22 @@ void DrawTexts(HDC hdc) {
 
 
   //draw player time breaker
-  bool allow_act=FALSE;
-  if (player.time_breaker_units<player.time_breaker_units_max) {
-    allow_act=TRUE;
-  } else {
-    if (frame_tick%10<5) {
-      allow_act=TRUE;
-    }
+  for (i=0;i<player.time_breaker_units;i++) {
+    double tb_angle=M_PI_2+2*M_PI_2/player.time_breaker_units_max*i*2;
+    GrCircle(hdc,
+      player.sprite_x-32*cos(tb_angle),
+      player.sprite_y-32*sin(tb_angle),
+      2,PURPLE,PURPLE);
   }
-  if (allow_act) { 
-   for (i=0;i<player.time_breaker_units;i++) {
-      double tb_angle=M_PI_2+2*M_PI_2/player.time_breaker_units_max*i*2;
+
+  if (player.time_breaker_units==player.time_breaker_units_max && !player.time_breaker) {
+    int frame_t=frame_tick%20;
+    for (i=0;i<3;i++) {
+      double tb_angle=M_PI_2+2*M_PI_2/player.time_breaker_units_max*(frame_t-i)*2;
       GrCircle(hdc,
         player.sprite_x-32*cos(tb_angle),
         player.sprite_y-32*sin(tb_angle),
-        2,PURPLE,PURPLE);
+        3,LTPURPLE,-1);
     }
   }
 
@@ -714,7 +719,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     { //https://stackoverflow.com/questions/752593/win32-app-suspends-on-minimize-window-animation
       //FrameRateSleep(35); //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
       frame_tick++;
-      if (frame_tick>100) {
+      if (frame_tick>9000) {
         frame_tick=0;
       }
       FrameRateSleep(FPS); // (Uncapped)

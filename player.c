@@ -417,7 +417,7 @@ void InitPlayer() {
 
   player.left_click_hold_timer=0;
   player.right_click_hold_timer=0;
-  player.attack_timer=0;
+  player.attack_timer=1;
   player.sleep_timer=DEFAULT_SLEEP_TIMER;
   player.hit_cooldown_timer=0;
   player.block_timer=0;
