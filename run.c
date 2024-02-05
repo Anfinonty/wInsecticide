@@ -525,19 +525,18 @@ Right Click - Swing with Wceb Placement
 */
 
   if (display_controls) {
-  GrPrint(hdc,4,GR_HEIGHT-80-16*23,"Controls:",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*22,"'W' - Jump from Surface",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*21,"'A' - Move Left (Clockwise)",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*20,"'S' - Block or Spin",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*19,"'D' - Move Right (Anti-Clockwise)",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*18,"'Q' - Pick Up Web",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*17,"'1' - Attack",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*22,"Controls:",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*21,"'W' - Jump from Surface",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*20,"'A' - Move Left (Clockwise)",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*19,"'S' - Block or Spin",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*18,"'D' - Move Right (Anti-Clockwise)",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*17,"'Q' - Pick Up Web",c);
   GrPrint(hdc,4,GR_HEIGHT-80-16*16,"'E' - Hold with Attack for Uppercut",c);
   GrPrint(hdc,4,GR_HEIGHT-80-16*15,"'Z' - Time Breaker Ability",c);
   GrPrint(hdc,4,GR_HEIGHT-80-16*14,"'C' - Increase Reaction Time",c);
   GrPrint(hdc,4,GR_HEIGHT-80-16*13,"'M' - New Random Music",c);
   GrPrint(hdc,4,GR_HEIGHT-80-16*12,"[Space] - Sprint",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*11,"[Left Click] - Attack and Stop Web Shooting",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*11,"[Left Click] or '1' - Attack and Stop Web Shooting",c);
   GrPrint(hdc,4,GR_HEIGHT-80-16*10,"[Right Click] - Shoot web",c);
   GrPrint(hdc,4,GR_HEIGHT-80-16*9,"[Enter] - Restart Level",c);
 
@@ -546,7 +545,7 @@ Right Click - Swing with Wceb Placement
   GrPrint(hdc,4,GR_HEIGHT-80-16*5,"'A' - Swing Clockwise",c);
   GrPrint(hdc,4,GR_HEIGHT-80-16*4,"'S' - Increase Web Length",c);
   GrPrint(hdc,4,GR_HEIGHT-80-16*3,"'D' - Swing Anti-Clockwise",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*2,"[Left Click] - Swing without Web Placement",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-16*2,"[Left Click] or '1' - Swing without Web Placement",c);
   GrPrint(hdc,4,GR_HEIGHT-80-16,"[Right Click] - Swing with Web Placement",c);
   }
 
@@ -680,7 +679,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
             player.time_breaker=TRUE;
             player.time_breaker_cooldown=player.time_breaker_cooldown_max;
-            player.speed+=player.time_breaker_units_max;
+            player.speed+=player.time_breaker_units_max/2-1;
           }
           if (player.sleep_timer==DEFAULT_SLEEP_TIMER) {
             player.sleep_timer=SLOWDOWN_SLEEP_TIMER;
@@ -692,13 +691,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
             player.time_breaker=TRUE;
             player.time_breaker_cooldown=player.time_breaker_cooldown_max;
-            player.speed+=player.time_breaker_units_max;
+            player.speed+=player.time_breaker_units_max/2-1;
           }
           break;
 	    case '1':
-	      player.attack_rst=FALSE;
-	      player.attack=TRUE;
-	      player.blocking=FALSE;
+	      player.attack_rst=TRUE;
 	      break;
 	    case 'E':
           if (player.uppercut) {

@@ -582,7 +582,7 @@ void PlayerAct() {
     BulletAct(player.bullet_shot);
   }
   Click();
-  if (player.left_click_hold_timer==62) {//Left click to Attack
+  if (player.left_click_hold_timer==62 || player.attack_rst) {//Left click to Attack
     player.attack=TRUE;
     player.blocking=FALSE; //unblock
 
@@ -646,7 +646,7 @@ void PlayerAct() {
       } 
     }
   } else { //meelee attack only
-    if (player.left_click_hold_timer==62) { //swing but no web is placed
+    if (player.left_click_hold_timer==62 || player.attack_rst) { //swing but no web is placed
       if (player.is_swinging) {
         player.is_swinging=FALSE;
         player.fling_distance+=player.pivot_length*2;
@@ -703,6 +703,9 @@ void PlayerAct() {
         }
       }
     }
+  }
+  if (player.attack_rst) {
+    player.attack_rst=FALSE;
   }
 
   //Trigger movements
@@ -785,7 +788,6 @@ void PlayerAct() {
           }
         }
 
-
         if (player.fling_distance<=0 && player.on_ground_timer>=1 && speed==0 && grav_speed==0) {
           if (!player.is_rebounding) {
             if (!IsSpeedBreaking()) {//reset stats when normal            
@@ -801,6 +803,10 @@ void PlayerAct() {
                 player.speed--;
             }
           }
+        }
+
+        if (player.rst_key_sprint || IsSpeedBreaking() || player.time_breaker) {
+          player.player_jump_height+=player.speed*NODE_SIZE;
         }
 
 
@@ -1370,7 +1376,8 @@ void PlayerAct() {
     if (IsSpeedBreaking()) {
       if (player.time_breaker_units>0) {
         player.time_breaker_units--;
-        player.speed++;
+        if (player.time_breaker_units%3==0)
+          player.speed++;
       }
       player.time_breaker_recharge_timer=player.time_breaker_recharge_timer_max;
       player.time_breaker_cooldown=player.time_breaker_cooldown_max;
