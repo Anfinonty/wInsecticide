@@ -292,7 +292,7 @@ void EnemySpecies1Gravity(int enemy_id)
   if (enemy_on_ground_id==-1) {//not on ground
     Enemy[enemy_id].y+=1; //falling down
     Enemy[enemy_id].in_air_timer=2;
-    Enemy[enemy_id].angle=0;
+    //Enemy[enemy_id].angle=0;
     //Enemy[enemy_id].saved_angle=0;
     Enemy[enemy_id].above_ground=
       Enemy[enemy_id].below_ground=FALSE;
@@ -1213,8 +1213,8 @@ void DrawEnemy(HDC hdc)
         DrawBullet(hdc,Enemy[i].bullet_shot_arr[k]);
       }
 
-      if (Enemy[i].species==1) {
-        if (Enemy[i].sprite_angle!=Enemy[i].saved_angle && Enemy[i].on_ground_id!=-1) {
+      if (Enemy[i].species==1) { //Cockroach sprite
+        if (Enemy[i].sprite_angle!=Enemy[i].saved_angle && Enemy[i].on_ground_id!=-1) { // enemy is on ground
           DeleteObject(Enemy[i].sprite_1);
           DeleteObject(Enemy[i].sprite_2);
         //DeleteObject(Enemy[i].sprite_3);
@@ -1235,11 +1235,11 @@ void DrawEnemy(HDC hdc)
       if (Enemy[i].sprite_3!=NULL) {
         DeleteObject(Enemy[i].sprite_3);
       }
-      if (Enemy[i].species==1) { 
+      if (Enemy[i].species==1) {  //Cockroach sprite
         Enemy[i].sprite_1=RotateSprite(hdc, enemy2_sprite_1,Enemy[i].sprite_angle,LTGREEN,DKGRAY,TRANSPARENT);
         Enemy[i].sprite_2=RotateSprite(hdc, enemy2_sprite_2,Enemy[i].sprite_angle,LTGREEN,DKGRAY,TRANSPARENT);
         Enemy[i].sprite_3=RotateSprite(hdc, enemy2_sprite_3,Enemy[i].sprite_angle,LTGREEN,DKGRAY,TRANSPARENT);
-      } else {
+      } else { //Fly sprite
         Enemy[i].sprite_1=RotateSprite(hdc, enemy1_sprite_1,Enemy[i].sprite_angle,LTGREEN,DKGRAY,TRANSPARENT);
         Enemy[i].sprite_2=RotateSprite(hdc, enemy1_sprite_2,Enemy[i].sprite_angle,LTGREEN,DKGRAY,TRANSPARENT);
       }
