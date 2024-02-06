@@ -19,7 +19,7 @@
 #include <stdbool.h>
 #include <time.h>
 #include <math.h>
-#include <synchapi.h>
+#include <limits.h>
 #include <dirent.h>
 #include <errno.h>
 

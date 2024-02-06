@@ -1,5 +1,6 @@
 
 
+/*
 long long current_timestamp() {//https://copyprogramming.com/howto/c-sleep-in-milliseconds-in-c-code-example
   struct timeval te;
   mingw_gettimeofday(&te, NULL); //get current time
@@ -11,7 +12,7 @@ int int_current_timestamp() {
   struct timeval te;
   mingw_gettimeofday(&te, NULL);
   return te.tv_sec;
-}
+}*/
 
 
 //Maths
