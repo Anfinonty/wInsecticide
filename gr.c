@@ -269,8 +269,137 @@ void DrawBitmap(HDC hDC,double _x1,double _y1, double _x2, double _y2, int width
 
 
 
+//Set values to variables
+void SetRotatedSpriteSize(HDC hDC, HBITMAP hSourceBitmap,double radians, int *minx, int *miny, int *maxx, int *maxy, int *width, int *height)
+{
+  HBITMAP hOldSourceBitmap; ////https://www.codeguru.com/multimedia/rotate-a-bitmap-image/
+  HDC hMemSrc;
+  BITMAP iSrcBitmap;
 
-HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, float radians,int rTransparent, int sprite_color, int sprite_color_2) 
+  hMemSrc = CreateCompatibleDC(hDC);
+  GetObject(hSourceBitmap, sizeof(BITMAP), (LPSTR)&iSrcBitmap);
+
+  // Get logical coordinates
+  double cosine = (double)cos(radians);
+  double sine = (double)sin(radians);
+
+  // Compute dimensions of the resulting bitmap
+  // First get the coordinates of the 3 corners other than origin
+  int x1 = (int)(-iSrcBitmap.bmHeight * sine);
+  int y1 = (int)(iSrcBitmap.bmHeight * cosine);
+  int x2 = (int)(iSrcBitmap.bmWidth * cosine - iSrcBitmap.bmHeight * sine);
+  int y2 = (int)(iSrcBitmap.bmHeight * cosine + iSrcBitmap.bmWidth * sine);
+  int x3 = (int)(iSrcBitmap.bmWidth * cosine);
+  int y3 = (int)(iSrcBitmap.bmWidth * sine);
+
+  int _minx = min(0,min(x1, min(x2,x3)));
+  int _miny = min(0,min(y1, min(y2,y3)));
+  int _maxx = max(0,max(x1, max(x2,x3)));
+  int _maxy = max(0, max(y1, max(y2,y3)));
+
+  *minx=_minx;
+  *miny=_miny;
+  *maxx=_maxx;
+  *maxy=_maxy;
+
+  *width = (_maxx - _minx);
+  *height = (_maxy - _miny);
+
+  hOldSourceBitmap = SelectObject(hMemSrc, hSourceBitmap);
+  SelectObject(hMemSrc, hOldSourceBitmap);
+  DeleteObject(hOldSourceBitmap);
+  DeleteDC(hMemSrc);
+}
+
+
+
+//After finding the rotated sprite size, begin drawing
+void RotateSpriteII(HDC hDC, HBITMAP hSourceBitmap, HBITMAP hDestBitmap,double radians,int rTransparent, int sprite_color, int sprite_color_2, int minx, int miny, int maxx, int maxy, int y) 
+{ //if (hSourceBitmap != NULL) { ////https://ftp.zx.net.nz/pub/Patches/ftp.microsoft.com/MISC/KB/en-us/77/127.HTM
+  HBITMAP hOldSourceBitmap, hOldDestBitmap; ////https://www.codeguru.com/multimedia/rotate-a-bitmap-image/
+  HDC hMemSrc,hMemDest;
+  BITMAP iSrcBitmap;
+
+  hMemSrc = CreateCompatibleDC(hDC);
+  hMemDest= CreateCompatibleDC(hDC);
+
+  GetObject(hSourceBitmap, sizeof(BITMAP), (LPSTR)&iSrcBitmap);
+
+  double cosine = (double)cos(radians);
+  double sine = (double)sin(radians);
+
+  hOldSourceBitmap = SelectObject(hMemSrc, hSourceBitmap);
+  hOldDestBitmap = SelectObject(hMemDest, hDestBitmap);
+
+  // Set mapping mode so that +ve y axis is upwords
+  SetMapMode(hMemSrc, MM_ISOTROPIC);
+  SetWindowExtEx(hMemSrc, 1,1,NULL);
+  SetViewportExtEx(hMemSrc, 1,-1,NULL);
+  SetViewportOrgEx(hMemSrc, 0, iSrcBitmap.bmHeight-1,NULL);
+
+  SetMapMode(hMemDest, MM_ISOTROPIC);
+  SetWindowExtEx(hMemDest, 1,1,NULL);
+  SetViewportExtEx(hMemDest, 1,-1,NULL);
+  SetWindowOrgEx(hMemDest, minx, maxy-1,NULL);
+
+   // Step 4: Copy the pixels from the source to the destination.
+  int current_pixel=0;
+  //for (int y=miny;y<maxy;y++) { //0 to max height of bitmap
+  for(int x=minx;x<maxx;x++) { //0 to max width of bitmap
+	int sourcex = (int)(x*cosine+y*sine); //get pixel from sprite, x-axis
+	int sourcey = (int)(y*cosine-x*sine); //get pixel from sprite, y-axis
+	if(sourcex>=0 && sourcex<iSrcBitmap.bmWidth && sourcey>=0
+	 	 && sourcey<iSrcBitmap.bmHeight ) {
+       current_pixel=GetPixel(hMemSrc,sourcex,sourcey); //get current pixel color
+      if (current_pixel==rTransparent) { //Set Target Transparent color (i.e. LTGREEN) to BLACK
+	    SetPixel(hMemDest, x, y, BLACK);
+      } else if (current_pixel==BLACK){
+        if (sprite_color_2==-1) { //custom flag to disallow dithreing
+          if (sprite_color!=BLACK) { //Set BLACK to Custom Color
+	        SetPixel(hMemDest, x, y, sprite_color);
+          } else { //change BLACK to DKBLACK 
+	        SetPixel(hMemDest, x, y, DKBLACK);
+          }
+        } else {
+          if (sprite_color!=BLACK) { //Set BLACK to Custom Color
+            if (y%2==0) {
+              if (x%2==0) {
+	            SetPixel(hMemDest, x, y, sprite_color_2);
+              } else {
+	            SetPixel(hMemDest, x, y, sprite_color);
+              }
+            } else {
+              if (x%2!=0) {
+	            SetPixel(hMemDest, x, y, sprite_color_2);
+              } else {
+	            SetPixel(hMemDest, x, y, sprite_color);
+              }
+            }
+          } else { //change BLACK to DKBLACK 
+	        SetPixel(hMemDest, x, y, DKBLACK);
+          }
+        }
+      } else { //Set pixel, no change to color
+	    SetPixel(hMemDest, x, y, current_pixel);
+      }
+    }
+  }
+  //}
+
+ // Step 5: Destroy the DCs.
+  //DeleteObject(SelectObject(hMemSrc, hOldSourceBitmap));
+  //DeleteObject(SelectObject(hMemDest, hOldDestBitmap));
+  SelectObject(hMemSrc, hOldSourceBitmap);
+  SelectObject(hMemDest, hOldDestBitmap);
+  DeleteObject(hOldSourceBitmap);
+  DeleteObject(hOldDestBitmap);
+  DeleteDC(hMemDest);
+  DeleteDC(hMemSrc);
+}
+
+
+
+HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, double radians,int rTransparent, int sprite_color, int sprite_color_2) 
 { //if (hSourceBitmap != NULL) { ////https://ftp.zx.net.nz/pub/Patches/ftp.microsoft.com/MISC/KB/en-us/77/127.HTM
   HBITMAP hOldSourceBitmap, hOldDestBitmap, hDestBitmap; ////https://www.codeguru.com/multimedia/rotate-a-bitmap-image/
   HDC hMemSrc,hMemDest;

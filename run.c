@@ -378,7 +378,7 @@ void DrawTexts(HDC hdc) {
 
 
   if (song_folder_num>0) {
-    char txt[64];
+    char txt[128];
     char *song_name=song_names[rand_song1][rand_song2];
     //int sec = (song_time_end-time_now)%60;
     int sec = (song_seconds_run_max-song_seconds_run)%60;
@@ -860,8 +860,63 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //end of platform sprite creation
 
 
-
+      //=====JUST A DEMO=====
       //Load Player cache Sprites
+      /*SetRotatedSpriteSize(
+        NULL,
+        player.sprite_1,
+        0,
+        &player.sprite_minx,
+        &player.sprite_miny,
+        &player.sprite_maxx,
+        &player.sprite_maxy,
+        &player.sprite_width,
+        &player.sprite_height
+      );*/
+
+
+
+      /*unsigned char* lpBitmapBits2; 
+
+      BITMAPINFO bi2; 
+      ZeroMemory(&bi2, sizeof(BITMAPINFO));
+      bi2.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
+      bi2.bmiHeader.biWidth=player.sprite_width;
+      bi2.bmiHeader.biHeight=-player.sprite_height;
+      bi2.bmiHeader.biPlanes=1;
+      bi2.bmiHeader.biBitCount=32;
+
+      player.sprite_jump_cache=CreateDIBSection(NULL,&bi2,DIB_RGB_COLORS, (VOID**)&lpBitmapBits2,NULL,0);
+      player.sprite_1_cache=CreateDIBSection(NULL,&bi2,DIB_RGB_COLORS, (VOID**)&lpBitmapBits2,NULL,0);
+      player.sprite_2_cache=CreateDIBSection(NULL,&bi2,DIB_RGB_COLORS, (VOID**)&lpBitmapBits2,NULL,0);
+
+      player.attack_sprite_1_cache=CreateDIBSection(NULL,&bi2,DIB_RGB_COLORS, (VOID**)&lpBitmapBits2,NULL,0);
+      player.attack_sprite_2_cache=CreateDIBSection(NULL,&bi2,DIB_RGB_COLORS, (VOID**)&lpBitmapBits2,NULL,0);
+      player.attack_sprite_3_cache=CreateDIBSection(NULL,&bi2,DIB_RGB_COLORS, (VOID**)&lpBitmapBits2,NULL,0);
+      player.attack_sprite_4_cache=CreateDIBSection(NULL,&bi2,DIB_RGB_COLORS, (VOID**)&lpBitmapBits2,NULL,0);
+
+      player.block_sprite_1_cache=CreateDIBSection(NULL,&bi2,DIB_RGB_COLORS, (VOID**)&lpBitmapBits2,NULL,0);
+      player.block_sprite_2_cache=CreateDIBSection(NULL,&bi2,DIB_RGB_COLORS, (VOID**)&lpBitmapBits2,NULL,0);
+      player.block_sprite_3_cache=CreateDIBSection(NULL,&bi2,DIB_RGB_COLORS, (VOID**)&lpBitmapBits2,NULL,0);*/
+
+      //printf("new sizes:%d %d\n",player.sprite_width,player.sprite_height);
+      /*player.current_draw_row=-1;
+      for (int a=player.sprite_miny;a<player.sprite_maxy;a++) {
+        RotateSpriteII(NULL, player.sprite_jump, player.sprite_jump_cache,0, LTGREEN, BLACK, -1, player.sprite_minx, player.sprite_miny, player.sprite_maxx, player.sprite_maxy, a); 
+        RotateSpriteII(NULL, player.sprite_1, player.sprite_1_cache,0, LTGREEN, BLACK, -1, player.sprite_minx, player.sprite_miny, player.sprite_maxx, player.sprite_maxy, a); 
+        RotateSpriteII(NULL, player.sprite_2, player.sprite_2_cache,0, LTGREEN, BLACK, -1, player.sprite_minx, player.sprite_miny, player.sprite_maxx, player.sprite_maxy, a); 
+
+        RotateSpriteII(NULL, player.attack_sprite_1, player.attack_sprite_1_cache,0, LTGREEN, BLACK, -1, player.sprite_minx, player.sprite_miny, player.sprite_maxx, player.sprite_maxy, a); 
+        RotateSpriteII(NULL, player.attack_sprite_2, player.attack_sprite_2_cache,0, LTGREEN, BLACK, -1, player.sprite_minx, player.sprite_miny, player.sprite_maxx, player.sprite_maxy, a); 
+        RotateSpriteII(NULL, player.attack_sprite_3, player.attack_sprite_3_cache,0, LTGREEN, BLACK, -1, player.sprite_minx, player.sprite_miny, player.sprite_maxx, player.sprite_maxy, a); 
+        RotateSpriteII(NULL, player.attack_sprite_4, player.attack_sprite_4_cache,0, LTGREEN, BLACK, -1, player.sprite_minx, player.sprite_miny, player.sprite_maxx, player.sprite_maxy, a); 
+
+        RotateSpriteII(NULL, player.block_sprite_1, player.block_sprite_1_cache,0, LTGREEN, BLACK, -1, player.sprite_minx, player.sprite_miny, player.sprite_maxx, player.sprite_maxy, a); 
+        RotateSpriteII(NULL, player.block_sprite_2, player.block_sprite_2_cache,0, LTGREEN, BLACK, -1, player.sprite_minx, player.sprite_miny, player.sprite_maxx, player.sprite_maxy, a); 
+        RotateSpriteII(NULL, player.block_sprite_3, player.block_sprite_3_cache,0, LTGREEN, BLACK, -1, player.sprite_minx, player.sprite_miny, player.sprite_maxx, player.sprite_maxy, a); 
+      }*/
+
+
       player.sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,player.sprite_angle,LTGREEN,BLACK,-1);
       player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,-1);
       player.sprite_2_cache = RotateSprite(NULL, player.sprite_2,player.sprite_angle,LTGREEN,BLACK,-1);

@@ -716,8 +716,15 @@ void EnemyAct(int i)
         if ((player.block_timer<30 && player.block_timer>28) || (player.block_timer<10)) {
           deduct_health=TRUE;
         }
-        if (player.block_timer>10 && player.speed>5 && !player.is_swinging) {
-          deduct_health=TRUE;        
+        if (player.block_timer>10 && !player.is_swinging) {
+          switch (Enemy[i].species) {
+            case 0:
+              if (player.speed>5) deduct_health=TRUE;
+              break;
+            case 1:
+              if (player.speed>10) deduct_health=TRUE;
+              break;
+          }
         }
         if (player.last_left) {
           Enemy[i].knockback_left=TRUE;
@@ -1060,6 +1067,7 @@ void CleanUpEnemySprites()
 void InitEnemySprites()
 {
   for (int i=0;i<ENEMY_NUM;i++) {
+    Enemy[i].current_draw_row=-1;
     if (Enemy[i].species==0) {
       Enemy[i].sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,Enemy[i].color,-1);
       Enemy[i].sprite_2=RotateSprite(NULL, enemy1_sprite_2,0,LTGREEN,Enemy[i].color,-1);
@@ -1214,34 +1222,116 @@ void DrawEnemy(HDC hdc)
       }
 
       if (Enemy[i].species==1) { //Cockroach sprite
-        if (Enemy[i].sprite_angle!=Enemy[i].saved_angle && Enemy[i].on_ground_id!=-1) { // enemy is on ground
+        if (Enemy[i].sprite_angle!=Enemy[i].saved_angle && Enemy[i].on_ground_id!=-1 && Enemy[i].current_draw_row==-1) { // enemy is on ground
           DeleteObject(Enemy[i].sprite_1);
           DeleteObject(Enemy[i].sprite_2);
         //DeleteObject(Enemy[i].sprite_3);
         
-          Enemy[i].sprite_1=RotateSprite(hdc, enemy2_sprite_1,Enemy[i].sprite_angle,LTGREEN,Enemy[i].color,-1);
-          Enemy[i].sprite_2=RotateSprite(hdc, enemy2_sprite_2,Enemy[i].sprite_angle,LTGREEN,Enemy[i].color,-1);
+        //  Enemy[i].sprite_1=RotateSprite(hdc, enemy2_sprite_1,Enemy[i].sprite_angle,LTGREEN,Enemy[i].color,-1);
+        //  Enemy[i].sprite_2=RotateSprite(hdc, enemy2_sprite_2,Enemy[i].sprite_angle,LTGREEN,Enemy[i].color,-1);
         //Enemy[i].sprite_3=RotateSprite(hdc, enemy2_sprite_3,Enemy[i].angle,LTGREEN,Enemy[i].color);
+
+
+          SetRotatedSpriteSize(
+            NULL,
+            enemy2_sprite_1,
+            Enemy[i].sprite_angle,
+            &Enemy[i].sprite_minx,
+            &Enemy[i].sprite_miny,
+            &Enemy[i].sprite_maxx,
+            &Enemy[i].sprite_maxy,
+            &Enemy[i].sprite_width,
+            &Enemy[i].sprite_height
+          );
+
+          unsigned char* lpBitmapBits2; 
+
+          BITMAPINFO bi2; 
+          ZeroMemory(&bi2, sizeof(BITMAPINFO));
+          bi2.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
+          bi2.bmiHeader.biWidth=Enemy[i].sprite_width;
+          bi2.bmiHeader.biHeight=-Enemy[i].sprite_height;
+          bi2.bmiHeader.biPlanes=1;
+          bi2.bmiHeader.biBitCount=32;
+
+          Enemy[i].sprite_1=CreateDIBSection(hdc,&bi2,DIB_RGB_COLORS, (VOID**)&lpBitmapBits2,NULL,0);
+          Enemy[i].sprite_2=CreateDIBSection(hdc,&bi2,DIB_RGB_COLORS, (VOID**)&lpBitmapBits2,NULL,0);
+
+          Enemy[i].current_draw_row=Enemy[i].sprite_miny;
+
           Enemy[i].saved_angle=Enemy[i].sprite_angle;
+        }
+
+        if (Enemy[i].current_draw_row>=Enemy[i].sprite_miny && Enemy[i].current_draw_row<=Enemy[i].sprite_maxy) {
+          RotateSpriteII(hdc, enemy2_sprite_1, Enemy[i].sprite_1,Enemy[i].sprite_angle, LTGREEN, Enemy[i].color, -1, Enemy[i].sprite_minx, Enemy[i].sprite_miny, Enemy[i].sprite_maxx, Enemy[i].sprite_maxy, Enemy[i].current_draw_row); 
+          RotateSpriteII(hdc, enemy2_sprite_2, Enemy[i].sprite_2,Enemy[i].sprite_angle, LTGREEN, Enemy[i].color, -1, Enemy[i].sprite_minx, Enemy[i].sprite_miny, Enemy[i].sprite_maxx, Enemy[i].sprite_maxy, Enemy[i].current_draw_row);
+          Enemy[i].current_draw_row++;
+          if (Enemy[i].current_draw_row>=Enemy[i].sprite_maxy) {
+            Enemy[i].current_draw_row=-1;
+          }
         }
       }
 
 
-    } else if (Enemy[i].health>-200 && Enemy[i].health<=0){ //enemy has died
-    
-      Enemy[i].health=-99999;
-      DeleteObject(Enemy[i].sprite_1);
-      DeleteObject(Enemy[i].sprite_2);
-      if (Enemy[i].sprite_3!=NULL) {
-        DeleteObject(Enemy[i].sprite_3);
-      }
+    } else if (Enemy[i].health>-1000 && Enemy[i].health<=0){ //enemy has died
+      
       if (Enemy[i].species==1) {  //Cockroach sprite
-        Enemy[i].sprite_1=RotateSprite(hdc, enemy2_sprite_1,Enemy[i].sprite_angle,LTGREEN,DKGRAY,TRANSPARENT);
-        Enemy[i].sprite_2=RotateSprite(hdc, enemy2_sprite_2,Enemy[i].sprite_angle,LTGREEN,DKGRAY,TRANSPARENT);
-        Enemy[i].sprite_3=RotateSprite(hdc, enemy2_sprite_3,Enemy[i].sprite_angle,LTGREEN,DKGRAY,TRANSPARENT);
+        //Enemy[i].sprite_1=RotateSprite(hdc, enemy2_sprite_1,Enemy[i].sprite_angle,LTGREEN,DKGRAY,TRANSPARENT);
+        //Enemy[i].sprite_2=RotateSprite(hdc, enemy2_sprite_2,Enemy[i].sprite_angle,LTGREEN,DKGRAY,TRANSPARENT);
+        //Enemy[i].sprite_3=RotateSprite(hdc, enemy2_sprite_3,Enemy[i].sprite_angle,LTGREEN,DKGRAY,TRANSPARENT);
+        if (Enemy[i].health>-500) {
+          DeleteObject(Enemy[i].sprite_1);
+          DeleteObject(Enemy[i].sprite_2);
+          DeleteObject(Enemy[i].sprite_3);
+
+          SetRotatedSpriteSize(
+              NULL,
+              enemy2_sprite_1,
+              Enemy[i].sprite_angle,
+              &Enemy[i].sprite_minx,
+              &Enemy[i].sprite_miny,
+              &Enemy[i].sprite_maxx,
+              &Enemy[i].sprite_maxy,
+              &Enemy[i].sprite_width,
+              &Enemy[i].sprite_height
+          );
+
+          unsigned char* lpBitmapBits3; 
+
+          BITMAPINFO bi3; 
+          ZeroMemory(&bi3, sizeof(BITMAPINFO));
+          bi3.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
+          bi3.bmiHeader.biWidth=Enemy[i].sprite_width;
+          bi3.bmiHeader.biHeight=-Enemy[i].sprite_height;
+          bi3.bmiHeader.biPlanes=1;
+          bi3.bmiHeader.biBitCount=32;
+
+          Enemy[i].sprite_1=CreateDIBSection(hdc,&bi3,DIB_RGB_COLORS, (VOID**)&lpBitmapBits3,NULL,0);
+          Enemy[i].sprite_2=CreateDIBSection(hdc,&bi3,DIB_RGB_COLORS, (VOID**)&lpBitmapBits3,NULL,0);
+          Enemy[i].sprite_3=CreateDIBSection(hdc,&bi3,DIB_RGB_COLORS, (VOID**)&lpBitmapBits3,NULL,0);
+
+          Enemy[i].current_draw_row=Enemy[i].sprite_miny;
+
+          Enemy[i].health=-501;
+        }
+
+        if (Enemy[i].current_draw_row>=Enemy[i].sprite_miny && Enemy[i].current_draw_row<=Enemy[i].sprite_maxy) {
+          RotateSpriteII(hdc, enemy2_sprite_1, Enemy[i].sprite_1,Enemy[i].sprite_angle, LTGREEN, DKGRAY, TRANSPARENT, Enemy[i].sprite_minx, Enemy[i].sprite_miny, Enemy[i].sprite_maxx, Enemy[i].sprite_maxy, Enemy[i].current_draw_row); 
+          RotateSpriteII(hdc, enemy2_sprite_2, Enemy[i].sprite_2,Enemy[i].sprite_angle, LTGREEN, DKGRAY, TRANSPARENT, Enemy[i].sprite_minx, Enemy[i].sprite_miny, Enemy[i].sprite_maxx, Enemy[i].sprite_maxy, Enemy[i].current_draw_row);
+          RotateSpriteII(hdc, enemy2_sprite_3, Enemy[i].sprite_3,Enemy[i].sprite_angle, LTGREEN, DKGRAY, TRANSPARENT, Enemy[i].sprite_minx, Enemy[i].sprite_miny, Enemy[i].sprite_maxx, Enemy[i].sprite_maxy, Enemy[i].current_draw_row);
+          Enemy[i].current_draw_row++;
+          if (Enemy[i].current_draw_row>=Enemy[i].sprite_maxy) {
+            Enemy[i].current_draw_row=-1;
+            Enemy[i].health=-99999;
+          }
+        }
+
       } else { //Fly sprite
+        DeleteObject(Enemy[i].sprite_1);
+        DeleteObject(Enemy[i].sprite_2);
         Enemy[i].sprite_1=RotateSprite(hdc, enemy1_sprite_1,Enemy[i].sprite_angle,LTGREEN,DKGRAY,TRANSPARENT);
         Enemy[i].sprite_2=RotateSprite(hdc, enemy1_sprite_2,Enemy[i].sprite_angle,LTGREEN,DKGRAY,TRANSPARENT);
+        Enemy[i].health=-99999;
       }
     }
     if (Enemy[i].saw_player) {

@@ -1526,6 +1526,7 @@ void PlayerCameraShake()
 void DrawPlayer(HDC hdc)
 {
   //GrRect(hdc,player.x-PLAYER_WIDTH,player.y-PLAYER_HEIGHT,PLAYER_WIDTH,PLAYER_HEIGHT,RGB(34,139,34));
+  //Mathematics
   if (player.on_ground_id!=-1) {
     if (player.print_current_above) {
       player.sprite_angle=player.angle;
@@ -1540,15 +1541,71 @@ void DrawPlayer(HDC hdc)
       player.sprite_angle=0;
     }
   }
+
+
   if (player.saved_sprite_angle!=player.sprite_angle && player.on_ground_id!=-1) { //detect chnage in walk sprite angle
     DeleteObject(player.sprite_1_cache);
     DeleteObject(player.sprite_2_cache);
-
     player.sprite_1_cache = RotateSprite(hdc, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,-1);
     player.sprite_2_cache = RotateSprite(hdc, player.sprite_2,player.sprite_angle,LTGREEN,BLACK,-1);
 
+
+    //===JUST A DEMO===
+    /*SetRotatedSpriteSize(
+      NULL,
+      player.sprite_1,
+      player.sprite_angle,
+      &player.sprite_minx,
+      &player.sprite_miny,
+      &player.sprite_maxx,
+      &player.sprite_maxy,
+      &player.sprite_width,
+      &player.sprite_height
+    );*/
+
+
+    /*unsigned char* lpBitmapBits2; 
+
+    BITMAPINFO bi2; 
+    ZeroMemory(&bi2, sizeof(BITMAPINFO));
+    bi2.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
+    bi2.bmiHeader.biWidth=player.sprite_width;
+    //if (player.print_current_above)
+      //bi2.bmiHeader.biHeight=-player.sprite_height;
+    //else if (player.print_current_below)
+    bi2.bmiHeader.biHeight=-player.sprite_height;
+    bi2.bmiHeader.biPlanes=1;
+    bi2.bmiHeader.biBitCount=32;
+
+    player.sprite_1_cache=CreateDIBSection(NULL,&bi2,DIB_RGB_COLORS, (VOID**)&lpBitmapBits2,NULL,0);
+    player.sprite_2_cache=CreateDIBSection(NULL,&bi2,DIB_RGB_COLORS, (VOID**)&lpBitmapBits2,NULL,0);*/
+
+  /*for (int a=player.sprite_miny;a<player.sprite_maxy;a++) {
+    RotateSpriteII(NULL, player.sprite_1, player.sprite_1_cache,player.sprite_angle, LTGREEN, BLACK, -1, player.sprite_minx, player.sprite_miny, player.sprite_maxx, player.sprite_maxy, a);//player.current_draw_row); 
+    RotateSpriteII(NULL, player.sprite_2, player.sprite_2_cache,player.sprite_angle, LTGREEN, BLACK, -1, player.sprite_minx, player.sprite_miny, player.sprite_maxx, player.sprite_maxy, a);//player.current_draw_row);
+  }*/
+
+    //player.current_draw_row=player.sprite_miny;
+    //===========
+
+
+
     player.saved_sprite_angle=player.sprite_angle;
   }
+
+
+
+  //===JUST A DEMO===
+  /*if (player.current_draw_row>=player.sprite_miny && player.current_draw_row<=player.sprite_maxy) {
+    RotateSpriteII(NULL, player.sprite_1, player.sprite_1_cache,player.sprite_angle, LTGREEN, BLACK, -1, player.sprite_minx, player.sprite_miny, player.sprite_maxx, player.sprite_maxy, player.current_draw_row); 
+    RotateSpriteII(NULL, player.sprite_2, player.sprite_2_cache,player.sprite_angle, LTGREEN, BLACK, -1, player.sprite_minx, player.sprite_miny, player.sprite_maxx, player.sprite_maxy, player.current_draw_row);
+    player.current_draw_row++;
+    if (player.current_draw_row>=player.sprite_maxy) {
+      player.current_draw_row=-1;
+    }
+  }*/
+  //=====
+
   if (player.block_timer>0 && player.saved_block_sprite_angle!=player.sprite_angle) { //detect change in block sprite angle
     DeleteObject(player.block_sprite_1_cache);
     DeleteObject(player.block_sprite_2_cache);

@@ -208,6 +208,8 @@ struct player
   HBITMAP block_sprite_3;
   HBITMAP spin_sprite;
 
+
+//sprite cache to be displayed
   HBITMAP sprite_1_cache;
   HBITMAP sprite_2_cache;
   HBITMAP sprite_jump_cache;
@@ -222,6 +224,27 @@ struct player
   HBITMAP spin_sprite_2_cache;
   HBITMAP spin_sprite_3_cache;
   HBITMAP spin_sprite_4_cache;
+
+
+  //=== JUST A DEMO===
+  /*int sprite_width;
+  int sprite_height;
+  int sprite_minx;
+  int sprite_miny;
+  int sprite_maxx;
+  int sprite_maxy;
+  int current_draw_row;*/
+
+//1
+//Find size of rotated bitmap from rotating SpriteA
+//2
+//Create Empty bitmap (cache_rot) SpriteB
+//3 
+//place each line of rotation from SpriteA to SpriteB
+//4
+//SpriteC = SpriteB
+
+
 } player;
 
 
@@ -490,6 +513,16 @@ struct Enemy
   HBITMAP sprite_1;
   HBITMAP sprite_2;
   HBITMAP sprite_3;
+
+  int sprite_width;
+  int sprite_height;
+  int sprite_minx;
+  int sprite_miny;
+  int sprite_maxx;
+  int sprite_maxy;
+  int current_draw_row;
+
+
 } Enemy[ENEMY_NUM];
 
 int CalculateDistanceCost(int enemy_id,int a, int b);
