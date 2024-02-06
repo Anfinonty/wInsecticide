@@ -1053,12 +1053,15 @@ void CleanUpEnemySprites()
   for (int i=0;i<ENEMY_NUM;i++) {
     if (Enemy[i].sprite_1!=NULL) {
       DeleteObject(Enemy[i].sprite_1);
+      Enemy[i].sprite_1=NULL;
     }
     if (Enemy[i].sprite_2!=NULL) {
       DeleteObject(Enemy[i].sprite_2);
+      Enemy[i].sprite_2=NULL;
     }
     if (Enemy[i].sprite_3!=NULL) {
       DeleteObject(Enemy[i].sprite_3);
+      Enemy[i].sprite_3=NULL;
     }
   }
 }
@@ -1078,10 +1081,10 @@ void InitEnemySprites()
       Enemy[i].sprite_3=NULL;
     } else {
       if (Enemy[i].sprite_1==NULL) {
-        Enemy[i].sprite_1=RotateSprite(NULL, enemy2_sprite_1,Enemy[i].sprite_angle,LTGREEN,Enemy[i].color,-1);
+        Enemy[i].sprite_1=RotateSprite(NULL, enemy2_sprite_1,0,LTGREEN,Enemy[i].color,-1);
       }
       if (Enemy[i].sprite_2==NULL) {
-        Enemy[i].sprite_2=RotateSprite(NULL, enemy2_sprite_2,Enemy[i].sprite_angle,LTGREEN,Enemy[i].color,-1);
+        Enemy[i].sprite_2=RotateSprite(NULL, enemy2_sprite_2,0,LTGREEN,Enemy[i].color,-1);
       }
       if (Enemy[i].sprite_3==NULL) {
         Enemy[i].sprite_3=RotateSprite(NULL, enemy2_sprite_3,0,LTGREEN,Enemy[i].color,-1);
@@ -1095,7 +1098,6 @@ bool once=TRUE;
 void InitEnemy()
 {
   int i=0,j=0,x=0,y=0;
-  //CleanUpEnemy();
   for (i=0;i<ENEMY_NUM;i++) {
     Enemy[i].on_ground_id=-1;
     Enemy[i].seed=0;
@@ -1204,7 +1206,7 @@ void InitEnemy()
     EnemyAct(i);
   }
   if (!once) {
-   // CleanUpEnemySprites();
+    CleanUpEnemySprites();
     InitEnemySprites();
   }
   if (once) {
@@ -1232,7 +1234,7 @@ void DrawEnemy(HDC hdc)
       }
 
       if (Enemy[i].species==1) { //Cockroach sprite
-        if (Enemy[i].sprite_angle!=Enemy[i].saved_angle && Enemy[i].on_ground_id!=-1 && Enemy[i].current_draw_row==-1) { // enemy is on ground
+        if (Enemy[i].sprite_angle!=Enemy[i].saved_angle) { // enemy is on ground
           if (Enemy[i].sprite_1!=NULL) {
             DeleteObject(Enemy[i].sprite_1);
           }
@@ -1275,17 +1277,16 @@ void DrawEnemy(HDC hdc)
 
           Enemy[i].saved_angle=Enemy[i].sprite_angle;
         }
-
-        if (Enemy[i].current_draw_row>=Enemy[i].sprite_miny && Enemy[i].current_draw_row<=Enemy[i].sprite_maxy) {
-          RotateSpriteII(hdc, enemy2_sprite_1, Enemy[i].sprite_1,Enemy[i].sprite_angle, LTGREEN, Enemy[i].color, -1, Enemy[i].sprite_minx, Enemy[i].sprite_miny, Enemy[i].sprite_maxx, Enemy[i].sprite_maxy, Enemy[i].current_draw_row); 
-          RotateSpriteII(hdc, enemy2_sprite_2, Enemy[i].sprite_2,Enemy[i].sprite_angle, LTGREEN, Enemy[i].color, -1, Enemy[i].sprite_minx, Enemy[i].sprite_miny, Enemy[i].sprite_maxx, Enemy[i].sprite_maxy, Enemy[i].current_draw_row);
-          Enemy[i].current_draw_row++;
-          if (Enemy[i].current_draw_row>=Enemy[i].sprite_maxy) {
-            Enemy[i].current_draw_row=-1;
-          }
-        }
       }
 
+      if (Enemy[i].current_draw_row>=Enemy[i].sprite_miny && Enemy[i].current_draw_row<=Enemy[i].sprite_maxy) {
+        RotateSpriteII(hdc, enemy2_sprite_1, Enemy[i].sprite_1,Enemy[i].sprite_angle, LTGREEN, Enemy[i].color, -1, Enemy[i].sprite_minx, Enemy[i].sprite_miny, Enemy[i].sprite_maxx, Enemy[i].sprite_maxy, Enemy[i].current_draw_row); 
+        RotateSpriteII(hdc, enemy2_sprite_2, Enemy[i].sprite_2,Enemy[i].sprite_angle, LTGREEN, Enemy[i].color, -1, Enemy[i].sprite_minx, Enemy[i].sprite_miny, Enemy[i].sprite_maxx, Enemy[i].sprite_maxy, Enemy[i].current_draw_row);
+        Enemy[i].current_draw_row++;
+        if (Enemy[i].current_draw_row>=Enemy[i].sprite_maxy) {
+          Enemy[i].current_draw_row=-1;
+        }
+      }
 
     } else if (Enemy[i].health>-1000 && Enemy[i].health<=0){ //enemy has died
       
