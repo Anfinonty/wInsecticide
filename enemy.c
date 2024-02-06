@@ -1069,13 +1069,23 @@ void InitEnemySprites()
   for (int i=0;i<ENEMY_NUM;i++) {
     Enemy[i].current_draw_row=-1;
     if (Enemy[i].species==0) {
-      Enemy[i].sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,Enemy[i].color,-1);
-      Enemy[i].sprite_2=RotateSprite(NULL, enemy1_sprite_2,0,LTGREEN,Enemy[i].color,-1);
+      if (Enemy[i].sprite_1==NULL) {
+        Enemy[i].sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,Enemy[i].color,-1);
+      }
+      if (Enemy[i].sprite_2==NULL) {
+        Enemy[i].sprite_2=RotateSprite(NULL, enemy1_sprite_2,0,LTGREEN,Enemy[i].color,-1);
+      }
       Enemy[i].sprite_3=NULL;
     } else {
-      Enemy[i].sprite_1=RotateSprite(NULL, enemy2_sprite_1,Enemy[i].sprite_angle,LTGREEN,Enemy[i].color,-1);
-      Enemy[i].sprite_2=RotateSprite(NULL, enemy2_sprite_2,Enemy[i].sprite_angle,LTGREEN,Enemy[i].color,-1);
-      Enemy[i].sprite_3=RotateSprite(NULL, enemy2_sprite_3,0,LTGREEN,Enemy[i].color,-1);
+      if (Enemy[i].sprite_1==NULL) {
+        Enemy[i].sprite_1=RotateSprite(NULL, enemy2_sprite_1,Enemy[i].sprite_angle,LTGREEN,Enemy[i].color,-1);
+      }
+      if (Enemy[i].sprite_2==NULL) {
+        Enemy[i].sprite_2=RotateSprite(NULL, enemy2_sprite_2,Enemy[i].sprite_angle,LTGREEN,Enemy[i].color,-1);
+      }
+      if (Enemy[i].sprite_3==NULL) {
+        Enemy[i].sprite_3=RotateSprite(NULL, enemy2_sprite_3,0,LTGREEN,Enemy[i].color,-1);
+      }
     }
   }
 }
@@ -1117,7 +1127,7 @@ void InitEnemy()
     Enemy[i].in_air_timer=0;
     Enemy[i].angle=0;
     Enemy[i].sprite_angle=0;
-    Enemy[i].saved_angle=0;
+    Enemy[i].saved_angle=-9999;
   //bullet
     Enemy[i].bullet_shot_num=0;
     for (j=0;j<BULLET_NUM*1;j++) {
@@ -1194,7 +1204,7 @@ void InitEnemy()
     EnemyAct(i);
   }
   if (!once) {
-    CleanUpEnemySprites();
+   // CleanUpEnemySprites();
     InitEnemySprites();
   }
   if (once) {
@@ -1223,8 +1233,12 @@ void DrawEnemy(HDC hdc)
 
       if (Enemy[i].species==1) { //Cockroach sprite
         if (Enemy[i].sprite_angle!=Enemy[i].saved_angle && Enemy[i].on_ground_id!=-1 && Enemy[i].current_draw_row==-1) { // enemy is on ground
-          DeleteObject(Enemy[i].sprite_1);
-          DeleteObject(Enemy[i].sprite_2);
+          if (Enemy[i].sprite_1!=NULL) {
+            DeleteObject(Enemy[i].sprite_1);
+          }
+          if (Enemy[i].sprite_2!=NULL) {
+            DeleteObject(Enemy[i].sprite_2);
+          }
         //DeleteObject(Enemy[i].sprite_3);
         
         //  Enemy[i].sprite_1=RotateSprite(hdc, enemy2_sprite_1,Enemy[i].sprite_angle,LTGREEN,Enemy[i].color,-1);
@@ -1280,9 +1294,17 @@ void DrawEnemy(HDC hdc)
         //Enemy[i].sprite_2=RotateSprite(hdc, enemy2_sprite_2,Enemy[i].sprite_angle,LTGREEN,DKGRAY,TRANSPARENT);
         //Enemy[i].sprite_3=RotateSprite(hdc, enemy2_sprite_3,Enemy[i].sprite_angle,LTGREEN,DKGRAY,TRANSPARENT);
         if (Enemy[i].health>-500) {
-          DeleteObject(Enemy[i].sprite_1);
-          DeleteObject(Enemy[i].sprite_2);
-          DeleteObject(Enemy[i].sprite_3);
+          if (Enemy[i].sprite_1!=NULL) {
+            DeleteObject(Enemy[i].sprite_1);
+          }
+          if (Enemy[i].sprite_2!=NULL) {
+            DeleteObject(Enemy[i].sprite_2);
+          }
+
+          if (Enemy[i].sprite_3!=NULL) {
+            DeleteObject(Enemy[i].sprite_3);
+          }
+
 
           SetRotatedSpriteSize(
               NULL,
@@ -1327,8 +1349,12 @@ void DrawEnemy(HDC hdc)
         }
 
       } else { //Fly sprite
-        DeleteObject(Enemy[i].sprite_1);
-        DeleteObject(Enemy[i].sprite_2);
+        if (Enemy[i].sprite_1!=NULL) {
+          DeleteObject(Enemy[i].sprite_1);
+        }
+        if (Enemy[i].sprite_2!=NULL) {
+          DeleteObject(Enemy[i].sprite_2);
+        }
         Enemy[i].sprite_1=RotateSprite(hdc, enemy1_sprite_1,Enemy[i].sprite_angle,LTGREEN,DKGRAY,TRANSPARENT);
         Enemy[i].sprite_2=RotateSprite(hdc, enemy1_sprite_2,Enemy[i].sprite_angle,LTGREEN,DKGRAY,TRANSPARENT);
         Enemy[i].health=-99999;
