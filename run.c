@@ -157,12 +157,12 @@ int frame_tick=0;
 
 
 
-
+#include "load_level.c"
 
 
 
 //#include "saves/Level001.c"
-#include "saves/Level002.c"
+//#include "saves/Level002.c"
 //#include "saves/Level003.c"
 //#include "saves/Level004.c"
 //#include "saves/Level005.c"
@@ -931,7 +931,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 
   //create window
   CreateWindowW(wc.lpszClassName,
-                L"wInsecticide (Press [Enter] to Restart)",
+                L"wInsecticide (02-06-2024)",
                 WS_OVERLAPPEDWINDOW | WS_VISIBLE,
                 0,
                 0,
