@@ -1094,7 +1094,7 @@ void InitEnemySprites()
 }
 
 
-bool once=TRUE;
+//bool once=TRUE;
 void InitEnemy()
 {
   int i=0,j=0,x=0,y=0;
@@ -1205,13 +1205,13 @@ void InitEnemy()
     }
     EnemyAct(i);
   }
-  if (!once) {
+  /*if (!once) {
     CleanUpEnemySprites();
     InitEnemySprites();
   }
   if (once) {
     once=FALSE;
-  }
+  }*/
 }
 
 
@@ -1241,11 +1241,17 @@ void DrawEnemy(HDC hdc)
           if (Enemy[i].sprite_2!=NULL) {
             DeleteObject(Enemy[i].sprite_2);
           }
+
+
+          if (Enemy[i].saved_angle==-9999) {
+            DeleteObject(Enemy[i].sprite_3);
+            Enemy[i].sprite_3=RotateSprite(hdc, enemy2_sprite_3,0,LTGREEN,Enemy[i].color,-1);
+          }
+
         //DeleteObject(Enemy[i].sprite_3);
         
         //  Enemy[i].sprite_1=RotateSprite(hdc, enemy2_sprite_1,Enemy[i].sprite_angle,LTGREEN,Enemy[i].color,-1);
         //  Enemy[i].sprite_2=RotateSprite(hdc, enemy2_sprite_2,Enemy[i].sprite_angle,LTGREEN,Enemy[i].color,-1);
-        //Enemy[i].sprite_3=RotateSprite(hdc, enemy2_sprite_3,Enemy[i].angle,LTGREEN,Enemy[i].color);
 
 
           SetRotatedSpriteSize(
@@ -1274,6 +1280,20 @@ void DrawEnemy(HDC hdc)
           Enemy[i].sprite_2=CreateDIBSection(hdc,&bi2,DIB_RGB_COLORS, (VOID**)&lpBitmapBits2,NULL,0);
 
           Enemy[i].current_draw_row=Enemy[i].sprite_miny;
+
+          Enemy[i].saved_angle=Enemy[i].sprite_angle;
+        }
+      } else {
+        if (Enemy[i].sprite_angle!=Enemy[i].saved_angle) { // enemy is on ground
+          if (Enemy[i].sprite_1!=NULL) {
+            DeleteObject(Enemy[i].sprite_1);
+          }
+          if (Enemy[i].sprite_2!=NULL) {
+            DeleteObject(Enemy[i].sprite_2);
+          }
+
+          Enemy[i].sprite_1=RotateSprite(hdc, enemy1_sprite_1,Enemy[i].sprite_angle,LTGREEN,Enemy[i].color,-1);
+          Enemy[i].sprite_2=RotateSprite(hdc, enemy1_sprite_2,Enemy[i].sprite_angle,LTGREEN,Enemy[i].color,-1);
 
           Enemy[i].saved_angle=Enemy[i].sprite_angle;
         }
