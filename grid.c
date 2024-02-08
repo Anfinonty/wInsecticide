@@ -14,10 +14,10 @@ int GetGridId(int x,int y,int width, int size,int max)
 
 void SetGridLineArray(int grid_id,int ground_id)
 {
-  if (!Ground[ground_id].already_in_grid[grid_id] && VGrid[grid_id].max_ground_num<MAX_GROUNDS_WITHIN_GRID) {//if not in the grid
+  if (!Ground3[ground_id].already_in_grid[grid_id] && VGrid[grid_id].max_ground_num<MAX_GROUNDS_WITHIN_GRID) {//if not in the grid
     //Ground related
-    Ground[ground_id].saved_pos_in_grid[grid_id]=VGrid[grid_id].max_ground_num;
-    Ground[ground_id].already_in_grid[grid_id]=TRUE;
+    Ground2[ground_id].saved_pos_in_grid[grid_id]=VGrid[grid_id].max_ground_num;
+    Ground3[ground_id].already_in_grid[grid_id]=TRUE;
     //grid related
     VGrid[grid_id].ground_ids[VGrid[grid_id].max_ground_num]=ground_id;
     VGrid[grid_id].max_ground_num++;
@@ -28,17 +28,17 @@ void SetGridLineArray(int grid_id,int ground_id)
 void UnSetGridLineArray(int grid_id,int ground_id)
 {
   int i=0;
-  if (Ground[ground_id].already_in_grid[grid_id]) {
+  if (Ground3[ground_id].already_in_grid[grid_id]) {
    //grid related
-    for (i=Ground[ground_id].saved_pos_in_grid[grid_id];i<VGrid[grid_id].max_ground_num-1;i++) {
+    for (i=Ground2[ground_id].saved_pos_in_grid[grid_id];i<VGrid[grid_id].max_ground_num-1;i++) {
       VGrid[grid_id].ground_ids[i]=VGrid[grid_id].ground_ids[i+1];
-      Ground[VGrid[grid_id].ground_ids[i]].saved_pos_in_grid[grid_id]--;
+      Ground2[VGrid[grid_id].ground_ids[i]].saved_pos_in_grid[grid_id]--;
     }
     VGrid[grid_id].ground_ids[VGrid[grid_id].max_ground_num-1]=-1;
     VGrid[grid_id].max_ground_num--;
    //ground related
-    Ground[ground_id].already_in_grid[grid_id]=FALSE;
-    Ground[ground_id].saved_pos_in_grid[grid_id]=-1;
+    Ground3[ground_id].already_in_grid[grid_id]=FALSE;
+    Ground2[ground_id].saved_pos_in_grid[grid_id]=-1;
   }
 }
 
@@ -67,9 +67,9 @@ void InitGrid()
   y=0;
   for (i=0;i<GRID_NUM;i++) {
     Grid[i].within_render_distance=FALSE;
-    Grid[i].enemy_occupy_num=0;
+    GridE[i].enemy_occupy_num=0;
     for (j=0;j<ENEMY_NUM;j++) {
-      Grid[i].enemy_occupy[j]=-1;
+      GridE[i].enemy_occupy[j]=-1;
     }
     Grid[i].x1=x;
     Grid[i].y1=y;

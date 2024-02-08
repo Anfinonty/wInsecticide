@@ -243,8 +243,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             fptr = fopen("load_level.c","w");
             fprintf(fptr,"#include \"saves/Level00%d.c\"",level_chosen);
             fclose(fptr);
-
-            system("cd mingw32/bin && i686-w64-mingw32-gcc.exe ../../run.c -o ../../tmp.exe -lgdi32 -municode -lwinmm && cd ../../ && tmp.exe");
+            /*system("cd mingw32/bin && i686-w64-mingw32-gcc.exe ../../run.c -o ../../tmp.exe -lgdi32 -municode -lwinmm && cd ../../ && tmp.exe");*/
+            
+            system("rungame.exe");
           }
           break;
       }

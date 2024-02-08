@@ -97,13 +97,20 @@ void InitGround()
 {
   int i,j;
 //Set ground default and Web
-  //current_gsm=0;
-  //gsm_hold_timer=0;
-
   for (i=0;i<GROUND_NUM+MAX_WEB_NUM;i++) {
+    //printf("-Ground%d/%d\n",i,GROUND_NUM);
     for (j=0;j<VGRID_NUM;j++) {
-      Ground[i].saved_pos_in_grid[j]=-1;
-      Ground[i].already_in_grid[j]=FALSE;
+      //printf("---G/VGrid %d/%d\n",i,j);
+      //printf("%d:%d *",i,j);
+      Ground3[i].b=0;
+      Ground3[i].already_in_grid[j]=FALSE;
+      //printf("*");
+
+      Ground2[i].a=0;
+      //printf("%d-%d  load-2\n",j,i);
+      Ground2[i].saved_pos_in_grid[j]=-1;
+      //printf("*\n");
+      //printf("%d-%d  load-3\n",j,i);
     }
     /*for (j=0;j<MULTI_SPRITE_NUM;j++) {
       Ground[i].msprite_x1[j]=
@@ -112,14 +119,16 @@ void InitGround()
       Ground[i].msprite_y2[j]=-20;
       Ground[i].appear_timer[j]=0;
     }*/
+    //printf("%d saving ground\n",i);
     if (i<GROUND_NUM) {
     //set the saved data
-      Ground[i].x1=saved_ground_x1[i];
-      Ground[i].y1=saved_ground_y1[i];
-      Ground[i].x2=saved_ground_x2[i];
-      Ground[i].y2=saved_ground_y2[i];
-      Ground[i].x3=saved_ground_x3[i];
-      Ground[i].y3=saved_ground_y3[i];
+      Ground[i].x1=(double)saved_ground_x1[i];
+      //printf("%d %1.0f=%1.0f\n",i,Ground[i].x1,saved_ground_x1[i]);
+      Ground[i].y1=(double)saved_ground_y1[i];
+      Ground[i].x2=(double)saved_ground_x2[i];
+      Ground[i].y2=(double)saved_ground_y2[i];
+      Ground[i].x3=(double)saved_ground_x3[i];
+      Ground[i].y3=(double)saved_ground_y3[i];
  
       Ground[i].type=saved_ground_type[i];
       if (Ground[i].x1<1) {
@@ -155,7 +164,10 @@ void InitGround()
       /*} else {
         Ground[i].color=palette_dark_arr[saved_ground_color[i]];
       }*/
-      Ground[i].text=saved_ground_text[i];
+      /*for (j=0;j<256;j++) {
+        Ground[i].text[j]=saved_ground_text[i][j];
+      }*/
+      printf("\n%d ghost?%d",i,saved_ground_is_ghost[i]);
       if (saved_ground_is_ghost[i]) {
         Ground[i].is_ghost=TRUE;
       } else {
@@ -170,7 +182,9 @@ void InitGround()
       Ground[i].y3=2;
       Ground[i].color=CYAN;//TRANSPARENT;
       Ground[i].type=0;
-      Ground[i].text="";
+      /*for (j=0;j<256;j++) {
+        Ground[i].text[j]=0;
+      }*/
       Ground[i].is_ghost=FALSE;
     }
     Ground[i].health=-1;
@@ -179,10 +193,11 @@ void InitGround()
     Ground[i].within_render_distance=FALSE;
     Ground[i].angle=0;
     SetGround(i);
+    //printf("--%d\n",saved_ground_is_ghost[i]);
   }
 }
 
-void InitGround2()
+/*void InitGround2()
 {
   int i=0;
   for (i=0;i<GROUND_NUM+MAX_WEB_NUM;i++) {
@@ -193,7 +208,7 @@ void InitGround2()
     Ground[i].sprite_x3=-20;//Ground[i].x3+player.cam_x;//+cam_move_x-PLAYER_WIDTH/2;
     Ground[i].sprite_y3=-20;//Ground[i].y3+player.cam_y;//+cam_move_y-PLAYER_HEIGHT/2;
   }
-}
+}*/
 
 
 int GetOnGroundId(double x,double y,double min_range_1,double min_range_2,bool is_player)
@@ -326,7 +341,7 @@ void DrawGround(HDC hdc)
 
 
 
-void DrawGroundText(HDC hdc)
+/*void DrawGroundText(HDC hdc)
 {
   int i=0;//,j=0;
   for (i=0;i<GROUND_NUM;i++) {
@@ -341,7 +356,7 @@ void DrawGroundText(HDC hdc)
       }
     }
   }
-}
+}*/
 
 
 void DrawGroundTriFill(HDC hdc)

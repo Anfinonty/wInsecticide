@@ -69,6 +69,42 @@ WHITE
 };
 
 
+/*struct custard
+{
+  int cream;
+};
+
+int amount=10;
+struct custard* Custard;*/
+
+/*void InitCustard()
+{
+  /*Custard=(struct custard*)malloc(amount*sizeof(struct custard));
+  for (int du=0;du<amount;du++) {
+    Custard[du].cream=du*2;
+  }*/
+  /*for (int du=0;du<amount;du++) {
+    printf("%d",Custard[du].cream);
+  }*/
+  /*free(Custard);
+  Custard=NULL;
+}*/
+
+/*int* ptr;
+
+void initdum()
+{
+  ptr=(int*)malloc(size*sizeof(int));
+  for (int du=0;du<size;du++) {
+    ptr[du]=du*2;
+  }
+  for (int du=0;du<size;du++) {
+    printf("%d",ptr[du]);
+  }
+}*/
+
+//struct Custard Custards[size];
+
 /*int palette_dark_arr[COLORS_NUM]={
 BLACK,
 BLUE,
@@ -95,6 +131,10 @@ WHITE
 #define SCREEN_WIDTH    (GetSystemMetrics(SM_CXSCREEN))
 #define SCREEN_HEIGHT   (GetSystemMetrics(SM_CYSCREEN))
 
+
+//#include "load_level.c"
+//#include "all_levels.c"
+
 int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
 int dyn_vrenderdist=0,dyn_vrenderdist_num=0;
 int frame_tick=0;
@@ -109,17 +149,23 @@ int frame_tick=0;
 
 #define GRID_SIZE	160
 #define VGRID_SIZE	160
-#define GRID_NUM	(MAP_WIDTH/GRID_SIZE) * (MAP_HEIGHT/GRID_SIZE)
-#define VGRID_NUM	(MAP_WIDTH/VGRID_SIZE) * (MAP_HEIGHT/VGRID_SIZE)
+#define MAX_GROUNDS_WITHIN_GRID	(VGRID_SIZE/NODE_SIZE)*(VGRID_SIZE/NODE_SIZE)/2
+
+
+#define ENEMY_I64_ATTRIBUTES_NUM 20
+#define ENEMY_F64_ATTRIBUTES_NUM 4
+//#define ENEMY_BOOL_ATTRIBUTES_NUM 1
+
+#define GROUND_F64_ATTRIBUTES_NUM 6
+#define GROUND_BOOL_ATTRIBUTES_NUM 1
+#define GROUND_I64_ATTRIBUTES_NUM 2
+//#define GROUND_U8_ATTRIBUTES_NUM 1
+
 
 #define NODE_SIZE  	 10
 #define MAX_FOLLOW_RANGE 100
 #define MAX_NODE_NUM	 MAX_FOLLOW_RANGE*MAX_FOLLOW_RANGE
-
-#define MAP_NODE_NUM     (MAP_WIDTH/NODE_SIZE) * (MAP_HEIGHT/NODE_SIZE)
-
-#define MAX_GROUNDS_WITHIN_GRID	(VGRID_SIZE/NODE_SIZE)*(VGRID_SIZE/NODE_SIZE)/2
-
+//#include "saves/Level001.c"
 
 #define VRENDER_DIST      20
 #define VRDGRID_NUM       VRENDER_DIST*VRENDER_DIST
@@ -127,12 +173,26 @@ int frame_tick=0;
 #define RENDER_DIST	 9
 #define RDGRID_NUM	 RENDER_DIST*RENDER_DIST
 
-#define DEFAULT_SLEEP_TIMER			6
-#define SLOWDOWN_SLEEP_TIMER			30
 
 #define BULLET_NUM	5000
 #define MAX_BULLET_PER_FIRE 10
 
+
+#define MAX_WEB_NUM      100
+
+
+#include "load_save.c"
+#include "struct_classes.c"
+
+
+
+
+
+
+
+
+#define DEFAULT_SLEEP_TIMER			6
+#define SLOWDOWN_SLEEP_TIMER			30
 
 #define DEFAULT_PLAYER_HEALTH			20
 #define DEFAULT_PLAYER_JUMP_HEIGHT 		85//100
@@ -153,51 +213,10 @@ int frame_tick=0;
 
 #define DEFAULT_PLAYER_BLOCK_HEALTH_MAX 20
 
-#define MAX_WEB_NUM      100
-
-
-
-#include "load_level.c"
-
-
-
-//#include "saves/Level001.c"
-//#include "saves/Level002.c"
-//#include "saves/Level003.c"
-//#include "saves/Level004.c"
-//#include "saves/Level005.c"
-//#include "saves/Level006.c"
-//#include "saves/Level007.c"
-//#include "saves/Level008.c"
-
-/*
-#define ENEMY_I64_ATTRIBUTES_NUM 26
-#define ENEMY_F64_ATTRIBUTES_NUM 4
-#define ENEMY_BOOL_ATTRIBUTES_NUM 1
-
-#define GROUND_F64_ATTRIBUTES_NUM 6
-#define GROUND_BOOL_ATTRIBUTES_NUM 1
-#define GROUND_I64_ATTRIBUTES_NUM 2
-#define GROUND_U8_ATTRIBUTES_NUM 1
-
-#define PLAYER_COMBO_TIME_LIMIT 351
-#define BUILD_RANGE   	60
-
-#define DEFAULT_PLAYER_SND_DURATION	10
-#define DEFAULT_PLAYER_SND_PITCH	90
-#define DEFAULT_PLAYER_SND_RAND		10
-
-#define PERFORMANCE_TXT_TIMER_MAX	201
-
-#define GAMEMODE_NUM	2
-#define OPTION_NUM	4
-#define COMBO_NUM	3
-*/
 
 #include "math.c"
 #include "gr.c"
 
-#include "struct_classes.c"
 #include "grid.c"
 #include "ground.c"
 #include "bullet.c"
@@ -277,6 +296,7 @@ void InitFPS() { //https://cboard.cprogramming.com/windows-programming/30730-fin
 
 
 void InitOnce() {
+  int i;
   GR_WIDTH=SCREEN_WIDTH;
   GR_HEIGHT=SCREEN_HEIGHT;
 
@@ -286,22 +306,174 @@ void InitOnce() {
   dyn_vrenderdist=ceil(GR_WIDTH/100)+1;
   dyn_vrenderdist_num=dyn_vrenderdist*dyn_vrenderdist;
 
+  //InitCustard();
+  LoadSave("saves/_Level001.txt");
+
+
+
+  //malloc player arrays
+  player_render_enemies=(int*)malloc(ENEMY_NUM*sizeof(int));
+  player_render_grounds=(int*)malloc((GROUND_NUM+MAX_WEB_NUM)*sizeof(int));
+
+
+  //malloc arrays in ground
+  //MALLOC grounds
+  //struct GroundLine *t = malloc(256*sizeof(struct GroundLine));
+  Ground=(struct GroundLine*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine)));
+
+  
+  Ground2=(struct GroundLine2*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine2) + VGRID_NUM*sizeof(int)));
+
+  Ground3=(struct GroundLine3*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine3) + VGRID_NUM*sizeof(bool)));
+
+
+  printf("\n===GroundLoaded");
+
+
+  //malloc nodegrid
+  NodeGrid=(struct node*)malloc(MAP_NODE_NUM*sizeof(struct node));
+  printf("\n===NodeGrid Loaded");
+
+
+  //malloc grids
+  //struct vgrid *ground_ids = malloc(MAX_GROUNDS_WITHIN_GRID*sizeof(struct vgrid)); //id of grounds that are occupying this grid
+  VGrid=(struct vgrid*)malloc(VGRID_NUM*sizeof(struct vgrid));
+  printf("\n===VGrid Loaded");
+
+
+  //malloc grid for rendering enemies
+  Grid=(struct grid*)malloc(GRID_NUM*(sizeof(struct grid)));
+
+  GridE=(struct grid_enemy*)malloc(GRID_NUM*(sizeof(struct grid) + ENEMY_NUM*sizeof(int)));
+
+  printf("\n===Grid Loaded");
+
+
+  //MALLOC enemy
+  //malloc enemy grid queue
+
+/*
+  int node_neighbour[8];
+  bool node_solid[MAX_NODE_NUM];
+  bool node_open[MAX_NODE_NUM];
+  bool node_closed[MAX_NODE_NUM];
+  bool node_back[MAX_NODE_NUM];
+
+
+  int bullet_head_y[MAX_BULLET_PER_FIRE];
+  int bullet_head_x[MAX_BULLET_PER_FIRE];
+  int path_nodes[MAX_NODE_NUM/2];
+  int open_nodes[MAX_NODE_NUM/2];
+  int node_x[MAX_NODE_NUM];
+  int node_y[MAX_NODE_NUM];
+  int node_parent[MAX_NODE_NUM];
+  double node_gcost[MAX_NODE_NUM];
+  double node_hcost[MAX_NODE_NUM];
+  double node_fcost[MAX_NODE_NUM];
+  int bullet_shot_arr[BULLET_NUM*1];
+
+*/
+  /*struct enemy *node_neighbour = malloc(8*sizeof(struct enemy));
+  struct enemy *node_solid = malloc(MAX_NODE_NUM*sizeof(struct enemy));
+  struct enemy *node_open = malloc(MAX_NODE_NUM*sizeof(struct enemy));
+  struct enemy *node_closed = malloc(MAX_NODE_NUM*sizeof(struct enemy));
+
+  struct enemy *bullet_head_y = malloc(MAX_BULLET_PER_FIRE*sizeof(struct enemy));
+  struct enemy *bullet_head_x = malloc(MAX_BULLET_PER_FIRE*sizeof(struct enemy));
+  struct enemy *path_nodes = malloc(MAX_NODE_NUM*sizeof(struct enemy));
+  struct enemy *open_nodes = malloc(MAX_NODE_NUM*sizeof(struct enemy));
+  struct enemy *node_x = malloc(MAX_NODE_NUM*sizeof(struct enemy));
+  struct enemy *node_y = malloc(MAX_NODE_NUM*sizeof(struct enemy));
+  struct enemy *node_parent = malloc(MAX_NODE_NUM*sizeof(struct enemy));
+  struct enemy *node_gcost = malloc(MAX_NODE_NUM*sizeof(struct enemy));
+  struct enemy *node_hcost = malloc(MAX_NODE_NUM*sizeof(struct enemy));
+  struct enemy *node_fcost = malloc(MAX_NODE_NUM*sizeof(struct enemy));*/
+
+  
+  struct enemy *bullet_shot_arr = malloc(1000*sizeof(struct enemy));
+  Enemy=(struct enemy*)malloc(ENEMY_NUM*sizeof(struct enemy));
+
+  Enemy_=(struct enemy_gq*) malloc(ENEMY_NUM*(sizeof(struct enemy) + GRID_NUM*sizeof(int)));
+  printf("\n===Enemy Loaded");
+
+
   InitTickFrequency();
   InitFPS();
+  printf("\n===Init Once Done===\n");
 }
 
 void Init() {
   OLD_GR_WIDTH=GR_WIDTH;
   OLD_GR_HEIGHT=GR_HEIGHT;
+
   InitSongBank();
+
   InitGrid();
+  printf("\n===Grid Initialized\n");
+
   InitNodeGrid();
+  printf("\n===Node Grid Initialized\n");
+
   InitGround();
+
+
+  //printf("---%1.0f",saved_ground_x1[0]);
+  printf("\n===Ground Initialized\n");
+
+  for (int i=0;i<GROUND_NUM;i++)
+      printf("%d x1: %1.0f, y1:%1.0f/x2: %1.0f, y2:%1.0f/x3: %1.0f, y3:%1.0f\n",i,Ground[i].x1,Ground[i].y1,Ground[i].x2,Ground[i].y2,Ground[i].x3,Ground[i].y3);
+
+      printf("MAP WIDTH %d,\n",MAP_WIDTH);
+      printf("MAP HEIGHT %d,\n",MAP_HEIGHT);   
+  
+
   InitBullet();
-  InitEnemy();
+  printf("\n===Bullet Initialized\n");
+
   InitNodeGridAttributes();
+  printf("\n===Node Grid Attributes Initialized\n");
+
+
+
+
+  InitEnemy();
+  printf("\n===Enemy Initialized\n");
+
+
+
+
+
+  /*free(saved_ground_x1);
+  saved_ground_x1=NULL;
+  free(saved_ground_y1);
+  saved_ground_y1=NULL;
+  free(saved_ground_x2);
+  saved_ground_x2=NULL;
+  free(saved_ground_y2);
+  saved_ground_y2=NULL;
+  free(saved_ground_x3);
+  saved_ground_x3=NULL;
+  free(saved_ground_y3);
+  saved_ground_y3=NULL;
+  free(saved_ground_is_ghost);
+  saved_ground_is_ghost=NULL;
+  free(saved_ground_color);
+  saved_ground_color=NULL;
+  free(saved_ground_type);
+  saved_ground_type=NULL;
+  free(saved_ground_text);
+  saved_ground_text=NULL;
+  free(saved_enemy_type);
+  saved_enemy_type=NULL;
+
+  free(saved_enemy_x);
+  saved_enemy_x=NULL;
+  free(saved_enemy_y);
+  saved_enemy_y=NULL;*/
+
   InitPlayer();
-  InitGround2();
+  printf("\n===Player Attributes Initialized\n");
+  //InitGround2();
 }
 
 
@@ -354,7 +526,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
   while (b) {
     PlayerAct();
     for (int i=0;i<player.rendered_enemy_num;i++) {
-      EnemyAct(player.render_enemies[i]);
+      EnemyAct(player_render_enemies[i]);
     }
     //GroundAct();
     //SongAct();
@@ -503,7 +675,7 @@ void DrawTexts(HDC hdc) {
       GrCircle(hdc,
         player.sprite_x-32*cos(tb_angle),
         player.sprite_y-32*sin(tb_angle),
-        3,LTPURPLE,-1);
+        3,LTPURPLE,LTPURPLE);
     }
   }
 
@@ -725,7 +897,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       FrameRateSleep(FPS); // (Uncapped)
       PlayerCameraShake();
       for (int i=0;i<player.rendered_enemy_num;i++) {
-        Enemy[player.render_enemies[i]].seed=rand();
+        Enemy[player_render_enemies[i]].seed=rand();
       }
       RECT rect;
       if(GetWindowRect(hwnd, &rect))
@@ -847,7 +1019,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       DrawGroundTriFill(hdc2);
       DrawGround(hdc2);
-      DrawGroundText(hdc2);
+      //DrawGroundText(hdc2);
 
       DeleteDC(hdc2);
       EndPaint(hwnd, &ps);
