@@ -49,6 +49,7 @@ void InitGrid()
   for (i=0;i<VGRID_NUM;i++) {
     VGrid[i].within_render_distance=FALSE;
     VGrid[i].max_ground_num=0;
+    
     for (j=0;j<MAX_GROUNDS_WITHIN_GRID;j++) {
       VGrid[i].ground_ids[j]=-1;
     }
@@ -68,6 +69,9 @@ void InitGrid()
   for (i=0;i<GRID_NUM;i++) {
     Grid[i].within_render_distance=FALSE;
     GridE[i].enemy_occupy_num=0;
+    for (j=ENEMY_NUM;j<MAX_ENEMY_NUM;j++) {//init buffer
+      GridE[i].enemy_occupy[j]=-1;
+    }
     for (j=0;j<ENEMY_NUM;j++) {
       GridE[i].enemy_occupy[j]=-1;
     }

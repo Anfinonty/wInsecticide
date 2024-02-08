@@ -181,6 +181,10 @@ int frame_tick=0;
 #define MAX_WEB_NUM      100
 
 
+#define MAX_VGRID_NUM   2048
+#define MAX_GRID_NUM    2048
+#define MAX_ENEMY_NUM   50
+
 #include "load_save.c"
 #include "struct_classes.c"
 
@@ -320,11 +324,8 @@ void InitOnce() {
   //MALLOC grounds
   //struct GroundLine *t = malloc(256*sizeof(struct GroundLine));
   Ground=(struct GroundLine*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine)));
-
-  
-  Ground2=(struct GroundLine2*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine2) + VGRID_NUM*sizeof(int)));
-
-  Ground3=(struct GroundLine3*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine3) + VGRID_NUM*sizeof(bool)));
+  Ground2=(struct GroundLine2*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine2) + MAX_VGRID_NUM*sizeof(int)));
+  Ground3=(struct GroundLine3*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine3) + MAX_VGRID_NUM*sizeof(int)));
 
 
   printf("\n===GroundLoaded");
@@ -344,7 +345,7 @@ void InitOnce() {
   //malloc grid for rendering enemies
   Grid=(struct grid*)malloc(GRID_NUM*(sizeof(struct grid)));
 
-  GridE=(struct grid_enemy*)malloc(GRID_NUM*(sizeof(struct grid) + ENEMY_NUM*sizeof(int)));
+  GridE=(struct grid_enemy*)malloc(GRID_NUM*(sizeof(struct grid_enemy) + MAX_ENEMY_NUM*sizeof(int)));
 
   printf("\n===Grid Loaded");
 
@@ -387,13 +388,16 @@ void InitOnce() {
   struct enemy *node_parent = malloc(MAX_NODE_NUM*sizeof(struct enemy));
   struct enemy *node_gcost = malloc(MAX_NODE_NUM*sizeof(struct enemy));
   struct enemy *node_hcost = malloc(MAX_NODE_NUM*sizeof(struct enemy));
-  struct enemy *node_fcost = malloc(MAX_NODE_NUM*sizeof(struct enemy));*/
+  struct enemy *node_fcost = malloc(MAX_NODE_NUM*sizeof(struct enemy));
 
   
-  struct enemy *bullet_shot_arr = malloc(1000*sizeof(struct enemy));
+  struct enemy *bullet_shot_arr = malloc(1000*sizeof(struct enemy));*/
+
+
+  //printf("\n=Enemy Size: %d\n",sizeof(struct enemy));
   Enemy=(struct enemy*)malloc(ENEMY_NUM*sizeof(struct enemy));
 
-  Enemy_=(struct enemy_gq*) malloc(ENEMY_NUM*(sizeof(struct enemy) + GRID_NUM*sizeof(int)));
+  Enemy_=(struct enemy_gq*) malloc(ENEMY_NUM*(sizeof(struct enemy_gq) + MAX_GRID_NUM*sizeof(int)));
   printf("\n===Enemy Loaded");
 
 
@@ -425,6 +429,7 @@ void Init() {
 
       printf("MAP WIDTH %d,\n",MAP_WIDTH);
       printf("MAP HEIGHT %d,\n",MAP_HEIGHT);   
+      printf("GRID NUM %d,\n",GRID_NUM);   
   
 
   InitBullet();

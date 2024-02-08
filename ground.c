@@ -102,23 +102,21 @@ void InitGround()
     for (j=0;j<VGRID_NUM;j++) {
       //printf("---G/VGrid %d/%d\n",i,j);
       //printf("%d:%d *",i,j);
-      Ground3[i].b=0;
+      //Ground3[i].b={};
       Ground3[i].already_in_grid[j]=FALSE;
       //printf("*");
 
-      Ground2[i].a=0;
+      //Ground2[i].a={};
       //printf("%d-%d  load-2\n",j,i);
       Ground2[i].saved_pos_in_grid[j]=-1;
       //printf("*\n");
       //printf("%d-%d  load-3\n",j,i);
     }
-    /*for (j=0;j<MULTI_SPRITE_NUM;j++) {
-      Ground[i].msprite_x1[j]=
-      Ground[i].msprite_y1[j]=
-      Ground[i].msprite_x2[j]=
-      Ground[i].msprite_y2[j]=-20;
-      Ground[i].appear_timer[j]=0;
-    }*/
+    
+    for (j=VGRID_NUM;j<MAX_VGRID_NUM;j++) {
+      Ground2[i].saved_pos_in_grid[j]=-1;
+      Ground3[i].already_in_grid[j]=FALSE;
+    }
     //printf("%d saving ground\n",i);
     if (i<GROUND_NUM) {
     //set the saved data

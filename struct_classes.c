@@ -40,16 +40,14 @@ struct GroundLine* Ground;
 
 struct GroundLine2
 {
-  int a;
-  int saved_pos_in_grid[];  
+  int saved_pos_in_grid[MAX_VGRID_NUM]; //MAX VGRID NUM
 };
 struct GroundLine2* Ground2;
 
 
 struct GroundLine3
 {
-  int b;
-  bool already_in_grid[];
+  bool already_in_grid[MAX_VGRID_NUM]; //MAX VGRID NUM
 };
 struct GroundLine3* Ground3;
 
@@ -338,7 +336,7 @@ struct grid* Grid;
 struct grid_enemy
 {
   int enemy_occupy_num; //how many enemies are occupying this grid
-  int enemy_occupy[];
+  int enemy_occupy[MAX_ENEMY_NUM]; //MAX ENEMY NUM
 };
 struct grid_enemy* GridE;
 
@@ -586,15 +584,14 @@ struct enemy
   double node_gcost[MAX_NODE_NUM];
   double node_hcost[MAX_NODE_NUM];
   double node_fcost[MAX_NODE_NUM];
-  int bullet_shot_arr[1000];
+  int bullet_shot_arr[BULLET_NUM];
 }; 
 //} Enemy[ENEMY_NUM];
 struct enemy* Enemy;
 
 
 struct enemy_gq{
-  int a;
-  int grid_queue[];
+  int grid_queue[MAX_GRID_NUM];
 };
 struct enemy_gq* Enemy_;
 

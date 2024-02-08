@@ -862,7 +862,7 @@ void EnemyAct(int i)
                       Enemy[i].bullet_shot_num++;
                   //after shooting
                       current_bullet_id++;
-                      if (current_bullet_id>=1000-1) {
+                      if (current_bullet_id>=BULLET_NUM-1) {
                         current_bullet_id=0;
                       }
                     }
@@ -1135,7 +1135,7 @@ void InitEnemy()
     Enemy[i].saved_angle=-9999;
   //bullet
     Enemy[i].bullet_shot_num=0;
-    for (j=0;j<1000*1;j++) {
+    for (j=0;j<BULLET_NUM*1;j++) {
       Enemy[i].bullet_shot_arr[j]=-1;
     }
     //printf("initialized Bullets\n");
@@ -1206,6 +1206,9 @@ void InitEnemy()
     }
     //printf("Begin init gridqueue");
     for (j=0;j<GRID_NUM;j++) {
+      Enemy_[i].grid_queue[j]=-1;
+    }
+    for (j=GRID_NUM;j<MAX_GRID_NUM;j++) {//fill buffer
       Enemy_[i].grid_queue[j]=-1;
     }
     //printf("End of init gridqueue");
