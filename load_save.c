@@ -17,7 +17,7 @@ double* saved_ground_y3;
 bool* saved_ground_is_ghost;
 int* saved_ground_color;
 int* saved_ground_type;
-char **saved_ground_text;
+//char **saved_ground_text;
 
 //ENEMY_NUM
 int *saved_enemy_type;
@@ -95,13 +95,15 @@ void LoadSave(char *saves_name)
   int column=0;
   int int_val=0;
   int int_saved_val=0;
+  double double_val;
+  double double_saved_val;
   
   //for string char
   int char_pos=0;
   char txt[256];
   //char *print_txt;
   bool writing_txt;
-
+  bool deci;
 
   FILE *fptr;
   fptr = fopen(saves_name,"r");
@@ -109,6 +111,7 @@ void LoadSave(char *saves_name)
 
   //init
   writing_txt=FALSE;
+  deci=FALSE;
   for (int i=0;i<256;i++) //init txt array
     txt[i] = 0;
 
@@ -136,7 +139,7 @@ void LoadSave(char *saves_name)
             saved_ground_is_ghost=(bool*)malloc(GROUND_NUM*sizeof(bool));
             saved_ground_color=(int*)malloc(GROUND_NUM*sizeof(int));
             saved_ground_type=(int*)malloc(GROUND_NUM*sizeof(int));
-            saved_ground_text=(char**)malloc(GROUND_NUM*sizeof(char*));
+            //saved_ground_text=(char**)malloc(GROUND_NUM*(sizeof(char*)));
             break;
           case 1:
             ENEMY_NUM=int_saved_val;
@@ -180,9 +183,21 @@ void LoadSave(char *saves_name)
       if (c!=';') {//not yet a semicolon
         if (row!=13) {
           if (c>='0' && c<='9') { //numerical chars only
-            int_val=c-'0'; //ascii convert to num
-            int_saved_val*=10; //move digit to left
-            int_saved_val+=int_val; //append number digit to right side
+            if (row!=17 && row!=18) {
+              int_val=c-'0'; //ascii convert to num
+              int_saved_val*=10; //move digit to left
+              int_saved_val+=int_val; //append number digit to right side
+            } else {
+              if (deci) {
+                double_val=(double)(c-'0')*0.1;
+                double_saved_val+=double_val;
+                //printf("\n-%3.2f",double_saved_val);
+                deci=FALSE;
+              } else {
+                double_saved_val=c-'0';
+                deci=TRUE;
+              }
+            }
           } else if (c==',') {//comma value
             //ground
             if (row>=4 && row<=12) {
@@ -206,16 +221,9 @@ void LoadSave(char *saves_name)
               }
             } else { //17
             //enemy type
-              /*if (row>=17 && row<=17+ENEMY_F64_ATTRIBUTES_NUM) {
-                enemy_type_double_pointer[row-17][column]=int_saved_val;//double
-              } else if (row>17+ENEMY_F64_ATTRIBUTES_NUM && row<17+ENEMY_F64_ATTRIBUTES_NUM+ENEMY_I64_ATTRIBUTES_NUM) {
-                enemy_type_int_pointer[row-(17+ENEMY_F64_ATTRIBUTES_NUM+1)][column]=int_saved_val;//int
-              } else { //39
-                saved_enemy_type_time_breaker_immune[column]=int_saved_val;//bool
-              }*/
               switch (row) {
-                case 17: saved_enemy_type_speed[column]=(double)int_saved_val;break;    //NOTE: can be in decimals (0,0.1,0.2...1), subject to change
-                case 18: saved_enemy_type_bullet_speed[column]=(double)int_saved_val;break; //NOTE: can be in decimals 0,0.1,0.2...1), subject to change
+                case 17: saved_enemy_type_speed[column]=double_saved_val;break;    //NOTE: can be in decimals (0,0.1,0.2...1), subject to change
+                case 18: saved_enemy_type_bullet_speed[column]=double_saved_val;break; //NOTE: can be in decimals 0,0.1,0.2...1), subject to change
                 case 19: saved_enemy_type_species[column]=int_saved_val;break;
                 case 20: saved_enemy_type_follow_range[column]=int_saved_val;break;
                 case 21: saved_enemy_type_unchase_range[column]=int_saved_val;break;
@@ -254,7 +262,9 @@ void LoadSave(char *saves_name)
               writing_txt=FALSE;
               //print_txt=txt;
               //printf(":::%s:::\n",print_txt);//save text
-              saved_ground_text[column]=txt;//print_txt;
+              //strncpy(saved_ground_text[column],txt,256);//print_txt;
+              //printf("txt: %s\n",txt);
+              //saved_ground_text[column]=txt;
               column++;
               for (int i=0;i<256;i++) //clear out txt
                 txt[i]=0;

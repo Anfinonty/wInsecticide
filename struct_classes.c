@@ -29,7 +29,7 @@ struct GroundLine
   double angle; // = ACos of (x/length)
 
 
-  char text[256]; //for type 1 which is Text_ground
+  //char text[256]; //for type 1 which is Text_ground
 
 //} Ground[GROUND_NUM+MAX_WEB_NUM];
   bool already_in_grid[MAX_VGRID_NUM]; //MAX VGRID NUM
@@ -214,6 +214,14 @@ struct player
   double angle_of_reflection;
 
 
+
+
+  int web_storage[MAX_WEB_NUM];
+  int cdwebs[MAX_WEB_NUM];
+  int render_grids[RDGRID_NUM];
+  int render_vgrids[VRDGRID_NUM];
+
+
 //sprites
   HBITMAP sprite_1;
   HBITMAP sprite_2;
@@ -243,12 +251,6 @@ struct player
   HBITMAP spin_sprite_2_cache;
   HBITMAP spin_sprite_3_cache;
   HBITMAP spin_sprite_4_cache;
-
-
-  int web_storage[MAX_WEB_NUM];
-  int cdwebs[MAX_WEB_NUM];
-  int render_grids[RDGRID_NUM];
-  int render_vgrids[VRDGRID_NUM];
 } player;
 
 
@@ -529,10 +531,6 @@ struct enemy
 
   int node_neighbour[8];
 
-  HBITMAP sprite_1;
-  HBITMAP sprite_2;
-  HBITMAP sprite_3;
-
   double LOS_x;
   double LOS_y;
   double LOS_angle;
@@ -551,6 +549,16 @@ struct enemy
   double sprite_y;
   double speed;
   double knockback_angle;
+
+
+
+  HBITMAP sprite_1;
+  HBITMAP sprite_2;
+  HBITMAP sprite_3;
+  //6715632
+
+
+
   int bullet_head_y[MAX_BULLET_PER_FIRE];
   int bullet_head_x[MAX_BULLET_PER_FIRE];
   int grid_queue[MAX_GRID_NUM];

@@ -149,9 +149,13 @@ void InitGround()
       /*} else {
         Ground[i].color=palette_dark_arr[saved_ground_color[i]];
       }*/
-      for (j=0;j<256;j++) {
-        Ground[i].text[j]=saved_ground_text[i][j];
-      }
+      //for (j=0;j<256;j++) {
+        //Ground[i].text[j]=saved_ground_text[i][j];
+      //}
+
+      //char* b=saved_ground_text[i];
+      //printf("%s\n",b);
+      //strncpy(Ground[i].text,saved_ground_text[i],256);
       //printf("\n%d ghost?%d",i,saved_ground_is_ghost[i]);
       if (saved_ground_is_ghost[i]) {
         Ground[i].is_ghost=TRUE;
@@ -167,9 +171,9 @@ void InitGround()
       Ground[i].y3=2;
       Ground[i].color=CYAN;//TRANSPARENT;
       Ground[i].type=0;
-      for (j=0;j<256;j++) {
+      /*for (j=0;j<256;j++) {
         Ground[i].text[j]=0;
-      }
+      }*/
       Ground[i].is_ghost=FALSE;
     }
     Ground[i].health=-1;
@@ -325,8 +329,8 @@ void DrawGround(HDC hdc)
 }
 
 
-
-/*void DrawGroundText(HDC hdc)
+/*
+void DrawGroundText(HDC hdc)
 {
   int i=0;//,j=0;
   for (i=0;i<GROUND_NUM;i++) {
@@ -341,8 +345,8 @@ void DrawGround(HDC hdc)
       }
     }
   }
-}*/
-
+}
+*/
 
 void DrawGroundTriFill(HDC hdc)
 {

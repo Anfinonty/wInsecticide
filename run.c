@@ -136,7 +136,7 @@ WHITE
 //#include "all_levels.c"
 
 int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
-int dyn_vrenderdist=0,dyn_vrenderdist_num=0;
+//int dyn_vrenderdist=0,dyn_vrenderdist_num=0;
 int frame_tick=0;
 
 #define DEFAULT_PLAYER_SPEED			1
@@ -165,9 +165,8 @@ int frame_tick=0;
 #define NODE_SIZE  	 10
 #define MAX_FOLLOW_RANGE 100
 #define MAX_NODE_NUM	 MAX_FOLLOW_RANGE*MAX_FOLLOW_RANGE
-//#include "saves/Level001.c"
 
-#define VRENDER_DIST      20
+#define VRENDER_DIST      9//20
 #define VRDGRID_NUM       VRENDER_DIST*VRENDER_DIST
 
 #define RENDER_DIST	 9
@@ -350,11 +349,11 @@ void InitOnce() {
   player.cam_move_x=0,
   player.cam_move_y=0,
 
-  dyn_vrenderdist=ceil(GR_WIDTH/100)+1;
-  dyn_vrenderdist_num=dyn_vrenderdist*dyn_vrenderdist;
+  //dyn_vrenderdist=9;//ceil(GR_WIDTH/100)+1;
+  //dyn_vrenderdist_num=dyn_vrenderdist*dyn_vrenderdist;
 
-  //InitCustard();
-  LoadSave("saves/_Level001.txt");
+  //InitCustard()
+  LoadSave("saves/_Level002.txt");
 
 
   /*
@@ -377,12 +376,48 @@ void InitOnce() {
   player_render_grounds=(int*)malloc((GROUND_NUM+MAX_WEB_NUM)*sizeof(int));
   Grid=(struct grid*)malloc(GRID_NUM*(sizeof(struct grid)));
   VGrid=(struct vgrid*)malloc(VGRID_NUM*sizeof(struct vgrid));
+  printf("\nVGridNum:%d\n",VGRID_NUM);  
 
+  int GroundMemSize=(GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine));
+  int EnemyMemSize=ENEMY_NUM*sizeof(struct enemy);
+  int NodeGridMemSize=MAP_NODE_NUM*sizeof(struct node);
 
-  NodeGrid=(struct node*)malloc(MAP_NODE_NUM*sizeof(struct node));
-  Ground=(struct GroundLine*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine)));
-  Enemy=(struct enemy*)malloc(ENEMY_NUM*sizeof(struct enemy));
-
+  if (NodeGridMemSize>GroundMemSize && NodeGridMemSize>EnemyMemSize) { //large map, more node grids 
+    if (EnemyMemSize>GroundMemSize) { //more enmy
+      Ground=(struct GroundLine*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine)));//0
+      Enemy=(struct enemy*)malloc(ENEMY_NUM*sizeof(struct enemy));//1
+      printf("\nMore Enemy");
+    } else {//more rground
+      Enemy=(struct enemy*)malloc(ENEMY_NUM*sizeof(struct enemy));//1
+      Ground=(struct GroundLine*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine)));//0
+      printf("\nMore Ground");
+    }
+    NodeGrid=(struct node*)malloc(MAP_NODE_NUM*sizeof(struct node));//2
+    printf("\nLarge Map");
+  } else if (NodeGridMemSize<GroundMemSize && NodeGridMemSize<EnemyMemSize) {//tiny map, more entities
+    NodeGrid=(struct node*)malloc(MAP_NODE_NUM*sizeof(struct node));//2
+    if (EnemyMemSize>GroundMemSize) { //more enmy
+      Ground=(struct GroundLine*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine)));//0
+      Enemy=(struct enemy*)malloc(ENEMY_NUM*sizeof(struct enemy));//1
+      printf("More Enemy");
+    } else {//more rground
+      Enemy=(struct enemy*)malloc(ENEMY_NUM*sizeof(struct enemy));//1
+      Ground=(struct GroundLine*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine)));//0
+      printf("More Ground");
+    }
+    printf("Small Map");
+  } else { //other conditions
+    if (EnemyMemSize>GroundMemSize) { //enemy overload
+      Ground=(struct GroundLine*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine)));//0
+      NodeGrid=(struct node*)malloc(MAP_NODE_NUM*sizeof(struct node));//2
+      Enemy=(struct enemy*)malloc(ENEMY_NUM*sizeof(struct enemy));//1
+    } else { //ground overload
+      Enemy=(struct enemy*)malloc(ENEMY_NUM*sizeof(struct enemy));//1
+      NodeGrid=(struct node*)malloc(MAP_NODE_NUM*sizeof(struct node));//2
+      Ground=(struct GroundLine*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine)));//0
+      printf("other condition, alot of grounds");
+    }
+  }
 
 
   InitTickFrequency();
@@ -891,8 +926,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         InitPlayerCamera();
         player.cam_x=0;
         player.cam_y=0;
-        dyn_vrenderdist=ceil(GR_WIDTH/100)+1;
-        dyn_vrenderdist_num=dyn_vrenderdist*dyn_vrenderdist;
+        //dyn_vrenderdist=ceil(GR_WIDTH/100)+1;
+        //dyn_vrenderdist_num=dyn_vrenderdist*dyn_vrenderdist;
         //bg_cam_fall_cooldown=0;
         //background_cam_move_x=0;
         //background_cam_move_y=0;

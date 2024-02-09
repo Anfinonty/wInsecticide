@@ -129,10 +129,10 @@ void InitVRDGrid()
   player.rendered_vgrid_num=0;
 
   //Begin rendering
-  start_x=player.x-(dyn_vrenderdist/2*VGRID_SIZE); //Top left corner of render distance grids to bottom right corner
-  start_y=player.y-(dyn_vrenderdist/2*VGRID_SIZE);
+  start_x=player.x-(VRENDER_DIST/2*VGRID_SIZE); //Top left corner of render distance grids to bottom right corner
+  start_y=player.y-(VRENDER_DIST/2*VGRID_SIZE);
   //"What happens when you lose everything? You just art again. Start all over again" - Maximo Park
-  for (i=0;i<dyn_vrenderdist_num;i++) { //all render distance grids from top-left to bottom-right
+  for (i=0;i<player.rendered_grid_num;i++) { //all render distance grids from top-left to bottom-right
     VRDGrid[i].x=start_x+column*VGRID_SIZE;
     VRDGrid[i].y=start_y+row*VGRID_SIZE;
     if (0<VRDGrid[i].x && VRDGrid[i].x<MAP_WIDTH && //render distance grid is within range
@@ -156,7 +156,7 @@ void InitVRDGrid()
 
     }
     column++; //Next column
-    if (column>=dyn_vrenderdist) { //if the column is beyond the render distance
+    if (column>=VRENDER_DIST) { //if the column is beyond the render distance
       row++; //move to the next row
       column=0; //go back to first column
     }
@@ -511,16 +511,16 @@ bool YesInitRDGrid()
 bool YesInitVRDGrid()
 {
   int dyn=2;
-  if (GR_WIDTH>=1440) { //increased frequency
+  /*if (GR_WIDTH>=1440) { //increased frequency
     dyn=4;
-  }
+  }*/
   if (VGRID_SIZE*2<player.x && player.x<MAP_WIDTH-VGRID_SIZE*2) {
-    if (player.x<VRDGrid[0].x+VGRID_SIZE*dyn || player.x>VRDGrid[dyn_vrenderdist-1].x-VGRID_SIZE*dyn) {
+    if (player.x<VRDGrid[0].x+VGRID_SIZE*dyn || player.x>VRDGrid[VRENDER_DIST-1].x-VGRID_SIZE*dyn) {
       return TRUE;
     }
   }
   if (VGRID_SIZE*2<player.y && player.y<MAP_HEIGHT-VGRID_SIZE*2) {
-    if (player.y<VRDGrid[0].y+VGRID_SIZE*dyn || player.y>VRDGrid[dyn_vrenderdist_num-1].y-VGRID_SIZE*dyn) {
+    if (player.y<VRDGrid[0].y+VGRID_SIZE*dyn || player.y>VRDGrid[VRENDER_DIST-1].y-VGRID_SIZE*dyn) {
       return TRUE;
     }
   }
