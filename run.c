@@ -299,59 +299,7 @@ void InitFPS() { //https://cboard.cprogramming.com/windows-programming/30730-fin
 }
 
 
-void InitOnce() {
-  int i;
-  GR_WIDTH=SCREEN_WIDTH;
-  GR_HEIGHT=SCREEN_HEIGHT;
 
-  player.cam_move_x=0,
-  player.cam_move_y=0,
-
-  dyn_vrenderdist=ceil(GR_WIDTH/100)+1;
-  dyn_vrenderdist_num=dyn_vrenderdist*dyn_vrenderdist;
-
-  //InitCustard();
-  LoadSave("saves/_Level001.txt");
-
-
-
-  //malloc player arrays
-  player_render_enemies=(int*)malloc(ENEMY_NUM*sizeof(int));
-  player_render_grounds=(int*)malloc((GROUND_NUM+MAX_WEB_NUM)*sizeof(int));
-
-
-  //malloc arrays in ground
-  //MALLOC grounds
-  //struct GroundLine *t = malloc(256*sizeof(struct GroundLine));
-  Ground=(struct GroundLine*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine)));
-  Ground2=(struct GroundLine2*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine2) + MAX_VGRID_NUM*sizeof(int)));
-  Ground3=(struct GroundLine3*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine3) + MAX_VGRID_NUM*sizeof(int)));
-
-
-  printf("\n===GroundLoaded");
-
-
-  //malloc nodegrid
-  NodeGrid=(struct node*)malloc(MAP_NODE_NUM*sizeof(struct node));
-  printf("\n===NodeGrid Loaded");
-
-
-  //malloc grids
-  //struct vgrid *ground_ids = malloc(MAX_GROUNDS_WITHIN_GRID*sizeof(struct vgrid)); //id of grounds that are occupying this grid
-  VGrid=(struct vgrid*)malloc(VGRID_NUM*sizeof(struct vgrid));
-  printf("\n===VGrid Loaded");
-
-
-  //malloc grid for rendering enemies
-  Grid=(struct grid*)malloc(GRID_NUM*(sizeof(struct grid)));
-
-  GridE=(struct grid_enemy*)malloc(GRID_NUM*(sizeof(struct grid_enemy) + MAX_ENEMY_NUM*sizeof(int)));
-
-  printf("\n===Grid Loaded");
-
-
-  //MALLOC enemy
-  //malloc enemy grid queue
 
 /*
   int node_neighbour[8];
@@ -394,11 +342,53 @@ void InitOnce() {
   struct enemy *bullet_shot_arr = malloc(1000*sizeof(struct enemy));*/
 
 
-  //printf("\n=Enemy Size: %d\n",sizeof(struct enemy));
+void InitOnce() {
+  int i;
+  GR_WIDTH=SCREEN_WIDTH;
+  GR_HEIGHT=SCREEN_HEIGHT;
+
+  player.cam_move_x=0,
+  player.cam_move_y=0,
+
+  dyn_vrenderdist=ceil(GR_WIDTH/100)+1;
+  dyn_vrenderdist_num=dyn_vrenderdist*dyn_vrenderdist;
+
+  //InitCustard();
+  LoadSave("saves/_Level001.txt");
+
+
+  /*
+    IMPORTANT:
+    When Malloc-ing from saves it MUST be from lowest to highest
+  */
+
+
+
+  /*printf("RenderEnemies:%d\n",ENEMY_NUM*sizeof(int));
+  printf("RenderGrounds:%d\n",(GROUND_NUM+MAX_WEB_NUM)*sizeof(int));
+  printf("Ground:%d\n",((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine))));
+  printf("Ground2:%d\n",((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine2) + MAX_VGRID_NUM*sizeof(int))));
+  printf("Ground3:%d\n",((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine3) + MAX_VGRID_NUM*sizeof(bool))));
+  printf("NodeGrid:%d\n",(MAP_NODE_NUM*sizeof(struct node)));
+  printf("vgrid:%d\n",(VGRID_NUM*sizeof(struct vgrid)));
+  printf("grid:%d\n",(GRID_NUM*(sizeof(struct grid))));
+  printf("gridE:%d\n",GRID_NUM*(sizeof(struct grid_enemy) + MAX_ENEMY_NUM*sizeof(int)));
+  printf("Enemy:%d\n",ENEMY_NUM*sizeof(struct enemy));
+  printf("Enemy_:%d\n",(ENEMY_NUM*(sizeof(struct enemy_gq) + MAX_GRID_NUM*sizeof(int))));*/
+
+
+  player_render_enemies=(int*)malloc(ENEMY_NUM*sizeof(int));
+  player_render_grounds=(int*)malloc((GROUND_NUM+MAX_WEB_NUM)*sizeof(int));
+  Grid=(struct grid*)malloc(GRID_NUM*(sizeof(struct grid)));
+  Ground=(struct GroundLine*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine)));
+  GridE=(struct grid_enemy*)malloc(GRID_NUM*(sizeof(struct grid_enemy) + MAX_ENEMY_NUM*sizeof(int)));
+  VGrid=(struct vgrid*)malloc(VGRID_NUM*sizeof(struct vgrid));
+  Enemy_=(struct enemy_gq*) malloc(ENEMY_NUM*(sizeof(struct enemy_gq) + MAX_GRID_NUM*sizeof(int)));
+  Ground3=(struct GroundLine3*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine3) + MAX_VGRID_NUM*sizeof(bool)));
+  Ground2=(struct GroundLine2*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine2) + MAX_VGRID_NUM*sizeof(int)));
+  NodeGrid=(struct node*)malloc(MAP_NODE_NUM*sizeof(struct node));
   Enemy=(struct enemy*)malloc(ENEMY_NUM*sizeof(struct enemy));
 
-  Enemy_=(struct enemy_gq*) malloc(ENEMY_NUM*(sizeof(struct enemy_gq) + MAX_GRID_NUM*sizeof(int)));
-  printf("\n===Enemy Loaded");
 
 
   InitTickFrequency();
