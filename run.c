@@ -184,8 +184,8 @@ int frame_tick=0;
 #define MAX_GRID_NUM    4800
 #define MAX_ENEMY_NUM   50
 
-#include "load_save.c"
 #include "struct_classes.c"
+#include "load_save.c"
 
 
 
@@ -300,45 +300,6 @@ void InitFPS() { //https://cboard.cprogramming.com/windows-programming/30730-fin
 
 
 
-/*
-  int node_neighbour[8];
-  bool node_solid[MAX_NODE_NUM];
-  bool node_open[MAX_NODE_NUM];
-  bool node_closed[MAX_NODE_NUM];
-  bool node_back[MAX_NODE_NUM];
-
-
-  int bullet_head_y[MAX_BULLET_PER_FIRE];
-  int bullet_head_x[MAX_BULLET_PER_FIRE];
-  int path_nodes[MAX_NODE_NUM/2];
-  int open_nodes[MAX_NODE_NUM/2];
-  int node_x[MAX_NODE_NUM];
-  int node_y[MAX_NODE_NUM];
-  int node_parent[MAX_NODE_NUM];
-  double node_gcost[MAX_NODE_NUM];
-  double node_hcost[MAX_NODE_NUM];
-  double node_fcost[MAX_NODE_NUM];
-  int bullet_shot_arr[BULLET_NUM*1];
-
-*/
-  /*struct enemy *node_neighbour = malloc(8*sizeof(struct enemy));
-  struct enemy *node_solid = malloc(MAX_NODE_NUM*sizeof(struct enemy));
-  struct enemy *node_open = malloc(MAX_NODE_NUM*sizeof(struct enemy));
-  struct enemy *node_closed = malloc(MAX_NODE_NUM*sizeof(struct enemy));
-
-  struct enemy *bullet_head_y = malloc(MAX_BULLET_PER_FIRE*sizeof(struct enemy));
-  struct enemy *bullet_head_x = malloc(MAX_BULLET_PER_FIRE*sizeof(struct enemy));
-  struct enemy *path_nodes = malloc(MAX_NODE_NUM*sizeof(struct enemy));
-  struct enemy *open_nodes = malloc(MAX_NODE_NUM*sizeof(struct enemy));
-  struct enemy *node_x = malloc(MAX_NODE_NUM*sizeof(struct enemy));
-  struct enemy *node_y = malloc(MAX_NODE_NUM*sizeof(struct enemy));
-  struct enemy *node_parent = malloc(MAX_NODE_NUM*sizeof(struct enemy));
-  struct enemy *node_gcost = malloc(MAX_NODE_NUM*sizeof(struct enemy));
-  struct enemy *node_hcost = malloc(MAX_NODE_NUM*sizeof(struct enemy));
-  struct enemy *node_fcost = malloc(MAX_NODE_NUM*sizeof(struct enemy));
-
-  
-  struct enemy *bullet_shot_arr = malloc(1000*sizeof(struct enemy));*/
 
 
 void InitOnce() {
@@ -362,21 +323,16 @@ void InitOnce() {
   */
 
 
-
-  printf("RenderEnemies:%d\n",ENEMY_NUM*sizeof(int));
-  printf("RenderGrounds:%d\n",(GROUND_NUM+MAX_WEB_NUM)*sizeof(int));
-  printf("Ground:%d\n",((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine))));
-  printf("NodeGrid:%d\n",(MAP_NODE_NUM*sizeof(struct node)));
-  printf("vgrid:%d\n",(VGRID_NUM*sizeof(struct vgrid)));
-  printf("grid:%d\n",(GRID_NUM*(sizeof(struct grid))));
-  printf("Enemy:%d\n",ENEMY_NUM*sizeof(struct enemy));
-
-
-  player_render_enemies=(int*)malloc(ENEMY_NUM*sizeof(int));
-  player_render_grounds=(int*)malloc((GROUND_NUM+MAX_WEB_NUM)*sizeof(int));
+  printf("grid:     %d\n",(GRID_NUM*(sizeof(struct grid))));
+  printf("vgrid:    %d\n",(VGRID_NUM*sizeof(struct vgrid)));
   Grid=(struct grid*)malloc(GRID_NUM*(sizeof(struct grid)));
   VGrid=(struct vgrid*)malloc(VGRID_NUM*sizeof(struct vgrid));
-  printf("\nVGridNum:%d\n",VGRID_NUM);  
+  //printf("\nVGridNum:%d\n",VGRID_NUM);  
+
+
+  printf("Enemy:    %d\n",ENEMY_NUM*sizeof(struct enemy));
+  printf("NodeGrid: %d\n",(MAP_NODE_NUM*sizeof(struct node)));
+  printf("Ground:   %d\n",((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine))));
 
   int GroundMemSize=(GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine));
   int EnemyMemSize=ENEMY_NUM*sizeof(struct enemy);
@@ -411,6 +367,7 @@ void InitOnce() {
       Ground=(struct GroundLine*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine)));//0
       NodeGrid=(struct node*)malloc(MAP_NODE_NUM*sizeof(struct node));//2
       Enemy=(struct enemy*)malloc(ENEMY_NUM*sizeof(struct enemy));//1
+      printf("other condition, alot of enemies");
     } else { //ground overload
       Enemy=(struct enemy*)malloc(ENEMY_NUM*sizeof(struct enemy));//1
       NodeGrid=(struct node*)malloc(MAP_NODE_NUM*sizeof(struct node));//2
@@ -458,34 +415,38 @@ void Init() {
   InitEnemy();
   //printf("\n===Enemy Initialized\n");
 
+  //free(saved_ground_x1);
+  //saved_ground_x1=NULL;
+  //free(saved_ground_y1);
+  //saved_ground_y1=NULL;
+  //free(saved_ground_x2);
+  //saved_ground_x2=NULL;
+  //free(saved_ground_y2);
+  //saved_ground_y2=NULL;
+  //free(saved_ground_x3);
+  //saved_ground_x3=NULL;
+  //free(saved_ground_y3);
+  //saved_ground_y3=NULL;
+  //free(saved_ground_is_ghost);
+  //saved_ground_is_ghost=NULL;
+  //free(saved_ground_color);
+  //saved_ground_color=NULL;
+  //free(saved_ground_type);
+  //saved_ground_type=NULL;
+  //free(saved_ground_text);
+  //saved_ground_text=NULL;
 
-  /*free(saved_ground_x1);
-  saved_ground_x1=NULL;
-  free(saved_ground_y1);
-  saved_ground_y1=NULL;
-  free(saved_ground_x2);
-  saved_ground_x2=NULL;
-  free(saved_ground_y2);
-  saved_ground_y2=NULL;
-  free(saved_ground_x3);
-  saved_ground_x3=NULL;
-  free(saved_ground_y3);
-  saved_ground_y3=NULL;
-  free(saved_ground_is_ghost);
-  saved_ground_is_ghost=NULL;
-  free(saved_ground_color);
-  saved_ground_color=NULL;
-  free(saved_ground_type);
-  saved_ground_type=NULL;
-  free(saved_ground_text);
-  saved_ground_text=NULL;
-  free(saved_enemy_type);
-  saved_enemy_type=NULL;
+  //free(saved_enemy_type);
+  //saved_enemy_type=NULL;
+  //free(saved_enemy_x);
+  //saved_enemy_x=NULL;
+  //free(saved_enemy_y);
+  //saved_enemy_y=NULL;
 
-  free(saved_enemy_x);
-  saved_enemy_x=NULL;
-  free(saved_enemy_y);
-  saved_enemy_y=NULL;*/
+  //free(player_render_enemies);
+  //player_render_enemies=NULL;
+  //free(player_render_grounds);
+  //player_render_grounds=NULL;
 
   InitPlayer();
   //printf("\n===Player Attributes Initialized\n");
@@ -547,6 +508,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
     //GroundAct();
     //SongAct();
     if (player.health<1) {
+      InitOnce();
       Init();
     }
     Sleep(player.sleep_timer);
@@ -845,7 +807,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         case 'D':case VK_RIGHT:player.rst_right=TRUE;break;
         case 'A':case VK_LEFT:player.rst_left=TRUE;break;
         case 'W':case VK_UP:player.rst_up=TRUE;break;
-        case VK_RETURN:Init();break;
+        case VK_RETURN:InitOnce();Init();break;
         case ' ':player.rst_key_sprint=TRUE;break;
 	    case 'E':
 	      player.uppercut=TRUE;

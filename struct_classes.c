@@ -11,10 +11,7 @@ struct GroundLine
   int health; //For Webs, health of ground
   int color; //Color of ground, RGB()
   int type; //Regular, Text ground or TriFill 
-      //saved_pos_in_grid[VGRID_NUM];
-      //*saved_pos_in_grid;
 
-       //already_in_grid[VGRID_NUM]; //Is the Ground occupying the Grid it is in
   double x1;
   double y1;
   double x2;
@@ -28,13 +25,11 @@ struct GroundLine
   double height_from_player_x;//= gradient * player_x + c
   double angle; // = ACos of (x/length)
 
-
   //char text[256]; //for type 1 which is Text_ground
 
 //} Ground[GROUND_NUM+MAX_WEB_NUM];
   bool already_in_grid[MAX_VGRID_NUM]; //MAX VGRID NUM
   int saved_pos_in_grid[MAX_VGRID_NUM]; //MAX VGRID NUM
-
 };
 struct GroundLine* Ground;
 
@@ -212,7 +207,6 @@ struct player
   double fling_distance;
   double angle_of_incidence;
   double angle_of_reflection;
-
 
 
 
