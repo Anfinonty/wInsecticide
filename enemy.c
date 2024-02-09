@@ -561,24 +561,24 @@ void EnemyAct(int i)
   saved_grid_id=Enemy[i].saved_grid_id;
   if (current_grid_id!=saved_grid_id) {//current grid isnt the same as previous grid
     //set new (always put at the edge of array)
-    int aa=GridE[current_grid_id].enemy_occupy_num;
+    int aa=Grid[current_grid_id].enemy_occupy_num;
     //printf("%d \n%d",current_grid_id,aa);
-    GridE[current_grid_id].enemy_occupy[aa]=i;
-    Enemy_[i].grid_queue[current_grid_id]=GridE[current_grid_id].enemy_occupy_num;
-    GridE[current_grid_id].enemy_occupy_num++;
+    Grid[current_grid_id].enemy_occupy[aa]=i;
+    Enemy[i].grid_queue[current_grid_id]=Grid[current_grid_id].enemy_occupy_num;
+    Grid[current_grid_id].enemy_occupy_num++;
     //set previous grid when moving onto new grid
     if (saved_grid_id!=-1) {
       //For every enemy in the previous grid, the Enemy's grid_queue is subtracted by 1
-      for (j=Enemy_[i].grid_queue[saved_grid_id]+1;j<GridE[saved_grid_id].enemy_occupy_num;j++) {
-	    Enemy_[GridE[saved_grid_id].enemy_occupy[j]].grid_queue[saved_grid_id]--;
+      for (j=Enemy[i].grid_queue[saved_grid_id]+1;j<Grid[saved_grid_id].enemy_occupy_num;j++) {
+	    Enemy[Grid[saved_grid_id].enemy_occupy[j]].grid_queue[saved_grid_id]--;
       }
       //enemy's saved grid queue id until the end
-      for (j=Enemy_[i].grid_queue[saved_grid_id];j<GridE[saved_grid_id].enemy_occupy_num-1;j++) {
-        GridE[saved_grid_id].enemy_occupy[j]=GridE[saved_grid_id].enemy_occupy[j+1];//current pos = next pos
+      for (j=Enemy[i].grid_queue[saved_grid_id];j<Grid[saved_grid_id].enemy_occupy_num-1;j++) {
+        Grid[saved_grid_id].enemy_occupy[j]=Grid[saved_grid_id].enemy_occupy[j+1];//current pos = next pos
       }
-      GridE[saved_grid_id].enemy_occupy[GridE[saved_grid_id].enemy_occupy_num-1]=-1;//last char =-1
-      GridE[saved_grid_id].enemy_occupy_num--; //enemy occupying grid --;
-      Enemy_[i].grid_queue[saved_grid_id]=-1; //current enemy's grid queue at previous grid set to -1
+      Grid[saved_grid_id].enemy_occupy[Grid[saved_grid_id].enemy_occupy_num-1]=-1;//last char =-1
+      Grid[saved_grid_id].enemy_occupy_num--; //enemy occupying grid --;
+      Enemy[i].grid_queue[saved_grid_id]=-1; //current enemy's grid queue at previous grid set to -1
     }
     Enemy[i].saved_grid_id=current_grid_id;//will become previous grid after it moves onto next
   }
@@ -1035,19 +1035,9 @@ void SetEnemyByType(int i,int type)
   Enemy[i].bullet_range=saved_enemy_type_bullet_range[type];
   Enemy[i].bullet_color=color_arr[saved_enemy_type_bullet_color[type]];
   Enemy[i].bullet_graphics_type=saved_enemy_type_bullet_graphics_type[type];
-  //eney snd
-  //Enemy[i].snd_dur_max=saved_enemy_type_snd_dur[type];
-  //Enemy[i].snd_pitch=saved_enemy_type_snd_pitch[type];
-  //Enemy[i].snd_rand=saved_enemy_type_snd_rand[type];
-  //enemy death snd
-  //Enemy[i].death_snd_dur_max=saved_enemy_type_death_snd_dur[type];
-  //Enemy[i].death_snd_pitch=saved_enemy_type_death_snd_pitch[type];
-  //Enemy[i].death_snd_rand=saved_enemy_type_death_snd_rand[type];
   //time breaker
   Enemy[i].time_breaker_rare=saved_enemy_type_time_breaker_rare[type];
   Enemy[i].time_breaker_length=saved_enemy_type_time_breaker_length[type];
-  //misc
-  //Enemy[i].msprite_hold_timer_max=1;
 }
 
 void CleanUpEnemySprites()
@@ -1109,17 +1099,6 @@ void InitEnemy()
     Enemy[i].y=saved_enemy_y[i];
     Enemy[i].sprite_x=
     Enemy[i].sprite_y=-20;
-    /*Enemy[i].current_sm=0;
-    Enemy[i].msprite_hold_timer=0;
-    for (j=0;j<MULTI_SPRITE_NUM;j++) {
-      Enemy[i].msprite_x[j]=
-      Enemy[i].msprite_y[j]=-20;
-      Enemy[i].appear_timer[j]=0;
-      Enemy[i].msprite_timer[j]=0;
-      Enemy[i].msprite_last_left[j]=FALSE;
-      Enemy[i].msprite_angle[j]=0;
-      Enemy[i].msprite_in_air_timer[j]=0;
-    }*/
     SetEnemyByType(i,saved_enemy_type[i]);
     if (Enemy[i].x<5) {
       Enemy[i].x=25;
@@ -1205,11 +1184,8 @@ void InitEnemy()
       Enemy[i].open_nodes[j]=Enemy[i].start_node;
     }
     //printf("Begin init gridqueue");
-    for (j=0;j<GRID_NUM;j++) {
-      Enemy_[i].grid_queue[j]=-1;
-    }
-    for (j=GRID_NUM;j<MAX_GRID_NUM;j++) {//fill buffer
-      Enemy_[i].grid_queue[j]=-1;
+    for (j=0;j<MAX_GRID_NUM;j++) {//fill buffer
+      Enemy[i].grid_queue[j]=-1;
     }
     //printf("End of init gridqueue");
     EnemyAct(i);

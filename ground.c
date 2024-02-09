@@ -99,24 +99,11 @@ void InitGround()
 //Set ground default and Web
   for (i=0;i<GROUND_NUM+MAX_WEB_NUM;i++) {
     //printf("-Ground%d/%d\n",i,GROUND_NUM);
-    for (j=0;j<VGRID_NUM;j++) {
-      //printf("---G/VGrid %d/%d\n",i,j);
-      //printf("%d:%d *",i,j);
-      //Ground3[i].b={};
-      Ground3[i].already_in_grid[j]=FALSE;
-      //printf("*");
-
-      //Ground2[i].a={};
-      //printf("%d-%d  load-2\n",j,i);
-      Ground2[i].saved_pos_in_grid[j]=-1;
-      //printf("*\n");
-      //printf("%d-%d  load-3\n",j,i);
+    for (j=0;j<MAX_VGRID_NUM;j++) {
+      Ground[i].already_in_grid[j]=FALSE;
+      Ground[i].saved_pos_in_grid[j]=-1;
     }
     
-    for (j=VGRID_NUM;j<MAX_VGRID_NUM;j++) {
-      Ground2[i].saved_pos_in_grid[j]=-1;
-      Ground3[i].already_in_grid[j]=FALSE;
-    }
     //printf("%d saving ground\n",i);
     if (i<GROUND_NUM) {
     //set the saved data
@@ -162,10 +149,10 @@ void InitGround()
       /*} else {
         Ground[i].color=palette_dark_arr[saved_ground_color[i]];
       }*/
-      /*for (j=0;j<256;j++) {
+      for (j=0;j<256;j++) {
         Ground[i].text[j]=saved_ground_text[i][j];
-      }*/
-      printf("\n%d ghost?%d",i,saved_ground_is_ghost[i]);
+      }
+      //printf("\n%d ghost?%d",i,saved_ground_is_ghost[i]);
       if (saved_ground_is_ghost[i]) {
         Ground[i].is_ghost=TRUE;
       } else {
@@ -180,9 +167,9 @@ void InitGround()
       Ground[i].y3=2;
       Ground[i].color=CYAN;//TRANSPARENT;
       Ground[i].type=0;
-      /*for (j=0;j<256;j++) {
+      for (j=0;j<256;j++) {
         Ground[i].text[j]=0;
-      }*/
+      }
       Ground[i].is_ghost=FALSE;
     }
     Ground[i].health=-1;

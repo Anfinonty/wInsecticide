@@ -181,8 +181,8 @@ int frame_tick=0;
 #define MAX_WEB_NUM      100
 
 
-#define MAX_VGRID_NUM   2048
-#define MAX_GRID_NUM    2048
+#define MAX_VGRID_NUM   4800 //(640/160)*20 * (480/160)*20
+#define MAX_GRID_NUM    4800
 #define MAX_ENEMY_NUM   50
 
 #include "load_save.c"
@@ -364,36 +364,30 @@ void InitOnce() {
 
 
 
-  /*printf("RenderEnemies:%d\n",ENEMY_NUM*sizeof(int));
+  printf("RenderEnemies:%d\n",ENEMY_NUM*sizeof(int));
   printf("RenderGrounds:%d\n",(GROUND_NUM+MAX_WEB_NUM)*sizeof(int));
   printf("Ground:%d\n",((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine))));
-  printf("Ground2:%d\n",((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine2) + MAX_VGRID_NUM*sizeof(int))));
-  printf("Ground3:%d\n",((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine3) + MAX_VGRID_NUM*sizeof(bool))));
   printf("NodeGrid:%d\n",(MAP_NODE_NUM*sizeof(struct node)));
   printf("vgrid:%d\n",(VGRID_NUM*sizeof(struct vgrid)));
   printf("grid:%d\n",(GRID_NUM*(sizeof(struct grid))));
-  printf("gridE:%d\n",GRID_NUM*(sizeof(struct grid_enemy) + MAX_ENEMY_NUM*sizeof(int)));
   printf("Enemy:%d\n",ENEMY_NUM*sizeof(struct enemy));
-  printf("Enemy_:%d\n",(ENEMY_NUM*(sizeof(struct enemy_gq) + MAX_GRID_NUM*sizeof(int))));*/
 
 
   player_render_enemies=(int*)malloc(ENEMY_NUM*sizeof(int));
   player_render_grounds=(int*)malloc((GROUND_NUM+MAX_WEB_NUM)*sizeof(int));
   Grid=(struct grid*)malloc(GRID_NUM*(sizeof(struct grid)));
-  Ground=(struct GroundLine*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine)));
-  GridE=(struct grid_enemy*)malloc(GRID_NUM*(sizeof(struct grid_enemy) + MAX_ENEMY_NUM*sizeof(int)));
   VGrid=(struct vgrid*)malloc(VGRID_NUM*sizeof(struct vgrid));
-  Enemy_=(struct enemy_gq*) malloc(ENEMY_NUM*(sizeof(struct enemy_gq) + MAX_GRID_NUM*sizeof(int)));
-  Ground3=(struct GroundLine3*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine3) + MAX_VGRID_NUM*sizeof(bool)));
-  Ground2=(struct GroundLine2*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine2) + MAX_VGRID_NUM*sizeof(int)));
+
+
   NodeGrid=(struct node*)malloc(MAP_NODE_NUM*sizeof(struct node));
+  Ground=(struct GroundLine*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine)));
   Enemy=(struct enemy*)malloc(ENEMY_NUM*sizeof(struct enemy));
 
 
 
   InitTickFrequency();
   InitFPS();
-  printf("\n===Init Once Done===\n");
+  //printf("\n===Init Once Done===\n");
 }
 
 void Init() {
@@ -403,39 +397,31 @@ void Init() {
   InitSongBank();
 
   InitGrid();
-  printf("\n===Grid Initialized\n");
+  //printf("\n===Grid Initialized\n");
 
   InitNodeGrid();
-  printf("\n===Node Grid Initialized\n");
+  //printf("\n===Node Grid Initialized\n");
 
   InitGround();
 
+  //printf("\n===Ground Initialized\n");
 
-  //printf("---%1.0f",saved_ground_x1[0]);
-  printf("\n===Ground Initialized\n");
-
-  for (int i=0;i<GROUND_NUM;i++)
+  /*for (int i=0;i<GROUND_NUM;i++)
       printf("%d x1: %1.0f, y1:%1.0f/x2: %1.0f, y2:%1.0f/x3: %1.0f, y3:%1.0f\n",i,Ground[i].x1,Ground[i].y1,Ground[i].x2,Ground[i].y2,Ground[i].x3,Ground[i].y3);
 
       printf("MAP WIDTH %d,\n",MAP_WIDTH);
       printf("MAP HEIGHT %d,\n",MAP_HEIGHT);   
-      printf("GRID NUM %d,\n",GRID_NUM);   
+      printf("GRID NUM %d,\n",GRID_NUM);*/
   
 
   InitBullet();
-  printf("\n===Bullet Initialized\n");
+  //printf("\n===Bullet Initialized\n");
 
   InitNodeGridAttributes();
-  printf("\n===Node Grid Attributes Initialized\n");
-
-
-
+  //printf("\n===Node Grid Attributes Initialized\n");
 
   InitEnemy();
-  printf("\n===Enemy Initialized\n");
-
-
-
+  //printf("\n===Enemy Initialized\n");
 
 
   /*free(saved_ground_x1);
@@ -467,7 +453,7 @@ void Init() {
   saved_enemy_y=NULL;*/
 
   InitPlayer();
-  printf("\n===Player Attributes Initialized\n");
+  //printf("\n===Player Attributes Initialized\n");
   //InitGround2();
 }
 

@@ -29,27 +29,14 @@ struct GroundLine
   double angle; // = ACos of (x/length)
 
 
-  //char text[256]; //for type 1 which is Text_ground
+  char text[256]; //for type 1 which is Text_ground
 
 //} Ground[GROUND_NUM+MAX_WEB_NUM];
-
+  bool already_in_grid[MAX_VGRID_NUM]; //MAX VGRID NUM
+  int saved_pos_in_grid[MAX_VGRID_NUM]; //MAX VGRID NUM
 
 };
 struct GroundLine* Ground;
-
-
-struct GroundLine2
-{
-  int saved_pos_in_grid[MAX_VGRID_NUM]; //MAX VGRID NUM
-};
-struct GroundLine2* Ground2;
-
-
-struct GroundLine3
-{
-  bool already_in_grid[MAX_VGRID_NUM]; //MAX VGRID NUM
-};
-struct GroundLine3* Ground3;
 
 
 void InitGround();
@@ -64,8 +51,6 @@ void DrawWebs(HDC hdc);
 void DrawGround(HDC hdc);
 void DrawGroundText(HDC hdc);
 void DrawGroundTriFill(HDC hdc);
-
-
 
 
 
@@ -328,17 +313,13 @@ struct grid
   int y1;
   int x2;
   int y2; //grid axes
+  int enemy_occupy_num; //how many enemies are occupying this grid
+  int enemy_occupy[MAX_ENEMY_NUM]; //MAX ENEMY NUM
 };
 //} Grid[GRID_NUM];
 struct grid* Grid;
 
 
-struct grid_enemy
-{
-  int enemy_occupy_num; //how many enemies are occupying this grid
-  int enemy_occupy[MAX_ENEMY_NUM]; //MAX ENEMY NUM
-};
-struct grid_enemy* GridE;
 
 
 struct vgrid
@@ -547,10 +528,6 @@ struct enemy
 
 
   int node_neighbour[8];
-  bool node_solid[MAX_NODE_NUM];
-  bool node_open[MAX_NODE_NUM];
-  bool node_closed[MAX_NODE_NUM];
-  bool node_back[MAX_NODE_NUM];
 
   HBITMAP sprite_1;
   HBITMAP sprite_2;
@@ -576,6 +553,11 @@ struct enemy
   double knockback_angle;
   int bullet_head_y[MAX_BULLET_PER_FIRE];
   int bullet_head_x[MAX_BULLET_PER_FIRE];
+  int grid_queue[MAX_GRID_NUM];
+  bool node_solid[MAX_NODE_NUM];
+  bool node_open[MAX_NODE_NUM];
+  bool node_closed[MAX_NODE_NUM];
+  bool node_back[MAX_NODE_NUM];
   int path_nodes[MAX_NODE_NUM/2];
   int open_nodes[MAX_NODE_NUM/2];
   int node_x[MAX_NODE_NUM];
@@ -588,12 +570,6 @@ struct enemy
 }; 
 //} Enemy[ENEMY_NUM];
 struct enemy* Enemy;
-
-
-struct enemy_gq{
-  int grid_queue[MAX_GRID_NUM];
-};
-struct enemy_gq* Enemy_;
 
 
 int CalculateDistanceCost(int enemy_id,int a, int b);

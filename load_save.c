@@ -239,7 +239,7 @@ void LoadSave(char *saves_name)
                 case 39: saved_enemy_type_time_breaker_immune[column]=int_saved_val;break;
               }
             }
-            printf("%d,",int_saved_val);//save value to arr
+            //printf("%d,",int_saved_val);//save value to arr
             column++;
             int_val=int_saved_val=0;//restart values
           }
@@ -271,7 +271,7 @@ void LoadSave(char *saves_name)
 
 
       } else { //semi colon ;
-        printf(";\n");
+        //printf(";\n");
         column=int_val=int_saved_val=0;//restart values
         row++;
       }
