@@ -179,10 +179,11 @@ int frame_tick=0;
 
 #define MAX_WEB_NUM      100
 
-
+#define MAX_MAP_NODE_NUM (640*20)/NODE_SIZE * (480*20)/NODE_SIZE //MAX_WIDTH/NODE_SIZE * MAX_HEIGHT/NODE_SIZE
+#define MAX_GROUND_NUM  4000
+#define MAX_ENEMY_NUM   50
 #define MAX_VGRID_NUM   4800 //(640/160)*20 * (480/160)*20
 #define MAX_GRID_NUM    4800
-#define MAX_ENEMY_NUM   50
 
 #include "struct_classes.c"
 #include "load_save.c"
@@ -310,72 +311,8 @@ void InitOnce() {
   player.cam_move_x=0,
   player.cam_move_y=0,
 
-  //dyn_vrenderdist=9;//ceil(GR_WIDTH/100)+1;
-  //dyn_vrenderdist_num=dyn_vrenderdist*dyn_vrenderdist;
-
   //InitCustard()
   LoadSave("saves/_Level002.txt");
-
-
-  /*
-    IMPORTANT:
-    When Malloc-ing from saves it MUST be from lowest to highest
-  */
-
-
-  printf("grid:     %d\n",(GRID_NUM*(sizeof(struct grid))));
-  printf("vgrid:    %d\n",(VGRID_NUM*sizeof(struct vgrid)));
-  Grid=(struct grid*)malloc(GRID_NUM*(sizeof(struct grid)));
-  VGrid=(struct vgrid*)malloc(VGRID_NUM*sizeof(struct vgrid));
-  //printf("\nVGridNum:%d\n",VGRID_NUM);  
-
-
-  printf("Enemy:    %d\n",ENEMY_NUM*sizeof(struct enemy));
-  printf("NodeGrid: %d\n",(MAP_NODE_NUM*sizeof(struct node)));
-  printf("Ground:   %d\n",((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine))));
-
-  int GroundMemSize=(GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine));
-  int EnemyMemSize=ENEMY_NUM*sizeof(struct enemy);
-  int NodeGridMemSize=MAP_NODE_NUM*sizeof(struct node);
-
-  if (NodeGridMemSize>GroundMemSize && NodeGridMemSize>EnemyMemSize) { //large map, more node grids 
-    if (EnemyMemSize>GroundMemSize) { //more enmy
-      Ground=(struct GroundLine*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine)));//0
-      Enemy=(struct enemy*)malloc(ENEMY_NUM*sizeof(struct enemy));//1
-      printf("\nMore Enemy");
-    } else {//more rground
-      Enemy=(struct enemy*)malloc(ENEMY_NUM*sizeof(struct enemy));//1
-      Ground=(struct GroundLine*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine)));//0
-      printf("\nMore Ground");
-    }
-    NodeGrid=(struct node*)malloc(MAP_NODE_NUM*sizeof(struct node));//2
-    printf("\nLarge Map");
-  } else if (NodeGridMemSize<GroundMemSize && NodeGridMemSize<EnemyMemSize) {//tiny map, more entities
-    NodeGrid=(struct node*)malloc(MAP_NODE_NUM*sizeof(struct node));//2
-    if (EnemyMemSize>GroundMemSize) { //more enmy
-      Ground=(struct GroundLine*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine)));//0
-      Enemy=(struct enemy*)malloc(ENEMY_NUM*sizeof(struct enemy));//1
-      printf("More Enemy");
-    } else {//more rground
-      Enemy=(struct enemy*)malloc(ENEMY_NUM*sizeof(struct enemy));//1
-      Ground=(struct GroundLine*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine)));//0
-      printf("More Ground");
-    }
-    printf("Small Map");
-  } else { //other conditions
-    if (EnemyMemSize>GroundMemSize) { //enemy overload
-      Ground=(struct GroundLine*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine)));//0
-      NodeGrid=(struct node*)malloc(MAP_NODE_NUM*sizeof(struct node));//2
-      Enemy=(struct enemy*)malloc(ENEMY_NUM*sizeof(struct enemy));//1
-      printf("other condition, alot of enemies");
-    } else { //ground overload
-      Enemy=(struct enemy*)malloc(ENEMY_NUM*sizeof(struct enemy));//1
-      NodeGrid=(struct node*)malloc(MAP_NODE_NUM*sizeof(struct node));//2
-      Ground=(struct GroundLine*)malloc((GROUND_NUM+MAX_WEB_NUM)*(sizeof(struct GroundLine)));//0
-      printf("other condition, alot of grounds");
-    }
-  }
-
 
   InitTickFrequency();
   InitFPS();
@@ -414,39 +351,6 @@ void Init() {
 
   InitEnemy();
   //printf("\n===Enemy Initialized\n");
-
-  //free(saved_ground_x1);
-  //saved_ground_x1=NULL;
-  //free(saved_ground_y1);
-  //saved_ground_y1=NULL;
-  //free(saved_ground_x2);
-  //saved_ground_x2=NULL;
-  //free(saved_ground_y2);
-  //saved_ground_y2=NULL;
-  //free(saved_ground_x3);
-  //saved_ground_x3=NULL;
-  //free(saved_ground_y3);
-  //saved_ground_y3=NULL;
-  //free(saved_ground_is_ghost);
-  //saved_ground_is_ghost=NULL;
-  //free(saved_ground_color);
-  //saved_ground_color=NULL;
-  //free(saved_ground_type);
-  //saved_ground_type=NULL;
-  //free(saved_ground_text);
-  //saved_ground_text=NULL;
-
-  //free(saved_enemy_type);
-  //saved_enemy_type=NULL;
-  //free(saved_enemy_x);
-  //saved_enemy_x=NULL;
-  //free(saved_enemy_y);
-  //saved_enemy_y=NULL;
-
-  //free(player_render_enemies);
-  //player_render_enemies=NULL;
-  //free(player_render_grounds);
-  //player_render_grounds=NULL;
 
   InitPlayer();
   //printf("\n===Player Attributes Initialized\n");
@@ -1008,63 +912,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       
       DeleteObject(tmp_map_platforms_sprite);
       //end of platform sprite creation
-
-
-      //=====JUST A DEMO=====
-      //Load Player cache Sprites
-      /*SetRotatedSpriteSize(
-        NULL,
-        player.sprite_1,
-        0,
-        &player.sprite_minx,
-        &player.sprite_miny,
-        &player.sprite_maxx,
-        &player.sprite_maxy,
-        &player.sprite_width,
-        &player.sprite_height
-      );*/
-
-
-
-      /*unsigned char* lpBitmapBits2; 
-
-      BITMAPINFO bi2; 
-      ZeroMemory(&bi2, sizeof(BITMAPINFO));
-      bi2.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
-      bi2.bmiHeader.biWidth=player.sprite_width;
-      bi2.bmiHeader.biHeight=-player.sprite_height;
-      bi2.bmiHeader.biPlanes=1;
-      bi2.bmiHeader.biBitCount=32;
-
-      player.sprite_jump_cache=CreateDIBSection(NULL,&bi2,DIB_RGB_COLORS, (VOID**)&lpBitmapBits2,NULL,0);
-      player.sprite_1_cache=CreateDIBSection(NULL,&bi2,DIB_RGB_COLORS, (VOID**)&lpBitmapBits2,NULL,0);
-      player.sprite_2_cache=CreateDIBSection(NULL,&bi2,DIB_RGB_COLORS, (VOID**)&lpBitmapBits2,NULL,0);
-
-      player.attack_sprite_1_cache=CreateDIBSection(NULL,&bi2,DIB_RGB_COLORS, (VOID**)&lpBitmapBits2,NULL,0);
-      player.attack_sprite_2_cache=CreateDIBSection(NULL,&bi2,DIB_RGB_COLORS, (VOID**)&lpBitmapBits2,NULL,0);
-      player.attack_sprite_3_cache=CreateDIBSection(NULL,&bi2,DIB_RGB_COLORS, (VOID**)&lpBitmapBits2,NULL,0);
-      player.attack_sprite_4_cache=CreateDIBSection(NULL,&bi2,DIB_RGB_COLORS, (VOID**)&lpBitmapBits2,NULL,0);
-
-      player.block_sprite_1_cache=CreateDIBSection(NULL,&bi2,DIB_RGB_COLORS, (VOID**)&lpBitmapBits2,NULL,0);
-      player.block_sprite_2_cache=CreateDIBSection(NULL,&bi2,DIB_RGB_COLORS, (VOID**)&lpBitmapBits2,NULL,0);
-      player.block_sprite_3_cache=CreateDIBSection(NULL,&bi2,DIB_RGB_COLORS, (VOID**)&lpBitmapBits2,NULL,0);*/
-
-      //printf("new sizes:%d %d\n",player.sprite_width,player.sprite_height);
-      /*player.current_draw_row=-1;
-      for (int a=player.sprite_miny;a<player.sprite_maxy;a++) {
-        RotateSpriteII(NULL, player.sprite_jump, player.sprite_jump_cache,0, LTGREEN, BLACK, -1, player.sprite_minx, player.sprite_miny, player.sprite_maxx, player.sprite_maxy, a); 
-        RotateSpriteII(NULL, player.sprite_1, player.sprite_1_cache,0, LTGREEN, BLACK, -1, player.sprite_minx, player.sprite_miny, player.sprite_maxx, player.sprite_maxy, a); 
-        RotateSpriteII(NULL, player.sprite_2, player.sprite_2_cache,0, LTGREEN, BLACK, -1, player.sprite_minx, player.sprite_miny, player.sprite_maxx, player.sprite_maxy, a); 
-
-        RotateSpriteII(NULL, player.attack_sprite_1, player.attack_sprite_1_cache,0, LTGREEN, BLACK, -1, player.sprite_minx, player.sprite_miny, player.sprite_maxx, player.sprite_maxy, a); 
-        RotateSpriteII(NULL, player.attack_sprite_2, player.attack_sprite_2_cache,0, LTGREEN, BLACK, -1, player.sprite_minx, player.sprite_miny, player.sprite_maxx, player.sprite_maxy, a); 
-        RotateSpriteII(NULL, player.attack_sprite_3, player.attack_sprite_3_cache,0, LTGREEN, BLACK, -1, player.sprite_minx, player.sprite_miny, player.sprite_maxx, player.sprite_maxy, a); 
-        RotateSpriteII(NULL, player.attack_sprite_4, player.attack_sprite_4_cache,0, LTGREEN, BLACK, -1, player.sprite_minx, player.sprite_miny, player.sprite_maxx, player.sprite_maxy, a); 
-
-        RotateSpriteII(NULL, player.block_sprite_1, player.block_sprite_1_cache,0, LTGREEN, BLACK, -1, player.sprite_minx, player.sprite_miny, player.sprite_maxx, player.sprite_maxy, a); 
-        RotateSpriteII(NULL, player.block_sprite_2, player.block_sprite_2_cache,0, LTGREEN, BLACK, -1, player.sprite_minx, player.sprite_miny, player.sprite_maxx, player.sprite_maxy, a); 
-        RotateSpriteII(NULL, player.block_sprite_3, player.block_sprite_3_cache,0, LTGREEN, BLACK, -1, player.sprite_minx, player.sprite_miny, player.sprite_maxx, player.sprite_maxy, a); 
-      }*/
 
 
       player.sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,player.sprite_angle,LTGREEN,BLACK,-1);

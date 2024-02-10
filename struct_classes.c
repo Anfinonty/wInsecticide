@@ -25,13 +25,13 @@ struct GroundLine
   double height_from_player_x;//= gradient * player_x + c
   double angle; // = ACos of (x/length)
 
-  //char text[256]; //for type 1 which is Text_ground
+  char text[512]; //for type 1 which is Text_ground
 
-//} Ground[GROUND_NUM+MAX_WEB_NUM];
   bool already_in_grid[MAX_VGRID_NUM]; //MAX VGRID NUM
   int saved_pos_in_grid[MAX_VGRID_NUM]; //MAX VGRID NUM
 };
-struct GroundLine* Ground;
+//} Ground[GROUND_NUM+MAX_WEB_NUM];
+struct GroundLine Ground[MAX_GROUND_NUM+MAX_WEB_NUM];
 
 
 void InitGround();
@@ -94,7 +94,7 @@ struct player
 
   int rendered_enemy_num;
   //int render_enemies[ENEMY_NUM];
-  int rendered_ground_num;
+ // int rendered_ground_num;
   int block_recharge_timer_max;
   int block_recharge_timer;
   int block_cooldown_max;
@@ -248,8 +248,8 @@ struct player
 } player;
 
 
-int *player_render_enemies;
-int *player_render_grounds;
+int player_render_enemies[MAX_ENEMY_NUM];
+//int *player_render_grounds;
 
 //int player_render_enemies[21];
 //int player_render_grounds[342];
@@ -293,11 +293,11 @@ struct RenderDistanceGrid
 } RDGrid[RDGRID_NUM];
 
 
-struct VRenderDistanceGrid
+/*struct VRenderDistanceGrid
 {
   int x;
   int y;
-} VRDGrid[VRDGRID_NUM];
+} VRDGrid[VRDGRID_NUM];*/
 
 
 struct grid 
@@ -313,7 +313,7 @@ struct grid
   int enemy_occupy[MAX_ENEMY_NUM]; //MAX ENEMY NUM
 };
 //} Grid[GRID_NUM];
-struct grid* Grid;
+struct grid Grid[MAX_GRID_NUM];
 
 
 
@@ -329,7 +329,7 @@ struct vgrid
   int ground_ids[MAX_GROUNDS_WITHIN_GRID]; //id of grounds that are occupying this grid
 };
 //} VGrid[VGRID_NUM];
-struct vgrid* VGrid;
+struct vgrid VGrid[MAX_VGRID_NUM];
 
 
 struct node
@@ -342,7 +342,7 @@ struct node
   int y2;
 };
 //} NodeGrid[MAP_NODE_NUM];
-struct node* NodeGrid;
+struct node NodeGrid[MAX_MAP_NODE_NUM];
 
 
 int GetGridId(int x,int y,int width, int size,int max);
@@ -571,7 +571,7 @@ struct enemy
   int bullet_shot_arr[BULLET_NUM];
 }; 
 //} Enemy[ENEMY_NUM];
-struct enemy* Enemy;
+struct enemy Enemy[MAX_ENEMY_NUM];
 
 
 int CalculateDistanceCost(int enemy_id,int a, int b);
@@ -606,11 +606,4 @@ HBITMAP map_background_sprite;
 
 HBITMAP map_platforms_sprite;
 HBITMAP map_platforms_sprite_mask;
-
-
-
-
-
-//functions
-
 

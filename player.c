@@ -111,7 +111,7 @@ void move_y(double y)
   player.cam_y-=y;
 }
 
-void InitVRDGrid()
+/*void InitVRDGrid()
 {
   int i=0,j=0,k=0,on_grid_id=0,column=0,row=0,
       start_x=0,start_y=0;
@@ -161,7 +161,7 @@ void InitVRDGrid()
       column=0; //go back to first column
     }
   } 
-}
+}*/
 
 void InitRDGrid()
 {
@@ -383,10 +383,10 @@ void InitPlayer() {
     player_render_enemies[i]=-1;
   }
 
-  player.rendered_ground_num=0;
-  for (i=0;i<GROUND_NUM+MAX_WEB_NUM;i++) {
+  //player.rendered_ground_num=0;
+  /*for (i=0;i<GROUND_NUM+MAX_WEB_NUM;i++) {
     player_render_grounds[i]=-1;
-  }
+  }*/
 
   player.saved_x=saved_player_x;
   player.saved_y=saved_player_y;
@@ -490,7 +490,7 @@ void InitPlayer() {
 
   InitPlayerCamera();
   InitRDGrid();
-  InitVRDGrid();
+//  InitVRDGrid();
 }
 
 bool YesInitRDGrid()
@@ -508,13 +508,13 @@ bool YesInitRDGrid()
   return FALSE;
 }
 
-bool YesInitVRDGrid()
+/*bool YesInitVRDGrid()
 {
   int dyn=2;
   /*if (GR_WIDTH>=1440) { //increased frequency
     dyn=4;
   }*/
-  if (VGRID_SIZE*2<player.x && player.x<MAP_WIDTH-VGRID_SIZE*2) {
+  /*if (VGRID_SIZE*2<player.x && player.x<MAP_WIDTH-VGRID_SIZE*2) {
     if (player.x<VRDGrid[0].x+VGRID_SIZE*dyn || player.x>VRDGrid[VRENDER_DIST-1].x-VGRID_SIZE*dyn) {
       return TRUE;
     }
@@ -525,7 +525,7 @@ bool YesInitVRDGrid()
     }
   }
   return FALSE;
-}
+}*/
 
 
 
@@ -553,9 +553,9 @@ void PlayerAct() {
   if (YesInitRDGrid()) {
     InitRDGrid();
   }
-  if (YesInitVRDGrid()) {
+  /*if (YesInitVRDGrid()) {
     InitVRDGrid();
-  }
+  }*/
 
 
   //========Player attacking timer==============

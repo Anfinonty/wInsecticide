@@ -155,7 +155,7 @@ void InitGround()
 
       //char* b=saved_ground_text[i];
       //printf("%s\n",b);
-      //strncpy(Ground[i].text,saved_ground_text[i],256);
+      strncpy(Ground[i].text,saved_ground_text[i],512);
       //printf("\n%d ghost?%d",i,saved_ground_is_ghost[i]);
       if (saved_ground_is_ghost[i]) {
         Ground[i].is_ghost=TRUE;
@@ -174,10 +174,11 @@ void InitGround()
       /*for (j=0;j<256;j++) {
         Ground[i].text[j]=0;
       }*/
+      Ground[i].text[0]='\0';
       Ground[i].is_ghost=FALSE;
     }
     Ground[i].health=-1;
-    player.rendered_ground_num=0;
+    //player.rendered_ground_num=0;
     Ground[i].height_from_player_x=0;
     Ground[i].within_render_distance=FALSE;
     Ground[i].angle=0;

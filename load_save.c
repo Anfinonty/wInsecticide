@@ -8,21 +8,21 @@ int MAP_NODE_NUM;
 
 
 //GROUND_NUM
-double* saved_ground_x1;
-double* saved_ground_y1;
-double* saved_ground_x2;
-double* saved_ground_y2;
-double* saved_ground_x3;
-double* saved_ground_y3;
-bool* saved_ground_is_ghost;
-int* saved_ground_color;
-int* saved_ground_type;
-//char **saved_ground_text;
+double saved_ground_x1[MAX_GROUND_NUM];
+double saved_ground_y1[MAX_GROUND_NUM];
+double saved_ground_x2[MAX_GROUND_NUM];
+double saved_ground_y2[MAX_GROUND_NUM];
+double saved_ground_x3[MAX_GROUND_NUM];
+double saved_ground_y3[MAX_GROUND_NUM];
+bool saved_ground_is_ghost[MAX_GROUND_NUM];
+int saved_ground_color[MAX_GROUND_NUM];
+int saved_ground_type[MAX_GROUND_NUM];
+char saved_ground_text[MAX_GROUND_NUM][512]; //charsize 512
 
 //ENEMY_NUM
-int *saved_enemy_type;
-double* saved_enemy_x;
-double* saved_enemy_y;
+int saved_enemy_type[MAX_ENEMY_NUM];
+double saved_enemy_x[MAX_ENEMY_NUM];
+double saved_enemy_y[MAX_ENEMY_NUM];
 
 
 //Enemy Type (fixed value of 10)
@@ -100,7 +100,7 @@ void LoadSave(char *saves_name)
   
   //for string char
   int char_pos=0;
-  char txt[256];
+  char txt[512];
   //char *print_txt;
   bool writing_txt;
   bool deci;
@@ -112,7 +112,7 @@ void LoadSave(char *saves_name)
   //init
   writing_txt=FALSE;
   deci=FALSE;
-  for (int i=0;i<256;i++) //init txt array
+  for (int i=0;i<512;i++) //init txt array
     txt[i] = 0;
 
 
@@ -131,9 +131,6 @@ void LoadSave(char *saves_name)
             break;
           case 1:
             ENEMY_NUM=int_saved_val;
-
-            //Malloc Saved Enemies
-
             break;
           case 2:
             MAP_WIDTH=int_saved_val;
@@ -143,57 +140,6 @@ void LoadSave(char *saves_name)
             GRID_NUM=(MAP_WIDTH/GRID_SIZE) * (MAP_HEIGHT/GRID_SIZE);
             VGRID_NUM=(MAP_WIDTH/VGRID_SIZE) * (MAP_HEIGHT/VGRID_SIZE);
             MAP_NODE_NUM=(MAP_WIDTH/NODE_SIZE) * (MAP_HEIGHT/NODE_SIZE);
-              //printf("RenderEnemies:%d\n",ENEMY_NUM*sizeof(int));
-              //printf("RenderGrounds:%d\n",(GROUND_NUM+MAX_WEB_NUM)*sizeof(int));
-
-            //Begin Malloc
-            if (GROUND_NUM>ENEMY_NUM) {
-              player_render_enemies=(int*)malloc(ENEMY_NUM*sizeof(int));
-              saved_enemy_type=(int*)malloc(ENEMY_NUM*sizeof(int));
-              saved_enemy_x=(double*)malloc(ENEMY_NUM*sizeof(double));
-              saved_enemy_y=(double*)malloc(ENEMY_NUM*sizeof(double));
-
-              printf("RenderEnemies:%d\n",ENEMY_NUM*sizeof(int));
-              printf("@@            %d\n",GROUND_NUM*sizeof(bool));
-              printf("@@            %d\n",GROUND_NUM*sizeof(int));
-
-
-            //Malloc Saved Grounds
-              saved_ground_is_ghost=(bool*)malloc(GROUND_NUM*sizeof(bool));
-              saved_ground_color=(int*)malloc(GROUND_NUM*sizeof(int));
-              saved_ground_type=(int*)malloc(GROUND_NUM*sizeof(int));
-
-              player_render_grounds=(int*)malloc((GROUND_NUM+MAX_WEB_NUM)*sizeof(int));
-              printf("RenderGrounds:%d\n",(GROUND_NUM+MAX_WEB_NUM)*sizeof(int));
-              printf("@@            %d\n",GROUND_NUM*sizeof(double));
-
-              saved_ground_x1=(double*)malloc(GROUND_NUM*sizeof(double));
-              saved_ground_y1=(double*)malloc(GROUND_NUM*sizeof(double));
-              saved_ground_x2=(double*)malloc(GROUND_NUM*sizeof(double));
-              saved_ground_y2=(double*)malloc(GROUND_NUM*sizeof(double));
-              saved_ground_x3=(double*)malloc(GROUND_NUM*sizeof(double));
-              saved_ground_y3=(double*)malloc(GROUND_NUM*sizeof(double));
-            //saved_ground_text=(char**)malloc(GROUND_NUM*(sizeof(char*)));
-            } else {
-            //Malloc Saved Grounds
-              saved_ground_is_ghost=(bool*)malloc(GROUND_NUM*sizeof(bool));
-              saved_ground_color=(int*)malloc(GROUND_NUM*sizeof(int));
-              saved_ground_type=(int*)malloc(GROUND_NUM*sizeof(int));
-
-              player_render_grounds=(int*)malloc((GROUND_NUM+MAX_WEB_NUM)*sizeof(int));
-              saved_ground_x1=(double*)malloc(GROUND_NUM*sizeof(double));
-              saved_ground_y1=(double*)malloc(GROUND_NUM*sizeof(double));
-              saved_ground_x2=(double*)malloc(GROUND_NUM*sizeof(double));
-              saved_ground_y2=(double*)malloc(GROUND_NUM*sizeof(double));
-              saved_ground_x3=(double*)malloc(GROUND_NUM*sizeof(double));
-              saved_ground_y3=(double*)malloc(GROUND_NUM*sizeof(double));
-            //saved_ground_text=(char**)malloc(GROUND_NUM*(sizeof(char*)));
-
-              player_render_enemies=(int*)malloc(ENEMY_NUM*sizeof(int));
-              saved_enemy_type=(int*)malloc(ENEMY_NUM*sizeof(int));
-              saved_enemy_x=(double*)malloc(ENEMY_NUM*sizeof(double));
-              saved_enemy_y=(double*)malloc(ENEMY_NUM*sizeof(double));
-            }
             break;
           case 40:
             saved_player_x=(double)int_saved_val;
@@ -292,19 +238,17 @@ void LoadSave(char *saves_name)
 
         } else {//txt characters only (row==13)
           if (c=='"') {
-            if (!writing_txt)
+            if (!writing_txt) {
               writing_txt=TRUE;
-            else //end of string
+            } else {//end of string
               writing_txt=FALSE;
-              //print_txt=txt;
-              //printf(":::%s:::\n",print_txt);//save text
-              //strncpy(saved_ground_text[column],txt,256);//print_txt;
-              //printf("txt: %s\n",txt);
               //saved_ground_text[column]=txt;
+              strncpy(saved_ground_text[column],txt,512);
+              //printf("%d@@@%s\n",column,saved_ground_text[column]);                
               column++;
-              for (int i=0;i<256;i++) //clear out txt
-                txt[i]=0;
+              txt[0]='\0';
               char_pos=0;//restart value
+            }
           } else {
             if (writing_txt) {
               txt[char_pos]=c;
@@ -323,8 +267,8 @@ void LoadSave(char *saves_name)
       }
     }
   }
-  printf("\n\n\n===Level Loaded===\n\n\n");
   fclose(fptr);
+  printf("\n\n\n===Level Loaded===\n\n\n");
 }
 
 
