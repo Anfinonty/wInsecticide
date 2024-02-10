@@ -51,22 +51,22 @@
 //int play_a_sound;
 
 int color_arr[COLORS_NUM]={
-BLACK,
-BLUE,
-GREEN,
-CYAN,
-RED,
-PURPLE,
-BROWN,
-LTGRAY,
-DKGRAY,
-LTBLUE,
-LTGREEN,
-LTCYAN,
-LTRED,
-LTPURPLE,
-YELLOW,
-WHITE
+BLACK, //0
+BLUE, //1
+GREEN, //2
+CYAN, //3
+RED, //4
+PURPLE, //5
+BROWN, //6
+LTGRAY, //7
+DKGRAY, //8
+LTBLUE, //9
+LTGREEN, //10
+LTCYAN, //11
+LTRED, //12
+LTPURPLE, //13
+YELLOW, //14
+WHITE //15
 };
 
 
@@ -332,7 +332,6 @@ void InitLevel(HWND hwnd, HDC hdc)
 {
   srand(time(NULL));
   timeBeginPeriod(1);
-  ShowCursor(FALSE);
 
   char txt[19];
   int chosen_level=level_chosen;
@@ -401,7 +400,6 @@ void InitLevel(HWND hwnd, HDC hdc)
   player.spin_sprite_3_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI,LTGREEN,BLACK,-1);
   player.spin_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,BLACK,-1);
 
-  mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,-1);
 
   //Load Enemy cache sprites
   InitEnemySprites();
@@ -648,13 +646,14 @@ Right Click - Swing with Wceb Placement
   GrPrint(hdc,4,GR_HEIGHT-80-16*10,"[Right Click] - Shoot web",c);
   GrPrint(hdc,4,GR_HEIGHT-80-16*9,"[Enter] - Restart Level",c);
 
-  GrPrint(hdc,4,GR_HEIGHT-80-16*7,"Controls While Swinging:",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*6,"'W' - Decrease Web Length",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*5,"'A' - Swing Clockwise",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*4,"'S' - Increase Web Length",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*3,"'D' - Swing Anti-Clockwise",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*2,"[Left Click] or '1' - Swing without Web Placement",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16,"[Right Click] - Swing with Web Placement",c);
+  GrPrint(hdc,4,GR_HEIGHT-88-16*7,"Controls While Swinging:",c);
+  GrPrint(hdc,4,GR_HEIGHT-88-16*6,"'W' - Decrease Web Length",c);
+  GrPrint(hdc,4,GR_HEIGHT-88-16*5,"'A' - Swing Clockwise",c);
+  GrPrint(hdc,4,GR_HEIGHT-88-16*4,"'S' - Increase Web Length",c);
+  GrPrint(hdc,4,GR_HEIGHT-88-16*3,"'D' - Swing Anti-Clockwise",c);
+  GrPrint(hdc,4,GR_HEIGHT-88-16*2,"[Left Click] or '1' - Swing without Web Placement",c);
+  GrPrint(hdc,4,GR_HEIGHT-88-16,"[Right Click] - Swing with Web Placement",c);
+  GrPrint(hdc,4,GR_HEIGHT-80-4,"'9' to Quit",c);
   }
 
   GrPrint(hdc,4,GR_HEIGHT-80+16,"Press '0' for Controls Help",c);
@@ -954,6 +953,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           SelectObject(hdcBackbuff,screen);
       
           DrawMainMenu(hdcBackbuff);
+          DrawCursor(hdcBackbuff);
 
           BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
 
@@ -969,6 +969,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       back_to_menu=FALSE;
       in_main_menu=TRUE;
       level_chosen=0;
+      ShowCursor(FALSE);
 
 
       //Load Player Sprites
@@ -1003,6 +1004,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //Load Map Background sprites
       map_background_sprite1=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       map_background_sprite2=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+      mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,-1);
 
       return 0;
       break;
