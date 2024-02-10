@@ -715,7 +715,7 @@ void EnemyAct(int i)
         Enemy[i].knockback_angle=player.angle;
         Enemy[i].knockback_timer=player.knockback_strength*2;
         deduct_health=FALSE;
-        if ((player.block_timer<30 && player.block_timer>28) || (player.block_timer<10)) {
+        if ((player.block_timer<30 && player.block_timer>28) || (player.block_timer>3 && player.block_timer<6)) {
           deduct_health=TRUE;
         }
         if (player.block_timer>10 && !player.is_swinging) {
@@ -745,9 +745,9 @@ void EnemyAct(int i)
         }*/
       //
         Enemy[i].health-=player.attack_strength;
-        if ((Enemy[i].species==1 && Enemy[i].in_air_timer>0)) {
+        /*if ((Enemy[i].species==1 && Enemy[i].in_air_timer>0)) {
           Enemy[i].health-=player.attack_strength*2;
-        }
+        }*/
           
         /*if (sound_on) {
             Enemy[i].snd_dur=Enemy[i].death_snd_dur_max;
