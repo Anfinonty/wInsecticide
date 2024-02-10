@@ -330,7 +330,7 @@ void DrawGround(HDC hdc)
 }
 
 
-/*
+
 void DrawGroundText(HDC hdc)
 {
   int i=0;//,j=0;
@@ -347,7 +347,7 @@ void DrawGroundText(HDC hdc)
     }
   }
 }
-*/
+
 
 void DrawGroundTriFill(HDC hdc)
 {

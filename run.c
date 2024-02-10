@@ -6,6 +6,7 @@
 //Dec-14-2023 Added Sprite Win32 Compatibility && fixed sluggishness for win32
 //Dec-21-2023 Sleep() for while loop, Fixed memleak caused by flipping sprite
 //Jan-06-2023 Added FPS Sleep. Code Credit: geissomatik
+//I've lost track of the logs XD'
 
 //Command
 //i686-w64-mingw32-gcc-win32 run.c -o run.exe  -lgdi32 -municode -lwinmm
@@ -69,61 +70,6 @@ WHITE
 };
 
 
-/*struct custard
-{
-  int cream;
-};
-
-int amount=10;
-struct custard* Custard;*/
-
-/*void InitCustard()
-{
-  /*Custard=(struct custard*)malloc(amount*sizeof(struct custard));
-  for (int du=0;du<amount;du++) {
-    Custard[du].cream=du*2;
-  }*/
-  /*for (int du=0;du<amount;du++) {
-    printf("%d",Custard[du].cream);
-  }*/
-  /*free(Custard);
-  Custard=NULL;
-}*/
-
-/*int* ptr;
-
-void initdum()
-{
-  ptr=(int*)malloc(size*sizeof(int));
-  for (int du=0;du<size;du++) {
-    ptr[du]=du*2;
-  }
-  for (int du=0;du<size;du++) {
-    printf("%d",ptr[du]);
-  }
-}*/
-
-//struct Custard Custards[size];
-
-/*int palette_dark_arr[COLORS_NUM]={
-BLACK,
-BLUE,
-GREEN,
-CYAN,
-RED,
-PURPLE,
-BROWN,
-LTGRAY,
-DKGRAY,
-LTBLUE,
-LTGREEN,
-LTCYAN,
-LTRED,
-LTPURPLE,
-YELLOW,
-WHITE
-};*/
-
 
 #define SONG_NUM 10
 #define SONG_FOLDER_NUM 15
@@ -132,11 +78,8 @@ WHITE
 #define SCREEN_HEIGHT   (GetSystemMetrics(SM_CYSCREEN))
 
 
-//#include "load_level.c"
-//#include "all_levels.c"
 
 int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
-//int dyn_vrenderdist=0,dyn_vrenderdist_num=0;
 int frame_tick=0;
 
 #define DEFAULT_PLAYER_SPEED			1
@@ -179,11 +122,12 @@ int frame_tick=0;
 
 #define MAX_WEB_NUM      100
 
+
 #define MAX_MAP_NODE_NUM (640*20)/NODE_SIZE * (480*20)/NODE_SIZE //MAX_WIDTH/NODE_SIZE * MAX_HEIGHT/NODE_SIZE
-#define MAX_GROUND_NUM  4000
-#define MAX_ENEMY_NUM   50
 #define MAX_VGRID_NUM   4800 //(640/160)*20 * (480/160)*20
 #define MAX_GRID_NUM    4800
+#define MAX_GROUND_NUM  4000
+#define MAX_ENEMY_NUM   50
 
 #include "struct_classes.c"
 #include "load_save.c"
@@ -227,6 +171,33 @@ int frame_tick=0;
 #include "player.c"
 #include "enemy.c"
 #include "song.c"
+#include "cleanup.c"
+
+//Attributes for Level Choose & MainMenu
+bool back_to_menu=FALSE;
+bool in_main_menu=TRUE;
+int level_chosen=0;
+
+
+void DrawMainMenu(HDC hdc)
+{
+  GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,BLUE);
+  GrPrint(hdc,10,10,"Welcome to the wInsecticide Menu! (02-11-2024)",WHITE);
+
+  GrPrint(hdc,10,10+32,"-  Level 0",WHITE);
+  GrPrint(hdc,10,10+32+16,"-  Level 1",WHITE);
+  GrPrint(hdc,10,10+32+16*2,"-  Level 2",WHITE);
+  GrPrint(hdc,10,10+32+16*3,"-  Level 3",WHITE);
+  GrPrint(hdc,10,10+32+16*4,"-  Level 4",WHITE);
+  GrPrint(hdc,10,10+32+16*5,"-  Level 5",WHITE);
+  GrPrint(hdc,10,10+32+16*6,"-  Level 6",WHITE);
+  GrPrint(hdc,10,10+32+16*7,"-  Level 7",WHITE);
+
+  GrPrint(hdc,10,10+32+16*9,"Press 'Enter' to Compile and Run",WHITE);
+  GrPrint(hdc,10,10+32+16*10,"Use Up or Down Keys to Select a Level",WHITE);
+
+  GrPrint(hdc,10,10+32+16*level_chosen,">",WHITE);
+}
 
 //Background
 void DrawBackground(HDC hdc) {
@@ -236,10 +207,10 @@ void DrawBackground(HDC hdc) {
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255))); //RAVE
   switch (map_background) {
     case 0:
-      DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,TRUE);
+      DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite1,SRCCOPY,TRUE);
       break;
     case 1:
-      DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,NOTSRCCOPY,TRUE);
+      DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite2,NOTSRCCOPY,TRUE);
       break;
     default:
       break;
@@ -312,7 +283,6 @@ void InitOnce() {
   player.cam_move_y=0,
 
   //InitCustard()
-  LoadSave("saves/_Level002.txt");
 
   InitTickFrequency();
   InitFPS();
@@ -332,7 +302,6 @@ void Init() {
   //printf("\n===Node Grid Initialized\n");
 
   InitGround();
-
   //printf("\n===Ground Initialized\n");
 
   /*for (int i=0;i<GROUND_NUM;i++)
@@ -358,6 +327,87 @@ void Init() {
 }
 
 
+
+void InitLevel(HWND hwnd, HDC hdc)
+{
+  srand(time(NULL));
+  timeBeginPeriod(1);
+  ShowCursor(FALSE);
+
+  char txt[19];
+  int chosen_level=level_chosen;
+  sprintf(txt,"saves/_Level00%d.txt",chosen_level);
+  LoadSave(txt);
+
+
+  InitOnce();//cannot be repeatedly run
+  Init();
+
+
+  PAINTSTRUCT ps; //Suggestion Credit: https://git.xslendi.xyz
+  hdc=BeginPaint(hwnd, &ps);
+  HDC hdc2=CreateCompatibleDC(hdc);
+  //HBITMAP tmp_map_platforms_sprite=CreateCompatibleBitmap(hdc,MAP_WIDTH,MAP_HEIGHT);
+  //https://forums.codeguru.com/showthread.php?526563-Accessing-Pixels-with-CreateDIBSection
+  unsigned char* lpBitmapBits; 
+
+  BITMAPINFO bi; 
+  ZeroMemory(&bi, sizeof(BITMAPINFO));
+  bi.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
+  bi.bmiHeader.biWidth=MAP_WIDTH;
+  bi.bmiHeader.biHeight=-MAP_HEIGHT;
+  bi.bmiHeader.biPlanes=1;
+  bi.bmiHeader.biBitCount=32;
+  HBITMAP tmp_map_platforms_sprite=CreateDIBSection(hdc2,&bi,DIB_RGB_COLORS, (VOID**)&lpBitmapBits,NULL,0);
+
+  SelectObject(hdc2,tmp_map_platforms_sprite);
+  if (map_background==2)
+    GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,custom_map_background_color);
+  else 
+    GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,MYCOLOR1);
+
+  DrawGroundTriFill(hdc2);
+  DrawGround(hdc2);
+  DrawGroundText(hdc2);
+
+  DeleteDC(hdc2);
+  EndPaint(hwnd, &ps);
+
+  map_platforms_sprite=ReplaceColor(tmp_map_platforms_sprite,MYCOLOR1,BLACK,NULL);
+  map_platforms_sprite_mask=CreateBitmapMask(map_platforms_sprite,BLACK,NULL);
+
+  
+  DeleteObject(tmp_map_platforms_sprite);
+  //end of platform sprite creation
+
+
+
+
+  player.sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,player.sprite_angle,LTGREEN,BLACK,-1);
+  player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,-1);
+  player.sprite_2_cache = RotateSprite(NULL, player.sprite_2,player.sprite_angle,LTGREEN,BLACK,-1);
+
+  player.attack_sprite_1_cache = RotateSprite(NULL, player.attack_sprite_1,player.sprite_angle,LTGREEN,BLACK,-1);
+  player.attack_sprite_2_cache = RotateSprite(NULL, player.attack_sprite_2,player.sprite_angle,LTGREEN,BLACK,-1);
+  player.attack_sprite_3_cache = RotateSprite(NULL, player.attack_sprite_3,player.sprite_angle,LTGREEN,BLACK,-1);
+  player.attack_sprite_4_cache = RotateSprite(NULL, player.attack_sprite_4,player.sprite_angle,LTGREEN,BLACK,-1);
+
+  player.block_sprite_1_cache = RotateSprite(NULL, player.block_sprite_1,player.sprite_angle,LTGREEN,BLACK,-1);
+  player.block_sprite_2_cache = RotateSprite(NULL, player.block_sprite_2,player.sprite_angle,LTGREEN,BLACK,-1);
+  player.block_sprite_3_cache = RotateSprite(NULL, player.block_sprite_3,player.sprite_angle,LTGREEN,BLACK,-1);
+
+  player.spin_sprite_1_cache = RotateSprite(NULL, player.spin_sprite,0.1,LTGREEN,BLACK,-1);
+  player.spin_sprite_2_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI_2,LTGREEN,BLACK,-1);
+  player.spin_sprite_3_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI,LTGREEN,BLACK,-1);
+  player.spin_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,BLACK,-1);
+
+  mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,-1);
+
+  //Load Enemy cache sprites
+  InitEnemySprites();
+
+  in_main_menu=FALSE;
+}
 
 void FrameRateSleep(int max_fps)
 {//http://www.geisswerks.com/ryan/FAQS/timing.html https://github.com/geissomatik
@@ -403,20 +453,19 @@ void FrameRateSleep(int max_fps)
 
 
 DWORD WINAPI AnimateTask01(LPVOID lpArg) {
-  bool b=TRUE;
-  while (b) {
-    PlayerAct();
-    for (int i=0;i<player.rendered_enemy_num;i++) {
-      EnemyAct(player_render_enemies[i]);
+  while (TRUE) {
+    if (!in_main_menu) { //In Game
+      PlayerAct();
+      for (int i=0;i<player.rendered_enemy_num;i++) {
+        EnemyAct(player_render_enemies[i]);
+      }
+      if (player.health<1) {
+        Init();
+      }
+      Sleep(player.sleep_timer);
+    } else {
+      Sleep(1000);
     }
-    //GroundAct();
-    //SongAct();
-    if (player.health<1) {
-      InitOnce();
-      Init();
-    }
-    Sleep(player.sleep_timer);
-    //Sleep(6);
   }
 }
 
@@ -609,72 +658,6 @@ Right Click - Swing with Wceb Placement
   }
 
   GrPrint(hdc,4,GR_HEIGHT-80+16,"Press '0' for Controls Help",c);
-
-
-
-  /*char txt3[10];
-  int print_1=frame_tick;
-  sprintf(txt3,"%d",print_1);  
-  GrPrint(hdc,0,32,txt3,c);*/
-
-  /*char txt3[10];
-  int print_1=player.time_breaker_recharge_timer;
-  sprintf(txt3,"%d",print_1);  
-  GrPrint(hdc,0,32,txt3,c);
-
-
-  char txt4[10];
-  int print_2= player.time_breaker_cooldown;
-  sprintf(txt4,"%d",print_2);  
-  GrPrint(hdc,0,48,txt4,c);
-
-
-  char txt5[10];
-  int print_3=player.time_breaker_units;
-  sprintf(txt5,"%d",print_3);  
-  GrPrint(hdc,0,64,txt5,c);*/
-
-
-
-
-
-
-
-  /*for (int i=player.block_health;i>0;i--) {
-    GrCircle(hdc,player.sprite_x+8*i,player.sprite_y+32,2,LTGRAY,LTGRAY);
-  }*/
-
-  //Print Player Block Health
-  //int print_block_health=player.block_health;
-  //sprintf(txt,"%d",print_block_health);
-  //GrPrint(hDC,mouse_x,mouse_y+32,txt, BLACK);
-
-
-/*  char txt3[19];
-  int print_dynrenderdist=dyn_vrenderdist;
-  sprintf(txt3,"Render Distance: %d",print_dynrenderdist);  
-  GrPrint(hdc,0,32,txt3,c);
-
-
-  char txt4[10];
-  int print_left = player.previous_web_placed;
-  int print_left2= player.on_ground_id;
-  sprintf(txt4,"%d webplaced: %d",print_left2, print_left);  
-  GrPrint(hdc,0,48,txt4,c);*/
-
-
-  /*char txt5[10];
-  int print_speed=player.speed;
-  int print_grav_speed=player.grav;
-  sprintf(txt5,"Speed:%d  %d",print_grav_speed, print_speed);  
-  GrPrint(hdc,0,64,txt5,c);*/
-  //GrPrint(hwnd,hdc,ps,0,16,_txt2,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
-
-
-  /*char txt6[16];
-  int print_jump=player.in_air_timer;
-  sprintf(txt6,"inairtimer: %d",print_jump);  
-  GrPrint(hdc,0,80,txt6,c);*/
 }
 
 
@@ -707,58 +690,170 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       break;
     case WM_KEYDOWN:
       switch (wParam) {
-        case 'S':case VK_DOWN:player.rst_down=TRUE;break;
-        case 'D':case VK_RIGHT:player.rst_right=TRUE;break;
-        case 'A':case VK_LEFT:player.rst_left=TRUE;break;
-        case 'W':case VK_UP:player.rst_up=TRUE;break;
-        case VK_RETURN:InitOnce();Init();break;
-        case ' ':player.rst_key_sprint=TRUE;break;
+        case 'S':
+        case VK_DOWN:
+            if (!in_main_menu) {
+              player.rst_down=TRUE;
+            } else {
+              level_chosen++;
+              if (level_chosen>7) {
+                level_chosen=0;
+              }
+            }
+            break;
+
+        case 'D':
+        case VK_RIGHT:
+          player.rst_right=TRUE;
+          break;
+
+
+        case 'A':
+        case VK_LEFT:
+          player.rst_left=TRUE;
+          break;
+
+
+        case 'W':
+        case VK_UP:
+          if (!in_main_menu) {
+            player.rst_up=TRUE;
+          } else {
+            level_chosen--;
+            if (level_chosen<0) {
+              level_chosen=7;
+            }
+          }
+          break;
+
+
+        case VK_RETURN:
+          if (!in_main_menu) {
+            Init();
+          } else {//Run Level
+            if (level_chosen>=0 && level_chosen<=7)
+              InitLevel(hwnd, hdc);
+          }
+          break;
+
+        case ' ':
+          if (!in_main_menu) {
+            player.rst_key_sprint=TRUE;
+          }
+          break;
+
 	    case 'E':
-	      player.uppercut=TRUE;
+          if (!in_main_menu) {
+	        player.uppercut=TRUE;
+          }
 	      break;
       }
       break;
     case WM_KEYUP:
       switch (wParam) {
-        case 'Q':player.destroy_ground=TRUE;break;
-        case 'S':case VK_DOWN:if(player.rst_down)player.rst_down=FALSE;break;
-        case 'D':case VK_RIGHT:if(player.rst_right)player.rst_right=FALSE;break;
-        case 'A':case VK_LEFT:if(player.rst_left)player.rst_left=FALSE;break;
-        case 'W':case VK_UP:if(player.rst_up)player.rst_up=FALSE;break;
-        case 'M':song_seconds_run_max=-1;play_new_song=FALSE;break;//end current song
+        case 'Q':
+          player.destroy_ground=TRUE;
+          break;
+
+
+        case 'S':
+        case VK_DOWN:
+          if(player.rst_down)
+            player.rst_down=FALSE;
+          break;
+
+
+        case 'D':
+        case VK_RIGHT:
+          if(player.rst_right)
+            player.rst_right=FALSE;
+          break;
+
+
+        case 'A':
+        case VK_LEFT:
+          if(player.rst_left)
+            player.rst_left=FALSE;
+          break;
+
+        case 'W':
+        case VK_UP:
+          if(player.rst_up)
+            player.rst_up=FALSE;
+          break;
+
+
+        case 'M':
+          song_seconds_run_max=-1;
+          play_new_song=FALSE;
+          break;//end current song
+
+
+        case '9':
+          back_to_menu=TRUE;
+          break;
+
+
         case '0':
-          if (!display_controls) {
-            display_controls=TRUE;
-          } else {
-            display_controls=FALSE;
+          if (!in_main_menu) {
+            if (!display_controls) {
+              display_controls=TRUE;
+            } else {
+              display_controls=FALSE;
+            }
           }
           break;
-        case ' ':if(player.rst_key_sprint)player.rst_key_sprint=FALSE;break;
+
+
+        case ' ':
+          if (!in_main_menu) {
+            if (!in_main_menu) {
+              if(player.rst_key_sprint)
+                player.rst_key_sprint=FALSE;
+            }
+          }
+          break;
+
+
         case 'C':
-          if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
-            player.time_breaker=TRUE;
-            player.time_breaker_cooldown=player.time_breaker_cooldown_max;
-            player.speed+=player.time_breaker_units_max/2-1;
-          }
-          if (player.sleep_timer==DEFAULT_SLEEP_TIMER) {
-            player.sleep_timer=SLOWDOWN_SLEEP_TIMER;
-          } else {
-            player.sleep_timer=DEFAULT_SLEEP_TIMER;
+          if (!in_main_menu) {
+            if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
+              player.time_breaker=TRUE;
+              player.time_breaker_cooldown=player.time_breaker_cooldown_max;
+              player.speed+=player.time_breaker_units_max/2-1;
+            }
+            if (player.sleep_timer==DEFAULT_SLEEP_TIMER) {
+              player.sleep_timer=SLOWDOWN_SLEEP_TIMER;
+            } else {
+              player.sleep_timer=DEFAULT_SLEEP_TIMER;
+            }
           }
           break;
+
+
         case 'Z':
-          if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
-            player.time_breaker=TRUE;
-            player.time_breaker_cooldown=player.time_breaker_cooldown_max;
-            player.speed+=player.time_breaker_units_max/2-1;
+          if (!in_main_menu) {
+            if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
+              player.time_breaker=TRUE;
+              player.time_breaker_cooldown=player.time_breaker_cooldown_max;
+              player.speed+=player.time_breaker_units_max/2-1;
+            }
           }
           break;
+
+
 	    case '1':
-	      player.attack_rst=TRUE;
+          if (!in_main_menu) {
+	        player.attack_rst=TRUE;
+          }
 	      break;
+
+
 	    case 'E':
-          if (player.uppercut) {
-	        player.uppercut=FALSE;
+          if (!in_main_menu) {
+            if (player.uppercut) {
+	          player.uppercut=FALSE;
+            }
           }
 	      break;
       }
@@ -768,81 +863,112 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         InvalidateRect(hwnd,NULL,TRUE);
       return TRUE;
       break;
+
+
     case WM_PAINT: //https://cplusplus.com/forum/beginner/269434/
-    if (!IsIconic(hwnd)) //no action when minimized, prevents crash https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-isiconic?redirectedfrom=MSDN
-    { //https://stackoverflow.com/questions/752593/win32-app-suspends-on-minimize-window-animation
-      //FrameRateSleep(35); //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
-      frame_tick++;
-      if (frame_tick>9000) {
-        frame_tick=0;
-      }
-      FrameRateSleep(FPS); // (Uncapped)
-      PlayerCameraShake();
-      for (int i=0;i<player.rendered_enemy_num;i++) {
-        Enemy[player_render_enemies[i]].seed=rand();
-      }
-      RECT rect;
-      if(GetWindowRect(hwnd, &rect))
+      if (!IsIconic(hwnd)) //no action when minimized, prevents crash https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-isiconic?redirectedfrom=MSDN
       {
-        GR_WIDTH = rect.right - rect.left;
-        GR_HEIGHT = rect.bottom - rect.top;        
-      }
+        FrameRateSleep(FPS); // (Uncapped)
+        RECT rect;
+        if(GetWindowRect(hwnd, &rect))
+        {
+          GR_WIDTH = rect.right - rect.left;
+          GR_HEIGHT = rect.bottom - rect.top;        
+        }
 
-      if (GR_WIDTH!=OLD_GR_WIDTH || GR_HEIGHT!=OLD_GR_HEIGHT) {
-        InitPlayerCamera();
-        player.cam_x=0;
-        player.cam_y=0;
-        //dyn_vrenderdist=ceil(GR_WIDTH/100)+1;
-        //dyn_vrenderdist_num=dyn_vrenderdist*dyn_vrenderdist;
-        //bg_cam_fall_cooldown=0;
-        //background_cam_move_x=0;
-        //background_cam_move_y=0;
-        CameraInit(player.x,player.y+PLAYER_HEIGHT/2); //idk scaling is weird for sprite
-        OLD_GR_WIDTH = GR_WIDTH;
-        OLD_GR_HEIGHT = GR_HEIGHT;
-      }
+        if (GR_WIDTH!=OLD_GR_WIDTH || GR_HEIGHT!=OLD_GR_HEIGHT) {
+          InitPlayerCamera();
+          player.cam_x=0;
+          player.cam_y=0;
+          CameraInit(player.x,player.y+PLAYER_HEIGHT/2); //idk scaling is weird for sprite
+          OLD_GR_WIDTH = GR_WIDTH;
+          OLD_GR_HEIGHT = GR_HEIGHT;
+        }
 
-      PAINTSTRUCT ps;
-      hdc=BeginPaint(hwnd, &ps);
-      hdcBackbuff=CreateCompatibleDC(hdc);
-      HBITMAP screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
-      SelectObject(hdcBackbuff,screen);
+        if (!in_main_menu) //### LevelLoaded
+        { //https://stackoverflow.com/questions/752593/win32-app-suspends-on-minimize-window-animation
+      //FrameRateSleep(35); //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
+          frame_tick++;
+          if (frame_tick>9000) {
+            frame_tick=0;
+          }
+          PlayerCameraShake();
+          for (int i=0;i<player.rendered_enemy_num;i++) {
+            Enemy[player_render_enemies[i]].seed=rand();
+          }
+
+          PAINTSTRUCT ps;
+          hdc=BeginPaint(hwnd, &ps);
+          hdcBackbuff=CreateCompatibleDC(hdc);
+          HBITMAP screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+          SelectObject(hdcBackbuff,screen);
       
-      DrawBackground(hdcBackbuff);
-      DrawPlatforms(hdcBackbuff);
-      DrawWebs(hdcBackbuff);
-      DrawEnemy(hdcBackbuff);
-      DrawPlayer(hdcBackbuff);
-      DrawCursor(hdcBackbuff);
-      DrawTexts(hdcBackbuff);
+          DrawBackground(hdcBackbuff);
+          DrawPlatforms(hdcBackbuff);
+          DrawWebs(hdcBackbuff);
+          DrawEnemy(hdcBackbuff);
+          DrawPlayer(hdcBackbuff);
+          DrawCursor(hdcBackbuff);
+          DrawTexts(hdcBackbuff);
 
-      if (!IsInvertedBackground()){
-        if (!player.time_breaker) {
+          if (!IsInvertedBackground()){
+            if (!player.time_breaker) {
+              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
+            } else {
+              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
+            }
+          } else {
+            if (!player.time_breaker) {
+              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
+            } else {
+              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
+            }
+          }
+  //      StretchBlt(hdc, GR_WIDTH/2, -GR_HEIGHT, -GR_WIDTH-1, GR_HEIGHT, hdcBackbuff, 0, 0, GR_WIDTH, GR_HEIGHT,     SRCCOPY);
+          DeleteDC(hdcBackbuff);
+          DeleteObject(screen);
+          EndPaint(hwnd, &ps);
+
+
+          //Trigger go back to main menu
+          if (back_to_menu) {
+            CleanUpPlayer();
+            CleanUpEnemySprites();
+            CleanUpGrid();
+            CleanUpNodeGrid();
+            CleanUpEnemy();
+            CleanUpGround();
+
+            DeleteObject(map_platforms_sprite);
+            DeleteObject(map_platforms_sprite_mask);
+            back_to_menu=FALSE;
+            in_main_menu=TRUE;
+          }
+        } else { //In Main Menu
+          FrameRateSleep(FPS); // (Uncapped)
+
+          PAINTSTRUCT ps;
+          hdc=BeginPaint(hwnd, &ps);
+          hdcBackbuff=CreateCompatibleDC(hdc);
+          HBITMAP screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+          SelectObject(hdcBackbuff,screen);
+      
+          DrawMainMenu(hdcBackbuff);
+
           BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
-        } else {
-          BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
-        }
-      } else {
-        if (!player.time_breaker) {
-          BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
-        } else {
-          BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
+
+          DeleteDC(hdcBackbuff);
+          DeleteObject(screen);
+          EndPaint(hwnd, &ps);
+        
         }
       }
-  //      StretchBlt(hdc, GR_WIDTH/2, -GR_HEIGHT, -GR_WIDTH-1, GR_HEIGHT, hdcBackbuff, 0, 0, GR_WIDTH, GR_HEIGHT,     SRCCOPY);
-      DeleteDC(hdcBackbuff);
-      DeleteObject(screen);
-      EndPaint(hwnd, &ps);
       return 0;
-    }
       break;
     case WM_CREATE:
-      srand(time(NULL));
-      timeBeginPeriod(1);
-      ShowCursor(FALSE);
-
-      InitOnce();//cannot be repeatedly run
-      Init();
+      back_to_menu=FALSE;
+      in_main_menu=TRUE;
+      level_chosen=0;
 
 
       //Load Player Sprites
@@ -874,88 +1000,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       mouse_cursor_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/player_cursor1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
-
-      //Create Platforms Sprite
-      //BITMAP bm;
-      PAINTSTRUCT ps; //Suggestion Credit: https://git.xslendi.xyz
-      hdc=BeginPaint(hwnd, &ps);
-      HDC hdc2=CreateCompatibleDC(hdc);
-      //HBITMAP tmp_map_platforms_sprite=CreateCompatibleBitmap(hdc,MAP_WIDTH,MAP_HEIGHT);
-      //https://forums.codeguru.com/showthread.php?526563-Accessing-Pixels-with-CreateDIBSection
-      unsigned char* lpBitmapBits; 
-
-      BITMAPINFO bi; 
-      ZeroMemory(&bi, sizeof(BITMAPINFO));
-      bi.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
-      bi.bmiHeader.biWidth=MAP_WIDTH;
-      bi.bmiHeader.biHeight=-MAP_HEIGHT;
-      bi.bmiHeader.biPlanes=1;
-      bi.bmiHeader.biBitCount=32;
-      HBITMAP tmp_map_platforms_sprite=CreateDIBSection(hdc2,&bi,DIB_RGB_COLORS, (VOID**)&lpBitmapBits,NULL,0);
-
-      SelectObject(hdc2,tmp_map_platforms_sprite);
-      if (map_background==2)
-        GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,custom_map_background_color);
-      else 
-        GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,MYCOLOR1);
-
-      DrawGroundTriFill(hdc2);
-      DrawGround(hdc2);
-      //DrawGroundText(hdc2);
-
-      DeleteDC(hdc2);
-      EndPaint(hwnd, &ps);
-
-      map_platforms_sprite=ReplaceColor(tmp_map_platforms_sprite,MYCOLOR1,BLACK,NULL);
-      map_platforms_sprite_mask=CreateBitmapMask(map_platforms_sprite,BLACK,NULL);
-
-      
-      DeleteObject(tmp_map_platforms_sprite);
-      //end of platform sprite creation
-
-
-      player.sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,player.sprite_angle,LTGREEN,BLACK,-1);
-      player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,-1);
-      player.sprite_2_cache = RotateSprite(NULL, player.sprite_2,player.sprite_angle,LTGREEN,BLACK,-1);
-
-      player.attack_sprite_1_cache = RotateSprite(NULL, player.attack_sprite_1,player.sprite_angle,LTGREEN,BLACK,-1);
-      player.attack_sprite_2_cache = RotateSprite(NULL, player.attack_sprite_2,player.sprite_angle,LTGREEN,BLACK,-1);
-      player.attack_sprite_3_cache = RotateSprite(NULL, player.attack_sprite_3,player.sprite_angle,LTGREEN,BLACK,-1);
-      player.attack_sprite_4_cache = RotateSprite(NULL, player.attack_sprite_4,player.sprite_angle,LTGREEN,BLACK,-1);
-
-      player.block_sprite_1_cache = RotateSprite(NULL, player.block_sprite_1,player.sprite_angle,LTGREEN,BLACK,-1);
-      player.block_sprite_2_cache = RotateSprite(NULL, player.block_sprite_2,player.sprite_angle,LTGREEN,BLACK,-1);
-      player.block_sprite_3_cache = RotateSprite(NULL, player.block_sprite_3,player.sprite_angle,LTGREEN,BLACK,-1);
-
-      player.spin_sprite_1_cache = RotateSprite(NULL, player.spin_sprite,0.1,LTGREEN,BLACK,-1);
-      player.spin_sprite_2_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI_2,LTGREEN,BLACK,-1);
-      player.spin_sprite_3_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI,LTGREEN,BLACK,-1);
-      player.spin_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,BLACK,-1);
-
-      mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,-1);
-
-      //Load Enemy cache sprites
-      InitEnemySprites();
-
-
-
       //Load Map Background sprites
-      switch (map_background) {
-        case 0:
-          map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-          break;
-        case 1:
-          map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-          break;
-        default:
-          map_background_sprite=NULL;
-          break;
-      } 
+      map_background_sprite1=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      map_background_sprite2=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
       return 0;
       break;
     case WM_DESTROY:
-      CleanUpPlayer();
-      CleanUpEnemySprites();
       PostQuitMessage(0);
       return 0;
       break;
@@ -983,7 +1034,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 
   //create window
   CreateWindowW(wc.lpszClassName,
-                L"wInsecticide (02-06-2024)",
+                L"wInsecticide (02-11-2024)",
                 WS_OVERLAPPEDWINDOW | WS_VISIBLE,
                 0,
                 0,

@@ -602,7 +602,8 @@ HBITMAP enemy2_sprite_2;
 HBITMAP enemy2_sprite_3;
 
 
-HBITMAP map_background_sprite;
+HBITMAP map_background_sprite1;
+HBITMAP map_background_sprite2;
 
 HBITMAP map_platforms_sprite;
 HBITMAP map_platforms_sprite_mask;
