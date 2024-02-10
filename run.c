@@ -177,7 +177,8 @@ int frame_tick=0;
 bool back_to_menu=FALSE;
 bool in_main_menu=TRUE;
 int level_chosen=0;
-
+int windowx=0;
+int windowy=0;
 
 void DrawMainMenu(HDC hdc)
 {
@@ -197,6 +198,12 @@ void DrawMainMenu(HDC hdc)
   GrPrint(hdc,10,10+32+16*10,"Use Up or Down Keys to Select a Level",WHITE);
 
   GrPrint(hdc,10,10+32+16*level_chosen,">",WHITE);
+
+  /*char txt[16];
+  int anum=windowx;
+  sprintf(txt,"%d",anum);
+  GrPrint(hdc,0,240,txt,WHITE);*/
+
 }
 
 //Background
@@ -681,8 +688,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       {
         POINT point;
         if (GetCursorPos(&point)) {
-          mouse_x=point.x;
-          mouse_y=point.y;
+          mouse_x=point.x-windowx;
+          mouse_y=point.y-windowy;
         }
         UpdateWindow(hwnd);
       }
@@ -871,6 +878,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         RECT rect;
         if(GetWindowRect(hwnd, &rect))
         {
+          windowx = rect.left;
+          windowy = rect.top;
           GR_WIDTH = rect.right - rect.left;
           GR_HEIGHT = rect.bottom - rect.top;        
         }
