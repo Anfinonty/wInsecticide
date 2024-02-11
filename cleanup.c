@@ -5,6 +5,45 @@ void CleanUpEnemy()
   int i=0,j=0;
   for (i=0;i<MAX_ENEMY_NUM;i++) {
     //printf("Enemy: %d\n",i);
+    Enemy[i].species=-1;
+    Enemy[i].type=0;
+    Enemy[i].angle=0;
+    Enemy[i].saved_angle=0;
+    Enemy[i].sprite_angle=0;
+
+  Enemy[i].current_rotating_sprite=-1;
+  Enemy[i].health=0;
+  Enemy[i].max_health=0;
+  Enemy[i].follow_range=0;
+  Enemy[i].chase_range=0;
+  Enemy[i].unchase_range=0;
+  Enemy[i].unchase_range=0;
+  Enemy[i].chase_range=0;
+  Enemy[i].color=0;
+  Enemy[i].speed=0;
+  Enemy[i].speed_multiplier=0;
+//bool
+  Enemy[i].time_breaker_immune=0;
+//shoot
+  Enemy[i].bullet_fire_cooldown_max=
+  Enemy[i].bullet_fire_cooldown=0;
+  Enemy[i].bullet_fire_at_once_max=0;
+  Enemy[i].bullet_length_max=0;
+  Enemy[i].bullet_length=0;
+  Enemy[i].shoot_at_player_range=0;
+  Enemy[i].aim_rand=0;
+//bullet
+  Enemy[i].bullet_damage=0,
+  Enemy[i].bullet_cooldown_max=0;
+  Enemy[i].bullet_speed=0;
+  Enemy[i].bullet_speed_multiplier=0;
+  Enemy[i].bullet_range=0;
+  Enemy[i].bullet_color=0;
+  Enemy[i].bullet_graphics_type=0;
+  //time breaker
+  Enemy[i].time_breaker_rare=0;
+  Enemy[i].time_breaker_length=0;
+
     Enemy[i].on_ground_id=-1;
     Enemy[i].seed=0;
     Enemy[i].dist_from_player=999;
