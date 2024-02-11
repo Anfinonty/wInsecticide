@@ -761,6 +761,15 @@ void EnemyAct(int i)
 	      }
           enemy_kills++;
           souls_taken++;*/
+        if (Enemy[i].health<=0) {
+          player.health+=2;
+          player.speed+=2;
+          if (player.max_web_num<MAX_WEB_NUM)
+            player.max_web_num++;
+          if (player.time_breaker_units<player.time_breaker_units_max-2 && !player.time_breaker) {
+            player.time_breaker_units+=2;
+          }
+        }
         //} else {
           //Enemy[i].snd_dur=Enemy[i].snd_dur_max;
       }
