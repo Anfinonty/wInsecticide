@@ -1279,16 +1279,16 @@ void DrawEnemy(HDC hdc)
           Enemy[i].current_draw_row=Enemy[i].sprite_miny;
 
           Enemy[i].saved_angle=Enemy[i].sprite_angle;
-        } else { // sprite_angle==saved angle
-          if (Enemy[i].current_draw_row>=Enemy[i].sprite_miny && Enemy[i].current_draw_row<=Enemy[i].sprite_maxy) {
-            RotateSpriteII(hdc, enemy2_sprite_1, Enemy[i].sprite_1,Enemy[i].sprite_angle, LTGREEN, Enemy[i].color, -1, Enemy[i].sprite_minx, Enemy[i].sprite_miny, Enemy[i].sprite_maxx, Enemy[i].sprite_maxy, Enemy[i].current_draw_row); 
-            RotateSpriteII(hdc, enemy2_sprite_2, Enemy[i].sprite_2,Enemy[i].sprite_angle, LTGREEN, Enemy[i].color, -1, Enemy[i].sprite_minx, Enemy[i].sprite_miny, Enemy[i].sprite_maxx, Enemy[i].sprite_maxy, Enemy[i].current_draw_row);
-            Enemy[i].current_draw_row++;
-            if (Enemy[i].current_draw_row>=Enemy[i].sprite_maxy) {
-              Enemy[i].current_draw_row=-1;
-            }
+        } //else { // sprite_angle==saved angle
+        if (Enemy[i].current_draw_row>=Enemy[i].sprite_miny && Enemy[i].current_draw_row<=Enemy[i].sprite_maxy) {
+          RotateSpriteII(hdc, enemy2_sprite_1, Enemy[i].sprite_1,Enemy[i].sprite_angle, LTGREEN, Enemy[i].color, -1, Enemy[i].sprite_minx, Enemy[i].sprite_miny, Enemy[i].sprite_maxx, Enemy[i].sprite_maxy, Enemy[i].current_draw_row); 
+          RotateSpriteII(hdc, enemy2_sprite_2, Enemy[i].sprite_2,Enemy[i].sprite_angle, LTGREEN, Enemy[i].color, -1, Enemy[i].sprite_minx, Enemy[i].sprite_miny, Enemy[i].sprite_maxx, Enemy[i].sprite_maxy, Enemy[i].current_draw_row);
+          Enemy[i].current_draw_row++;
+          if (Enemy[i].current_draw_row>=Enemy[i].sprite_maxy) {
+            Enemy[i].current_draw_row=-1;
           }
         }
+        //}
       } else { //other species 0
         if (Enemy[i].saved_angle==-9999) {
           if (Enemy[i].sprite_1!=NULL) {
