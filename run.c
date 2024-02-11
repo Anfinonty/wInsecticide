@@ -179,6 +179,8 @@ bool in_main_menu=TRUE;
 int level_chosen=0;
 int windowx=0;
 int windowy=0;
+int game_timer=0;
+int FPS = 60;
 
 void DrawMainMenu(HDC hdc)
 {
@@ -262,7 +264,6 @@ void InitTickFrequency() {
   m_prev_end_of_frame.QuadPart = 0;
 }
 
-int FPS = 60;
 void InitFPS() { //https://cboard.cprogramming.com/windows-programming/30730-finding-monitor-refresh-rate.html
   int index=0, currentfps=0;
   DEVMODE screen; 
@@ -299,6 +300,7 @@ void InitOnce() {
 void Init() {
   OLD_GR_WIDTH=GR_WIDTH;
   OLD_GR_HEIGHT=GR_HEIGHT;
+  game_timer=0;
 
   InitSongBank();
 
@@ -508,6 +510,14 @@ void DrawTexts(HDC hdc) {
       GrPrint(hdc,4,0,"Choosing Song...",c);
     }
   }
+  char gametimetxt[32];
+  int print_time_ms=game_timer%FPS;
+  int print_time_s=game_timer/FPS;
+  if (print_time_ms>9)
+    sprintf(gametimetxt,"Time: %d. %d",print_time_s,print_time_ms);
+  else 
+    sprintf(gametimetxt,"Time: %d. 0%d",print_time_s,print_time_ms);
+  GrPrint(hdc,4,48,gametimetxt,c);
   //GrPrint(hwnd,hdc,ps,0,0,_txt,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
 
 
@@ -528,21 +538,25 @@ void DrawTexts(HDC hdc) {
   //sprintf(txt,"%d",print_player_health);
   //GrPrint(hDC,mouse_x-32,mouse_y+32,txt,LTRED);
   int i=0,j=0;
-  int c2;
+  int c2,c3;
 
-
+  if (!IsInvertedBackground()) {
+    c2=RED;
+    c3=BLACK;
+  } else {
+    c2=LTCYAN;
+    c3=CYAN;
+  }      
   //draw player block health
   for (i=0;i<player.block_health;i++) {
     j=i/10; //new row
-    GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2+4,player.sprite_y+48+8*j,6,DKGRAY,-1);
-    GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2+4,player.sprite_y+48+8*j,4,DKGRAY,-1);
-    GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2+4,player.sprite_y+48+8*j,2,DKGRAY,-1);
+    GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2+4,player.sprite_y+48+8*j,5,BLACK,BLACK);
   }
 
   //draw player health
   for (i=0;i<player.health;i++) {
     j=i/10; //new row of hearts
-    GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2+4,player.sprite_y+48+8*j,2,RED,RED);
+    GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2+4,player.sprite_y+48+8*j,4,c2,c3);
   }
 
   //GrLine(hdc,GR_WIDTH/2,0,GR_WIDTH/2,GR_HEIGHT,BLACK);
@@ -900,6 +914,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           if (frame_tick>9000) {
             frame_tick=0;
           }
+          game_timer++;
+          
           PlayerCameraShake();
           for (int i=0;i<player.rendered_enemy_num;i++) {
             Enemy[player_render_enemies[i]].seed=rand();

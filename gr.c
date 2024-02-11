@@ -212,12 +212,13 @@ void GrCircle(HDC hdc, double x, double y, int size, int COLOR, int COLOR_2) {
   SelectObject(hdc, GetStockObject(DC_PEN));
   if (COLOR_2==-1) {
     SelectObject(hdc, GetStockObject(HOLLOW_BRUSH)); //Draw circle with no fill
+    SetDCPenColor(hdc, COLOR); //BORDER
   } else {
     SelectObject(hdc, GetStockObject(DC_BRUSH));
     SetDCBrushColor(hdc, COLOR); //SOLID FILL
+    SetDCPenColor(hdc, COLOR_2); //BORDER
   }
 
-  SetDCPenColor(hdc, COLOR); //BORDER
   Ellipse(hdc, left, top, right, bottom);
 
 

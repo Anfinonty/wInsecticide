@@ -251,6 +251,7 @@ void BulletAct(int bullet_id)
 	                player.block_health-=blocked_bullet_dmg/8;
 		          }
 	            }
+                player.health-=(player.block_health_max-player.block_health+1)/player.block_health_max*Bullet[bullet_id].damage;
 	            blocked_bullet_dmg=0;
 	        /*if (sound_on) {
                   player_snd_dur=2;

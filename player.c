@@ -1018,8 +1018,8 @@ void PlayerAct() {
           }
         } else {
           player.player_grav=0.5;
-        }
-        if (player.on_ground_id==-1 && player.jump_height<=0) {
+        } 
+        if (player.on_ground_id==-1 && player.jump_height<=0) { //Credit: y4my4m for pushing me to pursue this gameplay aspect
           if (!player.is_swinging && player.fling_distance<=0) {
 //            if (player.in_air_timer>15) {
             if (player.in_air_timer>11) {
