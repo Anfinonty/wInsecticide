@@ -1279,7 +1279,6 @@ void DrawEnemy(HDC hdc)
           Enemy[i].current_draw_row=Enemy[i].sprite_miny;
 
           Enemy[i].saved_angle=Enemy[i].sprite_angle;
-        //}
         } else { // sprite_angle==saved angle
           if (Enemy[i].current_draw_row>=Enemy[i].sprite_miny && Enemy[i].current_draw_row<=Enemy[i].sprite_maxy) {
             RotateSpriteII(hdc, enemy2_sprite_1, Enemy[i].sprite_1,Enemy[i].sprite_angle, LTGREEN, Enemy[i].color, -1, Enemy[i].sprite_minx, Enemy[i].sprite_miny, Enemy[i].sprite_maxx, Enemy[i].sprite_maxy, Enemy[i].current_draw_row); 
