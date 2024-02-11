@@ -699,7 +699,7 @@ void PlayerAct() {
             SetNodeGridAttributes(web_id);
             //double q=0.2*(((DEFAULT_PLAYER_BUILD_RANGE/2*NODE_SIZE)-Bullet[bullet_id].range)/10);
             PlayerPlaceWeb();
-            Ground[web_id].health=10;//-q;
+            Ground[web_id].health=25;//-q;
             player.speed++;
           }
         }
