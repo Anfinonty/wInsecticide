@@ -499,7 +499,6 @@ struct enemy
   int sprite_maxx;
   int sprite_maxy;
   int current_draw_row;
-  int current_rotating_sprite;
 
   int type;
   int in_air_timer;

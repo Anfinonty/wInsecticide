@@ -162,6 +162,17 @@ int frame_tick=0;
 #define DEFAULT_PLAYER_BLOCK_HEALTH_MAX 20
 
 
+bool back_to_menu=FALSE;
+bool in_main_menu=TRUE;
+//bool start_level=TRUE;
+int level_chosen=0;
+int windowx=0;
+int windowy=0;
+int game_timer=0;
+int FPS = 60;
+
+
+
 #include "math.c"
 #include "gr.c"
 
@@ -174,13 +185,6 @@ int frame_tick=0;
 #include "cleanup.c"
 
 //Attributes for Level Choose & MainMenu
-bool back_to_menu=FALSE;
-bool in_main_menu=TRUE;
-int level_chosen=0;
-int windowx=0;
-int windowy=0;
-int game_timer=0;
-int FPS = 60;
 
 void DrawMainMenu(HDC hdc)
 {
@@ -301,6 +305,7 @@ void Init() {
   OLD_GR_WIDTH=GR_WIDTH;
   OLD_GR_HEIGHT=GR_HEIGHT;
   game_timer=0;
+  //start_level=0;
 
   InitSongBank();
 
