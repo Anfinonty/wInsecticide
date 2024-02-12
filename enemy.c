@@ -291,7 +291,7 @@ void EnemySpecies1Gravity(int enemy_id)
   enemy_on_ground_id=Enemy[enemy_id].on_ground_id;
   if (enemy_on_ground_id==-1) {//not on ground
     Enemy[enemy_id].y+=1; //falling down
-    Enemy[enemy_id].in_air_timer=2;
+    Enemy[enemy_id].in_air_timer=2;  
     //Enemy[enemy_id].angle=0;
     //Enemy[enemy_id].saved_angle=0;
     Enemy[enemy_id].above_ground=
@@ -1074,7 +1074,7 @@ void CleanUpEnemySprites()
 void InitEnemySprites()
 {
   for (int i=0;i<ENEMY_NUM;i++) {
-    Enemy[i].current_draw_row=-1;
+    Enemy[i].current_draw_row=-9999;
     if (Enemy[i].species==0) {
       if (Enemy[i].sprite_1==NULL) {
         Enemy[i].sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,Enemy[i].color,-1);
@@ -1104,6 +1104,7 @@ void InitEnemy()
   int i=0,j=0,x=0,y=0;
   for (i=0;i<ENEMY_NUM;i++) {
     //printf("Enemy: %d\n",i);
+    Enemy[i].being_drawn=TRUE;
     Enemy[i].on_ground_id=-1;
     Enemy[i].seed=0;
     Enemy[i].dist_from_player=999;
@@ -1229,9 +1230,9 @@ void DrawEnemy(HDC hdc)
     if (Enemy[i].species==1) {//rotate sprite
       if (Enemy[i].on_ground_id!=-1) {
         Enemy[i].sprite_angle=Enemy[i].angle;
-      }
-      if (!Enemy[i].last_left) {
-        Enemy[i].sprite_angle*=-1;
+        if (!Enemy[i].last_left) {
+          Enemy[i].sprite_angle*=-1;
+        }
       }
     }
 
@@ -1244,6 +1245,7 @@ void DrawEnemy(HDC hdc)
 
       if (Enemy[i].species==1) { //Cockroach sprite species1
         if (Enemy[i].sprite_angle!=Enemy[i].saved_angle) { // enemy is on ground
+          Enemy[i].being_drawn=TRUE;
           if (Enemy[i].sprite_1!=NULL) {
             DeleteObject(Enemy[i].sprite_1);
           }
@@ -1280,15 +1282,19 @@ void DrawEnemy(HDC hdc)
 
           Enemy[i].saved_angle=Enemy[i].sprite_angle;
         } //else { // sprite_angle==saved angle
+
+
+        for (int k=0;k<2;k++) {
         if (Enemy[i].current_draw_row>=Enemy[i].sprite_miny && Enemy[i].current_draw_row<=Enemy[i].sprite_maxy) {
           RotateSpriteII(hdc, enemy2_sprite_1, Enemy[i].sprite_1,Enemy[i].sprite_angle, LTGREEN, Enemy[i].color, -1, Enemy[i].sprite_minx, Enemy[i].sprite_miny, Enemy[i].sprite_maxx, Enemy[i].sprite_maxy, Enemy[i].current_draw_row); 
           RotateSpriteII(hdc, enemy2_sprite_2, Enemy[i].sprite_2,Enemy[i].sprite_angle, LTGREEN, Enemy[i].color, -1, Enemy[i].sprite_minx, Enemy[i].sprite_miny, Enemy[i].sprite_maxx, Enemy[i].sprite_maxy, Enemy[i].current_draw_row);
           Enemy[i].current_draw_row++;
           if (Enemy[i].current_draw_row>=Enemy[i].sprite_maxy) {
-            Enemy[i].current_draw_row=-1;
+            Enemy[i].being_drawn=FALSE;
+            Enemy[i].current_draw_row=-9999;
           }
         }
-        //}
+        }
       } else { //other species 0
         if (Enemy[i].saved_angle==-9999) {
           if (Enemy[i].sprite_1!=NULL) {
@@ -1356,7 +1362,7 @@ void DrawEnemy(HDC hdc)
           RotateSpriteII(hdc, enemy2_sprite_3, Enemy[i].sprite_3,Enemy[i].sprite_angle, LTGREEN, DKGRAY, TRANSPARENT, Enemy[i].sprite_minx, Enemy[i].sprite_miny, Enemy[i].sprite_maxx, Enemy[i].sprite_maxy, Enemy[i].current_draw_row);
           Enemy[i].current_draw_row++;
           if (Enemy[i].current_draw_row>=Enemy[i].sprite_maxy) {
-            Enemy[i].current_draw_row=-1;
+            Enemy[i].current_draw_row=-9999;
             Enemy[i].health=-99999;
           }
         }
@@ -1383,16 +1389,16 @@ void DrawEnemy(HDC hdc)
           GrPrint(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y-32,txt,Enemy[i].color);
         }
       }
-      if (Enemy[i].in_air_timer==0) {
-        switch (Enemy[i].species) {
-          case 0:
-            if (Enemy[i].sprite_timer%2==0) {
-              GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_1,Enemy[i].last_left);
-            } else {
-              GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_2,Enemy[i].last_left);
-            }
-            break;
-          case 1:
+      switch (Enemy[i].species) {
+        case 0:
+          if (Enemy[i].sprite_timer%2==0) {
+            GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_1,Enemy[i].last_left);
+          } else {
+            GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_2,Enemy[i].last_left);
+          }
+          break;
+        case 1:
+          if (Enemy[i].in_air_timer==0 && !Enemy[i].being_drawn) {
             if (Enemy[i].above_ground) {
               if (Enemy[i].sprite_timer%8==0) {
                 GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_1,Enemy[i].last_left);
@@ -1406,16 +1412,12 @@ void DrawEnemy(HDC hdc)
                 GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_2,Enemy[i].flip_sprite);
               }
             }
-            break;
-        }
-      } else {
-        switch (Enemy[i].species) {
-          case 1: //placeholder sprites
+          } else {
             GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_3,Enemy[i].last_left);
-            break;
-        }
+          }
+          break;
       }
-    }
+    }      
   }
 }
 

@@ -200,8 +200,9 @@ void DrawMainMenu(HDC hdc)
   GrPrint(hdc,10,10+32+16*6,"-  Level 6",WHITE);
   GrPrint(hdc,10,10+32+16*7,"-  Level 7",WHITE);
 
-  GrPrint(hdc,10,10+32+16*9,"Press 'Enter' to Compile and Run",WHITE);
+  GrPrint(hdc,10,10+32+16*9,"Press 'Enter' to Play Selected Level",WHITE);
   GrPrint(hdc,10,10+32+16*10,"Use Up or Down Keys to Select a Level",WHITE);
+  GrPrint(hdc,10,10+32+16*11,"Press [SHIFT_ESC] to Exit",WHITE);
 
   GrPrint(hdc,10,10+32+16*level_chosen,">",WHITE);
 
@@ -657,38 +658,45 @@ Right Click - Swing with Wceb Placement
 */
 
   if (display_controls) {
-  GrPrint(hdc,4,GR_HEIGHT-80-16*22,"Controls:",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*21,"'W' - Jump from Surface",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*20,"'A' - Move Left (Clockwise)",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*19,"'S' - Block or Spin",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*18,"'D' - Move Right (Anti-Clockwise)",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*17,"'Q' - Pick Up Web",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*16,"'E' - Hold with Attack for Uppercut",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*15,"'Z' - Time Breaker Ability",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*14,"'C' - Increase Reaction Time",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*13,"'M' - New Random Music",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*12,"[Space] - Sprint",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*11,"[Left Click] or '1' - Attack and Stop Web Shooting",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*10,"[Right Click] - Shoot web",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-16*9,"[Enter] - Restart Level",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*24,"Controls:",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*23,"'W' - Jump from Surface",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*22,"'A' - Move Left (Clockwise)",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*21,"'S' - Block or Spin",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*20,"'D' - Move Right (Anti-Clockwise)",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*19,"'Q' - Pick Up Web",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*18,"'E' - Hold with Attack for Uppercut",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*17,"'Z' - Time Breaker Ability",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*16,"'C' - Increase Reaction Time",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*15,"'M' - New Random Music",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*14,"[Space] - Sprint",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*13,"[Left Click] or '1' - Attack and Stop Web Shooting",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*12,"[Right Click] - Shoot web",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*11,"[Enter] - Restart Level",c);
 
-  GrPrint(hdc,4,GR_HEIGHT-88-16*7,"Controls While Swinging:",c);
-  GrPrint(hdc,4,GR_HEIGHT-88-16*6,"'W' - Decrease Web Length",c);
-  GrPrint(hdc,4,GR_HEIGHT-88-16*5,"'A' - Swing Clockwise",c);
-  GrPrint(hdc,4,GR_HEIGHT-88-16*4,"'S' - Increase Web Length",c);
-  GrPrint(hdc,4,GR_HEIGHT-88-16*3,"'D' - Swing Anti-Clockwise",c);
-  GrPrint(hdc,4,GR_HEIGHT-88-16*2,"[Left Click] or '1' - Swing without Web Placement",c);
-  GrPrint(hdc,4,GR_HEIGHT-88-16,"[Right Click] - Swing with Web Placement",c);
-  GrPrint(hdc,4,GR_HEIGHT-80-4,"'9' to Quit",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*9,"Controls While Swinging:",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*8,"'W' - Decrease Web Length",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*7,"'A' - Swing Clockwise",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*6,"'S' - Increase Web Length",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*5,"'D' - Swing Anti-Clockwise",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*4,"[Left Click] or '1' - Swing without Web Placement",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*3,"[Right Click] - Swing with Web Placement",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16,"[SHIFT_ESC] to Quit",c);
   }
 
-  GrPrint(hdc,4,GR_HEIGHT-80+16,"Press '0' for Controls Help",c);
+  GrPrint(hdc,4,GR_HEIGHT-128+16,"Press '*' for Controls Help",c);
 }
+
+
+bool keydown(int key) //https://stackoverflow.com/questions/47667367/is-there-a-way-to-check-for-shift-held-down-then-control-held-down-for-each-inpu
+{
+    return (GetAsyncKeyState(key) & 0x8000) != 0;
+}
+
 
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   HDC hdc, hdcBackbuff;
-  //FrameRateSleep(FPS); // (Uncapped)
+
   switch(msg) {
     case WM_LBUTTONDOWN:
       player.rst_left_click=TRUE;
@@ -775,7 +783,39 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       }
       break;
     case WM_KEYUP:
+      
+
+
+
+
+
       switch (wParam) {
+        //case VK_ESCAPE:
+          //break;
+        case VK_ESCAPE:
+          if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = QUIT
+            if (!in_main_menu) {
+              back_to_menu=TRUE;
+            } else {
+              PostQuitMessage(0);
+              return 0;
+            }
+          }
+          break;
+
+
+        case '8':
+          if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = QUIT
+            if (!in_main_menu) {
+              if (!display_controls) {
+                display_controls=TRUE;
+              } else {
+                display_controls=FALSE;
+              }
+            }
+          }
+          break;
+
         case 'Q':
           player.destroy_ground=TRUE;
           break;
@@ -812,22 +852,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           song_seconds_run_max=-1;
           play_new_song=FALSE;
           break;//end current song
-
-
-        case '9':
-          back_to_menu=TRUE;
-          break;
-
-
-        case '0':
-          if (!in_main_menu) {
-            if (!display_controls) {
-              display_controls=TRUE;
-            } else {
-              display_controls=FALSE;
-            }
-          }
-          break;
 
 
         case ' ':

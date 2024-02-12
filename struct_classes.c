@@ -436,6 +436,8 @@ struct enemy
 
   //Enemy Attributes
   //Enemy Node Attributes
+
+  bool being_drawn;
   bool saw_player; //:Enemy seen the player, player was in line of sight seconds ago.
   bool last_left; //:Enemy was going to the left
   bool target_player; //:Enemy is actively chasing the player
@@ -547,6 +549,10 @@ struct enemy
 
   HBITMAP sprite_1;
   HBITMAP sprite_2;
+
+  //HBITMAP sprite_1_cache;
+  //HBITMAP sprite_2_cache;
+
   HBITMAP sprite_3;
   //6715632
 

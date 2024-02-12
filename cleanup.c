@@ -11,6 +11,7 @@ void CleanUpEnemy()
     Enemy[i].saved_angle=0;
     Enemy[i].sprite_angle=0;
 
+  Enemy[i].being_drawn=TRUE;
   Enemy[i].health=0;
   Enemy[i].max_health=0;
   Enemy[i].follow_range=0;

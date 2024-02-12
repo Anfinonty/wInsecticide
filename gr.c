@@ -108,6 +108,31 @@ HBITMAP ReplaceColor(HBITMAP hBmp,COLORREF cOldColor,COLORREF cNewColor,HDC hBmp
 }
 
 
+HBITMAP CopyBitmap(HBITMAP srcBitmap, HDC hdc)
+{
+  HDC hdcMem,hdcMem2;
+  HBITMAP destBitmap;
+  BITMAP bm;
+
+  GetObject(srcBitmap, sizeof(BITMAP), &bm);
+  destBitmap = CreateBitmap(bm.bmWidth, bm.bmHeight, 1, 1, NULL);
+
+  hdcMem = CreateCompatibleDC(hdc);
+  hdcMem2 = CreateCompatibleDC(hdc);
+
+  SelectObject(hdcMem, srcBitmap);
+  SelectObject(hdcMem2, destBitmap);
+
+  SetBkColor(hdcMem, BLACK);
+
+  BitBlt(hdcMem2, 0, 0, bm.bmWidth, bm.bmHeight, hdcMem, 0, 0, SRCCOPY);
+  DeleteDC(hdcMem);
+  DeleteDC(hdcMem2);
+
+  return destBitmap;
+}
+
+
 
 HBITMAP CreateBitmapMask(HBITMAP hbmColour, COLORREF crTransparent, HDC hdc)
 {//http://www.winprog.org/tutorial/transparency.html
