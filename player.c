@@ -1159,7 +1159,7 @@ void PlayerAct() {
                 move_y(-sin(-player.pivot_angle+M_PI_2));
                 player.potential_energy=0;
                 player.counter_potential_energy=0;
-              } else if (player.rst_up && player.on_ground_id==-1){
+              } else if (player.rst_up && player.on_ground_id==-1 && player.pivot_length>2){ //Retract Web
                 move_x(-cos(-player.pivot_angle));
                 move_y(sin(-player.pivot_angle));
                 player.potential_energy=0;
@@ -1208,7 +1208,7 @@ void PlayerAct() {
                 player.fling_left=TRUE;
                 move_x(-cos(-player.pivot_angle+M_PI_2));
                 move_y(-sin(-player.pivot_angle+M_PI_2));
-              } else if (player.rst_up && player.on_ground_id==-1){
+              } else if (player.rst_up && player.on_ground_id==-1 && player.pivot_length>2){ //Retract web
                 move_x(-cos(-player.pivot_angle));
                 move_y(-sin(-player.pivot_angle));
               } else if (player.rst_down && player.pivot_length<NODE_SIZE*DEFAULT_PLAYER_BUILD_RANGE/2) {

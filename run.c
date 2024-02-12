@@ -464,6 +464,17 @@ void FrameRateSleep(int max_fps)
 }
 
 
+DWORD WINAPI AnimateTask03(LPVOID lpArg) { //Stopwatch
+  while (TRUE) {
+    if (!in_main_menu) { //In Game
+      game_timer++;
+      Sleep(1);
+    } else {
+      Sleep(1000);
+    }
+  }
+}
+
 
 DWORD WINAPI AnimateTask01(LPVOID lpArg) {
   while (TRUE) {
@@ -517,12 +528,17 @@ void DrawTexts(HDC hdc) {
     }
   }
   char gametimetxt[32];
-  int print_time_ms=game_timer%FPS;
-  int print_time_s=game_timer/FPS;
-  if (print_time_ms>9)
+  int print_time_ms=game_timer%1000;
+  int print_time_s=game_timer/1000;
+  if (print_time_ms>99) {
     sprintf(gametimetxt,"Time: %d. %d",print_time_s,print_time_ms);
-  else 
-    sprintf(gametimetxt,"Time: %d. 0%d",print_time_s,print_time_ms);
+  } else {
+    if (print_time_ms>9) {
+      sprintf(gametimetxt,"Time: %d. 0%d",print_time_s,print_time_ms);
+    } else {
+      sprintf(gametimetxt,"Time: %d. 00%d",print_time_s,print_time_ms);
+    }
+  }
   GrPrint(hdc,4,48,gametimetxt,c);
   //GrPrint(hwnd,hdc,ps,0,0,_txt,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
 
@@ -943,7 +959,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           if (frame_tick>9000) {
             frame_tick=0;
           }
-          game_timer++;
           
           PlayerCameraShake();
           for (int i=0;i<player.rendered_enemy_num;i++) {
@@ -1107,13 +1122,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   int *lpArgPtr;
   HANDLE hHandles[2];
   DWORD ThreadId;
-  for (int i=0;i<2;i++) {
+  for (int i=0;i<3;i++) {
     lpArgPtr=(int *)malloc(sizeof(int));
     *lpArgPtr=i;
     switch (i) {
       case 0: hHandles[i]=CreateThread(NULL,0,AnimateTask01,lpArgPtr,0,&ThreadId);break;
       case 1: hHandles[i]=CreateThread(NULL,0,SongTask,lpArgPtr,0,&ThreadId);break;
-      //case 2: hHandles[i]=CreateThread(NULL,0,SoundTask,lpArgPtr,0,&ThreadId);break;
+      case 2: hHandles[i]=CreateThread(NULL,0,AnimateTask03,lpArgPtr,0,&ThreadId);break;
     }
   }
 
