@@ -1353,10 +1353,11 @@ void PlayerAct() {
       if (player.speed<3)
         player.speed++;
     }
-  } else {//player not blocking -regen block
+  } else {//player not blocking -regen block/dont regen when speedbreaking
     if (player.block_timer>0) {
       player.block_timer--;
     }
+    if (!IsSpeedBreaking()) {
     if (player.block_cooldown>0) {
       player.block_cooldown--;
     } else {//3 seconds has passed
@@ -1369,6 +1370,7 @@ void PlayerAct() {
         }
 	    player.block_recharge_timer=player.block_recharge_timer_max;
       }
+    }
     }
   }
 

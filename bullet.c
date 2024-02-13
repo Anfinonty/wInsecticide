@@ -88,13 +88,14 @@ void ShootBullet(
 
 bool HitPlayer(int bullet_id)
 {
+  double dist=GetDistance(player.x,player.y,Bullet[bullet_id].x,Bullet[bullet_id].y);
   if (!player.time_breaker && player.hit_cooldown_timer<=0) {//near miss
-    if (GetDistance(player.x,player.y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
+    if (dist>10 && dist<=22) {
       //combo_timer[0]=PLAYER_COMBO_TIME_LIMIT,
       Bullet[bullet_id].near_miss=TRUE;
     }
   }
-  if (GetDistance(player.x,player.y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=5) {
+  if (GetDistance(player.x,player.y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=10) {
     return TRUE;
   }
   return FALSE;
@@ -207,13 +208,14 @@ void BulletAct(int bullet_id)
         if (GetDistance(Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
           Bullet[bullet_id].angle=RandNum(-M_PI,M_PI,Enemy[enemy_id].seed);
         }
-
         hit_player=HitPlayer(bullet_id);
       //bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,0.5,0.5,FALSE);
         bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2,FALSE);
 	    allow_act=FALSE;
         if (Enemy[enemy_id].health>0) {
 	      if (hit_player) {
+            //player.time_breaker_units=0;
+            //player.sleep_timer=DEFAULT_SLEEP_TIMER;
 	        allow_act=TRUE;
 	      } else if ( //Bullet has hit something
 	        bullet_on_ground_id!=-1 || //on a gound
@@ -240,28 +242,20 @@ void BulletAct(int bullet_id)
 	            double blocked_bullet_dmg=Bullet[bullet_id].damage;
 	            if (player.on_ground_id!=-1) {//on ground
 		          if (player.block_timer<25) {
-	                player.block_health-=blocked_bullet_dmg/2;
-		          } else {
 	                player.block_health-=blocked_bullet_dmg/4;
+		          } else {
+	                player.block_health-=blocked_bullet_dmg/2;
 		          }
 	            } else {//in air
 		          if (player.block_timer<25) {
 	                player.block_health-=blocked_bullet_dmg/4;
 		          } else {
-	                player.block_health-=blocked_bullet_dmg/8;
+	                player.block_health-=blocked_bullet_dmg;
 		          }
 	            }
                 player.health-=(player.block_health_max-player.block_health+1)/player.block_health_max*Bullet[bullet_id].damage;
 	            blocked_bullet_dmg=0;
-	        /*if (sound_on) {
-                  player_snd_dur=2;
-                  player_snd_dur=PlaySound(player_snd_dur,50,7);
-	        }*/
 	        } else {//perfect block
-	        /*if (sound_on) {
-                player_snd_dur=5;
-                player_snd_dur=PlaySound(player_snd_dur,100,15);
-	        }*/
 	        }
 	      } //end of hit player
         } else if (bullet_on_ground_id>=GROUND_NUM && bullet_on_ground_id!=player.web_being_shot) { //Not on web being shot
@@ -288,6 +282,7 @@ void BulletAct(int bullet_id)
 	      }
         }
 	  }*/
+        
        StopBullet(bullet_id,FALSE);
         //Enemy bullet shot array arrangement
 	  for (j=Bullet[bullet_id].saved_pos;j<Enemy[enemy_id].bullet_shot_num-1;j++) {

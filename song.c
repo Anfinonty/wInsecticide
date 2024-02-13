@@ -437,6 +437,64 @@ char *song_name14[SONG_NUM]={
 };
 
 
+//15
+int song_duration15[SONG_NUM]={
+240 + 6, //Ana_Mrd
+180 + 46, //Asm3ene_YaA5ta
+120 + 51, //Atak_Almrkz_elsaife
+180 + 51, //D3any_shoq
+240 + 42, //fatat-alkhayr
+120 + 43, //gom-wad3
+240 + 3, //habbat-kalreeh
+180 + 32, //jaljalat
+60 + 56, //Ktbt
+180 + 11 //qadem-kassyl
+};
+
+char *song_name15[SONG_NUM]={
+"Ana_Mrd",
+"Asm3ene_YaA5ta",
+"Atak_Almrkz_elsaife",
+"D3any_shoq",
+"fatat-alkhayr",
+"gom-wad3",
+"habbat-kalreeh",
+"jaljalat",
+"Ktbt",
+"qadem-kassyl"
+};
+
+
+
+//16
+int song_duration16[SONG_NUM]={
+120 + 22, //3ber-al7b
+60 + 34, //5a6r_bnfsk
+120 + 37, //7arbooh
+120 + 28, //7lqat_albraa
+180, //bijehadena
+120 + 22, //jeeln_b3d_jeel
+120 + 39, //knt_mytan
+180 + 23, //la7_alnoor
+240 + 32, //lelshms
+120 + 6 //Mdars_alAmjad
+};
+
+char *song_name16[SONG_NUM]={
+"3ber-al7b",
+"5a6r_bnfsk",
+"7arbooh",
+"7lqat_albraa",
+"bijehadena",
+"jeeln_b3d_jeel",
+"knt_mytan",
+"la7_alnoor",
+"lelshms",
+"Mdars_alAmjad"
+};
+
+
+
 
 int *song_durations[SONG_FOLDER_NUM]={
   song_duration0,
@@ -453,7 +511,9 @@ int *song_durations[SONG_FOLDER_NUM]={
   song_duration11,
   song_duration12,
   song_duration13,
-  song_duration14
+  song_duration14,
+  song_duration15,
+  song_duration16
 };
 
 char **song_names[SONG_FOLDER_NUM]={
@@ -471,7 +531,9 @@ char **song_names[SONG_FOLDER_NUM]={
   song_name11,
   song_name12,
   song_name13,
-  song_name14
+  song_name14,
+  song_name15,
+  song_name16
 };
 
 
@@ -680,6 +742,32 @@ char *album_name14[SONG_NUM]={
 "https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
 };
 
+char *album_name15[SONG_NUM]={
+"https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
+"https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
+"https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
+"https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
+"https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
+"https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
+"https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
+"https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
+"https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
+"https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
+};
+
+char *album_name16[SONG_NUM]={
+"https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
+"https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
+"https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
+"https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
+"https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
+"https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
+"https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
+"https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
+"https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
+"https://ia902803.us.archive.org/23/items/Abou.Ali_Compile-Up-By-MusleM/",
+};
+
 
 
 char **album_names[SONG_FOLDER_NUM]={
@@ -697,7 +785,9 @@ char **album_names[SONG_FOLDER_NUM]={
   album_name11,
   album_name12,
   album_name13,
-  album_name14
+  album_name14,
+  album_name15,
+  album_name16
 };
 
 
@@ -742,16 +832,7 @@ void InitSongBank() {
       printf("Not Found\n");
     }*/
   }
-  if (song_folder_num>0) {
-    song_names[1][0]="Tuned to a Different Station - DOGS";
-    album_names[1][0]="Turned Against This Land (2005)";
-  } else {
-    song_names[1][0]="No Songs Available";
-    album_names[1][0]="";
-    //album_name_arr[16]="";
-
-    //song_time_end=0;
-    //time_now=0;
+  if (song_folder_num==0) {
     song_seconds_run=0;
     song_seconds_run_max=-1;
 
@@ -763,9 +844,6 @@ void InitSongBank() {
   for (int i=song_folder_num;i<SONG_FOLDER_NUM;i++) {
     music_folder_arr[i]=-1;
   }
-  /*for (int j=0;j<SONG_FOLDER_NUM;j++) {
-    printf("i:%d\n",music_folder_arr[j]);
-  }*/
 }
 
 

@@ -1216,7 +1216,7 @@ void InitEnemy()
 void DrawEnemy(HDC hdc)
 {
   int i=0,j=0,k=0;
-  if (game_timer==1) {
+  if (frame_tick==-8) {
     for (i=0;i<ENEMY_NUM;i++) {
       if (Enemy[i].species==1) {
         DeleteObject(Enemy[i].sprite_3);

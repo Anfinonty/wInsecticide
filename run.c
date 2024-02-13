@@ -72,7 +72,7 @@ WHITE //15
 
 
 #define SONG_NUM 10
-#define SONG_FOLDER_NUM 15
+#define SONG_FOLDER_NUM 17
 
 #define SCREEN_WIDTH    (GetSystemMetrics(SM_CXSCREEN))
 #define SCREEN_HEIGHT   (GetSystemMetrics(SM_CYSCREEN))
@@ -80,7 +80,7 @@ WHITE //15
 
 
 int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
-int frame_tick=0;
+int frame_tick=-10;
 
 #define DEFAULT_PLAYER_SPEED			1
 
@@ -288,7 +288,6 @@ void InitFPS() { //https://cboard.cprogramming.com/windows-programming/30730-fin
 
 
 void InitOnce() {
-  int i;
   GR_WIDTH=SCREEN_WIDTH;
   GR_HEIGHT=SCREEN_HEIGHT;
 
@@ -306,6 +305,7 @@ void Init() {
   OLD_GR_WIDTH=GR_WIDTH;
   OLD_GR_HEIGHT=GR_HEIGHT;
   game_timer=0;
+  frame_tick=-10;
   //start_level=0;
 
   InitSongBank();
@@ -345,13 +345,23 @@ void Init() {
 
 void InitLevel(HWND hwnd, HDC hdc)
 {
-  srand(time(NULL));
-  timeBeginPeriod(1);
-
   char txt[19];
   int chosen_level=level_chosen;
   sprintf(txt,"saves/_Level00%d.txt",chosen_level);
   LoadSave(txt);
+
+  //Check for scoresaves folder
+    //check if scoresave data of levelname
+      //Read from file while !=EOF score*=10
+      //after reading, convert into (double)/1000
+
+    //if it doesn't exist create one = 999999
+  //if doesn't exist create one & bestscore = 999999
+    
+
+
+  srand(time(NULL));
+  timeBeginPeriod(1);
 
 
   InitOnce();//cannot be repeatedly run
