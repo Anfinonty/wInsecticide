@@ -749,6 +749,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       break;
     case WM_KEYDOWN:
       switch (wParam) {
+        case VK_ESCAPE:
+          if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = QUIT
+            if (!in_main_menu) {
+              back_to_menu=TRUE;
+            } else {
+              PostQuitMessage(0);
+              return 0;
+            }
+          }
+          break;
         case 'S':
         case VK_DOWN:
             if (!in_main_menu) {
@@ -809,27 +819,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       }
       break;
     case WM_KEYUP:
-      
-
-
-
-
-
       switch (wParam) {
-        //case VK_ESCAPE:
-          //break;
-        case VK_ESCAPE:
-          if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = QUIT
-            if (!in_main_menu) {
-              back_to_menu=TRUE;
-            } else {
-              PostQuitMessage(0);
-              return 0;
-            }
-          }
-          break;
-
-
         case '8':
           if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = QUIT
             if (!in_main_menu) {

@@ -111,57 +111,7 @@ void move_y(double y)
   player.cam_y-=y;
 }
 
-/*void InitVRDGrid()
-{
-  int i=0,j=0,k=0,on_grid_id=0,column=0,row=0,
-      start_x=0,start_y=0;
 
-  for (i=0;i<player.rendered_vgrid_num;i++) {
-    VGrid[player.render_vgrids[i]].within_render_distance=FALSE; //all rendered-grids are no-longer within render distance
-    player.render_vgrids[i]=-1;  //unrender all rendered grids
-  }
-  for (i=0;i<player.rendered_ground_num;i++) {
-    Ground[player_render_grounds[i]].within_render_distance=FALSE; //All rendered-grounds are no-longer within render distance
-    player_render_grounds[i]=-1; //unrender all rendered grounds
-  }
-
-  player.rendered_ground_num=0;
-  player.rendered_vgrid_num=0;
-
-  //Begin rendering
-  start_x=player.x-(VRENDER_DIST/2*VGRID_SIZE); //Top left corner of render distance grids to bottom right corner
-  start_y=player.y-(VRENDER_DIST/2*VGRID_SIZE);
-  //"What happens when you lose everything? You just art again. Start all over again" - Maximo Park
-  for (i=0;i<player.rendered_grid_num;i++) { //all render distance grids from top-left to bottom-right
-    VRDGrid[i].x=start_x+column*VGRID_SIZE;
-    VRDGrid[i].y=start_y+row*VGRID_SIZE;
-    if (0<VRDGrid[i].x && VRDGrid[i].x<MAP_WIDTH && //render distance grid is within range
-        0<VRDGrid[i].y && VRDGrid[i].y<MAP_HEIGHT) {
-
-      //vgrid
-      on_grid_id=GetGridId(VRDGrid[i].x,VRDGrid[i].y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);//get grid id based on renderdistance grid axes
-      VGrid[on_grid_id].within_render_distance=TRUE; //append grid to render_grids array
-      player.render_vgrids[player.rendered_vgrid_num]=on_grid_id;//cannot be i (what if out of bounds)
-      player.rendered_vgrid_num++; //count amount of grids rendered
-
-      //grounds
-      for (j=0;j<VGrid[on_grid_id].max_ground_num;j++) { //fetch all grounds that are occupying the grid
-	    k=VGrid[on_grid_id].ground_ids[j]; //ground_id in grid
- 	    if (!Ground[k].within_render_distance) { //ground is now within render distance
-	      Ground[k].within_render_distance=TRUE;
-          player_render_grounds[player.rendered_ground_num]=k; //append ground to render_grounds array
-	      player.rendered_ground_num++; //count number of rendered grounds
-	    } 
-      }
-
-    }
-    column++; //Next column
-    if (column>=VRENDER_DIST) { //if the column is beyond the render distance
-      row++; //move to the next row
-      column=0; //go back to first column
-    }
-  } 
-}*/
 
 void InitRDGrid()
 {
@@ -508,25 +458,6 @@ bool YesInitRDGrid()
   return FALSE;
 }
 
-/*bool YesInitVRDGrid()
-{
-  int dyn=2;
-  /*if (GR_WIDTH>=1440) { //increased frequency
-    dyn=4;
-  }*/
-  /*if (VGRID_SIZE*2<player.x && player.x<MAP_WIDTH-VGRID_SIZE*2) {
-    if (player.x<VRDGrid[0].x+VGRID_SIZE*dyn || player.x>VRDGrid[VRENDER_DIST-1].x-VGRID_SIZE*dyn) {
-      return TRUE;
-    }
-  }
-  if (VGRID_SIZE*2<player.y && player.y<MAP_HEIGHT-VGRID_SIZE*2) {
-    if (player.y<VRDGrid[0].y+VGRID_SIZE*dyn || player.y>VRDGrid[VRENDER_DIST-1].y-VGRID_SIZE*dyn) {
-      return TRUE;
-    }
-  }
-  return FALSE;
-}*/
-
 
 
 
@@ -553,9 +484,6 @@ void PlayerAct() {
   if (YesInitRDGrid()) {
     InitRDGrid();
   }
-  /*if (YesInitVRDGrid()) {
-    InitVRDGrid();
-  }*/
 
 
   //========Player attacking timer==============
@@ -831,6 +759,10 @@ void PlayerAct() {
             } else { //not reboubding
               player.is_rebounding=FALSE;
               player.in_air_timer=1;
+
+              player.jump_height=0; //Stop Jump & stick to ground
+              player.jump=FALSE;
+              player.key_jump_timer=0;
             }
             player.in_air_timer--;
           }
@@ -848,9 +780,8 @@ void PlayerAct() {
 
             if (player.fling_distance<=0) { //regular jumping
               player.launch_angle=player.angle+M_PI_2;
-            } else { //stop flinging upon ground contact
-              player.fling_distance=0;
             }
+            player.fling_distance=0;
 
             if (abs(Ground[player.on_ground_id].gradient)<=1) { //nonsteep slope
               if (Ground[player.on_ground_id].gradient>0) {
@@ -875,9 +806,8 @@ void PlayerAct() {
 
             if (player.fling_distance<=0) {
               player.launch_angle=player.angle-M_PI_2;
-            } else {            
-              player.fling_distance=0;
             }
+            player.fling_distance=0;
  
            //bouncing below the surface the steepness doesnt matter
             if (Ground[player.on_ground_id].gradient>0) {
@@ -959,12 +889,8 @@ void PlayerAct() {
 
 
 
-      //REBOUND ACTIONS
-      allow_act=FALSE;
-      if (grav_speed==0) {
-        allow_act=TRUE;
-      } 
-      if (player.is_rebounding && allow_act) {
+      //==========REBOUND ACTIONS==========
+      if (player.is_rebounding && grav_speed==0) {
         if (player.rebound_above) {
           move_x(cos(player.angle_of_reflection));
           move_y(sin(player.angle_of_reflection));
@@ -1010,9 +936,6 @@ void PlayerAct() {
           player.jump_height-=player.player_grav;
           move_x(2*player.player_grav*-cos(player.launch_angle));
           move_y(2*player.player_grav*-sin(player.launch_angle)); //jump go against gravity and perpendicular from platform
-	      //player.cam_move_y+=0.4;
-          //move_x(-player.player_grav*2);
-          //move_y(-player.player_grav*2); //jump go against gravity
           if (player.jump_height<=0) {
             player.jump=FALSE;
           }
@@ -1020,8 +943,7 @@ void PlayerAct() {
           player.player_grav=0.5;
         } 
         if (player.on_ground_id==-1 && player.jump_height<=0) { //Credit: y4my4m for pushing me to pursue this gameplay aspect
-          if (!player.is_swinging && player.fling_distance<=0) {
-//            if (player.in_air_timer>15) {
+          if (!player.is_swinging && (player.fling_distance==0 || player.fling_distance<-100)) {
             if (player.in_air_timer>11) {
               move_y(player.player_grav);
 	        } else {
@@ -1055,16 +977,16 @@ void PlayerAct() {
 
      //X movement
       allow_act=FALSE;
-      if (player.fling_distance<=0) { //player's fling distance is 0'
+      if (player.fling_distance<=0) { //player's fling distance is 0
         player.previous_web_placed=-1;
         if (!player.is_swinging) { // player is not swinging
           if (player.on_ground_id==-1) { //player is not on ground
 	        allow_act=TRUE;
-          } else if (player.on_ground_id!=-1 && !player.blocking) { //on a ground but not blocking
+          } else if (!player.blocking) { //on a ground but not blocking
             allow_act=TRUE;
           }  
         } else if (player.on_ground_id!=-1) { //is swinging but on ground
-          if (player.pivot_length<DEFAULT_PLAYER_BUILD_RANGE/2*NODE_SIZE) {
+          if (player.pivot_length<DEFAULT_PLAYER_BUILD_RANGE/2*NODE_SIZE) { //allow movement if within swing distance
             allow_act=TRUE;
           }
         }
@@ -1101,36 +1023,38 @@ void PlayerAct() {
 
 
       //======FLING MOVEMENT======
-      if (grav_speed==0 && player.fling_distance>0 && !player.is_swinging) {
-        if (!player.fling_left) {
-          move_x(-cos(player.launch_angle));
-          move_y(-sin(player.launch_angle));
-        } else { //fling left
-          move_x(cos(player.launch_angle));
-          move_y(sin(player.launch_angle));
+      if (grav_speed==0 && !player.is_swinging && !player.is_rebounding) { 
+        if (player.fling_distance<NODE_SIZE*DEFAULT_PLAYER_BUILD_RANGE/2) { //cancel fling movement
+          if (player.rst_left || player.rst_right) {
+            player.fling_distance=0;
+          }
         }
-        player.fling_distance--;
+
+        if (player.fling_distance>0) {
+          if (!player.fling_left) {
+            move_x(-cos(player.launch_angle));
+            move_y(-sin(player.launch_angle));
+          } else { //fling left
+            move_x(cos(player.launch_angle));
+            move_y(sin(player.launch_angle));
+          }
+          player.fling_distance--;
+          if (player.fling_distance==1) {
+            player.in_air_timer=1002;
+            player.fling_distance=-1;
+          }
+        } else if (player.fling_distance<0){
+          if (!player.fling_left) {
+            move_x(-cos(player.launch_angle));
+          } else { //fling left
+            move_x(cos(player.launch_angle));
+          }
+          player.fling_distance--;
+        }
       }
-
-
 
       //====PLAYER CIRCULAR WEB SWINGING MOVEMENT======
       if (player.is_swinging && (grav_speed==0 || grav_speed==1)) {
-
-      //Draft for launch physics, launch player to cursor 
-      /*
-        if (player.right_click_hold_timer>0) {
-          //double launch_angle=GetCosAngle(GR_WIDTH/2-mouse_x+player.cam_x,0.01);
-          double launch_angle=GetCosAngle(GR_WIDTH/2-mouse_x,GetDistance(mouse_x,mouse_y,GR_WIDTH/2,GR_HEIGHT/2));
-          //double launch_angle=M_PI;
-          move_x(-cos(-launch_angle));
-          if (mouse_y<GR_HEIGHT/2)
-            move_y(sin(-launch_angle));
-          else
-            move_y(-sin(-launch_angle));
-      }*/
-
-
         player.is_rebounding=FALSE;
         player.pivot_length=GetDistance(player.pivot_x,player.pivot_y,player.x,player.y);
         player.pivot_angle=GetCosAngle(player.x-player.pivot_x,player.pivot_length);
@@ -1552,63 +1476,9 @@ void DrawPlayer(HDC hdc)
     DeleteObject(player.sprite_2_cache);
     player.sprite_1_cache = RotateSprite(hdc, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,-1);
     player.sprite_2_cache = RotateSprite(hdc, player.sprite_2,player.sprite_angle,LTGREEN,BLACK,-1);
-
-
-    //===JUST A DEMO===
-    /*SetRotatedSpriteSize(
-      NULL,
-      player.sprite_1,
-      player.sprite_angle,
-      &player.sprite_minx,
-      &player.sprite_miny,
-      &player.sprite_maxx,
-      &player.sprite_maxy,
-      &player.sprite_width,
-      &player.sprite_height
-    );*/
-
-
-    /*unsigned char* lpBitmapBits2; 
-
-    BITMAPINFO bi2; 
-    ZeroMemory(&bi2, sizeof(BITMAPINFO));
-    bi2.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
-    bi2.bmiHeader.biWidth=player.sprite_width;
-    //if (player.print_current_above)
-      //bi2.bmiHeader.biHeight=-player.sprite_height;
-    //else if (player.print_current_below)
-    bi2.bmiHeader.biHeight=-player.sprite_height;
-    bi2.bmiHeader.biPlanes=1;
-    bi2.bmiHeader.biBitCount=32;
-
-    player.sprite_1_cache=CreateDIBSection(NULL,&bi2,DIB_RGB_COLORS, (VOID**)&lpBitmapBits2,NULL,0);
-    player.sprite_2_cache=CreateDIBSection(NULL,&bi2,DIB_RGB_COLORS, (VOID**)&lpBitmapBits2,NULL,0);*/
-
-  /*for (int a=player.sprite_miny;a<player.sprite_maxy;a++) {
-    RotateSpriteII(NULL, player.sprite_1, player.sprite_1_cache,player.sprite_angle, LTGREEN, BLACK, -1, player.sprite_minx, player.sprite_miny, player.sprite_maxx, player.sprite_maxy, a);//player.current_draw_row); 
-    RotateSpriteII(NULL, player.sprite_2, player.sprite_2_cache,player.sprite_angle, LTGREEN, BLACK, -1, player.sprite_minx, player.sprite_miny, player.sprite_maxx, player.sprite_maxy, a);//player.current_draw_row);
-  }*/
-
-    //player.current_draw_row=player.sprite_miny;
-    //===========
-
-
-
     player.saved_sprite_angle=player.sprite_angle;
   }
 
-
-
-  //===JUST A DEMO===
-  /*if (player.current_draw_row>=player.sprite_miny && player.current_draw_row<=player.sprite_maxy) {
-    RotateSpriteII(NULL, player.sprite_1, player.sprite_1_cache,player.sprite_angle, LTGREEN, BLACK, -1, player.sprite_minx, player.sprite_miny, player.sprite_maxx, player.sprite_maxy, player.current_draw_row); 
-    RotateSpriteII(NULL, player.sprite_2, player.sprite_2_cache,player.sprite_angle, LTGREEN, BLACK, -1, player.sprite_minx, player.sprite_miny, player.sprite_maxx, player.sprite_maxy, player.current_draw_row);
-    player.current_draw_row++;
-    if (player.current_draw_row>=player.sprite_maxy) {
-      player.current_draw_row=-1;
-    }
-  }*/
-  //=====
 
   if (player.block_timer>0 && player.saved_block_sprite_angle!=player.sprite_angle) { //detect change in block sprite angle
     DeleteObject(player.block_sprite_1_cache);
