@@ -857,6 +857,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
 //void SongAct() {
   srand(time(NULL));
   while (true) {
+    if (!stop_playing_song) {
     if (song_folder_num>0) {
       char songname[14];
       if (play_new_song) { //play a song
@@ -897,6 +898,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
       }
     }
     song_seconds_run++;
+    }
     Sleep(1000); //eepy loop
   }
 }

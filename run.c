@@ -153,6 +153,7 @@ char save_level[40];
 #define DEFAULT_PLAYER_BLOCK_HEALTH_MAX 20
 
 
+bool stop_playing_song=FALSE;
 bool back_to_menu=FALSE;
 bool in_main_menu=TRUE;
 int level_chosen=0;
@@ -195,6 +196,7 @@ void DrawMainMenu(HDC hdc)
   GrPrint(hdc,10,10+32+16*9,"Press 'Enter' to Play Selected Level",WHITE);
   GrPrint(hdc,10,10+32+16*10,"Use Up or Down Keys to Select a Level",WHITE);
   GrPrint(hdc,10,10+32+16*11,"Press [SHIFT_ESC] to Exit",WHITE);
+  GrPrint(hdc,10,10+32+16*12,"Press [SHIFT] + 'M' to Enable or Disable Music",WHITE);
 
   GrPrint(hdc,10,10+32+16*level_chosen,">",WHITE);
 
@@ -620,7 +622,7 @@ void DrawUI(HDC hdc) {
 
 
 
-
+  if (!stop_playing_song) {
   if (song_folder_num>0) {
     //GrRect(hdc,0,0,64*8,56,c4);
     char txt[128];
@@ -644,6 +646,10 @@ void DrawUI(HDC hdc) {
       GrPrint(hdc,4,8+0,"Choosing Song...",c);
       GrPrint(hdc,5,9+0,"Choosing Song...",c4);
     }
+  }
+  } else {
+    GrPrint(hdc,4,8+0,"Press Shift + M to Enable Songs",c);
+    GrPrint(hdc,5,9+0,"Press Shift + M to Enable Songs",c4);
   }
 
 
@@ -762,17 +768,18 @@ Right Click - Swing with Wceb Placement
 */
 
   if (display_controls) {
-  GrRect(hdc,0,GR_HEIGHT-128-16*25,8*42,128+16*20,c4);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*24,"Controls:",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*23,"'W' - Jump from Surface",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*22,"'A' - Move Left (Clockwise)",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*21,"'S' - Block / Spin / Drag Down Attack",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*20,"'D' - Move Right (Anti-Clockwise)",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*19,"'Q' - Pick Up Web",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*18,"'E' - Hold with Attack for Uppercut",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*17,"'Z' - Time Breaker Ability",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*16,"'C' - Increase Reaction Time",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*15,"'M' - New Random Music",c);
+  GrRect(hdc,0,GR_HEIGHT-128-16*26,8*42,128+16*20,c4);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*25,"Controls:",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*24,"'W' - Jump from Surface",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*23,"'A' - Move Left (Clockwise)",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*22,"'S' - Block / Spin / Drag Down Attack",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*21,"'D' - Move Right (Anti-Clockwise)",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*20,"'Q' - Pick Up Web",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*19,"'E' - Hold with Attack for Uppercut",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*18,"'Z' - Time Breaker Ability",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*17,"'C' - Increase Reaction Time",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*16,"'M' - New Random Music",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*15,"[SHIFT] + 'M' - Disable or Renable Music",c);
   GrPrint(hdc,4,GR_HEIGHT-128-16*14,"[Space] - Sprint",c);
   GrPrint(hdc,4,GR_HEIGHT-128-16*13,"[Left Click] or '1' - Attack and Stop Web Shooting",c);
   GrPrint(hdc,4,GR_HEIGHT-128-16*12,"[Right Click] - Shoot web",c);
@@ -947,8 +954,20 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
         case 'M':
-          song_seconds_run_max=-1;
-          play_new_song=FALSE;
+          if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+            if (!stop_playing_song) {
+              PlaySound(NULL, NULL, SND_SYNC); //stop song
+              stop_playing_song=TRUE;
+            } else {
+              stop_playing_song=FALSE;
+            }
+          }
+
+          if (!stop_playing_song) {
+            song_seconds_run=-2;
+            song_seconds_run_max=-1;
+            play_new_song=TRUE;
+          }
           break;//end current song
 
 
@@ -1121,10 +1140,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       back_to_menu=FALSE;
       in_main_menu=TRUE;
       level_chosen=0;
+      stop_playing_song=FALSE;
+
+     //Load Song
+      InitSongBank();
+      song_seconds_run=-2;
+      song_seconds_run_max=-1;
+      play_new_song=TRUE;
+     //
+
       ShowCursor(FALSE);
 
       //Load Best Scores :D
-
+      //,,,
 
       //Load Player Sprites
       player.sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/player1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
