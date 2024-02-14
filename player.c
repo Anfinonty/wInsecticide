@@ -329,7 +329,7 @@ void InitPlayer() {
   }
 
   player.rendered_enemy_num=0;
-  for (i=0;i<ENEMY_NUM;i++) {
+  for (i=0;i<MAX_ENEMY_NUM;i++) {
     player_render_enemies[i]=-1;
   }
 

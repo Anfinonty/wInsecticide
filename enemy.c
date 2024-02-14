@@ -556,6 +556,7 @@ void EnemyAct(int i)
     BulletAct(Enemy[i].bullet_shot_arr[j]);
   }
   Enemy[i].dist_from_player=GetDistance(player.x,player.y,Enemy[i].x,Enemy[i].y);
+  EnemyLOSAct(i);//Shoot line of sight bullet
   //grid interaction
   current_grid_id=GetGridId(Enemy[i].x,Enemy[i].y,MAP_WIDTH,GRID_SIZE,GRID_NUM);
   saved_grid_id=Enemy[i].saved_grid_id;
@@ -792,7 +793,6 @@ void EnemyAct(int i)
         }
       }
     }
-    EnemyLOSAct(i);//Shoot line of sight bullet
     if (!player.time_breaker || Enemy[i].time_breaker_immune) {
       for (slash_time_i=0;slash_time_i<slash_time;slash_time_i++) {
         //Prevent reaching border
@@ -1054,7 +1054,7 @@ void SetEnemyByType(int i,int type)
 
 void CleanUpEnemySprites()
 {
-  for (int i=0;i<ENEMY_NUM;i++) {
+  for (int i=0;i<MAX_ENEMY_NUM;i++) {
     if (Enemy[i].sprite_1!=NULL) {
       DeleteObject(Enemy[i].sprite_1);
       Enemy[i].sprite_1=NULL;

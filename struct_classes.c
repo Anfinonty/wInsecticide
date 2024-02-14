@@ -549,10 +549,6 @@ struct enemy
 
   HBITMAP sprite_1;
   HBITMAP sprite_2;
-
-  //HBITMAP sprite_1_cache;
-  //HBITMAP sprite_2_cache;
-
   HBITMAP sprite_3;
   //6715632
 
