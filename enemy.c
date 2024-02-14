@@ -557,32 +557,7 @@ void EnemyAct(int i)
   }
   Enemy[i].dist_from_player=GetDistance(player.x,player.y,Enemy[i].x,Enemy[i].y);
   EnemyLOSAct(i);//Shoot line of sight bullet
-  //grid interaction
-  current_grid_id=GetGridId(Enemy[i].x,Enemy[i].y,MAP_WIDTH,GRID_SIZE,GRID_NUM);
-  saved_grid_id=Enemy[i].saved_grid_id;
-  if (current_grid_id!=saved_grid_id) {//current grid isnt the same as previous grid
-    //set new (always put at the edge of array)
-    int aa=Grid[current_grid_id].enemy_occupy_num;
-    //printf("%d \n%d",current_grid_id,aa);
-    Grid[current_grid_id].enemy_occupy[aa]=i;
-    Enemy[i].grid_queue[current_grid_id]=Grid[current_grid_id].enemy_occupy_num;
-    Grid[current_grid_id].enemy_occupy_num++;
-    //set previous grid when moving onto new grid
-    if (saved_grid_id!=-1) {
-      //For every enemy in the previous grid, the Enemy's grid_queue is subtracted by 1
-      for (j=Enemy[i].grid_queue[saved_grid_id]+1;j<Grid[saved_grid_id].enemy_occupy_num;j++) {
-	    Enemy[Grid[saved_grid_id].enemy_occupy[j]].grid_queue[saved_grid_id]--;
-      }
-      //enemy's saved grid queue id until the end
-      for (j=Enemy[i].grid_queue[saved_grid_id];j<Grid[saved_grid_id].enemy_occupy_num-1;j++) {
-        Grid[saved_grid_id].enemy_occupy[j]=Grid[saved_grid_id].enemy_occupy[j+1];//current pos = next pos
-      }
-      Grid[saved_grid_id].enemy_occupy[Grid[saved_grid_id].enemy_occupy_num-1]=-1;//last char =-1
-      Grid[saved_grid_id].enemy_occupy_num--; //enemy occupying grid --;
-      Enemy[i].grid_queue[saved_grid_id]=-1; //current enemy's grid queue at previous grid set to -1
-    }
-    Enemy[i].saved_grid_id=current_grid_id;//will become previous grid after it moves onto next
-  }
+
   bool deduct_health=FALSE;
   if (Enemy[i].health>0) {
     //Enemy knockback & attacked
@@ -1174,7 +1149,6 @@ void InitEnemy()
     Enemy[i].player_at_below=FALSE;
     Enemy[i].in_unchase_range=FALSE;
     Enemy[i].in_chase_range=FALSE;
-    Enemy[i].saved_grid_id=-1;
   //init once
     for (j=0;j<MAX_NODE_NUM;j++) {
       Enemy[i].node_solid[j]=
@@ -1196,11 +1170,6 @@ void InitEnemy()
     for (j=0;j<MAX_NODE_NUM/2;j++) {
       Enemy[i].open_nodes[j]=Enemy[i].start_node;
     }
-    //printf("Begin init gridqueue");
-    for (j=0;j<MAX_GRID_NUM;j++) {//fill buffer
-      Enemy[i].grid_queue[j]=-1;
-    }
-    //printf("End of init gridqueue");
     EnemyAct(i);
   }
   /*if (!once) {
@@ -1378,7 +1347,7 @@ void DrawEnemy(HDC hdc)
         Enemy[i].health=-99999;
       }
     }
-    if (Enemy[i].saw_player) {
+    //if (Enemy[i].saw_player) {
       if (Enemy[i].health>0) {
         char txt[2];
         int print_health=Enemy[i].health;
@@ -1418,6 +1387,6 @@ void DrawEnemy(HDC hdc)
           break;
       }
     }      
-  }
+  //}
 }
 

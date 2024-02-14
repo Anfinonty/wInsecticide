@@ -50,6 +50,13 @@ void DrawGroundTriFill(HDC hdc);
 
 
 
+struct RenderDistanceGrid
+{
+  int x1;
+  int y1;
+  int x2;
+  int y2;
+} RDGrid;
 
 
 
@@ -88,12 +95,9 @@ struct player
   bool uppercut;
 
     //Render
-  int rendered_grid_num;
   int rendered_vgrid_num;
-   //int render_grounds[GROUND_NUM+MAX_WEB_NUM];
-
   int rendered_enemy_num;
-  //int render_enemies[ENEMY_NUM];
+
  // int rendered_ground_num;
   int block_recharge_timer_max;
   int block_recharge_timer;
@@ -212,7 +216,6 @@ struct player
 
   int web_storage[MAX_WEB_NUM];
   int cdwebs[MAX_WEB_NUM];
-  int render_grids[RDGRID_NUM];
   int render_vgrids[VRDGRID_NUM];
 
 
@@ -247,12 +250,7 @@ struct player
   HBITMAP spin_sprite_4_cache;
 } player;
 
-
 int player_render_enemies[MAX_ENEMY_NUM];
-//int *player_render_grounds;
-
-//int player_render_enemies[21];
-//int player_render_grounds[342];
 
 
 void InitPlayer();
@@ -275,46 +273,6 @@ void PlayerAct();
 void PlayerPlaceWeb();
 void PlayerCameraShake();
 void DrawPlayer(HDC hdc);
-
-
-
-
-
-
-
-
-
-
-
-struct RenderDistanceGrid
-{
-  int x;
-  int y;
-} RDGrid[RDGRID_NUM];
-
-
-/*struct VRenderDistanceGrid
-{
-  int x;
-  int y;
-} VRDGrid[VRDGRID_NUM];*/
-
-
-struct grid 
-{
-  bool within_render_distance;
-    //enemy_occupy[ENEMY_NUM], //id of enemies occupying this grid
-    //*enemy_occupy, //id of enemies occupying this grid
-  int x1;
-  int y1;
-  int x2;
-  int y2; //grid axes
-  int enemy_occupy_num; //how many enemies are occupying this grid
-  int enemy_occupy[MAX_ENEMY_NUM]; //MAX ENEMY NUM
-};
-//} Grid[GRID_NUM];
-struct grid Grid[MAX_GRID_NUM];
-
 
 
 
@@ -518,9 +476,6 @@ struct enemy
   int time_breaker_length;
   int on_ground_id;
   int knockback_timer;
-  //Grid interaction
-  int //grid_queue[GRID_NUM],
-      saved_grid_id;
   int node_num;
 
 
@@ -556,7 +511,6 @@ struct enemy
 
   int bullet_head_y[MAX_BULLET_PER_FIRE];
   int bullet_head_x[MAX_BULLET_PER_FIRE];
-  int grid_queue[MAX_GRID_NUM];
   bool node_solid[MAX_NODE_NUM];
   bool node_open[MAX_NODE_NUM];
   bool node_closed[MAX_NODE_NUM];

@@ -50,52 +50,6 @@ void Click()
 }
 
 
-bool IsCollideCrawler(double x1,double y1,double x2,double y2,double gradient,double c)
-{
-  int on_grid_id=0,i=0,enemy_id=0,x=0,y=0,min=0,max=0;
-  double lg_x=0,lg_y=0;
-  if (x1!=x2) {
-    if (-1<gradient && gradient<1) { // y=mx+c
-      for (x=x1;x<=x2;x++) {
-        lg_y=x*gradient+c;
-        on_grid_id=GetGridId(x,lg_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
-        for (i=0;i<Grid[on_grid_id].enemy_occupy_num;i++) {
-    	  enemy_id=Grid[on_grid_id].enemy_occupy[i];
-          if (Enemy[enemy_id].species==1 && Enemy[enemy_id].health>0) {
-    	    if (GetDistance(x,lg_y,Enemy[enemy_id].x,Enemy[enemy_id].y)<=NODE_SIZE*2) {
-    	      return TRUE;
-    	    }
-          }
-        }
-      }
-    } else { // x=(y-c)/m
-      if (y1<y2) {
-        min=y1;
-        max=y2;
-      } else {
-        min=y2;
-        max=y1;
-      }
-      for (y=min;y<=max;y++) {
-        lg_x=(y-c)/gradient;
-        on_grid_id=GetGridId(lg_x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
-        for (i=0;i<Grid[on_grid_id].enemy_occupy_num;i++) {
-	      enemy_id=Grid[on_grid_id].enemy_occupy[i];
-          if (Enemy[enemy_id].species==1 && Enemy[enemy_id].health>0) {
-    	    if (GetDistance(lg_x,y,Enemy[enemy_id].x,Enemy[enemy_id].y)<=NODE_SIZE*2) {
-    	      return TRUE;
-    	    }
-          }
-        }
-      }
-    }
-  } else {
-    return TRUE;
-  }
-  return FALSE;
-}
-
-
 //Player
 
 void move_x(double x)
@@ -115,53 +69,19 @@ void move_y(double y)
 
 void InitRDGrid()
 {
-  int i=0,j=0,k=0,on_grid_id=0,column=0,row=0,
-      start_x=0,start_y=0;
-  //reset
-  for (i=0;i<player.rendered_grid_num;i++) {
-    Grid[player.render_grids[i]].within_render_distance=FALSE; //all rendered-grids are no-longer within render distance
-    player.render_grids[i]=-1;  //unrender all rendered grids
+  RDGrid.x1=player.x-(RENDER_DIST/2*GRID_SIZE);//top left corner x
+  RDGrid.y1=player.y-(RENDER_DIST/2*GRID_SIZE);//top left corner y
+  RDGrid.x2=player.x+(RENDER_DIST/2*GRID_SIZE);//down right corner x
+  RDGrid.y2=player.y+(RENDER_DIST/2*GRID_SIZE);//down right cornder y
+  for (int i=0;i<player.rendered_enemy_num;i++) {
+    player_render_enemies[i]=-1;
   }
-  for (i=0;i<player.rendered_enemy_num;i++) {
-    Enemy[player_render_enemies[i]].within_render_distance=FALSE; //all rendered-enemies are no-longer within render distance
-    player_render_enemies[i]=-1; //unrender all rendered enemies
-  }
-
-  player.rendered_grid_num=0;
   player.rendered_enemy_num=0;
 
-  //Begin rendering
-  start_x=player.x-(RENDER_DIST/2*GRID_SIZE); //Top left corner of render distance grids to bottom right corner
-  start_y=player.y-(RENDER_DIST/2*GRID_SIZE);
-  //"What happens when you lose everything? You just art again. Start all over again" - Maximo Park
-  for (i=0;i<RDGRID_NUM;i++) { //all render distance grids from top-left to bottom-right
-    RDGrid[i].x=start_x+column*GRID_SIZE;
-    RDGrid[i].y=start_y+row*GRID_SIZE;
-    if (0<RDGrid[i].x && RDGrid[i].x<MAP_WIDTH && //render distance grid is within range
-        0<RDGrid[i].y && RDGrid[i].y<MAP_HEIGHT) {
-
-      //grid
-      on_grid_id=GetGridId(RDGrid[i].x,RDGrid[i].y,MAP_WIDTH,GRID_SIZE,GRID_NUM);//get grid id based on renderdistance grid axes
-
-      Grid[on_grid_id].within_render_distance=TRUE; //append grid to render_grids array
-
-      player.render_grids[player.rendered_grid_num]=on_grid_id;//cannot be i (what if out of bounds)
-      player.rendered_grid_num++; //count amount of grids rendered
-
-      //enemy
-      for (j=0;j<Grid[on_grid_id].enemy_occupy_num;j++) { //fetch enemies that are occupying the grid
-	    k=Grid[on_grid_id].enemy_occupy[j]; //enemy_id in grid
- 	    if (!Enemy[k].within_render_distance) { //enemy is now within render distance
-	      Enemy[k].within_render_distance=TRUE;
-          player_render_enemies[player.rendered_enemy_num]=k; //append grid to render_enemies array
-	      player.rendered_enemy_num++; //count number of rendered enemies 
-	    }
-      }
-    }
-    column++; //Next column
-    if (column>=RENDER_DIST) { //if the column is beyond the render distance
-      row++; //move to the next row
-      column=0; //go back to first column
+  for (int i=0;i<ENEMY_NUM;i++) {
+    if (Enemy[i].x>RDGrid.x1 && Enemy[i].x<RDGrid.x2 && Enemy[i].y>RDGrid.y1 && Enemy[i].y<RDGrid.y2) {
+      player_render_enemies[player.rendered_enemy_num]=i;
+      player.rendered_enemy_num++;
     }
   }
 }
@@ -318,11 +238,6 @@ void InitPlayer() {
   player.player_jump_height=DEFAULT_PLAYER_JUMP_HEIGHT;
   player.key_jump_timer=0;
 
-  player.rendered_grid_num=0;
-  for (i=0;i<RDGRID_NUM;i++) {
-    player.render_grids[i]=-1;
-  }
-
   player.rendered_vgrid_num=0;
   for (i=0;i<VRDGRID_NUM;i++) {
     player.render_vgrids[i]=-1;
@@ -332,11 +247,6 @@ void InitPlayer() {
   for (i=0;i<MAX_ENEMY_NUM;i++) {
     player_render_enemies[i]=-1;
   }
-
-  //player.rendered_ground_num=0;
-  /*for (i=0;i<GROUND_NUM+MAX_WEB_NUM;i++) {
-    player_render_grounds[i]=-1;
-  }*/
 
   player.saved_x=saved_player_x;
   player.saved_y=saved_player_y;
@@ -446,12 +356,12 @@ void InitPlayer() {
 bool YesInitRDGrid()
 {
   if (GRID_SIZE*2<player.x && player.x<MAP_WIDTH-GRID_SIZE*2) {
-    if (player.x<RDGrid[0].x+GRID_SIZE*2 || player.x>RDGrid[RENDER_DIST-1].x-GRID_SIZE*2) {
+    if (player.x<RDGrid.x1+GRID_SIZE*2 || player.x>RDGrid.x2-GRID_SIZE*2) {
       return TRUE;
     }
   }
   if (GRID_SIZE*2<player.y && player.y<MAP_HEIGHT-GRID_SIZE*2) {
-    if (player.y<RDGrid[0].y+GRID_SIZE*2 || player.y>RDGrid[RDGRID_NUM-1].y-GRID_SIZE*2) {
+    if (player.y<RDGrid.y1+GRID_SIZE*2 || player.y>RDGrid.y2-GRID_SIZE*2) {
       return TRUE;
     }
   }

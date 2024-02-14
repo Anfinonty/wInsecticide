@@ -63,25 +63,6 @@ void InitGrid()
       y+=VGRID_SIZE;
     }
   }
-
-  x=0;
-  y=0;
-  for (i=0;i<GRID_NUM;i++) {
-    Grid[i].within_render_distance=FALSE;
-    Grid[i].enemy_occupy_num=0;
-    for (j=0;j<MAX_ENEMY_NUM;j++) {//init buffer
-      Grid[i].enemy_occupy[j]=-1;
-    }
-    Grid[i].x1=x;
-    Grid[i].y1=y;
-    Grid[i].x2=Grid[i].x1+GRID_SIZE;
-    Grid[i].y2=Grid[i].y1+GRID_SIZE;
-    x+=GRID_SIZE;
-    if (x>MAP_WIDTH-GRID_SIZE) {
-      x=0;
-      y+=GRID_SIZE;
-    }
-  }
 }
 
 
@@ -91,7 +72,7 @@ void DrawGrid(HDC hdc)
   GrLine(dc,Grid[i].x1+cam_x-PLAYER_WIDTH/2,Grid[i].y1+cam_y-PLAYER_HEIGHT/2,Grid[i].x1+cam_x-PLAYER_WIDTH/2,Grid[i].y2+cam_y-PLAYER_HEIGHT/2);
   GrLine(dc,Grid[i].x2+cam_x-PLAYER_WIDTH/2,Grid[i].y1+cam_y-PLAYER_HEIGHT/2,Grid[i].x2+cam_x-PLAYER_WIDTH/2,Grid[i].y2+cam_y-PLAYER_HEIGHT/2);
   GrLine(dc,Grid[i].x1+cam_x-PLAYER_WIDTH/2,Grid[i].y2+cam_y-PLAYER_HEIGHT/2,Grid[i].x2+cam_x-PLAYER_WIDTH/2,Grid[i].y2+cam_y-PLAYER_HEIGHT/2);*/
-  for (int i=0;i<GRID_NUM;i++) {
+  /*for (int i=0;i<GRID_NUM;i++) {
 //    GrLine(hdc,Grid[i].x1,Grid[i].y1,Grid[i].x2,Grid[i].y1,RGB(255,255,255));
 //    GrLine(hdc,Grid[i].x1,Grid[i].y1,Grid[i].x1,Grid[i].y2,RGB(255,255,255));
 //    GrLine(hdc,Grid[i].x2,Grid[i].y1,Grid[i].x2,Grid[i].y2,RGB(255,255,255));
@@ -100,7 +81,7 @@ void DrawGrid(HDC hdc)
     GrLine(hdc,Grid[i].x1+player.cam_x,Grid[i].y1+player.cam_y,Grid[i].x1+player.cam_x,Grid[i].y2+player.cam_y,RGB(8,39,225));
     GrLine(hdc,Grid[i].x2+player.cam_x,Grid[i].y1+player.cam_y,Grid[i].x2+player.cam_x,Grid[i].y2+player.cam_y,RGB(8,39,225));
     GrLine(hdc,Grid[i].x1+player.cam_x,Grid[i].y2+player.cam_y,Grid[i].x2+player.cam_x,Grid[i].y2+player.cam_y,RGB(8,39,225));
-  }
+  }*/
 }
 
 
