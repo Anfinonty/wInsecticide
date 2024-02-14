@@ -37,9 +37,9 @@
 #define BROWN       RGB(150,75,0)
 #define LTGRAY      RGB(211,211,211)
 #define DKGRAY      RGB(169,169,169)
-#define LTBLUE      RGB(8,39,245)
+#define LTBLUE      RGB(0,85,255)
 #define LTGREEN     RGB(0,255,0)
-#define LTCYAN      RGB(0,191,255)
+#define LTCYAN      RGB(0,255,255)
 #define LTRED       RGB(255,71,76)
 #define LTPURPLE    RGB(255,0,255)
 #define YELLOW      RGB(255,255,0)
@@ -520,7 +520,8 @@ DWORD WINAPI AnimateTask03(LPVOID lpArg) { //Stopwatch
             FILE *fptr;
             fptr = fopen(save_level,"w");
             char txt[12];
-            sprintf(txt,"%d\n",game_timer);
+            int tmp_game_timer=game_timer;
+            sprintf(txt,"%d\n",tmp_game_timer);
             fprintf(fptr,txt);
             fclose(fptr);
           }
@@ -556,58 +557,99 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
 }
 
 bool display_controls=FALSE;
-void DrawTexts(HDC hdc) {
+void DrawUI(HDC hdc) {
   int c;
+  int c4;
   if (!IsInvertedBackground()) {
     c=WHITE;
+    c4=BLACK;
   } else {
     c=BLACK;
+    c4=WHITE;
   }
 
 
 
+
+//======Print Game Score Text
+  //GrRect(hdc,0,8+32,8*40,16*5,c4);
+
+  char gametimetxt[32];
+  double print_time_ms=(double)game_timer/1000;
+  if (!game_over) {
+    sprintf(gametimetxt,"Time: %5.3f",print_time_ms);
+    GrPrint(hdc,4,8+48,gametimetxt,YELLOW);
+    GrPrint(hdc,6,8+48,gametimetxt,YELLOW);
+    GrPrint(hdc,4,10+48,gametimetxt,YELLOW);
+    GrPrint(hdc,6,10+48,gametimetxt,YELLOW);
+    GrPrint(hdc,5,9+48,gametimetxt,BROWN);
+  } else { //game is over
+    if (game_timer<int_best_score) { //New Score :D
+      sprintf(gametimetxt,"New Best! :D %5.3f",print_time_ms);
+      GrPrint(hdc,5,9+48,gametimetxt,LTPURPLE);
+    } else {
+      sprintf(gametimetxt,"Time: %5.3f",print_time_ms);
+      GrPrint(hdc,4,8+48,gametimetxt,YELLOW);
+      GrPrint(hdc,6,8+48,gametimetxt,YELLOW);
+      GrPrint(hdc,4,10+48,gametimetxt,YELLOW);
+      GrPrint(hdc,6,10+48,gametimetxt,YELLOW);
+      GrPrint(hdc,5,9+48,gametimetxt,BROWN);
+    }
+  }
+
+  char gamebesttimetxt[32];
+  double best_time=double_best_score;
+  sprintf(gamebesttimetxt,"Best Time: %5.3f",best_time);
+  GrPrint(hdc,4,8+64,gamebesttimetxt,YELLOW);
+  GrPrint(hdc,6,8+64,gamebesttimetxt,YELLOW);
+  GrPrint(hdc,4,10+64,gamebesttimetxt,YELLOW);
+  GrPrint(hdc,6,10+64,gamebesttimetxt,YELLOW);
+  GrPrint(hdc,5,9+64,gamebesttimetxt,BROWN);
+
+  char enemykills[32];
+  int printenemykills=ENEMY_NUM-enemy_kills;
+  int printenemynum=ENEMY_NUM;
+  sprintf(enemykills,"Enemies Left: %d/%d",printenemykills,printenemynum);
+  GrPrint(hdc,4,8+80,enemykills,YELLOW);
+  GrPrint(hdc,6,8+80,enemykills,YELLOW);
+  GrPrint(hdc,4,10+80,enemykills,YELLOW);
+  GrPrint(hdc,6,10+80,enemykills,YELLOW);
+  GrPrint(hdc,5,9+80,enemykills,BROWN);
+//========================
+
+
+
+
+
   if (song_folder_num>0) {
+    //GrRect(hdc,0,0,64*8,56,c4);
     char txt[128];
     char *song_name=song_names[rand_song1][rand_song2];
-    //int sec = (song_time_end-time_now)%60;
     int sec = (song_seconds_run_max-song_seconds_run)%60;
     if (sec>-1) {
       if (sec>9)
-        //sprintf(txt,"%s [%d:%d]",song_name,(song_time_end-time_now)/60,sec);
         sprintf(txt,"%s [%d:%d]",song_name,(song_seconds_run_max-song_seconds_run)/60,sec);
       else 
-        //sprintf(txt,"%s [%d:0%d]",song_name,(song_time_end-time_now)/60,sec);
         sprintf(txt,"%s [%d:0%d]",song_name,(song_seconds_run_max-song_seconds_run)/60,sec);
 
       char txt2[128];
       char *album_name=/*album_name_arr[*/album_names[rand_song1][rand_song2]/*]*/;
       sprintf(txt2,"%s",album_name);  
 
-      GrPrint(hdc,4,0,txt,c);
-      GrPrint(hdc,4,16,txt2,c);
+      GrPrint(hdc,4,8+0,txt,c);
+      GrPrint(hdc,4,8+16,txt2,c);
+      GrPrint(hdc,5,9+0,txt,c4);
+      GrPrint(hdc,5,9+16,txt2,c4);
     } else {
-      GrPrint(hdc,4,0,"Choosing Song...",c);
+      GrPrint(hdc,4,8+0,"Choosing Song...",c);
+      GrPrint(hdc,5,9+0,"Choosing Song...",c4);
     }
   }
-  char gametimetxt[32];
-  double print_time_ms=(double)game_timer/1000;
-  sprintf(gametimetxt,"Time: %5.3f",print_time_ms);
-  GrPrint(hdc,4,48,gametimetxt,c);
 
 
 
-  char gamebesttimetxt[32];
-  double best_time=double_best_score;
-  sprintf(gamebesttimetxt,"Best Time: %5.3f",best_time);
-  GrPrint(hdc,4,64,gamebesttimetxt,c);
 
-  char enemykills[32];
-  int printenemykills=ENEMY_NUM-enemy_kills;
-  int printenemynum=ENEMY_NUM;
-  sprintf(enemykills,"Enemies Left: %d/%d",printenemykills,printenemynum);
-  GrPrint(hdc,4,80,enemykills,c);
-
-
+//=========Draw Player UI
   int i=0,j=0;
   int c2,c3;
 
@@ -627,7 +669,11 @@ void DrawTexts(HDC hdc) {
   //draw player health
   for (i=0;i<player.health;i++) {
     j=i/10; //new row of hearts
-    GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2+4,player.sprite_y+48+8*j,4,c2,c3);
+    if (i<20) {
+      GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2+4,player.sprite_y+48+8*j,4,c2,c3);
+    } else {
+      GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2+4,player.sprite_y+50+8*j,3,c,YELLOW);
+    }
   }
 
   //GrLine(hdc,GR_WIDTH/2,0,GR_WIDTH/2,GR_HEIGHT,BLACK);
@@ -648,22 +694,15 @@ void DrawTexts(HDC hdc) {
       }      
     } else {
       if (!IsInvertedBackground()) {
-        if (i<5)
-         c2=GREEN;
-        else if (i<10)
-          c2=LTGREEN;
-        else 
-          c2=RED;
+        if (i<5) c2=GREEN;
+        else if (i<10) c2=LTGREEN;
+        else c2=RED;
       } else {
-        if (i<5)
-          c2=DKGRAY;
-        else if (i<10)
-          c2=LTPURPLE;
-        else
-          c2=LTCYAN;
+        if (i<5) c2=DKGRAY;
+        else if (i<10) c2=LTPURPLE;
+        else c2=LTCYAN;
       }
     }
-    //GrCircle(hdc,player.sprite_x-64,player.sprite_y-8*i+(10*8)/2,3,c2,c2);
       GrCircle(hdc,
         player.sprite_x-speed_dist*cos(speed_angle),
         player.sprite_y-speed_dist*sin(speed_angle),
@@ -723,10 +762,11 @@ Right Click - Swing with Wceb Placement
 */
 
   if (display_controls) {
+  GrRect(hdc,0,GR_HEIGHT-128-16*25,8*42,128+16*20,c4);
   GrPrint(hdc,4,GR_HEIGHT-128-16*24,"Controls:",c);
   GrPrint(hdc,4,GR_HEIGHT-128-16*23,"'W' - Jump from Surface",c);
   GrPrint(hdc,4,GR_HEIGHT-128-16*22,"'A' - Move Left (Clockwise)",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*21,"'S' - Block or Spin",c);
+  GrPrint(hdc,4,GR_HEIGHT-128-16*21,"'S' - Block / Spin / Drag Down Attack",c);
   GrPrint(hdc,4,GR_HEIGHT-128-16*20,"'D' - Move Right (Anti-Clockwise)",c);
   GrPrint(hdc,4,GR_HEIGHT-128-16*19,"'Q' - Pick Up Web",c);
   GrPrint(hdc,4,GR_HEIGHT-128-16*18,"'E' - Hold with Attack for Uppercut",c);
@@ -746,9 +786,12 @@ Right Click - Swing with Wceb Placement
   GrPrint(hdc,4,GR_HEIGHT-128-16*4,"[Left Click] or '1' - Swing without Web Placement",c);
   GrPrint(hdc,4,GR_HEIGHT-128-16*3,"[Right Click] - Swing with Web Placement",c);
   GrPrint(hdc,4,GR_HEIGHT-128-16,"[SHIFT_ESC] to Quit",c);
+  } else {
+  //GrRect(hdc,0,GR_HEIGHT-128,8*42,128-16*5,c4);
   }
 
-  GrPrint(hdc,4,GR_HEIGHT-128+16,"Press '*' for Controls Help",c);
+  GrPrint(hdc,4,GR_HEIGHT-128+16,"Press '*' for Controls Help",c4);
+  GrPrint(hdc,5,GR_HEIGHT-128+17,"Press '*' for Controls Help",c);
 }
 
 
@@ -1016,7 +1059,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           DrawEnemy(hdcBackbuff);
           DrawPlayer(hdcBackbuff);
           DrawCursor(hdcBackbuff);
-          DrawTexts(hdcBackbuff);
+          DrawUI(hdcBackbuff);
 
           if (!IsInvertedBackground()){
             if (!player.time_breaker) {
