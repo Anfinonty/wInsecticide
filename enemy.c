@@ -738,6 +738,7 @@ void EnemyAct(int i)
           enemy_kills++;
           souls_taken++;*/
         if (Enemy[i].health<=0) {
+          enemy_kills++;
           player.health+=2;
           if (player.max_web_num<MAX_WEB_NUM)
             player.max_web_num++;

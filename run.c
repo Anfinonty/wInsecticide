@@ -79,6 +79,9 @@ WHITE //15
 
 int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
 int frame_tick=-10;
+int int_best_score=0;
+double double_best_score=0;
+char save_level[40];
 
 #define DEFAULT_PLAYER_SPEED			1
 
@@ -109,9 +112,6 @@ int frame_tick=-10;
 #define VRENDER_DIST      9//20
 #define VRDGRID_NUM       VRENDER_DIST*VRENDER_DIST
 
-#define RENDER_DIST	 9
-#define RDGRID_NUM	 RENDER_DIST*RENDER_DIST
-
 
 #define BULLET_NUM	5000
 #define MAX_BULLET_PER_FIRE 10
@@ -128,12 +128,6 @@ int frame_tick=-10;
 
 #include "struct_classes.c"
 #include "load_save.c"
-
-
-
-
-
-
 
 
 #define DEFAULT_SLEEP_TIMER			6
@@ -161,11 +155,12 @@ int frame_tick=-10;
 
 bool back_to_menu=FALSE;
 bool in_main_menu=TRUE;
-//bool start_level=TRUE;
 int level_chosen=0;
 int windowx=0;
 int windowy=0;
 int game_timer=0;
+bool game_over=FALSE;
+int enemy_kills=0;
 int FPS = 60;
 
 
@@ -186,7 +181,7 @@ int FPS = 60;
 void DrawMainMenu(HDC hdc)
 {
   GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,BLUE);
-  GrPrint(hdc,10,10,"Welcome to the wInsecticide Menu! (02-11-2024)",WHITE);
+  GrPrint(hdc,10,10,"Welcome to the wInsecticide Menu!",WHITE);
 
   GrPrint(hdc,10,10+32,"-  Level 0",WHITE);
   GrPrint(hdc,10,10+32+16,"-  Level 1",WHITE);
@@ -299,11 +294,53 @@ void InitOnce() {
 }
 
 void Init() {
+  //Load Best Score
+
+  //Folder & file creation
+  DIR* dir = opendir("score_saves");
+  if (dir) {//Check for scoresaves folder
+    FILE *fptr;
+    if (access(save_level, F_OK)==0) { //if file exists
+      //do nothing
+    } else if (ENOENT==errno) { //if file doesnt exist
+      fptr = fopen(save_level,"a");
+      fprintf(fptr,"2147483646\n");
+      fclose(fptr);
+    }
+  } else if (ENOENT==errno) {//if it doesn't exist create one
+    mkdir("score_saves");
+    //Create bestscore=9999
+    FILE *fptr;
+    fptr = fopen(save_level,"a");
+    fprintf(fptr,"2147483646\n");
+    fclose(fptr);
+  }
+
+
+  int_best_score=0;
+  FILE *fr; //Begin setting best score
+  int c;
+  int current_int;
+  fr = fopen(save_level,"r"); //check if scoresave data of levelname
+  while ((c=fgetc(fr))!=EOF) {
+    if (c>='0' && c<='9') {
+      current_int=c-'0';
+      int_best_score*=10; //shift digit by left,  //Read from file while !=EOF score*=10
+      int_best_score+=current_int; //add to right digit //after reading, convert into (double)/1000
+    }
+  }
+  fclose(fr);
+  double_best_score=(double)int_best_score/1000;
+
+
+
+
   OLD_GR_WIDTH=GR_WIDTH;
   OLD_GR_HEIGHT=GR_HEIGHT;
   game_timer=0;
+  enemy_kills=0;
+  game_over=FALSE;
   frame_tick=-10;
-  //start_level=0;
 
   InitSongBank();
 
@@ -342,20 +379,12 @@ void Init() {
 
 void InitLevel(HWND hwnd, HDC hdc)
 {
-  char txt[19];
+  char txt[32];
   int chosen_level=level_chosen;
+  int chosen_level2=level_chosen;
   sprintf(txt,"saves/_Level00%d.txt",chosen_level);
+  sprintf(save_level,"score_saves/_Level00%d.txt",chosen_level2);
   LoadSave(txt);
-
-  //Check for scoresaves folder
-    //check if scoresave data of levelname
-      //Read from file while !=EOF score*=10
-      //after reading, convert into (double)/1000
-
-    //if it doesn't exist create one = 999999
-  //if doesn't exist create one & bestscore = 999999
-    
-
 
   srand(time(NULL));
   timeBeginPeriod(1);
@@ -471,16 +500,42 @@ void FrameRateSleep(int max_fps)
 }
 
 
+
+
+
 DWORD WINAPI AnimateTask03(LPVOID lpArg) { //Stopwatch
   while (TRUE) {
     if (!in_main_menu) { //In Game
-      game_timer++;
-      Sleep(1);
+      if (enemy_kills<ENEMY_NUM) {
+        game_timer++;
+        Sleep(1);
+      } else {
+        if (!game_over) {
+          if (game_timer<int_best_score) { //New high score
+            DIR* dir;
+            dir=opendir("score_saves");
+            if (ENOENT==errno) {
+              mkdir("score_saves");
+            }
+            FILE *fptr;
+            fptr = fopen(save_level,"w");
+            char txt[12];
+            sprintf(txt,"%d\n",game_timer);
+            fprintf(fptr,txt);
+            fclose(fptr);
+          }
+          game_over=TRUE;
+        }
+        Sleep(1000);
+      }
     } else {
       Sleep(1000);
     }
   }
 }
+
+
+
 
 
 DWORD WINAPI AnimateTask01(LPVOID lpArg) {
@@ -535,37 +590,24 @@ void DrawTexts(HDC hdc) {
     }
   }
   char gametimetxt[32];
-  int print_time_ms=game_timer%1000;
-  int print_time_s=game_timer/1000;
-  if (print_time_ms>99) {
-    sprintf(gametimetxt,"Time: %d. %d",print_time_s,print_time_ms);
-  } else {
-    if (print_time_ms>9) {
-      sprintf(gametimetxt,"Time: %d. 0%d",print_time_s,print_time_ms);
-    } else {
-      sprintf(gametimetxt,"Time: %d. 00%d",print_time_s,print_time_ms);
-    }
-  }
+  double print_time_ms=(double)game_timer/1000;
+  sprintf(gametimetxt,"Time: %5.3f",print_time_ms);
   GrPrint(hdc,4,48,gametimetxt,c);
-  //GrPrint(hwnd,hdc,ps,0,0,_txt,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255)));
 
 
-//Print player details
 
-  //print player web amount
-  /*char txt[2];
-  int print_web_num=player.max_web_num-player.placed_web_num;
-  sprintf(txt,"%d",print_web_num);
-  if (!IsInvertedBackground()) {
-    GrPrint(hDC,mouse_x+32,mouse_y+32,txt,WHITE);
-  } else {
-    GrPrint(hDC,mouse_x+32,mouse_y+32,txt,BLACK);
-  }*/
+  char gamebesttimetxt[32];
+  double best_time=double_best_score;
+  sprintf(gamebesttimetxt,"Best Time: %5.3f",best_time);
+  GrPrint(hdc,4,64,gamebesttimetxt,c);
 
-  //print player health
-  //int print_player_health=player.health;
-  //sprintf(txt,"%d",print_player_health);
-  //GrPrint(hDC,mouse_x-32,mouse_y+32,txt,LTRED);
+  char enemykills[32];
+  int printenemykills=ENEMY_NUM-enemy_kills;
+  int printenemynum=ENEMY_NUM;
+  sprintf(enemykills,"Enemies Left: %d/%d",printenemykills,printenemynum);
+  GrPrint(hdc,4,80,enemykills,c);
+
+
   int i=0,j=0;
   int c2,c3;
 
@@ -1003,6 +1045,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             CleanUpNodeGrid();
             CleanUpEnemy();
             CleanUpGround();
+            save_level[0]='\0';
 
             DeleteObject(map_platforms_sprite);
             DeleteObject(map_platforms_sprite_mask);
@@ -1036,6 +1079,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       in_main_menu=TRUE;
       level_chosen=0;
       ShowCursor(FALSE);
+
+      //Load Best Scores :D
 
 
       //Load Player Sprites
@@ -1103,7 +1148,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 
   //create window
   CreateWindowW(wc.lpszClassName,
-                L"wInsecticide (02-11-2024)",
+                L"wInsecticide",
                 WS_OVERLAPPEDWINDOW | WS_VISIBLE,
                 0,
                 0,
