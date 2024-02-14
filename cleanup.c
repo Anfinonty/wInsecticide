@@ -105,7 +105,6 @@ void CleanUpEnemy()
     Enemy[i].player_at_below=FALSE;
     Enemy[i].in_unchase_range=FALSE;
     Enemy[i].in_chase_range=FALSE;
-    Enemy[i].saved_grid_id=-1;
   //init once
     for (j=0;j<MAX_NODE_NUM;j++) {
       Enemy[i].node_solid[j]=
@@ -124,9 +123,6 @@ void CleanUpEnemy()
     Enemy[i].open_nodes_num=0;
     for (j=0;j<MAX_NODE_NUM/2;j++) {
       Enemy[i].open_nodes[j]=Enemy[i].start_node;
-    }
-    for (j=0;j<MAX_GRID_NUM;j++) {//fill buffer
-      Enemy[i].grid_queue[j]=-1;
     }
   }
 }
@@ -163,18 +159,6 @@ void CleanUpGrid()
     VGrid[i].y1=-20;
     VGrid[i].x2=-20;
     VGrid[i].y2=-20;
-  }
-
-  for (i=0;i<MAX_GRID_NUM;i++) {
-    Grid[i].within_render_distance=FALSE;
-    Grid[i].enemy_occupy_num=0;
-    for (j=0;j<MAX_ENEMY_NUM;j++) {//init buffer
-      Grid[i].enemy_occupy[j]=-1;
-    }
-    Grid[i].x1=-20;
-    Grid[i].y1=-20;
-    Grid[i].x2=-20;
-    Grid[i].y2=-20;
   }
 }
 
