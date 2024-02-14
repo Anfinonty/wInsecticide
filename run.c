@@ -93,7 +93,6 @@ int frame_tick=-10;
 #define NODE_SIZE  	 10
 #define MAX_GROUNDS_WITHIN_GRID	(VGRID_SIZE/NODE_SIZE)*(VGRID_SIZE/NODE_SIZE)/2 //128 grounds
 
-
 #define ENEMY_I64_ATTRIBUTES_NUM 20
 #define ENEMY_F64_ATTRIBUTES_NUM 4
 //#define ENEMY_BOOL_ATTRIBUTES_NUM 1
@@ -124,7 +123,7 @@ int frame_tick=-10;
 #define MAX_MAP_NODE_NUM (640*20)/NODE_SIZE * (480*20)/NODE_SIZE //MAX_WIDTH/NODE_SIZE * MAX_HEIGHT/NODE_SIZE
 #define MAX_VGRID_NUM   4800 //(640/160)*20 * (480/160)*20
 #define MAX_GRID_NUM    4800
-#define MAX_GROUND_NUM  4000
+#define MAX_GROUND_NUM  1000
 #define MAX_ENEMY_NUM   50
 
 #include "struct_classes.c"

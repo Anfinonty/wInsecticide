@@ -169,7 +169,7 @@ void CleanUpGrid()
 void CleanUpGround()
 {
   for (int i=0;i<GROUND_NUM+MAX_WEB_NUM;i++) {
-    for (int j=0;j<MAX_VGRID_NUM;j++) {
+    for (int j=0;j<VGRID_NUM;j++) {
       Ground[i].already_in_grid[j]=FALSE;
       Ground[i].saved_pos_in_grid[j]=-1;
     }

@@ -27,6 +27,10 @@ struct GroundLine
 
   char text[512]; //for type 1 which is Text_ground
 
+//  int already_in_grid_id[MAX_GRID_IN_GROUND];
+//  bool already_in_grid[MAX_GRID_IN_GROUND]; //MAX VGRID NUM
+//  int saved_pos_in_grid_id[MAX_GRID_IN_GROUND];
+//  int saved_pos_in_grid[MAX_GRID_IN_GROUND]; //MAX VGRID NUM
   bool already_in_grid[MAX_VGRID_NUM]; //MAX VGRID NUM
   int saved_pos_in_grid[MAX_VGRID_NUM]; //MAX VGRID NUM
 };
