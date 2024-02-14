@@ -3,7 +3,7 @@
 void CleanUpEnemy()
 {
   int i=0,j=0;
-  for (i=0;i<MAX_ENEMY_NUM;i++) {
+  for (i=0;i<ENEMY_NUM;i++) {
     //printf("Enemy: %d\n",i);
     Enemy[i].species=-1;
     Enemy[i].type=0;
@@ -131,7 +131,7 @@ void CleanUpEnemy()
 
 void CleanUpNodeGrid()
 {
-  for (int i=0;i<MAX_MAP_NODE_NUM;i++) {
+  for (int i=0;i<MAP_NODE_NUM;i++) {
     NodeGrid[i].node_solid=FALSE;
     NodeGrid[i].non_web=FALSE;
     NodeGrid[i].x1=-20;
@@ -148,7 +148,7 @@ void CleanUpNodeGrid()
 void CleanUpGrid()
 {
   int i=0,j=0,x=0,y=0;
-  for (i=0;i<MAX_VGRID_NUM;i++) {
+  for (i=0;i<VGRID_NUM;i++) {
     VGrid[i].within_render_distance=FALSE;
     VGrid[i].max_ground_num=0;
     
@@ -168,7 +168,7 @@ void CleanUpGrid()
 
 void CleanUpGround()
 {
-  for (int i=0;i<MAX_GROUND_NUM+MAX_WEB_NUM;i++) {
+  for (int i=0;i<GROUND_NUM+MAX_WEB_NUM;i++) {
     for (int j=0;j<MAX_VGRID_NUM;j++) {
       Ground[i].already_in_grid[j]=FALSE;
       Ground[i].saved_pos_in_grid[j]=-1;

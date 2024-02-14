@@ -1029,7 +1029,7 @@ void SetEnemyByType(int i,int type)
 
 void CleanUpEnemySprites()
 {
-  for (int i=0;i<MAX_ENEMY_NUM;i++) {
+  for (int i=0;i<ENEMY_NUM;i++) {
     if (Enemy[i].sprite_1!=NULL) {
       DeleteObject(Enemy[i].sprite_1);
       Enemy[i].sprite_1=NULL;

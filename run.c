@@ -48,8 +48,6 @@
 #define DKBLACK     RGB(5,5,5) //For drawing
 #define MYCOLOR1    RGB(123,123,123)
 
-//int play_a_sound;
-
 int color_arr[COLORS_NUM]={
 BLACK, //0
 BLUE, //1
