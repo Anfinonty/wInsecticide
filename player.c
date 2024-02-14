@@ -442,8 +442,8 @@ void PlayerAct() {
 
   if (!player.attack_rst && !player.is_swinging) {
     allow_act=FALSE;
-    if (player.right_click_hold_timer==62 &&  //Right click to shoot
-        !NearCrawler()) {
+    if (player.right_click_hold_timer==62 /*&&  //Right click to shoot
+        !NearCrawler()*/) {
       if (player.placed_web_num<player.max_web_num && //webs > 0 
         player.bullet_shot==-1) {
         allow_act=TRUE;

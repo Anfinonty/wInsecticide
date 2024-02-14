@@ -582,12 +582,25 @@ void EnemyAct(int i)
 	   break;
    }
   //^^ condition
-  if (allow_act || dist_from_bullet<=NODE_SIZE+NODE_SIZE/2) {
+  if (allow_act || dist_from_bullet<=NODE_SIZE*4) {
     //player bullet
-    if (dist_from_bullet<=NODE_SIZE+NODE_SIZE/2) {
+    if (dist_from_bullet<=NODE_SIZE*4) {
       switch (Enemy[i].species) {
     	case 0://fly
+          if (dist_from_bullet<=NODE_SIZE*2) {
+            deduct_health=TRUE;
+            Enemy[i].knockback_timer=player.knockback_strength;
+            Enemy[i].knockback_angle=Bullet[player.bullet_shot].angle;
+            if (Bullet[player.bullet_shot].left) {
+              Enemy[i].knockback_left=TRUE;
+            } else {
+              Enemy[i].knockback_left=FALSE;
+            }
+          }
+	      break;
+        case 1://crawl
           deduct_health=TRUE;
+
           Enemy[i].knockback_timer=player.knockback_strength;
           Enemy[i].knockback_angle=Bullet[player.bullet_shot].angle;
           if (Bullet[player.bullet_shot].left) {
@@ -595,9 +608,8 @@ void EnemyAct(int i)
           } else {
             Enemy[i].knockback_left=FALSE;
           }
-	      break;
-        case 1://crawl
-          deduct_health=TRUE;
+          Enemy[i].health-=1;
+
           StopBullet(player.bullet_shot,TRUE); //Stop the web
           PlayerPlaceWeb(); //Web related
           player.web_being_shot=-1;
