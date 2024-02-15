@@ -82,6 +82,7 @@ int frame_tick=-10;
 int int_best_score=0;
 double double_best_score=0;
 char save_level[40];
+int player_color=0;
 
 #define DEFAULT_PLAYER_SPEED			1
 
