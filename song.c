@@ -157,7 +157,7 @@ int song_duration5[SONG_NUM]={
 180 + 4, //6 Runaway - Linkin Park
 300 + 7, //7 Sounds of Life - Pendulum
 180 + 5, //8 Welcome to Cambodia - Brand New
-120 + 22 //9 Bad Girl - Avril Lavigne
+120 + 54 //9 Bad Girl - Avril Lavigne
 };
 
 char *song_name5[SONG_NUM]={
@@ -494,6 +494,93 @@ char *song_name16[SONG_NUM]={
 };
 
 
+//17
+int song_duration17[SONG_NUM]={
+120 + 25, //Kill Your$elf Part III - $uicideboy$ //(2014)
+120 + 57, //Lone Digger - Caravan Palace // <|°_°|> (2015)
+240 + 0, //Russian - Caravan Palace // <|°_°|> (2015)
+180 + 11, //Kagamine Len & Rin - Electric Angel //(2013)
+180 + 27, //Lucky - Lucky Twice //Young & Clever (2006)
+60 + 39, //FRIED RICE - Pink Guy //Pink Guy (2014)
+120 + 15, //FRIED DUMPLINGS - Pink Guy //(2017)
+180 + 41, //Rasputin - Boney M (Nightcore) //(2016)
+120 + 51, //Marble Soda - Shawn Wasabi //(2015)
+180 + 30 //Stop, Drop, Roll - Can't Stop Won't Stop //Lyricless (2014)
+};
+
+char *song_name17[SONG_NUM]={
+"Kill Your$elf Part III - $uicideboy$", //(2014)
+"Lone Digger - Caravan Palace", // <|°_°|> (2015)
+"Russian - Caravan Palace", // <|°_°|> (2015)
+"Kagamine Len & Rin - Electric Angel", //(2013)
+"Lucky - Lucky Twice", //Young & Clever (2006)
+"FRIED RICE - Pink Guy", //Pink Guy (2014)
+"FRIED DUMPLINGS - Pink Guy", //(2017)
+"Rasputin - Boney M (Nightcore)", //(2016)
+"Marble Soda - Shawn Wasabi", //(2015)
+"Stop, Drop, Roll - Can't Stop Won't Stop" //Lyricless (2014)
+};
+
+
+//18
+int song_duration18[SONG_NUM]={
+180 + 59, //Pumped Up Kicks - Foster The People //Torches (2011)
+120 + 56, //Don't Stop (Color on the Walls) - Foster The People //Torches (2011)
+180 + 48, //Runaway (U & I) - Galantis //Pharmacy (2015)
+120 + 7,  //Poison - Blake Roman //(2019)
+180 + 30, //Cradles - Sub Urban //(2019)
+240 + 15, //Pork Soda - Glass Animals //How To Be A Human Being (2016)
+180 + 36, //Living Island - Pogo //(2011)
+120 + 46, //I Got No Time - The Living Tombstone //(2016)
+180 + 5,  //Die in a Fire - The Living Tombstone //(2015)
+120 + 54 //It's Been So Long - The Living Tombstone //(2014)
+};
+
+char *song_name18[SONG_NUM]={
+"Pumped Up Kicks - Foster The People", //Torches (2011)
+"Don't Stop (Color on the Walls) - Foster The People", //Torches (2011)
+"Runaway (U & I) - Galantis", //Pharmacy (2015)
+"Poison - Blake Roman", //(2019)
+"Cradles - Sub Urban", //(2019)
+"Pork Soda - Glass Animals", //How To Be A Human Being", (2016)
+"Living Island - Pogo", //(2011)
+"I Got No Time - The Living Tombstone", //(2016)
+"Die in a Fire - The Living Tombstone", //(2015)
+"It's Been So Long - The Living Tombstone" //(2014)
+};
+
+
+//19
+int song_duration19[SONG_NUM]={
+180 + 1, //Dance, Dance - Fallout Boy // From Under The Cork Tree (2005)
+180 + 28, //Thnks fr th Mmrs - Fallout Boy//Infinity on High (2007)
+180 + 27, //Decadence - Disturbed // Ten Thousand Fists (2005)
+240 + 30, //Bigger Than Us - White Lies //Ritual (2011)
+120 + 59, //Teen Pregnancy - Blank Banshee //Blank Banshee 0 (2012)
+240 + 11, //Decay - Home //Odyssey (2014)
+180 + 30, //All I Got - Oliver Tree //Alien Boy EP (2018)
+120 + 25, //Hurt - Oliver Tree //Ugly Is Beautiful (2020)
+180 + 57, //My Hope Will Never Die - Skrillex x Nero //(2012)
+180 + 45 //I Hate Everything About You - Three Days Grace //Three Days Grace (2003)
+};
+
+char *song_name19[SONG_NUM]={
+"Dance, Dance - Fallout Boy", // From Under The Cork Tree (2005)
+"Thnks fr th Mmrs - Fallout Boy",//Infinity on High (2007)
+"Decadence - Disturbed", // Ten Thousand Fists (2005)
+"Bigger Than Us - White Lies", //Ritual (2011)
+"Teen Pregnancy - Blank Banshee", //Blank Banshee 0 (2012)
+"Decay - Home",
+"All I Got - Oliver Tree", //Alien Boy EP (2018)
+"Hurt - Oliver Tree", //Ugly Is Beautiful (2020)
+"My Hope Will Never Die - Skrillex x Nero", //(2012)
+"I Hate Everything About You - Three Days Grace" //Three Days Grace (2003)
+};
+
+
+
+
+
 
 
 int *song_durations[SONG_FOLDER_NUM]={
@@ -513,7 +600,10 @@ int *song_durations[SONG_FOLDER_NUM]={
   song_duration13,
   song_duration14,
   song_duration15,
-  song_duration16
+  song_duration16,
+  song_duration17,
+  song_duration18,
+  song_duration19
 };
 
 char **song_names[SONG_FOLDER_NUM]={
@@ -533,7 +623,10 @@ char **song_names[SONG_FOLDER_NUM]={
   song_name13,
   song_name14,
   song_name15,
-  song_name16
+  song_name16,
+  song_name17,
+  song_name18,
+  song_name19
 };
 
 
@@ -770,6 +863,51 @@ char *album_name16[SONG_NUM]={
 
 
 
+char *album_name17[SONG_NUM]={
+"(2014)",
+"<|°_°|> (2015)",
+"<|°_°|> (2015)",
+"(2013)",
+"Young & Clever (2006)",
+"Pink Guy (2014)",
+"(2017)",
+"(2016)",
+"(2015)",
+"Lyricless (2014)",
+};
+
+
+
+char *album_name18[SONG_NUM]={
+"Torches (2011)",
+"Torches (2011)",
+"Pharmacy (2015)",
+"(2019)",
+"(2019)",
+"How To Be A Human Being (2016)",
+"(2011)",
+"(2016)",
+"(2015)",
+"(2014)"
+};
+
+
+
+char *album_name19[SONG_NUM]={
+"From Under The Cork Tree (2005)",
+"Infinity on High (2007)",
+"Ten Thousand Fists (2005)",
+"Ritual (2011)",
+"Blank Banshee 0 (2012)",
+"Odyssey (2014)",
+"Alien Boy EP (2018)",
+"Ugly Is Beautiful (2020)",
+"(2012)",
+"Three Days Grace (2003)"
+};
+
+
+
 char **album_names[SONG_FOLDER_NUM]={
   album_name0,
   album_name1,
@@ -787,7 +925,10 @@ char **album_names[SONG_FOLDER_NUM]={
   album_name13,
   album_name14,
   album_name15,
-  album_name16
+  album_name16,
+  album_name17,
+  album_name18,
+  album_name19
 };
 
 

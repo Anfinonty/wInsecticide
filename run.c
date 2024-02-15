@@ -70,7 +70,7 @@ WHITE //15
 
 
 #define SONG_NUM 10
-#define SONG_FOLDER_NUM 17
+#define SONG_FOLDER_NUM 20
 
 #define SCREEN_WIDTH    (GetSystemMetrics(SM_CXSCREEN))
 #define SCREEN_HEIGHT   (GetSystemMetrics(SM_CYSCREEN))
@@ -178,35 +178,6 @@ int FPS = 60;
 #include "song.c"
 #include "cleanup.c"
 
-//Attributes for Level Choose & MainMenu
-
-void DrawMainMenu(HDC hdc)
-{
-  GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,BLUE);
-  GrPrint(hdc,10,10,"Welcome to the wInsecticide Menu!",WHITE);
-
-  GrPrint(hdc,10,10+32,"-  Level 0",WHITE);
-  GrPrint(hdc,10,10+32+16,"-  Level 1",WHITE);
-  GrPrint(hdc,10,10+32+16*2,"-  Level 2",WHITE);
-  GrPrint(hdc,10,10+32+16*3,"-  Level 3",WHITE);
-  GrPrint(hdc,10,10+32+16*4,"-  Level 4",WHITE);
-  GrPrint(hdc,10,10+32+16*5,"-  Level 5",WHITE);
-  GrPrint(hdc,10,10+32+16*6,"-  Level 6",WHITE);
-  GrPrint(hdc,10,10+32+16*7,"-  Level 7",WHITE);
-
-  GrPrint(hdc,10,10+32+16*9,"Press 'Enter' to Play Selected Level",WHITE);
-  GrPrint(hdc,10,10+32+16*10,"Use Up or Down Keys to Select a Level",WHITE);
-  GrPrint(hdc,10,10+32+16*11,"Press [SHIFT_ESC] to Exit",WHITE);
-  GrPrint(hdc,10,10+32+16*12,"Press [SHIFT] + 'M' to Enable or Disable Music",WHITE);
-
-  GrPrint(hdc,10,10+32+16*level_chosen,">",WHITE);
-
-  /*char txt[16];
-  int anum=windowx;
-  sprintf(txt,"%d",anum);
-  GrPrint(hdc,0,240,txt,WHITE);*/
-
-}
 
 //Background
 void DrawBackground(HDC hdc) {
@@ -541,7 +512,6 @@ DWORD WINAPI AnimateTask03(LPVOID lpArg) { //Stopwatch
 
 
 
-
 DWORD WINAPI AnimateTask01(LPVOID lpArg) {
   while (TRUE) {
     if (!in_main_menu) { //In Game
@@ -558,6 +528,68 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
     }
   }
 }
+
+
+
+void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4)
+{
+  if (!stop_playing_song) {
+  if (song_folder_num>0) {
+    char txt[128];
+    char *song_name=song_names[rand_song1][rand_song2];
+    int sec = (song_seconds_run_max-song_seconds_run)%60;
+    if (sec>-1) {
+      if (sec>9)
+        sprintf(txt,"%s [%d:%d]",song_name,(song_seconds_run_max-song_seconds_run)/60,sec);
+      else 
+        sprintf(txt,"%s [%d:0%d]",song_name,(song_seconds_run_max-song_seconds_run)/60,sec);
+
+      char txt2[128];
+      char *album_name=/*album_name_arr[*/album_names[rand_song1][rand_song2]/*]*/;
+      sprintf(txt2,"%s",album_name);  
+
+      GrPrint(hdc,x,y,txt,c);
+      GrPrint(hdc,x,y+16,txt2,c);
+      GrPrint(hdc,x+1,y+1,txt,c4);
+      GrPrint(hdc,x+1,y+1+16,txt2,c4);
+    } else {
+      GrPrint(hdc,x,y,"Choosing Song...",c);
+      GrPrint(hdc,x+1,y+1,"Choosing Song...",c4);
+    }
+  }
+  } else {
+    GrPrint(hdc,x,y,"Press Shift + M to Enable Songs",c);
+    GrPrint(hdc,x+1,y+1,"Press Shift + M to Enable Songs",c4);
+  }
+}
+
+
+//Attributes for Level Choose & MainMenu
+
+void DrawMainMenu(HDC hdc)
+{
+  GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,BLUE);
+  GrPrint(hdc,10,10,"Welcome to the wInsecticide Menu!",WHITE);
+
+  GrPrint(hdc,10,10+32,"-  Level 0",WHITE);
+  GrPrint(hdc,10,10+32+16,"-  Level 1",WHITE);
+  GrPrint(hdc,10,10+32+16*2,"-  Level 2",WHITE);
+  GrPrint(hdc,10,10+32+16*3,"-  Level 3",WHITE);
+  GrPrint(hdc,10,10+32+16*4,"-  Level 4",WHITE);
+  GrPrint(hdc,10,10+32+16*5,"-  Level 5",WHITE);
+  GrPrint(hdc,10,10+32+16*6,"-  Level 6",WHITE);
+  GrPrint(hdc,10,10+32+16*7,"-  Level 7",WHITE);
+
+  GrPrint(hdc,10,10+32+16*9,"Press 'Enter' to Play Selected Level",WHITE);
+  GrPrint(hdc,10,10+32+16*10,"Use Up or Down Keys to Select a Level",WHITE);
+  GrPrint(hdc,10,10+32+16*11,"Press [SHIFT_ESC] to Exit",WHITE);
+  GrPrint(hdc,10,10+32+16*12,"Press [SHIFT] + 'M' to Enable or Disable Music",WHITE);
+
+  GrPrint(hdc,10,10+32+16*level_chosen,">",WHITE);
+  DrawPlayingMusic(hdc,10,10+32+16*14,BLACK,WHITE);
+}
+
+
 
 bool display_controls=FALSE;
 void DrawUI(HDC hdc) {
@@ -621,38 +653,7 @@ void DrawUI(HDC hdc) {
 //========================
 
 
-
-
-  if (!stop_playing_song) {
-  if (song_folder_num>0) {
-    //GrRect(hdc,0,0,64*8,56,c4);
-    char txt[128];
-    char *song_name=song_names[rand_song1][rand_song2];
-    int sec = (song_seconds_run_max-song_seconds_run)%60;
-    if (sec>-1) {
-      if (sec>9)
-        sprintf(txt,"%s [%d:%d]",song_name,(song_seconds_run_max-song_seconds_run)/60,sec);
-      else 
-        sprintf(txt,"%s [%d:0%d]",song_name,(song_seconds_run_max-song_seconds_run)/60,sec);
-
-      char txt2[128];
-      char *album_name=/*album_name_arr[*/album_names[rand_song1][rand_song2]/*]*/;
-      sprintf(txt2,"%s",album_name);  
-
-      GrPrint(hdc,4,8+0,txt,c);
-      GrPrint(hdc,4,8+16,txt2,c);
-      GrPrint(hdc,5,9+0,txt,c4);
-      GrPrint(hdc,5,9+16,txt2,c4);
-    } else {
-      GrPrint(hdc,4,8+0,"Choosing Song...",c);
-      GrPrint(hdc,5,9+0,"Choosing Song...",c4);
-    }
-  }
-  } else {
-    GrPrint(hdc,4,8+0,"Press Shift + M to Enable Songs",c);
-    GrPrint(hdc,5,9+0,"Press Shift + M to Enable Songs",c4);
-  }
-
+  DrawPlayingMusic(hdc,4,8,c,c4);
 
 
 
