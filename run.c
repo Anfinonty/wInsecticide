@@ -770,7 +770,7 @@ Right Click - Swing with Wceb Placement
 */
 
   if (display_controls) {
-  GrRect(hdc,0,GR_HEIGHT-128-16*26,8*42,128+16*20,c4);
+  GrRect(hdc,0,GR_HEIGHT-128-16*26,8*42,128+16*22,c4);
   GrPrint(hdc,4,GR_HEIGHT-128-16*25,"Controls:",c);
   GrPrint(hdc,4,GR_HEIGHT-128-16*24,"'W' - Jump from Surface",c);
   GrPrint(hdc,4,GR_HEIGHT-128-16*23,"'A' - Move Left (Clockwise)",c);
@@ -795,9 +795,7 @@ Right Click - Swing with Wceb Placement
   GrPrint(hdc,4,GR_HEIGHT-128-16*4,"[Left Click] or '1' - Swing without Web Placement",c);
   GrPrint(hdc,4,GR_HEIGHT-128-16*3,"[Right Click] - Swing with Web Placement",c);
   GrPrint(hdc,4,GR_HEIGHT-128-16,"[SHIFT_ESC] to Quit",c);
-  } else {
-  //GrRect(hdc,0,GR_HEIGHT-128,8*42,128-16*5,c4);
-  }
+  } 
 
   GrPrint(hdc,4,GR_HEIGHT-128+16,"Press '*' for Controls Help",c4);
   GrPrint(hdc,5,GR_HEIGHT-128+17,"Press '*' for Controls Help",c);
