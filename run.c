@@ -1038,10 +1038,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         RECT rect;
         if(GetWindowRect(hwnd, &rect))
         {
-          windowx = rect.left;
-          windowy = rect.top;
           GR_WIDTH = rect.right - rect.left;
           GR_HEIGHT = rect.bottom - rect.top;        
+          windowx = rect.left;
+          windowy = rect.top;
         }
 
         if (GR_WIDTH!=OLD_GR_WIDTH || GR_HEIGHT!=OLD_GR_HEIGHT) {
@@ -1115,8 +1115,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             in_main_menu=TRUE;
           }
         } else { //In Main Menu
-          FrameRateSleep(FPS); // (Uncapped)
-
           PAINTSTRUCT ps;
           hdc=BeginPaint(hwnd, &ps);
           hdcBackbuff=CreateCompatibleDC(hdc);
