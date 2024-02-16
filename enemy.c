@@ -533,16 +533,6 @@ void EnemyAct(int i)
 	knock_max=0;
   double target_x=0,target_y=0;
   bool allow_act=FALSE,allow_act_1=FALSE;
-  //timebreaker enemy
-  if (Enemy[i].time_breaker_immune && !player.time_breaker) {
-    dice=RandNum(0,Enemy[i].time_breaker_rare,Enemy[i].seed);
-    if (dice==1) {
-      slash_time=Enemy[i].time_breaker_length;
-      /*if (Enemy[i].saw_player) {
-        Enemy[i].snd_dur=5;
-      }*/
-    }
-  }
   //Sound
   /*if (sound_on && Enemy[i].snd_dur>0) {
     if (dice!=1) {
@@ -552,16 +542,28 @@ void EnemyAct(int i)
     }
   }*/
   //Attack
-  for (j=0;j<Enemy[i].bullet_shot_num;j++) {
-    BulletAct(Enemy[i].bullet_shot_arr[j]);
-  }
-  Enemy[i].dist_from_player=GetDistance(player.x,player.y,Enemy[i].x,Enemy[i].y);
-  EnemyLOSAct(i);//Shoot line of sight bullet
 
   bool deduct_health=FALSE;
   if (Enemy[i].health>0) {
-    //Enemy knockback & attacked
+  //timebreaker enemy
+    if (Enemy[i].time_breaker_immune && !player.time_breaker) {
+      dice=RandNum(0,Enemy[i].time_breaker_rare,Enemy[i].seed);
+      if (dice==1) {
+        slash_time=Enemy[i].time_breaker_length;
+      /*if (Enemy[i].saw_player) {
+        Enemy[i].snd_dur=5;
+      }*/
+      }
+    }
     //Player bullet
+    for (j=0;j<Enemy[i].bullet_shot_num;j++) {
+      BulletAct(Enemy[i].bullet_shot_arr[j]);
+    }
+    Enemy[i].dist_from_player=GetDistance(player.x,player.y,Enemy[i].x,Enemy[i].y);
+    EnemyLOSAct(i);//Shoot line of sight bullet
+
+
+    //Enemy knockback & attacked
    double dist_from_bullet=GetDistance(Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y,Enemy[i].x,Enemy[i].y);
    switch (Enemy[i].species) {
      case 0://fly

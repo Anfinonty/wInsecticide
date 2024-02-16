@@ -929,38 +929,6 @@ void PlayerAct() {
       }
 
 
-
-      //======FLING MOVEMENT======
-      if (grav_speed==0 && !player.is_swinging && !player.is_rebounding) { 
-        if (player.fling_distance<NODE_SIZE*DEFAULT_PLAYER_BUILD_RANGE/2) { //cancel fling movement
-          if (player.rst_left || player.rst_right) {
-            player.fling_distance=0;
-          }
-        }
-
-        if (player.fling_distance>0) {
-          if (!player.fling_left) {
-            move_x(-cos(player.launch_angle));
-            move_y(-sin(player.launch_angle));
-          } else { //fling left
-            move_x(cos(player.launch_angle));
-            move_y(sin(player.launch_angle));
-          }
-          player.fling_distance--;
-          if (player.fling_distance==1) {
-            player.in_air_timer=1002;
-            player.fling_distance=-1;
-          }
-        } else if (player.fling_distance<0){
-          if (!player.fling_left) {
-            move_x(-cos(player.launch_angle));
-          } else { //fling left
-            move_x(cos(player.launch_angle));
-          }
-          player.fling_distance--;
-        }
-      }
-
       //====PLAYER CIRCULAR WEB SWINGING MOVEMENT======
       if (player.is_swinging && (grav_speed==0 || grav_speed==1)) {
         player.is_rebounding=FALSE;
@@ -1074,6 +1042,47 @@ void PlayerAct() {
         } //End of player swinging movement
       } //end of grav==0
 
+
+
+      //======FLING MOVEMENT======
+      if (grav_speed==0 && !player.is_swinging && !player.is_rebounding) { 
+        if (player.pivot_length>NODE_SIZE*DEFAULT_PLAYER_BUILD_RANGE/2) {
+          if (player.fling_distance<=NODE_SIZE*DEFAULT_PLAYER_BUILD_RANGE/2) { //cancel fling movement
+            if (player.rst_left || player.rst_right) {
+              player.fling_distance=0;
+            }
+          }
+        } else {
+          if (player.fling_distance<0) { //cancel fling movement
+            if (player.rst_left || player.rst_right) {
+              player.fling_distance=0;
+            }
+          }
+        }
+
+
+        if (player.fling_distance>0) {
+          if (!player.fling_left) {
+            move_x(-cos(player.launch_angle));
+            move_y(-sin(player.launch_angle));
+          } else { //fling left
+            move_x(cos(player.launch_angle));
+            move_y(sin(player.launch_angle));
+          }
+          player.fling_distance--;
+          if (player.fling_distance==1) {
+            player.in_air_timer=1002;
+            player.fling_distance=-1;
+          }
+        } else if (player.fling_distance<0){
+          if (!player.fling_left) {
+            move_x(-cos(player.launch_angle));
+          } else { //fling left
+            move_x(cos(player.launch_angle));
+          }
+          player.fling_distance--;
+        }
+      }
 
      //x-axis cap
       if (player.x-PLAYER_WIDTH/2<0) {
