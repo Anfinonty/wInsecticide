@@ -85,6 +85,9 @@ char save_level[40];
 int player_color=0;
 double time_begin=0;
 
+bool do_invert=FALSE;
+bool is_invert=FALSE;
+
 #define DEFAULT_PLAYER_SPEED			1
 
 #define ENEMY_TYPE_NUM                         10
@@ -186,15 +189,9 @@ void DrawBackground(HDC hdc) {
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(173, 216, 230));
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(8,39,245));
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255))); //RAVE
-  switch (map_background) {
-    case 0:
-      DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite1,SRCCOPY,TRUE);
-      break;
-    case 1:
-      DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite2,NOTSRCCOPY,TRUE);
-      break;
-    default:
-      break;
+
+  if (map_background<=1) {
+    DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite_cache,SRCCOPY,TRUE);
   }
 }
 
@@ -267,6 +264,8 @@ void InitOnce() {
 
 void Init() {
   time_begin=current_timestamp();
+  do_invert=TRUE;
+  is_invert=TRUE;
 
   //Load Best Score
   //Folder & file creation
@@ -315,6 +314,7 @@ void Init() {
   game_over=FALSE;
   frame_tick=-10;
 
+
   InitSongBank();
 
   InitGrid();
@@ -349,6 +349,40 @@ void Init() {
 }
 
 
+void DrawPlatformSprite(HWND hwnd, HDC hdc,bool is_grey)
+{
+  PAINTSTRUCT ps; //Suggestion Credit: https://git.xslendi.xyz
+  hdc=BeginPaint(hwnd, &ps);
+  HDC hdc2=CreateCompatibleDC(hdc);
+  //HBITMAP tmp_map_platforms_sprite=CreateCompatibleBitmap(hdc,MAP_WIDTH,MAP_HEIGHT);
+  HBITMAP tmp_map_platforms_sprite;
+  if (!is_grey) {
+    tmp_map_platforms_sprite=CreateLargeBitmap(MAP_WIDTH,MAP_HEIGHT);
+  } else {
+    tmp_map_platforms_sprite=CreateGreyscaleBitmap(MAP_WIDTH,MAP_HEIGHT);
+  }
+
+
+  SelectObject(hdc2,tmp_map_platforms_sprite);
+
+
+  if (map_background==2)
+    GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,custom_map_background_color);
+  else 
+    GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,MYCOLOR1);
+
+  DrawGroundTriFill(hdc2);
+  DrawGround(hdc2);
+  DrawGroundText(hdc2);
+
+  DeleteDC(hdc2);
+  EndPaint(hwnd, &ps);
+
+  map_platforms_sprite=ReplaceColor(tmp_map_platforms_sprite,MYCOLOR1,BLACK,NULL);
+  map_platforms_sprite_mask=CreateBitmapMask(map_platforms_sprite,BLACK,NULL);
+  DeleteObject(tmp_map_platforms_sprite);
+  //end of platform sprite creation
+}
 
 void InitLevel(HWND hwnd, HDC hdc)
 {
@@ -365,45 +399,6 @@ void InitLevel(HWND hwnd, HDC hdc)
 
   InitOnce();//cannot be repeatedly run
   Init();
-
-
-  PAINTSTRUCT ps; //Suggestion Credit: https://git.xslendi.xyz
-  hdc=BeginPaint(hwnd, &ps);
-  HDC hdc2=CreateCompatibleDC(hdc);
-  //HBITMAP tmp_map_platforms_sprite=CreateCompatibleBitmap(hdc,MAP_WIDTH,MAP_HEIGHT);
-  //https://forums.codeguru.com/showthread.php?526563-Accessing-Pixels-with-CreateDIBSection
-  unsigned char* lpBitmapBits; 
-
-  BITMAPINFO bi; 
-  ZeroMemory(&bi, sizeof(BITMAPINFO));
-  bi.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
-  bi.bmiHeader.biWidth=MAP_WIDTH;
-  bi.bmiHeader.biHeight=-MAP_HEIGHT;
-  bi.bmiHeader.biPlanes=1;
-  bi.bmiHeader.biBitCount=32;
-  HBITMAP tmp_map_platforms_sprite=CreateDIBSection(hdc2,&bi,DIB_RGB_COLORS, (VOID**)&lpBitmapBits,NULL,0);
-
-  SelectObject(hdc2,tmp_map_platforms_sprite);
-  if (map_background==2)
-    GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,custom_map_background_color);
-  else 
-    GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,MYCOLOR1);
-
-  DrawGroundTriFill(hdc2);
-  DrawGround(hdc2);
-  DrawGroundText(hdc2);
-
-  DeleteDC(hdc2);
-  EndPaint(hwnd, &ps);
-
-  map_platforms_sprite=ReplaceColor(tmp_map_platforms_sprite,MYCOLOR1,BLACK,NULL);
-  map_platforms_sprite_mask=CreateBitmapMask(map_platforms_sprite,BLACK,NULL);
-
-  
-  DeleteObject(tmp_map_platforms_sprite);
-  //end of platform sprite creation
-
-
 
 
   player.sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,player.sprite_angle,LTGREEN,BLACK,-1);
@@ -424,6 +419,15 @@ void InitLevel(HWND hwnd, HDC hdc)
   player.spin_sprite_3_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI,LTGREEN,BLACK,-1);
   player.spin_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,BLACK,-1);
 
+  //InitBackground
+  /*switch (map_background) {
+   case 0:
+      map_background_sprite_cache=CopyBitmap(map_background_sprite1,SRCCOPY);
+      break;
+    case 1:
+      map_background_sprite_cache=CopyBitmap(map_background_sprite2,NOTSRCCOPY);
+      break;
+ }*/
 
   //Load Enemy cache sprites
   InitEnemySprites();
@@ -946,6 +950,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         case 'C':
           if (!in_main_menu) {
             if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
+              do_invert=TRUE;
               player.time_breaker=TRUE;
               player.time_breaker_cooldown=player.time_breaker_cooldown_max;
               player.speed+=player.time_breaker_units_max/2-1;
@@ -962,6 +967,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         case 'Z':
           if (!in_main_menu) {
             if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
+              do_invert=TRUE;
               player.time_breaker=TRUE;
               player.time_breaker_cooldown=player.time_breaker_cooldown_max;
               player.speed+=player.time_breaker_units_max/2-1;
@@ -1056,12 +1062,57 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             Enemy[player_render_enemies[i]].seed=rand();
           }
 
+
+         //Trigger when invert screen
+         if (do_invert) {
+            DeleteObject(map_background_sprite_cache);
+            DeleteObject(map_platforms_sprite);
+            DeleteObject(map_platforms_sprite_mask);
+            switch (map_background) {
+              case 0:
+                if (is_invert) { //uninvert colors
+                  map_background_sprite_cache=CopyBitmap(map_background_sprite1,SRCCOPY);
+                  DrawPlatformSprite(hwnd,hdc,FALSE);                                    
+                } else {
+                  map_background_sprite_cache=CopyGreyscaleBitmap(map_background_sprite1,SRCCOPY);
+                  DrawPlatformSprite(hwnd,hdc,TRUE);
+                }
+                break;
+              case 1:
+                if (is_invert) { //uninvert colors
+                  map_background_sprite_cache=CopyBitmap(map_background_sprite2,NOTSRCCOPY);
+                  DrawPlatformSprite(hwnd,hdc,FALSE);                                    
+                } else {
+                  map_background_sprite_cache=CopyGreyscaleBitmap(map_background_sprite2,NOTSRCCOPY);
+                  DrawPlatformSprite(hwnd,hdc,TRUE);
+                }
+                break;
+              default:
+                if (is_invert) { //uninvert colors
+                  map_background_sprite_cache=CopyBitmap(map_background_sprite1,SRCCOPY);
+                  DrawPlatformSprite(hwnd,hdc,FALSE);                                    
+                } else {
+                  map_background_sprite_cache=CopyGreyscaleBitmap(map_background_sprite1,SRCCOPY);
+                  DrawPlatformSprite(hwnd,hdc,TRUE);
+                }
+                break;
+            }
+            is_invert=!is_invert;
+            do_invert=FALSE;
+          }
+
           PAINTSTRUCT ps;
           hdc=BeginPaint(hwnd, &ps);
           hdcBackbuff=CreateCompatibleDC(hdc);
+
+          //HBITMAP screen = CreateGreyscaleBitmap(GR_WIDTH,GR_HEIGHT);
           HBITMAP screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
           SelectObject(hdcBackbuff,screen);
-      
+
+
+        
+
+
           DrawBackground(hdcBackbuff);
           DrawPlatforms(hdcBackbuff);
           DrawWebs(hdcBackbuff);
@@ -1070,20 +1121,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           DrawCursor(hdcBackbuff);
           DrawUI(hdcBackbuff);
 
+          //BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
           if (!IsInvertedBackground()){
-            if (!player.time_breaker) {
-              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
-            } else {
-              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
-            }
+            BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
           } else {
-            if (!player.time_breaker) {
-              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
-            } else {
-              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
-            }
+            BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
           }
-  //      StretchBlt(hdc, GR_WIDTH/2, -GR_HEIGHT, -GR_WIDTH-1, GR_HEIGHT, hdcBackbuff, 0, 0, GR_WIDTH, GR_HEIGHT,     SRCCOPY);
           DeleteDC(hdcBackbuff);
           DeleteObject(screen);
           EndPaint(hwnd, &ps);
@@ -1101,6 +1144,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             DeleteObject(map_platforms_sprite);
             DeleteObject(map_platforms_sprite_mask);
+            DeleteObject(map_background_sprite_cache);
             back_to_menu=FALSE;
             in_main_menu=TRUE;
           }
@@ -1177,6 +1221,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //Load Map Background sprites
       map_background_sprite1=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       map_background_sprite2=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+      //map_background_sprite_cache=CreateGreyscaleBitmap(800,600,map_background_sprite1);
+      //map_background_sprite_cache=CopyBitmap(800,600,map_background_sprite1);
 
       mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,-1);
 

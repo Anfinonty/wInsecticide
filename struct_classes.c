@@ -1,5 +1,5 @@
 //classes for game
-//note: double first, bool last
+
 
 
 struct GroundLine
@@ -563,6 +563,7 @@ HBITMAP enemy2_sprite_3;
 
 HBITMAP map_background_sprite1;
 HBITMAP map_background_sprite2;
+HBITMAP map_background_sprite_cache;
 
 HBITMAP map_platforms_sprite;
 HBITMAP map_platforms_sprite_mask;

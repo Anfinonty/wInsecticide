@@ -1246,6 +1246,7 @@ void PlayerAct() {
         player.time_breaker_units_tick=player.time_breaker_units_tick_max;
         if (player.time_breaker_units==0) {
           player.time_breaker=FALSE;
+          do_invert=TRUE;
         }
       }
     }

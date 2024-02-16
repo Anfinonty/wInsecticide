@@ -108,30 +108,6 @@ HBITMAP ReplaceColor(HBITMAP hBmp,COLORREF cOldColor,COLORREF cNewColor,HDC hBmp
 }
 
 
-HBITMAP CopyBitmap(HBITMAP srcBitmap, HDC hdc)
-{
-  HDC hdcMem,hdcMem2;
-  HBITMAP destBitmap;
-  BITMAP bm;
-
-  GetObject(srcBitmap, sizeof(BITMAP), &bm);
-  destBitmap = CreateBitmap(bm.bmWidth, bm.bmHeight, 1, 1, NULL);
-
-  hdcMem = CreateCompatibleDC(hdc);
-  hdcMem2 = CreateCompatibleDC(hdc);
-
-  SelectObject(hdcMem, srcBitmap);
-  SelectObject(hdcMem2, destBitmap);
-
-  SetBkColor(hdcMem, BLACK);
-
-  BitBlt(hdcMem2, 0, 0, bm.bmWidth, bm.bmHeight, hdcMem, 0, 0, SRCCOPY);
-  DeleteDC(hdcMem);
-  DeleteDC(hdcMem2);
-
-  return destBitmap;
-}
-
 
 
 HBITMAP CreateBitmapMask(HBITMAP hbmColour, COLORREF crTransparent, HDC hdc)
@@ -676,4 +652,119 @@ void DrawTriFill(HDC hdc, int tri_color,double x1,double y1,double x2,double y2,
 
   SelectObject(hdc, hOldPen);
   DeleteObject(hPen);
+}
+
+
+
+//https://stackoverflow.com/questions/3142349/drawing-on-8bpp-grayscale-bitmap-unmanaged-c
+HBITMAP CreateGreyscaleBitmap(int cx, int cy)
+{
+  BITMAPINFO* pbmi = (BITMAPINFO*)alloca(offsetof(BITMAPINFO, bmiColors[256]));
+  pbmi->bmiHeader.biSize = sizeof (pbmi->bmiHeader);
+  pbmi->bmiHeader.biWidth = cx;
+  pbmi->bmiHeader.biHeight = cy;
+  pbmi->bmiHeader.biPlanes = 1;
+  pbmi->bmiHeader.biBitCount = 8;
+  pbmi->bmiHeader.biCompression = BI_RGB;
+  pbmi->bmiHeader.biSizeImage = 0;
+  pbmi->bmiHeader.biXPelsPerMeter = 14173;
+  pbmi->bmiHeader.biYPelsPerMeter = 14173;
+  pbmi->bmiHeader.biClrUsed = 0;
+  pbmi->bmiHeader.biClrImportant = 0;
+
+  for(int i=0; i<256; i++)
+  {
+    pbmi->bmiColors[i].rgbRed = i;
+    pbmi->bmiColors[i].rgbGreen = i;
+    pbmi->bmiColors[i].rgbBlue = i;
+    pbmi->bmiColors[i].rgbReserved = 0;
+  }
+
+  PVOID pv;
+  return CreateDIBSection(NULL,pbmi,DIB_RGB_COLORS,&pv,NULL,0);
+}
+
+
+HBITMAP CreateLargeBitmap(int cx, int cy)
+{
+//https://forums.codeguru.com/showthread.php?526563-Accessing-Pixels-with-CreateDIBSection
+ unsigned char* lpBitmapBits; 
+
+  BITMAPINFO bi; 
+  ZeroMemory(&bi, sizeof(BITMAPINFO));
+  bi.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
+  bi.bmiHeader.biWidth=cx;
+  bi.bmiHeader.biHeight=-cy;
+  bi.bmiHeader.biPlanes=1;
+  bi.bmiHeader.biBitCount=16;
+  return CreateDIBSection(NULL, &bi,DIB_RGB_COLORS, (VOID**)&lpBitmapBits,NULL,0);
+}
+
+
+HBITMAP CopyGreyscaleBitmap(HBITMAP sBitmap, int SRCOPERATION)
+{
+  BITMAP bm;
+  GetObject(sBitmap, sizeof(bm), &bm);
+
+  BITMAPINFO* pbmi = (BITMAPINFO*)alloca(offsetof(BITMAPINFO, bmiColors[256]));
+  pbmi->bmiHeader.biSize = sizeof (pbmi->bmiHeader);
+  pbmi->bmiHeader.biWidth = bm.bmWidth;
+  pbmi->bmiHeader.biHeight = bm.bmHeight;
+  pbmi->bmiHeader.biPlanes = 1;
+  pbmi->bmiHeader.biBitCount = 8;
+  pbmi->bmiHeader.biCompression = BI_RGB;
+  pbmi->bmiHeader.biSizeImage = 0;
+  pbmi->bmiHeader.biXPelsPerMeter = 14173;
+  pbmi->bmiHeader.biYPelsPerMeter = 14173;
+  pbmi->bmiHeader.biClrUsed = 0;
+  pbmi->bmiHeader.biClrImportant = 0;
+
+  for(int i=0; i<256; i++)
+  {
+    pbmi->bmiColors[i].rgbRed = i;
+    pbmi->bmiColors[i].rgbGreen = i;
+    pbmi->bmiColors[i].rgbBlue = i;
+    pbmi->bmiColors[i].rgbReserved = 0;
+  }
+
+  PVOID pv;
+  HDC hdc=CreateCompatibleDC(NULL);
+  HDC hdc2=CreateCompatibleDC(NULL);
+  HBITMAP dBitmap=CreateDIBSection(NULL,pbmi,DIB_RGB_COLORS,&pv,NULL,0);
+  SelectObject(hdc2,sBitmap);
+  SelectObject(hdc,dBitmap);
+  BitBlt(hdc, 0, 0, bm.bmWidth, bm.bmHeight, hdc2, 0, 0, SRCOPERATION);
+  DeleteDC(hdc2);
+  DeleteDC(hdc);
+  return dBitmap;
+}
+
+
+HBITMAP CopyBitmap(HBITMAP srcBitmap,int SRCOPERATION)
+{
+  BITMAP bm;
+  GetObject(srcBitmap, sizeof(bm), &bm);
+  unsigned char* lpBitmapBits; 
+
+  BITMAPINFO bi; 
+  ZeroMemory(&bi, sizeof(BITMAPINFO));
+  bi.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
+  bi.bmiHeader.biWidth=bm.bmWidth;
+  bi.bmiHeader.biHeight=bm.bmHeight;
+  bi.bmiHeader.biPlanes=1;
+  bi.bmiHeader.biBitCount=16;
+  HBITMAP destBitmap=CreateDIBSection(NULL,&bi,DIB_RGB_COLORS, (VOID**)&lpBitmapBits,NULL,0);
+
+  HDC hdcMem = CreateCompatibleDC(NULL);
+  HDC hdcMem2 = CreateCompatibleDC(NULL);
+
+  SelectObject(hdcMem2, srcBitmap);
+  SelectObject(hdcMem, destBitmap);
+
+  BitBlt(hdcMem, 0, 0, bm.bmWidth, bm.bmHeight, hdcMem2, 0, 0, SRCOPERATION);
+
+  DeleteDC(hdcMem);
+  DeleteDC(hdcMem2);
+
+  return destBitmap;
 }
