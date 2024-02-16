@@ -419,16 +419,6 @@ void InitLevel(HWND hwnd, HDC hdc)
   player.spin_sprite_3_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI,LTGREEN,BLACK,-1);
   player.spin_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,BLACK,-1);
 
-  //InitBackground
-  /*switch (map_background) {
-   case 0:
-      map_background_sprite_cache=CopyBitmap(map_background_sprite1,SRCCOPY);
-      break;
-    case 1:
-      map_background_sprite_cache=CopyBitmap(map_background_sprite2,NOTSRCCOPY);
-      break;
- }*/
-
   //Load Enemy cache sprites
   InitEnemySprites();
 
@@ -693,13 +683,19 @@ void DrawUI(HDC hdc) {
 
 
 
+  int c5;
+  if (!player.time_breaker) {
+    c5=PURPLE;
+  } else {
+    c5=LTPURPLE;
+  }
   //draw player time breaker
   for (i=0;i<player.time_breaker_units;i++) {
     double tb_angle=M_PI_2+2*M_PI_2/player.time_breaker_units_max*i*2;
     GrCircle(hdc,
       player.sprite_x-32*cos(tb_angle),
       player.sprite_y-32*sin(tb_angle),
-      2,PURPLE,PURPLE);
+      2,c5,c5);
   }
 
   if (player.time_breaker_units==player.time_breaker_units_max && !player.time_breaker) {
@@ -1068,35 +1064,27 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DeleteObject(map_background_sprite_cache);
             DeleteObject(map_platforms_sprite);
             DeleteObject(map_platforms_sprite_mask);
-            switch (map_background) {
-              case 0:
-                if (is_invert) { //uninvert colors
-                  map_background_sprite_cache=CopyBitmap(map_background_sprite1,SRCCOPY);
-                  DrawPlatformSprite(hwnd,hdc,FALSE);                                    
-                } else {
+
+            if (!IsInvertedBackground()) {
+              if (is_invert) { //uninvert colors
+                map_background_sprite_cache=CopyBitmap(map_background_sprite1,SRCCOPY);
+                DrawPlatformSprite(hwnd,hdc,FALSE);                                    
+              } else {
+                if (!IsInvertedBackground()) {
                   map_background_sprite_cache=CopyGreyscaleBitmap(map_background_sprite1,SRCCOPY);
-                  DrawPlatformSprite(hwnd,hdc,TRUE);
                 }
-                break;
-              case 1:
-                if (is_invert) { //uninvert colors
-                  map_background_sprite_cache=CopyBitmap(map_background_sprite2,NOTSRCCOPY);
-                  DrawPlatformSprite(hwnd,hdc,FALSE);                                    
-                } else {
-                  map_background_sprite_cache=CopyGreyscaleBitmap(map_background_sprite2,NOTSRCCOPY);
-                  DrawPlatformSprite(hwnd,hdc,TRUE);
-                }
-                break;
-              default:
-                if (is_invert) { //uninvert colors
-                  map_background_sprite_cache=CopyBitmap(map_background_sprite1,SRCCOPY);
-                  DrawPlatformSprite(hwnd,hdc,FALSE);                                    
-                } else {
-                  map_background_sprite_cache=CopyGreyscaleBitmap(map_background_sprite1,SRCCOPY);
-                  DrawPlatformSprite(hwnd,hdc,TRUE);
-                }
-                break;
+                DrawPlatformSprite(hwnd,hdc,TRUE);
+              }
+            } else {
+              if (is_invert) { //uninvert colors
+                map_background_sprite_cache=CopyBitmap(map_background_sprite2,NOTSRCCOPY);
+                DrawPlatformSprite(hwnd,hdc,FALSE);                                    
+              } else {
+                map_background_sprite_cache=CopyGreyscaleBitmap(map_background_sprite2,NOTSRCCOPY);
+                DrawPlatformSprite(hwnd,hdc,TRUE);
+              }
             }
+
             is_invert=!is_invert;
             do_invert=FALSE;
           }
