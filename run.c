@@ -83,6 +83,7 @@ int int_best_score=0;
 double double_best_score=0;
 char save_level[40];
 int player_color=0;
+double time_begin=0;
 
 #define DEFAULT_PLAYER_SPEED			1
 
@@ -160,7 +161,7 @@ bool in_main_menu=TRUE;
 int level_chosen=0;
 int windowx=0;
 int windowy=0;
-int game_timer=0;
+long long game_timer=0;
 bool game_over=FALSE;
 int enemy_kills=0;
 int FPS = 60;
@@ -257,19 +258,17 @@ void InitOnce() {
   GR_WIDTH=SCREEN_WIDTH;
   GR_HEIGHT=SCREEN_HEIGHT;
 
-  player.cam_move_x=0,
-  player.cam_move_y=0,
+  player.cam_move_x=0;
+  player.cam_move_y=0;
 
   //InitCustard()
-
-  InitTickFrequency();
-  InitFPS();
   //printf("\n===Init Once Done===\n");
 }
 
 void Init() {
-  //Load Best Score
+  time_begin=current_timestamp();
 
+  //Load Best Score
   //Folder & file creation
   DIR* dir = opendir("score_saves");
   if (dir) {//Check for scoresaves folder
@@ -472,43 +471,6 @@ void FrameRateSleep(int max_fps)
     }
     m_prev_end_of_frame = t;
 }
-
-
-
-
-
-DWORD WINAPI AnimateTask03(LPVOID lpArg) { //Stopwatch
-  while (TRUE) {
-    if (!in_main_menu) { //In Game
-      if (enemy_kills<ENEMY_NUM) {
-        game_timer++;
-        Sleep(1);
-      } else {
-        if (!game_over) {
-          if (game_timer<int_best_score) { //New high score
-            DIR* dir;
-            dir=opendir("score_saves");
-            if (ENOENT==errno) {
-              mkdir("score_saves");
-            }
-            FILE *fptr;
-            fptr = fopen(save_level,"w");
-            char txt[12];
-            int tmp_game_timer=game_timer;
-            sprintf(txt,"%d\n",tmp_game_timer);
-            fprintf(fptr,txt);
-            fclose(fptr);
-          }
-          game_over=TRUE;
-        }
-        Sleep(1000);
-      }
-    } else {
-      Sleep(1000);
-    }
-  }
-}
-
 
 
 
@@ -1060,6 +1022,34 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           if (frame_tick>9000) {
             frame_tick=0;
           }
+
+
+
+
+            //60Frames = 1 sec
+            //1Frame = 1/60
+            if (enemy_kills<ENEMY_NUM) {
+              game_timer= current_timestamp() - time_begin;
+            } else {
+              if (!game_over) {
+                if (game_timer<int_best_score) { //New high score
+                  DIR* dir;
+                  dir=opendir("score_saves");
+                  if (ENOENT==errno) {
+                    mkdir("score_saves");
+                  }
+                  FILE *fptr;
+                  fptr = fopen(save_level,"w");
+                  char txt[12];
+                  int tmp_game_timer=game_timer;
+                  sprintf(txt,"%d\n",tmp_game_timer);
+                  fprintf(fptr,txt);
+                  fclose(fptr);
+                }
+                game_over=TRUE;
+              }
+           }
+
           
           PlayerCameraShake();
           for (int i=0;i<player.rendered_enemy_num;i++) {
@@ -1135,6 +1125,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       return 0;
       break;
     case WM_CREATE:
+      InitTickFrequency();
+      InitFPS();
+
       back_to_menu=FALSE;
       in_main_menu=TRUE;
       level_chosen=0;
@@ -1233,13 +1226,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   int *lpArgPtr;
   HANDLE hHandles[2];
   DWORD ThreadId;
-  for (int i=0;i<3;i++) {
+  for (int i=0;i<2;i++) {
     lpArgPtr=(int *)malloc(sizeof(int));
     *lpArgPtr=i;
     switch (i) {
       case 0: hHandles[i]=CreateThread(NULL,0,AnimateTask01,lpArgPtr,0,&ThreadId);break;
       case 1: hHandles[i]=CreateThread(NULL,0,SongTask,lpArgPtr,0,&ThreadId);break;
-      case 2: hHandles[i]=CreateThread(NULL,0,AnimateTask03,lpArgPtr,0,&ThreadId);break;
     }
   }
 

@@ -1,18 +1,18 @@
 
 
-/*
-long long current_timestamp() {//https://copyprogramming.com/howto/c-sleep-in-milliseconds-in-c-code-example
+
+unsigned long long current_timestamp() {//https://copyprogramming.com/howto/c-sleep-in-milliseconds-in-c-code-example
+//https://stackoverflow.com/questions/10301106/gettimeofday-returns-a-negative-value
   struct timeval te;
   mingw_gettimeofday(&te, NULL); //get current time
-  long long millisec = te.tv_sec*1000LL + te.tv_usec/1000; //calc millisecs
-  return millisec;
+  return (unsigned long long) te.tv_sec*1000LL + te.tv_usec/1000; //calc millisecs
 }
 
 int int_current_timestamp() {
   struct timeval te;
   mingw_gettimeofday(&te, NULL);
   return te.tv_sec;
-}*/
+}
 
 
 //Maths
