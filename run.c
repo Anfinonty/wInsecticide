@@ -475,9 +475,6 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
       for (int i=0;i<player.rendered_enemy_num;i++) {
         EnemyAct(player_render_enemies[i]);
       }
-      if (player.health<1) {
-        Init();
-      }
       Sleep(player.sleep_timer);
     } else {
       Sleep(1000);
@@ -1059,11 +1056,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
 
 
+
+          if (player.health<=0) {
+            Init();
+          }
+
          //Trigger when invert screen
          if (do_invert) {
             DeleteObject(map_background_sprite_cache);
             DeleteObject(map_platforms_sprite);
             DeleteObject(map_platforms_sprite_mask);
+
 
             if (!IsInvertedBackground()) {
               if (is_invert) { //uninvert colors
