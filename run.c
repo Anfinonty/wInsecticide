@@ -1073,9 +1073,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                 map_background_sprite_cache=CopyBitmap(map_background_sprite1,SRCCOPY);
                 DrawPlatformSprite(hwnd,hdc,FALSE);                                    
               } else {
-                if (!IsInvertedBackground()) {
-                  map_background_sprite_cache=CopyGreyscaleBitmap(map_background_sprite1,SRCCOPY);
-                }
+                map_background_sprite_cache=CopyGreyscaleBitmap(map_background_sprite1,SRCCOPY);
                 DrawPlatformSprite(hwnd,hdc,TRUE);
               }
             } else {

@@ -701,6 +701,22 @@ HBITMAP CreateLargeBitmap(int cx, int cy)
 }
 
 
+void CopyPartialGreyscaleBitmap(HBITMAP dBitmap, HBITMAP sBitmap,int x,int SRCOPERATION)
+{
+
+  BITMAP bm;
+  GetObject(sBitmap, sizeof(bm), &bm);
+
+  HDC hdc1=CreateCompatibleDC(NULL);
+  HDC hdc2=CreateCompatibleDC(NULL);
+  SelectObject(hdc2,sBitmap);
+  SelectObject(hdc1,dBitmap);
+  BitBlt(hdc1, 0, 0, x, bm.bmHeight, hdc2, 0, 0, SRCOPERATION);
+  DeleteDC(hdc2);
+  DeleteDC(hdc1);
+}
+
+
 HBITMAP CopyGreyscaleBitmap(HBITMAP sBitmap, int SRCOPERATION)
 {
   BITMAP bm;
