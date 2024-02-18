@@ -297,7 +297,7 @@ void DrawWebs(HDC hdc)
 { int id;
   for (int i=GROUND_NUM;i<GROUND_NUM+player.max_web_num;i++) {
     id=i;
-    if (id<GROUND_NUM+MAX_WEB_NUM) {
+    if (id<GROUND_NUM+MAX_WEB_NUM && Ground[id].x1>-20) {
       GrLine(hdc,
         Ground[id].x1+player.cam_x+player.cam_move_x,
         Ground[id].y1+player.cam_y+player.cam_move_y,
