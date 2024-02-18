@@ -70,7 +70,7 @@ WHITE //15
 
 
 #define SONG_NUM 10
-#define SONG_FOLDER_NUM 20
+#define SONG_FOLDER_NUM 22
 
 #define SCREEN_WIDTH    (GetSystemMetrics(SM_CXSCREEN))
 #define SCREEN_HEIGHT   (GetSystemMetrics(SM_CYSCREEN))

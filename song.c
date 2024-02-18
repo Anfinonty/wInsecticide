@@ -578,6 +578,63 @@ char *song_name19[SONG_NUM]={
 };
 
 
+//20
+int song_duration20[SONG_NUM]={
+60+33, //"You Are A Pirate - Alestorm", //"(2011)",
+180+39, //"Bad Apple - Masayoshi Minoshima", //"(1998)",
+120+53, //"Caramelldansen - Caramella Girls", //"Supergott (2001)",
+180+6,  //"Aftermath - Caravan Palace", //"Robot Face (2015)",
+120+47, //"Memento Mori - Crywank", //"Tomorrow Is Nearly Yesterday And Everyday Is Stupid (2013)",
+180+19, //"Beautiful Alien - Darude ft. AI AM", //"Moments (2015)",
+180+45, //"Sandstorm - Darude", //"Before The Storm (2000)",
+180+28, //"Buttercup - Jack Stauber", //"Pop Food (2017)",
+240+40, //"Dreamscape - 009 Sound System", //"(2009)",
+180+46 //"New Day (Wazari Remix) - DJ Diskant" //"New Day (2007)"
+};
+
+
+char *song_name20[SONG_NUM]={
+"You Are A Pirate - Alestorm", //"(2011)",
+"Bad Apple - Masayoshi Minoshima", //"(1998)",
+"Caramelldansen - Caramella Girls", //"Supergott (2001)",
+"Aftermath - Caravan Palace", //"Robot Face (2015)",
+"Memento Mori - Crywank", //"Tomorrow Is Nearly Yesterday And Everyday Is Stupid (2013)",
+"Beautiful Alien - Darude ft. AI AM", //"Moments (2015)",
+"Sandstorm - Darude", //"Before The Storm (2000)",
+"Buttercup - Jack Stauber", //"Pop Food (2017)",
+"Dreamscape - 009 Sound System", //"(2009)",
+"New Day (Wazari Remix) - DJ Diskant" //"New Day (2007)"
+};
+
+
+
+//21
+int song_duration21[SONG_NUM]={
+240+45, //"Blue - Eiffel65", //"Europop (1999)",
+180+38, //"Breathing - Yellowcard", //"Ocean Avenue (2003)",
+37, //"Beware The Friendly Stranger - Boards of Canada", //"Geogaddi (2002)",
+240+20, //"Boulevard of Broken Dreams - Green Day", //"American Idiot (2004)",
+300+48, //"Tears Don't Fall - Bullet For My Valentine", //"The Poison (2005)",
+180+39, //"Just Can't Get Enough - Black Eyed Peas", //"The Beginning (2010)",
+120+46, //"Axel F - Crazy Frog", //"Crazy Frog (2005)",
+120+3, //"Her - Eery", //"(2016)",
+300+15, //"Hey Man Nice Shot - Filter", //"Short Bus (1995)",
+180+33 //"Dragostea Din Tei - O Zone" //"DiscO-Zone (2003)"
+};
+
+
+char *song_name21[SONG_NUM]={
+"Blue - Eiffel65", //"Europop (1999)",
+"Breathing - Yellowcard", //"Ocean Avenue (2003)",
+"Beware The Friendly Stranger - Boards of Canada", //"Geogaddi (2002)",
+"Boulevard of Broken Dreams - Green Day", //"American Idiot (2004)",
+"Tears Don't Fall - Bullet For My Valentine", //"The Poison (2005)",
+"Just Can't Get Enough - Black Eyed Peas", //"The Beginning (2010)",
+"Axel F - Crazy Frog", //"Crazy Frog (2005)",
+"Her - Eery", //"(2016)",
+"Hey Man Nice Shot - Filter", //"Short Bus (1995)",
+"Dragostea Din Tei - O Zone" //"DiscO-Zone (2003)"
+};
 
 
 
@@ -603,7 +660,9 @@ int *song_durations[SONG_FOLDER_NUM]={
   song_duration16,
   song_duration17,
   song_duration18,
-  song_duration19
+  song_duration19,
+  song_duration20,
+  song_duration21
 };
 
 char **song_names[SONG_FOLDER_NUM]={
@@ -626,7 +685,9 @@ char **song_names[SONG_FOLDER_NUM]={
   song_name16,
   song_name17,
   song_name18,
-  song_name19
+  song_name19,
+  song_name20,
+  song_name21
 };
 
 
@@ -865,8 +926,8 @@ char *album_name16[SONG_NUM]={
 
 char *album_name17[SONG_NUM]={
 "(2014)",
-"<|°_°|> (2015)",
-"<|°_°|> (2015)",
+"<|*_*|> (2015)",
+"<|*_*|> (2015)",
 "(2013)",
 "Young & Clever (2006)",
 "Pink Guy (2014)",
@@ -908,6 +969,34 @@ char *album_name19[SONG_NUM]={
 
 
 
+char *album_name20[SONG_NUM]={
+"(2011)",
+"(1998)",
+"Supergott (2001)",
+"<|*_*|> (2015)",
+"Tomorrow Is Nearly Yesterday And Everyday Is Stupid (2013)",
+"Moments (2015)",
+"Before The Storm (2000)",
+"Pop Food (2017)",
+"(2009)",
+"New Day (2007)"
+};
+
+
+char *album_name21[SONG_NUM]={
+"Europop (1999)",
+"Ocean Avenue (2003)",
+"Geogaddi (2002)",
+"American Idiot (2004)",
+"The Poison (2005)",
+"The Beginning (2010)",
+"Crazy Frog (2005)",
+"(2016)",
+"Short Bus (1995)",
+"DiscO-Zone (2003)"
+};
+
+
 char **album_names[SONG_FOLDER_NUM]={
   album_name0,
   album_name1,
@@ -928,7 +1017,9 @@ char **album_names[SONG_FOLDER_NUM]={
   album_name16,
   album_name17,
   album_name18,
-  album_name19
+  album_name19,
+  album_name20,
+  album_name21
 };
 
 

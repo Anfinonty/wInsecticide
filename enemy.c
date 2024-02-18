@@ -1368,9 +1368,17 @@ void DrawEnemy(HDC hdc)
         int print_health=Enemy[i].health;
         sprintf(txt,"%d",print_health);
         if (Enemy[i].species==1) {
-          GrPrint(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y-64,txt,Enemy[i].color);
+          if (!player.time_breaker) {
+            GrPrint(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y-64,txt,Enemy[i].color);
+          } else {
+            GrPrint(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y-64,txt,BLACK);
+          }
         } else {
-          GrPrint(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y-32,txt,Enemy[i].color);
+          if (!player.time_breaker) {
+            GrPrint(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y-32,txt,Enemy[i].color);
+          } else {
+            GrPrint(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y-32,txt,BLACK);
+          }
         }
       }
       switch (Enemy[i].species) {
