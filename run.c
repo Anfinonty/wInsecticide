@@ -85,8 +85,7 @@ char save_level[40];
 int player_color=0;
 double time_begin=0;
 
-bool do_invert=FALSE;
-bool is_invert=FALSE;
+
 
 #define DEFAULT_PLAYER_SPEED			1
 
@@ -190,10 +189,25 @@ void DrawBackground(HDC hdc) {
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(8,39,245));
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255))); //RAVE
 
-  if (map_background<=1) {
-    DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite_cache,SRCCOPY,TRUE);
+  if (!player.time_breaker) {
+    switch (map_background) {
+      case 0:
+        DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,TRUE);
+        break;
+      case 1:
+        DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,NOTSRCCOPY,TRUE);
+        break;
+      default:
+  //if (map_background==2)
+        GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,custom_map_background_color);
+  //else 
+        break;
+    }
+  } else {
+    GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,WHITE);
   }
 }
+
 
 void DrawPlatforms(HDC hDC)
 { //Dynamically scale with window size 
@@ -206,6 +220,7 @@ void DrawPlatforms(HDC hDC)
                  GR_HEIGHT+player.grav*2,
                 map_platforms_sprite_mask,SRCAND,FALSE);
   //Draw platforms paint
+  if (!player.time_breaker) {
   DrawBitmap(hDC,player.cam_move_x+player.cam_x+player.x-GR_WIDTH/2,
                  player.cam_move_y+player.cam_y+player.y-GR_HEIGHT/2,
                  player.x-GR_WIDTH/2,
@@ -213,6 +228,7 @@ void DrawPlatforms(HDC hDC)
                  GR_WIDTH,
                  GR_HEIGHT+player.grav*2,
                 map_platforms_sprite,SRCPAINT,FALSE);
+  }
 }
 
 
@@ -264,8 +280,6 @@ void InitOnce() {
 
 void Init() {
   time_begin=current_timestamp();
-  do_invert=TRUE;
-  is_invert=TRUE;
 
   //Load Best Score
   //Folder & file creation
@@ -349,27 +363,17 @@ void Init() {
 }
 
 
-void DrawPlatformSprite(HWND hwnd, HDC hdc,bool is_grey)
+void InitPlatformsSprite(HWND hwnd, HDC hdc)
 {
   PAINTSTRUCT ps; //Suggestion Credit: https://git.xslendi.xyz
   hdc=BeginPaint(hwnd, &ps);
   HDC hdc2=CreateCompatibleDC(hdc);
   //HBITMAP tmp_map_platforms_sprite=CreateCompatibleBitmap(hdc,MAP_WIDTH,MAP_HEIGHT);
   HBITMAP tmp_map_platforms_sprite;
-  if (!is_grey) {
-    tmp_map_platforms_sprite=CreateLargeBitmap(MAP_WIDTH,MAP_HEIGHT);
-  } else {
-    tmp_map_platforms_sprite=CreateGreyscaleBitmap(MAP_WIDTH,MAP_HEIGHT);
-  }
-
-
+  tmp_map_platforms_sprite=CreateLargeBitmap(MAP_WIDTH,MAP_HEIGHT);
   SelectObject(hdc2,tmp_map_platforms_sprite);
 
-
-  if (map_background==2)
-    GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,custom_map_background_color);
-  else 
-    GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,MYCOLOR1);
+  GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,MYCOLOR1);
 
   DrawGroundTriFill(hdc2);
   DrawGround(hdc2);
@@ -401,6 +405,16 @@ void InitLevel(HWND hwnd, HDC hdc)
   Init();
 
 
+  //Load Map Background sprites
+  switch (map_background) {
+    case 0:
+      map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      break;
+    case 1:
+      map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      break;
+  }
+
   player.sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,player.sprite_angle,LTGREEN,BLACK,-1);
   player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,-1);
   player.sprite_2_cache = RotateSprite(NULL, player.sprite_2,player.sprite_angle,LTGREEN,BLACK,-1);
@@ -421,6 +435,8 @@ void InitLevel(HWND hwnd, HDC hdc)
 
   //Load Enemy cache sprites
   InitEnemySprites();
+
+  InitPlatformsSprite(hwnd,hdc);
 
   in_main_menu=FALSE;
 }
@@ -943,7 +959,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         case 'C':
           if (!in_main_menu) {
             if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
-              do_invert=TRUE;
               player.time_breaker=TRUE;
               player.time_breaker_cooldown=player.time_breaker_cooldown_max;
               player.speed+=player.time_breaker_units_max/2-1;
@@ -960,7 +975,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         case 'Z':
           if (!in_main_menu) {
             if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
-              do_invert=TRUE;
               player.time_breaker=TRUE;
               player.time_breaker_cooldown=player.time_breaker_cooldown_max;
               player.speed+=player.time_breaker_units_max/2-1;
@@ -996,6 +1010,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       if (!IsIconic(hwnd)) //no action when minimized, prevents crash https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-isiconic?redirectedfrom=MSDN
       {
         FrameRateSleep(FPS); // (Uncapped)
+       //FrameRateSleep(35); //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
         RECT rect;
         if(GetWindowRect(hwnd, &rect))
         {
@@ -1016,38 +1031,32 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         if (!in_main_menu) //### LevelLoaded
         { //https://stackoverflow.com/questions/752593/win32-app-suspends-on-minimize-window-animation
-      //FrameRateSleep(35); //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
           frame_tick++;
           if (frame_tick>9000) {
             frame_tick=0;
           }
 
-
-
-
-            //60Frames = 1 sec
-            //1Frame = 1/60
-            if (enemy_kills<ENEMY_NUM) {
-              game_timer= current_timestamp() - time_begin;
-            } else {
-              if (!game_over) {
-                if (game_timer<int_best_score) { //New high score
-                  DIR* dir;
-                  dir=opendir("score_saves");
-                  if (ENOENT==errno) {
-                    mkdir("score_saves");
-                  }
-                  FILE *fptr;
-                  fptr = fopen(save_level,"w");
-                  char txt[12];
-                  int tmp_game_timer=game_timer;
-                  sprintf(txt,"%d\n",tmp_game_timer);
-                  fprintf(fptr,txt);
-                  fclose(fptr);
+          if (enemy_kills<ENEMY_NUM) {
+            game_timer= current_timestamp() - time_begin;
+          } else {
+            if (!game_over) {
+              if (game_timer<int_best_score) { //New high score
+                DIR* dir;
+                dir=opendir("score_saves");
+                if (ENOENT==errno) {
+                  mkdir("score_saves");
                 }
-                game_over=TRUE;
+                FILE *fptr;
+                fptr = fopen(save_level,"w");
+                char txt[12];
+                int tmp_game_timer=game_timer;
+                sprintf(txt,"%d\n",tmp_game_timer);
+                fprintf(fptr,txt);
+                fclose(fptr);
               }
-           }
+              game_over=TRUE;
+            }
+          }
 
           
           PlayerCameraShake();
@@ -1056,38 +1065,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
 
 
-
           if (player.health<=0) {
             Init();
-          }
-
-         //Trigger when invert screen
-         if (do_invert) {
-            DeleteObject(map_background_sprite_cache);
-            DeleteObject(map_platforms_sprite);
-            DeleteObject(map_platforms_sprite_mask);
-
-
-            if (!IsInvertedBackground()) {
-              if (is_invert) { //uninvert colors
-                map_background_sprite_cache=CopyBitmap(map_background_sprite1,SRCCOPY);
-                DrawPlatformSprite(hwnd,hdc,FALSE);                                    
-              } else {
-                map_background_sprite_cache=CopyGreyscaleBitmap(map_background_sprite1,SRCCOPY);
-                DrawPlatformSprite(hwnd,hdc,TRUE);
-              }
-            } else {
-              if (is_invert) { //uninvert colors
-                map_background_sprite_cache=CopyBitmap(map_background_sprite2,NOTSRCCOPY);
-                DrawPlatformSprite(hwnd,hdc,FALSE);                                    
-              } else {
-                map_background_sprite_cache=CopyGreyscaleBitmap(map_background_sprite2,NOTSRCCOPY);
-                DrawPlatformSprite(hwnd,hdc,TRUE);
-              }
-            }
-
-            is_invert=!is_invert;
-            do_invert=FALSE;
           }
 
           PAINTSTRUCT ps;
@@ -1097,11 +1076,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           //HBITMAP screen = CreateGreyscaleBitmap(GR_WIDTH,GR_HEIGHT);
           HBITMAP screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
           SelectObject(hdcBackbuff,screen);
-
-
-        
-
-
           DrawBackground(hdcBackbuff);
           DrawPlatforms(hdcBackbuff);
           DrawWebs(hdcBackbuff);
@@ -1110,9 +1084,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           DrawCursor(hdcBackbuff);
           DrawUI(hdcBackbuff);
 
-          //BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
           if (!IsInvertedBackground()){
-            BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
+            if (!player.time_breaker) {
+              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
+            } else {            
+              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
+            }
           } else {
             BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
           }
@@ -1133,7 +1110,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             DeleteObject(map_platforms_sprite);
             DeleteObject(map_platforms_sprite_mask);
-            DeleteObject(map_background_sprite_cache);
+            DeleteObject(map_background_sprite);
             back_to_menu=FALSE;
             in_main_menu=TRUE;
           }
@@ -1206,13 +1183,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
       mouse_cursor_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/player_cursor1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-
-      //Load Map Background sprites
-      map_background_sprite1=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      map_background_sprite2=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-
-      //map_background_sprite_cache=CreateGreyscaleBitmap(800,600,map_background_sprite1);
-      //map_background_sprite_cache=CopyBitmap(800,600,map_background_sprite1);
 
       mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,-1);
 
