@@ -24,8 +24,6 @@
 #include <dirent.h>
 #include <errno.h>
 
-//#include <GL/glu.h>
-
 
 #define COLORS_NUM  16
 #define BLACK       RGB(0,0,0)
@@ -45,7 +43,9 @@
 #define YELLOW      RGB(255,255,0)
 #define WHITE       RGB(255,255,255)
 
+
 #define DKBLACK     RGB(5,5,5) //For drawing
+#define LLTGREEN    RGB(0,254,0)
 #define MYCOLOR1    RGB(123,123,123)
 
 int color_arr[COLORS_NUM]={
@@ -67,7 +67,24 @@ YELLOW, //14
 WHITE //15
 };
 
-
+int draw_color_arr[COLORS_NUM]={
+DKBLACK, //0
+BLUE, //1
+GREEN, //2
+CYAN, //3
+RED, //4
+PURPLE, //5
+BROWN, //6
+LTGRAY, //7
+DKGRAY, //8
+LTBLUE, //9
+LLTGREEN, //10
+LTCYAN, //11
+LTRED, //12
+LTPURPLE, //13
+YELLOW, //14
+WHITE //15
+};
 
 #define SONG_NUM 10
 #define SONG_FOLDER_NUM 22
@@ -198,9 +215,7 @@ void DrawBackground(HDC hdc) {
         DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,NOTSRCCOPY,TRUE);
         break;
       default:
-  //if (map_background==2)
         GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,custom_map_background_color);
-  //else 
         break;
     }
   } else {
@@ -415,23 +430,25 @@ void InitLevel(HWND hwnd, HDC hdc)
       break;
   }
 
-  player.sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,player.sprite_angle,LTGREEN,BLACK,-1);
-  player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,-1);
-  player.sprite_2_cache = RotateSprite(NULL, player.sprite_2,player.sprite_angle,LTGREEN,BLACK,-1);
 
-  player.attack_sprite_1_cache = RotateSprite(NULL, player.attack_sprite_1,player.sprite_angle,LTGREEN,BLACK,-1);
-  player.attack_sprite_2_cache = RotateSprite(NULL, player.attack_sprite_2,player.sprite_angle,LTGREEN,BLACK,-1);
-  player.attack_sprite_3_cache = RotateSprite(NULL, player.attack_sprite_3,player.sprite_angle,LTGREEN,BLACK,-1);
-  player.attack_sprite_4_cache = RotateSprite(NULL, player.attack_sprite_4,player.sprite_angle,LTGREEN,BLACK,-1);
+  //Load Player Sprites
+  player.sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
+  player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
+  player.sprite_2_cache = RotateSprite(NULL, player.sprite_2,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
 
-  player.block_sprite_1_cache = RotateSprite(NULL, player.block_sprite_1,player.sprite_angle,LTGREEN,BLACK,-1);
-  player.block_sprite_2_cache = RotateSprite(NULL, player.block_sprite_2,player.sprite_angle,LTGREEN,BLACK,-1);
-  player.block_sprite_3_cache = RotateSprite(NULL, player.block_sprite_3,player.sprite_angle,LTGREEN,BLACK,-1);
+  player.attack_sprite_1_cache = RotateSprite(NULL, player.attack_sprite_1,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
+  player.attack_sprite_2_cache = RotateSprite(NULL, player.attack_sprite_2,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
+  player.attack_sprite_3_cache = RotateSprite(NULL, player.attack_sprite_3,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
+  player.attack_sprite_4_cache = RotateSprite(NULL, player.attack_sprite_4,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
 
-  player.spin_sprite_1_cache = RotateSprite(NULL, player.spin_sprite,0.1,LTGREEN,BLACK,-1);
-  player.spin_sprite_2_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI_2,LTGREEN,BLACK,-1);
-  player.spin_sprite_3_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI,LTGREEN,BLACK,-1);
-  player.spin_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,BLACK,-1);
+  player.block_sprite_1_cache = RotateSprite(NULL, player.block_sprite_1,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
+  player.block_sprite_2_cache = RotateSprite(NULL, player.block_sprite_2,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
+  player.block_sprite_3_cache = RotateSprite(NULL, player.block_sprite_3,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
+
+  player.spin_sprite_1_cache = RotateSprite(NULL, player.spin_sprite,0.1,LTGREEN,draw_color_arr[player_color],-1);
+  player.spin_sprite_2_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI_2,LTGREEN,draw_color_arr[player_color],-1);
+  player.spin_sprite_3_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI,LTGREEN,draw_color_arr[player_color],-1);
+  player.spin_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,draw_color_arr[player_color],-1);
 
   //Load Enemy cache sprites
   InitEnemySprites();
@@ -556,6 +573,19 @@ void DrawMainMenu(HDC hdc)
 
   GrPrint(hdc,10,10+32+16*level_chosen,">",WHITE);
   DrawPlayingMusic(hdc,10,10+32+16*14,BLACK,WHITE);
+
+
+  GrPrint(hdc,10,10+32+16*17,"Player Color: <    >",WHITE);
+  GrPrint(hdc,10,10+32+16*18,"Press [LEFT] or [RIGHT] to Select Player Colour",WHITE);
+
+  if (player_color!=0) {
+    GrRect(hdc,10+8*12,10+32+16*17,16,16,BLACK);
+  } else {
+    GrRect(hdc,10+8*12,10+32+16*17,16,16,WHITE);
+  }
+  if (player_color>-1 && player_color<COLORS_NUM) {
+    GrRect(hdc,10+8*12+2,10+32+16*17+2,12,12,draw_color_arr[player_color]);
+  }
 }
 
 
@@ -838,12 +868,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         case 'D':
         case VK_RIGHT:
           player.rst_right=TRUE;
+          if (in_main_menu) {
+            player_color=LimitValue(player_color+1,0,COLORS_NUM);
+          }
           break;
 
 
         case 'A':
         case VK_LEFT:
           player.rst_left=TRUE;
+          if (in_main_menu) {
+            player_color=LimitValue(player_color-1,0,COLORS_NUM);
+          }
           break;
 
 
@@ -864,8 +900,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           if (!in_main_menu) {
             Init();
           } else {//Run Level
-            if (level_chosen>=0 && level_chosen<=7)
-              InitLevel(hwnd, hdc);
+            if (player_color>-1 && player_color<COLORS_NUM) {
+              if (level_chosen>=0 && level_chosen<=7)
+                InitLevel(hwnd, hdc);
+            }
           }
           break;
 
@@ -910,15 +948,21 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         case 'D':
         case VK_RIGHT:
-          if(player.rst_right)
-            player.rst_right=FALSE;
+          if (!in_main_menu) {
+            if(player.rst_right) {
+              player.rst_right=FALSE;
+            }
+          }
           break;
 
 
         case 'A':
         case VK_LEFT:
-          if(player.rst_left)
-            player.rst_left=FALSE;
+          if (!in_main_menu) {
+            if(player.rst_left) {
+              player.rst_left=FALSE;
+            } 
+          }
           break;
 
         case 'W':

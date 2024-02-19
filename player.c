@@ -1391,8 +1391,8 @@ void DrawPlayer(HDC hdc)
   if (player.saved_sprite_angle!=player.sprite_angle && player.on_ground_id!=-1) { //detect chnage in walk sprite angle
     DeleteObject(player.sprite_1_cache);
     DeleteObject(player.sprite_2_cache);
-    player.sprite_1_cache = RotateSprite(hdc, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,-1);
-    player.sprite_2_cache = RotateSprite(hdc, player.sprite_2,player.sprite_angle,LTGREEN,BLACK,-1);
+    player.sprite_1_cache = RotateSprite(hdc, player.sprite_1,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
+    player.sprite_2_cache = RotateSprite(hdc, player.sprite_2,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
     player.saved_sprite_angle=player.sprite_angle;
   }
 
@@ -1402,9 +1402,9 @@ void DrawPlayer(HDC hdc)
     DeleteObject(player.block_sprite_2_cache);
     DeleteObject(player.block_sprite_3_cache);
 
-    player.block_sprite_1_cache = RotateSprite(hdc, player.block_sprite_1,player.sprite_angle,LTGREEN,BLACK,-1);
-    player.block_sprite_2_cache = RotateSprite(hdc, player.block_sprite_2,player.sprite_angle,LTGREEN,BLACK,-1);
-    player.block_sprite_3_cache = RotateSprite(hdc, player.block_sprite_3,player.sprite_angle,LTGREEN,BLACK,-1);
+    player.block_sprite_1_cache = RotateSprite(hdc, player.block_sprite_1,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
+    player.block_sprite_2_cache = RotateSprite(hdc, player.block_sprite_2,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
+    player.block_sprite_3_cache = RotateSprite(hdc, player.block_sprite_3,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
 
     player.saved_block_sprite_angle=player.sprite_angle;
   }
@@ -1414,10 +1414,10 @@ void DrawPlayer(HDC hdc)
     DeleteObject(player.attack_sprite_3_cache);
     DeleteObject(player.attack_sprite_4_cache);
 
-    player.attack_sprite_1_cache = RotateSprite(hdc, player.attack_sprite_1,player.sprite_angle,LTGREEN,BLACK,-1);
-    player.attack_sprite_2_cache = RotateSprite(hdc, player.attack_sprite_2,player.sprite_angle,LTGREEN,BLACK,-1);
-    player.attack_sprite_3_cache = RotateSprite(hdc, player.attack_sprite_3,player.sprite_angle,LTGREEN,BLACK,-1);
-    player.attack_sprite_4_cache = RotateSprite(hdc, player.attack_sprite_4,player.sprite_angle,LTGREEN,BLACK,-1);
+    player.attack_sprite_1_cache = RotateSprite(hdc, player.attack_sprite_1,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
+    player.attack_sprite_2_cache = RotateSprite(hdc, player.attack_sprite_2,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
+    player.attack_sprite_3_cache = RotateSprite(hdc, player.attack_sprite_3,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
+    player.attack_sprite_4_cache = RotateSprite(hdc, player.attack_sprite_4,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
     player.saved_attack_sprite_angle=player.sprite_angle;
   }
 
