@@ -504,7 +504,7 @@ int song_duration17[SONG_NUM]={
 60 + 39, //FRIED RICE - Pink Guy //Pink Guy (2014)
 120 + 15, //FRIED DUMPLINGS - Pink Guy //(2017)
 180 + 41, //Rasputin - Boney M (Nightcore) //(2016)
-120 + 51, //Marble Soda - Shawn Wasabi //(2015)
+120 + 42, //Marble Soda - Shawn Wasabi //(2015)
 180 + 30 //Stop, Drop, Roll - Can't Stop Won't Stop //Lyricless (2014)
 };
 
