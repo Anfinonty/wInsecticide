@@ -1249,18 +1249,8 @@ void DrawEnemy(HDC hdc)
             &Enemy[i].sprite_height
           );
 
-          unsigned char* lpBitmapBits2; 
-
-          BITMAPINFO bi2; 
-          ZeroMemory(&bi2, sizeof(BITMAPINFO));
-          bi2.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
-          bi2.bmiHeader.biWidth=Enemy[i].sprite_width;
-          bi2.bmiHeader.biHeight=-Enemy[i].sprite_height;
-          bi2.bmiHeader.biPlanes=1;
-          bi2.bmiHeader.biBitCount=32;
-
-          Enemy[i].sprite_1=CreateDIBSection(hdc,&bi2,DIB_RGB_COLORS, (VOID**)&lpBitmapBits2,NULL,0);
-          Enemy[i].sprite_2=CreateDIBSection(hdc,&bi2,DIB_RGB_COLORS, (VOID**)&lpBitmapBits2,NULL,0);
+          Enemy[i].sprite_1=CreateLargeBitmap(Enemy[i].sprite_width,Enemy[i].sprite_height);
+          Enemy[i].sprite_2=CreateLargeBitmap(Enemy[i].sprite_width,Enemy[i].sprite_height);
 
           Enemy[i].current_draw_row=Enemy[i].sprite_miny;
 
@@ -1321,19 +1311,9 @@ void DrawEnemy(HDC hdc)
               &Enemy[i].sprite_height
           );
 
-          unsigned char* lpBitmapBits3; 
-
-          BITMAPINFO bi3; 
-          ZeroMemory(&bi3, sizeof(BITMAPINFO));
-          bi3.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
-          bi3.bmiHeader.biWidth=Enemy[i].sprite_width;
-          bi3.bmiHeader.biHeight=-Enemy[i].sprite_height;
-          bi3.bmiHeader.biPlanes=1;
-          bi3.bmiHeader.biBitCount=32;
-
-          Enemy[i].sprite_1=CreateDIBSection(hdc,&bi3,DIB_RGB_COLORS, (VOID**)&lpBitmapBits3,NULL,0);
-          Enemy[i].sprite_2=CreateDIBSection(hdc,&bi3,DIB_RGB_COLORS, (VOID**)&lpBitmapBits3,NULL,0);
-          Enemy[i].sprite_3=CreateDIBSection(hdc,&bi3,DIB_RGB_COLORS, (VOID**)&lpBitmapBits3,NULL,0);
+          Enemy[i].sprite_1=CreateLargeBitmap(Enemy[i].sprite_width,Enemy[i].sprite_height);
+          Enemy[i].sprite_2=CreateLargeBitmap(Enemy[i].sprite_width,Enemy[i].sprite_height);
+          Enemy[i].sprite_3=CreateLargeBitmap(Enemy[i].sprite_width,Enemy[i].sprite_height);
 
           Enemy[i].current_draw_row=Enemy[i].sprite_miny;
 

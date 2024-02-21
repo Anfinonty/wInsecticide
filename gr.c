@@ -696,7 +696,7 @@ HBITMAP CreateLargeBitmap(int cx, int cy)
   bi.bmiHeader.biWidth=cx;
   bi.bmiHeader.biHeight=-cy;
   bi.bmiHeader.biPlanes=1;
-  bi.bmiHeader.biBitCount=16;
+  bi.bmiHeader.biBitCount=32;
   return CreateDIBSection(NULL, &bi,DIB_RGB_COLORS, (VOID**)&lpBitmapBits,NULL,0);
 }
 
@@ -768,7 +768,7 @@ HBITMAP CopyBitmap(HBITMAP srcBitmap,int SRCOPERATION)
   bi.bmiHeader.biWidth=bm.bmWidth;
   bi.bmiHeader.biHeight=bm.bmHeight;
   bi.bmiHeader.biPlanes=1;
-  bi.bmiHeader.biBitCount=16;
+  bi.bmiHeader.biBitCount=32;
   HBITMAP destBitmap=CreateDIBSection(NULL,&bi,DIB_RGB_COLORS, (VOID**)&lpBitmapBits,NULL,0);
 
   HDC hdcMem = CreateCompatibleDC(NULL);
