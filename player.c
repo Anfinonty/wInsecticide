@@ -487,7 +487,7 @@ void PlayerAct() {
     if (player.left_click_hold_timer==62 || player.attack_rst) { //swing but no web is placed
       if (player.is_swinging) {
         player.is_swinging=FALSE;
-        player.fling_distance+=player.pivot_length*(2+player.speed/4);
+        player.fling_distance+=player.pivot_length*2;
         player.key_jump_timer=player.player_jump_height;
         player.speed++;
         player.in_air_timer=1000;
@@ -500,7 +500,7 @@ void PlayerAct() {
         player.is_swinging=FALSE;
         player.in_air_timer=1000;
         player.grav=3;
-        player.fling_distance+=player.pivot_length*(2+player.speed/4);
+        player.fling_distance+=player.pivot_length*2;
         player.key_jump_timer=player.player_jump_height;
 
     //player place web after swing
@@ -1069,7 +1069,7 @@ void PlayerAct() {
             move_x(cos(player.launch_angle));
             move_y(sin(player.launch_angle));
           }
-          player.fling_distance-=player.speed/4;
+          player.fling_distance--;
           if (player.fling_distance==1) {
             player.in_air_timer=1002;
             player.fling_distance=-1;
@@ -1080,7 +1080,7 @@ void PlayerAct() {
           } else { //fling left
             move_x(cos(player.launch_angle));
           }
-          player.fling_distance-=player.speed/4;
+          player.fling_distance--;
         }
       }
 
