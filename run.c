@@ -209,10 +209,10 @@ void DrawBackground(HDC hdc) {
   if (!player.time_breaker) {
     switch (map_background) {
       case 0:
-        DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,TRUE);
+        DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE);
         break;
       case 1:
-        DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,NOTSRCCOPY,TRUE);
+        DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,NOTSRCCOPY,FALSE);
         break;
       default:
         GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,custom_map_background_color);
@@ -418,17 +418,6 @@ void InitLevel(HWND hwnd, HDC hdc)
 
   InitOnce();//cannot be repeatedly run
   Init();
-
-
-  //Load Map Background sprites
-  switch (map_background) {
-    case 0:
-      map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      break;
-    case 1:
-      map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      break;
-  }
 
 
   //Load Player Sprites
@@ -1071,12 +1060,30 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           CameraInit(player.x,player.y+PLAYER_HEIGHT/2); //idk scaling is weird for sprite
           OLD_GR_WIDTH = GR_WIDTH;
           OLD_GR_HEIGHT = GR_HEIGHT;
+
+
+          //Load Map Background sprites
+          if (map_background>=0 && map_background<=1) {
+            DeleteObject(map_background_sprite);
+            HBITMAP tmp_map_background_sprite;
+            switch (map_background) {
+              case 0:
+                tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+                break;
+              case 1:
+                tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+                break;
+            }
+
+            map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH,GR_HEIGHT);
+            DeleteObject(tmp_map_background_sprite);
+          }
         }
 
         if (!in_main_menu) //### LevelLoaded
         { //https://stackoverflow.com/questions/752593/win32-app-suspends-on-minimize-window-animation
           frame_tick++;
-          if (frame_tick>9000) {
+          if (frame_tick>FPS) {
             frame_tick=0;
           }
 

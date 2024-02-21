@@ -228,6 +228,14 @@ void BulletAct(int bullet_id)
 	//^^ condition
         if (allow_act) {
           if (hit_player) {
+            if (!player.time_breaker) { //penalty for hitting a bullet
+              if (player.time_breaker_units>1) {
+                player.time_breaker_units=1;
+              }
+              if (player.speed>5) {
+                player.speed--;
+              }
+            }
             if (!player.blocking || player.block_health<1) {
               player.health-=Bullet[bullet_id].damage;
             //player_snd_dur=DEFAULT_PLAYER_SND_DURATION;

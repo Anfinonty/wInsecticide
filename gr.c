@@ -271,6 +271,8 @@ void DrawBitmap(HDC hDC,double _x1,double _y1, double _x2, double _y2, int width
 
 
 
+
+
 //Set values to variables
 void SetRotatedSpriteSize(HDC hDC, HBITMAP hSourceBitmap,double radians, int *minx, int *miny, int *maxx, int *maxy, int *width, int *height)
 {
@@ -760,16 +762,7 @@ HBITMAP CopyBitmap(HBITMAP srcBitmap,int SRCOPERATION)
 {
   BITMAP bm;
   GetObject(srcBitmap, sizeof(bm), &bm);
-  unsigned char* lpBitmapBits; 
-
-  BITMAPINFO bi; 
-  ZeroMemory(&bi, sizeof(BITMAPINFO));
-  bi.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
-  bi.bmiHeader.biWidth=bm.bmWidth;
-  bi.bmiHeader.biHeight=bm.bmHeight;
-  bi.bmiHeader.biPlanes=1;
-  bi.bmiHeader.biBitCount=32;
-  HBITMAP destBitmap=CreateDIBSection(NULL,&bi,DIB_RGB_COLORS, (VOID**)&lpBitmapBits,NULL,0);
+  HBITMAP destBitmap=CreateLargeBitmap(bm.bmWidth,bm.bmHeight);
 
   HDC hdcMem = CreateCompatibleDC(NULL);
   HDC hdcMem2 = CreateCompatibleDC(NULL);
@@ -778,6 +771,30 @@ HBITMAP CopyBitmap(HBITMAP srcBitmap,int SRCOPERATION)
   SelectObject(hdcMem, destBitmap);
 
   BitBlt(hdcMem, 0, 0, bm.bmWidth, bm.bmHeight, hdcMem2, 0, 0, SRCOPERATION);
+
+  DeleteDC(hdcMem);
+  DeleteDC(hdcMem2);
+
+  return destBitmap;
+}
+
+
+
+
+HBITMAP CopyStretchBitmap(HBITMAP srcBitmap,int SRCOPERATION, int nWidth, int nHeight)
+{
+  BITMAP bm;
+  GetObject(srcBitmap, sizeof(bm), &bm);
+
+  HBITMAP destBitmap=CreateLargeBitmap(nWidth,nHeight);
+
+  HDC hdcMem = CreateCompatibleDC(NULL);
+  HDC hdcMem2 = CreateCompatibleDC(NULL);
+
+  SelectObject(hdcMem2, srcBitmap);
+  SelectObject(hdcMem, destBitmap);
+
+  StretchBlt(hdcMem, 0, 0, nWidth, nHeight, hdcMem2, 0,0, bm.bmWidth, bm.bmHeight, SRCOPERATION); //draw to 
 
   DeleteDC(hdcMem);
   DeleteDC(hdcMem2);
