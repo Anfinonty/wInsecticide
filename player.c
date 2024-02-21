@@ -1069,7 +1069,7 @@ void PlayerAct() {
             move_x(cos(player.launch_angle));
             move_y(sin(player.launch_angle));
           }
-          player.fling_distance--;
+          player.fling_distance-=player.speed/4;
           if (player.fling_distance==1) {
             player.in_air_timer=1002;
             player.fling_distance=-1;
@@ -1080,7 +1080,7 @@ void PlayerAct() {
           } else { //fling left
             move_x(cos(player.launch_angle));
           }
-          player.fling_distance--;
+          player.fling_distance-=player.speed/4;
         }
       }
 
