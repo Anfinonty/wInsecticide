@@ -544,36 +544,36 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4)
 void DrawMainMenu(HDC hdc)
 {
   GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,BLUE);
-  GrPrint(hdc,10,10,"Welcome to the wInsecticide Menu!",WHITE);
+  GrPrint(hdc,30,10,"Welcome to the wInsecticide Menu!",WHITE);
 
-  GrPrint(hdc,10,10+32,"-  Level 0",WHITE);
-  GrPrint(hdc,10,10+32+16,"-  Level 1",WHITE);
-  GrPrint(hdc,10,10+32+16*2,"-  Level 2",WHITE);
-  GrPrint(hdc,10,10+32+16*3,"-  Level 3",WHITE);
-  GrPrint(hdc,10,10+32+16*4,"-  Level 4",WHITE);
-  GrPrint(hdc,10,10+32+16*5,"-  Level 5",WHITE);
-  GrPrint(hdc,10,10+32+16*6,"-  Level 6",WHITE);
-  GrPrint(hdc,10,10+32+16*7,"-  Level 7",WHITE);
+  GrPrint(hdc,30,10+32,"-  Level 0",WHITE);
+  GrPrint(hdc,30,10+32+16,"-  Level 1",WHITE);
+  GrPrint(hdc,30,10+32+16*2,"-  Level 2",WHITE);
+  GrPrint(hdc,30,10+32+16*3,"-  Level 3",WHITE);
+  GrPrint(hdc,30,10+32+16*4,"-  Level 4",WHITE);
+  GrPrint(hdc,30,10+32+16*5,"-  Level 5",WHITE);
+  GrPrint(hdc,30,10+32+16*6,"-  Level 6",WHITE);
+  GrPrint(hdc,30,10+32+16*7,"-  Level 7",WHITE);
 
-  GrPrint(hdc,10,10+32+16*9,"Press 'Enter' to Play Selected Level",WHITE);
-  GrPrint(hdc,10,10+32+16*10,"Use Up or Down Keys to Select a Level",WHITE);
-  GrPrint(hdc,10,10+32+16*11,"Press [SHIFT_ESC] to Exit",WHITE);
-  GrPrint(hdc,10,10+32+16*12,"Press [SHIFT] + 'M' to Enable or Disable Music",WHITE);
+  GrPrint(hdc,30,10+32+16*9,"Press 'Enter' to Play Selected Level",WHITE);
+  GrPrint(hdc,30,10+32+16*10,"Use Up or Down Keys to Select a Level",WHITE);
+  GrPrint(hdc,30,10+32+16*11,"Press [SHIFT_ESC] to Exit",WHITE);
+  GrPrint(hdc,30,10+32+16*12,"Press [SHIFT] + 'M' to Enable or Disable Music",WHITE);
 
-  GrPrint(hdc,10,10+32+16*level_chosen,">",WHITE);
-  DrawPlayingMusic(hdc,10,10+32+16*14,BLACK,WHITE);
+  GrPrint(hdc,30,10+32+16*level_chosen,">",WHITE);
+  DrawPlayingMusic(hdc,30,10+32+16*14,BLACK,WHITE);
 
 
-  GrPrint(hdc,10,10+32+16*17,"Player Color: <    >",WHITE);
-  GrPrint(hdc,10,10+32+16*18,"Press [LEFT] or [RIGHT] to Select Player Colour",WHITE);
+  GrPrint(hdc,30,10+32+16*17,"Player Color: <    >",WHITE);
+  GrPrint(hdc,30,10+32+16*18,"Press [LEFT] or [RIGHT] to Select Player Colour",WHITE);
 
   if (player_color!=0) {
-    GrRect(hdc,10+8*12,10+32+16*17,16,16,BLACK);
+    GrRect(hdc,30+8*12,10+32+16*17,16,16,BLACK);
   } else {
-    GrRect(hdc,10+8*12,10+32+16*17,16,16,WHITE);
+    GrRect(hdc,30+8*12,10+32+16*17,16,16,WHITE);
   }
   if (player_color>-1 && player_color<COLORS_NUM) {
-    GrRect(hdc,10+8*12+2,10+32+16*17+2,12,12,draw_color_arr[player_color]);
+    GrRect(hdc,30+8*12+2,10+32+16*17+2,12,12,draw_color_arr[player_color]);
   }
 }
 
@@ -601,47 +601,47 @@ void DrawUI(HDC hdc) {
   double print_time_ms=(double)game_timer/1000;
   if (!game_over) {
     sprintf(gametimetxt,"Time: %5.3f",print_time_ms);
-    GrPrint(hdc,4,8+48,gametimetxt,YELLOW);
-    GrPrint(hdc,6,8+48,gametimetxt,YELLOW);
-    GrPrint(hdc,4,10+48,gametimetxt,YELLOW);
-    GrPrint(hdc,6,10+48,gametimetxt,YELLOW);
-    GrPrint(hdc,5,9+48,gametimetxt,BROWN);
+    GrPrint(hdc,16+4,8+48,gametimetxt,YELLOW);
+    GrPrint(hdc,16+6,8+48,gametimetxt,YELLOW);
+    GrPrint(hdc,16+4,10+48,gametimetxt,YELLOW);
+    GrPrint(hdc,16+6,10+48,gametimetxt,YELLOW);
+    GrPrint(hdc,16+5,9+48,gametimetxt,BROWN);
   } else { //game is over
     if (game_timer<int_best_score) { //New Score :D
       sprintf(gametimetxt,"New Best! :D %5.3f",print_time_ms);
-      GrPrint(hdc,5,9+48,gametimetxt,LTPURPLE);
+      GrPrint(hdc,16+5,9+48,gametimetxt,LTPURPLE);
     } else {
       sprintf(gametimetxt,"Time: %5.3f",print_time_ms);
-      GrPrint(hdc,4,8+48,gametimetxt,YELLOW);
-      GrPrint(hdc,6,8+48,gametimetxt,YELLOW);
-      GrPrint(hdc,4,10+48,gametimetxt,YELLOW);
-      GrPrint(hdc,6,10+48,gametimetxt,YELLOW);
-      GrPrint(hdc,5,9+48,gametimetxt,BROWN);
+      GrPrint(hdc,16+4,8+48,gametimetxt,YELLOW);
+      GrPrint(hdc,16+6,8+48,gametimetxt,YELLOW);
+      GrPrint(hdc,16+4,10+48,gametimetxt,YELLOW);
+      GrPrint(hdc,16+6,10+48,gametimetxt,YELLOW);
+      GrPrint(hdc,16+5,9+48,gametimetxt,BROWN);
     }
   }
 
   char gamebesttimetxt[32];
   double best_time=double_best_score;
   sprintf(gamebesttimetxt,"Best Time: %5.3f",best_time);
-  GrPrint(hdc,4,8+64,gamebesttimetxt,YELLOW);
-  GrPrint(hdc,6,8+64,gamebesttimetxt,YELLOW);
-  GrPrint(hdc,4,10+64,gamebesttimetxt,YELLOW);
-  GrPrint(hdc,6,10+64,gamebesttimetxt,YELLOW);
-  GrPrint(hdc,5,9+64,gamebesttimetxt,BROWN);
+  GrPrint(hdc,16+4,8+64,gamebesttimetxt,YELLOW);
+  GrPrint(hdc,16+6,8+64,gamebesttimetxt,YELLOW);
+  GrPrint(hdc,16+4,10+64,gamebesttimetxt,YELLOW);
+  GrPrint(hdc,16+6,10+64,gamebesttimetxt,YELLOW);
+  GrPrint(hdc,16+5,9+64,gamebesttimetxt,BROWN);
 
   char enemykills[32];
   int printenemykills=ENEMY_NUM-enemy_kills;
   int printenemynum=ENEMY_NUM;
   sprintf(enemykills,"Enemies Left: %d/%d",printenemykills,printenemynum);
-  GrPrint(hdc,4,8+80,enemykills,YELLOW);
-  GrPrint(hdc,6,8+80,enemykills,YELLOW);
-  GrPrint(hdc,4,10+80,enemykills,YELLOW);
-  GrPrint(hdc,6,10+80,enemykills,YELLOW);
-  GrPrint(hdc,5,9+80,enemykills,BROWN);
+  GrPrint(hdc,16+4,8+80,enemykills,YELLOW);
+  GrPrint(hdc,16+6,8+80,enemykills,YELLOW);
+  GrPrint(hdc,16+4,10+80,enemykills,YELLOW);
+  GrPrint(hdc,16+6,10+80,enemykills,YELLOW);
+  GrPrint(hdc,16+5,9+80,enemykills,BROWN);
 //========================
 
 
-  DrawPlayingMusic(hdc,4,8,c,c4);
+  DrawPlayingMusic(hdc,16+4,8,c,c4);
 
 
 
@@ -764,35 +764,35 @@ Right Click - Swing with Wceb Placement
 */
 
   if (display_controls) {
-  GrRect(hdc,0,GR_HEIGHT-128-16*26,8*42,128+16*22,c4);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*25,"Controls:",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*24,"'W' - Jump from Surface",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*23,"'A' - Move Left (Clockwise)",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*22,"'S' - Block / Spin / Drag Down Attack",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*21,"'D' - Move Right (Anti-Clockwise)",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*20,"'Q' - Pick Up Web",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*19,"'E' - Hold with Attack for Uppercut",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*18,"'Z' - Time Breaker Ability",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*17,"'C' - Increase Reaction Time",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*16,"'M' - New Random Music",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*15,"[SHIFT] + 'M' - Disable or Renable Music",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*14,"[Space] - Sprint",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*13,"[Left Click] or '1' - Attack and Stop Web Shooting",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*12,"[Right Click] - Shoot web",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*11,"[Enter] - Restart Level",c);
+  GrRect(hdc,16,GR_HEIGHT-128-16*26,8*42,128+16*22,c4);
+  GrPrint(hdc,16+4,GR_HEIGHT-128-16*25,"Controls:",c);
+  GrPrint(hdc,16+4,GR_HEIGHT-128-16*24,"'W' - Jump from Surface",c);
+  GrPrint(hdc,16+4,GR_HEIGHT-128-16*23,"'A' - Move Left (Clockwise)",c);
+  GrPrint(hdc,16+4,GR_HEIGHT-128-16*22,"'S' - Block / Spin / Drag Down Attack",c);
+  GrPrint(hdc,16+4,GR_HEIGHT-128-16*21,"'D' - Move Right (Anti-Clockwise)",c);
+  GrPrint(hdc,16+4,GR_HEIGHT-128-16*20,"'Q' - Pick Up Web",c);
+  GrPrint(hdc,16+4,GR_HEIGHT-128-16*19,"'E' - Hold with Attack for Uppercut",c);
+  GrPrint(hdc,16+4,GR_HEIGHT-128-16*18,"'Z' - Time Breaker Ability",c);
+  GrPrint(hdc,16+4,GR_HEIGHT-128-16*17,"'C' - Increase Reaction Time",c);
+  GrPrint(hdc,16+4,GR_HEIGHT-128-16*16,"'M' - New Random Music",c);
+  GrPrint(hdc,16+4,GR_HEIGHT-128-16*15,"[SHIFT] + 'M' - Disable or Renable Music",c);
+  GrPrint(hdc,16+4,GR_HEIGHT-128-16*14,"[Space] - Sprint",c);
+  GrPrint(hdc,16+4,GR_HEIGHT-128-16*13,"[Left Click] or '1' - Attack and Stop Web Shooting",c);
+  GrPrint(hdc,16+4,GR_HEIGHT-128-16*12,"[Right Click] - Shoot web",c);
+  GrPrint(hdc,16+4,GR_HEIGHT-128-16*11,"[Enter] - Restart Level",c);
 
-  GrPrint(hdc,4,GR_HEIGHT-128-16*9,"Controls While Swinging:",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*8,"'W' - Decrease Web Length",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*7,"'A' - Swing Clockwise",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*6,"'S' - Increase Web Length",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*5,"'D' - Swing Anti-Clockwise",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*4,"[Left Click] or '1' - Swing without Web Placement",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16*3,"[Right Click] - Swing with Web Placement",c);
-  GrPrint(hdc,4,GR_HEIGHT-128-16,"[SHIFT_ESC] to Quit",c);
+  GrPrint(hdc,16+4,GR_HEIGHT-128-16*9,"Controls While Swinging:",c);
+  GrPrint(hdc,16+4,GR_HEIGHT-128-16*8,"'W' - Decrease Web Length",c);
+  GrPrint(hdc,16+4,GR_HEIGHT-128-16*7,"'A' - Swing Clockwise",c);
+  GrPrint(hdc,16+4,GR_HEIGHT-128-16*6,"'S' - Increase Web Length",c);
+  GrPrint(hdc,16+4,GR_HEIGHT-128-16*5,"'D' - Swing Anti-Clockwise",c);
+  GrPrint(hdc,16+4,GR_HEIGHT-128-16*4,"[Left Click] or '1' - Swing without Web Placement",c);
+  GrPrint(hdc,16+4,GR_HEIGHT-128-16*3,"[Right Click] - Swing with Web Placement",c);
+  GrPrint(hdc,16+4,GR_HEIGHT-128-16,"[SHIFT_ESC] to Quit",c);
   } 
 
-  GrPrint(hdc,4,GR_HEIGHT-128+16,"Press '*' for Controls Help",c4);
-  GrPrint(hdc,5,GR_HEIGHT-128+17,"Press '*' for Controls Help",c);
+  GrPrint(hdc,16+4,GR_HEIGHT-128+16,"Press '*' for Controls Help",c4);
+  GrPrint(hdc,16+5,GR_HEIGHT-128+17,"Press '*' for Controls Help",c);
 }
 
 

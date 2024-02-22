@@ -719,12 +719,11 @@ void PlayerAct() {
  
            //bouncing below the surface the steepness doesnt matter
             if (Ground[player.on_ground_id].gradient>0) {
-              player.angle_of_reflection=player.angle-player.angle_of_incidence;
+              player.angle_of_reflection=(player.angle+M_PI+player.angle_of_incidence)+M_PI_4;
             } else {
-              player.angle_of_reflection=player.angle+M_PI+player.angle_of_incidence;
+              player.angle_of_reflection=(player.angle-player.angle_of_incidence)-M_PI_4;
             }
           }
-
 
 
 
@@ -1149,8 +1148,8 @@ void PlayerAct() {
   }
 
 
-  double grav_dist=GetDistance(player.speed,0,0,player.grav);
-  player.angle_of_incidence=GetCosAngle(player.speed,grav_dist);
+  double grav_dist=GetDistance(3,0,0,player.grav);
+  player.angle_of_incidence=GetCosAngle(3,grav_dist);
   if (player.fling_distance>0) {
     if (player.fling_left) {
       player.angle_of_incidence=player.launch_angle;
