@@ -1148,8 +1148,14 @@ void PlayerAct() {
   }
 
 
-  double grav_dist=GetDistance(3,0,0,player.grav);
-  player.angle_of_incidence=GetCosAngle(3,grav_dist);
+  double grav_dist;
+  if (player.speed>3) {
+    grav_dist=GetDistance(3,0,0,player.grav);
+    player.angle_of_incidence=GetCosAngle(3,grav_dist);
+  } else {
+    grav_dist=GetDistance(2,0,0,player.grav);
+    player.angle_of_incidence=GetCosAngle(2,grav_dist);
+  }
   if (player.fling_distance>0) {
     if (player.fling_left) {
       player.angle_of_incidence=player.launch_angle;

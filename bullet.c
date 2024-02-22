@@ -226,17 +226,11 @@ void BulletAct(int bullet_id)
           }
         }
 	//^^ condition
+        double blocked_bullet_dmg=Bullet[bullet_id].damage;
         if (allow_act) {
           if (hit_player) {
-            if (!player.time_breaker) { //penalty for hitting a bullet
-              if (player.time_breaker_units>1) {
-                player.time_breaker_units=1;
-              }
-              if (player.speed>5) {
-                player.speed--;
-              }
-            }
             if (!player.blocking || player.block_health<1) {
+              blocked_bullet_dmg=Bullet[bullet_id].damage;
               player.health-=Bullet[bullet_id].damage;
             //player_snd_dur=DEFAULT_PLAYER_SND_DURATION;
 	    //cancel combos
@@ -244,10 +238,11 @@ void BulletAct(int bullet_id)
     	    if (player_speed_breaker_recharge_minus>0) {
       	        player_speed_breaker_recharge_minus-=2;
     	    }*/
+
 	        } else {//player is blocking
               Bullet[bullet_id].angle=RandNum(-M_PI,M_PI,Enemy[enemy_id].seed);
-	          if (player.block_timer>15) {//non-perfect block
-	            double blocked_bullet_dmg=Bullet[bullet_id].damage;
+              blocked_bullet_dmg=Bullet[bullet_id].damage;
+	          if (player.block_timer>23) {//non-perfect block
 	            if (player.on_ground_id!=-1) {//on ground
 		          if (player.block_timer<25) {
 	                player.block_health-=blocked_bullet_dmg/4;
@@ -262,10 +257,25 @@ void BulletAct(int bullet_id)
 		          }
 	            }
                 player.health-=(player.block_health_max-player.block_health+1)/player.block_health_max*Bullet[bullet_id].damage;
+	          } else {//perfect block
 	            blocked_bullet_dmg=0;
-	        } else {//perfect block
-	        }
+                if (player.time_breaker_units<player.time_breaker_units_max) {
+                  player.time_breaker_units++;
+                }
+                //player.speed++;
+	          }
 	      } //end of hit player
+
+          if (blocked_bullet_dmg>0) {
+            if (!player.time_breaker) { //penalty for hitting a bullet
+              if (player.time_breaker_units>1) {
+                player.time_breaker_units=1;
+              }
+              if (player.speed>5) {
+                player.speed--;
+              }
+            }
+          }
         } else if (bullet_on_ground_id>=GROUND_NUM && bullet_on_ground_id!=player.web_being_shot) { //Not on web being shot
 	      Ground[bullet_on_ground_id].health-=Bullet[bullet_id].damage;
 	      if (Ground[bullet_on_ground_id].health<=0) {//completely destroy web at 0 health (can be regained after '4')
