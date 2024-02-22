@@ -336,8 +336,8 @@ void Init() {
 
 
 
-  OLD_GR_WIDTH=GR_WIDTH;
-  OLD_GR_HEIGHT=GR_HEIGHT;
+  OLD_GR_WIDTH=0;
+  OLD_GR_HEIGHT=0;
   game_timer=0;
   enemy_kills=0;
   game_over=FALSE;
