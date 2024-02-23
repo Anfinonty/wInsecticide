@@ -1190,6 +1190,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       InitTickFrequency();
       InitFPS();
 
+
+//      unsigned long long timenow=current_timestamp();
+//      printf("\nSeconds Passed Since Jan-1-1970: %llu",timenow);
+
+
+      unsigned int timenow=int_current_timestamp();
+      printf("\nSeconds Passed Since Jan-1-1970: %d",timenow);
+      //PersiaSolarTime(0);
+      PersiaSolarTime(timenow);
+
       back_to_menu=FALSE;
       in_main_menu=TRUE;
       level_chosen=0;

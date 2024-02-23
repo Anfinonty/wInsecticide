@@ -8,10 +8,110 @@ unsigned long long current_timestamp() {//https://copyprogramming.com/howto/c-sl
   return (unsigned long long) te.tv_sec*1000LL + te.tv_usec/1000; //calc millisecs
 }
 
-int int_current_timestamp() {
+unsigned int int_current_timestamp() {
   struct timeval te;
   mingw_gettimeofday(&te, NULL);
-  return te.tv_sec;
+  return (unsigned int) te.tv_sec;
+}
+
+
+void PersiaSolarTime(int _seconds)
+{  
+  //Beginning date:
+  //Gegorian
+    //01-Jan-1970
+
+  //Persian
+    //11-Dey-1348 <----not considering timezone offsets
+
+  //seconds in a year
+  //365 (days in a year) * 24 (hours in a day) * 60 (minutes in an hour) * 60 (seconds in a minute)
+  //366 (days in a LEAP year) * 24 (hours in a day) * 60 (minutes in an hour) * 60 (seconds in a minute)
+
+  //---X    ---X    ---X    ---X-
+  const int day_seconds=60*60*24;
+  const int days31_seconds=day_seconds*31;
+  const int days30_seconds=day_seconds*30;
+  const int days29_seconds=day_seconds*29;
+
+
+  //Filter out the different time parts
+  int year=1348;
+  int month=9;          //start day     //timezone diff 8:30 (America to Iran)
+  int seconds=_seconds+(day_seconds*12+day_seconds/2)-(8*60*60+30*60); //Offsets
+  while (seconds>0) {
+    //Get months
+    if (month<6) {   //First 6 months have 31 days          0,1,2,3,4,5
+      if (seconds-days31_seconds<0) {
+        break;
+      } else {
+        seconds-=days31_seconds;
+        month++;
+      }
+    } else if (month>5 && month<11) {  //6 months have 30 days      6,7,8,9,10
+      if (seconds-days30_seconds<0) {
+        break;
+      } else {
+        seconds-=days30_seconds;
+        month++;
+      }
+    } else { //12th month   //leap year at last month, 30 days = leap year       29 days = common year      ,11
+      if (year%4==0) {//Leap year
+        if (seconds-days30_seconds<0) {
+          break;
+        } else {
+          seconds-=days30_seconds;
+          month++;
+        }
+      } else {//Common Year
+        if (seconds-days29_seconds<0) {
+          break;
+        } else {
+          seconds-=days29_seconds;
+          month++;
+        }
+      }
+    }
+
+
+    //new year
+    if (month==12) {
+      month=0;
+      year++;
+    }
+  }
+
+
+
+  int print_seconds=seconds%60; //60 seconds in a minute
+ 
+  //Minutes
+  int min=seconds/60;
+  int print_min=min%60; //60 minutes in a second
+
+  //Hours
+  int hours=min/60;
+  int print_hours=hours%24; //24 hours in a day
+
+  //Days
+  int days=hours/24;
+
+
+  //31 or 30 or 29 days in a month
+  int print_days;
+  if (month<6) {
+    print_days=days%31;
+  } else if (month>5 && month<11) {
+    print_days=days%30;
+  } else {
+    if (year%4==0) {
+      print_days=days%30;
+    } else {
+      print_days=days%29;
+    }
+  }
+
+  printf("\n~::Solar Hijiri Time- Year~%d Month~%d Day~%d - %d:%d:%d ::~\n",year,(month+1),print_days,print_hours,print_min,print_seconds);
 }
 
 
