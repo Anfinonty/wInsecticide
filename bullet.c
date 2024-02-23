@@ -256,7 +256,9 @@ void BulletAct(int bullet_id)
 	                player.block_health-=blocked_bullet_dmg;
 		          }
 	            }
-                player.health-=(player.block_health_max-player.block_health+1)/player.block_health_max*Bullet[bullet_id].damage;
+                if (player.speed<6) {
+                  player.health-=(player.block_health_max-player.block_health+1)/player.block_health_max*Bullet[bullet_id].damage;
+                }
 	          } else {//perfect block
 	            blocked_bullet_dmg=0;
                 if (player.time_breaker_units<player.time_breaker_units_max) {

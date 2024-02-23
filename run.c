@@ -1109,8 +1109,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
           }
 
-          
-          PlayerCameraShake();
+          if (!player.time_breaker) {
+            PlayerCameraShake();
+          }
           for (int i=0;i<player.rendered_enemy_num;i++) {
             Enemy[player_render_enemies[i]].seed=rand();
           }

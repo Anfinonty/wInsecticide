@@ -801,8 +801,7 @@ void PlayerAct() {
         if (player.rebound_above) {
           move_x(cos(player.angle_of_reflection));
           move_y(sin(player.angle_of_reflection));
-        }
-        else if (player.rebound_below){
+        } else if (player.rebound_below){
           move_x(-cos(player.angle_of_reflection));
           move_y(-sin(player.angle_of_reflection));
         }
@@ -1149,13 +1148,13 @@ void PlayerAct() {
 
 
   double grav_dist;
-  if (player.speed>3) {
-    grav_dist=GetDistance(3,0,0,player.grav);
-    player.angle_of_incidence=GetCosAngle(3,grav_dist);
-  } else {
+  //if (player.speed>3) {
+  grav_dist=GetDistance(3,0,0,player.grav);
+ player.angle_of_incidence=GetCosAngle(3,grav_dist);
+  /*} else {
     grav_dist=GetDistance(2,0,0,player.grav);
     player.angle_of_incidence=GetCosAngle(2,grav_dist);
-  }
+  }*/
   if (player.fling_distance>0) {
     if (player.fling_left) {
       player.angle_of_incidence=player.launch_angle;
@@ -1323,9 +1322,10 @@ void PlayerCameraShake()
         }
       }
     //}
-    //if (fall_camera) { //falling_camera
+    if (!player.is_rebounding) { //falling_camera
       if (player.grav>3 || player.speed>=5) { //falling cam effect
         y_bob=(player.grav-2)/2;
+
         switch (player.speed) {
     	  case 1:
     	  case 2:
@@ -1347,7 +1347,7 @@ void PlayerCameraShake()
           player.cam_move_y+=RandNum(-2,2,1);//shaky y
         }
       }
-    //}
+    }
     x_bob=0;
     y_bob=0;
   //}
