@@ -1194,11 +1194,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 //      unsigned long long timenow=current_timestamp();
 //      printf("\nSeconds Passed Since Jan-1-1970: %llu",timenow);
 
-
       unsigned int timenow=int_current_timestamp();
       printf("\nSeconds Passed Since Jan-1-1970: %d",timenow);
-      //PersiaSolarTime(0);
       PersiaSolarTime(timenow);
+      PersiaLunarTime(timenow);
+
+    //Ramadan Date 7AM 2024
+      //int ramadan_time_2024=1710111600;
+      //printf("\nRamadan Time 2024: %d",ramadan_time_2024);
+      //PersiaSolarTime(ramadan_time_2024);
+      //PersiaLunarTime(ramadan_time_2024);
 
       back_to_menu=FALSE;
       in_main_menu=TRUE;

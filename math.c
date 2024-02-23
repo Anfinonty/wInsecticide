@@ -15,6 +15,129 @@ unsigned int int_current_timestamp() {
 }
 
 
+int leap_years[11]={2,5,7,10,13,16,18,21,24,26,29};
+void PersiaLunarTime(int _seconds)
+{
+  //622 C.E. = Beginning of Year
+
+
+  //Each year has 12 months
+    //odd number months have 30 days
+    //even number months have 29 days
+    //At the last 12th months,
+      //30 days during leap year
+      //29 days during common year
+
+  const int day_seconds=60*60*24;
+  const int days30_seconds=day_seconds*30;
+  const int days29_seconds=day_seconds*29;
+
+  //Break Down the different time parts
+  int year=1389;
+  int month=9;          //start day     //timezone diff 8:30 (America to Iran)
+  int seconds=_seconds+day_seconds*22-day_seconds/2-(8*60*60+30*60); //Offset
+  while (seconds>0) {
+    //Get months
+    if (month<11) {   //0,1,2,3,4,5
+      if ((month+1)%2==0) { //29 Days, Even number months
+        if (seconds-days29_seconds<0) {
+          break;
+        } else {
+          seconds-=days29_seconds;
+          month++;
+        }        
+      } else { //30 Days, Odd Number months
+        if (seconds-days30_seconds<0) {
+          break;
+        } else {
+          seconds-=days30_seconds;
+          month++;
+        }
+      }
+    } else { //12th month   //leap year at last month, 30 days = leap year       29 days = common year      ,11
+      //30 yrs, 11 leap years
+      //2,5,7,10,13,16,18,21,24,26,29
+      bool leap=FALSE;
+      int lyr=year%30;
+      for (int i=0;i<11;i++) {
+        if (lyr==leap_years[i]) {
+          leap=TRUE;
+          break;
+        }
+      }
+
+      if (leap) {//Leap year
+        if (seconds-days30_seconds<0) {
+          break;
+        } else {
+          seconds-=days30_seconds;
+          month++;
+        }
+      } else {//Common Year
+        if (seconds-days29_seconds<0) {
+          break;
+        } else {
+          seconds-=days29_seconds;
+          month++;
+        }
+      }
+    }
+
+
+    //new year
+    if (month==12) {
+      month=0;
+      year++;
+    }
+  }
+
+
+
+  int print_seconds=seconds%60; //60 seconds in a minute
+ 
+  //Minutes
+  int min=seconds/60;
+  int print_min=min%60; //60 minutes in a second
+
+  //Hours
+  int hours=min/60;
+  int print_hours=hours%24; //24 hours in a day
+
+  //Days
+  int days=hours/24;
+
+
+  //31 or 30 or 29 days in a month
+  int print_days;
+  if (month<11) {
+    if ((month+1)%2==0) {
+      print_days=days%29;
+    } else {
+      print_days=days%30;
+    }
+  } else {
+    bool leap=FALSE;
+    int lyr=year%30;
+    for (int i=0;i<11;i++) {
+      if (lyr==leap_years[i]) {
+        leap=TRUE;
+        break;
+      }
+    }
+
+    if (leap) {
+      print_days=days%30;
+    } else {
+      print_days=days%29;
+    }
+  }
+
+  printf("\n~::Lunar Hijri Time- Year~%d Month~%d Day~%d - %d:%d:%d ::~\n",year,(month+1),(print_days+1),print_hours,print_min,print_seconds);
+
+}
+
+
+
 void PersiaSolarTime(int _seconds)
 {  
   //Beginning date:
@@ -35,10 +158,10 @@ void PersiaSolarTime(int _seconds)
   const int days29_seconds=day_seconds*29;
 
 
-  //Filter out the different time parts
+  //Break Down the different time parts
   int year=1348;
   int month=9;          //start day     //timezone diff 8:30 (America to Iran)
-  int seconds=_seconds+(day_seconds*12+day_seconds/2)-(8*60*60+30*60); //Offsets
+  int seconds=_seconds+(day_seconds*11+day_seconds/2)-(8*60*60+30*60); //Offsets
   while (seconds>0) {
     //Get months
     if (month<6) {   //First 6 months have 31 days          0,1,2,3,4,5
@@ -111,7 +234,7 @@ void PersiaSolarTime(int _seconds)
     }
   }
 
-  printf("\n~::Solar Hijiri Time- Year~%d Month~%d Day~%d - %d:%d:%d ::~\n",year,(month+1),print_days,print_hours,print_min,print_seconds);
+  printf("\n~::Solar Hijri Time- Year~%d Month~%d Day~%d - %d:%d:%d ::~\n",year,(month+1),(print_days+1),print_hours,print_min,print_seconds);
 }
 
 
