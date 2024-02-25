@@ -1040,9 +1040,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
     case WM_PAINT: //https://cplusplus.com/forum/beginner/269434/
+      FrameRateSleep(FPS); // (Uncapped)
       if (!IsIconic(hwnd)) //no action when minimized, prevents crash https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-isiconic?redirectedfrom=MSDN
       {
-        FrameRateSleep(FPS); // (Uncapped)
+        HBITMAP screen;
        //FrameRateSleep(35); //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
         RECT rect;
         if(GetWindowRect(hwnd, &rect))
@@ -1126,7 +1127,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           hdcBackbuff=CreateCompatibleDC(hdc);
 
           //HBITMAP screen = CreateGreyscaleBitmap(GR_WIDTH,GR_HEIGHT);
-          HBITMAP screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+          screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
           SelectObject(hdcBackbuff,screen);
           DrawBackground(hdcBackbuff);
           DrawPlatforms(hdcBackbuff);
