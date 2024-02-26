@@ -87,7 +87,7 @@ WHITE //15
 };
 
 #define SONG_NUM 10
-#define SONG_FOLDER_NUM 22
+#define SONG_FOLDER_NUM 23
 
 #define SCREEN_WIDTH    (GetSystemMetrics(SM_CXSCREEN))
 #define SCREEN_HEIGHT   (GetSystemMetrics(SM_CYSCREEN))
@@ -1274,7 +1274,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nCmdShow) {
   //Window Class
   WNDCLASSW wc = {0};
-  wc.style = 0;//CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+  wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
   wc.lpszClassName = L"DrawIt";
   wc.hInstance     = hInstance;
   wc.hbrBackground = GetSysColorBrush(COLOR_3DFACE);

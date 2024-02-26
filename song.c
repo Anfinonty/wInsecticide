@@ -639,6 +639,35 @@ char *song_name21[SONG_NUM]={
 
 
 
+//22
+int song_duration22[SONG_NUM]={
+180+16, //"Dota - Basshunter", //"LOL (2006)",
+180+1, //"Ring Dinge Ding - DJ Splash", //"(2005)",
+420+24, //"Through Fire and The Flames - Dragonforce", //"Inhuman Rage (2005)",
+120+5, //"Miracle Man - Oliver Tree", //"Ugly Is Beautiful (2020)",
+180+49, //"Hey Ya! - Outkast", //"Speakerboxxx/The Love Below (2003)",
+240+43, //"Time - Pink Floyd", //"The Dark Side of the Moon (1973)",
+240+10, //"Pumped Up Kicks - Foster The People", //"Bridge and Law Remix (2015)",
+180+52, //"The Last Stand - Sabaton (Russian Cover)", //"Radio Tapok (2021)",
+180+55, //"The Last Stand - Sabaton", //"The Last Stand (2016)",
+420+55 //"Roundabout - Yes (2008 Remaster)"; //"Yes (2008)";
+};
+
+
+
+char *song_name22[SONG_NUM]={
+"Dota - Basshunter", //"LOL (2006)",
+"Ring Dinge Ding - DJ Splash", //"(2005)",
+"Through Fire and The Flames - Dragonforce", //"Inhuman Rage (2005)",
+"Miracle Man - Oliver Tree", //"Ugly Is Beautiful (2020)",
+"Hey Ya! - Outkast", //"Speakerboxxx/The Love Below (2003)",
+"Time - Pink Floyd", //"The Dark Side of the Moon (1973)",
+"Pumped Up Kicks - Foster The People", //"Bridge and Law Remix (2015)",
+"The Last Stand - Sabaton (Russian Cover)", //"Radio Tapok (2021)",
+"The Last Stand - Sabaton", //"The Last Stand (2016)",
+"Roundabout - Yes (2008 Remaster)" //"Yes (2008)";
+};
+
 
 int *song_durations[SONG_FOLDER_NUM]={
   song_duration0,
@@ -662,7 +691,8 @@ int *song_durations[SONG_FOLDER_NUM]={
   song_duration18,
   song_duration19,
   song_duration20,
-  song_duration21
+  song_duration21,
+  song_duration22
 };
 
 char **song_names[SONG_FOLDER_NUM]={
@@ -687,7 +717,8 @@ char **song_names[SONG_FOLDER_NUM]={
   song_name18,
   song_name19,
   song_name20,
-  song_name21
+  song_name21,
+  song_name22
 };
 
 
@@ -997,6 +1028,21 @@ char *album_name21[SONG_NUM]={
 };
 
 
+char *album_name22[SONG_NUM]={
+"LOL (2006)",
+"(2005)",
+"Inhuman Rage (2005)",
+"Ugly Is Beautiful (2020)",
+"Speakerboxxx/The Love Below (2003)",
+"The Dark Side of the Moon (1973)",
+"Bridge and Law Remix (2015)",
+"Radio Tapok (2021)",
+"The Last Stand (2016)",
+"Yes (2008)"
+};
+
+
+
 char **album_names[SONG_FOLDER_NUM]={
   album_name0,
   album_name1,
@@ -1019,7 +1065,8 @@ char **album_names[SONG_FOLDER_NUM]={
   album_name18,
   album_name19,
   album_name20,
-  album_name21
+  album_name21,
+  album_name22
 };
 
 
