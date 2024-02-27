@@ -23,13 +23,6 @@
 #include <limits.h>
 #include <dirent.h>
 #include <errno.h>
-#include <wchar.h>
-
-#include <io.h>
-#include <fcntl.h>
-#ifndef _O_U16TEXT
-  #define _O_U16TEXT 0x20000
-#endif
 
 #define COLORS_NUM  16
 #define BLACK       RGB(0,0,0)
