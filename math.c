@@ -16,7 +16,75 @@ unsigned int int_current_timestamp() {
 
 
 int leap_years[11]={2,5,7,10,13,16,18,21,24,26,29};
-void PersiaLunarTime(int _seconds)
+/*char *lunar_months_txt[12]={
+    "ٱلْمُحَرَّم",
+    "صَفَر",
+    "رَبِيع ٱلْأَوَّل",
+    "رَبِيع ٱلثَّانِي",
+    "جُمَادَىٰ ٱلْأُولَىٰ",
+    "جُمَادَىٰ ٱلثَّانِيَة",
+    "رَجَب",
+    "شَعْبَان",
+    "رَمَضَان",
+    "شَوَّال",
+    "ذُو ٱلْقَعْدَة",
+    "ذُو ٱلْحِجَّة"    
+};*/
+
+
+
+char *lunar_months_txt[12]={
+"Muharram", 
+"Safar", 
+"Rabi' al-Awwal",
+"Rabi' al-Thani",
+"Jumada al-Awwal", 
+"Jumada al-Thani", 
+"Rajab", 
+"Sha'ban",
+"Ramadan", 
+"Shawwal", 
+"Dhu al-Qa'dah",
+"Dhu al-Hijjah"
+};
+
+char *solar_months_txt[12]={
+"Farvardin",
+"Ordibehesht",
+"Khordad",
+"Tir",
+"Mordad/Amordad",
+"Shahrivar",
+"Mehr",
+"Aban",
+"Azar",
+"Dey",
+"Bahman",
+"Esfand"
+};
+
+char *lunar_days_txt[7]={
+  "yawm al'-Ahdad",
+  "yawm al-lthnayn",
+  "yawm ath-Thulatha'",
+  "yawm al-'Aribi'a'",
+  "yawm al-Khamis",
+  "yawm al-Jum'ah",
+  "yawm as-Sabt"
+};
+
+char *solar_days_txt[7]={
+  "shanbeh",
+  "keshanbeh",
+  "doshanbeh",
+  "seshanbeh",
+  "chaharshanbeh",
+  "panjshanbeh",
+  "jom'eh"
+};
+
+
+void PersiaLunarTime(int _seconds,int *_moon_day,int *_hours)
 {
   //622 C.E. = Beginning of Year
 
@@ -34,8 +102,8 @@ void PersiaLunarTime(int _seconds)
 
   //Break Down the different time parts
   int year=1389;
-  int month=9;          //start day     //timezone diff 8:30 (America to Iran)
-  int seconds=_seconds+day_seconds*22-day_seconds/2-(8*60*60+30*60); //Offset
+  int month=9;          //start day is  1389-10-22    //lunar hijri hours offset from 1970-1-1 gregorian is 16 hrs
+  int seconds=_seconds+day_seconds*22-16*60*60; //Offset
   while (seconds>0) {
     //Get months
     if (month<11) {   //0,1,2,3,4,5
@@ -132,8 +200,31 @@ void PersiaLunarTime(int _seconds)
     }
   }
 
-  printf("\n~::Lunar Hijri Time- Year~%d Month~%d Day~%d - %d:%d:%d ::~\n",year,(month+1),(print_days+1),print_hours,print_min,print_seconds);
+  //( <| <|)  O  (|> |> ) @
 
+  int __moon_day=print_days+1;
+  printf("\n~:: Lunar Hijri ::~ ");
+  if (__moon_day>=1 && __moon_day<8) {
+    printf("(");
+  } else if (__moon_day>=8 && __moon_day<11) {
+    printf("(|");
+  }  else if (__moon_day>=11 && __moon_day<14) {
+    printf("(|>");
+  } else if (__moon_day>=14 && __moon_day<16) {
+    printf("(O)");
+  } else if (__moon_day>=16 && __moon_day<21) {
+    printf("<|)");
+  } else if (__moon_day>=21 && __moon_day<26) {
+    printf(" |)");
+  } else if (__moon_day>=26 && __moon_day<28) {
+    printf("  )");
+  } else {
+    printf(" @");
+  }
+  printf("\n~:: %d.%s(%d).%d // %s(%d) // [%d:%d:%d] ::~\n",year,lunar_months_txt[month],(month+1),(print_days+1),lunar_days_txt[days%7],(days%7),print_hours,print_min,print_seconds);
+
+  *_moon_day=__moon_day;
+  *_hours=print_hours;
 }
 
 
@@ -160,8 +251,8 @@ void PersiaSolarTime(int _seconds)
 
   //Break Down the different time parts
   int year=1348;
-  int month=9;          //start day     //timezone diff 8:30 (America to Iran)
-  int seconds=_seconds+(day_seconds*11+day_seconds/2)-(8*60*60+30*60); //Offsets
+  int month=9;          //start day     //solar hijri offset: 8 hours from 1970-1-1 Gregorian
+  int seconds=_seconds+day_seconds*11+8*60*60; //Offsets
   while (seconds>0) {
     //Get months
     if (month<6) {   //First 6 months have 31 days          0,1,2,3,4,5
@@ -234,7 +325,8 @@ void PersiaSolarTime(int _seconds)
     }
   }
 
-  printf("\n~::Solar Hijri Time- Year~%d Month~%d Day~%d - %d:%d:%d ::~\n",year,(month+1),(print_days+1),print_hours,print_min,print_seconds);
+
+  printf("\n~:: Solar Hijri ::~ *\n~:: %d.%s(%d).%d // %s(%d) // [%d:%d:%d] ::~\n",year,solar_months_txt[month],(month+1),(print_days+1),solar_days_txt[days%7],(days%7),print_hours,print_min,print_seconds);
 }
 
 

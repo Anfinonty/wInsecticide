@@ -562,3 +562,6 @@ HBITMAP map_background_sprite;
 
 HBITMAP map_platforms_sprite;
 HBITMAP map_platforms_sprite_mask;
+
+HBITMAP moon_sprite;
+HBITMAP moon_sprite_cache;

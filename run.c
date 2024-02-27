@@ -23,7 +23,13 @@
 #include <limits.h>
 #include <dirent.h>
 #include <errno.h>
+#include <wchar.h>
 
+#include <io.h>
+#include <fcntl.h>
+#ifndef _O_U16TEXT
+  #define _O_U16TEXT 0x20000
+#endif
 
 #define COLORS_NUM  16
 #define BLACK       RGB(0,0,0)
@@ -95,6 +101,7 @@ WHITE //15
 
 
 int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
+int hours_now=0, moon_day=0;
 int frame_tick=-10;
 int int_best_score=0;
 double double_best_score=0;
@@ -213,6 +220,7 @@ void DrawBackground(HDC hdc) {
         break;
       case 1:
         DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,NOTSRCCOPY,FALSE);
+        GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
         break;
       default:
         GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,custom_map_background_color);
@@ -439,6 +447,12 @@ void InitLevel(HWND hwnd, HDC hdc)
   player.spin_sprite_3_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI,LTGREEN,draw_color_arr[player_color],-1);
   player.spin_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,draw_color_arr[player_color],-1);
 
+  //moon sprite
+  DeleteObject(moon_sprite_cache);
+  HBITMAP tmp_moon_sprite=CopyBitmap(moon_sprite,NOTSRCCOPY);
+  moon_sprite_cache=RotateSprite(NULL, tmp_moon_sprite,0,LTPURPLE,BLACK,-1);
+  DeleteObject(tmp_moon_sprite);
+
   //Load Enemy cache sprites
   InitEnemySprites();
 
@@ -543,7 +557,12 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4)
 
 void DrawMainMenu(HDC hdc)
 {
-  GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,BLUE);
+  if (hours_now>6 && hours_now<18) { //7 AM to 6PM
+    GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,BLUE);
+  } else {
+    GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,BLACK);
+  }
+
   GrPrint(hdc,30,10,"Welcome to the wInsecticide Menu!",WHITE);
 
   GrPrint(hdc,30,10+32,"-  Level 0",WHITE);
@@ -575,6 +594,8 @@ void DrawMainMenu(HDC hdc)
   if (player_color>-1 && player_color<COLORS_NUM) {
     GrRect(hdc,30+8*12+2,10+32+16*17+2,12,12,draw_color_arr[player_color]);
   }
+
+  GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
 }
 
 
@@ -1166,6 +1187,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DeleteObject(map_background_sprite);
             back_to_menu=FALSE;
             in_main_menu=TRUE;
+
+            DeleteObject(moon_sprite_cache);
+            moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,-1);
           }
         } else { //In Main Menu
           PAINTSTRUCT ps;
@@ -1198,7 +1222,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       unsigned int timenow=int_current_timestamp();
       printf("\nSeconds Passed Since Jan-1-1970: %d",timenow);
       PersiaSolarTime(timenow);
-      PersiaLunarTime(timenow);
+      PersiaLunarTime(timenow,&moon_day,&hours_now);
 
     //Ramadan Date 7AM 2024
       //int ramadan_time_2024=1710111600;
@@ -1251,8 +1275,29 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
       mouse_cursor_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/player_cursor1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-
       mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,-1);
+
+
+
+      //moon sprite
+      if (moon_day>=1 && moon_day<8) {
+        moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      } else if (moon_day>=8 && moon_day<11) {
+        moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-8.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      }  else if (moon_day>=11 && moon_day<14) {
+        moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-11.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      } else if (moon_day>=14 && moon_day<16) {
+        moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-14.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      } else if (moon_day>=16 && moon_day<21) {
+        moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-16.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      } else if (moon_day>=21 && moon_day<26) {
+        moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-21.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      } else if (moon_day>=26 && moon_day<28) {
+        moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-26.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      } else {
+        moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-28.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      }
+      moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,-1);
 
       return 0;
       break;
