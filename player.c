@@ -1229,7 +1229,15 @@ void PlayerAct() {
           player.speed++;
       }
       player.time_breaker_recharge_timer=player.time_breaker_recharge_timer_max;
-      player.time_breaker_cooldown=player.time_breaker_cooldown_max;
+      if (player.speed<10) {
+        player.time_breaker_cooldown=player.time_breaker_cooldown_max;
+      } else {
+        if (player.speed<24) {
+          player.time_breaker_cooldown=player.time_breaker_cooldown_max/4;
+        } else {
+          player.time_breaker_cooldown=player.time_breaker_cooldown_max/8;
+        }
+      }
     }
     if (player.time_breaker_cooldown>0) {
       player.time_breaker_cooldown--;
@@ -1238,7 +1246,15 @@ void PlayerAct() {
         player.time_breaker_recharge_timer--;
       } else if (player.time_breaker_units<player.time_breaker_units_max) {
         player.time_breaker_units++;
-        player.time_breaker_recharge_timer=player.time_breaker_recharge_timer_max;
+        if (player.speed<10) {
+          player.time_breaker_recharge_timer=player.time_breaker_recharge_timer_max;
+        } else {
+          if (player.speed<24) {
+            player.time_breaker_recharge_timer=player.time_breaker_recharge_timer_max/4;
+          } else {
+            player.time_breaker_recharge_timer=player.time_breaker_recharge_timer_max/8;
+          }
+        }
       }
     }
   } else {

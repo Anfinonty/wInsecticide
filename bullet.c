@@ -270,11 +270,12 @@ void BulletAct(int bullet_id)
 
           if (blocked_bullet_dmg>0) {
             if (!player.time_breaker) { //penalty for hitting a bullet
-              if (player.time_breaker_units>1) {
-                player.time_breaker_units=1;
-              }
               if (player.speed>5) {
                 player.speed--;
+              } else { //penalty only at low speed
+                if (player.time_breaker_units>1) {
+                  player.time_breaker_units=1;
+                }
               }
             }
           }

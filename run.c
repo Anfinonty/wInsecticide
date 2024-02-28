@@ -101,7 +101,7 @@ double double_best_score=0;
 char save_level[40];
 int player_color=0;
 double time_begin=0;
-
+HBITMAP map_platforms_timebreaker_sprite;
 
 
 #define DEFAULT_PLAYER_SPEED			1
@@ -219,8 +219,6 @@ void DrawBackground(HDC hdc) {
         GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,custom_map_background_color);
         break;
     }
-  } else {
-    GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,WHITE);
   }
 }
 
@@ -228,6 +226,7 @@ void DrawBackground(HDC hdc) {
 void DrawPlatforms(HDC hDC)
 { //Dynamically scale with window size 
   //Draw platforms bitmap mask
+  if (!player.time_breaker) {
   DrawBitmap(hDC,player.cam_move_x+player.cam_x+player.x-GR_WIDTH/2,
                  player.cam_move_y+player.cam_y+player.y-GR_HEIGHT/2,
                  player.x-GR_WIDTH/2,
@@ -236,7 +235,6 @@ void DrawPlatforms(HDC hDC)
                  GR_HEIGHT+player.grav*2,
                 map_platforms_sprite_mask,SRCAND,FALSE);
   //Draw platforms paint
-  if (!player.time_breaker) {
   DrawBitmap(hDC,player.cam_move_x+player.cam_x+player.x-GR_WIDTH/2,
                  player.cam_move_y+player.cam_y+player.y-GR_HEIGHT/2,
                  player.x-GR_WIDTH/2,
@@ -244,6 +242,15 @@ void DrawPlatforms(HDC hDC)
                  GR_WIDTH,
                  GR_HEIGHT+player.grav*2,
                 map_platforms_sprite,SRCPAINT,FALSE);
+
+  } else {
+  DrawBitmap(hDC,player.cam_move_x+player.cam_x+player.x-GR_WIDTH/2,
+                 player.cam_move_y+player.cam_y+player.y-GR_HEIGHT/2,
+                 player.x-GR_WIDTH/2,
+                 player.y-GR_HEIGHT/2,
+                 GR_WIDTH,
+                 GR_HEIGHT+player.grav*2,
+                map_platforms_timebreaker_sprite,NOTSRCCOPY,FALSE);
   }
 }
 
@@ -379,6 +386,30 @@ void Init() {
 }
 
 
+void InitPlatformsTBSprite(HWND hwnd, HDC hdc)
+{
+  PAINTSTRUCT ps; //Suggestion Credit: https://git.xslendi.xyz
+  hdc=BeginPaint(hwnd, &ps);
+  HDC hdc2=CreateCompatibleDC(hdc);
+  //HBITMAP tmp_map_platforms_sprite=CreateCompatibleBitmap(hdc,MAP_WIDTH,MAP_HEIGHT);
+  HBITMAP tmp_map_platforms_sprite;
+  tmp_map_platforms_sprite=CreateLargeBitmap(MAP_WIDTH,MAP_HEIGHT);
+  SelectObject(hdc2,tmp_map_platforms_sprite);
+
+  GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,WHITE);
+
+  DrawGround(hdc2);
+  DrawGroundText(hdc2);
+
+  DeleteDC(hdc2);
+  EndPaint(hwnd, &ps);
+
+  map_platforms_timebreaker_sprite=CopyBitmap(tmp_map_platforms_sprite,NOTSRCCOPY);//ReplaceColor(tmp_map_platforms_sprite,MYCOLOR1,BLACK,NULL);
+  DeleteObject(tmp_map_platforms_sprite);
+  //end of platform sprite creation
+}
+
+
 void InitPlatformsSprite(HWND hwnd, HDC hdc)
 {
   PAINTSTRUCT ps; //Suggestion Credit: https://git.xslendi.xyz
@@ -403,6 +434,7 @@ void InitPlatformsSprite(HWND hwnd, HDC hdc)
   DeleteObject(tmp_map_platforms_sprite);
   //end of platform sprite creation
 }
+
 
 void InitLevel(HWND hwnd, HDC hdc)
 {
@@ -1009,6 +1041,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               player.time_breaker=TRUE;
               player.time_breaker_cooldown=player.time_breaker_cooldown_max;
               player.speed+=player.time_breaker_units_max/2-1;
+              InitPlatformsTBSprite(hwnd,hdc);
             }
             if (player.sleep_timer==DEFAULT_SLEEP_TIMER) {
               player.sleep_timer=SLOWDOWN_SLEEP_TIMER;
@@ -1025,6 +1058,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               player.time_breaker=TRUE;
               player.time_breaker_cooldown=player.time_breaker_cooldown_max;
               player.speed+=player.time_breaker_units_max/2-1;
+              InitPlatformsTBSprite(hwnd,hdc);
             }
           }
           break;
@@ -1163,7 +1197,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           DeleteDC(hdcBackbuff);
           DeleteObject(screen);
           EndPaint(hwnd, &ps);
-
+          if (!player.time_breaker) {
+            DeleteObject(map_platforms_timebreaker_sprite);
+          }
 
           //Trigger go back to main menu
           if (back_to_menu) {
@@ -1182,6 +1218,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             in_main_menu=TRUE;
 
             DeleteObject(moon_sprite_cache);
+            DeleteObject(map_platforms_timebreaker_sprite);
             moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,-1);
           }
         } else { //In Main Menu
