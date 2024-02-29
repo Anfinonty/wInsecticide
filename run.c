@@ -1328,23 +1328,23 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //printf("\nSeconds Passed Since Jan-1-1970: %llu",timenow);
 
       unsigned int timenow=int_current_timestamp();
-      //unsigned int timenow= 1709827200+24*60*60*4; //march 8 2024
+      //unsigned int timenow= 1709827200+24*60*60*2; //march 8 2024
       //unsigned int timenow=1712585320; //April 8 2024
       //unsigned int timenow =5616000; //March 7 1970 //first solar eclipse
       //unsigned int timenow = 20908800;//Aug 31 1970
       //unsigned int timenow =36288000; //Feb 25 1971
-      //unsigned int timenow = 	51465600+60*60*24*2; //Aug 20 1971
+      //unsigned int timenow = 	51465600+60*60*24*1; //Aug 20 1971
 
       //unsigned int timenow=79574400;//July 10 1972
       //unsigned int timenow=94924800;//1973-1-4
       //unsigned int timenow=1112914800; //2005-apri-08
-      //unsigned int timenow= 	1817161200-60*60*24/4; //2027-aug-2
-      //unsigned int timenow= 	304124400+24*60*60;  //Aug-22-1979
+      //unsigned int timenow= 	1817161200; //2027-aug-2
+      //unsigned int timenow= 	304124400;  //Aug-22-1979
       //unsigned int timenow=  	319503600; //Fed-16-1980
       //unsigned int timenow=  	319577777-60*60*24; //Fed-16-1980
       //unsigned int timenow=334710000;//10 aug-2024
       //unsigned long long timenow=   	2564780400;//11-April-2051 (2038 TIME YEAR LIMIT)
-      //unsigned int timenow= 	2072300400; //sept-2-2035
+      //unsigned int timenow= 	2072300400; //sept-2-2035 //...
 
       printf("\nSeconds Passed Since Jan-1-1970: %d",timenow);
       PersiaSolarTime(timenow,&solar_day,&solar_year);
