@@ -94,7 +94,8 @@ WHITE //15
 
 
 int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
-int hours_now=0, moon_day=0;
+int hours_now=0, moon_day=0,solar_day=0,solar_year=0;
+double moon_angle_shift=0;
 int frame_tick=-10;
 int int_best_score=0;
 double double_best_score=0;
@@ -482,6 +483,7 @@ void InitLevel(HWND hwnd, HDC hdc)
   InitEnemySprites();
 
   InitPlatformsSprite(hwnd,hdc);
+  InitPlatformsTBSprite(hwnd,hdc);
 
   in_main_menu=FALSE;
 }
@@ -579,6 +581,18 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4)
 
 
 //Attributes for Level Choose & MainMenu
+double moon_angles[8]=
+{
+  M_PI_2-M_PI_4, //Cresent
+  M_PI_2, //Half Moon
+  M_PI_2+M_PI_4, //Near full moon  
+  M_PI, //Full moon
+  M_PI+M_PI_2-M_PI_4, //Near full moon
+  M_PI+M_PI_2, //Half moon
+  M_PI+M_PI_2+M_PI_4, //Cresent mooon
+  0 //NEW MOON
+};
+
 
 void DrawMainMenu(HDC hdc)
 {
@@ -620,7 +634,73 @@ void DrawMainMenu(HDC hdc)
     GrRect(hdc,30+8*12+2,10+32+16*17+2,12,12,draw_color_arr[player_color]);
   }
 
+
+  //Draw Moon Phase
   GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
+
+
+  //Space Clock
+  GrCircle(hdc,GR_WIDTH/2, 128*4,10,LTBLUE,LTBLUE);
+  
+
+  //Moon Pos
+  double moon_angle;
+  /*if (moon_day>=1 && moon_day<8) { //Cresent Opening
+    moon_angle=moon_angles[0];
+  } else if (moon_day>=8 && moon_day<11) {  //Half moon Opening
+    moon_angle=moon_angles[1];
+  }  else if (moon_day>=11 && moon_day<14) {    //Near Full Opening
+    moon_angle=moon_angles[2];
+  } else if (moon_day>=14 && moon_day<16) { //Full moon
+    moon_angle=moon_angles[3];
+  } else if (moon_day>=16 && moon_day<21) { //Near full closing
+    moon_angle=moon_angles[4];
+  } else if (moon_day>=21 && moon_day<26) { //half moon closing
+    moon_angle=moon_angles[5];
+  } else if (moon_day>=26 && moon_day<28) { //Cresent Closing
+    moon_angle=moon_angles[6];
+  } else {
+    moon_angle=moon_angles[7];
+  }*/
+ 
+  if (moon_day<28)
+//    moon_angle=(-2*M_PI/28 * moon_day);
+    moon_angle=(-M_PI/14 * moon_day)-moon_angle_shift;
+  else
+    moon_angle=-moon_angle_shift;
+
+
+  //M_PI/6 shift origin every lunar month
+  //M_PI/6 = (M_PI_4/3) + (MP_PI_4/3)
+
+  //printf("moonday: %d",moon_day);
+  for (int i=0;i<28;i++) {
+    double tmp_angle=-M_PI/14 * i -moon_angle_shift;
+    if (i>1 && i<28) {
+      GrCircle(hdc,GR_WIDTH/2 + 100*cos(tmp_angle), 128*4 + 100*sin(tmp_angle),5,BLACK,DKGRAY);
+    } else {
+      if (i==1) {
+        GrCircle(hdc,GR_WIDTH/2 + 100*cos(tmp_angle), 128*4 + 100*sin(tmp_angle),6,BLACK,CYAN);
+      } else {
+        GrCircle(hdc,GR_WIDTH/2 + 100*cos(tmp_angle), 128*4 + 100*sin(tmp_angle),7,BLACK,LTCYAN);
+      }
+    }
+  }
+  GrCircle(hdc,GR_WIDTH/2 + 100*cos(moon_angle), 128*4 + 100*sin(moon_angle),5,WHITE,WHITE);
+
+  //Sun Pos
+  double sun_angle=0;
+  if (solar_year%4==0) {
+    sun_angle=(-M_PI*2)*solar_day/366;
+  } else {
+    sun_angle=(-M_PI*2)*solar_day/365;
+  }
+  GrCircle(hdc,GR_WIDTH/2 + 100*cos(sun_angle), 128*4 + 100*sin(sun_angle),5,YELLOW,YELLOW);
+  //GrCircle(hdc,GR_WIDTH/2 + 3*100*cos(sun_angle), 128*4 + 3*100*sin(sun_angle),5,YELLOW,YELLOW);
+  //GrLine(hdc,GR_WIDTH/2,128*4,GR_WIDTH/2 + 3*100*cos(sun_angle), 128*4 + 3*100*sin(sun_angle),YELLOW);
+
+
+//  GrCircle(hdc,GR_WIDTH/2, 128*4,300,YELLOW,-1);
 }
 
 
@@ -1041,7 +1121,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               player.time_breaker=TRUE;
               player.time_breaker_cooldown=player.time_breaker_cooldown_max;
               player.speed+=player.time_breaker_units_max/2-1;
-              InitPlatformsTBSprite(hwnd,hdc);
             }
             if (player.sleep_timer==DEFAULT_SLEEP_TIMER) {
               player.sleep_timer=SLOWDOWN_SLEEP_TIMER;
@@ -1058,7 +1137,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               player.time_breaker=TRUE;
               player.time_breaker_cooldown=player.time_breaker_cooldown_max;
               player.speed+=player.time_breaker_units_max/2-1;
-              InitPlatformsTBSprite(hwnd,hdc);
             }
           }
           break;
@@ -1160,6 +1238,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
           if (!player.time_breaker) {
             PlayerCameraShake();
+          } else {
+            player.cam_move_x=0;
+            player.cam_move_y=0;
           }
           for (int i=0;i<player.rendered_enemy_num;i++) {
             Enemy[player_render_enemies[i]].seed=rand();
@@ -1197,9 +1278,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           DeleteDC(hdcBackbuff);
           DeleteObject(screen);
           EndPaint(hwnd, &ps);
-          if (!player.time_breaker) {
-            DeleteObject(map_platforms_timebreaker_sprite);
-          }
 
           //Trigger go back to main menu
           if (back_to_menu) {
@@ -1213,12 +1291,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             DeleteObject(map_platforms_sprite);
             DeleteObject(map_platforms_sprite_mask);
+            DeleteObject(map_platforms_timebreaker_sprite);
             DeleteObject(map_background_sprite);
             back_to_menu=FALSE;
             in_main_menu=TRUE;
 
             DeleteObject(moon_sprite_cache);
-            DeleteObject(map_platforms_timebreaker_sprite);
             moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,-1);
           }
         } else { //In Main Menu
@@ -1246,13 +1324,31 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       InitFPS();
 
 
-//      unsigned long long timenow=current_timestamp();
-//      printf("\nSeconds Passed Since Jan-1-1970: %llu",timenow);
+      //unsigned long long timenow=current_timestamp();
+      //printf("\nSeconds Passed Since Jan-1-1970: %llu",timenow);
 
       unsigned int timenow=int_current_timestamp();
+      //unsigned int timenow= 1709827200+24*60*60*4; //march 8 2024
+      //unsigned int timenow=1712585320; //April 8 2024
+      //unsigned int timenow =5616000; //March 7 1970 //first solar eclipse
+      //unsigned int timenow = 20908800;//Aug 31 1970
+      //unsigned int timenow =36288000; //Feb 25 1971
+      //unsigned int timenow = 	51465600+60*60*24*2; //Aug 20 1971
+
+      //unsigned int timenow=79574400;//July 10 1972
+      //unsigned int timenow=94924800;//1973-1-4
+      //unsigned int timenow=1112914800; //2005-apri-08
+      //unsigned int timenow= 	1817161200-60*60*24/4; //2027-aug-2
+      //unsigned int timenow= 	304124400+24*60*60;  //Aug-22-1979
+      //unsigned int timenow=  	319503600; //Fed-16-1980
+      //unsigned int timenow=  	319577777-60*60*24; //Fed-16-1980
+      //unsigned int timenow=334710000;//10 aug-2024
+      //unsigned long long timenow=   	2564780400;//11-April-2051 (2038 TIME YEAR LIMIT)
+      //unsigned int timenow= 	2072300400; //sept-2-2035
+
       printf("\nSeconds Passed Since Jan-1-1970: %d",timenow);
-      PersiaSolarTime(timenow);
-      PersiaLunarTime(timenow,&moon_day,&hours_now);
+      PersiaSolarTime(timenow,&solar_day,&solar_year);
+      PersiaLunarTime(timenow,&moon_day,&hours_now,&moon_angle_shift);
 
     //Ramadan Date 7AM 2024
       //int ramadan_time_2024=1710111600;

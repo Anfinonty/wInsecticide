@@ -14,6 +14,13 @@ unsigned int int_current_timestamp() {
   return (unsigned int) te.tv_sec;
 }
 
+unsigned long long long_current_timestamp() {
+  struct timeval te;
+  mingw_gettimeofday(&te,NULL);
+  return (unsigned long long) te.tv_sec;
+}
+
+
 
 int leap_years[11]={2,5,7,10,13,16,18,21,24,26,29};
 /*char *lunar_months_txt[12]={
@@ -84,7 +91,7 @@ char *solar_days_txt[7]={
 };
 
 
-void PersiaLunarTime(int _seconds,int *_moon_day,int *_hours)
+void PersiaLunarTime(int _seconds,int *_moon_day,int *_hours,double *_moon_angle_shift)
 {
   //622 C.E. = Beginning of Year
 
@@ -101,9 +108,12 @@ void PersiaLunarTime(int _seconds,int *_moon_day,int *_hours)
   const int days29_seconds=day_seconds*29;
 
   //Break Down the different time parts
+  //Eclipse is on 1389-12-28
+  double moon_angle_shift=M_PI/14*27;
   int year=1389;
   int month=9;          //start day is  1389-10-22    //lunar hijri hours offset from 1970-1-1 gregorian is 16 hrs
   int seconds=_seconds+day_seconds*22-16*60*60; //Offset
+
   while (seconds>0) {
     //Get months
     if (month<11) {   //0,1,2,3,4,5
@@ -113,6 +123,14 @@ void PersiaLunarTime(int _seconds,int *_moon_day,int *_hours)
         } else {
           seconds-=days29_seconds;
           month++;
+
+          if (year>1389) {
+            moon_angle_shift+=M_PI/14*2;//0.3;//M_PI/14;//M_PI_2/3;
+            if (moon_angle_shift>=M_PI*2) {
+              moon_angle_shift-=M_PI*2;
+            }
+          }
+
         }        
       } else { //30 Days, Odd Number months
         if (seconds-days30_seconds<0) {
@@ -120,6 +138,14 @@ void PersiaLunarTime(int _seconds,int *_moon_day,int *_hours)
         } else {
           seconds-=days30_seconds;
           month++;
+
+          if (year>1389) {
+            moon_angle_shift+=M_PI/14*2.5;//0.3*2;//+0.5078/4;//M_PI/14*2;//M_PI_2/3;
+            if (moon_angle_shift>=M_PI*2) {
+              moon_angle_shift-=M_PI*2;
+            }
+          }
+
         }
       }
     } else { //12th month   //leap year at last month, 30 days = leap year       29 days = common year      ,11
@@ -140,6 +166,12 @@ void PersiaLunarTime(int _seconds,int *_moon_day,int *_hours)
         } else {
           seconds-=days30_seconds;
           month++;
+          if (year>1389) {
+            moon_angle_shift+=M_PI/14*2.5;//0.3*2;//M_PI/14*2;//M_PI_2/3;
+            if (moon_angle_shift>=M_PI*2) {
+              moon_angle_shift-=M_PI*2;
+            }
+          }
         }
       } else {//Common Year
         if (seconds-days29_seconds<0) {
@@ -147,6 +179,12 @@ void PersiaLunarTime(int _seconds,int *_moon_day,int *_hours)
         } else {
           seconds-=days29_seconds;
           month++;
+          if (year>1389) {
+            moon_angle_shift+=M_PI/14*2;//0.3;//M_PI/14;//M_PI_2/3;
+            if (moon_angle_shift>=M_PI*2) {
+              moon_angle_shift-=M_PI*2;
+            }
+          }
         }
       }
     }
@@ -156,10 +194,10 @@ void PersiaLunarTime(int _seconds,int *_moon_day,int *_hours)
     if (month==12) {
       month=0;
       year++;
-    }
+    }    
   }
 
-
+  
 
   int print_seconds=seconds%60; //60 seconds in a minute
  
@@ -176,15 +214,15 @@ void PersiaLunarTime(int _seconds,int *_moon_day,int *_hours)
 
 
   //31 or 30 or 29 days in a month
+  bool leap=FALSE;
   int print_days;
   if (month<11) {
-    if ((month+1)%2==0) {
+    if ((month+1)%2==0) { //Even number months
       print_days=days%29;
-    } else {
+    } else { //Odd number months
       print_days=days%30;
     }
-  } else {
-    bool leap=FALSE;
+  } else { //Leap Year
     int lyr=year%30;
     for (int i=0;i<11;i++) {
       if (lyr==leap_years[i]) {
@@ -197,6 +235,15 @@ void PersiaLunarTime(int _seconds,int *_moon_day,int *_hours)
       print_days=days%30;
     } else {
       print_days=days%29;
+    }
+  }
+
+
+  if (year>1389) {
+    if (print_days+1==29) {
+      moon_angle_shift+=M_PI/14*2;
+    } else if (print_days+1==30) {
+      moon_angle_shift+=M_PI/14*2.5;
     }
   }
 
@@ -225,11 +272,12 @@ void PersiaLunarTime(int _seconds,int *_moon_day,int *_hours)
 
   *_moon_day=__moon_day;
   *_hours=print_hours;
+  *_moon_angle_shift=moon_angle_shift;
 }
 
 
 
-void PersiaSolarTime(int _seconds)
+void PersiaSolarTime(int _seconds, int *_solar_day, int *_solar_year)
 {  
   //Beginning date:
   //Gegorian
@@ -325,6 +373,20 @@ void PersiaSolarTime(int _seconds)
     }
   }
 
+  int __solar_day=0;
+  if (month<6) {
+    __solar_day=31*month;
+  }  else if (month>5 && month<11) {
+    __solar_day=31*6;
+    __solar_day+=30*(month-6);
+  } else {
+    __solar_day=31*6;
+    __solar_day+=30*5;
+  }
+  __solar_day+=days;
+  //printf("SD~%d~\n",__solar_day);
+  *_solar_day=__solar_day;
+  *_solar_year=year;
 
   printf("\n~:: Solar Hijri ::~ *\n~:: %d.%s(%d).%d // %s(%d) // [%d:%d:%d] ::~\n",year,solar_months_txt[month],(month+1),(print_days+1),solar_days_txt[days%7],(days%7),print_hours,print_min,print_seconds);
 }
