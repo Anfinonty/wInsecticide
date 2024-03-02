@@ -676,10 +676,10 @@ void DrawMainMenu(HDC hdc)
   //printf("moonday: %d",moon_day);
   for (int i=0;i<28;i++) {
     double tmp_angle=-M_PI/14 * i -moon_angle_shift;
-    if (i>1 && i<28) {
+    if (i>1 && i<27) {
       GrCircle(hdc,GR_WIDTH/2 + 100*cos(tmp_angle), 128*4 + 100*sin(tmp_angle),5,BLACK,DKGRAY);
     } else {
-      if (i==1) {
+      if (i==1 || i==27) { //Cresent Moon
         GrCircle(hdc,GR_WIDTH/2 + 100*cos(tmp_angle), 128*4 + 100*sin(tmp_angle),6,BLACK,CYAN);
       } else {
         GrCircle(hdc,GR_WIDTH/2 + 100*cos(tmp_angle), 128*4 + 100*sin(tmp_angle),7,BLACK,LTCYAN);
@@ -1344,7 +1344,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //unsigned int timenow=  	319577777; //Fed-16-1980 (random)
       //unsigned int timenow=334710000;//10 aug-2024
       //unsigned long long timenow=   	2564780400;//11-April-2051 (2038 TIME YEAR LIMIT)
-      //unsigned int timenow= 	2072300400; //sept-2-2035
+      //unsigned int timenow= 	2072300400+60*60*24*3; //sept-2-2035
 
       printf("\nSeconds Passed Since Jan-1-1970: %d",timenow);
       PersiaSolarTime(timenow,&solar_day,&solar_year);

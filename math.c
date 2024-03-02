@@ -240,10 +240,12 @@ void PersiaLunarTime(int _seconds,int *_moon_day,int *_hours,double *_moon_angle
 
 
   if (year>1389) {
-    if (print_days+1==28 || print_days+1==29) {
+    if (print_days+1==28) {
+      moon_angle_shift+=M_PI/14*1.5;
+    } else if (print_days+1==29) {
       moon_angle_shift+=M_PI/14*2;
     } else if (print_days+1==30) {
-      moon_angle_shift+=M_PI/14*3.5;
+      moon_angle_shift+=M_PI/14*2.5;
     }
   }
 
