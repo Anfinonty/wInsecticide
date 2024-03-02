@@ -94,8 +94,14 @@ WHITE //15
 
 
 int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
-int hours_now=0, moon_day=0,solar_day=0,solar_year=0;
+int solar_sec=0,solar_min=0,solar_hour=0,solar_day=0,solar_month=0,solar_year=0,solar_day_of_week=0;
+double solar_angle_day=0;
+
+int lunar_sec=0,lunar_min=0,lunar_hour=0,lunar_day=0,lunar_month=0,lunar_year=0,lunar_day_of_week=0;
 double moon_angle_shift=0;
+
+
+
 int frame_tick=-10;
 int int_best_score=0;
 double double_best_score=0;
@@ -596,7 +602,7 @@ double moon_angles[8]=
 
 void DrawMainMenu(HDC hdc)
 {
-  if (hours_now>6 && hours_now<18) { //7 AM to 6PM
+  if (solar_hour>6 && solar_hour<18) { //7 AM to 6PM
     GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,BLUE);
   } else {
     GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,BLACK);
@@ -644,42 +650,18 @@ void DrawMainMenu(HDC hdc)
   
 
   //Moon Pos
-  double moon_angle;
-  /*if (moon_day>=1 && moon_day<8) { //Cresent Opening
-    moon_angle=moon_angles[0];
-  } else if (moon_day>=8 && moon_day<11) {  //Half moon Opening
-    moon_angle=moon_angles[1];
-  }  else if (moon_day>=11 && moon_day<14) {    //Near Full Opening
-    moon_angle=moon_angles[2];
-  } else if (moon_day>=14 && moon_day<16) { //Full moon
-    moon_angle=moon_angles[3];
-  } else if (moon_day>=16 && moon_day<21) { //Near full closing
-    moon_angle=moon_angles[4];
-  } else if (moon_day>=21 && moon_day<26) { //half moon closing
-    moon_angle=moon_angles[5];
-  } else if (moon_day>=26 && moon_day<28) { //Cresent Closing
-    moon_angle=moon_angles[6];
-  } else {
-    moon_angle=moon_angles[7];
-  }*/
- 
-  if (moon_day<28)
-//    moon_angle=(-2*M_PI/28 * moon_day);
-    moon_angle=(-M_PI/14 * moon_day)-moon_angle_shift;
+  double moon_angle=0; 
+  if (lunar_day<27) //0 to 26
+    moon_angle=(-2*M_PI/27 * lunar_day ) - moon_angle_shift;
   else
     moon_angle=-moon_angle_shift;
 
-
-  //M_PI/6 shift origin every lunar month
-  //M_PI/6 = (M_PI_4/3) + (MP_PI_4/3)
-
-  //printf("moonday: %d",moon_day);
-  for (int i=0;i<28;i++) {
-    double tmp_angle=-M_PI/14 * i -moon_angle_shift;
-    if (i>1 && i<27) {
+  for (int i=0;i<27;i++) {
+    double tmp_angle=-2*M_PI/27 * i - moon_angle_shift;
+    if (i>1 && i<26) {
       GrCircle(hdc,GR_WIDTH/2 + 100*cos(tmp_angle), 128*4 + 100*sin(tmp_angle),5,BLACK,DKGRAY);
     } else {
-      if (i==1 || i==27) { //Cresent Moon
+      if (i==1 || i==26) { //Cresent Moon
         GrCircle(hdc,GR_WIDTH/2 + 100*cos(tmp_angle), 128*4 + 100*sin(tmp_angle),6,BLACK,CYAN);
       } else {
         GrCircle(hdc,GR_WIDTH/2 + 100*cos(tmp_angle), 128*4 + 100*sin(tmp_angle),7,BLACK,LTCYAN);
@@ -689,18 +671,10 @@ void DrawMainMenu(HDC hdc)
   GrCircle(hdc,GR_WIDTH/2 + 100*cos(moon_angle), 128*4 + 100*sin(moon_angle),5,WHITE,WHITE);
 
   //Sun Pos
-  double sun_angle=0;
-  if (solar_year%4==0) {
-    sun_angle=(-M_PI*2)*solar_day/366;
-  } else {
-    sun_angle=(-M_PI*2)*solar_day/365;
-  }
-  GrCircle(hdc,GR_WIDTH/2 + 100*cos(sun_angle), 128*4 + 100*sin(sun_angle),5,YELLOW,YELLOW);
+  GrCircle(hdc,GR_WIDTH/2 + 100*cos(-solar_angle_day), 128*4 + 100*sin(-solar_angle_day),5,YELLOW,YELLOW);
   //GrCircle(hdc,GR_WIDTH/2 + 3*100*cos(sun_angle), 128*4 + 3*100*sin(sun_angle),5,YELLOW,YELLOW);
   //GrLine(hdc,GR_WIDTH/2,128*4,GR_WIDTH/2 + 3*100*cos(sun_angle), 128*4 + 3*100*sin(sun_angle),YELLOW);
-
-
-//  GrCircle(hdc,GR_WIDTH/2, 128*4,300,YELLOW,-1);
+  //  GrCircle(hdc,GR_WIDTH/2, 128*4,300,YELLOW,-1);
 }
 
 
@@ -1328,7 +1302,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //printf("\nSeconds Passed Since Jan-1-1970: %llu",timenow);
 
       unsigned int timenow=int_current_timestamp();
-      //unsigned int timenow= 1709827200+24*60*60; //march 8 2024
+      //unsigned int timenow= 1709827200+24*60*60*(3+30); //march 8 2024
       //unsigned int timenow=1712585320; //April 8 2024 (...))
       //unsigned int timenow =5616000; //March 7 1970 //first solar eclipse
       //unsigned int timenow = 20908800;//Aug 31 1970
@@ -1339,7 +1313,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //unsigned int timenow=94924800;//1973-1-4
       //unsigned int timenow=1112914800; //2005-apri-08
       //unsigned int timenow= 	1817161200; //2027-aug-2
-      //unsigned int timenow= 	304124400;  //Aug-22-1979
+      //unsigned int timenow= 	304124400+60*60*24*30;  //Aug-22-1979
       //unsigned int timenow=  	319503600; //Fed-16-1980
       //unsigned int timenow=  	319577777; //Fed-16-1980 (random)
       //unsigned int timenow=334710000;//10 aug-2024
@@ -1347,8 +1321,55 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //unsigned int timenow= 	2072300400+60*60*24*3; //sept-2-2035
 
       printf("\nSeconds Passed Since Jan-1-1970: %d",timenow);
-      PersiaSolarTime(timenow,&solar_day,&solar_year);
-      PersiaLunarTime(timenow,&moon_day,&hours_now,&moon_angle_shift);
+      PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);
+      PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift);
+
+
+
+      printf("\n~:: Solar Hijri ::~ *\n~:: %d.%s(%d).%d // %s(%d) // [%d:%d:%d] ::~\n",
+solar_year,
+solar_months_txt[solar_month-1],
+solar_month,
+solar_day,
+solar_days_txt[solar_day_of_week-1],
+solar_day_of_week,
+solar_hour,
+solar_min,
+solar_sec);
+
+
+  //( <| <|)  O  (|> |> ) @
+  printf("\n~:: Lunar Hijri ::~ ");
+  if (lunar_day>=1 && lunar_day<8) {
+    printf("(");
+  } else if (lunar_day>=8 && lunar_day<11) {
+    printf("(|");
+  }  else if (lunar_day>=11 && lunar_day<14) {
+    printf("(|>");
+  } else if (lunar_day>=14 && lunar_day<16) {
+    printf("(O)");
+  } else if (lunar_day>=16 && lunar_day<21) {
+    printf("<|)");
+  } else if (lunar_day>=21 && lunar_day<26) {
+    printf(" |)");
+  } else if (lunar_day>=26 && lunar_day<28) {
+    printf("  )");
+  } else {
+    printf(" @");
+  }
+  printf("\n~:: %d.%s(%d).%d // %s(%d) // [%d:%d:%d] ::~\n",
+lunar_year,
+lunar_months_txt[lunar_month-1],
+lunar_month,
+lunar_day,
+lunar_days_txt[lunar_day_of_week-1],
+lunar_day_of_week,
+lunar_hour,
+lunar_min,
+lunar_sec);
+
+
+
 
     //Ramadan Date 7AM 2024
       //int ramadan_time_2024=1710111600;
@@ -1406,19 +1427,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
       //moon sprite
-      if (moon_day>=1 && moon_day<8) {
+      if (lunar_day>=1 && lunar_day<8) {
         moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      } else if (moon_day>=8 && moon_day<11) {
+      } else if (lunar_day>=8 && lunar_day<11) {
         moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-8.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      }  else if (moon_day>=11 && moon_day<14) {
+      }  else if (lunar_day>=11 && lunar_day<14) {
         moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-11.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      } else if (moon_day>=14 && moon_day<16) {
+      } else if (lunar_day>=14 && lunar_day<16) {
         moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-14.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      } else if (moon_day>=16 && moon_day<21) {
+      } else if (lunar_day>=16 && lunar_day<21) {
         moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-16.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      } else if (moon_day>=21 && moon_day<26) {
+      } else if (lunar_day>=21 && lunar_day<26) {
         moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-21.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      } else if (moon_day>=26 && moon_day<28) {
+      } else if (lunar_day>=26 && lunar_day<28) {
         moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-26.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       } else {
         moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-28.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
