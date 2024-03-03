@@ -1301,24 +1301,24 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //unsigned long long timenow=current_timestamp();
       //printf("\nSeconds Passed Since Jan-1-1970: %llu",timenow);
 
-      unsigned int timenow=int_current_timestamp();
-      //unsigned int timenow= 1709827200+24*60*60*(3+30); //march 8 2024
-      //unsigned int timenow=1712585320; //April 8 2024 (...))
-      //unsigned int timenow =5616000; //March 7 1970 //first solar eclipse
-      //unsigned int timenow = 20908800;//Aug 31 1970
-      //unsigned int timenow =36288000; //Feb 25 1971
-      //unsigned int timenow = 	51465600+60*60*24*1; //Aug 20-21 1971
+      int64_t timenow=int64_current_timestamp();
+      //int64_t timenow= 1709827200+24*60*60*(3+30); //march 8 2024
+      //int64_t timenow=1712585320; //April 8 2024 (...))
+      //int64_t timenow =5616000; //March 7 1970 //first solar eclipse
+      //int64_t timenow = 20908800;//Aug 31 1970
+      //int64_t timenow =36288000; //Feb 25 1971
+      //int64_t timenow = 	51465600+60*60*24*1; //Aug 20-21 1971
 
-      //unsigned int timenow=79574400;//July 10 1972
-      //unsigned int timenow=94924800;//1973-1-4
-      //unsigned int timenow=1112914800; //2005-apri-08
-      //unsigned int timenow= 	1817161200; //2027-aug-2
-      //unsigned int timenow= 	304124400+60*60*24*30;  //Aug-22-1979
-      //unsigned int timenow=  	319503600; //Fed-16-1980
-      //unsigned int timenow=  	319577777; //Fed-16-1980 (random)
-      //unsigned int timenow=334710000;//10 aug-2024
-      //unsigned long long timenow=   	2564780400;//11-April-2051 (2038 TIME YEAR LIMIT)
-      //unsigned int timenow= 	2072300400+60*60*24*3; //sept-2-2035
+      //int64_t timenow=79574400;//July 10 1972
+      //int64_t timenow=94924800;//1973-1-4
+      //int64_t timenow=1112914800; //2005-apri-08
+      //int64_t timenow= 	1817161200; //2027-aug-2
+      //int64_t timenow= 	304124400;  //Aug-22-1979
+      //int64_t timenow=  	319503600; //Fed-16-1980
+      //int64_t timenow=  	319577777; //Fed-16-1980 (random)
+      //int64_t timenow=334710000;//10 aug-2024
+      //int64_t timenow=   	2564780400;//11-April-2051 (2038 TIME YEAR LIMIT)
+      //int64_t timenow= 	2072300400; //sept-2-2035
 
       printf("\nSeconds Passed Since Jan-1-1970: %d",timenow);
       PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);
@@ -1331,8 +1331,8 @@ solar_year,
 solar_months_txt[solar_month-1],
 solar_month,
 solar_day,
-solar_days_txt[solar_day_of_week-1],
-solar_day_of_week,
+solar_days_txt[solar_day_of_week],
+solar_day_of_week+1,
 solar_hour,
 solar_min,
 solar_sec);

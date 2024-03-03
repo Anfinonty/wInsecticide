@@ -8,11 +8,18 @@ unsigned long long current_timestamp() {//https://copyprogramming.com/howto/c-sl
   return (unsigned long long) te.tv_sec*1000LL + te.tv_usec/1000; //calc millisecs
 }
 
-unsigned int int_current_timestamp() {
+/*unsigned int int_current_timestamp() {
   struct timeval te;
   mingw_gettimeofday(&te, NULL);
   return (unsigned int) te.tv_sec;
+}*/
+
+int64_t int64_current_timestamp() {
+  struct timeval te;
+  mingw_gettimeofday(&te, NULL);
+  return (int64_t) te.tv_sec;
 }
+
 
 unsigned long long long_current_timestamp() {
   struct timeval te;
@@ -82,7 +89,7 @@ char *lunar_days_txt[7]={
 
 char *solar_days_txt[7]={
   "shanbeh",
-  "keshanbeh",
+  "yekkeshanbeh",
   "doshanbeh",
   "seshanbeh",
   "chaharshanbeh",
@@ -91,7 +98,7 @@ char *solar_days_txt[7]={
 };
 
 
-void PersiaSolarTime(int _seconds,
+void PersiaSolarTime(int64_t _seconds,
   int *_solar_sec,
   int *_solar_min,
   int *_solar_hour,
@@ -123,7 +130,7 @@ void PersiaSolarTime(int _seconds,
   //Break Down the different time parts
   int year=1348;
   int month=9;          //start day     //solar hijri offset: 8 hours from 1970-1-1 Gregorian
-  int seconds=_seconds+day_seconds*11+8*60*60; //Offsets
+  int64_t seconds=_seconds+day_seconds*11+8*60*60; //Offsets
   while (seconds>0) {
     //Get months
     if (month<6) {   //First 6 months have 31 days          0,1,2,3,4,5
@@ -168,18 +175,18 @@ void PersiaSolarTime(int _seconds,
 
 
 
-  int print_seconds=seconds%60; //60 seconds in a minute
+  int64_t print_seconds=seconds%60; //60 seconds in a minute
  
   //Minutes
-  int min=seconds/60;
-  int print_min=min%60; //60 minutes in a second
+  int64_t min=seconds/60;
+  int64_t print_min=min%60; //60 minutes in a second
 
   //Hours
-  int hours=min/60;
-  int print_hours=hours%24; //24 hours in a day
+  int64_t hours=min/60;
+  int64_t print_hours=hours%24; //24 hours in a day
 
   //Days
-  int days=hours/24;
+  int64_t days=hours/24;
 
 
   //31 or 30 or 29 days in a month
@@ -220,17 +227,17 @@ void PersiaSolarTime(int _seconds,
 
   *_solar_year=year;
   *_solar_month=month+1;
-  *_solar_day=print_days+1;
-  *_solar_hour=print_hours;
-  *_solar_min=print_min;
-  *_solar_sec=print_seconds;
-  *_solar_day_of_week=days%7+1;
+  *_solar_day=(int)print_days+1;
+  *_solar_hour=(int)print_hours;
+  *_solar_min=(int)print_min;
+  *_solar_sec=(int)print_seconds;
+  *_solar_day_of_week=(days+3)%7;
   *_solar_angle_day=__solar_angle;
 }
 
 
 
-void PersiaLunarTime(int _seconds,
+void PersiaLunarTime(int64_t _seconds,
   int *_lunar_sec,
   int *_lunar_min,
   int *_lunar_hour,
@@ -254,12 +261,12 @@ void PersiaLunarTime(int _seconds,
   const int day_seconds=60*60*24;
   const int days30_seconds=day_seconds*30;
   const int days29_seconds=day_seconds*29;
-  int lunar_day_start=-(day_seconds*22-16*60*60);
+  int64_t lunar_day_start=-(day_seconds*22-16*60*60);
 
   //Break Down the different time parts
   int year=1389;
   int month=9;          //start day is  1389-10-22    //lunar hijri hours offset from 1970-1-1 gregorian is 16 hrs
-  int seconds=_seconds+day_seconds*22-16*60*60; //Offset
+  int64_t seconds=_seconds+day_seconds*22-16*60*60; //Offset
 
   while (seconds>0) {
     //Get months
@@ -322,15 +329,15 @@ void PersiaLunarTime(int _seconds,
   
   //::
   //Get Seconds, Minutes, Hours and Days
-  int print_seconds=seconds%60; //60 seconds in a minute
+  int64_t print_seconds=seconds%60; //60 seconds in a minute
   //Minutes
-  int min=seconds/60;
-  int print_min=min%60; //60 minutes in a second
+  int64_t min=seconds/60;
+  int64_t print_min=min%60; //60 minutes in a second
   //Hours
-  int hours=min/60;
-  int print_hours=hours%24; //24 hours in a day
+  int64_t hours=min/60;
+  int64_t print_hours=hours%24; //24 hours in a day
   //Days
-  int days=hours/24;
+  int64_t days=hours/24;
 
 
   //31 or 30 or 29 days in a month
@@ -374,10 +381,10 @@ void PersiaLunarTime(int _seconds,
   //Assign to variables
   *_lunar_year=year;
   *_lunar_month=month+1;
-  *_lunar_day=print_days+1;
-  *_lunar_hour=print_hours;
-  *_lunar_min=print_min;
-  *_lunar_sec=print_seconds;
+  *_lunar_day=(int)print_days+1;
+  *_lunar_hour=(int)print_hours;
+  *_lunar_min=(int)print_min;
+  *_lunar_sec=(int)print_seconds;
   *_lunar_day_of_week=days%7+1;
   *_moon_angle_shift=moon_angle_shift;
 }
