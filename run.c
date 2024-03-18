@@ -181,7 +181,6 @@ HBITMAP map_platforms_timebreaker_sprite;
 #define DEFAULT_PLAYER_BLOCK_HEALTH_MAX 20
 
 
-bool stop_playing_song=FALSE;
 bool back_to_menu=FALSE;
 bool in_main_menu=TRUE;
 int level_chosen=0;
@@ -556,29 +555,13 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
 void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4)
 {
   if (!stop_playing_song) {
-  if (song_folder_num>0) {
-    char txt[128];
-    char *song_name=song_names[rand_song1][rand_song2];
-    int sec = (song_seconds_run_max-song_seconds_run)%60;
-    if (sec>-1) {
-      if (sec>9)
-        sprintf(txt,"%s [%d:%d]",song_name,(song_seconds_run_max-song_seconds_run)/60,sec);
-      else 
-        sprintf(txt,"%s [%d:0%d]",song_name,(song_seconds_run_max-song_seconds_run)/60,sec);
 
-      char txt2[128];
-      char *album_name=/*album_name_arr[*/album_names[rand_song1][rand_song2]/*]*/;
-      sprintf(txt2,"%s",album_name);  
-
-      GrPrint(hdc,x,y,txt,c);
-      GrPrint(hdc,x,y+16,txt2,c);
+    if (song_num>0) {
+      char txt[256];
+      sprintf(txt,"%s",song_names[song_rand_num]);
+      GrPrint(hdc,x,y,txt,c);   
       GrPrint(hdc,x+1,y+1,txt,c4);
-      GrPrint(hdc,x+1,y+1+16,txt2,c4);
-    } else {
-      GrPrint(hdc,x,y,"Choosing Song...",c);
-      GrPrint(hdc,x+1,y+1,"Choosing Song...",c4);
     }
-  }
   } else {
     GrPrint(hdc,x,y,"Press Shift + M to Enable Songs",c);
     GrPrint(hdc,x+1,y+1,"Press Shift + M to Enable Songs",c4);
@@ -1064,16 +1047,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         case 'M':
           if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
             if (!stop_playing_song) {
-              PlaySound(NULL, NULL, SND_SYNC); //stop song
               stop_playing_song=TRUE;
+              toggle_stop_playing_song=TRUE;
             } else {
               stop_playing_song=FALSE;
             }
           }
 
           if (!stop_playing_song) {
-            song_seconds_run=-2;
-            song_seconds_run_max=-1;
             play_new_song=TRUE;
           }
           break;//end current song
@@ -1384,9 +1365,6 @@ lunar_sec);
 
      //Load Song
       InitSongBank();
-      song_seconds_run=-2;
-      song_seconds_run_max=-1;
-      play_new_song=TRUE;
      //
 
       ShowCursor(FALSE);
