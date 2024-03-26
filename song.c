@@ -1,6 +1,7 @@
 
 int song_num=0;
-int song_rand_num=0;
+int song_mode=0;
+int song_rand_num=-1;
 char song_names[1000][256];
 bool play_new_song=FALSE;
 bool stop_playing_song=FALSE;
@@ -75,30 +76,42 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
   srand(time(NULL));
   while (true) {
     if (song_num>0) {
-    if (!stop_playing_song) {
-      char my_status[16];
-      //char my_length[16];
-      mciSendStringA("status music mode",my_status,16,NULL); //periodically check status
-      //printf("\nstatus: %s\n",my_status);
-      if (strcmp(my_status,"stopped")==0 || strcmp(my_status,"")==0 || play_new_song) //song status: stopped
-      {
+      if (!stop_playing_song) {
+        char my_status[16];
+        //char my_length[16];
+        mciSendStringA("status music mode",my_status,16,NULL); //periodically check status
+        //printf("\nstatus: %s\n",my_status);
+        if (strcmp(my_status,"stopped")==0 || strcmp(my_status,"")==0 || play_new_song) //song status: stopped
+        {
       
       //play new music
-        mciSendStringA("close music",NULL,0,NULL);
+          mciSendStringA("close music",NULL,0,NULL);
 
-        song_rand_num=RandNum(0,song_num-1,1);
-        char songname[128];
-        sprintf(songname,"open \"music/%s\" alias music",song_names[song_rand_num]);
-        mciSendStringA(songname,NULL,0,NULL);
-        mciSendStringA("play music",NULL,0,NULL);
-        play_new_song=FALSE;
+          switch (song_mode) {
+            case 0: //Play Songs acending
+              song_rand_num=LimitValue(song_rand_num+1,0,song_num);
+              break;
+            case 1: //Play songs decending
+              song_rand_num=LimitValue(song_rand_num-1,0,song_num);
+              break;
+            case 2: //play songs shuffle
+              song_rand_num=RandNum(0,song_num-1,1);
+              break;
+          }
+
+
+          char songname[128];
+          sprintf(songname,"open \"music/%s\" alias music",song_names[song_rand_num]);
+          mciSendStringA(songname,NULL,0,NULL);
+          mciSendStringA("play music",NULL,0,NULL);
+          play_new_song=FALSE;
+        }
+      } else {
+        if (toggle_stop_playing_song) {
+          mciSendStringA("close music",NULL,0,NULL);
+          toggle_stop_playing_song=FALSE;
+        }
       }
-    } else {
-      if (toggle_stop_playing_song) {
-        mciSendStringA("close music",NULL,0,NULL);
-        toggle_stop_playing_song=FALSE;
-      }
-    }
     }
     Sleep(1000); //eepy loop
   }

@@ -303,6 +303,7 @@ void InitOnce() {
   player.cam_move_x=0;
   player.cam_move_y=0;
 
+  InitSongBank();
   //InitCustard()
   //printf("\n===Init Once Done===\n");
 }
@@ -356,9 +357,6 @@ void Init() {
   enemy_kills=0;
   game_over=FALSE;
   frame_tick=-10;
-
-
-  InitSongBank();
 
   InitGrid();
   //printf("\n===Grid Initialized\n");
@@ -557,10 +555,26 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4)
   if (!stop_playing_song) {
 
     if (song_num>0) {
-      char txt[256];
-      sprintf(txt,"%s",song_names[song_rand_num]);
+      char txt[12+256];
+      sprintf(txt,"[%d/%d]: %s",song_rand_num+1,song_num,song_names[song_rand_num]);
+
       GrPrint(hdc,x,y,txt,c);   
       GrPrint(hdc,x+1,y+1,txt,c4);
+
+      char txt2[256];
+      switch (song_mode) {
+        case 0:
+          sprintf(txt2,"Play Songs: Acending");
+          break;
+        case 1:
+          sprintf(txt2,"Play Songs: Decending");
+          break;
+        case 2:
+          sprintf(txt2,"Play Songs: Shuffle");
+          break;
+      }
+      GrPrint(hdc,x,y+16,txt2,c);   
+      GrPrint(hdc,x+1,y+1+16,txt2,c4);
     }
   } else {
     GrPrint(hdc,x,y,"Press Shift + M to Enable Songs",c);
@@ -605,7 +619,7 @@ void DrawMainMenu(HDC hdc)
   GrPrint(hdc,30,10+32+16*9,"Press 'Enter' to Play Selected Level",WHITE);
   GrPrint(hdc,30,10+32+16*10,"Use Up or Down Keys to Select a Level",WHITE);
   GrPrint(hdc,30,10+32+16*11,"Press [SHIFT_ESC] to Exit",WHITE);
-  GrPrint(hdc,30,10+32+16*12,"Press [SHIFT] + 'M' to Enable or Disable Music",WHITE);
+  GrPrint(hdc,30,10+32+16*12,"Press [SHIFT] + 'M' to Renable Music",WHITE);
 
   GrPrint(hdc,30,10+32+16*level_chosen,">",WHITE);
   DrawPlayingMusic(hdc,30,10+32+16*14,BLACK,WHITE);
@@ -857,8 +871,8 @@ Right Click - Swing with Wceb Placement
   GrPrint(hdc,16+4,GR_HEIGHT-128-16*19,"'E' - Hold with Attack for Uppercut",c);
   GrPrint(hdc,16+4,GR_HEIGHT-128-16*18,"'Z' - Time Breaker Ability",c);
   GrPrint(hdc,16+4,GR_HEIGHT-128-16*17,"'C' - Increase Reaction Time",c);
-  GrPrint(hdc,16+4,GR_HEIGHT-128-16*16,"'M' - New Random Music",c);
-  GrPrint(hdc,16+4,GR_HEIGHT-128-16*15,"[SHIFT] + 'M' - Disable or Renable Music",c);
+  GrPrint(hdc,16+4,GR_HEIGHT-128-16*16,"'M' - Next Music",c);
+  GrPrint(hdc,16+4,GR_HEIGHT-128-16*15,"[SHIFT] + 'M' - Change Song Playing Mode",c);
   GrPrint(hdc,16+4,GR_HEIGHT-128-16*14,"[Space] - Sprint",c);
   GrPrint(hdc,16+4,GR_HEIGHT-128-16*13,"[Left Click] or '1' - Attack and Stop Web Shooting",c);
   GrPrint(hdc,16+4,GR_HEIGHT-128-16*12,"[Right Click] - Shoot web",c);
@@ -1046,12 +1060,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         case 'M':
           if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
-            if (!stop_playing_song) {
-              stop_playing_song=TRUE;
-              toggle_stop_playing_song=TRUE;
-            } else {
-              stop_playing_song=FALSE;
+            if (song_mode>=2) {
+              if (!stop_playing_song) {
+                stop_playing_song=TRUE;
+                toggle_stop_playing_song=TRUE;
+              } else {
+                stop_playing_song=FALSE;
+              }
             }
+            song_mode=LimitValue(song_mode+1,0,4);
           }
 
           if (!stop_playing_song) {
@@ -1125,6 +1142,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       if (!IsIconic(hwnd)) //no action when minimized, prevents crash https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-isiconic?redirectedfrom=MSDN
       {
         HBITMAP screen;
+        PAINTSTRUCT ps;
+        hdc=BeginPaint(hwnd, &ps);
        //FrameRateSleep(35); //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
         RECT rect;
         if(GetWindowRect(hwnd, &rect))
@@ -1164,6 +1183,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         if (!in_main_menu) //### LevelLoaded
         { //https://stackoverflow.com/questions/752593/win32-app-suspends-on-minimize-window-animation
+
           frame_tick++;
           if (frame_tick>FPS) {
             frame_tick=0;
@@ -1206,8 +1226,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             Init();
           }
 
-          PAINTSTRUCT ps;
-          hdc=BeginPaint(hwnd, &ps);
           hdcBackbuff=CreateCompatibleDC(hdc);
 
           //HBITMAP screen = CreateGreyscaleBitmap(GR_WIDTH,GR_HEIGHT);
@@ -1232,7 +1250,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
           DeleteDC(hdcBackbuff);
           DeleteObject(screen);
-          EndPaint(hwnd, &ps);
 
           //Trigger go back to main menu
           if (back_to_menu) {
@@ -1268,13 +1285,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
           DeleteDC(hdcBackbuff);
           DeleteObject(screen);
-          EndPaint(hwnd, &ps);
         
         }
+      //}
+      EndPaint(hwnd, &ps);
       }
       return 0;
       break;
     case WM_CREATE:
+    {
+      HANDLE thread1=CreateThread(NULL,0,AnimateTask01,NULL,0,NULL); //Spawm Game Logic Thread
+      HANDLE thread2=CreateThread(NULL,0,SongTask,NULL,0,NULL); //Spawn Song Player Thread
+
       InitTickFrequency();
       InitFPS();
 
@@ -1423,7 +1445,7 @@ lunar_sec);
         moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-28.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       }
       moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,-1);
-
+      }
       return 0;
       break;
     case WM_DESTROY:
@@ -1444,7 +1466,7 @@ lunar_sec);
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nCmdShow) {
   //Window Class
   WNDCLASSW wc = {0};
-  wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+  wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS; 
   wc.lpszClassName = L"DrawIt";
   wc.hInstance     = hInstance;
   wc.hbrBackground = GetSysColorBrush(COLOR_3DFACE);
@@ -1467,23 +1489,28 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 
 
   //threads
-  int *lpArgPtr;
+  /*int *lpArgPtr;
   HANDLE hHandles[2];
   DWORD ThreadId;
   for (int i=0;i<2;i++) {
-    lpArgPtr=(int *)malloc(sizeof(int));
+    lpArgPtr=(int *)malloc(sizeof(double)));
     *lpArgPtr=i;
     switch (i) {
       case 0: hHandles[i]=CreateThread(NULL,0,AnimateTask01,lpArgPtr,0,&ThreadId);break;
       case 1: hHandles[i]=CreateThread(NULL,0,SongTask,lpArgPtr,0,&ThreadId);break;
+      //case 0: hHandles[i]=CreateThread(NULL,0,SongTask,lpArgPtr,0,&ThreadId);break;
     }
-  }
+  }*/
+
 
 
   MSG msg;
-  while (GetMessage(&msg,NULL,0,0)) {
-    TranslateMessage(&msg);
-    DispatchMessage(&msg);
+  while (true) {
+    if (PeekMessage(&msg,NULL,0,0,PM_REMOVE)) {
+      if (msg.message == WM_QUIT) break;
+      TranslateMessage(&msg);
+      DispatchMessage(&msg);
+    }
   }
   timeEndPeriod(1);
   return (int) msg.wParam;
