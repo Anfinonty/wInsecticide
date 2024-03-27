@@ -1449,6 +1449,8 @@ lunar_sec);
       return 0;
       break;
     case WM_DESTROY:
+      remove("music/tmp/tmp.wav");
+      rmdir("music/tmp"); //remove tmp
       PostQuitMessage(0);
       return 0;
       break;
