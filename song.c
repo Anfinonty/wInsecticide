@@ -7,7 +7,7 @@ bool is_flac[1000];
 bool play_new_song=FALSE;
 bool stop_playing_song=FALSE;
 bool toggle_stop_playing_song=FALSE;
-
+bool loading_flac=FALSE;
 
 //https://stackoverflow.com/questions/5309471/getting-file-extension-in-c
 const char *get_filename_ext(const char *filename) 
@@ -106,32 +106,34 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
         //char my_length[16];
         mciSendStringA("status music mode",my_status,16,NULL); //periodically check status
         //printf("\nstatus: %s\n",my_status);
-        if (strcmp(my_status,"stopped")==0 || strcmp(my_status,"")==0 || play_new_song) //song status: stopped
+        if ((strcmp(my_status,"stopped")==0 || strcmp(my_status,"")==0 || play_new_song)) //song status: stopped
         {
       
-      //play new music
-          mciSendStringA("close music",NULL,0,NULL);
-          remove("music/tmp/tmp.wav");
-          rmdir("music/tmp"); //remove tmp, manually because C is like that
+          //play new music
+          if (!loading_flac) {
+            mciSendStringA("close music",NULL,0,NULL);
+            remove("music/tmp/tmp.wav");
+            rmdir("music/tmp"); //remove tmp, manually because C is like that
 
-          switch (song_mode) {
-            case 0: //Play Songs acending
-              song_rand_num=LimitValue(song_rand_num+1,0,song_num);
-              break;
-            case 1: //Play songs decending
-              song_rand_num=LimitValue(song_rand_num-1,0,song_num);
-              break;
-            case 2: //play songs shuffle
-              song_rand_num=RandNum(0,song_num-1,1);
-              break;
-          }
-
+             switch (song_mode) {
+             case 0: //Play Songs acending
+                song_rand_num=LimitValue(song_rand_num+1,0,song_num);
+                break;
+              case 1: //Play songs decending
+               song_rand_num=LimitValue(song_rand_num-1,0,song_num);
+               break;
+              case 2: //play songs shuffle
+                song_rand_num=RandNum(0,song_num-1,1);
+                break;
+            }
           
-          if (is_flac[song_rand_num]) {
-            char my_command[512];
-            system("mkdir music/tmp"); //make new tmp
-            sprintf(my_command,"flac.exe --totally-silent -d \"music/%s\" -o music/tmp/tmp.wav",song_names[song_rand_num]);
-            system(my_command);
+            if (is_flac[song_rand_num]) { //loaded song is a flac
+              char my_command[512];
+              loading_flac=TRUE;
+              system("mkdir \"music/tmp\""); //make new tmp
+              sprintf(my_command,"flac.exe --totally-silent -d -f \"music/%s\" -o music/tmp/tmp.wav",song_names[song_rand_num]);
+              system(my_command);
+            }
           }
 
           char songname[512];
@@ -143,12 +145,19 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
           mciSendStringA(songname,NULL,0,NULL);
           mciSendStringA("play music",NULL,0,NULL);
           play_new_song=FALSE;
+        } else {
+          if (loading_flac) { //flac has finished loading
+            if (strcmp(my_status,"playing")==0) {
+              loading_flac=FALSE;
+            }
+          }
         }
-      } else {
+      } else { //song is playing
         if (toggle_stop_playing_song) {
           mciSendStringA("close music",NULL,0,NULL);
           remove("music/tmp/tmp.wav");
           rmdir("music/tmp"); //remove tmp
+          loading_flac=FALSE;
           toggle_stop_playing_song=FALSE;
         }
       }

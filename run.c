@@ -1073,6 +1073,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
           if (!stop_playing_song) {
             play_new_song=TRUE;
+            loading_flac=FALSE;
           }
           break;//end current song
 
