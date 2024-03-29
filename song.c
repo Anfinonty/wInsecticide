@@ -6,8 +6,8 @@ int current_sec;
 int song_num=0;
 int song_mode=0;
 int song_rand_num=-1;
-char song_names[1000][512];
-bool is_flac[1000];
+char song_names[2000][256];
+bool is_flac[2000];
 bool play_new_song=FALSE;
 bool stop_playing_song=FALSE;
 bool toggle_stop_playing_song=FALSE;
@@ -53,11 +53,11 @@ int GetSongsInDir(const char *dirname,const char *indirname, int song_num)
   d = opendir(dirname);
   if (d) {
     while ((dir=readdir(d))!=NULL) {
-      char indir[512];
+      char indir[256];
       sprintf(indir,"%s/%s",dirname,dir->d_name);
       //printf("status: %d\n",PathIsDirectoryA(indir)); //https://learn.microsoft.com/en-us/windows/win32/api/shlwapi/nf-shlwapi-pathisdirectorya
       if (PathIsDirectoryA(indir) && strcmp(dir->d_name,".")!=0 && strcmp(dir->d_name,"..")!=0) { //folder, check for songs in folder
-        char indir2[512];
+        char indir2[256];
         sprintf(indir2,"%s/%s",indirname,dir->d_name);
         song_num=GetSongsInDir(indir,indir2,song_num);
       } else {
@@ -75,12 +75,12 @@ int GetSongsInDir(const char *dirname,const char *indirname, int song_num)
           } else {
             is_flac[song_num]=FALSE;
           }
-          char indir[512];
+          char indir[256];
           sprintf(indir,"%s/%s",indirname,dir->d_name);
-          strncpy(song_names[song_num],indir,512);
+          strncpy(song_names[song_num],indir,256);
           //printf("%d|-> %s\n",song_num,song_names[song_num]);
           song_num++;
-          if (song_num>=1000) {
+          if (song_num>=2000) {
             break;
           }
         }      
