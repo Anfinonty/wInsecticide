@@ -268,7 +268,7 @@ void LoadSave(char *saves_name)
     }
   }
   fclose(fptr);
-  printf("\n\n\n===Level Loaded===\n\n\n");
+  //printf("\n\n\n===Level Loaded===\n\n\n");
 }
 
 

@@ -9,7 +9,7 @@
 //I've lost track of the logs XD'
 
 //Command
-//i686-w64-mingw32-gcc-win32 run.c -o run.exe  -lgdi32 -municode -lwinmm
+//i686-w64-mingw32-gcc-win32 run.c -o run.exe  -lgdi32 -municode -lwinmm -lshlwapi
 //-lopengl32 -lglu32 is not used for now Jan-06-2024 -credit: sothea.dev
 #include <windows.h>
 #include <stdint.h>
@@ -23,6 +23,8 @@
 #include <limits.h>
 #include <dirent.h>
 #include <errno.h>
+#include <shlwapi.h>
+//#include <GL/glu.h>
 
 #define COLORS_NUM  16
 #define BLACK       RGB(0,0,0)
@@ -555,26 +557,38 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4)
   if (!stop_playing_song) {
 
     if (song_num>0) {
-      char txt[12+256];
-      sprintf(txt,"[%d/%d]: %s",song_rand_num+1,song_num,song_names[song_rand_num]);
+      char txt[32+256];
+      sprintf(txt,"%c%d/%d%c: %s",171,song_rand_num+1,song_num,187,song_names[song_rand_num]);
+      //%c 187
 
       GrPrint(hdc,x,y,txt,c);   
       GrPrint(hdc,x+1,y+1,txt,c4);
 
-      char txt2[256];
+      char txt2[72];
+      //char txt2_1[2046];
+      //char txt2_2[256];
+      /*for (int j=0;j<128;j++) {
+        sprintf(txt2_1,"%s %d:%c ",txt2_1,'z'+j,'z'+j);
+      }*/ //max 256
+      //note %c 134 is a cross
+
       switch (song_mode) {
         case 0:
-          sprintf(txt2,"Play Songs: Acending");
+          sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /%c] [SHIFT_M: /%c]",171,187,177,187,171);
           break;
         case 1:
-          sprintf(txt2,"Play Songs: Decending");
+          sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /%c] [SHIFT_M: /?]",171,187,177,171);
           break;
         case 2:
-          sprintf(txt2,"Play Songs: Shuffle");
+          sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /?] [SHIFT_M: X]",171,187,177);
           break;
       }
       GrPrint(hdc,x,y+16,txt2,c);   
       GrPrint(hdc,x+1,y+1+16,txt2,c4);
+
+
+      //GrPrint(hdc,x,y+32,txt2_1,c);   
+      //GrPrint(hdc,x+1,y+1+32,txt2_1,c4);
     }
   } else {
     GrPrint(hdc,x,y,"Press Shift + M to Enable Songs",c);
@@ -584,7 +598,7 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4)
 
 
 //Attributes for Level Choose & MainMenu
-double moon_angles[8]=
+/*double moon_angles[8]=
 {
   M_PI_2-M_PI_4, //Cresent
   M_PI_2, //Half Moon
@@ -594,18 +608,146 @@ double moon_angles[8]=
   M_PI+M_PI_2, //Half moon
   M_PI+M_PI_2+M_PI_4, //Cresent mooon
   0 //NEW MOON
-};
+};*/
 
 
 void DrawMainMenu(HDC hdc)
 {
-  if (solar_hour>6 && solar_hour<18) { //7 AM to 6PM
-    GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,BLUE);
-  } else {
-    GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,BLACK);
+  //if (solar_hour>6 && solar_hour<18) { //7 AM to 6PM
+    //GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,BLUE);
+  //} else {
+    //DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE);
+    //GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,BLACK);
+  //}
+
+  //draw bkgrnd
+  DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE);
+
+  //Draw Moon Phase
+  GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
+
+  //Moon Pos
+  int mcalendar_l=64;
+  int mcalendar_x=GR_WIDTH-mcalendar_l*2;
+  int mcalendar_y=GR_HEIGHT-mcalendar_l*2;
+  double moon_angle=0; 
+  //Space Clock
+  //Draw blue marbel
+  GrCircle(hdc,mcalendar_x,mcalendar_y,10,LTBLUE,LTBLUE);
+  GrRect(hdc,mcalendar_x,mcalendar_y,3,4,LTGREEN);
+  GrRect(hdc,mcalendar_x-3,mcalendar_y,9,4,LTGREEN);
+  GrRect(hdc,mcalendar_x+4,mcalendar_y,5,2,LTGREEN);
+  GrRect(hdc,mcalendar_x-4,mcalendar_y-4,9,9,LTGREEN);
+  GrCircle(hdc,mcalendar_x-4,mcalendar_y,2,LTGREEN,LTGREEN);
+  GrCircle(hdc,mcalendar_x+2,mcalendar_y+5,3,LTGREEN,LTGREEN);
+  GrCircle(hdc,mcalendar_x-2,mcalendar_y-3,3,LTGREEN,LTGREEN);
+  GrCircle(hdc,mcalendar_x-3,mcalendar_y-5,2,LTGREEN,LTGREEN);
+  GrCircle(hdc,mcalendar_x-3,mcalendar_y+5,2,LTGREEN,LTGREEN);
+  //GrRect(hdc,mcalendar_x+5,mcalendar_y-6,3,5,LTGREEN);
+  //GrCircle(hdc,mcalendar_x+5,mcalendar_y-3,2,LTGREEN,LTGREEN);
+
+  if (lunar_day<27) //0 to 26
+    moon_angle=(-2*M_PI/27 * lunar_day ) - moon_angle_shift;
+  else
+    moon_angle=-moon_angle_shift;
+
+  for (int i=0;i<27;i++) {
+    double tmp_angle=-2*M_PI/27 * i - moon_angle_shift;
+    if (i>1 && i<26) {
+      GrCircle(hdc,mcalendar_x + mcalendar_l*cos(tmp_angle), mcalendar_y + mcalendar_l*sin(tmp_angle),5,BLACK,DKGRAY);
+    } else {
+      if (i==1 || i==26) { //Cresent Moon
+        GrCircle(hdc,mcalendar_x + mcalendar_l*cos(tmp_angle), mcalendar_y + mcalendar_l*sin(tmp_angle),6,BLACK,CYAN);
+      } else {
+        GrCircle(hdc,mcalendar_x + mcalendar_l*cos(tmp_angle), mcalendar_y + mcalendar_l*sin(tmp_angle),7,BLACK,LTCYAN);
+      }
+    }
+  }
+  GrCircle(hdc,mcalendar_x + mcalendar_l*cos(moon_angle), mcalendar_y + mcalendar_l*sin(moon_angle),5,WHITE,WHITE);
+
+  //Sun Pos
+  GrCircle(hdc,mcalendar_x + mcalendar_l*cos(-solar_angle_day), mcalendar_y + mcalendar_l*sin(-solar_angle_day),5,YELLOW,YELLOW);
+  //GrCircle(hdc,GR_WIDTH/2 + 3*100*cos(sun_angle), 128*4 + 3*100*sin(sun_angle),5,YELLOW,YELLOW);
+  //GrLine(hdc,GR_WIDTH/2,128*4,GR_WIDTH/2 + 3*100*cos(sun_angle), 128*4 + 3*100*sin(sun_angle),YELLOW);
+  //  GrCircle(hdc,GR_WIDTH/2, 128*4,300,YELLOW,-1);
+
+
+
+  //Write Hijri Dates
+  char time_row1[16];
+  char s_hijri_row1[128];
+  char s_hijri_row2[128];
+  char l_hijri_row1[128];
+  char l_hijri_row2[128];
+
+  int num_char='*';
+  if (solar_month==1 && solar_day==12) {
+    num_char=134;
   }
 
+      sprintf(time_row1,"[%d:%02d:%02d]",current_hour,current_min,current_sec);
+
+      sprintf(s_hijri_row1,"=:: Solar Hijri ::= %c",num_char);
+
+      sprintf(s_hijri_row2,":: %d.%s(%d).%d // %s(%d)", // [%d:%d:%d] ::",
+solar_year,
+solar_months_txt[solar_month-1],
+solar_month,
+solar_day,
+solar_days_txt[solar_day_of_week],
+solar_day_of_week+1);
+/*solar_hour,
+solar_min,
+solar_sec);*/
+
+
+  //( <| <|)  O  (|> |> ) @
+  if (lunar_day>=1 && lunar_day<8) {
+    sprintf(l_hijri_row1,"(:: Lunar Hijri ::) %s","  )");
+  } else if (lunar_day>=8 && lunar_day<11) {
+    sprintf(l_hijri_row1,"(:: Lunar Hijri ::) %s"," |)");
+  }  else if (lunar_day>=11 && lunar_day<14) {
+    sprintf(l_hijri_row1,"(:: Lunar Hijri ::) %s","<|)");
+  } else if (lunar_day>=14 && lunar_day<16) {
+    sprintf(l_hijri_row1,"(:: Lunar Hijri ::) %s","(O)");
+  } else if (lunar_day>=16 && lunar_day<21) {
+    sprintf(l_hijri_row1,"(:: Lunar Hijri ::) %s","(|>");
+  } else if (lunar_day>=21 && lunar_day<26) {
+    sprintf(l_hijri_row1,"(:: Lunar Hijri ::) %s","(|");
+  } else if (lunar_day>=26 && lunar_day<28) {
+    sprintf(l_hijri_row1,"(:: Lunar Hijri ::) %s","(");
+  } else {
+    sprintf(l_hijri_row1,"(:: Lunar Hijri ::) %s"," @");
+  }
+
+
+  sprintf(l_hijri_row2,":: %d.%s(%d).%d // %s(%d)",//" // [%d:%d:%d] ::",
+lunar_year,
+lunar_months_txt[lunar_month-1],
+lunar_month,
+lunar_day,
+lunar_days_txt[lunar_day_of_week],
+lunar_day_of_week+1);
+/*lunar_hour,
+lunar_min,
+lunar_sec);*/
+
+  GrPrint(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y-64,time_row1,WHITE);
+  GrPrint(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y-32,s_hijri_row1,WHITE);
+  GrPrint(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y-16,s_hijri_row2,WHITE);
+  GrPrint(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y+16,l_hijri_row1,WHITE);
+  GrPrint(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y+32,l_hijri_row2,WHITE);
+
+
   GrPrint(hdc,30,10,"Welcome to the wInsecticide Menu!",WHITE);
+  char C[1];
+  sprintf(C,"%c",134);
+  GrPrint(hdc,GR_WIDTH-8*18,8*23+10,C,WHITE);
+  GrPrint(hdc,GR_WIDTH-8*18-8*2,8*23+12,C,WHITE);
+  GrPrint(hdc,GR_WIDTH-8*18+8*2,8*23+12,C,WHITE);
+
+  GrLine(hdc,GR_WIDTH-8*17-4,8*25+10,GR_WIDTH-8*17-4-8*8,8*25+12,WHITE);
+  GrLine(hdc,GR_WIDTH-8*17-4,8*25+10,GR_WIDTH-8*17-4+8*8,8*25+12,WHITE);
 
   GrPrint(hdc,30,10+32,"-  Level 0",WHITE);
   GrPrint(hdc,30,10+32+16,"-  Level 1",WHITE);
@@ -619,7 +761,7 @@ void DrawMainMenu(HDC hdc)
   GrPrint(hdc,30,10+32+16*9,"Press 'Enter' to Play Selected Level",WHITE);
   GrPrint(hdc,30,10+32+16*10,"Use Up or Down Keys to Select a Level",WHITE);
   GrPrint(hdc,30,10+32+16*11,"Press [SHIFT_ESC] to Exit",WHITE);
-  GrPrint(hdc,30,10+32+16*12,"Press [SHIFT] + 'M' to Renable Music",WHITE);
+  GrPrint(hdc,30,10+32+16*12,"Press [SHIFT] + 'M' to Change Music Mode",WHITE);
 
   GrPrint(hdc,30,10+32+16*level_chosen,">",WHITE);
   DrawPlayingMusic(hdc,30,10+32+16*14,BLACK,WHITE);
@@ -636,44 +778,22 @@ void DrawMainMenu(HDC hdc)
   if (player_color>-1 && player_color<COLORS_NUM) {
     GrRect(hdc,30+8*12+2,10+32+16*17+2,12,12,draw_color_arr[player_color]);
   }
-
-
-  //Draw Moon Phase
-  GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
-
-
-  //Space Clock
-  GrCircle(hdc,GR_WIDTH/2, 128*4,10,LTBLUE,LTBLUE);
-  
-
-  //Moon Pos
-  double moon_angle=0; 
-  if (lunar_day<27) //0 to 26
-    moon_angle=(-2*M_PI/27 * lunar_day ) - moon_angle_shift;
-  else
-    moon_angle=-moon_angle_shift;
-
-  for (int i=0;i<27;i++) {
-    double tmp_angle=-2*M_PI/27 * i - moon_angle_shift;
-    if (i>1 && i<26) {
-      GrCircle(hdc,GR_WIDTH/2 + 100*cos(tmp_angle), 128*4 + 100*sin(tmp_angle),5,BLACK,DKGRAY);
-    } else {
-      if (i==1 || i==26) { //Cresent Moon
-        GrCircle(hdc,GR_WIDTH/2 + 100*cos(tmp_angle), 128*4 + 100*sin(tmp_angle),6,BLACK,CYAN);
-      } else {
-        GrCircle(hdc,GR_WIDTH/2 + 100*cos(tmp_angle), 128*4 + 100*sin(tmp_angle),7,BLACK,LTCYAN);
-      }
-    }
-  }
-  GrCircle(hdc,GR_WIDTH/2 + 100*cos(moon_angle), 128*4 + 100*sin(moon_angle),5,WHITE,WHITE);
-
-  //Sun Pos
-  GrCircle(hdc,GR_WIDTH/2 + 100*cos(-solar_angle_day), 128*4 + 100*sin(-solar_angle_day),5,YELLOW,YELLOW);
-  //GrCircle(hdc,GR_WIDTH/2 + 3*100*cos(sun_angle), 128*4 + 3*100*sin(sun_angle),5,YELLOW,YELLOW);
-  //GrLine(hdc,GR_WIDTH/2,128*4,GR_WIDTH/2 + 3*100*cos(sun_angle), 128*4 + 3*100*sin(sun_angle),YELLOW);
-  //  GrCircle(hdc,GR_WIDTH/2, 128*4,300,YELLOW,-1);
 }
 
+
+
+void LoadMainMenuBackground()
+{
+  DeleteObject(map_background_sprite);
+  HBITMAP tmp_map_background_sprite;
+  if (solar_hour>6 && solar_hour<18) { //day
+    tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+  } else { //night
+    tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+  }
+  map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH,GR_HEIGHT);
+  DeleteObject(tmp_map_background_sprite);
+}
 
 
 bool display_controls=FALSE;
@@ -687,9 +807,6 @@ void DrawUI(HDC hdc) {
     c=BLACK;
     c4=WHITE;
   }
-
-
-
 
 //======Print Game Score Text
   //GrRect(hdc,0,8+32,8*40,16*5,c4);
@@ -899,6 +1016,10 @@ bool keydown(int key) //https://stackoverflow.com/questions/47667367/is-there-a-
 }
 
 
+bool keydownalt()
+{
+    return (GetAsyncKeyState(VK_RMENU) & 0x8000)!= 0;
+}
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   HDC hdc, hdcBackbuff;
@@ -1004,6 +1125,30 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	        player.uppercut=TRUE;
           }
 	      break;
+
+
+        case '9'://skip song, upwnwards (previous)
+          if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+            if (song_mode<=2) {
+              if  (!keydownalt()) {
+                song_rand_num=LimitValue(song_rand_num-1,0,song_num);
+                skip_song=TRUE;
+                play_new_song=TRUE;
+                loading_flac=FALSE;
+              }
+            }
+          }
+          break;
+
+        case '0'://skip song, downwards (next)
+          if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+            if (song_mode<=2) {
+              song_rand_num=LimitValue(song_rand_num+1,0,song_num);
+              skip_song=TRUE;
+              play_new_song=TRUE;
+              loading_flac=FALSE;
+            }
+          }
       }
       break;
     case WM_KEYUP:
@@ -1056,7 +1201,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           if(player.rst_up)
             player.rst_up=FALSE;
           break;
-
+          break;
 
         case 'M':
           if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
@@ -1064,16 +1209,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               if (!stop_playing_song) {
                 stop_playing_song=TRUE;
                 toggle_stop_playing_song=TRUE;
-              } else {
+              } else { //renable song
+                InitSongBank();
+                song_rand_num=LimitValue(-1,0,song_num);
                 stop_playing_song=FALSE;
               }
             }
             song_mode=LimitValue(song_mode+1,0,4);
-          }
-
-          if (!stop_playing_song) {
-            play_new_song=TRUE;
-            loading_flac=FALSE;
+          } else {
+            if (!stop_playing_song) {
+              play_new_song=TRUE;
+              loading_flac=FALSE;
+            }
           }
           break;//end current song
 
@@ -1165,20 +1312,23 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
           //Load Map Background sprites
-          if (map_background>=0 && map_background<=1) {
-            DeleteObject(map_background_sprite);
-            HBITMAP tmp_map_background_sprite;
-            switch (map_background) {
-              case 0:
-                tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-                break;
-              case 1:
-                tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-                break;
+          if (!in_main_menu) {
+            if (map_background>=0 && map_background<=1) {
+              DeleteObject(map_background_sprite);
+              HBITMAP tmp_map_background_sprite;
+              switch (map_background) {
+                case 0:
+                  tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+                  break;
+                case 1:
+                  tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+                  break;
+              }
+              map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH,GR_HEIGHT);
+              DeleteObject(tmp_map_background_sprite);
             }
-
-            map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH,GR_HEIGHT);
-            DeleteObject(tmp_map_background_sprite);
+          } else {            
+            LoadMainMenuBackground();
           }
         }
 
@@ -1265,7 +1415,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DeleteObject(map_platforms_sprite);
             DeleteObject(map_platforms_sprite_mask);
             DeleteObject(map_platforms_timebreaker_sprite);
-            DeleteObject(map_background_sprite);
+            LoadMainMenuBackground();
             back_to_menu=FALSE;
             in_main_menu=TRUE;
 
@@ -1295,6 +1445,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       break;
     case WM_CREATE:
     {
+      /*for (int j=0;j<256;j++) {
+        printf("%c",j);
+      }*/
+
       HANDLE thread1=CreateThread(NULL,0,AnimateTask01,NULL,0,NULL); //Spawm Game Logic Thread
       HANDLE thread2=CreateThread(NULL,0,SongTask,NULL,0,NULL); //Spawn Song Player Thread
 
@@ -1328,9 +1482,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);
       PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift);
 
+      int num_char='*';
+      if (solar_month==1 && solar_day==12) {
+        num_char=134;
+      }
 
-
-      printf("\n~:: Solar Hijri ::~ *\n~:: %d.%s(%d).%d // %s(%d) // [%d:%d:%d] ::~\n",
+      printf("\n~:: Solar Hijri ::~ %c\n~:: %d.%s(%d).%d // %s(%d) // [%d:%d:%d] ::~\n",
+num_char,
 solar_year,
 solar_months_txt[solar_month-1],
 solar_month,
@@ -1345,29 +1503,30 @@ solar_sec);
   //( <| <|)  O  (|> |> ) @
   printf("\n~:: Lunar Hijri ::~ ");
   if (lunar_day>=1 && lunar_day<8) {
-    printf("(");
+    printf("  )");
   } else if (lunar_day>=8 && lunar_day<11) {
-    printf("(|");
+    printf(" |)");
   }  else if (lunar_day>=11 && lunar_day<14) {
-    printf("(|>");
+    printf("<|)");
   } else if (lunar_day>=14 && lunar_day<16) {
     printf("(O)");
   } else if (lunar_day>=16 && lunar_day<21) {
-    printf("<|)");
+    printf("(|>");
   } else if (lunar_day>=21 && lunar_day<26) {
-    printf(" |)");
+    printf("(|");
   } else if (lunar_day>=26 && lunar_day<28) {
-    printf("  )");
+    printf("(");
   } else {
     printf(" @");
   }
+
   printf("\n~:: %d.%s(%d).%d // %s(%d) // [%d:%d:%d] ::~\n",
 lunar_year,
 lunar_months_txt[lunar_month-1],
 lunar_month,
 lunar_day,
-lunar_days_txt[lunar_day_of_week-1],
-lunar_day_of_week,
+lunar_days_txt[lunar_day_of_week],
+lunar_day_of_week+1,
 lunar_hour,
 lunar_min,
 lunar_sec);

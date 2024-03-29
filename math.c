@@ -14,6 +14,7 @@ unsigned long long current_timestamp() {//https://copyprogramming.com/howto/c-sl
   return (unsigned int) te.tv_sec;
 }*/
 
+
 int64_t int64_current_timestamp() {
   struct timeval te;
   mingw_gettimeofday(&te, NULL);
@@ -21,8 +22,22 @@ int64_t int64_current_timestamp() {
 }
 
 
+#define SEC_PER_DAY   86400
+#define SEC_PER_HOUR  3600
+#define SEC_PER_MIN   60
+
+void get_current_time(int *hour,int *min, int* sec)
+{ //https://stackoverflow.com/questions/43732241/how-to-get-datetime-from-gettimeofday-in-c
+  int64_t tnow = int64_current_timestamp()-SEC_PER_HOUR*16;
+  *hour= tnow/SEC_PER_HOUR%24;
+  *min= (tnow%SEC_PER_HOUR)/SEC_PER_MIN;
+  *sec= (tnow%SEC_PER_HOUR)%SEC_PER_MIN;
+}
+
 unsigned long long long_current_timestamp() {
   struct timeval te;
+  //struct timezone tz;
+  //mingw_gettimeofday(&te,&tz);
   mingw_gettimeofday(&te,NULL);
   return (unsigned long long) te.tv_sec;
 }
@@ -88,14 +103,15 @@ char *lunar_days_txt[7]={
 };
 
 char *solar_days_txt[7]={
-  "shanbeh",
   "yekkeshanbeh",
   "doshanbeh",
   "seshanbeh",
   "chaharshanbeh",
   "panjshanbeh",
-  "jom'eh"
+  "jom'eh",
+  "shanbeh",
 };
+//-589 Farvardin 12/ Johmeh
 
 
 void PersiaSolarTime(int64_t _seconds,
@@ -385,7 +401,7 @@ void PersiaLunarTime(int64_t _seconds,
   *_lunar_hour=(int)print_hours;
   *_lunar_min=(int)print_min;
   *_lunar_sec=(int)print_seconds;
-  *_lunar_day_of_week=days%7+1;
+  *_lunar_day_of_week=(days+1)%7;
   *_moon_angle_shift=moon_angle_shift;
 }
 

@@ -1,13 +1,18 @@
 
+int current_hour;
+int current_min;
+int current_sec;
+
 int song_num=0;
 int song_mode=0;
 int song_rand_num=-1;
-char song_names[1000][256];
+char song_names[1000][512];
 bool is_flac[1000];
 bool play_new_song=FALSE;
 bool stop_playing_song=FALSE;
 bool toggle_stop_playing_song=FALSE;
 bool loading_flac=FALSE;
+bool skip_song=FALSE;
 
 //https://stackoverflow.com/questions/5309471/getting-file-extension-in-c
 const char *get_filename_ext(const char *filename) 
@@ -30,37 +35,55 @@ const char *get_filename_ext(const char *filename)
     return d;
 }*/
 
+//https://stackoverflow.com/questions/6218325/how-do-you-check-if-a-directory-exists-on-windows-in-c
+/*BOOL DirectoryExists(const char *szPath)
+{
+  DWORD dwAttrib = GetFileAttributesA(szPath);
+
+  return (dwAttrib != INVALID_FILE_ATTRIBUTES && 
+         (dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+}*/
 
 
 //https://stackoverflow.com/questions/4204666/how-to-list-files-in-a-directory-in-a-c-program
-int GetSongsInDir(const char *dirname)
+int GetSongsInDir(const char *dirname,const char *indirname, int song_num)
 {
-  int song_num=0;
   DIR *d;
   struct dirent *dir;
   d = opendir(dirname);
   if (d) {
     while ((dir=readdir(d))!=NULL) {
-      const char *ext=get_filename_ext(dir->d_name);
-      char lowext[6];
-      for (int i=0;i<6;i++) {
-        lowext[i]=tolower(ext[i]);
-      }
+      char indir[512];
+      sprintf(indir,"%s/%s",dirname,dir->d_name);
+      //printf("status: %d\n",PathIsDirectoryA(indir)); //https://learn.microsoft.com/en-us/windows/win32/api/shlwapi/nf-shlwapi-pathisdirectorya
+      if (PathIsDirectoryA(indir) && strcmp(dir->d_name,".")!=0 && strcmp(dir->d_name,"..")!=0) { //folder, check for songs in folder
+        char indir2[512];
+        sprintf(indir2,"%s/%s",indirname,dir->d_name);
+        song_num=GetSongsInDir(indir,indir2,song_num);
+      } else {
+        const char *ext=get_filename_ext(dir->d_name);
+        char lowext[6];
+        for (int i=0;i<6;i++) {
+          lowext[i]=tolower(ext[i]);
+        }
       //printf("\n--%s ;; %s",ext,lowext);
-      if (strcmp(lowext,"wav")==0 || strcmp(lowext,"mp3")==0 || strcmp(lowext,"wma")==0 || strcmp(lowext,"flac")==0) {
+        if (strcmp(lowext,"wav")==0 || strcmp(lowext,"mp3")==0 || strcmp(lowext,"wma")==0 || strcmp(lowext,"flac")==0) {
         //printf("%d|-> %s\n",song_num,dir->d_name);
         //song_names[song_num]=dir->d_name;
-        if (strcmp(lowext,"flac")==0) {
-          is_flac[song_num]=TRUE;
-        } else {
-          is_flac[song_num]=FALSE;
-        }
-        strncpy(song_names[song_num],dir->d_name,256);
-        //printf("%d|-> %s\n",song_num,song_names[song_num]);
-        song_num++;
-        if (song_num>=1000) {
-          break;
-        }
+          if (strcmp(lowext,"flac")==0) {
+            is_flac[song_num]=TRUE;
+          } else {
+            is_flac[song_num]=FALSE;
+          }
+          char indir[512];
+          sprintf(indir,"%s/%s",indirname,dir->d_name);
+          strncpy(song_names[song_num],indir,512);
+          //printf("%d|-> %s\n",song_num,song_names[song_num]);
+          song_num++;
+          if (song_num>=1000) {
+            break;
+          }
+        }      
       }
     }
     closedir(d);
@@ -70,7 +93,7 @@ int GetSongsInDir(const char *dirname)
 
 
 void InitSongBank() {
-  song_num=GetSongsInDir("music");
+  song_num=GetSongsInDir("music","",0);
 }
 
 
@@ -115,16 +138,20 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
             remove("music/tmp/tmp.wav");
             rmdir("music/tmp"); //remove tmp, manually because C is like that
 
-             switch (song_mode) {
-             case 0: //Play Songs acending
-                song_rand_num=LimitValue(song_rand_num+1,0,song_num);
-                break;
-              case 1: //Play songs decending
-               song_rand_num=LimitValue(song_rand_num-1,0,song_num);
-               break;
-              case 2: //play songs shuffle
-                song_rand_num=RandNum(0,song_num-1,1);
-                break;
+             if (!skip_song) {
+               switch (song_mode) {
+               case 0: //Play Songs acending
+                  song_rand_num=LimitValue(song_rand_num+1,0,song_num);
+                  break;
+                case 1: //Play songs decending
+                 song_rand_num=LimitValue(song_rand_num-1,0,song_num);
+                 break;
+                case 2: //play songs shuffle
+                  song_rand_num=RandNum(0,song_num-1,1);
+                  break;
+              }
+            } else {
+              skip_song=FALSE;
             }
           
             if (is_flac[song_rand_num]) { //loaded song is a flac
@@ -158,9 +185,17 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
           remove("music/tmp/tmp.wav");
           rmdir("music/tmp"); //remove tmp
           loading_flac=FALSE;
+
           toggle_stop_playing_song=FALSE;
         }
       }
+    }
+
+    get_current_time(&current_hour,&current_min,&current_sec);
+    if (current_hour==0 && current_min==0 && current_sec<=1) {//next day
+      int64_t timenow=int64_current_timestamp();
+      PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);
+      PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift);
     }
     Sleep(1000); //eepy loop
   }
