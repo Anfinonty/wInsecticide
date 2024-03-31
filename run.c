@@ -24,6 +24,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <shlwapi.h>
+//#include <wiavideo.h>
 //#include <GL/glu.h>
 
 #define COLORS_NUM  16
@@ -681,7 +682,7 @@ void DrawMainMenu(HDC hdc)
   char l_hijri_row2[128];
 
   int num_char='*';
-  if (solar_month==1 && solar_day==12) {
+  if (solar_month==1 && (solar_day>=12 && solar_day<=19)) {
     num_char=134;
   }
 
