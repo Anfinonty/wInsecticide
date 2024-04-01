@@ -165,7 +165,7 @@ void PersiaSolarTime(int64_t _seconds,
 {  
   //Beginning date:
   //Gegorian
-    //01-Jan-1970
+    //01-Jan-1970 THURSDAY
 
   //Persian
     //11-Dey-1348 <----not considering timezone offsets
@@ -180,38 +180,40 @@ void PersiaSolarTime(int64_t _seconds,
   const int days30_seconds=day_seconds*30;
   const int days29_seconds=day_seconds*29;
 
+  //1346 is a leap year
 
   //Break Down the different time parts
-  int year=1348;        //gregorian unix is 1970-1-1
+  //int count_year_leap=2;
+  int year=1348;        //gregorian unix is 1970-1-1 THURSDAY
   int month=9;          //start day     //solar hijri unix date is 1348-10-11 //month 0 is month 1
-  int64_t seconds_static=_seconds+day_seconds*11;
+  int64_t seconds_static=_seconds+day_seconds*3; //Begins on thursday solar time
   int64_t seconds=_seconds+day_seconds*11;
   while (seconds>0) {
     //Get months
     if (month<6) {   //First 6 months have 31 days          0,1,2,3,4,5
-      if (seconds-days31_seconds<0) {
+      if (seconds-days31_seconds<=0) {
         break;
       } else {
         seconds-=days31_seconds;
         month++;
       }
     } else if (month>5 && month<11) {  //6 months have 30 days      6,7,8,9,10
-      if (seconds-days30_seconds<0) {
+      if (seconds-days30_seconds<=0) {
         break;
       } else {
         seconds-=days30_seconds;
         month++;
       }
     } else { //12th month   //leap year at last month, 30 days = leap year       29 days = common year      ,11
-      if (year%4==0) {//Leap year
-        if (seconds-days30_seconds<0) {
+      if ((year-1346)%4==0) {//Leap year
+        if (seconds-days30_seconds<=0) {
           break;
         } else {
           seconds-=days30_seconds;
           month++;
         }
       } else {//Common Year
-        if (seconds-days29_seconds<0) {
+        if (seconds-days29_seconds<=0) {
           break;
         } else {
           seconds-=days29_seconds;
@@ -251,7 +253,7 @@ void PersiaSolarTime(int64_t _seconds,
   } else if (month>5 && month<11) {
     print_days=days%30;
   } else {
-    if (year%4==0) {
+    if ((year-1346)%4==0) {
       print_days=days%30;
     } else {
       print_days=days%29;
@@ -273,7 +275,7 @@ void PersiaSolarTime(int64_t _seconds,
 
 
   double __solar_angle=0;
-  if (year%4==0) {
+  if ((year-1346)%4==0) {
     __solar_angle=(M_PI*2)*__solar_day/366;
   } else {
     __solar_angle=(M_PI*2)*__solar_day/365;
@@ -322,13 +324,13 @@ void PersiaLunarTime(int64_t _seconds,
   int year=1389;
   int month=9;          //lunar hijri unix start day is  1389-10-22  //Gregorian is 1970-1-1 //month 0 is month 1
   int64_t seconds=_seconds+day_seconds*21;
-  int64_t seconds_static=_seconds+day_seconds*18;
+  int64_t seconds_static=_seconds+day_seconds*3; //Begins on thursday
 
   while (seconds>0) {
     //Get months
     if (month<11) {   //0,1,2,3,4,5
       if ((month+1)%2==0) { //29 Days, Even number months
-        if (seconds-days29_seconds<0) {
+        if (seconds-days29_seconds<=0) {
           break;
         } else {
           seconds-=days29_seconds;
@@ -336,7 +338,7 @@ void PersiaLunarTime(int64_t _seconds,
           month++;
         }        
       } else { //30 Days, Odd Number months
-        if (seconds-days30_seconds<0) {
+        if (seconds-days30_seconds<=0) {
           break;
         } else {
           seconds-=days30_seconds;
@@ -357,7 +359,7 @@ void PersiaLunarTime(int64_t _seconds,
       }
 
       if (leap) {//Leap year
-        if (seconds-days30_seconds<0) {
+        if (seconds-days30_seconds<=0) {
           break;
         } else {
           seconds-=days30_seconds;
@@ -365,7 +367,7 @@ void PersiaLunarTime(int64_t _seconds,
           month++;
         }
       } else {//Common Year
-        if (seconds-days29_seconds<0) {
+        if (seconds-days29_seconds<=0) {
           break;
         } else {
           seconds-=days29_seconds;
@@ -400,7 +402,7 @@ void PersiaLunarTime(int64_t _seconds,
   bool leap=FALSE;
   int print_days=0;
   if (month<11) {
-    if ((month+1)%2==0) { //Even number months
+    if ((month+1)%2==0) { //Even number months, 29 days
       print_days=days%29;
     } else { //Odd number months
       print_days=days%30;
