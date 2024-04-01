@@ -67,7 +67,12 @@ int GetSongsInDir(const char *dirname,const char *indirname, int song_num)
           lowext[i]=tolower(ext[i]);
         }
       //printf("\n--%s ;; %s",ext,lowext);
-        if (strcmp(lowext,"wav")==0 || strcmp(lowext,"mp3")==0 || strcmp(lowext,"wma")==0 || strcmp(lowext,"flac")==0) {
+        if (strcmp(lowext,"wav")==0 || 
+            strcmp(lowext,"mp3")==0 || 
+            strcmp(lowext,"wma")==0 || 
+            strcmp(lowext,"flac")==0 ||
+            strcmp(lowext,"mpg")==0 ||
+            strcmp(lowext,"mpeg")==0) {
         //printf("%d|-> %s\n",song_num,dir->d_name);
         //song_names[song_num]=dir->d_name;
           if (strcmp(lowext,"flac")==0) {

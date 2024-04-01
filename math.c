@@ -15,24 +15,62 @@ unsigned long long current_timestamp() {//https://copyprogramming.com/howto/c-sl
 }*/
 
 
-int64_t int64_current_timestamp() {
-  struct timeval te;
-  mingw_gettimeofday(&te, NULL);
-  return (int64_t) te.tv_sec;
-}
-
 
 #define SEC_PER_DAY   86400
 #define SEC_PER_HOUR  3600
 #define SEC_PER_MIN   60
 
-void get_current_time(int *hour,int *min, int* sec)
+void get_current_time(int *lhour,int *lmin, int* lsec)
 { //https://stackoverflow.com/questions/43732241/how-to-get-datetime-from-gettimeofday-in-c
-  int64_t tnow = int64_current_timestamp()-SEC_PER_HOUR*16;
-  *hour= tnow/SEC_PER_HOUR%24;
-  *min= (tnow%SEC_PER_HOUR)/SEC_PER_MIN;
-  *sec= (tnow%SEC_PER_HOUR)%SEC_PER_MIN;
+//https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-getsystemtime
+//  int64_t tnow = int64_current_timestamp();/*-SEC_PER_HOUR*16;*/
+//tnow/SEC_PER_HOUR%24;
+//(tnow%SEC_PER_HOUR)/SEC_PER_MIN;
+//(tnow%SEC_PER_HOUR)%SEC_PER_MIN;
+
+  SYSTEMTIME /*st,*/lt;
+  GetLocalTime(&lt);
+  //GetSystemTime(&st);
+
+  *lhour= lt.wHour;
+  *lmin= lt.wMinute;
+  *lsec= lt.wSecond;
 }
+
+void get_current_time_diff(int *hour_diff,int *min_diff, int *sec_diff)
+{ //https://stackoverflow.com/questions/43732241/how-to-get-datetime-from-gettimeofday-in-c
+  SYSTEMTIME st,lt;
+  GetLocalTime(&lt);
+  GetSystemTime(&st);
+
+  int lhour= lt.wHour;
+  int lmin= lt.wMinute;
+  int lsec= lt.wSecond;
+
+  int shour= st.wHour;
+  int smin= st.wMinute;
+  int ssec= st.wSecond;
+
+  *hour_diff=shour-lhour;
+  *min_diff=smin-lmin;
+  *sec_diff=ssec-lsec;
+}
+
+
+
+int64_t int64_current_timestamp() {
+  //struct timeval te;
+  //mingw_gettimeofday(&te, NULL);
+  time_t t;
+  time(&t);
+  int h_diff;
+  int m_diff;
+  int _l;
+
+  get_current_time_diff(&h_diff,&m_diff,&_l);
+  return (int64_t) t - (SEC_PER_HOUR*h_diff) - (SEC_PER_MIN*m_diff);
+}
+
 
 unsigned long long long_current_timestamp() {
   struct timeval te;
@@ -144,9 +182,10 @@ void PersiaSolarTime(int64_t _seconds,
 
 
   //Break Down the different time parts
-  int year=1348;
-  int month=9;          //start day     //solar hijri offset: 8 hours from 1970-1-1 Gregorian
-  int64_t seconds=_seconds+day_seconds*11+8*60*60; //Offsets
+  int year=1348;        //gregorian unix is 1970-1-1
+  int month=9;          //start day     //solar hijri unix date is 1348-10-11 //month 0 is month 1
+  int64_t seconds_static=_seconds+day_seconds*11;
+  int64_t seconds=_seconds+day_seconds*11;
   while (seconds>0) {
     //Get months
     if (month<6) {   //First 6 months have 31 days          0,1,2,3,4,5
@@ -247,7 +286,7 @@ void PersiaSolarTime(int64_t _seconds,
   *_solar_hour=(int)print_hours;
   *_solar_min=(int)print_min;
   *_solar_sec=(int)print_seconds;
-  *_solar_day_of_week=(days+3)%7;
+  *_solar_day_of_week=seconds_static/SEC_PER_DAY%7;
   *_solar_angle_day=__solar_angle;
 }
 
@@ -276,13 +315,14 @@ void PersiaLunarTime(int64_t _seconds,
 
   const int day_seconds=60*60*24;
   const int days30_seconds=day_seconds*30;
-  const int days29_seconds=day_seconds*29;
-  int64_t lunar_day_start=-(day_seconds*22-16*60*60);
+  const int days29_seconds=day_seconds*29; 
+  int64_t lunar_day_start=-day_seconds*21; //lunar hijri unix start day is  1389-10-22 //Gregorian is 1970-1-1 //1 day offset, account for day start at evening
 
   //Break Down the different time parts
   int year=1389;
-  int month=9;          //start day is  1389-10-22    //lunar hijri hours offset from 1970-1-1 gregorian is 16 hrs
-  int64_t seconds=_seconds+day_seconds*22-16*60*60; //Offset
+  int month=9;          //lunar hijri unix start day is  1389-10-22  //Gregorian is 1970-1-1 //month 0 is month 1
+  int64_t seconds=_seconds+day_seconds*21;
+  int64_t seconds_static=_seconds+day_seconds*18;
 
   while (seconds>0) {
     //Get months
@@ -401,7 +441,7 @@ void PersiaLunarTime(int64_t _seconds,
   *_lunar_hour=(int)print_hours;
   *_lunar_min=(int)print_min;
   *_lunar_sec=(int)print_seconds;
-  *_lunar_day_of_week=(days+1)%7;
+  *_lunar_day_of_week=seconds_static/SEC_PER_DAY%7;
   *_moon_angle_shift=moon_angle_shift;
 }
 

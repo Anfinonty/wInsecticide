@@ -1460,7 +1460,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //unsigned long long timenow=current_timestamp();
       //printf("\nSeconds Passed Since Jan-1-1970: %llu",timenow);
 
-      int64_t timenow=int64_current_timestamp();
+      int64_t timenow=int64_current_timestamp(); //local timestamp is returned
       //int64_t timenow= 1709827200+24*60*60*(3+30); //march 8 2024
       //int64_t timenow=1712585320; //April 8 2024 (...))
       //int64_t timenow =5616000; //March 7 1970 //first solar eclipse
@@ -1484,7 +1484,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift);
 
       int num_char='*';
-      if (solar_month==1 && solar_day==12) {
+      if (solar_month==1 && solar_day>=12 && solar_day<=19) {
         num_char=134;
       }
 
