@@ -238,17 +238,74 @@ void GrCircle(HDC hdc, double x, double y, int size, int COLOR, int COLOR_2) {
   //DeleteObject(hPen);
 }
 
-
-void GrPrint(HDC hdc, double x1, double y1, char *_txt, int color) {
+void GrPrintArabic(HDC hdc, double x1, double y1, char *_txt, int color) 
+{
   //DWORD color;
   //HFONT hFont, holdFont;
   //color=GetSysColor(COLOR_BTNFACE);
   //SetBkColor(hdc,color);
-  //hFont=CreateFontW(15,0,0,0,FW_MEDIUM,0,0,0,0,0,0,0,0,L"Times New Roman");
   //holdFont=SelectObject(hdc,hFont);
+
+  LPCSTR txt = _txt; //convert text to lpcstr
+
+  HFONT hf;
+  hf=CreateFontA(15, //Height
+                0, //cWidth
+                0, //cescapement
+                0, //corientation
+                FW_MEDIUM, //cweight
+                FALSE, //bitalic
+                FALSE, //bunderline
+                0, //bstrikeout
+                ARABIC_CHARSET, //icharset
+                0, //ioutprecision
+                0,//iclip precision
+                0, //iqyaluty
+                0, //ipitchandfamily
+                0); //pszfacename
+  HFONT hfOld = SelectObject(hdc,hf);
+  SelectObject(hdc,hf);
+
+  SetTextColor(hdc, color); //set color of the text to be drawn
+  SetBkMode(hdc, TRANSPARENT); //makes background of txt transparent  //https://stackoverflow.com/questions/10571966/  
+  
+  TextOutA(hdc, x1, y1, txt, strlen(txt)); //draw text to screen
+  SelectObject(hdc,hfOld);
+  DeleteObject(hfOld);
+  DeleteObject(hf);
+  SetTextColor(hdc, TRANSPARENT);
+}
+
+
+void GrPrint(HDC hdc, double x1, double y1, char *_txt, int color) 
+{//https://forums.codeguru.com/showthread.php?329037-Drawtext-with-japanese-character
+  //DWORD color;
+  //HFONT hFont, holdFont;
+  //color=GetSysColor(COLOR_BTNFACE);
+  //SetBkColor(hdc,color);
+  //holdFont=SelectObject(hdc,hFont);
+
   LPCSTR txt = _txt; //convert text to lpcstr
   SetTextColor(hdc, color); //set color of the text to be drawn
   SetBkMode(hdc, TRANSPARENT); //makes background of txt transparent  //https://stackoverflow.com/questions/10571966/draw-print-text-with-transparent-background-in-c-win32
+  /*HFONT hf;
+  HFONT hfOld = SelectObject(hdc,hf);
+  hf=CreateFontA(15, //Height
+                0, //cWidth
+                0, //cescapement
+                0, //corientation
+                FW_MEDIUM, //cweight
+                FALSE, //bitalic
+                FALSE, //bunderline
+                0, //bstrikeout
+                ARABIC_CHARSET, //icharset
+                0, //ioutprecision
+                0,//iclip precision
+                0, //iqyaluty
+                0, //ipitchandfamily
+                0); //pszfacename
+  
+  DeleteObject(hfOld);*/
   TextOutA(hdc, x1, y1, txt, strlen(txt)); //draw text to screen
   SetTextColor(hdc, TRANSPARENT);
 }

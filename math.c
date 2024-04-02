@@ -151,6 +151,26 @@ char *solar_days_txt[7]={
 };
 //-589 Farvardin 12/ Johmeh
 
+/*
+char *lunar_days_txt[7]={
+  "يوم الخميس", //Thursday
+  "يوم الجُمُعة",  //Friday
+  "يوم السَبْت", //Saturday
+  "يوم الأَحَد ", //Sunday
+  "يوم الاِثْنَين", //Monday
+  "يوم الثُلاثاء", //Tuesday
+  "يوم الأَرْبِعاء", //Wednesday
+};
+
+char *solar_days_txt[7]={
+"پنج‌شنبه",
+"جمعه",
+"شنبه",
+"یک‌شنبه",
+"دوشنبه",
+"سه‌شنبه",
+"چهارشنبه"
+};*/
 
 void PersiaSolarTime(int64_t _seconds,
   int *_solar_sec,

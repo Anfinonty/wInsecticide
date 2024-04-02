@@ -595,6 +595,12 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4)
     GrPrint(hdc,x,y,"Press Shift + M to Enable Songs",c);
     GrPrint(hdc,x+1,y+1,"Press Shift + M to Enable Songs",c4);
   }
+      
+
+  //char epic[128];
+  //for (int i=134;i<134+128;i++)
+  //  sprintf(epic,"%s%c",epic,i);
+  //GrPrintArabic(hdc,x,y,epic,c4);
 }
 
 
@@ -731,19 +737,19 @@ lunar_days_txt[lunar_day_of_week]);
 lunar_min,
 lunar_sec);*/
 
-  GrPrint(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y-64,time_row1,WHITE);
-  GrPrint(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y-32,s_hijri_row1,WHITE);
-  GrPrint(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y-16,s_hijri_row2,WHITE);
-  GrPrint(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y+16,l_hijri_row1,WHITE);
-  GrPrint(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y+32,l_hijri_row2,WHITE);
+  GrPrintArabic(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y-64,time_row1,WHITE);
+  GrPrintArabic(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y-32,s_hijri_row1,WHITE);
+  GrPrintArabic(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y-16,s_hijri_row2,WHITE);
+  GrPrintArabic(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y+16,l_hijri_row1,WHITE);
+  GrPrintArabic(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y+32,l_hijri_row2,WHITE);
 
 
   GrPrint(hdc,30,10,"Welcome to the wInsecticide Menu!",WHITE);
   char C[1];
   sprintf(C,"%c",134);
-  GrPrint(hdc,GR_WIDTH-8*18,8*23+10,C,WHITE);
-  GrPrint(hdc,GR_WIDTH-8*18-8*2,8*23+12,C,WHITE);
-  GrPrint(hdc,GR_WIDTH-8*18+8*2,8*23+12,C,WHITE);
+  GrPrintArabic(hdc,GR_WIDTH-8*18,8*23+10,C,WHITE);
+  GrPrintArabic(hdc,GR_WIDTH-8*18-8*2,8*23+12,C,WHITE);
+  GrPrintArabic(hdc,GR_WIDTH-8*18+8*2,8*23+12,C,WHITE);
 
   GrLine(hdc,GR_WIDTH-8*17-4,8*25+10,GR_WIDTH-8*17-4-8*8,8*25+12,WHITE);
   GrLine(hdc,GR_WIDTH-8*17-4,8*25+10,GR_WIDTH-8*17-4+8*8,8*25+12,WHITE);
@@ -1292,6 +1298,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         PAINTSTRUCT ps;
         hdc=BeginPaint(hwnd, &ps);
        //FrameRateSleep(35); //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
+
+
         RECT rect;
         if(GetWindowRect(hwnd, &rect))
         {
