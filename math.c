@@ -23,7 +23,7 @@ unsigned long long current_timestamp() {//https://copyprogramming.com/howto/c-sl
 void get_current_time(int *lhour,int *lmin, int* lsec)
 { //https://stackoverflow.com/questions/43732241/how-to-get-datetime-from-gettimeofday-in-c
 //https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-getsystemtime
-//  double tnow = int64_current_timestamp();/*-SEC_PER_HOUR*16;*/
+//  int64_t tnow = int64_current_timestamp();/*-SEC_PER_HOUR*16;*/
 //tnow/SEC_PER_HOUR%24;
 //(tnow%SEC_PER_HOUR)/SEC_PER_MIN;
 //(tnow%SEC_PER_HOUR)%SEC_PER_MIN;
@@ -58,7 +58,7 @@ void get_current_time_diff(int *hour_diff,int *min_diff, int *sec_diff)
 
 
 
-double double_current_timestamp() {
+int64_t int64_current_timestamp() {
   //struct timeval te;
   //mingw_gettimeofday(&te, NULL);
   time_t t;
@@ -68,7 +68,7 @@ double double_current_timestamp() {
   int _l;
 
   get_current_time_diff(&h_diff,&m_diff,&_l);
-  return (double) t - (SEC_PER_HOUR*h_diff) - (SEC_PER_MIN*m_diff);
+  return (int64_t) t - (SEC_PER_HOUR*h_diff) - (SEC_PER_MIN*m_diff);
 }
 
 
@@ -152,7 +152,7 @@ char *solar_days_txt[7]={
 //-589 Farvardin 12/ Johmeh
 
 
-void PersiaSolarTime(double _seconds,
+void PersiaSolarTime(int64_t _seconds,
   int *_solar_sec,
   int *_solar_min,
   int *_solar_hour,
@@ -186,8 +186,8 @@ void PersiaSolarTime(double _seconds,
   //int count_year_leap=2;
   int year=1348;        //gregorian unix is 1970-1-1 THURSDAY
   int month=9;          //start day     //solar hijri unix date is 1348-10-11 //month 0 is month 1
-  double seconds_static=_seconds+day_seconds*3; //Begins on thursday solar time
-  double seconds=_seconds+day_seconds*11;
+  int64_t seconds_static=_seconds+day_seconds*3; //Begins on thursday solar time
+  int64_t seconds=_seconds+day_seconds*11;
   while (seconds>0) {
     //Get months
     if (month<6) {   //First 6 months have 31 days          0,1,2,3,4,5
@@ -205,7 +205,7 @@ void PersiaSolarTime(double _seconds,
         month++;
       }
     } else { //12th month   //leap year at last month, 30 days = leap year       29 days = common year      ,11
-      if (fmod((year-1346),4)==0) {//Leap year
+      if ((year-1346)%4==0) {//Leap year
         if (seconds-days30_seconds<=0) {
           break;
         } else {
@@ -232,31 +232,31 @@ void PersiaSolarTime(double _seconds,
 
 
 
-  double print_seconds=fmod(seconds,60); //60 seconds in a minute
+  int64_t print_seconds=seconds%60; //60 seconds in a minute
  
   //Minutes
-  double min=seconds/60;
-  double print_min=fmod(min,60); //60 minutes in a second
+  int64_t min=seconds/60;
+  int64_t print_min=min%60; //60 minutes in a second
 
   //Hours
-  double hours=min/60;
-  double print_hours=fmod(hours,24); //24 hours in a day
+  int64_t hours=min/60;
+  int64_t print_hours=hours%24; //24 hours in a day
 
   //Days
-  double days=hours/24;
+  int64_t days=hours/24;
 
 
   //31 or 30 or 29 days in a month
   int print_days=0;
   if (month<6) {
-    print_days=fmod(days,31);
+    print_days=days%31;
   } else if (month>5 && month<11) {
-    print_days=fmod(days,30);
+    print_days=days%30;
   } else {
-    if (fmod((year-1346),4)==0) {
-      print_days=fmod(days,30);
+    if ((year-1346)%4==0) {
+      print_days=days%30;
     } else {
-      print_days=fmod(days,29);
+      print_days=days%29;
     }
   }
 
@@ -275,7 +275,7 @@ void PersiaSolarTime(double _seconds,
 
 
   double __solar_angle=0;
-  if (fmod((year-1346),4)==0) {
+  if ((year-1346)%4==0) {
     __solar_angle=(M_PI*2)*__solar_day/366;
   } else {
     __solar_angle=(M_PI*2)*__solar_day/365;
@@ -288,13 +288,13 @@ void PersiaSolarTime(double _seconds,
   *_solar_hour=(int)print_hours;
   *_solar_min=(int)print_min;
   *_solar_sec=(int)print_seconds;
-  *_solar_day_of_week=fmod(seconds_static/SEC_PER_DAY,7);
+  *_solar_day_of_week=seconds_static/SEC_PER_DAY%7;
   *_solar_angle_day=__solar_angle;
 }
 
 
 
-void PersiaLunarTime(double _seconds,
+void PersiaLunarTime(int64_t _seconds,
   int *_lunar_sec,
   int *_lunar_min,
   int *_lunar_hour,
@@ -318,18 +318,18 @@ void PersiaLunarTime(double _seconds,
   const int day_seconds=60*60*24;
   const int days30_seconds=day_seconds*30;
   const int days29_seconds=day_seconds*29; 
-  double lunar_day_start=-day_seconds*21; //lunar hijri unix start day is  1389-10-22 //Gregorian is 1970-1-1 //1 day offset, account for day start at evening
+  int64_t lunar_day_start=-day_seconds*21; //lunar hijri unix start day is  1389-10-22 //Gregorian is 1970-1-1 //1 day offset, account for day start at evening
 
   //Break Down the different time parts
   int year=1389;
   int month=9;          //lunar hijri unix start day is  1389-10-22  //Gregorian is 1970-1-1 //month 0 is month 1
-  double seconds=_seconds+day_seconds*21;
-  double seconds_static=_seconds+day_seconds*3; //Begins on thursday
+  int64_t seconds=_seconds+day_seconds*21;
+  int64_t seconds_static=_seconds+day_seconds*3; //Begins on thursday
 
   while (seconds>0) {
     //Get months
     if (month<11) {   //0,1,2,3,4,5
-      if (fmod((month+1),2)==0) { //29 Days, Even number months
+      if ((month+1)%2==0) { //29 Days, Even number months
         if (seconds-days29_seconds<=0) {
           break;
         } else {
@@ -387,28 +387,28 @@ void PersiaLunarTime(double _seconds,
   
   //::
   //Get Seconds, Minutes, Hours and Days
-  double print_seconds=fmod(seconds,60); //60 seconds in a minute
+  int64_t print_seconds=seconds%60; //60 seconds in a minute
   //Minutes
-  double min=seconds/60;
-  double print_min=fmod(min,60); //60 minutes in a second
+  int64_t min=seconds/60;
+  int64_t print_min=min%60; //60 minutes in a second
   //Hours
-  double hours=min/60;
-  double print_hours=fmod(hours,24); //24 hours in a day
+  int64_t hours=min/60;
+  int64_t print_hours=hours%24; //24 hours in a day
   //Days
-  double days=hours/24;
+  int64_t days=hours/24;
 
 
   //31 or 30 or 29 days in a month
   bool leap=FALSE;
   int print_days=0;
   if (month<11) {
-    if (fmod((month+1),2)==0) { //Even number months, 29 days
-      print_days=fmod(days,29);
+    if ((month+1)%2==0) { //Even number months, 29 days
+      print_days=days%29;
     } else { //Odd number months
-      print_days=fmod(days,30);
+      print_days=days%30;
     }
   } else { //Leap Year
-    int lyr=fmod(year,30);
+    int lyr=year%30;
     for (int i=0;i<11;i++) {
       if (lyr==leap_years[i]) {
         leap=TRUE;
@@ -417,9 +417,9 @@ void PersiaLunarTime(double _seconds,
     }
 
     if (leap) {
-      print_days=fmod(days,30);
+      print_days=days%30;
     } else {
-      print_days=fmod(days,29);
+      print_days=days%29;
     }
   }
 
@@ -443,7 +443,7 @@ void PersiaLunarTime(double _seconds,
   *_lunar_hour=(int)print_hours;
   *_lunar_min=(int)print_min;
   *_lunar_sec=(int)print_seconds;
-  *_lunar_day_of_week=fmod(seconds_static/SEC_PER_DAY,7);
+  *_lunar_day_of_week=seconds_static/SEC_PER_DAY%7;
   *_moon_angle_shift=moon_angle_shift;
 }
 
