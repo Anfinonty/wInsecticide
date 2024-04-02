@@ -690,13 +690,12 @@ void DrawMainMenu(HDC hdc)
 
       sprintf(s_hijri_row1,"=:: Solar Hijri ::= %c",num_char);
 
-      sprintf(s_hijri_row2,":: %d.%s(%d).%d // %s(%d)", // [%d:%d:%d] ::",
+      sprintf(s_hijri_row2,":: %d.%s(%d).%d // %s", // [%d:%d:%d] ::",
 solar_year,
 solar_months_txt[solar_month-1],
 solar_month,
 solar_day,
-solar_days_txt[solar_day_of_week],
-solar_day_of_week+1);
+solar_days_txt[solar_day_of_week]);
 /*solar_hour,
 solar_min,
 solar_sec);*/
@@ -722,13 +721,12 @@ solar_sec);*/
   }
 
 
-  sprintf(l_hijri_row2,":: %d.%s(%d).%d // %s(%d)",//" // [%d:%d:%d] ::",
+  sprintf(l_hijri_row2,":: %d.%s(%d).%d // %s",//" // [%d:%d:%d] ::",
 lunar_year,
 lunar_months_txt[lunar_month-1],
 lunar_month,
 lunar_day,
-lunar_days_txt[lunar_day_of_week],
-lunar_day_of_week+1);
+lunar_days_txt[lunar_day_of_week]);
 /*lunar_hour,
 lunar_min,
 lunar_sec);*/
@@ -1488,14 +1486,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         num_char=134;
       }
 
-      printf("\n~:: Solar Hijri ::~ %c\n~:: %d.%s(%d).%d // %s(%d) // [%d:%d:%d] ::~\n",
+      printf("\n~:: Solar Hijri ::~ %c\n~:: %d.%s(%d).%d // %s // [%d:%d:%d] ::~\n",
 num_char,
 solar_year,
 solar_months_txt[solar_month-1],
 solar_month,
 solar_day,
 solar_days_txt[solar_day_of_week],
-solar_day_of_week+1,
 solar_hour,
 solar_min,
 solar_sec);
@@ -1521,13 +1518,12 @@ solar_sec);
     printf(" @");
   }
 
-  printf("\n~:: %d.%s(%d).%d // %s(%d) // [%d:%d:%d] ::~\n",
+  printf("\n~:: %d.%s(%d).%d // %s // [%d:%d:%d] ::~\n",
 lunar_year,
 lunar_months_txt[lunar_month-1],
 lunar_month,
 lunar_day,
 lunar_days_txt[lunar_day_of_week],
-lunar_day_of_week+1,
 lunar_hour,
 lunar_min,
 lunar_sec);
