@@ -247,9 +247,8 @@ void GrPrintArabic(HDC hdc, double x1, double y1, char *_txt, int color)
   //holdFont=SelectObject(hdc,hFont);
 
   LPCSTR txt = _txt; //convert text to lpcstr
-
   HFONT hf;
-  hf=CreateFontA(15, //Height
+  hf=CreateFontA(18, //Height
                 0, //cWidth
                 0, //cescapement
                 0, //corientation
@@ -269,6 +268,7 @@ void GrPrintArabic(HDC hdc, double x1, double y1, char *_txt, int color)
   SetTextColor(hdc, color); //set color of the text to be drawn
   SetBkMode(hdc, TRANSPARENT); //makes background of txt transparent  //https://stackoverflow.com/questions/10571966/  
   
+  //TextOutA(hdc, x1, y1, txt_reverse, txt_len); //draw text to screen
   TextOutA(hdc, x1, y1, txt, strlen(txt)); //draw text to screen
   SelectObject(hdc,hfOld);
   DeleteObject(hfOld);
@@ -288,24 +288,6 @@ void GrPrint(HDC hdc, double x1, double y1, char *_txt, int color)
   LPCSTR txt = _txt; //convert text to lpcstr
   SetTextColor(hdc, color); //set color of the text to be drawn
   SetBkMode(hdc, TRANSPARENT); //makes background of txt transparent  //https://stackoverflow.com/questions/10571966/draw-print-text-with-transparent-background-in-c-win32
-  /*HFONT hf;
-  HFONT hfOld = SelectObject(hdc,hf);
-  hf=CreateFontA(15, //Height
-                0, //cWidth
-                0, //cescapement
-                0, //corientation
-                FW_MEDIUM, //cweight
-                FALSE, //bitalic
-                FALSE, //bunderline
-                0, //bstrikeout
-                ARABIC_CHARSET, //icharset
-                0, //ioutprecision
-                0,//iclip precision
-                0, //iqyaluty
-                0, //ipitchandfamily
-                0); //pszfacename
-  
-  DeleteObject(hfOld);*/
   TextOutA(hdc, x1, y1, txt, strlen(txt)); //draw text to screen
   SetTextColor(hdc, TRANSPARENT);
 }

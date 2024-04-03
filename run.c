@@ -597,9 +597,10 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4)
   }
       
 
-  //char epic[128];
+  //char epic[256];
   //for (int i=134;i<134+128;i++)
-  //  sprintf(epic,"%s%c",epic,i);
+    //sprintf(epic,"%s %c",epic,i);
+  //sprintf(epic,"%c",143);
   //GrPrintArabic(hdc,x,y,epic,c4);
 }
 
