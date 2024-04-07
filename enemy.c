@@ -315,13 +315,13 @@ void EnemySpecies1Gravity(int enemy_id)
       } else {
         Enemy[enemy_id].flip_sprite=TRUE;
       }
-      if (player.print_current_above && Enemy[enemy_id].saw_player) {
+      /*if (player.print_current_above && Enemy[enemy_id].saw_player) {
       	if (player.y>Enemy[enemy_id].y-60 && player.y<Enemy[enemy_id].y-30 && !Enemy[enemy_id].idling) {//enemy above
 	      if (!Enemy[enemy_id].ignore_player && RandNum(0,5,Enemy[enemy_id].seed)==1) {
             Enemy[enemy_id].y+=0.25;
 	      }
         }
-      }
+      }*/
     }
   }
 }
@@ -550,6 +550,7 @@ void EnemyAct(int i)
       dice=RandNum(0,Enemy[i].time_breaker_rare,Enemy[i].seed);
       if (dice==1) {
         slash_time=Enemy[i].time_breaker_length;
+        //mciSendStringA("play snd/timeskip.mp3",NULL,0,NULL);
       /*if (Enemy[i].saw_player) {
         Enemy[i].snd_dur=5;
       }*/
