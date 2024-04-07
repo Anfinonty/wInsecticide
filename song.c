@@ -6,7 +6,7 @@ int current_sec;
 int song_num=0;
 int song_mode=0;
 int song_rand_num=-1;
-char song_names[2000][256];
+wchar_t song_names[2000][256];
 bool is_flac[2000];
 bool play_new_song=FALSE;
 bool stop_playing_song=FALSE;
@@ -15,74 +15,51 @@ bool loading_flac=FALSE;
 bool skip_song=FALSE;
 
 //https://stackoverflow.com/questions/5309471/getting-file-extension-in-c
-const char *get_filename_ext(const char *filename) 
+const wchar_t *get_filename_ext(const wchar_t *filename) 
 {
-  const char *dot = strrchr(filename, '.');
-  if(!dot || dot == filename) return "";
+  const wchar_t *dot = wcsrchr(filename, '.');
+  if(!dot || dot == filename) return L"";
   return dot + 1;
 }
 
-
-/*char *strtolower(char *s)
-{
-    char *d = (char *)malloc(strlen(s));
-    while (*s)
-    {
-        *d =tolower(*s);
-        d++;
-        s++;
-    }
-    return d;
-}*/
-
-//https://stackoverflow.com/questions/6218325/how-do-you-check-if-a-directory-exists-on-windows-in-c
-/*BOOL DirectoryExists(const char *szPath)
-{
-  DWORD dwAttrib = GetFileAttributesA(szPath);
-
-  return (dwAttrib != INVALID_FILE_ATTRIBUTES && 
-         (dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
-}*/
-
-
 //https://stackoverflow.com/questions/4204666/how-to-list-files-in-a-directory-in-a-c-program
-int GetSongsInDir(const char *dirname,const char *indirname, int song_num)
+int GetSongsInDir(const wchar_t *dirname,const wchar_t *indirname, int song_num)
 {
-  DIR *d;
-  struct dirent *dir;
-  d = opendir(dirname);
+  _WDIR *d;
+  struct _wdirent *dir; //https://castor-project.org/doc/castor3_0/struct__wdirent.html
+  d = _wopendir(dirname);//
   if (d) {
-    while ((dir=readdir(d))!=NULL) {
-      char indir[256];
-      sprintf(indir,"%s/%s",dirname,dir->d_name);
+    while ((dir=_wreaddir(d))!=NULL) {
+      wchar_t indir[256];
+      swprintf(indir,256,L"%s/%s",dirname,dir->d_name);
       //printf("status: %d\n",PathIsDirectoryA(indir)); //https://learn.microsoft.com/en-us/windows/win32/api/shlwapi/nf-shlwapi-pathisdirectorya
-      if (PathIsDirectoryA(indir) && strcmp(dir->d_name,".")!=0 && strcmp(dir->d_name,"..")!=0) { //folder, check for songs in folder
-        char indir2[256];
-        sprintf(indir2,"%s/%s",indirname,dir->d_name);
+      if (PathIsDirectory(indir) && wcscmp(dir->d_name,L".")!=0 && wcscmp(dir->d_name,L"..")!=0) { //folder, check for songs in folder
+        wchar_t indir2[256];
+        swprintf(indir2,256,L"%s/%s",indirname,dir->d_name);
         song_num=GetSongsInDir(indir,indir2,song_num);
       } else {
-        const char *ext=get_filename_ext(dir->d_name);
-        char lowext[6];
+        const wchar_t *ext=get_filename_ext(dir->d_name);
+        /*wchar_t lowext[6];
         for (int i=0;i<6;i++) {
           lowext[i]=tolower(ext[i]);
-        }
+        }*/
       //printf("\n--%s ;; %s",ext,lowext);
-        if (strcmp(lowext,"wav")==0 || 
-            strcmp(lowext,"mp3")==0 || 
-            strcmp(lowext,"wma")==0 || 
-            strcmp(lowext,"flac")==0/* ||
+        if (_wcsicmp(ext,L"wav")==0 || 
+            _wcsicmp(ext,L"mp3")==0 || 
+            _wcsicmp(ext,L"wma")==0 || 
+            _wcsicmp(ext,L"flac")==0/* ||
             strcmp(lowext,"mpg")==0 ||
             strcmp(lowext,"mpeg")==0*/) {
         //printf("%d|-> %s\n",song_num,dir->d_name);
         //song_names[song_num]=dir->d_name;
-          if (strcmp(lowext,"flac")==0) {
+          if (_wcsicmp(ext,L"flac")==0) {
             is_flac[song_num]=TRUE;
           } else {
             is_flac[song_num]=FALSE;
           }
-          char indir[256];
-          sprintf(indir,"%s/%s",indirname,dir->d_name);
-          strncpy(song_names[song_num],indir,256);
+          wchar_t indir[256];
+          swprintf(indir,256,L"%s/%s",indirname,dir->d_name);
+          wcsncpy(song_names[song_num],indir,256);
           //printf("%d|-> %s\n",song_num,song_names[song_num]);
           song_num++;
           if (song_num>=2000) {
@@ -91,14 +68,14 @@ int GetSongsInDir(const char *dirname,const char *indirname, int song_num)
         }      
       }
     }
-    closedir(d);
+    _wclosedir(d);
   }
   return song_num;
 }
 
 
 void InitSongBank() {
-  song_num=GetSongsInDir("music","",0);
+  song_num=GetSongsInDir(L"music",L"",0);
 }
 
 
@@ -130,16 +107,16 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
   while (true) {
     if (song_num>0) {
       if (!stop_playing_song) {
-        char my_status[16];
+        wchar_t my_status[16];
         //char my_length[16];
-        mciSendStringA("status music mode",my_status,16,NULL); //periodically check status
+        mciSendString(L"status music mode",my_status,16,NULL); //periodically check status
         //printf("\nstatus: %s\n",my_status);
-        if ((strcmp(my_status,"stopped")==0 || strcmp(my_status,"")==0 || play_new_song)) //song status: stopped
+        if ((_wcsicmp(my_status,L"stopped")==0 || _wcsicmp(my_status,L"")==0 || play_new_song)) //song status: stopped
         {
       
           //play new music
           if (!loading_flac) {
-            mciSendStringA("close music",NULL,0,NULL);
+            mciSendString(L"close music",NULL,0,NULL);
             remove("music/tmp/tmp.wav");
             rmdir("music/tmp"); //remove tmp, manually because C is like that
 
@@ -160,33 +137,33 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
             }
           
             if (is_flac[song_rand_num]) { //loaded song is a flac
-              char my_command[512];
+              wchar_t my_command[512];
               loading_flac=TRUE;
               system("mkdir \"music/tmp\""); //make new tmp
-              sprintf(my_command,"flac.exe --totally-silent -d -f \"music/%s\" -o music/tmp/tmp.wav",song_names[song_rand_num]);
-              system(my_command);
+              swprintf(my_command,512,L"flac.exe --totally-silent -d -f \"music/%s\" -o music/tmp/tmp.wav",song_names[song_rand_num]);
+              _wsystem(my_command);
             }
           }
 
-          char songname[512];
+          wchar_t songname[512];
           if (!is_flac[song_rand_num]) {
-            sprintf(songname,"open \"music/%s\" alias music",song_names[song_rand_num]);
+            swprintf(songname,512,L"open \"music/%s\" alias music",song_names[song_rand_num]);
           } else {
-            sprintf(songname,"open \"music/tmp/tmp.wav\" alias music"); //play flac
+            swprintf(songname,512,L"open \"music/tmp/tmp.wav\" alias music"); //play flac
           }
-          mciSendStringA(songname,NULL,0,NULL);
-          mciSendStringA("play music",NULL,0,NULL);
+          mciSendString(songname,NULL,0,NULL);
+          mciSendString(L"play music",NULL,0,NULL);
           play_new_song=FALSE;
         } else {
           if (loading_flac) { //flac has finished loading
-            if (strcmp(my_status,"playing")==0) {
+            if (_wcsicmp(my_status,L"playing")==0) {
               loading_flac=FALSE;
             }
           }
         }
       } else { //song is playing
         if (toggle_stop_playing_song) {
-          mciSendStringA("close music",NULL,0,NULL);
+          mciSendString(L"close music",NULL,0,NULL);
           remove("music/tmp/tmp.wav");
           rmdir("music/tmp"); //remove tmp
           loading_flac=FALSE;
@@ -216,9 +193,9 @@ https://copyprogramming.com/howto/playsound-in-c-console-application
 DWORD WINAPI SoundTask(LPVOID lpArg) {
   while (true) {
     if (play_a_sound==1) {
-      mciSendStringA("play music/00/5.wav",NULL,0,NULL); 
+      mciSendString(L"play music/00/5.wav",NULL,0,NULL); 
     } else if (play_a_sound==2) {
-      mciSendStringA("play music/00/4.wav",NULL,0,NULL); 
+      mciSendString(L"play music/00/4.wav",NULL,0,NULL); 
     }
     Sleep(1000); //eepy loop
   }

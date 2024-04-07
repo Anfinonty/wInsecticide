@@ -1,3 +1,24 @@
+
+
+
+HBITMAP CreateLargeBitmap(int cx, int cy)
+{
+//https://forums.codeguru.com/showthread.php?526563-Accessing-Pixels-with-CreateDIBSection
+ unsigned char* lpBitmapBits; 
+
+  BITMAPINFO bi; 
+  ZeroMemory(&bi, sizeof(BITMAPINFO));
+  bi.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
+  bi.bmiHeader.biWidth=cx;
+  bi.bmiHeader.biHeight=-cy;
+  bi.bmiHeader.biPlanes=1;
+  bi.bmiHeader.biBitCount=32;
+  return CreateDIBSection(NULL, &bi,DIB_RGB_COLORS, (VOID**)&lpBitmapBits,NULL,0);
+}
+
+
+
+
 #define COLORREF2RGB(Color) (Color & 0xff00) | ((Color >> 16) & 0xff) \
                                  | ((Color << 16) & 0xff0000)
 //-------------------------------------------------------------------------------
@@ -29,7 +50,7 @@ HBITMAP ReplaceColor(HBITMAP hBmp,COLORREF cOldColor,COLORREF cNewColor,HDC hBmp
             if (hBmpDC)
                 if (hBmp == (HBITMAP)GetCurrentObject(hBmpDC, OBJ_BITMAP))
             {
-                hTmpBitmap = CreateBitmap(1, 1, 1, 1, NULL);
+                hTmpBitmap = CreateLargeBitmap(1,1);//CreateBitmap(1, 1, 1, 1, NULL);
                 SelectObject(hBmpDC, hTmpBitmap);
             }
 
@@ -238,7 +259,7 @@ void GrCircle(HDC hdc, double x, double y, int size, int COLOR, int COLOR_2) {
   //DeleteObject(hPen);
 }
 
-void GrPrintArabic(HDC hdc, double x1, double y1, char *_txt, int color) 
+void GrPrintKhmer(HDC hdc, double x1, double y1, wchar_t *_txt, int color) 
 {
   //DWORD color;
   //HFONT hFont, holdFont;
@@ -246,7 +267,61 @@ void GrPrintArabic(HDC hdc, double x1, double y1, char *_txt, int color)
   //SetBkColor(hdc,color);
   //holdFont=SelectObject(hdc,hFont);
 
-  LPCSTR txt = _txt; //convert text to lpcstr
+//https://nsis-dev.github.io/NSIS-Forums/html/t-365664.html
+//Khmer= 1780
+
+  //setlocale(LC_ALL,"");
+  LPCWSTR txt=_txt;
+  HFONT hf;
+  hf=CreateFontW(18, //Height
+                0, //cWidth
+                0, //cescapement
+                0, //corientation
+                FW_MEDIUM, //cweight
+                FALSE, //bitalic
+                FALSE, //bunderline
+                0, //bstrikeout
+                1780, //icharset //codepage
+                0, //ioutprecision
+                0,//iclip precision
+                0, //iqyaluty
+                0, //ipitchandfamily
+                L"Khmer OS System"); //pszfacename
+  HFONT hfOld = SelectObject(hdc,hf);
+  SelectObject(hdc,hf);
+
+  SetTextColor(hdc, color); //set color of the text to be drawn
+  SetBkMode(hdc, TRANSPARENT); //makes background of txt transparent  //https://stackoverflow.com/questions/10571966/  
+  
+  //TextOutA(hdc, x1, y1, txt_reverse, txt_len); //draw text to screen
+  TextOut(hdc, x1, y1, txt, wcslen(txt)); //draw text to screen
+  //ExtTextOut
+  //RECT rect;
+  //rect.left=x1;
+  //rect.right=y1;
+  //DrawText(hdc,txt,-1,&rect,DT_SINGLELINE|DT_NOCLIP);*/
+
+  //ExtTextOut(hdc,x1,y1,0,&rect,txt,0,NULL);
+  SelectObject(hdc,hfOld);
+  DeleteObject(hfOld);
+  DeleteObject(hf);
+  SetTextColor(hdc, TRANSPARENT);
+}
+
+void GrPrintArabic(HDC hdc, double x1, double y1, wchar_t *_txt, char *_atxt, int color,bool A) 
+{
+  //DWORD color;
+  //HFONT hFont, holdFont;
+  //color=GetSysColor(COLOR_BTNFACE);
+  //SetBkColor(hdc,color);
+  //holdFont=SelectObject(hdc,hFont);
+
+
+  LPCWSTR txt=_txt;
+  LPCSTR atxt=_atxt;
+  //sprintf(txt,"%ls",L"Hello");
+  //txt=L"يوم الأَرْبِعاء";
+  //LPCWSTR txt = L"Hello";//_txt; //convert text to lpcstr
   HFONT hf;
   hf=CreateFontA(18, //Height
                 0, //cWidth
@@ -269,7 +344,11 @@ void GrPrintArabic(HDC hdc, double x1, double y1, char *_txt, int color)
   SetBkMode(hdc, TRANSPARENT); //makes background of txt transparent  //https://stackoverflow.com/questions/10571966/  
   
   //TextOutA(hdc, x1, y1, txt_reverse, txt_len); //draw text to screen
-  TextOutA(hdc, x1, y1, txt, strlen(txt)); //draw text to screen
+  if (!A) {
+    TextOut(hdc, x1, y1, txt, wcslen(txt)); //draw text to screen
+  } else {
+    TextOutA(hdc, x1, y1, atxt, strlen(atxt)); //draw text to screen
+  }
   SelectObject(hdc,hfOld);
   DeleteObject(hfOld);
   DeleteObject(hf);
@@ -291,7 +370,6 @@ void GrPrint(HDC hdc, double x1, double y1, char *_txt, int color)
   TextOutA(hdc, x1, y1, txt, strlen(txt)); //draw text to screen
   SetTextColor(hdc, TRANSPARENT);
 }
-
 
 void DrawBitmap(HDC hDC,double _x1,double _y1, double _x2, double _y2, int width, int height, HBITMAP hSourceBitmap,int _SRCTYPE,bool stretch)
 {
@@ -482,10 +560,10 @@ HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, double radians,int rTranspa
    //         destination bitmap, and select it into the destination DC.
 
    //hDestBitmap = NULL;//CreateCompatibleBitmap(hMemDest, width, height);
-  hDestBitmap = CreateBitmap(height, width, iSrcBitmap.bmPlanes,
-                  iSrcBitmap.bmBitsPixel, NULL);
+  /*hDestBitmap = CreateBitmap(height, width, iSrcBitmap.bmPlanes,
+                  iSrcBitmap.bmBitsPixel, NULL);*/
 
-
+  hDestBitmap = CreateLargeBitmap(height, width);
   hOldSourceBitmap = SelectObject(hMemSrc, hSourceBitmap);
   hOldDestBitmap = SelectObject(hMemDest, hDestBitmap);
 
@@ -572,9 +650,10 @@ void GrSprite(HDC hDC,double _x1,double _y1, HBITMAP hSourceBitmap,bool is_left)
     GetObject(hSourceBitmap, sizeof(bm), &bm);
 
 
-    hBitmap = CreateBitmap(bm.bmWidth, bm.bmHeight, 
+    /*hBitmap = CreateBitmap(bm.bmWidth, bm.bmHeight, 
                         bm.bmPlanes, bm.bmBitsPixel, //IMPORTANT, these 2 arguements allow color to pass through
-                        NULL); 
+                        NULL); */
+    hBitmap = CreateLargeBitmap(bm.bmWidth,bm.bmHeight);
     hOldSourceBitmap = SelectObject(hMemSrc, hSourceBitmap);
     hOldDestBitmap = SelectObject(hMemDest, hBitmap);
 
@@ -646,7 +725,8 @@ void GrSprite(HDC hDC,double _x1,double _y1, HBITMAP hSourceBitmap,bool is_left)
     if (is_left) { //Flip Horizontally (X)
       StretchBlt(hDC, _x1+bitmap.bmWidth/2, _y1-bitmap.bmHeight/2, -bitmap.bmWidth-1, bitmap.bmHeight, hdcMemA, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCAND); //Create Mask for
     } else { //Regular
-      StretchBlt(hDC, _x1-bitmap.bmWidth/2, _y1-bitmap.bmHeight/2, bitmap.bmWidth, bitmap.bmHeight, hdcMemA, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCAND); //Create Mask for
+      //StretchBlt(hDC, _x1-bitmap.bmWidth/2, _y1-bitmap.bmHeight/2, bitmap.bmWidth, bitmap.bmHeight, hdcMemA, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCAND); //Create Mask for
+      BitBlt(hDC, _x1-bitmap.bmWidth/2, _y1-bitmap.bmHeight/2, bitmap.bmWidth, bitmap.bmHeight, hdcMemA, 0,0, SRCAND); //no time wasted stretching
     }
 
     //GetObject(hBitmap, sizeof(BITMAP), &bitmap);
@@ -654,12 +734,13 @@ void GrSprite(HDC hDC,double _x1,double _y1, HBITMAP hSourceBitmap,bool is_left)
     if (is_left) { //Flip Horizontally (X)
       StretchBlt(hDC, _x1+bitmap.bmWidth/2, _y1-bitmap.bmHeight/2, -bitmap.bmWidth-1, bitmap.bmHeight, hdcMemB, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCPAINT); //Create Mask for
     } else { //Regular
-      StretchBlt(hDC, _x1-bitmap.bmWidth/2, _y1-bitmap.bmHeight/2, bitmap.bmWidth, bitmap.bmHeight, hdcMemB, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCPAINT); //Create Mask for
+      //StretchBlt(hDC, _x1-bitmap.bmWidth/2, _y1-bitmap.bmHeight/2, bitmap.bmWidth, bitmap.bmHeight, hdcMemB, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCPAINT); //Create Mask for
+      BitBlt(hDC, _x1-bitmap.bmWidth/2, _y1-bitmap.bmHeight/2, bitmap.bmWidth, bitmap.bmHeight, hdcMemB, 0, 0, SRCPAINT); //no timew wasted stretching
     }
     //BitBlt(hDC, _x1-bitmap.bmWidth/2, _y1-bitmap.bmHeight, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0, 0, SRCAND); //This works (Demo, no flip transparent background)
 
     // DeleteObject(SelectObject(hdcMem, hBitmapMask));
-     //https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-createcompatiblebitmap https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-deleteobject
+    //https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-createcompatiblebitmap https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-deleteobject
     DeleteObject(SelectObject(hdcMemB, oldbitmap2));
     DeleteObject(SelectObject(hdcMemA, oldbitmap)); //https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-createcompatiblebitmap https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-deleteobject
     DeleteDC(hdcMemA);
@@ -723,22 +804,6 @@ HBITMAP CreateGreyscaleBitmap(int cx, int cy)
 
   PVOID pv;
   return CreateDIBSection(NULL,pbmi,DIB_RGB_COLORS,&pv,NULL,0);
-}
-
-
-HBITMAP CreateLargeBitmap(int cx, int cy)
-{
-//https://forums.codeguru.com/showthread.php?526563-Accessing-Pixels-with-CreateDIBSection
- unsigned char* lpBitmapBits; 
-
-  BITMAPINFO bi; 
-  ZeroMemory(&bi, sizeof(BITMAPINFO));
-  bi.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
-  bi.bmiHeader.biWidth=cx;
-  bi.bmiHeader.biHeight=-cy;
-  bi.bmiHeader.biPlanes=1;
-  bi.bmiHeader.biBitCount=32;
-  return CreateDIBSection(NULL, &bi,DIB_RGB_COLORS, (VOID**)&lpBitmapBits,NULL,0);
 }
 
 

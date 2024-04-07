@@ -81,26 +81,12 @@ unsigned long long long_current_timestamp() {
 }
 
 
-
 int leap_years[11]={2,5,7,10,13,16,18,21,24,26,29};
-/*char *lunar_months_txt[12]={
-    "ٱلْمُحَرَّم",
-    "صَفَر",
-    "رَبِيع ٱلْأَوَّل",
-    "رَبِيع ٱلثَّانِي",
-    "جُمَادَىٰ ٱلْأُولَىٰ",
-    "جُمَادَىٰ ٱلثَّانِيَة",
-    "رَجَب",
-    "شَعْبَان",
-    "رَمَضَان",
-    "شَوَّال",
-    "ذُو ٱلْقَعْدَة",
-    "ذُو ٱلْحِجَّة"    
-};*/
 
 
 
-char *lunar_months_txt[12]={
+
+char *lunar_months_en_txt[12]={
 "Muharram", 
 "Safar", 
 "Rabi' al-Awwal",
@@ -115,7 +101,7 @@ char *lunar_months_txt[12]={
 "Dhu al-Hijjah"
 };
 
-char *solar_months_txt[12]={
+char *solar_months_en_txt[12]={
 "Farvardin",
 "Ordibehesht",
 "Khordad",
@@ -130,7 +116,9 @@ char *solar_months_txt[12]={
 "Esfand"
 };
 
-char *lunar_days_txt[7]={
+
+
+char *lunar_days_en_txt[7]={
   "yawm al-Khamis", //Thursday
   "yawm al-Jum'ah", //Friday
   "yawm as-Sabt", //Saturday
@@ -140,7 +128,7 @@ char *lunar_days_txt[7]={
   "yawm al-'Aribi'a'",
 };
 
-char *solar_days_txt[7]={
+char *solar_days_en_txt[7]={
   "panjshanbeh", //Thursday
   "jom'eh",  //Friday
   "shanbeh", //Saturday
@@ -151,26 +139,59 @@ char *solar_days_txt[7]={
 };
 //-589 Farvardin 12/ Johmeh
 
-/*
-char *lunar_days_txt[7]={
-  "يوم الخميس", //Thursday
-  "يوم الجُمُعة",  //Friday
-  "يوم السَبْت", //Saturday
-  "يوم الأَحَد ", //Sunday
-  "يوم الاِثْنَين", //Monday
-  "يوم الثُلاثاء", //Tuesday
-  "يوم الأَرْبِعاء", //Wednesday
+
+
+//https://en.wikipedia.org/wiki/Solar_Hijri_calendar
+wchar_t *solar_months_txt[12]={
+L"فروردین",
+L"اردیبهشت",
+L"خرداد",
+L"تیر",
+L"مرداد/امرداد",
+L"شهریور",
+L"مهر",
+L"آبان",
+L"آذر",
+L"دی",
+L"بهمن",
+L"اسفند/اسپند"
 };
 
-char *solar_days_txt[7]={
-"پنج‌شنبه",
-"جمعه",
-"شنبه",
-"یک‌شنبه",
-"دوشنبه",
-"سه‌شنبه",
-"چهارشنبه"
-};*/
+wchar_t *lunar_months_txt[12]={
+   L"ٱلْمُحَرَّم",
+   L"صَفَر",
+   L"رَبِيع ٱلْأَوَّل",
+   L"رَبِيع ٱلثَّانِي",
+   L"جُمَادَىٰ ٱلْأُولَىٰ",
+   L"جُمَادَىٰ ٱلثَّانِيَة",
+   L"رَجَب",
+   L"شَعْبَان",
+   L"رَمَضَان",
+   L"شَوَّال",
+   L"ذُو ٱلْقَعْدَة",
+   L"ذُو ٱلْحِجَّة"    
+};
+
+wchar_t *lunar_days_txt[7]={
+  L"يوم الخميس", //Thursday
+  L"يوم الجُمُعة",  //Friday
+  L"يوم السَبْت", //Saturday
+  L"يوم الأَحَد", //Sunday
+  L"يوم الاِثْنَين", //Monday
+  L"يوم الثُلاثاء", //Tuesday
+  L"يوم الأَرْبِعاء", //Wednesday
+};
+
+//https://en.wikipedia.org/wiki/Shanbeh
+wchar_t *solar_days_txt[7]={
+    L"پنج‌شنبه", //Thursday
+    L"جمعه", //Friday
+    L"شنبه", //Saturday
+    L"یک‌شنبه", //Sunday
+    L"دوشنبه",
+    L"سه‌شنبه",
+    L"چهارشنبه"
+};
 
 void PersiaSolarTime(int64_t _seconds,
   int *_solar_sec,

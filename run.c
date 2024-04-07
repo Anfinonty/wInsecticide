@@ -23,6 +23,7 @@
 #include <limits.h>
 #include <dirent.h>
 #include <errno.h>
+//#include <clocale>
 #include <shlwapi.h>
 //#include <wiavideo.h>
 //#include <GL/glu.h>
@@ -558,12 +559,14 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4)
   if (!stop_playing_song) {
 
     if (song_num>0) {
-      char txt[32+256];
-      sprintf(txt,"%c%d/%d%c: %s",171,song_rand_num+1,song_num,187,song_names[song_rand_num]);
+      wchar_t txt[32+256];
+      swprintf(txt,32+256,L"%c%d/%d%c: %s",171,song_rand_num+1,song_num,187,song_names[song_rand_num]);
       //%c 187
 
-      GrPrint(hdc,x,y,txt,c);   
-      GrPrint(hdc,x+1,y+1,txt,c4);
+      GrPrintArabic(hdc,x,y,txt,"",c,FALSE);
+      GrPrintArabic(hdc,x+1,y+1,txt,"",c4,FALSE);
+
+      
 
       char txt2[72];
       //char txt2_1[2046];
@@ -602,21 +605,10 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4)
     //sprintf(epic,"%s %c",epic,i);
   //sprintf(epic,"%c",143);
   //GrPrintArabic(hdc,x,y,epic,c4);
+
+  //GrPrintKhmer(hdc,x,y,TEXT("សួស្តី​ពិភពលោក"),c4);
+  //GrPrintKhmer(hdc,x,y,L"こんにちは",c4);
 }
-
-
-//Attributes for Level Choose & MainMenu
-/*double moon_angles[8]=
-{
-  M_PI_2-M_PI_4, //Cresent
-  M_PI_2, //Half Moon
-  M_PI_2+M_PI_4, //Near full moon  
-  M_PI, //Full moon
-  M_PI+M_PI_2-M_PI_4, //Near full moon
-  M_PI+M_PI_2, //Half moon
-  M_PI+M_PI_2+M_PI_4, //Cresent mooon
-  0 //NEW MOON
-};*/
 
 
 void DrawMainMenu(HDC hdc)
@@ -682,30 +674,28 @@ void DrawMainMenu(HDC hdc)
 
 
   //Write Hijri Dates
-  char time_row1[16];
+  wchar_t time_row1[16];
   char s_hijri_row1[128];
-  char s_hijri_row2[128];
+  wchar_t s_hijri_row2[128];
   char l_hijri_row1[128];
-  char l_hijri_row2[128];
+  wchar_t l_hijri_row2[128];
 
   int num_char='*';
   if (solar_month==1 && (solar_day>=12 && solar_day<=19)) {
     num_char=134;
   }
 
-      sprintf(time_row1,"[%d:%02d:%02d]",current_hour,current_min,current_sec);
+      swprintf(time_row1,16,L"[%d:%02d:%02d]",current_hour,current_min,current_sec);
 
       sprintf(s_hijri_row1,"=:: Solar Hijri ::= %c",num_char);
 
-      sprintf(s_hijri_row2,":: %d.%s(%d).%d // %s", // [%d:%d:%d] ::",
-solar_year,
+      swprintf(s_hijri_row2,128,L":: %s //%d. %s(%d) .%d",
+solar_days_txt[solar_day_of_week],
+solar_day,
 solar_months_txt[solar_month-1],
 solar_month,
-solar_day,
-solar_days_txt[solar_day_of_week]);
-/*solar_hour,
-solar_min,
-solar_sec);*/
+solar_year
+);
 
 
   //( <| <|)  O  (|> |> ) @
@@ -728,29 +718,28 @@ solar_sec);*/
   }
 
 
-  sprintf(l_hijri_row2,":: %d.%s(%d).%d // %s",//" // [%d:%d:%d] ::",
-lunar_year,
+  swprintf(l_hijri_row2,128,L":: %s //%d. %s(%d) .%d",
+lunar_days_txt[lunar_day_of_week],
+lunar_day,
 lunar_months_txt[lunar_month-1],
 lunar_month,
-lunar_day,
-lunar_days_txt[lunar_day_of_week]);
-/*lunar_hour,
-lunar_min,
-lunar_sec);*/
+lunar_year
+);
 
-  GrPrintArabic(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y-64,time_row1,WHITE);
-  GrPrintArabic(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y-32,s_hijri_row1,WHITE);
-  GrPrintArabic(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y-16,s_hijri_row2,WHITE);
-  GrPrintArabic(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y+16,l_hijri_row1,WHITE);
-  GrPrintArabic(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y+32,l_hijri_row2,WHITE);
+  GrPrintArabic(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y-64,time_row1,"",WHITE,FALSE);
+  GrPrintArabic(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y-32,L"",s_hijri_row1,WHITE,TRUE);
+  GrPrintArabic(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y-16,s_hijri_row2,"",WHITE,FALSE);
+  GrPrintArabic(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y+16,L"",l_hijri_row1,WHITE,TRUE);
+  GrPrintArabic(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y+32,l_hijri_row2,"",WHITE,FALSE);
 
 
   GrPrint(hdc,30,10,"Welcome to the wInsecticide Menu!",WHITE);
   char C[1];
   sprintf(C,"%c",134);
-  GrPrintArabic(hdc,GR_WIDTH-8*18,8*23+10,C,WHITE);
-  GrPrintArabic(hdc,GR_WIDTH-8*18-8*2,8*23+12,C,WHITE);
-  GrPrintArabic(hdc,GR_WIDTH-8*18+8*2,8*23+12,C,WHITE);
+  GrPrintArabic(hdc,GR_WIDTH-8*18,8*23+10,L"",C,WHITE,TRUE);
+  GrPrintArabic(hdc,GR_WIDTH-8*18-8*2,8*23+12,L"",C,WHITE,TRUE);
+  GrPrintArabic(hdc,GR_WIDTH-8*18+8*2,8*23+12,L"",C,WHITE,TRUE);
+  
 
   GrLine(hdc,GR_WIDTH-8*17-4,8*25+10,GR_WIDTH-8*17-4-8*8,8*25+12,WHITE);
   GrLine(hdc,GR_WIDTH-8*17-4,8*25+10,GR_WIDTH-8*17-4+8*8,8*25+12,WHITE);
@@ -797,7 +786,7 @@ void LoadMainMenuBackground()
   } else { //night
     tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
   }
-  map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH,GR_HEIGHT);
+  map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH,GR_HEIGHT); //note runs once only
   DeleteObject(tmp_map_background_sprite);
 }
 
@@ -1332,7 +1321,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                   tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
                   break;
               }
-              map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH,GR_HEIGHT);
+              map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH,GR_HEIGHT); //note runs once only
               DeleteObject(tmp_map_background_sprite);
             }
           } else {            
@@ -1453,38 +1442,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       break;
     case WM_CREATE:
     {
-      /*for (int j=0;j<256;j++) {
-        printf("%c",j);
-      }*/
-
+      //MessageBox(NULL, TEXT("ភាសាខ្មែរ"), TEXT("ភាសាខ្មែរ") ,MB_OK);
       HANDLE thread1=CreateThread(NULL,0,AnimateTask01,NULL,0,NULL); //Spawm Game Logic Thread
       HANDLE thread2=CreateThread(NULL,0,SongTask,NULL,0,NULL); //Spawn Song Player Thread
 
       InitTickFrequency();
       InitFPS();
-
-
       //unsigned long long timenow=current_timestamp();
       //printf("\nSeconds Passed Since Jan-1-1970: %llu",timenow);
 
       int64_t timenow=int64_current_timestamp(); //local timestamp is returned
-      //int64_t timenow= 1709827200+24*60*60*(3+30); //march 8 2024
-      //int64_t timenow=1712585320; //April 8 2024 (...))
-      //int64_t timenow =5616000; //March 7 1970 //first solar eclipse
-      //int64_t timenow = 20908800;//Aug 31 1970
-      //int64_t timenow =36288000; //Feb 25 1971
-      //int64_t timenow = 	51465600+60*60*24*1; //Aug 20-21 1971
-
-      //int64_t timenow=79574400;//July 10 1972
-      //int64_t timenow=94924800;//1973-1-4
-      //int64_t timenow=1112914800; //2005-apri-08
-      //int64_t timenow= 	1817161200; //2027-aug-2
-      //int64_t timenow= 	304124400;  //Aug-22-1979
-      //int64_t timenow=  	319503600; //Fed-16-1980
-      //int64_t timenow=  	319577777; //Fed-16-1980 (random)
-      //int64_t timenow=334710000;//10 aug-2024
-      //int64_t timenow=   	2564780400;//11-April-2051 (2038 TIME YEAR LIMIT)
-      //int64_t timenow= 	2072300400; //sept-2-2035
 
       printf("\nSeconds Passed Since Jan-1-1970: %d",timenow);
       PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);
@@ -1492,22 +1459,22 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       int num_char='*';
       if (solar_month==1 && solar_day>=12 && solar_day<=19) {
-        num_char=134;
+        num_char='+';
       }
 
       printf("\n~:: Solar Hijri ::~ %c\n~:: %d.%s(%d).%d // %s // [%d:%d:%d] ::~\n",
 num_char,
 solar_year,
-solar_months_txt[solar_month-1],
+solar_months_en_txt[solar_month-1],
 solar_month,
 solar_day,
-solar_days_txt[solar_day_of_week],
+solar_days_en_txt[solar_day_of_week],
 solar_hour,
 solar_min,
 solar_sec);
 
 
-  //( <| <|)  O  (|> |> ) @
+  //) |> (|> 0 <|) <| ( @
   printf("\n~:: Lunar Hijri ::~ ");
   if (lunar_day>=1 && lunar_day<8) {
     printf("  )");
@@ -1529,22 +1496,13 @@ solar_sec);
 
   printf("\n~:: %d.%s(%d).%d // %s // [%d:%d:%d] ::~\n",
 lunar_year,
-lunar_months_txt[lunar_month-1],
+lunar_months_en_txt[lunar_month-1],
 lunar_month,
 lunar_day,
-lunar_days_txt[lunar_day_of_week],
+lunar_days_en_txt[lunar_day_of_week],
 lunar_hour,
 lunar_min,
 lunar_sec);
-
-
-
-
-    //Ramadan Date 7AM 2024
-      //int ramadan_time_2024=1710111600;
-      //printf("\nRamadan Time 2024: %d",ramadan_time_2024);
-      //PersiaSolarTime(ramadan_time_2024);
-      //PersiaLunarTime(ramadan_time_2024);
 
       back_to_menu=FALSE;
       in_main_menu=TRUE;
@@ -1610,6 +1568,7 @@ lunar_sec);
       } else {
         moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-28.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       }
+      //moon_sprite_cache=CreteLargeBitmap(NULL, 128, 128);
       moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,-1);
       }
       return 0;
@@ -1654,22 +1613,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
                 NULL,
                 hInstance, 
                 NULL);
-
-
-  //threads
-  /*int *lpArgPtr;
-  HANDLE hHandles[2];
-  DWORD ThreadId;
-  for (int i=0;i<2;i++) {
-    lpArgPtr=(int *)malloc(sizeof(double)));
-    *lpArgPtr=i;
-    switch (i) {
-      case 0: hHandles[i]=CreateThread(NULL,0,AnimateTask01,lpArgPtr,0,&ThreadId);break;
-      case 1: hHandles[i]=CreateThread(NULL,0,SongTask,lpArgPtr,0,&ThreadId);break;
-      //case 0: hHandles[i]=CreateThread(NULL,0,SongTask,lpArgPtr,0,&ThreadId);break;
-    }
-  }*/
-
 
 
   MSG msg;

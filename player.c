@@ -601,7 +601,7 @@ void PlayerAct() {
 
    //Ground action
    //on a ground
-    //change in ground
+    //change in ground //attempt in preventing clipping through corners
       if (player.saved_ground_id!=player.on_ground_id  && player.on_ground_id!=player.previous_web_placed) {
       //outwards from ground
         if (0<=Ground[player.saved_ground_id].height_from_player_x && Ground[player.saved_ground_id].height_from_player_x<10) { //above ground
