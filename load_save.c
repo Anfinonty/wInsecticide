@@ -17,7 +17,7 @@ double saved_ground_y3[MAX_GROUND_NUM];
 bool saved_ground_is_ghost[MAX_GROUND_NUM];
 int saved_ground_color[MAX_GROUND_NUM];
 int saved_ground_type[MAX_GROUND_NUM];
-char saved_ground_text[MAX_GROUND_NUM][512]; //charsize 512
+wchar_t saved_ground_text[MAX_GROUND_NUM][512]; //charsize 512
 
 //ENEMY_NUM
 int saved_enemy_type[MAX_ENEMY_NUM];
@@ -99,11 +99,12 @@ void LoadSave(char *saves_name)
   double double_saved_val;
   
   //for string char
+  int char_utf16=0;
   int char_pos=0;
-  char txt[512];
-  //char *print_txt;
+  wchar_t txt[512];
   bool writing_txt;
   bool deci;
+  bool is_calc_utf16=FALSE;
 
   FILE *fptr;
   fptr = fopen(saves_name,"r");
@@ -116,13 +117,15 @@ void LoadSave(char *saves_name)
     txt[i] = 0;
 
 
-  while ((c=fgetc(fptr))!=EOF) {
+  while ((c=fgetwc(fptr))!=WEOF) {
+    //wprintf(L"%c",c);
     if (row<=3 || row>=40) { //first 4 rows
       if (c!=';') {//not yet a semicolon
         if (c>='0' && c<='9') { //numerical chars only
           int_val=c-'0'; //ascii convert to num
           int_saved_val*=10; //move digit to left
           int_saved_val+=int_val; //append number digit to right side
+          //printf(int_val);
         }
       } else {//semi colon ;
         switch (row) {//save value
@@ -166,7 +169,8 @@ void LoadSave(char *saves_name)
         if (row!=13) {
           if (c>='0' && c<='9') { //numerical chars only
             if (row!=17 && row!=18) {
-              int_val=c-'0'; //ascii convert to num
+              int_val=(int)c-'0'; //ascii convert to num
+              //wprintf(L"%c",c);
               int_saved_val*=10; //move digit to left
               int_saved_val+=int_val; //append number digit to right side
             } else {
@@ -243,16 +247,33 @@ void LoadSave(char *saves_name)
             } else {//end of string
               writing_txt=FALSE;
               //saved_ground_text[column]=txt;
-              strncpy(saved_ground_text[column],txt,512);
+              wcsncpy(saved_ground_text[column],txt,512);
               //printf("%d@@@%s\n",column,saved_ground_text[column]);                
               column++;
               txt[0]='\0';
               char_pos=0;//restart value
             }
-          } else {
+          } else { //not double quotations
             if (writing_txt) {
-              txt[char_pos]=c;
-              char_pos++; //next char
+              if (!is_calc_utf16) {
+                if (c!='{') {
+                  txt[char_pos]=c;
+                  char_pos++; //next char
+                } else { //c=='{'
+                  is_calc_utf16=TRUE;
+                }
+              } else { //calculating utf16
+                if (c=='}') {//end of utf16 calc
+                  txt[char_pos]=char_utf16;
+                  char_pos++;
+                  is_calc_utf16=FALSE;//unflag
+                  char_utf16=0;//reset value
+                } else if (c>='0' && c<='9') { //theres a 'u' inbetween, im not doing anything to that for now
+                  char_utf16=char_utf16*16+(c-'0'); //shift digit to left
+                } else if (c>='A' && c<='F') {
+                  char_utf16=char_utf16*16+(c-'A'+10); //shift digit to left
+                }
+              }
             } 
           }
         }

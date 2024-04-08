@@ -155,7 +155,7 @@ void InitGround()
 
       //char* b=saved_ground_text[i];
       //printf("%s\n",b);
-      strncpy(Ground[i].text,saved_ground_text[i],512);
+      wcsncpy(Ground[i].text,saved_ground_text[i],512);
       //printf("\n%d ghost?%d",i,saved_ground_is_ghost[i]);
       if (saved_ground_is_ghost[i]) {
         Ground[i].is_ghost=TRUE;
@@ -338,11 +338,14 @@ void DrawGroundText(HDC hdc)
     if (Ground[i].type==2) { 
       if (!IsOutOfBounds(Ground[i].x1,Ground[i].y1,1,MAP_WIDTH,MAP_HEIGHT) &&
           !IsOutOfBounds(Ground[i].x2,Ground[i].y2,1,MAP_WIDTH,MAP_HEIGHT)) {
-	    GrPrint(hdc,
+	    GrPrintW(hdc,
             Ground[i].x1,
             Ground[i].y1,
             Ground[i].text,
-            Ground[i].color);
+            "",
+            Ground[i].color,
+            16,
+            FALSE);
       }
     }
   }

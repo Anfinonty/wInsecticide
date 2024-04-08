@@ -25,7 +25,7 @@ struct GroundLine
   double height_from_player_x;//= gradient * player_x + c
   double angle; // = ACos of (x/length)
 
-  char text[512]; //for type 1 which is Text_ground
+  wchar_t text[512]; //for type 1 which is Text_ground
 
 //  int already_in_grid_id[MAX_GRID_IN_GROUND];
 //  bool already_in_grid[MAX_GRID_IN_GROUND]; //MAX VGRID NUM

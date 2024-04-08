@@ -242,88 +242,14 @@ void GrCircle(HDC hdc, double x, double y, int size, int COLOR, int COLOR_2) {
   }
 
   Ellipse(hdc, left, top, right, bottom);
-
-
-  //HBRUSH hBrush,holdBrush;
-  //HPEN hPen,holdPen;
-
-  //hBrush=CreateSolidBrush(COLOR);
-  //holdBrush=(HBRUSH) SelectObject(hdc,hBrush);
-  //hPen=CreatePen(PS_NULL,1,COLOR);
-  //holdPen=SelectObject(hdc,hPen);
-  //HBRUSH holdBrush = SelectObject(hdc, GetStockObject(HOLLOW_BRUSH));  
-  //Ellipse(hdc, left, top, right, bottom);
-  //SelectObject(hdc, holdBrush);
-  //DeleteObject(hBrush);
-  //SelectObject(hdc, holdPen);
-  //DeleteObject(hPen);
 }
 
-void GrPrintKhmer(HDC hdc, double x1, double y1, wchar_t *_txt, int color) 
+void GrPrintW(HDC hdc, double x1, double y1, wchar_t *_txt, char *_atxt, int color, int _height, bool A) 
 {
-  //DWORD color;
-  //HFONT hFont, holdFont;
-  //color=GetSysColor(COLOR_BTNFACE);
-  //SetBkColor(hdc,color);
-  //holdFont=SelectObject(hdc,hFont);
-
-//https://nsis-dev.github.io/NSIS-Forums/html/t-365664.html
-//Khmer= 1780
-
-  //setlocale(LC_ALL,"");
-  LPCWSTR txt=_txt;
-  HFONT hf;
-  hf=CreateFontW(18, //Height
-                0, //cWidth
-                0, //cescapement
-                0, //corientation
-                FW_MEDIUM, //cweight
-                FALSE, //bitalic
-                FALSE, //bunderline
-                0, //bstrikeout
-                1780, //icharset //codepage
-                0, //ioutprecision
-                0,//iclip precision
-                0, //iqyaluty
-                0, //ipitchandfamily
-                L"Khmer OS System"); //pszfacename
-  HFONT hfOld = SelectObject(hdc,hf);
-  SelectObject(hdc,hf);
-
-  SetTextColor(hdc, color); //set color of the text to be drawn
-  SetBkMode(hdc, TRANSPARENT); //makes background of txt transparent  //https://stackoverflow.com/questions/10571966/  
-  
-  //TextOutA(hdc, x1, y1, txt_reverse, txt_len); //draw text to screen
-  TextOut(hdc, x1, y1, txt, wcslen(txt)); //draw text to screen
-  //ExtTextOut
-  //RECT rect;
-  //rect.left=x1;
-  //rect.right=y1;
-  //DrawText(hdc,txt,-1,&rect,DT_SINGLELINE|DT_NOCLIP);*/
-
-  //ExtTextOut(hdc,x1,y1,0,&rect,txt,0,NULL);
-  SelectObject(hdc,hfOld);
-  DeleteObject(hfOld);
-  DeleteObject(hf);
-  SetTextColor(hdc, TRANSPARENT);
-}
-
-void GrPrintArabic(HDC hdc, double x1, double y1, wchar_t *_txt, char *_atxt, int color,bool A) 
-{
-  //DWORD color;
-  //HFONT hFont, holdFont;
-  //color=GetSysColor(COLOR_BTNFACE);
-  //SetBkColor(hdc,color);
-  //holdFont=SelectObject(hdc,hFont);
-
-
   LPCWSTR txt=_txt;
   LPCSTR atxt=_atxt;
-  //sprintf(txt,"%ls",L"Hello");
-  //txt=L"يوم الأَرْبِعاء";
-  //LPCWSTR txt = L"Hello";//_txt; //convert text to lpcstr
   HFONT hf;
-  hf=CreateFontA(18, //Height
+  hf=CreateFontW(_height, //Height
                 0, //cWidth
                 0, //cescapement
                 0, //corientation
@@ -331,12 +257,12 @@ void GrPrintArabic(HDC hdc, double x1, double y1, wchar_t *_txt, char *_atxt, in
                 FALSE, //bitalic
                 FALSE, //bunderline
                 0, //bstrikeout
-                ARABIC_CHARSET, //icharset
+                0, //icharset
                 0, //ioutprecision
                 0,//iclip precision
                 0, //iqyaluty
                 0, //ipitchandfamily
-                0); //pszfacename
+                L"Unifont");  //pszfacename
   HFONT hfOld = SelectObject(hdc,hf);
   SelectObject(hdc,hf);
 

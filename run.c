@@ -563,8 +563,8 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4)
       swprintf(txt,32+256,L"%c%d/%d%c: %s",171,song_rand_num+1,song_num,187,song_names[song_rand_num]);
       //%c 187
 
-      GrPrintArabic(hdc,x,y,txt,"",c,FALSE);
-      GrPrintArabic(hdc,x+1,y+1,txt,"",c4,FALSE);
+      GrPrintW(hdc,x,y,txt,"",c,16,FALSE);
+      GrPrintW(hdc,x+1,y+1,txt,"",c4,16,FALSE);
 
       
 
@@ -604,10 +604,7 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4)
   //for (int i=134;i<134+128;i++)
     //sprintf(epic,"%s %c",epic,i);
   //sprintf(epic,"%c",143);
-  //GrPrintArabic(hdc,x,y,epic,c4);
-
-  //GrPrintKhmer(hdc,x,y,TEXT("សួស្តី​ពិភពលោក"),c4);
-  //GrPrintKhmer(hdc,x,y,L"こんにちは",c4);
+  //GrPrintW(hdc,x,y,epic,c4);
 }
 
 
@@ -726,19 +723,19 @@ lunar_month,
 lunar_year
 );
 
-  GrPrintArabic(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y-64,time_row1,"",WHITE,FALSE);
-  GrPrintArabic(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y-32,L"",s_hijri_row1,WHITE,TRUE);
-  GrPrintArabic(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y-16,s_hijri_row2,"",WHITE,FALSE);
-  GrPrintArabic(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y+16,L"",l_hijri_row1,WHITE,TRUE);
-  GrPrintArabic(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y+32,l_hijri_row2,"",WHITE,FALSE);
+  GrPrintW(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y-64,time_row1,"",WHITE,16,FALSE);
+  GrPrintW(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y-32,L"",s_hijri_row1,WHITE,16,TRUE);
+  GrPrintW(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y-16,s_hijri_row2,"",WHITE,16,FALSE);
+  GrPrintW(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y+16,L"",l_hijri_row1,WHITE,16,TRUE);
+  GrPrintW(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y+32,l_hijri_row2,"",WHITE,16,FALSE);
 
 
   GrPrint(hdc,30,10,"Welcome to the wInsecticide Menu!",WHITE);
   char C[1];
   sprintf(C,"%c",134);
-  GrPrintArabic(hdc,GR_WIDTH-8*18,8*23+10,L"",C,WHITE,TRUE);
-  GrPrintArabic(hdc,GR_WIDTH-8*18-8*2,8*23+12,L"",C,WHITE,TRUE);
-  GrPrintArabic(hdc,GR_WIDTH-8*18+8*2,8*23+12,L"",C,WHITE,TRUE);
+  GrPrintW(hdc,GR_WIDTH-8*18,8*23+10,L"",C,WHITE,16,TRUE);
+  GrPrintW(hdc,GR_WIDTH-8*18-8*2,8*23+12,L"",C,WHITE,16,TRUE);
+  GrPrintW(hdc,GR_WIDTH-8*18+8*2,8*23+12,L"",C,WHITE,16,TRUE);
   
 
   GrLine(hdc,GR_WIDTH-8*17-4,8*25+10,GR_WIDTH-8*17-4-8*8,8*25+12,WHITE);
