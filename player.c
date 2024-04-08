@@ -494,50 +494,61 @@ void PlayerAct() {
         player.grav=3;
       }
     } else if (player.right_click_hold_timer==62) {
-      player.attack=TRUE;
-      player.blocking=FALSE; //unblock
-      if (player.is_swinging) { //fling
-        player.is_swinging=FALSE;
-        player.in_air_timer=1000;
-        player.grav=3;
-        player.fling_distance+=player.pivot_length*2;
-        player.key_jump_timer=player.player_jump_height;
+      if (player.pivot_length>NODE_SIZE*5) {
+        player.attack=TRUE;
+        player.blocking=FALSE; //unblock
+        if (player.is_swinging) { //fling
+          player.is_swinging=FALSE;
+          player.in_air_timer=1000;
+          player.grav=3;
+          player.fling_distance+=player.pivot_length*2;
+          player.key_jump_timer=player.player_jump_height;
 
     //player place web after swing
-        double bm_x1=0,bm_y1=0,bm_x2=0,bm_y2=0;
-        if (player.x<player.pivot_x) {
-          bm_x2=player.pivot_x;
-          bm_y2=player.pivot_y;
-          bm_x1=player.x;
-          bm_y1=player.y;	
-        } else {
-          bm_x1=player.pivot_x;
-          bm_y1=player.pivot_y;
-          bm_x2=player.x;
-          bm_y2=player.y;
-        }
-        if (player.placed_web_pos<player.max_web_num) { //if pointer to web is less than the no. of webs player has currently     
-          //if (player.max_web_num-player.placed_web_num>0) {
-            while (player.web_storage[player.placed_web_pos]==-1) { //find player.web_storage that is not empty
-              player.placed_web_pos=LimitValue(player.placed_web_pos+1,0,player.max_web_num); //reset back to 0 if over the max
-            }
+          double bm_x1=0,bm_y1=0,bm_x2=0,bm_y2=0;
+          if (player.x<player.pivot_x) {
+            bm_x2=player.pivot_x;
+            bm_y2=player.pivot_y;
+            bm_x1=player.x;
+            bm_y1=player.y;	
+          } else {
+            bm_x1=player.pivot_x;
+            bm_y1=player.pivot_y;
+            bm_x2=player.x;
+            bm_y2=player.y;
+          }
+          if (player.placed_web_pos<player.max_web_num) { //if pointer to web is less than the no. of webs player has currently     
+            //if (player.max_web_num-player.placed_web_num>0) {
+              while (player.web_storage[player.placed_web_pos]==-1) { //find player.web_storage that is not empty
+                player.placed_web_pos=LimitValue(player.placed_web_pos+1,0,player.max_web_num); //reset back to 0 if over the max
+              }
           /*} else {
             player.placed_web_pos=LimitValue(player.placed_web_pos+1,0,player.max_web_num); //reset back to 0 if over the max
           }*/
-          int web_id=player.web_storage[player.placed_web_pos];
-          if (web_id!=-1) {
-            player.previous_web_placed=web_id;
-            Ground[web_id].x1=bm_x1;
-            Ground[web_id].y1=bm_y1;
-            Ground[web_id].x2=bm_x2;
-            Ground[web_id].y2=bm_y2;
-            SetGround(web_id);
-            SetNodeGridAttributes(web_id);
+            int web_id=player.web_storage[player.placed_web_pos];
+            if (web_id!=-1) {
+              player.previous_web_placed=web_id;
+              Ground[web_id].x1=bm_x1;
+              Ground[web_id].y1=bm_y1;
+              Ground[web_id].x2=bm_x2;
+              Ground[web_id].y2=bm_y2;
+              SetGround(web_id);
+              SetNodeGridAttributes(web_id);
             //double q=0.2*(((DEFAULT_PLAYER_BUILD_RANGE/2*NODE_SIZE)-Bullet[bullet_id].range)/10);
-            PlayerPlaceWeb();
-            Ground[web_id].health=25;//-q;
-            player.speed++;
+              PlayerPlaceWeb();
+              Ground[web_id].health=25;//-q;
+              player.speed++;
+            }
           }
+        }
+      } else {
+        if (player.is_swinging) {
+          player.is_swinging=FALSE;
+          player.fling_distance+=player.pivot_length*2;
+          player.key_jump_timer=player.player_jump_height;
+          player.speed++;
+          player.in_air_timer=1000;
+          player.grav=3;
         }
       }
     }
