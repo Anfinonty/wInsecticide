@@ -69,10 +69,10 @@ void move_y(double y)
 
 void InitRDGrid()
 {
-  RDGrid.x1=player.x-(GR_WIDTH/2);//top left corner x
-  RDGrid.y1=player.y-(GR_HEIGHT/2);//top left corner y
-  RDGrid.x2=player.x+(GR_WIDTH/2);//down right corner x
-  RDGrid.y2=player.y+(GR_HEIGHT/2);//down right cornder y
+  RDGrid.x1=player.x-(GR_WIDTH/2)-2*GRID_SIZE;//top left corner x
+  RDGrid.y1=player.y-(GR_HEIGHT/2)-2*GRID_SIZE;//top left corner y
+  RDGrid.x2=player.x+(GR_WIDTH/2)+2*GRID_SIZE;//down right corner x
+  RDGrid.y2=player.y+(GR_HEIGHT/2)+2*GRID_SIZE;//down right cornder y
   for (int i=0;i<player.rendered_enemy_num;i++) {
     player_render_enemies[i]=-1;
   }

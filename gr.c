@@ -244,12 +244,20 @@ void GrCircle(HDC hdc, double x, double y, int size, int COLOR, int COLOR_2) {
   Ellipse(hdc, left, top, right, bottom);
 }
 
-void GrPrintW(HDC hdc, double x1, double y1, wchar_t *_txt, char *_atxt, int color, int _height, bool A) 
+
+/*int CALLBACK EnumFontFunc(const lplogfont,const lptextmetric, DWORD dword, LPARAM lparam) {
+  return 1;
+}*/
+
+
+void GrPrintW(HDC hdc, double x1, double y1, wchar_t *_txt, char *_atxt, int color, int _height, bool A,bool is_unifont) 
 {
   LPCWSTR txt=_txt;
   LPCSTR atxt=_atxt;
   HFONT hf;
-  hf=CreateFontW(_height, //Height
+
+  if (is_unifont) {
+    hf=CreateFontW(_height, //Height
                 0, //cWidth
                 0, //cescapement
                 0, //corientation
@@ -263,6 +271,23 @@ void GrPrintW(HDC hdc, double x1, double y1, wchar_t *_txt, char *_atxt, int col
                 0, //iqyaluty
                 0, //ipitchandfamily
                 L"Unifont");  //pszfacename
+  } else {
+    hf=CreateFontA(_height, //Height
+                0, //cWidth
+                0, //cescapement
+                0, //corientation
+                FW_MEDIUM, //cweight
+                FALSE, //bitalic
+                FALSE, //bunderline
+                0, //bstrikeout
+                0, //icharset
+                0, //ioutprecision
+                0,//iclip precision
+                0, //iqyaluty
+                0, //ipitchandfamily
+                0);  //pszfacename
+  }
+
   HFONT hfOld = SelectObject(hdc,hf);
   SelectObject(hdc,hf);
 

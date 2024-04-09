@@ -345,7 +345,8 @@ void DrawGroundText(HDC hdc)
             "",
             Ground[i].color,
             16,
-            FALSE);
+            FALSE,
+            yes_unifont);
       }
     }
   }

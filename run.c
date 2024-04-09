@@ -112,6 +112,7 @@ double double_best_score=0;
 char save_level[40];
 int player_color=0;
 double time_begin=0;
+bool yes_unifont=FALSE;
 HBITMAP map_platforms_timebreaker_sprite;
 
 
@@ -563,8 +564,8 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4)
       swprintf(txt,32+256,L"%c%d/%d%c: %s",171,song_rand_num+1,song_num,187,song_names[song_rand_num]);
       //%c 187
 
-      GrPrintW(hdc,x,y,txt,"",c,16,FALSE);
-      GrPrintW(hdc,x+1,y+1,txt,"",c4,16,FALSE);
+      GrPrintW(hdc,x,y,txt,"",c,16,FALSE,yes_unifont);
+      GrPrintW(hdc,x+1,y+1,txt,"",c4,16,FALSE,yes_unifont);
 
       
 
@@ -723,23 +724,24 @@ lunar_month,
 lunar_year
 );
 
-  GrPrintW(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y-64,time_row1,"",WHITE,16,FALSE);
-  GrPrintW(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y-32,L"",s_hijri_row1,WHITE,16,TRUE);
-  GrPrintW(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y-16,s_hijri_row2,"",WHITE,16,FALSE);
-  GrPrintW(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y+16,L"",l_hijri_row1,WHITE,16,TRUE);
-  GrPrintW(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y+32,l_hijri_row2,"",WHITE,16,FALSE);
+  GrPrintW(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y-64,time_row1,"",WHITE,16,FALSE,yes_unifont);
+  GrPrintW(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y-32,L"",s_hijri_row1,WHITE,16,TRUE,yes_unifont);
+  GrPrintW(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y-16,s_hijri_row2,"",WHITE,16,FALSE,yes_unifont);
+  GrPrintW(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y+16,L"",l_hijri_row1,WHITE,16,TRUE,yes_unifont);
+  GrPrintW(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y+32,l_hijri_row2,"",WHITE,16,FALSE,yes_unifont);
 
 
   GrPrint(hdc,30,10,"Welcome to the wInsecticide Menu!",WHITE);
   char C[1];
   sprintf(C,"%c",134);
-  GrPrintW(hdc,GR_WIDTH-8*18,8*23+10,L"",C,WHITE,16,TRUE);
-  GrPrintW(hdc,GR_WIDTH-8*18-8*2,8*23+12,L"",C,WHITE,16,TRUE);
-  GrPrintW(hdc,GR_WIDTH-8*18+8*2,8*23+12,L"",C,WHITE,16,TRUE);
+  GrPrintW(hdc,GR_WIDTH-8*18,8*23+10,L"",C,WHITE,16,TRUE,FALSE);
+  GrPrintW(hdc,GR_WIDTH-8*18-8*2,8*23+12,L"",C,WHITE,16,TRUE,FALSE);
+  GrPrintW(hdc,GR_WIDTH-8*18+8*2,8*23+12,L"",C,WHITE,16,TRUE,FALSE);
   
 
   GrLine(hdc,GR_WIDTH-8*17-4,8*25+10,GR_WIDTH-8*17-4-8*8,8*25+12,WHITE);
   GrLine(hdc,GR_WIDTH-8*17-4,8*25+10,GR_WIDTH-8*17-4+8*8,8*25+12,WHITE);
+  GrPrintW(hdc,30,10+32+16*13,L"Press [SHIFT] + 'L' to Toggle Multilanguage (Unifont) Font [ពេលរាត្រី]","",WHITE,16,FALSE,yes_unifont);
 
   GrPrint(hdc,30,10+32,"-  Level 0",WHITE);
   GrPrint(hdc,30,10+32+16,"-  Level 1",WHITE);
@@ -756,19 +758,19 @@ lunar_year
   GrPrint(hdc,30,10+32+16*12,"Press [SHIFT] + 'M' to Change Music Mode",WHITE);
 
   GrPrint(hdc,30,10+32+16*level_chosen,">",WHITE);
-  DrawPlayingMusic(hdc,30,10+32+16*14,BLACK,WHITE);
+  DrawPlayingMusic(hdc,30,10+32+16*15,BLACK,WHITE);
 
 
-  GrPrint(hdc,30,10+32+16*17,"Player Color: <    >",WHITE);
-  GrPrint(hdc,30,10+32+16*18,"Press [LEFT] or [RIGHT] to Select Player Colour",WHITE);
+  GrPrint(hdc,30,10+32+16*18,"Player Color: <    >",WHITE);
+  GrPrint(hdc,30,10+32+16*19,"Press [LEFT] or [RIGHT] to Select Player Colour",WHITE);
 
   if (player_color!=0) {
-    GrRect(hdc,30+8*12,10+32+16*17,16,16,BLACK);
+    GrRect(hdc,30+8*12,10+32+16*18,16,16,BLACK);
   } else {
-    GrRect(hdc,30+8*12,10+32+16*17,16,16,WHITE);
+    GrRect(hdc,30+8*12,10+32+16*18,16,16,WHITE);
   }
   if (player_color>-1 && player_color<COLORS_NUM) {
-    GrRect(hdc,30+8*12+2,10+32+16*17+2,12,12,draw_color_arr[player_color]);
+    GrRect(hdc,30+8*12+2,10+32+16*18+2,12,12,draw_color_arr[player_color]);
   }
 }
 
@@ -1270,6 +1272,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
           }
 	      break;
+
+        case 'L':
+          if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+            if (yes_unifont) {
+              yes_unifont=FALSE;
+            } else {
+              yes_unifont=TRUE;
+            }
+          }
+          break;
       }
       break;
     case WM_ERASEBKGND:
