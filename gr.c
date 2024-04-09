@@ -272,7 +272,7 @@ void GrPrintW(HDC hdc, double x1, double y1, wchar_t *_txt, char *_atxt, int col
                 0, //ipitchandfamily
                 L"Unifont");  //pszfacename
   } else {
-    hf=CreateFontA(_height, //Height
+    hf=CreateFontW(_height, //Height
                 0, //cWidth
                 0, //cescapement
                 0, //corientation
@@ -285,7 +285,7 @@ void GrPrintW(HDC hdc, double x1, double y1, wchar_t *_txt, char *_atxt, int col
                 0,//iclip precision
                 0, //iqyaluty
                 0, //ipitchandfamily
-                0);  //pszfacename
+                L"Arial");  //pszfacename
   }
 
   HFONT hfOld = SelectObject(hdc,hf);
