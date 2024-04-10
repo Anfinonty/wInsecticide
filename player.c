@@ -713,14 +713,22 @@ void PlayerAct() {
             if (abs(Ground[player.on_ground_id].gradient)<=1) { //nonsteep slope
               if (Ground[player.on_ground_id].gradient>0) {
                 player.angle_of_reflection=-player.angle-player.angle_of_incidence;
+                if (player.is_rebounding) 
+                  player.last_left=FALSE;
               } else {
                 player.angle_of_reflection=-player.angle+M_PI+player.angle_of_incidence;
+                if (player.is_rebounding) 
+                  player.last_left=TRUE;
               }
             } else { //steep slope
               if (Ground[player.on_ground_id].gradient>0) {
                 player.angle_of_reflection=-player.angle+player.angle_of_incidence;
+                if (player.is_rebounding) 
+                  player.last_left=FALSE;
               } else {
                 player.angle_of_reflection=-player.angle+M_PI-player.angle_of_incidence;
+                if (player.is_rebounding) 
+                  player.last_left=TRUE;
               }
             }
 
@@ -738,8 +746,12 @@ void PlayerAct() {
  
            //bouncing below the surface the steepness doesnt matter
             if (Ground[player.on_ground_id].gradient>0) {
+                if (player.is_rebounding) 
+                  player.last_left=TRUE;
               player.angle_of_reflection=(player.angle+M_PI+player.angle_of_incidence)+M_PI_4;
             } else {
+                if (player.is_rebounding) 
+                  player.last_left=FALSE;
               player.angle_of_reflection=(player.angle-player.angle_of_incidence)-M_PI_4;
             }
           }
@@ -1083,9 +1095,11 @@ void PlayerAct() {
           if (!player.fling_left) {
             move_x(-cos(player.launch_angle));
             move_y(-sin(player.launch_angle));
+            player.last_left=FALSE;
           } else { //fling left
             move_x(cos(player.launch_angle));
             move_y(sin(player.launch_angle));
+            player.last_left=TRUE;
           }
           player.fling_distance--;
           if (player.fling_distance==1) {
