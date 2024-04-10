@@ -471,8 +471,8 @@ void PlayerAct() {
 	10+player.speed, //speed multiplier
 	1, //damage
 	-1,
-	player.above_x2, //so it doest get stuck to ground
-	player.above_y2,
+	player.x,//player.above_x2, //so it doest get stuck to ground
+	player.y,//player.above_y2,
 	grad_x1,
 	grad_y1,
 	grad_x2,

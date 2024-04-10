@@ -319,7 +319,11 @@ void BulletAct(int bullet_id)
 
 
   } else {//player bullet while travelling
-    bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,NODE_SIZE,NODE_SIZE,FALSE);
+    if (Bullet[bullet_id].range<DEFAULT_PLAYER_BUILD_RANGE+player.speed*2-1) {
+      bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,NODE_SIZE,NODE_SIZE,FALSE);
+    } else {
+      bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2,FALSE);
+    }
     allow_act=FALSE;
 	if (bullet_on_ground_id!=-1/* && bullet_on_ground_id!=web_id*/) {//not hit self but another platform
 	  allow_act=TRUE;
