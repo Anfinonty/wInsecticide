@@ -611,7 +611,7 @@ void EnemyAct(int i)
           } else {
             Enemy[i].knockback_left=FALSE;
           }
-          Enemy[i].health-=1;
+          //Enemy[i].health-=player.attack_strength;
 
           StopBullet(player.bullet_shot,TRUE); //Stop the web
           PlayerPlaceWeb(); //Web related
@@ -703,7 +703,22 @@ void EnemyAct(int i)
       }
 
       if (player.on_ground_id==-1 && player.block_timer>1) {
+        /*if (!player.is_flinging) {
+          Enemy[i].knockback_angle=player.angle_of_incidence;//player.angle;
+        } else {
+          Enemy[i].knockback_angle=player.angle_of_reflection;//player.angle;
+        }*/
+
         Enemy[i].knockback_angle=player.angle;
+        /*if (player.is_swinging) {
+          if (player.fling_left) {
+            Enemy[i].knockback_angle=-player.launch_angle;
+          } else {
+            Enemy[i].knockback_angle=player.launch_angle;
+          }
+        }*/
+
+
         Enemy[i].knockback_timer=player.knockback_strength*2;
         deduct_health=FALSE;
         if ((player.block_timer<30 && player.block_timer>28) || (player.block_timer>3 && player.block_timer<6)) {

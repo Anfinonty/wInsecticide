@@ -396,10 +396,18 @@ void PlayerAct() {
 
   //========Player attacking timer==============
   if (player.attack_timer>=0) {
-    if (player.grav>10 || player.speed>5) {
-      player.attack_strength=2;
+    if (player.speed>10) {
+      player.attack_strength=4;
     } else {
-      player.attack_strength=DEFAULT_PLAYER_ATTACK_STRENGTH;
+      if (player.speed>5) {
+        player.attack_strength=2;
+      } else {
+        player.attack_strength=DEFAULT_PLAYER_ATTACK_STRENGTH;
+      }
+    }
+
+    if (player.grav>10 || player.speed>24) {
+      player.attack_strength*=2;
     }
     player.attack_timer--;
   }
@@ -880,7 +888,8 @@ void PlayerAct() {
         }
       }
       if (player.y<0) { //Y axis cap
-        move_y(player.player_grav);
+        move_y(1);
+        //move_y(player.player_grav);
         player.in_air_timer++;
       } else if (player.y+PLAYER_HEIGHT/2>MAP_HEIGHT) {
         move_y(-player.player_grav);
