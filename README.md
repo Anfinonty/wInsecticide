@@ -2,6 +2,8 @@
 
 https://github.com/Anfinonty/wInsecticide/assets/97777854/f0a307c0-9a97-4300-a7fc-fe7dd08185b8
 
+https://github.com/Anfinonty/wInsecticide/assets/97777854/d0391953-80aa-44fc-b00c-75cd26e348df
+
 
 
 Game made with Win32API and C
