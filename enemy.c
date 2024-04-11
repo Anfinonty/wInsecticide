@@ -713,10 +713,18 @@ void EnemyAct(int i)
           Enemy[i].knockback_angle=player.angle;
         } else {
           if (player.is_rebounding) {
-            if (player.last_left) {
-              Enemy[i].knockback_angle=-player.angle_of_reflection-M_PI_2;
+            if (!player.rebound_below) {
+              if (player.last_left) {
+                Enemy[i].knockback_angle=-player.angle_of_reflection-M_PI_2;
+              } else {
+                Enemy[i].knockback_angle=player.angle_of_reflection;
+              }
             } else {
-              Enemy[i].knockback_angle=player.angle_of_reflection;
+              if (player.last_left) {
+                Enemy[i].knockback_angle=player.angle_of_reflection;
+              } else {
+                Enemy[i].knockback_angle=-player.angle_of_reflection-M_PI;
+              }
             }
           } else {
             if (player.last_left) {
