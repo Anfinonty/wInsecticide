@@ -249,7 +249,6 @@ void GrCircle(HDC hdc, double x, double y, int size, int COLOR, int COLOR_2) {
   return 1;
 }*/
 
-
 void GrPrintW(HDC hdc, double x1, double y1, wchar_t *_txt, char *_atxt, int color, int _height, bool A,bool is_unifont) 
 {
   LPCWSTR txt=_txt;

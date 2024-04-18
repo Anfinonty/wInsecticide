@@ -89,7 +89,46 @@ int map_background;
 int custom_map_background_color;
 bool is_inverted;
 
-void LoadSave(char *saves_name)
+int level_num=0;
+wchar_t level_names[2000][256];
+
+
+/*
+saves
+|__LevelName (folder) <--- store level name
+|__LevelName (folder)
+|__LevelName (folder)
+|__LevelName (folder)
+|__LevelName (folder)
+    |__level.txt
+    |__scores
+    |__song
+    |__images
+*/
+void GetSavesInDir(const wchar_t *dirname)
+{
+  _WDIR *d;
+  struct _wdirent *dir; //https://castor-project.org/doc/castor3_0/struct__wdirent.html
+  d = _wopendir(dirname);//
+  if (d) {
+    while ((dir=_wreaddir(d))!=NULL) {
+      wchar_t indir[256];
+      swprintf(indir,256,L"%s/%s",dirname,dir->d_name);
+      if (PathIsDirectory(indir) && wcscmp(dir->d_name,L".")!=0 && wcscmp(dir->d_name,L"..")!=0) { //folder, check for songs in folder
+        wcsncpy(level_names[level_num],dir->d_name,256);
+        level_num++;
+        if (level_num>=2000) {
+          break;
+        }
+      }
+    }
+    _wclosedir(d);
+  }
+}
+
+
+
+void LoadSave(wchar_t *saves_name)
 {
   int row=0;
   int column=0;
@@ -107,7 +146,7 @@ void LoadSave(char *saves_name)
   bool is_calc_utf16=FALSE;
 
   FILE *fptr;
-  fptr = fopen(saves_name,"r");
+  fptr = _wfopen(saves_name,L"r");
   int c; //each character
 
   //init

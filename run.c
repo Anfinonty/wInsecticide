@@ -30,18 +30,18 @@
 
 #define COLORS_NUM  16
 #define BLACK       RGB(0,0,0)
-#define BLUE        RGB(0,0,255)
-#define GREEN    	RGB(0,128,0)
-#define CYAN        RGB(0,128,128)
-#define RED         RGB(255,0,0)
-#define PURPLE      RGB(128,0,128)
-#define BROWN       RGB(150,75,0)
-#define LTGRAY      RGB(211,211,211)
-#define DKGRAY      RGB(169,169,169)
-#define LTBLUE      RGB(0,85,255)
+#define BLUE        RGB(0,0,170)
+#define GREEN    	RGB(0,170,0)
+#define CYAN        RGB(0,170,170)
+#define RED         RGB(170,0,0)
+#define PURPLE      RGB(170,0,170)
+#define BROWN       RGB(170,85,0)
+#define LTGRAY      RGB(170,170,170)
+#define DKGRAY      RGB(85,85,85)
+#define LTBLUE      RGB(0,0,255)
 #define LTGREEN     RGB(0,255,0)
 #define LTCYAN      RGB(0,255,255)
-#define LTRED       RGB(255,71,76)
+#define LTRED       RGB(255,0,0)
 #define LTPURPLE    RGB(255,0,255)
 #define YELLOW      RGB(255,255,0)
 #define WHITE       RGB(255,255,255)
@@ -109,7 +109,7 @@ double moon_angle_shift=0;
 int frame_tick=-10;
 int int_best_score=0;
 double double_best_score=0;
-char save_level[40];
+wchar_t save_level[128];
 int player_color=0;
 double time_begin=0;
 bool yes_unifont=FALSE;
@@ -318,31 +318,32 @@ void Init() {
 
   //Load Best Score
   //Folder & file creation
-  DIR* dir = opendir("score_saves");
-  if (dir) {//Check for scoresaves folder
-    FILE *fptr;
-    if (access(save_level, F_OK)==0) { //if file exists
-      //do nothing
-    } else if (ENOENT==errno) { //if file doesnt exist
-      fptr = fopen(save_level,"a");
-      fprintf(fptr,"2147483646\n");
-      fclose(fptr);
-    }
-  } else if (ENOENT==errno) {//if it doesn't exist create one
-    mkdir("score_saves");
-    //Create bestscore=9999
-    FILE *fptr;
-    fptr = fopen(save_level,"a");
+  //DIR* dir = opendir("score_saves");
+  //if (dir) {//Check for scoresaves folder
+  //printf("%s",save_level);
+  FILE *fptr;
+  if (_waccess(save_level, F_OK)==0) { //if file exists
+  //do nothing
+  } else if (ENOENT==errno) { //if file doesnt exist
+    fptr = _wfopen(save_level,L"a");
     fprintf(fptr,"2147483646\n");
     fclose(fptr);
   }
+  //} else if (ENOENT==errno) {//if it doesn't exist create one
+    //mkdir("score_saves");
+    //Create bestscore=9999
+    //FILE *fptr;
+    //fptr = _wfopen(save_level,L"a");
+    //fprintf(fptr,"2147483646\n");
+    //fclose(fptr);
+  //}
 
 
   int_best_score=0;
   FILE *fr; //Begin setting best score
   int c;
   int current_int;
-  fr = fopen(save_level,"r"); //check if scoresave data of levelname
+  fr = _wfopen(save_level,L"r"); //check if scoresave data of levelname
   while ((c=fgetc(fr))!=EOF) {
     if (c>='0' && c<='9') {
       current_int=c-'0';
@@ -447,11 +448,10 @@ void InitPlatformsSprite(HWND hwnd, HDC hdc)
 
 void InitLevel(HWND hwnd, HDC hdc)
 {
-  char txt[32];
-  int chosen_level=level_chosen;
-  int chosen_level2=level_chosen;
-  sprintf(txt,"saves/_Level00%d.txt",chosen_level);
-  sprintf(save_level,"score_saves/_Level00%d.txt",chosen_level2);
+  wchar_t txt[128];
+  swprintf(txt,128,L"saves/%s/level.txt",level_names[level_chosen]);
+  swprintf(save_level,128,L"saves/%s/scores.txt",level_names[level_chosen]);
+
   LoadSave(txt);
 
   srand(time(NULL));
@@ -627,7 +627,7 @@ void DrawMainMenu(HDC hdc)
   //Moon Pos
   int mcalendar_l=64;
   int mcalendar_x=GR_WIDTH-mcalendar_l*2;
-  int mcalendar_y=GR_HEIGHT-mcalendar_l*2;
+  int mcalendar_y=GR_HEIGHT-mcalendar_l*2-32;
   double moon_angle=0; 
   //Space Clock
   //Draw blue marbel
@@ -731,7 +731,6 @@ lunar_year
   GrPrintW(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y+32,l_hijri_row2,"",WHITE,16,FALSE,yes_unifont);
 
 
-  GrPrint(hdc,30,10,"Welcome to the wInsecticide Menu!",WHITE);
   char C[1];
   sprintf(C,"%c",134);
   GrPrintW(hdc,GR_WIDTH-8*18,8*23+10,L"",C,WHITE,16,TRUE,FALSE);
@@ -741,37 +740,47 @@ lunar_year
 
   GrLine(hdc,GR_WIDTH-8*17-4,8*25+10,GR_WIDTH-8*17-4-8*8,8*25+12,WHITE);
   GrLine(hdc,GR_WIDTH-8*17-4,8*25+10,GR_WIDTH-8*17-4+8*8,8*25+12,WHITE);
-  GrPrintW(hdc,30,10+32+16*13,L"Press [SHIFT] + 'L' to Toggle Multilanguage (Unifont) Font [ពេលរាត្រី]","",WHITE,16,FALSE,yes_unifont);
-
-  GrPrint(hdc,30,10+32,"-  Level 0",WHITE);
-  GrPrint(hdc,30,10+32+16,"-  Level 1",WHITE);
-  GrPrint(hdc,30,10+32+16*2,"-  Level 2",WHITE);
-  GrPrint(hdc,30,10+32+16*3,"-  Level 3",WHITE);
-  GrPrint(hdc,30,10+32+16*4,"-  Level 4",WHITE);
-  GrPrint(hdc,30,10+32+16*5,"-  Level 5",WHITE);
-  GrPrint(hdc,30,10+32+16*6,"-  Level 6",WHITE);
-  GrPrint(hdc,30,10+32+16*7,"-  Level 7",WHITE);
-
-  GrPrint(hdc,30,10+32+16*9,"Press 'Enter' to Play Selected Level",WHITE);
-  GrPrint(hdc,30,10+32+16*10,"Use Up or Down Keys to Select a Level",WHITE);
-  GrPrint(hdc,30,10+32+16*11,"Press [SHIFT_ESC] to Exit",WHITE);
-  GrPrint(hdc,30,10+32+16*12,"Press [SHIFT] + 'M' to Change Music Mode",WHITE);
-
-  GrPrint(hdc,30,10+32+16*level_chosen,">",WHITE);
-  DrawPlayingMusic(hdc,30,10+32+16*15,BLACK,WHITE);
 
 
-  GrPrint(hdc,30,10+32+16*18,"Player Color: <    >",WHITE);
-  GrPrint(hdc,30,10+32+16*19,"Press [LEFT] or [RIGHT] to Select Player Colour",WHITE);
+  GrPrintW(hdc,30,10,L"អាពីងសុីរុយ - Welcome to the wInsecticide Menu!","",WHITE,16,FALSE,yes_unifont);
+  GrPrint(hdc,30,10+16*2,"[SHIFT_ESC]: Exit",WHITE);
+  //GrPrint(hdc,30,10+32+16*12,"Press [SHIFT] + 'M' to Change Music Mode",WHITE);
+  GrPrintW(hdc,30,10+16*3,L"[SHIFT] + 'L': Unifont [ពេលរាត្រី]","",WHITE,16,FALSE,yes_unifont);
+  GrPrint(hdc,30,10+16*4,"Player Color: [LEFT] <    > [RIGHT]",WHITE);
 
   if (player_color!=0) {
-    GrRect(hdc,30+8*12,10+32+16*18,16,16,BLACK);
+    GrRect(hdc,30+8*18-2,10+32+16*2,16,16,BLACK);
   } else {
-    GrRect(hdc,30+8*12,10+32+16*18,16,16,WHITE);
+    GrRect(hdc,30+8*18-2,10+32+16*2,16,16,WHITE);
   }
   if (player_color>-1 && player_color<COLORS_NUM) {
-    GrRect(hdc,30+8*12+2,10+32+16*18+2,12,12,draw_color_arr[player_color]);
+    GrRect(hdc,30+8*18,10+32+16*2+2,12,12,draw_color_arr[player_color]);
   }
+
+  int max_lvl_rows=10;
+  char page_num[32];
+  sprintf(page_num,"[%d/%d]",(level_chosen/max_lvl_rows)+1,(level_num/max_lvl_rows)+1);
+  GrPrint(hdc,30,10+32+16*15,page_num,WHITE);
+
+  DrawPlayingMusic(hdc,30,10+32+16*17,BLACK,WHITE);
+
+  int lvls_y=10+16*6;
+  int lvl_i=0;
+
+  for (int i=0;i<max_lvl_rows;i++) { //Print Levels
+     lvl_i=i+10*(level_chosen/max_lvl_rows);
+     if (lvl_i<level_num) {
+       GrPrint(hdc,30,lvls_y+16*i,"-_________",WHITE);
+       GrPrintW(hdc,30+8*11,lvls_y+16*i,level_names[lvl_i],"",WHITE,16,FALSE,yes_unifont);
+     }
+  }
+
+  //Draw Level Selector
+  GrPrint(hdc,30,lvls_y+16*(level_chosen%max_lvl_rows),"   [ENTER]",WHITE);
+  GrPrint(hdc,30+68,2+lvls_y+16*(level_chosen%max_lvl_rows),"   *",WHITE);
+  GrPrint(hdc,30,lvls_y+16*(level_chosen%max_lvl_rows)-16,"        /\\",WHITE);
+  GrPrint(hdc,30,lvls_y+16*(level_chosen%max_lvl_rows)+16,"        \\/",WHITE);
+
 }
 
 
@@ -1060,7 +1069,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               player.rst_down=TRUE;
             } else {
               level_chosen++;
-              if (level_chosen>7) {
+              if (level_chosen>level_num-1) {
                 level_chosen=0;
               }
             }
@@ -1091,7 +1100,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           } else {
             level_chosen--;
             if (level_chosen<0) {
-              level_chosen=7;
+              level_chosen=level_num-1;
             }
           }
           break;
@@ -1102,7 +1111,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             Init();
           } else {//Run Level
             if (player_color>-1 && player_color<COLORS_NUM) {
-              if (level_chosen>=0 && level_chosen<=7)
+              if (level_chosen>=0 && level_chosen<level_num)
                 InitLevel(hwnd, hdc);
             }
           }
@@ -1292,15 +1301,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
     case WM_PAINT: //https://cplusplus.com/forum/beginner/269434/
-      FrameRateSleep(FPS); // (Uncapped)
+      FrameRateSleep(FPS); // (Uncapped) //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
       if (!IsIconic(hwnd)) //no action when minimized, prevents crash https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-isiconic?redirectedfrom=MSDN
       {
         HBITMAP screen;
         PAINTSTRUCT ps;
         hdc=BeginPaint(hwnd, &ps);
-       //FrameRateSleep(35); //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
-
-
         RECT rect;
         if(GetWindowRect(hwnd, &rect))
         {
@@ -1353,13 +1359,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           } else {
             if (!game_over) {
               if (game_timer<int_best_score) { //New high score
-                DIR* dir;
+                /*DIR* dir;
                 dir=opendir("score_saves");
                 if (ENOENT==errno) {
                   mkdir("score_saves");
-                }
+                }*/
                 FILE *fptr;
-                fptr = fopen(save_level,"w");
+                fptr = _wfopen(save_level,L"w");
                 char txt[12];
                 int tmp_game_timer=game_timer;
                 sprintf(txt,"%d\n",tmp_game_timer);
@@ -1370,18 +1376,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
           }
 
-          if (!player.time_breaker) {
+          if (!player.time_breaker) { //camera shake by default
             PlayerCameraShake();
-          } else {
+          } else { //don't move camera when time breaking'
             player.cam_move_x=0;
             player.cam_move_y=0;
           }
-          for (int i=0;i<player.rendered_enemy_num;i++) {
+
+          for (int i=0;i<player.rendered_enemy_num;i++) { //Enemy has random seed value
             Enemy[player_render_enemies[i]].seed=rand();
           }
 
 
-          if (player.health<=0) {
+          if (player.health<=0) { // restart level when player health hits 0
             Init();
           }
 
@@ -1398,13 +1405,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           DrawCursor(hdcBackbuff);
           DrawUI(hdcBackbuff);
 
-          if (!IsInvertedBackground()){
+          if (!IsInvertedBackground()){ //Inverted palette level
             if (!player.time_breaker) {
               BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
             } else {            
               BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
             }
-          } else {
+          } else { //non inverted palette level
             BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
           }
           DeleteDC(hdcBackbuff);
@@ -1412,7 +1419,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
           //Trigger go back to main menu
           if (back_to_menu) {
-            CleanUpPlayer();
+            CleanUpPlayer(); //clean up all sprites
             CleanUpEnemySprites();
             CleanUpGrid();
             CleanUpNodeGrid();
@@ -1420,7 +1427,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             CleanUpGround();
             save_level[0]='\0';
 
-            DeleteObject(map_platforms_sprite);
+            DeleteObject(map_platforms_sprite); //delete sprites
             DeleteObject(map_platforms_sprite_mask);
             DeleteObject(map_platforms_timebreaker_sprite);
             LoadMainMenuBackground();
@@ -1453,7 +1460,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       break;
     case WM_CREATE:
     {
-      //MessageBox(NULL, TEXT("ភាសាខ្មែរ"), TEXT("ភាសាខ្មែរ") ,MB_OK);
+      //MessageBox(NULL, TEXT("ភាសាខ្មែរ"), TEXT("ភាសាខ្មែរ") ,MB_OK); //khmer text box
+
+      //Delete tmp in music
+      remove("music/tmp/tmp.wav");
+      rmdir("music/tmp"); //remove tmp
+
+
+      //load levels in save
+      GetSavesInDir(L"saves");
+
+
       HANDLE thread1=CreateThread(NULL,0,AnimateTask01,NULL,0,NULL); //Spawm Game Logic Thread
       HANDLE thread2=CreateThread(NULL,0,SongTask,NULL,0,NULL); //Spawn Song Player Thread
 
@@ -1487,21 +1504,21 @@ solar_sec);
 
   //) |> (|> 0 <|) <| ( @
   printf("\n~:: Lunar Hijri ::~ ");
-  if (lunar_day>=1 && lunar_day<8) {
+  if (lunar_day>=1 && lunar_day<=5) { //1, 2, 3, 4, 5
     printf("  )");
-  } else if (lunar_day>=8 && lunar_day<11) {
+  } else if (lunar_day>=6 && lunar_day<=9) {// 6, 7, 8, 9
     printf(" |)");
-  }  else if (lunar_day>=11 && lunar_day<14) {
+  } else if (lunar_day>=10 && lunar_day<=12) {// 10, 11, 12,
     printf("<|)");
-  } else if (lunar_day>=14 && lunar_day<16) {
+  } else if (lunar_day>=13 && lunar_day<=15) {//13, 14, 15
     printf("(O)");
-  } else if (lunar_day>=16 && lunar_day<21) {
+  } else if (lunar_day>=16 && lunar_day<=18) {//16, 17, 18
     printf("(|>");
-  } else if (lunar_day>=21 && lunar_day<26) {
+  } else if (lunar_day>=19 && lunar_day<=22) {//19, 20, 21, 22
     printf("(|");
-  } else if (lunar_day>=26 && lunar_day<28) {
+  } else if (lunar_day>=23 && lunar_day<=26) {//23, 24, 25,26
     printf("(");
-  } else {
+  } else { //27, 28, 29, 30
     printf(" @");
   }
 
@@ -1546,7 +1563,6 @@ lunar_sec);
       player.spin_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/player-spin.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
 
-
       //Load Enemy Sprites
       enemy1_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy1-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       enemy1_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy1-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
@@ -1556,25 +1572,25 @@ lunar_sec);
       enemy2_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
 
+      //Load mouse cursor sprite
       mouse_cursor_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/player_cursor1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,-1);
 
 
-
-      //moon sprite
-      if (lunar_day>=1 && lunar_day<8) {
+      //Load moon sprite based on lunar day
+      if (lunar_day>=1 && lunar_day<=5) { //1, 2, 3, 4, 5
         moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      } else if (lunar_day>=8 && lunar_day<11) {
+      } else if (lunar_day>=6 && lunar_day<=9) {// 6, 7, 8, 9
         moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-8.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      }  else if (lunar_day>=11 && lunar_day<14) {
+      } else if (lunar_day>=10 && lunar_day<=12) {// 10, 11, 12,
         moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-11.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      } else if (lunar_day>=14 && lunar_day<16) {
+      } else if (lunar_day>=13 && lunar_day<=15) {//13, 14, 15 //fullmoon
         moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-14.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      } else if (lunar_day>=16 && lunar_day<21) {
+      } else if (lunar_day>=16 && lunar_day<=18) {//16, 17, 18
         moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-16.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      } else if (lunar_day>=21 && lunar_day<26) {
+      } else if (lunar_day>=19 && lunar_day<=22) {//19, 20, 21, 22
         moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-21.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      } else if (lunar_day>=26 && lunar_day<28) {
+      } else if (lunar_day>=23 && lunar_day<=26) {//23, 24, 25,26
         moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-26.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       } else {
         moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-28.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
@@ -1614,7 +1630,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 
   //create window
   CreateWindowW(wc.lpszClassName,
-                L"wInsecticide",
+                L"អាពីងសុីរុយ - wInsecticide",
                 WS_OVERLAPPEDWINDOW | WS_VISIBLE,
                 0,
                 0,

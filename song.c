@@ -47,6 +47,7 @@ int GetSongsInDir(const wchar_t *dirname,const wchar_t *indirname, int song_num)
         if (_wcsicmp(ext,L"wav")==0 || 
             _wcsicmp(ext,L"mp3")==0 || 
             _wcsicmp(ext,L"wma")==0 || 
+            _wcsicmp(ext,L"midi")==0 || 
             _wcsicmp(ext,L"flac")==0/* ||
             strcmp(lowext,"mpg")==0 ||
             strcmp(lowext,"mpeg")==0*/) {
