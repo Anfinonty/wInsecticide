@@ -743,43 +743,50 @@ lunar_year
 
 
   GrPrintW(hdc,30,10,L"អាពីងស៊ីរុយ - Welcome to the wInsecticide Menu!","",WHITE,16,FALSE,yes_unifont);
-  GrPrint(hdc,30,10+16*2,"[SHIFT_ESC]: Exit",WHITE);
-  //GrPrint(hdc,30,10+32+16*12,"Press [SHIFT] + 'M' to Change Music Mode",WHITE);
-  GrPrintW(hdc,30,10+16*3,L"[SHIFT] + 'L': Unifont [ពេលរាត្រី]","",WHITE,16,FALSE,yes_unifont);
-  GrPrint(hdc,30,10+16*4,"Player Color: [LEFT] <    > [RIGHT]",WHITE);
-
-  if (player_color!=0) {
-    GrRect(hdc,30+8*18-2,10+32+16*2,16,16,BLACK);
-  } else {
-    GrRect(hdc,30+8*18-2,10+32+16*2,16,16,WHITE);
-  }
-  if (player_color>-1 && player_color<COLORS_NUM) {
-    GrRect(hdc,30+8*18,10+32+16*2+2,12,12,draw_color_arr[player_color]);
-  }
 
   int max_lvl_rows=10;
   char page_num[32];
   sprintf(page_num,"[%d/%d]",(level_chosen/max_lvl_rows)+1,(level_num/max_lvl_rows)+1);
-  GrPrint(hdc,30,10+32+16*15,page_num,WHITE);
+  GrPrint(hdc,30,10+32,page_num,WHITE);
 
-  DrawPlayingMusic(hdc,30,10+32+16*17,BLACK,WHITE);
 
-  int lvls_y=10+16*6;
+  int lvls_y=10+16*4;
   int lvl_i=0;
 
   for (int i=0;i<max_lvl_rows;i++) { //Print Levels
      lvl_i=i+10*(level_chosen/max_lvl_rows);
+     GrPrint(hdc,30,lvls_y+16*i,"-_________",WHITE);
      if (lvl_i<level_num) {
-       GrPrint(hdc,30,lvls_y+16*i,"-_________",WHITE);
        GrPrintW(hdc,30+8*11,lvls_y+16*i,level_names[lvl_i],"",WHITE,16,FALSE,yes_unifont);
      }
   }
 
   //Draw Level Selector
   GrPrint(hdc,30,lvls_y+16*(level_chosen%max_lvl_rows),"   [ENTER]",WHITE);
-  GrPrint(hdc,30+68,2+lvls_y+16*(level_chosen%max_lvl_rows),"   *",WHITE);
+  GrPrint(hdc,30+66,2+lvls_y+16*(level_chosen%max_lvl_rows),"   *",WHITE);
   GrPrint(hdc,30,lvls_y+16*(level_chosen%max_lvl_rows)-16,"        /\\",WHITE);
   GrPrint(hdc,30,lvls_y+16*(level_chosen%max_lvl_rows)+16,"        \\/",WHITE);
+
+
+
+
+
+  GrPrint(hdc,30,10+16*16,"[SHIFT_ESC]: Exit",WHITE);
+  //GrPrint(hdc,30,10+32+16*12,"Press [SHIFT] + 'M' to Change Music Mode",WHITE);
+  GrPrintW(hdc,30,10+16*17,L"[SHIFT] + 'L': Unifont [ពេលរាត្រី]","",WHITE,16,FALSE,yes_unifont);
+  GrPrint(hdc,30,10+16*18,"Player Color: [LEFT] <    > [RIGHT]",WHITE);
+
+  if (player_color!=0) {
+    GrRect(hdc,30+8*18-2,10+32+16*16,16,16,BLACK);
+  } else {
+    GrRect(hdc,30+8*18-2,10+32+16*16,16,16,WHITE);
+  }
+  if (player_color>-1 && player_color<COLORS_NUM) {
+    GrRect(hdc,30+8*18,10+32+16*16+2,12,12,draw_color_arr[player_color]);
+  }
+
+  DrawPlayingMusic(hdc,30,10+32+16*19,BLACK,WHITE);
+
 
 }
 
