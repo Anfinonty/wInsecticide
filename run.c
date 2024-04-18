@@ -742,7 +742,7 @@ lunar_year
   GrLine(hdc,GR_WIDTH-8*17-4,8*25+10,GR_WIDTH-8*17-4+8*8,8*25+12,WHITE);
 
 
-  GrPrintW(hdc,30,10,L"អាពីងសុីរុយ - Welcome to the wInsecticide Menu!","",WHITE,16,FALSE,yes_unifont);
+  GrPrintW(hdc,30,10,L"អាពីងស៊ីរុយ - Welcome to the wInsecticide Menu!","",WHITE,16,FALSE,yes_unifont);
   GrPrint(hdc,30,10+16*2,"[SHIFT_ESC]: Exit",WHITE);
   //GrPrint(hdc,30,10+32+16*12,"Press [SHIFT] + 'M' to Change Music Mode",WHITE);
   GrPrintW(hdc,30,10+16*3,L"[SHIFT] + 'L': Unifont [ពេលរាត្រី]","",WHITE,16,FALSE,yes_unifont);
@@ -1630,7 +1630,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 
   //create window
   CreateWindowW(wc.lpszClassName,
-                L"អាពីងសុីរុយ - wInsecticide",
+                L"អាពីងស៊ីរុយ - wInsecticide",
                 WS_OVERLAPPEDWINDOW | WS_VISIBLE,
                 0,
                 0,
