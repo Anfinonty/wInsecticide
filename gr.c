@@ -726,19 +726,179 @@ void DrawTriFill(HDC hdc, int tri_color,double x1,double y1,double x2,double y2,
 }
 
 
-
-HBITMAP Create8BitBitmap(int cx, int cy)
+HBITMAP Create1BitBitmap(int cx, int cy)
 {
-  BITMAPINFO* pbmi = (BITMAPINFO*)alloca(offsetof(BITMAPINFO, bmiColors[256]));
+  BITMAPINFO* pbmi = (BITMAPINFO*)alloca(offsetof(BITMAPINFO, bmiColors[2]));
   pbmi->bmiHeader.biSize = sizeof (pbmi->bmiHeader);
   pbmi->bmiHeader.biWidth = cx;
   pbmi->bmiHeader.biHeight = cy;
   pbmi->bmiHeader.biPlanes = 1;
-  pbmi->bmiHeader.biBitCount = 8;
+  pbmi->bmiHeader.biBitCount = 1;
   pbmi->bmiHeader.biCompression = BI_RGB;
   pbmi->bmiHeader.biSizeImage = 0;
-  //pbmi->bmiHeader.biXPelsPerMeter = 2835;
-  //pbmi->bmiHeader.biYPelsPerMeter = 2835;
+
+  pbmi->bmiColors[0].rgbRed = 0;
+  pbmi->bmiColors[0].rgbGreen = 0;
+  pbmi->bmiColors[0].rgbBlue = 0;
+  pbmi->bmiColors[0].rgbReserved = 0;
+
+  pbmi->bmiColors[1].rgbRed = 255;
+  pbmi->bmiColors[1].rgbGreen = 255;
+  pbmi->bmiColors[1].rgbBlue = 255;
+  pbmi->bmiColors[1].rgbReserved = 0;
+
+  pbmi->bmiHeader.biClrUsed = 0;
+  pbmi->bmiHeader.biClrImportant = 0;
+  PVOID pv;
+  return CreateDIBSection(NULL,pbmi,DIB_RGB_COLORS,&pv,NULL,0);
+}
+
+
+
+HBITMAP CreateCrunchyBitmap(int cx, int cy,int bits)
+{
+  int color_num=256;
+  if (bits==4) {
+    color_num=16;
+  }
+
+
+  BITMAPINFO* pbmi = (BITMAPINFO*)alloca(offsetof(BITMAPINFO, bmiColors[color_num]));
+  pbmi->bmiHeader.biSize = sizeof (pbmi->bmiHeader);
+  pbmi->bmiHeader.biWidth = cx;
+  pbmi->bmiHeader.biHeight = cy;
+  pbmi->bmiHeader.biPlanes = 1;
+  pbmi->bmiHeader.biBitCount = bits;
+  pbmi->bmiHeader.biCompression = BI_RGB;
+  pbmi->bmiHeader.biSizeImage = 0;
+
+/*
+#define BLACK       RGB(0,0,0) //0
+#define BLUE        RGB(0,0,170)//1
+#define GREEN    	RGB(0,170,0)//2
+#define CYAN        RGB(0,170,170)//3
+#define RED         RGB(170,0,0)//4
+#define PURPLE      RGB(170,0,170)//5
+#define BROWN       RGB(170,85,0)//6
+#define DKGRAY      RGB(85,85,85)//7
+
+
+#define LTGRAY      RGB(170,170,170)//8
+#define LTBLUE      RGB(0,0,255)//9
+#define LTGREEN     RGB(0,255,0)//10
+#define LTCYAN      RGB(0,255,255)//11
+#define LTRED       RGB(255,0,0)//12
+#define LTPURPLE    RGB(255,0,255)//13
+#define YELLOW      RGB(255,255,0)//14
+#define WHITE       RGB(255,255,255)//15
+*/
+
+  for(int i=0; i<color_num; i++)
+  {
+    int calc=i;
+    if (bits>=8) {
+       calc=i/8;
+    }
+    switch (calc) {
+      case 0:
+        pbmi->bmiColors[i].rgbRed = 0;
+        pbmi->bmiColors[i].rgbGreen = 0;
+        pbmi->bmiColors[i].rgbBlue = 0;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+      case 1:
+        pbmi->bmiColors[i].rgbRed = 0;
+        pbmi->bmiColors[i].rgbGreen = 0;
+        pbmi->bmiColors[i].rgbBlue = 170;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+      case 2:
+        pbmi->bmiColors[i].rgbRed = 0;
+        pbmi->bmiColors[i].rgbGreen = 170;
+        pbmi->bmiColors[i].rgbBlue = 0;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+      case 3:
+        pbmi->bmiColors[i].rgbRed = 0;
+        pbmi->bmiColors[i].rgbGreen = 170;
+        pbmi->bmiColors[i].rgbBlue = 170;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+      case 4:
+        pbmi->bmiColors[i].rgbRed = 170;
+        pbmi->bmiColors[i].rgbGreen = 0;
+        pbmi->bmiColors[i].rgbBlue = 0;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+      case 5:
+        pbmi->bmiColors[i].rgbRed = 170;
+        pbmi->bmiColors[i].rgbGreen = 0;
+        pbmi->bmiColors[i].rgbBlue = 170;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+      case 6:
+        pbmi->bmiColors[i].rgbRed = 170;
+        pbmi->bmiColors[i].rgbGreen = 85;
+        pbmi->bmiColors[i].rgbBlue = 0;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+      case 7:
+        pbmi->bmiColors[i].rgbRed = 85;
+        pbmi->bmiColors[i].rgbGreen = 85;
+        pbmi->bmiColors[i].rgbBlue = 85;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+      case 8:
+        pbmi->bmiColors[i].rgbRed = 170;
+        pbmi->bmiColors[i].rgbGreen = 170;
+        pbmi->bmiColors[i].rgbBlue = 170;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+      case 9:
+        pbmi->bmiColors[i].rgbRed = 0;
+        pbmi->bmiColors[i].rgbGreen = 0;
+        pbmi->bmiColors[i].rgbBlue = 255;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+      case 10:
+        pbmi->bmiColors[i].rgbRed = 0;
+        pbmi->bmiColors[i].rgbGreen = 255;
+        pbmi->bmiColors[i].rgbBlue = 0;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+      case 11:
+        pbmi->bmiColors[i].rgbRed = 0;
+        pbmi->bmiColors[i].rgbGreen = 255;
+        pbmi->bmiColors[i].rgbBlue = 255;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+      case 12:
+        pbmi->bmiColors[i].rgbRed = 255;
+        pbmi->bmiColors[i].rgbGreen = 0;
+        pbmi->bmiColors[i].rgbBlue = 0;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+      case 13:
+        pbmi->bmiColors[i].rgbRed = 255;
+        pbmi->bmiColors[i].rgbGreen = 0;
+        pbmi->bmiColors[i].rgbBlue = 255;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+      case 14:
+        pbmi->bmiColors[i].rgbRed = 255;
+        pbmi->bmiColors[i].rgbGreen = 255;
+        pbmi->bmiColors[i].rgbBlue = 0;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+      case 15:
+        pbmi->bmiColors[i].rgbRed = 255;
+        pbmi->bmiColors[i].rgbGreen = 255;
+        pbmi->bmiColors[i].rgbBlue = 255;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+    }
+  }
+
   pbmi->bmiHeader.biClrUsed = 0;
   pbmi->bmiHeader.biClrImportant = 0;
   PVOID pv;

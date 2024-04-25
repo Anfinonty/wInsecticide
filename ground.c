@@ -331,7 +331,7 @@ void DrawGround(HDC hdc,bool noir)
                 Ground[i].y1,
                 Ground[i].x2,
                 Ground[i].y2,
-                0);
+                WHITE);
         }
       }
     }
@@ -363,7 +363,7 @@ void DrawGroundText(HDC hdc,bool noir)
             Ground[i].y1,
             Ground[i].text,
             "",
-            0,
+            WHITE,
             16,
             FALSE,
             yes_unifont);

@@ -53,26 +53,6 @@
 #define WHITE       RGB(255,255,255)
 
 
-/*#define BLACK       0x000000
-#define BLUE        0x0000aa
-#define GREEN    	0x00aa00
-#define CYAN        0x00aaaa
-#define RED         0xaa0000
-#define PURPLE      0xaa00aa
-#define BROWN       0xaa5500
-#define DKGRAY      0x555555
-#define LTGRAY      0xaaaaaa
-#define LTBLUE      0x0000ff
-#define LTGREEN     0x00ff00
-#define LTCYAN      0x00ffff
-#define LTRED       0xff0000
-#define LTPURPLE    0xff00ff
-#define YELLOW      0xffff00
-#define WHITE       0xffffff*/
-
-
-
-
 #define DKBLACK     RGB(16,16,16) //For drawing
 #define LLTGREEN    RGB(0,254,0)//RGB(170,170,170)/4
 #define MYCOLOR1    0//RGB(123,123,123)
@@ -427,12 +407,10 @@ void InitPlatformsTBSprite(HWND hwnd, HDC hdc)
   PAINTSTRUCT ps; //Suggestion Credit: https://git.xslendi.xyz
   hdc=BeginPaint(hwnd, &ps);
   HDC hdc2=CreateCompatibleDC(hdc);
-  //HBITMAP tmp_map_platforms_sprite=CreateCompatibleBitmap(hdc,MAP_WIDTH,MAP_HEIGHT);
-  HBITMAP tmp_map_platforms_sprite;
-  tmp_map_platforms_sprite=CreateGreyscaleBitmap(MAP_WIDTH,MAP_HEIGHT);
-  SelectObject(hdc2,tmp_map_platforms_sprite);
+  map_platforms_timebreaker_sprite=Create1BitBitmap(MAP_WIDTH,MAP_HEIGHT);
+  SelectObject(hdc2,map_platforms_timebreaker_sprite);
 
-  GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,WHITE);
+  GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,BLACK);
 
   DrawGround(hdc2,TRUE);
   DrawGroundText(hdc2,TRUE);
@@ -440,8 +418,6 @@ void InitPlatformsTBSprite(HWND hwnd, HDC hdc)
   DeleteDC(hdc2);
   EndPaint(hwnd, &ps);
 
-  map_platforms_timebreaker_sprite=CopyGreyscaleBitmap(tmp_map_platforms_sprite,NOTSRCCOPY);//CopyBitmap(tmp_map_platforms_sprite,NOTSRCCOPY,8);//ReplaceColor(tmp_map_platforms_sprite,MYCOLOR1,BLACK,NULL);
-  DeleteObject(tmp_map_platforms_sprite);
   //end of platform sprite creation
 }
 
@@ -453,7 +429,9 @@ void InitPlatformsSprite(HWND hwnd, HDC hdc)
   HDC hdc2=CreateCompatibleDC(hdc);
 
 
-  map_platforms_sprite=CreateLargeBitmap(MAP_WIDTH,MAP_HEIGHT,16);
+  map_platforms_sprite=CreateCrunchyBitmap(MAP_WIDTH,MAP_HEIGHT,8);//CreateLargeBitmap(MAP_WIDTH,MAP_HEIGHT,16);
+  //map_platforms_sprite=Create1BitBitmap(MAP_WIDTH,MAP_HEIGHT);
+
   SelectObject(hdc2,map_platforms_sprite);
 
   GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,MYCOLOR1); //Create Background with random color over platforms
