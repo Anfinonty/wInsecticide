@@ -1103,21 +1103,21 @@ void InitEnemySprites()
     Enemy[i].current_draw_row=-9999;
     if (Enemy[i].species==0) {
       if (Enemy[i].sprite_1==NULL) {
-        Enemy[i].sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,Enemy[i].color,-1);
+        Enemy[i].sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,Enemy[i].color,-1,16);
       }
       if (Enemy[i].sprite_2==NULL) {
-        Enemy[i].sprite_2=RotateSprite(NULL, enemy1_sprite_2,0,LTGREEN,Enemy[i].color,-1);
+        Enemy[i].sprite_2=RotateSprite(NULL, enemy1_sprite_2,0,LTGREEN,Enemy[i].color,-1,16);
       }
       Enemy[i].sprite_3=NULL;
     } else {
       if (Enemy[i].sprite_1==NULL) {
-        Enemy[i].sprite_1=RotateSprite(NULL, enemy2_sprite_1,0,LTGREEN,Enemy[i].color,-1);
+        Enemy[i].sprite_1=RotateSprite(NULL, enemy2_sprite_1,0,LTGREEN,Enemy[i].color,-1,16);
       }
       if (Enemy[i].sprite_2==NULL) {
-        Enemy[i].sprite_2=RotateSprite(NULL, enemy2_sprite_2,0,LTGREEN,Enemy[i].color,-1);
+        Enemy[i].sprite_2=RotateSprite(NULL, enemy2_sprite_2,0,LTGREEN,Enemy[i].color,-1,16);
       }
       if (Enemy[i].sprite_3==NULL) {
-        Enemy[i].sprite_3=RotateSprite(NULL, enemy2_sprite_3,0,LTGREEN,Enemy[i].color,-1);
+        Enemy[i].sprite_3=RotateSprite(NULL, enemy2_sprite_3,0,LTGREEN,Enemy[i].color,-1,16);
       }
     }
   }
@@ -1240,7 +1240,7 @@ void DrawEnemy(HDC hdc)
     for (i=0;i<ENEMY_NUM;i++) {
       if (Enemy[i].species==1) {
         DeleteObject(Enemy[i].sprite_3);
-        Enemy[i].sprite_3=RotateSprite(hdc, enemy2_sprite_3,0,LTGREEN,Enemy[i].color,-1);
+        Enemy[i].sprite_3=RotateSprite(hdc, enemy2_sprite_3,0,LTGREEN,Enemy[i].color,-1,16);
       }
     }
   }
@@ -1314,8 +1314,8 @@ void DrawEnemy(HDC hdc)
             DeleteObject(Enemy[i].sprite_2);
           }
 
-          Enemy[i].sprite_1=RotateSprite(hdc, enemy1_sprite_1,Enemy[i].sprite_angle,LTGREEN,Enemy[i].color,-1);
-          Enemy[i].sprite_2=RotateSprite(hdc, enemy1_sprite_2,Enemy[i].sprite_angle,LTGREEN,Enemy[i].color,-1);
+          Enemy[i].sprite_1=RotateSprite(hdc, enemy1_sprite_1,Enemy[i].sprite_angle,LTGREEN,Enemy[i].color,-1,16);
+          Enemy[i].sprite_2=RotateSprite(hdc, enemy1_sprite_2,Enemy[i].sprite_angle,LTGREEN,Enemy[i].color,-1,16);
           Enemy[i].saved_angle=0;
         }
       }
@@ -1373,8 +1373,8 @@ void DrawEnemy(HDC hdc)
         if (Enemy[i].sprite_2!=NULL) {
           DeleteObject(Enemy[i].sprite_2);
         }
-        Enemy[i].sprite_1=RotateSprite(hdc, enemy1_sprite_1,Enemy[i].sprite_angle,LTGREEN,DKGRAY,TRANSPARENT);
-        Enemy[i].sprite_2=RotateSprite(hdc, enemy1_sprite_2,Enemy[i].sprite_angle,LTGREEN,DKGRAY,TRANSPARENT);
+        Enemy[i].sprite_1=RotateSprite(hdc, enemy1_sprite_1,Enemy[i].sprite_angle,LTGREEN,DKGRAY,TRANSPARENT,16);
+        Enemy[i].sprite_2=RotateSprite(hdc, enemy1_sprite_2,Enemy[i].sprite_angle,LTGREEN,DKGRAY,TRANSPARENT,16);
         Enemy[i].health=-99999;
       }
     }
@@ -1400,28 +1400,28 @@ void DrawEnemy(HDC hdc)
       switch (Enemy[i].species) {
         case 0:
           if (Enemy[i].sprite_timer%2==0) {
-            GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_1,Enemy[i].last_left);
+            GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_1,Enemy[i].last_left,16);
           } else {
-            GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_2,Enemy[i].last_left);
+            GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_2,Enemy[i].last_left,16);
           }
           break;
         case 1:
           if (Enemy[i].in_air_timer==0 && !Enemy[i].being_drawn) {
             if (Enemy[i].above_ground) {
               if (Enemy[i].sprite_timer%8==0) {
-                GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_1,Enemy[i].last_left);
+                GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_1,Enemy[i].last_left,16);
               } else {
-                GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_2,Enemy[i].last_left);
+                GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_2,Enemy[i].last_left,16);
               }
             } else if (Enemy[i].below_ground) {
               if (Enemy[i].sprite_timer%8==0) {
-                GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_1,Enemy[i].flip_sprite);
+                GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_1,Enemy[i].flip_sprite,16);
               } else {
-                GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_2,Enemy[i].flip_sprite);
+                GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_2,Enemy[i].flip_sprite,16);
               }
             }
           } else {
-            GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_3,Enemy[i].last_left);
+            GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_3,Enemy[i].last_left,16);
           }
           break;
       }

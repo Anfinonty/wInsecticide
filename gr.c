@@ -469,7 +469,7 @@ void RotateSpriteII(HDC hDC, HBITMAP hSourceBitmap, HBITMAP hDestBitmap,double r
 
 
 
-HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, double radians,int rTransparent, int sprite_color, int sprite_color_2) 
+HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, double radians,int rTransparent, int sprite_color, int sprite_color_2, int bits) 
 { //if (hSourceBitmap != NULL) { ////https://ftp.zx.net.nz/pub/Patches/ftp.microsoft.com/MISC/KB/en-us/77/127.HTM
   HBITMAP hOldSourceBitmap, hOldDestBitmap, hDestBitmap; ////https://www.codeguru.com/multimedia/rotate-a-bitmap-image/
   HDC hMemSrc,hMemDest;
@@ -512,7 +512,7 @@ HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, double radians,int rTranspa
   /*hDestBitmap = CreateBitmap(height, width, iSrcBitmap.bmPlanes,
                   iSrcBitmap.bmBitsPixel, NULL);*/
 
-  hDestBitmap = CreateLargeBitmap(height, width,16);
+  hDestBitmap = CreateLargeBitmap(height, width, bits);
   hOldSourceBitmap = SelectObject(hMemSrc, hSourceBitmap);
   hOldDestBitmap = SelectObject(hMemDest, hDestBitmap);
 
@@ -585,7 +585,7 @@ HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, double radians,int rTranspa
 
 
 
-void GrSprite(HDC hDC,double _x1,double _y1, HBITMAP hSourceBitmap,bool is_left) {
+void GrSprite(HDC hDC,double _x1,double _y1, HBITMAP hSourceBitmap,bool is_left,int bits) {
   if (hSourceBitmap != NULL) { ////https://ftp.zx.net.nz/pub/Patches/ftp.microsoft.com/MISC/KB/en-us/77/127.HTM
     static HBITMAP hBitmap;
     BITMAP bm;
@@ -602,7 +602,7 @@ void GrSprite(HDC hDC,double _x1,double _y1, HBITMAP hSourceBitmap,bool is_left)
     /*hBitmap = CreateBitmap(bm.bmWidth, bm.bmHeight, 
                         bm.bmPlanes, bm.bmBitsPixel, //IMPORTANT, these 2 arguements allow color to pass through
                         NULL); */
-    hBitmap = CreateLargeBitmap(bm.bmWidth,bm.bmHeight,16);
+    hBitmap = CreateLargeBitmap(bm.bmWidth,bm.bmHeight,bits);
     hOldSourceBitmap = SelectObject(hMemSrc, hSourceBitmap);
     hOldDestBitmap = SelectObject(hMemDest, hBitmap);
 

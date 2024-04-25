@@ -230,7 +230,7 @@ void DrawBackground(HDC hdc) {
         break;
       case 1:
         DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,NOTSRCCOPY,FALSE);
-        GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
+        GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE,16);
         break;
       default:
         GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,custom_map_background_color);
@@ -276,7 +276,7 @@ void DrawCursor(HDC hDC)
 {
   //DrawBitmap(hDC,mouse_x,mouse_y,0,0,64,64,mouse_cursor_sprite,SRCAND,FALSE);
   //DrawBitmap(hDC,mouse_x,mouse_y,0,0,64,64,mouse_cursor_sprite_mask,SRCPAINT,FALSE);
-  GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_cache,FALSE);
+  GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_cache,FALSE,16);
   GrCircle(hDC,mouse_x,mouse_y,1,WHITE,-1);
 }
 
@@ -468,28 +468,28 @@ void InitLevel(HWND hwnd, HDC hdc)
 
 
   //Load Player Sprites
-  player.sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
-  player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
-  player.sprite_2_cache = RotateSprite(NULL, player.sprite_2,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
+  player.sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1,16);
+  player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1,16);
+  player.sprite_2_cache = RotateSprite(NULL, player.sprite_2,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1,16);
 
-  player.attack_sprite_1_cache = RotateSprite(NULL, player.attack_sprite_1,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
-  player.attack_sprite_2_cache = RotateSprite(NULL, player.attack_sprite_2,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
-  player.attack_sprite_3_cache = RotateSprite(NULL, player.attack_sprite_3,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
-  player.attack_sprite_4_cache = RotateSprite(NULL, player.attack_sprite_4,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
+  player.attack_sprite_1_cache = RotateSprite(NULL, player.attack_sprite_1,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1,16);
+  player.attack_sprite_2_cache = RotateSprite(NULL, player.attack_sprite_2,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1,16);
+  player.attack_sprite_3_cache = RotateSprite(NULL, player.attack_sprite_3,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1,16);
+  player.attack_sprite_4_cache = RotateSprite(NULL, player.attack_sprite_4,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1,16);
 
-  player.block_sprite_1_cache = RotateSprite(NULL, player.block_sprite_1,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
-  player.block_sprite_2_cache = RotateSprite(NULL, player.block_sprite_2,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
-  player.block_sprite_3_cache = RotateSprite(NULL, player.block_sprite_3,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
+  player.block_sprite_1_cache = RotateSprite(NULL, player.block_sprite_1,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1,16);
+  player.block_sprite_2_cache = RotateSprite(NULL, player.block_sprite_2,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1,16);
+  player.block_sprite_3_cache = RotateSprite(NULL, player.block_sprite_3,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1,16);
 
-  player.spin_sprite_1_cache = RotateSprite(NULL, player.spin_sprite,0.1,LTGREEN,draw_color_arr[player_color],-1);
-  player.spin_sprite_2_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI_2,LTGREEN,draw_color_arr[player_color],-1);
-  player.spin_sprite_3_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI,LTGREEN,draw_color_arr[player_color],-1);
-  player.spin_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,draw_color_arr[player_color],-1);
+  player.spin_sprite_1_cache = RotateSprite(NULL, player.spin_sprite,0.1,LTGREEN,draw_color_arr[player_color],-1,16);
+  player.spin_sprite_2_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI_2,LTGREEN,draw_color_arr[player_color],-1,16);
+  player.spin_sprite_3_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI,LTGREEN,draw_color_arr[player_color],-1,16);
+  player.spin_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,draw_color_arr[player_color],-1,16);
 
   //moon sprite
   DeleteObject(moon_sprite_cache);
-  HBITMAP tmp_moon_sprite=CopyBitmap(moon_sprite,NOTSRCCOPY,32);
-  moon_sprite_cache=RotateSprite(NULL, tmp_moon_sprite,0,LTPURPLE,BLACK,-1);
+  HBITMAP tmp_moon_sprite=CopyBitmap(moon_sprite,NOTSRCCOPY,16);
+  moon_sprite_cache=RotateSprite(NULL, tmp_moon_sprite,0,LTPURPLE,BLACK,-1,16);
   DeleteObject(tmp_moon_sprite);
 
   //Load Enemy cache sprites
@@ -627,7 +627,7 @@ void DrawMainMenu(HDC hdc)
   DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE);
 
   //Draw Moon Phase
-  GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
+  GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE,16);
 
   //Moon Pos
   int mcalendar_l=64;
@@ -1447,7 +1447,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             in_main_menu=TRUE;
 
             DeleteObject(moon_sprite_cache);
-            moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,-1);
+            moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,-1,16);
           }
         } else { //In Main Menu
           PAINTSTRUCT ps;
@@ -1586,7 +1586,7 @@ lunar_sec);
 
       //Load mouse cursor sprite
       mouse_cursor_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/player_cursor1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,-1);
+      mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,-1,16);
 
 
       //Load moon sprite based on lunar day
@@ -1608,7 +1608,7 @@ lunar_sec);
         moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-28.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       }
       //moon_sprite_cache=CreteLargeBitmap(NULL, 128, 128);
-      moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,-1);
+      moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,-1,16);
       }
       return 0;
       break;
