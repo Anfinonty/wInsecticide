@@ -145,7 +145,7 @@ void InitGround()
 	    Ground[i].y3+=2;
       }
       //if (!IsInvertedBackground()) {
-      Ground[i].color=color_arr[saved_ground_color[i]];
+      Ground[i].color=draw_color_arr[saved_ground_color[i]];
       /*} else {
         Ground[i].color=palette_dark_arr[saved_ground_color[i]];
       }*/
@@ -331,7 +331,7 @@ void DrawGround(HDC hdc,bool noir)
                 Ground[i].y1,
                 Ground[i].x2,
                 Ground[i].y2,
-                DKGRAY);
+                0);
         }
       }
     }
@@ -363,7 +363,7 @@ void DrawGroundText(HDC hdc,bool noir)
             Ground[i].y1,
             Ground[i].text,
             "",
-            DKGRAY,
+            0,
             16,
             FALSE,
             yes_unifont);

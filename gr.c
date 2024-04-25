@@ -12,7 +12,7 @@ HBITMAP CreateLargeBitmap(int cx, int cy, int bits)
   bi.bmiHeader.biHeight=-cy;
   bi.bmiHeader.biPlanes=1;
   bi.bmiHeader.biBitCount=bits;
-  return CreateDIBSection(NULL, &bi,DIB_RGB_COLORS, (VOID**)&lpBitmapBits,NULL,0);
+  return CreateDIBSection(NULL, &bi, DIB_RGB_COLORS, (VOID**)&lpBitmapBits,NULL,0);
 }
 
 
@@ -727,6 +727,26 @@ void DrawTriFill(HDC hdc, int tri_color,double x1,double y1,double x2,double y2,
 
 
 
+HBITMAP Create8BitBitmap(int cx, int cy)
+{
+  BITMAPINFO* pbmi = (BITMAPINFO*)alloca(offsetof(BITMAPINFO, bmiColors[256]));
+  pbmi->bmiHeader.biSize = sizeof (pbmi->bmiHeader);
+  pbmi->bmiHeader.biWidth = cx;
+  pbmi->bmiHeader.biHeight = cy;
+  pbmi->bmiHeader.biPlanes = 1;
+  pbmi->bmiHeader.biBitCount = 8;
+  pbmi->bmiHeader.biCompression = BI_RGB;
+  pbmi->bmiHeader.biSizeImage = 0;
+  //pbmi->bmiHeader.biXPelsPerMeter = 2835;
+  //pbmi->bmiHeader.biYPelsPerMeter = 2835;
+  pbmi->bmiHeader.biClrUsed = 0;
+  pbmi->bmiHeader.biClrImportant = 0;
+  PVOID pv;
+  return CreateDIBSection(NULL,pbmi,DIB_RGB_COLORS,&pv,NULL,0);
+}
+
+
+
 //https://stackoverflow.com/questions/3142349/drawing-on-8bpp-grayscale-bitmap-unmanaged-c
 HBITMAP CreateGreyscaleBitmap(int cx, int cy)
 {
@@ -797,6 +817,38 @@ HBITMAP CopyGreyscaleBitmap(HBITMAP sBitmap, int SRCOPERATION)
     pbmi->bmiColors[i].rgbBlue = i;
     pbmi->bmiColors[i].rgbReserved = 0;
   }
+
+  PVOID pv;
+  HDC hdc=CreateCompatibleDC(NULL);
+  HDC hdc2=CreateCompatibleDC(NULL);
+  HBITMAP dBitmap=CreateDIBSection(NULL,pbmi,DIB_RGB_COLORS,&pv,NULL,0);
+  SelectObject(hdc2,sBitmap);
+  SelectObject(hdc,dBitmap);
+  BitBlt(hdc, 0, 0, bm.bmWidth, bm.bmHeight, hdc2, 0, 0, SRCOPERATION);
+  DeleteDC(hdc2);
+  DeleteDC(hdc);
+  return dBitmap;
+}
+
+
+HBITMAP Copy8BitBitmap(HBITMAP sBitmap, int SRCOPERATION)
+{
+  BITMAP bm;
+  GetObject(sBitmap, sizeof(bm), &bm);
+
+  BITMAPINFO* pbmi = (BITMAPINFO*)alloca(offsetof(BITMAPINFO, bmiColors[256]));
+  pbmi->bmiHeader.biSize = sizeof (pbmi->bmiHeader);
+  pbmi->bmiHeader.biWidth = bm.bmWidth;
+  pbmi->bmiHeader.biHeight = bm.bmHeight;
+  pbmi->bmiHeader.biPlanes = 1;
+  pbmi->bmiHeader.biBitCount = 8;
+  pbmi->bmiHeader.biCompression = BI_RGB;
+  pbmi->bmiHeader.biSizeImage = 0;
+  pbmi->bmiHeader.biXPelsPerMeter = 14173;
+  pbmi->bmiHeader.biYPelsPerMeter = 14173;
+  pbmi->bmiHeader.biClrUsed = 0;
+  pbmi->bmiHeader.biClrImportant = 0;
+
 
   PVOID pv;
   HDC hdc=CreateCompatibleDC(NULL);
