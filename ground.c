@@ -310,13 +310,14 @@ void DrawWebs(HDC hdc)
 }
 
 
-void DrawGround(HDC hdc)
+void DrawGround(HDC hdc,bool noir)
 {
   int i=0;//,j=0;
   for (i=0;i<GROUND_NUM;i++) {
     if (Ground[i].type==0) {
       if (!IsOutOfBounds(Ground[i].x1,Ground[i].y1,1,MAP_WIDTH,MAP_HEIGHT) &&
           !IsOutOfBounds(Ground[i].x2,Ground[i].y2,1,MAP_WIDTH,MAP_HEIGHT)) {
+        if (!noir) {
           GrLine(hdc,
                 Ground[i].x1,
                 Ground[i].y1,
@@ -324,6 +325,14 @@ void DrawGround(HDC hdc)
                 Ground[i].y2,
                 Ground[i].color);
 
+        } else {
+          GrLine(hdc,
+                Ground[i].x1,
+                Ground[i].y1,
+                Ground[i].x2,
+                Ground[i].y2,
+                DKGRAY);
+        }
       }
     }
   }
@@ -331,13 +340,14 @@ void DrawGround(HDC hdc)
 
 
 
-void DrawGroundText(HDC hdc)
+void DrawGroundText(HDC hdc,bool noir)
 {
   int i=0;//,j=0;
   for (i=0;i<GROUND_NUM;i++) {
     if (Ground[i].type==2) { 
       if (!IsOutOfBounds(Ground[i].x1,Ground[i].y1,1,MAP_WIDTH,MAP_HEIGHT) &&
           !IsOutOfBounds(Ground[i].x2,Ground[i].y2,1,MAP_WIDTH,MAP_HEIGHT)) {
+        if (!noir) {
 	    GrPrintW(hdc,
             Ground[i].x1,
             Ground[i].y1,
@@ -347,6 +357,17 @@ void DrawGroundText(HDC hdc)
             16,
             FALSE,
             yes_unifont);
+        } else {
+	    GrPrintW(hdc,
+            Ground[i].x1,
+            Ground[i].y1,
+            Ground[i].text,
+            "",
+            DKGRAY,
+            16,
+            FALSE,
+            yes_unifont);
+        }
       }
     }
   }

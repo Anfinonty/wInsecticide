@@ -47,7 +47,7 @@
 #define WHITE       RGB(255,255,255)
 
 
-#define DKBLACK     RGB(5,5,5) //For drawing
+#define DKBLACK     RGB(16,16,16) //For drawing
 #define LLTGREEN    RGB(0,254,0)
 #define MYCOLOR1    RGB(123,123,123)
 
@@ -403,18 +403,18 @@ void InitPlatformsTBSprite(HWND hwnd, HDC hdc)
   HDC hdc2=CreateCompatibleDC(hdc);
   //HBITMAP tmp_map_platforms_sprite=CreateCompatibleBitmap(hdc,MAP_WIDTH,MAP_HEIGHT);
   HBITMAP tmp_map_platforms_sprite;
-  tmp_map_platforms_sprite=CreateLargeBitmap(MAP_WIDTH,MAP_HEIGHT);
+  tmp_map_platforms_sprite=CreateLargeBitmap(MAP_WIDTH,MAP_HEIGHT,8);
   SelectObject(hdc2,tmp_map_platforms_sprite);
 
   GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,WHITE);
 
-  DrawGround(hdc2);
-  DrawGroundText(hdc2);
+  DrawGround(hdc2,TRUE);
+  DrawGroundText(hdc2,TRUE);
 
   DeleteDC(hdc2);
   EndPaint(hwnd, &ps);
 
-  map_platforms_timebreaker_sprite=CopyBitmap(tmp_map_platforms_sprite,NOTSRCCOPY);//ReplaceColor(tmp_map_platforms_sprite,MYCOLOR1,BLACK,NULL);
+  map_platforms_timebreaker_sprite=CopyBitmap(tmp_map_platforms_sprite,NOTSRCCOPY,8);//ReplaceColor(tmp_map_platforms_sprite,MYCOLOR1,BLACK,NULL);
   DeleteObject(tmp_map_platforms_sprite);
   //end of platform sprite creation
 }
@@ -427,14 +427,14 @@ void InitPlatformsSprite(HWND hwnd, HDC hdc)
   HDC hdc2=CreateCompatibleDC(hdc);
   //HBITMAP tmp_map_platforms_sprite=CreateCompatibleBitmap(hdc,MAP_WIDTH,MAP_HEIGHT);
   HBITMAP tmp_map_platforms_sprite;
-  tmp_map_platforms_sprite=CreateLargeBitmap(MAP_WIDTH,MAP_HEIGHT);
+  tmp_map_platforms_sprite=CreateLargeBitmap(MAP_WIDTH,MAP_HEIGHT,32);
   SelectObject(hdc2,tmp_map_platforms_sprite);
 
   GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,MYCOLOR1);
 
   DrawGroundTriFill(hdc2);
-  DrawGround(hdc2);
-  DrawGroundText(hdc2);
+  DrawGround(hdc2,FALSE);
+  DrawGroundText(hdc2,FALSE);
 
   DeleteDC(hdc2);
   EndPaint(hwnd, &ps);
@@ -483,7 +483,7 @@ void InitLevel(HWND hwnd, HDC hdc)
 
   //moon sprite
   DeleteObject(moon_sprite_cache);
-  HBITMAP tmp_moon_sprite=CopyBitmap(moon_sprite,NOTSRCCOPY);
+  HBITMAP tmp_moon_sprite=CopyBitmap(moon_sprite,NOTSRCCOPY,32);
   moon_sprite_cache=RotateSprite(NULL, tmp_moon_sprite,0,LTPURPLE,BLACK,-1);
   DeleteObject(tmp_moon_sprite);
 
@@ -801,7 +801,7 @@ void LoadMainMenuBackground()
   } else { //night
     tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
   }
-  map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH,GR_HEIGHT); //note runs once only
+  map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH,GR_HEIGHT,32); //note runs once only
   DeleteObject(tmp_map_background_sprite);
 }
 
@@ -1345,7 +1345,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                   tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
                   break;
               }
-              map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH,GR_HEIGHT); //note runs once only
+              map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH,GR_HEIGHT,32); //note runs once only
               DeleteObject(tmp_map_background_sprite);
             }
           } else {            

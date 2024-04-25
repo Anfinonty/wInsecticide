@@ -1,7 +1,6 @@
 
 
-
-HBITMAP CreateLargeBitmap(int cx, int cy)
+HBITMAP CreateLargeBitmap(int cx, int cy, int bits)
 {
 //https://forums.codeguru.com/showthread.php?526563-Accessing-Pixels-with-CreateDIBSection
  unsigned char* lpBitmapBits; 
@@ -12,15 +11,15 @@ HBITMAP CreateLargeBitmap(int cx, int cy)
   bi.bmiHeader.biWidth=cx;
   bi.bmiHeader.biHeight=-cy;
   bi.bmiHeader.biPlanes=1;
-  bi.bmiHeader.biBitCount=32;
+  bi.bmiHeader.biBitCount=bits;
   return CreateDIBSection(NULL, &bi,DIB_RGB_COLORS, (VOID**)&lpBitmapBits,NULL,0);
 }
 
 
 
 
-#define COLORREF2RGB(Color) (Color & 0xff00) | ((Color >> 16) & 0xff) \
-                                 | ((Color << 16) & 0xff0000)
+/*#define COLORREF2RGB(Color) (Color & 0xff00) | ((Color >> 16) & 0xff) \
+                                 | ((Color << 16) & 0xff0000)*/
 //-------------------------------------------------------------------------------
 // ReplaceColor
 //
@@ -50,7 +49,7 @@ HBITMAP ReplaceColor(HBITMAP hBmp,COLORREF cOldColor,COLORREF cNewColor,HDC hBmp
             if (hBmpDC)
                 if (hBmp == (HBITMAP)GetCurrentObject(hBmpDC, OBJ_BITMAP))
             {
-                hTmpBitmap = CreateLargeBitmap(1,1);//CreateBitmap(1, 1, 1, 1, NULL);
+                hTmpBitmap = CreateLargeBitmap(1,1,1);//CreateBitmap(1, 1, 1, 1, NULL);
                 SelectObject(hBmpDC, hTmpBitmap);
             }
 
@@ -513,7 +512,7 @@ HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, double radians,int rTranspa
   /*hDestBitmap = CreateBitmap(height, width, iSrcBitmap.bmPlanes,
                   iSrcBitmap.bmBitsPixel, NULL);*/
 
-  hDestBitmap = CreateLargeBitmap(height, width);
+  hDestBitmap = CreateLargeBitmap(height, width,16);
   hOldSourceBitmap = SelectObject(hMemSrc, hSourceBitmap);
   hOldDestBitmap = SelectObject(hMemDest, hDestBitmap);
 
@@ -603,7 +602,7 @@ void GrSprite(HDC hDC,double _x1,double _y1, HBITMAP hSourceBitmap,bool is_left)
     /*hBitmap = CreateBitmap(bm.bmWidth, bm.bmHeight, 
                         bm.bmPlanes, bm.bmBitsPixel, //IMPORTANT, these 2 arguements allow color to pass through
                         NULL); */
-    hBitmap = CreateLargeBitmap(bm.bmWidth,bm.bmHeight);
+    hBitmap = CreateLargeBitmap(bm.bmWidth,bm.bmHeight,16);
     hOldSourceBitmap = SelectObject(hMemSrc, hSourceBitmap);
     hOldDestBitmap = SelectObject(hMemDest, hBitmap);
 
@@ -812,11 +811,11 @@ HBITMAP CopyGreyscaleBitmap(HBITMAP sBitmap, int SRCOPERATION)
 }
 
 
-HBITMAP CopyBitmap(HBITMAP srcBitmap,int SRCOPERATION)
+HBITMAP CopyBitmap(HBITMAP srcBitmap,int SRCOPERATION,int bits)
 {
   BITMAP bm;
   GetObject(srcBitmap, sizeof(bm), &bm);
-  HBITMAP destBitmap=CreateLargeBitmap(bm.bmWidth,bm.bmHeight);
+  HBITMAP destBitmap=CreateLargeBitmap(bm.bmWidth,bm.bmHeight,bits);
 
   HDC hdcMem = CreateCompatibleDC(NULL);
   HDC hdcMem2 = CreateCompatibleDC(NULL);
@@ -835,12 +834,12 @@ HBITMAP CopyBitmap(HBITMAP srcBitmap,int SRCOPERATION)
 
 
 
-HBITMAP CopyStretchBitmap(HBITMAP srcBitmap,int SRCOPERATION, int nWidth, int nHeight)
+HBITMAP CopyStretchBitmap(HBITMAP srcBitmap,int SRCOPERATION, int nWidth, int nHeight,int bits)
 {
   BITMAP bm;
   GetObject(srcBitmap, sizeof(bm), &bm);
 
-  HBITMAP destBitmap=CreateLargeBitmap(nWidth,nHeight);
+  HBITMAP destBitmap=CreateLargeBitmap(nWidth,nHeight,bits);
 
   HDC hdcMem = CreateCompatibleDC(NULL);
   HDC hdcMem2 = CreateCompatibleDC(NULL);

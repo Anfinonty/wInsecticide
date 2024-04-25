@@ -47,8 +47,8 @@ int GetOnGroundId(double x,double y,double min_range_1,double min_range_2,bool i
 void DestroyGround(int i);
 
 void DrawWebs(HDC hdc);
-void DrawGround(HDC hdc);
-void DrawGroundText(HDC hdc);
+void DrawGround(HDC hdc,bool noir);
+void DrawGroundText(HDC hdc,bool noir);
 void DrawGroundTriFill(HDC hdc);
 
 

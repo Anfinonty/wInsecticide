@@ -1285,8 +1285,8 @@ void DrawEnemy(HDC hdc)
             &Enemy[i].sprite_height
           );
 
-          Enemy[i].sprite_1=CreateLargeBitmap(Enemy[i].sprite_width,Enemy[i].sprite_height);
-          Enemy[i].sprite_2=CreateLargeBitmap(Enemy[i].sprite_width,Enemy[i].sprite_height);
+          Enemy[i].sprite_1=CreateLargeBitmap(Enemy[i].sprite_width,Enemy[i].sprite_height,32);
+          Enemy[i].sprite_2=CreateLargeBitmap(Enemy[i].sprite_width,Enemy[i].sprite_height,32);
 
           Enemy[i].current_draw_row=Enemy[i].sprite_miny;
 
@@ -1347,9 +1347,9 @@ void DrawEnemy(HDC hdc)
               &Enemy[i].sprite_height
           );
 
-          Enemy[i].sprite_1=CreateLargeBitmap(Enemy[i].sprite_width,Enemy[i].sprite_height);
-          Enemy[i].sprite_2=CreateLargeBitmap(Enemy[i].sprite_width,Enemy[i].sprite_height);
-          Enemy[i].sprite_3=CreateLargeBitmap(Enemy[i].sprite_width,Enemy[i].sprite_height);
+          Enemy[i].sprite_1=CreateLargeBitmap(Enemy[i].sprite_width,Enemy[i].sprite_height,32);
+          Enemy[i].sprite_2=CreateLargeBitmap(Enemy[i].sprite_width,Enemy[i].sprite_height,32);
+          Enemy[i].sprite_3=CreateLargeBitmap(Enemy[i].sprite_width,Enemy[i].sprite_height,32);
 
           Enemy[i].current_draw_row=Enemy[i].sprite_miny;
 
