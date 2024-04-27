@@ -224,6 +224,7 @@ void InitPlayer() {
   player.attack_rst=FALSE;
   player.destroy_ground=FALSE;
   player.uppercut=FALSE;
+  player.flag_revert_palette=FALSE;
 
   player.grav=2;
   player.jump_height=0;
@@ -1300,6 +1301,7 @@ void PlayerAct() {
         player.time_breaker_units_tick=player.time_breaker_units_tick_max;
         if (player.time_breaker_units==0) {
           player.time_breaker=FALSE;
+          player.flag_revert_palette=TRUE;
           //mciSendStringA("play snd/timeskip2.mp3",NULL,0,NULL);
         }
       }
@@ -1352,8 +1354,8 @@ void PlayerCameraShake()
 	        if (player.rst_key_sprint || player.speed>=5) {
               x_bob=2.5;
 	          //if (bg_cam_fall_cooldown==0) {
-	            player.cam_move_x+=0.75*RandNum(-2,2,1);//shaky cam
-	            player.cam_move_y+=0.75*RandNum(-2,2,1);
+	            player.cam_move_x+=0.75*RandNum(-1,1,1);//shaky cam
+	            player.cam_move_y+=0.75*RandNum(-1,1,1);
 	          //}
 	        } else {
               x_bob=1.5;
@@ -1394,8 +1396,8 @@ void PlayerCameraShake()
         }
         player.cam_move_y-=y_bob;//increase y
         if (player.grav>5 || player.speed>=5) {
-    	  player.cam_move_x+=RandNum(-2,2,1);//shaky x
-          player.cam_move_y+=RandNum(-2,2,1);//shaky y
+    	  player.cam_move_x+=RandNum(-1,1,1);//shaky x
+          player.cam_move_y+=RandNum(-1,1,1);//shaky y
         }
       }
     }
@@ -1426,6 +1428,12 @@ void PlayerCameraShake()
 
 void DrawPlayer(HDC hdc)
 {
+
+    if (player.flag_revert_palette) {
+      RevertBitmapPalette(hdc,map_platforms_sprite);
+      player.flag_revert_palette=FALSE;
+    }
+
   //GrRect(hdc,player.x-PLAYER_WIDTH,player.y-PLAYER_HEIGHT,PLAYER_WIDTH,PLAYER_HEIGHT,RGB(34,139,34));
   //Mathematics
   if (player.on_ground_id!=-1) {

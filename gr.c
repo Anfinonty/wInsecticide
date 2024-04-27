@@ -336,6 +336,207 @@ void DrawBitmap(HDC hDC,double _x1,double _y1, double _x2, double _y2, int width
 }
 
 
+//https://stackoverflow.com/questions/4453677/how-to-edit-a-bitmap-once-it-has-been-loaded-by-win32
+//https://devblogs.microsoft.com/oldnewthing/20090714-00/?p=17503
+/*void Change8BitBitmapPalette(HDC hDC, HBITMAP hBmp, int cx, int cy)
+{
+    /*if (!GetDIBits(hDC, hBmp, 0, cy, NULL, &pbmi, DIB_RGB_COLORS))
+        return NULL;
+
+    /* Allocate memory for bitmap bits */
+    /*if ((lpvBits = new char[bi.bmiHeader.biSizeImage]) == NULL)
+        return NULL;
+
+    if (!GetDIBits(hDC, hBmp, 0, height, lpvBits, &pbmi, DIB_RGB_COLORS))
+        return NULL;*/
+
+
+    /* do something with bits */
+
+/*  BITMAPINFO pbmi; 
+  ZeroMemory(&pbmi, sizeof(BITMAPINFO));
+  pbmi.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
+
+
+  GetDIBits(hDC, hBmp, 0, cy, NULL, &pbmi, DIB_RGB_COLORS);
+  PVOID *lpvBits;
+  GetDIBits(hDC, hBmp, 0, cy, lpvBits, &pbmi, DIB_RGB_COLORS);
+
+
+
+
+  //BITMAPINFO* pbmi = (BITMAPINFO*)alloca(offsetof(BITMAPINFO, bmiColors[256]));
+  //ZeroMemory(&pbmi.bmiHeader, sizeof(BITMAPINFOHEADER));
+
+  pbmi.bmiHeader.biWidth = cx;
+  pbmi.bmiHeader.biHeight = cy;
+  pbmi.bmiHeader.biPlanes = 1;
+  pbmi.bmiHeader.biBitCount = 8;
+  pbmi.bmiHeader.biCompression = BI_RGB;
+  pbmi.bmiHeader.biSizeImage = 0;
+  pbmi.bmiHeader.biXPelsPerMeter = 14173;
+  pbmi.bmiHeader.biYPelsPerMeter = 14173;
+  pbmi.bmiHeader.biClrUsed = 0;
+  pbmi.bmiHeader.biClrImportant = 0;
+
+
+
+  for(int i=0; i<256; i++)
+  {
+    pbmi.bmiColors[i].rgbRed = i;
+    pbmi.bmiColors[i].rgbGreen = i;
+    pbmi.bmiColors[i].rgbBlue = i;
+    pbmi.bmiColors[i].rgbReserved = 0;
+  }
+
+  PVOID pv;
+  int j = SetDIBits(hDC, hBmp, 0, cy, pv, &pbmi, DIB_RGB_COLORS);
+  printf("hi:%d",j);
+}*/
+
+
+RGBQUAD rgbColorsNoir[256];
+void Init8BitRGBColorsNoir(RGBQUAD *rgbColors)
+{
+  for (int i = 0; i < 256; i++) {
+    rgbColors[i].rgbRed = i;
+    rgbColors[i].rgbGreen = i;
+    rgbColors[i].rgbBlue = i;
+  }
+}
+
+//HBITMAP ReplaceColor(int num, COLOR* oldColor, COLOR* newColor, HBITMAP hBitmap)
+//https://gamedev.net/forums/topic/267754-win32-replacing-color-in-a-bitmap/267754/
+void NoirBitmap(HDC hdc, HBITMAP hBitmap) {
+  HDC hdc2 = CreateCompatibleDC(hdc);
+  HBITMAP hOldBitmap;
+  RGBQUAD rgbColors[256];
+  hOldBitmap = SelectObject(hdc2, hBitmap);
+  SetDIBColorTable(hdc2, 0, 256, rgbColorsNoir);
+  SelectObject(hdc2, hOldBitmap);
+  DeleteObject(hOldBitmap);
+  DeleteDC(hdc2);
+}
+
+
+RGBQUAD rgbColorsDefault[256];
+void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
+{
+  for(int i=0; i<256; i++) {
+    int calc=i/8;
+    switch (calc) {
+      case 0:
+        rgbColors[i].rgbRed = 0;
+        rgbColors[i].rgbGreen = 0;
+        rgbColors[i].rgbBlue = 0;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 1:
+        rgbColors[i].rgbRed = 0;
+        rgbColors[i].rgbGreen = 0;
+        rgbColors[i].rgbBlue = 170;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 2:
+        rgbColors[i].rgbRed = 0;
+        rgbColors[i].rgbGreen = 170;
+        rgbColors[i].rgbBlue = 0;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 3:
+        rgbColors[i].rgbRed = 0;
+        rgbColors[i].rgbGreen = 170;
+        rgbColors[i].rgbBlue = 170;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 4:
+        rgbColors[i].rgbRed = 170;
+        rgbColors[i].rgbGreen = 0;
+        rgbColors[i].rgbBlue = 0;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 5:
+        rgbColors[i].rgbRed = 170;
+        rgbColors[i].rgbGreen = 0;
+        rgbColors[i].rgbBlue = 170;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 6:
+        rgbColors[i].rgbRed = 170;
+        rgbColors[i].rgbGreen = 85;
+        rgbColors[i].rgbBlue = 0;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 7:
+        rgbColors[i].rgbRed = 85;
+        rgbColors[i].rgbGreen = 85;
+        rgbColors[i].rgbBlue = 85;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 8:
+        rgbColors[i].rgbRed = 170;
+        rgbColors[i].rgbGreen = 170;
+        rgbColors[i].rgbBlue = 170;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 9:
+        rgbColors[i].rgbRed = 0;
+        rgbColors[i].rgbGreen = 0;
+        rgbColors[i].rgbBlue = 255;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 10:
+        rgbColors[i].rgbRed = 0;
+        rgbColors[i].rgbGreen = 255;
+        rgbColors[i].rgbBlue = 0;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 11:
+        rgbColors[i].rgbRed = 0;
+        rgbColors[i].rgbGreen = 255;
+        rgbColors[i].rgbBlue = 255;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 12:
+        rgbColors[i].rgbRed = 255;
+        rgbColors[i].rgbGreen = 0;
+        rgbColors[i].rgbBlue = 0;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 13:
+        rgbColors[i].rgbRed = 255;
+        rgbColors[i].rgbGreen = 0;
+        rgbColors[i].rgbBlue = 255;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 14:
+        rgbColors[i].rgbRed = 255;
+        rgbColors[i].rgbGreen = 255;
+        rgbColors[i].rgbBlue = 0;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 15:
+        rgbColors[i].rgbRed = 255;
+        rgbColors[i].rgbGreen = 255;
+        rgbColors[i].rgbBlue = 255;
+        rgbColors[i].rgbReserved = 0;
+        break;
+    }
+  }
+}
+
+
+void RevertBitmapPalette(HDC hdc, HBITMAP hBitmap) {
+  HDC hdc2 = CreateCompatibleDC(hdc);
+  HBITMAP hOldBitmap;
+  
+  hOldBitmap = SelectObject(hdc2, hBitmap);
+  SetDIBColorTable(hdc2, 0, 256, rgbColorsDefault);
+  SelectObject(hdc2, hOldBitmap);
+  DeleteObject(hOldBitmap);
+  DeleteDC(hdc2);
+}
+
 
 
 
@@ -772,6 +973,13 @@ HBITMAP CreateCrunchyBitmap(int cx, int cy,int bits)
   pbmi->bmiHeader.biCompression = BI_RGB;
   pbmi->bmiHeader.biSizeImage = 0;
 
+  pbmi->bmiHeader.biXPelsPerMeter = 14173;
+  pbmi->bmiHeader.biYPelsPerMeter = 14173;
+  pbmi->bmiHeader.biClrUsed = 0;
+  pbmi->bmiHeader.biClrImportant = 0;
+
+
+
 /*
 #define BLACK       RGB(0,0,0) //0
 #define BLUE        RGB(0,0,170)//1
@@ -908,6 +1116,7 @@ HBITMAP CreateCrunchyBitmap(int cx, int cy,int bits)
 
 
 //https://stackoverflow.com/questions/3142349/drawing-on-8bpp-grayscale-bitmap-unmanaged-c
+//https://www.codeproject.com/Tips/595717/Replacing-colour-in-Bitmap
 HBITMAP CreateGreyscaleBitmap(int cx, int cy)
 {
   BITMAPINFO* pbmi = (BITMAPINFO*)alloca(offsetof(BITMAPINFO, bmiColors[256]));

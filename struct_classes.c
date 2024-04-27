@@ -97,7 +97,7 @@ struct player
   bool attack_rst;
   bool destroy_ground;
   bool uppercut;
-
+  bool flag_revert_palette;
     //Render
   int rendered_vgrid_num;
   int rendered_enemy_num;

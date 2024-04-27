@@ -119,7 +119,7 @@ wchar_t save_level[128];
 int player_color=0;
 double time_begin=0;
 bool yes_unifont=FALSE;
-HBITMAP map_platforms_timebreaker_sprite;
+//HBITMAP map_platforms_timebreaker_sprite;
 
 
 #define DEFAULT_PLAYER_SPEED			1
@@ -180,7 +180,7 @@ HBITMAP map_platforms_timebreaker_sprite;
 
 #define DEFAULT_PLAYER_BUILD_RANGE		100//12
 #define DEFAULT_PLAYER_SHORT_BUILD_RANGE	10
-#define DEFAULT_PLAYER_WEB_HEALTH		10
+#define DEFAULT_PLAYER_WEB_HEALTH		200
 #define DEFAULT_PLAYER_WEB_NUM			20
 #define DEFAULT_PLAYER_SPEED			1
 
@@ -223,7 +223,7 @@ void DrawBackground(HDC hdc) {
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(8,39,245));
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255))); //RAVE
 
-  if (!player.time_breaker) {
+  //if (!player.time_breaker) {
     switch (map_background) {
       case 0:
         DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE);
@@ -236,14 +236,14 @@ void DrawBackground(HDC hdc) {
         GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,custom_map_background_color);
         break;
     }
-  }
+  //}
 }
 
 
 void DrawPlatforms(HDC hDC)
 { //Dynamically scale with window size 
   //Draw platforms bitmap mask
-  if (!player.time_breaker) {
+  //if (!player.time_breaker) {
   DrawBitmap(hDC,player.cam_move_x+player.cam_x+player.x-GR_WIDTH/2,
                  player.cam_move_y+player.cam_y+player.y-GR_HEIGHT/2,
                  player.x-GR_WIDTH/2,
@@ -260,7 +260,7 @@ void DrawPlatforms(HDC hDC)
                  GR_HEIGHT+player.grav*2,
                 map_platforms_sprite,SRCPAINT,FALSE);
 
-  } else {
+  /*} else {
   DrawBitmap(hDC,player.cam_move_x+player.cam_x+player.x-GR_WIDTH/2,
                  player.cam_move_y+player.cam_y+player.y-GR_HEIGHT/2,
                  player.x-GR_WIDTH/2,
@@ -268,7 +268,7 @@ void DrawPlatforms(HDC hDC)
                  GR_WIDTH,
                  GR_HEIGHT+player.grav*2,
                 map_platforms_timebreaker_sprite,NOTSRCCOPY,FALSE);
-  }
+  }*/
 }
 
 
@@ -402,7 +402,7 @@ void Init() {
 }
 
 
-void InitPlatformsTBSprite(HWND hwnd, HDC hdc)
+/*void InitPlatformsTBSprite(HWND hwnd, HDC hdc)
 {
   PAINTSTRUCT ps; //Suggestion Credit: https://git.xslendi.xyz
   hdc=BeginPaint(hwnd, &ps);
@@ -419,7 +419,7 @@ void InitPlatformsTBSprite(HWND hwnd, HDC hdc)
   EndPaint(hwnd, &ps);
 
   //end of platform sprite creation
-}
+}*/
 
 
 void InitPlatformsSprite(HWND hwnd, HDC hdc)
@@ -445,6 +445,11 @@ void InitPlatformsSprite(HWND hwnd, HDC hdc)
 
   //map_platforms_sprite=ReplaceColor(tmp_map_platforms_sprite,MYCOLOR1,BLACK,NULL);
   map_platforms_sprite_mask=CreateBitmapMask(map_platforms_sprite,BLACK,NULL); //create mask where black becomes transparent
+
+
+  //NoirBitmap(hdc,map_platforms_sprite);
+
+  //Change8BitBitmapPalette(hdc, map_platforms_sprite, MAP_WIDTH, MAP_HEIGHT);
 
 
   //end of platform sprite creation
@@ -496,7 +501,7 @@ void InitLevel(HWND hwnd, HDC hdc)
   InitEnemySprites();
 
   InitPlatformsSprite(hwnd,hdc);
-  InitPlatformsTBSprite(hwnd,hdc);
+  //InitPlatformsTBSprite(hwnd,hdc);
 
   in_main_menu=FALSE;
 }
@@ -1138,6 +1143,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	    case 'E':
           if (!in_main_menu) {
 	        player.uppercut=TRUE;
+            NoirBitmap(hdc,map_platforms_sprite);
           }
 	      break;
 
@@ -1164,6 +1170,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               loading_flac=FALSE;
             }
           }
+          break;
+
+        case 'C':
+        case 'Z':
+          if (!in_main_menu) {
+            if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
+              NoirBitmap(hdc,map_platforms_sprite);
+            }
+          }
+          break;
       }
       break;
     case WM_KEYUP:
@@ -1418,11 +1434,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           DrawUI(hdcBackbuff);
 
           if (!IsInvertedBackground()){ //Inverted palette level
-            if (!player.time_breaker) {
-              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
-            } else {            
-              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
-            }
+            //if (!player.time_breaker) {
+            BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
+            //} else {            
+              //BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
+            //}
           } else { //non inverted palette level
             BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
           }
@@ -1441,7 +1457,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             DeleteObject(map_platforms_sprite); //delete sprites
             DeleteObject(map_platforms_sprite_mask);
-            DeleteObject(map_platforms_timebreaker_sprite);
+            //DeleteObject(map_platforms_timebreaker_sprite);
             LoadMainMenuBackground();
             back_to_menu=FALSE;
             in_main_menu=TRUE;
@@ -1473,6 +1489,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     case WM_CREATE:
     {
       //MessageBox(NULL, TEXT("ភាសាខ្មែរ"), TEXT("ភាសាខ្មែរ") ,MB_OK); //khmer text box
+      Init8BitRGBColorsNoir(rgbColorsNoir);
+      Init8BitRGBColorsDefault(rgbColorsDefault);
 
       //Delete tmp in music
       remove("music/tmp/tmp.wav");
