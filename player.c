@@ -237,6 +237,7 @@ void InitPlayer() {
   player.walk_cycle=0;
   player.player_jump_height=DEFAULT_PLAYER_JUMP_HEIGHT;
   player.key_jump_timer=0;
+  player.time_breaker_tick=0;
 
   player.rendered_vgrid_num=0;
   for (i=0;i<VRDGRID_NUM;i++) {
@@ -1429,9 +1430,10 @@ void PlayerCameraShake()
 void DrawPlayer(HDC hdc)
 {
 
-    if (player.flag_revert_palette) {
+    if (player.flag_revert_palette && player.time_breaker_tick<=0) {
       RevertBitmapPalette(hdc,map_platforms_sprite);
       player.flag_revert_palette=FALSE;
+      player.time_breaker_tick=0;
     }
 
   //GrRect(hdc,player.x-PLAYER_WIDTH,player.y-PLAYER_HEIGHT,PLAYER_WIDTH,PLAYER_HEIGHT,RGB(34,139,34));
@@ -1451,6 +1453,22 @@ void DrawPlayer(HDC hdc)
     }
   }
 
+  if (player.time_breaker) {
+    if (player.time_breaker_tick<GR_WIDTH || player.time_breaker_tick<GR_HEIGHT) {
+      player.time_breaker_tick+=1;
+      player.time_breaker_tick+=player.time_breaker_tick;
+    //GrCircle(hdc,player.pivot_x+player.cam_x+player.cam_move_x,player.pivot_y+player.cam_y+player.cam_move_y,DEFAULT_PLAYER_BUILD_RANGE/2*NODE_SIZE,WHITE,-1);
+      GrCircle(hdc,player.x+player.cam_x+player.cam_move_x,player.y+player.cam_y+player.cam_move_y,player.time_breaker_tick,WHITE,-1);
+    } else {
+      NoirBitmap(hdc,map_platforms_sprite);
+    }
+  } else {
+    if (player.time_breaker_tick>0) {
+      player.time_breaker_tick--;
+      player.time_breaker_tick-=player.time_breaker_tick/2;
+      GrCircle(hdc,player.x+player.cam_x+player.cam_move_x,player.y+player.cam_y+player.cam_move_y,player.time_breaker_tick,WHITE,-1);
+    }
+  }
 
   if (player.saved_sprite_angle!=player.sprite_angle && player.on_ground_id!=-1) { //detect chnage in walk sprite angle
     DeleteObject(player.sprite_1_cache);

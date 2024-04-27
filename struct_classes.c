@@ -149,7 +149,7 @@ struct player
   int key_jump_timer;
   int knockback_speed_multiplier;
   int knockback_strength;
-
+  int time_breaker_tick;
 
   //=== JUST A DEMO===
   /*int sprite_width;

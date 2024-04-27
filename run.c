@@ -1172,14 +1172,35 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
           break;
 
+ 
         case 'C':
-        case 'Z':
           if (!in_main_menu) {
             if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
-              NoirBitmap(hdc,map_platforms_sprite);
+              player.time_breaker=TRUE;
+              //mciSendStringA("play snd/timeskip.mp3",NULL,0,NULL);
+              player.time_breaker_cooldown=player.time_breaker_cooldown_max;
+              player.speed+=player.time_breaker_units_max/2-1;
+            }
+            if (player.sleep_timer==DEFAULT_SLEEP_TIMER) {
+              player.sleep_timer=SLOWDOWN_SLEEP_TIMER;
+            } else {
+              player.sleep_timer=DEFAULT_SLEEP_TIMER;
             }
           }
           break;
+
+
+        case 'Z':
+          if (!in_main_menu) {
+            if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
+              player.time_breaker=TRUE;
+              //mciSendStringA("play snd/timeskip.mp3",NULL,0,NULL);
+              player.time_breaker_cooldown=player.time_breaker_cooldown_max;
+              player.speed+=player.time_breaker_units_max/2-1;
+            }
+          }
+          break;
+
       }
       break;
     case WM_KEYUP:
@@ -1264,36 +1285,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
           }
           break;
-
-
-        case 'C':
-          if (!in_main_menu) {
-            if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
-              player.time_breaker=TRUE;
-              //mciSendStringA("play snd/timeskip.mp3",NULL,0,NULL);
-              player.time_breaker_cooldown=player.time_breaker_cooldown_max;
-              player.speed+=player.time_breaker_units_max/2-1;
-            }
-            if (player.sleep_timer==DEFAULT_SLEEP_TIMER) {
-              player.sleep_timer=SLOWDOWN_SLEEP_TIMER;
-            } else {
-              player.sleep_timer=DEFAULT_SLEEP_TIMER;
-            }
-          }
-          break;
-
-
-        case 'Z':
-          if (!in_main_menu) {
-            if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
-              player.time_breaker=TRUE;
-              //mciSendStringA("play snd/timeskip.mp3",NULL,0,NULL);
-              player.time_breaker_cooldown=player.time_breaker_cooldown_max;
-              player.speed+=player.time_breaker_units_max/2-1;
-            }
-          }
-          break;
-
 
 	    case '1':
           if (!in_main_menu) {
