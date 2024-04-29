@@ -80,9 +80,9 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
         rgbColors[i].rgbReserved = 0;
         break;
       case 7: //DKGRAY
-        rgbColors[i].rgbRed = 85;
-        rgbColors[i].rgbGreen = 85;
-        rgbColors[i].rgbBlue = 85;
+        rgbColors[i].rgbRed = 85+(i-16*7);
+        rgbColors[i].rgbGreen = 85+(i-16*7);
+        rgbColors[i].rgbBlue = 85+(i-16*7);
         rgbColors[i].rgbReserved = 0;
         break;
       case 8: //LTGRAY
