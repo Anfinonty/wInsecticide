@@ -1,6 +1,163 @@
 
 
 
+
+
+RGBQUAD rgbColorsNoir[256];
+void Init8BitRGBColorsNoir(RGBQUAD *rgbColors)
+{
+  for (int i = 0; i < 256; i++) {
+    rgbColors[i].rgbRed = i;
+    rgbColors[i].rgbGreen = i;
+    rgbColors[i].rgbBlue = i;
+  }
+}
+
+//HBITMAP ReplaceColor(int num, COLOR* oldColor, COLOR* newColor, HBITMAP hBitmap)
+//https://gamedev.net/forums/topic/267754-win32-replacing-color-in-a-bitmap/267754/
+void NoirBitmap(HDC hdc, HBITMAP hBitmap) {
+  HDC hdc2 = CreateCompatibleDC(hdc);
+  HBITMAP hOldBitmap;
+  RGBQUAD rgbColors[256];
+  hOldBitmap = SelectObject(hdc2, hBitmap);
+  SetDIBColorTable(hdc2, 0, 256, rgbColorsNoir);
+  SelectObject(hdc2, hOldBitmap);
+  DeleteObject(hOldBitmap);
+  DeleteDC(hdc2);
+}
+
+//RGBQUAD rgbColorsDefaultInvert[256];
+
+
+
+RGBQUAD rgbColorsDefault[256];
+void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
+{
+  int calc;
+  for(int i=0; i<256; i++) {
+    calc=i/16;
+    switch (calc) {
+      case 0:
+        rgbColors[i].rgbRed = i/2;
+        rgbColors[i].rgbGreen = i/2;
+        rgbColors[i].rgbBlue = i/2;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 1:
+        rgbColors[i].rgbRed = 0;
+        rgbColors[i].rgbGreen = 0;
+        rgbColors[i].rgbBlue = 170;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 2:
+        rgbColors[i].rgbRed = 0;
+        rgbColors[i].rgbGreen = 170;
+        rgbColors[i].rgbBlue = 0;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 3:
+        rgbColors[i].rgbRed = 0;
+        rgbColors[i].rgbGreen = 170;
+        rgbColors[i].rgbBlue = 170;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 4:
+        rgbColors[i].rgbRed = 170;
+        rgbColors[i].rgbGreen = 0;
+        rgbColors[i].rgbBlue = 0;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 5:
+        rgbColors[i].rgbRed = 170;
+        rgbColors[i].rgbGreen = 0;
+        rgbColors[i].rgbBlue = 170;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 6:
+        rgbColors[i].rgbRed = 170;
+        rgbColors[i].rgbGreen = 85;
+        rgbColors[i].rgbBlue = 0;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 7: //DKGRAY
+        rgbColors[i].rgbRed = 85;
+        rgbColors[i].rgbGreen = 85;
+        rgbColors[i].rgbBlue = 85;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 8: //LTGRAY
+        rgbColors[i].rgbRed = 170;
+        rgbColors[i].rgbGreen = 170;
+        rgbColors[i].rgbBlue = 170;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 9:
+        rgbColors[i].rgbRed = 0;
+        rgbColors[i].rgbGreen = 0;
+        rgbColors[i].rgbBlue = 255;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 10:
+        rgbColors[i].rgbRed = 0;
+        rgbColors[i].rgbGreen = 255;
+        rgbColors[i].rgbBlue = 0;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 11:
+        rgbColors[i].rgbRed = 0;
+        rgbColors[i].rgbGreen = 255;
+        rgbColors[i].rgbBlue = 255;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 12:
+        rgbColors[i].rgbRed = 255;
+        rgbColors[i].rgbGreen = 0;
+        rgbColors[i].rgbBlue = 0;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 13:
+        rgbColors[i].rgbRed = 255;
+        rgbColors[i].rgbGreen = 0;
+        rgbColors[i].rgbBlue = 255;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 14:
+        rgbColors[i].rgbRed = 255;
+        rgbColors[i].rgbGreen = 255;
+        rgbColors[i].rgbBlue = 0;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 15:
+        rgbColors[i].rgbRed = 255;
+        rgbColors[i].rgbGreen = 255;
+        rgbColors[i].rgbBlue = 255;
+        rgbColors[i].rgbReserved = 0;
+        break;
+      /*default:
+        rgbColors[i].rgbRed = 255;
+        rgbColors[i].rgbGreen = 255;
+        rgbColors[i].rgbBlue = 255;
+        rgbColors[i].rgbReserved = 0;
+        break;*/
+    }
+  }
+}
+
+
+void RevertBitmapPalette(HDC hdc, HBITMAP hBitmap) {
+  HDC hdc2 = CreateCompatibleDC(hdc);
+  HBITMAP hOldBitmap;
+  
+  hOldBitmap = SelectObject(hdc2, hBitmap);
+  SetDIBColorTable(hdc2, 0, 256, rgbColorsDefault);
+  SelectObject(hdc2, hOldBitmap);
+  DeleteObject(hOldBitmap);
+  DeleteDC(hdc2);
+}
+
+
+
+
 HBITMAP CreateLargeBitmap(int cx, int cy)
 {
 //https://forums.codeguru.com/showthread.php?526563-Accessing-Pixels-with-CreateDIBSection
@@ -63,132 +220,7 @@ HBITMAP CreateCrunchyBitmap(int cx, int cy)
   pbmi->bmiHeader.biClrUsed = 0;
   pbmi->bmiHeader.biClrImportant = 0;
 
-
-
-/*
-#define BLACK       RGB(0,0,0) //0
-#define BLUE        RGB(0,0,170)//1
-#define GREEN    	RGB(0,170,0)//2
-#define CYAN        RGB(0,170,170)//3
-#define RED         RGB(170,0,0)//4
-#define PURPLE      RGB(170,0,170)//5
-#define BROWN       RGB(170,85,0)//6
-#define DKGRAY      RGB(85,85,85)//7
-
-
-#define LTGRAY      RGB(170,170,170)//8
-#define LTBLUE      RGB(0,0,255)//9
-#define LTGREEN     RGB(0,255,0)//10
-#define LTCYAN      RGB(0,255,255)//11
-#define LTRED       RGB(255,0,0)//12
-#define LTPURPLE    RGB(255,0,255)//13
-#define YELLOW      RGB(255,255,0)//14
-#define WHITE       RGB(255,255,255)//15
-*/
-
-  int calc=0;
-  for(int i=0; i<256; i++)
-  {
-    calc=i/8;
-    switch (calc) {
-      case 0:
-        pbmi->bmiColors[i].rgbRed = 0;
-        pbmi->bmiColors[i].rgbGreen = 0;
-        pbmi->bmiColors[i].rgbBlue = 0;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-      case 1:
-        pbmi->bmiColors[i].rgbRed = 0;
-        pbmi->bmiColors[i].rgbGreen = 0;
-        pbmi->bmiColors[i].rgbBlue = 170;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-      case 2:
-        pbmi->bmiColors[i].rgbRed = 0;
-        pbmi->bmiColors[i].rgbGreen = 170;
-        pbmi->bmiColors[i].rgbBlue = 0;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-      case 3:
-        pbmi->bmiColors[i].rgbRed = 0;
-        pbmi->bmiColors[i].rgbGreen = 170;
-        pbmi->bmiColors[i].rgbBlue = 170;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-      case 4:
-        pbmi->bmiColors[i].rgbRed = 170;
-        pbmi->bmiColors[i].rgbGreen = 0;
-        pbmi->bmiColors[i].rgbBlue = 0;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-      case 5:
-        pbmi->bmiColors[i].rgbRed = 170;
-        pbmi->bmiColors[i].rgbGreen = 0;
-        pbmi->bmiColors[i].rgbBlue = 170;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-      case 6:
-        pbmi->bmiColors[i].rgbRed = 170;
-        pbmi->bmiColors[i].rgbGreen = 85;
-        pbmi->bmiColors[i].rgbBlue = 0;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-      case 7:
-        pbmi->bmiColors[i].rgbRed = 85;
-        pbmi->bmiColors[i].rgbGreen = 85;
-        pbmi->bmiColors[i].rgbBlue = 85;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-      case 8:
-        pbmi->bmiColors[i].rgbRed = 170;
-        pbmi->bmiColors[i].rgbGreen = 170;
-        pbmi->bmiColors[i].rgbBlue = 170;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-      case 9:
-        pbmi->bmiColors[i].rgbRed = 0;
-        pbmi->bmiColors[i].rgbGreen = 0;
-        pbmi->bmiColors[i].rgbBlue = 255;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-      case 10:
-        pbmi->bmiColors[i].rgbRed = 0;
-        pbmi->bmiColors[i].rgbGreen = 255;
-        pbmi->bmiColors[i].rgbBlue = 0;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-      case 11:
-        pbmi->bmiColors[i].rgbRed = 0;
-        pbmi->bmiColors[i].rgbGreen = 255;
-        pbmi->bmiColors[i].rgbBlue = 255;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-      case 12:
-        pbmi->bmiColors[i].rgbRed = 255;
-        pbmi->bmiColors[i].rgbGreen = 0;
-        pbmi->bmiColors[i].rgbBlue = 0;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-      case 13:
-        pbmi->bmiColors[i].rgbRed = 255;
-        pbmi->bmiColors[i].rgbGreen = 0;
-        pbmi->bmiColors[i].rgbBlue = 255;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-      case 14:
-        pbmi->bmiColors[i].rgbRed = 255;
-        pbmi->bmiColors[i].rgbGreen = 255;
-        pbmi->bmiColors[i].rgbBlue = 0;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-      case 15:
-        pbmi->bmiColors[i].rgbRed = 255;
-        pbmi->bmiColors[i].rgbGreen = 255;
-        pbmi->bmiColors[i].rgbBlue = 255;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-    }
-  }
+  Init8BitRGBColorsDefault(pbmi->bmiColors);
 
   pbmi->bmiHeader.biClrUsed = 0;
   pbmi->bmiHeader.biClrImportant = 0;
@@ -511,152 +543,6 @@ void DrawBitmap(HDC hDC,double _x1,double _y1, double _x2, double _y2, int width
       BitBlt(hDC, _x1, _y1, width, height, hdcMem, _x2, _y2, _SRCTYPE);
     DeleteDC(hdcMem);
   }
-}
-
-
-
-
-
-RGBQUAD rgbColorsNoir[256];
-void Init8BitRGBColorsNoir(RGBQUAD *rgbColors)
-{
-  for (int i = 0; i < 256; i++) {
-    rgbColors[i].rgbRed = i;
-    rgbColors[i].rgbGreen = i;
-    rgbColors[i].rgbBlue = i;
-  }
-}
-
-//HBITMAP ReplaceColor(int num, COLOR* oldColor, COLOR* newColor, HBITMAP hBitmap)
-//https://gamedev.net/forums/topic/267754-win32-replacing-color-in-a-bitmap/267754/
-void NoirBitmap(HDC hdc, HBITMAP hBitmap) {
-  HDC hdc2 = CreateCompatibleDC(hdc);
-  HBITMAP hOldBitmap;
-  RGBQUAD rgbColors[256];
-  hOldBitmap = SelectObject(hdc2, hBitmap);
-  SetDIBColorTable(hdc2, 0, 256, rgbColorsNoir);
-  SelectObject(hdc2, hOldBitmap);
-  DeleteObject(hOldBitmap);
-  DeleteDC(hdc2);
-}
-
-
-RGBQUAD rgbColorsDefault[256];
-void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
-{
-  for(int i=0; i<256; i++) {
-    int calc=i/8;
-    switch (calc) {
-      case 0:
-        rgbColors[i].rgbRed = 0;
-        rgbColors[i].rgbGreen = 0;
-        rgbColors[i].rgbBlue = 0;
-        rgbColors[i].rgbReserved = 0;
-        break;
-      case 1:
-        rgbColors[i].rgbRed = 0;
-        rgbColors[i].rgbGreen = 0;
-        rgbColors[i].rgbBlue = 170;
-        rgbColors[i].rgbReserved = 0;
-        break;
-      case 2:
-        rgbColors[i].rgbRed = 0;
-        rgbColors[i].rgbGreen = 170;
-        rgbColors[i].rgbBlue = 0;
-        rgbColors[i].rgbReserved = 0;
-        break;
-      case 3:
-        rgbColors[i].rgbRed = 0;
-        rgbColors[i].rgbGreen = 170;
-        rgbColors[i].rgbBlue = 170;
-        rgbColors[i].rgbReserved = 0;
-        break;
-      case 4:
-        rgbColors[i].rgbRed = 170;
-        rgbColors[i].rgbGreen = 0;
-        rgbColors[i].rgbBlue = 0;
-        rgbColors[i].rgbReserved = 0;
-        break;
-      case 5:
-        rgbColors[i].rgbRed = 170;
-        rgbColors[i].rgbGreen = 0;
-        rgbColors[i].rgbBlue = 170;
-        rgbColors[i].rgbReserved = 0;
-        break;
-      case 6:
-        rgbColors[i].rgbRed = 170;
-        rgbColors[i].rgbGreen = 85;
-        rgbColors[i].rgbBlue = 0;
-        rgbColors[i].rgbReserved = 0;
-        break;
-      case 7:
-        rgbColors[i].rgbRed = 85;
-        rgbColors[i].rgbGreen = 85;
-        rgbColors[i].rgbBlue = 85;
-        rgbColors[i].rgbReserved = 0;
-        break;
-      case 8:
-        rgbColors[i].rgbRed = 170;
-        rgbColors[i].rgbGreen = 170;
-        rgbColors[i].rgbBlue = 170;
-        rgbColors[i].rgbReserved = 0;
-        break;
-      case 9:
-        rgbColors[i].rgbRed = 0;
-        rgbColors[i].rgbGreen = 0;
-        rgbColors[i].rgbBlue = 255;
-        rgbColors[i].rgbReserved = 0;
-        break;
-      case 10:
-        rgbColors[i].rgbRed = 0;
-        rgbColors[i].rgbGreen = 255;
-        rgbColors[i].rgbBlue = 0;
-        rgbColors[i].rgbReserved = 0;
-        break;
-      case 11:
-        rgbColors[i].rgbRed = 0;
-        rgbColors[i].rgbGreen = 255;
-        rgbColors[i].rgbBlue = 255;
-        rgbColors[i].rgbReserved = 0;
-        break;
-      case 12:
-        rgbColors[i].rgbRed = 255;
-        rgbColors[i].rgbGreen = 0;
-        rgbColors[i].rgbBlue = 0;
-        rgbColors[i].rgbReserved = 0;
-        break;
-      case 13:
-        rgbColors[i].rgbRed = 255;
-        rgbColors[i].rgbGreen = 0;
-        rgbColors[i].rgbBlue = 255;
-        rgbColors[i].rgbReserved = 0;
-        break;
-      case 14:
-        rgbColors[i].rgbRed = 255;
-        rgbColors[i].rgbGreen = 255;
-        rgbColors[i].rgbBlue = 0;
-        rgbColors[i].rgbReserved = 0;
-        break;
-      case 15:
-        rgbColors[i].rgbRed = 255;
-        rgbColors[i].rgbGreen = 255;
-        rgbColors[i].rgbBlue = 255;
-        rgbColors[i].rgbReserved = 0;
-        break;
-    }
-  }
-}
-
-
-void RevertBitmapPalette(HDC hdc, HBITMAP hBitmap) {
-  HDC hdc2 = CreateCompatibleDC(hdc);
-  HBITMAP hOldBitmap;
-  
-  hOldBitmap = SelectObject(hdc2, hBitmap);
-  SetDIBColorTable(hdc2, 0, 256, rgbColorsDefault);
-  SelectObject(hdc2, hOldBitmap);
-  DeleteObject(hOldBitmap);
-  DeleteDC(hdc2);
 }
 
 
@@ -1142,6 +1028,28 @@ HBITMAP CopyBitmap(HBITMAP srcBitmap,int SRCOPERATION)
   BITMAP bm;
   GetObject(srcBitmap, sizeof(bm), &bm);
   HBITMAP destBitmap=CreateLargeBitmap(bm.bmWidth,bm.bmHeight);
+
+  HDC hdcMem = CreateCompatibleDC(NULL);
+  HDC hdcMem2 = CreateCompatibleDC(NULL);
+
+  SelectObject(hdcMem2, srcBitmap);
+  SelectObject(hdcMem, destBitmap);
+
+  BitBlt(hdcMem, 0, 0, bm.bmWidth, bm.bmHeight, hdcMem2, 0, 0, SRCOPERATION);
+
+  DeleteDC(hdcMem);
+  DeleteDC(hdcMem2);
+
+  return destBitmap;
+}
+
+
+
+HBITMAP CopyCrunchyBitmap(HBITMAP srcBitmap,int SRCOPERATION)
+{
+  BITMAP bm;
+  GetObject(srcBitmap, sizeof(bm), &bm);
+  HBITMAP destBitmap=CreateCrunchyBitmap(bm.bmWidth,bm.bmHeight);
 
   HDC hdcMem = CreateCompatibleDC(NULL);
   HDC hdcMem2 = CreateCompatibleDC(NULL);
