@@ -1303,7 +1303,7 @@ void PlayerAct() {
         if (player.time_breaker_units==0) {
           player.time_breaker=FALSE;
           player.flag_revert_palette=TRUE;
-          //mciSendStringA("play snd/timeskip2.mp3",NULL,0,NULL);
+          //PlaySound(L"snd/timeskip__stop.wav", NULL, SND_FILENAME | SND_ASYNC);
         }
       }
     }
@@ -1429,7 +1429,6 @@ void PlayerCameraShake()
 
 void DrawPlayer(HDC hdc)
 {
-
     if (player.flag_revert_palette && player.time_breaker_tick<=0) {
       RevertBitmapPalette(hdc,map_platforms_sprite);
       player.flag_revert_palette=FALSE;

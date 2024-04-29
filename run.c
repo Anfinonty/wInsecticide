@@ -47,7 +47,7 @@
 #define WHITE       RGB(255,255,255)
 
 
-#define DKBLACK     RGB(16,16,16) //For drawing
+#define DKBLACK     RGB(24,24,24) //For drawing
 #define LLTGREEN    RGB(0,254,0)
 #define MYCOLOR1    RGB(123,123,123)
 
@@ -445,9 +445,12 @@ void InitLevel(HWND hwnd, HDC hdc)
 
   //moon sprite
   DeleteObject(moon_sprite_cache);
-  HBITMAP tmp_moon_sprite=CopyBitmap(moon_sprite,NOTSRCCOPY);
-  moon_sprite_cache=RotateSprite(NULL, tmp_moon_sprite,0,LTPURPLE,BLACK,-1);
+  HBITMAP tmp_moon_sprite=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,-1);
+
+  moon_sprite_cache=CopyCrunchyBitmap(tmp_moon_sprite,NOTSRCCOPY);
   DeleteObject(tmp_moon_sprite);
+
+
 
   //Load Enemy cache spritesF
   InitEnemySprites();
@@ -1076,6 +1079,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         case VK_RETURN:
           if (!in_main_menu) {
+            RevertBitmapPalette(hdc,map_platforms_sprite);
             Init();
           } else {//Run Level
             if (player_color>-1 && player_color<COLORS_NUM) {
@@ -1127,6 +1131,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
               player.time_breaker=TRUE;
               //mciSendStringA("play snd/timeskip.mp3",NULL,0,NULL);
+              //PlaySound(L"snd/timeskip__start.wav", NULL, SND_FILENAME | SND_ASYNC);
               player.time_breaker_cooldown=player.time_breaker_cooldown_max;
               player.speed+=player.time_breaker_units_max/2-1;
             }
@@ -1144,6 +1149,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
               player.time_breaker=TRUE;
               //mciSendStringA("play snd/timeskip.mp3",NULL,0,NULL);
+              //PlaySound(L"snd/timeskip__start.wav", NULL, SND_FILENAME | SND_ASYNC);
               player.time_breaker_cooldown=player.time_breaker_cooldown_max;
               player.speed+=player.time_breaker_units_max/2-1;
             }
