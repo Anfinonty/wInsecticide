@@ -1,6 +1,7 @@
 
 
-HBITMAP CreateLargeBitmap(int cx, int cy, int bits)
+
+HBITMAP CreateLargeBitmap(int cx, int cy)
 {
 //https://forums.codeguru.com/showthread.php?526563-Accessing-Pixels-with-CreateDIBSection
  unsigned char* lpBitmapBits; 
@@ -11,15 +12,194 @@ HBITMAP CreateLargeBitmap(int cx, int cy, int bits)
   bi.bmiHeader.biWidth=cx;
   bi.bmiHeader.biHeight=-cy;
   bi.bmiHeader.biPlanes=1;
-  bi.bmiHeader.biBitCount=bits;
-  return CreateDIBSection(NULL, &bi, DIB_RGB_COLORS, (VOID**)&lpBitmapBits,NULL,0);
+  bi.bmiHeader.biBitCount=32;
+  return CreateDIBSection(NULL, &bi,DIB_RGB_COLORS, (VOID**)&lpBitmapBits,NULL,0);
 }
 
 
 
+HBITMAP Create1BitBitmap(int cx, int cy)
+{
+  BITMAPINFO* pbmi = (BITMAPINFO*)alloca(offsetof(BITMAPINFO, bmiColors[2]));
+  pbmi->bmiHeader.biSize = sizeof (pbmi->bmiHeader);
+  pbmi->bmiHeader.biWidth = cx;
+  pbmi->bmiHeader.biHeight = cy;
+  pbmi->bmiHeader.biPlanes = 1;
+  pbmi->bmiHeader.biBitCount = 1;
+  pbmi->bmiHeader.biCompression = BI_RGB;
+  pbmi->bmiHeader.biSizeImage = 0;
 
-/*#define COLORREF2RGB(Color) (Color & 0xff00) | ((Color >> 16) & 0xff) \
-                                 | ((Color << 16) & 0xff0000)*/
+  pbmi->bmiColors[0].rgbRed = 0;
+  pbmi->bmiColors[0].rgbGreen = 0;
+  pbmi->bmiColors[0].rgbBlue = 0;
+  pbmi->bmiColors[0].rgbReserved = 0;
+
+  pbmi->bmiColors[1].rgbRed = 255;
+  pbmi->bmiColors[1].rgbGreen = 255;
+  pbmi->bmiColors[1].rgbBlue = 255;
+  pbmi->bmiColors[1].rgbReserved = 0;
+
+  pbmi->bmiHeader.biClrUsed = 0;
+  pbmi->bmiHeader.biClrImportant = 0;
+  PVOID pv;
+  return CreateDIBSection(NULL,pbmi,DIB_RGB_COLORS,&pv,NULL,0);
+}
+
+
+
+HBITMAP CreateCrunchyBitmap(int cx, int cy)
+{
+  BITMAPINFO* pbmi = (BITMAPINFO*)alloca(offsetof(BITMAPINFO, bmiColors[256]));
+  pbmi->bmiHeader.biSize = sizeof (pbmi->bmiHeader);
+  pbmi->bmiHeader.biWidth = cx;
+  pbmi->bmiHeader.biHeight = cy;
+  pbmi->bmiHeader.biPlanes = 1;
+  pbmi->bmiHeader.biBitCount = 8;
+  pbmi->bmiHeader.biCompression = BI_RGB;
+  pbmi->bmiHeader.biSizeImage = 0;
+
+  pbmi->bmiHeader.biXPelsPerMeter = 14173;
+  pbmi->bmiHeader.biYPelsPerMeter = 14173;
+  pbmi->bmiHeader.biClrUsed = 0;
+  pbmi->bmiHeader.biClrImportant = 0;
+
+
+
+/*
+#define BLACK       RGB(0,0,0) //0
+#define BLUE        RGB(0,0,170)//1
+#define GREEN    	RGB(0,170,0)//2
+#define CYAN        RGB(0,170,170)//3
+#define RED         RGB(170,0,0)//4
+#define PURPLE      RGB(170,0,170)//5
+#define BROWN       RGB(170,85,0)//6
+#define DKGRAY      RGB(85,85,85)//7
+
+
+#define LTGRAY      RGB(170,170,170)//8
+#define LTBLUE      RGB(0,0,255)//9
+#define LTGREEN     RGB(0,255,0)//10
+#define LTCYAN      RGB(0,255,255)//11
+#define LTRED       RGB(255,0,0)//12
+#define LTPURPLE    RGB(255,0,255)//13
+#define YELLOW      RGB(255,255,0)//14
+#define WHITE       RGB(255,255,255)//15
+*/
+
+  int calc=0;
+  for(int i=0; i<256; i++)
+  {
+    calc=i/8;
+    switch (calc) {
+      case 0:
+        pbmi->bmiColors[i].rgbRed = 0;
+        pbmi->bmiColors[i].rgbGreen = 0;
+        pbmi->bmiColors[i].rgbBlue = 0;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+      case 1:
+        pbmi->bmiColors[i].rgbRed = 0;
+        pbmi->bmiColors[i].rgbGreen = 0;
+        pbmi->bmiColors[i].rgbBlue = 170;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+      case 2:
+        pbmi->bmiColors[i].rgbRed = 0;
+        pbmi->bmiColors[i].rgbGreen = 170;
+        pbmi->bmiColors[i].rgbBlue = 0;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+      case 3:
+        pbmi->bmiColors[i].rgbRed = 0;
+        pbmi->bmiColors[i].rgbGreen = 170;
+        pbmi->bmiColors[i].rgbBlue = 170;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+      case 4:
+        pbmi->bmiColors[i].rgbRed = 170;
+        pbmi->bmiColors[i].rgbGreen = 0;
+        pbmi->bmiColors[i].rgbBlue = 0;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+      case 5:
+        pbmi->bmiColors[i].rgbRed = 170;
+        pbmi->bmiColors[i].rgbGreen = 0;
+        pbmi->bmiColors[i].rgbBlue = 170;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+      case 6:
+        pbmi->bmiColors[i].rgbRed = 170;
+        pbmi->bmiColors[i].rgbGreen = 85;
+        pbmi->bmiColors[i].rgbBlue = 0;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+      case 7:
+        pbmi->bmiColors[i].rgbRed = 85;
+        pbmi->bmiColors[i].rgbGreen = 85;
+        pbmi->bmiColors[i].rgbBlue = 85;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+      case 8:
+        pbmi->bmiColors[i].rgbRed = 170;
+        pbmi->bmiColors[i].rgbGreen = 170;
+        pbmi->bmiColors[i].rgbBlue = 170;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+      case 9:
+        pbmi->bmiColors[i].rgbRed = 0;
+        pbmi->bmiColors[i].rgbGreen = 0;
+        pbmi->bmiColors[i].rgbBlue = 255;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+      case 10:
+        pbmi->bmiColors[i].rgbRed = 0;
+        pbmi->bmiColors[i].rgbGreen = 255;
+        pbmi->bmiColors[i].rgbBlue = 0;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+      case 11:
+        pbmi->bmiColors[i].rgbRed = 0;
+        pbmi->bmiColors[i].rgbGreen = 255;
+        pbmi->bmiColors[i].rgbBlue = 255;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+      case 12:
+        pbmi->bmiColors[i].rgbRed = 255;
+        pbmi->bmiColors[i].rgbGreen = 0;
+        pbmi->bmiColors[i].rgbBlue = 0;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+      case 13:
+        pbmi->bmiColors[i].rgbRed = 255;
+        pbmi->bmiColors[i].rgbGreen = 0;
+        pbmi->bmiColors[i].rgbBlue = 255;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+      case 14:
+        pbmi->bmiColors[i].rgbRed = 255;
+        pbmi->bmiColors[i].rgbGreen = 255;
+        pbmi->bmiColors[i].rgbBlue = 0;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+      case 15:
+        pbmi->bmiColors[i].rgbRed = 255;
+        pbmi->bmiColors[i].rgbGreen = 255;
+        pbmi->bmiColors[i].rgbBlue = 255;
+        pbmi->bmiColors[i].rgbReserved = 0;
+        break;
+    }
+  }
+
+  pbmi->bmiHeader.biClrUsed = 0;
+  pbmi->bmiHeader.biClrImportant = 0;
+  PVOID pv;
+  return CreateDIBSection(NULL,pbmi,DIB_RGB_COLORS,&pv,NULL,0);
+}
+
+
+
+#define COLORREF2RGB(Color) (Color & 0xff00) | ((Color >> 16) & 0xff) \
+                                 | ((Color << 16) & 0xff0000)
 //-------------------------------------------------------------------------------
 // ReplaceColor
 //
@@ -49,7 +229,7 @@ HBITMAP ReplaceColor(HBITMAP hBmp,COLORREF cOldColor,COLORREF cNewColor,HDC hBmp
             if (hBmpDC)
                 if (hBmp == (HBITMAP)GetCurrentObject(hBmpDC, OBJ_BITMAP))
             {
-                hTmpBitmap = CreateLargeBitmap(1,1,1);//CreateBitmap(1, 1, 1, 1, NULL);
+                hTmpBitmap = CreateLargeBitmap(1,1);//CreateBitmap(1, 1, 1, 1, NULL);
                 SelectObject(hBmpDC, hTmpBitmap);
             }
 
@@ -244,10 +424,6 @@ void GrCircle(HDC hdc, double x, double y, int size, int COLOR, int COLOR_2) {
 }
 
 
-/*int CALLBACK EnumFontFunc(const lplogfont,const lptextmetric, DWORD dword, LPARAM lparam) {
-  return 1;
-}*/
-
 void GrPrintW(HDC hdc, double x1, double y1, wchar_t *_txt, char *_atxt, int color, int _height, bool A,bool is_unifont) 
 {
   LPCWSTR txt=_txt;
@@ -320,6 +496,8 @@ void GrPrint(HDC hdc, double x1, double y1, char *_txt, int color)
   SetTextColor(hdc, TRANSPARENT);
 }
 
+
+
 void DrawBitmap(HDC hDC,double _x1,double _y1, double _x2, double _y2, int width, int height, HBITMAP hSourceBitmap,int _SRCTYPE,bool stretch)
 {
   if (hSourceBitmap!=NULL) {
@@ -336,63 +514,7 @@ void DrawBitmap(HDC hDC,double _x1,double _y1, double _x2, double _y2, int width
 }
 
 
-//https://stackoverflow.com/questions/4453677/how-to-edit-a-bitmap-once-it-has-been-loaded-by-win32
-//https://devblogs.microsoft.com/oldnewthing/20090714-00/?p=17503
-/*void Change8BitBitmapPalette(HDC hDC, HBITMAP hBmp, int cx, int cy)
-{
-    /*if (!GetDIBits(hDC, hBmp, 0, cy, NULL, &pbmi, DIB_RGB_COLORS))
-        return NULL;
 
-    /* Allocate memory for bitmap bits */
-    /*if ((lpvBits = new char[bi.bmiHeader.biSizeImage]) == NULL)
-        return NULL;
-
-    if (!GetDIBits(hDC, hBmp, 0, height, lpvBits, &pbmi, DIB_RGB_COLORS))
-        return NULL;*/
-
-
-    /* do something with bits */
-
-/*  BITMAPINFO pbmi; 
-  ZeroMemory(&pbmi, sizeof(BITMAPINFO));
-  pbmi.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
-
-
-  GetDIBits(hDC, hBmp, 0, cy, NULL, &pbmi, DIB_RGB_COLORS);
-  PVOID *lpvBits;
-  GetDIBits(hDC, hBmp, 0, cy, lpvBits, &pbmi, DIB_RGB_COLORS);
-
-
-
-
-  //BITMAPINFO* pbmi = (BITMAPINFO*)alloca(offsetof(BITMAPINFO, bmiColors[256]));
-  //ZeroMemory(&pbmi.bmiHeader, sizeof(BITMAPINFOHEADER));
-
-  pbmi.bmiHeader.biWidth = cx;
-  pbmi.bmiHeader.biHeight = cy;
-  pbmi.bmiHeader.biPlanes = 1;
-  pbmi.bmiHeader.biBitCount = 8;
-  pbmi.bmiHeader.biCompression = BI_RGB;
-  pbmi.bmiHeader.biSizeImage = 0;
-  pbmi.bmiHeader.biXPelsPerMeter = 14173;
-  pbmi.bmiHeader.biYPelsPerMeter = 14173;
-  pbmi.bmiHeader.biClrUsed = 0;
-  pbmi.bmiHeader.biClrImportant = 0;
-
-
-
-  for(int i=0; i<256; i++)
-  {
-    pbmi.bmiColors[i].rgbRed = i;
-    pbmi.bmiColors[i].rgbGreen = i;
-    pbmi.bmiColors[i].rgbBlue = i;
-    pbmi.bmiColors[i].rgbReserved = 0;
-  }
-
-  PVOID pv;
-  int j = SetDIBits(hDC, hBmp, 0, cy, pv, &pbmi, DIB_RGB_COLORS);
-  printf("hi:%d",j);
-}*/
 
 
 RGBQUAD rgbColorsNoir[256];
@@ -540,6 +662,9 @@ void RevertBitmapPalette(HDC hdc, HBITMAP hBitmap) {
 
 
 
+
+
+
 //Set values to variables
 void SetRotatedSpriteSize(HDC hDC, HBITMAP hSourceBitmap,double radians, int *minx, int *miny, int *maxx, int *maxy, int *width, int *height)
 {
@@ -670,7 +795,7 @@ void RotateSpriteII(HDC hDC, HBITMAP hSourceBitmap, HBITMAP hDestBitmap,double r
 
 
 
-HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, double radians,int rTransparent, int sprite_color, int sprite_color_2, int bits) 
+HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, double radians,int rTransparent, int sprite_color, int sprite_color_2) 
 { //if (hSourceBitmap != NULL) { ////https://ftp.zx.net.nz/pub/Patches/ftp.microsoft.com/MISC/KB/en-us/77/127.HTM
   HBITMAP hOldSourceBitmap, hOldDestBitmap, hDestBitmap; ////https://www.codeguru.com/multimedia/rotate-a-bitmap-image/
   HDC hMemSrc,hMemDest;
@@ -713,7 +838,7 @@ HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, double radians,int rTranspa
   /*hDestBitmap = CreateBitmap(height, width, iSrcBitmap.bmPlanes,
                   iSrcBitmap.bmBitsPixel, NULL);*/
 
-  hDestBitmap = CreateLargeBitmap(height, width, bits);
+  hDestBitmap = CreateCrunchyBitmap(height,width);//CreateLargeBitmap(height, width);
   hOldSourceBitmap = SelectObject(hMemSrc, hSourceBitmap);
   hOldDestBitmap = SelectObject(hMemDest, hDestBitmap);
 
@@ -786,7 +911,7 @@ HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, double radians,int rTranspa
 
 
 
-void GrSprite(HDC hDC,double _x1,double _y1, HBITMAP hSourceBitmap,bool is_left,int bits) {
+void GrSprite(HDC hDC,double _x1,double _y1, HBITMAP hSourceBitmap,bool is_left) {
   if (hSourceBitmap != NULL) { ////https://ftp.zx.net.nz/pub/Patches/ftp.microsoft.com/MISC/KB/en-us/77/127.HTM
     static HBITMAP hBitmap;
     BITMAP bm;
@@ -803,7 +928,7 @@ void GrSprite(HDC hDC,double _x1,double _y1, HBITMAP hSourceBitmap,bool is_left,
     /*hBitmap = CreateBitmap(bm.bmWidth, bm.bmHeight, 
                         bm.bmPlanes, bm.bmBitsPixel, //IMPORTANT, these 2 arguements allow color to pass through
                         NULL); */
-    hBitmap = CreateLargeBitmap(bm.bmWidth,bm.bmHeight,bits);
+    hBitmap = CreateCrunchyBitmap(bm.bmWidth,bm.bmHeight);//CreateLargeBitmap(bm.bmWidth,bm.bmHeight);
     hOldSourceBitmap = SelectObject(hMemSrc, hSourceBitmap);
     hOldDestBitmap = SelectObject(hMemDest, hBitmap);
 
@@ -927,196 +1052,8 @@ void DrawTriFill(HDC hdc, int tri_color,double x1,double y1,double x2,double y2,
 }
 
 
-HBITMAP Create1BitBitmap(int cx, int cy)
-{
-  BITMAPINFO* pbmi = (BITMAPINFO*)alloca(offsetof(BITMAPINFO, bmiColors[2]));
-  pbmi->bmiHeader.biSize = sizeof (pbmi->bmiHeader);
-  pbmi->bmiHeader.biWidth = cx;
-  pbmi->bmiHeader.biHeight = cy;
-  pbmi->bmiHeader.biPlanes = 1;
-  pbmi->bmiHeader.biBitCount = 1;
-  pbmi->bmiHeader.biCompression = BI_RGB;
-  pbmi->bmiHeader.biSizeImage = 0;
-
-  pbmi->bmiColors[0].rgbRed = 0;
-  pbmi->bmiColors[0].rgbGreen = 0;
-  pbmi->bmiColors[0].rgbBlue = 0;
-  pbmi->bmiColors[0].rgbReserved = 0;
-
-  pbmi->bmiColors[1].rgbRed = 255;
-  pbmi->bmiColors[1].rgbGreen = 255;
-  pbmi->bmiColors[1].rgbBlue = 255;
-  pbmi->bmiColors[1].rgbReserved = 0;
-
-  pbmi->bmiHeader.biClrUsed = 0;
-  pbmi->bmiHeader.biClrImportant = 0;
-  PVOID pv;
-  return CreateDIBSection(NULL,pbmi,DIB_RGB_COLORS,&pv,NULL,0);
-}
-
-
-
-HBITMAP CreateCrunchyBitmap(int cx, int cy,int bits)
-{
-  int color_num=256;
-  if (bits==4) {
-    color_num=16;
-  }
-
-
-  BITMAPINFO* pbmi = (BITMAPINFO*)alloca(offsetof(BITMAPINFO, bmiColors[color_num]));
-  pbmi->bmiHeader.biSize = sizeof (pbmi->bmiHeader);
-  pbmi->bmiHeader.biWidth = cx;
-  pbmi->bmiHeader.biHeight = cy;
-  pbmi->bmiHeader.biPlanes = 1;
-  pbmi->bmiHeader.biBitCount = bits;
-  pbmi->bmiHeader.biCompression = BI_RGB;
-  pbmi->bmiHeader.biSizeImage = 0;
-
-  pbmi->bmiHeader.biXPelsPerMeter = 14173;
-  pbmi->bmiHeader.biYPelsPerMeter = 14173;
-  pbmi->bmiHeader.biClrUsed = 0;
-  pbmi->bmiHeader.biClrImportant = 0;
-
-
-
-/*
-#define BLACK       RGB(0,0,0) //0
-#define BLUE        RGB(0,0,170)//1
-#define GREEN    	RGB(0,170,0)//2
-#define CYAN        RGB(0,170,170)//3
-#define RED         RGB(170,0,0)//4
-#define PURPLE      RGB(170,0,170)//5
-#define BROWN       RGB(170,85,0)//6
-#define DKGRAY      RGB(85,85,85)//7
-
-
-#define LTGRAY      RGB(170,170,170)//8
-#define LTBLUE      RGB(0,0,255)//9
-#define LTGREEN     RGB(0,255,0)//10
-#define LTCYAN      RGB(0,255,255)//11
-#define LTRED       RGB(255,0,0)//12
-#define LTPURPLE    RGB(255,0,255)//13
-#define YELLOW      RGB(255,255,0)//14
-#define WHITE       RGB(255,255,255)//15
-*/
-
-  for(int i=0; i<color_num; i++)
-  {
-    int calc=i;
-    if (bits>=8) {
-       calc=i/8;
-    }
-    switch (calc) {
-      case 0:
-        pbmi->bmiColors[i].rgbRed = 0;
-        pbmi->bmiColors[i].rgbGreen = 0;
-        pbmi->bmiColors[i].rgbBlue = 0;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-      case 1:
-        pbmi->bmiColors[i].rgbRed = 0;
-        pbmi->bmiColors[i].rgbGreen = 0;
-        pbmi->bmiColors[i].rgbBlue = 170;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-      case 2:
-        pbmi->bmiColors[i].rgbRed = 0;
-        pbmi->bmiColors[i].rgbGreen = 170;
-        pbmi->bmiColors[i].rgbBlue = 0;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-      case 3:
-        pbmi->bmiColors[i].rgbRed = 0;
-        pbmi->bmiColors[i].rgbGreen = 170;
-        pbmi->bmiColors[i].rgbBlue = 170;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-      case 4:
-        pbmi->bmiColors[i].rgbRed = 170;
-        pbmi->bmiColors[i].rgbGreen = 0;
-        pbmi->bmiColors[i].rgbBlue = 0;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-      case 5:
-        pbmi->bmiColors[i].rgbRed = 170;
-        pbmi->bmiColors[i].rgbGreen = 0;
-        pbmi->bmiColors[i].rgbBlue = 170;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-      case 6:
-        pbmi->bmiColors[i].rgbRed = 170;
-        pbmi->bmiColors[i].rgbGreen = 85;
-        pbmi->bmiColors[i].rgbBlue = 0;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-      case 7:
-        pbmi->bmiColors[i].rgbRed = 85;
-        pbmi->bmiColors[i].rgbGreen = 85;
-        pbmi->bmiColors[i].rgbBlue = 85;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-      case 8:
-        pbmi->bmiColors[i].rgbRed = 170;
-        pbmi->bmiColors[i].rgbGreen = 170;
-        pbmi->bmiColors[i].rgbBlue = 170;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-      case 9:
-        pbmi->bmiColors[i].rgbRed = 0;
-        pbmi->bmiColors[i].rgbGreen = 0;
-        pbmi->bmiColors[i].rgbBlue = 255;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-      case 10:
-        pbmi->bmiColors[i].rgbRed = 0;
-        pbmi->bmiColors[i].rgbGreen = 255;
-        pbmi->bmiColors[i].rgbBlue = 0;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-      case 11:
-        pbmi->bmiColors[i].rgbRed = 0;
-        pbmi->bmiColors[i].rgbGreen = 255;
-        pbmi->bmiColors[i].rgbBlue = 255;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-      case 12:
-        pbmi->bmiColors[i].rgbRed = 255;
-        pbmi->bmiColors[i].rgbGreen = 0;
-        pbmi->bmiColors[i].rgbBlue = 0;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-      case 13:
-        pbmi->bmiColors[i].rgbRed = 255;
-        pbmi->bmiColors[i].rgbGreen = 0;
-        pbmi->bmiColors[i].rgbBlue = 255;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-      case 14:
-        pbmi->bmiColors[i].rgbRed = 255;
-        pbmi->bmiColors[i].rgbGreen = 255;
-        pbmi->bmiColors[i].rgbBlue = 0;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-      case 15:
-        pbmi->bmiColors[i].rgbRed = 255;
-        pbmi->bmiColors[i].rgbGreen = 255;
-        pbmi->bmiColors[i].rgbBlue = 255;
-        pbmi->bmiColors[i].rgbReserved = 0;
-        break;
-    }
-  }
-
-  pbmi->bmiHeader.biClrUsed = 0;
-  pbmi->bmiHeader.biClrImportant = 0;
-  PVOID pv;
-  return CreateDIBSection(NULL,pbmi,DIB_RGB_COLORS,&pv,NULL,0);
-}
-
-
 
 //https://stackoverflow.com/questions/3142349/drawing-on-8bpp-grayscale-bitmap-unmanaged-c
-//https://www.codeproject.com/Tips/595717/Replacing-colour-in-Bitmap
 HBITMAP CreateGreyscaleBitmap(int cx, int cy)
 {
   BITMAPINFO* pbmi = (BITMAPINFO*)alloca(offsetof(BITMAPINFO, bmiColors[256]));
@@ -1200,43 +1137,11 @@ HBITMAP CopyGreyscaleBitmap(HBITMAP sBitmap, int SRCOPERATION)
 }
 
 
-HBITMAP Copy8BitBitmap(HBITMAP sBitmap, int SRCOPERATION)
-{
-  BITMAP bm;
-  GetObject(sBitmap, sizeof(bm), &bm);
-
-  BITMAPINFO* pbmi = (BITMAPINFO*)alloca(offsetof(BITMAPINFO, bmiColors[256]));
-  pbmi->bmiHeader.biSize = sizeof (pbmi->bmiHeader);
-  pbmi->bmiHeader.biWidth = bm.bmWidth;
-  pbmi->bmiHeader.biHeight = bm.bmHeight;
-  pbmi->bmiHeader.biPlanes = 1;
-  pbmi->bmiHeader.biBitCount = 8;
-  pbmi->bmiHeader.biCompression = BI_RGB;
-  pbmi->bmiHeader.biSizeImage = 0;
-  pbmi->bmiHeader.biXPelsPerMeter = 14173;
-  pbmi->bmiHeader.biYPelsPerMeter = 14173;
-  pbmi->bmiHeader.biClrUsed = 0;
-  pbmi->bmiHeader.biClrImportant = 0;
-
-
-  PVOID pv;
-  HDC hdc=CreateCompatibleDC(NULL);
-  HDC hdc2=CreateCompatibleDC(NULL);
-  HBITMAP dBitmap=CreateDIBSection(NULL,pbmi,DIB_RGB_COLORS,&pv,NULL,0);
-  SelectObject(hdc2,sBitmap);
-  SelectObject(hdc,dBitmap);
-  BitBlt(hdc, 0, 0, bm.bmWidth, bm.bmHeight, hdc2, 0, 0, SRCOPERATION);
-  DeleteDC(hdc2);
-  DeleteDC(hdc);
-  return dBitmap;
-}
-
-
-HBITMAP CopyBitmap(HBITMAP srcBitmap,int SRCOPERATION,int bits)
+HBITMAP CopyBitmap(HBITMAP srcBitmap,int SRCOPERATION)
 {
   BITMAP bm;
   GetObject(srcBitmap, sizeof(bm), &bm);
-  HBITMAP destBitmap=CreateLargeBitmap(bm.bmWidth,bm.bmHeight,bits);
+  HBITMAP destBitmap=CreateLargeBitmap(bm.bmWidth,bm.bmHeight);
 
   HDC hdcMem = CreateCompatibleDC(NULL);
   HDC hdcMem2 = CreateCompatibleDC(NULL);
@@ -1255,12 +1160,12 @@ HBITMAP CopyBitmap(HBITMAP srcBitmap,int SRCOPERATION,int bits)
 
 
 
-HBITMAP CopyStretchBitmap(HBITMAP srcBitmap,int SRCOPERATION, int nWidth, int nHeight,int bits)
+HBITMAP CopyStretchBitmap(HBITMAP srcBitmap,int SRCOPERATION, int nWidth, int nHeight)
 {
   BITMAP bm;
   GetObject(srcBitmap, sizeof(bm), &bm);
 
-  HBITMAP destBitmap=CreateLargeBitmap(nWidth,nHeight,bits);
+  HBITMAP destBitmap=CreateLargeBitmap(nWidth,nHeight);
 
   HDC hdcMem = CreateCompatibleDC(NULL);
   HDC hdcMem2 = CreateCompatibleDC(NULL);

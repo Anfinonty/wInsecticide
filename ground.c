@@ -145,7 +145,7 @@ void InitGround()
 	    Ground[i].y3+=2;
       }
       //if (!IsInvertedBackground()) {
-      Ground[i].color=draw_color_arr[saved_ground_color[i]];
+      Ground[i].color=color_arr[saved_ground_color[i]];
       /*} else {
         Ground[i].color=palette_dark_arr[saved_ground_color[i]];
       }*/
@@ -310,14 +310,13 @@ void DrawWebs(HDC hdc)
 }
 
 
-void DrawGround(HDC hdc,bool noir)
+void DrawGround(HDC hdc)
 {
   int i=0;//,j=0;
   for (i=0;i<GROUND_NUM;i++) {
     if (Ground[i].type==0) {
       if (!IsOutOfBounds(Ground[i].x1,Ground[i].y1,1,MAP_WIDTH,MAP_HEIGHT) &&
           !IsOutOfBounds(Ground[i].x2,Ground[i].y2,1,MAP_WIDTH,MAP_HEIGHT)) {
-        if (!noir) {
           GrLine(hdc,
                 Ground[i].x1,
                 Ground[i].y1,
@@ -325,14 +324,6 @@ void DrawGround(HDC hdc,bool noir)
                 Ground[i].y2,
                 Ground[i].color);
 
-        } else {
-          GrLine(hdc,
-                Ground[i].x1,
-                Ground[i].y1,
-                Ground[i].x2,
-                Ground[i].y2,
-                WHITE);
-        }
       }
     }
   }
@@ -340,14 +331,13 @@ void DrawGround(HDC hdc,bool noir)
 
 
 
-void DrawGroundText(HDC hdc,bool noir)
+void DrawGroundText(HDC hdc)
 {
   int i=0;//,j=0;
   for (i=0;i<GROUND_NUM;i++) {
     if (Ground[i].type==2) { 
       if (!IsOutOfBounds(Ground[i].x1,Ground[i].y1,1,MAP_WIDTH,MAP_HEIGHT) &&
           !IsOutOfBounds(Ground[i].x2,Ground[i].y2,1,MAP_WIDTH,MAP_HEIGHT)) {
-        if (!noir) {
 	    GrPrintW(hdc,
             Ground[i].x1,
             Ground[i].y1,
@@ -357,17 +347,6 @@ void DrawGroundText(HDC hdc,bool noir)
             16,
             FALSE,
             yes_unifont);
-        } else {
-	    GrPrintW(hdc,
-            Ground[i].x1,
-            Ground[i].y1,
-            Ground[i].text,
-            "",
-            WHITE,
-            16,
-            FALSE,
-            yes_unifont);
-        }
       }
     }
   }

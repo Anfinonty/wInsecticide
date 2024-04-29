@@ -28,10 +28,6 @@
 //#include <wiavideo.h>
 //#include <GL/glu.h>
 
-
-/*#define COLORREF2RGB(Color) (Color & 0xff00) | ((Color >> 16) & 0xff) \
-                                 | ((Color << 16) & 0xff0000)*/
-
 #define COLORS_NUM  16
 #define BLACK       RGB(0,0,0)
 #define BLUE        RGB(0,0,170)
@@ -40,10 +36,8 @@
 #define RED         RGB(170,0,0)
 #define PURPLE      RGB(170,0,170)
 #define BROWN       RGB(170,85,0)
-#define DKGRAY      RGB(85,85,85)
-
-
 #define LTGRAY      RGB(170,170,170)
+#define DKGRAY      RGB(85,85,85)
 #define LTBLUE      RGB(0,0,255)
 #define LTGREEN     RGB(0,255,0)
 #define LTCYAN      RGB(0,255,255)
@@ -54,8 +48,8 @@
 
 
 #define DKBLACK     RGB(16,16,16) //For drawing
-#define LLTGREEN    RGB(0,254,0)//RGB(170,170,170)/4
-#define MYCOLOR1    0//RGB(123,123,123)
+#define LLTGREEN    RGB(0,254,0)
+#define MYCOLOR1    RGB(123,123,123)
 
 int color_arr[COLORS_NUM]={
 BLACK, //0
@@ -119,7 +113,6 @@ wchar_t save_level[128];
 int player_color=0;
 double time_begin=0;
 bool yes_unifont=FALSE;
-//HBITMAP map_platforms_timebreaker_sprite;
 
 
 #define DEFAULT_PLAYER_SPEED			1
@@ -180,7 +173,7 @@ bool yes_unifont=FALSE;
 
 #define DEFAULT_PLAYER_BUILD_RANGE		100//12
 #define DEFAULT_PLAYER_SHORT_BUILD_RANGE	10
-#define DEFAULT_PLAYER_WEB_HEALTH		200
+#define DEFAULT_PLAYER_WEB_HEALTH		150
 #define DEFAULT_PLAYER_WEB_NUM			20
 #define DEFAULT_PLAYER_SPEED			1
 
@@ -222,28 +215,24 @@ void DrawBackground(HDC hdc) {
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(173, 216, 230));
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(8,39,245));
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255))); //RAVE
-
-  //if (!player.time_breaker) {
-    switch (map_background) {
-      case 0:
-        DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE);
-        break;
-      case 1:
-        DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,NOTSRCCOPY,FALSE);
-        GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE,16);
-        break;
-      default:
-        GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,custom_map_background_color);
-        break;
-    }
-  //}
+  switch (map_background) {
+    case 0:
+      DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE);
+      break;
+    case 1:
+      DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,NOTSRCCOPY,FALSE);
+      GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
+      break;
+    default:
+      GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,custom_map_background_color);
+      break;
+  }
 }
 
 
 void DrawPlatforms(HDC hDC)
 { //Dynamically scale with window size 
   //Draw platforms bitmap mask
-  //if (!player.time_breaker) {
   DrawBitmap(hDC,player.cam_move_x+player.cam_x+player.x-GR_WIDTH/2,
                  player.cam_move_y+player.cam_y+player.y-GR_HEIGHT/2,
                  player.x-GR_WIDTH/2,
@@ -259,16 +248,6 @@ void DrawPlatforms(HDC hDC)
                  GR_WIDTH,
                  GR_HEIGHT+player.grav*2,
                 map_platforms_sprite,SRCPAINT,FALSE);
-
-  /*} else {
-  DrawBitmap(hDC,player.cam_move_x+player.cam_x+player.x-GR_WIDTH/2,
-                 player.cam_move_y+player.cam_y+player.y-GR_HEIGHT/2,
-                 player.x-GR_WIDTH/2,
-                 player.y-GR_HEIGHT/2,
-                 GR_WIDTH,
-                 GR_HEIGHT+player.grav*2,
-                map_platforms_timebreaker_sprite,NOTSRCCOPY,FALSE);
-  }*/
 }
 
 
@@ -276,7 +255,7 @@ void DrawCursor(HDC hDC)
 {
   //DrawBitmap(hDC,mouse_x,mouse_y,0,0,64,64,mouse_cursor_sprite,SRCAND,FALSE);
   //DrawBitmap(hDC,mouse_x,mouse_y,0,0,64,64,mouse_cursor_sprite_mask,SRCPAINT,FALSE);
-  GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_cache,FALSE,16);
+  GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_cache,FALSE);
   GrCircle(hDC,mouse_x,mouse_y,1,WHITE,-1);
 }
 
@@ -402,25 +381,6 @@ void Init() {
 }
 
 
-/*void InitPlatformsTBSprite(HWND hwnd, HDC hdc)
-{
-  PAINTSTRUCT ps; //Suggestion Credit: https://git.xslendi.xyz
-  hdc=BeginPaint(hwnd, &ps);
-  HDC hdc2=CreateCompatibleDC(hdc);
-  map_platforms_timebreaker_sprite=Create1BitBitmap(MAP_WIDTH,MAP_HEIGHT);
-  SelectObject(hdc2,map_platforms_timebreaker_sprite);
-
-  GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,BLACK);
-
-  DrawGround(hdc2,TRUE);
-  DrawGroundText(hdc2,TRUE);
-
-  DeleteDC(hdc2);
-  EndPaint(hwnd, &ps);
-
-  //end of platform sprite creation
-}*/
-
 
 void InitPlatformsSprite(HWND hwnd, HDC hdc)
 {
@@ -429,30 +389,22 @@ void InitPlatformsSprite(HWND hwnd, HDC hdc)
   HDC hdc2=CreateCompatibleDC(hdc);
 
 
-  map_platforms_sprite=CreateCrunchyBitmap(MAP_WIDTH,MAP_HEIGHT,8);//CreateLargeBitmap(MAP_WIDTH,MAP_HEIGHT,16);
-  //map_platforms_sprite=Create1BitBitmap(MAP_WIDTH,MAP_HEIGHT);
+  map_platforms_sprite=CreateCrunchyBitmap(MAP_WIDTH,MAP_HEIGHT);
+  //map_platforms_sprite=CreateLargeBitmap(MAP_WIDTH,MAP_HEIGHT);
 
   SelectObject(hdc2,map_platforms_sprite);
 
   GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,MYCOLOR1); //Create Background with random color over platforms
 
   DrawGroundTriFill(hdc2);
-  DrawGround(hdc2,FALSE);
-  DrawGroundText(hdc2,FALSE);
+  DrawGround(hdc2);
+  DrawGroundText(hdc2);
 
   DeleteDC(hdc2);
   EndPaint(hwnd, &ps);
 
   //map_platforms_sprite=ReplaceColor(tmp_map_platforms_sprite,MYCOLOR1,BLACK,NULL);
-  map_platforms_sprite_mask=CreateBitmapMask(map_platforms_sprite,BLACK,NULL); //create mask where black becomes transparent
-
-
-  //NoirBitmap(hdc,map_platforms_sprite);
-
-  //Change8BitBitmapPalette(hdc, map_platforms_sprite, MAP_WIDTH, MAP_HEIGHT);
-
-
-  //end of platform sprite creation
+  map_platforms_sprite_mask=CreateBitmapMask(map_platforms_sprite,MYCOLOR1,NULL); //create mask where black becomes   //end of platform sprite creation
 }
 
 
@@ -473,35 +425,34 @@ void InitLevel(HWND hwnd, HDC hdc)
 
 
   //Load Player Sprites
-  player.sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1,16);
-  player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1,16);
-  player.sprite_2_cache = RotateSprite(NULL, player.sprite_2,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1,16);
+  player.sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
+  player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
+  player.sprite_2_cache = RotateSprite(NULL, player.sprite_2,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
 
-  player.attack_sprite_1_cache = RotateSprite(NULL, player.attack_sprite_1,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1,16);
-  player.attack_sprite_2_cache = RotateSprite(NULL, player.attack_sprite_2,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1,16);
-  player.attack_sprite_3_cache = RotateSprite(NULL, player.attack_sprite_3,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1,16);
-  player.attack_sprite_4_cache = RotateSprite(NULL, player.attack_sprite_4,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1,16);
+  player.attack_sprite_1_cache = RotateSprite(NULL, player.attack_sprite_1,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
+  player.attack_sprite_2_cache = RotateSprite(NULL, player.attack_sprite_2,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
+  player.attack_sprite_3_cache = RotateSprite(NULL, player.attack_sprite_3,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
+  player.attack_sprite_4_cache = RotateSprite(NULL, player.attack_sprite_4,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
 
-  player.block_sprite_1_cache = RotateSprite(NULL, player.block_sprite_1,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1,16);
-  player.block_sprite_2_cache = RotateSprite(NULL, player.block_sprite_2,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1,16);
-  player.block_sprite_3_cache = RotateSprite(NULL, player.block_sprite_3,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1,16);
+  player.block_sprite_1_cache = RotateSprite(NULL, player.block_sprite_1,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
+  player.block_sprite_2_cache = RotateSprite(NULL, player.block_sprite_2,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
+  player.block_sprite_3_cache = RotateSprite(NULL, player.block_sprite_3,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
 
-  player.spin_sprite_1_cache = RotateSprite(NULL, player.spin_sprite,0.1,LTGREEN,draw_color_arr[player_color],-1,16);
-  player.spin_sprite_2_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI_2,LTGREEN,draw_color_arr[player_color],-1,16);
-  player.spin_sprite_3_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI,LTGREEN,draw_color_arr[player_color],-1,16);
-  player.spin_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,draw_color_arr[player_color],-1,16);
+  player.spin_sprite_1_cache = RotateSprite(NULL, player.spin_sprite,0.1,LTGREEN,draw_color_arr[player_color],-1);
+  player.spin_sprite_2_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI_2,LTGREEN,draw_color_arr[player_color],-1);
+  player.spin_sprite_3_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI,LTGREEN,draw_color_arr[player_color],-1);
+  player.spin_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,draw_color_arr[player_color],-1);
 
   //moon sprite
   DeleteObject(moon_sprite_cache);
-  HBITMAP tmp_moon_sprite=CopyBitmap(moon_sprite,NOTSRCCOPY,16);
-  moon_sprite_cache=RotateSprite(NULL, tmp_moon_sprite,0,LTPURPLE,BLACK,-1,16);
+  HBITMAP tmp_moon_sprite=CopyBitmap(moon_sprite,NOTSRCCOPY);
+  moon_sprite_cache=RotateSprite(NULL, tmp_moon_sprite,0,LTPURPLE,BLACK,-1);
   DeleteObject(tmp_moon_sprite);
 
-  //Load Enemy cache sprites
+  //Load Enemy cache spritesF
   InitEnemySprites();
 
   InitPlatformsSprite(hwnd,hdc);
-  //InitPlatformsTBSprite(hwnd,hdc);
 
   in_main_menu=FALSE;
 }
@@ -632,7 +583,7 @@ void DrawMainMenu(HDC hdc)
   DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE);
 
   //Draw Moon Phase
-  GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE,16);
+  GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
 
   //Moon Pos
   int mcalendar_l=64;
@@ -811,7 +762,7 @@ void LoadMainMenuBackground()
   } else { //night
     tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
   }
-  map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH,GR_HEIGHT,32); //note runs once only
+  map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH,GR_HEIGHT); //note runs once only
   DeleteObject(tmp_map_background_sprite);
 }
 
@@ -1143,7 +1094,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	    case 'E':
           if (!in_main_menu) {
 	        player.uppercut=TRUE;
-            NoirBitmap(hdc,map_platforms_sprite);
           }
 	      break;
 
@@ -1170,9 +1120,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               loading_flac=FALSE;
             }
           }
-          break;
 
- 
+
         case 'C':
           if (!in_main_menu) {
             if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
@@ -1203,6 +1152,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       }
       break;
+
+
+
     case WM_KEYUP:
       switch (wParam) {
         case '8':
@@ -1357,7 +1309,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                   tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
                   break;
               }
-              map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH,GR_HEIGHT,32); //note runs once only
+              map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH,GR_HEIGHT); //note runs once only
               DeleteObject(tmp_map_background_sprite);
             }
           } else {            
@@ -1425,11 +1377,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           DrawUI(hdcBackbuff);
 
           if (!IsInvertedBackground()){ //Inverted palette level
-            //if (!player.time_breaker) {
             BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
-            //} else {            
-              //BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
-            //}
           } else { //non inverted palette level
             BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
           }
@@ -1448,13 +1396,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             DeleteObject(map_platforms_sprite); //delete sprites
             DeleteObject(map_platforms_sprite_mask);
-            //DeleteObject(map_platforms_timebreaker_sprite);
             LoadMainMenuBackground();
             back_to_menu=FALSE;
             in_main_menu=TRUE;
 
             DeleteObject(moon_sprite_cache);
-            moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,-1,16);
+            moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,-1);
           }
         } else { //In Main Menu
           PAINTSTRUCT ps;
@@ -1595,7 +1542,7 @@ lunar_sec);
 
       //Load mouse cursor sprite
       mouse_cursor_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/player_cursor1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,-1,16);
+      mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,-1);
 
 
       //Load moon sprite based on lunar day
@@ -1617,7 +1564,7 @@ lunar_sec);
         moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-28.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       }
       //moon_sprite_cache=CreteLargeBitmap(NULL, 128, 128);
-      moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,-1,16);
+      moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,-1);
       }
       return 0;
       break;
