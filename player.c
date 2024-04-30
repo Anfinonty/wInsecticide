@@ -463,8 +463,8 @@ void PlayerAct() {
       //int pivot_node_grid_id=0,edge_node_grid_id=0;
       //int edge_x=0,edge_y=0;
       //double bm_x1=0,bm_y1=0,bm_x2=0,bm_y2=0,bm_gradient=0,pivot_x=0,pivot_y=0;
-      grad_x1=player.x+player.cam_move_x;
-      grad_y1=player.y+player.cam_move_y;
+      grad_x1=player.x;//+player.cam_move_x;
+      grad_y1=player.y;//+player.cam_move_y;
       grad_x2=mouse_x-player.cam_x;
       grad_y2=mouse_y-player.cam_y;
       //edge_node_grid_id=GetGridId(mouse_x+player.cam_x+player.cam_move_x,mouse_y+player.cam_y+player.cam_move_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
