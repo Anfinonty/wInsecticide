@@ -1430,7 +1430,7 @@ void PlayerCameraShake()
 void DrawPlayer(HDC hdc)
 {
     if (player.flag_revert_palette && player.time_breaker_tick<=0) {
-      RevertBitmapPalette(hdc,map_platforms_sprite);
+      BitmapPalette(hdc,map_platforms_sprite,rgbColorsDefault);
       player.flag_revert_palette=FALSE;
       player.time_breaker_tick=0;
     }
@@ -1465,7 +1465,7 @@ void DrawPlayer(HDC hdc)
         GrCircle(hdc,player.x+player.cam_x+player.cam_move_x,player.y+player.cam_y+player.cam_move_y,player.time_breaker_tick-1,BLACK,-1);
       }
     } else {
-      NoirBitmap(hdc,map_platforms_sprite);
+      BitmapPalette(hdc,map_platforms_sprite,rgbColorsNoir);
     }
   } else {
     if (player.time_breaker_tick>0) {

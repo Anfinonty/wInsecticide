@@ -27,6 +27,8 @@
 #include <shlwapi.h>
 //#include <wiavideo.h>
 //#include <GL/glu.h>
+//#include "<resources.h>"
+
 
 #define COLORS_NUM  16
 #define BLACK       RGB(0,0,0)
@@ -50,6 +52,8 @@
 #define DKBLACK     RGB(24,24,24) //For drawing
 #define LLTGREEN    RGB(0,254,0)
 #define MYCOLOR1    RGB(123,123,123)
+
+//#define IDI_MYICON  1000
 
 int color_arr[COLORS_NUM]={
 BLACK, //0
@@ -185,6 +189,7 @@ bool yes_unifont=FALSE;
 #define DEFAULT_PLAYER_BLOCK_HEALTH_MAX 20
 
 
+bool flag_restart=FALSE;
 bool back_to_menu=FALSE;
 bool in_main_menu=TRUE;
 int level_chosen=0;
@@ -298,7 +303,7 @@ void InitOnce() {
   //printf("\n===Init Once Done===\n");
 }
 
-void Init() {
+void Init(HDC hdc) {
   time_begin=current_timestamp();
 
   //Load Best Score
@@ -378,6 +383,7 @@ void Init() {
   InitPlayer();
   //printf("\n===Player Attributes Initialized\n");
   //InitGround2();
+  BitmapPalette(hdc,map_platforms_sprite,rgbColorsDefault);
 }
 
 
@@ -421,7 +427,7 @@ void InitLevel(HWND hwnd, HDC hdc)
 
 
   InitOnce();//cannot be repeatedly run
-  Init();
+  Init(hdc);
 
 
   //Load Player Sprites
@@ -997,7 +1003,6 @@ bool keydownalt()
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   HDC hdc, hdcBackbuff;
-
   switch(msg) {
     case WM_LBUTTONDOWN:
       player.rst_left_click=TRUE;
@@ -1079,8 +1084,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         case VK_RETURN:
           if (!in_main_menu) {
-            RevertBitmapPalette(hdc,map_platforms_sprite);
-            Init();
+            flag_restart=TRUE;
           } else {//Run Level
             if (player_color>-1 && player_color<COLORS_NUM) {
               if (level_chosen>=0 && level_chosen<level_num)
@@ -1278,6 +1282,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
     case WM_PAINT: //https://cplusplus.com/forum/beginner/269434/
+
+
+
       FrameRateSleep(FPS); // (Uncapped) //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
       if (!IsIconic(hwnd)) //no action when minimized, prevents crash https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-isiconic?redirectedfrom=MSDN
       {
@@ -1365,8 +1372,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
 
 
-          if (player.health<=0) { // restart level when player health hits 0
-            Init();
+          if (player.health<=0 || flag_restart) { // restart level when player health hits 0 or VK_RETURN
+            Init(hdc);
+            flag_restart=FALSE;
           }
 
           hdcBackbuff=CreateCompatibleDC(hdc);
@@ -1435,6 +1443,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //MessageBox(NULL, TEXT("ភាសាខ្មែរ"), TEXT("ភាសាខ្មែរ") ,MB_OK); //khmer text box
       Init8BitRGBColorsNoir(rgbColorsNoir);
       Init8BitRGBColorsDefault(rgbColorsDefault);
+      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមអាគាំងចាប់ផ្តើមពីឆ្នាំ ១៩៦៩ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និង  កម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts by the United States of America under Richard Nixxon's and Henry Kissinger's Administration with the CIA (1969-1997), Kampuchea-Krom (Saigon; originally Prei Nokor) (1858-1949) and Kampuchea-Kang-Cheng (North).\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1445_10_23"), TEXT("អាពីងស៊ីរុយ") ,MB_OK);
 
       //Delete tmp in music
       remove("music/tmp/tmp.wav");
@@ -1572,6 +1581,45 @@ lunar_sec);
       //moon_sprite_cache=CreteLargeBitmap(NULL, 128, 128);
       moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,-1);
       }
+
+      //fullscreen
+      //ShowWindow(hwnd,SW_SHOWMAXIMIZED);
+
+      //Make game un fast when level is run (simulates focusing tab)
+      //https://batchloaf.wordpress.com/2012/10/18/simulating-a-ctrl-v-keystroke-in-win32-c-or-c-using-sendinput/
+      INPUT ip;
+      ip.type = INPUT_KEYBOARD;
+      ip.ki.wScan = 0;
+      ip.ki.time = 0;
+      ip.ki.dwExtraInfo = 0;
+     
+      for (int i=0;i<2;i++) {
+      // Press the "Ctrl" key
+        ip.ki.wVk = VK_CONTROL;
+        ip.ki.dwFlags = 0; // 0 for key press
+        SendInput(1, &ip, sizeof(INPUT));
+ 
+        // Press the ESCAPE key
+        ip.ki.wVk = VK_ESCAPE;
+        ip.ki.dwFlags = 0; // 0 for key press
+        SendInput(1, &ip, sizeof(INPUT));
+ 
+        // Release the escape key
+        ip.ki.wVk = VK_ESCAPE;
+        ip.ki.dwFlags = KEYEVENTF_KEYUP;
+        SendInput(1, &ip, sizeof(INPUT));
+ 
+        // Release the "Ctrl" key
+        ip.ki.wVk = VK_CONTROL;
+        ip.ki.dwFlags = KEYEVENTF_KEYUP;
+        SendInput(1, &ip, sizeof(INPUT));
+
+        Sleep(100);
+      }
+      //SetFocus(hwnd);
+      //BringWindowToTop(hwnd);
+      SetForegroundWindow(hwnd);
+
       return 0;
       break;
     case WM_DESTROY:
@@ -1599,27 +1647,35 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   wc.hInstance     = hInstance;
   wc.hbrBackground = GetSysColorBrush(COLOR_3DFACE);
   wc.lpfnWndProc   = WndProc;
+  //wc.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(AppIcon));
   wc.hCursor       = LoadCursor(0, IDC_ARROW);
+  wc.hIcon = LoadIcon(hInstance, L"id");
+
+/*LoadImage(hInstance, L"sprites/winsecticide-icon.ico", IMAGE_ICON, 16, 16, LR_DEFAULTSIZE | LR_LOADFROMFILE | LR_DEFAULTCOLOR);*/
+
   RegisterClassW(&wc);
 
+//https://cplusplus.com/forum/beginner/9908/
   //create window
-  CreateWindowW(wc.lpszClassName,
+  HWND hwnd = CreateWindowW(wc.lpszClassName,
                 L"អាពីងស៊ីរុយ - wInsecticide",
-                WS_OVERLAPPEDWINDOW | WS_VISIBLE,
-                0,
-                0,
-                SCREEN_WIDTH,//GR_WIDTH+7,
-                SCREEN_HEIGHT,//GR_HEIGHT+27,
+                WS_BORDER | WS_OVERLAPPEDWINDOW | WS_VISIBLE | CW_USEDEFAULT| CW_USEDEFAULT /*| WS_MINIMIZE*/,
+                SCREEN_WIDTH/2-400,
+                SCREEN_HEIGHT/2-300,
+                800,//SCREEN_WIDTH,//GR_WIDTH+7,
+                600,//SCREEN_HEIGHT,//GR_HEIGHT+27,
                 NULL,
                 NULL,
                 hInstance, 
                 NULL);
-
+  //SetWindowLong(hwnd, GWL_STYLE, 0);
+  //ShowWindow(hwnd, SW_SHOW);
 
   MSG msg;
   while (true) {
     if (PeekMessage(&msg,NULL,0,0,PM_REMOVE)) {
       if (msg.message == WM_QUIT) break;
+
       TranslateMessage(&msg);
       DispatchMessage(&msg);
     }

@@ -15,19 +15,6 @@ void Init8BitRGBColorsNoir(RGBQUAD *rgbColors)
 
 //HBITMAP ReplaceColor(int num, COLOR* oldColor, COLOR* newColor, HBITMAP hBitmap)
 //https://gamedev.net/forums/topic/267754-win32-replacing-color-in-a-bitmap/267754/
-void NoirBitmap(HDC hdc, HBITMAP hBitmap) {
-  HDC hdc2 = CreateCompatibleDC(hdc);
-  HBITMAP hOldBitmap;
-  RGBQUAD rgbColors[256];
-  hOldBitmap = SelectObject(hdc2, hBitmap);
-  SetDIBColorTable(hdc2, 0, 256, rgbColorsNoir);
-  SelectObject(hdc2, hOldBitmap);
-  DeleteObject(hOldBitmap);
-  DeleteDC(hdc2);
-}
-
-//RGBQUAD rgbColorsDefaultInvert[256];
-
 
 
 RGBQUAD rgbColorsDefault[256];
@@ -144,12 +131,12 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
 }
 
 
-void RevertBitmapPalette(HDC hdc, HBITMAP hBitmap) {
+void BitmapPalette(HDC hdc, HBITMAP hBitmap,RGBQUAD *bitmapPalette) {
   HDC hdc2 = CreateCompatibleDC(hdc);
   HBITMAP hOldBitmap;
   
   hOldBitmap = SelectObject(hdc2, hBitmap);
-  SetDIBColorTable(hdc2, 0, 256, rgbColorsDefault);
+  SetDIBColorTable(hdc2, 0, 256, bitmapPalette);
   SelectObject(hdc2, hOldBitmap);
   DeleteObject(hOldBitmap);
   DeleteDC(hdc2);
