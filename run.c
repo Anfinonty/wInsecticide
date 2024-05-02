@@ -1585,41 +1585,6 @@ lunar_sec);
       //fullscreen
       //ShowWindow(hwnd,SW_SHOWMAXIMIZED);
 
-      //Make game un fast when level is run (simulates focusing tab)
-      //https://batchloaf.wordpress.com/2012/10/18/simulating-a-ctrl-v-keystroke-in-win32-c-or-c-using-sendinput/
-      INPUT ip;
-      ip.type = INPUT_KEYBOARD;
-      ip.ki.wScan = 0;
-      ip.ki.time = 0;
-      ip.ki.dwExtraInfo = 0;
-     
-      for (int i=0;i<2;i++) {
-      // Press the "Ctrl" key
-        ip.ki.wVk = VK_CONTROL;
-        ip.ki.dwFlags = 0; // 0 for key press
-        SendInput(1, &ip, sizeof(INPUT));
- 
-        // Press the ESCAPE key
-        ip.ki.wVk = VK_ESCAPE;
-        ip.ki.dwFlags = 0; // 0 for key press
-        SendInput(1, &ip, sizeof(INPUT));
- 
-        // Release the escape key
-        ip.ki.wVk = VK_ESCAPE;
-        ip.ki.dwFlags = KEYEVENTF_KEYUP;
-        SendInput(1, &ip, sizeof(INPUT));
- 
-        // Release the "Ctrl" key
-        ip.ki.wVk = VK_CONTROL;
-        ip.ki.dwFlags = KEYEVENTF_KEYUP;
-        SendInput(1, &ip, sizeof(INPUT));
-
-        Sleep(100);
-      }
-      //SetFocus(hwnd);
-      //BringWindowToTop(hwnd);
-      SetForegroundWindow(hwnd);
-
       return 0;
       break;
     case WM_DESTROY:
@@ -1670,6 +1635,42 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
                 NULL);
   //SetWindowLong(hwnd, GWL_STYLE, 0);
   //ShowWindow(hwnd, SW_SHOW);
+
+  //Make game un fast when level is run (simulates focusing tab)
+  //https://batchloaf.wordpress.com/2012/10/18/simulating-a-ctrl-v-keystroke-in-win32-c-or-c-using-sendinput/
+  Sleep(1000);
+  INPUT ip;
+  ip.type = INPUT_KEYBOARD;
+  ip.ki.wScan = 0;
+  ip.ki.time = 0;
+  ip.ki.dwExtraInfo = 0;
+ 
+  for (int i=0;i<2;i++) {
+  // Press the "Ctrl" key
+    ip.ki.wVk = VK_CONTROL;
+    ip.ki.dwFlags = 0; // 0 for key press
+    SendInput(1, &ip, sizeof(INPUT));
+
+    // Press the ESCAPE key
+    ip.ki.wVk = VK_ESCAPE;
+    ip.ki.dwFlags = 0; // 0 for key press
+    SendInput(1, &ip, sizeof(INPUT));
+
+    // Release the escape key
+    ip.ki.wVk = VK_ESCAPE;
+    ip.ki.dwFlags = KEYEVENTF_KEYUP;
+    SendInput(1, &ip, sizeof(INPUT));
+
+    // Release the "Ctrl" key
+    ip.ki.wVk = VK_CONTROL;
+    ip.ki.dwFlags = KEYEVENTF_KEYUP;
+    SendInput(1, &ip, sizeof(INPUT));
+
+    Sleep(100);
+  }
+  //SetFocus(hwnd);
+  //BringWindowToTop(hwnd);
+  SetForegroundWindow(hwnd);
 
   MSG msg;
   while (true) {
