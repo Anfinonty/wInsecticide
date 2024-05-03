@@ -298,7 +298,6 @@ void InitOnce() {
   player.cam_move_x=0;
   player.cam_move_y=0;
 
-  InitSongBank();
   //InitCustard()
   //printf("\n===Init Once Done===\n");
 }
@@ -1224,6 +1223,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                 stop_playing_song=TRUE;
                 toggle_stop_playing_song=TRUE;
               } else { //renable song
+                remove("music/tmp/tmp.wav");
+                rmdir("music/tmp"); //remove tmp
                 InitSongBank();
                 song_rand_num=LimitValue(-1,0,song_num);
                 stop_playing_song=FALSE;
@@ -1443,19 +1444,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //MessageBox(NULL, TEXT("ភាសាខ្មែរ"), TEXT("ភាសាខ្មែរ") ,MB_OK); //khmer text box
       Init8BitRGBColorsNoir(rgbColorsNoir);
       Init8BitRGBColorsDefault(rgbColorsDefault);
-      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមអាគាំងចាប់ផ្តើមពីឆ្នាំ ១៩៦៩ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និង  កម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts by the United States of America under Richard Nixxon's and Henry Kissinger's Administration with the CIA (1969-1997), Kampuchea-Krom (Saigon; originally Prei Nokor) (1858-1949) and Kampuchea-Kang-Cheng (North).\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1445_10_23"), TEXT("អាពីងស៊ីរុយ") ,MB_OK);
 
       //Delete tmp in music
       remove("music/tmp/tmp.wav");
       rmdir("music/tmp"); //remove tmp
 
+      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៩ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts by the United States of America under Richard Nixxon's and Henry Kissinger's Administration with the CIA to take over the Mekong River Trade Route (1969-1997) from our Late King Father Norodom Sihanouk (1922-2012), Kampuchea-Krom (Saigon; originally Prei Nokor) (1858-1949) and Kampuchea-Kang-Cheng (North).\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1445_10_23"), TEXT("អាពីងស៊ីរុយ") ,MB_OK);
 
       //load levels in save
       GetSavesInDir(L"saves");
-
-
-      HANDLE thread1=CreateThread(NULL,0,AnimateTask01,NULL,0,NULL); //Spawm Game Logic Thread
-      HANDLE thread2=CreateThread(NULL,0,SongTask,NULL,0,NULL); //Spawn Song Player Thread
 
       InitTickFrequency();
       InitFPS();
@@ -1638,7 +1635,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 
   //Make game un fast when level is run (simulates focusing tab)
   //https://batchloaf.wordpress.com/2012/10/18/simulating-a-ctrl-v-keystroke-in-win32-c-or-c-using-sendinput/
-  Sleep(1000);
+  Sleep(100);
   INPUT ip;
   ip.type = INPUT_KEYBOARD;
   ip.ki.wScan = 0;
@@ -1671,6 +1668,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   //SetFocus(hwnd);
   //BringWindowToTop(hwnd);
   SetForegroundWindow(hwnd);
+  HANDLE thread1=CreateThread(NULL,0,AnimateTask01,NULL,0,NULL); //Spawm Game Logic Thread
+  HANDLE thread2=CreateThread(NULL,0,SongTask,NULL,0,NULL); //Spawn Song Player Thread
 
   MSG msg;
   while (true) {
