@@ -1303,7 +1303,7 @@ void PlayerAct() {
         if (player.time_breaker_units==0) {
           player.time_breaker=FALSE;
           player.flag_revert_palette=TRUE;
-          //PlaySound(L"snd/timeskip__stop.wav", NULL, SND_FILENAME | SND_ASYNC);
+          PlaySound(L"snd/timebreaker__stop.wav", NULL, SND_FILENAME | SND_ASYNC);
         }
       }
     }

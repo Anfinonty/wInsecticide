@@ -1134,7 +1134,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
               player.time_breaker=TRUE;
               //mciSendStringA("play snd/timeskip.mp3",NULL,0,NULL);
-              //PlaySound(L"snd/timeskip__start.wav", NULL, SND_FILENAME | SND_ASYNC);
+              PlaySound(L"snd/timebreaker__start.wav", NULL, SND_FILENAME | SND_ASYNC);
               player.time_breaker_cooldown=player.time_breaker_cooldown_max;
               player.speed+=player.time_breaker_units_max/2-1;
             }
@@ -1152,7 +1152,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
               player.time_breaker=TRUE;
               //mciSendStringA("play snd/timeskip.mp3",NULL,0,NULL);
-              //PlaySound(L"snd/timeskip__start.wav", NULL, SND_FILENAME | SND_ASYNC);
+              PlaySound(L"snd/timebreaker__start.wav", NULL, SND_FILENAME | SND_ASYNC);
               player.time_breaker_cooldown=player.time_breaker_cooldown_max;
               player.speed+=player.time_breaker_units_max/2-1;
             }
