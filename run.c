@@ -450,9 +450,8 @@ void InitLevel(HWND hwnd, HDC hdc)
 
   //moon sprite
   DeleteObject(moon_sprite_cache);
-  HBITMAP tmp_moon_sprite=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,-1);
-
-  moon_sprite_cache=CopyCrunchyBitmap(tmp_moon_sprite,NOTSRCCOPY);
+  HBITMAP tmp_moon_sprite=CopyCrunchyBitmap(moon_sprite,NOTSRCCOPY);
+  moon_sprite_cache=RotateSprite(NULL, tmp_moon_sprite,0,PURPLE,BLACK,-1);
   DeleteObject(tmp_moon_sprite);
 
 
