@@ -301,6 +301,7 @@ void EnemySpecies1Gravity(int enemy_id)
     double ground_entity_angle=GetLineTargetAngle(enemy_on_ground_id,Enemy[enemy_id].x,Enemy[enemy_id].y);
     double height_from_ground=GetLineTargetHeight(enemy_on_ground_id,ground_entity_angle,Enemy[enemy_id].x,Enemy[enemy_id].y);
     Enemy[enemy_id].in_air_timer=0;
+    //Enemy[enemy_id].on_ground_angle=0;
     if (height_from_ground>0) {    //species 1 above ground (positive)
       Enemy[enemy_id].angle=Ground[enemy_on_ground_id].angle;
       Enemy[enemy_id].above_ground=TRUE;
@@ -566,7 +567,6 @@ void EnemyAct(int i)
     Enemy[i].dist_from_player=GetDistance(player.x,player.y,Enemy[i].x,Enemy[i].y);
     EnemyLOSAct(i);//Shoot line of sight bullet
 
-
    for (int k=0;k<player.bullet_shot_num;k++) {
      int player_b=player.bullet[k];
      double dist_from_bullet0=GetDistance(Bullet[player_b].x,Bullet[player_b].y,Enemy[i].x,Enemy[i].y);
@@ -576,9 +576,8 @@ void EnemyAct(int i)
         switch (Enemy[i].species) {
       	  case 0://fly
             if (dist_from_bullet0<=NODE_SIZE*2) {
-              deduct_health=TRUE;
-              allow_act=TRUE;
-              Enemy[i].knockback_timer=10;//player.knockback_strength;
+              Enemy[i].health-=player.attack_strength;
+              Enemy[i].knockback_timer=player.knockback_strength;
               Enemy[i].knockback_angle=Bullet[player_b].angle;
               if (Bullet[player_b].left) {
                 Enemy[i].knockback_left=TRUE;
@@ -588,9 +587,7 @@ void EnemyAct(int i)
             }
 	        break;
           case 1://crawl
-            deduct_health=TRUE;
-            allow_act=TRUE;
-
+            Enemy[i].health-=player.attack_strength;
             Enemy[i].knockback_timer=player.knockback_strength;
             Enemy[i].knockback_angle=Bullet[player_b].angle;
 
@@ -642,7 +639,8 @@ void EnemyAct(int i)
       switch (Enemy[i].species) {
     	case 0://fly
           if (dist_from_bullet<=NODE_SIZE*2) {
-            deduct_health=TRUE;
+            //deduct_health=TRUE;
+            Enemy[i].health-=player.attack_strength;
             Enemy[i].knockback_timer=player.knockback_strength;
             Enemy[i].knockback_angle=Bullet[player.bullet_shot].angle;
             if (Bullet[player.bullet_shot].left) {
@@ -653,8 +651,8 @@ void EnemyAct(int i)
           }
 	      break;
         case 1://crawl
-          deduct_health=TRUE;
-
+          //deduct_health=TRUE;
+          Enemy[i].health-=player.attack_strength;
           Enemy[i].knockback_timer=player.knockback_strength;
           Enemy[i].knockback_angle=Bullet[player.bullet_shot].angle;
           if (Bullet[player.bullet_shot].left) {
@@ -887,6 +885,17 @@ void EnemyAct(int i)
         }
 
         if (Enemy[i].species==1) {//Species 1 gravity
+          int tmp_grnd=GetOnGroundId(Enemy[i].x,Enemy[i].y,6,5,FALSE);
+          if (tmp_grnd!=-1) {
+            if (Enemy[i].above_ground) {
+              Enemy[i].x-=cos(Ground[tmp_grnd].angle+M_PI_2);
+              Enemy[i].y-=sin(Ground[tmp_grnd].angle+M_PI_2);
+            } else if (Enemy[i].below_ground){
+              Enemy[i].x-=cos(Ground[tmp_grnd].angle-M_PI_2);
+              Enemy[i].y-=sin(Ground[tmp_grnd].angle-M_PI_2);      
+            }
+          }
+
           EnemySpecies1Gravity(i);
           if (Enemy[i].in_air_timer>0) {
             Enemy[i].in_air_timer--;
