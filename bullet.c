@@ -192,6 +192,8 @@ void BulletAct(int bullet_id)
           int bk=player.bullet[k];
           if (GetDistance(Bullet[bk].x,Bullet[bk].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
             Bullet[bullet_id].angle=RandNum(-M_PI,M_PI,Enemy[enemy_id].seed);
+            //Bullet[bk].range-=Bullet[bk].start_range/2;//Bullet[bullet_id].damage*Bullet[enemy_id].speed*Bullet[enemy_id].speed_multiplier;
+            Bullet[bk].angle=RandNum(-M_PI,M_PI,frame_tick);
           }
         }
         hit_player=HitPlayer(bullet_id);

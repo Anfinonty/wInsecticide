@@ -462,7 +462,7 @@ void PlayerAct() {
 	  player.bullet[player.bullet_shot_num]=current_bullet_id;
       ShootBullet(current_bullet_id,
 	player.bullet_shot_num,
-	WHITE,
+	player_bullet_color,
     5, //graphics type
 	DEFAULT_PLAYER_BUILD_RANGE+player.speed*2, //range
     1, //speed

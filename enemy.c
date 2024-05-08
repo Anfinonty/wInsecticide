@@ -836,19 +836,6 @@ void EnemyAct(int i)
 	      }
           enemy_kills++;
           souls_taken++;*/
-        if (Enemy[i].health<=0) {
-          enemy_kills++;
-          player.health+=2;
-          if (player.max_web_num<MAX_WEB_NUM)
-            player.max_web_num++;
-          if (!IsSpeedBreaking()) {
-            if (player.time_breaker_units<player.time_breaker_units_max-2 && !player.time_breaker) {
-              player.time_breaker_units+=2;
-            }
-          } else {
-            player.speed+=2;
-          }
-        }
         //} else {
           //Enemy[i].snd_dur=Enemy[i].snd_dur_max;
       }
@@ -1379,7 +1366,19 @@ void DrawEnemy(HDC hdc)
         }
       }
     } else if (Enemy[i].health>-1000 && Enemy[i].health<=0){ //enemy has died
-      
+      if (Enemy[i].health>-500) {
+      enemy_kills++;
+      player.health+=2;
+      if (player.max_web_num<MAX_WEB_NUM)
+        player.max_web_num++;
+      if (!IsSpeedBreaking()) {
+        if (player.time_breaker_units<player.time_breaker_units_max-2 && !player.time_breaker) {
+          player.time_breaker_units+=2;
+        }
+      } else {
+        player.speed+=2;
+      }
+      }
       if (Enemy[i].species==1) {  //Cockroach sprite
         if (Enemy[i].health>-500) {
           if (Enemy[i].sprite_1!=NULL) {

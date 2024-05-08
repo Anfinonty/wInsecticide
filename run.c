@@ -114,6 +114,7 @@ int frame_tick=-10;
 int int_best_score=0;
 int player_color=0;
 int player_load_color=0;
+int player_bullet_color=0;
 double double_best_score=0;
 wchar_t save_level[128];
 double time_begin=0;
@@ -302,8 +303,10 @@ void InitOnce() {
 
 
   player_load_color=player_color;
+  player_bullet_color=WHITE;
   if (IsInvertedBackground()) { //invert player color if background is inverted
     player_load_color=COLORS_NUM-player_color-1;
+    player_bullet_color=BLACK;
   }
 }
 
