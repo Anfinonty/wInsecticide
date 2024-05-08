@@ -8,6 +8,7 @@ void InitBullet()
     Bullet[i].left=FALSE;
     Bullet[i].near_miss=FALSE;
     Bullet[i].range=0;
+    Bullet[i].start_range=0;
     Bullet[i].speed=-1;
     Bullet[i].speed_multiplier=0;
     Bullet[i].damage=0;
@@ -55,6 +56,7 @@ void ShootBullet(
   Bullet[bullet_id].graphics_type=graphics_type;
   Bullet[bullet_id].saved_pos=saved_pos;
   Bullet[bullet_id].color=color;
+  Bullet[bullet_id].start_range=range/2*NODE_SIZE;
   Bullet[bullet_id].range=range/2*NODE_SIZE;
   Bullet[bullet_id].speed=speed;
   Bullet[bullet_id].speed_multiplier=speed_multiplier;
@@ -105,6 +107,7 @@ void StopBullet(int bullet_id,bool is_player)
 {
   Bullet[bullet_id].shot=FALSE;
   Bullet[bullet_id].near_miss=FALSE;
+  Bullet[bullet_id].start_range=0;
   Bullet[bullet_id].range=0;
   Bullet[bullet_id].from_enemy_id=-1;
   Bullet[bullet_id].speed=0;
@@ -132,9 +135,17 @@ void BulletAct(int bullet_id)
       Bullet[bullet_id].sprite_x=Bullet[bullet_id].x+player.cam_x+player.cam_move_x;
       Bullet[bullet_id].sprite_y=Bullet[bullet_id].y+player.cam_y+player.cam_move_y;
   //----------------
-      if (enemy_id==-1) {//player
+      if (enemy_id<0) {//player
         if (Bullet[bullet_id].range>0) {
-	      allow_act=TRUE;
+          if (enemy_id==-1) {
+            allow_act=TRUE;
+          } else if (enemy_id==-2) {
+            if (!player.time_breaker) {
+	          allow_act=TRUE;
+            } else if (Bullet[bullet_id].start_range-Bullet[bullet_id].range<50) {
+	          allow_act=TRUE;
+            }
+          }
         } else {
           if (Bullet[bullet_id].left) {
             if (Bullet[bullet_id].angle>-M_PI_2) {
@@ -171,42 +182,17 @@ void BulletAct(int bullet_id)
         }
         Bullet[bullet_id].range-=Bullet[bullet_id].speed;
       }
-      /*if (enemy_id==-1) {//player place web
-        if (Bullet[bullet_id].left) {
-	      bm_x2=Bullet[bullet_id].start_x;
-	      bm_y2=Bullet[bullet_id].start_y;
-	      bm_x1=Bullet[bullet_id].x;
-	      bm_y1=Bullet[bullet_id].y;	
-	    } else {
-	      bm_x1=Bullet[bullet_id].start_x;
-	      bm_y1=Bullet[bullet_id].start_y;
-	      bm_x2=Bullet[bullet_id].x;
-	      bm_y2=Bullet[bullet_id].y;
-        }
-        if (player.placed_web_pos<player.max_web_num) { //if pointer to web is less than the no. of webs player has currently     
-          while (player.web_storage[player.placed_web_pos]==-1) { //find player.web_storage that is not empty
-            player.placed_web_pos=LimitValue(player.placed_web_pos+1,0,player.max_web_num); //reset back to 0 if over the max
-          }
-          web_id=player.web_storage[player.placed_web_pos];
-          if (web_id!=-1) {
-            Ground[web_id].x1=bm_x1;
-            Ground[web_id].y1=bm_y1;
-            Ground[web_id].x2=bm_x2;
-            Ground[web_id].y2=bm_y2;
-            SetGround(web_id);
-            SetNodeGridAttributes(web_id);
-            double q=0.2*(((DEFAULT_PLAYER_BUILD_RANGE/2*NODE_SIZE)-Bullet[bullet_id].range)/10);
-	        Ground[web_id].health=10-q;
-	      }
-	    }
-      }*/
-
-
  
       //
-      if (enemy_id!=-1) { //Enemy bullet
+      if (enemy_id>-1) { //Enemy bullet
         if (GetDistance(Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
           Bullet[bullet_id].angle=RandNum(-M_PI,M_PI,Enemy[enemy_id].seed);
+        }
+        for (int k=0;k<player.bullet_shot_num;k++) {
+          int bk=player.bullet[k];
+          if (GetDistance(Bullet[bk].x,Bullet[bk].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
+            Bullet[bullet_id].angle=RandNum(-M_PI,M_PI,Enemy[enemy_id].seed);
+          }
         }
         hit_player=HitPlayer(bullet_id);
       //bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,0.5,0.5,FALSE);
@@ -306,12 +292,12 @@ void BulletAct(int bullet_id)
         
        StopBullet(bullet_id,FALSE);
         //Enemy bullet shot array arrangement
-	  for (j=Bullet[bullet_id].saved_pos;j<Enemy[enemy_id].bullet_shot_num-1;j++) {
+	  for (j=Bullet[bullet_id].saved_pos;j<Enemy[enemy_id].bullet_shot_num-1;j++) { //shift to left in enemy bullet shot arr from bullet shot
 	    Enemy[enemy_id].bullet_shot_arr[j]=Enemy[enemy_id].bullet_shot_arr[j+1];
         Bullet[Enemy[enemy_id].bullet_shot_arr[j]].saved_pos--;
       }
       Bullet[bullet_id].saved_pos=-1;
-	  Enemy[enemy_id].bullet_shot_arr[Enemy[enemy_id].bullet_shot_num-1]=-1;
+	  Enemy[enemy_id].bullet_shot_arr[Enemy[enemy_id].bullet_shot_num-1]=-1; //remove bullet from arr
       Enemy[enemy_id].bullet_shot_num--;
     }
 
@@ -319,45 +305,54 @@ void BulletAct(int bullet_id)
 
 
   } else {//player bullet while travelling
-    if (Bullet[bullet_id].range<DEFAULT_PLAYER_BUILD_RANGE+player.speed*2-1) {
-      bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,NODE_SIZE,NODE_SIZE,FALSE);
-    } else {
+    if (Bullet[bullet_id].from_enemy_id==-1) {
+      if (Bullet[bullet_id].range<DEFAULT_PLAYER_BUILD_RANGE+player.speed*2-1) {
+        bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,NODE_SIZE,NODE_SIZE,FALSE);
+      } else {
+        bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2,FALSE);
+      }
+    } else if (Bullet[bullet_id].from_enemy_id==-2) {
       bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2,FALSE);
     }
     allow_act=FALSE;
-	if (bullet_on_ground_id!=-1/* && bullet_on_ground_id!=web_id*/) {//not hit self but another platform
+	if (bullet_on_ground_id!=-1) {//not hit self but another platform
 	  allow_act=TRUE;
-    } else if (/*Ground[web_id].health<=0 || */IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) {//out of bounds
+    } else if (IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) {//out of bounds
 	  allow_act=TRUE;
-    }// else if (Bullet[bullet_id].range<=0) { 
-	  //allow_act=TRUE;
-	//}
+    }
 	if (allow_act) {//reaching end of range
-	  /*if (IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) { //Destroy ground
-        DestroyGround(web_id); //completely destroy web (can be regained after '4')
-        player.cdwebs[player.cdweb_pos]=web_id;
-        player.cdweb_pos++;
-        if (player.cdweb_pos>=player.max_web_num) {
-          player.cdweb_pos=0;
-        }
-        player.cdweb_num++;
-      } else*/ 
       if (bullet_on_ground_id!=-1) {
       //player_web_swinging related
-        player.pivot_x=Bullet[bullet_id].x;
-        player.pivot_y=Bullet[bullet_id].y;
-        player.potential_energy=0;
-        player.counter_potential_energy=0;
-        player.is_swinging=TRUE;
+        if (enemy_id==-1) {
+          player.pivot_x=Bullet[bullet_id].x;
+          player.pivot_y=Bullet[bullet_id].y;
+          player.potential_energy=0;
+          player.counter_potential_energy=0;
+          player.is_swinging=TRUE;
+
+	      //---web related-------
+          if (bullet_on_ground_id>=GROUND_NUM) {
+            Ground[bullet_on_ground_id].health+=2;//heal ground
+          }
+          player.web_being_shot=-1;
+          player.bullet_shot=-1;
+          //---------------------
+       }
+
+        StopBullet(bullet_id,FALSE);
+
+
+        if (enemy_id==-2){
+	      for (j=Bullet[bullet_id].saved_pos;j<player.bullet_shot_num-1;j++) { //shift to left in player bullet shot arr from bullet shot
+	        player.bullet[j]=player.bullet[j+1];
+            Bullet[player.bullet[j]].saved_pos--;
+          }
+          Bullet[bullet_id].saved_pos=-1;
+	      player.bullet[player.bullet_shot_num-1]=-1; //remove bullet from arr
+          player.bullet_shot_num--;
+        }
       }
-      StopBullet(bullet_id,TRUE);
-	  //---web related-------
-      if (bullet_on_ground_id>=GROUND_NUM) {
-        Ground[bullet_on_ground_id].health+=2;//heal ground
-      }
-      player.web_being_shot=-1;
-      player.bullet_shot=-1;
-      //---------------------
+
         }
       }
     } // end of speedy for loop
@@ -385,6 +380,8 @@ void DrawBullet2(HDC hdc,int i,double x,double y,int color)
       for (j=RandNum(0,3,i);j>0;j--) {
         GrCircle(hdc,x,y,j,color,-1);
       }
+    case 5:
+      GrLine(hdc,x,y,x+10*cos(Bullet[i].angle),y+10*sin(Bullet[i].angle),color);
       break;
   }
 }

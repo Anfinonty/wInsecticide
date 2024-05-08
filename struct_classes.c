@@ -135,6 +135,9 @@ struct player
   int time_breaker_units_tick_max;
   int spin_timer;
 
+  int bullet_shot_num;
+  int color;
+  int load_color;
 
   int grav;
   int jump_height;
@@ -221,6 +224,7 @@ struct player
   int web_storage[MAX_WEB_NUM];
   int cdwebs[MAX_WEB_NUM];
   int render_vgrids[VRDGRID_NUM];
+  int bullet[PLAYER_BULLET_NUM];
 
 
 //sprites
@@ -352,8 +356,33 @@ struct Bullet
   double angle;
   double speed;
   double range;
+  double start_range;
 
 } Bullet[BULLET_NUM];
+
+
+/*struct PlayerBullet
+{
+  bool shot;
+  bool left,near_miss;
+  int color;
+  int speed_multiplier;
+  int damage;
+  int from_enemy_id;
+  int graphics_type;
+  int saved_pos;
+  double sprite_x;
+  double sprite_y;
+  double start_x;
+  double start_y;
+  double x;
+  double y;
+  double angle;
+  double speed;
+  double range;
+
+} PlayerBullet[BULLET_NUM];*/
+
 
 void InitBullet();
 void ShootBullet(
@@ -527,7 +556,7 @@ struct enemy
   double node_gcost[MAX_NODE_NUM];
   double node_hcost[MAX_NODE_NUM];
   double node_fcost[MAX_NODE_NUM];
-  int bullet_shot_arr[BULLET_NUM];
+  int bullet_shot_arr[ENEMY_BULLET_NUM];
 }; 
 //} Enemy[ENEMY_NUM];
 struct enemy Enemy[MAX_ENEMY_NUM];

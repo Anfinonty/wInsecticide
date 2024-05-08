@@ -546,7 +546,7 @@ void EnemyAct(int i)
   bool deduct_health=FALSE;
   if (Enemy[i].health>0) {
   //timebreaker enemy
-    if (Enemy[i].time_breaker_immune && !player.time_breaker) {
+    if (Enemy[i].time_breaker_length>0 && !player.time_breaker) {
       dice=RandNum(0,Enemy[i].time_breaker_rare,Enemy[i].seed);
       if (dice==1) {
         slash_time=Enemy[i].time_breaker_length;
@@ -554,9 +554,12 @@ void EnemyAct(int i)
       /*if (Enemy[i].saw_player) {
         Enemy[i].snd_dur=5;
       }*/
+        /*if (Enemy[i].time_breaker_immune && Enemy[i].saw_player && (Enemy[i].angle != Enemy[i].sprite_angle)) {
+          PlaySound(L"snd/timebreaker__start2.wav", NULL, SND_FILENAME | SND_ASYNC);      
+        }*/
       }
     }
-    //Player bullet
+    //Enemy bullet
     for (j=0;j<Enemy[i].bullet_shot_num;j++) {
       BulletAct(Enemy[i].bullet_shot_arr[j]);
     }
@@ -564,11 +567,59 @@ void EnemyAct(int i)
     EnemyLOSAct(i);//Shoot line of sight bullet
 
 
+   for (int k=0;k<player.bullet_shot_num;k++) {
+     int player_b=player.bullet[k];
+     double dist_from_bullet0=GetDistance(Bullet[player_b].x,Bullet[player_b].y,Enemy[i].x,Enemy[i].y);
+    //^^ condition
+      //player bullet
+      if (dist_from_bullet0<=NODE_SIZE*4) {
+        switch (Enemy[i].species) {
+      	  case 0://fly
+            if (dist_from_bullet0<=NODE_SIZE*2) {
+              deduct_health=TRUE;
+              allow_act=TRUE;
+              Enemy[i].knockback_timer=10;//player.knockback_strength;
+              Enemy[i].knockback_angle=Bullet[player_b].angle;
+              if (Bullet[player_b].left) {
+                Enemy[i].knockback_left=TRUE;
+              } else {
+                Enemy[i].knockback_left=FALSE;
+              }
+            }
+	        break;
+          case 1://crawl
+            deduct_health=TRUE;
+            allow_act=TRUE;
+
+            Enemy[i].knockback_timer=player.knockback_strength;
+            Enemy[i].knockback_angle=Bullet[player_b].angle;
+
+            if (Bullet[player_b].left) {
+              Enemy[i].knockback_left=TRUE;
+            } else {
+              Enemy[i].knockback_left=FALSE;
+            }
+
+            StopBullet(player_b,FALSE); //Stop the web
+
+	        for (int m=Bullet[player_b].saved_pos;m<player.bullet_shot_num-1;m++) { //shift to left in player bullet shot arr from bullet shot
+	          player.bullet[m]=player.bullet[m+1];
+              Bullet[player.bullet[m]].saved_pos--;
+            }
+            Bullet[player_b].saved_pos=-1;
+	        player.bullet[player.bullet_shot_num-1]=-1; //remove bullet from arr
+            player.bullet_shot_num--;
+           // break; 
+      }
+      break;
+    }
+  }
+
     //Enemy knockback & attacked
    double dist_from_bullet=GetDistance(Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y,Enemy[i].x,Enemy[i].y);
    switch (Enemy[i].species) {
      case 0://fly
-	   if (!Enemy[i].time_breaker_immune) {
+	   if (!(Enemy[i].time_breaker_length>0)) {
 	     if (GetDistance(Enemy[i].x,Enemy[i].y,player.claws_x,player.claws_y)<=NODE_SIZE*2) {
 	       allow_act=TRUE;
 	     }
@@ -1153,7 +1204,7 @@ void InitEnemy()
     Enemy[i].saved_angle=-9999;
   //bullet
     Enemy[i].bullet_shot_num=0;
-    for (j=0;j<BULLET_NUM*1;j++) {
+    for (j=0;j<ENEMY_BULLET_NUM;j++) {
       Enemy[i].bullet_shot_arr[j]=-1;
     }
     //printf("initialized Bullets\n");
@@ -1285,14 +1336,13 @@ void DrawEnemy(HDC hdc)
             &Enemy[i].sprite_height
           );
 
-          Enemy[i].sprite_1=CreateCrunchyBitmap(Enemy[i].sprite_width,Enemy[i].sprite_height);//CreateLargeBitmap(Enemy[i].sprite_width,Enemy[i].sprite_height);
-          Enemy[i].sprite_2=CreateCrunchyBitmap(Enemy[i].sprite_width,Enemy[i].sprite_height);//CreateLargeBitmap(Enemy[i].sprite_width,Enemy[i].sprite_height);
+          Enemy[i].sprite_1=CreateCrunchyBitmap(Enemy[i].sprite_width,Enemy[i].sprite_height);
+          Enemy[i].sprite_2=CreateCrunchyBitmap(Enemy[i].sprite_width,Enemy[i].sprite_height);
 
           Enemy[i].current_draw_row=Enemy[i].sprite_miny;
 
           Enemy[i].saved_angle=Enemy[i].sprite_angle;
         } //else { // sprite_angle==saved angle
-
 
         for (int k=0;k<2;k++) {
         if (Enemy[i].current_draw_row>=Enemy[i].sprite_miny && Enemy[i].current_draw_row<=Enemy[i].sprite_maxy) {
@@ -1347,9 +1397,6 @@ void DrawEnemy(HDC hdc)
               &Enemy[i].sprite_height
           );
 
-          //Enemy[i].sprite_1=CreateLargeBitmap(Enemy[i].sprite_width,Enemy[i].sprite_height);
-          //Enemy[i].sprite_2=CreateLargeBitmap(Enemy[i].sprite_width,Enemy[i].sprite_height);
-          //Enemy[i].sprite_3=CreateLargeBitmap(Enemy[i].sprite_width,Enemy[i].sprite_height);
           Enemy[i].sprite_1=CreateCrunchyBitmap(Enemy[i].sprite_width,Enemy[i].sprite_height);
           Enemy[i].sprite_2=CreateCrunchyBitmap(Enemy[i].sprite_width,Enemy[i].sprite_height);
           Enemy[i].sprite_3=CreateCrunchyBitmap(Enemy[i].sprite_width,Enemy[i].sprite_height);
@@ -1360,9 +1407,9 @@ void DrawEnemy(HDC hdc)
         }
 
         if (Enemy[i].current_draw_row>=Enemy[i].sprite_miny && Enemy[i].current_draw_row<=Enemy[i].sprite_maxy) {
-          RotateSpriteII(hdc, enemy2_sprite_1, Enemy[i].sprite_1,Enemy[i].sprite_angle, LTGREEN, DKGRAY, TRANSPARENT, Enemy[i].sprite_minx, Enemy[i].sprite_miny, Enemy[i].sprite_maxx, Enemy[i].sprite_maxy,Enemy[i].current_draw_row);
-          RotateSpriteII(hdc, enemy2_sprite_2, Enemy[i].sprite_2,Enemy[i].sprite_angle, LTGREEN, DKGRAY, TRANSPARENT, Enemy[i].sprite_minx, Enemy[i].sprite_miny, Enemy[i].sprite_maxx, Enemy[i].sprite_maxy, Enemy[i].current_draw_row);
-          RotateSpriteII(hdc, enemy2_sprite_3, Enemy[i].sprite_3,Enemy[i].sprite_angle, LTGREEN, DKGRAY, TRANSPARENT, Enemy[i].sprite_minx, Enemy[i].sprite_miny, Enemy[i].sprite_maxx, Enemy[i].sprite_maxy, Enemy[i].current_draw_row);
+          RotateSpriteII(hdc, enemy2_sprite_1, Enemy[i].sprite_1,Enemy[i].sprite_angle, LTGREEN, DKBLACK, TRANSPARENT, Enemy[i].sprite_minx, Enemy[i].sprite_miny, Enemy[i].sprite_maxx, Enemy[i].sprite_maxy,Enemy[i].current_draw_row);
+          RotateSpriteII(hdc, enemy2_sprite_2, Enemy[i].sprite_2,Enemy[i].sprite_angle, LTGREEN, DKBLACK, TRANSPARENT, Enemy[i].sprite_minx, Enemy[i].sprite_miny, Enemy[i].sprite_maxx, Enemy[i].sprite_maxy, Enemy[i].current_draw_row);
+          RotateSpriteII(hdc, enemy2_sprite_3, Enemy[i].sprite_3,Enemy[i].sprite_angle, LTGREEN, DKBLACK, TRANSPARENT, Enemy[i].sprite_minx, Enemy[i].sprite_miny, Enemy[i].sprite_maxx, Enemy[i].sprite_maxy, Enemy[i].current_draw_row);
           Enemy[i].current_draw_row++;
           if (Enemy[i].current_draw_row>=Enemy[i].sprite_maxy) {
             Enemy[i].current_draw_row=-9999;
@@ -1376,8 +1423,8 @@ void DrawEnemy(HDC hdc)
         if (Enemy[i].sprite_2!=NULL) {
           DeleteObject(Enemy[i].sprite_2);
         }
-        Enemy[i].sprite_1=RotateSprite(hdc, enemy1_sprite_1,Enemy[i].sprite_angle,LTGREEN,DKGRAY,TRANSPARENT);
-        Enemy[i].sprite_2=RotateSprite(hdc, enemy1_sprite_2,Enemy[i].sprite_angle,LTGREEN,DKGRAY,TRANSPARENT);
+        Enemy[i].sprite_1=RotateSprite(hdc, enemy1_sprite_1,Enemy[i].sprite_angle,LTGREEN,DKBLACK,TRANSPARENT);
+        Enemy[i].sprite_2=RotateSprite(hdc, enemy1_sprite_2,Enemy[i].sprite_angle,LTGREEN,DKBLACK,TRANSPARENT);
         Enemy[i].health=-99999;
       }
     }
@@ -1387,16 +1434,16 @@ void DrawEnemy(HDC hdc)
         int print_health=Enemy[i].health;
         sprintf(txt,"%d",print_health);
         if (Enemy[i].species==1) {
-          if (!player.time_breaker) {
+          if (!player.time_breaker || Enemy[i].time_breaker_immune) {
             GrPrint(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y-64,txt,Enemy[i].color);
           } else {
-            GrPrint(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y-64,txt,BLACK);
+            GrPrint(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y-64,txt,LTGRAY);
           }
         } else {
-          if (!player.time_breaker) {
+          if (!player.time_breaker || Enemy[i].time_breaker_immune) {
             GrPrint(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y-32,txt,Enemy[i].color);
           } else {
-            GrPrint(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y-32,txt,BLACK);
+            GrPrint(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y-32,txt,LTGRAY);
           }
         }
       }

@@ -112,9 +112,10 @@ double moon_angle_shift=0;
 
 int frame_tick=-10;
 int int_best_score=0;
+int player_color=0;
+int player_load_color=0;
 double double_best_score=0;
 wchar_t save_level[128];
-int player_color=0;
 double time_begin=0;
 bool yes_unifont=FALSE;
 
@@ -150,6 +151,8 @@ bool yes_unifont=FALSE;
 
 
 #define BULLET_NUM	5000
+#define PLAYER_BULLET_NUM          16
+#define ENEMY_BULLET_NUM                   1000
 #define MAX_BULLET_PER_FIRE 10
 
 
@@ -173,7 +176,6 @@ bool yes_unifont=FALSE;
 #define DEFAULT_PLAYER_JUMP_HEIGHT 		85//100
 #define DEFAULT_PLAYER_ATTACK_STRENGTH  	1
 #define DEFAULT_PLAYER_KNOCKBACK_STRENGTH	50
-
 
 #define DEFAULT_PLAYER_BUILD_RANGE		100//12
 #define DEFAULT_PLAYER_SHORT_BUILD_RANGE	10
@@ -298,8 +300,11 @@ void InitOnce() {
   player.cam_move_x=0;
   player.cam_move_y=0;
 
-  //InitCustard()
-  //printf("\n===Init Once Done===\n");
+
+  player_load_color=player_color;
+  if (IsInvertedBackground()) { //invert player color if background is inverted
+    player_load_color=COLORS_NUM-player_color-1;
+  }
 }
 
 void Init(HDC hdc) {
@@ -307,9 +312,6 @@ void Init(HDC hdc) {
 
   //Load Best Score
   //Folder & file creation
-  //DIR* dir = opendir("score_saves");
-  //if (dir) {//Check for scoresaves folder
-  //printf("%s",save_level);
   FILE *fptr;
   if (_waccess(save_level, F_OK)==0) { //if file exists
   //do nothing
@@ -318,14 +320,6 @@ void Init(HDC hdc) {
     fprintf(fptr,"2147483646\n");
     fclose(fptr);
   }
-  //} else if (ENOENT==errno) {//if it doesn't exist create one
-    //mkdir("score_saves");
-    //Create bestscore=9999
-    //FILE *fptr;
-    //fptr = _wfopen(save_level,L"a");
-    //fprintf(fptr,"2147483646\n");
-    //fclose(fptr);
-  //}
 
 
   int_best_score=0;
@@ -344,8 +338,7 @@ void Init(HDC hdc) {
   double_best_score=(double)int_best_score/1000;
 
 
-
-
+  //Start level
   OLD_GR_WIDTH=0;
   OLD_GR_HEIGHT=0;
   game_timer=0;
@@ -353,35 +346,15 @@ void Init(HDC hdc) {
   game_over=FALSE;
   frame_tick=-10;
 
+
+  //Initialize Level
   InitGrid();
-  //printf("\n===Grid Initialized\n");
-
   InitNodeGrid();
-  //printf("\n===Node Grid Initialized\n");
-
   InitGround();
-  //printf("\n===Ground Initialized\n");
-
-  /*for (int i=0;i<GROUND_NUM;i++)
-      printf("%d x1: %1.0f, y1:%1.0f/x2: %1.0f, y2:%1.0f/x3: %1.0f, y3:%1.0f\n",i,Ground[i].x1,Ground[i].y1,Ground[i].x2,Ground[i].y2,Ground[i].x3,Ground[i].y3);
-
-      printf("MAP WIDTH %d,\n",MAP_WIDTH);
-      printf("MAP HEIGHT %d,\n",MAP_HEIGHT);   
-      printf("GRID NUM %d,\n",GRID_NUM);*/
-  
-
   InitBullet();
-  //printf("\n===Bullet Initialized\n");
-
   InitNodeGridAttributes();
-  //printf("\n===Node Grid Attributes Initialized\n");
-
   InitEnemy();
-  //printf("\n===Enemy Initialized\n");
-
   InitPlayer();
-  //printf("\n===Player Attributes Initialized\n");
-  //InitGround2();
   BitmapPalette(hdc,map_platforms_sprite,rgbColorsDefault);
 }
 
@@ -430,23 +403,23 @@ void InitLevel(HWND hwnd, HDC hdc)
 
 
   //Load Player Sprites
-  player.sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
-  player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
-  player.sprite_2_cache = RotateSprite(NULL, player.sprite_2,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
+  player.sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,player.sprite_angle,LTGREEN,draw_color_arr[player_load_color],-1);
+  player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,draw_color_arr[player_load_color],-1);
+  player.sprite_2_cache = RotateSprite(NULL, player.sprite_2,player.sprite_angle,LTGREEN,draw_color_arr[player_load_color],-1);
 
-  player.attack_sprite_1_cache = RotateSprite(NULL, player.attack_sprite_1,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
-  player.attack_sprite_2_cache = RotateSprite(NULL, player.attack_sprite_2,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
-  player.attack_sprite_3_cache = RotateSprite(NULL, player.attack_sprite_3,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
-  player.attack_sprite_4_cache = RotateSprite(NULL, player.attack_sprite_4,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
+  player.attack_sprite_1_cache = RotateSprite(NULL, player.attack_sprite_1,player.sprite_angle,LTGREEN,draw_color_arr[player_load_color],-1);
+  player.attack_sprite_2_cache = RotateSprite(NULL, player.attack_sprite_2,player.sprite_angle,LTGREEN,draw_color_arr[player_load_color],-1);
+  player.attack_sprite_3_cache = RotateSprite(NULL, player.attack_sprite_3,player.sprite_angle,LTGREEN,draw_color_arr[player_load_color],-1);
+  player.attack_sprite_4_cache = RotateSprite(NULL, player.attack_sprite_4,player.sprite_angle,LTGREEN,draw_color_arr[player_load_color],-1);
 
-  player.block_sprite_1_cache = RotateSprite(NULL, player.block_sprite_1,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
-  player.block_sprite_2_cache = RotateSprite(NULL, player.block_sprite_2,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
-  player.block_sprite_3_cache = RotateSprite(NULL, player.block_sprite_3,player.sprite_angle,LTGREEN,draw_color_arr[player_color],-1);
+  player.block_sprite_1_cache = RotateSprite(NULL, player.block_sprite_1,player.sprite_angle,LTGREEN,draw_color_arr[player_load_color],-1);
+  player.block_sprite_2_cache = RotateSprite(NULL, player.block_sprite_2,player.sprite_angle,LTGREEN,draw_color_arr[player_load_color],-1);
+  player.block_sprite_3_cache = RotateSprite(NULL, player.block_sprite_3,player.sprite_angle,LTGREEN,draw_color_arr[player_load_color],-1);
 
-  player.spin_sprite_1_cache = RotateSprite(NULL, player.spin_sprite,0.1,LTGREEN,draw_color_arr[player_color],-1);
-  player.spin_sprite_2_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI_2,LTGREEN,draw_color_arr[player_color],-1);
-  player.spin_sprite_3_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI,LTGREEN,draw_color_arr[player_color],-1);
-  player.spin_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,draw_color_arr[player_color],-1);
+  player.spin_sprite_1_cache = RotateSprite(NULL, player.spin_sprite,0.1,LTGREEN,draw_color_arr[player_load_color],-1);
+  player.spin_sprite_2_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI_2,LTGREEN,draw_color_arr[player_load_color],-1);
+  player.spin_sprite_3_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI,LTGREEN,draw_color_arr[player_load_color],-1);
+  player.spin_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,draw_color_arr[player_load_color],-1);
 
   //moon sprite
   DeleteObject(moon_sprite_cache);
@@ -558,33 +531,16 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4)
       }
       GrPrint(hdc,x,y+16,txt2,c);   
       GrPrint(hdc,x+1,y+1+16,txt2,c4);
-
-
-      //GrPrint(hdc,x,y+32,txt2_1,c);   
-      //GrPrint(hdc,x+1,y+1+32,txt2_1,c4);
     }
   } else {
     GrPrint(hdc,x,y,"Press Shift + M to Enable Songs",c);
     GrPrint(hdc,x+1,y+1,"Press Shift + M to Enable Songs",c4);
   }
-      
-
-  //char epic[256];
-  //for (int i=134;i<134+128;i++)
-    //sprintf(epic,"%s %c",epic,i);
-  //sprintf(epic,"%c",143);
-  //GrPrintW(hdc,x,y,epic,c4);
 }
 
 
 void DrawMainMenu(HDC hdc)
 {
-  //if (solar_hour>6 && solar_hour<18) { //7 AM to 6PM
-    //GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,BLUE);
-  //} else {
-    //DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE);
-    //GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,BLACK);
-  //}
 
   //draw bkgrnd
   DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE);
@@ -609,8 +565,6 @@ void DrawMainMenu(HDC hdc)
   GrCircle(hdc,mcalendar_x-2,mcalendar_y-3,3,LTGREEN,LTGREEN);
   GrCircle(hdc,mcalendar_x-3,mcalendar_y-5,2,LTGREEN,LTGREEN);
   GrCircle(hdc,mcalendar_x-3,mcalendar_y+5,2,LTGREEN,LTGREEN);
-  //GrRect(hdc,mcalendar_x+5,mcalendar_y-6,3,5,LTGREEN);
-  //GrCircle(hdc,mcalendar_x+5,mcalendar_y-3,2,LTGREEN,LTGREEN);
 
   if (lunar_day<27) //0 to 26
     moon_angle=(-2*M_PI/27 * lunar_day ) - moon_angle_shift;
@@ -633,9 +587,6 @@ void DrawMainMenu(HDC hdc)
 
   //Sun Pos
   GrCircle(hdc,mcalendar_x + mcalendar_l*cos(-solar_angle_day), mcalendar_y + mcalendar_l*sin(-solar_angle_day),5,YELLOW,YELLOW);
-  //GrCircle(hdc,GR_WIDTH/2 + 3*100*cos(sun_angle), 128*4 + 3*100*sin(sun_angle),5,YELLOW,YELLOW);
-  //GrLine(hdc,GR_WIDTH/2,128*4,GR_WIDTH/2 + 3*100*cos(sun_angle), 128*4 + 3*100*sin(sun_angle),YELLOW);
-  //  GrCircle(hdc,GR_WIDTH/2, 128*4,300,YELLOW,-1);
 
 
 
@@ -737,10 +688,7 @@ lunar_year
 
 
 
-
-
   GrPrint(hdc,30,10+16*16,"[SHIFT_ESC]: Exit",WHITE);
-  //GrPrint(hdc,30,10+32+16*12,"Press [SHIFT] + 'M' to Change Music Mode",WHITE);
   GrPrintW(hdc,30,10+16*17,L"[SHIFT] + 'L': Unifont [ពេលរាត្រី]","",WHITE,16,FALSE,yes_unifont);
   GrPrint(hdc,30,10+16*18,"Player Color: [LEFT] <    > [RIGHT]",WHITE);
 
@@ -1132,7 +1080,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           if (!in_main_menu) {
             if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
               player.time_breaker=TRUE;
-              //mciSendStringA("play snd/timeskip.mp3",NULL,0,NULL);
               PlaySound(L"snd/timebreaker__start.wav", NULL, SND_FILENAME | SND_ASYNC);
               player.time_breaker_cooldown=player.time_breaker_cooldown_max;
               player.speed+=player.time_breaker_units_max/2-1;
@@ -1150,7 +1097,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           if (!in_main_menu) {
             if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
               player.time_breaker=TRUE;
-              //mciSendStringA("play snd/timeskip.mp3",NULL,0,NULL);
               PlaySound(L"snd/timebreaker__start.wav", NULL, SND_FILENAME | SND_ASYNC);
               player.time_breaker_cooldown=player.time_breaker_cooldown_max;
               player.speed+=player.time_breaker_units_max/2-1;
