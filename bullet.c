@@ -147,7 +147,7 @@ void BulletAct(int bullet_id)
             }
           }
         } else {
-          if (Bullet[bullet_id].left) {
+          if (Bullet[bullet_id].left) {//LEFT
             if (Bullet[bullet_id].angle>-M_PI_2) {
               if ((int)Bullet[bullet_id].range%10==0) {
                 Bullet[bullet_id].angle-=0.02;
@@ -165,9 +165,6 @@ void BulletAct(int bullet_id)
             Bullet[bullet_id].y+=sin(Bullet[bullet_id].angle)*Bullet[bullet_id].speed/2;
           }
           Bullet[bullet_id].range--;
-          /*if (i==0) {
-            Bullet[bullet_id].speed_multiplier+=exp(abs(Bullet[bullet_id].range))/1000;
-          }*/
         }
       } else if (!player.time_breaker || Enemy[enemy_id].time_breaker_immune) {//enemy
 	    allow_act=TRUE;
@@ -186,15 +183,20 @@ void BulletAct(int bullet_id)
       //
       if (enemy_id>-1) { //Enemy bullet
         if (GetDistance(Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
-          Bullet[bullet_id].angle=RandNum(-M_PI,M_PI,Enemy[enemy_id].seed);
+          Bullet[bullet_id].angle=RandAngle(-90,90,Enemy[enemy_id].seed);//RandNum(-M_PI_2*100,M_PI_2*100,Enemy[enemy_id].seed)/100;
         }
         for (int k=0;k<player.bullet_shot_num;k++) {
           int bk=player.bullet[k];
           if (GetDistance(Bullet[bk].x,Bullet[bk].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
-            Bullet[bullet_id].angle=RandNum(-M_PI,M_PI,Enemy[enemy_id].seed);
+            Bullet[bullet_id].angle=RandAngle(-90,90,player.seed);
             //Bullet[bk].range-=Bullet[bk].start_range/2;//Bullet[bullet_id].damage*Bullet[enemy_id].speed*Bullet[enemy_id].speed_multiplier;
-            if (player.speed<11)
-              Bullet[bk].angle=RandNum(-M_PI,M_PI,frame_tick);
+            if (Bullet[bk].speed_multiplier<6)
+              Bullet[bk].angle=RandAngle(-90,90,player.seed);;
+            if (Bullet[bk].angle<0) {
+              Bullet[bk].left=TRUE;
+            } else {
+              Bullet[bk].left=FALSE;
+            }
           }
         }
         hit_player=HitPlayer(bullet_id);
@@ -229,7 +231,7 @@ void BulletAct(int bullet_id)
     	    }*/
 
 	        } else {//player is blocking
-              Bullet[bullet_id].angle=RandNum(-M_PI,M_PI,Enemy[enemy_id].seed);
+              Bullet[bullet_id].angle=RandAngle(-90,90,Enemy[enemy_id].seed);
               blocked_bullet_dmg=Bullet[bullet_id].damage;
 	          if (player.block_timer>23) {//non-perfect block
 	            if (player.on_ground_id!=-1) {//on ground

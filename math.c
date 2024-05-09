@@ -512,6 +512,13 @@ int RandNum(int min, int max,int seed) {
   return (rand()*seed)%(max-m + 1) + m;
 }
 
+
+
+double RandAngle(int min, int max, int seed) {
+  return RandNum(min,max,seed)*M_PI/180;
+}
+
+
 //----------------------------------------
 double GetGradient(double x1,double y1,double x2,double y2) 
 {

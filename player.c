@@ -269,6 +269,7 @@ void InitPlayer() {
   player.saved_angle=0;
   player.player_grav=0.5;
 
+  player.seed=0;
   player.cam_x=0;
   player.cam_y=0;
   player.cam_move_x=0;
@@ -466,8 +467,8 @@ void PlayerAct() {
     5, //graphics type
 	DEFAULT_PLAYER_BUILD_RANGE+player.speed*2, //range
     1, //speed
-	5, //speed multiplier
-	1, //damage
+	5+1*(player.speed/10), //speed multiplier
+	player.attack_strength, //damage
 	-2,
 	player.x,//player.above_x2, //so it doest get stuck to ground
 	player.y,//player.above_y2,
@@ -522,7 +523,7 @@ void PlayerAct() {
 	DEFAULT_PLAYER_BUILD_RANGE+player.speed*2, //range
     1, //speed
 	10+player.speed, //speed multiplier
-	1, //damage
+	player.attack_strength, //damage
 	-1,
 	player.x,//player.above_x2, //so it doest get stuck to ground
 	player.y,//player.above_y2,

@@ -576,7 +576,8 @@ void EnemyAct(int i)
         switch (Enemy[i].species) {
       	  case 0://fly
             if (dist_from_bullet0<=NODE_SIZE*2) {
-              Enemy[i].health-=player.attack_strength;
+              Enemy[i].health-=Bullet[player_b].damage;
+              PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
               Enemy[i].knockback_timer=player.knockback_strength;
               Enemy[i].knockback_angle=Bullet[player_b].angle;
               if (Bullet[player_b].left) {
@@ -587,7 +588,8 @@ void EnemyAct(int i)
             }
 	        break;
           case 1://crawl
-            Enemy[i].health-=player.attack_strength;
+            Enemy[i].health-=Bullet[player_b].damage;
+            PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
             Enemy[i].knockback_timer=player.knockback_strength;
             Enemy[i].knockback_angle=Bullet[player_b].angle;
 
@@ -643,6 +645,7 @@ void EnemyAct(int i)
             Enemy[i].health-=player.attack_strength;
             Enemy[i].knockback_timer=player.knockback_strength;
             Enemy[i].knockback_angle=Bullet[player.bullet_shot].angle;
+            
             if (Bullet[player.bullet_shot].left) {
               Enemy[i].knockback_left=TRUE;
             } else {
@@ -784,7 +787,7 @@ void EnemyAct(int i)
           }
         }
         } else {
-          Enemy[i].knockback_angle=RandNum(0,360,1)*M_PI/180;
+          Enemy[i].knockback_angle=RandAngle(-90,90,player.seed);
         }
 
 

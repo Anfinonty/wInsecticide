@@ -153,6 +153,8 @@ struct player
   int knockback_speed_multiplier;
   int knockback_strength;
   int time_breaker_tick;
+  int seed;
+
 
   //=== JUST A DEMO===
   /*int sprite_width;
@@ -360,30 +362,6 @@ struct Bullet
 
 } Bullet[BULLET_NUM];
 
-
-/*struct PlayerBullet
-{
-  bool shot;
-  bool left,near_miss;
-  int color;
-  int speed_multiplier;
-  int damage;
-  int from_enemy_id;
-  int graphics_type;
-  int saved_pos;
-  double sprite_x;
-  double sprite_y;
-  double start_x;
-  double start_y;
-  double x;
-  double y;
-  double angle;
-  double speed;
-  double range;
-
-} PlayerBullet[BULLET_NUM];*/
-
-
 void InitBullet();
 void ShootBullet(
   int bullet_id,
@@ -484,7 +462,6 @@ struct enemy
   int idle_timer;
   int forgor_timer;
 
-  int seed;
   int sprite_width;
   int sprite_height;
   int sprite_minx;
@@ -510,6 +487,7 @@ struct enemy
   int on_ground_id;
   int knockback_timer;
   int node_num;
+  int seed;
 
 
   int node_neighbour[8];

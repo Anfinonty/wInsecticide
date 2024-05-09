@@ -1319,6 +1319,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           for (int i=0;i<player.rendered_enemy_num;i++) { //Enemy has random seed value
             Enemy[player_render_enemies[i]].seed=rand();
           }
+          player.seed=rand();
 
 
           if (player.health<=0 || flag_restart) { // restart level when player health hits 0 or VK_RETURN
