@@ -189,8 +189,7 @@ void BulletAct(int bullet_id)
           int bk=player.bullet[k];
           if (GetDistance(Bullet[bk].x,Bullet[bk].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
             Bullet[bullet_id].angle=RandAngle(-90,90,player.seed);
-            //Bullet[bk].range-=Bullet[bk].start_range/2;//Bullet[bullet_id].damage*Bullet[enemy_id].speed*Bullet[enemy_id].speed_multiplier;
-            if (Bullet[bk].speed_multiplier<6)
+            if (Bullet[bk].speed_multiplier<7)
               Bullet[bk].angle=RandAngle(-90,90,player.seed);;
             if (Bullet[bk].angle<0) {
               Bullet[bk].left=TRUE;

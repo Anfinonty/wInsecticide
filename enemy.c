@@ -568,44 +568,54 @@ void EnemyAct(int i)
     EnemyLOSAct(i);//Shoot line of sight bullet
 
    for (int k=0;k<player.bullet_shot_num;k++) {
-     int player_b=player.bullet[k];
-     double dist_from_bullet0=GetDistance(Bullet[player_b].x,Bullet[player_b].y,Enemy[i].x,Enemy[i].y);
+     int bk=player.bullet[k];
+     double dist_from_bullet0=GetDistance(Bullet[bk].x,Bullet[bk].y,Enemy[i].x,Enemy[i].y);
     //^^ condition
       //player bullet
       if (dist_from_bullet0<=NODE_SIZE*4) {
         switch (Enemy[i].species) {
       	  case 0://fly
             if (dist_from_bullet0<=NODE_SIZE*2) {
-              Enemy[i].health-=Bullet[player_b].damage;
+              Enemy[i].health-=Bullet[bk].damage;
               PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
               Enemy[i].knockback_timer=player.knockback_strength;
-              Enemy[i].knockback_angle=Bullet[player_b].angle;
-              if (Bullet[player_b].left) {
+              Enemy[i].knockback_angle=Bullet[bk].angle;
+              if (Bullet[bk].left) {
                 Enemy[i].knockback_left=TRUE;
               } else {
                 Enemy[i].knockback_left=FALSE;
               }
+              
+              if (Bullet[bk].speed_multiplier<6)
+                Bullet[bk].angle=RandAngle(-90,90,player.seed);
+              if (Bullet[bk].angle<0) {
+                Bullet[bk].left=TRUE;
+              } else {
+                Bullet[bk].left=FALSE;
+              }
+
+
             }
 	        break;
           case 1://crawl
-            Enemy[i].health-=Bullet[player_b].damage;
+            Enemy[i].health-=Bullet[bk].damage;
             PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
             Enemy[i].knockback_timer=player.knockback_strength;
-            Enemy[i].knockback_angle=Bullet[player_b].angle;
+            Enemy[i].knockback_angle=Bullet[bk].angle;
 
-            if (Bullet[player_b].left) {
+            if (Bullet[bk].left) {
               Enemy[i].knockback_left=TRUE;
             } else {
               Enemy[i].knockback_left=FALSE;
             }
 
-            StopBullet(player_b,FALSE); //Stop the web
+            StopBullet(bk,FALSE); //Stop the web
 
-	        for (int m=Bullet[player_b].saved_pos;m<player.bullet_shot_num-1;m++) { //shift to left in player bullet shot arr from bullet shot
+	        for (int m=Bullet[bk].saved_pos;m<player.bullet_shot_num-1;m++) { //shift to left in player bullet shot arr from bullet shot
 	          player.bullet[m]=player.bullet[m+1];
               Bullet[player.bullet[m]].saved_pos--;
             }
-            Bullet[player_b].saved_pos=-1;
+            Bullet[bk].saved_pos=-1;
 	        player.bullet[player.bullet_shot_num-1]=-1; //remove bullet from arr
             player.bullet_shot_num--;
            // break; 

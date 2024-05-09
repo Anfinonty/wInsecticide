@@ -453,6 +453,11 @@ void PlayerAct() {
       player.bullet_shot=-1;
     }
 
+    int b_speed_m=5;
+    if (player.speed>10)
+      b_speed_m=7;
+    else if (player.speed>5)
+      b_speed_m=6;      
 
     if (player.bullet_shot_num<PLAYER_BULLET_NUM && !player.is_swinging) {
       grad_x1=player.x+player.cam_move_x;
@@ -467,7 +472,7 @@ void PlayerAct() {
     5, //graphics type
 	DEFAULT_PLAYER_BUILD_RANGE+player.speed*2, //range
     1, //speed
-	5+1*(player.speed/10), //speed multiplier
+	b_speed_m, //speed multiplier
 	player.attack_strength, //damage
 	-2,
 	player.x,//player.above_x2, //so it doest get stuck to ground
