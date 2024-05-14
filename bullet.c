@@ -192,8 +192,8 @@ void BulletAct(int bullet_id)
           int bk=player.bullet[k];
           if (GetDistance(Bullet[bk].x,Bullet[bk].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
             Bullet[bullet_id].angle=RandAngle(-90,90,player.seed);
-            if (Bullet[bk].playsnd<1) {
-              Bullet[bk].playsnd=1;
+            if (!Bullet[bk].playsnd) {
+              Bullet[bk].playsnd=TRUE;
             }
             //PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
             Bullet[bullet_id].speed=Bullet[bk].speed;
@@ -383,7 +383,7 @@ void BulletSndAct(int i)
       //PlaySnd(L"snd/clang.wav",sndid);
       PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
     }
-    Bullet[i].playsnd--;
+    Bullet[i].playsnd=FALSE;
   }
 }
 

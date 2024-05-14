@@ -290,27 +290,24 @@ void EnemySpecies1Gravity(int enemy_id)
 
   if (Enemy[enemy_id].on_ground_id==-1) {//not on ground
     Enemy[enemy_id].y+=1; //falling down
-    Enemy[enemy_id].in_air_timer=2;  
-    //Enemy[enemy_id].angle=0;
-    //Enemy[enemy_id].saved_angle=0;
-    Enemy[enemy_id].above_ground=
-      Enemy[enemy_id].below_ground=FALSE;
-      Enemy[enemy_id].flip_sprite=FALSE;
+    Enemy[enemy_id].in_air_timer=2;
+    Enemy[enemy_id].above_ground=FALSE;
+    Enemy[enemy_id].below_ground=FALSE;
   } else {//on ground
     double ground_entity_angle=GetLineTargetAngle(Enemy[enemy_id].on_ground_id,Enemy[enemy_id].x,Enemy[enemy_id].y);
     double height_from_ground=GetLineTargetHeight(Enemy[enemy_id].on_ground_id,ground_entity_angle,Enemy[enemy_id].x,Enemy[enemy_id].y);
 
-    double ground_entity_angle2=GetLineTargetAngle(Enemy[enemy_id].saved_ground_id,Enemy[enemy_id].x,Enemy[enemy_id].y);
-    double height_from_ground2=GetLineTargetHeight(Enemy[enemy_id].saved_ground_id,ground_entity_angle,Enemy[enemy_id].x,Enemy[enemy_id].y);
+    //double ground_entity_angle2=GetLineTargetAngle(Enemy[enemy_id].saved_ground_id,Enemy[enemy_id].x,Enemy[enemy_id].y);
+    //double height_from_ground2=GetLineTargetHeight(Enemy[enemy_id].saved_ground_id,ground_entity_angle2,Enemy[enemy_id].x,Enemy[enemy_id].y);
 
     Enemy[enemy_id].in_air_timer=0;
 
-    if (abs(height_from_ground)<=30) {
+    if (abs(height_from_ground)<=31) {
       if (height_from_ground>0) {    //species 1 above ground (positive)
         Enemy[enemy_id].angle=Ground[Enemy[enemy_id].on_ground_id].angle;
         Enemy[enemy_id].above_ground=TRUE;
         Enemy[enemy_id].below_ground=FALSE;
-       Enemy[enemy_id].flip_sprite=FALSE;
+        Enemy[enemy_id].flip_sprite=FALSE;
       } else {    //species 1 below ground
         Enemy[enemy_id].angle=-Ground[Enemy[enemy_id].on_ground_id].angle-M_PI;
         Enemy[enemy_id].above_ground=FALSE;
@@ -331,13 +328,34 @@ void EnemySpecies1Gravity(int enemy_id)
       }
     } else {
       Enemy[enemy_id].on_ground_id=-1;
-    }
-    if (abs(height_from_ground2)<=30) {
-      Enemy[enemy_id].on_ground_id=-1;
+      //Enemy[enemy_id].saved_ground_id=-1;
     }
 
+    /*if () {
+
+    }*/
+
+
+    /*if (height_from_ground2>31) {
+      Enemy[enemy_id].on_ground_id=-1;
+      Enemy[enemy_id].saved_ground_id=-1;
+    }*/
+
     //prevent corner stuck
-    if (abs(height_from_ground)<=6) {
+    /*if (abs(height_from_ground)<=25 && Enemy[enemy_id].saved_ground_id!=Enemy[enemy_id].on_ground_id) {
+      int tmp_grnd2=Enemy[enemy_id].saved_ground_id; //rebound enemy froun ground
+      if (tmp_grnd2!=-1) {
+        if (Enemy[enemy_id].previous_above_ground) {
+          Enemy[enemy_id].x-=cos(Ground[tmp_grnd2].angle+M_PI_2);
+          Enemy[enemy_id].y-=sin(Ground[tmp_grnd2].angle+M_PI_2);
+        } else if (Enemy[enemy_id].previous_below_ground){
+          Enemy[enemy_id].x-=cos(Ground[tmp_grnd2].angle-M_PI_2);
+          Enemy[enemy_id].y-=sin(Ground[tmp_grnd2].angle-M_PI_2);      
+        }
+      }
+    }*/
+
+    if (abs(height_from_ground)<=25) {
       int tmp_grnd=Enemy[enemy_id].on_ground_id; //rebound enemy froun ground
       if (tmp_grnd!=-1) {
         if (Enemy[enemy_id].above_ground) {
@@ -349,6 +367,8 @@ void EnemySpecies1Gravity(int enemy_id)
         }
       }
     }
+
+
   }
   Enemy[enemy_id].previous_above_ground=Enemy[enemy_id].above_ground;
   Enemy[enemy_id].previous_below_ground=Enemy[enemy_id].below_ground;
@@ -526,7 +546,7 @@ void EnemyKnockbackMove(int i)
       }
       break;
     case 1:
-      if (GetOnGroundId(Enemy[i].x,Enemy[i].y,6,5,FALSE)!=-1) { //dont knockback enemy 
+      if (GetOnGroundId(Enemy[i].x,Enemy[i].y,24,23,FALSE)!=-1) { //dont knockback enemy 
 	    allow_act=TRUE;
       }
       break;
@@ -535,6 +555,9 @@ void EnemyKnockbackMove(int i)
   if (allow_act || IsOutOfBounds(Enemy[i].x,Enemy[i].y,5,MAP_WIDTH,MAP_HEIGHT)) {
     Enemy[i].knockback_timer=0;
   } else {
+    Enemy[i].on_ground_id=-1;
+    Enemy[i].saved_ground_id=-1;
+
     if (Enemy[i].knockback_left) {
       Enemy[i].x-=cos(Enemy[i].knockback_angle)*player.knockback_speed;
       Enemy[i].y-=sin(Enemy[i].knockback_angle)*player.knockback_speed;
@@ -1512,14 +1535,18 @@ void DrawEnemy(HDC hdc)
             if (Enemy[i].above_ground) {
               if (Enemy[i].sprite_timer%8==0) {
                 GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_1,Enemy[i].last_left);
+                //GrPrint(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y-72,"1",Enemy[i].color); //Debug sprite spazzing
               } else {
                 GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_2,Enemy[i].last_left);
+                //GrPrint(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y-72,"2",Enemy[i].color);
               }
             } else if (Enemy[i].below_ground) {
               if (Enemy[i].sprite_timer%8==0) {
                 GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_1,Enemy[i].flip_sprite);
+                //GrPrint(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y-72,"3",Enemy[i].color);
               } else {
                 GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_2,Enemy[i].flip_sprite);
+                //GrPrint(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y-72,"4",Enemy[i].color);
               }
             }
             //if (Enemy[i].health>0)

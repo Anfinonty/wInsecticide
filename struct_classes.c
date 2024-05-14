@@ -344,7 +344,7 @@ struct Bullet
   bool shot;
   bool left;
   bool near_miss;
-  int playsnd;
+  bool playsnd;
   int color;
   int speed_multiplier;
   int damage;
