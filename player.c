@@ -482,6 +482,7 @@ void PlayerAct() {
 	grad_x2,
 	grad_y2
       );
+      //Bullet[current_bullet_id].playsnd=TRUE;
       player.bullet_shot_num++;
       current_bullet_id++;
       if (current_bullet_id>=BULLET_NUM-1) {
@@ -1380,6 +1381,33 @@ void PlayerAct() {
 }
 
 
+void PlayerSndAct()
+{
+  //PlaySound(NULL, NULL, SND_FILENAME);      
+  wchar_t my_status[16];
+  //TCHAR tch[100];
+  //if_wcsicmp(my_status,L"stopped")==0 || _wcsicmp(my_status,L"")==0
+  if (player.speed>10) {
+    mciSendString(L"open snd/fast.wav alias player_speed",NULL,0,NULL);
+    //mciSendString(L"play snd/fast.wav",NULL,0,NULL);
+
+    /*mciSendString(L"set player_speed time format ms",NULL,0,NULL);
+    int a = mciSendString(L"play player_speed notify",NULL,0,NULL);
+    if (a == 1000) {
+      
+    }*/
+    mciSendString(L"status player_speed mode",my_status,16,NULL);
+    if (_wcsicmp(my_status,L"stopped")==0) {
+      mciSendString(L"seek player_speed to start",NULL,0,NULL);
+      mciSendString(L"play player_speed",NULL,0,NULL);
+    }
+  } else {
+    mciSendString(L"pause player_speed",NULL,0,NULL);
+    mciSendString(L"close player_speed",NULL,0,NULL);
+  }
+}
+
+
 void PlayerCameraShake()
 {
   int i;
@@ -1655,6 +1683,8 @@ void DrawPlayer(HDC hdc)
     }
   }
   
+  //GrSprite(hdc,player.sprite_x,player.sprite_y,canny,player.last_left);
+
   for (int i=0;i<player.bullet_shot_num;i++) {
     DrawBullet(hdc,player.bullet[i]);
   }

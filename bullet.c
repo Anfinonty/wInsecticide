@@ -4,6 +4,7 @@ void InitBullet()
   int i=0,j=0;
   current_bullet_id=0;
   for (i=0;i<BULLET_NUM;i++) {
+    Bullet[i].playsnd=FALSE;
     Bullet[i].shot=FALSE;
     Bullet[i].left=FALSE;
     Bullet[i].near_miss=FALSE;
@@ -135,14 +136,14 @@ void BulletAct(int bullet_id)
       Bullet[bullet_id].sprite_x=Bullet[bullet_id].x+player.cam_x+player.cam_move_x;
       Bullet[bullet_id].sprite_y=Bullet[bullet_id].y+player.cam_y+player.cam_move_y;
   //----------------
-      if (enemy_id<0) {//player
+      if (enemy_id<0) {//player bullet movement
         if (Bullet[bullet_id].range>0) {
           if (enemy_id==-1) {
             allow_act=TRUE;
           } else if (enemy_id==-2) {
             if (!player.time_breaker) {
 	          allow_act=TRUE;
-            } else if (Bullet[bullet_id].start_range-Bullet[bullet_id].range<50) {
+            } else if (Bullet[bullet_id].start_range-Bullet[bullet_id].range<50 && Bullet[bullet_id].range>0) {
 	          allow_act=TRUE;
             }
           }
@@ -184,17 +185,26 @@ void BulletAct(int bullet_id)
       if (enemy_id>-1) { //Enemy bullet
         if (GetDistance(Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
           Bullet[bullet_id].angle=RandAngle(-90,90,Enemy[enemy_id].seed);//RandNum(-M_PI_2*100,M_PI_2*100,Enemy[enemy_id].seed)/100;
+          Bullet[bullet_id].speed=Bullet[player.bullet_shot].speed;
+          Bullet[bullet_id].speed_multiplier=Bullet[player.bullet_shot].speed_multiplier;
         }
         for (int k=0;k<player.bullet_shot_num;k++) {
           int bk=player.bullet[k];
           if (GetDistance(Bullet[bk].x,Bullet[bk].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
             Bullet[bullet_id].angle=RandAngle(-90,90,player.seed);
-            if (Bullet[bk].speed_multiplier<7)
-              Bullet[bk].angle=RandAngle(-90,90,player.seed);;
-            if (Bullet[bk].angle<0) {
-              Bullet[bk].left=TRUE;
-            } else {
-              Bullet[bk].left=FALSE;
+            if (Bullet[bk].playsnd<1) {
+              Bullet[bk].playsnd=1;
+            }
+            //PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
+            Bullet[bullet_id].speed=Bullet[bk].speed;
+            Bullet[bullet_id].speed_multiplier=Bullet[bk].speed_multiplier;
+            if (Bullet[bk].speed_multiplier<7) {
+              Bullet[bk].angle=RandAngle(-90,90,player.seed);
+              if (Bullet[bk].angle<0) {
+                Bullet[bk].left=TRUE;
+              } else {
+                Bullet[bk].left=FALSE;
+              }
             }
           }
         }
@@ -325,43 +335,69 @@ void BulletAct(int bullet_id)
 	  allow_act=TRUE;
     }
 	if (allow_act) {//reaching end of range
-      if (bullet_on_ground_id!=-1) {
       //player_web_swinging related
-        if (enemy_id==-1) {
+      if (enemy_id==-1) {
+        if (bullet_on_ground_id!=-1) {
           player.pivot_x=Bullet[bullet_id].x;
           player.pivot_y=Bullet[bullet_id].y;
           player.potential_energy=0;
           player.counter_potential_energy=0;
           player.is_swinging=TRUE;
-
-	      //---web related-------
-          if (bullet_on_ground_id>=GROUND_NUM) {
-            Ground[bullet_on_ground_id].health+=2;//heal ground
-          }
-          player.web_being_shot=-1;
-          player.bullet_shot=-1;
-          //---------------------
-       }
-
-        StopBullet(bullet_id,FALSE);
-
-
-        if (enemy_id==-2){
-	      for (j=Bullet[bullet_id].saved_pos;j<player.bullet_shot_num-1;j++) { //shift to left in player bullet shot arr from bullet shot
-	        player.bullet[j]=player.bullet[j+1];
-            Bullet[player.bullet[j]].saved_pos--;
-          }
-          Bullet[bullet_id].saved_pos=-1;
-	      player.bullet[player.bullet_shot_num-1]=-1; //remove bullet from arr
-          player.bullet_shot_num--;
         }
+	    //---web related-------
+        if (bullet_on_ground_id>=GROUND_NUM) {
+          Ground[bullet_on_ground_id].health+=2;//heal ground
+        }
+        player.web_being_shot=-1;
+        player.bullet_shot=-1;
+        //---------------------
       }
 
+      StopBullet(bullet_id,FALSE);
+
+
+      if (enemy_id==-2){
+	    for (j=Bullet[bullet_id].saved_pos;j<player.bullet_shot_num-1;j++) { //shift to left in player bullet shot arr from bullet shot
+	      player.bullet[j]=player.bullet[j+1];
+          Bullet[player.bullet[j]].saved_pos--;
         }
+        Bullet[bullet_id].saved_pos=-1;
+	    player.bullet[player.bullet_shot_num-1]=-1; //remove bullet from arr
+        player.bullet_shot_num--;
+      }
+    }
+
+        //}
       }
     } // end of speedy for loop
   } // end of if bullet shot
 }
+
+
+void BulletSndAct(int i)
+{
+  if (Bullet[i].playsnd>0) {
+    if (Bullet[i].shot) {
+      //wchar_t sndid[16];
+      //swprintf(sndid,16,L"bk_%d_%d",i,player.seed);
+      //PlaySnd(L"snd/clang.wav",sndid);
+      PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
+    }
+    Bullet[i].playsnd--;
+  }
+}
+
+
+void EnemySndAct(int i)
+{
+  if (Enemy[i].play_death_snd) {
+    wchar_t sndid[16];
+    swprintf(sndid,16,L"bk_%d_%d",i,Enemy[i].seed);
+    PlaySnd(L"snd/clang_death.wav",sndid);
+    Enemy[i].play_death_snd=FALSE;
+  }
+}
+
 
 void DrawBullet2(HDC hdc,int i,double x,double y,int color)
 {
@@ -384,6 +420,7 @@ void DrawBullet2(HDC hdc,int i,double x,double y,int color)
       for (j=RandNum(0,3,i);j>0;j--) {
         GrCircle(hdc,x,y,j,color,-1);
       }
+      break;
     case 5:
       GrLine(hdc,x,y,x+10*cos(Bullet[i].angle),y+10*sin(Bullet[i].angle),color);
       break;

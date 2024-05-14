@@ -342,7 +342,9 @@ int current_bullet_id=0;
 struct Bullet
 {
   bool shot;
-  bool left,near_miss;
+  bool left;
+  bool near_miss;
+  int playsnd;
   int color;
   int speed_multiplier;
   int damage;
@@ -423,12 +425,15 @@ struct enemy
   bool within_render_distance; //:Enemy is within the render distance
   bool above_ground; //:For crawlers: crawler is above the ground
   bool below_ground; //:For crawlers: crawler is upside down on a ground
+  bool previous_above_ground; //:For crawlers: crawler is above the ground
+  bool previous_below_ground; //:For crawlers: crawler is upside down on a ground
   bool in_chase_range; //:player is within enemy's chase range
   bool in_unchase_range; //:player is within enemy's unchase range
   bool time_breaker_immune; //:Enemy is ummune to the player's time breaker effect
   bool LOS_left;
   bool LOS_shot;
   bool flip_sprite;
+  bool play_death_snd;
 
   //Attacked
   bool knockback_left;
@@ -484,10 +489,12 @@ struct enemy
   int max_health;
   int time_breaker_rare;
   int time_breaker_length;
+  int saved_ground_id;
   int on_ground_id;
   int knockback_timer;
   int node_num;
   int seed;
+
 
 
   int node_neighbour[8];
@@ -511,6 +518,8 @@ struct enemy
   double speed;
   double knockback_angle;
 
+  //double x_height_from_ground;
+  //double x_height_from_prev_ground;
 
 
   HBITMAP sprite_1;

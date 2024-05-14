@@ -81,31 +81,11 @@ void InitSongBank() {
 
 
 
-//https://stackoverflow.com/questions/8991192/check-the-file-size-without-opening-file-in-c
-/*int64_t FileSize(char* name)
-{
-    HANDLE hFile = CreateFileA(name, GENERIC_READ, 
-        FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING, 
-        FILE_ATTRIBUTE_NORMAL, NULL);
-    if (hFile==INVALID_HANDLE_VALUE)
-        return -1; // error condition, could call GetLastError to find out more
-
-    LARGE_INTEGER size;
-    if (!GetFileSizeEx(hFile, &size))
-    {
-        CloseHandle(hFile);
-        return -1; // error condition, could call GetLastError to find out more
-    }
-
-    CloseHandle(hFile);
-    return size.QuadPart;
-}*/
-
-
 DWORD WINAPI SongTask(LPVOID lpArg) {
 //void SongAct() {
   srand(time(NULL));
-  while (true) {
+  while (TRUE) {
+    //All Song Tasks
     if (song_num>0) {
       if (!stop_playing_song) {
         wchar_t my_status[16];
@@ -173,32 +153,35 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
         }
       }
     }
+    //End of song Task
 
+    //Persian time update if new day
     get_current_time(&current_hour,&current_min,&current_sec);
     if (current_hour==0 && current_min==0 && current_sec<=1) {//next day
       int64_t timenow=int64_current_timestamp();
       PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);
       PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift);
     }
-    Sleep(1000); //eepy loop
+
+
+    //Play Game Souond
+    for (int i=0;i<player.bullet_shot_num;i++) {
+      BulletSndAct(player.bullet[i]);
+    }
+    for (int i=0;i<player.rendered_enemy_num;i++) {
+      EnemySndAct(player_render_enemies[i]);
+    }
+    PlayerSndAct();
+
+
+
+    if (!in_main_menu) {
+      Sleep(6); //fast loop
+    } else {
+      Sleep(1000); //eepy loop
+    }
   }
 }
 
 
-
-
-
-
-/*
-https://copyprogramming.com/howto/playsound-in-c-console-application
-DWORD WINAPI SoundTask(LPVOID lpArg) {
-  while (true) {
-    if (play_a_sound==1) {
-      mciSendString(L"play music/00/5.wav",NULL,0,NULL); 
-    } else if (play_a_sound==2) {
-      mciSendString(L"play music/00/4.wav",NULL,0,NULL); 
-    }
-    Sleep(1000); //eepy loop
-  }
-}*/
 

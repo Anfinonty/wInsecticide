@@ -1075,3 +1075,25 @@ HBITMAP CopyStretchBitmap(HBITMAP srcBitmap,int SRCOPERATION, int nWidth, int nH
 
   return destBitmap;
 }
+
+
+
+
+void PlaySnd(wchar_t *snd,wchar_t *sndid) 
+{
+    wchar_t opensnd[128];
+    wchar_t seeksnd[32];
+    wchar_t playsnd[32];
+    //wchar_t closesnd[32];
+    //wchar_t stopsnd[32];
+
+    swprintf(opensnd,128,L"open \"%s\" alias %s",snd,sndid);
+    swprintf(seeksnd,128,L"seek %s to start",sndid);
+    swprintf(playsnd,128,L"play %s",sndid);
+    //swprintf(closesnd,128,L"close %s",sndid);
+
+    mciSendString(opensnd,NULL,0,NULL);
+    mciSendString(seeksnd,NULL,0,NULL);
+    mciSendString(playsnd,NULL,0,NULL);
+    //mciSendString(closesnd,NULL,0,NULL);
+}

@@ -240,6 +240,40 @@ int GetOnGroundId(double x,double y,double min_range_1,double min_range_2,bool i
   return -1;
 }
 
+
+int GetOnGroundIdE(double x,double y,double min_range_1,double min_range_2,int enemy_id)
+{
+  int i=0,j=-1,ground_id=0,on_grid_id=0;
+  double ground_entity_E=0,height_from_ground=0;
+  if (0<x && x<MAP_WIDTH && 0<y && y<MAP_HEIGHT) { //within bounderies
+    on_grid_id=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);//maths to get grid
+    for (i=0;i<VGrid[on_grid_id].max_ground_num;i++) {
+      ground_id=VGrid[on_grid_id].ground_ids[i];
+      ground_entity_E=GetLineTargetAngle(ground_id,x,y);
+      height_from_ground=GetLineTargetHeight(ground_id,ground_entity_E,x,y);
+     
+
+      if (Ground[ground_id].x1-min_range_1<=x && x<=Ground[ground_id].x2+min_range_1) {//within x
+        if ((Ground[ground_id].y1-min_range_1<=y && y<=Ground[ground_id].y2+min_range_1) ||
+            (Ground[ground_id].y2-min_range_1<=y && y<=Ground[ground_id].y1+min_range_1)) {//within y
+          if (-min_range_2<height_from_ground && height_from_ground<min_range_2) { //change in ground
+	        if (ground_id!=Enemy[enemy_id].saved_ground_id && !Ground[ground_id].is_ghost) {
+              j=ground_id;
+	        }
+          }
+	    }
+      }
+
+
+    }
+    if (j==-1) {
+      return Enemy[enemy_id].saved_ground_id;
+    } else {
+      return j;
+    }
+  }
+  return -1;
+}
 /*void GroundAct() //Mainly for graphics
 {
   int i=0,j=0;//,k=0;
