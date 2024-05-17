@@ -351,6 +351,10 @@ void DrawGround(HDC hdc)
     if (Ground[i].type==0) {
       if (!IsOutOfBounds(Ground[i].x1,Ground[i].y1,1,MAP_WIDTH,MAP_HEIGHT) &&
           !IsOutOfBounds(Ground[i].x2,Ground[i].y2,1,MAP_WIDTH,MAP_HEIGHT)) {
+          //double le_angle=Ground[i].angle;
+          //char angletxt[12];
+          //sprintf(angletxt,"%3.2f",le_angle);
+          //GrPrint(hdc,Ground[i].x1,Ground[i].y1-16,angletxt,Ground[i].color);
           GrLine(hdc,
                 Ground[i].x1,
                 Ground[i].y1,

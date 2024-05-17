@@ -6,7 +6,6 @@ void InitBullet()
   for (i=0;i<BULLET_NUM;i++) {
     Bullet[i].playsnd=FALSE;
     Bullet[i].shot=FALSE;
-    Bullet[i].left=FALSE;
     Bullet[i].near_miss=FALSE;
     Bullet[i].range=0;
     Bullet[i].start_range=0;
@@ -67,25 +66,35 @@ void ShootBullet(
   Bullet[bullet_id].start_x=Bullet[bullet_id].x=start_x;
   Bullet[bullet_id].start_y=Bullet[bullet_id].y=start_y;
   //Gradient angle related
-  if (target_x<source_x) {
+  if (target_x<source_x) { //Left
     x1=target_x;
     x2=source_x;
     y1=target_y;
     y2=source_y;
-    Bullet[bullet_id].left=TRUE;
-  } else {
+  } else { //Right
     x2=target_x;
     x1=source_x;
     y2=target_y;
     y1=source_y;
-    Bullet[bullet_id].left=FALSE;
   }
   bullet_gradient=GetGradient(x1,y1,x2,y2);
   bullet_c=GetGroundC(x1,y1,bullet_gradient);
-  Bullet[bullet_id].angle=GetCosAngle(x2-x1,GetDistance(x1,y1,x2,y2));//cos(angle) = adjacent/hypothenuse
- // Bullet[bullet_id].angle+=player_angle-player_angle;
-  if (bullet_gradient<=0) {
-    Bullet[bullet_id].angle=-Bullet[bullet_id].angle;
+  //cos(angle) = adjacent/hypothenuse
+  /*0 -> 90 degs*/
+
+  //determine angle quadrant
+  if (target_x<source_x) {// LEFT
+    if (target_y<source_y) { //UP
+      Bullet[bullet_id].angle=M_PI+GetCosAngle(x2-x1,GetDistance(x1,y1,x2,y2));
+    } else {//DOWN
+      Bullet[bullet_id].angle=M_PI-GetCosAngle(x2-x1,GetDistance(x1,y1,x2,y2));
+    }
+  } else {// RIGHT
+    if (target_y<source_y) { //UP
+      Bullet[bullet_id].angle=2*M_PI-GetCosAngle(x2-x1,GetDistance(x1,y1,x2,y2));
+    } else { //DOWN
+      Bullet[bullet_id].angle=GetCosAngle(x2-x1,GetDistance(x1,y1,x2,y2));
+    }
   }
 }
 
@@ -147,37 +156,20 @@ void BulletAct(int bullet_id)
 	          allow_act=TRUE;
             }
           }
-        } else {
-          if (Bullet[bullet_id].left) {//LEFT
-            if (Bullet[bullet_id].angle>-M_PI_2) {
-              if ((int)Bullet[bullet_id].range%10==0) {
-                Bullet[bullet_id].angle-=0.02;
-              }
-            }
-            Bullet[bullet_id].x-=cos(Bullet[bullet_id].angle)*Bullet[bullet_id].speed/2;
-            Bullet[bullet_id].y-=sin(Bullet[bullet_id].angle)*Bullet[bullet_id].speed/2;
-          } else {
-            if (Bullet[bullet_id].angle<M_PI_2) {
-              if ((int)Bullet[bullet_id].range%10==0) {
-                Bullet[bullet_id].angle+=0.02;
-              }
-            }
-            Bullet[bullet_id].x+=cos(Bullet[bullet_id].angle)*Bullet[bullet_id].speed/2;
-            Bullet[bullet_id].y+=sin(Bullet[bullet_id].angle)*Bullet[bullet_id].speed/2;
-          }
+        } else { //player bullet movement when out of range
+          /*if ((int)Bullet[bullet_id].range%10==0) {
+            Bullet[bullet_id].angle+=0.02;
+          }*/
+          Bullet[bullet_id].x+=cos(Bullet[bullet_id].angle)*Bullet[bullet_id].speed;
+          Bullet[bullet_id].y+=sin(Bullet[bullet_id].angle)*Bullet[bullet_id].speed;
           Bullet[bullet_id].range--;
         }
       } else if (!player.time_breaker || Enemy[enemy_id].time_breaker_immune) {//enemy
 	    allow_act=TRUE;
       }
-      if (allow_act) {
-        if (Bullet[bullet_id].left) {
-          Bullet[bullet_id].x-=cos(Bullet[bullet_id].angle)*Bullet[bullet_id].speed;
-          Bullet[bullet_id].y-=sin(Bullet[bullet_id].angle)*Bullet[bullet_id].speed;
-        } else {
-          Bullet[bullet_id].x+=cos(Bullet[bullet_id].angle)*Bullet[bullet_id].speed;
-          Bullet[bullet_id].y+=sin(Bullet[bullet_id].angle)*Bullet[bullet_id].speed;
-        }
+      if (allow_act) { //bullet movement default
+        Bullet[bullet_id].x+=cos(Bullet[bullet_id].angle)*Bullet[bullet_id].speed;
+        Bullet[bullet_id].y+=sin(Bullet[bullet_id].angle)*Bullet[bullet_id].speed;
         Bullet[bullet_id].range-=Bullet[bullet_id].speed;
       }
  
@@ -199,12 +191,7 @@ void BulletAct(int bullet_id)
             Bullet[bullet_id].speed=Bullet[bk].speed;
             Bullet[bullet_id].speed_multiplier=Bullet[bk].speed_multiplier;
             if (Bullet[bk].speed_multiplier<7) {
-              Bullet[bk].angle=RandAngle(-90,90,player.seed);
-              if (Bullet[bk].angle<0) {
-                Bullet[bk].left=TRUE;
-              } else {
-                Bullet[bk].left=FALSE;
-              }
+              Bullet[bk].angle=RandAngle(0,360,player.seed);
             }
           }
         }
@@ -304,7 +291,7 @@ void BulletAct(int bullet_id)
         }
 	  }*/
         
-       StopBullet(bullet_id,FALSE);
+       StopBullet(bullet_id,FALSE); 
         //Enemy bullet shot array arrangement
 	  for (j=Bullet[bullet_id].saved_pos;j<Enemy[enemy_id].bullet_shot_num-1;j++) { //shift to left in enemy bullet shot arr from bullet shot
 	    Enemy[enemy_id].bullet_shot_arr[j]=Enemy[enemy_id].bullet_shot_arr[j+1];
@@ -351,23 +338,107 @@ void BulletAct(int bullet_id)
         player.web_being_shot=-1;
         player.bullet_shot=-1;
         //---------------------
-      }
+        StopBullet(bullet_id,FALSE);
+      } else if (enemy_id==-2) {
+        if (Bullet[bullet_id].range<0 || IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) {
+          StopBullet(bullet_id,FALSE);
+          for (j=Bullet[bullet_id].saved_pos;j<player.bullet_shot_num-1;j++) { //shift to left in player bullet shot arr from bullet shot
+            player.bullet[j]=player.bullet[j+1];
+            Bullet[player.bullet[j]].saved_pos--;
+          }
+          Bullet[bullet_id].saved_pos=-1;
+          player.bullet[player.bullet_shot_num-1]=-1; //remove bullet from arr
+          player.bullet_shot_num--;        
+        } else { //Ricochet off ground
+/*
+         Negative                                                     Positive
 
-      StopBullet(bullet_id,FALSE);
+
+            /           /                                     \
+           /         /                                         \
+          /        /                                            \       
+         /      /                                                \
+        /     /                                                   \
+       /   /                                                       \
+      / /                                                           \
+     /                                                               \
 
 
-      if (enemy_id==-2){
-	    for (j=Bullet[bullet_id].saved_pos;j<player.bullet_shot_num-1;j++) { //shift to left in player bullet shot arr from bullet shot
-	      player.bullet[j]=player.bullet[j+1];
-          Bullet[player.bullet[j]].saved_pos--;
+                    (Clockwise)
+
+
+                    0 -> M_PI_2     |       -M_PI_2 -> 0
+            M_PI -> M_PI+M_PI_2     |       M_PI+M_PI_2-> 2*M_PI       
+                    Positive        |       Negative
+                    --------------/m.\\---------------
+                    Negative        |       Positive
+                    -M_PI_2 -> 0    |       0 -> M_PI_2
+                     M_PI_2 -> M_PI         0 -> M_PI_2
+
+                        left              !left
+
+                                            
+
+
+
+     \          \                                                  /           /
+       \        \                                                  /         /
+         \       \                                                /        /
+           \     \                                                /      /
+             \    \                                              /     /
+               \  \                                              /   /
+                 \ \                                            / /
+                   \                                            /
+            
+         Positive gradient                                  Negative Gradient
+          Positive Angle                                     Negative Angle
+
+
+        
+
+
+   (Clockwise)
+    Right Side:
+        Upwards: M_PI+M_PI_2 -> 2*M_PI
+      Downwards: 0 -> M_PI_2
+
+    Left Side:
+      Downwards: M_PI_2 -> M_PI 
+        Upwards: M_PI -> M_PI+M_PI_2
+
+
+*/
+
+
+          //double ground_entity_angle=GetLineTargetAngle(bullet_on_ground_id,Bullet[bullet_id].x,Bullet[bullet_id].y);
+          //double height_from_ground=GetLineTargetHeight(bullet_on_ground_id,ground_entity_angle,Bullet[bullet_id].x,Bullet[bullet_id].y);
+
+
+          /*if (Ground[bullet_on_ground_id].angle>0) { /* Slope --> /  */
+          /*  if (height_from_ground>0) //above ground
+              Bullet[bullet_id].angle+=M_PI_2+Ground[bullet_on_ground_id].angle;
+            else //below ground
+              Bullet[bullet_id].angle+=M_PI_2+Ground[bullet_on_ground_id].angle;
+          } else { /* Slope --> \  */
+            /*if (height_from_ground>0) //above ground
+              Bullet[bullet_id].angle+=M_PI_2+Ground[bullet_on_ground_id].angle;
+            else //below ground
+              Bullet[bullet_id].angle+=M_PI_2+Ground[bullet_on_ground_id].angle;
+          }*/
+
+            //if (height_from_ground>0) //above ground
+          Bullet[bullet_id].angle+=M_PI_2-abs(Ground[bullet_on_ground_id].angle); //temporary solution, its not based on reality
+
+          if (Bullet[bullet_id].angle>2*M_PI) {
+            Bullet[bullet_id].angle-=2*M_PI;
+          }
+          if (Bullet[bullet_id].angle<0) {
+            Bullet[bullet_id].angle+=2*M_PI;
+          }
         }
-        Bullet[bullet_id].saved_pos=-1;
-	    player.bullet[player.bullet_shot_num-1]=-1; //remove bullet from arr
-        player.bullet_shot_num--;
       }
     }
 
-        //}
       }
     } // end of speedy for loop
   } // end of if bullet shot
@@ -422,7 +493,13 @@ void DrawBullet2(HDC hdc,int i,double x,double y,int color)
       }
       break;
     case 5:
+    {
+      //double le_angle=Bullet[i].angle;
+      //char bangle[12];
+      //sprintf(bangle,"%3.2f",le_angle);
+      //GrPrint(hdc,x,y-8,bangle,color);
       GrLine(hdc,x,y,x+10*cos(Bullet[i].angle),y+10*sin(Bullet[i].angle),color);
+    }
       break;
   }
 }

@@ -67,6 +67,7 @@ void CleanUpEnemy()
       Enemy[i].bullet_head_y[j]=0;
     }
     Enemy[i].knockback_left=FALSE;
+    Enemy[i].player_knockback=FALSE;
     Enemy[i].knockback_angle=0;
     Enemy[i].knockback_timer=0;
     Enemy[i].shoot_target_x=0;

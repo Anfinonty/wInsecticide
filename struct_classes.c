@@ -342,7 +342,6 @@ int current_bullet_id=0;
 struct Bullet
 {
   bool shot;
-  bool left;
   bool near_miss;
   bool playsnd;
   int color;
@@ -437,6 +436,7 @@ struct enemy
 
   //Attacked
   bool knockback_left;
+  bool player_knockback;
 
   //Bullet
   int bullet_cooldown_max;
