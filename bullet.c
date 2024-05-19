@@ -21,6 +21,7 @@ void InitBullet()
     Bullet[i].sprite_y=-20;//Bullet[i].y+player.cam_y+player.cam_move_y;
     Bullet[i].graphics_type=0;
     Bullet[i].angle=0;
+    Bullet[i].saved_ground_id=-1;
 //
 /*    Bullet[i].msprite_hold_timer=0;
     Bullet[i].msprite_hold_timer_max=0,
@@ -121,6 +122,7 @@ void StopBullet(int bullet_id,bool is_player)
   Bullet[bullet_id].range=0;
   Bullet[bullet_id].from_enemy_id=-1;
   Bullet[bullet_id].speed=0;
+  Bullet[bullet_id].saved_ground_id=-1;
   Bullet[bullet_id].speed_multiplier=0;
   Bullet[bullet_id].x=-20;
   Bullet[bullet_id].y=-20;
@@ -160,6 +162,7 @@ void BulletAct(int bullet_id)
           /*if ((int)Bullet[bullet_id].range%10==0) {
             Bullet[bullet_id].angle+=0.02;
           }*/
+          /*Bul*/
           Bullet[bullet_id].x+=cos(Bullet[bullet_id].angle)*Bullet[bullet_id].speed;
           Bullet[bullet_id].y+=sin(Bullet[bullet_id].angle)*Bullet[bullet_id].speed;
           Bullet[bullet_id].range--;
@@ -301,10 +304,6 @@ void BulletAct(int bullet_id)
 	  Enemy[enemy_id].bullet_shot_arr[Enemy[enemy_id].bullet_shot_num-1]=-1; //remove bullet from arr
       Enemy[enemy_id].bullet_shot_num--;
     }
-
-
-
-
   } else {//player bullet while travelling
     if (Bullet[bullet_id].from_enemy_id==-1) {
       if (Bullet[bullet_id].range<DEFAULT_PLAYER_BUILD_RANGE+player.speed*2-1) {
@@ -407,34 +406,78 @@ void BulletAct(int bullet_id)
         Upwards: M_PI -> M_PI+M_PI_2
 
 
+
+
+Ascii art woo!! :D
+
+                            ________________________
+        _ _ _ _ _ _ _ _ _ _\  _/  _ _ _ _ _ _ _ _ _ |
+ Ground _______________     \ ground_angle          |
+                        -----------------           |
+                         -- / \ /        -----------|   
+                      --   /   \   j                |
+                   --     /     \                   |
+                --    i  /  i    \                  |
+             --         /         \                 |
+          --           /           \                |
+       (O)2           /             \               |
+    --               /               \              |
+                    /                 \             |
+                   /                   (O)1---------|
+
+
+
+
+    O1 = Original Bullet Angle
+    O2 = New Bullet Angle
+    i = angle of incidence
+    j = outer angle of incidence
+    ground_angle = angle of ground
+
+
+    Find O2
+
+    j = 2pi - pi/2 - pi/2 -  (2pi - O1) - ground_angle
+      = 2pi - pi - 2pi + O1 - ground_angle
+      = -pi + O1 - ground_angle
+
+    i = pi/2 - j
+      = pi/2 - (-pi + O1 - ground_angle)
+      = pi/2 + pi - O1 + ground_angle
+      = 3/2 * pi - O1 + ground_angle
+
+
+    O2 = ground_angle + j + i + i
+       = ground_angle + j + 2i
+       = ground_angle + (-pi + O1 - ground_angle) + 2*(3/2 * pi - O1 + ground_angle)
+       = ground_angle -pi + O1 - ground_angle + 3pi - 2*O1 + 2*ground_angle
+       = 2pi -O1 + 2*ground_angle
+
+
+   *Al-Khwarizmi
 */
 
-
-          //double ground_entity_angle=GetLineTargetAngle(bullet_on_ground_id,Bullet[bullet_id].x,Bullet[bullet_id].y);
-          //double height_from_ground=GetLineTargetHeight(bullet_on_ground_id,ground_entity_angle,Bullet[bullet_id].x,Bullet[bullet_id].y);
-
-
-          /*if (Ground[bullet_on_ground_id].angle>0) { /* Slope --> /  */
-          /*  if (height_from_ground>0) //above ground
-              Bullet[bullet_id].angle+=M_PI_2+Ground[bullet_on_ground_id].angle;
-            else //below ground
-              Bullet[bullet_id].angle+=M_PI_2+Ground[bullet_on_ground_id].angle;
-          } else { /* Slope --> \  */
-            /*if (height_from_ground>0) //above ground
-              Bullet[bullet_id].angle+=M_PI_2+Ground[bullet_on_ground_id].angle;
-            else //below ground
-              Bullet[bullet_id].angle+=M_PI_2+Ground[bullet_on_ground_id].angle;
-          }*/
-
-            //if (height_from_ground>0) //above ground
-          Bullet[bullet_id].angle+=M_PI_2-abs(Ground[bullet_on_ground_id].angle); //temporary solution, its not based on reality
-
-          if (Bullet[bullet_id].angle>2*M_PI) {
+          Bullet[bullet_id].angle=2*M_PI-Bullet[bullet_id].angle+2*Ground[bullet_on_ground_id].angle; //real
+          Bullet[bullet_id].range+=40;//Bullet[bullet_id].range/3; 
+          if (bullet_on_ground_id>GROUND_NUM) { //elastic web
+            Bullet[bullet_id].range+=150; 
+            Bullet[bullet_id].speed_multiplier+=2;
+            Bullet[bullet_id].damage+=2;
+          }
+          Bullet[bullet_id].start_range=Bullet[bullet_id].range;
+          if (Bullet[bullet_id].angle>2*M_PI) { //hreater
             Bullet[bullet_id].angle-=2*M_PI;
           }
           if (Bullet[bullet_id].angle<0) {
             Bullet[bullet_id].angle+=2*M_PI;
           }
+          //if (abs(Ground[bullet_on_ground_id].angle)-0.05<=abs(Bullet[bullet_id].angle) && abs(Bullet[bullet_id].angle)<=abs(Ground[bullet_on_ground_id].angle)+0.05) { //destroy bullet in invalid state
+            //Bullet[bullet_id].range=-1;
+          //}
+          if (Bullet[bullet_id].saved_ground_id==bullet_on_ground_id) { //prevents riding of wall
+            Bullet[bullet_id].range=-1;
+          }
+          Bullet[bullet_id].saved_ground_id=bullet_on_ground_id;
         }
       }
     }

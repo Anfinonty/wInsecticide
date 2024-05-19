@@ -682,7 +682,6 @@ void EnemyAct(int i)
           Enemy[i].health-=4*player.attack_strength;
           Enemy[i].knockback_timer=player.knockback_strength;
           Enemy[i].knockback_angle=Bullet[player.bullet_shot].angle;
-          //Enemy[i].health-=player.attack_strength;
           Enemy[i].player_knockback=FALSE;
 
           StopBullet(player.bullet_shot,TRUE); //Stop the web

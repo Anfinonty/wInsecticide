@@ -350,6 +350,7 @@ struct Bullet
   int from_enemy_id;
   int graphics_type;
   int saved_pos;
+  int saved_ground_id;
   double sprite_x;
   double sprite_y;
   double start_x;
