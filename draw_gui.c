@@ -173,19 +173,19 @@ solar_year
 
 
   //( <| <|)  O  (|> |> ) @
-  if (lunar_day>=1 && lunar_day<8) {
+  if (lunar_day>=1 && lunar_day<=5) { //1, 2, 3, 4, 5
     sprintf(l_hijri_row1,"(:: Lunar Hijri ::) %s","  )");
-  } else if (lunar_day>=8 && lunar_day<11) {
+  } else if (lunar_day>=6 && lunar_day<=9) {// 6, 7, 8, 9
     sprintf(l_hijri_row1,"(:: Lunar Hijri ::) %s"," |)");
-  }  else if (lunar_day>=11 && lunar_day<14) {
+  } else if (lunar_day>=10 && lunar_day<=12) {// 10, 11, 12,
     sprintf(l_hijri_row1,"(:: Lunar Hijri ::) %s","<|)");
-  } else if (lunar_day>=14 && lunar_day<16) {
+  } else if (lunar_day>=13 && lunar_day<=15) {//13, 14, 15
     sprintf(l_hijri_row1,"(:: Lunar Hijri ::) %s","(O)");
-  } else if (lunar_day>=16 && lunar_day<21) {
+  } else if (lunar_day>=16 && lunar_day<=18) {//16, 17, 18
     sprintf(l_hijri_row1,"(:: Lunar Hijri ::) %s","(|>");
-  } else if (lunar_day>=21 && lunar_day<26) {
+  } else if (lunar_day>=19 && lunar_day<=22) {//19, 20, 21, 22
     sprintf(l_hijri_row1,"(:: Lunar Hijri ::) %s","(|");
-  } else if (lunar_day>=26 && lunar_day<28) {
+  } else if (lunar_day>=23 && lunar_day<=26) {//23, 24, 25,26
     sprintf(l_hijri_row1,"(:: Lunar Hijri ::) %s","(");
   } else {
     sprintf(l_hijri_row1,"(:: Lunar Hijri ::) %s"," @");
@@ -426,6 +426,10 @@ void DrawUI(HDC hdc) {
         3,LTPURPLE,LTPURPLE);
     }
   }
+
+
+  GrLine(hdc,player.sprite_x+cos(player.angle_of_incidence)*50,player.sprite_y+sin(player.angle_of_incidence)*50,player.sprite_x+cos(player.angle_of_incidence)*60,player.sprite_y+sin(player.angle_of_incidence)*60,WHITE);
+  //GrLine(hdc,player.sprite_x+cos(player.angle_of_reflection)*50,player.sprite_y+sin(player.angle_of_reflection)*50,player.sprite_x+cos(player.angle_of_reflection)*60,player.sprite_y+sin(player.angle_of_reflection)*60,YELLOW);
 
 /*
 Controls:

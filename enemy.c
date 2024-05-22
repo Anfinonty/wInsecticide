@@ -782,7 +782,7 @@ void EnemyAct(int i)
         } else {
           Enemy[i].knockback_angle=player.angle_of_reflection;//player.angle;
         }*/
-        if (!player.is_swinging) {
+        /*if (!player.is_swinging) {
           if (player.rst_left || player.rst_right) {
             Enemy[i].knockback_angle=player.angle;
           } else {
@@ -810,7 +810,7 @@ void EnemyAct(int i)
           }
         } else {
           Enemy[i].knockback_angle=RandAngle(-90,90,player.seed);
-        }
+        }*/
 
 
         Enemy[i].knockback_timer=player.knockback_strength*2;

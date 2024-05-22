@@ -68,8 +68,6 @@ struct player
 {
   bool fling_left;
   bool is_rebounding;
-  bool rebound_above;
-  bool rebound_below;
   bool is_swinging;
   bool hiding;
   bool left_click;
