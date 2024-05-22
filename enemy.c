@@ -736,100 +736,62 @@ void EnemyAct(int i)
 	// ^^ condition
 	  if (allow_act && allow_act_1) {  //player meelee
 	    allow_act=allow_act_1=FALSE;
-        deduct_health=TRUE;
-        Enemy[i].player_knockback=TRUE;
-        Enemy[i].knockback_timer=player.knockback_strength;
-	    if (!player.uppercut && !player.rst_up && !player.rst_down) {//normal
-          Enemy[i].knockback_angle=player.angle;
-	    } else if (player.uppercut) {//uppercut
-          if (player.print_current_above) {
-            if (!player.last_left) {
-              Enemy[i].knockback_angle=player.launch_angle+M_PI;//player.angle-M_PI/2;
-	        } else {
-              Enemy[i].knockback_angle=player.launch_angle;//player.angle+M_PI/2;
-	        }
-          } else if (player.print_current_below) {
-            if (!player.last_left) {
-              Enemy[i].knockback_angle=-player.launch_angle+M_PI_2;//player.angle+M_PI/2;
-	        } else {
-              Enemy[i].knockback_angle=-player.launch_angle-M_PI_2;//player.angle-M_PI/2;
-	        }
+        if (player.on_ground_id==-1 && player.block_timer>1) {
+          //knockback from rebounding
+          Enemy[i].player_knockback=FALSE;
+          Enemy[i].knockback_angle=player.angle_of_incidence;
+          Enemy[i].knockback_timer=player.knockback_strength*2;
+          deduct_health=FALSE;
+          if (player.block_timer==29 || (3<player.block_timer && player.block_timer<6)) {
+            deduct_health=TRUE;
           }
-	    } else { //drag enemy down
-          if (!player.last_left) {//drag enemy to player
-            Enemy[i].knockback_angle=player.angle+M_PI_2;
-	      } else {
-            Enemy[i].knockback_angle=player.angle-M_PI_2;
-	      }
-        }
-
-
-        if (player.print_current_above || player.on_ground_id==-1) {
-          if (player.last_left) {
-            Enemy[i].knockback_left=TRUE;
-          }
-        } else if (player.print_current_below) {
-          if (!player.last_left) {
-            Enemy[i].knockback_left=TRUE;
-          }
-        }
-      }
-
-      if (player.on_ground_id==-1 && player.block_timer>1) {
-        //knockback from rebounding
-        /*if (!player.is_flinging) {
-          Enemy[i].knockback_angle=player.angle_of_incidence;//player.angle;
-        } else {
-          Enemy[i].knockback_angle=player.angle_of_reflection;//player.angle;
-        }*/
-        /*if (!player.is_swinging) {
-          if (player.rst_left || player.rst_right) {
-            Enemy[i].knockback_angle=player.angle;
-          } else {
-            if (player.is_rebounding) {
-              if (!player.rebound_below) {
-                if (player.last_left) {
-                  Enemy[i].knockback_angle=-player.angle_of_reflection-M_PI_2;
-                } else {
-                  Enemy[i].knockback_angle=player.angle_of_reflection;
-                }
-              } else {
-                if (player.last_left) {
-                  Enemy[i].knockback_angle=player.angle_of_reflection;
-                } else {
-                  Enemy[i].knockback_angle=-player.angle_of_reflection-M_PI;
-                }
-              }
-            } else {
-              if (player.last_left) {
-                Enemy[i].knockback_angle=-player.angle_of_incidence;
-              } else {
-                Enemy[i].knockback_angle=player.angle_of_incidence;
-              }
+          if (player.block_timer>10 && !player.is_swinging) {
+            switch (Enemy[i].species) {
+              case 0:
+                if (player.speed>5) deduct_health=TRUE;
+                break;
+              case 1:
+                if (player.speed>10) deduct_health=TRUE;
+                break;
             }
           }
         } else {
-          Enemy[i].knockback_angle=RandAngle(-90,90,player.seed);
-        }*/
-
-
-        Enemy[i].knockback_timer=player.knockback_strength*2;
-        deduct_health=FALSE;
-        if ((player.block_timer<30 && player.block_timer>28) || (player.block_timer>3 && player.block_timer<6)) {
           deduct_health=TRUE;
-        }
-        if (player.block_timer>10 && !player.is_swinging) {
-          switch (Enemy[i].species) {
-            case 0:
-              if (player.speed>5) deduct_health=TRUE;
-              break;
-            case 1:
-              if (player.speed>10) deduct_health=TRUE;
-              break;
+          Enemy[i].player_knockback=TRUE;
+          Enemy[i].knockback_timer=player.knockback_strength;
+	      if (!player.uppercut && !player.rst_up && !player.rst_down) {//normal
+            Enemy[i].knockback_angle=player.angle;
+	      } else if (player.uppercut) {//uppercut
+            if (player.print_current_above) {
+              if (!player.last_left) {
+                Enemy[i].knockback_angle=player.launch_angle+M_PI;//player.angle-M_PI/2;
+	          } else {
+                Enemy[i].knockback_angle=player.launch_angle;//player.angle+M_PI/2;
+	          }
+            } else if (player.print_current_below) {
+              if (!player.last_left) {
+                Enemy[i].knockback_angle=-player.launch_angle+M_PI_2;//player.angle+M_PI/2;
+	          } else {
+                Enemy[i].knockback_angle=-player.launch_angle-M_PI_2;//player.angle-M_PI/2;
+	          }
+            }
+	      } else { //drag enemy down
+            if (!player.last_left) {//drag enemy to player
+              Enemy[i].knockback_angle=player.angle+M_PI_2;
+	        } else {
+              Enemy[i].knockback_angle=player.angle-M_PI_2;
+	        }
           }
-        }
-        if (player.last_left) {
-          Enemy[i].knockback_left=TRUE;
+
+          if (player.print_current_above || player.on_ground_id==-1) {
+            if (player.last_left) {
+              Enemy[i].knockback_left=TRUE;
+            }
+          } else if (player.print_current_below) {
+            if (!player.last_left) {
+              Enemy[i].knockback_left=TRUE;
+            }
+          }
         }
       }
     }

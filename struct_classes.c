@@ -66,7 +66,6 @@ struct RenderDistanceGrid
 
 struct player 
 {
-  bool fling_left;
   bool is_rebounding;
   bool is_swinging;
   bool hiding;
