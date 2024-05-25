@@ -762,6 +762,8 @@ void PlayerAct() {
         //outwards from ground
           if (0<Ground[player.on_ground_id].height_from_player_x && Ground[player.on_ground_id].height_from_player_x<10) { //above ground
             player.current_above=TRUE;
+            player.previous_above=TRUE;
+            player.previous_below=FALSE;
             move_x(-cos(player.angle+M_PI_2));
             move_y(-sin(player.angle+M_PI_2));
             player.jump_angle=player.angle+M_PI_2;
@@ -778,11 +780,13 @@ void PlayerAct() {
 
           } else if (Ground[player.on_ground_id].height_from_player_x>-10 && Ground[player.on_ground_id].height_from_player_x<0) { //below ground
             player.current_below=TRUE;
+            player.previous_above=FALSE;
+            player.previous_below=TRUE;
             move_x(-cos(player.angle-M_PI_2));
             move_y(-sin(player.angle-M_PI_2));
             player.jump_angle=player.angle-M_PI_2;
             if (player.angle<0) {/*Slope --> /*/
-              player.jump_angle2=2*M_PI+player.angle+M_PI_2;
+              player.jump_angle2=M_PI_2+player.angle;
             } else {/*Slope --> \*/
               player.jump_angle2=player.angle+M_PI_2;
             }
@@ -1098,13 +1102,6 @@ void PlayerAct() {
 
 
      //misc
-      if (player.print_current_above!=player.current_above) {
-        player.previous_above=player.current_above;
-      }
-      if (player.print_current_below!=player.current_below) {
-        player.previous_below=player.current_below;
-      }
-
       player.print_current_above=player.current_above;
       player.print_current_below=player.current_below;
       player.current_above=FALSE;
@@ -1157,7 +1154,23 @@ void PlayerAct() {
   
   //Calculating new angle of incidence
   if (player.jump_height>0) {
-    player.angle_of_incidence=player.jump_angle2;
+    if (player.rst_left || player.rst_right) {
+      double t_speed1=player.speed*cos(player.jump_angle2);
+      double t_speed2=player.speed;
+      double t_speed=t_speed1+t_speed2;
+      double t_grav=player.speed*sin(player.jump_angle2);
+      double grav_dist=GetDistance(t_speed,0,0,t_grav);
+      player.angle_of_incidence=GetCosAngle(t_speed,grav_dist);
+      if (player.last_left) {
+        player.angle_of_incidence=M_PI+player.angle_of_incidence-M_PI_2;
+      }
+
+      if (player.previous_above) {
+        player.angle_of_incidence=2*M_PI-player.angle_of_incidence;
+      }
+    } else {
+      player.angle_of_incidence=player.jump_angle2;
+    }
   }
   if (!player.is_swinging && player.on_ground_id==-1 && player.jump_height==0) { //only if in the air
     if (!player.is_rebounding) { //not rebounding
