@@ -848,7 +848,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
 
           if (!player.time_breaker) { //camera shake by default
-            PlayerCameraShake();
+            if (!player.is_swinging) {
+              PlayerCameraShake();
+            } else {
+              player.cam_move_x=0;
+              player.cam_move_y=0;
+            }
           } else { //don't move camera when time breaking'
             player.cam_move_x=0;
             player.cam_move_y=0;

@@ -516,7 +516,7 @@ void EnemyKnockbackMove(int i)
   bool allow_act=FALSE;
   switch (Enemy[i].species) {
     case 0:
-      if (GetOnGroundId(Enemy[i].x,Enemy[i].y,5,4,FALSE)!=-1) {
+      if (GetOnGroundId(Enemy[i].x,Enemy[i].y,10,9,FALSE)!=-1) {
   	    allow_act=TRUE;
       }
       break;
@@ -566,16 +566,7 @@ void EnemyAct(int i)
 	knock_max=0;
   double target_x=0,target_y=0;
   bool allow_act=FALSE,allow_act_1=FALSE;
-  //Sound
-  /*if (sound_on && Enemy[i].snd_dur>0) {
-    if (dice!=1) {
-      Enemy[i].snd_dur=PlaySound(Enemy[i].snd_dur,Enemy[i].snd_pitch,Enemy[i].snd_rand);
-    } else {
-      Enemy[i].snd_dur=PlaySound(Enemy[i].snd_dur,100,20);
-    }
-  }*/
   //Attack
-
   bool deduct_health=FALSE;
   if (Enemy[i].health>0) {
   //timebreaker enemy
@@ -583,13 +574,6 @@ void EnemyAct(int i)
       dice=RandNum(0,Enemy[i].time_breaker_rare,Enemy[i].seed);
       if (dice==1) {
         slash_time=Enemy[i].time_breaker_length;
-        //mciSendStringA("play snd/timeskip.mp3",NULL,0,NULL);
-      /*if (Enemy[i].saw_player) {
-        Enemy[i].snd_dur=5;
-      }*/
-        /*if (Enemy[i].time_breaker_immune && Enemy[i].saw_player && (Enemy[i].angle != Enemy[i].sprite_angle)) {
-          PlaySound(L"snd/timebreaker__start2.wav", NULL, SND_FILENAME | SND_ASYNC);      
-        }*/
       }
     }
     //Enemy bullet
@@ -609,9 +593,6 @@ void EnemyAct(int i)
       	  case 0://fly
             if (dist_from_bullet0<=NODE_SIZE*2) {
               Enemy[i].health-=Bullet[bk].damage;
-              /*if (Bullet[bk].playsnd<1) {
-                Bullet[bk].playsnd=1;
-              }*/
               PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
               Enemy[i].knockback_timer=player.knockback_strength;
               Enemy[i].knockback_angle=Bullet[bk].angle;
@@ -764,15 +745,15 @@ void EnemyAct(int i)
 	      } else if (player.uppercut) {//uppercut
             if (player.print_current_above) {
               if (!player.last_left) {
-                Enemy[i].knockback_angle=player.launch_angle+M_PI;//player.angle-M_PI/2;
+                Enemy[i].knockback_angle=player.jump_angle+M_PI;//player.angle-M_PI/2;
 	          } else {
-                Enemy[i].knockback_angle=player.launch_angle;//player.angle+M_PI/2;
+                Enemy[i].knockback_angle=player.jump_angle;//player.angle+M_PI/2;
 	          }
             } else if (player.print_current_below) {
               if (!player.last_left) {
-                Enemy[i].knockback_angle=-player.launch_angle+M_PI_2;//player.angle+M_PI/2;
+                Enemy[i].knockback_angle=-player.jump_angle+M_PI_2;//player.angle+M_PI/2;
 	          } else {
-                Enemy[i].knockback_angle=-player.launch_angle-M_PI_2;//player.angle-M_PI/2;
+                Enemy[i].knockback_angle=-player.jump_angle-M_PI_2;//player.angle-M_PI/2;
 	          }
             }
 	      } else { //drag enemy down

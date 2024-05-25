@@ -211,7 +211,8 @@ struct player
   double pivot_y;
   double pivot_angle;
   double pivot_length;
-  double launch_angle;
+  double jump_angle;
+  double jump_angle2;
   double fling_distance;
   double angle_of_incidence;
   double angle_of_reflection;

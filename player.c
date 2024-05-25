@@ -317,6 +317,16 @@ void InitPlayer() {
   player.placed_web_num=0;
   player.destroyed_web_pos=0;
 
+
+  player_fling_web.length=0;
+  for (i=0;i<64;i++) {
+    player_fling_web.on_ground_id[i]=-1;
+    player_fling_web.angle[i]=-1;
+    player_fling_web.x[i]=-1;
+    player_fling_web.y[i]=-1;
+  }
+
+
   player.web_being_shot=-1;
   for (i=0;i<MAX_WEB_NUM;i++) {
     player.web_storage[i]=GROUND_NUM+i;
@@ -339,9 +349,8 @@ void InitPlayer() {
   player.pivot_angle=-20;
   player.pivot_length=-20;
   player.is_swinging=FALSE;
-  player.potential_energy=-20;
-  player.counter_potential_energy=-20;
-  player.launch_angle=0;
+  player.jump_angle=0;
+  player.jump_angle2=0;
   player.fling_distance=0;
   player.previous_web_placed=-1;
 
@@ -547,6 +556,12 @@ void PlayerAct() {
         player.speed+=2;
         player.in_air_timer=1000;
         player.grav=3;
+
+
+        if (M_PI_2<player.angle_of_incidence && player.angle_of_incidence<M_PI+M_PI_2)
+          player.last_left=TRUE;
+        else
+          player.last_left=FALSE;
       }
     }
     
@@ -749,21 +764,31 @@ void PlayerAct() {
             player.current_above=TRUE;
             move_x(-cos(player.angle+M_PI_2));
             move_y(-sin(player.angle+M_PI_2));
-            if (player.fling_distance<=0) { //regular jumping
-              player.launch_angle=player.angle+M_PI_2;
+            player.jump_angle=player.angle+M_PI_2;
+            if (player.angle<0) {/*Slope --> /*/
+              player.jump_angle2=2*M_PI+player.angle-M_PI_2;
+            } else {/*Slope --> \*/
+              player.jump_angle2=player.angle-M_PI_2;
             }
             player.fling_distance=0; //on ground, stop flinging
+
+            //angle of incidence and reflection
             player.angle_of_reflection=2*M_PI-player.angle_of_incidence+2*player.angle; //real
             player.angle_of_incidence=player.angle_of_reflection;
+
           } else if (Ground[player.on_ground_id].height_from_player_x>-10 && Ground[player.on_ground_id].height_from_player_x<0) { //below ground
             player.current_below=TRUE;
             move_x(-cos(player.angle-M_PI_2));
             move_y(-sin(player.angle-M_PI_2));
-
-            if (player.fling_distance<=0) {
-              player.launch_angle=player.angle-M_PI_2;
+            player.jump_angle=player.angle-M_PI_2;
+            if (player.angle<0) {/*Slope --> /*/
+              player.jump_angle2=2*M_PI+player.angle+M_PI_2;
+            } else {/*Slope --> \*/
+              player.jump_angle2=player.angle+M_PI_2;
             }
             player.fling_distance=0; //on ground, stop flinging
+
+            //angle of incidence and reflection
             player.angle_of_reflection=2*M_PI-player.angle_of_incidence+2*player.angle; //real
             player.angle_of_incidence=player.angle_of_reflection;
           }
@@ -822,13 +847,10 @@ void PlayerAct() {
 
     //Y movement
     //Condition to jump
-      if (player.current_above && player.on_ground_id!=-1) {
+      if ((player.current_above && player.on_ground_id!=-1) || player.current_below) {
         if (player.on_ground_timer<10)
           player.on_ground_timer++;
-      } else if (player.current_below) {
-        if (player.on_ground_timer<10)
-          player.on_ground_timer++;
-      }
+      } 
       if (abs(Ground[player.on_ground_id].angle)>M_PI_2-0.01) {
         if (player.on_ground_timer<10)
           player.on_ground_timer++;
@@ -859,7 +881,6 @@ void PlayerAct() {
               if (player.is_rebounding && player.speed<4) {
                 player.speed++;
               }
-	          player.player_grav=0.5;
             }
 	      }
         }
@@ -876,22 +897,13 @@ void PlayerAct() {
       //PLAYER GRAVITY MOVEMENT
       if (speed==0) {
         if (player.jump_height>0) { //Jumping action
-          player.player_grav=0.5;
           player.jump_height-=player.player_grav;
-          move_x(2*player.player_grav*-cos(player.launch_angle));
-          move_y(2*player.player_grav*-sin(player.launch_angle)); //jump go against gravity and perpendicular from platform
+          move_x(2*player.player_grav*-cos(player.jump_angle));
+          move_y(2*player.player_grav*-sin(player.jump_angle)); //jump go against gravity and perpendicular from platform
           if (player.jump_height<=0) {
             player.jump=FALSE;
           }          
-          /*if (M_PI_2<player.dist_angle && player.dist_angle<M_PI+M_PI_2) {
-            player.last_left=TRUE;
-          } else {
-            player.last_left=FALSE;
-          }*/
-
-        } else {
-          player.player_grav=0.5;
-        } 
+        }
 
 
 
@@ -899,11 +911,10 @@ void PlayerAct() {
         if (player.on_ground_id==-1 && player.jump_height<=0) { //Credit: y4my4m for pushing me to pursue this gameplay aspect
           if (!player.is_swinging && (player.fling_distance==0 || player.fling_distance<-100)) { //not swinigng and player is not flinging
             if (player.in_air_timer>11) {
-              //if (!player.is_rebounding)
-              move_y(player.player_grav); //include while being rebounding
-	        } else {
-              move_x(-player.player_grav*2*cos(player.launch_angle));
-              move_y(player.player_grav*2*sin(player.launch_angle)); //grav switch
+              move_y(player.player_grav); //include while being rebounding and flinging
+	        } else { //grav switch
+              move_x(-player.player_grav*2*cos(player.jump_angle));
+              move_y(player.player_grav*2*sin(player.jump_angle));
             }
           }
         } else { //landed on ground
@@ -914,7 +925,6 @@ void PlayerAct() {
 	        player.cam_move_y/=-1.5;
 	      }
           player.grav=2;
-          player.player_grav=0.5;
         }
       }
 
@@ -922,7 +932,6 @@ void PlayerAct() {
 
       if (player.y<0) { //Y axis cap
         move_y(1);
-        //move_y(player.player_grav);
         player.in_air_timer++;
       } else if (player.y+PLAYER_HEIGHT/2>MAP_HEIGHT) {
         move_y(-player.player_grav);
@@ -1006,34 +1015,26 @@ void PlayerAct() {
         if (grav_speed==0) {
           if (player.on_ground_id==-1) {
             if (player.y>player.pivot_y) { //below pivot
-              if (player.rst_right) {
+              if (player.rst_right) { //Clockwize
                 move_x(-cos(-player.pivot_angle+M_PI_2));
                 move_y(sin(-player.pivot_angle+M_PI_2));
-                //player.potential_energy=0;
-                //player.counter_potential_energy=0;
               }
-              if (player.rst_left) {
+              if (player.rst_left) {  //Anticlockwize
                 move_x(cos(-player.pivot_angle+M_PI_2));
                 move_y(-sin(-player.pivot_angle+M_PI_2));
-                //player.potential_energy=0;
-                //player.counter_potential_energy=0;
               } else if (player.rst_up && player.on_ground_id==-1 && player.pivot_length>2){ //Retract Web
                 move_x(-cos(-player.pivot_angle));
                 move_y(sin(-player.pivot_angle));
-                //player.potential_energy=0;
-                //player.counter_potential_energy=0;
               } else if (player.rst_down && player.pivot_length<NODE_SIZE*DEFAULT_PLAYER_BUILD_RANGE/2) {
                 move_x(cos(-player.pivot_angle));
                 move_y(-sin(-player.pivot_angle));
-                //player.potential_energy=0;
-                //player.counter_potential_energy=0;
-              } else {}
+              }
             } else { //above pivot
-              if (player.rst_right) {
+              if (player.rst_right) { //Clockwize
                 move_x(cos(-player.pivot_angle+M_PI_2));
                 move_y(sin(-player.pivot_angle+M_PI_2));
               }
-              if (player.rst_left) {
+              if (player.rst_left) { //Anticlockwize
                 move_x(-cos(-player.pivot_angle+M_PI_2));
                 move_y(-sin(-player.pivot_angle+M_PI_2));
               } else if (player.rst_up && player.on_ground_id==-1 && player.pivot_length>2){ //Retract web
@@ -1042,7 +1043,7 @@ void PlayerAct() {
               } else if (player.rst_down && player.pivot_length<NODE_SIZE*DEFAULT_PLAYER_BUILD_RANGE/2) {
                 move_x(cos(-player.pivot_angle));
                 move_y(sin(-player.pivot_angle));
-              } else {}
+              }
             }
           }
         } else if (grav_speed==1) {//only occurs right after grav_speed==0
@@ -1153,11 +1154,15 @@ void PlayerAct() {
   }
 
 
-  if (!player.is_swinging && player.on_ground_id==-1) {
-    if (!player.is_rebounding) {
+  
+  //Calculating new angle of incidence
+  if (player.jump_height>0) {
+    player.angle_of_incidence=player.jump_angle2;
+  }
+  if (!player.is_swinging && player.on_ground_id==-1 && player.jump_height==0) { //only if in the air
+    if (!player.is_rebounding) { //not rebounding
       if (player.rst_left || player.rst_right) {
-        double grav_dist;
-        grav_dist=GetDistance(player.speed,0,0,player.grav);
+        double grav_dist=GetDistance(player.speed,0,0,player.grav*player.player_grav);
         player.angle_of_incidence=GetCosAngle(player.speed,grav_dist);
         if (player.last_left) {
           player.angle_of_incidence=M_PI-player.angle_of_incidence;
@@ -1169,14 +1174,16 @@ void PlayerAct() {
       }
     }
     if (player.in_air_timer>11) {
-      if (player.is_rebounding || player.fling_distance<-100) {
-        double grav_dist;
-        double t_speed=player.speed-cos(player.speed);
-        grav_dist=GetDistance(t_speed,0,0,player.grav*2);
-        if (M_PI_2<player.angle_of_reflection && player.angle_of_reflection<M_PI_2+M_PI) {
-          player.angle_of_incidence=player.angle_of_reflection-GetCosAngle(t_speed,grav_dist);
-        } else {
-          player.angle_of_incidence=player.angle_of_reflection+GetCosAngle(t_speed,grav_dist);
+      if (player.is_rebounding || player.fling_distance<-100) { //flinging or rebounding
+        double t_speed=player.speed*cos(player.angle_of_reflection); //rate of change in x -> player travel to refleciton angle
+        double t_grav1=player.speed*sin(player.angle_of_reflection); //rate of change in y -> player travel to reflection angle
+        double t_grav2=player.grav*player.player_grav; //rate of change in y -> Gravity
+        double t_grav=t_grav1+t_grav2; //dy/dx
+        double grav_dist=GetDistance(t_speed,0,0,t_grav);
+        if (t_grav<0) { //still going upwards
+          player.angle_of_incidence=2*M_PI-GetCosAngle(t_speed,grav_dist);
+        } else { //going downwards
+          player.angle_of_incidence=GetCosAngle(t_speed,grav_dist);
         }
       }
     }
@@ -1371,7 +1378,7 @@ void PlayerCameraShake()
   //if (!the_bravery_tyrant && IsNormalView) {
     float y_bob=0,x_bob=0;
     //if (sprint_bobbing) {  //if sprint_bobbing
-      if (player.on_ground_id!=-1) {//not in air
+      if (player.on_ground_id!=-1) {//not in air, on ground
         if (!player.blocking) {
           if (player.rst_left || player.rst_right) {
 	        if (player.rst_key_sprint || player.speed>=5) {
@@ -1645,7 +1652,11 @@ void DrawPlayer(HDC hdc)
   }
 
   /*char hi[5];
-  sprintf(hi,"%3.2f",player.pivot_angle);
-  GrPrint(hdc,player.sprite_x,player.sprite_y-20,hi,BLACK);*/
+  sprintf(hi,"%3.2f",player.grav*player.player_grav);
+  GrPrint(hdc,player.sprite_x,player.sprite_y-20,hi,BLACK);
+
+  char hi2[5];
+  sprintf(hi2,"%3.2f",sin(player.angle_of_reflection)*player.speed+player.grav*player.player_grav);
+  GrPrint(hdc,player.sprite_x,player.sprite_y-40,hi2,BLACK);*/
 }
 
