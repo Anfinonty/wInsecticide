@@ -211,13 +211,10 @@ struct player
   double pivot_y;
   double pivot_angle;
   double pivot_length;
-  double potential_energy;
-  double counter_potential_energy;
   double launch_angle;
   double fling_distance;
   double angle_of_incidence;
   double angle_of_reflection;
-
 
 
   int web_storage[MAX_WEB_NUM];
@@ -256,6 +253,17 @@ struct player
   HBITMAP spin_sprite_3_cache;
   HBITMAP spin_sprite_4_cache;
 } player;
+
+
+struct PlayerFlingWeb {
+  //player shot web attrobutes
+  int length;
+  int on_ground_id[64];
+  int angle[64];
+  int x[64];
+  int y[64];
+} player_fling_web;
+
 
 int player_render_enemies[MAX_ENEMY_NUM];
 

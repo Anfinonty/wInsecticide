@@ -326,8 +326,6 @@ void BulletAct(int bullet_id)
         if (bullet_on_ground_id!=-1) {
           player.pivot_x=Bullet[bullet_id].x;
           player.pivot_y=Bullet[bullet_id].y;
-          player.potential_energy=0;
-          player.counter_potential_energy=0;
           player.is_swinging=TRUE;
         }
 	    //---web related-------
@@ -458,6 +456,7 @@ Ascii art woo!! :D
 */
 
           Bullet[bullet_id].angle=2*M_PI-Bullet[bullet_id].angle+2*Ground[bullet_on_ground_id].angle; //real
+          //Bullet[bullet_id].range=abs(Bullet[bullet_id].range);
           Bullet[bullet_id].range+=40;//Bullet[bullet_id].range/3; 
           if (bullet_on_ground_id>GROUND_NUM) { //elastic web
             Bullet[bullet_id].range+=150; 
