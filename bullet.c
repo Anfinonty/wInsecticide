@@ -159,10 +159,6 @@ void BulletAct(int bullet_id)
             }
           }
         } else { //player bullet movement when out of range
-          /*if ((int)Bullet[bullet_id].range%10==0) {
-            Bullet[bullet_id].angle+=0.02;
-          }*/
-          /*Bul*/
           Bullet[bullet_id].x+=cos(Bullet[bullet_id].angle)*Bullet[bullet_id].speed;
           Bullet[bullet_id].y+=sin(Bullet[bullet_id].angle)*Bullet[bullet_id].speed;
           Bullet[bullet_id].range--;
@@ -190,13 +186,15 @@ void BulletAct(int bullet_id)
             if (!Bullet[bk].playsnd) {
               Bullet[bk].playsnd=TRUE;
             }
-            //PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
             Bullet[bullet_id].speed=Bullet[bk].speed;
             Bullet[bullet_id].speed_multiplier=Bullet[bk].speed_multiplier;
             if (Bullet[bk].speed_multiplier<7) {
               Bullet[bk].angle=RandAngle(0,360,player.seed);
             }
           }
+        }
+        if (GetDistance(Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
+          Bullet[player.bullet_shot].playsnd=TRUE;
         }
         hit_player=HitPlayer(bullet_id);
       //bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,0.5,0.5,FALSE);
@@ -306,11 +304,7 @@ void BulletAct(int bullet_id)
     }
   } else {//player bullet while travelling
     if (Bullet[bullet_id].from_enemy_id==-1) {
-      if (Bullet[bullet_id].range<DEFAULT_PLAYER_BUILD_RANGE+player.speed*2-1) {
-        bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,NODE_SIZE,NODE_SIZE,FALSE);
-      } else {
-        bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2,FALSE);
-      }
+      bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2,FALSE);
     } else if (Bullet[bullet_id].from_enemy_id==-2) {
       bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2,FALSE);
     }
@@ -489,11 +483,8 @@ Ascii art woo!! :D
 
 void BulletSndAct(int i)
 {
-  if (Bullet[i].playsnd>0) {
+  if (Bullet[i].playsnd) {
     if (Bullet[i].shot) {
-      //wchar_t sndid[16];
-      //swprintf(sndid,16,L"bk_%d_%d",i,player.seed);
-      //PlaySnd(L"snd/clang.wav",sndid);
       PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
     }
     Bullet[i].playsnd=FALSE;

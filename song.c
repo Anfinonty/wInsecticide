@@ -164,20 +164,30 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
     }
 
 
-    //Play Game Souond
-    for (int i=0;i<player.bullet_shot_num;i++) {
-      BulletSndAct(player.bullet[i]);
-    }
-    for (int i=0;i<player.rendered_enemy_num;i++) {
-      EnemySndAct(player_render_enemies[i]);
-    }
-    PlayerSndAct();
 
 
 
     if (!in_main_menu) {
+      //Play Game Souond
+      if (!player.time_breaker) {
+        for (int i=0;i<player.bullet_shot_num;i++) {
+          BulletSndAct(player.bullet[i]);
+        }
+      }
+      if (player.bullet_shot!=-1) {
+        BulletSndAct(player.bullet_shot);
+      }
+      for (int i=0;i<player.rendered_enemy_num;i++) {
+        EnemySndAct(player_render_enemies[i]);
+      }
+      PlayerSndAct();
       Sleep(6); //fast loop
     } else {
+      if (clean_up_sound) {
+        mciSendString(L"pause player_speed",NULL,0,NULL);
+        mciSendString(L"close player_speed",NULL,0,NULL);
+        clean_up_sound=FALSE;
+      }
       Sleep(1000); //eepy loop
     }
   }

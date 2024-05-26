@@ -189,5 +189,3 @@ void CleanUpGround()
     Ground[i].angle=0;
   }
 }
-
-

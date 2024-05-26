@@ -118,6 +118,7 @@ double double_best_score=0;
 wchar_t save_level[128];
 double time_begin=0;
 bool yes_unifont=FALSE;
+bool clean_up_sound=FALSE;
 
 //HBITMAP canny;
 //HBITMAP uncanny;
@@ -905,6 +906,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DeleteObject(map_platforms_sprite_mask);
             LoadMainMenuBackground();
             back_to_menu=FALSE;
+            clean_up_sound=TRUE;
             in_main_menu=TRUE;
 
             DeleteObject(moon_sprite_cache);

@@ -144,6 +144,8 @@ void PlayerPlaceWeb()
 
 void CleanUpPlayer()
 {
+  player.speed=DEFAULT_PLAYER_SPEED;
+
   //Walk sprites
   if (player.sprite_1_cache!=NULL) {
     DeleteObject(player.sprite_1_cache);
@@ -574,13 +576,13 @@ void PlayerAct() {
         if (player.x<player.pivot_x) {
           bm_x2=player.pivot_x;
           bm_y2=player.pivot_y;
-          bm_x1=player.x;
-          bm_y1=player.y;	
+          bm_x1=player.above_x;
+          bm_y1=player.above_y;	
         } else {
           bm_x1=player.pivot_x;
           bm_y1=player.pivot_y;
-          bm_x2=player.x;
-          bm_y2=player.y;
+          bm_x2=player.above_x;
+          bm_y2=player.above_y;
         }
         if (player.placed_web_pos<player.max_web_num) { //if pointer to web is less than the no. of webs player has currently     
           while (player.web_storage[player.placed_web_pos]==-1) { //find player.web_storage that is not empty
@@ -662,28 +664,6 @@ void PlayerAct() {
 
    //Ground action
    //on a ground
-
-
-
-
-    //change in ground //attempt in preventing clipping through corners
-      if (player.saved_ground_id!=player.on_ground_id  && player.on_ground_id!=player.previous_web_placed) {
-      //outwards from ground
-        if (0<=Ground[player.saved_ground_id].height_from_player_x && Ground[player.saved_ground_id].height_from_player_x<10) { //above ground
-          player.previous_above=TRUE;
-          move_x(-cos(Ground[player.saved_ground_id].angle+M_PI_2));
-          move_y(-sin(Ground[player.saved_ground_id].angle+M_PI_2));
-        } else if (Ground[player.saved_ground_id].height_from_player_x>-10 &&
-                 Ground[player.saved_ground_id].height_from_player_x<0) { //below ground
-          player.previous_below=TRUE;
-          move_x(-cos(Ground[player.saved_ground_id].angle-M_PI_2));
-          move_y(-sin(Ground[player.saved_ground_id].angle-M_PI_2));
-        }
-      }
-
-
-
-
       if (player.on_ground_id!=-1 && player.on_ground_id!=player.previous_web_placed) {
         if (!IsSpeedBreaking()) {//reset stats when normal
           player.player_jump_height=DEFAULT_PLAYER_JUMP_HEIGHT;
@@ -720,9 +700,9 @@ void PlayerAct() {
         }
 
 
-        if ((Ground[player.on_ground_id].x1-10<=player.x && player.x<=Ground[player.on_ground_id].x2+10) && //within x
-            ((Ground[player.on_ground_id].y1-10<=player.y && player.y<=Ground[player.on_ground_id].y2+10) || //within y
-             (Ground[player.on_ground_id].y2-10<=player.y && player.y<=Ground[player.on_ground_id].y1+10))) {
+        if ((Ground[player.on_ground_id].x1-5<=player.x && player.x<=Ground[player.on_ground_id].x2+5) && //within x
+            ((Ground[player.on_ground_id].y1-5<=player.y && player.y<=Ground[player.on_ground_id].y2+5) || //within y
+             (Ground[player.on_ground_id].y2-5<=player.y && player.y<=Ground[player.on_ground_id].y1+5))) {
 
 
 
@@ -760,12 +740,14 @@ void PlayerAct() {
 
 
         //outwards from ground
-          if (0<Ground[player.on_ground_id].height_from_player_x && Ground[player.on_ground_id].height_from_player_x<10) { //above ground
+          if (0<=Ground[player.on_ground_id].height_from_player_x && Ground[player.on_ground_id].height_from_player_x<10) { //above ground
             player.current_above=TRUE;
             player.previous_above=TRUE;
             player.previous_below=FALSE;
-            move_x(-cos(player.angle+M_PI_2));
-            move_y(-sin(player.angle+M_PI_2));
+            if (Ground[player.on_ground_id].height_from_player_x<5 || player.is_rebounding) {
+              move_x(-cos(player.angle+M_PI_2));
+              move_y(-sin(player.angle+M_PI_2));
+            }
             player.jump_angle=player.angle+M_PI_2;
             if (player.angle<0) {/*Slope --> /*/
               player.jump_angle2=2*M_PI+player.angle-M_PI_2;
@@ -778,12 +760,14 @@ void PlayerAct() {
             player.angle_of_reflection=2*M_PI-player.angle_of_incidence+2*player.angle; //real
             player.angle_of_incidence=player.angle_of_reflection;
 
-          } else if (Ground[player.on_ground_id].height_from_player_x>-10 && Ground[player.on_ground_id].height_from_player_x<0) { //below ground
+          } else if (-10<Ground[player.on_ground_id].height_from_player_x && Ground[player.on_ground_id].height_from_player_x<0) { //below ground
             player.current_below=TRUE;
             player.previous_above=FALSE;
             player.previous_below=TRUE;
-            move_x(-cos(player.angle-M_PI_2));
-            move_y(-sin(player.angle-M_PI_2));
+            if (Ground[player.on_ground_id].height_from_player_x>-5 || player.is_rebounding) {
+              move_x(-cos(player.angle-M_PI_2));
+              move_y(-sin(player.angle-M_PI_2));
+            }
             player.jump_angle=player.angle-M_PI_2;
             if (player.angle<0) {/*Slope --> /*/
               player.jump_angle2=M_PI_2+player.angle;
@@ -804,36 +788,17 @@ void PlayerAct() {
             player.angle_of_reflection+=2*M_PI;
           }
 
-
-
-        //inwards to ground - like a magnet
-          if (!player.is_rebounding) {
-            if (3<=Ground[player.on_ground_id].height_from_player_x && Ground[player.on_ground_id].height_from_player_x<5){ //above ground
-              move_x(cos(player.angle+M_PI_2));
-              move_y(sin(player.angle+M_PI_2));
-              if (player.on_ground_timer<2) {
-                player.on_ground_timer++;
-              }
-            } else if (-5<Ground[player.on_ground_id].height_from_player_x && Ground[player.on_ground_id].height_from_player_x<=-3) {//below ground
-              move_x(cos(player.angle-M_PI_2));
-              move_y(sin(player.angle-M_PI_2));
-              if (player.on_ground_timer<2) {
-                player.on_ground_timer++;
-              }
-            }
-            if (!player.current_above && !player.current_below) {
-              player.angle=0;
-              player.on_ground_id=-1;
-            }
-          } else { //rebounding
+          if (player.is_rebounding) {
             if (M_PI_2<player.angle_of_reflection && player.angle_of_reflection<M_PI+M_PI_2) {
               player.last_left=TRUE;
             } else {
               player.last_left=FALSE;
             }
+          } else {
+            if (player.on_ground_timer<2) {
+              player.on_ground_timer++;
+            }
           }
-
-
 
 
 
@@ -916,7 +881,7 @@ void PlayerAct() {
           if (!player.is_swinging && (player.fling_distance==0 || player.fling_distance<-100)) { //not swinigng and player is not flinging
             if (player.in_air_timer>11) {
               move_y(player.player_grav); //include while being rebounding and flinging
-	        } else { //grav switch
+	        } else {
               move_x(-player.player_grav*2*cos(player.jump_angle));
               move_y(player.player_grav*2*sin(player.jump_angle));
             }
@@ -1640,7 +1605,7 @@ void DrawPlayer(HDC hdc)
 
   //Shapes Drawn when swinging to show direction of swing
   if (player.is_swinging) {
-    GrLine(hdc,player.sprite_x,player.sprite_y,player.pivot_x+player.cam_x+player.cam_move_x,player.pivot_y+player.cam_y+player.cam_move_y,LTCYAN);
+    GrLine(hdc,player.above_x+player.cam_x+player.cam_move_x,player.above_y+player.cam_y+player.cam_move_y,player.pivot_x+player.cam_x+player.cam_move_x,player.pivot_y+player.cam_y+player.cam_move_y,LTCYAN);
     int color=BLACK;
     if (!IsInvertedBackground()) {
       color=WHITE;
@@ -1654,7 +1619,7 @@ void DrawPlayer(HDC hdc)
   if (player.bullet_shot!=-1) {
     if (player.right_click_hold_timer<62) {
       DrawBullet(hdc,player.bullet_shot);
-      GrLine(hdc,player.sprite_x,player.sprite_y,Bullet[player.bullet_shot].sprite_x,Bullet[player.bullet_shot].sprite_y,LTCYAN);    
+      GrLine(hdc,player.above_x+player.cam_x+player.cam_move_x,player.above_y+player.cam_y+player.cam_move_y,Bullet[player.bullet_shot].sprite_x,Bullet[player.bullet_shot].sprite_y,LTCYAN);    
     }
   }
   
