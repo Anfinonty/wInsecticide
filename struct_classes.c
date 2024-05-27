@@ -22,7 +22,7 @@ struct GroundLine
   double length; // = sqrt(x^2 + y^2)) // Babylonian Trigonometry Theorem for Calculating the Hypothenuse
   double gradient;// y of ground / x of ground
   double c; //The C in y-mx_c
-  double height_from_player_x;//= gradient * player_x + c
+  //double height_from_player_x;//= gradient * player_x + c
   double angle; // = ACos of (x/length)
 
   wchar_t text[512]; //for type 1 which is Text_ground

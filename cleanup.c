@@ -184,7 +184,7 @@ void CleanUpGround()
     Ground[i].text[0]='\0';
     Ground[i].is_ghost=FALSE;
     Ground[i].health=-1;
-    Ground[i].height_from_player_x=0;
+    //Ground[i].height_from_player_x=0;
     Ground[i].within_render_distance=FALSE;
     Ground[i].angle=0;
   }

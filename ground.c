@@ -179,7 +179,7 @@ void InitGround()
     }
     Ground[i].health=-1;
     //player.rendered_ground_num=0;
-    Ground[i].height_from_player_x=0;
+    //Ground[i].height_from_player_x=0;
     Ground[i].within_render_distance=FALSE;
     Ground[i].angle=0;
     SetGround(i);
@@ -211,13 +211,13 @@ int GetOnGroundId(double x,double y,double min_range_1,double min_range_2,bool i
       ground_id=VGrid[on_grid_id].ground_ids[i];
       ground_entity_E=GetLineTargetAngle(ground_id,x,y);
       height_from_ground=GetLineTargetHeight(ground_id,ground_entity_E,x,y);
-      if (is_player) {
+      /*if (is_player) {
         Ground[ground_id].height_from_player_x=height_from_ground;
-      }
+      }*/
       if (Ground[ground_id].x1-min_range_1<=x && x<=Ground[ground_id].x2+min_range_1) {//within x
         if ((Ground[ground_id].y1-min_range_1<=y && y<=Ground[ground_id].y2+min_range_1) ||
             (Ground[ground_id].y2-min_range_1<=y && y<=Ground[ground_id].y1+min_range_1)) {//within y
-          if (is_player && -min_range_2<Ground[ground_id].height_from_player_x && Ground[ground_id].height_from_player_x<min_range_2) { //change in ground
+          if (is_player && -min_range_2<height_from_ground && height_from_ground<min_range_2) { //change in ground
 	        if (ground_id!=player.saved_ground_id && !Ground[ground_id].is_ghost) {
               j=ground_id;
               break;
