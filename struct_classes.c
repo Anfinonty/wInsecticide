@@ -95,6 +95,8 @@ struct player
   bool destroy_ground;
   bool uppercut;
   bool flag_revert_palette;
+  bool on_a_ground;
+
     //Render
   int rendered_vgrid_num;
   int rendered_enemy_num;

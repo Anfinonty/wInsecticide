@@ -235,6 +235,7 @@ void InitPlayer() {
   player.speed=DEFAULT_PLAYER_SPEED;
   player.on_ground_timer=0;
   player.on_ground_id=-1;
+  player.on_a_ground=FALSE;
   player.saved_ground_id=-1;
   player.walk_cycle=0;
   player.player_jump_height=DEFAULT_PLAYER_JUMP_HEIGHT;
@@ -631,7 +632,7 @@ void PlayerAct() {
   }
 
   //Trigger jump
-  if (player.rst_up && 6<=player.on_ground_timer && player.on_ground_timer<=10 && player.fling_distance<=0 /*&& player.key_jump_timer==0*/) {
+  if (player.rst_up && 6<=player.on_ground_timer && player.on_ground_timer<=20 && player.fling_distance<=0 /*&& player.key_jump_timer==0*/) {
     player.jump=TRUE;
     player.key_jump_timer=player.player_jump_height;
   }
@@ -704,16 +705,10 @@ void PlayerAct() {
         }
 
 
-        if ((Ground[player.on_ground_id].x1-10<=player.x && player.x<=Ground[player.on_ground_id].x2+10) && //within x
-            ((Ground[player.on_ground_id].y1-10<=player.y && player.y<=Ground[player.on_ground_id].y2+10) || //within y
-             (Ground[player.on_ground_id].y2-10<=player.y && player.y<=Ground[player.on_ground_id].y1+10))) {
-
-
 
 
          //Within ground axes
           player.angle=Ground[player.on_ground_id].angle; //set player angle
-          player.on_ground_timer=10;
 
           if (player.in_air_timer>0) {
             if (player.in_air_timer>1000) { //make player rebound
@@ -750,7 +745,9 @@ void PlayerAct() {
             player.current_above=TRUE;
             player.previous_above=TRUE;
             player.previous_below=FALSE;
-            if (height_from_player_x<5 || player.is_rebounding) {
+            player.on_a_ground=TRUE;
+            player.on_ground_timer=20;
+            if (height_from_player_x<5 /*|| player.is_rebounding*/) {
               move_x(-cos(player.angle+M_PI_2));
               move_y(-sin(player.angle+M_PI_2));
             }
@@ -770,7 +767,9 @@ void PlayerAct() {
             player.current_below=TRUE;
             player.previous_above=FALSE;
             player.previous_below=TRUE;
-            if (height_from_player_x>-5 || player.is_rebounding) {
+            player.on_a_ground=TRUE;
+            player.on_ground_timer=20;
+            if (height_from_player_x>-5 /*|| player.is_rebounding*/) {
               move_x(-cos(player.angle-M_PI_2));
               move_y(-sin(player.angle-M_PI_2));
             }
@@ -796,28 +795,32 @@ void PlayerAct() {
             player.angle_of_reflection+=2*M_PI;
           }
 
-          if (player.is_rebounding) {
+          if (player.is_rebounding) {//rebounding
             if (M_PI_2<player.angle_of_reflection && player.angle_of_reflection<M_PI+M_PI_2) {
               player.last_left=TRUE;
             } else {
               player.last_left=FALSE;
             }
 
-          } else { // not rebounding
-            if (height_from_player_x>10) { //above ground
+            /*if (5<height_from_player_x && height_from_player_x<10) { //above ground
               move_x(-cos(player.angle+M_PI_2));
               move_y(-sin(player.angle+M_PI_2));
-              player.on_ground_id=-1;
-            } else if (height_from_player_x<-10) { //below ground
+            } else if (-10<height_from_player_x && height_from_player_x<-5) { //below ground
               move_x(-cos(player.angle-M_PI_2));
               move_y(-sin(player.angle-M_PI_2));
-              player.on_ground_id=-1;
+            }*/
+
+
+
+          } else { // not rebounding
+            if (height_from_player_x>10 || height_from_player_x<-10) {            
+              player.on_a_ground=FALSE;
             }
           }
 
 
         }//id not caught on time, backup
-      } else {//end of within ground axe
+      /*} else {//end of within ground axe
         if (player.on_ground_id==-1) {
           player.saved_ground_id=GetOnGroundId(player.x,player.y,11,10,FALSE);    //Get Ground id
           player.on_ground_id=player.saved_ground_id;
@@ -825,7 +828,7 @@ void PlayerAct() {
             player.on_ground_timer=10;
           }
         }
-      }
+      }*/
 
 
     //Y movement
@@ -837,7 +840,7 @@ void PlayerAct() {
 
 
       //==========REBOUND ACTIONS==========
-      if (player.is_rebounding) {
+      if (player.is_rebounding && player.on_ground_id==-1) {
         if (grav_speed==0) {
           move_x(cos(player.angle_of_reflection));
           move_y(sin(player.angle_of_reflection));
@@ -1123,6 +1126,33 @@ void PlayerAct() {
   }
 
 
+  if (player.on_ground_id!=-1) {
+    if (
+         (
+            (Ground[player.on_ground_id].x1-10<player.x &&  player.x<Ground[player.on_ground_id].x2+10) &&
+              ((Ground[player.on_ground_id].y1-10<player.y && player.y<Ground[player.on_ground_id].y2+10) ||
+               (Ground[player.on_ground_id].y2-10<player.y && player.y<Ground[player.on_ground_id].y1+10))
+         )
+        ) 
+    {
+      /*if (player.is_rebounding) {
+        if (!(
+             (player.x>(Ground[player.on_ground_id].x1+Ground[player.on_ground_id].x2)/2-5) && 
+             (player.x<(Ground[player.on_ground_id].x1+Ground[player.on_ground_id].x2)/2+5) &&
+             (player.y>(Ground[player.on_ground_id].y1+Ground[player.on_ground_id].y2)/2-5) && 
+             (player.y<(Ground[player.on_ground_id].y1+Ground[player.on_ground_id].y2)/2+5)
+          ))
+        {
+          player.on_a_ground=FALSE;
+          player.on_ground_timer=0;
+        }
+      }*/
+    } else {
+      player.on_a_ground=FALSE;
+      player.on_ground_timer=0;
+    }
+  }
+
   
   //Calculating new angle of incidence
   if (player.jump_height>0) {
@@ -1182,7 +1212,9 @@ void PlayerAct() {
   }
  //misc
   if (player.on_ground_timer>0) {
-    player.on_ground_timer--;
+    if (!player.on_a_ground) {
+      player.on_ground_timer--;
+    }
   } else {
     player.on_ground_id=-1;
     player.saved_ground_id=-1;
@@ -1643,8 +1675,8 @@ void DrawPlayer(HDC hdc)
   sprintf(hi,"%d",player.on_ground_timer);
   GrPrint(hdc,player.sprite_x,player.sprite_y-30,hi,BLACK);
 
-  /*char hi2[5];
-  sprintf(hi2,"%d",sin(player.angle_of_reflection)*player.speed+player.grav*player.player_grav);
-  GrPrint(hdc,player.sprite_x,player.sprite_y-40,hi2,BLACK);*/
+  char hi2[5];
+  sprintf(hi2,"%d",player.on_a_ground);
+  GrPrint(hdc,player.sprite_x,player.sprite_y-50,hi2,BLACK);
 }
 
