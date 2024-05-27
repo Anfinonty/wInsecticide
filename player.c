@@ -320,13 +320,13 @@ void InitPlayer() {
   player.destroyed_web_pos=0;
 
 
-  player_fling_web.length=0;
+  /*player_fling_web.length=0;
   for (i=0;i<64;i++) {
     player_fling_web.on_ground_id[i]=-1;
     player_fling_web.angle[i]=-1;
     player_fling_web.x[i]=-1;
     player_fling_web.y[i]=-1;
-  }
+  }*/
 
 
   player.web_being_shot=-1;
@@ -631,7 +631,7 @@ void PlayerAct() {
   }
 
   //Trigger jump
-  if (player.rst_up && 1<=player.on_ground_timer && player.on_ground_timer<=10 && player.fling_distance<=0 && player.key_jump_timer==0) {
+  if (player.rst_up && 1<=player.on_ground_timer && player.on_ground_timer<=10 && player.fling_distance<=0 /*&& player.key_jump_timer==0*/) {
     player.jump=TRUE;
     player.key_jump_timer=player.player_jump_height;
   }
@@ -726,7 +726,7 @@ void PlayerAct() {
               player.is_rebounding=FALSE;
               player.in_air_timer=1;
 
-              player.key_jump_timer=player.jump_height/2;
+              player.key_jump_timer=0;//player.jump_height/2;
               player.jump_height=0; //Stop Jump & stick to ground
               player.jump=FALSE;
             }
@@ -808,19 +808,16 @@ void PlayerAct() {
               move_x(-cos(player.angle-M_PI_2));
               move_y(-sin(player.angle-M_PI_2));
             }
-
-            if (player.on_ground_timer<2) {
-              player.on_ground_timer++;
-            }
           }
+          player.on_ground_timer=10;
 
 
 
-        } else {
+        }// else {
       //not on ground
-          player.on_ground_id=-1;
-        }
-      } else { //not on a ground
+          //player.on_ground_id=-1;
+        //}
+      //} else { //not on a ground
     //fall down normally
         //player.on_ground_id=-1;
       }
@@ -830,14 +827,14 @@ void PlayerAct() {
 
     //Y movement
     //Condition to jump
-      if ((player.current_above && player.on_ground_id!=-1) || player.current_below) {
-        if (player.on_ground_timer<10)
-          player.on_ground_timer++;
-      } 
-      if (abs(Ground[player.on_ground_id].angle)>M_PI_2-0.01) {
+      /*if ((player.current_above || player.current_below) {
         if (player.on_ground_timer<10)
           player.on_ground_timer++;
       }
+      if (abs(Ground[player.on_ground_id].angle)>M_PI_2-0.01) {
+        if (player.on_ground_timer<10)
+          player.on_ground_timer++;
+      }*/
       if (player.on_ground_timer>0) {
         player.previous_web_placed=-1;
       }
@@ -1190,6 +1187,9 @@ void PlayerAct() {
  //misc
   if (player.on_ground_timer>0) {
     player.on_ground_timer--;
+  } else {
+    player.on_ground_id=-1;
+    player.saved_ground_id=-1;
   }
 
 
@@ -1644,7 +1644,7 @@ void DrawPlayer(HDC hdc)
   }
 
   /*char hi[5];
-  sprintf(hi,"%d",player.on_ground_id);
+  sprintf(hi,"%d",player.on_ground_timer);
   GrPrint(hdc,player.sprite_x,player.sprite_y-30,hi,BLACK);*/
 
   /*char hi2[5];

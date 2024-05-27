@@ -256,14 +256,14 @@ struct player
 } player;
 
 
-struct PlayerFlingWeb {
+/*struct PlayerFlingWeb {
   //player shot web attrobutes
   int length;
   int on_ground_id[64];
   int angle[64];
   int x[64];
   int y[64];
-} player_fling_web;
+} player_fling_web;*/
 
 
 int player_render_enemies[MAX_ENEMY_NUM];
