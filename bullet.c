@@ -198,7 +198,7 @@ void BulletAct(int bullet_id)
         }
         hit_player=HitPlayer(bullet_id);
       //bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,0.5,0.5,FALSE);
-        bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2,FALSE);
+        bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2);
 	    allow_act=FALSE;
         if (Enemy[enemy_id].health>0) {
 	      if (hit_player) {
@@ -304,9 +304,9 @@ void BulletAct(int bullet_id)
     }
   } else {//player bullet while travelling
     if (Bullet[bullet_id].from_enemy_id==-1) {
-      bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2,FALSE);
+      bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2);
     } else if (Bullet[bullet_id].from_enemy_id==-2) {
-      bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2,FALSE);
+      bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2);
     }
     allow_act=FALSE;
 	if (bullet_on_ground_id!=-1) {//not hit self but another platform
@@ -488,17 +488,6 @@ void BulletSndAct(int i)
       PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
     }
     Bullet[i].playsnd=FALSE;
-  }
-}
-
-
-void EnemySndAct(int i)
-{
-  if (Enemy[i].play_death_snd) {
-    wchar_t sndid[16];
-    swprintf(sndid,16,L"bk_%d_%d",i,Enemy[i].seed);
-    PlaySnd(L"snd/clang_death.wav",sndid);
-    Enemy[i].play_death_snd=FALSE;
   }
 }
 

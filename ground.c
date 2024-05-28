@@ -296,95 +296,71 @@ void InitGround()
 }*/
 
 
-int GetOnGroundId(double x,double y,double min_range_1,double min_range_2,bool is_player)
+
+/*
+=== +++ ===
+=== +++ ===
++++ === +++
++++ === +++
+=== +++ ===
+=== +++ ===
+*/
+
+const double x_quad[12]=
 {
-  int i=0,j=-1,ground_id=0,on_grid_id=0;
-  double ground_entity_E=0,height_from_ground=0,_x=-20,_y=-20;
-  for (int k=0;k<9;k++) {
-    switch (k) {
-      case 0: //center
-        _x=x;
-        _y=y;
-        break;
-      case 1: //center left
-        _x=x-VGRID_SIZE;
-        _y=y;
-        break;
-      case 2:
-        _x=x+VGRID_SIZE; //center right
-        _y=y;
-        break;
+//top left corner
+0,
+-VGRID_SIZE,
+0,
 
-      //upper
-      case 3: //left
-        _x=x-VGRID_SIZE;
-        _y=y-VGRID_SIZE;
-        break;
-      case 4:
-        _x=x;
-        _y=y-VGRID_SIZE;
-        break;
-      case 5: //right
-        _x=x+VGRID_SIZE;
-        _y=y-VGRID_SIZE;
-        break;
+//top right corner
+0,
+VGRID_SIZE,
+0,
 
-      //lower
-      case 6: //left
-        _x=x-VGRID_SIZE;
-        _y=y+VGRID_SIZE;
-        break;
-      case 7:
-        _x=x;
-        _y=y+VGRID_SIZE;
-        break;
-      case 8: //right
-        _x=x+VGRID_SIZE;
-        _y=y+VGRID_SIZE;
-        break;
-    }
-    if (0<_x && _x<MAP_WIDTH && 0<_y && _y<MAP_HEIGHT) { //within bounderies
-      on_grid_id=GetGridId(_x,_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);//maths to get grid
-      for (i=0;i<VGrid[on_grid_id].max_ground_num;i++) {
-        ground_id=VGrid[on_grid_id].ground_ids[i];
-        ground_entity_E=GetLineTargetAngle(ground_id,x,y);
-        height_from_ground=GetLineTargetHeight(ground_id,ground_entity_E,x,y);
-        if (Ground[ground_id].x1-min_range_1<=x && x<=Ground[ground_id].x2+min_range_1) {//within x
-          if ((Ground[ground_id].y1-min_range_1<=y && y<=Ground[ground_id].y2+min_range_1) ||
-                (Ground[ground_id].y2-min_range_1<=y && y<=Ground[ground_id].y1+min_range_1)) {//within y
-            if (is_player && -min_range_2<height_from_ground && height_from_ground<min_range_2) { //change in ground
-	          if (ground_id!=player.saved_ground_id && !Ground[ground_id].is_ghost) {
-                j=ground_id;
-                break;
-	          }
-            } else if (!Ground[ground_id].is_ghost && -min_range_2<height_from_ground && height_from_ground<min_range_2) {
-	          return ground_id;
-	        }
-	      }
-        }
-      }
-    } //end of if
-    if (!is_player) { //once only
-      break;
-    }
-  } //end of for loop
-  if (is_player) {
-    if (j==-1) {
-      return player.saved_ground_id;
-    } else {
-      return j;
-    }
-  } else {
-    return -1;
-  }
-  return -1;
+//lower left corner
+0,
+-VGRID_SIZE,
+0,
+
+//lower right corner
+0,
+VGRID_SIZE,
+0
 }
+;
+
+
+const double y_quad[12]=
+{
+//Top left corner
+-VGRID_SIZE,
+0,
+VGRID_SIZE,
+
+
+//Top right corner
+-VGRID_SIZE,
+0,
+VGRID_SIZE,
+
+
+//Lower left corner
+VGRID_SIZE,
+0,
+-VGRID_SIZE,
+
+
+//Lower right corner
+VGRID_SIZE,
+0,
+-VGRID_SIZE
+};
 
 
 
-
-
-int GetOnGroundIdII(double x,double y,double min_range_1,double min_range_2,bool is_player)
+//!!NO CLIPPING PROTECTION BUT BLAZING FAST
+int GetOnGroundId(double x,double y,double min_range_1,double min_range_2)
 {
   int i=0,j=-1,ground_id=0,on_grid_id=0;
   double ground_entity_E=0,height_from_ground=0;
@@ -392,163 +368,186 @@ int GetOnGroundIdII(double x,double y,double min_range_1,double min_range_2,bool
     on_grid_id=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);//maths to get grid
     for (i=0;i<VGrid[on_grid_id].max_ground_num;i++) {
       ground_id=VGrid[on_grid_id].ground_ids[i];
-      ground_entity_E=GetLineTargetAngleII(ground_id,x,y);
-      height_from_ground=GetLineTargetHeightII(ground_id,ground_entity_E,x,y);
       if (Ground[ground_id].x1-min_range_1<=x && x<=Ground[ground_id].x2+min_range_1) {//within x
         if ((Ground[ground_id].y1-min_range_1<=y && y<=Ground[ground_id].y2+min_range_1) ||
             (Ground[ground_id].y2-min_range_1<=y && y<=Ground[ground_id].y1+min_range_1)) {//within y
-          if (is_player && -min_range_2<height_from_ground && height_from_ground<min_range_2) { //change in ground
-	        if (ground_id!=player.saved_ground_id && !Ground[ground_id].is_ghost) {
-              j=ground_id;
-              break;
-	        }
-          } else if (!Ground[ground_id].is_ghost && -min_range_2<height_from_ground && height_from_ground<min_range_2) {
-	        return ground_id;
-	      }
-	    }
+          ground_entity_E=GetLineTargetAngle(ground_id,x,y);
+          height_from_ground=GetLineTargetHeight(ground_id,ground_entity_E,x,y);
+          if (!Ground[ground_id].is_ghost && -min_range_2<height_from_ground && height_from_ground<min_range_2) {
+            return ground_id;
+          }
+        }
       }
     }
-    if (is_player) {
-      if (j==-1) {
-	    return player.saved_ground_id;
-      } else {
-	    return j;
-      }
-    } else {
-      return -1;
-    }
-  }
+  } //end of if
   return -1;
 }
 
+
+
+int GetOnGroundIdPlayer(double x,double y,double min_range_1,double min_range_2)
+{
+  int i=0,j=-1,ground_id=0,on_grid_id=0;
+  double ground_entity_E=0,height_from_ground=0,_x=x,_y=x;
+
+
+  int main_grid_id=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
+
+  if (VGrid[main_grid_id].max_ground_num>0) {
+  double main_grid_x=(VGrid[main_grid_id].x1+VGrid[main_grid_id].x2)/2;
+  double main_grid_y=(VGrid[main_grid_id].y1+VGrid[main_grid_id].y2)/2;
+  int in_quadrant=0; //0=topleft, 1=topright, 2=lowerleft, 3=lowerright
+  int index_quadrant=0;
+  if (y<main_grid_y) {
+    if (x>=main_grid_x) {//Top right corner of grid
+      in_quadrant=1;
+    }
+  } else {
+    if (x<main_grid_x) {//Lower left corner of grid
+      in_quadrant=2;
+    } else {  //Lower right corner of grid
+      in_quadrant=3;
+    }
+  }
+
+  for (int k=0;k<4;k++) {
+    if (k>0) {
+      _x+=x_quad[index_quadrant];
+      _y+=y_quad[index_quadrant];
+      index_quadrant++;
+    } else {
+      _x=x;
+      _y=y;
+      switch (in_quadrant) {
+        case 0: //top left corner
+          index_quadrant=0;
+          break;
+        case 1: //top right corner
+          index_quadrant=3;
+          break;
+        case 2: //lower left corner
+          index_quadrant=6;
+          break;
+        case 3: //lower right corner
+          index_quadrant=9;
+          break;
+      }
+    }
+
+    if (0<_x && _x<MAP_WIDTH && 0<_y && _y<MAP_HEIGHT) { //within bounderies
+      on_grid_id=GetGridId(_x,_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);//maths to get grid
+      for (i=0;i<VGrid[on_grid_id].max_ground_num;i++) {
+        ground_id=VGrid[on_grid_id].ground_ids[i];
+        if (Ground[ground_id].x1-min_range_1<=x && x<=Ground[ground_id].x2+min_range_1) {//within x
+          if ((Ground[ground_id].y1-min_range_1<=y && y<=Ground[ground_id].y2+min_range_1) ||
+              (Ground[ground_id].y2-min_range_1<=y && y<=Ground[ground_id].y1+min_range_1)) {//within y
+            ground_entity_E=GetLineTargetAngle(ground_id,x,y);
+            height_from_ground=GetLineTargetHeight(ground_id,ground_entity_E,x,y);
+
+            if (-min_range_2<height_from_ground && height_from_ground<min_range_2) { //change in ground
+              if (ground_id!=player.saved_ground_id && !Ground[ground_id].is_ghost) {
+                j=ground_id;
+                if (j!=-1) {
+                  return j;
+                }
+                break;
+              }
+            }
+          }
+        }
+      }
+    } //end of if
+
+  } //end of for
+  }
+  if (j==-1) {
+    return player.saved_ground_id;
+  }
+  return j;
+}
 
 
 
 int GetOnGroundIdE(double x,double y,double min_range_1,double min_range_2,int enemy_id)
 {
   int i=0,j=-1,ground_id=0,on_grid_id=0;
-  double ground_entity_E=0,height_from_ground=0,_x=-20,_y=-20;
-  for (int k=0;k<9;k++) {
-    switch (k) {
-      case 0: //center
-        _x=x;
-        _y=y;
-        break;
-      case 1: //center left
-        _x=x-VGRID_SIZE;
-        _y=y;
-        break;
-      case 2:
-        _x=x+VGRID_SIZE; //center right
-        _y=y;
-        break;
+  double ground_entity_E=0,height_from_ground=0,_x=x,_y=x;
 
-      //upper
-      case 3: //left
-        _x=x-VGRID_SIZE;
-        _y=y-VGRID_SIZE;
-        break;
-      case 4:
-        _x=x;
-        _y=y-VGRID_SIZE;
-        break;
-      case 5: //right
-        _x=x+VGRID_SIZE;
-        _y=y-VGRID_SIZE;
-        break;
 
-      //lower
-      case 6: //left
-        _x=x-VGRID_SIZE;
-        _y=y+VGRID_SIZE;
-        break;
-      case 7:
-        _x=x;
-        _y=y+VGRID_SIZE;
-        break;
-      case 8: //right
-        _x=x+VGRID_SIZE;
-        _y=y+VGRID_SIZE;
-        break;
+  int main_grid_id=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
+
+  if (VGrid[main_grid_id].max_ground_num>0) {
+  double main_grid_x=(VGrid[main_grid_id].x1+VGrid[main_grid_id].x2)/2;
+  double main_grid_y=(VGrid[main_grid_id].y1+VGrid[main_grid_id].y2)/2;
+  int in_quadrant=0; //0=topleft, 1=topright, 2=lowerleft, 3=lowerright
+  int index_quadrant=0;
+  if (y<main_grid_y) {
+    if (x>=main_grid_x) {//Top right corner of grid
+      in_quadrant=1;
     }
+  } else {
+    if (x<main_grid_x) {//Lower left corner of grid
+      in_quadrant=2;
+    } else {  //Lower right corner of grid
+      in_quadrant=3;
+    }
+  }
+
+  for (int k=0;k<4;k++) {
+    if (k>0) {
+      _x+=x_quad[index_quadrant];
+      _y+=y_quad[index_quadrant];
+      index_quadrant++;
+    } else {
+      _x=x;
+      _y=y;
+      switch (in_quadrant) {
+        case 0: //top left corner
+          index_quadrant=0;
+          break;
+        case 1: //top right corner
+          index_quadrant=3;
+          break;
+        case 2: //lower left corner
+          index_quadrant=6;
+          break;
+        case 3: //lower right corner
+          index_quadrant=9;
+          break;
+      }
+    }
+
     if (0<_x && _x<MAP_WIDTH && 0<_y && _y<MAP_HEIGHT) { //within bounderies
       on_grid_id=GetGridId(_x,_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);//maths to get grid
       for (i=0;i<VGrid[on_grid_id].max_ground_num;i++) {
         ground_id=VGrid[on_grid_id].ground_ids[i];
-        ground_entity_E=GetLineTargetAngle(ground_id,x,y);
-        height_from_ground=GetLineTargetHeight(ground_id,ground_entity_E,x,y);
-     
         if (Ground[ground_id].x1-min_range_1<=x && x<=Ground[ground_id].x2+min_range_1) {//within x
           if ((Ground[ground_id].y1-min_range_1<=y && y<=Ground[ground_id].y2+min_range_1) ||
               (Ground[ground_id].y2-min_range_1<=y && y<=Ground[ground_id].y1+min_range_1)) {//within y
+            ground_entity_E=GetLineTargetAngle(ground_id,x,y);
+            height_from_ground=GetLineTargetHeight(ground_id,ground_entity_E,x,y);
             if (-min_range_2<height_from_ground && height_from_ground<min_range_2) { //change in ground
 	          if (ground_id!=Enemy[enemy_id].saved_ground_id && !Ground[ground_id].is_ghost) {
                 j=ground_id;
+                if (j!=-1) {
+                  return j;
+                }
                 break;
-	          }
+              }
             }
-	      }
+          }
         }
       }
-    }
+    } //end of if
+
+  } //end of for
   }
   if (j==-1) {
     return Enemy[enemy_id].saved_ground_id;
-  } else {
-    return j;
   }
-  return -1;
+  return j;
 }
 
-
-/*int GetOnGroundIdB(double x,double y,double min_range_1,double min_range_2,int bullet_id)
-{
-  int i=0,j=-2,ground_id=0,on_grid_id=0;
-  double ground_entity_E=0,height_from_ground=0;
-  if (0<x && x<MAP_WIDTH && 0<y && y<MAP_HEIGHT) { //within bounderies
-    on_grid_id=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);//maths to get grid
-    for (i=0;i<VGrid[on_grid_id].max_ground_num;i++) {
-      ground_id=VGrid[on_grid_id].ground_ids[i];
-      ground_entity_E=GetLineTargetAngle(ground_id,x,y);
-      height_from_ground=GetLineTargetHeight(ground_id,ground_entity_E,x,y);
-     
-
-      if (Ground[ground_id].x1-min_range_1<=x && x<=Ground[ground_id].x2+min_range_1) {//within x
-        if ((Ground[ground_id].y1-min_range_1<=y && y<=Ground[ground_id].y2+min_range_1) ||
-            (Ground[ground_id].y2-min_range_1<=y && y<=Ground[ground_id].y1+min_range_1)) {//within y
-          if (-min_range_2<height_from_ground && height_from_ground<min_range_2) { //change in ground
-	        if (ground_id!=Bullet[bullet_id].saved_ground_id && !Ground[ground_id].is_ghost) {
-              j=ground_id;
-              break;
-	        }
-          }
-	    }
-      }
-
-
-    }
-    if (j==-2) {
-      return Bullet[bullet_id].saved_ground_id;
-    } else {
-      return j;
-    }
-  }
-  return -2;
-}*/
-
-/*void GroundAct() //Mainly for graphics
-{
-  int i=0,j=0;//,k=0;
-  for (j=0;j<player.rendered_ground_num;j++) {
-    i=player.render_grounds[j];    
-
-    Ground[i].sprite_x1=Ground[i].x1+player.cam_x+player.cam_move_x;
-    Ground[i].sprite_y1=Ground[i].y1+player.cam_y+player.cam_move_y;
-    Ground[i].sprite_x2=Ground[i].x2+player.cam_x+player.cam_move_x;
-    Ground[i].sprite_y2=Ground[i].y2+player.cam_y+player.cam_move_y;
-    Ground[i].sprite_x3=Ground[i].x3+player.cam_x+player.cam_move_x;
-    Ground[i].sprite_y3=Ground[i].y3+player.cam_y+player.cam_move_y;
-}*/
 
 
 void DestroyGround(int i)

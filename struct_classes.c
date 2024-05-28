@@ -43,7 +43,7 @@ void InitGround2();
 double GetLineTargetAngle(int Ground_id,double x,double y);
 double GetLineTargetHeight(int Ground_id,double E,double x,double y);
 void SetGround(int i);
-int GetOnGroundId(double x,double y,double min_range_1,double min_range_2,bool is_player);
+int GetOnGroundId(double x,double y,double min_range_1,double min_range_2);
 void DestroyGround(int i);
 
 void DrawWebs(HDC hdc);
@@ -54,13 +54,13 @@ void DrawGroundTriFill(HDC hdc);
 
 
 
-struct RenderDistanceGrid
+/*struct RenderDistanceGrid
 {
   int x1;
   int y1;
   int x2;
   int y2;
-} RDGrid;
+} RDGrid;*/
 
 
 
@@ -99,7 +99,7 @@ struct player
 
     //Render
   int rendered_vgrid_num;
-  int rendered_enemy_num;
+  //int rendered_enemy_num;
 
  // int rendered_ground_num;
   int block_recharge_timer_max;
@@ -268,7 +268,7 @@ struct player
 } player_fling_web;*/
 
 
-int player_render_enemies[MAX_ENEMY_NUM];
+//int player_render_enemies[MAX_ENEMY_NUM];
 
 
 void InitPlayer();

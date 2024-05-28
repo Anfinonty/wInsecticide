@@ -448,8 +448,8 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
   while (TRUE) {
     if (!in_main_menu) { //In Game
       PlayerAct();
-      for (int i=0;i<player.rendered_enemy_num;i++) {
-        EnemyAct(player_render_enemies[i]);
+      for (int i=0;i<ENEMY_NUM;i++) {
+        EnemyAct(i);
       }
       Sleep(player.sleep_timer);
     } else {
@@ -848,20 +848,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
           }
 
-          if (!player.time_breaker) { //camera shake by default
-            if (!player.is_swinging) {
-              PlayerCameraShake();
-            } else {
-              player.cam_move_x=0;
-              player.cam_move_y=0;
-            }
-          } else { //don't move camera when time breaking'
+
+          if (!(player.time_breaker || player.is_swinging || player.is_rebounding)) {
+            //PlayerCameraShake();
+          } else {
             player.cam_move_x=0;
             player.cam_move_y=0;
           }
 
-          for (int i=0;i<player.rendered_enemy_num;i++) { //Enemy has random seed value
-            Enemy[player_render_enemies[i]].seed=rand();
+          for (int i=0;i<ENEMY_NUM;i++) { //Enemy has random seed value
+            Enemy[i].seed=rand();
           }
           player.seed=rand();
 

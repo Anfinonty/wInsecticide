@@ -283,9 +283,6 @@ void EnemyPathFinding(int enemy_id)
 
 void EnemySpecies1Gravity(int enemy_id)
 {
-//  enemy_on_ground_id=GetOnGroundId(Enemy[enemy_id].x,Enemy[enemy_id].y,30,29,FALSE);    //Get Ground id
-//  enemy_on_ground_id=GetOnGroundId(Enemy[enemy_id].x,Enemy[enemy_id].y,32,31,FALSE);    //Get Ground id
-
   Enemy[enemy_id].on_ground_id=GetOnGroundIdE(Enemy[enemy_id].x,Enemy[enemy_id].y,30,29,enemy_id);    //Get Ground id
 
   if (Enemy[enemy_id].on_ground_id==-1) {//not on ground
@@ -463,7 +460,7 @@ void EnemyLOSAct(int i)
         Enemy[i].LOS_x+=cos(Enemy[i].LOS_angle);
         Enemy[i].LOS_y+=sin(Enemy[i].LOS_angle);
       }
-      los_on_ground_id=GetOnGroundId(Enemy[i].LOS_x,Enemy[i].LOS_y,0.5,0.5,FALSE);
+      los_on_ground_id=GetOnGroundId(Enemy[i].LOS_x,Enemy[i].LOS_y,0.5,0.5);
       if (Enemy[i].LOS_target_x-1<=Enemy[i].LOS_x && Enemy[i].LOS_x<=Enemy[i].LOS_target_x+1 &&
           Enemy[i].LOS_target_y-1<=Enemy[i].LOS_y && Enemy[i].LOS_y<=Enemy[i].LOS_target_y+1) {
         Enemy[i].saw_player=TRUE;
@@ -511,17 +508,18 @@ void EnemyLOSAct(int i)
   }
 }
 
+
 void EnemyKnockbackMove(int i)
 {
   bool allow_act=FALSE;
   switch (Enemy[i].species) {
     case 0:
-      if (GetOnGroundId(Enemy[i].x,Enemy[i].y,10,9,FALSE)!=-1) {
+      if (GetOnGroundId(Enemy[i].x,Enemy[i].y,10,9)!=-1) {
   	    allow_act=TRUE;
       }
       break;
     case 1:
-      if (GetOnGroundId(Enemy[i].x,Enemy[i].y,24,23,FALSE)!=-1) { //dont knockback enemy 
+      if (GetOnGroundId(Enemy[i].x,Enemy[i].y,24,23)!=-1) { //dont knockback enemy 
 	    allow_act=TRUE;
       }
       break;
@@ -554,6 +552,18 @@ void EnemyKnockbackMove(int i)
 }
 
 
+void EnemySndAct(int i)
+{
+  if (Enemy[i].play_death_snd && !back_to_menu) {
+    wchar_t sndid[16];
+    swprintf(sndid,16,L"bk_%d_%d",i,Enemy[i].seed);
+    PlaySnd(L"snd/clang_death.wav",sndid);
+    Enemy[i].play_death_snd=FALSE;
+  }
+}
+
+
+
 void EnemyAct(int i)
 {
   int dice=0,
@@ -565,10 +575,16 @@ void EnemyAct(int i)
 	saved_grid_id=0,
 	knock_max=0;
   double target_x=0,target_y=0;
-  bool allow_act=FALSE,allow_act_1=FALSE;
+  bool allow_act=FALSE;
   //Attack
   bool deduct_health=FALSE;
   if (Enemy[i].health>0) {
+    Enemy[i].dist_from_player=GetDistance(player.x,player.y,Enemy[i].x,Enemy[i].y);
+    int dist_unit=GR_WIDTH/2+VGRID_SIZE*2;
+    if (GR_WIDTH<GR_HEIGHT)
+      dist_unit=GR_HEIGHT/2+VGRID_SIZE*2;
+
+
   //timebreaker enemy
     if (Enemy[i].time_breaker_length>0 && !player.time_breaker) {
       dice=RandNum(0,Enemy[i].time_breaker_rare,Enemy[i].seed);
@@ -576,16 +592,17 @@ void EnemyAct(int i)
         slash_time=Enemy[i].time_breaker_length;
       }
     }
+
     //Enemy bullet
     for (j=0;j<Enemy[i].bullet_shot_num;j++) {
       BulletAct(Enemy[i].bullet_shot_arr[j]);
     }
-    Enemy[i].dist_from_player=GetDistance(player.x,player.y,Enemy[i].x,Enemy[i].y);
     EnemyLOSAct(i);//Shoot line of sight bullet
 
-   for (int k=0;k<player.bullet_shot_num;k++) {
-     int bk=player.bullet[k];
-     double dist_from_bullet0=GetDistance(Bullet[bk].x,Bullet[bk].y,Enemy[i].x,Enemy[i].y);
+
+    for (int k=0;k<player.bullet_shot_num;k++) {
+      int bk=player.bullet[k];
+      double dist_from_bullet0=GetDistance(Bullet[bk].x,Bullet[bk].y,Enemy[i].x,Enemy[i].y);
     //^^ condition
       //player bullet
       if (dist_from_bullet0<=NODE_SIZE*4) {
@@ -600,12 +617,10 @@ void EnemyAct(int i)
               if (Bullet[bk].speed_multiplier<6) {
                 Bullet[bk].angle=RandAngle(0,360,player.seed);
               }
-
             }
 	        break;
-          case 1://crawl
+         case 1://crawl
             Enemy[i].health-=Bullet[bk].damage;
-            //Bullet[bk].playsnd++;
             PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
             Enemy[i].knockback_timer=player.knockback_strength;
             Enemy[i].knockback_angle=Bullet[bk].angle;
@@ -619,47 +634,25 @@ void EnemyAct(int i)
 	        player.bullet[player.bullet_shot_num-1]=-1; //remove bullet from arr
             player.bullet_shot_num--;
             break; 
+        }
       }
-      //break;
-    }
-  } //end
+    } //end
 
-    //Enemy knockback & attacked
-   double dist_from_bullet=GetDistance(Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y,Enemy[i].x,Enemy[i].y);
-   switch (Enemy[i].species) {
-     case 0://fly
-	   if (!(Enemy[i].time_breaker_length>0)) {
-	     if (GetDistance(Enemy[i].x,Enemy[i].y,player.claws_x,player.claws_y)<=NODE_SIZE*2) {
-	       allow_act=TRUE;
-	     }
-	   } else {
-	     if (GetDistance(Enemy[i].x,Enemy[i].y,player.claws_x,player.claws_y)<=NODE_SIZE*4) {
-	       allow_act=TRUE;
-	     }
-	   }
-	   break;
-     case 1://crawl
-	   if (GetDistance(Enemy[i].x,Enemy[i].y,player.claws_x,player.claws_y)<=NODE_SIZE*4) {
-	     allow_act=TRUE;
-	   }
-	   break;
-   }
-  //^^ condition
-  if (allow_act || dist_from_bullet<=NODE_SIZE*4) {
-    //player sniper bullet
+    //sniper web bullet
+    double dist_from_bullet=GetDistance(Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y,Enemy[i].x,Enemy[i].y);
     if (dist_from_bullet<=NODE_SIZE*4) {
       switch (Enemy[i].species) {
-    	case 0://fly
+	    case 0://fly
           if (dist_from_bullet<=NODE_SIZE*2) {
-            //deduct_health=TRUE;
-            Enemy[i].player_knockback=FALSE;
-            Enemy[i].health-=2*player.attack_strength;
+            PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);
+            Enemy[i].health-=4*player.attack_strength;
             Enemy[i].knockback_timer=player.knockback_strength;
             Enemy[i].knockback_angle=Bullet[player.bullet_shot].angle;            
+            Enemy[i].player_knockback=FALSE;
           }
-	      break;
+          break;
         case 1://crawl
-          //deduct_health=TRUE;
+          PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);
           Enemy[i].health-=4*player.attack_strength;
           Enemy[i].knockback_timer=player.knockback_strength;
           Enemy[i].knockback_angle=Bullet[player.bullet_shot].angle;
@@ -671,7 +664,33 @@ void EnemyAct(int i)
           player.bullet_shot=-1;
           break;
       }
-    } else { //within player claws
+    }
+
+    
+   //Enemy knockback & attacked
+    allow_act=FALSE;
+    float distance_from_player_claws=GetDistance(Enemy[i].x,Enemy[i].y,player.claws_x,player.claws_y);
+    switch (Enemy[i].species) {
+      case 0://fly
+	    if (!(Enemy[i].time_breaker_length>0)) {
+	      if (distance_from_player_claws<=NODE_SIZE*2) {
+	        allow_act=TRUE;
+	      }
+	    } else {
+	      if (distance_from_player_claws<=NODE_SIZE*4) {
+	        allow_act=TRUE;
+	      }
+	    }
+	    break;
+      case 1://crawl
+	    if (distance_from_player_claws<=NODE_SIZE*4) {
+	      allow_act=TRUE;
+	    }
+	    break;
+    }
+    //^^ condition
+    if (allow_act) {
+      //within player claws
       allow_act=FALSE;
 	  if (!player.time_breaker) {
 	    if (Enemy[i].knockback_timer==0) {
@@ -684,105 +703,103 @@ void EnemyAct(int i)
 	      allow_act=TRUE;
 	    }
 	  }
-      //^^ condition 
-      if (allow_act && Enemy[i].saw_player) {
-	    switch (Enemy[i].species) {
-	      case 0:
-	        if (player.attack_timer>34) {
-              allow_act_1=TRUE;
-	        }
-	        break;
-	      case 1:
-	        if (player.attack_timer<=39) {
-		      if (player.attack_timer>34) { //more damage to roach at underside when player is upside down
-		        if (Enemy[i].above_ground) {
-                  if (player.print_current_below && player.y<Enemy[i].y-6) {
-  		            allow_act_1=TRUE;
-                  }
-		        } else if (Enemy[i].below_ground) { //more damage to roach at underside when player isnot upside down
-		          if ((player.print_current_above || player.on_ground_id==-1) && player.y>Enemy[i].y+6) {
-		            allow_act_1=TRUE;
-		          }
+    }
+    //^^ condition 
+    if (allow_act) {
+      allow_act=FALSE;
+      switch (Enemy[i].species) {
+        case 0:
+          if (player.attack_timer>34) {
+            allow_act=TRUE;
+          }
+	      break;
+	    case 1:
+	      if (player.attack_timer<=39) {
+		    if (player.attack_timer>34) { //more damage to roach at underside when player is upside down
+		      if (Enemy[i].above_ground) {
+                if (player.print_current_below && player.y<Enemy[i].y-6) {
+  		          allow_act=TRUE;
+                }
+		      } else if (Enemy[i].below_ground) { //more damage to roach at underside when player isnot upside down
+		        if ((player.print_current_above || player.on_ground_id==-1) && player.y>Enemy[i].y+6) {
+		          allow_act=TRUE;
 		        }
 		      }
-	        } else {
-		      allow_act_1=TRUE;
-	        }
-	        break;
-	    }
-        if (player.on_ground_id==-1 && player.block_timer>1) {
-          allow_act_1=TRUE;
+		    }
+	      }
+	      break;
+	  }
+    }
+	// ^^ condition
+    if (allow_act) {  //player meelee
+      allow_act=FALSE;
+      //mele attack (legacy feature)
+      deduct_health=TRUE;
+      Enemy[i].player_knockback=TRUE;
+      Enemy[i].knockback_timer=player.knockback_strength;
+      if (!player.uppercut && !player.rst_up && !player.rst_down) {//normal
+        Enemy[i].knockback_angle=player.angle;
+      } else if (player.uppercut) {//uppercut
+        if (player.print_current_above) {
+          if (!player.last_left) {
+            Enemy[i].knockback_angle=player.jump_angle+M_PI;//player.angle-M_PI/2;
+          } else {
+            Enemy[i].knockback_angle=player.jump_angle;//player.angle+M_PI/2;
+          }
+        } else if (player.print_current_below) {
+          if (!player.last_left) {
+            Enemy[i].knockback_angle=-player.jump_angle+M_PI_2;//player.angle+M_PI/2;
+          } else {
+            Enemy[i].knockback_angle=-player.jump_angle-M_PI_2;//player.angle-M_PI/2;
+          }
+        }
+      } else { //drag enemy down
+        if (!player.last_left) {//drag enemy to player
+          Enemy[i].knockback_angle=player.angle+M_PI_2;
+        } else {
+          Enemy[i].knockback_angle=player.angle-M_PI_2;
         }
       }
-	// ^^ condition
-	  if (allow_act && allow_act_1) {  //player meelee
-	    allow_act=allow_act_1=FALSE;
-        if (player.on_ground_id==-1 && player.block_timer>1) {
-          //knockback from rebounding
-          Enemy[i].player_knockback=FALSE;
-          Enemy[i].knockback_angle=player.angle_of_incidence;
-          Enemy[i].knockback_timer=player.knockback_strength*2;
-          deduct_health=FALSE;
-          if (player.block_timer==29 || (3<player.block_timer && player.block_timer<6)) {
-            deduct_health=TRUE;
-          }
-          if (player.block_timer>10 && !player.is_swinging) {
-            switch (Enemy[i].species) {
-              case 0:
-                if (player.speed>5) deduct_health=TRUE;
-                break;
-              case 1:
-                if (player.speed>10) deduct_health=TRUE;
-                break;
-            }
-          }
-        } else {
-          deduct_health=TRUE;
-          Enemy[i].player_knockback=TRUE;
-          Enemy[i].knockback_timer=player.knockback_strength;
-	      if (!player.uppercut && !player.rst_up && !player.rst_down) {//normal
-            Enemy[i].knockback_angle=player.angle;
-	      } else if (player.uppercut) {//uppercut
-            if (player.print_current_above) {
-              if (!player.last_left) {
-                Enemy[i].knockback_angle=player.jump_angle+M_PI;//player.angle-M_PI/2;
-	          } else {
-                Enemy[i].knockback_angle=player.jump_angle;//player.angle+M_PI/2;
-	          }
-            } else if (player.print_current_below) {
-              if (!player.last_left) {
-                Enemy[i].knockback_angle=-player.jump_angle+M_PI_2;//player.angle+M_PI/2;
-	          } else {
-                Enemy[i].knockback_angle=-player.jump_angle-M_PI_2;//player.angle-M_PI/2;
-	          }
-            }
-	      } else { //drag enemy down
-            if (!player.last_left) {//drag enemy to player
-              Enemy[i].knockback_angle=player.angle+M_PI_2;
-	        } else {
-              Enemy[i].knockback_angle=player.angle-M_PI_2;
-	        }
-          }
 
-          if (player.print_current_above || player.on_ground_id==-1) {
-            if (player.last_left) {
-              Enemy[i].knockback_left=TRUE;
-            }
-          } else if (player.print_current_below) {
-            if (!player.last_left) {
-              Enemy[i].knockback_left=TRUE;
-            }
-          }
+      if (player.print_current_above) {
+        if (player.last_left) {
+          Enemy[i].knockback_left=TRUE;
+        }
+      } else if (player.print_current_below) {
+        if (!player.last_left) {
+          Enemy[i].knockback_left=TRUE;
         }
       }
     }
+
+
+    //Player Spinning Attack
+    if (player.block_timer>1 && !player.on_a_ground) {
+    //knockback from rebounding
+      if (Enemy[i].dist_from_player<=NODE_SIZE*2){
+      
+        Enemy[i].player_knockback=FALSE;
+        Enemy[i].knockback_angle=player.angle_of_incidence;
+        Enemy[i].knockback_timer=player.knockback_strength*2;
+        deduct_health=FALSE;
+        switch (Enemy[i].species) {
+          case 0:
+            if (player.speed>5) deduct_health=TRUE;
+            break;
+          case 1:
+            if (player.speed>10) deduct_health=TRUE;
+            break;
+        }
+      }
+    }
+
     //Deduct health
     if (deduct_health) {
-      // Player hit combo
-        Enemy[i].health-=player.attack_strength;
-        PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
-      }
+      deduct_health=FALSE;
+      Enemy[i].health-=player.attack_strength;
+      PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
     }
+
 
     //Knockback 
     if (Enemy[i].knockback_timer>0) {
@@ -798,7 +815,9 @@ void EnemyAct(int i)
         }
       }
     }
-    if (!player.time_breaker || Enemy[i].time_breaker_immune) {
+
+    //Pathfinding and movement only act when within render distance
+    if ((!player.time_breaker || Enemy[i].time_breaker_immune) && Enemy[i].dist_from_player<=dist_unit) {
       for (slash_time_i=0;slash_time_i<slash_time;slash_time_i++) {
         //Prevent reaching border
         if (Enemy[i].x<NODE_SIZE*2) {
@@ -841,26 +860,27 @@ void EnemyAct(int i)
         if (Enemy[i].bullet_cooldown<=0) {
 	      if (Enemy[i].bullet_shot_num<500) {//shot less than 500 bullets
 	        for (j=0;j<Enemy[i].bullet_fire_at_once_max;j++) {//several bullets at once
-		  allow_act=FALSE;
-		  if (Enemy[i].saw_player) {
-		    switch (Enemy[i].species) {
-		      case 0:
-			if (!Enemy[i].node_solid[above_player_node1] && !player.hiding) {
-			  allow_act=TRUE;
-			}
-			break;
-		      case 1:
-			if (Enemy[i].in_air_timer==0 || slash_time>1) {
-			  allow_act=TRUE;
-			}
-			break;
-		    }
-		  }
-		  if (allow_act) {
-                    if (Enemy[i].dist_from_player<Enemy[i].shoot_at_player_range/2*NODE_SIZE) {
-		      Enemy[i].shoot_target_x=Enemy[i].bullet_head_x[j];
-		      Enemy[i].shoot_target_y=Enemy[i].bullet_head_y[j];
-                      ShootBullet(current_bullet_id,
+		      allow_act=FALSE;
+		      if (Enemy[i].saw_player) {
+		        switch (Enemy[i].species) {
+		          case 0:
+			        if (!Enemy[i].node_solid[above_player_node1] && !player.hiding) {
+			          allow_act=TRUE;
+			        }
+			        break;
+		          case 1:
+			        if (Enemy[i].in_air_timer==0 || slash_time>1) {
+			          allow_act=TRUE;
+			        }
+			        break;
+		        }
+		      }
+
+		      if (allow_act) {
+                if (Enemy[i].dist_from_player<Enemy[i].shoot_at_player_range/2*NODE_SIZE) {
+        		  Enemy[i].shoot_target_x=Enemy[i].bullet_head_x[j];
+        		  Enemy[i].shoot_target_y=Enemy[i].bullet_head_y[j];
+                  ShootBullet(current_bullet_id,
 		        Enemy[i].bullet_shot_num,
 		        Enemy[i].bullet_color,
 		        Enemy[i].bullet_graphics_type,
@@ -875,129 +895,132 @@ void EnemyAct(int i)
 		        Enemy[i].y,
 		        Enemy[i].shoot_target_x,
 		        Enemy[i].shoot_target_y);
-                      Enemy[i].bullet_shot_arr[Enemy[i].bullet_shot_num]=current_bullet_id;
-                      Enemy[i].bullet_shot_num++;
+                  Enemy[i].bullet_shot_arr[Enemy[i].bullet_shot_num]=current_bullet_id;
+                  Enemy[i].bullet_shot_num++;
                   //after shooting
-                      current_bullet_id++;
-                      if (current_bullet_id>=BULLET_NUM-1) {
-                        current_bullet_id=0;
-                      }
-                    }
+                  current_bullet_id++;
+                  if (current_bullet_id>=BULLET_NUM-1) {
+                    current_bullet_id=0;
+                  }
+                }
 	          }
 	        } //end of for
 	      }
-	          Enemy[i].bullet_cooldown=Enemy[i].bullet_cooldown_max;
-	          Enemy[i].bullet_length++;
-	          if (Enemy[i].bullet_length>=Enemy[i].bullet_length_max) {
-	            Enemy[i].bullet_fire_cooldown=Enemy[i].bullet_fire_cooldown_max;
-	            Enemy[i].bullet_length=0;
-	          }
-	        } else {
-              Enemy[i].bullet_cooldown--;
-            }
-          } else {
-	        Enemy[i].bullet_fire_cooldown--;
-          }
+	      Enemy[i].bullet_cooldown=Enemy[i].bullet_cooldown_max;
+	      Enemy[i].bullet_length++;
+	      if (Enemy[i].bullet_length>=Enemy[i].bullet_length_max) {
+	        Enemy[i].bullet_fire_cooldown=Enemy[i].bullet_fire_cooldown_max;
+	        Enemy[i].bullet_length=0;
+	      }
+	    } else {
+          Enemy[i].bullet_cooldown--;
         }
-      //pathfinding
-        Enemy[i].forgor_timer++;
-        if (Enemy[i].forgor_timer>300) {
-          Enemy[i].forgor_timer=0;
-          Enemy[i].ignore_player=FALSE;
+      } else {
+	    Enemy[i].bullet_fire_cooldown--;
+      }
+    }
+
+
+    //pathfinding
+    Enemy[i].forgor_timer++;
+    if (Enemy[i].forgor_timer>300) {
+      Enemy[i].forgor_timer=0;
+      Enemy[i].ignore_player=FALSE;
+    }
+
+    //Movement
+    if (Enemy[i].idling) { //idling
+      Enemy[i].idle_timer++;
+	  allow_act=FALSE;
+      if (Enemy[i].saw_player && !Enemy[i].ignore_player) {//not ignoring
+        if (!Enemy[i].target_player && //not targetting
+             Enemy[i].dist_from_player/NODE_SIZE<Enemy[i].follow_range/2-2) {
+          allow_act=TRUE;
         }
-      //Movement
-        if (Enemy[i].idling) { //idling
-          Enemy[i].idle_timer++;
-    	  allow_act=FALSE;
-          if (Enemy[i].saw_player && !Enemy[i].ignore_player) {//not ignoring
-	        if (!Enemy[i].target_player && //not targetting
-                Enemy[i].dist_from_player/NODE_SIZE<Enemy[i].follow_range/2-2) {
-	          allow_act=TRUE;
-	        }
-          }
-          //^^ condition
-          if (allow_act) {
-            EnemyTargetPlayer(i); //target player
-          } else if (Enemy[i].idle_timer>100) {//idling over
-            Enemy[i].target_player=FALSE;
-            dice=RandNum(0,5,i);
-            Enemy[i].idle_timer=0;
-            if (dice==1) { //Start searching
+      }
+      //^^ condition
+      if (allow_act) {
+        EnemyTargetPlayer(i); //target player
+      } else if (Enemy[i].idle_timer>100) {//idling over
+        Enemy[i].target_player=FALSE;
+        dice=RandNum(0,5,i);
+        Enemy[i].idle_timer=0;
+        if (dice==1) { //Start searching
 	    //total ignore player (still hostile)
-              target_x=Enemy[i].x+RandNum(-Enemy[i].follow_range/4*NODE_SIZE,abs(Enemy[i].follow_range/4*NODE_SIZE),Enemy[i].seed);
-              target_y=Enemy[i].y+RandNum(-Enemy[i].follow_range/4*NODE_SIZE,abs(Enemy[i].follow_range/4*NODE_SIZE),Enemy[i].seed);
-              target_node=GetGridId(target_x-Enemy[i].node_x[0],
-			                        target_y-Enemy[i].node_y[0],
-                                    Enemy[i].follow_range*NODE_SIZE,
-			                        NODE_SIZE,
-			                        Enemy[i].node_num);
-	          if (!Enemy[i].node_solid[target_node]) {
-                Enemy[i].idling=FALSE;
-                Enemy[i].search_target=TRUE;
-                InitEnemyPathfinding(i,target_x,target_y);	    
-	          } else {
-                Enemy[i].idling=TRUE;
-	          }
-            } else { //not searching
-              Enemy[i].idling=TRUE;
-            }
-          }
-        } else if (Enemy[i].search_target) {
-          //Enemy[i].msprite_hold_timer_max=0;
-          EnemyPathFinding(i);
-          Enemy[i].search_timer++;
-          if (Enemy[i].search_timer>500) {//stop searching
-            if (Enemy[i].dist_from_player/NODE_SIZE<Enemy[i].follow_range/2-2) { //within distance
-              Enemy[i].ignore_player=TRUE;
-            }
+          target_x=Enemy[i].x+RandNum(-Enemy[i].follow_range/4*NODE_SIZE,abs(Enemy[i].follow_range/4*NODE_SIZE),Enemy[i].seed);
+          target_y=Enemy[i].y+RandNum(-Enemy[i].follow_range/4*NODE_SIZE,abs(Enemy[i].follow_range/4*NODE_SIZE),Enemy[i].seed);
+          target_node=GetGridId(target_x-Enemy[i].node_x[0],
+		                        target_y-Enemy[i].node_y[0],
+                                Enemy[i].follow_range*NODE_SIZE,
+		                        NODE_SIZE,
+    	                        Enemy[i].node_num);
+          if (!Enemy[i].node_solid[target_node]) {
+            Enemy[i].idling=FALSE;
+            Enemy[i].search_target=TRUE;
+            InitEnemyPathfinding(i,target_x,target_y);	    
+          } else {
             Enemy[i].idling=TRUE;
-            Enemy[i].search_target=FALSE;
-            Enemy[i].search_timer=0;
           }
-        } else if (Enemy[i].move_to_target) {
-          for (j=0;j<Enemy[i].speed_multiplier;j++) {
-            EnemyMove(i);
+        } else { //not searching
+          Enemy[i].idling=TRUE;
+        }
+      }
+    } else if (Enemy[i].search_target) {
+      //Enemy[i].msprite_hold_timer_max=0;
+      EnemyPathFinding(i);
+      Enemy[i].search_timer++;
+      if (Enemy[i].search_timer>500) {//stop searching
+        if (Enemy[i].dist_from_player/NODE_SIZE<Enemy[i].follow_range/2-2) { //within distance
+          Enemy[i].ignore_player=TRUE;
+        }
+        Enemy[i].idling=TRUE;
+        Enemy[i].search_target=FALSE;
+        Enemy[i].search_timer=0;
+      }
+    } else if (Enemy[i].move_to_target) {
+      for (j=0;j<Enemy[i].speed_multiplier;j++) {
+        EnemyMove(i);
+      }
+      if (!Enemy[i].ignore_player && Enemy[i].saw_player) { //chasing player
+        if (Enemy[i].species==0 &&
+            NodeGrid[GetGridId(Enemy[i].x,Enemy[i].y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM)].node_solid)
+        {   //become blind when inside a solid
+          Enemy[i].saw_player=FALSE;
+          Enemy[i].idling=TRUE;
+          Enemy[i].move_to_target=FALSE;
+        }
+        if (!Enemy[i].idling) {
+          if (player.x<Enemy[i].x) {
+            Enemy[i].player_at_left=TRUE;
+          } else if (Enemy[i].x<=player.x) {
+            Enemy[i].player_at_right=TRUE;
           }
-          if (!Enemy[i].ignore_player && Enemy[i].saw_player) { //chasing player
-            if (Enemy[i].species==0 &&
-                NodeGrid[GetGridId(Enemy[i].x,Enemy[i].y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM)].node_solid)
-            {   //become blind when inside a solid
-	          Enemy[i].saw_player=FALSE;
-              Enemy[i].idling=TRUE;
-              Enemy[i].move_to_target=FALSE;
-            }
-            if (!Enemy[i].idling) {
-              if (player.x<Enemy[i].x) {
-                Enemy[i].player_at_left=TRUE;
-              } else if (Enemy[i].x<=player.x) {
-                Enemy[i].player_at_right=TRUE;
-              }
-              if (Enemy[i].player_at_left && Enemy[i].player_at_right) {//Change of X
-                EnemyTargetPlayer(i);
-                Enemy[i].player_at_left=FALSE;
-                Enemy[i].player_at_right=FALSE;
-              }
-              if (player.y<Enemy[i].y) {//Change of Y
-                Enemy[i].player_at_above=TRUE;
-              } else if (Enemy[i].y<=player.y) {
-                Enemy[i].player_at_below=TRUE;
-              }
-              if (Enemy[i].player_at_above && Enemy[i].player_at_below) {
-                EnemyTargetPlayer(i);
-                Enemy[i].player_at_above=FALSE;
-                Enemy[i].player_at_below=FALSE;
-              }
-	      if (Enemy[i].chase_range/2*NODE_SIZE<Enemy[i].dist_from_player && Enemy[i].dist_from_player<Enemy[i].unchase_range/2*NODE_SIZE //in unchase range
+          if (Enemy[i].player_at_left && Enemy[i].player_at_right) {//Change of X
+            EnemyTargetPlayer(i);
+            Enemy[i].player_at_left=FALSE;
+            Enemy[i].player_at_right=FALSE;
+          }
+          if (player.y<Enemy[i].y) {//Change of Y
+            Enemy[i].player_at_above=TRUE;
+          } else if (Enemy[i].y<=player.y) {
+            Enemy[i].player_at_below=TRUE;
+          }
+          if (Enemy[i].player_at_above && Enemy[i].player_at_below) {
+            EnemyTargetPlayer(i);
+            Enemy[i].player_at_above=FALSE;
+            Enemy[i].player_at_below=FALSE;
+          }
+          if (Enemy[i].chase_range/2*NODE_SIZE<Enemy[i].dist_from_player && Enemy[i].dist_from_player<Enemy[i].unchase_range/2*NODE_SIZE //in unchase range
       	         ) //not in chase range) 
-	      {
-	        Enemy[i].in_unchase_range=TRUE;
-	      } else {
-	        Enemy[i].in_chase_range=TRUE;
-              }
-	      if (Enemy[i].in_unchase_range && Enemy[i].in_chase_range) {
-                EnemyTargetPlayer(i);
-	        Enemy[i].in_chase_range=FALSE;
-	        Enemy[i].in_unchase_range=FALSE;
+          {
+            Enemy[i].in_unchase_range=TRUE;
+          } else {
+            Enemy[i].in_chase_range=TRUE;
+          }
+          if (Enemy[i].in_unchase_range && Enemy[i].in_chase_range) {
+            EnemyTargetPlayer(i);
+            Enemy[i].in_chase_range=FALSE;
+            Enemy[i].in_unchase_range=FALSE;
               }
             }
           }
@@ -1009,6 +1032,8 @@ void EnemyAct(int i)
             Enemy[i].sprite_timer=0;
           }
         }
+
+
       }
     }//end of tbt
   }//end of health
@@ -1158,7 +1183,6 @@ void InitEnemy()
     Enemy[i].LOS_target_x=-20;
     Enemy[i].LOS_target_y=-20;
   //init default bool
-    player.rendered_enemy_num=0;
     Enemy[i].target_player=FALSE;
     Enemy[i].saw_player=FALSE;
     Enemy[i].within_render_distance=FALSE;
@@ -1222,8 +1246,8 @@ void DrawEnemy(HDC hdc)
     }
   }
 
-  for (j=0;j<player.rendered_enemy_num;j++) {  
-    i=player_render_enemies[j];
+  for (j=0;j<ENEMY_NUM;j++) {  
+    i=j;
     if (Enemy[i].species==1) {//rotate sprite
       if (Enemy[i].on_ground_id!=-1) {
         Enemy[i].sprite_angle=Enemy[i].angle;
@@ -1340,7 +1364,6 @@ void DrawEnemy(HDC hdc)
           Enemy[i].sprite_3=CreateCrunchyBitmap(Enemy[i].sprite_width,Enemy[i].sprite_height);
 
           Enemy[i].current_draw_row=Enemy[i].sprite_miny;
-
           Enemy[i].play_death_snd=TRUE;
           Enemy[i].health=-501;
         }

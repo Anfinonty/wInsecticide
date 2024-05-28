@@ -13,6 +13,7 @@ void CleanUpEnemy()
 
   Enemy[i].being_drawn=TRUE;
   Enemy[i].health=0;
+  Enemy[i].play_death_snd=FALSE;
   Enemy[i].max_health=0;
   Enemy[i].follow_range=0;
   Enemy[i].chase_range=0;
@@ -81,7 +82,7 @@ void CleanUpEnemy()
     Enemy[i].LOS_target_x=-20;
     Enemy[i].LOS_target_y=-20;
   //init default bool
-    player.rendered_enemy_num=0;
+    //player.rendered_enemy_num=0;
     Enemy[i].target_player=FALSE;
     Enemy[i].saw_player=FALSE;
     Enemy[i].within_render_distance=FALSE;

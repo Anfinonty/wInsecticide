@@ -66,25 +66,25 @@ void move_y(double y)
 }
 
 
-
+/*
 void InitRDGrid()
 {
   RDGrid.x1=player.x-(GR_WIDTH/2)-2*GRID_SIZE;//top left corner x
   RDGrid.y1=player.y-(GR_HEIGHT/2)-2*GRID_SIZE;//top left corner y
   RDGrid.x2=player.x+(GR_WIDTH/2)+2*GRID_SIZE;//down right corner x
   RDGrid.y2=player.y+(GR_HEIGHT/2)+2*GRID_SIZE;//down right cornder y
-  for (int i=0;i<player.rendered_enemy_num;i++) {
+  /*for (int i=0;i<player.rendered_enemy_num;i++) {
     player_render_enemies[i]=-1;
-  }
-  player.rendered_enemy_num=0;
+  }*/
+  //player.rendered_enemy_num=0;
 
-  for (int i=0;i<ENEMY_NUM;i++) {
+  /*for (int i=0;i<ENEMY_NUM;i++) {
     if (Enemy[i].x>RDGrid.x1 && Enemy[i].x<RDGrid.x2 && Enemy[i].y>RDGrid.y1 && Enemy[i].y<RDGrid.y2) {
       player_render_enemies[player.rendered_enemy_num]=i;
       player.rendered_enemy_num++;
     }
   }
-}
+}*/
 
 
 void CameraInit(double x,double y)
@@ -116,7 +116,7 @@ void InitPlayerCamera()
   CameraInit(player.saved_x,player.saved_y+PLAYER_HEIGHT/2); //idk scaling is weird for sprite
 }
 
-bool NearCrawler()
+/*bool NearCrawler()
 {
   int i=0,j=0;
   for (i=0;i<player.rendered_enemy_num;i++) {
@@ -128,7 +128,7 @@ bool NearCrawler()
     }
   }
   return FALSE;
-}
+}*/
 
 
 void PlayerPlaceWeb()
@@ -249,10 +249,10 @@ void InitPlayer() {
     player.render_vgrids[i]=-1;
   }
 
-  player.rendered_enemy_num=0;
+  /*player.rendered_enemy_num=0;
   for (i=0;i<MAX_ENEMY_NUM;i++) {
     player_render_enemies[i]=-1;
-  }
+  }*/
 
   player.saved_x=saved_player_x;
   player.saved_y=saved_player_y;
@@ -366,10 +366,10 @@ void InitPlayer() {
   
 
   InitPlayerCamera();
-  InitRDGrid();
+  //InitRDGrid();
 }
 
-bool YesInitRDGrid()
+/*bool YesInitRDGrid()
 {
   if (GRID_SIZE*2<player.x && player.x<MAP_WIDTH-GRID_SIZE*2) {
     if (player.x<RDGrid.x1+GRID_SIZE*2 || player.x>RDGrid.x2-GRID_SIZE*2) {
@@ -382,7 +382,7 @@ bool YesInitRDGrid()
     }
   }
   return FALSE;
-}
+}*/
 
 
 
@@ -407,9 +407,9 @@ void PlayerAct() {
   double cur_dist=0,cur_angle=0,grad_x1=0,grad_y1=0,grad_x2=0,grad_y2=0;
   bool allow_act=FALSE;
   //Initialize RD Grid
-  if (YesInitRDGrid()) {
+  /*if (YesInitRDGrid()) {
     InitRDGrid();
-  }
+  }*/
 
 
   //========Player attacking timer==============
@@ -635,17 +635,11 @@ void PlayerAct() {
   }
 
 
- //Get player grid id
- //player.speed
-  //player.speed=100;
+
   for (speed=0;speed<player.speed;speed++) {
     for (grav_speed=0;grav_speed<player.grav;grav_speed++) {
-
-
-    //Get Ground id based on player axis
-      player.on_ground_id=GetOnGroundId(player.x,player.y,5,4,TRUE);
-//    player.on_ground_id=GetOnGroundId(player.x,player.y,4,3,TRUE);
-
+      player.on_ground_id=GetOnGroundIdPlayer(player.x,player.y,5,4);
+      //player.on_ground_id=GetOnGroundId(player.x,player.y,5,4,TRUE);
 
    //hiding?    (legacy feature)
       if (NodeGrid[GetGridId(player.above_x,player.above_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM)].node_solid) {
@@ -744,7 +738,7 @@ void PlayerAct() {
             player.previous_below=FALSE;
             player.on_a_ground=TRUE;
             player.on_ground_timer=20;
-            if (height_from_player_x<5 || player.is_rebounding) {
+            if (height_from_player_x<5 || player.is_rebounding || player.is_swinging) {
               move_x(-cos(player.angle+M_PI_2));
               move_y(-sin(player.angle+M_PI_2));
             }
@@ -766,7 +760,7 @@ void PlayerAct() {
             player.previous_below=TRUE;
             player.on_a_ground=TRUE;
             player.on_ground_timer=20;
-            if (height_from_player_x>-5 || player.is_rebounding) {
+            if (height_from_player_x>-5 || player.is_rebounding || player.is_swinging) {
               move_x(-cos(player.angle-M_PI_2));
               move_y(-sin(player.angle-M_PI_2));
             }
@@ -807,6 +801,7 @@ void PlayerAct() {
 
         } else { //not in range based on ground's x and y boundaries
           player.on_a_ground=FALSE;
+          player.on_ground_timer=0;
         }
       }
 
@@ -819,7 +814,7 @@ void PlayerAct() {
 
 
       //==========REBOUND ACTIONS==========
-      if (player.is_rebounding && grav_speed==0) {
+      if (player.is_rebounding && !player.is_swinging && grav_speed==0) {
         move_x(cos(player.angle_of_reflection));
         move_y(sin(player.angle_of_reflection));
       }
@@ -906,11 +901,11 @@ void PlayerAct() {
           } else if (!player.blocking) { //on a ground but not blocking
             allow_act=TRUE;
           }  
-        } else if (player.on_ground_id!=-1) { //is swinging but on ground
+        } /*else if (player.on_ground_id!=-1) { //is swinging but on ground
           if (player.pivot_length<DEFAULT_PLAYER_BUILD_RANGE/2*NODE_SIZE) { //allow movement if within swing distance
             allow_act=TRUE;
           }
-        }
+        }*/
       }
       if (grav_speed==0 && allow_act) {
         if (player.rst_left || player.rst_right) {
@@ -943,7 +938,7 @@ void PlayerAct() {
 
 
       //====PLAYER CIRCULAR WEB SWINGING MOVEMENT======
-      if (player.is_swinging && (grav_speed==0 || grav_speed==1)) {
+      if (player.is_swinging && grav_speed<=1) {
         player.is_rebounding=FALSE;
         player.pivot_length=GetDistance(player.pivot_x,player.pivot_y,player.x,player.y);
         player.pivot_angle=GetCosAngle(player.x-player.pivot_x,player.pivot_length);
@@ -1000,7 +995,7 @@ void PlayerAct() {
             }
           }
         } else if (grav_speed==1) {//only occurs right after grav_speed==0
-          if (player.pivot_length>NODE_SIZE*DEFAULT_PLAYER_BUILD_RANGE/2) { //rubber band back if pivot length too long
+          if (player.pivot_length>NODE_SIZE*DEFAULT_PLAYER_BUILD_RANGE/2 && !player.on_a_ground) { //rubber band back if pivot length too long
             if (player.y>player.pivot_y) {
               move_x(-cos(-player.pivot_angle));
               move_y(sin(-player.pivot_angle));
@@ -1016,13 +1011,13 @@ void PlayerAct() {
 
       //======FLING MOVEMENT======
       if (grav_speed==0 && !player.is_swinging && !player.is_rebounding) { 
-        if (player.pivot_length>NODE_SIZE*DEFAULT_PLAYER_BUILD_RANGE/2) { //if pivot length is more than normal build range
+        //if (player.pivot_length>NODE_SIZE*DEFAULT_PLAYER_BUILD_RANGE/2) { //if pivot length is more than normal build range
           if (player.fling_distance<0) { //allow cancel flinging when fling distance is less than 0
             if (player.rst_left || player.rst_right) { //cancel flinging when left or right key is pressed
               player.fling_distance=0;
             }
           }
-        } 
+        //} 
 
 
         if (player.fling_distance>0) { //fling and against gravity
@@ -1206,19 +1201,19 @@ void PlayerAct() {
       player.block_timer--;
     }
     if (!IsSpeedBreaking()) {
-    if (player.block_cooldown>0) {
-      player.block_cooldown--;
-    } else {//3 seconds has passed
-      if (player.block_recharge_timer>0) {
-	    player.block_recharge_timer--;
-      } else if (player.block_health<player.block_health_max) {//below max
-        player.block_health++;
-        if (player.block_health>player.block_health_max) {
-          player.block_health=player.block_health_max;
+      if (player.block_cooldown>0) {
+        player.block_cooldown--;
+      } else {//3 seconds has passed
+        if (player.block_recharge_timer>0) {
+	      player.block_recharge_timer--;
+        } else if (player.block_health<player.block_health_max) {//below max
+          player.block_health++;
+          if (player.block_health>player.block_health_max) {
+            player.block_health=player.block_health_max;
+          }
+	      player.block_recharge_timer=player.block_recharge_timer_max;
         }
-	    player.block_recharge_timer=player.block_recharge_timer_max;
       }
-    }
     }
   }
 
@@ -1317,19 +1312,9 @@ void PlayerAct() {
 
 void PlayerSndAct()
 {
-  //PlaySound(NULL, NULL, SND_FILENAME);      
   wchar_t my_status[16];
-  //TCHAR tch[100];
-  //if_wcsicmp(my_status,L"stopped")==0 || _wcsicmp(my_status,L"")==0
   if (player.speed>10) {
     mciSendString(L"open snd/fast.wav alias player_speed",NULL,0,NULL);
-    //mciSendString(L"play snd/fast.wav",NULL,0,NULL);
-
-    /*mciSendString(L"set player_speed time format ms",NULL,0,NULL);
-    int a = mciSendString(L"play player_speed notify",NULL,0,NULL);
-    if (a == 1000) {
-      
-    }*/
     mciSendString(L"status player_speed mode",my_status,16,NULL);
     if (_wcsicmp(my_status,L"stopped")==0) {
       mciSendString(L"seek player_speed to start",NULL,0,NULL);
@@ -1376,30 +1361,28 @@ void PlayerCameraShake()
         }
       }
     //}
-    if (!player.is_rebounding) { //falling_camera
-      if (player.grav>3 || player.speed>=5) { //falling cam effect
-        y_bob=(player.grav-2)/2;
+    if (player.grav>3 || player.speed>=5) { //falling cam effect
+      y_bob=(player.grav-2)/2;
 
-        switch (player.speed) {
-    	  case 1:
-    	  case 2:
-            x_bob=RandNum(1,2,1)*0.5;//move x	
-    	    break;
-    	  case 3:
-            x_bob=RandNum(1,2,1);//move x		
-    	    break;
-        }
-        if (player.rst_left) {
-	      player.cam_move_x+=x_bob;
-        }
-        if (player.rst_right) {
-	      player.cam_move_x-=x_bob;
-        }
-        player.cam_move_y-=y_bob;//increase y
-        if (player.grav>5 || player.speed>=5) {
-    	  player.cam_move_x+=RandNum(-1,1,1);//shaky x
-          player.cam_move_y+=RandNum(-1,1,1);//shaky y
-        }
+      switch (player.speed) {
+         case 1:
+    	 case 2:
+           x_bob=RandNum(1,2,1)*0.5;//move x	
+    	   break;
+    	 case 3:
+           x_bob=RandNum(1,2,1);//move x		
+    	   break;
+      }
+      if (player.rst_left) {
+	    player.cam_move_x+=x_bob;
+      }
+      if (player.rst_right) {
+	    player.cam_move_x-=x_bob;
+      }
+      player.cam_move_y-=y_bob;//increase y
+      if (player.grav>5 || player.speed>=5) {
+        player.cam_move_x+=RandNum(-1,1,1);//shaky x
+        player.cam_move_y+=RandNum(-1,1,1);//shaky y
       }
     }
     x_bob=0;
@@ -1431,28 +1414,28 @@ void PlayerCameraShake()
 
 void DrawPlayer(HDC hdc)
 {
-
-    if (player.flag_revert_palette && player.time_breaker_tick<=0) {
-      BitmapPalette(hdc,map_platforms_sprite,rgbColorsDefault);
-      for (int i=0;i<ENEMY_NUM;i++) {
-        if (Enemy[i].health>0) {
-          if (Enemy[i].species==1) {
-            Enemy[i].saved_angle=Enemy[i].sprite_angle-1;
-          }
-          if (Enemy[i].sprite_1!=NULL) {
-            BitmapPalette(hdc,Enemy[i].sprite_1,rgbColorsDefault);
-          }
-          if (Enemy[i].sprite_2!=NULL) {
-            BitmapPalette(hdc,Enemy[i].sprite_2,rgbColorsDefault);
-          }
-          if (Enemy[i].sprite_3!=NULL) {
-            BitmapPalette(hdc,Enemy[i].sprite_3,rgbColorsDefault);
-          }
+  //Platform bitmap palette conversion
+  if (player.flag_revert_palette && player.time_breaker_tick<=0) {
+    BitmapPalette(hdc,map_platforms_sprite,rgbColorsDefault);
+    for (int i=0;i<ENEMY_NUM;i++) {
+      if (Enemy[i].health>0) {
+        if (Enemy[i].species==1) {
+          Enemy[i].saved_angle=Enemy[i].sprite_angle-1;
+        }
+        if (Enemy[i].sprite_1!=NULL) {
+          BitmapPalette(hdc,Enemy[i].sprite_1,rgbColorsDefault);
+        }
+        if (Enemy[i].sprite_2!=NULL) {
+          BitmapPalette(hdc,Enemy[i].sprite_2,rgbColorsDefault);
+        }
+        if (Enemy[i].sprite_3!=NULL) {
+          BitmapPalette(hdc,Enemy[i].sprite_3,rgbColorsDefault);
         }
       }
-      player.flag_revert_palette=FALSE;
-      player.time_breaker_tick=0;
     }
+    player.flag_revert_palette=FALSE;
+    player.time_breaker_tick=0;
+  }
 
   //GrRect(hdc,player.x-PLAYER_WIDTH,player.y-PLAYER_HEIGHT,PLAYER_WIDTH,PLAYER_HEIGHT,RGB(34,139,34));
   //Mathematics
@@ -1501,7 +1484,6 @@ void DrawPlayer(HDC hdc)
     }
   } else {
     if (player.time_breaker_tick>0) {
-      //mciSendStringA("play snd/timeskip.mp3",NULL,0,NULL);
       player.time_breaker_tick--;
       player.time_breaker_tick-=player.time_breaker_tick/2;
       if (!IsInvertedBackground()) {
@@ -1551,49 +1533,49 @@ void DrawPlayer(HDC hdc)
     is_blink=FALSE;
   }
   if (is_blink) {
-  if (player.attack_timer==-1) { //not attacking
-    if (player.block_timer==0) { //not blocking
-      if (player.on_ground_timer>0) { // on ground
-        if (player.walk_cycle<2) {
-          GrSprite(hdc,player.sprite_x,player.sprite_y,player.sprite_1_cache,player.last_left);
-        } else {
-          GrSprite(hdc,player.sprite_x,player.sprite_y,player.sprite_2_cache,player.last_left);
+    if (player.attack_timer==-1) { //not attacking
+      if (player.block_timer==0) { //not blocking
+        if (player.on_ground_timer>0) { // on ground
+          if (player.walk_cycle<2) {
+            GrSprite(hdc,player.sprite_x,player.sprite_y,player.sprite_1_cache,player.last_left);
+          } else {
+            GrSprite(hdc,player.sprite_x,player.sprite_y,player.sprite_2_cache,player.last_left);
+          }
+        } else { //in_air
+          GrSprite(hdc,player.sprite_x,player.sprite_y,player.sprite_jump_cache,player.last_left);
         }
-      } else { //in_air
-        GrSprite(hdc,player.sprite_x,player.sprite_y,player.sprite_jump_cache,player.last_left);
+      } else { //blocking
+        if (player.on_ground_id==-1 && player.spin_timer>0) { //not on ground
+          if (player.spin_timer<10) {
+            GrSprite(hdc,player.sprite_x,player.sprite_y,player.spin_sprite_1_cache,!player.last_left);
+          } else if (player.spin_timer>10 && player.spin_timer<20) {
+            GrSprite(hdc,player.sprite_x,player.sprite_y,player.spin_sprite_2_cache,!player.last_left);
+          } else if (player.spin_timer>20 && player.spin_timer<30) {
+            GrSprite(hdc,player.sprite_x,player.sprite_y,player.spin_sprite_3_cache,!player.last_left);
+          } else {
+            GrSprite(hdc,player.sprite_x,player.sprite_y,player.spin_sprite_4_cache,!player.last_left);
+          }
+        } else { //on ground
+          if (0<player.block_timer && player.block_timer<=5) {
+            GrSprite(hdc,player.sprite_x,player.sprite_y,player.block_sprite_1_cache,player.last_left);
+          } else if (5<player.block_timer && player.block_timer<=10) {
+            GrSprite(hdc,player.sprite_x,player.sprite_y,player.block_sprite_2_cache,player.last_left);
+          } else {
+            GrSprite(hdc,player.sprite_x,player.sprite_y,player.block_sprite_3_cache,player.last_left);
+          }
+        }
       }
-    } else { //blocking
-      if (player.on_ground_id==-1 && player.spin_timer>0) { //not on ground
-        if (player.spin_timer<10) {
-          GrSprite(hdc,player.sprite_x,player.sprite_y,player.spin_sprite_1_cache,!player.last_left);
-        } else if (player.spin_timer>10 && player.spin_timer<20) {
-          GrSprite(hdc,player.sprite_x,player.sprite_y,player.spin_sprite_2_cache,!player.last_left);
-        } else if (player.spin_timer>20 && player.spin_timer<30) {
-          GrSprite(hdc,player.sprite_x,player.sprite_y,player.spin_sprite_3_cache,!player.last_left);
-        } else {
-          GrSprite(hdc,player.sprite_x,player.sprite_y,player.spin_sprite_4_cache,!player.last_left);
-        }
-      } else { //on ground
-        if (0<player.block_timer && player.block_timer<=5) {
-          GrSprite(hdc,player.sprite_x,player.sprite_y,player.block_sprite_1_cache,player.last_left);
-        } else if (5<player.block_timer && player.block_timer<=10) {
-          GrSprite(hdc,player.sprite_x,player.sprite_y,player.block_sprite_2_cache,player.last_left);
-        } else {
-          GrSprite(hdc,player.sprite_x,player.sprite_y,player.block_sprite_3_cache,player.last_left);
-        }
+    } else {
+      if (30<player.attack_timer && player.attack_timer<=40) {//attack sprite
+        GrSprite(hdc,player.sprite_x,player.sprite_y,player.attack_sprite_1_cache,player.last_left);
+      } else if (20<player.attack_timer && player.attack_timer<=30) {
+        GrSprite(hdc,player.sprite_x,player.sprite_y,player.attack_sprite_2_cache,player.last_left);
+      } else if (10<player.attack_timer && player.attack_timer<=20) {
+        GrSprite(hdc,player.sprite_x,player.sprite_y,player.attack_sprite_3_cache,player.last_left);
+      } else if (-1<player.attack_timer && player.attack_timer<=10) {
+        GrSprite(hdc,player.sprite_x,player.sprite_y,player.attack_sprite_4_cache,player.last_left);
       }
     }
-  } else {
-    if (30<player.attack_timer && player.attack_timer<=40) {//attack sprite
-      GrSprite(hdc,player.sprite_x,player.sprite_y,player.attack_sprite_1_cache,player.last_left);
-    } else if (20<player.attack_timer && player.attack_timer<=30) {
-      GrSprite(hdc,player.sprite_x,player.sprite_y,player.attack_sprite_2_cache,player.last_left);
-    } else if (10<player.attack_timer && player.attack_timer<=20) {
-      GrSprite(hdc,player.sprite_x,player.sprite_y,player.attack_sprite_3_cache,player.last_left);
-    } else if (-1<player.attack_timer && player.attack_timer<=10) {
-      GrSprite(hdc,player.sprite_x,player.sprite_y,player.attack_sprite_4_cache,player.last_left);
-    }
-  }
   }
 
   //Shapes Drawn when swinging to show direction of swing
@@ -1622,14 +1604,14 @@ void DrawPlayer(HDC hdc)
     DrawBullet(hdc,player.bullet[i]);
   }
 
-  char hi[5];
+  /*char hi[5];
   sprintf(hi,"%d",player.on_ground_timer);
   GrPrint(hdc,player.sprite_x,player.sprite_y-30,hi,BLACK);
 
   char hi2[5];
   int tmp_id=GetOnGroundId(player.x,player.y,5,4,TRUE);
   sprintf(hi2,"%d",tmp_id);
-  GrPrint(hdc,player.sprite_x,player.sprite_y-50,hi2,BLACK);
+  GrPrint(hdc,player.sprite_x,player.sprite_y-50,hi2,BLACK);*/
 
 
   /*char hi3[5];
