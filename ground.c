@@ -70,6 +70,101 @@ double GetLineTargetHeight(int Ground_id,double E,double x,double y)
   return h;
 }
 
+
+
+double GetLineTargetAngleII(int Ground_id,double x,double y)
+{
+
+  double E=0,
+      hypothenuse=0,
+      opposite=0,x1=0,y1=0,x2=0,y2=0;
+  if (Ground[Ground_id].y1<Ground[Ground_id].y2) {
+    x1=Ground[Ground_id].x1; //1 is the upper
+    y1=Ground[Ground_id].y1;
+    x2=Ground[Ground_id].x2;
+    y2=Ground[Ground_id].y2;
+  } else {
+    x2=Ground[Ground_id].x1;
+    y2=Ground[Ground_id].y1;
+    x1=Ground[Ground_id].x2;
+    y1=Ground[Ground_id].y2;
+  }
+  if (y>(Ground[Ground_id].y1+Ground[Ground_id].y2)/2) {//down of ground
+    hypothenuse=
+      GetDistance(
+	  x1,
+	  y1,
+	  x,
+	  y
+	);
+    opposite=y-y1;
+    E=GetSinAngle(opposite,hypothenuse);
+    if (GetGradient(
+	  x,
+	  y,
+	  x1,
+	  y1
+      )<=0) {
+      E=-E;
+    }
+  } else {//up of Ground
+    hypothenuse=
+      GetDistance(
+	  x2,
+	  y2,
+	  x,
+	  y
+	);
+    opposite=y2-y;
+    E=GetSinAngle(opposite,hypothenuse);
+    if (GetGradient(
+	  x,
+	  y,
+	  x2,
+	  y2
+        )>0) {
+      E=-E;
+    }
+  }
+  return E;
+}
+
+
+
+double GetLineTargetHeightII(int Ground_id,double E,double x,double y)
+{
+  double h=0,x1=0,y1=0,x2=0,y2=0;
+  if (Ground[Ground_id].y1<Ground[Ground_id].y2) {
+    x1=Ground[Ground_id].x1; //1 is the upper
+    y1=Ground[Ground_id].y1;
+    x2=Ground[Ground_id].x2;
+    y2=Ground[Ground_id].y2;
+  } else {
+    x2=Ground[Ground_id].x1;
+    y2=Ground[Ground_id].y1;
+    x1=Ground[Ground_id].x2;
+    y1=Ground[Ground_id].y2;
+  }
+  if (y>(Ground[Ground_id].y1+Ground[Ground_id].y2)/2) {//down of ground
+    h=sin(Ground[Ground_id].angle-E)*
+      GetDistance(
+	x1,
+	y1,
+	x,
+	y
+    );
+  } else {//up of Ground
+    h=sin(2*M_PI-Ground[Ground_id].angle-E)*
+      GetDistance(
+    x2,
+	y2,
+	x,
+	y
+    );
+  }
+  return h;
+}
+
 void SetGround(int i)
 {
   //Set Ground's gradient
@@ -204,16 +299,101 @@ void InitGround()
 int GetOnGroundId(double x,double y,double min_range_1,double min_range_2,bool is_player)
 {
   int i=0,j=-1,ground_id=0,on_grid_id=0;
+  double ground_entity_E=0,height_from_ground=0,_x=-20,_y=-20;
+  for (int k=0;k<9;k++) {
+    switch (k) {
+      case 0: //center
+        _x=x;
+        _y=y;
+        break;
+      case 1: //center left
+        _x=x-VGRID_SIZE;
+        _y=y;
+        break;
+      case 2:
+        _x=x+VGRID_SIZE; //center right
+        _y=y;
+        break;
+
+      //upper
+      case 3: //left
+        _x=x-VGRID_SIZE;
+        _y=y-VGRID_SIZE;
+        break;
+      case 4:
+        _x=x;
+        _y=y-VGRID_SIZE;
+        break;
+      case 5: //right
+        _x=x+VGRID_SIZE;
+        _y=y-VGRID_SIZE;
+        break;
+
+      //lower
+      case 6: //left
+        _x=x-VGRID_SIZE;
+        _y=y+VGRID_SIZE;
+        break;
+      case 7:
+        _x=x;
+        _y=y+VGRID_SIZE;
+        break;
+      case 8: //right
+        _x=x+VGRID_SIZE;
+        _y=y+VGRID_SIZE;
+        break;
+    }
+    if (0<_x && _x<MAP_WIDTH && 0<_y && _y<MAP_HEIGHT) { //within bounderies
+      on_grid_id=GetGridId(_x,_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);//maths to get grid
+      for (i=0;i<VGrid[on_grid_id].max_ground_num;i++) {
+        ground_id=VGrid[on_grid_id].ground_ids[i];
+        ground_entity_E=GetLineTargetAngle(ground_id,x,y);
+        height_from_ground=GetLineTargetHeight(ground_id,ground_entity_E,x,y);
+        if (Ground[ground_id].x1-min_range_1<=x && x<=Ground[ground_id].x2+min_range_1) {//within x
+          if ((Ground[ground_id].y1-min_range_1<=y && y<=Ground[ground_id].y2+min_range_1) ||
+                (Ground[ground_id].y2-min_range_1<=y && y<=Ground[ground_id].y1+min_range_1)) {//within y
+            if (is_player && -min_range_2<height_from_ground && height_from_ground<min_range_2) { //change in ground
+	          if (ground_id!=player.saved_ground_id && !Ground[ground_id].is_ghost) {
+                j=ground_id;
+                break;
+	          }
+            } else if (!Ground[ground_id].is_ghost && -min_range_2<height_from_ground && height_from_ground<min_range_2) {
+	          return ground_id;
+	        }
+	      }
+        }
+      }
+    } //end of if
+    if (!is_player) { //once only
+      break;
+    }
+  } //end of for loop
+  if (is_player) {
+    if (j==-1) {
+      return player.saved_ground_id;
+    } else {
+      return j;
+    }
+  } else {
+    return -1;
+  }
+  return -1;
+}
+
+
+
+
+
+int GetOnGroundIdII(double x,double y,double min_range_1,double min_range_2,bool is_player)
+{
+  int i=0,j=-1,ground_id=0,on_grid_id=0;
   double ground_entity_E=0,height_from_ground=0;
   if (0<x && x<MAP_WIDTH && 0<y && y<MAP_HEIGHT) { //within bounderies
     on_grid_id=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);//maths to get grid
     for (i=0;i<VGrid[on_grid_id].max_ground_num;i++) {
       ground_id=VGrid[on_grid_id].ground_ids[i];
-      ground_entity_E=GetLineTargetAngle(ground_id,x,y);
-      height_from_ground=GetLineTargetHeight(ground_id,ground_entity_E,x,y);
-      /*if (is_player) {
-        Ground[ground_id].height_from_player_x=height_from_ground;
-      }*/
+      ground_entity_E=GetLineTargetAngleII(ground_id,x,y);
+      height_from_ground=GetLineTargetHeightII(ground_id,ground_entity_E,x,y);
       if (Ground[ground_id].x1-min_range_1<=x && x<=Ground[ground_id].x2+min_range_1) {//within x
         if ((Ground[ground_id].y1-min_range_1<=y && y<=Ground[ground_id].y2+min_range_1) ||
             (Ground[ground_id].y2-min_range_1<=y && y<=Ground[ground_id].y1+min_range_1)) {//within y
@@ -242,37 +422,80 @@ int GetOnGroundId(double x,double y,double min_range_1,double min_range_2,bool i
 }
 
 
+
+
 int GetOnGroundIdE(double x,double y,double min_range_1,double min_range_2,int enemy_id)
 {
   int i=0,j=-1,ground_id=0,on_grid_id=0;
-  double ground_entity_E=0,height_from_ground=0;
-  if (0<x && x<MAP_WIDTH && 0<y && y<MAP_HEIGHT) { //within bounderies
-    on_grid_id=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);//maths to get grid
-    for (i=0;i<VGrid[on_grid_id].max_ground_num;i++) {
-      ground_id=VGrid[on_grid_id].ground_ids[i];
-      ground_entity_E=GetLineTargetAngle(ground_id,x,y);
-      height_from_ground=GetLineTargetHeight(ground_id,ground_entity_E,x,y);
+  double ground_entity_E=0,height_from_ground=0,_x=-20,_y=-20;
+  for (int k=0;k<9;k++) {
+    switch (k) {
+      case 0: //center
+        _x=x;
+        _y=y;
+        break;
+      case 1: //center left
+        _x=x-VGRID_SIZE;
+        _y=y;
+        break;
+      case 2:
+        _x=x+VGRID_SIZE; //center right
+        _y=y;
+        break;
+
+      //upper
+      case 3: //left
+        _x=x-VGRID_SIZE;
+        _y=y-VGRID_SIZE;
+        break;
+      case 4:
+        _x=x;
+        _y=y-VGRID_SIZE;
+        break;
+      case 5: //right
+        _x=x+VGRID_SIZE;
+        _y=y-VGRID_SIZE;
+        break;
+
+      //lower
+      case 6: //left
+        _x=x-VGRID_SIZE;
+        _y=y+VGRID_SIZE;
+        break;
+      case 7:
+        _x=x;
+        _y=y+VGRID_SIZE;
+        break;
+      case 8: //right
+        _x=x+VGRID_SIZE;
+        _y=y+VGRID_SIZE;
+        break;
+    }
+    if (0<_x && _x<MAP_WIDTH && 0<_y && _y<MAP_HEIGHT) { //within bounderies
+      on_grid_id=GetGridId(_x,_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);//maths to get grid
+      for (i=0;i<VGrid[on_grid_id].max_ground_num;i++) {
+        ground_id=VGrid[on_grid_id].ground_ids[i];
+        ground_entity_E=GetLineTargetAngle(ground_id,x,y);
+        height_from_ground=GetLineTargetHeight(ground_id,ground_entity_E,x,y);
      
-
-      if (Ground[ground_id].x1-min_range_1<=x && x<=Ground[ground_id].x2+min_range_1) {//within x
-        if ((Ground[ground_id].y1-min_range_1<=y && y<=Ground[ground_id].y2+min_range_1) ||
-            (Ground[ground_id].y2-min_range_1<=y && y<=Ground[ground_id].y1+min_range_1)) {//within y
-          if (-min_range_2<height_from_ground && height_from_ground<min_range_2) { //change in ground
-	        if (ground_id!=Enemy[enemy_id].saved_ground_id && !Ground[ground_id].is_ghost) {
-              j=ground_id;
-              break;
-	        }
-          }
-	    }
+        if (Ground[ground_id].x1-min_range_1<=x && x<=Ground[ground_id].x2+min_range_1) {//within x
+          if ((Ground[ground_id].y1-min_range_1<=y && y<=Ground[ground_id].y2+min_range_1) ||
+              (Ground[ground_id].y2-min_range_1<=y && y<=Ground[ground_id].y1+min_range_1)) {//within y
+            if (-min_range_2<height_from_ground && height_from_ground<min_range_2) { //change in ground
+	          if (ground_id!=Enemy[enemy_id].saved_ground_id && !Ground[ground_id].is_ghost) {
+                j=ground_id;
+                break;
+	          }
+            }
+	      }
+        }
       }
-
-
     }
-    if (j==-1) {
-      return Enemy[enemy_id].saved_ground_id;
-    } else {
-      return j;
-    }
+  }
+  if (j==-1) {
+    return Enemy[enemy_id].saved_ground_id;
+  } else {
+    return j;
   }
   return -1;
 }
@@ -460,5 +683,16 @@ void DrawGroundTriFill(HDC hdc)
   }
 }
 
+
+
+void DrawGrids(HDC hdc)
+{
+  for (int i=0;i<VGRID_NUM;i++) {
+    GrLine(hdc,VGrid[i].x1+player.cam_x+player.cam_move_x,VGrid[i].y1+player.cam_y+player.cam_move_y,VGrid[i].x2+player.cam_x+player.cam_move_x,VGrid[i].y1+player.cam_y+player.cam_move_y,WHITE);
+    GrLine(hdc,VGrid[i].x1+player.cam_x+player.cam_move_x,VGrid[i].y1+player.cam_y+player.cam_move_y,VGrid[i].x1+player.cam_x+player.cam_move_x,VGrid[i].y2+player.cam_y+player.cam_move_y,WHITE);
+    GrLine(hdc,VGrid[i].x2+player.cam_x+player.cam_move_x,VGrid[i].y2+player.cam_y+player.cam_move_y,VGrid[i].x2+player.cam_x+player.cam_move_x,VGrid[i].y1+player.cam_y+player.cam_move_y,WHITE);
+    GrLine(hdc,VGrid[i].x2+player.cam_x+player.cam_move_x,VGrid[i].y2+player.cam_y+player.cam_move_y,VGrid[i].x1+player.cam_x+player.cam_move_x,VGrid[i].y2+player.cam_y+player.cam_move_y,WHITE);
+  }
+}
 
 
