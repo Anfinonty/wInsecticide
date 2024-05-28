@@ -850,7 +850,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
           if (!(player.time_breaker || player.is_swinging || player.is_rebounding)) {
-            //PlayerCameraShake();
+            PlayerCameraShake();
           } else {
             player.cam_move_x=0;
             player.cam_move_y=0;
