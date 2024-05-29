@@ -548,7 +548,7 @@ void PlayerAct() {
     if (player.is_swinging) {
       if (player.left_click_hold_timer==62 || player.attack_rst || player.right_click_hold_timer==62) { //swing but no web is placed
         player.is_swinging=FALSE;
-        player.fling_distance=player.pivot_length*2;
+        player.fling_distance=player.pivot_length;
         player.key_jump_timer=player.player_jump_height;
         player.speed+=2;
         player.in_air_timer=1000;
@@ -626,7 +626,7 @@ void PlayerAct() {
   }
 
   //Trigger jump
-  if (player.rst_up && 6<=player.on_ground_timer && player.on_ground_timer<=20 && player.fling_distance<=0 /*&& player.key_jump_timer==0*/) {
+  if (player.rst_up && 6<=player.on_ground_timer && player.on_ground_timer<=20 && player.fling_distance==0 /*&& player.key_jump_timer==0*/) {
     player.jump=TRUE;
     player.key_jump_timer=player.player_jump_height;
   }
@@ -680,7 +680,7 @@ void PlayerAct() {
 
 
         //player speed when on ground
-        if (player.fling_distance<=0 && player.on_ground_timer>=1 && speed==0 && grav_speed==0) {
+        if (player.fling_distance==0 && player.on_ground_timer>=1 && speed==0 && grav_speed==0) {
           if (!player.is_rebounding) {
             if (!IsSpeedBreaking()) {//reset stats when normal            
               if (!player.rst_key_sprint) {
@@ -752,8 +752,8 @@ void PlayerAct() {
 
             //angle of incidence and reflection
             player.angle_of_reflection=2*M_PI-player.angle_of_incidence+2*player.angle; //real
-            player.angle_of_incidence=player.angle_of_reflection;
-
+            if (!player.is_swinging)
+              player.angle_of_incidence=player.angle_of_reflection;
           } else if (-10<height_from_player_x && height_from_player_x<0) { //below ground
             player.current_below=TRUE;
             player.previous_above=FALSE;
@@ -774,7 +774,8 @@ void PlayerAct() {
 
             //angle of incidence and reflection
             player.angle_of_reflection=2*M_PI-player.angle_of_incidence+2*player.angle; //real
-            player.angle_of_incidence=player.angle_of_reflection;
+            if (!player.is_swinging)
+              player.angle_of_incidence=player.angle_of_reflection;
           }
 
 
@@ -860,8 +861,8 @@ void PlayerAct() {
 
 
         if (player.on_ground_id==-1 && player.jump_height<=0) { //Credit: y4my4m for pushing me to pursue this gameplay aspect
-          if (!player.is_swinging && (player.fling_distance==0 || player.fling_distance<-100)) { //not swinigng and player is not flinging
-            if (player.in_air_timer>11) {
+          if (!player.is_swinging) { //not swinigng and player is not flinging
+            if (player.in_air_timer>21 || player.fling_distance<0) {
               move_y(player.player_grav); //include while being rebounding and flinging
 	        } else {
               move_x(-player.player_grav*2*cos(player.jump_angle));
@@ -1011,13 +1012,9 @@ void PlayerAct() {
 
       //======FLING MOVEMENT======
       if (grav_speed==0 && !player.is_swinging && !player.is_rebounding) { 
-        //if (player.pivot_length>NODE_SIZE*DEFAULT_PLAYER_BUILD_RANGE/2) { //if pivot length is more than normal build range
-          if (player.fling_distance<0) { //allow cancel flinging when fling distance is less than 0
-            if (player.rst_left || player.rst_right) { //cancel flinging when left or right key is pressed
-              player.fling_distance=0;
-            }
-          }
-        //} 
+        if (player.rst_left || player.rst_right) { //cancel flinging when left or right key is pressed
+          player.fling_distance=0;
+        }
 
 
         if (player.fling_distance>0) { //fling and against gravity
@@ -1028,8 +1025,9 @@ void PlayerAct() {
             player.in_air_timer=1002;
             player.fling_distance=-1;
           }
-        } else if (player.fling_distance<0){ //Continue moving but not against gravity    
+        } else if (player.fling_distance<0){ //Continue moving but now theres gravity
           move_x(cos(player.angle_of_reflection));
+          move_y(sin(player.angle_of_reflection));
           player.fling_distance--;
         }
       }
@@ -1099,61 +1097,65 @@ void PlayerAct() {
 
   
   //Calculating new angle of incidence
-  if (player.jump_height>0) {
-    if (player.rst_left || player.rst_right) {
-      double t_speed1=player.speed*cos(player.jump_angle2);
-      double t_speed2=player.speed;
-      double t_speed=t_speed1+t_speed2;
-      double t_grav=player.speed*sin(player.jump_angle2);
-      double grav_dist=GetDistance(t_speed,0,0,t_grav);
-      player.angle_of_incidence=GetCosAngle(t_speed,grav_dist);
-      if (player.last_left) {
-        player.angle_of_incidence=M_PI+player.angle_of_incidence-M_PI_2;
-      }
-
-      if (player.previous_above) {
-        player.angle_of_incidence=2*M_PI-player.angle_of_incidence;
-      }
-    } else {
-      player.angle_of_incidence=player.jump_angle2;
-    }
-  }
-  if (!player.is_swinging && player.on_ground_id==-1 && player.jump_height==0) { //only if in the air
-    if (!player.is_rebounding) { //not rebounding
-      if (player.rst_left || player.rst_right) {
-        double grav_dist=GetDistance(player.speed,0,0,player.grav*player.player_grav);
-        player.angle_of_incidence=GetCosAngle(player.speed,grav_dist);
-        if (player.last_left) {
-          player.angle_of_incidence=M_PI-player.angle_of_incidence;
-        }
-      } else {
-        if (player.fling_distance<-100 || player.fling_distance==0) {
-          player.angle_of_incidence=M_PI_2;
-        }
-      }
-    }
-    if (player.in_air_timer>11) {
-      if (player.is_rebounding || player.fling_distance<-100) { //flinging or rebounding
-        double t_speed=player.speed*cos(player.angle_of_reflection); //rate of change in x -> player travel to refleciton angle
-        double t_grav1=player.speed*sin(player.angle_of_reflection); //rate of change in y -> player travel to reflection angle
-        double t_grav2=player.grav*player.player_grav; //rate of change in y -> Gravity
-        double t_grav=t_grav1+t_grav2; //dy/dx
+  if (!player.is_swinging) {
+    if (player.jump_height>0) { //jumping and not swinging
+      if (player.rst_left || player.rst_right) { // jump + holding left/right
+        double t_speed1=player.speed*cos(player.jump_angle2);
+        double t_speed2=player.speed;
+        double t_speed=t_speed1+t_speed2;
+        double t_grav=player.speed*sin(player.jump_angle2);
         double grav_dist=GetDistance(t_speed,0,0,t_grav);
-        if (t_grav<0) { //still going upwards
-          player.angle_of_incidence=2*M_PI-GetCosAngle(t_speed,grav_dist);
-        } else { //going downwards
-          player.angle_of_incidence=GetCosAngle(t_speed,grav_dist);
+        player.angle_of_incidence=GetCosAngle(t_speed,grav_dist);
+        if (player.last_left) {
+          player.angle_of_incidence=M_PI+player.angle_of_incidence-M_PI_2;
+        }
+        if (player.previous_above) {
+          player.angle_of_incidence=2*M_PI-player.angle_of_incidence;
+        }
+      } else { //jump soley
+        player.angle_of_incidence=player.jump_angle2;
+      }
+    } else { //end of jump height, not jumping
+      if (!player.on_a_ground) { //in air and holding left or right key
+        if (player.rst_left || player.rst_right) {
+          double grav_dist=GetDistance(player.speed,0,0,player.grav*player.player_grav);
+          player.angle_of_incidence=GetCosAngle(player.speed,grav_dist);
+          if (player.last_left) {
+            player.angle_of_incidence=M_PI-player.angle_of_incidence;
+          }
+        } else { //not holding left or right but still in air
+          if ((player.is_rebounding && player.in_air_timer>21) || player.fling_distance!=0) {//flinging or rebounding
+            double t_speed=player.speed*cos(player.angle_of_reflection); //rate of change in x -> player travel to refleciton angle
+            double t_grav1=player.speed*sin(player.angle_of_reflection); //rate of change in y -> player travel to reflection angle
+            double t_grav2=player.grav*player.player_grav; //rate of change in y -> Gravity
+            double t_grav=t_grav1+t_grav2; //dy/dx
+            double grav_dist=GetDistance(t_speed,0,0,t_grav);
+            if (t_grav<0) { //still going upwards
+              player.angle_of_incidence=2*M_PI-GetCosAngle(t_speed,grav_dist);
+            } else { //going downwards
+              player.angle_of_incidence=GetCosAngle(t_speed,grav_dist);
+            }
+          } else { //falling down normally
+            player.angle_of_incidence=M_PI_2;
+          }
         }
       }
     }
   }
 
+
+
+  //angle of incidence is only bettween 0 to 2*M_PI
   if (player.angle_of_incidence>2*M_PI) {
     player.angle_of_incidence-=2*M_PI;
   }
   if (player.angle_of_incidence<0) {
     player.angle_of_incidence+=2*M_PI;
   }
+
+
+
+
 
 
  //misc
