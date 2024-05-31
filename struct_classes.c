@@ -222,7 +222,7 @@ struct player
 
   int web_storage[MAX_WEB_NUM];
   int cdwebs[MAX_WEB_NUM];
-  int render_vgrids[VRDGRID_NUM];
+  //int render_vgrids[VRDGRID_NUM];
   int bullet[PLAYER_BULLET_NUM];
 
 

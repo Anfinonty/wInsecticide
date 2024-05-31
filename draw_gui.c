@@ -268,6 +268,43 @@ lunar_year
 
 
 
+
+#define HELP_TEXT_ARR_NUM1   13
+char help_txt_arr1[HELP_TEXT_ARR_NUM1][64]=
+{
+  "Controls:",
+  "'W' - Jump from Surface",
+  "'S' - Block / Spin / Drag Down Attack",
+  "'A' - Move Left (Clockwise)",
+  "'D' - Move Right (Anti-Clockwise)",
+  "'Q' - Pick Up Web",
+  "'Z' - Time Breaker Ability",
+  "'C' - Increase Reaction Time",
+  "'E' - Hold with Attack for Uppercut",
+  "[Space] - Sprint",
+  "[Left Click] or '1' - Attack and Stop Web Shooting",
+  "[Right Click] - Shoot web",
+  "[Enter] - Restart Level"
+};
+
+
+
+#define HELP_TEXT_ARR_NUM2   8
+char help_txt_arr2[HELP_TEXT_ARR_NUM2][64]=
+{
+  "Controls While Swinging:",
+  "'W' - Decrease Web Length - Move towards Pivot",
+  "'S' - Increase Web Length - Move Away from Pivot",
+  "'A' - Swing Clockwise",
+  "'D' - Swing Anti-Clockwise",
+  "'E' - Hold for no flinging after Web Placement",
+  "[Left Click] or '1' - Swing without Web Placement",
+  "[Right Click] - Swing with Web Placement"
+};
+
+
+//======== UI =========
+
 bool display_controls=FALSE;
 void DrawUI(HDC hdc) {
   int c;
@@ -336,7 +373,7 @@ void DrawUI(HDC hdc) {
   int c2,c3;
 
   if (!IsInvertedBackground()) {
-    c2=RED;
+    c2=LTRED;
     c3=BLACK;
   } else {
     c2=LTCYAN;
@@ -351,11 +388,17 @@ void DrawUI(HDC hdc) {
   //draw player health
   for (i=0;i<player.health;i++) {
     j=i/10; //new row of hearts
-    if (i<20) {
+    if (i<DEFAULT_PLAYER_HEALTH) {
       GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2+4,player.sprite_y+48+8*j,4,c2,c3);
     } else {
       GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2+4,player.sprite_y+50+8*j,3,c,YELLOW);
     }
+  }
+
+  //draw player block health
+  for (i=0;i<player.block_health;i++) {
+    j=i/10; //new row
+    GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2+4,player.sprite_y+48+8*j,1,c,c);
   }
 
   //GrLine(hdc,GR_WIDTH/2,0,GR_WIDTH/2,GR_HEIGHT,BLACK);
@@ -394,11 +437,23 @@ void DrawUI(HDC hdc) {
 
 
   //draw player web left
-  for (i=0;i<player.max_web_num-player.placed_web_num;i++) {
+  /*for (i=0;i<player.max_web_num-player.placed_web_num;i++) {
     j=i/10; //new row
     GrCircle(hdc,player.sprite_x+64+8*j,player.sprite_y+8*(i%10)-(11*8)/2,3,LTCYAN,CYAN);
-  }
+  }*/
+  char bullet_num_txt[3];
+  sprintf(bullet_num_txt,"%d",player.max_web_num-player.placed_web_num);
+  GrPrint(hdc,player.sprite_x+32,player.sprite_y-32,bullet_num_txt,LTCYAN);
 
+
+  char bullet_num_txt2[3];
+  sprintf(bullet_num_txt2,"%d",PLAYER_BULLET_NUM-player.bullet_shot_num);
+  GrPrint(hdc,player.sprite_x+32,player.sprite_y-16,bullet_num_txt2,c);
+
+  //draw perfect block -- too confusing
+  /*if (player.on_ground_id==-1 && player.block_timer>0 && player.block_timer<=23) {
+    GrCircle(hdc,player.sprite_x,player.sprite_y,1,LTCYAN,-1);
+  }*/
 
 
   int c5;
@@ -457,31 +512,18 @@ Right Click - Swing with Wceb Placement
 */
 
   if (display_controls) {
-  GrRect(hdc,16,GR_HEIGHT-128-16*26,8*42,128+16*22,c4);
-  GrPrint(hdc,16+4,GR_HEIGHT-128-16*25,"Controls:",c);
-  GrPrint(hdc,16+4,GR_HEIGHT-128-16*24,"'W' - Jump from Surface",c);
-  GrPrint(hdc,16+4,GR_HEIGHT-128-16*23,"'A' - Move Left (Clockwise)",c);
-  GrPrint(hdc,16+4,GR_HEIGHT-128-16*22,"'S' - Block / Spin / Drag Down Attack",c);
-  GrPrint(hdc,16+4,GR_HEIGHT-128-16*21,"'D' - Move Right (Anti-Clockwise)",c);
-  GrPrint(hdc,16+4,GR_HEIGHT-128-16*20,"'Q' - Pick Up Web",c);
-  GrPrint(hdc,16+4,GR_HEIGHT-128-16*19,"'E' - Hold with Attack for Uppercut",c);
-  GrPrint(hdc,16+4,GR_HEIGHT-128-16*18,"'Z' - Time Breaker Ability",c);
-  GrPrint(hdc,16+4,GR_HEIGHT-128-16*17,"'C' - Increase Reaction Time",c);
-  GrPrint(hdc,16+4,GR_HEIGHT-128-16*16,"'M' - Next Music",c);
-  GrPrint(hdc,16+4,GR_HEIGHT-128-16*15,"[SHIFT] + 'M' - Change Song Playing Mode",c);
-  GrPrint(hdc,16+4,GR_HEIGHT-128-16*14,"[Space] - Sprint",c);
-  GrPrint(hdc,16+4,GR_HEIGHT-128-16*13,"[Left Click] or '1' - Attack and Stop Web Shooting",c);
-  GrPrint(hdc,16+4,GR_HEIGHT-128-16*12,"[Right Click] - Shoot web",c);
-  GrPrint(hdc,16+4,GR_HEIGHT-128-16*11,"[Enter] - Restart Level",c);
-
-  GrPrint(hdc,16+4,GR_HEIGHT-128-16*9,"Controls While Swinging:",c);
-  GrPrint(hdc,16+4,GR_HEIGHT-128-16*8,"'W' - Decrease Web Length",c);
-  GrPrint(hdc,16+4,GR_HEIGHT-128-16*7,"'A' - Swing Clockwise",c);
-  GrPrint(hdc,16+4,GR_HEIGHT-128-16*6,"'S' - Increase Web Length",c);
-  GrPrint(hdc,16+4,GR_HEIGHT-128-16*5,"'D' - Swing Anti-Clockwise",c);
-  GrPrint(hdc,16+4,GR_HEIGHT-128-16*4,"[Left Click] or '1' - Swing without Web Placement",c);
-  GrPrint(hdc,16+4,GR_HEIGHT-128-16*3,"[Right Click] - Swing with Web Placement",c);
-  GrPrint(hdc,16+4,GR_HEIGHT-128-16,"[SHIFT_ESC] to Quit",c);
+    if (!player.is_swinging) { //swinging
+      GrRect(hdc,16,GR_HEIGHT-128-16*(HELP_TEXT_ARR_NUM1+2),8*42,128+16*22,c4);
+      for (int i=0;i<HELP_TEXT_ARR_NUM1;i++) {
+        GrPrint(hdc,16+4,GR_HEIGHT-128-16*(i+2),help_txt_arr1[HELP_TEXT_ARR_NUM1-1-i],c);
+      }
+    } else { //not swinging
+      GrRect(hdc,16,GR_HEIGHT-128-16*(HELP_TEXT_ARR_NUM2+2),8*42,128+16*22,c4);
+      for (int i=0;i<HELP_TEXT_ARR_NUM2;i++) {
+        GrPrint(hdc,16+4,GR_HEIGHT-128-16*(i+2),help_txt_arr2[HELP_TEXT_ARR_NUM2-1-i],c);
+      }
+    }
+    GrPrint(hdc,16+4,GR_HEIGHT-128-16,"[SHIFT_ESC] to Quit",c);
   } 
 
   GrPrint(hdc,16+4,GR_HEIGHT-128+16,"Press '*' for Controls Help",c4);

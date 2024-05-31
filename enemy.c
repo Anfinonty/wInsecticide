@@ -614,9 +614,9 @@ void EnemyAct(int i)
               Enemy[i].knockback_timer=player.knockback_strength;
               Enemy[i].knockback_angle=Bullet[bk].angle;
               Enemy[i].player_knockback=FALSE;
-              if (Bullet[bk].speed_multiplier<6) {
-                Bullet[bk].angle=RandAngle(0,360,player.seed);
-              }
+              Bullet[bk].angle=RandAngle(0,360,player.seed);
+              /*if (Bullet[bk].speed_multiplier<6) {
+              }*/
             }
 	        break;
          case 1://crawl
@@ -645,7 +645,7 @@ void EnemyAct(int i)
 	    case 0://fly
           if (dist_from_bullet<=NODE_SIZE*2) {
             PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);
-            Enemy[i].health-=4*player.attack_strength;
+            Enemy[i].health-=Bullet[player.bullet_shot].damage;
             Enemy[i].knockback_timer=player.knockback_strength;
             Enemy[i].knockback_angle=Bullet[player.bullet_shot].angle;            
             Enemy[i].player_knockback=FALSE;
@@ -653,7 +653,7 @@ void EnemyAct(int i)
           break;
         case 1://crawl
           PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);
-          Enemy[i].health-=4*player.attack_strength;
+          Enemy[i].health-=Bullet[player.bullet_shot].damage;
           Enemy[i].knockback_timer=player.knockback_strength;
           Enemy[i].knockback_angle=Bullet[player.bullet_shot].angle;
           Enemy[i].player_knockback=FALSE;
@@ -1323,8 +1323,9 @@ void DrawEnemy(HDC hdc)
       if (Enemy[i].health>-500) {
       enemy_kills++;
       player.health+=2;
-      if (player.max_web_num<MAX_WEB_NUM)
+      if (player.max_web_num<MAX_WEB_NUM) {
         player.max_web_num++;
+      }
       if (!IsSpeedBreaking()) {
         if (player.time_breaker_units<player.time_breaker_units_max-2 && !player.time_breaker) {
           player.time_breaker_units+=2;
@@ -1417,7 +1418,7 @@ void DrawEnemy(HDC hdc)
           } else {
             GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_2,Enemy[i].last_left);
           }
-          //if (Enemy[i].health>0)
+         // if (Enemy[i].health>0)
             //GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,uncanny,Enemy[i].last_left);
           break;
         case 1:
@@ -1439,12 +1440,12 @@ void DrawEnemy(HDC hdc)
                 //GrPrint(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y-72,"4",Enemy[i].color);
               }
             }
-            //if (Enemy[i].health>0)
-              //GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,uncanny,Enemy[i].last_left);
 
           } else {
             GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,Enemy[i].sprite_3,Enemy[i].last_left);
           }
+        //if (Enemy[i].health>0)
+          //GrSprite(hdc,Enemy[i].sprite_x,Enemy[i].sprite_y,uncanny,Enemy[i].last_left);
           break;
       }
     }      

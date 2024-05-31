@@ -108,7 +108,7 @@ bool HitPlayer(int bullet_id)
       Bullet[bullet_id].near_miss=TRUE;
     }
   }
-  if (GetDistance(player.x,player.y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=10) {
+  if (dist<=10) {
     return TRUE;
   }
   return FALSE;
@@ -144,25 +144,40 @@ void BulletAct(int bullet_id)
   bool hit_player=FALSE,allow_act=FALSE;
   if (Bullet[bullet_id].shot) {
     for (i=0;i<Bullet[bullet_id].speed_multiplier;i++) {
+      allow_act=FALSE;
       Bullet[bullet_id].sprite_x=Bullet[bullet_id].x+player.cam_x+player.cam_move_x;
       Bullet[bullet_id].sprite_y=Bullet[bullet_id].y+player.cam_y+player.cam_move_y;
   //----------------
       if (enemy_id<0) {//player bullet movement
-        if (Bullet[bullet_id].range>0) {
-          if (enemy_id==-1) {
+        if (enemy_id==-1) {
+          if (Bullet[bullet_id].range>0) {
             allow_act=TRUE;
-          } else if (enemy_id==-2) {
+          } else { //web too long, retract
+            StopBullet(player.bullet_shot,TRUE); //Stop the web
+            PlayerPlaceWeb(); //Web related
+            player.web_being_shot=-1;
+            player.bullet_shot=-1;
+          }
+        } else if (enemy_id==-2) {
+          if (Bullet[bullet_id].range>0) {
             if (!player.time_breaker) {
 	          allow_act=TRUE;
-            } else if (Bullet[bullet_id].start_range-Bullet[bullet_id].range<50 && Bullet[bullet_id].range>0) {
+            } else if (Bullet[bullet_id].start_range-Bullet[bullet_id].range<50) {
 	          allow_act=TRUE;
             }
+          } else { //out of range knife, stop it
+            StopBullet(bullet_id,FALSE);
+            for (j=Bullet[bullet_id].saved_pos;j<player.bullet_shot_num-1;j++) { //shift to left in player bullet shot arr from bullet shot
+              player.bullet[j]=player.bullet[j+1];
+              Bullet[player.bullet[j]].saved_pos--;
+            }
+            Bullet[bullet_id].saved_pos=-1;
+            player.bullet[player.bullet_shot_num-1]=-1; //remove bullet from arr
+            player.bullet_shot_num--;        
           }
-        } else { //player bullet movement when out of range
-          Bullet[bullet_id].x+=cos(Bullet[bullet_id].angle)*Bullet[bullet_id].speed;
-          Bullet[bullet_id].y+=sin(Bullet[bullet_id].angle)*Bullet[bullet_id].speed;
-          Bullet[bullet_id].range--;
         }
+
+
       } else if (!player.time_breaker || Enemy[enemy_id].time_breaker_immune) {//enemy
 	    allow_act=TRUE;
       }
@@ -175,28 +190,31 @@ void BulletAct(int bullet_id)
       //
       if (enemy_id>-1) { //Enemy bullet
         if (GetDistance(Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
-          Bullet[bullet_id].angle=RandAngle(-90,90,Enemy[enemy_id].seed);//RandNum(-M_PI_2*100,M_PI_2*100,Enemy[enemy_id].seed)/100;
+          Bullet[bullet_id].angle=RandAngle(0,360,Enemy[enemy_id].seed);//RandNum(-M_PI_2*100,M_PI_2*100,Enemy[enemy_id].seed)/100;
           Bullet[bullet_id].speed=Bullet[player.bullet_shot].speed;
           Bullet[bullet_id].speed_multiplier=Bullet[player.bullet_shot].speed_multiplier;
+          Bullet[player.bullet_shot].playsnd=TRUE;
+          Bullet[player.bullet_shot].range-=2;
         }
         for (int k=0;k<player.bullet_shot_num;k++) {
           int bk=player.bullet[k];
           if (GetDistance(Bullet[bk].x,Bullet[bk].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
-            Bullet[bullet_id].angle=RandAngle(-90,90,player.seed);
+            Bullet[bullet_id].angle=RandAngle(0,360,player.seed);
             if (!Bullet[bk].playsnd) {
               Bullet[bk].playsnd=TRUE;
             }
             Bullet[bullet_id].speed=Bullet[bk].speed;
             Bullet[bullet_id].speed_multiplier=Bullet[bk].speed_multiplier;
-            if (Bullet[bk].speed_multiplier<7) {
-              Bullet[bk].angle=RandAngle(0,360,player.seed);
-            }
+            Bullet[bk].angle=RandAngle(0,360,player.seed);
+            Bullet[bk].range-=4;
+            /*if (Bullet[bk].speed_multiplier<7) {
+            }*/
           }
         }
-        if (GetDistance(Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
-          Bullet[player.bullet_shot].playsnd=TRUE;
-        }
         hit_player=HitPlayer(bullet_id);
+
+
+
       //bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,0.5,0.5,FALSE);
         bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2);
 	    allow_act=FALSE;
@@ -228,7 +246,7 @@ void BulletAct(int bullet_id)
     	    }*/
 
 	        } else {//player is blocking
-              Bullet[bullet_id].angle=RandAngle(-90,90,Enemy[enemy_id].seed);
+             // Bullet[bullet_id].angle=RandAngle(0,360,Enemy[enemy_id].seed);
               blocked_bullet_dmg=Bullet[bullet_id].damage;
 	          if (player.block_timer>23) {//non-perfect block
 	            if (player.on_ground_id!=-1) {//on ground
@@ -247,9 +265,9 @@ void BulletAct(int bullet_id)
                 if (player.speed<6) {
                   player.health-=(player.block_health_max-player.block_health+1)/player.block_health_max*Bullet[bullet_id].damage;
                 }
-	          } else {//perfect block
+	          } else {//perfect block , 23 or equals to
 	            blocked_bullet_dmg=0;
-                if (player.time_breaker_units<player.time_breaker_units_max) {
+                if (player.time_breaker_units<player.time_breaker_units_max) { //causes speed to increase
                   player.time_breaker_units++;
                 }
                 //player.speed++;
@@ -303,11 +321,7 @@ void BulletAct(int bullet_id)
       Enemy[enemy_id].bullet_shot_num--;
     }
   } else {//player bullet while travelling
-    if (Bullet[bullet_id].from_enemy_id==-1) {
-      bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2);
-    } else if (Bullet[bullet_id].from_enemy_id==-2) {
-      bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2);
-    }
+    bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2);
     allow_act=FALSE;
 	if (bullet_on_ground_id!=-1) {//not hit self but another platform
 	  allow_act=TRUE;
@@ -317,29 +331,24 @@ void BulletAct(int bullet_id)
 	if (allow_act) {//reaching end of range
       //player_web_swinging related
       if (enemy_id==-1) {
-        if (bullet_on_ground_id!=-1) {
-          player.pivot_x=Bullet[bullet_id].x;
-          player.pivot_y=Bullet[bullet_id].y;
-          player.is_swinging=TRUE;
-        }
-	    //---web related-------
-        if (bullet_on_ground_id>=GROUND_NUM) {
-          Ground[bullet_on_ground_id].health+=2;//heal ground
-        }
-        player.web_being_shot=-1;
-        player.bullet_shot=-1;
-        //---------------------
-        StopBullet(bullet_id,FALSE);
-      } else if (enemy_id==-2) {
-        if (Bullet[bullet_id].range<0 || IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) {
-          StopBullet(bullet_id,FALSE);
-          for (j=Bullet[bullet_id].saved_pos;j<player.bullet_shot_num-1;j++) { //shift to left in player bullet shot arr from bullet shot
-            player.bullet[j]=player.bullet[j+1];
-            Bullet[player.bullet[j]].saved_pos--;
+        if (Bullet[bullet_id].range>0) {
+          if (bullet_on_ground_id!=-1) {
+            player.pivot_x=Bullet[bullet_id].x;
+            player.pivot_y=Bullet[bullet_id].y;
+            player.is_swinging=TRUE;
           }
-          Bullet[bullet_id].saved_pos=-1;
-          player.bullet[player.bullet_shot_num-1]=-1; //remove bullet from arr
-          player.bullet_shot_num--;        
+	      //---web related-------
+          /*if (bullet_on_ground_id>=GROUND_NUM) {
+            Ground[bullet_on_ground_id].health+=2;//heal ground
+          }*/
+          player.web_being_shot=-1;
+          player.bullet_shot=-1;
+        //---------------------
+          StopBullet(bullet_id,FALSE);
+        }
+      } else if (enemy_id==-2) {
+        if (IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) {
+          Bullet[bullet_id].range=-1;
         } else { //Ricochet off ground
 /*
          Negative                                                     Positive
@@ -450,10 +459,10 @@ Ascii art woo!! :D
 */
 
           Bullet[bullet_id].angle=2*M_PI-Bullet[bullet_id].angle+2*Ground[bullet_on_ground_id].angle; //real
-          //Bullet[bullet_id].range=abs(Bullet[bullet_id].range);
-          Bullet[bullet_id].range+=40;//Bullet[bullet_id].range/3; 
-          if (bullet_on_ground_id>GROUND_NUM) { //elastic web
-            Bullet[bullet_id].range+=150; 
+          Bullet[bullet_id].range--;//Bullet[bullet_id].range/3; 
+          if (bullet_on_ground_id>=GROUND_NUM) { //elastic web
+            if (Bullet[bullet_id].range<10)
+              Bullet[bullet_id].range++;
             Bullet[bullet_id].speed_multiplier+=2;
             Bullet[bullet_id].damage+=2;
           }
