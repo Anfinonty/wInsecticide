@@ -459,14 +459,12 @@ Ascii art woo!! :D
 */
 
           Bullet[bullet_id].angle=2*M_PI-Bullet[bullet_id].angle+2*Ground[bullet_on_ground_id].angle; //real
-          Bullet[bullet_id].range--;//Bullet[bullet_id].range/3; 
-          if (bullet_on_ground_id>=GROUND_NUM) { //elastic web
-            if (Bullet[bullet_id].range<10)
-              Bullet[bullet_id].range++;
+          if (bullet_on_ground_id>=GROUND_NUM) { //elastic web            
+            Bullet[bullet_id].range+=80;
             Bullet[bullet_id].speed_multiplier+=2;
             Bullet[bullet_id].damage+=2;
+            Bullet[bullet_id].start_range=Bullet[bullet_id].range;
           }
-          Bullet[bullet_id].start_range=Bullet[bullet_id].range;
           if (Bullet[bullet_id].angle>2*M_PI) { //hreater
             Bullet[bullet_id].angle-=2*M_PI;
           }
