@@ -894,7 +894,9 @@ void EnemyAct(int i)
 		        Enemy[i].x,
 		        Enemy[i].y,
 		        Enemy[i].shoot_target_x,
-		        Enemy[i].shoot_target_y);
+		        Enemy[i].shoot_target_y,
+                0
+                  );
                   Enemy[i].bullet_shot_arr[Enemy[i].bullet_shot_num]=current_bullet_id;
                   Enemy[i].bullet_shot_num++;
                   //after shooting

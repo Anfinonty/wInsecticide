@@ -244,16 +244,6 @@ void InitPlayer() {
   player.color=player_color; //displayed color
   player.load_color=player_load_color; //orginal color
 
-  player.rendered_vgrid_num=0;
-  for (i=0;i<VRDGRID_NUM;i++) {
-    player.render_vgrids[i]=-1;
-  }
-
-  /*player.rendered_enemy_num=0;
-  for (i=0;i<MAX_ENEMY_NUM;i++) {
-    player_render_enemies[i]=-1;
-  }*/
-
   player.saved_x=saved_player_x;
   player.saved_y=saved_player_y;
   player.x=player.saved_x;
@@ -279,10 +269,6 @@ void InitPlayer() {
   player.cam_move_y=0;
   player.sprite_x=GR_WIDTH/2;
   player.sprite_y=GR_HEIGHT/2;
-
-  
-
-
 
   player.left_click_hold_timer=0;
   player.right_click_hold_timer=0;
@@ -320,6 +306,8 @@ void InitPlayer() {
   player.placed_web_num=0;
   player.destroyed_web_pos=0;
 
+
+  player.knives_per_throw=1;
 
   /*player_fling_web.length=0;
   for (i=0;i<64;i++) {
@@ -366,24 +354,7 @@ void InitPlayer() {
   
 
   InitPlayerCamera();
-  //InitRDGrid();
 }
-
-/*bool YesInitRDGrid()
-{
-  if (GRID_SIZE*2<player.x && player.x<MAP_WIDTH-GRID_SIZE*2) {
-    if (player.x<RDGrid.x1+GRID_SIZE*2 || player.x>RDGrid.x2-GRID_SIZE*2) {
-      return TRUE;
-    }
-  }
-  if (GRID_SIZE*2<player.y && player.y<MAP_HEIGHT-GRID_SIZE*2) {
-    if (player.y<RDGrid.y1+GRID_SIZE*2 || player.y>RDGrid.y2-GRID_SIZE*2) {
-      return TRUE;
-    }
-  }
-  return FALSE;
-}*/
-
 
 
 
@@ -405,11 +376,8 @@ void RegainWeb(int web_id)
 void PlayerAct() {
   int i=0,speed=0,grav_speed=0,claws_l=NODE_SIZE,web_id=0;
   double cur_dist=0,cur_angle=0,grad_x1=0,grad_y1=0,grad_x2=0,grad_y2=0;
+  double x1,x2,y1,y2;
   bool allow_act=FALSE;
-  //Initialize RD Grid
-  /*if (YesInitRDGrid()) {
-    InitRDGrid();
-  }*/
 
 
   //========Player attacking timer==============
@@ -461,39 +429,64 @@ void PlayerAct() {
     }
 
     int b_speed_m=5;
-    if (player.speed>10)
-      b_speed_m=7;
-    else if (player.speed>5)
-      b_speed_m=6;      
+    int b_dmg_m=1;
+    if (player.speed>10) {
+      b_speed_m=9;
+      b_dmg_m=3;
+    } else if (player.speed>5) {
+      b_speed_m=7;      
+      b_dmg_m=2;
+    }
 
-    if (player.bullet_shot_num<PLAYER_BULLET_NUM && !player.is_swinging) {
+    if (player.speed>24)
+      b_dmg_m=4;
+
+    if (player.bullet_shot_num<PLAYER_BULLET_NUM && !player.is_swinging && (PLAYER_BULLET_NUM-player.bullet_shot_num>=player.knives_per_throw)) {
       grad_x1=player.x+player.cam_move_x;
       grad_y1=player.y+player.cam_move_y;
       grad_x2=mouse_x-player.cam_x;
       grad_y2=mouse_y-player.cam_y;
+      double tmp_angle=0;
+      for (int q=0;q<player.knives_per_throw;q++) {
+        if (q>0) {        
+          if (q%2==0) {//even
+            tmp_angle+=M_PI_2/16*q;
+          } else {
+            tmp_angle-=M_PI_2/16*q;
+          }
+        }
+        if (q==14) {
+          PlayerPlaceWeb(); //Web related
+        }
+	    player.bullet[player.bullet_shot_num]=current_bullet_id;
+        ShootBullet(
+            current_bullet_id,
+	        player.bullet_shot_num,
+	        player_bullet_color,
+            5, //graphics type
+	        MAX_WEB_LENGTH+player.speed*3, //range ==>
+            1, //speed
+	        b_speed_m, //speed multiplier
+	        b_dmg_m, //damage
+	        -2,
+	        player.x, //so it doest get stuck to ground
+	        player.y,
+	        grad_x1,
+	        grad_y1,
+	        grad_x2,
+	        grad_y2,
+            tmp_angle //angle            
+         );
 
-	  player.bullet[player.bullet_shot_num]=current_bullet_id;
-      ShootBullet(current_bullet_id,
-	player.bullet_shot_num,
-	player_bullet_color,
-    5, //graphics type
-	DEFAULT_PLAYER_BUILD_RANGE+player.speed*2, //range
-    1, //speed
-	b_speed_m, //speed multiplier
-	player.attack_strength, //damage
-	-2,
-	player.x,//player.above_x2, //so it doest get stuck to ground
-	player.y,//player.above_y2,
-	grad_x1,
-	grad_y1,
-	grad_x2,
-	grad_y2
-      );
       //Bullet[current_bullet_id].playsnd=TRUE;
-      player.bullet_shot_num++;
-      current_bullet_id++;
-      if (current_bullet_id>=BULLET_NUM-1) {
-        current_bullet_id=0;
+        player.bullet_shot_num++;
+        current_bullet_id++;
+        if (current_bullet_id>=BULLET_NUM-1) {
+          current_bullet_id=0;
+        }
+        if (player.max_web_num-player.placed_web_num==0 && q>5) {
+          break;
+        }
       }
     }
   }
@@ -526,18 +519,19 @@ void PlayerAct() {
       ShootBullet(current_bullet_id,
 	-1,
 	CYAN,
-    2, //graphics type
-	DEFAULT_PLAYER_BUILD_RANGE+player.speed*2, //range
+    5, //graphics type
+	MAX_WEB_LENGTH, //range
     1, //speed
-	20, //speed multiplier
-	player.attack_strength, //damage
+	15+player.speed*2, //speed multiplier
+	4+player.attack_strength*2, //damage
 	-1,
 	player.x,//player.above_x2, //so it doest get stuck to ground
 	player.y,//player.above_y2,
 	grad_x1,
 	grad_y1,
 	grad_x2,
-	grad_y2
+	grad_y2,
+    0
       );
       current_bullet_id++; //public
       if (current_bullet_id>=BULLET_NUM-1) {
@@ -548,7 +542,11 @@ void PlayerAct() {
     if (player.is_swinging) {
       if (player.left_click_hold_timer==62 || player.attack_rst || player.right_click_hold_timer==62) { //swing but no web is placed
         player.is_swinging=FALSE;
-        player.fling_distance=player.pivot_length;
+        if (player.uppercut) {
+          player.fling_distance=0;
+        } else {
+          player.fling_distance=player.pivot_length;
+        }
         player.key_jump_timer=player.player_jump_height;
         player.speed+=2;
         player.in_air_timer=1000;
@@ -1124,7 +1122,7 @@ void PlayerAct() {
             player.angle_of_incidence=M_PI-player.angle_of_incidence;
           }
         } else { //not holding left or right but still in air
-          if ((player.is_rebounding && player.in_air_timer>21) || player.fling_distance!=0) {//flinging or rebounding
+          if (player.is_rebounding || player.fling_distance!=0) {//flinging or rebounding
             double t_speed=player.speed*cos(player.angle_of_reflection); //rate of change in x -> player travel to refleciton angle
             double t_grav1=player.speed*sin(player.angle_of_reflection); //rate of change in y -> player travel to reflection angle
             double t_grav2=player.grav*player.player_grav; //rate of change in y -> Gravity

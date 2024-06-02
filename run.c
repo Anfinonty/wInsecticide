@@ -151,17 +151,15 @@ bool clean_up_sound=FALSE;
 #define MAX_FOLLOW_RANGE 100
 #define MAX_NODE_NUM	 MAX_FOLLOW_RANGE*MAX_FOLLOW_RANGE
 
-#define VRENDER_DIST      9//20
-#define VRDGRID_NUM       VRENDER_DIST*VRENDER_DIST
+//#define VRENDER_DIST      9//20
+//#define VRDGRID_NUM       VRENDER_DIST*VRENDER_DIST
 
 
 #define BULLET_NUM	5000
-#define PLAYER_BULLET_NUM          16
 #define ENEMY_BULLET_NUM                   1000
 #define MAX_BULLET_PER_FIRE 10
 
 
-#define MAX_WEB_NUM      100
 
 
 #define MAX_MAP_NODE_NUM (640*20)/NODE_SIZE * (480*20)/NODE_SIZE //MAX_WIDTH/NODE_SIZE * MAX_HEIGHT/NODE_SIZE
@@ -170,22 +168,25 @@ bool clean_up_sound=FALSE;
 #define MAX_GROUND_NUM  1000
 #define MAX_ENEMY_NUM   50
 
-#include "struct_classes.c"
-#include "load_save.c"
 
 
 #define DEFAULT_SLEEP_TIMER			6
 #define SLOWDOWN_SLEEP_TIMER			30
 
 #define DEFAULT_PLAYER_HEALTH			20
+#define DEFAULT_PLAYER_BLOCK_HEALTH_MAX 20
 #define DEFAULT_PLAYER_JUMP_HEIGHT 		85//100
 #define DEFAULT_PLAYER_ATTACK_STRENGTH  	1
 #define DEFAULT_PLAYER_KNOCKBACK_STRENGTH	50
 
-#define DEFAULT_PLAYER_BUILD_RANGE		100//12
-#define DEFAULT_PLAYER_SHORT_BUILD_RANGE	10
+#define DEFAULT_PLAYER_BUILD_RANGE		80//100//12
+#define MAX_WEB_LENGTH		200//100//12
+//#define DEFAULT_PLAYER_SHORT_BUILD_RANGE	10
 #define DEFAULT_PLAYER_WEB_HEALTH		150
-#define DEFAULT_PLAYER_WEB_NUM			20
+
+#define DEFAULT_PLAYER_WEB_NUM      20
+#define MAX_WEB_NUM     100
+
 #define DEFAULT_PLAYER_SPEED			1
 
 #define DEFAULT_PLAYER_TIME_BREAKER_MAX	20 //10 seconds to charge
@@ -193,8 +194,12 @@ bool clean_up_sound=FALSE;
 #define DEFAULT_PLAYER_TIME_BREAKER_RECHARGE_MAX	200 //1 seconds
 #define DEFAULT_PLAYER_TIME_BREAKER_TICK_MAX	22 //45
 
-#define DEFAULT_PLAYER_BLOCK_HEALTH_MAX 20
 
+#define PLAYER_BULLET_NUM 16
+
+
+#include "struct_classes.c"
+#include "load_save.c"
 
 
 bool flag_restart=FALSE;
@@ -741,8 +746,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	        player.attack_rst=TRUE;
           }
 	      break;
-
-
+        case '2':
+          if (player.knives_per_throw==5) {
+            player.knives_per_throw=13;
+          }
+          player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,PLAYER_BULLET_NUM+1);
+          break;
 	    case 'E':
           if (!in_main_menu) {
             if (player.uppercut) {
@@ -897,6 +906,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             CleanUpNodeGrid();
             CleanUpEnemy();
             CleanUpGround();
+            CleanupPlayerAttributes();
             save_level[0]='\0';
 
             DeleteObject(map_platforms_sprite); //delete sprites
@@ -940,7 +950,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       remove("music/tmp/tmp.wav");
       rmdir("music/tmp"); //remove tmp
 
-      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៩ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts by the United States of America under Richard Nixxon's and Henry Kissinger's Administration with the CIA and Mossad to take over the Mekong River Trade Route (1969-1997) from our Late King Father Norodom Sihanouk (1922-2012), Kampuchea-Krom (Saigon; originally Prei Nokor) (1858-1949) and Kampuchea-Kang-Cheng (North).\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1445_10_23"), TEXT("អាពីងស៊ីរុយ") ,MB_OK);
+      //MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៩ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts by the United States of America under Richard Nixxon's and Henry Kissinger's Administration with the CIA and Mossad to take over the Mekong River Trade Route (1969-1997) from our Late King Father Norodom Sihanouk (1922-2012), Kampuchea-Krom (Saigon; originally Prei Nokor) (1858-1949) and Kampuchea-Kang-Cheng (North).\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1445_10_23"), TEXT("អាពីងស៊ីរុយ") ,MB_OK);
 
       //load levels in save
       GetSavesInDir(L"saves");

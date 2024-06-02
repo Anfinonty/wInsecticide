@@ -35,6 +35,42 @@ void InitBullet()
   }
 }
 
+
+
+
+void ShootBulletII(
+  int bullet_id,
+  int saved_pos,
+  int color,
+  int graphics_type,
+  int range,
+  double speed,
+  int speed_multiplier,
+  int damage,
+  int enemy_id,
+  double start_x,
+  double start_y,
+  double angle)
+{
+  Bullet[bullet_id].shot=TRUE;
+  Bullet[bullet_id].graphics_type=graphics_type;
+  Bullet[bullet_id].saved_pos=saved_pos;
+  Bullet[bullet_id].color=color;
+  Bullet[bullet_id].start_range=range/2*NODE_SIZE;
+  Bullet[bullet_id].range=range/2*NODE_SIZE;
+  Bullet[bullet_id].speed=speed;
+  Bullet[bullet_id].speed_multiplier=speed_multiplier;
+  Bullet[bullet_id].damage=damage;
+  Bullet[bullet_id].from_enemy_id=enemy_id;
+  Bullet[bullet_id].start_x=Bullet[bullet_id].x=start_x;
+  Bullet[bullet_id].start_y=Bullet[bullet_id].y=start_y;
+  Bullet[bullet_id].angle=angle;
+}
+
+
+
+
+
 void ShootBullet(
   int bullet_id,
   int saved_pos,
@@ -50,9 +86,10 @@ void ShootBullet(
   double source_x,
   double source_y,
   double target_x,
-  double target_y)
+  double target_y,
+  double off_angle)
 {
-  double bullet_gradient,bullet_c,x1,x2,y1,y2;
+  double x1,x2,y1,y2;
   Bullet[bullet_id].shot=TRUE;
   Bullet[bullet_id].graphics_type=graphics_type;
   Bullet[bullet_id].saved_pos=saved_pos;
@@ -78,8 +115,6 @@ void ShootBullet(
     y2=target_y;
     y1=source_y;
   }
-  bullet_gradient=GetGradient(x1,y1,x2,y2);
-  bullet_c=GetGroundC(x1,y1,bullet_gradient);
   //cos(angle) = adjacent/hypothenuse
   /*0 -> 90 degs*/
 
@@ -97,7 +132,17 @@ void ShootBullet(
       Bullet[bullet_id].angle=GetCosAngle(x2-x1,GetDistance(x1,y1,x2,y2));
     }
   }
+
+  Bullet[bullet_id].angle+=off_angle;
+  if (Bullet[bullet_id].angle>2*M_PI) {
+    Bullet[bullet_id].angle-=2*M_PI;
+  }
+  if (Bullet[bullet_id].angle<0) {
+    Bullet[bullet_id].angle+=2*M_PI;
+  }
+
 }
+
 
 bool HitPlayer(int bullet_id)
 {
@@ -113,6 +158,7 @@ bool HitPlayer(int bullet_id)
   }
   return FALSE;
 }
+
 
 void StopBullet(int bullet_id,bool is_player)
 {

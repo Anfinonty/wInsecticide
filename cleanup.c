@@ -190,3 +190,134 @@ void CleanUpGround()
     Ground[i].angle=0;
   }
 }
+
+
+void CleanupPlayerAttributes()
+{
+  player.is_rebounding=
+  player.is_swinging=
+  player.hiding=
+  player.left_click=
+  player.right_click=
+  player.rst_left_click=
+  player.rst_right_click=
+  player.rst_down=
+  player.rst_left=
+  player.rst_right=
+  player.rst_up=
+  player.rst_key_sprint=
+  player.last_left=
+  player.jump=
+  player.current_above=
+  player.current_below=
+  player.previous_above=
+  player.previous_below=
+  player.print_current_above=
+  player.print_current_below=
+  player.time_breaker=
+  player.attack=
+  player.blocking=
+  player.print_valid_web=
+  player.valid_web=
+  player.attack_rst=
+  player.destroy_ground=
+  player.uppercut=
+  player.flag_revert_palette=
+  player.on_a_ground=FALSE;
+
+  player.knives_per_throw=1;
+
+  player.block_recharge_timer_max=
+  player.block_recharge_timer=
+  player.block_cooldown_max=
+  player.block_cooldown=
+
+  player.left_click_hold_timer=
+  player.right_click_hold_timer=
+  player.attack_timer=
+  player.sleep_timer=
+  player.hit_cooldown_timer=
+  player.block_timer=
+  player.cdweb_pos=
+  player.cdweb_player_pos=
+  player.cdweb_num=
+  player.destroyed_web_pos=
+  player.max_web_num=
+  player.bullet_shot=
+  player.placed_web_pos=
+  player.placed_web_num=
+  player.web_being_shot=
+
+  player.previous_web_placed=
+  player.time_breaker_units=
+  player.time_breaker_units_max=
+  player.time_breaker_cooldown=
+  player.time_breaker_cooldown_max=
+  player.time_breaker_recharge_timer=
+  player.time_breaker_recharge_timer_max=
+  player.time_breaker_units_tick=
+  player.time_breaker_units_tick_max=
+  player.spin_timer=
+
+  player.bullet_shot_num=
+  player.color=
+  player.load_color=
+
+  player.grav=
+  player.jump_height=
+  player.sprite_timer=
+  player.in_air_timer=
+  player.speed=
+  player.on_ground_timer=
+  player.on_ground_id=
+  player.saved_ground_id=
+  player.walk_cycle=
+  player.player_jump_height=
+  player.key_jump_timer=
+  player.knockback_speed_multiplier=
+  player.knockback_strength=
+  player.time_breaker_tick=
+  player.seed=0;
+
+  player.knockback_speed=
+  player.attack_strength=
+  player.saved_x=
+  player.saved_y=
+  player.x=
+  player.y=
+  player.above_x=
+  player.above_y=
+  player.above_x2=
+  player.above_y2=
+  player.sprite_angle=
+  player.angle=
+  player.saved_angle=
+  player.saved_sprite_angle=
+  player.saved_block_sprite_angle=
+  player.saved_attack_sprite_angle=
+  player.player_grav=
+
+  player.cam_x=
+  player.cam_y=
+  player.cam_move_x=
+  player.cam_move_y=
+  player.sprite_x=
+  player.sprite_y=
+  player.claws_x=
+  player.claws_y=
+
+  player.block_health_max=
+  player.block_health=
+
+
+  player.health=
+  player.pivot_x=
+  player.pivot_y=
+  player.pivot_angle=
+  player.pivot_length=
+  player.jump_angle=
+  player.jump_angle2=
+  player.fling_distance=
+  player.angle_of_incidence=
+  player.angle_of_reflection=0.0;
+}

@@ -98,10 +98,13 @@ struct player
   bool on_a_ground;
 
     //Render
-  int rendered_vgrid_num;
+  //int rendered_vgrid_num;
   //int rendered_enemy_num;
 
  // int rendered_ground_num;
+
+  int knives_per_throw;
+
   int block_recharge_timer_max;
   int block_recharge_timer;
   int block_cooldown_max;
@@ -388,7 +391,8 @@ void ShootBullet(
   double source_x,
   double source_y,
   double target_x,
-  double target_y);
+  double target_y,
+  double off_angle);
 
 bool HitPlayer(int bullet_id);
 void StopBullet(int bullet_id,bool is_player);
