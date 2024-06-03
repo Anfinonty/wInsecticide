@@ -580,18 +580,15 @@ void EnemyAct(int i)
   bool deduct_health=FALSE;
   if (Enemy[i].health>0) {
     Enemy[i].dist_from_player=GetDistance(player.x,player.y,Enemy[i].x,Enemy[i].y);
-    int dist_unit=GR_WIDTH/2+VGRID_SIZE*2;
+    double dist_unit=GR_WIDTH/2+VGRID_SIZE*2;
     if (GR_WIDTH<GR_HEIGHT)
       dist_unit=GR_HEIGHT/2+VGRID_SIZE*2;
 
+    if (Enemy[i].dist_from_player<=dist_unit)
+      Enemy[i].within_render_distance=TRUE;
+    else
+      Enemy[i].within_render_distance=FALSE;
 
-  //timebreaker enemy
-    if (Enemy[i].time_breaker_length>0 && !player.time_breaker) {
-      dice=RandNum(0,Enemy[i].time_breaker_rare,Enemy[i].seed);
-      if (dice==1) {
-        slash_time=Enemy[i].time_breaker_length;
-      }
-    }
 
     //Enemy bullet
     for (j=0;j<Enemy[i].bullet_shot_num;j++) {
@@ -614,7 +611,8 @@ void EnemyAct(int i)
               Enemy[i].knockback_timer=player.knockback_strength;
               Enemy[i].knockback_angle=Bullet[bk].angle;
               Enemy[i].player_knockback=FALSE;
-              Bullet[bk].angle=RandAngle(0,360,player.seed);
+              if (Bullet[bk].graphics_type!=6)
+                Bullet[bk].angle=RandAngle(0,360,player.seed);
               /*if (Bullet[bk].speed_multiplier<6) {
               }*/
             }
@@ -817,7 +815,17 @@ void EnemyAct(int i)
     }
 
     //Pathfinding and movement only act when within render distance
-    if ((!player.time_breaker || Enemy[i].time_breaker_immune) && Enemy[i].dist_from_player<=dist_unit) {
+    if ((!player.time_breaker || Enemy[i].time_breaker_immune) && Enemy[i].within_render_distance) {
+
+      //timebreaker enemy
+      if (Enemy[i].time_breaker_length>0 && !player.time_breaker) {
+        dice=RandNum(0,Enemy[i].time_breaker_rare,Enemy[i].seed);
+        if (dice==1) {
+          slash_time=Enemy[i].time_breaker_length;
+        }
+      }
+
+
       for (slash_time_i=0;slash_time_i<slash_time;slash_time_i++) {
         //Prevent reaching border
         if (Enemy[i].x<NODE_SIZE*2) {
@@ -1238,7 +1246,7 @@ void InitEnemy()
 
 void DrawEnemy(HDC hdc)
 {
-  int i=0,j=0,k=0;
+  int i=0,k=0;
   if (frame_tick==-8) {
     for (i=0;i<ENEMY_NUM;i++) {
       if (Enemy[i].species==1) {
@@ -1248,8 +1256,7 @@ void DrawEnemy(HDC hdc)
     }
   }
 
-  for (j=0;j<ENEMY_NUM;j++) {  
-    i=j;
+  for (i=0;i<ENEMY_NUM;i++) {  
     if (Enemy[i].species==1) {//rotate sprite
       if (Enemy[i].on_ground_id!=-1) {
         Enemy[i].sprite_angle=Enemy[i].angle;
@@ -1260,7 +1267,7 @@ void DrawEnemy(HDC hdc)
     }
 
 
-
+    //Drawing operations
     if (Enemy[i].health>0) { //enemy is alive
       for (k=0;k<Enemy[i].bullet_shot_num;k++) {
         DrawBullet(hdc,Enemy[i].bullet_shot_arr[k]);
@@ -1297,15 +1304,17 @@ void DrawEnemy(HDC hdc)
         } //else { // sprite_angle==saved angle
 
         for (int k=0;k<2;k++) {
-        if (Enemy[i].current_draw_row>=Enemy[i].sprite_miny && Enemy[i].current_draw_row<=Enemy[i].sprite_maxy) {
-          RotateSpriteII(hdc, enemy2_sprite_1, Enemy[i].sprite_1,Enemy[i].sprite_angle, LTGREEN, Enemy[i].color, -1, Enemy[i].sprite_minx, Enemy[i].sprite_miny, Enemy[i].sprite_maxx, Enemy[i].sprite_maxy, Enemy[i].current_draw_row); 
-          RotateSpriteII(hdc, enemy2_sprite_2, Enemy[i].sprite_2,Enemy[i].sprite_angle, LTGREEN, Enemy[i].color, -1, Enemy[i].sprite_minx, Enemy[i].sprite_miny, Enemy[i].sprite_maxx, Enemy[i].sprite_maxy, Enemy[i].current_draw_row);
-          Enemy[i].current_draw_row++;
-          if (Enemy[i].current_draw_row>=Enemy[i].sprite_maxy) {
-            Enemy[i].being_drawn=FALSE;
-            Enemy[i].current_draw_row=-9999;
+          if (Enemy[i].current_draw_row>=Enemy[i].sprite_miny && Enemy[i].current_draw_row<=Enemy[i].sprite_maxy && Enemy[i].within_render_distance) {
+            RotateSpriteII(hdc, enemy2_sprite_1, Enemy[i].sprite_1,Enemy[i].sprite_angle, LTGREEN, Enemy[i].color, -1, Enemy[i].sprite_minx, Enemy[i].sprite_miny, Enemy[i].sprite_maxx, Enemy[i].sprite_maxy, Enemy[i].current_draw_row); 
+            RotateSpriteII(hdc, enemy2_sprite_2, Enemy[i].sprite_2,Enemy[i].sprite_angle, LTGREEN, Enemy[i].color, -1, Enemy[i].sprite_minx, Enemy[i].sprite_miny, Enemy[i].sprite_maxx, Enemy[i].sprite_maxy, Enemy[i].current_draw_row);
+            Enemy[i].current_draw_row++;
+            //printf("===Drawing!\n");
+            if (Enemy[i].current_draw_row>=Enemy[i].sprite_maxy) {
+              Enemy[i].being_drawn=FALSE;
+              Enemy[i].current_draw_row=-9999;
+              //printf("Finished drawing!\n");
+            }
           }
-        }
         }
       } else { //other species 0
         if (Enemy[i].saved_angle==-9999) {
@@ -1323,18 +1332,19 @@ void DrawEnemy(HDC hdc)
       }
     } else if (Enemy[i].health>-1000 && Enemy[i].health<=0){ //enemy has died
       if (Enemy[i].health>-500) {
-      enemy_kills++;
-      player.health+=2;
-      if (player.max_web_num<MAX_WEB_NUM) {
-        player.max_web_num++;
-      }
-      if (!IsSpeedBreaking()) {
-        if (player.time_breaker_units<player.time_breaker_units_max-2 && !player.time_breaker) {
-          player.time_breaker_units+=2;
+        enemy_kills++;
+        player.health+=2;
+        if (player.max_web_num<MAX_WEB_NUM) {
+          player.max_web_num++;
         }
-      } else {
-        player.speed+=2;
-      }
+        //Add to player stats after defeat
+        if (!IsSpeedBreaking()) {
+          if (player.time_breaker_units<player.time_breaker_units_max-2 && !player.time_breaker) {
+            player.time_breaker_units+=2;
+          }
+        } else {
+          player.speed+=2;
+        }
       }
       if (Enemy[i].species==1) {  //Cockroach sprite
         if (Enemy[i].health>-500) {
@@ -1371,7 +1381,7 @@ void DrawEnemy(HDC hdc)
           Enemy[i].health=-501;
         }
 
-        if (Enemy[i].current_draw_row>=Enemy[i].sprite_miny && Enemy[i].current_draw_row<=Enemy[i].sprite_maxy) {
+        if (Enemy[i].current_draw_row>=Enemy[i].sprite_miny && Enemy[i].current_draw_row<=Enemy[i].sprite_maxy && Enemy[i].within_render_distance) {
           RotateSpriteII(hdc, enemy2_sprite_1, Enemy[i].sprite_1,Enemy[i].sprite_angle, LTGREEN, DKBLACK, TRANSPARENT, Enemy[i].sprite_minx, Enemy[i].sprite_miny, Enemy[i].sprite_maxx, Enemy[i].sprite_maxy,Enemy[i].current_draw_row);
           RotateSpriteII(hdc, enemy2_sprite_2, Enemy[i].sprite_2,Enemy[i].sprite_angle, LTGREEN, DKBLACK, TRANSPARENT, Enemy[i].sprite_minx, Enemy[i].sprite_miny, Enemy[i].sprite_maxx, Enemy[i].sprite_maxy, Enemy[i].current_draw_row);
           RotateSpriteII(hdc, enemy2_sprite_3, Enemy[i].sprite_3,Enemy[i].sprite_angle, LTGREEN, DKBLACK, TRANSPARENT, Enemy[i].sprite_minx, Enemy[i].sprite_miny, Enemy[i].sprite_maxx, Enemy[i].sprite_maxy, Enemy[i].current_draw_row);
@@ -1394,7 +1404,7 @@ void DrawEnemy(HDC hdc)
         Enemy[i].health=-99999;
       }
     }
-    //if (Enemy[i].saw_player) {
+    if (/*Enemy[i].saw_player &&*/ Enemy[i].within_render_distance) {
       if (Enemy[i].health>0) {
         char txt[2];
         int print_health=Enemy[i].health;
@@ -1451,6 +1461,6 @@ void DrawEnemy(HDC hdc)
           break;
       }
     }      
-  //}
+  }
 }
 

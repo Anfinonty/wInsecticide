@@ -38,39 +38,6 @@ void InitBullet()
 
 
 
-void ShootBulletII(
-  int bullet_id,
-  int saved_pos,
-  int color,
-  int graphics_type,
-  int range,
-  double speed,
-  int speed_multiplier,
-  int damage,
-  int enemy_id,
-  double start_x,
-  double start_y,
-  double angle)
-{
-  Bullet[bullet_id].shot=TRUE;
-  Bullet[bullet_id].graphics_type=graphics_type;
-  Bullet[bullet_id].saved_pos=saved_pos;
-  Bullet[bullet_id].color=color;
-  Bullet[bullet_id].start_range=range/2*NODE_SIZE;
-  Bullet[bullet_id].range=range/2*NODE_SIZE;
-  Bullet[bullet_id].speed=speed;
-  Bullet[bullet_id].speed_multiplier=speed_multiplier;
-  Bullet[bullet_id].damage=damage;
-  Bullet[bullet_id].from_enemy_id=enemy_id;
-  Bullet[bullet_id].start_x=Bullet[bullet_id].x=start_x;
-  Bullet[bullet_id].start_y=Bullet[bullet_id].y=start_y;
-  Bullet[bullet_id].angle=angle;
-}
-
-
-
-
-
 void ShootBullet(
   int bullet_id,
   int saved_pos,
@@ -205,6 +172,9 @@ void BulletAct(int bullet_id)
             player.bullet_shot=-1;
           }
         } else if (enemy_id==-2) {
+          if (Bullet[bullet_id].graphics_type==6 && Bullet[bullet_id].range<=Bullet[bullet_id].start_range-120) {
+            Bullet[bullet_id].graphics_type=5;
+          }
           if (Bullet[bullet_id].range>0) {
             if (!player.time_breaker) {
 	          allow_act=TRUE;
@@ -245,16 +215,24 @@ void BulletAct(int bullet_id)
         for (int k=0;k<player.bullet_shot_num;k++) {
           int bk=player.bullet[k];
           if (GetDistance(Bullet[bk].x,Bullet[bk].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
-            Bullet[bullet_id].angle=RandAngle(0,360,player.seed);
             if (!Bullet[bk].playsnd) {
               Bullet[bk].playsnd=TRUE;
             }
+
+
+            Bullet[bullet_id].angle=RandAngle(0,360,player.seed); //scatter type 6
             Bullet[bullet_id].speed=Bullet[bk].speed;
             Bullet[bullet_id].speed_multiplier=Bullet[bk].speed_multiplier;
-            Bullet[bk].angle=RandAngle(0,360,player.seed);
-            Bullet[bk].range-=4;
-            /*if (Bullet[bk].speed_multiplier<7) {
+            Bullet[bullet_id].range-=3;
+
+
+            /*if (Bullet[bk].speed_multiplier<7) { //if shotgun bullet, pierce through for the first few ranges
             }*/
+
+            if (Bullet[bk].graphics_type!=6) { //hit enemy bullet, scatter if NOT type 6
+              Bullet[bk].angle=RandAngle(0,360,player.seed);
+              Bullet[bk].range-=4;
+            }
           }
         }
         hit_player=HitPlayer(bullet_id);
@@ -568,13 +546,15 @@ void DrawBullet2(HDC hdc,int i,double x,double y,int color)
       }
       break;
     case 5:
-    {
-      //double le_angle=Bullet[i].angle;
-      //char bangle[12];
-      //sprintf(bangle,"%3.2f",le_angle);
-      //GrPrint(hdc,x,y-8,bangle,color);
+      {
       GrLine(hdc,x,y,x+10*cos(Bullet[i].angle),y+10*sin(Bullet[i].angle),color);
-    }
+      }
+      break;
+    case 6:
+      {
+      //GrLine(hdc,x,y,x+4*cos(Bullet[i].angle),y+4*sin(Bullet[i].angle),color);
+      GrCircle(hdc,x,y,RandNum(0,3,i),color,-1);
+      }
       break;
   }
 }

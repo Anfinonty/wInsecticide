@@ -441,12 +441,16 @@ void PlayerAct() {
     if (player.speed>24)
       b_dmg_m=4;
 
+
     if (player.bullet_shot_num<PLAYER_BULLET_NUM && !player.is_swinging && (PLAYER_BULLET_NUM-player.bullet_shot_num>=player.knives_per_throw)) {
       grad_x1=player.x+player.cam_move_x;
       grad_y1=player.y+player.cam_move_y;
       grad_x2=mouse_x-player.cam_x;
       grad_y2=mouse_y-player.cam_y;
       double tmp_angle=0;
+      int b_g_type=5;
+      if (player.knives_per_throw==15)
+        b_g_type=6;
       for (int q=0;q<player.knives_per_throw;q++) {
         if (q>0) {        
           if (q%2==0) {//even
@@ -460,7 +464,7 @@ void PlayerAct() {
             current_bullet_id,
 	        player.bullet_shot_num,
 	        player_bullet_color,
-            5, //graphics type
+            b_g_type, //graphics type
 	        MAX_WEB_LENGTH+player.speed*3, //range ==>
             1, //speed
 	        b_speed_m, //speed multiplier
@@ -483,7 +487,7 @@ void PlayerAct() {
         }
 
 
-        if (q==14) {
+        if ((q+1)%5==0) {
           PlayerPlaceWeb(); //Web related
           if (player.max_web_num-player.placed_web_num==0) {
             player.knives_per_throw=1;

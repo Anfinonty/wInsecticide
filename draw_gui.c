@@ -448,8 +448,12 @@ void DrawUI(HDC hdc) {
 
   char bullet_num_txt2[3];
   sprintf(bullet_num_txt2,"%d/%d",PLAYER_BULLET_NUM-player.bullet_shot_num,player.knives_per_throw);
-  GrPrint(hdc,player.sprite_x+48,player.sprite_y-16,bullet_num_txt2,c);
 
+  if (player.knives_per_throw!=15 && PLAYER_BULLET_NUM-player.bullet_shot_num<15) {
+    GrPrint(hdc,player.sprite_x+48,player.sprite_y-16,bullet_num_txt2,c);
+  } else {
+    GrPrint(hdc,player.sprite_x+48,player.sprite_y-16,bullet_num_txt2,LTCYAN);
+  }
 
   //draw perfect block
   if (player.on_ground_id==-1 && player.block_timer>0 && player.block_timer<=23) {

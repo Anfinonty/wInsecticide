@@ -471,10 +471,10 @@ int GetOnGroundIdPlayer(double x,double y,double min_range_1,double min_range_2)
 int GetOnGroundIdE(double x,double y,double min_range_1,double min_range_2,int enemy_id)
 {
   int i=0,j=-1,ground_id=0,on_grid_id=0;
-  double ground_entity_E=0,height_from_ground=0;//,_x=x,_y=x;
+  double ground_entity_E=0,height_from_ground=0,_x=x,_y=x;
 
 
-  /*int main_grid_id=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
+  int main_grid_id=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
 
   if (VGrid[main_grid_id].max_ground_num>0) {
   double main_grid_x=(VGrid[main_grid_id].x1+VGrid[main_grid_id].x2)/2;
@@ -515,7 +515,7 @@ int GetOnGroundIdE(double x,double y,double min_range_1,double min_range_2,int e
           index_quadrant=9;
           break;
       }
-    }*/
+    }
 
     if (0<x && x<MAP_WIDTH && 0<y && y<MAP_HEIGHT) { //within bounderies
       on_grid_id=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);//maths to get grid
@@ -540,8 +540,8 @@ int GetOnGroundIdE(double x,double y,double min_range_1,double min_range_2,int e
       }
     } //end of if
 
-  //} //end of for
-  //}
+  } //end of for
+  }
   if (j==-1) {
     return Enemy[enemy_id].saved_ground_id;
   }
