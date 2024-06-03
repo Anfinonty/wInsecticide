@@ -455,9 +455,6 @@ void PlayerAct() {
             tmp_angle-=M_PI_2/16*q;
           }
         }
-        if (q==14) {
-          PlayerPlaceWeb(); //Web related
-        }
 	    player.bullet[player.bullet_shot_num]=current_bullet_id;
         ShootBullet(
             current_bullet_id,
@@ -484,6 +481,17 @@ void PlayerAct() {
         if (current_bullet_id>=BULLET_NUM-1) {
           current_bullet_id=0;
         }
+
+
+        if (q==14) {
+          PlayerPlaceWeb(); //Web related
+          if (player.max_web_num-player.placed_web_num==0) {
+            player.knives_per_throw=1;
+          }
+        }
+
+
+
         if (player.max_web_num-player.placed_web_num==0 && q>5) {
           break;
         }

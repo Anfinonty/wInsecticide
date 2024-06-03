@@ -750,7 +750,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           if (player.knives_per_throw==5) {
             player.knives_per_throw=13;
           }
-          player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,PLAYER_BULLET_NUM+1);
+          if (player.max_web_num-player.placed_web_num>0) {          
+            player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,PLAYER_BULLET_NUM+1);
+          } else {
+            player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,5+1);
+          }
           break;
 	    case 'E':
           if (!in_main_menu) {
