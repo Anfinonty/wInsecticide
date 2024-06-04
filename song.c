@@ -103,15 +103,15 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
 
              if (!skip_song) {
                switch (song_mode) {
-               case 0: //Play Songs acending
-                  song_rand_num=LimitValue(song_rand_num+1,0,song_num);
-                  break;
-                case 1: //Play songs decending
-                 song_rand_num=LimitValue(song_rand_num-1,0,song_num);
-                 break;
-                case 2: //play songs shuffle
+                 case 0: //play songs shuffle
                   song_rand_num=RandNum(0,song_num-1,1);
                   break;
+                 case 1: //Play Songs acending
+                  song_rand_num=LimitValue(song_rand_num+1,0,song_num);
+                  break;
+                case 2: //Play songs decending
+                 song_rand_num=LimitValue(song_rand_num-1,0,song_num);
+                 break;
               }
             } else {
               skip_song=FALSE;

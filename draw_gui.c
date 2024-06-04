@@ -77,22 +77,29 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4)
 
       switch (song_mode) {
         case 0:
-          sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /%c] [SHIFT_M: /%c]",171,187,177,187,171);
+          sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /?] [/X :[N%cSHIFT%cM]: /%c]",171,187,177,171,187,187);
           break;
         case 1:
-          sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /%c] [SHIFT_M: /?]",171,187,177,171);
+          sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /%c] [/? :[N%cSHIFT%cM]: /%c]",171,187,177,187,171,187,171);
           break;
         case 2:
-          sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /?] [SHIFT_M: X]",171,187,177);
+          sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /%c] [/%c :[N%cSHIFT%cM]: /X]",171,187,177,171,187,171,187);
           break;
       }
       GrPrint(hdc,x,y+16,txt2,c);   
       GrPrint(hdc,x+1,y+1+16,txt2,c4);
     }
   } else {
-    GrPrint(hdc,x,y,"Press Shift + M to Enable Songs",c);
-    GrPrint(hdc,x+1,y+1,"Press Shift + M to Enable Songs",c4);
+    char txt2[72];
+    sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /X] [/%c :[N%cSHIFT%cM]: /%c]",171,187,177,171,171,187,187);
+    GrPrint(hdc,x,y+16,txt2,c);   
+    GrPrint(hdc,x+1,y+1+16,txt2,c4);
   }
+
+  /*char txt3[6];
+  sprintf(txt3,"%d",song_mode);
+  GrPrint(hdc,x,y+32,txt3,c);
+  GrPrint(hdc,x+1,y+32+1,txt3,c4);*/
 }
 
 
@@ -449,7 +456,7 @@ void DrawUI(HDC hdc) {
   char bullet_num_txt2[3];
   sprintf(bullet_num_txt2,"%d/%d",PLAYER_BULLET_NUM-player.bullet_shot_num,player.knives_per_throw);
 
-  if (player.knives_per_throw!=15 && PLAYER_BULLET_NUM-player.bullet_shot_num<15) {
+  if (player.knives_per_throw<5) {
     GrPrint(hdc,player.sprite_x+48,player.sprite_y-16,bullet_num_txt2,c);
   } else {
     GrPrint(hdc,player.sprite_x+48,player.sprite_y-16,bullet_num_txt2,LTCYAN);

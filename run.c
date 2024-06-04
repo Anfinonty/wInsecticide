@@ -706,7 +706,30 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           if(player.rst_up)
             player.rst_up=FALSE;
           break;
-          break;
+
+        case 'N':
+          if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+            if (song_mode==0 || song_mode==3) {
+              if (!stop_playing_song) {
+                stop_playing_song=TRUE;
+                toggle_stop_playing_song=TRUE;
+              } else { //renable song
+                remove("music/tmp/tmp.wav");
+                rmdir("music/tmp"); //remove tmp
+                InitSongBank();
+                song_rand_num=LimitValue(-1,0,song_num);
+                stop_playing_song=FALSE;
+              }
+            }
+            song_mode=LimitValue(song_mode-1,0,4);
+          } else {
+            if (!stop_playing_song) {
+              play_new_song=TRUE;
+              loading_flac=FALSE;
+            }
+          }
+          break;//end current song
+
 
         case 'M':
           if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
@@ -754,7 +777,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
           if (player.max_web_num-player.placed_web_num>3) {          
             player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,PLAYER_BULLET_NUM+1); //limit to 1,3,5,15
-          } else if (player.max_web_num-player.placed_web_num>1){ //limit to 1,3,5
+          } else if (player.max_web_num-player.placed_web_num>0){ //limit to 1,3,5
             player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,5+1);
           } else { //limit to 1,3
             player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,3+1);
