@@ -442,15 +442,29 @@ void PlayerAct() {
       b_dmg_m=4;
 
 
-    if (player.bullet_shot_num<PLAYER_BULLET_NUM && !player.is_swinging && (PLAYER_BULLET_NUM-player.bullet_shot_num>=player.knives_per_throw)) {
+    if (player.bullet_shot_num<PLAYER_BULLET_NUM && 
+        !player.is_swinging && 
+        (PLAYER_BULLET_NUM-player.bullet_shot_num>=player.knives_per_throw) // a/b whehere a>=b a is bullet in storage, b is bullet consumption
+    ) {
       grad_x1=player.x+player.cam_move_x;
       grad_y1=player.y+player.cam_move_y;
       grad_x2=mouse_x-player.cam_x;
       grad_y2=mouse_y-player.cam_y;
       double tmp_angle=0;
       int b_g_type=5;
-      if (player.knives_per_throw==15)
+
+      if (player.max_web_num-player.placed_web_num<3) {  //0,1,3,5
+        player.knives_per_throw=LimitValue(player.knives_per_throw,1,6);
+      } 
+      if (player.max_web_num-player.placed_web_num<1) {  //0,1,3
+        player.knives_per_throw=LimitValue(player.knives_per_throw,1,4);
+      }
+
+      if (player.knives_per_throw==15) {
         b_g_type=6;
+      }
+
+
       for (int q=0;q<player.knives_per_throw;q++) {
         if (q>0) {        
           if (q%2==0) {//even
@@ -489,6 +503,9 @@ void PlayerAct() {
 
         if ((q+1)%5==0) {
           PlayerPlaceWeb(); //Web related
+          if (player.knives_per_throw==15) {
+            
+          }
           if (player.max_web_num-player.placed_web_num==0) {
             player.knives_per_throw=1;
           }
@@ -1621,7 +1638,7 @@ void DrawPlayer(HDC hdc)
   GrPrint(hdc,player.sprite_x,player.sprite_y-30,hi,BLACK);
 
   char hi2[5];
-  int tmp_id=GetOnGroundId(player.x,player.y,5,4,TRUE);
+  int tmp_id=GetOnGroundIdPlayer(player.x,player.y,5,4);
   sprintf(hi2,"%d",tmp_id);
   GrPrint(hdc,player.sprite_x,player.sprite_y-50,hi2,BLACK);*/
 
