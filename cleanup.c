@@ -10,6 +10,8 @@ void CleanUpEnemy()
     Enemy[i].angle=0;
     Enemy[i].saved_angle=0;
     Enemy[i].sprite_angle=0;
+    Enemy[i].cosine=0;
+    Enemy[i].sine=0;
 
   Enemy[i].being_drawn=TRUE;
   Enemy[i].health=0;

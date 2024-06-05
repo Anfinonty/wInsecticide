@@ -285,6 +285,7 @@ void InitRDGrid();
 void InitVRDGrid();
 void CameraInit(double x,double y);
 void InitPlayerCamera();
+void PlayerBulletLimitAct();
 bool NearCrawler();
 void CleanUpPlayer();
 bool YesInitRDGrid();
@@ -530,6 +531,8 @@ struct enemy
   double sprite_y;
   double speed;
   double knockback_angle;
+  double cosine;
+  double sine;
 
   //double x_height_from_ground;
   //double x_height_from_prev_ground;

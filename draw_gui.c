@@ -91,7 +91,7 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4)
     }
   } else {
     char txt2[72];
-    sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /X] [/%c :[N%cSHIFT%cM]: /%c]",171,187,177,171,171,187,187);
+    sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /X] [/%c :[N%cSHIFT%cM]: /?]",171,187,177,171,171,187);
     GrPrint(hdc,x,y+16,txt2,c);   
     GrPrint(hdc,x+1,y+1+16,txt2,c4);
   }
@@ -251,8 +251,10 @@ lunar_year
   GrPrint(hdc,30,lvls_y+16*(level_chosen%max_lvl_rows)+16,"        \\/",WHITE);
 
 
+  DrawPlayingMusic(hdc,30,10+16*16,BLACK,WHITE);
 
-  GrPrint(hdc,30,10+16*16,"[SHIFT_ESC]: Exit",WHITE);
+
+  /*GrPrint(hdc,30,10+16*16,"[SHIFT_ESC]: Exit",WHITE);
   GrPrintW(hdc,30,10+16*17,L"[SHIFT] + 'L': Unifont [ពេលរាត្រី]","",WHITE,16,FALSE,yes_unifont);
   GrPrint(hdc,30,10+16*18,"Player Color: [LEFT] <    > [RIGHT]",WHITE);
 
@@ -265,7 +267,7 @@ lunar_year
     GrRect(hdc,30+8*18,10+32+16*16+2,12,12,draw_color_arr[player_color]);
   }
 
-  DrawPlayingMusic(hdc,30,10+32+16*19,BLACK,WHITE);
+  DrawPlayingMusic(hdc,30,10+32+16*19,BLACK,WHITE);*/
 
 
 }

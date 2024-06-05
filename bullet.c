@@ -168,6 +168,7 @@ void BulletAct(int bullet_id)
           } else { //web too long, retract
             StopBullet(player.bullet_shot,TRUE); //Stop the web
             PlayerPlaceWeb(); //Web related
+            PlayerBulletLimitAct();
             player.web_being_shot=-1;
             player.bullet_shot=-1;
           }

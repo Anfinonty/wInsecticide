@@ -539,7 +539,7 @@ void DrawBitmap(HDC hDC,double _x1,double _y1, double _x2, double _y2, int width
 
 
 //Set values to variables
-void SetRotatedSpriteSize(HDC hDC, HBITMAP hSourceBitmap,double radians, int *minx, int *miny, int *maxx, int *maxy, int *width, int *height)
+void SetRotatedSpriteSize(HDC hDC, HBITMAP hSourceBitmap,double radians, int *minx, int *miny, int *maxx, int *maxy, int *width, int *height, double *_cosine, double *_sine)
 {
   HBITMAP hOldSourceBitmap; ////https://www.codeguru.com/multimedia/rotate-a-bitmap-image/
   HDC hMemSrc;
@@ -574,6 +574,9 @@ void SetRotatedSpriteSize(HDC hDC, HBITMAP hSourceBitmap,double radians, int *mi
   *width = (_maxx - _minx);
   *height = (_maxy - _miny);
 
+  *_cosine = cosine;
+  *_sine = sine;
+
   hOldSourceBitmap = SelectObject(hMemSrc, hSourceBitmap);
   SelectObject(hMemSrc, hOldSourceBitmap);
   DeleteObject(hOldSourceBitmap);
@@ -583,7 +586,7 @@ void SetRotatedSpriteSize(HDC hDC, HBITMAP hSourceBitmap,double radians, int *mi
 
 
 //After finding the rotated sprite size, begin drawing
-void RotateSpriteII(HDC hDC, HBITMAP hSourceBitmap, HBITMAP hDestBitmap,double radians,int rTransparent, int sprite_color, int sprite_color_2, int minx, int miny, int maxx, int maxy, int y) 
+void RotateSpriteII(HDC hDC, HBITMAP hSourceBitmap, HBITMAP hDestBitmap, double cosine,double sine, int rTransparent, int sprite_color, int sprite_color_2, int minx, int miny, int maxx, int maxy, int y)
 { //if (hSourceBitmap != NULL) { ////https://ftp.zx.net.nz/pub/Patches/ftp.microsoft.com/MISC/KB/en-us/77/127.HTM
   HBITMAP hOldSourceBitmap, hOldDestBitmap; ////https://www.codeguru.com/multimedia/rotate-a-bitmap-image/
   HDC hMemSrc,hMemDest;
@@ -593,10 +596,6 @@ void RotateSpriteII(HDC hDC, HBITMAP hSourceBitmap, HBITMAP hDestBitmap,double r
   hMemDest= CreateCompatibleDC(hDC);
 
   GetObject(hSourceBitmap, sizeof(BITMAP), (LPSTR)&iSrcBitmap);
-
-  double cosine = (double)cos(radians);
-  double sine = (double)sin(radians);
-
   hOldSourceBitmap = SelectObject(hMemSrc, hSourceBitmap);
   hOldDestBitmap = SelectObject(hMemDest, hDestBitmap);
 
@@ -619,7 +618,10 @@ void RotateSpriteII(HDC hDC, HBITMAP hSourceBitmap, HBITMAP hDestBitmap,double r
 	int sourcey = (int)(y*cosine-x*sine); //get pixel from sprite, y-axis
 	if(sourcex>=0 && sourcex<iSrcBitmap.bmWidth && sourcey>=0
 	 	 && sourcey<iSrcBitmap.bmHeight ) {
-       current_pixel=GetPixel(hMemSrc,sourcex,sourcey); //get current pixel color
+      current_pixel=GetPixel(hMemSrc,sourcex,sourcey); //get current pixel color
+
+
+
       if (current_pixel==rTransparent) { //Set Target Transparent color (i.e. LTGREEN) to BLACK
 	    SetPixel(hMemDest, x, y, BLACK);
       } else if (current_pixel==BLACK){
@@ -629,7 +631,7 @@ void RotateSpriteII(HDC hDC, HBITMAP hSourceBitmap, HBITMAP hDestBitmap,double r
           } else { //change BLACK to DKBLACK 
 	        SetPixel(hMemDest, x, y, DKBLACK);
           }
-        } else {
+        } else { //dither color of sprite
           if (sprite_color!=BLACK) { //Set BLACK to Custom Color
             if (y%2==0) {
               if (x%2==0) {
@@ -651,6 +653,9 @@ void RotateSpriteII(HDC hDC, HBITMAP hSourceBitmap, HBITMAP hDestBitmap,double r
       } else { //Set pixel, no change to color
 	    SetPixel(hMemDest, x, y, current_pixel);
       }
+
+
+
     }
   }
   //}
@@ -665,6 +670,8 @@ void RotateSpriteII(HDC hDC, HBITMAP hSourceBitmap, HBITMAP hDestBitmap,double r
   DeleteDC(hMemDest);
   DeleteDC(hMemSrc);
 }
+
+
 
 
 
