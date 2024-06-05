@@ -212,6 +212,11 @@ long long game_timer=0;
 bool game_over=FALSE;
 int enemy_kills=0;
 int FPS = 60;
+int main_menu_chosen=0;
+
+int option_choose=0;
+bool game_cam_shake=TRUE;
+bool game_audio=TRUE;
 
 
 
@@ -537,9 +542,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             if (!in_main_menu) {
               player.rst_down=TRUE;
             } else {
-              level_chosen++;
-              if (level_chosen>level_num-1) {
-                level_chosen=0;
+              switch (main_menu_chosen) {
+                case 0:
+                  level_chosen=LimitValue(level_chosen+1,0,level_num);
+                  break;
+                case 1:
+                  option_choose=LimitValue(option_choose+1,0,3);
+                  break;
               }
             }
             break;
@@ -548,7 +557,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         case VK_RIGHT:
           player.rst_right=TRUE;
           if (in_main_menu) {
-            player_color=LimitValue(player_color+1,0,COLORS_NUM);
+            if (main_menu_chosen==1) {
+            switch (option_choose) {
+              case 0:
+                player_color=LimitValue(player_color+1,0,COLORS_NUM);
+                break;
+              case 1:
+                game_audio=!game_audio;
+                break;
+              case 2:
+                game_cam_shake=!game_cam_shake;
+                break;
+            }
+            }
           }
           break;
 
@@ -557,7 +578,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         case VK_LEFT:
           player.rst_left=TRUE;
           if (in_main_menu) {
-            player_color=LimitValue(player_color-1,0,COLORS_NUM);
+            if (main_menu_chosen==1) {
+            switch (option_choose) {
+              case 0:
+                player_color=LimitValue(player_color+1,0,COLORS_NUM);
+                break;
+              case 1:
+                game_audio=!game_audio;
+                break;
+              case 2:
+                game_cam_shake=!game_cam_shake;
+                break;
+            }
+            }
           }
           break;
 
@@ -567,9 +600,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           if (!in_main_menu) {
             player.rst_up=TRUE;
           } else {
-            level_chosen--;
-            if (level_chosen<0) {
-              level_chosen=level_num-1;
+            switch (main_menu_chosen) {
+              case 0:
+                level_chosen=LimitValue(level_chosen-1,0,level_num);
+                break;
+              case 1:
+                option_choose=LimitValue(option_choose-1,0,3);
+                break;
             }
           }
           break;
@@ -579,8 +616,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           if (!in_main_menu) {
             flag_restart=TRUE;
           } else {//Run Level
-            if (player_color>-1 && player_color<COLORS_NUM) {
-              if (level_chosen>=0 && level_chosen<level_num)
+            if (player_color>-1 && player_color<COLORS_NUM) {               
+              if (level_chosen>=0 && level_chosen<level_num && main_menu_chosen==0)
                 InitLevel(hwnd, hdc);
             }
           }
@@ -627,7 +664,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           if (!in_main_menu) {
             if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
               player.time_breaker=TRUE;
-              PlaySound(L"snd/timebreaker__start.wav", NULL, SND_FILENAME | SND_ASYNC);
+              if (game_audio) {
+                PlaySound(L"snd/timebreaker__start.wav", NULL, SND_FILENAME | SND_ASYNC);
+              }
               player.time_breaker_cooldown=player.time_breaker_cooldown_max;
               player.speed+=player.time_breaker_units_max/2-1;
             }
@@ -644,7 +683,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           if (!in_main_menu) {
             if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
               player.time_breaker=TRUE;
-              PlaySound(L"snd/timebreaker__start.wav", NULL, SND_FILENAME | SND_ASYNC);
+              if (game_audio) {
+                PlaySound(L"snd/timebreaker__start.wav", NULL, SND_FILENAME | SND_ASYNC);
+              }
               player.time_breaker_cooldown=player.time_breaker_cooldown_max;
               player.speed+=player.time_breaker_units_max/2-1;
             }
@@ -767,11 +808,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	    case '1':
           if (!in_main_menu) {
 	        player.attack_rst=TRUE;
+          } else {
+            main_menu_chosen=LimitValue(main_menu_chosen+1,0,2);
           }
 	      break;
 
 
         case '2':
+          if (!in_main_menu) {
           if (player.max_web_num-player.placed_web_num>=3 && player.knives_per_throw==5) {
             player.knives_per_throw=13;
           }
@@ -782,6 +826,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           } else { //limit to 1,3
             player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,3+1);
           }
+          }
+          //PlayerBulletLimitAct();
           break;
 
 
@@ -812,9 +858,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
     case WM_PAINT: //https://cplusplus.com/forum/beginner/269434/
-
-
-
       FrameRateSleep(FPS); // (Uncapped) //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
       if (!IsIconic(hwnd)) //no action when minimized, prevents crash https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-isiconic?redirectedfrom=MSDN
       {
@@ -892,7 +935,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
           if (!(player.time_breaker || player.is_swinging || player.is_rebounding)) {
-            PlayerCameraShake();
+            if (game_cam_shake) {
+              PlayerCameraShake();
+            }
           } else {
             player.cam_move_x=0;
             player.cam_move_y=0;

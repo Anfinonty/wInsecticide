@@ -210,13 +210,15 @@ void BulletAct(int bullet_id)
           Bullet[bullet_id].angle=RandAngle(0,360,Enemy[enemy_id].seed);//RandNum(-M_PI_2*100,M_PI_2*100,Enemy[enemy_id].seed)/100;
           Bullet[bullet_id].speed=Bullet[player.bullet_shot].speed;
           Bullet[bullet_id].speed_multiplier=Bullet[player.bullet_shot].speed_multiplier;
-          Bullet[player.bullet_shot].playsnd=TRUE;
+          if (game_audio) {
+            Bullet[player.bullet_shot].playsnd=TRUE;
+          }
           Bullet[player.bullet_shot].range-=2;
         }
         for (int k=0;k<player.bullet_shot_num;k++) {
           int bk=player.bullet[k];
           if (GetDistance(Bullet[bk].x,Bullet[bk].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
-            if (!Bullet[bk].playsnd) {
+            if (!Bullet[bk].playsnd && game_audio) {
               Bullet[bk].playsnd=TRUE;
             }
 

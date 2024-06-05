@@ -169,18 +169,20 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
 
     if (!in_main_menu) {
       //Play Game Souond
-      if (!player.time_breaker) {
-        for (int i=0;i<player.bullet_shot_num;i++) {
-          BulletSndAct(player.bullet[i]);
+      if (game_audio) {
+        if (!player.time_breaker) {
+          for (int i=0;i<player.bullet_shot_num;i++) {
+            BulletSndAct(player.bullet[i]);
+          }
         }
+        if (player.bullet_shot!=-1) {
+          BulletSndAct(player.bullet_shot);
+        }
+        for (int i=0;i<ENEMY_NUM;i++) {
+          EnemySndAct(i);
+        }
+        PlayerSndAct();       
       }
-      if (player.bullet_shot!=-1) {
-        BulletSndAct(player.bullet_shot);
-      }
-      for (int i=0;i<ENEMY_NUM;i++) {
-        EnemySndAct(i);
-      }
-      PlayerSndAct();
       Sleep(6); //fast loop
     } else {
       if (clean_up_sound) {

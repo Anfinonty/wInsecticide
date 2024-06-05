@@ -198,6 +198,23 @@ void CleanUpPlayer()
 }
 
 
+void PlayerBulletLimitAct()
+{
+  /*if (player.max_web_num-player.placed_web_num>=3 && player.knives_per_throw==5) {
+    player.knives_per_throw=13;
+  }*/
+  if (player.max_web_num-player.placed_web_num>3) {          
+    player.knives_per_throw=LimitValue(player.knives_per_throw,1,PLAYER_BULLET_NUM+1); //limit to 1,3,5,15
+  } else if (player.max_web_num-player.placed_web_num>0){ //limit to 1,3,5
+    player.knives_per_throw=LimitValue(player.knives_per_throw,1,6);
+  } else { //limit to 1,3
+    player.knives_per_throw=LimitValue(player.knives_per_throw,1,4);
+  }
+
+}
+
+
+
 void InitPlayer() {
   int i;
   player.hiding=FALSE;
@@ -503,9 +520,9 @@ void PlayerAct() {
 
         if ((q+1)%5==0) {
           PlayerPlaceWeb(); //Web related
-          if (player.knives_per_throw==15) {
+          /*if (player.knives_per_throw==15) {
             
-          }
+          }*/
           if (player.max_web_num-player.placed_web_num==0) {
             player.knives_per_throw=1;
           }
@@ -620,6 +637,7 @@ void PlayerAct() {
             SetGround(web_id);
             SetNodeGridAttributes(web_id);
             PlayerPlaceWeb();
+            PlayerBulletLimitAct();
             Ground[web_id].health=150;//-q;
             player.speed++;
           }
@@ -1294,7 +1312,9 @@ void PlayerAct() {
         if (player.time_breaker_units==0) {
           player.time_breaker=FALSE;
           player.flag_revert_palette=TRUE;
-          PlaySound(L"snd/timebreaker__stop.wav", NULL, SND_FILENAME | SND_ASYNC);
+           if (game_audio) {
+            PlaySound(L"snd/timebreaker__stop.wav", NULL, SND_FILENAME | SND_ASYNC);
+          }
         }
       }
     }

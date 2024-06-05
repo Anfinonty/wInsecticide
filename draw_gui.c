@@ -227,49 +227,81 @@ lunar_year
 
   GrPrintW(hdc,30,10,L"អាពីងស៊ីរុយ - Welcome to the wInsecticide Menu!","",WHITE,16,FALSE,yes_unifont);
 
+
+
+
+
+
+
   int max_lvl_rows=10;
   char page_num[32];
-  sprintf(page_num,"[%d/%d]",(level_chosen/max_lvl_rows)+1,(level_num/max_lvl_rows)+1);
-  GrPrint(hdc,30,10+32,page_num,WHITE);
+  //Print Loaded Levels to Choose
+  switch (main_menu_chosen) {
+    case 0:
+      sprintf(page_num,"Levels - [%d/%d]",(level_chosen/max_lvl_rows)+1,(level_num/max_lvl_rows)+1);
+      GrPrint(hdc,30,10+32,page_num,WHITE);
+
+      int lvls_y=10+16*4;
+      int lvl_i=0;
+
+      for (int i=0;i<max_lvl_rows;i++) { //Print Levels
+         lvl_i=i+10*(level_chosen/max_lvl_rows);
+         GrPrint(hdc,30,lvls_y+16*i,"-_________",WHITE);
+         if (lvl_i<level_num) {
+           GrPrintW(hdc,30+8*11,lvls_y+16*i,level_names[lvl_i],"",WHITE,16,FALSE,yes_unifont);
+         }
+      }
+
+      //Draw Level Selector
+      GrPrint(hdc,30,lvls_y+16*(level_chosen%max_lvl_rows),"   [ENTER]",WHITE);
+      GrPrint(hdc,30+66,2+lvls_y+16*(level_chosen%max_lvl_rows),"   *",WHITE);
+      GrPrint(hdc,30,lvls_y+16*(level_chosen%max_lvl_rows)-16,"        /\\",WHITE);
+      GrPrint(hdc,30,lvls_y+16*(level_chosen%max_lvl_rows)+16,"        \\/",WHITE);
+      DrawPlayingMusic(hdc,30,10+16*16,BLACK,WHITE);
+      GrPrint(hdc,30,10+16*19,"'1': Go to Options.",WHITE);
+      break;
 
 
-  int lvls_y=10+16*4;
-  int lvl_i=0;
+    case 1:
+      GrPrint(hdc,30,10+16*2,"Options:",WHITE);
+      GrPrint(hdc,30,10+16*4,"[SHIFT_ESC]: Exit",WHITE);
+      GrPrintW(hdc,30,10+16*5,L"[SHIFT] + 'L': Unifont [ពេលរាត្រី]","",WHITE,16,FALSE,yes_unifont);
 
-  for (int i=0;i<max_lvl_rows;i++) { //Print Levels
-     lvl_i=i+10*(level_chosen/max_lvl_rows);
-     GrPrint(hdc,30,lvls_y+16*i,"-_________",WHITE);
-     if (lvl_i<level_num) {
-       GrPrintW(hdc,30+8*11,lvls_y+16*i,level_names[lvl_i],"",WHITE,16,FALSE,yes_unifont);
-     }
+
+
+      GrPrint(hdc,30,10+16*8,"Player Color:",WHITE);
+      GrPrint(hdc,30+13*8,10+16*8,"<    >",WHITE);
+      //Draw Square
+      if (player_color!=0) {
+        GrRect(hdc,30+8*14,10+16*8,16,16,BLACK);
+      } else {
+        GrRect(hdc,30+8*14,10+16*8,16,16,WHITE);
+      }
+      if (player_color>-1 && player_color<COLORS_NUM) {
+        GrRect(hdc,30+8*14+2,10+16*8+2,12,12,draw_color_arr[player_color]);
+      }
+
+
+      GrPrint(hdc,30,10+16*9,"Audio:",WHITE);
+      if (game_audio) {
+        GrPrint(hdc,30+13*8,10+16*9,"<ON>",WHITE);
+      } else {
+        GrPrint(hdc,30+13*8,10+16*9,"<OFF>",WHITE);
+      }
+
+
+      GrPrint(hdc,30,10+16*10,"Camera Shake:",WHITE);
+      if (game_cam_shake) {
+        GrPrint(hdc,30+13*8,10+16*10,"<ON>",WHITE);
+      } else {
+        GrPrint(hdc,30+13*8,10+16*10,"<OFF>",WHITE);
+      }
+
+      GrPrint(hdc,20,10+16*8+16*option_choose,"*",WHITE);
+
+      GrPrint(hdc,30,10+16*13,"'1': Go back to Main Menu.",WHITE);
+      break;
   }
-
-  //Draw Level Selector
-  GrPrint(hdc,30,lvls_y+16*(level_chosen%max_lvl_rows),"   [ENTER]",WHITE);
-  GrPrint(hdc,30+66,2+lvls_y+16*(level_chosen%max_lvl_rows),"   *",WHITE);
-  GrPrint(hdc,30,lvls_y+16*(level_chosen%max_lvl_rows)-16,"        /\\",WHITE);
-  GrPrint(hdc,30,lvls_y+16*(level_chosen%max_lvl_rows)+16,"        \\/",WHITE);
-
-
-  DrawPlayingMusic(hdc,30,10+16*16,BLACK,WHITE);
-
-
-  /*GrPrint(hdc,30,10+16*16,"[SHIFT_ESC]: Exit",WHITE);
-  GrPrintW(hdc,30,10+16*17,L"[SHIFT] + 'L': Unifont [ពេលរាត្រី]","",WHITE,16,FALSE,yes_unifont);
-  GrPrint(hdc,30,10+16*18,"Player Color: [LEFT] <    > [RIGHT]",WHITE);
-
-  if (player_color!=0) {
-    GrRect(hdc,30+8*18-2,10+32+16*16,16,16,BLACK);
-  } else {
-    GrRect(hdc,30+8*18-2,10+32+16*16,16,16,WHITE);
-  }
-  if (player_color>-1 && player_color<COLORS_NUM) {
-    GrRect(hdc,30+8*18,10+32+16*16+2,12,12,draw_color_arr[player_color]);
-  }
-
-  DrawPlayingMusic(hdc,30,10+32+16*19,BLACK,WHITE);*/
-
-
 }
 
 
@@ -278,7 +310,7 @@ lunar_year
 
 
 
-#define HELP_TEXT_ARR_NUM1   13
+#define HELP_TEXT_ARR_NUM1   14
 char help_txt_arr1[HELP_TEXT_ARR_NUM1][64]=
 {
   "Controls:",
@@ -290,6 +322,7 @@ char help_txt_arr1[HELP_TEXT_ARR_NUM1][64]=
   "'Z' - Time Breaker Ability",
   "'C' - Increase Reaction Time",
   "'E' - Hold with Attack for Uppercut",
+  "'2' - Change Web Firing Style",
   "[Space] - Sprint",
   "[Left Click] or '1' - Attack and Stop Web Shooting",
   "[Right Click] - Shoot web",

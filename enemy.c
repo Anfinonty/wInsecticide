@@ -607,7 +607,9 @@ void EnemyAct(int i)
       	  case 0://fly
             if (dist_from_bullet0<=NODE_SIZE*2) {
               Enemy[i].health-=Bullet[bk].damage;
-              PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
+              if (game_audio) {
+                PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
+              }
               Enemy[i].knockback_timer=player.knockback_strength;
               Enemy[i].knockback_angle=Bullet[bk].angle;
               Enemy[i].player_knockback=FALSE;
@@ -619,7 +621,9 @@ void EnemyAct(int i)
 	        break;
          case 1://crawl
             Enemy[i].health-=Bullet[bk].damage;
-            PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
+            if (game_audio) {
+              PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
+            }
             Enemy[i].knockback_timer=player.knockback_strength;
             Enemy[i].knockback_angle=Bullet[bk].angle;
             Enemy[i].player_knockback=FALSE;
@@ -642,7 +646,9 @@ void EnemyAct(int i)
       switch (Enemy[i].species) {
 	    case 0://fly
           if (dist_from_bullet<=NODE_SIZE*2) {
-            PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);
+            if (game_audio) {
+              PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);
+            }
             Enemy[i].health-=Bullet[player.bullet_shot].damage;
             Enemy[i].knockback_timer=player.knockback_strength;
             Enemy[i].knockback_angle=Bullet[player.bullet_shot].angle;            
@@ -650,7 +656,9 @@ void EnemyAct(int i)
           }
           break;
         case 1://crawl
-          PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);
+          if (game_audio) {
+            PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);
+          }
           Enemy[i].health-=Bullet[player.bullet_shot].damage;
           Enemy[i].knockback_timer=player.knockback_strength;
           Enemy[i].knockback_angle=Bullet[player.bullet_shot].angle;
@@ -795,7 +803,9 @@ void EnemyAct(int i)
     if (deduct_health) {
       deduct_health=FALSE;
       Enemy[i].health-=player.attack_strength;
-      PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
+      if (game_audio) {
+        PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
+      }
     }
 
 
