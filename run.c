@@ -816,16 +816,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         case '2':
           if (!in_main_menu) {
-          if (player.max_web_num-player.placed_web_num>=3 && player.knives_per_throw==5) {
-            player.knives_per_throw=13;
-          }
-          if (player.max_web_num-player.placed_web_num>3) {          
-            player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,PLAYER_BULLET_NUM+1); //limit to 1,3,5,15
-          } else if (player.max_web_num-player.placed_web_num>0){ //limit to 1,3,5
-            player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,5+1);
-          } else { //limit to 1,3
-            player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,3+1);
-          }
+            if (player.max_web_num-player.placed_web_num>=3 && player.knives_per_throw==5) {
+              player.knives_per_throw=13;
+            }
+            if (player.max_web_num-player.placed_web_num>=3) {          
+              player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,PLAYER_BULLET_NUM+1); //limit to 1,3,5,15
+            } else if (player.max_web_num-player.placed_web_num>0){ //limit to 1,3,5
+              player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,5+1);
+            } else { //limit to 1,3
+              player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,3+1);
+            }
           }
           //PlayerBulletLimitAct();
           break;

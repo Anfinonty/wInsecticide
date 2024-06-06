@@ -203,7 +203,7 @@ void PlayerBulletLimitAct()
   /*if (player.max_web_num-player.placed_web_num>=3 && player.knives_per_throw==5) {
     player.knives_per_throw=13;
   }*/
-  if (player.max_web_num-player.placed_web_num>3) {          
+  if (player.max_web_num-player.placed_web_num>=3) {          
     player.knives_per_throw=LimitValue(player.knives_per_throw,1,PLAYER_BULLET_NUM+1); //limit to 1,3,5,15
   } else if (player.max_web_num-player.placed_web_num>0){ //limit to 1,3,5
     player.knives_per_throw=LimitValue(player.knives_per_throw,1,6);
@@ -523,6 +523,7 @@ void PlayerAct() {
           /*if (player.knives_per_throw==15) {
             
           }*/
+          PlayerBulletLimitAct();
           if (player.max_web_num-player.placed_web_num==0) {
             player.knives_per_throw=1;
           }
@@ -732,7 +733,7 @@ void PlayerAct() {
                 if (player.speed>DEFAULT_PLAYER_SPEED)
                   player.speed--;
               } else {
-                if (player.speed>6)
+                if (player.speed>8)
                   player.speed--;
               }
             } else {
