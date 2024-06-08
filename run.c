@@ -980,12 +980,51 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           if (back_to_menu) {
             CleanUpPlayer(); //clean up all sprites
             CleanUpEnemySprites();
-            CleanUpGrid();
-            CleanUpNodeGrid();
+            //CleanUpGrid();
+            //CleanUpNodeGrid();
             CleanUpEnemy();
-            CleanUpGround();
+            //CleanUpGround();
             CleanupPlayerAttributes();
             save_level[0]='\0';
+
+
+
+
+            //free saved grounds pointer & Ground
+            free(pt_saved_ground_is_ghost);
+            free(pt_saved_ground_color);
+            free(pt_saved_ground_type);
+            free(pt_saved_ground_x1);
+            free(pt_saved_ground_y1);
+            free(pt_saved_ground_x2);
+            free(pt_saved_ground_y2);
+            free(pt_saved_ground_x3);
+            free(pt_saved_ground_y3);
+            //free(pt_saved_ground_text);
+
+
+            for (int i=0;i<GROUND_NUM+MAX_WEB_NUM;i++) {
+              //free(&Ground[i]); //free actual arr
+              free(Ground[i]); //free pointer
+            }
+            //free(GroundL); //free actual
+            free(Ground); //free pointer
+
+
+
+            for (int i=0;i<MAP_NODE_NUM;i++) {
+              free(NodeGrid[i]); //free actual arr and pointer
+            }
+            //free(NodeGridA); //free actual
+            free(NodeGrid); //free pointer
+
+
+
+            for (int i=0;i<VGRID_NUM;i++) {
+              free(VGrid[i]);
+            }
+            free(VGrid);
+
 
             DeleteObject(map_platforms_sprite); //delete sprites
             DeleteObject(map_platforms_sprite_mask);
@@ -1028,7 +1067,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       remove("music/tmp/tmp.wav");
       rmdir("music/tmp"); //remove tmp
 
-      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៩ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1969-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1445_11_28-2"), TEXT("អាពីងស៊ីរុយ") ,MB_OK);
+      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៩ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1969-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1445_11_28-3"), TEXT("អាពីងស៊ីរុយ") ,MB_OK);
 
       //load levels in save
       GetSavesInDir(L"saves");

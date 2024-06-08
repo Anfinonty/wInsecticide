@@ -8,7 +8,7 @@ int MAP_NODE_NUM;
 
 
 //GROUND_NUM
-double saved_ground_x1[MAX_GROUND_NUM];
+/*double saved_ground_x1[MAX_GROUND_NUM];
 double saved_ground_y1[MAX_GROUND_NUM];
 double saved_ground_x2[MAX_GROUND_NUM];
 double saved_ground_y2[MAX_GROUND_NUM];
@@ -17,7 +17,36 @@ double saved_ground_y3[MAX_GROUND_NUM];
 bool saved_ground_is_ghost[MAX_GROUND_NUM];
 int saved_ground_color[MAX_GROUND_NUM];
 int saved_ground_type[MAX_GROUND_NUM];
-wchar_t saved_ground_text[MAX_GROUND_NUM][512]; //charsize 512
+wchar_t saved_ground_text[MAX_GROUND_NUM][512];*/ //charsize 512
+
+
+//saved ground attributes pointers
+bool *saved_ground_is_ghost;
+int *saved_ground_color;
+int *saved_ground_type;
+double *saved_ground_x1;
+double *saved_ground_y1;
+double *saved_ground_x2;
+double *saved_ground_y2;
+double *saved_ground_x3;
+double *saved_ground_y3;
+//wchar_t **saved_ground_text;
+
+
+//pointer to pointer
+bool **pt_saved_ground_is_ghost = &saved_ground_is_ghost;
+int **pt_saved_ground_color = &saved_ground_color;
+int **pt_saved_ground_type = &saved_ground_type;
+double **pt_saved_ground_x1 = &saved_ground_x1;
+double **pt_saved_ground_y1 = &saved_ground_y1;
+double **pt_saved_ground_x2 = &saved_ground_x2;
+double **pt_saved_ground_y2 = &saved_ground_y2;
+double **pt_saved_ground_x3 = &saved_ground_x3;
+double **pt_saved_ground_y3 = &saved_ground_y3;
+//wchar_t ***pt_saved_ground_text = &saved_ground_text;
+
+
+wchar_t saved_ground_text[MAX_GROUND_NUM][512];
 
 //ENEMY_NUM
 int saved_enemy_type[MAX_ENEMY_NUM];
@@ -182,6 +211,48 @@ void LoadSave(wchar_t *saves_name)
             GRID_NUM=(MAP_WIDTH/GRID_SIZE) * (MAP_HEIGHT/GRID_SIZE);
             VGRID_NUM=(MAP_WIDTH/VGRID_SIZE) * (MAP_HEIGHT/VGRID_SIZE);
             MAP_NODE_NUM=(MAP_WIDTH/NODE_SIZE) * (MAP_HEIGHT/NODE_SIZE);
+
+
+            //malloc attributes
+            saved_ground_is_ghost=(bool *)malloc(sizeof(bool)*GROUND_NUM);
+            saved_ground_color=(int *)malloc(sizeof(int)*GROUND_NUM);
+            saved_ground_type=(int *)malloc(sizeof(int)*GROUND_NUM);
+            saved_ground_x1=(double *)malloc(sizeof(double)*GROUND_NUM);
+            saved_ground_y1=(double *)malloc(sizeof(double)*GROUND_NUM);
+            saved_ground_x2=(double *)malloc(sizeof(double)*GROUND_NUM);
+            saved_ground_y2=(double *)malloc(sizeof(double)*GROUND_NUM);
+            saved_ground_x3=(double *)malloc(sizeof(double)*GROUND_NUM);
+            saved_ground_y3=(double *)malloc(sizeof(double)*GROUND_NUM);
+            //saved_ground_text=(wchar_t **)malloc(sizeof(wchar_t)*GROUND_NUM*512);
+            GroundA = (struct GroundLine*) calloc((GROUND_NUM+MAX_WEB_NUM),sizeof(struct GroundLine)+sizeof(bool)*VGRID_NUM+sizeof(int)*VGRID_NUM);//calloc(GROUND_NUM+MAX_WEB_NUM,sizeof(struct GroundLine));
+            Ground = (struct GroundLine**) calloc((GROUND_NUM+MAX_WEB_NUM),sizeof(struct GroundLine*));
+            for (int i=0;i<(GROUND_NUM+MAX_WEB_NUM);i++) {
+              Ground[i] = &GroundA[i];
+            }
+            
+
+
+            NodeGridA = (struct node*) calloc(MAP_NODE_NUM,sizeof(struct node));
+            NodeGrid = (struct node **) calloc(MAP_NODE_NUM,sizeof(struct node*));
+            for (int i=0;i<MAP_NODE_NUM;i++) {
+              NodeGrid[i] = &NodeGridA[i];
+            }
+
+
+
+            VGridA =  (struct vgrid*) calloc(VGRID_NUM,sizeof(struct vgrid));
+            VGrid = (struct vgrid**) calloc(VGRID_NUM,sizeof(struct vgrid*));
+            for (int i=0;i<VGRID_NUM;i++) {
+              VGrid[i] = &VGridA[i];
+            }
+
+
+            /*EnemyA = (struct enemy*) calloc(ENEMY_NUM,sizeof(struct enemy));
+            Enemy = (struct enemy**) calloc(ENEMY_NUM,sizeof(struct enemy*));
+            for (int i=0;i<ENEMY_NUM;i++) {
+              Enemy[i] = &EnemyA[i];
+            }*/
+
             break;
           case 40:
             saved_player_x=(double)int_saved_val;

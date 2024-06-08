@@ -631,15 +631,15 @@ void PlayerAct() {
           int web_id=player.web_storage[player.placed_web_pos];
           if (web_id!=-1) {
             player.previous_web_placed=web_id;
-            Ground[web_id].x1=bm_x1;
-            Ground[web_id].y1=bm_y1;
-            Ground[web_id].x2=bm_x2;
-            Ground[web_id].y2=bm_y2;
+            Ground[web_id]->x1=bm_x1;
+            Ground[web_id]->y1=bm_y1;
+            Ground[web_id]->x2=bm_x2;
+            Ground[web_id]->y2=bm_y2;
             SetGround(web_id);
             SetNodeGridAttributes(web_id);
             PlayerPlaceWeb();
             PlayerBulletLimitAct();
-            Ground[web_id].health=150;//-q;
+            Ground[web_id]->health=150;//-q;
             player.speed++;
           }
         }
@@ -688,7 +688,7 @@ void PlayerAct() {
       //player.on_ground_id=GetOnGroundId(player.x,player.y,5,4,TRUE);
 
    //hiding?    (legacy feature)
-      if (NodeGrid[GetGridId(player.above_x,player.above_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM)].node_solid) {
+      if (NodeGrid[GetGridId(player.above_x,player.above_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM)]->node_solid) {
         player.hiding=TRUE;
       } else {
         player.hiding=FALSE;
@@ -749,12 +749,12 @@ void PlayerAct() {
 
 
         //player ground interaction
-        if  ((Ground[player.on_ground_id].x1-10<player.x &&  player.x<Ground[player.on_ground_id].x2+10) &&
-              ((Ground[player.on_ground_id].y1-10<player.y && player.y<Ground[player.on_ground_id].y2+10) ||
-               (Ground[player.on_ground_id].y2-10<player.y && player.y<Ground[player.on_ground_id].y1+10)))
+        if  ((Ground[player.on_ground_id]->x1-10<player.x &&  player.x<Ground[player.on_ground_id]->x2+10) &&
+              ((Ground[player.on_ground_id]->y1-10<player.y && player.y<Ground[player.on_ground_id]->y2+10) ||
+               (Ground[player.on_ground_id]->y2-10<player.y && player.y<Ground[player.on_ground_id]->y1+10)))
           {
          //Within ground axes
-          player.angle=Ground[player.on_ground_id].angle; //set player angle
+          player.angle=Ground[player.on_ground_id]->angle; //set player angle
 
           if (player.in_air_timer>0) {
             if (player.in_air_timer>1000) { //make player rebound

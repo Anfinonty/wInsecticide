@@ -313,8 +313,8 @@ void BulletAct(int bullet_id)
             }
           }
         } else if (bullet_on_ground_id>=GROUND_NUM && bullet_on_ground_id!=player.web_being_shot) { //Not on web being shot
-	      Ground[bullet_on_ground_id].health-=Bullet[bullet_id].damage;
-	      if (Ground[bullet_on_ground_id].health<=0) {//completely destroy web at 0 health (can be regained after '4')
+	      Ground[bullet_on_ground_id]->health-=Bullet[bullet_id].damage;
+	      if (Ground[bullet_on_ground_id]->health<=0) {//completely destroy web at 0 health (can be regained after '4')
             DestroyGround(bullet_on_ground_id); 
             player.cdwebs[player.cdweb_pos]=bullet_on_ground_id;
             player.cdweb_pos++;
@@ -366,7 +366,7 @@ void BulletAct(int bullet_id)
           }
 	      //---web related-------
           /*if (bullet_on_ground_id>=GROUND_NUM) {
-            Ground[bullet_on_ground_id].health+=2;//heal ground
+            Ground[bullet_on_ground_id]->health+=2;//heal ground
           }*/
           player.web_being_shot=-1;
           player.bullet_shot=-1;
@@ -485,7 +485,7 @@ Ascii art woo!! :D
    *Al-Khwarizmi
 */
 
-          Bullet[bullet_id].angle=2*M_PI-Bullet[bullet_id].angle+2*Ground[bullet_on_ground_id].angle; //real
+          Bullet[bullet_id].angle=2*M_PI-Bullet[bullet_id].angle+2*Ground[bullet_on_ground_id]->angle; //real
           if (bullet_on_ground_id>=GROUND_NUM) { //elastic web            
             Bullet[bullet_id].range+=80;
             Bullet[bullet_id].speed_multiplier+=2;
@@ -498,7 +498,7 @@ Ascii art woo!! :D
           if (Bullet[bullet_id].angle<0) {
             Bullet[bullet_id].angle+=2*M_PI;
           }
-          //if (abs(Ground[bullet_on_ground_id].angle)-0.05<=abs(Bullet[bullet_id].angle) && abs(Bullet[bullet_id].angle)<=abs(Ground[bullet_on_ground_id].angle)+0.05) { //destroy bullet in invalid state
+          //if (abs(Ground[bullet_on_ground_id]->angle)-0.05<=abs(Bullet[bullet_id].angle) && abs(Bullet[bullet_id].angle)<=abs(Ground[bullet_on_ground_id]->angle)+0.05) { //destroy bullet in invalid state
             //Bullet[bullet_id].range=-1;
           //}
           if (Bullet[bullet_id].saved_ground_id==bullet_on_ground_id) { //prevents riding of wall

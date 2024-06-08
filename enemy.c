@@ -96,10 +96,10 @@ void InitEnemyPathfinding(int enemy_id,double target_x,double target_y)
       if (node_id!=-1) {
         switch (Enemy[enemy_id].species) {
 	  case 0://standard
-            Enemy[enemy_id].node_solid[i]=NodeGrid[node_id].node_solid;
+            Enemy[enemy_id].node_solid[i]=NodeGrid[node_id]->node_solid;
 	    break;
 	  case 1://inverse
-            Enemy[enemy_id].node_solid[i]=!NodeGrid[node_id].node_solid;
+            Enemy[enemy_id].node_solid[i]=!NodeGrid[node_id]->node_solid;
 	    if (!Enemy[enemy_id].node_solid[i]) {
               enemy_species1_solids[species1_solid_num]=i;
 	      species1_solid_num++;
@@ -301,12 +301,12 @@ void EnemySpecies1Gravity(int enemy_id)
 
     if (abs(height_from_ground)<=31) {
       if (height_from_ground>0) {    //species 1 above ground (positive)
-        Enemy[enemy_id].angle=Ground[Enemy[enemy_id].on_ground_id].angle;
+        Enemy[enemy_id].angle=Ground[Enemy[enemy_id].on_ground_id]->angle;
         Enemy[enemy_id].above_ground=TRUE;
         Enemy[enemy_id].below_ground=FALSE;
         Enemy[enemy_id].flip_sprite=FALSE;
       } else {    //species 1 below ground
-        Enemy[enemy_id].angle=-Ground[Enemy[enemy_id].on_ground_id].angle-M_PI;
+        Enemy[enemy_id].angle=-Ground[Enemy[enemy_id].on_ground_id]->angle-M_PI;
         Enemy[enemy_id].above_ground=FALSE;
         Enemy[enemy_id].below_ground=TRUE;
         if(Enemy[enemy_id].last_left) {
@@ -331,11 +331,11 @@ void EnemySpecies1Gravity(int enemy_id)
       int tmp_grnd=Enemy[enemy_id].on_ground_id; //rebound enemy froun ground
       if (tmp_grnd!=-1) {
         if (Enemy[enemy_id].above_ground) {
-          Enemy[enemy_id].x-=cos(Ground[tmp_grnd].angle+M_PI_2);
-          Enemy[enemy_id].y-=sin(Ground[tmp_grnd].angle+M_PI_2);
+          Enemy[enemy_id].x-=cos(Ground[tmp_grnd]->angle+M_PI_2);
+          Enemy[enemy_id].y-=sin(Ground[tmp_grnd]->angle+M_PI_2);
         } else if (Enemy[enemy_id].below_ground){
-          Enemy[enemy_id].x-=cos(Ground[tmp_grnd].angle-M_PI_2);
-          Enemy[enemy_id].y-=sin(Ground[tmp_grnd].angle-M_PI_2);      
+          Enemy[enemy_id].x-=cos(Ground[tmp_grnd]->angle-M_PI_2);
+          Enemy[enemy_id].y-=sin(Ground[tmp_grnd]->angle-M_PI_2);      
         }
       }
     }
@@ -467,7 +467,7 @@ void EnemyLOSAct(int i)
         Enemy[i].LOS_shot=FALSE;
       } else {
 	allow_act=FALSE;
-        if (!Ground[los_on_ground_id].is_ghost) {
+        if (!Ground[los_on_ground_id]->is_ghost) {
 	  if (los_on_ground_id<GROUND_NUM && los_on_ground_id!=-1) {
 	    allow_act=TRUE;
 	  }
@@ -1003,7 +1003,7 @@ void EnemyAct(int i)
       }
       if (!Enemy[i].ignore_player && Enemy[i].saw_player) { //chasing player
         if (Enemy[i].species==0 &&
-            NodeGrid[GetGridId(Enemy[i].x,Enemy[i].y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM)].node_solid)
+            NodeGrid[GetGridId(Enemy[i].x,Enemy[i].y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM)]->node_solid)
         {   //become blind when inside a solid
           Enemy[i].saw_player=FALSE;
           Enemy[i].idling=TRUE;

@@ -35,7 +35,12 @@ struct GroundLine
   int saved_pos_in_grid[MAX_VGRID_NUM]; //MAX VGRID NUM
 };
 //} Ground[GROUND_NUM+MAX_WEB_NUM];
-struct GroundLine Ground[MAX_GROUND_NUM+MAX_WEB_NUM];
+//struct GroundLine Ground[MAX_GROUND_NUM+MAX_WEB_NUM];
+
+
+struct GroundLine* GroundA; //Actual Ground
+struct GroundLine** Ground; //Pointer to Actual Ground
+
 
 
 void InitGround();
@@ -309,8 +314,9 @@ struct vgrid
   int ground_ids[MAX_GROUNDS_WITHIN_GRID]; //id of grounds that are occupying this grid
 };
 //} VGrid[VGRID_NUM];
-struct vgrid VGrid[MAX_VGRID_NUM];
-
+//struct vgrid VGrid[MAX_VGRID_NUM];
+struct vgrid* VGridA;
+struct vgrid** VGrid;
 
 struct node
 {
@@ -322,8 +328,9 @@ struct node
   int y2;
 };
 //} NodeGrid[MAP_NODE_NUM];
-struct node NodeGrid[MAX_MAP_NODE_NUM];
-
+//struct node NodeGrid[MAX_MAP_NODE_NUM];
+struct node* NodeGridA;
+struct node** NodeGrid;
 
 int GetGridId(int x,int y,int width, int size,int max);
 void SetGridLineArray(int grid_id,int ground_id);
@@ -563,7 +570,8 @@ struct enemy
 }; 
 //} Enemy[ENEMY_NUM];
 struct enemy Enemy[MAX_ENEMY_NUM];
-
+//struct enemy* EnemyA;
+//struct enemy** Enemy;
 
 int CalculateDistanceCost(int enemy_id,int a, int b);
 int smallest_f_cost(int enemy_id);
