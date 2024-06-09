@@ -2,7 +2,7 @@
 
 
 
-struct GroundLine
+typedef struct GroundLine
 {
   bool is_ghost; //Can be colided or not collided
   bool within_render_distance; //Is the ground within the player's Render Distance Grid'
@@ -33,13 +33,18 @@ struct GroundLine
 //  int saved_pos_in_grid[MAX_GRID_IN_GROUND]; //MAX VGRID NUM
   bool already_in_grid[MAX_VGRID_NUM]; //MAX VGRID NUM
   int saved_pos_in_grid[MAX_VGRID_NUM]; //MAX VGRID NUM
-};
+} AGround;
 //} Ground[GROUND_NUM+MAX_WEB_NUM];
 //struct GroundLine Ground[MAX_GROUND_NUM+MAX_WEB_NUM];
 
+//https://stackoverflow.com/questions/48222554/c-creating-a-struct-array-beyond-certain-size-causes-a-crash
+AGround *createGround()
+{
+  AGround *toReturn = malloc(sizeof(AGround));
+  return toReturn;
+}
 
-struct GroundLine* GroundA; //Actual Ground
-struct GroundLine** Ground; //Pointer to Actual Ground
+AGround **Ground;
 
 
 
@@ -314,9 +319,9 @@ struct vgrid
   int ground_ids[MAX_GROUNDS_WITHIN_GRID]; //id of grounds that are occupying this grid
 };
 //} VGrid[VGRID_NUM];
-//struct vgrid VGrid[MAX_VGRID_NUM];
-struct vgrid* VGridA;
-struct vgrid** VGrid;
+struct vgrid VGrid[MAX_VGRID_NUM];
+//struct vgrid* VGridA;
+//struct vgrid** VGrid;
 
 struct node
 {
@@ -328,9 +333,9 @@ struct node
   int y2;
 };
 //} NodeGrid[MAP_NODE_NUM];
-//struct node NodeGrid[MAX_MAP_NODE_NUM];
-struct node* NodeGridA;
-struct node** NodeGrid;
+struct node NodeGrid[MAX_MAP_NODE_NUM];
+//struct node* NodeGridA;
+//struct node** NodeGrid;
 
 int GetGridId(int x,int y,int width, int size,int max);
 void SetGridLineArray(int grid_id,int ground_id);
@@ -545,10 +550,10 @@ struct enemy
   //double x_height_from_prev_ground;
 
 
+  //6715632
   HBITMAP sprite_1;
   HBITMAP sprite_2;
   HBITMAP sprite_3;
-  //6715632
 
 
 
@@ -572,6 +577,15 @@ struct enemy
 struct enemy Enemy[MAX_ENEMY_NUM];
 //struct enemy* EnemyA;
 //struct enemy** Enemy;
+
+
+
+/*struct enemy_sprite {
+  HBITMAP sprite_1;
+  HBITMAP sprite_2;
+  HBITMAP sprite_3;
+};
+struct enemy_sprite EnemySprite[MAX_ENEMY_NUM];*/
 
 int CalculateDistanceCost(int enemy_id,int a, int b);
 int smallest_f_cost(int enemy_id);

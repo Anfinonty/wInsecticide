@@ -83,7 +83,7 @@ void ShootBullet(
     y1=source_y;
   }
   //cos(angle) = adjacent/hypothenuse
-  /*0 -> 90 degs*/
+  /*0 . 90 degs*/
 
   //determine angle quadrant
   if (target_x<source_x) {// LEFT
@@ -394,13 +394,13 @@ void BulletAct(int bullet_id)
                     (Clockwise)
 
 
-                    0 -> M_PI_2     |       -M_PI_2 -> 0
-            M_PI -> M_PI+M_PI_2     |       M_PI+M_PI_2-> 2*M_PI       
+                    0 . M_PI_2     |       -M_PI_2 . 0
+            M_PI . M_PI+M_PI_2     |       M_PI+M_PI_2. 2*M_PI       
                     Positive        |       Negative
                     --------------/m.\\---------------
                     Negative        |       Positive
-                    -M_PI_2 -> 0    |       0 -> M_PI_2
-                     M_PI_2 -> M_PI         0 -> M_PI_2
+                    -M_PI_2 . 0    |       0 . M_PI_2
+                     M_PI_2 . M_PI         0 . M_PI_2
 
                         left              !left
 
@@ -426,12 +426,12 @@ void BulletAct(int bullet_id)
 
    (Clockwise)
     Right Side:
-        Upwards: M_PI+M_PI_2 -> 2*M_PI
-      Downwards: 0 -> M_PI_2
+        Upwards: M_PI+M_PI_2 . 2*M_PI
+      Downwards: 0 . M_PI_2
 
     Left Side:
-      Downwards: M_PI_2 -> M_PI 
-        Upwards: M_PI -> M_PI+M_PI_2
+      Downwards: M_PI_2 . M_PI 
+        Upwards: M_PI . M_PI+M_PI_2
 
 
 

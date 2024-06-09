@@ -96,10 +96,10 @@ void InitEnemyPathfinding(int enemy_id,double target_x,double target_y)
       if (node_id!=-1) {
         switch (Enemy[enemy_id].species) {
 	  case 0://standard
-            Enemy[enemy_id].node_solid[i]=NodeGrid[node_id]->node_solid;
+            Enemy[enemy_id].node_solid[i]=NodeGrid[node_id].node_solid;
 	    break;
 	  case 1://inverse
-            Enemy[enemy_id].node_solid[i]=!NodeGrid[node_id]->node_solid;
+            Enemy[enemy_id].node_solid[i]=!NodeGrid[node_id].node_solid;
 	    if (!Enemy[enemy_id].node_solid[i]) {
               enemy_species1_solids[species1_solid_num]=i;
 	      species1_solid_num++;
@@ -1003,7 +1003,7 @@ void EnemyAct(int i)
       }
       if (!Enemy[i].ignore_player && Enemy[i].saw_player) { //chasing player
         if (Enemy[i].species==0 &&
-            NodeGrid[GetGridId(Enemy[i].x,Enemy[i].y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM)]->node_solid)
+            NodeGrid[GetGridId(Enemy[i].x,Enemy[i].y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM)].node_solid)
         {   //become blind when inside a solid
           Enemy[i].saw_player=FALSE;
           Enemy[i].idling=TRUE;
