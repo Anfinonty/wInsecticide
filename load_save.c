@@ -239,10 +239,9 @@ void LoadSave(wchar_t *saves_name)
             for (int i=0;i<(GROUND_NUM+MAX_WEB_NUM);i++) {
               //struct GroundLine* buf = malloc(sizeof(struct GroundLine));
               //printf("buf:%d\n",i);
-              AGround *newGround = createGround();
+              AGround *newGround = createGround(VGRID_NUM);
               Ground[i] = newGround;//malloc(sizeof(struct GroundLine));
             }
-            //printf("Alloc Grounds==\n");
             
 
             for (int i=0;i<VGRID_NUM;i++) {

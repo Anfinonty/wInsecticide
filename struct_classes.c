@@ -31,22 +31,31 @@ typedef struct GroundLine
 //  bool already_in_grid[MAX_GRID_IN_GROUND]; //MAX VGRID NUM
 //  int saved_pos_in_grid_id[MAX_GRID_IN_GROUND];
 //  int saved_pos_in_grid[MAX_GRID_IN_GROUND]; //MAX VGRID NUM
-  bool already_in_grid[MAX_VGRID_NUM]; //MAX VGRID NUM
-  int saved_pos_in_grid[MAX_VGRID_NUM]; //MAX VGRID NUM
+  bool* already_in_grid; //MAX VGRID NUM
+  int* saved_pos_in_grid; //MAX VGRID NUM
 } AGround;
 //} Ground[GROUND_NUM+MAX_WEB_NUM];
 //struct GroundLine Ground[MAX_GROUND_NUM+MAX_WEB_NUM];
 
 //https://stackoverflow.com/questions/48222554/c-creating-a-struct-array-beyond-certain-size-causes-a-crash
-AGround *createGround()
+AGround *createGround(int vgrid_num)
 {
   AGround *toReturn = malloc(sizeof(AGround));
+  if (vgrid_num>MAX_VGRID_NUM) {
+    vgrid_num=MAX_VGRID_NUM;
+  }
+  toReturn->already_in_grid = malloc(vgrid_num*sizeof(bool));
+  toReturn->saved_pos_in_grid = malloc(vgrid_num*sizeof(int));
   return toReturn;
 }
 
 
 void freeGround(AGround *myGround)
 {
+  if (myGround->already_in_grid != NULL)
+    free(myGround->already_in_grid);    
+  if (myGround->saved_pos_in_grid != NULL)
+    free(myGround->saved_pos_in_grid);
   if (myGround)
     free(myGround);
 }
@@ -328,23 +337,6 @@ typedef struct vgrid
 //} VGrid[VGRID_NUM];
 //struct vgrid VGrid[MAX_VGRID_NUM];
 //struct vgrid* VGridA;
-
-
-/*
-} AGround;
-//} Ground[GROUND_NUM+MAX_WEB_NUM];
-//struct GroundLine Ground[MAX_GROUND_NUM+MAX_WEB_NUM];
-
-//https://stackoverflow.com/questions/48222554/c-creating-a-struct-array-beyond-certain-size-causes-a-crash
-AGround *createGround()
-{
-  AGround *toReturn = malloc(sizeof(AGround));
-  return toReturn;
-}
-
-AGround **Ground;
-
-*/
 
 
 AVGrid *createVGrid()
@@ -665,12 +657,8 @@ struct enemy_sprites
 
 };
 struct enemy_sprites EnemySprite[MAX_ENEMY_NUM];
-/*struct enemy_sprite {
-  HBITMAP sprite_1;
-  HBITMAP sprite_2;
-  HBITMAP sprite_3;
-};
-struct enemy_sprite EnemySprite[MAX_ENEMY_NUM];*/
+
+
 
 int CalculateDistanceCost(int enemy_id,int a, int b);
 int smallest_f_cost(int enemy_id);

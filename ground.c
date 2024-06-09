@@ -194,7 +194,7 @@ void InitGround()
 //Set ground default and Web
   for (i=0;i<GROUND_NUM+MAX_WEB_NUM;i++) {
     //printf("-Ground%d/%d\n",i,GROUND_NUM);
-    for (j=0;j<MAX_VGRID_NUM;j++) {
+    for (j=0;j<VGRID_NUM;j++) {
       Ground[i]->already_in_grid[j]=FALSE;
       Ground[i]->saved_pos_in_grid[j]=-1;
     }
