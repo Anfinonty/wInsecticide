@@ -195,7 +195,7 @@ void BulletAct(int bullet_id)
         }
 
 
-      } else if (!player.time_breaker || Enemy[enemy_id].time_breaker_immune) {//enemy
+      } else if (!player.time_breaker || Enemy[enemy_id]->time_breaker_immune) {//enemy
 	    allow_act=TRUE;
       }
       if (allow_act) { //bullet movement default
@@ -207,7 +207,7 @@ void BulletAct(int bullet_id)
       //
       if (enemy_id>-1) { //Enemy bullet
         if (GetDistance(Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
-          Bullet[bullet_id].angle=RandAngle(0,360,Enemy[enemy_id].seed);//RandNum(-M_PI_2*100,M_PI_2*100,Enemy[enemy_id].seed)/100;
+          Bullet[bullet_id].angle=RandAngle(0,360,Enemy[enemy_id]->seed);//RandNum(-M_PI_2*100,M_PI_2*100,Enemy[enemy_id]->seed)/100;
           Bullet[bullet_id].speed=Bullet[player.bullet_shot].speed;
           Bullet[bullet_id].speed_multiplier=Bullet[player.bullet_shot].speed_multiplier;
           if (game_audio) {
@@ -245,7 +245,7 @@ void BulletAct(int bullet_id)
       //bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,0.5,0.5,FALSE);
         bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2);
 	    allow_act=FALSE;
-        if (Enemy[enemy_id].health>0) {
+        if (Enemy[enemy_id]->health>0) {
 	      if (hit_player) {
             //player.time_breaker_units=0;
             //player.sleep_timer=DEFAULT_SLEEP_TIMER;
@@ -273,7 +273,7 @@ void BulletAct(int bullet_id)
     	    }*/
 
 	        } else {//player is blocking
-             // Bullet[bullet_id].angle=RandAngle(0,360,Enemy[enemy_id].seed);
+             // Bullet[bullet_id].angle=RandAngle(0,360,Enemy[enemy_id]->seed);
               blocked_bullet_dmg=Bullet[bullet_id].damage;
 	          if (player.block_timer>23) {//non-perfect block
 	            if (player.on_ground_id!=-1) {//on ground
@@ -339,13 +339,13 @@ void BulletAct(int bullet_id)
         
        StopBullet(bullet_id,FALSE); 
         //Enemy bullet shot array arrangement
-	  for (j=Bullet[bullet_id].saved_pos;j<Enemy[enemy_id].bullet_shot_num-1;j++) { //shift to left in enemy bullet shot arr from bullet shot
-	    Enemy[enemy_id].bullet_shot_arr[j]=Enemy[enemy_id].bullet_shot_arr[j+1];
-        Bullet[Enemy[enemy_id].bullet_shot_arr[j]].saved_pos--;
+	  for (j=Bullet[bullet_id].saved_pos;j<Enemy[enemy_id]->bullet_shot_num-1;j++) { //shift to left in enemy bullet shot arr from bullet shot
+	    Enemy[enemy_id]->bullet_shot_arr[j]=Enemy[enemy_id]->bullet_shot_arr[j+1];
+        Bullet[Enemy[enemy_id]->bullet_shot_arr[j]].saved_pos--;
       }
       Bullet[bullet_id].saved_pos=-1;
-	  Enemy[enemy_id].bullet_shot_arr[Enemy[enemy_id].bullet_shot_num-1]=-1; //remove bullet from arr
-      Enemy[enemy_id].bullet_shot_num--;
+	  Enemy[enemy_id]->bullet_shot_arr[Enemy[enemy_id]->bullet_shot_num-1]=-1; //remove bullet from arr
+      Enemy[enemy_id]->bullet_shot_num--;
     }
   } else {//player bullet while travelling
     bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2);

@@ -489,7 +489,7 @@ void DrawBullet(HDC hdc,int i);
 
 
 
-struct enemy
+typedef struct enemy
 {
   //Line Of Sight bullet
 
@@ -615,10 +615,6 @@ struct enemy
 
 
   //6715632
-  HBITMAP sprite_1;
-  HBITMAP sprite_2;
-  HBITMAP sprite_3;
-
 
 
   int bullet_head_y[MAX_BULLET_PER_FIRE];
@@ -636,14 +632,39 @@ struct enemy
   double node_hcost[MAX_NODE_NUM];
   double node_fcost[MAX_NODE_NUM];
   int bullet_shot_arr[ENEMY_BULLET_NUM];
-}; 
+} AEnemy; 
 //} Enemy[ENEMY_NUM];
-struct enemy Enemy[MAX_ENEMY_NUM];
+//struct enemy Enemy[MAX_ENEMY_NUM];
 //struct enemy* EnemyA;
-//struct enemy** Enemy;
 
 
 
+AEnemy *createEnemy()
+{
+  AEnemy *toReturn = malloc(sizeof(AEnemy));
+  return toReturn;
+}
+
+
+void freeEnemy(AEnemy *myEnemy)
+{
+  if (myEnemy)
+    free(myEnemy);
+}
+
+
+AEnemy **Enemy;
+
+
+
+struct enemy_sprites
+{
+  HBITMAP sprite_1;
+  HBITMAP sprite_2;
+  HBITMAP sprite_3;
+
+};
+struct enemy_sprites EnemySprite[MAX_ENEMY_NUM];
 /*struct enemy_sprite {
   HBITMAP sprite_1;
   HBITMAP sprite_2;

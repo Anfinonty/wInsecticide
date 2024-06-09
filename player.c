@@ -79,7 +79,7 @@ void InitRDGrid()
   //player.rendered_enemy_num=0;
 
   /*for (int i=0;i<ENEMY_NUM;i++) {
-    if (Enemy[i].x>RDGrid.x1 && Enemy[i].x<RDGrid.x2 && Enemy[i].y>RDGrid.y1 && Enemy[i].y<RDGrid.y2) {
+    if (Enemy[i]->x>RDGrid.x1 && Enemy[i]->x<RDGrid.x2 && Enemy[i]->y>RDGrid.y1 && Enemy[i]->y<RDGrid.y2) {
       player_render_enemies[player.rendered_enemy_num]=i;
       player.rendered_enemy_num++;
     }
@@ -1468,18 +1468,18 @@ void DrawPlayer(HDC hdc)
   if (player.flag_revert_palette && player.time_breaker_tick<=0) {
     BitmapPalette(hdc,map_platforms_sprite,rgbColorsDefault);
     for (int i=0;i<ENEMY_NUM;i++) {
-      if (Enemy[i].health>0) {
-        if (Enemy[i].species==1) {
-          Enemy[i].saved_angle=Enemy[i].sprite_angle-1;
+      if (Enemy[i]->health>0) {
+        if (Enemy[i]->species==1) {
+          Enemy[i]->saved_angle=Enemy[i]->sprite_angle-1;
         }
-        if (Enemy[i].sprite_1!=NULL) {
-          BitmapPalette(hdc,Enemy[i].sprite_1,rgbColorsDefault);
+        if (EnemySprite[i].sprite_1!=NULL) {
+          BitmapPalette(hdc,EnemySprite[i].sprite_1,rgbColorsDefault);
         }
-        if (Enemy[i].sprite_2!=NULL) {
-          BitmapPalette(hdc,Enemy[i].sprite_2,rgbColorsDefault);
+        if (EnemySprite[i].sprite_2!=NULL) {
+          BitmapPalette(hdc,EnemySprite[i].sprite_2,rgbColorsDefault);
         }
-        if (Enemy[i].sprite_3!=NULL) {
-          BitmapPalette(hdc,Enemy[i].sprite_3,rgbColorsDefault);
+        if (EnemySprite[i].sprite_3!=NULL) {
+          BitmapPalette(hdc,EnemySprite[i].sprite_3,rgbColorsDefault);
         }
       }
     }
@@ -1518,15 +1518,15 @@ void DrawPlayer(HDC hdc)
       }
     } else {
       for (int i=0;i<ENEMY_NUM;i++) {
-        if (Enemy[i].health>0) {
-        if (Enemy[i].sprite_1!=NULL && !Enemy[i].time_breaker_immune) {
-          BitmapPalette(hdc,Enemy[i].sprite_1,rgbColorsNoir);
+        if (Enemy[i]->health>0) {
+        if (EnemySprite[i].sprite_1!=NULL && !Enemy[i]->time_breaker_immune) {
+          BitmapPalette(hdc,EnemySprite[i].sprite_1,rgbColorsNoir);
         }
-        if (Enemy[i].sprite_2!=NULL && !Enemy[i].time_breaker_immune) {
-          BitmapPalette(hdc,Enemy[i].sprite_2,rgbColorsNoir);
+        if (EnemySprite[i].sprite_2!=NULL && !Enemy[i]->time_breaker_immune) {
+          BitmapPalette(hdc,EnemySprite[i].sprite_2,rgbColorsNoir);
         }
-        if (Enemy[i].sprite_3!=NULL && !Enemy[i].time_breaker_immune) {
-          BitmapPalette(hdc,Enemy[i].sprite_3,rgbColorsNoir);
+        if (EnemySprite[i].sprite_3!=NULL && !Enemy[i]->time_breaker_immune) {
+          BitmapPalette(hdc,EnemySprite[i].sprite_3,rgbColorsNoir);
         }
         }
       }

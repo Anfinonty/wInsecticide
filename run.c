@@ -949,9 +949,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             player.cam_move_y=0;
           }
 
-          for (int i=0;i<ENEMY_NUM;i++) { //Enemy has random seed value
-            Enemy[i].seed=rand();
-          }
           player.seed=rand();
 
 
@@ -990,7 +987,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             CleanUpEnemySprites();
             //CleanUpGrid();
             //CleanUpNodeGrid();
-            CleanUpEnemy();
+            //CleanUpEnemy();
             //CleanUpGround();
             CleanupPlayerAttributes();
             save_level[0]='\0';
@@ -1025,6 +1022,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               freeVGrid(VGrid[i]); //free actual obj
             }
 
+
+            for (int i=0;i<ENEMY_NUM;i++) {
+              freeEnemy(Enemy[i]);
+            }
             //printf("===All objects freed\n");
 
 
@@ -1032,6 +1033,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             free(Ground); //free pointer to pointers
             free(NodeGrid); //free pointer to pointers
             free(VGrid); //free pointer to pointers
+            free(Enemy);
             //printf("===All pointers freed\n");
 
 

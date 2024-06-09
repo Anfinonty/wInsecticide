@@ -231,6 +231,8 @@ void LoadSave(wchar_t *saves_name)
             Ground = calloc((GROUND_NUM+MAX_WEB_NUM),sizeof(AGround*));
             VGrid = calloc(VGRID_NUM,sizeof(struct AVGrid*));
             NodeGrid = calloc(MAP_NODE_NUM,sizeof(ANode*));
+            Enemy = calloc(ENEMY_NUM,sizeof(AEnemy*));
+
 
             //printf("Pointers Made==\n");
 
@@ -251,21 +253,16 @@ void LoadSave(wchar_t *saves_name)
 
 
             for (int i=0;i<MAP_NODE_NUM;i++) {
-              //printf("buf:%d/%d\n",i,MAP_NODE_NUM);
               ANode *newNode = createNode();
               NodeGrid[i] = newNode;
             }
             //printf("Alloc Nodes==\n");
 
 
-
-
-            /*EnemyA = (struct enemy*) calloc(ENEMY_NUM,sizeof(struct enemy));
-            Enemy = (struct enemy**) calloc(ENEMY_NUM,sizeof(struct enemy*));
             for (int i=0;i<ENEMY_NUM;i++) {
-              Enemy[i] = &EnemyA[i];
-            }*/
-
+              AEnemy *newEnemy = createEnemy();
+              Enemy[i] = newEnemy;
+            }
             break;
           case 40:
             saved_player_x=(double)int_saved_val;

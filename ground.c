@@ -527,7 +527,7 @@ int GetOnGroundIdE(double x,double y,double min_range_1,double min_range_2,int e
             ground_entity_E=GetLineTargetAngle(Ground_id,x,y);
             height_from_ground=GetLineTargetHeight(Ground_id,ground_entity_E,x,y);
             if (-min_range_2<height_from_ground && height_from_ground<min_range_2) { //change in ground
-	          if (Ground_id!=Enemy[enemy_id].saved_ground_id && !Ground[Ground_id]->is_ghost) {
+	          if (Ground_id!=Enemy[enemy_id]->saved_ground_id && !Ground[Ground_id]->is_ghost) {
                 j=Ground_id;
                 if (j!=-1) {
                   return j;
@@ -543,7 +543,7 @@ int GetOnGroundIdE(double x,double y,double min_range_1,double min_range_2,int e
   } //end of for
   }
   if (j==-1) {
-    return Enemy[enemy_id].saved_ground_id;
+    return Enemy[enemy_id]->saved_ground_id;
   }
   return j;
 }

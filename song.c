@@ -178,8 +178,10 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
         if (player.bullet_shot!=-1) {
           BulletSndAct(player.bullet_shot);
         }
-        for (int i=0;i<ENEMY_NUM;i++) {
-          EnemySndAct(i);
+        if (level_loaded) {
+          for (int i=0;i<ENEMY_NUM;i++) {
+            EnemySndAct(i);
+          }
         }
         PlayerSndAct();       
       }
