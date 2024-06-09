@@ -136,12 +136,12 @@ void CleanUpEnemy()
 void CleanUpNodeGrid()
 {
   for (int i=0;i<MAP_NODE_NUM;i++) {
-    NodeGrid[i].node_solid=FALSE;
-    NodeGrid[i].non_web=FALSE;
-    NodeGrid[i].x1=-20;
-    NodeGrid[i].y1=-20;
-    NodeGrid[i].x2=-20;
-    NodeGrid[i].y2=-20;
+    NodeGrid[i]->node_solid=FALSE;
+    NodeGrid[i]->non_web=FALSE;
+    NodeGrid[i]->x1=-20;
+    NodeGrid[i]->y1=-20;
+    NodeGrid[i]->x2=-20;
+    NodeGrid[i]->y2=-20;
   }
 }
 
@@ -153,16 +153,16 @@ void CleanUpGrid()
 {
   int i=0,j=0,x=0,y=0;
   for (i=0;i<VGRID_NUM;i++) {
-    VGrid[i].within_render_distance=FALSE;
-    VGrid[i].max_ground_num=0;
+    VGrid[i]->within_render_distance=FALSE;
+    VGrid[i]->max_ground_num=0;
     
     for (j=0;j<MAX_GROUNDS_WITHIN_GRID;j++) {
-      VGrid[i].ground_ids[j]=-1;
+      VGrid[i]->ground_ids[j]=-1;
     }
-    VGrid[i].x1=-20;
-    VGrid[i].y1=-20;
-    VGrid[i].x2=-20;
-    VGrid[i].y2=-20;
+    VGrid[i]->x1=-20;
+    VGrid[i]->y1=-20;
+    VGrid[i]->x2=-20;
+    VGrid[i]->y2=-20;
   }
 }
 

@@ -366,8 +366,8 @@ int GetOnGroundId(double x,double y,double min_range_1,double min_range_2)
   double ground_entity_E=0,height_from_ground=0;
   if (0<x && x<MAP_WIDTH && 0<y && y<MAP_HEIGHT) { //within bounderies
     on_grid_id=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);//maths to get grid
-    for (i=0;i<VGrid[on_grid_id].max_ground_num;i++) {
-      Ground_id=VGrid[on_grid_id].ground_ids[i];
+    for (i=0;i<VGrid[on_grid_id]->max_ground_num;i++) {
+      Ground_id=VGrid[on_grid_id]->ground_ids[i];
       if (Ground[Ground_id]->x1-min_range_1<=x && x<=Ground[Ground_id]->x2+min_range_1) {//within x
         if ((Ground[Ground_id]->y1-min_range_1<=y && y<=Ground[Ground_id]->y2+min_range_1) ||
             (Ground[Ground_id]->y2-min_range_1<=y && y<=Ground[Ground_id]->y1+min_range_1)) {//within y
@@ -393,9 +393,9 @@ int GetOnGroundIdPlayer(double x,double y,double min_range_1,double min_range_2)
 
   int main_grid_id=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
 
-  if (VGrid[main_grid_id].max_ground_num>0) {
-  double main_grid_x=(VGrid[main_grid_id].x1+VGrid[main_grid_id].x2)/2;
-  double main_grid_y=(VGrid[main_grid_id].y1+VGrid[main_grid_id].y2)/2;
+  if (VGrid[main_grid_id]->max_ground_num>0) {
+  double main_grid_x=(VGrid[main_grid_id]->x1+VGrid[main_grid_id]->x2)/2;
+  double main_grid_y=(VGrid[main_grid_id]->y1+VGrid[main_grid_id]->y2)/2;
   int in_quadrant=0; //0=topleft, 1=topright, 2=lowerleft, 3=lowerright
   int index_quadrant=0;
   if (y<main_grid_y) {
@@ -436,8 +436,8 @@ int GetOnGroundIdPlayer(double x,double y,double min_range_1,double min_range_2)
 
     if (0<_x && _x<MAP_WIDTH && 0<_y && _y<MAP_HEIGHT) { //within bounderies
       on_grid_id=GetGridId(_x,_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);//maths to get grid
-      for (i=0;i<VGrid[on_grid_id].max_ground_num;i++) {
-        Ground_id=VGrid[on_grid_id].ground_ids[i];
+      for (i=0;i<VGrid[on_grid_id]->max_ground_num;i++) {
+        Ground_id=VGrid[on_grid_id]->ground_ids[i];
         if (Ground[Ground_id]->x1-min_range_1<=x && x<=Ground[Ground_id]->x2+min_range_1) {//within x
           if ((Ground[Ground_id]->y1-min_range_1<=y && y<=Ground[Ground_id]->y2+min_range_1) ||
               (Ground[Ground_id]->y2-min_range_1<=y && y<=Ground[Ground_id]->y1+min_range_1)) {//within y
@@ -476,9 +476,9 @@ int GetOnGroundIdE(double x,double y,double min_range_1,double min_range_2,int e
 
   int main_grid_id=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
 
-  if (VGrid[main_grid_id].max_ground_num>0) {
-  double main_grid_x=(VGrid[main_grid_id].x1+VGrid[main_grid_id].x2)/2;
-  double main_grid_y=(VGrid[main_grid_id].y1+VGrid[main_grid_id].y2)/2;
+  if (VGrid[main_grid_id]->max_ground_num>0) {
+  double main_grid_x=(VGrid[main_grid_id]->x1+VGrid[main_grid_id]->x2)/2;
+  double main_grid_y=(VGrid[main_grid_id]->y1+VGrid[main_grid_id]->y2)/2;
   int in_quadrant=0; //0=topleft, 1=topright, 2=lowerleft, 3=lowerright
   int index_quadrant=0;
   if (y<main_grid_y) {
@@ -519,8 +519,8 @@ int GetOnGroundIdE(double x,double y,double min_range_1,double min_range_2,int e
 
     if (0<x && x<MAP_WIDTH && 0<y && y<MAP_HEIGHT) { //within bounderies
       on_grid_id=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);//maths to get grid
-      for (i=0;i<VGrid[on_grid_id].max_ground_num;i++) {
-        Ground_id=VGrid[on_grid_id].ground_ids[i];
+      for (i=0;i<VGrid[on_grid_id]->max_ground_num;i++) {
+        Ground_id=VGrid[on_grid_id]->ground_ids[i];
         if (Ground[Ground_id]->x1-min_range_1<=x && x<=Ground[Ground_id]->x2+min_range_1) {//within x
           if ((Ground[Ground_id]->y1-min_range_1<=y && y<=Ground[Ground_id]->y2+min_range_1) ||
               (Ground[Ground_id]->y2-min_range_1<=y && y<=Ground[Ground_id]->y1+min_range_1)) {//within y
@@ -560,8 +560,8 @@ void DestroyGround(int i)
       lg_grid_id=GetGridId(x,lg_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
       UnSetGridLineArray(lg_grid_id,i);
       node_grid_id=GetGridId(x,lg_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
-      if (!NodeGrid[node_grid_id].non_web) { //only unsolid web nodegrids
-        NodeGrid[node_grid_id].node_solid=FALSE;
+      if (!NodeGrid[node_grid_id]->non_web) { //only unsolid web nodegrids
+        NodeGrid[node_grid_id]->node_solid=FALSE;
       }
     }
   } else { // x=(y-c)/m
@@ -577,8 +577,8 @@ void DestroyGround(int i)
       lg_grid_id=GetGridId(lg_x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
       UnSetGridLineArray(lg_grid_id,i);
       node_grid_id=GetGridId(lg_x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
-      if (!NodeGrid[node_grid_id].non_web) { //only unsolid web nodegrids
-        NodeGrid[node_grid_id].node_solid=FALSE;
+      if (!NodeGrid[node_grid_id]->non_web) { //only unsolid web nodegrids
+        NodeGrid[node_grid_id]->node_solid=FALSE;
       }
     }
   }
@@ -687,10 +687,10 @@ void DrawGroundTriFill(HDC hdc)
 void DrawGrids(HDC hdc)
 {
   for (int i=0;i<VGRID_NUM;i++) {
-    GrLine(hdc,VGrid[i].x1+player.cam_x+player.cam_move_x,VGrid[i].y1+player.cam_y+player.cam_move_y,VGrid[i].x2+player.cam_x+player.cam_move_x,VGrid[i].y1+player.cam_y+player.cam_move_y,WHITE);
-    GrLine(hdc,VGrid[i].x1+player.cam_x+player.cam_move_x,VGrid[i].y1+player.cam_y+player.cam_move_y,VGrid[i].x1+player.cam_x+player.cam_move_x,VGrid[i].y2+player.cam_y+player.cam_move_y,WHITE);
-    GrLine(hdc,VGrid[i].x2+player.cam_x+player.cam_move_x,VGrid[i].y2+player.cam_y+player.cam_move_y,VGrid[i].x2+player.cam_x+player.cam_move_x,VGrid[i].y1+player.cam_y+player.cam_move_y,WHITE);
-    GrLine(hdc,VGrid[i].x2+player.cam_x+player.cam_move_x,VGrid[i].y2+player.cam_y+player.cam_move_y,VGrid[i].x1+player.cam_x+player.cam_move_x,VGrid[i].y2+player.cam_y+player.cam_move_y,WHITE);
+    GrLine(hdc,VGrid[i]->x1+player.cam_x+player.cam_move_x,VGrid[i]->y1+player.cam_y+player.cam_move_y,VGrid[i]->x2+player.cam_x+player.cam_move_x,VGrid[i]->y1+player.cam_y+player.cam_move_y,WHITE);
+    GrLine(hdc,VGrid[i]->x1+player.cam_x+player.cam_move_x,VGrid[i]->y1+player.cam_y+player.cam_move_y,VGrid[i]->x1+player.cam_x+player.cam_move_x,VGrid[i]->y2+player.cam_y+player.cam_move_y,WHITE);
+    GrLine(hdc,VGrid[i]->x2+player.cam_x+player.cam_move_x,VGrid[i]->y2+player.cam_y+player.cam_move_y,VGrid[i]->x2+player.cam_x+player.cam_move_x,VGrid[i]->y1+player.cam_y+player.cam_move_y,WHITE);
+    GrLine(hdc,VGrid[i]->x2+player.cam_x+player.cam_move_x,VGrid[i]->y2+player.cam_y+player.cam_move_y,VGrid[i]->x1+player.cam_x+player.cam_move_x,VGrid[i]->y2+player.cam_y+player.cam_move_y,WHITE);
   }
 }
 

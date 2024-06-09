@@ -226,32 +226,38 @@ void LoadSave(wchar_t *saves_name)
             //saved_ground_text=(wchar_t **)malloc(sizeof(wchar_t)*GROUND_NUM*512);
 
 
+            //printf("pt:%d\n",sizeof(struct GroundLine*));
+            //printf("act:%d\n",sizeof(struct GroundLine));
             Ground = calloc((GROUND_NUM+MAX_WEB_NUM),sizeof(AGround*));
-            //Gr
+            VGrid = calloc(VGRID_NUM,sizeof(struct AVGrid*));
+            NodeGrid = calloc(MAP_NODE_NUM,sizeof(ANode*));
+
+            //printf("Pointers Made==\n");
+
             for (int i=0;i<(GROUND_NUM+MAX_WEB_NUM);i++) {
               //struct GroundLine* buf = malloc(sizeof(struct GroundLine));
               //printf("buf:%d\n",i);
               AGround *newGround = createGround();
               Ground[i] = newGround;//malloc(sizeof(struct GroundLine));
             }
+            //printf("Alloc Grounds==\n");
             
-            //printf("pt:%d\n",sizeof(struct GroundLine*));
-            //printf("act:%d\n",sizeof(struct GroundLine));
 
-            
-            /*NodeGridA = calloc(MAP_NODE_NUM,sizeof(struct node));
-            NodeGrid = calloc(MAP_NODE_NUM,sizeof(struct node*));
-            for (int i=0;i<MAP_NODE_NUM;i++) {
-              NodeGrid[i] = &NodeGridA[i];
-            }
-
-
-
-            VGridA =  calloc(VGRID_NUM,sizeof(struct vgrid));
-            VGrid = calloc(VGRID_NUM,sizeof(struct vgrid*));
             for (int i=0;i<VGRID_NUM;i++) {
-              VGrid[i] = &VGridA[i];
-            }*/
+              AVGrid *newVGrid = createVGrid();
+              VGrid[i] = newVGrid;
+            }
+            //printf("Alloc Grids==\n");
+
+
+            for (int i=0;i<MAP_NODE_NUM;i++) {
+              //printf("buf:%d/%d\n",i,MAP_NODE_NUM);
+              ANode *newNode = createNode();
+              NodeGrid[i] = newNode;
+            }
+            //printf("Alloc Nodes==\n");
+
+
 
 
             /*EnemyA = (struct enemy*) calloc(ENEMY_NUM,sizeof(struct enemy));

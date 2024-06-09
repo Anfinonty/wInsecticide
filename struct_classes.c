@@ -44,6 +44,13 @@ AGround *createGround()
   return toReturn;
 }
 
+
+void freeGround(AGround *myGround)
+{
+  if (myGround)
+    free(myGround);
+}
+
 AGround **Ground;
 
 
@@ -308,7 +315,7 @@ void DrawPlayer(HDC hdc);
 
 
 
-struct vgrid
+typedef struct vgrid
 {
   bool within_render_distance;
   int x1;
@@ -317,13 +324,50 @@ struct vgrid
   int y2; //grid axes
   int max_ground_num; //how many grounds are occupying this grid
   int ground_ids[MAX_GROUNDS_WITHIN_GRID]; //id of grounds that are occupying this grid
-};
+} AVGrid;
 //} VGrid[VGRID_NUM];
-struct vgrid VGrid[MAX_VGRID_NUM];
+//struct vgrid VGrid[MAX_VGRID_NUM];
 //struct vgrid* VGridA;
-//struct vgrid** VGrid;
 
-struct node
+
+/*
+} AGround;
+//} Ground[GROUND_NUM+MAX_WEB_NUM];
+//struct GroundLine Ground[MAX_GROUND_NUM+MAX_WEB_NUM];
+
+//https://stackoverflow.com/questions/48222554/c-creating-a-struct-array-beyond-certain-size-causes-a-crash
+AGround *createGround()
+{
+  AGround *toReturn = malloc(sizeof(AGround));
+  return toReturn;
+}
+
+AGround **Ground;
+
+*/
+
+
+AVGrid *createVGrid()
+{
+  AVGrid *toReturn = malloc(sizeof(AVGrid));
+  return toReturn;
+}
+
+
+void freeVGrid(AVGrid *myVGrid)
+{
+  if (myVGrid)
+    free(myVGrid);
+}
+
+
+AVGrid **VGrid;
+
+
+
+
+
+typedef struct node
 {
   bool node_solid;
   bool non_web;
@@ -331,11 +375,31 @@ struct node
   int y1;
   int x2;
   int y2;
-};
+} ANode;
 //} NodeGrid[MAP_NODE_NUM];
-struct node NodeGrid[MAX_MAP_NODE_NUM];
+//struct node NodeGrid[MAX_MAP_NODE_NUM];
 //struct node* NodeGridA;
 //struct node** NodeGrid;
+
+
+ANode *createNode()
+{
+  ANode *toReturn = malloc(sizeof(ANode));
+  return toReturn;
+}
+
+
+void freeNode(ANode *myNode)
+{
+  if (myNode)
+    free(myNode);
+}
+
+
+
+ANode **NodeGrid;
+
+
 
 int GetGridId(int x,int y,int width, int size,int max);
 void SetGridLineArray(int grid_id,int ground_id);

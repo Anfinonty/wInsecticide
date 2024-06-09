@@ -789,9 +789,9 @@ void PlayerAct() {
               move_y(-sin(player.angle+M_PI_2));
             }
             player.jump_angle=player.angle+M_PI_2;
-            if (player.angle<0) {/*Slope --> /*/
+            if (player.angle<0) {/*Slope -. /*/
               player.jump_angle2=2*M_PI+player.angle-M_PI_2;
-            } else {/*Slope --> \*/
+            } else {/*Slope -. \*/
               player.jump_angle2=player.angle-M_PI_2;
             }
             player.fling_distance=0; //on ground, stop flinging
@@ -811,9 +811,9 @@ void PlayerAct() {
               move_y(-sin(player.angle-M_PI_2));
             }
             player.jump_angle=player.angle-M_PI_2;
-            if (player.angle<0) {/*Slope --> /*/
+            if (player.angle<0) {/*Slope -. /*/
               player.jump_angle2=M_PI_2+player.angle;
-            } else {/*Slope --> \*/
+            } else {/*Slope -. \*/
               player.jump_angle2=player.angle+M_PI_2;
             }
             player.fling_distance=0; //on ground, stop flinging
@@ -1171,9 +1171,9 @@ void PlayerAct() {
           }
         } else { //not holding left or right but still in air
           if (player.is_rebounding || player.fling_distance!=0) {//flinging or rebounding
-            double t_speed=player.speed*cos(player.angle_of_reflection); //rate of change in x -> player travel to refleciton angle
-            double t_grav1=player.speed*sin(player.angle_of_reflection); //rate of change in y -> player travel to reflection angle
-            double t_grav2=player.grav*player.player_grav; //rate of change in y -> Gravity
+            double t_speed=player.speed*cos(player.angle_of_reflection); //rate of change in x . player travel to refleciton angle
+            double t_grav1=player.speed*sin(player.angle_of_reflection); //rate of change in y . player travel to reflection angle
+            double t_grav2=player.grav*player.player_grav; //rate of change in y . Gravity
             double t_grav=t_grav1+t_grav2; //dy/dx
             double grav_dist=GetDistance(t_speed,0,0,t_grav);
             if (t_grav<0) { //still going upwards

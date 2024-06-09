@@ -96,10 +96,10 @@ void InitEnemyPathfinding(int enemy_id,double target_x,double target_y)
       if (node_id!=-1) {
         switch (Enemy[enemy_id].species) {
 	  case 0://standard
-            Enemy[enemy_id].node_solid[i]=NodeGrid[node_id].node_solid;
+            Enemy[enemy_id].node_solid[i]=NodeGrid[node_id]->node_solid;
 	    break;
 	  case 1://inverse
-            Enemy[enemy_id].node_solid[i]=!NodeGrid[node_id].node_solid;
+            Enemy[enemy_id].node_solid[i]=!NodeGrid[node_id]->node_solid;
 	    if (!Enemy[enemy_id].node_solid[i]) {
               enemy_species1_solids[species1_solid_num]=i;
 	      species1_solid_num++;
@@ -466,18 +466,18 @@ void EnemyLOSAct(int i)
         Enemy[i].saw_player=TRUE;
         Enemy[i].LOS_shot=FALSE;
       } else {
-	allow_act=FALSE;
-        if (!Ground[los_on_ground_id]->is_ghost) {
-	  if (los_on_ground_id<GROUND_NUM && los_on_ground_id!=-1) {
-	    allow_act=TRUE;
-	  }
+	    allow_act=FALSE;
+        if (los_on_ground_id<GROUND_NUM && los_on_ground_id!=-1) {
+          if (!Ground[los_on_ground_id]->is_ghost) {
+	        allow_act=TRUE;
+	      }
         }
-	if (IsOutOfBounds(Enemy[i].LOS_x,Enemy[i].LOS_y,5,MAP_WIDTH,MAP_HEIGHT) || allow_act //hit solid
-	   ){
+	    if (IsOutOfBounds(Enemy[i].LOS_x,Enemy[i].LOS_y,5,MAP_WIDTH,MAP_HEIGHT) || allow_act //hit solid
+	     ){
           Enemy[i].saw_player=FALSE;
           Enemy[i].target_player=FALSE;
           Enemy[i].LOS_shot=FALSE;
-	}
+	    }
       }
     } else {
       Enemy[i].LOS_x=Enemy[i].x;
@@ -595,7 +595,6 @@ void EnemyAct(int i)
       BulletAct(Enemy[i].bullet_shot_arr[j]);
     }
     EnemyLOSAct(i);//Shoot line of sight bullet
-
 
     for (int k=0;k<player.bullet_shot_num;k++) {
       int bk=player.bullet[k];
@@ -1003,7 +1002,7 @@ void EnemyAct(int i)
       }
       if (!Enemy[i].ignore_player && Enemy[i].saw_player) { //chasing player
         if (Enemy[i].species==0 &&
-            NodeGrid[GetGridId(Enemy[i].x,Enemy[i].y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM)].node_solid)
+            NodeGrid[GetGridId(Enemy[i].x,Enemy[i].y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM)]->node_solid)
         {   //become blind when inside a solid
           Enemy[i].saw_player=FALSE;
           Enemy[i].idling=TRUE;

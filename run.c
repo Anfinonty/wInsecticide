@@ -119,6 +119,7 @@ wchar_t save_level[128];
 double time_begin=0;
 bool yes_unifont=FALSE;
 bool clean_up_sound=FALSE;
+bool level_loaded=FALSE;
 
 //HBITMAP canny;
 //HBITMAP uncanny;
@@ -319,14 +320,15 @@ void Init(HDC hdc) {
 
 
   //Initialize Level
+  InitBullet();
   InitGrid();
   InitNodeGrid();
   InitGround();
-  InitBullet();
   InitNodeGridAttributes();
   InitEnemy();
   InitPlayer();
   BitmapPalette(hdc,map_platforms_sprite,rgbColorsDefault);
+
 }
 
 
@@ -406,6 +408,7 @@ void InitLevel(HWND hwnd, HDC hdc)
 
   InitPlatformsSprite(hwnd,hdc);
 
+  level_loaded=TRUE;
   in_main_menu=FALSE;
 }
 
@@ -457,9 +460,11 @@ void FrameRateSleep(int max_fps)
 DWORD WINAPI AnimateTask01(LPVOID lpArg) {
   while (TRUE) {
     if (!in_main_menu) { //In Game
-      PlayerAct();
-      for (int i=0;i<ENEMY_NUM;i++) {
-        EnemyAct(i);
+      if (level_loaded) {
+        PlayerAct();
+        for (int i=0;i<ENEMY_NUM;i++) {
+          EnemyAct(i);
+        }
       }
       Sleep(player.sleep_timer);
     } else {
@@ -530,7 +535,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         case VK_ESCAPE:
           if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = QUIT
             if (!in_main_menu) {
-              back_to_menu=TRUE;
+              if (level_loaded) {
+                back_to_menu=TRUE;
+              }
             } else {
               PostQuitMessage(0);
               return 0;
@@ -905,7 +912,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         if (!in_main_menu) //### LevelLoaded
         { //https://stackoverflow.com/questions/752593/win32-app-suspends-on-minimize-window-animation
-
           frame_tick++;
           if (frame_tick>FPS) {
             frame_tick=0;
@@ -949,7 +955,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           player.seed=rand();
 
 
-          if (player.health<=0 || flag_restart) { // restart level when player health hits 0 or VK_RETURN
+          if (level_loaded && (player.health<=0 || flag_restart)) { // restart level when player health hits 0 or VK_RETURN
             Init(hdc);
             flag_restart=FALSE;
           }
@@ -978,6 +984,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
           //Trigger go back to main menu
           if (back_to_menu) {
+            level_loaded=FALSE;
+            InitBullet();
             CleanUpPlayer(); //clean up all sprites
             CleanUpEnemySprites();
             //CleanUpGrid();
@@ -989,41 +997,42 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
 
-
             //free saved grounds pointer & Ground
-            free(pt_saved_ground_is_ghost);
-            free(pt_saved_ground_color);
-            free(pt_saved_ground_type);
-            free(pt_saved_ground_x1);
-            free(pt_saved_ground_y1);
-            free(pt_saved_ground_x2);
-            free(pt_saved_ground_y2);
-            free(pt_saved_ground_x3);
-            free(pt_saved_ground_y3);
+            free(saved_ground_is_ghost);
+            free(saved_ground_color);
+            free(saved_ground_type);
+            free(saved_ground_x1);
+            free(saved_ground_y1);
+            free(saved_ground_x2);
+            free(saved_ground_y2);
+            free(saved_ground_x3);
+            free(saved_ground_y3);
             //free(pt_saved_ground_text);
 
 
-            for (int i=0;i<GROUND_NUM+MAX_WEB_NUM;i++) {
-              //free(&Ground[i]); //free actual arr
-              free(Ground[i]); //free pointer
-            }
-            //free(GroundL); //free actual
-            free(Ground); //free pointer
 
+            for (int i=0;i<GROUND_NUM+MAX_WEB_NUM;i++) {//free objects
+              freeGround(Ground[i]);
+            }
 
 
             for (int i=0;i<MAP_NODE_NUM;i++) {
-              free(NodeGrid[i]); //free actual arr and pointer
+              freeNode(NodeGrid[i]); //free actual obj
             }
-            //free(NodeGridA); //free actual
-            free(NodeGrid); //free pointer
-
 
 
             for (int i=0;i<VGRID_NUM;i++) {
-              free(VGrid[i]);
+              freeVGrid(VGrid[i]); //free actual obj
             }
-            free(VGrid);
+
+            //printf("===All objects freed\n");
+
+
+
+            free(Ground); //free pointer to pointers
+            free(NodeGrid); //free pointer to pointers
+            free(VGrid); //free pointer to pointers
+            //printf("===All pointers freed\n");
 
 
             DeleteObject(map_platforms_sprite); //delete sprites
