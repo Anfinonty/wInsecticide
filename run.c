@@ -219,6 +219,7 @@ int main_menu_chosen=0;
 int option_choose=0;
 bool game_cam_shake=TRUE;
 bool game_audio=TRUE;
+//bool alloc_enemy_once=TRUE;
 
 
 
@@ -269,7 +270,7 @@ void InitOnce() {
   player.cam_move_x=0;
   player.cam_move_y=0;
 
-
+//  alloc_enemy_once=TRUE;
   player_load_color=player_color;
   player_bullet_color=WHITE;
   if (IsInvertedBackground()) { //invert player color if background is inverted

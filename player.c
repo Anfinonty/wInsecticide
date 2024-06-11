@@ -726,7 +726,7 @@ void PlayerAct() {
 
 
         //player speed when on ground
-        if (player.fling_distance==0 && player.on_ground_timer>=1 && speed==0 && grav_speed==0) {
+        if (!player.is_swinging && player.fling_distance==0 && player.on_ground_timer>=1 && speed==0 && grav_speed==0) {
           if (!player.is_rebounding) {
             if (!IsSpeedBreaking()) {//reset stats when normal            
               if (!player.rst_key_sprint) {
