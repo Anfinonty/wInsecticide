@@ -310,7 +310,7 @@ lunar_year
 
 
 
-#define HELP_TEXT_ARR_NUM1   14
+#define HELP_TEXT_ARR_NUM1   15
 char help_txt_arr1[HELP_TEXT_ARR_NUM1][64]=
 {
   "Controls:",
@@ -322,7 +322,8 @@ char help_txt_arr1[HELP_TEXT_ARR_NUM1][64]=
   "'Z' - Time Breaker Ability",
   "'C' - Increase Reaction Time",
   "'E' - Hold with Attack for Uppercut",
-  "'2' - Change Web Firing Style",
+  "'E' - Hold with Movement to Break Flinging",
+  "'2' - Change Web Firing Style (1/3/5/15)",
   "[Space] - Sprint",
   "[Left Click] or '1' - Attack and Stop Web Shooting",
   "[Right Click] - Shoot web",
@@ -331,7 +332,7 @@ char help_txt_arr1[HELP_TEXT_ARR_NUM1][64]=
 
 
 
-#define HELP_TEXT_ARR_NUM2   8
+#define HELP_TEXT_ARR_NUM2   9
 char help_txt_arr2[HELP_TEXT_ARR_NUM2][64]=
 {
   "Controls While Swinging:",
@@ -340,6 +341,7 @@ char help_txt_arr2[HELP_TEXT_ARR_NUM2][64]=
   "'A' - Swing Clockwise",
   "'D' - Swing Anti-Clockwise",
   "'E' - Hold for no flinging after Web Placement",
+  "'E' - Hold for opposite lower quadrant swing",
   "[Left Click] or '1' - Swing without Web Placement",
   "[Right Click] - Swing with Web Placement"
 };
@@ -502,6 +504,10 @@ void DrawUI(HDC hdc) {
     GrPrint(hdc,player.sprite_x+48,player.sprite_y,"*",c);
   }
 
+
+  if (player.uppercut) {
+    GrPrint(hdc,player.sprite_x+48,player.sprite_y+16,"u",c);
+  }
   //draw perfect block -- too confusing
   /*if (player.on_ground_id==-1 && player.block_timer>0 && player.block_timer<=23) {
     GrCircle(hdc,player.sprite_x,player.sprite_y,1,LTCYAN,-1);

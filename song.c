@@ -170,24 +170,48 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
     if (!in_main_menu) {
       //Play Game Souond
       if (game_audio) {
-        if (!player.time_breaker) {
+        if (!player.time_breaker) { //player sounds made by player bullets
           for (int i=0;i<player.bullet_shot_num;i++) {
             BulletSndAct(player.bullet[i]);
           }
         }
-        if (player.bullet_shot!=-1) {
+        if (player.bullet_shot!=-1) { //player sounds made by sniper player bullets
           BulletSndAct(player.bullet_shot);
         }
         if (level_loaded) {
-          for (int i=0;i<ENEMY_NUM;i++) {
-            EnemySndAct(i);
+          if (!flag_restart_audio) {
+            for (int i=0;i<ENEMY_NUM;i++) {
+              EnemySndAct(i);
+            }
+            PlayerSndAct();       
+          } else {
+            for (int i=0;i<ENEMY_NUM;i++) {
+              wchar_t command1[16];
+              wchar_t command2[16];
+              swprintf(command1,16,L"pause bk_%d",i);
+              swprintf(command2,16,L"close bk_%d",i);
+              mciSendString(command1,NULL,0,NULL);
+              mciSendString(command2,NULL,0,NULL);
+              PlaySound(NULL, NULL, SND_ASYNC);
+            }
+            mciSendString(L"pause player_speed",NULL,0,NULL);
+            mciSendString(L"close player_speed",NULL,0,NULL);
+            flag_restart_audio=FALSE;
           }
         }
-        PlayerSndAct();       
       }
       Sleep(6); //fast loop
     } else {
       if (clean_up_sound) {
+        for (int i=0;i<MAX_ENEMY_NUM;i++) {
+          wchar_t command1[16];
+          wchar_t command2[16];
+          swprintf(command1,16,L"pause bk_%d",i);
+          swprintf(command2,16,L"close bk_%d",i);
+          mciSendString(command1,NULL,0,NULL);
+          mciSendString(command2,NULL,0,NULL);
+          PlaySound(NULL, NULL, SND_ASYNC);
+        }
         mciSendString(L"pause player_speed",NULL,0,NULL);
         mciSendString(L"close player_speed",NULL,0,NULL);
         clean_up_sound=FALSE;

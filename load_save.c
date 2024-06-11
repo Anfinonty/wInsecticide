@@ -30,23 +30,9 @@ double *saved_ground_x2;
 double *saved_ground_y2;
 double *saved_ground_x3;
 double *saved_ground_y3;
-//wchar_t **saved_ground_text;
+wchar_t **saved_ground_text;
 
 
-//pointer to pointer
-/*bool **pt_saved_ground_is_ghost = &saved_ground_is_ghost;
-int **pt_saved_ground_color = &saved_ground_color;
-int **pt_saved_ground_type = &saved_ground_type;
-double **pt_saved_ground_x1 = &saved_ground_x1;
-double **pt_saved_ground_y1 = &saved_ground_y1;
-double **pt_saved_ground_x2 = &saved_ground_x2;
-double **pt_saved_ground_y2 = &saved_ground_y2;
-double **pt_saved_ground_x3 = &saved_ground_x3;
-double **pt_saved_ground_y3 = &saved_ground_y3;*/
-//wchar_t ***pt_saved_ground_text = &saved_ground_text;
-
-
-wchar_t saved_ground_text[MAX_GROUND_NUM][512];
 
 //ENEMY_NUM
 int saved_enemy_type[MAX_ENEMY_NUM];
@@ -223,7 +209,7 @@ void LoadSave(wchar_t *saves_name)
             saved_ground_y2=calloc(GROUND_NUM,sizeof(double));
             saved_ground_x3=calloc(GROUND_NUM,sizeof(double));
             saved_ground_y3=calloc(GROUND_NUM,sizeof(double));
-            //saved_ground_text=(wchar_t **)malloc(sizeof(wchar_t)*GROUND_NUM*512);
+            saved_ground_text=calloc(GROUND_NUM,sizeof(wchar_t*));
 
 
             //printf("pt:%d\n",sizeof(struct GroundLine*));
@@ -239,6 +225,10 @@ void LoadSave(wchar_t *saves_name)
             for (int i=0;i<(GROUND_NUM+MAX_WEB_NUM);i++) {
               //struct GroundLine* buf = malloc(sizeof(struct GroundLine));
               //printf("buf:%d\n",i);
+              if (i<GROUND_NUM) {
+                wchar_t *awchar_t = malloc(512*sizeof(wchar_t));
+                saved_ground_text[i]=awchar_t;
+              }
               AGround *newGround = createGround(VGRID_NUM);
               Ground[i] = newGround;//malloc(sizeof(struct GroundLine));
             }

@@ -975,10 +975,22 @@ void PlayerAct() {
             move_y(sin(player.angle));
           }
         } else { //player is not on ground
-          if (player.rst_left) {
-            move_x(-1);
-          } else if (player.rst_right) {
-            move_x(1);
+          if (player.fling_distance==0) {
+            if (player.rst_left) {
+              move_x(-1);
+            } else if (player.rst_right) {
+              move_x(1);
+            }
+          } else {
+            if (player.angle_of_reflection>M_PI_2 && player.angle_of_reflection<M_PI+M_PI_2) {//lefft side
+              if (player.rst_right) {
+                move_x(1);
+              }
+            } else {
+              if (player.rst_left) {
+                move_x(-1);
+              }
+            }
           }
         }
       }
@@ -994,9 +1006,9 @@ void PlayerAct() {
         //>>>Calculate the Angle of incidence of player when swung from pivot
         if (player.y>player.pivot_y) { //lower quad
           if(player.last_left) {
-            player.angle_of_incidence=player.pivot_angle-M_PI_2;
-          } else {
             player.angle_of_incidence=player.pivot_angle+M_PI_2;
+          } else {
+            player.angle_of_incidence=player.pivot_angle-M_PI_2;
           }
         } else {//upper quad
           if(player.last_left) {
@@ -1011,12 +1023,26 @@ void PlayerAct() {
           if (player.on_ground_id==-1) {
             if (player.y>player.pivot_y) { //below pivot
               if (player.rst_right) { //Clockwize
-                move_x(-cos(-player.pivot_angle+M_PI_2));
-                move_y(sin(-player.pivot_angle+M_PI_2));
+                if (!player.uppercut) { //move the usual direction
+                  move_x(-cos(-player.pivot_angle+M_PI_2));
+                  move_y(sin(-player.pivot_angle+M_PI_2));
+                  player.last_left=TRUE;
+                } else { //move the opposite direction, anticlockwize
+                  move_x(cos(-player.pivot_angle+M_PI_2));
+                  move_y(-sin(-player.pivot_angle+M_PI_2));
+                  player.last_left=FALSE;
+                }
               }
               if (player.rst_left) {  //Anticlockwize
-                move_x(cos(-player.pivot_angle+M_PI_2));
-                move_y(-sin(-player.pivot_angle+M_PI_2));
+                if (!player.uppercut) {
+                  move_x(cos(-player.pivot_angle+M_PI_2));
+                  move_y(-sin(-player.pivot_angle+M_PI_2));
+                  player.last_left=FALSE;
+                } else { //clockwize
+                  move_x(-cos(-player.pivot_angle+M_PI_2));
+                  move_y(sin(-player.pivot_angle+M_PI_2));
+                  player.last_left=TRUE;
+                }
               } else if (player.rst_up && player.on_ground_id==-1 && player.pivot_length>2){ //Retract Web
                 move_x(-cos(-player.pivot_angle));
                 move_y(sin(-player.pivot_angle));
@@ -1026,12 +1052,26 @@ void PlayerAct() {
               }
             } else { //above pivot
               if (player.rst_right) { //Clockwize
-                move_x(cos(-player.pivot_angle+M_PI_2));
-                move_y(sin(-player.pivot_angle+M_PI_2));
+                //if (!player.uppercut) {
+                  move_x(cos(-player.pivot_angle+M_PI_2));
+                  move_y(sin(-player.pivot_angle+M_PI_2));
+                  player.last_left=FALSE;
+                /*} else {
+                  move_x(-cos(-player.pivot_angle+M_PI_2));
+                  move_y(-sin(-player.pivot_angle+M_PI_2));
+                  player.last_left=TRUE;
+                }*/
               }
               if (player.rst_left) { //Anticlockwize
-                move_x(-cos(-player.pivot_angle+M_PI_2));
-                move_y(-sin(-player.pivot_angle+M_PI_2));
+                //if (!player.uppercut) {
+                  move_x(-cos(-player.pivot_angle+M_PI_2));
+                  move_y(-sin(-player.pivot_angle+M_PI_2));
+                  player.last_left=TRUE;
+                /*} else {
+                  move_x(cos(-player.pivot_angle+M_PI_2));
+                  move_y(sin(-player.pivot_angle+M_PI_2));
+                  player.last_left=FALSE;
+                }*/
               } else if (player.rst_up && player.on_ground_id==-1 && player.pivot_length>2){ //Retract web
                 move_x(-cos(-player.pivot_angle));
                 move_y(-sin(-player.pivot_angle));
@@ -1058,7 +1098,7 @@ void PlayerAct() {
 
       //======FLING MOVEMENT======
       if (grav_speed==0 && !player.is_swinging && !player.is_rebounding) { 
-        if (player.rst_left || player.rst_right) { //cancel flinging when left or right key is pressed
+        if ((player.rst_left || player.rst_right) && (player.uppercut || player.fling_distance<-100)) { //cancel flinging when left or right key is pressed
           player.fling_distance=0;
         }
 

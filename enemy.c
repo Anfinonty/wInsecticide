@@ -556,7 +556,7 @@ void EnemySndAct(int i)
 {
   if (Enemy[i]->play_death_snd && !back_to_menu) {
     wchar_t sndid[16];
-    swprintf(sndid,16,L"bk_%d_%d",i,Enemy[i]->seed);
+    swprintf(sndid,16,L"bk_%d",i);
     PlaySnd(L"snd/clang_death.wav",sndid);
     Enemy[i]->play_death_snd=FALSE;
   }

@@ -204,6 +204,7 @@ bool level_loaded=FALSE;
 
 
 bool flag_restart=FALSE;
+bool flag_restart_audio=FALSE;
 bool back_to_menu=FALSE;
 bool in_main_menu=TRUE;
 int level_chosen=0;
@@ -328,7 +329,7 @@ void Init(HDC hdc) {
   InitEnemy();
   InitPlayer();
   BitmapPalette(hdc,map_platforms_sprite,rgbColorsDefault);
-
+  PlaySound(NULL, NULL, SND_ASYNC);
 }
 
 
@@ -953,6 +954,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
           if (level_loaded && (player.health<=0 || flag_restart)) { // restart level when player health hits 0 or VK_RETURN
+            flag_restart_audio=TRUE;
             Init(hdc);
             flag_restart=FALSE;
           }
@@ -1004,7 +1006,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             free(saved_ground_y2);
             free(saved_ground_x3);
             free(saved_ground_y3);
-            //free(pt_saved_ground_text);
+            for (int i=0;i<GROUND_NUM;i++) {
+              free(saved_ground_text[i]);
+            }
+            free(saved_ground_text);
 
 
 
@@ -1078,7 +1083,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       remove("music/tmp/tmp.wav");
       rmdir("music/tmp"); //remove tmp
 
-      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៩ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1969-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1445_11_28-3"), TEXT("អាពីងស៊ីរុយ") ,MB_OK);
+      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៩ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1969-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1445_12-02"), TEXT("អាពីងស៊ីរុយ") ,MB_OK);
 
       //load levels in save
       GetSavesInDir(L"saves");
