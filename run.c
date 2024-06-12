@@ -195,7 +195,7 @@ bool level_loaded=FALSE;
 #define DEFAULT_PLAYER_TIME_BREAKER_RECHARGE_MAX	200 //1 seconds
 #define DEFAULT_PLAYER_TIME_BREAKER_TICK_MAX	22 //45
 
-
+#define PLAYER_LOW_HEALTH   3
 #define PLAYER_BULLET_NUM 16
 
 
@@ -219,7 +219,7 @@ int main_menu_chosen=0;
 int option_choose=0;
 bool game_cam_shake=TRUE;
 bool game_audio=TRUE;
-//bool alloc_enemy_once=TRUE;
+bool alloc_enemy_once=TRUE;
 
 
 
@@ -403,8 +403,24 @@ void InitLevel(HWND hwnd, HDC hdc)
   moon_sprite_cache=RotateSprite(NULL, tmp_moon_sprite,0,PURPLE,BLACK,-1);
   DeleteObject(tmp_moon_sprite);
 
+  DeleteObject(mouse_cursor_sprite_cache);
+  //if (!IsInvertedBackground()) {
+    mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,draw_color_arr[player_load_color],-1);
+  /*} else {
+    HBITMAP tmp_mouse_cursor_sprite=CopyCrunchyBitmap(mouse_cursor_sprite,NOTSRCCOPY);
+    mouse_cursor_sprite_cache=RotateSprite(NULL, tmp_mouse_cursor_sprite,0,PURPLE,draw_color_arr[player_load_color],-1);
+    DeleteObject(tmp_mouse_cursor_sprite);
+  }*/
 
 
+  DeleteObject(mouse_cursor_sprite_cache2);
+  //if (!IsInvertedBackground()) {
+    mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,draw_color_arr[player_load_color],-1);
+  /*} else {
+    HBITMAP tmp_mouse_cursor_sprite2=CopyCrunchyBitmap(mouse_cursor_sprite2,NOTSRCCOPY);
+    mouse_cursor_sprite_cache2=RotateSprite(NULL, tmp_mouse_cursor_sprite2,0,PURPLE,draw_color_arr[player_load_color],-1);
+    DeleteObject(tmp_mouse_cursor_sprite2);
+  }*/
   //Load Enemy cache spritesF
   InitEnemySprites();
 
@@ -559,6 +575,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                   option_choose=LimitValue(option_choose+1,0,3);
                   break;
               }
+              PlaySound(L"snd/FE_COMMON_MB_02.wav", NULL, SND_FILENAME | SND_ASYNC);
             }
             break;
 
@@ -567,17 +584,26 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           player.rst_right=TRUE;
           if (in_main_menu) {
             if (main_menu_chosen==1) {
-            switch (option_choose) {
-              case 0:
-                player_color=LimitValue(player_color+1,0,COLORS_NUM);
-                break;
-              case 1:
-                game_audio=!game_audio;
-                break;
-              case 2:
-                game_cam_shake=!game_cam_shake;
-                break;
-            }
+              switch (option_choose) {
+                case 0:
+                  player_color=LimitValue(player_color+1,0,COLORS_NUM);
+                  PlaySound(L"snd/FE_MB_18.wav", NULL, SND_FILENAME | SND_ASYNC);
+                  break;
+                case 1:
+                  if (game_audio)
+                    PlaySound(L"snd/FE_COMMON_MB_03.wav", NULL, SND_FILENAME | SND_ASYNC);
+                  else
+                    PlaySound(L"snd/FE_COMMON_MB_04.wav", NULL, SND_FILENAME | SND_ASYNC);                    
+                  game_audio=!game_audio;
+                  break;
+                case 2:
+                  if (game_cam_shake)
+                    PlaySound(L"snd/FE_COMMON_MB_03.wav", NULL, SND_FILENAME | SND_ASYNC);
+                  else
+                    PlaySound(L"snd/FE_COMMON_MB_04.wav", NULL, SND_FILENAME | SND_ASYNC);                    
+                  game_cam_shake=!game_cam_shake;                
+                  break;
+              }
             }
           }
           break;
@@ -588,17 +614,26 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           player.rst_left=TRUE;
           if (in_main_menu) {
             if (main_menu_chosen==1) {
-            switch (option_choose) {
-              case 0:
-                player_color=LimitValue(player_color+1,0,COLORS_NUM);
-                break;
-              case 1:
-                game_audio=!game_audio;
-                break;
-              case 2:
-                game_cam_shake=!game_cam_shake;
-                break;
-            }
+              switch (option_choose) {
+                case 0:
+                  player_color=LimitValue(player_color-1,0,COLORS_NUM);
+                  PlaySound(L"snd/FE_MB_18.wav", NULL, SND_FILENAME | SND_ASYNC);
+                  break;
+                case 1:
+                  if (game_audio)
+                    PlaySound(L"snd/FE_COMMON_MB_03.wav", NULL, SND_FILENAME | SND_ASYNC);
+                  else
+                    PlaySound(L"snd/FE_COMMON_MB_04.wav", NULL, SND_FILENAME | SND_ASYNC);                    
+                  game_audio=!game_audio;
+                  break;
+                case 2:
+                  if (game_cam_shake)
+                    PlaySound(L"snd/FE_COMMON_MB_03.wav", NULL, SND_FILENAME | SND_ASYNC);
+                  else
+                    PlaySound(L"snd/FE_COMMON_MB_04.wav", NULL, SND_FILENAME | SND_ASYNC);                    
+                  game_cam_shake=!game_cam_shake;                
+                  break;
+              }
             }
           }
           break;
@@ -617,6 +652,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                 option_choose=LimitValue(option_choose-1,0,3);
                 break;
             }
+            PlaySound(L"snd/FE_COMMON_MB_02.wav", NULL, SND_FILENAME | SND_ASYNC);
           }
           break;
 
@@ -819,6 +855,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	        player.attack_rst=TRUE;
           } else {
             main_menu_chosen=LimitValue(main_menu_chosen+1,0,2);
+            PlaySound(L"snd/FE_COMMON_MB_05.wav", NULL, SND_FILENAME | SND_ASYNC);
+            if (main_menu_chosen==0) {
+              DeleteObject(mouse_cursor_sprite_cache);
+              mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,draw_color_arr[player_color],-1);
+
+              DeleteObject(mouse_cursor_sprite_cache2);
+              mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,draw_color_arr[player_color],-1);
+            }
           }
 	      break;
 
@@ -972,7 +1016,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           DrawPlayer(hdcBackbuff);
           DrawCursor(hdcBackbuff);
           DrawUI(hdcBackbuff);
-          //DrawGrids(hdcBackbuff);
+          DrawGrids(hdcBackbuff);
 
           if (!IsInvertedBackground()){ //Inverted palette level
             BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
@@ -1052,6 +1096,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             DeleteObject(moon_sprite_cache);
             moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,-1);
+
+            player.health=20;
+            DeleteObject(mouse_cursor_sprite_cache);
+            mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,draw_color_arr[player_color],-1);
+
+            DeleteObject(mouse_cursor_sprite_cache2);
+            mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,draw_color_arr[player_color],-1);
+
+
           }
         } else { //In Main Menu
           PAINTSTRUCT ps;
@@ -1094,6 +1147,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //unsigned long long timenow=current_timestamp();
       //printf("\nSeconds Passed Since Jan-1-1970: %llu",timenow);
 
+      player.health=20;
       int64_t timenow=int64_current_timestamp(); //local timestamp is returned
 
       printf("\nSeconds Passed Since Jan-1-1970: %d",timenow);
@@ -1213,8 +1267,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       //Load mouse cursor sprite
       mouse_cursor_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/player_cursor1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,-1);
+      mouse_cursor_sprite2 = (HBITMAP) LoadImageW(NULL, L"sprites/player_cursor2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
+      mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,-1);
+      mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,BLACK,-1);
 
       //Load moon sprite based on lunar day
       if (lunar_day>=1 && lunar_day<=5) { //1, 2, 3, 4, 5

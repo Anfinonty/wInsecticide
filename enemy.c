@@ -674,7 +674,7 @@ void EnemyAct(int i)
     
    //Enemy knockback & attacked
     allow_act=FALSE;
-    float distance_from_player_claws=GetDistance(Enemy[i]->x,Enemy[i]->y,player.claws_x,player.claws_y);
+    double distance_from_player_claws=GetDistance(Enemy[i]->x,Enemy[i]->y,player.claws_x,player.claws_y);
     switch (Enemy[i]->species) {
       case 0://fly
 	    if (!(Enemy[i]->time_breaker_length>0)) {

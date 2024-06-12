@@ -264,7 +264,15 @@ void BulletAct(int bullet_id)
           if (hit_player) {
             if (!player.blocking || player.block_health<=0) {
               blocked_bullet_dmg=Bullet[bullet_id].damage;
-              player.health-=Bullet[bullet_id].damage;
+              if (player.health>PLAYER_LOW_HEALTH+1) {
+                player.health-=blocked_bullet_dmg;
+              } else {
+                if (player.health<PLAYER_LOW_HEALTH) {
+                  player.health-=0.1;
+                } else {
+                  player.health-=1;
+                }
+              }
             //player_snd_dur=DEFAULT_PLAYER_SND_DURATION;
 	    //cancel combos
 	        /*player_hit_cooldown_timer=player_hit_cooldown_timer_max;

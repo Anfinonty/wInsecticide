@@ -45,10 +45,16 @@ void DrawCursor(HDC hDC)
 {
   //DrawBitmap(hDC,mouse_x,mouse_y,0,0,64,64,mouse_cursor_sprite,SRCAND,FALSE);
   //DrawBitmap(hDC,mouse_x,mouse_y,0,0,64,64,mouse_cursor_sprite_mask,SRCPAINT,FALSE);
-  GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_cache,FALSE);
-  GrCircle(hDC,mouse_x,mouse_y,1,WHITE,-1);
+  if (player.health>PLAYER_LOW_HEALTH) {
+    GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_cache,FALSE);
+  } else {
+    GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_cache2,FALSE);
+  }
+  if (!IsInvertedBackground())
+    GrCircle(hDC,mouse_x,mouse_y,1,WHITE,-1);
+  else
+    GrCircle(hDC,mouse_x,mouse_y,1,BLACK,-1);
 }
-
 
 
 

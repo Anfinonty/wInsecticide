@@ -678,6 +678,8 @@ int mouse_x;
 int mouse_y;
 HBITMAP mouse_cursor_sprite;
 HBITMAP mouse_cursor_sprite_cache;
+HBITMAP mouse_cursor_sprite2;
+HBITMAP mouse_cursor_sprite_cache2;
 
 HBITMAP enemy1_sprite_1;
 HBITMAP enemy1_sprite_2;

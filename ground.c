@@ -687,10 +687,10 @@ void DrawGroundTriFill(HDC hdc)
 void DrawGrids(HDC hdc)
 {
   for (int i=0;i<VGRID_NUM;i++) {
-    GrLine(hdc,VGrid[i]->x1+player.cam_x+player.cam_move_x,VGrid[i]->y1+player.cam_y+player.cam_move_y,VGrid[i]->x2+player.cam_x+player.cam_move_x,VGrid[i]->y1+player.cam_y+player.cam_move_y,WHITE);
-    GrLine(hdc,VGrid[i]->x1+player.cam_x+player.cam_move_x,VGrid[i]->y1+player.cam_y+player.cam_move_y,VGrid[i]->x1+player.cam_x+player.cam_move_x,VGrid[i]->y2+player.cam_y+player.cam_move_y,WHITE);
-    GrLine(hdc,VGrid[i]->x2+player.cam_x+player.cam_move_x,VGrid[i]->y2+player.cam_y+player.cam_move_y,VGrid[i]->x2+player.cam_x+player.cam_move_x,VGrid[i]->y1+player.cam_y+player.cam_move_y,WHITE);
-    GrLine(hdc,VGrid[i]->x2+player.cam_x+player.cam_move_x,VGrid[i]->y2+player.cam_y+player.cam_move_y,VGrid[i]->x1+player.cam_x+player.cam_move_x,VGrid[i]->y2+player.cam_y+player.cam_move_y,WHITE);
+    GrLine(hdc,VGrid[i]->x1+player.cam_x+player.cam_move_x,VGrid[i]->y1+player.cam_y+player.cam_move_y,VGrid[i]->x2+player.cam_x+player.cam_move_x,VGrid[i]->y1+player.cam_y+player.cam_move_y,BLACK);
+    GrLine(hdc,VGrid[i]->x1+player.cam_x+player.cam_move_x,VGrid[i]->y1+player.cam_y+player.cam_move_y,VGrid[i]->x1+player.cam_x+player.cam_move_x,VGrid[i]->y2+player.cam_y+player.cam_move_y,BLACK);
+    GrLine(hdc,VGrid[i]->x2+player.cam_x+player.cam_move_x,VGrid[i]->y2+player.cam_y+player.cam_move_y,VGrid[i]->x2+player.cam_x+player.cam_move_x,VGrid[i]->y1+player.cam_y+player.cam_move_y,BLACK);
+    GrLine(hdc,VGrid[i]->x2+player.cam_x+player.cam_move_x,VGrid[i]->y2+player.cam_y+player.cam_move_y,VGrid[i]->x1+player.cam_x+player.cam_move_x,VGrid[i]->y2+player.cam_y+player.cam_move_y,BLACK);
   }
 }
 

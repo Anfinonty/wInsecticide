@@ -477,7 +477,7 @@ void PlayerAct() {
         player.knives_per_throw=LimitValue(player.knives_per_throw,1,4);
       }
 
-      if (player.knives_per_throw==15) {
+      if (player.knives_per_throw>4) {
         b_g_type=6;
       }
 
@@ -710,8 +710,8 @@ void PlayerAct() {
       if (player.on_ground_id!=-1 && player.on_ground_id!=player.previous_web_placed) {
 
         //get dist between player and ground
-        float ground_entity_E=GetLineTargetAngle(player.on_ground_id,player.x,player.y);
-        float height_from_player_x=GetLineTargetHeight(player.on_ground_id,ground_entity_E,player.x,player.y);
+        double ground_entity_E=GetLineTargetAngle(player.on_ground_id,player.x,player.y);
+        double height_from_player_x=GetLineTargetHeight(player.on_ground_id,ground_entity_E,player.x,player.y);
 
 
         //player speed when on ground
@@ -740,6 +740,12 @@ void PlayerAct() {
               if (player.speed>8)
                 player.speed--;
             }
+          }
+        }
+
+        if (player.health<=PLAYER_LOW_HEALTH) {
+          if (player.speed<6) {
+            player.speed=7;
           }
         }
 
@@ -893,6 +899,7 @@ void PlayerAct() {
 
 
       //PLAYER GRAVITY MOVEMENT
+
       if (speed==0) {
         if (player.jump_height>0) { //Jumping action
           player.jump_height-=player.player_grav;
@@ -911,8 +918,8 @@ void PlayerAct() {
             if (player.in_air_timer>21 || player.fling_distance<0) {
               move_y(player.player_grav); //include while being rebounding and flinging
 	        } else {
-              move_x(-player.player_grav*2*cos(player.jump_angle));
-              move_y(player.player_grav*2*sin(player.jump_angle));
+              move_x(-player.player_grav*cos(player.jump_angle));
+              move_y(player.player_grav*sin(player.jump_angle));
             }
           }
         } else { //landed on ground
@@ -925,8 +932,6 @@ void PlayerAct() {
           player.grav=2;
         }
       }
-
-
 
       if (player.y<0) { //Y axis cap
         move_y(1);
@@ -1422,7 +1427,7 @@ void PlayerCameraShake()
   int i;
 //camshake
   //if (!the_bravery_tyrant && IsNormalView) {
-    float y_bob=0,x_bob=0;
+    double y_bob=0,x_bob=0;
     //if (sprint_bobbing) {  //if sprint_bobbing
       if (player.on_ground_id!=-1) {//not in air, on ground
         if (!player.blocking) {
@@ -1696,17 +1701,17 @@ void DrawPlayer(HDC hdc)
 
   /*char hi[5];
   sprintf(hi,"%d",player.on_ground_timer);
-  GrPrint(hdc,player.sprite_x,player.sprite_y-30,hi,BLACK);
+  GrPrint(hdc,player.sprite_x,player.sprite_y-30,hi,BLACK);*/
 
   char hi2[5];
   int tmp_id=GetOnGroundIdPlayer(player.x,player.y,5,4);
   sprintf(hi2,"%d",tmp_id);
-  GrPrint(hdc,player.sprite_x,player.sprite_y-50,hi2,BLACK);*/
+  GrPrint(hdc,player.sprite_x,player.sprite_y-50,hi2,BLACK);
 
 
-  /*char hi3[5];
-  int tmp_id2=GetOnGroundIdII(player.x,player.y,30,29,FALSE);
+  char hi3[5];
+  int tmp_id2=GetOnGroundIdPlayer(player.x,player.y,30,29);
   sprintf(hi3,"%d",tmp_id2);
-  GrPrint(hdc,player.sprite_x,player.sprite_y-70,hi3,BLACK);*/
+  GrPrint(hdc,player.sprite_x,player.sprite_y-70,hi3,BLACK);
 }
 
