@@ -1016,7 +1016,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           DrawPlayer(hdcBackbuff);
           DrawCursor(hdcBackbuff);
           DrawUI(hdcBackbuff);
-          DrawGrids(hdcBackbuff);
+          //DrawGrids(hdcBackbuff);
 
           if (!IsInvertedBackground()){ //Inverted palette level
             BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);

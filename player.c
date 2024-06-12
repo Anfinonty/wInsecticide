@@ -1703,7 +1703,7 @@ void DrawPlayer(HDC hdc)
   sprintf(hi,"%d",player.on_ground_timer);
   GrPrint(hdc,player.sprite_x,player.sprite_y-30,hi,BLACK);*/
 
-  char hi2[5];
+  /*char hi2[5];
   int tmp_id=GetOnGroundIdPlayer(player.x,player.y,5,4);
   sprintf(hi2,"%d",tmp_id);
   GrPrint(hdc,player.sprite_x,player.sprite_y-50,hi2,BLACK);
@@ -1712,6 +1712,6 @@ void DrawPlayer(HDC hdc)
   char hi3[5];
   int tmp_id2=GetOnGroundIdPlayer(player.x,player.y,30,29);
   sprintf(hi3,"%d",tmp_id2);
-  GrPrint(hdc,player.sprite_x,player.sprite_y-70,hi3,BLACK);
+  GrPrint(hdc,player.sprite_x,player.sprite_y-70,hi3,BLACK);*/
 }
 
