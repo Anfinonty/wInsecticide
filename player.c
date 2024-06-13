@@ -1475,7 +1475,7 @@ void PlayerCameraShake()
 	    player.cam_move_x-=x_bob;
       }
       player.cam_move_y-=y_bob;//increase y
-      if (player.grav>5 || player.speed>=5) {
+      if (player.grav>5 || (player.speed>=5 && (player.rst_left || player.rst_right))) {
         player.cam_move_x+=RandNum(-1,1,1);//shaky x
         player.cam_move_y+=RandNum(-1,1,1);//shaky y
       }
@@ -1703,7 +1703,7 @@ void DrawPlayer(HDC hdc)
   sprintf(hi,"%d",player.on_ground_timer);
   GrPrint(hdc,player.sprite_x,player.sprite_y-30,hi,BLACK);*/
 
-  char hi2[5];
+  /*char hi2[5];
   int tmp_id=GetOnGroundIdPlayer(player.x,player.y,5,4);
   sprintf(hi2,"%d",tmp_id);
   GrPrint(hdc,player.sprite_x,player.sprite_y-50,hi2,BLACK);
@@ -1712,6 +1712,6 @@ void DrawPlayer(HDC hdc)
   char hi3[5];
   int tmp_id2=player.saved_ground_id;//GetOnGroundIdPlayer(player.x,player.y,30,29);
   sprintf(hi3,"%d",tmp_id2);
-  GrPrint(hdc,player.sprite_x,player.sprite_y-70,hi3,BLACK);
+  GrPrint(hdc,player.sprite_x,player.sprite_y-70,hi3,BLACK);*/
 }
 

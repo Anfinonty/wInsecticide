@@ -671,7 +671,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         case ' ':
           if (!in_main_menu) {
             //player.rst_key_sprint=FALSE;
-            player.rst_down=TRUE;
+            //player.rst_down=TRUE;
+            player.sleep_timer=SLOWDOWN_SLEEP_TIMER;
           }
           break;
 
@@ -843,11 +844,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
         case ' ':
-          if (!in_main_menu) {
+          if (!in_main_menu) { //Let Go
             //if(!player.rst_key_sprint)
               //player.rst_key_sprint=TRUE;
-            if (player.rst_down)
-              player.rst_down=FALSE;
+            //if (player.rst_down)
+              //player.rst_down=FALSE;
+            player.sleep_timer=DEFAULT_SLEEP_TIMER;
           }
           break;
 
@@ -1017,7 +1019,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           DrawPlayer(hdcBackbuff);
           DrawCursor(hdcBackbuff);
           DrawUI(hdcBackbuff);
-          DrawGrids(hdcBackbuff);
+          //DrawGrids(hdcBackbuff);
 
           if (!IsInvertedBackground()){ //Inverted palette level
             BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
@@ -1338,7 +1340,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
                 SCREEN_WIDTH/2-400,
                 SCREEN_HEIGHT/2-300,
                 800,//SCREEN_WIDTH,//GR_WIDTH+7,
-                600,//SCREEN_HEIGHT,//GR_HEIGHT+27,
+                600-8*4,//SCREEN_HEIGHT,//GR_HEIGHT+27,
                 NULL,
                 NULL,
                 hInstance, 
