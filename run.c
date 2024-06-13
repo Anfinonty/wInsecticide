@@ -670,7 +670,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         case ' ':
           if (!in_main_menu) {
-            player.rst_key_sprint=TRUE;
+            //player.rst_key_sprint=FALSE;
+            player.rst_down=TRUE;
           }
           break;
 
@@ -707,14 +708,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         case 'C':
           if (!in_main_menu) {
-            if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
+            /*if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
               player.time_breaker=TRUE;
               if (game_audio) {
                 PlaySound(L"snd/timebreaker__start.wav", NULL, SND_FILENAME | SND_ASYNC);
               }
               player.time_breaker_cooldown=player.time_breaker_cooldown_max;
               player.speed+=player.time_breaker_units_max/2-1;
-            }
+            }*/
             if (player.sleep_timer==DEFAULT_SLEEP_TIMER) {
               player.sleep_timer=SLOWDOWN_SLEEP_TIMER;
             } else {
@@ -843,10 +844,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         case ' ':
           if (!in_main_menu) {
-            if (!in_main_menu) {
-              if(player.rst_key_sprint)
-                player.rst_key_sprint=FALSE;
-            }
+            //if(!player.rst_key_sprint)
+              //player.rst_key_sprint=TRUE;
+            if (player.rst_down)
+              player.rst_down=FALSE;
           }
           break;
 
@@ -1016,7 +1017,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           DrawPlayer(hdcBackbuff);
           DrawCursor(hdcBackbuff);
           DrawUI(hdcBackbuff);
-          //DrawGrids(hdcBackbuff);
+          DrawGrids(hdcBackbuff);
 
           if (!IsInvertedBackground()){ //Inverted palette level
             BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);

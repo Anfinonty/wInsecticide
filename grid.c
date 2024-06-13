@@ -107,7 +107,7 @@ void InitNodeGrid()
   }
 }
 
-bool IsCollideSolid(double x1,double y1,double x2,double y2,double gradient,double c)
+/*bool IsCollideSolid(double x1,double y1,double x2,double y2,double gradient,double c)
 {
   int node_grid_id=0,x=0,y=0,min=0,max=0;
   double lg_x,lg_y;
@@ -136,7 +136,7 @@ bool IsCollideSolid(double x1,double y1,double x2,double y2,double gradient,doub
     }
   }
   return FALSE;
-}
+}*/
 
 bool IsHasNeighbours(int nx,int ny) 
 {

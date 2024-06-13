@@ -217,7 +217,7 @@ void PlayerBulletLimitAct()
 
 void InitPlayer() {
   int i;
-  player.hiding=FALSE;
+  //player.hiding=FALSE;
   player.rst_left_click=FALSE;
   player.rst_right_click=FALSE;
   player.left_click=FALSE;
@@ -226,7 +226,7 @@ void InitPlayer() {
   player.rst_left=FALSE;
   player.rst_right=FALSE;
   player.rst_up=FALSE;
-  player.rst_key_sprint=FALSE;
+  player.rst_key_sprint=TRUE;
   player.last_left=FALSE;
   player.jump=FALSE;
   player.current_above=FALSE;
@@ -688,11 +688,11 @@ void PlayerAct() {
       //player.on_ground_id=GetOnGroundId(player.x,player.y,5,4,TRUE);
 
    //hiding?    (legacy feature)
-      if (NodeGrid[GetGridId(player.above_x,player.above_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM)]->node_solid) {
+      /*if (NodeGrid[GetGridId(player.above_x,player.above_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM)]->node_solid) {
         player.hiding=TRUE;
       } else {
         player.hiding=FALSE;
-      }
+      }*/
 
 
    //Destroy Ground (regainable)
@@ -1703,15 +1703,15 @@ void DrawPlayer(HDC hdc)
   sprintf(hi,"%d",player.on_ground_timer);
   GrPrint(hdc,player.sprite_x,player.sprite_y-30,hi,BLACK);*/
 
-  /*char hi2[5];
+  char hi2[5];
   int tmp_id=GetOnGroundIdPlayer(player.x,player.y,5,4);
   sprintf(hi2,"%d",tmp_id);
   GrPrint(hdc,player.sprite_x,player.sprite_y-50,hi2,BLACK);
 
 
   char hi3[5];
-  int tmp_id2=GetOnGroundIdPlayer(player.x,player.y,30,29);
+  int tmp_id2=player.saved_ground_id;//GetOnGroundIdPlayer(player.x,player.y,30,29);
   sprintf(hi3,"%d",tmp_id2);
-  GrPrint(hdc,player.sprite_x,player.sprite_y-70,hi3,BLACK);*/
+  GrPrint(hdc,player.sprite_x,player.sprite_y-70,hi3,BLACK);
 }
 

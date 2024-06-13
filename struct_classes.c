@@ -94,7 +94,7 @@ struct player
 {
   bool is_rebounding;
   bool is_swinging;
-  bool hiding;
+  //bool hiding;
   bool left_click;
   bool right_click;
   bool rst_left_click;

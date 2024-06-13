@@ -198,7 +198,7 @@ void CleanupPlayerAttributes()
 {
   player.is_rebounding=
   player.is_swinging=
-  player.hiding=
+//  player.hiding=
   player.left_click=
   player.right_click=
   player.rst_left_click=

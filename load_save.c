@@ -210,7 +210,9 @@ void LoadSave(wchar_t *saves_name)
             saved_ground_x3=calloc(GROUND_NUM,sizeof(double));
             saved_ground_y3=calloc(GROUND_NUM,sizeof(double));
             saved_ground_text=calloc(GROUND_NUM,sizeof(wchar_t*));
-
+            for (int i=0;i<GROUND_NUM;i++) {
+              saved_ground_text[i]=(wchar_t*)malloc(512*sizeof(wchar_t));
+            }
 
             //printf("pt:%d\n",sizeof(struct GroundLine*));
             //printf("act:%d\n",sizeof(struct GroundLine));
@@ -221,14 +223,11 @@ void LoadSave(wchar_t *saves_name)
 
 
             //printf("Pointers Made==\n");
+            
 
             for (int i=0;i<(GROUND_NUM+MAX_WEB_NUM);i++) {
               //struct GroundLine* buf = malloc(sizeof(struct GroundLine));
               //printf("buf:%d\n",i);
-              if (i<GROUND_NUM) {
-                wchar_t *awchar_t = malloc(512*sizeof(wchar_t));
-                saved_ground_text[i]=awchar_t;
-              }
               AGround *newGround = createGround(VGRID_NUM);
               Ground[i] = newGround;//malloc(sizeof(struct GroundLine));
             }

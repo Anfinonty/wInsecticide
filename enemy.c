@@ -856,11 +856,11 @@ void EnemyAct(int i)
             Enemy[i]->in_air_timer--;
           }
         }
-        int above_player_node1=GetGridId(
+        /*int above_player_node1=GetGridId(
                 player.above_x-Enemy[i]->node_x[0],
                 player.above_y-Enemy[i]->node_y[0],
                 Enemy[i]->follow_range*NODE_SIZE,
-                NODE_SIZE,Enemy[i]->node_num);
+                NODE_SIZE,Enemy[i]->node_num);*/
         //Crawler
         if ((!Enemy[i]->ignore_player &&  //not ignore & within range
              Enemy[i]->dist_from_player<Enemy[i]->follow_range/2*NODE_SIZE
@@ -879,18 +879,19 @@ void EnemyAct(int i)
 	        for (j=0;j<Enemy[i]->bullet_fire_at_once_max;j++) {//several bullets at once
 		      allow_act=FALSE;
 		      if (Enemy[i]->saw_player) {
-		        switch (Enemy[i]->species) {
+		        /*switch (Enemy[i]->species) {
 		          case 0:
-			        if (!Enemy[i]->node_solid[above_player_node1] && !player.hiding) {
-			          allow_act=TRUE;
-			        }
+			        //if (!Enemy[i]->node_solid[above_player_node1] && !player.hiding) {
+			        allow_act=TRUE;
+			        //}
 			        break;
 		          case 1:
-			        if (Enemy[i]->in_air_timer==0 || slash_time>1) {
-			          allow_act=TRUE;
-			        }
+			        //if (Enemy[i]->in_air_timer==0 || slash_time>1) {
+			        allow_act=TRUE;
+			        //}
 			        break;
-		        }
+		        }*/
+                allow_act=TRUE;
 		      }
 
 		      if (allow_act) {
