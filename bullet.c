@@ -46,7 +46,7 @@ void ShootBullet(
   int range,
   double speed,
   int speed_multiplier,
-  int damage,
+  double damage,
   int enemy_id,
   double start_x,
   double start_y,
@@ -497,7 +497,10 @@ Ascii art woo!! :D
           if (bullet_on_ground_id>=GROUND_NUM) { //elastic web            
             Bullet[bullet_id].range+=80;
             Bullet[bullet_id].speed_multiplier+=2;
-            Bullet[bullet_id].damage+=2;
+            if (Bullet[bullet_id].graphics_type!=7)
+              Bullet[bullet_id].damage+=1;
+            else
+              Bullet[bullet_id].damage+=0.2;
             Bullet[bullet_id].start_range=Bullet[bullet_id].range;
           }
           if (Bullet[bullet_id].angle>2*M_PI) { //hreater
@@ -549,6 +552,7 @@ void DrawBullet2(HDC hdc,int i,double x,double y,int color)
       GrCircle(hdc,x,y,2,color,-1);
       break;
     case 3:
+    case 6:
       GrCircle(hdc,x,y,RandNum(0,3,i),color,-1);
       break;
     case 4:
@@ -561,10 +565,9 @@ void DrawBullet2(HDC hdc,int i,double x,double y,int color)
       GrLine(hdc,x,y,x+10*cos(Bullet[i].angle),y+10*sin(Bullet[i].angle),color);
       }
       break;
-    case 6:
+    case 7:
       {
-      //GrLine(hdc,x,y,x+4*cos(Bullet[i].angle),y+4*sin(Bullet[i].angle),color);
-      GrCircle(hdc,x,y,RandNum(0,3,i),color,-1);
+      GrLine(hdc,x,y,x+6*cos(Bullet[i].angle),y+6*sin(Bullet[i].angle),color);
       }
       break;
   }

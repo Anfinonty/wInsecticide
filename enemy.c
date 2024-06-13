@@ -1424,20 +1424,25 @@ void DrawEnemy(HDC hdc)
     }
     if (/*Enemy[i]->saw_player &&*/ Enemy[i]->within_render_distance) {
       if (Enemy[i]->health>0) {
-        char txt[2];
+        char txt[16];
         int print_health=Enemy[i]->health;
-        sprintf(txt,"%d",print_health);
+        if (print_health>1) {
+          sprintf(txt,"%d",print_health);        
+        } else {
+          sprintf(txt,"1");
+        }
+        int sprite_x_health=(int)Enemy[i]->sprite_x-strlen(txt)*8/2;
         if (Enemy[i]->species==1) {
           if (!player.time_breaker || Enemy[i]->time_breaker_immune) {
-            GrPrint(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y-64,txt,Enemy[i]->color);
+            GrPrint(hdc,sprite_x_health,Enemy[i]->sprite_y-64,txt,Enemy[i]->color);
           } else {
-            GrPrint(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y-64,txt,LTGRAY);
+            GrPrint(hdc,sprite_x_health,Enemy[i]->sprite_y-64,txt,LTGRAY);
           }
         } else {
           if (!player.time_breaker || Enemy[i]->time_breaker_immune) {
-            GrPrint(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y-32,txt,Enemy[i]->color);
+            GrPrint(hdc,sprite_x_health,Enemy[i]->sprite_y-32,txt,Enemy[i]->color);
           } else {
-            GrPrint(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y-32,txt,LTGRAY);
+            GrPrint(hdc,sprite_x_health,Enemy[i]->sprite_y-32,txt,LTGRAY);
           }
         }
       }

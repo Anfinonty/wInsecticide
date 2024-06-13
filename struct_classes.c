@@ -426,11 +426,11 @@ struct Bullet
   bool playsnd;
   int color;
   int speed_multiplier;
-  int damage;
   int from_enemy_id;
   int graphics_type;
   int saved_pos;
   int saved_ground_id;
+  double damage;
   double sprite_x;
   double sprite_y;
   double start_x;
@@ -453,7 +453,7 @@ void ShootBullet(
   int range,
   double speed,
   int speed_multiplier,
-  int damage,
+  double damage,
   int enemy_id,
   double start_x,
   double start_y,
@@ -567,8 +567,6 @@ typedef struct enemy
   int aim_rand;
   int color;
   int speed_multiplier;
-  int health;
-  int max_health;
   int time_breaker_rare;
   int time_breaker_length;
   int saved_ground_id;
@@ -581,6 +579,8 @@ typedef struct enemy
 
   int node_neighbour[8];
 
+  double health;
+  double max_health;
   double LOS_x;
   double LOS_y;
   double LOS_angle;

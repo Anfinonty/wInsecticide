@@ -446,17 +446,28 @@ void PlayerAct() {
     }
 
     int b_speed_m=5;
-    int b_dmg_m=1;
+    double b_dmg_m=1;
+    int b_g_type=5;
     if (player.speed>10) {
       b_speed_m=9;
-      b_dmg_m=3;
     } else if (player.speed>5) {
       b_speed_m=7;      
-      b_dmg_m=2;
     }
 
-    if (player.speed>24)
-      b_dmg_m=4;
+    if (player.knives_per_throw==3) {
+      b_dmg_m=0.333;
+      b_g_type=7;
+      if (player.speed>10)
+        b_dmg_m=0.5;
+      if (player.speed>24)
+        b_dmg_m=1;
+    } else {
+      if (player.speed>10)
+        b_dmg_m=2;
+      if (player.speed>24)
+        b_dmg_m=4;
+    }
+
 
 
     if (player.bullet_shot_num<PLAYER_BULLET_NUM && 
@@ -468,7 +479,6 @@ void PlayerAct() {
       grad_x2=mouse_x-player.cam_x;
       grad_y2=mouse_y-player.cam_y;
       double tmp_angle=0;
-      int b_g_type=5;
 
       if (player.max_web_num-player.placed_web_num<3) {  //0,1,3,5
         player.knives_per_throw=LimitValue(player.knives_per_throw,1,6);
@@ -728,14 +738,9 @@ void PlayerAct() {
         //player speed when on ground
         if (!player.is_swinging && player.fling_distance==0 && player.on_ground_timer>=1 && speed==0 && grav_speed==0) {
           if (!player.is_rebounding) {
-            if (!IsSpeedBreaking()) {//reset stats when normal            
-              if (!player.rst_key_sprint) {
-                if (player.speed>DEFAULT_PLAYER_SPEED)
-                  player.speed--;
-              } else {
-                if (player.speed>8)
-                  player.speed--;
-              }
+            if (!player.rst_key_sprint) {
+              if (player.speed>DEFAULT_PLAYER_SPEED)
+                player.speed--;
             } else {
               if (player.speed>8)
                 player.speed--;
@@ -765,13 +770,12 @@ void PlayerAct() {
           if (player.in_air_timer>0) {
             if (player.in_air_timer>1000) { //make player rebound
               player.in_air_timer=1000;
-              player.speed--; //lower speed on landing
             }
             if (player.rst_down) { //spinning
               player.is_rebounding=TRUE;
-              if (player.rst_left || player.rst_right) { //continue spin-rebound
+              //if (player.rst_left || player.rst_right) { //continue spin-rebound
                 player.in_air_timer=1000;
-              }
+              //}
             } else { //not reboubding
               player.is_rebounding=FALSE;
               player.in_air_timer=1;
@@ -781,6 +785,9 @@ void PlayerAct() {
               player.jump=FALSE;
             }
             player.in_air_timer--;
+            /*if (player.is_rebounding && player.in_air_timer==998) {
+              player.speed--; //lower speed on landing
+            }*/
           }
 
         //outwards from ground
