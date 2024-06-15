@@ -285,27 +285,27 @@ void BulletAct(int bullet_id)
               blocked_bullet_dmg=Bullet[bullet_id].damage;
 	          if (player.block_timer>23) {//non-perfect block
 	            if (player.on_ground_id!=-1) {//on ground
-		          if (player.block_timer<25) {
+		          if (player.block_timer<26) {
 	                player.block_health-=blocked_bullet_dmg/4;
 		          } else {
 	                player.block_health-=blocked_bullet_dmg/2;
 		          }
 	            } else {//in air
-		          if (player.block_timer<25) {
+		          if (player.block_timer<26) {
 	                player.block_health-=blocked_bullet_dmg/4;
 		          } else {
 	                player.block_health-=blocked_bullet_dmg;
 		          }
 	            }
-                if (player.speed<6) {
+                /*if (player.speed<6) {
                   player.health-=(player.block_health_max-player.block_health+1)/player.block_health_max*Bullet[bullet_id].damage;
-                }
-	          } else {//perfect block , 23 or equals to
+                }*/
+	            blocked_bullet_dmg=0;
+	          } else {//perfect block , 23 or less than
 	            blocked_bullet_dmg=0;
                 if (player.time_breaker_units<player.time_breaker_units_max) { //causes speed to increase
                   player.time_breaker_units++;
                 }
-                //player.speed++;
 	          }
 	      } //end of hit player
 
@@ -318,6 +318,10 @@ void BulletAct(int bullet_id)
                   player.time_breaker_units=1;
                 }
               }
+            }
+          } else {
+            if (!IsSpeedBreaking()) {
+              player.speed++;
             }
           }
         } else if (bullet_on_ground_id>=GROUND_NUM && bullet_on_ground_id!=player.web_being_shot) { //Not on web being shot

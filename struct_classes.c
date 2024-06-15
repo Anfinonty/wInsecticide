@@ -103,7 +103,7 @@ struct player
   bool rst_left;
   bool rst_right;
   bool rst_up;
-  bool rst_key_sprint;
+  //bool rst_key_sprint;
   bool last_left;
   bool jump;
   bool current_above;
@@ -177,10 +177,11 @@ struct player
   int saved_ground_id;
   int walk_cycle;
   int player_jump_height;
-  int key_jump_timer;
+  //int key_jump_timer;
   int knockback_speed_multiplier;
   int knockback_strength;
   int time_breaker_tick;
+  int decceleration_timer;
   int seed;
 
 

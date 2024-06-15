@@ -45,10 +45,12 @@ void DrawCursor(HDC hDC)
 {
   //DrawBitmap(hDC,mouse_x,mouse_y,0,0,64,64,mouse_cursor_sprite,SRCAND,FALSE);
   //DrawBitmap(hDC,mouse_x,mouse_y,0,0,64,64,mouse_cursor_sprite_mask,SRCPAINT,FALSE);
-  if (player.health>PLAYER_LOW_HEALTH) {
-    GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_cache,FALSE);
-  } else {
-    GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_cache2,FALSE);
+  if (!(player.speed>24 && frame_tick%2==0)) {
+    if (player.health>PLAYER_LOW_HEALTH) {
+      GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_cache,FALSE);
+    } else {
+      GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_cache2,FALSE);
+    }
   }
   if (!IsInvertedBackground())
     GrCircle(hDC,mouse_x,mouse_y,1,WHITE,-1);
@@ -337,22 +339,24 @@ lunar_year
 
 
 
-#define HELP_TEXT_ARR_NUM1   14
+#define HELP_TEXT_ARR_NUM1   16
 char help_txt_arr1[HELP_TEXT_ARR_NUM1][64]=
 {
   "Controls:",
   "'W' - Jump from Surface",
-  "'S' - Shield-Spin Attack",
+  "'S'_- Block while on Ground",
+  " |__- Hold while in air for Ricochet-Shuriken Attack",
   "'A' - Move Left (Clockwise)",
   "'D' - Move Right (Anti-Clockwise)",
   "'Q' - Pick Up Web Standing On",
   "'Z' - Time Breaker Ability",
-  "'E' - Hold with Attack for Uppercut",
-  "'E' - Hold with Movement to Break Flinging",
-  "'2' - Change Web Firing Style (1/3/5/15)",
+  "'E'_- Hold with Attack for Uppercut",
+  " |__- Hold with Movement to Break Flinging",
+  " |__- Hold with Jump to Jump Once",
+  "'2' - Change Web-Kunai per Throw [ 1/ 3/ 5(1)/ 15(3)]",
   "[Space] or 'C' - Increase Reaction Time",
   "[Left Click] or '1' - Attack and Stop Web Shooting",
-  "[Right Click] - Shoot web",
+  "[Right Click] - Shoot or Place Web",
   "[Enter] - Restart Level"
 };
 
@@ -367,7 +371,7 @@ char help_txt_arr2[HELP_TEXT_ARR_NUM2][64]=
   "'A' - Swing Clockwise",
   "'D' - Swing Anti-Clockwise",
   "'E' - Hold for no flinging after Web Placement",
-  "'E' - Hold for opposite lower quadrant swing",
+  " |__- Hold for opposite lower quadrant swing",
   "[Left Click] or '1' - Swing without Web Placement",
   "[Right Click] - Swing with Web Placement"
 };
@@ -547,7 +551,7 @@ void DrawUI(HDC hdc) {
   }
 
   //draw perfect block
-  if (player.on_ground_id==-1 && player.block_timer>0 && player.block_timer<=23) {
+  if (player.block_timer>0) {
     GrPrint(hdc,player.sprite_x+48,player.sprite_y,"*",c);
   }
 

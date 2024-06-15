@@ -196,6 +196,7 @@ bool level_loaded=FALSE;
 #define DEFAULT_PLAYER_TIME_BREAKER_TICK_MAX	22 //45
 
 #define PLAYER_LOW_HEALTH   3
+//#define PLAYER_BULLET_NUM 32
 #define PLAYER_BULLET_NUM 16
 
 
@@ -875,8 +876,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             if (player.max_web_num-player.placed_web_num>=3 && player.knives_per_throw==5) {
               player.knives_per_throw=13;
             }
-            if (player.max_web_num-player.placed_web_num>=3) {          
-              player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,PLAYER_BULLET_NUM+1); //limit to 1,3,5,15
+            /*if (player.max_web_num-player.placed_web_num>=6 && player.knives_per_throw==15) {
+              player.knives_per_throw=28;
+            }*/
+            /*if (player.max_web_num-player.placed_web_num>5) {
+              player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,30+1); //limit to 1,3,5,15
+            } else*/ if (player.max_web_num-player.placed_web_num>2) {          
+              player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,15+1); //limit to 1,3,5,15
             } else if (player.max_web_num-player.placed_web_num>0){ //limit to 1,3,5
               player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,5+1);
             } else { //limit to 1,3
@@ -1100,7 +1106,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DeleteObject(moon_sprite_cache);
             moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,-1);
 
-            player.health=20;
             DeleteObject(mouse_cursor_sprite_cache);
             mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,draw_color_arr[player_color],-1);
 

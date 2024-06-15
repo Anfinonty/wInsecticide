@@ -207,7 +207,7 @@ void CleanupPlayerAttributes()
   player.rst_left=
   player.rst_right=
   player.rst_up=
-  player.rst_key_sprint=
+  //player.rst_key_sprint=
   player.last_left=
   player.jump=
   player.current_above=
@@ -275,7 +275,7 @@ void CleanupPlayerAttributes()
   player.saved_ground_id=
   player.walk_cycle=
   player.player_jump_height=
-  player.key_jump_timer=
+//  player.key_jump_timer=
   player.knockback_speed_multiplier=
   player.knockback_strength=
   player.time_breaker_tick=
@@ -312,7 +312,7 @@ void CleanupPlayerAttributes()
   player.block_health=
 
 
-  player.health=
+  player.health=20;
   player.pivot_x=
   player.pivot_y=
   player.pivot_angle=

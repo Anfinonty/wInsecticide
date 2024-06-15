@@ -375,10 +375,10 @@ void EnemyMove(int enemy_id)
       }
       break;
     case 1://mite
-      if (Enemy[enemy_id]->y>path_node_center_y) {
-        Enemy[enemy_id]->y-=2;//Go against gravity
+      if (Enemy[enemy_id]->y<path_node_center_y) {
+        Enemy[enemy_id]->y+=Enemy[enemy_id]->speed;//Go against gravity
       } else {
-        Enemy[enemy_id]->y+=Enemy[enemy_id]->speed;
+        Enemy[enemy_id]->y-=Enemy[enemy_id]->speed;
       }
       break;
   }
