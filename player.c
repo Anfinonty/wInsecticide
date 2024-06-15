@@ -945,6 +945,9 @@ void PlayerAct() {
 
         if (player.jump_height>0) { //Jumping action
           player.jump_height-=player.player_grav;
+          if (player.uppercut && (player.rst_left || player.rst_right)) {
+            player.jump_height=0;
+          }
           move_x(2*player.player_grav*-cos(player.jump_angle));
           move_y(2*player.player_grav*-sin(player.jump_angle)); //jump go against gravity and perpendicular from platform
           if (player.jump_height<=0) {

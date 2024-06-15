@@ -351,7 +351,7 @@ char help_txt_arr1[HELP_TEXT_ARR_NUM1][64]=
   "'Q' - Pick Up Web Standing On",
   "'Z' - Time Breaker Ability",
   "'E'_- Hold with Attack for Uppercut",
-  " |__- Hold with Movement to Break Flinging",
+  " |__- Hold with Movement to Break Jump or Flinging",
   " |__- Hold with Jump to Jump Once",
   "'2' - Change Web-Kunai per Throw [ 1/ 3/ 5(1)/ 15(3)]",
   "[Space] or 'C' - Increase Reaction Time",
