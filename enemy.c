@@ -862,23 +862,23 @@ void EnemyAct(int i)
                 Enemy[i]->follow_range*NODE_SIZE,
                 NODE_SIZE,Enemy[i]->node_num);*/
         //Crawler
-        if ((!Enemy[i]->ignore_player &&  //not ignore & within range
-             Enemy[i]->dist_from_player<Enemy[i]->follow_range/2*NODE_SIZE
+        if ((!Enemy[i]->ignore_player /*&&  //not ignore & within range
+             Enemy[i]->dist_from_player<Enemy[i]->follow_range/2*NODE_SIZE*/
             )
            ) {
           if (Enemy[i]->bullet_fire_cooldown<=0) {
-	    if (Enemy[i]->bullet_length==0) {
-	      for (j=0;j<Enemy[i]->bullet_fire_at_once_max;j++) {//shoot several bullets at once
-	        Enemy[i]->bullet_head_x[j]=player.x+RandNum(-Enemy[i]->aim_rand,Enemy[i]->aim_rand,Enemy[i]->seed);
-	        Enemy[i]->bullet_head_y[j]=player.y+RandNum(-Enemy[i]->aim_rand,Enemy[i]->aim_rand,Enemy[i]->seed);
-	      }
-	    }
+	        if (Enemy[i]->bullet_length==0) {
+	          for (j=0;j<Enemy[i]->bullet_fire_at_once_max;j++) {//shoot several bullets at once
+	            Enemy[i]->bullet_head_x[j]=player.x+RandNum(-Enemy[i]->aim_rand,Enemy[i]->aim_rand,Enemy[i]->seed);
+	            Enemy[i]->bullet_head_y[j]=player.y+RandNum(-Enemy[i]->aim_rand,Enemy[i]->aim_rand,Enemy[i]->seed);
+	          }
+	        }
 
-        if (Enemy[i]->bullet_cooldown<=0) {
-	      if (Enemy[i]->bullet_shot_num<500) {//shot less than 500 bullets
-	        for (j=0;j<Enemy[i]->bullet_fire_at_once_max;j++) {//several bullets at once
-		      allow_act=FALSE;
-		      if (Enemy[i]->saw_player) {
+            if (Enemy[i]->bullet_cooldown<=0) {
+	          if (Enemy[i]->bullet_shot_num<500) {//shot less than 500 bullets
+	            for (j=0;j<Enemy[i]->bullet_fire_at_once_max;j++) {//several bullets at once
+		      //allow_act=FALSE;
+		      //if (Enemy[i]->saw_player) {
 		        /*switch (Enemy[i]->species) {
 		          case 0:
 			        //if (!Enemy[i]->node_solid[above_player_node1] && !player.hiding) {
@@ -891,14 +891,14 @@ void EnemyAct(int i)
 			        //}
 			        break;
 		        }*/
-                allow_act=TRUE;
-		      }
+               // allow_act=TRUE;
+		      //}
 
-		      if (allow_act) {
-                if (Enemy[i]->dist_from_player<Enemy[i]->shoot_at_player_range/2*NODE_SIZE) {
-        		  Enemy[i]->shoot_target_x=Enemy[i]->bullet_head_x[j];
-        		  Enemy[i]->shoot_target_y=Enemy[i]->bullet_head_y[j];
-                  ShootBullet(current_bullet_id,
+		          if (Enemy[i]->saw_player) {
+                    if (Enemy[i]->dist_from_player<Enemy[i]->shoot_at_player_range/2*NODE_SIZE) {
+    		          Enemy[i]->shoot_target_x=Enemy[i]->bullet_head_x[j];
+        		      Enemy[i]->shoot_target_y=Enemy[i]->bullet_head_y[j];
+                      ShootBullet(current_bullet_id,
 		        Enemy[i]->bullet_shot_num,
 		        Enemy[i]->bullet_color,
 		        Enemy[i]->bullet_graphics_type,
@@ -915,38 +915,38 @@ void EnemyAct(int i)
 		        Enemy[i]->shoot_target_y,
                 0
                   );
-                  Enemy[i]->bullet_shot_arr[Enemy[i]->bullet_shot_num]=current_bullet_id;
-                  Enemy[i]->bullet_shot_num++;
+                    Enemy[i]->bullet_shot_arr[Enemy[i]->bullet_shot_num]=current_bullet_id;
+                    Enemy[i]->bullet_shot_num++;
                   //after shooting
-                  current_bullet_id++;
-                  if (current_bullet_id>=BULLET_NUM-1) {
-                    current_bullet_id=0;
+                    current_bullet_id++;
+                    if (current_bullet_id>=BULLET_NUM-1) {
+                      current_bullet_id=0;
+                    }
                   }
-                }
-	          }
-	        } //end of for
-	      }
-	      Enemy[i]->bullet_cooldown=Enemy[i]->bullet_cooldown_max;
-	      Enemy[i]->bullet_length++;
-	      if (Enemy[i]->bullet_length>=Enemy[i]->bullet_length_max) {
-	        Enemy[i]->bullet_fire_cooldown=Enemy[i]->bullet_fire_cooldown_max;
-	        Enemy[i]->bullet_length=0;
-	      }
-	    } else {
-          Enemy[i]->bullet_cooldown--;
+	            }
+	          } //end of for
+	        }
+	        Enemy[i]->bullet_cooldown=Enemy[i]->bullet_cooldown_max;
+	        Enemy[i]->bullet_length++;
+	        if (Enemy[i]->bullet_length>=Enemy[i]->bullet_length_max) {
+	          Enemy[i]->bullet_fire_cooldown=Enemy[i]->bullet_fire_cooldown_max;
+	          Enemy[i]->bullet_length=0;
+	        }
+	      } else {
+            Enemy[i]->bullet_cooldown--;
+          }
+        } else {
+	      Enemy[i]->bullet_fire_cooldown--;
         }
-      } else {
-	    Enemy[i]->bullet_fire_cooldown--;
       }
-    }
 
 
     //pathfinding
-    Enemy[i]->forgor_timer++;
-    if (Enemy[i]->forgor_timer>300) {
-      Enemy[i]->forgor_timer=0;
-      Enemy[i]->ignore_player=FALSE;
-    }
+      Enemy[i]->forgor_timer++;
+      if (Enemy[i]->forgor_timer>300) {
+        Enemy[i]->forgor_timer=0;
+        Enemy[i]->ignore_player=FALSE;
+      }
 
     //Movement
     if (Enemy[i]->idling) { //idling
@@ -1456,7 +1456,8 @@ void DrawEnemy(HDC hdc)
          // if (Enemy[i]->health>0)
             //GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,uncanny,Enemy[i]->last_left);
           break;
-        case 1:
+        case 1: 
+        {
           if (Enemy[i]->in_air_timer==0 && !Enemy[i]->being_drawn) {
             if (Enemy[i]->above_ground) {
               if (Enemy[i]->sprite_timer%8==0) {
@@ -1474,14 +1475,16 @@ void DrawEnemy(HDC hdc)
                 GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,EnemySprite[i].sprite_2,Enemy[i]->flip_sprite);
                 //GrPrint(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y-72,"4",Enemy[i]->color);
               }
+            } else {
+              GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,EnemySprite[i].sprite_3,Enemy[i]->last_left);
             }
-
           } else {
             GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,EnemySprite[i].sprite_3,Enemy[i]->last_left);
           }
         //if (Enemy[i]->health>0)
           //GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,uncanny,Enemy[i]->last_left);
           break;
+        }
       }
     }
   }

@@ -709,10 +709,15 @@ void PlayerAct() {
   if (player.decceleration_timer==0) {
     player.decceleration_timer=100;
     if (player.speed>=10)
-      player.decceleration_timer=300;
+      if (IsSpeedBreaking())
+        player.decceleration_timer=300;
+      else
+        player.decceleration_timer=100;
     if (player.speed>=24)
-      player.decceleration_timer=340;
-
+      if (IsSpeedBreaking())
+        player.decceleration_timer=335;
+      else
+        player.decceleration_timer=250;
   }
   if (player.decceleration_timer>0 && !player.is_swinging) {
     player.decceleration_timer++;
@@ -1384,7 +1389,7 @@ void PlayerAct() {
     } else {
       if (player.time_breaker_recharge_timer>0) {
         player.time_breaker_recharge_timer--;
-      } else if (player.time_breaker_units<player.time_breaker_units_max) {
+      } else if (player.time_breaker_units<player.time_breaker_units_max && !player.is_swinging) {
         player.time_breaker_units++;
         if (player.speed<10) {
           player.time_breaker_recharge_timer=player.time_breaker_recharge_timer_max;
