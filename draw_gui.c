@@ -24,12 +24,15 @@ void DrawBackground(HDC hdc) {
 void DrawPlatforms(HDC hDC)
 { //Dynamically scale with window size 
   //Draw platforms bitmap mask
+  int extra_h=0;
+  if (hide_taskbar)
+    extra_h=8*4;
   DrawBitmap(hDC,player.cam_move_x+player.cam_x+player.x-GR_WIDTH/2,
                  player.cam_move_y+player.cam_y+player.y-GR_HEIGHT/2,
                  player.x-GR_WIDTH/2,
                  player.y-GR_HEIGHT/2,
                  GR_WIDTH,
-                 GR_HEIGHT+player.grav*2,
+                 GR_HEIGHT+player.grav*2+extra_h,
                 map_platforms_sprite_mask,SRCAND,FALSE);
   //Draw platforms paint
   DrawBitmap(hDC,player.cam_move_x+player.cam_x+player.x-GR_WIDTH/2,
@@ -37,7 +40,7 @@ void DrawPlatforms(HDC hDC)
                  player.x-GR_WIDTH/2,
                  player.y-GR_HEIGHT/2,
                  GR_WIDTH,
-                 GR_HEIGHT+player.grav*2,
+                 GR_HEIGHT+player.grav*2+extra_h,
                 map_platforms_sprite,SRCPAINT,FALSE);
 }
 
