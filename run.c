@@ -101,25 +101,59 @@ WHITE //15
 #define SCREEN_HEIGHT   (GetSystemMetrics(SM_CYSCREEN))
 
 
-//Global Variables
-int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
-int solar_sec=0,solar_min=0,solar_hour=0,solar_day=0,solar_month=0,solar_year=0,solar_day_of_week=0;
-double solar_angle_day=0;
-
-int lunar_sec=0,lunar_min=0,lunar_hour=0,lunar_day=0,lunar_month=0,lunar_year=0,lunar_day_of_week=0;
-double moon_angle_shift=0;
-
-int frame_tick=-10;
-int int_best_score=0;
-int player_color=0;
-int player_load_color=0;
-int player_bullet_color=0;
-double double_best_score=0;
-wchar_t save_level[128];
-double time_begin=0;
+//Global Variables Game state variables
 bool yes_unifont=FALSE;
 bool clean_up_sound=FALSE;
 bool level_loaded=FALSE;
+bool hide_taskbar=FALSE;
+bool flag_restart=FALSE;
+bool flag_restart_audio=FALSE;
+bool back_to_menu=FALSE;
+bool in_main_menu=TRUE;
+bool game_over=FALSE;
+bool game_cam_shake=TRUE;
+bool game_audio=TRUE;
+bool alloc_enemy_once=TRUE;
+
+wchar_t save_level[128];
+
+int level_chosen=0;
+int windowx=0;
+int windowy=0;
+
+int enemy_kills=0;
+int FPS = 60;
+int main_menu_chosen=0;
+int option_choose=0;
+
+int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
+
+int frame_tick=-10;
+int int_best_score=0; //to store to write
+int player_color=0;
+int player_load_color=0;
+int player_bullet_color=0;
+
+
+
+
+
+
+long long game_timer=0;
+
+
+double double_best_score=0;
+double time_begin=0;
+
+
+
+//Solar Hijri Time for Drawing
+int solar_sec=0,solar_min=0,solar_hour=0,solar_day=0,solar_month=0,solar_year=0,solar_day_of_week=0;
+double solar_angle_day=0;
+
+//Lunar Hijri Time for Drawing
+int lunar_sec=0,lunar_min=0,lunar_hour=0,lunar_day=0,lunar_month=0,lunar_year=0,lunar_day_of_week=0;
+double moon_angle_shift=0;
 
 //HBITMAP canny;
 //HBITMAP uncanny;
@@ -197,32 +231,11 @@ bool level_loaded=FALSE;
 
 #define PLAYER_LOW_HEALTH   3
 //#define PLAYER_BULLET_NUM 32
-#define PLAYER_BULLET_NUM 16
+#define PLAYER_BULLET_NUM 24//16
 
 
 #include "struct_classes.c"
 #include "load_save.c"
-
-
-bool flag_restart=FALSE;
-bool flag_restart_audio=FALSE;
-bool back_to_menu=FALSE;
-bool in_main_menu=TRUE;
-int level_chosen=0;
-int windowx=0;
-int windowy=0;
-long long game_timer=0;
-bool game_over=FALSE;
-int enemy_kills=0;
-int FPS = 60;
-int main_menu_chosen=0;
-
-int option_choose=0;
-bool game_cam_shake=TRUE;
-bool game_audio=TRUE;
-bool alloc_enemy_once=TRUE;
-
-
 
 #include "math.c"
 #include "gr.c"
@@ -236,6 +249,9 @@ bool alloc_enemy_once=TRUE;
 #include "song.c"
 #include "draw_gui.c"
 #include "cleanup.c"
+
+
+
 
 
 //Init
@@ -525,19 +541,34 @@ bool keydownalt()
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   HDC hdc, hdcBackbuff;
+  HWND hShellWnd = FindWindowA("Shell_TrayWnd", NULL);
+  LONG originalStyle = GetWindowLong(hwnd, GWL_STYLE);
   switch(msg) {
+
+    //Left Click Hold
     case WM_LBUTTONDOWN:
       player.rst_left_click=TRUE;
       break;
+
+    //Left Click Release
     case WM_LBUTTONUP:
       player.rst_left_click=FALSE;
+      player.attack_rst=TRUE;
       break;
+
+
+    //Right Click Hold
     case WM_RBUTTONDOWN:
       player.rst_right_click=TRUE;
       break;
+
+    //Right Click Release
     case WM_RBUTTONUP:
       player.rst_right_click=FALSE;
       break;
+
+
+    //Mouse Movement
     case  WM_MOUSEMOVE: //https://stackoverflow.com/questions/22039413/moving-the-mouse-blocks-wm-timer-and-wm-paint
       if (!IsIconic(hwnd)) //no action when minimized
       {
@@ -549,25 +580,31 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         UpdateWindow(hwnd);
       }
       break;
+
+    //Various Keypress down
     case WM_KEYDOWN:
       switch (wParam) {
+
+        //Holding Down Shift && Escape
         case VK_ESCAPE:
           if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = QUIT
-            if (!in_main_menu) {
-              if (level_loaded) {
+            if (!in_main_menu) { //Not in main menu
+              if (level_loaded) { //allow back to menu only if level is fully loaded
                 back_to_menu=TRUE;
               }
-            } else {
+            } else { // In main menu
               PostQuitMessage(0);
               return 0;
             }
           }
           break;
+
+        //Holding Down Down Arrow or 'S'
         case 'S':
         case VK_DOWN:
-            if (!in_main_menu) {
+            if (!in_main_menu) { //Not in main menu
               player.rst_down=TRUE;
-            } else {
+            } else { //In main menu
               switch (main_menu_chosen) {
                 case 0:
                   level_chosen=LimitValue(level_chosen+1,0,level_num);
@@ -580,24 +617,26 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
             break;
 
+
+        //Holding Down Right Arrow or 'D'
         case 'D':
         case VK_RIGHT:
           player.rst_right=TRUE;
-          if (in_main_menu) {
+          if (in_main_menu) { //In Main Menu
             if (main_menu_chosen==1) {
               switch (option_choose) {
-                case 0:
+                case 0: //Change color of player ++
                   player_color=LimitValue(player_color+1,0,COLORS_NUM);
                   PlaySound(L"snd/FE_MB_18.wav", NULL, SND_FILENAME | SND_ASYNC);
                   break;
-                case 1:
+                case 1: //Enable/Disable sound effects
                   if (game_audio)
                     PlaySound(L"snd/FE_COMMON_MB_03.wav", NULL, SND_FILENAME | SND_ASYNC);
                   else
                     PlaySound(L"snd/FE_COMMON_MB_04.wav", NULL, SND_FILENAME | SND_ASYNC);                    
                   game_audio=!game_audio;
                   break;
-                case 2:
+                case 2: //Enable/Disable camera shaking
                   if (game_cam_shake)
                     PlaySound(L"snd/FE_COMMON_MB_03.wav", NULL, SND_FILENAME | SND_ASYNC);
                   else
@@ -610,24 +649,25 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           break;
 
 
+        //Holding Down Left Arrow or 'A'
         case 'A':
         case VK_LEFT:
           player.rst_left=TRUE;
           if (in_main_menu) {
             if (main_menu_chosen==1) {
               switch (option_choose) {
-                case 0:
+                case 0: //Change color of player --
                   player_color=LimitValue(player_color-1,0,COLORS_NUM);
                   PlaySound(L"snd/FE_MB_18.wav", NULL, SND_FILENAME | SND_ASYNC);
                   break;
-                case 1:
+                case 1: //Enable/Disable sound effects
                   if (game_audio)
                     PlaySound(L"snd/FE_COMMON_MB_03.wav", NULL, SND_FILENAME | SND_ASYNC);
                   else
                     PlaySound(L"snd/FE_COMMON_MB_04.wav", NULL, SND_FILENAME | SND_ASYNC);                    
                   game_audio=!game_audio;
                   break;
-                case 2:
+                case 2:  //Enable/Disable camera shaking 
                   if (game_cam_shake)
                     PlaySound(L"snd/FE_COMMON_MB_03.wav", NULL, SND_FILENAME | SND_ASYNC);
                   else
@@ -640,6 +680,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           break;
 
 
+        //Holding Down Up Arrow or 'W''
         case 'W':
         case VK_UP:
           if (!in_main_menu) {
@@ -658,6 +699,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           break;
 
 
+        //Holding down ENTER key
         case VK_RETURN:
           if (!in_main_menu) {
             flag_restart=TRUE;
@@ -669,6 +711,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
           break;
 
+        //Holding down SPACE key
         case ' ':
           if (!in_main_menu) {
             //player.rst_key_sprint=FALSE;
@@ -677,6 +720,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
           break;
 
+
+        //Holding down 'E' key
 	    case 'E':
           if (!in_main_menu) {
 	        player.uppercut=TRUE;
@@ -684,6 +729,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	      break;
 
 
+        //Holding down '9' Key
         case '9'://skip song, upwnwards (previous)
           if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
             if (song_mode<=2) {
@@ -697,6 +743,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
           break;
 
+        //Holding down '0' Key
         case '0'://skip song, downwards (next)
           if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
             if (song_mode<=2) {
@@ -708,16 +755,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
 
 
+
+        //Holding down 'C' Key
         case 'C':
           if (!in_main_menu) {
-            /*if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
-              player.time_breaker=TRUE;
-              if (game_audio) {
-                PlaySound(L"snd/timebreaker__start.wav", NULL, SND_FILENAME | SND_ASYNC);
-              }
-              player.time_breaker_cooldown=player.time_breaker_cooldown_max;
-              player.speed+=player.time_breaker_units_max/2-1;
-            }*/
             if (player.sleep_timer==DEFAULT_SLEEP_TIMER) {
               player.sleep_timer=SLOWDOWN_SLEEP_TIMER;
             } else {
@@ -727,6 +768,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           break;
 
 
+        //Holding down 'Z' Key
         case 'Z':
           if (!in_main_menu) {
             if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
@@ -745,8 +787,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
 
+
+    //Key Release
     case WM_KEYUP:
       switch (wParam) {
+
+        //Release '8' key holding SHIFT
         case '8':
           if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = QUIT
             if (!in_main_menu) {
@@ -759,43 +805,81 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
           break;
 
-        case 'Q':
-          player.destroy_ground=TRUE;
-          break;
+
+        //Release 'T' key holding SHIFT
+        case 'T': //Hide or Show Taskbar
+          if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+            if (!hide_taskbar) {
+              ShowWindow(hShellWnd, SW_HIDE); //hide taskbar
+
+              //https://stackoverflow.com/questions/2398746/removing-window-border
+              LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
+              lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+              SetWindowLong(hwnd, GWL_STYLE, lStyle);
 
 
-        case 'S':
-        case VK_DOWN:
-          if(player.rst_down)
-            player.rst_down=FALSE;
-          break;
+              SetWindowPos(hwnd,NULL,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
 
 
-        case 'D':
-        case VK_RIGHT:
-          if (!in_main_menu) {
-            if(player.rst_right) {
-              player.rst_right=FALSE;
+              SetForegroundWindow(hwnd); //return back focus
+
+              hide_taskbar=TRUE;
+            } else {
+              ShowWindow(hShellWnd, SW_SHOW); //show taskbar again
+
+
+              LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
+              lStyle |= (WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+              SetWindowLong(hwnd, GWL_STYLE, lStyle);
+
+              SetWindowPos(hwnd,NULL,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
+
+              SetForegroundWindow(hwnd);
+              hide_taskbar=FALSE;
             }
           }
           break;
 
 
-        case 'A':
-        case VK_LEFT:
+        //Release Q key
+        case 'Q':
           if (!in_main_menu) {
-            if(player.rst_left) {
-              player.rst_left=FALSE;
-            } 
+            player.destroy_ground=TRUE;
           }
           break;
 
-        case 'W':
-        case VK_UP:
-          if(player.rst_up)
-            player.rst_up=FALSE;
+
+        //Release S or Down key
+        case 'S':
+        case VK_DOWN:
+          player.rst_down=FALSE;
           break;
 
+        //Release D or Right key
+        case 'D':
+        case VK_RIGHT:
+          if (!in_main_menu) {
+            player.rst_right=FALSE;
+          }
+          break;
+
+
+        //Release A or Left key
+        case 'A':
+        case VK_LEFT:
+          if (!in_main_menu) {
+            player.rst_left=FALSE;
+          }
+          break;
+
+        //Release W or Up key
+        case 'W':
+        case VK_UP:
+          player.rst_up=FALSE;
+          break;
+
+
+        //Release N key while holding SHIFT or not
         case 'N':
           if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
             if (song_mode==0 || song_mode==3) {
@@ -820,6 +904,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           break;//end current song
 
 
+        //Release M key while holding SHIFT or not
         case 'M':
           if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
             if (song_mode>=2) {
@@ -844,16 +929,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           break;//end current song
 
 
-        case ' ':
+        //Release Space key
+        case ' ': 
           if (!in_main_menu) { //Let Go
-            //if(!player.rst_key_sprint)
-              //player.rst_key_sprint=TRUE;
-            //if (player.rst_down)
-              //player.rst_down=FALSE;
             player.sleep_timer=DEFAULT_SLEEP_TIMER;
           }
           break;
 
+
+        //Release '1' Key
 	    case '1':
           if (!in_main_menu) {
 	        player.attack_rst=TRUE;
@@ -871,6 +955,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 	      break;
 
 
+        //Release '2' Key
         case '2':
           if (!in_main_menu) {
             if (player.max_web_num-player.placed_web_num>=3 && player.knives_per_throw==5) {
@@ -889,10 +974,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,3+1);
             }
           }
-          //PlayerBulletLimitAct();
           break;
 
 
+        //Release 'E' Key
 	    case 'E':
           if (!in_main_menu) {
             if (player.uppercut) {
@@ -901,6 +986,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
 	      break;
 
+
+        //Release 'L' Key
         case 'L':
           if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
             if (yes_unifont) {
@@ -912,6 +999,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           break;
       }
       break;
+
+
+
+    //Constantly Update Screen
     case WM_ERASEBKGND:
       if (!IsIconic(hwnd)) //no action when minimized
         InvalidateRect(hwnd,NULL,TRUE);
@@ -919,6 +1010,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       break;
 
 
+
+    //Graphics
     case WM_PAINT: //https://cplusplus.com/forum/beginner/269434/
       FrameRateSleep(FPS); // (Uncapped) //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
       if (!IsIconic(hwnd)) //no action when minimized, prevents crash https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-isiconic?redirectedfrom=MSDN
@@ -1023,8 +1116,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           DrawWebs(hdcBackbuff);
           DrawEnemy(hdcBackbuff);
           DrawPlayer(hdcBackbuff);
-          DrawCursor(hdcBackbuff);
           DrawUI(hdcBackbuff);
+          DrawCursor(hdcBackbuff);
           //DrawGrids(hdcBackbuff);
 
           if (!IsInvertedBackground()){ //Inverted palette level
@@ -1135,6 +1228,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       }
       return 0;
       break;
+
+
+    //Tasks to perform on start
     case WM_CREATE:
     {
       //MessageBox(NULL, TEXT("ភាសាខ្មែរ"), TEXT("ភាសាខ្មែរ") ,MB_OK); //khmer text box
@@ -1307,12 +1403,20 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       return 0;
       break;
+
+
+
+    //Tasks to perform on exit
     case WM_DESTROY:
       remove("music/tmp/tmp.wav");
       rmdir("music/tmp"); //remove tmp
+      HWND hShellWnd = FindWindowA("Shell_TrayWnd", NULL);
+      ShowWindow(hShellWnd, SW_SHOW);
       PostQuitMessage(0);
       return 0;
       break;
+
+
     //default:
      //break;
   }
@@ -1344,15 +1448,17 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
                 WS_BORDER | WS_OVERLAPPEDWINDOW | WS_VISIBLE | CW_USEDEFAULT| CW_USEDEFAULT /*| WS_MINIMIZE*/,
                 SCREEN_WIDTH/2-400,
                 SCREEN_HEIGHT/2-300,
-                800,//SCREEN_WIDTH,//GR_WIDTH+7,
-                600-8*4,//SCREEN_HEIGHT,//GR_HEIGHT+27,
+                //800,//SCREEN_WIDTH,//GR_WIDTH+7,
+                //600-8*4,//SCREEN_HEIGHT,//GR_HEIGHT+27, //4:3 aspect ratio
+                800,
+                600,
                 NULL,
                 NULL,
                 hInstance, 
                 NULL);
   //SetWindowLong(hwnd, GWL_STYLE, 0);
   //ShowWindow(hwnd, SW_SHOW);
-
+  //https://www.codeproject.com/Questions/441008/Hide-TaskBar-in-C-through-Win32
   //Make game un fast when level is run (simulates focusing tab)
   //https://batchloaf.wordpress.com/2012/10/18/simulating-a-ctrl-v-keystroke-in-win32-c-or-c-using-sendinput/
   Sleep(100);
@@ -1392,6 +1498,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   HANDLE thread2=CreateThread(NULL,0,SongTask,NULL,0,NULL); //Spawn Song Player Thread
   //HANDLE thread3=CreateThread(NULL,0,SndTask,NULL,0,NULL); //Spawn Sound Task
 
+
   MSG msg;
   while (true) {
     if (PeekMessage(&msg,NULL,0,0,PM_REMOVE)) {
@@ -1402,6 +1509,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
     }
   }
   timeEndPeriod(1);
+
+  //In case WM_DESTROY doesnt work
+  HWND hShellWnd = FindWindowA("Shell_TrayWnd", NULL);
+  ShowWindow(hShellWnd, SW_SHOW);
   return (int) msg.wParam;
 }
 

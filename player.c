@@ -439,7 +439,7 @@ void PlayerAct() {
   }
 
   Click();
-  if (player.left_click_hold_timer==62 || player.attack_rst) {//Left click to Attack
+  if (player.attack_rst) {//Left click to Attack
     player.attack=TRUE;
     player.blocking=FALSE; //unblock
 
@@ -462,9 +462,9 @@ void PlayerAct() {
       b_dmg_m=0.25;
       b_g_type=7;
       if (player.speed>10)
-        b_dmg_m=0.5;
+        b_dmg_m=0.35;
       if (player.speed>24)
-        b_dmg_m=1;
+        b_dmg_m=0.5;
     } else {
       if (player.speed>10)
         b_dmg_m=2;
@@ -478,10 +478,10 @@ void PlayerAct() {
         !player.is_swinging && 
         (PLAYER_BULLET_NUM-player.bullet_shot_num>=player.knives_per_throw) // a/b whehere a>=b a is bullet in storage, b is bullet consumption
     ) {
-      grad_x1=player.x+player.cam_move_x;
-      grad_y1=player.y+player.cam_move_y;
-      grad_x2=mouse_x-player.cam_x;
-      grad_y2=mouse_y-player.cam_y;
+      grad_x1=player.sprite_x;
+      grad_y1=player.sprite_y;
+      grad_x2=mouse_x;
+      grad_y2=mouse_y;
       double tmp_angle=0;
 
       if (player.max_web_num-player.placed_web_num<3) {  //0,1,3,5
@@ -570,10 +570,10 @@ void PlayerAct() {
       }
     }
     if (allow_act) {
-      grad_x1=player.x+player.cam_move_x;
-      grad_y1=player.y+player.cam_move_y;
-      grad_x2=mouse_x-player.cam_x;
-      grad_y2=mouse_y-player.cam_y;
+      grad_x1=player.sprite_x;
+      grad_y1=player.sprite_y;
+      grad_x2=mouse_x;
+      grad_y2=mouse_y;
 
       player.attack=TRUE; 
 	  player.bullet_shot=current_bullet_id;
@@ -630,16 +630,45 @@ void PlayerAct() {
     //player place web after swing
         double bm_x1=0,bm_y1=0,bm_x2=0,bm_y2=0;
         if (player.x<player.pivot_x) {
+          bm_x1=player.x;
+          bm_y1=player.y;	
           bm_x2=player.pivot_x;
           bm_y2=player.pivot_y;
-          bm_x1=player.above_x;
-          bm_y1=player.above_y;	
         } else {
           bm_x1=player.pivot_x;
           bm_y1=player.pivot_y;
-          bm_x2=player.above_x;
-          bm_y2=player.above_y;
+          bm_x2=player.x;
+          bm_y2=player.y;
         }
+
+        if (player.y<player.pivot_y) { //player is above pivot
+          //player is left
+          if (player.x<player.pivot_x) {
+            bm_x1-=cos(player.pivot_angle)*NODE_SIZE*2;
+            bm_y1+=sin(player.pivot_angle)*NODE_SIZE*2;
+            bm_x2+=cos(player.pivot_angle)*NODE_SIZE*2;
+            bm_y2-=sin(player.pivot_angle)*NODE_SIZE*2;
+          } else { //player is right
+            bm_x1+=cos(player.pivot_angle)*NODE_SIZE*2;
+            bm_y1-=sin(player.pivot_angle)*NODE_SIZE*2;
+            bm_x2-=cos(player.pivot_angle)*NODE_SIZE*2;
+            bm_y2+=sin(player.pivot_angle)*NODE_SIZE*2;
+          }
+        } else { //player is below pivot
+          //player is left
+          if (player.x<player.pivot_x) {
+            bm_x1-=cos(player.pivot_angle)*NODE_SIZE*2;
+            bm_y1-=sin(player.pivot_angle)*NODE_SIZE*2;
+            bm_x2+=cos(player.pivot_angle)*NODE_SIZE*2;
+            bm_y2+=sin(player.pivot_angle)*NODE_SIZE*2;
+          } else { //player is right
+            bm_x1+=cos(player.pivot_angle)*NODE_SIZE*2;
+            bm_y1+=sin(player.pivot_angle)*NODE_SIZE*2;
+            bm_x2-=cos(player.pivot_angle)*NODE_SIZE*2;
+            bm_y2-=sin(player.pivot_angle)*NODE_SIZE*2;
+          }
+        }
+
         if (player.placed_web_pos<player.max_web_num) { //if pointer to web is less than the no. of webs player has currently     
           while (player.web_storage[player.placed_web_pos]==-1) { //find player.web_storage that is not empty
             player.placed_web_pos=LimitValue(player.placed_web_pos+1,0,player.max_web_num); //reset back to 0 if over the max
@@ -708,22 +737,24 @@ void PlayerAct() {
 
   if (player.decceleration_timer==0) {
     player.decceleration_timer=100;
-    if (player.speed>=10)
+    if (player.speed>=10) {
       if (IsSpeedBreaking())
-        player.decceleration_timer=300;
+        player.decceleration_timer=320;
       else
-        player.decceleration_timer=100;
-    if (player.speed>=24)
+        player.decceleration_timer=117;
+    }
+    if (player.speed>=24) {
       if (IsSpeedBreaking())
         player.decceleration_timer=335;
       else
         player.decceleration_timer=250;
+    }
   }
   if (player.decceleration_timer>0 && !player.is_swinging) {
     player.decceleration_timer++;
   }
   if (player.decceleration_timer>350) {
-    if (player.speed>1) {
+    if (player.speed>1 && player.on_ground_id<GROUND_NUM && !player.time_breaker) {
       player.speed--;        
     }
     player.decceleration_timer=0;
@@ -1725,7 +1756,7 @@ void DrawPlayer(HDC hdc)
 
   //Shapes Drawn when swinging to show direction of swing
   if (player.is_swinging) {
-    GrLine(hdc,player.above_x+player.cam_x+player.cam_move_x,player.above_y+player.cam_y+player.cam_move_y,player.pivot_x+player.cam_x+player.cam_move_x,player.pivot_y+player.cam_y+player.cam_move_y,LTCYAN);
+    GrLine(hdc,player.x+player.cam_x+player.cam_move_x,player.y+player.cam_y+player.cam_move_y,player.pivot_x+player.cam_x+player.cam_move_x,player.pivot_y+player.cam_y+player.cam_move_y,LTCYAN);
     int color=BLACK;
     if (!IsInvertedBackground()) {
       color=WHITE;
@@ -1739,7 +1770,7 @@ void DrawPlayer(HDC hdc)
   if (player.bullet_shot!=-1) {
     if (player.right_click_hold_timer<62) {
       DrawBullet(hdc,player.bullet_shot);
-      GrLine(hdc,player.above_x+player.cam_x+player.cam_move_x,player.above_y+player.cam_y+player.cam_move_y,Bullet[player.bullet_shot].sprite_x,Bullet[player.bullet_shot].sprite_y,LTCYAN);    
+      GrLine(hdc,player.x+player.cam_x+player.cam_move_x,player.y+player.cam_y+player.cam_move_y,Bullet[player.bullet_shot].sprite_x,Bullet[player.bullet_shot].sprite_y,LTCYAN);    
     }
   }
   

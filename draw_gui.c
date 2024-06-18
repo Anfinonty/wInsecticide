@@ -1,4 +1,5 @@
 
+
 //Background
 void DrawBackground(HDC hdc) {
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(253, 2, 139));
@@ -119,11 +120,18 @@ void DrawMainMenu(HDC hdc)
 
   //Draw Moon Phase
   GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
+  int help_y=GR_HEIGHT-128;
+  if (!hide_taskbar) { //task bar is shown
+    help_y-=8*4; //go up abit
+  }
 
   //Moon Pos
   int mcalendar_l=64;
   int mcalendar_x=GR_WIDTH-mcalendar_l*2;
   int mcalendar_y=GR_HEIGHT-mcalendar_l*2-56;
+  if (!hide_taskbar) { //task bar is shown
+    mcalendar_y-=8*3; //go up abit
+  }
   double moon_angle=0; 
   //Space Clock
   //Draw blue marbel
@@ -232,8 +240,10 @@ lunar_year
   GrLine(hdc,GR_WIDTH-8*17-4,8*25+10,GR_WIDTH-8*17-4-8*8,8*25+12,WHITE);
   GrLine(hdc,GR_WIDTH-8*17-4,8*25+10,GR_WIDTH-8*17-4+8*8,8*25+12,WHITE);
 
-
-  GrPrintW(hdc,30,10,L"អាពីងស៊ីរុយ - Welcome to the wInsecticide Menu!","",WHITE,16,FALSE,yes_unifont);
+  int main_menu_y=0;
+  if (hide_taskbar)
+    main_menu_y=15;
+  GrPrintW(hdc,30,main_menu_y+10,L"អាពីងស៊ីរុយ - Welcome to the wInsecticide Menu!","",WHITE,16,FALSE,yes_unifont);
 
 
 
@@ -247,10 +257,13 @@ lunar_year
   switch (main_menu_chosen) {
     case 0:
       sprintf(page_num,"Levels - [%d/%d]",(level_chosen/max_lvl_rows)+1,(level_num/max_lvl_rows)+1);
-      GrPrint(hdc,30,10+32,page_num,WHITE);
+      GrPrint(hdc,30,main_menu_y+10+32,page_num,WHITE);
 
       int lvls_y=10+16*4;
       int lvl_i=0;
+
+      if (hide_taskbar)
+        lvls_y+=main_menu_y;
 
       for (int i=0;i<max_lvl_rows;i++) { //Print Levels
          lvl_i=i+10*(level_chosen/max_lvl_rows);
@@ -275,30 +288,33 @@ lunar_year
       //GrPrint(hdc,30,lvls_y+16*(level_chosen%max_lvl_rows)-16,"        /\\",WHITE);
       //GrPrint(hdc,30,lvls_y+16*(level_chosen%max_lvl_rows)+16,"        \\/",WHITE);
       //DrawPlayingMusic(hdc,30,10+16*16,BLACK,WHITE);
-      GrPrint(hdc,30,10+16*16,"'1': Go to Options.",WHITE);
+      GrPrint(hdc,30,main_menu_y+10+16*16,"'1': Go to Options.",WHITE);
       break;
 
 
     case 1:
-      GrPrint(hdc,30,10+16*2,"Options:",WHITE);
-      GrPrint(hdc,30,10+16*4,"[SHIFT_ESC]: Exit",WHITE);
-      GrPrintW(hdc,30,10+16*5,L"[SHIFT] + 'L': Unifont [ពេលរាត្រី]","",WHITE,16,FALSE,yes_unifont);
+      GrPrint(hdc,30,main_menu_y+10+16*2,"Options:",WHITE);
+      GrPrint(hdc,30,main_menu_y+10+16*4,"[SHIFT_ESC]: Exit",WHITE);
+      GrPrintW(hdc,30,main_menu_y+10+16*5,L"[SHIFT] + 'L': Unifont [ពេលរាត្រី]","",WHITE,16,FALSE,yes_unifont);
+      GrPrint(hdc,30,main_menu_y+10+16*6,"[SHIFT] + 'T': Toggle Borders",WHITE);
 
-
-      int c=WHITE;
+ 
+      int c=WHITE,soptions_y=16*9;
+      if (hide_taskbar)
+        soptions_y+=main_menu_y;
       if (option_choose==0) {
         c=LTGREEN;
       }
-      GrPrint(hdc,30,10+16*8,"Player Color:",c);
-      GrPrint(hdc,30+13*8,10+16*8,"<    >",c);
+      GrPrint(hdc,30,10+soptions_y,"Player Color:",c);
+      GrPrint(hdc,30+13*8,10+soptions_y,"<    >",c);
       //Draw Square
       if (player_color!=0) {
-        GrRect(hdc,30+8*14,10+16*8,16,16,BLACK);
+        GrRect(hdc,30+8*14,10+soptions_y,16,16,BLACK);
       } else {
-        GrRect(hdc,30+8*14,10+16*8,16,16,WHITE);
+        GrRect(hdc,30+8*14,10+soptions_y,16,16,WHITE);
       }
       if (player_color>-1 && player_color<COLORS_NUM) {
-        GrRect(hdc,30+8*14+2,10+16*8+2,12,12,draw_color_arr[player_color]);
+        GrRect(hdc,30+8*14+2,10+soptions_y+2,12,12,draw_color_arr[player_color]);
       }
 
 
@@ -306,11 +322,11 @@ lunar_year
       if (option_choose==1) {
         c=LTGREEN;
       }
-      GrPrint(hdc,30,10+16*9,"Audio:",c);
+      GrPrint(hdc,30,10+soptions_y+16,"Audio:",c);
       if (game_audio) {
-        GrPrint(hdc,30+13*8,10+16*9,"<ON>",c);
+        GrPrint(hdc,30+13*8,10+soptions_y+16,"<ON>",c);
       } else {
-        GrPrint(hdc,30+13*8,10+16*9,"<OFF>",c);
+        GrPrint(hdc,30+13*8,10+soptions_y+16,"<OFF>",c);
       }
 
 
@@ -318,19 +334,20 @@ lunar_year
       if (option_choose==2) {
         c=LTGREEN;
       }
-      GrPrint(hdc,30,10+16*10,"Camera Shake:",c);
+      GrPrint(hdc,30,10+soptions_y+16*2,"Camera Shake:",c);
       if (game_cam_shake) {
-        GrPrint(hdc,30+13*8,10+16*10,"<ON>",c);
+        GrPrint(hdc,30+13*8,10+soptions_y+16*2,"<ON>",c);
       } else {
-        GrPrint(hdc,30+13*8,10+16*10,"<OFF>",c);
+        GrPrint(hdc,30+13*8,10+soptions_y+16*2,"<OFF>",c);
       }
 
-      GrPrint(hdc,20,10+16*8+16*option_choose,"*",LTGREEN);
+      GrPrint(hdc,20,10+soptions_y+16*option_choose,"*",LTGREEN);
 
-      GrPrint(hdc,30,10+16*13,"'1': Go back to Main Menu.",WHITE);
+
+      GrPrint(hdc,30,main_menu_y+10+16*14,"'1': Go back to Main Menu.",WHITE);
       break;
   }
-  DrawPlayingMusic(hdc,16+4,GR_HEIGHT-128+48,BLACK,WHITE);
+  DrawPlayingMusic(hdc,16+4,help_y+48,BLACK,WHITE);
 }
 
 
@@ -391,6 +408,12 @@ void DrawUI(HDC hdc) {
     c4=WHITE;
   }
 
+
+  int help_y=GR_HEIGHT-128;
+  if (!hide_taskbar) { //task bar is shown
+    help_y-=8*4; //go up abit
+  }
+
 //======Print Game Score Text
   //GrRect(hdc,0,8+32,8*40,16*5,c4);
 
@@ -439,27 +462,42 @@ void DrawUI(HDC hdc) {
   GrPrint(hdc,digit_num-6,10+16,enemykills,YELLOW);
   GrPrint(hdc,digit_num-5,9+16,enemykills,BROWN);*/
 
-  int digit_num1=GR_WIDTH/2-(17*8)/2-4;
-  GrPrint(hdc,digit_num1-4,8+16,"Enemies Remaining",YELLOW);
-  GrPrint(hdc,digit_num1-6,8+16,"Enemies Remaining",YELLOW);
-  GrPrint(hdc,digit_num1-4,10+16,"Enemies Remaining",YELLOW);
-  GrPrint(hdc,digit_num1-6,10+16,"Enemies Remaining",YELLOW);
-  GrPrint(hdc,digit_num1-5,9+16,"Enemies Remaining",BROWN);
 
   char enemykills[2];
   int printenemykills=ENEMY_NUM-enemy_kills;
-  sprintf(enemykills,"%d",printenemykills);
-  int digit_num2=GR_WIDTH/2-(strlen(enemykills)*8)/2-4;
-  GrPrint(hdc,digit_num2-4,8+32,enemykills,YELLOW);
-  GrPrint(hdc,digit_num2-6,8+32,enemykills,YELLOW);
-  GrPrint(hdc,digit_num2-4,10+32,enemykills,YELLOW);
-  GrPrint(hdc,digit_num2-6,10+32,enemykills,YELLOW);
-  GrPrint(hdc,digit_num2-5,9+32,enemykills,BROWN);
+
+  int digit_num3=0;
+  if (printenemykills>0) {
+    int digit_num1=GR_WIDTH/2-(12*8)/2+4+4;
+    GrPrint(hdc,digit_num1-4,8+16,"Enemies Left:",YELLOW);
+    GrPrint(hdc,digit_num1-6,8+16,"Enemies Left:",YELLOW);
+    GrPrint(hdc,digit_num1-4,10+16,"Enemies Left:",YELLOW);
+    GrPrint(hdc,digit_num1-6,10+16,"Enemies Left:",YELLOW);
+    GrPrint(hdc,digit_num1-5,9+16,"Enemies Left:",BROWN);
+
+    sprintf(enemykills,"%d",printenemykills);
+  } else {
+    digit_num3=-16;
+    if (frame_tick<FPS/2)
+      sprintf(enemykills,"GAME OVER");
+    else
+      sprintf(enemykills," ");
+  }
+
+  int digit_num2=GR_WIDTH/2-(strlen(enemykills)*8)/2+4;
+  if (printenemykills<=0)
+    digit_num2-=4;
+  GrPrint(hdc,digit_num2-4,8+32+digit_num3,enemykills,YELLOW);
+  GrPrint(hdc,digit_num2-6,8+32+digit_num3,enemykills,YELLOW);
+  GrPrint(hdc,digit_num2-4,10+32+digit_num3,enemykills,YELLOW);
+  GrPrint(hdc,digit_num2-6,10+32+digit_num3,enemykills,YELLOW);
+  GrPrint(hdc,digit_num2-5,9+32+digit_num3,enemykills,BROWN);
+
 
 //========================
 
 
-  DrawPlayingMusic(hdc,16+4,GR_HEIGHT-128+48,c,c4);
+  DrawPlayingMusic(hdc,16+4,help_y+48,c,c4);
 
 
 
@@ -620,26 +658,27 @@ Left Click - Swing without Web Placement
 Right Click - Swing with Wceb Placement
 */
 
+
   if (display_controls) {
     if (!player.is_swinging) { //swinging
       //GrRect(hdc,16,GR_HEIGHT-128-16*(HELP_TEXT_ARR_NUM1+2),8*42,128+16*22,c4);
       for (int i=0;i<HELP_TEXT_ARR_NUM1;i++) {
-        GrPrint(hdc,16+4,GR_HEIGHT-128-16*(i+2),help_txt_arr1[HELP_TEXT_ARR_NUM1-1-i],c4);
-        GrPrint(hdc,16+5,GR_HEIGHT-128+1-16*(i+2),help_txt_arr1[HELP_TEXT_ARR_NUM1-1-i],c);
+        GrPrint(hdc,16+4,help_y-16*(i+2),help_txt_arr1[HELP_TEXT_ARR_NUM1-1-i],c4);
+        GrPrint(hdc,16+5,help_y+1-16*(i+2),help_txt_arr1[HELP_TEXT_ARR_NUM1-1-i],c);
       }
     } else { //not swinging
       //GrRect(hdc,16,GR_HEIGHT-128-16*(HELP_TEXT_ARR_NUM2+2),8*42,128+16*22,c4);
       for (int i=0;i<HELP_TEXT_ARR_NUM2;i++) {
-        GrPrint(hdc,16+4,GR_HEIGHT-128-16*(i+2),help_txt_arr2[HELP_TEXT_ARR_NUM2-1-i],c4);
-        GrPrint(hdc,16+5,GR_HEIGHT-128+1-16*(i+2),help_txt_arr2[HELP_TEXT_ARR_NUM2-1-i],c);
+        GrPrint(hdc,16+4,help_y-16*(i+2),help_txt_arr2[HELP_TEXT_ARR_NUM2-1-i],c4);
+        GrPrint(hdc,16+5,help_y+1-16*(i+2),help_txt_arr2[HELP_TEXT_ARR_NUM2-1-i],c);
       }
     }
-    GrPrint(hdc,16+4,GR_HEIGHT-128-16,"[SHIFT_ESC] to Quit",c4);
-    GrPrint(hdc,16+5,GR_HEIGHT-128+1-16,"[SHIFT_ESC] to Quit",c);
+    GrPrint(hdc,16+4,help_y-16,"[SHIFT_ESC] to Quit",c4);
+    GrPrint(hdc,16+5,help_y+1-16,"[SHIFT_ESC] to Quit",c);
   } 
 
-  GrPrint(hdc,16+4,GR_HEIGHT-128+16,"Press '*' for Controls Help",c4);
-  GrPrint(hdc,16+5,GR_HEIGHT-128+17,"Press '*' for Controls Help",c);
+  GrPrint(hdc,16+4,help_y+16,"Press '*' for Controls Help",c4);
+  GrPrint(hdc,16+5,help_y+17,"Press '*' for Controls Help",c);
 }
 
 
