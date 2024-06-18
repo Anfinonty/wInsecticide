@@ -229,6 +229,7 @@ void InitPlayer() {
   player.rst_left=FALSE;
   player.rst_right=FALSE;
   player.rst_up=FALSE;
+  player.low_jump=FALSE;
   //player.rst_key_sprint=TRUE;
   player.last_left=FALSE;
   player.jump=FALSE;
@@ -814,12 +815,15 @@ void PlayerAct() {
 
 
         //player speed when on ground
-        if (player.speed<10)
+        if (player.speed<10 || player.low_jump)
           player.player_jump_height=DEFAULT_PLAYER_JUMP_HEIGHT;
         else 
           player.player_jump_height=150;
 
-        player.player_jump_height+=player.speed*NODE_SIZE;
+        if (!player.low_jump)
+          player.player_jump_height+=player.speed*NODE_SIZE;
+        else if (player.speed>=9)
+          player.player_jump_height+=9*NODE_SIZE;
 
         //player speed when on ground
         /*if (!player.is_swinging && player.fling_distance==0 && player.on_ground_timer>=1 && speed==0 && grav_speed==0) {
@@ -1007,7 +1011,7 @@ void PlayerAct() {
           move_y(2*player.player_grav*-sin(player.jump_angle)); //jump go against gravity and perpendicular from platform
           if (player.jump_height<=0) {
             player.jump=FALSE;
-          }          
+          }
         }
       }
 

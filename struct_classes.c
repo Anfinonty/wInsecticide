@@ -122,6 +122,7 @@ struct player
   bool uppercut;
   bool flag_revert_palette;
   bool on_a_ground;
+  bool low_jump;
 
     //Render
   //int rendered_vgrid_num;

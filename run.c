@@ -849,6 +849,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           break;
 
 
+
         //Release S or Down key
         case 'S':
         case VK_DOWN:
@@ -976,6 +977,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
           break;
 
+        //Release '3' Key'
+        case '3':
+          if (!in_main_menu) {
+            player.low_jump=!player.low_jump;
+          }
+          break;
 
         //Release 'E' Key
 	    case 'E':

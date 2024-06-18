@@ -359,7 +359,7 @@ lunar_year
 
 
 
-#define HELP_TEXT_ARR_NUM1   16
+#define HELP_TEXT_ARR_NUM1   17
 char help_txt_arr1[HELP_TEXT_ARR_NUM1][64]=
 {
   "Controls:",
@@ -374,6 +374,7 @@ char help_txt_arr1[HELP_TEXT_ARR_NUM1][64]=
   " |__- Hold with Movement to Break Jump or Flinging",
   " |__- Hold with Jump to Jump Once",
   "'2' - Change Web-Kunai per Throw [ 1/ 3/ 5(1)/ 15(3)]",
+  "'3' - Toggle Low Jump",
   "[Space] or 'C' - Increase Reaction Time",
   "[Left Click] or '1' - Attack and Stop Web Shooting",
   "[Right Click] - Shoot or Place Web",
@@ -600,6 +601,11 @@ void DrawUI(HDC hdc) {
   if (player.uppercut) {
     GrPrint(hdc,player.sprite_x+48,player.sprite_y+16,"e",c);
   }
+
+  if (player.low_jump) {
+    GrPrint(hdc,player.sprite_x+48,player.sprite_y+32,"3",LTGREEN);
+  }
+
   //draw perfect block -- too confusing
   /*if (player.on_ground_id==-1 && player.block_timer>0 && player.block_timer<=23) {
     GrCircle(hdc,player.sprite_x,player.sprite_y,1,LTCYAN,-1);

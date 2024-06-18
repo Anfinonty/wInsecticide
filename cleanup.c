@@ -225,6 +225,7 @@ void CleanupPlayerAttributes()
   player.destroy_ground=
   player.uppercut=
   player.flag_revert_palette=
+  player.low_jump=
   player.on_a_ground=FALSE;
 
   player.knives_per_throw=1;
