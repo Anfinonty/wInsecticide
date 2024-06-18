@@ -795,6 +795,15 @@ void PlayerAct() {
         player.decceleration_timer=0;
       }
 
+
+
+      if (player.in_air_timer>=1 && player.in_air_timer<=4 && player.on_ground_id==-1) { //Grav switch //runs on speed and grav_speed
+        if (player.jump_height<=0 && !player.is_swinging) {
+          if (player.previous_below)
+            move_y(-player.player_grav*1.5);
+        }
+      }
+
    //Ground action
    //on a ground
       if (player.on_ground_id!=-1 && player.on_ground_id!=player.previous_web_placed) {
@@ -836,6 +845,9 @@ void PlayerAct() {
          //Within ground axes
           player.angle=Ground[player.on_ground_id]->angle; //set player angle
 
+
+
+
           if (player.in_air_timer>0) {
             if (player.in_air_timer>1000) { //make player rebound
               player.in_air_timer=1000;
@@ -862,10 +874,14 @@ void PlayerAct() {
           }
 
         //outwards from ground
-          if (0<=height_from_player_x && height_from_player_x<10) { //above ground
-            player.current_above=TRUE;
-            player.previous_above=TRUE;
-            player.previous_below=FALSE;
+          if (0<height_from_player_x && height_from_player_x<10) { //above ground
+            //if (height_from_player_x>4) {
+              player.current_above=TRUE;
+              player.current_below=FALSE;
+              player.previous_above=TRUE;
+              player.previous_below=FALSE;
+            //}
+
             player.on_a_ground=TRUE;
             player.on_ground_timer=20;
             if (height_from_player_x<5 || player.is_rebounding || player.is_swinging) {
@@ -884,10 +900,13 @@ void PlayerAct() {
             player.angle_of_reflection=2*M_PI-player.angle_of_incidence+2*player.angle; //real
             if (!player.is_swinging)
               player.angle_of_incidence=player.angle_of_reflection;
-          } else if (-10<height_from_player_x && height_from_player_x<0) { //below ground
-            player.current_below=TRUE;
-            player.previous_above=FALSE;
-            player.previous_below=TRUE;
+          } else if (-10<height_from_player_x && height_from_player_x<=0) { //below ground
+            //if (height_from_player_x<-4) {
+              player.current_below=TRUE;
+              player.current_above=FALSE;
+              player.previous_above=FALSE;
+              player.previous_below=TRUE;
+            //}
             player.on_a_ground=TRUE;
             player.on_ground_timer=20;
             if (height_from_player_x>-5 || player.is_rebounding || player.is_swinging) {
@@ -925,7 +944,7 @@ void PlayerAct() {
             }
           }
 
-          if (height_from_player_x>10 || height_from_player_x<-10) {//leave ground when out of circular range
+          if (height_from_player_x>9 || height_from_player_x<-9) {//leave ground when out of circular range
             player.on_a_ground=FALSE;
             player.on_ground_timer=0;
           }
@@ -993,16 +1012,18 @@ void PlayerAct() {
       }
 
 
-
-      if (speed==0) {
+      if (speed==0) { //runs on grav speed
         if (player.on_ground_id==-1 && player.jump_height<=0) { //Credit: y4my4m for pushing me to pursue this gameplay aspect
           if (!player.is_swinging) { //not swinigng and player is not flinging
-            if (player.in_air_timer>21 || player.fling_distance<0) {
+            if (player.in_air_timer>4 || player.fling_distance<0) {
               move_y(player.player_grav); //include while being rebounding and flinging
-	        } else {
-              move_x(-player.player_grav*cos(player.jump_angle));
-              move_y(player.player_grav*sin(player.jump_angle));
-            }
+	        } //else {
+              //if (player.previous_below)
+              /*if (player.previous_below)
+                move_y(player.player_grav*sin(player.jump_angle));
+              else
+                move_y(-player.player_grav*sin(player.jump_angle));*/
+            //}
           }
         } else { //landed on ground
 	      if (player.grav>=3 && !player.is_swinging) {
@@ -1222,8 +1243,12 @@ void PlayerAct() {
      //misc
       player.print_current_above=player.current_above;
       player.print_current_below=player.current_below;
-      player.current_above=FALSE;
-      player.current_below=FALSE;
+
+      if (player.in_air_timer>0) {
+        player.current_above=FALSE;
+        player.current_below=FALSE;
+      }
+
       player.saved_ground_id=player.on_ground_id;
 
 
