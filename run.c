@@ -810,7 +810,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         case 'T': //Hide or Show Taskbar
           if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
             if (!hide_taskbar) {
-              ShowWindow(hShellWnd, SW_HIDE); //hide taskbar
+              //ShowWindow(hShellWnd, SW_HIDE); //hide taskbar
 
               //https://stackoverflow.com/questions/2398746/removing-window-border
               LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
@@ -818,14 +818,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               SetWindowLong(hwnd, GWL_STYLE, lStyle);
 
 
-              SetWindowPos(hwnd,NULL,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
+              SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
 
 
               SetForegroundWindow(hwnd); //return back focus
 
               hide_taskbar=TRUE;
             } else {
-              ShowWindow(hShellWnd, SW_SHOW); //show taskbar again
+              //ShowWindow(hShellWnd, SW_SHOW); //show taskbar again
 
 
               LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
@@ -1417,8 +1417,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     case WM_DESTROY:
       remove("music/tmp/tmp.wav");
       rmdir("music/tmp"); //remove tmp
-      HWND hShellWnd = FindWindowA("Shell_TrayWnd", NULL);
-      ShowWindow(hShellWnd, SW_SHOW);
+      //HWND hShellWnd = FindWindowA("Shell_TrayWnd", NULL);
+      //ShowWindow(hShellWnd, SW_SHOW);
       PostQuitMessage(0);
       return 0;
       break;
@@ -1448,11 +1448,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 
   RegisterClassW(&wc);
 
+
+
   //https://cplusplus.com/forum/beginner/9908/
   //create window
   HWND hwnd = CreateWindowW(wc.lpszClassName,
                 L"អាពីងស៊ីរុយ - wInsecticide",
-                WS_BORDER | WS_OVERLAPPEDWINDOW | WS_VISIBLE | CW_USEDEFAULT| CW_USEDEFAULT /*| WS_MINIMIZE*/,
+                WS_POPUP | WS_BORDER | WS_OVERLAPPEDWINDOW | WS_VISIBLE | CW_USEDEFAULT| CW_USEDEFAULT /*| WS_MINIMIZE*/,
                 SCREEN_WIDTH/2-400,
                 SCREEN_HEIGHT/2-300,
                 //800,//SCREEN_WIDTH,//GR_WIDTH+7,
@@ -1463,6 +1465,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
                 NULL,
                 hInstance, 
                 NULL);
+  //HMONITOR hmon = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
+
+
   //SetWindowLong(hwnd, GWL_STYLE, 0);
   //ShowWindow(hwnd, SW_SHOW);
   //https://www.codeproject.com/Questions/441008/Hide-TaskBar-in-C-through-Win32

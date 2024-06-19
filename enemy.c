@@ -578,16 +578,21 @@ void EnemyAct(int i)
   bool allow_act=FALSE;
   //Attack
   bool deduct_health=FALSE;
-  if (Enemy[i]->health>0) {
-    Enemy[i]->dist_from_player=GetDistance(player.x,player.y,Enemy[i]->x,Enemy[i]->y);
-    double dist_unit=GR_WIDTH/2+VGRID_SIZE*2;
-    if (GR_WIDTH<GR_HEIGHT)
-      dist_unit=GR_HEIGHT/2+VGRID_SIZE*2;
 
-    if (Enemy[i]->dist_from_player<=dist_unit)
-      Enemy[i]->within_render_distance=TRUE;
-    else
-      Enemy[i]->within_render_distance=FALSE;
+
+
+  Enemy[i]->dist_from_player=GetDistance(player.x,player.y,Enemy[i]->x,Enemy[i]->y);
+  double dist_unit=GR_WIDTH/2+VGRID_SIZE*2;
+  if (GR_WIDTH<GR_HEIGHT)
+    dist_unit=GR_HEIGHT/2+VGRID_SIZE*2;
+
+  if (Enemy[i]->dist_from_player<=dist_unit)
+    Enemy[i]->within_render_distance=TRUE;
+  else
+    Enemy[i]->within_render_distance=FALSE;
+
+
+  if (Enemy[i]->health>0) {
 
 
     //Enemy bullet
@@ -1260,7 +1265,7 @@ void InitEnemy()
 void DrawEnemy(HDC hdc)
 {
   int i=0,k=0;
-  if (frame_tick==-8) {
+  if (frame_tick==-8) { //initiate on start of app
     for (i=0;i<ENEMY_NUM;i++) {
       if (Enemy[i]->species==1) {
         DeleteObject(EnemySprite[i].sprite_3);
@@ -1270,8 +1275,7 @@ void DrawEnemy(HDC hdc)
   }
 
   for (i=0;i<ENEMY_NUM;i++) {  
-    Enemy[i]->seed=rand();
-    if (Enemy[i]->species==1) {//rotate sprite
+    if (Enemy[i]->species==1 && Enemy[i]->within_render_distance) {//rotate sprite
       if (Enemy[i]->on_ground_id!=-1) {
         Enemy[i]->sprite_angle=Enemy[i]->angle;
         if (!Enemy[i]->last_left) {
@@ -1281,13 +1285,14 @@ void DrawEnemy(HDC hdc)
     }
 
 
-    //Drawing operations
+    //Drawing operations, enemy is living
     if (Enemy[i]->health>0) { //enemy is alive
+      Enemy[i]->seed=rand();
       for (k=0;k<Enemy[i]->bullet_shot_num;k++) {
         DrawBullet(hdc,Enemy[i]->bullet_shot_arr[k]);
       }
 
-      if (Enemy[i]->species==1) { //Cockroach sprite species1
+      if (Enemy[i]->species==1 && Enemy[i]->within_render_distance) { //Cockroach sprite species1
         if (Enemy[i]->sprite_angle!=Enemy[i]->saved_angle) { // enemy is on ground
           Enemy[i]->being_drawn=TRUE;
           if (EnemySprite[i].sprite_1!=NULL) { //delete old sprites
@@ -1320,7 +1325,7 @@ void DrawEnemy(HDC hdc)
         } //else { // sprite_angle==saved angle
 
         for (int k=0;k<2;k++) {
-          if (Enemy[i]->current_draw_row>=Enemy[i]->sprite_miny && Enemy[i]->current_draw_row<=Enemy[i]->sprite_maxy && Enemy[i]->within_render_distance) {
+          if (Enemy[i]->current_draw_row>=Enemy[i]->sprite_miny && Enemy[i]->current_draw_row<=Enemy[i]->sprite_maxy) {
             RotateSpriteII(hdc, enemy2_sprite_1, EnemySprite[i].sprite_1,Enemy[i]->cosine, Enemy[i]->sine, LTGREEN, Enemy[i]->color, -1, Enemy[i]->sprite_minx, Enemy[i]->sprite_miny, Enemy[i]->sprite_maxx, Enemy[i]->sprite_maxy, Enemy[i]->current_draw_row); 
             RotateSpriteII(hdc, enemy2_sprite_2, EnemySprite[i].sprite_2,Enemy[i]->cosine, Enemy[i]->sine, LTGREEN, Enemy[i]->color, -1, Enemy[i]->sprite_minx, Enemy[i]->sprite_miny, Enemy[i]->sprite_maxx, Enemy[i]->sprite_maxy, Enemy[i]->current_draw_row);
             Enemy[i]->current_draw_row++;
@@ -1332,6 +1337,9 @@ void DrawEnemy(HDC hdc)
             }
           }
         }
+
+
+
       } else { //other species 0
         if (Enemy[i]->saved_angle==-9999) {
           if (EnemySprite[i].sprite_1!=NULL) {
@@ -1346,7 +1354,10 @@ void DrawEnemy(HDC hdc)
           Enemy[i]->saved_angle=0;
         }
       }
-    } else if (Enemy[i]->health>-1000 && Enemy[i]->health<=0){ //enemy has died
+
+    //Enemy has died
+    } else if (Enemy[i]->health>-1000 && Enemy[i]->health<=0){
+      //Add to enemy kill count and buff player stats
       if (Enemy[i]->health>-500) {
         enemy_kills++;
         player.health+=2;
@@ -1362,6 +1373,9 @@ void DrawEnemy(HDC hdc)
           player.speed+=2;
         }
       }
+
+
+
       if (Enemy[i]->species==1) {  //Cockroach sprite
         if (Enemy[i]->health>-500) {
           if (EnemySprite[i].sprite_1!=NULL) {
@@ -1399,6 +1413,7 @@ void DrawEnemy(HDC hdc)
           Enemy[i]->health=-501;
         }
 
+
         if (Enemy[i]->current_draw_row>=Enemy[i]->sprite_miny && Enemy[i]->current_draw_row<=Enemy[i]->sprite_maxy && Enemy[i]->within_render_distance) {
           RotateSpriteII(hdc, enemy2_sprite_1, EnemySprite[i].sprite_1,Enemy[i]->cosine,Enemy[i]->sine, LTGREEN, DKBLACK, TRANSPARENT, Enemy[i]->sprite_minx, Enemy[i]->sprite_miny, Enemy[i]->sprite_maxx, Enemy[i]->sprite_maxy,Enemy[i]->current_draw_row);
           RotateSpriteII(hdc, enemy2_sprite_2, EnemySprite[i].sprite_2,Enemy[i]->cosine,Enemy[i]->sine, LTGREEN, DKBLACK, TRANSPARENT, Enemy[i]->sprite_minx, Enemy[i]->sprite_miny, Enemy[i]->sprite_maxx, Enemy[i]->sprite_maxy, Enemy[i]->current_draw_row);
@@ -1422,6 +1437,9 @@ void DrawEnemy(HDC hdc)
         Enemy[i]->health=-99999;
       }
     }
+
+
+    //enemy Display on screen operations
     if (/*Enemy[i]->saw_player &&*/ Enemy[i]->within_render_distance) {
       if (Enemy[i]->health>0) {
         char txt[16];

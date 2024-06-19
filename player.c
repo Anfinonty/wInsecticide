@@ -815,14 +815,14 @@ void PlayerAct() {
 
 
         //player speed when on ground
-        if (player.speed<10 || player.low_jump)
+        if (player.speed<10)
           player.player_jump_height=DEFAULT_PLAYER_JUMP_HEIGHT;
         else 
           player.player_jump_height=150;
 
-        if (!player.low_jump)
+        if (!player.low_jump || player.speed<10)
           player.player_jump_height+=player.speed*NODE_SIZE;
-        else if (player.speed>=9)
+        else
           player.player_jump_height+=9*NODE_SIZE;
 
         //player speed when on ground
@@ -1430,8 +1430,10 @@ void PlayerAct() {
     if (IsSpeedBreaking()) {
       if (player.time_breaker_units>0) {
         player.time_breaker_units--;
-        if (player.time_breaker_units%3==0)
+        if (player.time_breaker_units%3==0) {
           player.speed++;
+          player.decceleration_timer=0;
+        }
       }
       player.time_breaker_recharge_timer=player.time_breaker_recharge_timer_max;
       if (player.speed<10) {
