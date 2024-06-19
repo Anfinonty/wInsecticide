@@ -83,8 +83,7 @@ void InitEnemyPathfinding(int enemy_id,double target_x,double target_y)
    start_node_y++;
    y++;
   }
-  int enemy_species1_solids[MAX_NODE_NUM],
-      species1_solid_num=0;
+  Enemy[enemy_id]->species1_solid_num=0;
   for (i=0;i<Enemy[enemy_id]->node_num;i++) {//maximum path finding node num
     Enemy[enemy_id]->node_back[i]=
       Enemy[enemy_id]->node_open[i]=
@@ -100,9 +99,9 @@ void InitEnemyPathfinding(int enemy_id,double target_x,double target_y)
 	    break;
 	  case 1://inverse
             Enemy[enemy_id]->node_solid[i]=!NodeGrid[node_id]->node_solid;
-	    if (!Enemy[enemy_id]->node_solid[i]) {
-              enemy_species1_solids[species1_solid_num]=i;
-	      species1_solid_num++;
+    	    if (!Enemy[enemy_id]->node_solid[i]) {
+              Enemy[enemy_id]->enemy_species1_solids[Enemy[enemy_id]->species1_solid_num]=i;
+    	      Enemy[enemy_id]->species1_solid_num++;
             }
 	    break;
         }
@@ -124,8 +123,8 @@ void InitEnemyPathfinding(int enemy_id,double target_x,double target_y)
     }
   }
   if (Enemy[enemy_id]->species==1) {//species 1
-    for (i=0;i<species1_solid_num;i++) {
-      k=enemy_species1_solids[i];
+    for (i=0;i<Enemy[enemy_id]->species1_solid_num;i++) {
+      k=Enemy[enemy_id]->enemy_species1_solids[i];
       x=Enemy[enemy_id]->node_x[k]-Enemy[enemy_id]->node_x[0];
       for (j2=0;j2<5;j2++) {
         if (j2<3) {
@@ -143,8 +142,8 @@ void InitEnemyPathfinding(int enemy_id,double target_x,double target_y)
        }
       }
     }
-    for (i=0;i<species1_solid_num;i++) {
-      k=enemy_species1_solids[i];
+    for (i=0;i<Enemy[enemy_id]->species1_solid_num;i++) {
+      k=Enemy[enemy_id]->enemy_species1_solids[i];
       for (j=0;j<2;j++) {
         x=Enemy[enemy_id]->node_x[k]-Enemy[enemy_id]->node_x[0];
         y=Enemy[enemy_id]->node_y[k]-Enemy[enemy_id]->node_y[0]+NODE_SIZE*j;
@@ -1238,6 +1237,7 @@ void InitEnemy()
     Enemy[i]->in_chase_range=FALSE;
   //init once
     for (j=0;j<MAX_NODE_NUM;j++) {
+      Enemy[i]->enemy_species1_solids[j]=-1;
       Enemy[i]->node_solid[j]=
         Enemy[i]->node_back[j]=
         Enemy[i]->node_open[j]=

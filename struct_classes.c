@@ -541,6 +541,8 @@ typedef struct enemy
   int current_node;
   int start_node;
   int end_node;
+
+  int species1_solid_num;
      //array of path nodes after target is found
   int path_nodes_num;
      //open nodes
@@ -619,6 +621,7 @@ typedef struct enemy
   bool node_back[MAX_NODE_NUM];
   int path_nodes[MAX_NODE_NUM/2];
   int open_nodes[MAX_NODE_NUM/2];
+  int enemy_species1_solids[MAX_NODE_NUM];
   int node_x[MAX_NODE_NUM];
   int node_y[MAX_NODE_NUM];
   int node_parent[MAX_NODE_NUM];
