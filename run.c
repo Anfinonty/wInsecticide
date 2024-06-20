@@ -832,7 +832,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               lStyle |= (WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
               SetWindowLong(hwnd, GWL_STYLE, lStyle);
 
-              SetWindowPos(hwnd,NULL,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
+              SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
 
               SetForegroundWindow(hwnd);
               hide_taskbar=FALSE;

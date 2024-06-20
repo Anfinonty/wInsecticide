@@ -292,6 +292,9 @@ lunar_year
       //GrPrint(hdc,30,lvls_y+16*(level_chosen%max_lvl_rows)+16,"        \\/",WHITE);
       //DrawPlayingMusic(hdc,30,10+16*16,BLACK,WHITE);
       GrPrint(hdc,30,main_menu_y+10+16*16,"'1': Go to Options.",WHITE);
+      //GrPrint(hdc,30,main_menu_y+10+16*16*2,"'2': Create Level.",WHITE);
+      //GrPrint(hdc,30,main_menu_y+10+16*16*2,"'3': Edit Level Object Amount.",WHITE);
+      //GrPrint(hdc,30,main_menu_y+10+16*16*2,"'4': Build Selected Level.",WHITE);
       break;
 
 

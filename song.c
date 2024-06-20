@@ -97,6 +97,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
       
           //play new music
           if (!loading_flac) {
+            mciSendString(L"pause music",NULL,0,NULL);
             mciSendString(L"close music",NULL,0,NULL);
             remove("music/tmp/tmp.wav");
             rmdir("music/tmp"); //remove tmp, manually because C is like that
@@ -144,6 +145,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
         }
       } else { //song is playing
         if (toggle_stop_playing_song) {
+          mciSendString(L"pause music",NULL,0,NULL);
           mciSendString(L"close music",NULL,0,NULL);
           remove("music/tmp/tmp.wav");
           rmdir("music/tmp"); //remove tmp
@@ -156,13 +158,14 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
     //End of song Task
 
     //Persian time update if new day
-    get_current_time(&current_hour,&current_min,&current_sec);
-    if (current_hour==0 && current_min==0 && current_sec<=1) {//next day
-      int64_t timenow=int64_current_timestamp();
-      PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);
-      PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift);
+    if (in_main_menu) {
+      get_current_time(&current_hour,&current_min,&current_sec);
+      if (current_hour==0 && current_min==0 && current_sec<=1) {//next day
+        int64_t timenow=int64_current_timestamp();
+        PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);
+        PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift);
+      }
     }
-
 
 
 
