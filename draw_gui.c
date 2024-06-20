@@ -379,8 +379,8 @@ char help_txt_arr1[HELP_TEXT_ARR_NUM1][64]=
   "'2' - Change Web-Kunai per Throw [ 1/ 3/ 5(1)/ 15(3)]",
   "'3' - Toggle Low Jump",
   "[Space] or 'C' - Increase Reaction Time",
-  "[Left Click] or '1' - Attack and Stop Web Shooting",
-  "[Right Click] - Shoot or Place Web",
+  "[Left Click] or '1' - Throw Web-Kunai & Stop Web-Sling",
+  "[Right Click] - Sling Web",
   "[Enter] - Restart Level"
 };
 
@@ -518,7 +518,7 @@ void DrawUI(HDC hdc) {
   } else {
     c2=LTCYAN;
     c3=CYAN;
-  }      
+  }
   //draw player block health
   for (i=0;i<player.block_health;i++) {
     j=i/10; //new row
@@ -542,7 +542,7 @@ void DrawUI(HDC hdc) {
   }
 
   //GrLine(hdc,GR_WIDTH/2,0,GR_WIDTH/2,GR_HEIGHT,BLACK);
-  //draw player speed
+  //===--- Draw player speed ---===
   //hehehehe
   for (i=0;i<player.speed;i++) {
     double speed_angle=i*0.1;
@@ -568,11 +568,11 @@ void DrawUI(HDC hdc) {
         else c2=LTCYAN;
       }
     }
-      GrCircle(hdc,
-        player.sprite_x-speed_dist*cos(speed_angle),
-        player.sprite_y-speed_dist*sin(speed_angle),
-        3,c2,c2
-      );
+    GrCircle(hdc,
+      player.sprite_x-speed_dist*cos(speed_angle),
+      player.sprite_y-speed_dist*sin(speed_angle),
+      3,c2,c2
+    );
   }
 
 
@@ -581,23 +581,89 @@ void DrawUI(HDC hdc) {
     j=i/10; //new row
     GrCircle(hdc,player.sprite_x+64+8*j,player.sprite_y+8*(i%10)-(11*8)/2,3,LTCYAN,CYAN);
   }*/
-  char bullet_num_txt[3];
-  sprintf(bullet_num_txt,"%d",player.max_web_num-player.placed_web_num);
-  GrPrint(hdc,player.sprite_x+48,player.sprite_y-32,bullet_num_txt,LTCYAN);
+  int b_dmg_m=1;
+  int c5=LTGREEN;
+  if (!IsInvertedBackground()) {
+    if (player.speed>10) {
+      b_dmg_m=2;
+      c5=LTRED;
+    }
+    if (player.speed>24) {
+      b_dmg_m=4;
+      c5=LTCYAN;
+    }
+  } else {
+    c5=LTPURPLE;
+    if (player.speed>10) {
+      b_dmg_m=2;
+      c5=LTCYAN;
+    }
+    if (player.speed>24) {
+      b_dmg_m=4;
+      c5=RED;
+    }
+  }
 
 
-  char bullet_num_txt2[3];
-  sprintf(bullet_num_txt2,"%d/%d",PLAYER_BULLET_NUM-player.bullet_shot_num,player.knives_per_throw);
+
+  char shuriken_dmg_txt[40];
+  int print_shuriken_dmg=player.attack_strength;
+  if (!display_controls)
+    sprintf(shuriken_dmg_txt,"<:-%d>",print_shuriken_dmg);
+  else
+    sprintf(shuriken_dmg_txt,"<:-%d> Ricochet-Shuriken:-DMG",print_shuriken_dmg);
+
+  GrPrint(hdc,player.sprite_x+48-1,player.sprite_y-48-1,shuriken_dmg_txt,c2);
+  GrPrint(hdc,player.sprite_x+48,player.sprite_y-48,shuriken_dmg_txt,c5);
+  
+
+  char bullet_num_txt[48];
+  int print_snipe_dmg=4+player.attack_strength*2;
+  if (!display_controls)
+    sprintf(bullet_num_txt,"[%d]:-%d",player.max_web_num-player.placed_web_num,print_snipe_dmg);
+  else
+    sprintf(bullet_num_txt,"[%d]:-%d Web-Slings Remaining:-DMG",player.max_web_num-player.placed_web_num,print_snipe_dmg);
+
+  char bullet_num_txt_[8];
+  sprintf(bullet_num_txt_,"[%d]:",player.max_web_num-player.placed_web_num);
+
+  GrPrint(hdc,player.sprite_x+48,player.sprite_y-32,bullet_num_txt,c5);
+  GrPrint(hdc,player.sprite_x+48,player.sprite_y-32,bullet_num_txt_,LTCYAN);
+
+
+
+
+  char bullet_num_txt2[48];
+  char bullet_num_txt2_[8];
+  if (!display_controls)
+    sprintf(bullet_num_txt2,"[%d/%d]:-%d",PLAYER_BULLET_NUM-player.bullet_shot_num,player.knives_per_throw,b_dmg_m);
+  else
+    sprintf(bullet_num_txt2,"[%d/%d]:-%d Web-Kunai/throw:-DMG",PLAYER_BULLET_NUM-player.bullet_shot_num,player.knives_per_throw,b_dmg_m);
+
+  sprintf(bullet_num_txt2_,"[%d/%d]",PLAYER_BULLET_NUM-player.bullet_shot_num,player.knives_per_throw);
 
   if (player.knives_per_throw<5) {
-    GrPrint(hdc,player.sprite_x+48,player.sprite_y-16,bullet_num_txt2,c);
+    GrPrint(hdc,player.sprite_x+48,player.sprite_y-16,bullet_num_txt2,c5);
+    GrPrint(hdc,player.sprite_x+48,player.sprite_y-16,bullet_num_txt2_,c);
   } else {
-    GrPrint(hdc,player.sprite_x+48,player.sprite_y-16,bullet_num_txt2,LTCYAN);
+    if (player.knives_per_throw>5)
+      GrPrint(hdc,player.sprite_x+48-1,player.sprite_y-16-1,bullet_num_txt2,CYAN);
+    GrPrint(hdc,player.sprite_x+48,player.sprite_y-16,bullet_num_txt2,c5);
+    GrPrint(hdc,player.sprite_x+48,player.sprite_y-16,bullet_num_txt2_,LTCYAN);
   }
+
+
 
   //draw perfect block
   if (player.block_timer>0) {
     GrPrint(hdc,player.sprite_x+48,player.sprite_y,"*",c);
+    if (player.block_timer<=23) {
+      GrPrint(hdc,player.sprite_x+48,player.sprite_y,"*&",c);
+    }
+  }
+  if (display_controls) {
+    GrPrint(hdc,player.sprite_x+48,player.sprite_y,   "      *& = Perfect-Block || * = Block",c);
+    GrPrint(hdc,player.sprite_x+48,player.sprite_y+16,"      Block = ++Speed",c);
   }
 
 
@@ -615,7 +681,9 @@ void DrawUI(HDC hdc) {
   }*/
 
 
-  int c5;
+
+  //===-- Draw Timebreaker Circle ---===
+
   if (!player.time_breaker) {
     c5=PURPLE;
   } else {
@@ -647,29 +715,6 @@ void DrawUI(HDC hdc) {
     //GrLine(hdc,player.sprite_x+cos(player.angle_of_reflection)*50,player.sprite_y+sin(player.angle_of_reflection)*50,player.sprite_x+cos(player.angle_of_reflection)*60,player.sprite_y+sin(player.angle_of_reflection)*60,YELLOW);
   }
   //GrLine(hdc,player.sprite_x+cos(player.angle_of_reflection)*50,player.sprite_y+sin(player.angle_of_reflection)*50,player.sprite_x+cos(player.angle_of_reflection)*60,player.sprite_y+sin(player.angle_of_reflection)*60,YELLOW);
-
-/*
-Controls:
-W - Jump from Surface
-A - Move Left (Anti-Clockwise)
-S - Block or Spin
-D - Move Right (Clockwise)
-Z - Time Breaker Ability
-C - Increase Reaction Time
-Space - Sprint
-Left Click - Attack and Stop Web Shooting
-Right Click - Shoot web
-Enter - Restart Level
-
-*While Swinging
-W - Decrease Web Length
-A - Swing Anti-clockwise
-S - Increase Web Length
-D - Swing Clockwise
-Left Click - Swing without Web Placement
-Right Click - Swing with Wceb Placement
-*/
-
 
   if (display_controls) {
     if (!player.is_swinging) { //swinging

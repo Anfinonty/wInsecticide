@@ -404,21 +404,23 @@ void PlayerAct() {
 
   //========Player attacking timer==============
   if (player.attack_timer>=0) {
-    if (player.speed>10) {
-      player.attack_strength=4;
-    } else {
-      if (player.speed>5) {
-        player.attack_strength=2;
-      } else {
-        player.attack_strength=DEFAULT_PLAYER_ATTACK_STRENGTH;
-      }
-    }
-
-    if (player.grav>10 || player.speed>24) {
-      player.attack_strength*=2;
-    }
     player.attack_timer--;
   }
+
+  if (player.speed>10) {
+    player.attack_strength=4;
+  } else {
+    if (player.speed>5) {
+      player.attack_strength=2;
+    } else {
+      player.attack_strength=DEFAULT_PLAYER_ATTACK_STRENGTH;
+    }
+  }
+
+  if (player.speed>24) {
+    player.attack_strength*=2;
+  }
+
   //======================
 
   //Sprinting
@@ -459,7 +461,7 @@ void PlayerAct() {
       b_speed_m=7;      
     }
 
-    if (player.knives_per_throw==3) {
+    /*if (player.knives_per_throw==3) {
       b_dmg_m=0.25;
       b_g_type=7;
       if (player.speed>10)
@@ -467,12 +469,12 @@ void PlayerAct() {
       if (player.speed>24)
         b_dmg_m=0.5;
     } else {
-      if (player.speed>10)
-        b_dmg_m=2;
-      if (player.speed>24)
-        b_dmg_m=4;
-    }
+    }*/
 
+    if (player.speed>10)
+      b_dmg_m=2;
+    if (player.speed>24)
+      b_dmg_m=4;
 
 
     if (player.bullet_shot_num<PLAYER_BULLET_NUM && 
@@ -1224,7 +1226,7 @@ void PlayerAct() {
           if (player.fling_distance==1) { //cap in air timer right before end of fling distance
             player.in_air_timer=1002;
             player.fling_distance=-1;
-            player.speed+=2;
+            //player.speed+=2;
           }
         } else if (player.fling_distance<0){ //Continue moving but now theres gravity
           move_x(cos(player.angle_of_reflection));
@@ -1378,11 +1380,12 @@ void PlayerAct() {
   allow_act=FALSE;
   if (player.attack_timer<=0) { // not attacking
     if (player.rst_down) { //pressing down button
-      if (player.on_ground_id==-1 || player.print_current_above) { //in air or on above ground
+      /*if (player.on_ground_id==-1 || player.print_current_above) { //in air or on above ground
         allow_act=TRUE;
       } else if (player.print_current_below) { // below ground
         allow_act=TRUE;
-      }
+      }*/
+      allow_act=TRUE;
     }
   }
   if (allow_act) {
@@ -1439,7 +1442,7 @@ void PlayerAct() {
       if (player.speed<10) {
         player.time_breaker_cooldown=player.time_breaker_cooldown_max;
       } else {
-        if (player.speed<24) {
+        if (player.speed<=24) {
           player.time_breaker_cooldown=player.time_breaker_cooldown_max/4;
         } else {
           player.time_breaker_cooldown=player.time_breaker_cooldown_max/8;
@@ -1456,7 +1459,7 @@ void PlayerAct() {
         if (player.speed<10) {
           player.time_breaker_recharge_timer=player.time_breaker_recharge_timer_max;
         } else {
-          if (player.speed<24) {
+          if (player.speed<=24) {
             player.time_breaker_recharge_timer=player.time_breaker_recharge_timer_max/4;
           } else {
             player.time_breaker_recharge_timer=player.time_breaker_recharge_timer_max/8;

@@ -120,7 +120,7 @@ bool HitPlayer(int bullet_id)
       Bullet[bullet_id].near_miss=TRUE;
     }
   }
-  if (dist<=10) {
+  if (0<=dist && dist<=10) {
     return TRUE;
   }
   return FALSE;
@@ -262,11 +262,11 @@ void BulletAct(int bullet_id)
         double blocked_bullet_dmg=Bullet[bullet_id].damage;
         if (allow_act) {
           if (hit_player) {
-            if (!player.blocking || player.block_health<=0) {
+            if (player.block_timer<=0 || player.block_health<=0) {
               blocked_bullet_dmg=Bullet[bullet_id].damage;
-              if (player.health>PLAYER_LOW_HEALTH+1) {
+              if (player.health>PLAYER_LOW_HEALTH+1) { //usual response
                 player.health-=blocked_bullet_dmg;
-              } else {
+              } else { //Player when low health
                 if (player.health<PLAYER_LOW_HEALTH) {
                   player.health-=0.1;
                 } else {
@@ -307,35 +307,43 @@ void BulletAct(int bullet_id)
                   player.time_breaker_units++;
                 }
 	          }
-	      } //end of hit player
-
-          if (blocked_bullet_dmg>0) {
-            if (!player.time_breaker) { //penalty for hitting a bullet
-              if (player.speed>5) {
-                player.speed--;
-              } else { //penalty only at low speed
-                if (player.time_breaker_units>1) {
-                  player.time_breaker_units=1;
+	        }
+            
+            if (blocked_bullet_dmg>0) {
+              if (!player.time_breaker) { //penalty for hitting a bullet
+                if (player.speed>5) {
+                  player.speed--;
+                } else { //penalty only at low speed
+                  if (player.time_breaker_units>1) {
+                    player.time_breaker_units=1;
+                  }
                 }
               }
+            } else {
+              if (!IsSpeedBreaking()) {
+                player.decceleration_timer=0;
+                player.speed++;
+              }
             }
-          } else {
-            if (!IsSpeedBreaking()) {
-              player.speed++;
-            }
-          }
-        } else if (bullet_on_ground_id>=GROUND_NUM && bullet_on_ground_id!=player.web_being_shot) { //Not on web being shot
-	      Ground[bullet_on_ground_id]->health-=Bullet[bullet_id].damage;
-	      if (Ground[bullet_on_ground_id]->health<=0) {//completely destroy web at 0 health (can be regained after '4')
-            DestroyGround(bullet_on_ground_id); 
-            player.cdwebs[player.cdweb_pos]=bullet_on_ground_id;
-            player.cdweb_pos++;
-            if (player.cdweb_pos>=player.max_web_num) {
-              player.cdweb_pos=0;
-            }
-            player.cdweb_num++;
+
+
+
+
+
+
+            //End of Hit Player
+          } else if (bullet_on_ground_id>=GROUND_NUM && bullet_on_ground_id!=player.web_being_shot) { //Not on web being shot
+	        Ground[bullet_on_ground_id]->health-=Bullet[bullet_id].damage;
+	        if (Ground[bullet_on_ground_id]->health<=0) {//completely destroy web at 0 health (can be regained after '4')
+              DestroyGround(bullet_on_ground_id); 
+              player.cdwebs[player.cdweb_pos]=bullet_on_ground_id;
+              player.cdweb_pos++;
+              if (player.cdweb_pos>=player.max_web_num) {
+                player.cdweb_pos=0;
+              }
+              player.cdweb_num++;
+	        }
 	      }
-	    }
 	//bullet dodged
 	  /*if (player_hit_cooldown_timer==0 && !player_blocking) {
 	    if (Bullet[bullet_id].near_miss) {
@@ -349,7 +357,7 @@ void BulletAct(int bullet_id)
         }
 	  }*/
         
-       StopBullet(bullet_id,FALSE); 
+      StopBullet(bullet_id,FALSE); 
         //Enemy bullet shot array arrangement
 	  for (j=Bullet[bullet_id].saved_pos;j<Enemy[enemy_id]->bullet_shot_num-1;j++) { //shift to left in enemy bullet shot arr from bullet shot
 	    Enemy[enemy_id]->bullet_shot_arr[j]=Enemy[enemy_id]->bullet_shot_arr[j+1];
@@ -358,7 +366,7 @@ void BulletAct(int bullet_id)
       Bullet[bullet_id].saved_pos=-1;
 	  Enemy[enemy_id]->bullet_shot_arr[Enemy[enemy_id]->bullet_shot_num-1]=-1; //remove bullet from arr
       Enemy[enemy_id]->bullet_shot_num--;
-    }
+    } //end of allow act
   } else {//player bullet while travelling
     bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2);
     allow_act=FALSE;
@@ -557,12 +565,10 @@ void DrawBullet2(HDC hdc,int i,double x,double y,int color)
       break;
     case 3:
     case 6:
-      GrCircle(hdc,x,y,RandNum(0,3,i),color,-1);
+      GrCircle(hdc,x,y,RandNum(0,3,frame_tick),color,-1);
       break;
     case 4:
-      for (j=RandNum(0,3,i);j>0;j--) {
-        GrCircle(hdc,x,y,j,color,-1);
-      }
+      GrCircle(hdc,x,y,RandNum(0,3,frame_tick),color,color);
       break;
     case 5:
       {
