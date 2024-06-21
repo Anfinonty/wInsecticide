@@ -123,7 +123,7 @@ int windowy=0;
 
 int enemy_kills=0;
 int FPS = 60;
-int main_menu_chosen=0;
+int main_menu_chosen=0; //options for main menu
 int option_choose=0;
 
 int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
@@ -137,6 +137,7 @@ int player_bullet_color=0;
 
 
 
+wchar_t global_wchar[3]={' ',L'H',L'I'};
 
 
 long long game_timer=0;
@@ -541,8 +542,10 @@ bool keydownalt()
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   HDC hdc, hdcBackbuff;
-  HWND hShellWnd = FindWindowA("Shell_TrayWnd", NULL);
-  LONG originalStyle = GetWindowLong(hwnd, GWL_STYLE);
+  //HWND hShellWnd = FindWindowA("Shell_TrayWnd", NULL);
+  //LONG originalStyle = GetWindowLong(hwnd, GWL_STYLE);
+
+  //wchar_t le_msg[32];
   switch(msg) {
 
     //Left Click Hold
@@ -583,194 +586,108 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
     //Various Keypress down
     case WM_KEYDOWN:
-      switch (wParam) {
-
-        //Holding Down Shift && Escape
-        case VK_ESCAPE:
-          if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = QUIT
-            if (!in_main_menu) { //Not in main menu
-              if (level_loaded) { //allow back to menu only if level is fully loaded
-                back_to_menu=TRUE;
+    {
+      //Global keydown press
+      if (main_menu_chosen!=2) {
+        switch (wParam) {
+        //Holding down '9' Key
+          case '9'://skip song, upwnwards (previous)
+            if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+              if (song_mode<=2) {
+                if  (!keydownalt()) {
+                  song_rand_num=LimitValue(song_rand_num-1,0,song_num);
+                  skip_song=TRUE;
+                  play_new_song=TRUE;
+                  loading_flac=FALSE;
+                }
               }
-            } else { // In main menu
-              PostQuitMessage(0);
-              return 0;
-            }
-          }
-          break;
-
-        //Holding Down Down Arrow or 'S'
-        case 'S':
-        case VK_DOWN:
-            if (!in_main_menu) { //Not in main menu
-              player.rst_down=TRUE;
-            } else { //In main menu
-              switch (main_menu_chosen) {
-                case 0:
-                  level_chosen=LimitValue(level_chosen+1,0,level_num);
-                  break;
-                case 1:
-                  option_choose=LimitValue(option_choose+1,0,3);
-                  break;
-              }
-              PlaySound(L"snd/FE_COMMON_MB_02.wav", NULL, SND_FILENAME | SND_ASYNC);
             }
             break;
 
-
-        //Holding Down Right Arrow or 'D'
-        case 'D':
-        case VK_RIGHT:
-          player.rst_right=TRUE;
-          if (in_main_menu) { //In Main Menu
-            if (main_menu_chosen==1) {
-              switch (option_choose) {
-                case 0: //Change color of player ++
-                  player_color=LimitValue(player_color+1,0,COLORS_NUM);
-                  PlaySound(L"snd/FE_MB_18.wav", NULL, SND_FILENAME | SND_ASYNC);
-                  break;
-                case 1: //Enable/Disable sound effects
-                  if (game_audio)
-                    PlaySound(L"snd/FE_COMMON_MB_03.wav", NULL, SND_FILENAME | SND_ASYNC);
-                  else
-                    PlaySound(L"snd/FE_COMMON_MB_04.wav", NULL, SND_FILENAME | SND_ASYNC);                    
-                  game_audio=!game_audio;
-                  break;
-                case 2: //Enable/Disable camera shaking
-                  if (game_cam_shake)
-                    PlaySound(L"snd/FE_COMMON_MB_03.wav", NULL, SND_FILENAME | SND_ASYNC);
-                  else
-                    PlaySound(L"snd/FE_COMMON_MB_04.wav", NULL, SND_FILENAME | SND_ASYNC);                    
-                  game_cam_shake=!game_cam_shake;                
-                  break;
-              }
-            }
-          }
-          break;
-
-
-        //Holding Down Left Arrow or 'A'
-        case 'A':
-        case VK_LEFT:
-          player.rst_left=TRUE;
-          if (in_main_menu) {
-            if (main_menu_chosen==1) {
-              switch (option_choose) {
-                case 0: //Change color of player --
-                  player_color=LimitValue(player_color-1,0,COLORS_NUM);
-                  PlaySound(L"snd/FE_MB_18.wav", NULL, SND_FILENAME | SND_ASYNC);
-                  break;
-                case 1: //Enable/Disable sound effects
-                  if (game_audio)
-                    PlaySound(L"snd/FE_COMMON_MB_03.wav", NULL, SND_FILENAME | SND_ASYNC);
-                  else
-                    PlaySound(L"snd/FE_COMMON_MB_04.wav", NULL, SND_FILENAME | SND_ASYNC);                    
-                  game_audio=!game_audio;
-                  break;
-                case 2:  //Enable/Disable camera shaking 
-                  if (game_cam_shake)
-                    PlaySound(L"snd/FE_COMMON_MB_03.wav", NULL, SND_FILENAME | SND_ASYNC);
-                  else
-                    PlaySound(L"snd/FE_COMMON_MB_04.wav", NULL, SND_FILENAME | SND_ASYNC);                    
-                  game_cam_shake=!game_cam_shake;                
-                  break;
-              }
-            }
-          }
-          break;
-
-
-        //Holding Down Up Arrow or 'W''
-        case 'W':
-        case VK_UP:
-          if (!in_main_menu) {
-            player.rst_up=TRUE;
-          } else {
-            switch (main_menu_chosen) {
-              case 0:
-                level_chosen=LimitValue(level_chosen-1,0,level_num);
-                break;
-              case 1:
-                option_choose=LimitValue(option_choose-1,0,3);
-                break;
-            }
-            PlaySound(L"snd/FE_COMMON_MB_02.wav", NULL, SND_FILENAME | SND_ASYNC);
-          }
-          break;
-
-
-        //Holding down ENTER key
-        case VK_RETURN:
-          if (!in_main_menu) {
-            flag_restart=TRUE;
-          } else {//Run Level
-            if (player_color>-1 && player_color<COLORS_NUM) {               
-              if (level_chosen>=0 && level_chosen<level_num && main_menu_chosen==0)
-                InitLevel(hwnd, hdc);
-            }
-          }
-          break;
-
-        //Holding down SPACE key
-        case ' ':
-          if (!in_main_menu) {
-            //player.rst_key_sprint=FALSE;
-            //player.rst_down=TRUE;
-            player.sleep_timer=SLOWDOWN_SLEEP_TIMER;
-          }
-          break;
-
-
-        //Holding down 'E' key
-	    case 'E':
-          if (!in_main_menu) {
-	        player.uppercut=TRUE;
-          }
-	      break;
-
-
-        //Holding down '9' Key
-        case '9'://skip song, upwnwards (previous)
-          if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
-            if (song_mode<=2) {
-              if  (!keydownalt()) {
-                song_rand_num=LimitValue(song_rand_num-1,0,song_num);
+        //Holding down '0' Key
+          case '0'://skip song, downwards (next)
+            if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+              if (song_mode<=2) {
+                song_rand_num=LimitValue(song_rand_num+1,0,song_num);
                 skip_song=TRUE;
                 play_new_song=TRUE;
                 loading_flac=FALSE;
               }
             }
-          }
-          break;
+            break;
+        }
+      }
 
-        //Holding down '0' Key
-        case '0'://skip song, downwards (next)
-          if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
-            if (song_mode<=2) {
-              song_rand_num=LimitValue(song_rand_num+1,0,song_num);
-              skip_song=TRUE;
-              play_new_song=TRUE;
-              loading_flac=FALSE;
+
+      //Key Down Presses depending on game state
+      if (!in_main_menu) {
+
+        switch (wParam) {
+        //Holding Down Shift && Escape
+          case VK_ESCAPE:
+            if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = QUIT
+              if (level_loaded) { //allow back to menu only if level is fully loaded
+                back_to_menu=TRUE;
+              }
             }
-          }
+            break;
+
+        //Holding Down Down Arrow or 'S'
+          case 'S':
+          case VK_DOWN:
+            player.rst_down=TRUE;
+            break;
 
 
+        //Holding Down Right Arrow or 'D'
+          case 'D':
+          case VK_RIGHT:
+            player.rst_right=TRUE;
+            break;
+
+
+        //Holding Down Left Arrow or 'A'
+          case 'A':
+          case VK_LEFT:
+            player.rst_left=TRUE;
+            break;
+
+
+        //Holding Down Up Arrow or 'W''
+          case 'W':
+          case VK_UP:
+            player.rst_up=TRUE;
+            break;
+
+
+        //Holding down ENTER key
+          case VK_RETURN:
+            flag_restart=TRUE;
+            break;
+
+        //Holding down SPACE key
+          case ' ':
+            player.sleep_timer=SLOWDOWN_SLEEP_TIMER;
+            break;
+
+
+        //Holding down 'E' key
+	      case 'E':
+            player.uppercut=TRUE;
+	        break;
 
         //Holding down 'C' Key
-        case 'C':
-          if (!in_main_menu) {
+          case 'C':
             if (player.sleep_timer==DEFAULT_SLEEP_TIMER) {
               player.sleep_timer=SLOWDOWN_SLEEP_TIMER;
             } else {
               player.sleep_timer=DEFAULT_SLEEP_TIMER;
             }
-          }
-          break;
+            break;
 
 
         //Holding down 'Z' Key
-        case 'Z':
-          if (!in_main_menu) {
+          case 'Z':
             if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
               player.time_breaker=TRUE;
               if (game_audio) {
@@ -779,33 +696,146 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               player.time_breaker_cooldown=player.time_breaker_cooldown_max;
               player.speed+=player.time_breaker_units_max/2-1;
             }
-          }
+            break;
+        } //End of Keys switch statement
+
+
+      } else { //Main menu
+        switch (main_menu_chosen) {
+           case 0:
+             switch (wParam) {
+              //Holding Down Shift && Escape
+               case VK_ESCAPE:
+                 if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = QUIT
+                   PostQuitMessage(0);
+                   return 0;
+                 }
+                 break;
+
+              //Holding Down Down Arrow or 'S'
+               case 'S':
+               case VK_DOWN:
+                 level_chosen=LimitValue(level_chosen+1,0,level_num);
+                 PlaySound(L"snd/FE_COMMON_MB_02.wav", NULL, SND_FILENAME | SND_ASYNC);
+                 break;
+
+              //Holding Down Up Arrow or 'W''
+               case 'W':
+               case VK_UP:
+                 level_chosen=LimitValue(level_chosen-1,0,level_num);
+                 PlaySound(L"snd/FE_COMMON_MB_02.wav", NULL, SND_FILENAME | SND_ASYNC);
+                 break;
+
+
+              //Holding down ENTER key
+               case VK_RETURN:
+                 if (player_color>-1 && player_color<COLORS_NUM) {               
+                   if (level_chosen>=0 && level_chosen<level_num && main_menu_chosen==0)
+                     InitLevel(hwnd, hdc);
+                 }
+                 break;
+
+             } //End of switch statement
+             break;
+
+
+
+           //Player options in main menu
+           case 1:
+             switch (wParam) {
+            //Holding Down Down Arrow or 'S'
+               case 'S':
+               case VK_DOWN:
+                 option_choose=LimitValue(option_choose+1,0,3);
+                 PlaySound(L"snd/FE_COMMON_MB_02.wav", NULL, SND_FILENAME | SND_ASYNC);
+                 break;
+
+
+            //Holding Down Right Arrow or 'D'
+               case 'D':
+               case VK_RIGHT:
+                 switch (option_choose) {
+                   case 0: //Change color of player ++
+                     player_color=LimitValue(player_color+1,0,COLORS_NUM);
+                     PlaySound(L"snd/FE_MB_18.wav", NULL, SND_FILENAME | SND_ASYNC);
+                     break;
+                   case 1: //Enable/Disable sound effects
+                     if (game_audio)
+                       PlaySound(L"snd/FE_COMMON_MB_03.wav", NULL, SND_FILENAME | SND_ASYNC);
+                     else
+                       PlaySound(L"snd/FE_COMMON_MB_04.wav", NULL, SND_FILENAME | SND_ASYNC);                    
+                     game_audio=!game_audio;
+                     break;
+                   case 2: //Enable/Disable camera shaking
+                     if (game_cam_shake)
+                       PlaySound(L"snd/FE_COMMON_MB_03.wav", NULL, SND_FILENAME | SND_ASYNC);
+                     else
+                       PlaySound(L"snd/FE_COMMON_MB_04.wav", NULL, SND_FILENAME | SND_ASYNC);                    
+                     game_cam_shake=!game_cam_shake;                
+                     break;
+                 }
+                 break;
+
+
+            //Holding Down Left Arrow or 'A'
+              case 'A':
+              case VK_LEFT:
+                switch (option_choose) {
+                  case 0: //Change color of player --
+                    player_color=LimitValue(player_color-1,0,COLORS_NUM);
+                    PlaySound(L"snd/FE_MB_18.wav", NULL, SND_FILENAME | SND_ASYNC);
+                    break;
+                  case 1: //Enable/Disable sound effects
+                    if (game_audio)
+                      PlaySound(L"snd/FE_COMMON_MB_03.wav", NULL, SND_FILENAME | SND_ASYNC);
+                    else
+                      PlaySound(L"snd/FE_COMMON_MB_04.wav", NULL, SND_FILENAME | SND_ASYNC);                    
+                    game_audio=!game_audio;
+                    break;
+                  case 2:  //Enable/Disable camera shaking 
+                    if (game_cam_shake)
+                      PlaySound(L"snd/FE_COMMON_MB_03.wav", NULL, SND_FILENAME | SND_ASYNC);
+                    else
+                      PlaySound(L"snd/FE_COMMON_MB_04.wav", NULL, SND_FILENAME | SND_ASYNC);                    
+                    game_cam_shake=!game_cam_shake;                
+                    break;
+                }
+                break;
+
+
+            //Holding Down Up Arrow or 'W''
+              case 'W':
+              case VK_UP:
+                option_choose=LimitValue(option_choose-1,0,3);
+                PlaySound(L"snd/FE_COMMON_MB_02.wav", NULL, SND_FILENAME | SND_ASYNC);
+                break;
+           } //End of switch statement for keys
+           break;
+
+
+          /*case 2:
+              //https://learn.microsoft.com/en-us/windows/win32/learnwin32/keyboard-input
+              //https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/getch-getwch?view=msvc-170
+              //swprintf_s(le_msg,32,L"Key: 0x%x\n",wParam); 
+              //wprintf(le_msg);
+          {
+            //int a_wchar=_getwch();
+            //global_wchar[0]=a_wchar;
+            global_wchar[0]=wParam;
+          }*/
           break;
-
-      }
-      break;
-
-
+        } //end of switch statement for menu chosen
+      } //end of menu chosen if else
+      break; //Break WM_KEYDOWN;
+    }  
 
 
     //Key Release
     case WM_KEYUP:
+    {
+  //GLOBAL wParam Release Key
+      if (main_menu_chosen!=2) {
       switch (wParam) {
-
-        //Release '8' key holding SHIFT
-        case '8':
-          if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = QUIT
-            if (!in_main_menu) {
-              if (!display_controls) {
-                display_controls=TRUE;
-              } else {
-                display_controls=FALSE;
-              }
-            }
-          }
-          break;
-
-
         //Release 'T' key holding SHIFT
         case 'T': //Hide or Show Taskbar
           if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
@@ -838,45 +868,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               hide_taskbar=FALSE;
             }
           }
-          break;
-
-
-        //Release Q key
-        case 'Q':
-          if (!in_main_menu) {
-            player.destroy_ground=TRUE;
-          }
-          break;
-
-
-
-        //Release S or Down key
-        case 'S':
-        case VK_DOWN:
-          player.rst_down=FALSE;
-          break;
-
-        //Release D or Right key
-        case 'D':
-        case VK_RIGHT:
-          if (!in_main_menu) {
-            player.rst_right=FALSE;
-          }
-          break;
-
-
-        //Release A or Left key
-        case 'A':
-        case VK_LEFT:
-          if (!in_main_menu) {
-            player.rst_left=FALSE;
-          }
-          break;
-
-        //Release W or Up key
-        case 'W':
-        case VK_UP:
-          player.rst_up=FALSE;
           break;
 
 
@@ -929,71 +920,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
           break;//end current song
 
-
-        //Release Space key
-        case ' ': 
-          if (!in_main_menu) { //Let Go
-            player.sleep_timer=DEFAULT_SLEEP_TIMER;
-          }
-          break;
-
-
-        //Release '1' Key
-	    case '1':
-          if (!in_main_menu) {
-	        player.attack_rst=TRUE;
-          } else {
-            main_menu_chosen=LimitValue(main_menu_chosen+1,0,2);
-            PlaySound(L"snd/FE_COMMON_MB_05.wav", NULL, SND_FILENAME | SND_ASYNC);
-            if (main_menu_chosen==0) {
-              DeleteObject(mouse_cursor_sprite_cache);
-              mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,draw_color_arr[player_color],-1);
-
-              DeleteObject(mouse_cursor_sprite_cache2);
-              mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,draw_color_arr[player_color],-1);
-            }
-          }
-	      break;
-
-
-        //Release '2' Key
-        case '2':
-          if (!in_main_menu) {
-            if (player.max_web_num-player.placed_web_num>=3 && player.knives_per_throw==5) {
-              player.knives_per_throw=13;
-            }
-            /*if (player.max_web_num-player.placed_web_num>=6 && player.knives_per_throw==15) {
-              player.knives_per_throw=28;
-            }*/
-            /*if (player.max_web_num-player.placed_web_num>5) {
-              player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,30+1); //limit to 1,3,5,15
-            } else*/ if (player.max_web_num-player.placed_web_num>2) {          
-              player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,15+1); //limit to 1,3,5,15
-            } else if (player.max_web_num-player.placed_web_num>0){ //limit to 1,3,5
-              player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,5+1);
-            } else { //limit to 1,3
-              player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,3+1);
-            }
-          }
-          break;
-
-        //Release '3' Key'
-        case '3':
-          if (!in_main_menu) {
-            player.low_jump=!player.low_jump;
-          }
-          break;
-
-        //Release 'E' Key
-	    case 'E':
-          if (!in_main_menu) {
-            if (player.uppercut) {
-	          player.uppercut=FALSE;
-            }
-          }
-	      break;
-
-
         //Release 'L' Key
         case 'L':
           if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
@@ -1004,10 +930,165 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
           }
           break;
+      } //end of global key release
       }
+
+      if (!in_main_menu) { //Gaming
+        switch (wParam) {
+
+          //Release '8' key holding SHIFT
+          case '8':
+            if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = QUIT
+              if (!display_controls) {
+                display_controls=TRUE;
+              } else {
+                display_controls=FALSE;
+              }
+            }
+            break;
+
+
+          //Release Q key
+          case 'Q':
+            player.destroy_ground=TRUE;
+            break;
+
+        //Release S or Down key
+          case 'S':
+          case VK_DOWN:
+            player.rst_down=FALSE;
+            break;
+
+        //Release D or Right key
+          case 'D':
+          case VK_RIGHT:
+            player.rst_right=FALSE;
+            break;
+
+
+        //Release A or Left key
+          case 'A':
+          case VK_LEFT:
+            player.rst_left=FALSE;
+            break;
+
+        //Release W or Up key
+          case 'W':
+          case VK_UP:
+            player.rst_up=FALSE;
+            break;
+
+        //Release Space key
+          case ' ': 
+            player.sleep_timer=DEFAULT_SLEEP_TIMER;
+            break;
+
+
+        //Release '1' Key
+	      case '1':
+            player.attack_rst=TRUE;
+	        break;
+
+
+        //Release '2' Key
+          case '2':
+            if (player.max_web_num-player.placed_web_num>=3 && player.knives_per_throw==5) {
+              player.knives_per_throw=13;
+            }
+            /*if (player.max_web_num-player.placed_web_num>=6 && player.knives_per_throw==15) {
+              player.knives_per_throw=28;
+            }*/
+            /*if (player.max_web_num-player.placed_web_num>5) {
+              player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,30+1); //limit to 1,3,5,15
+          } else*/
+            if (player.max_web_num-player.placed_web_num>2) {          
+              player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,15+1); //limit to 1,3,5,15
+            } else if (player.max_web_num-player.placed_web_num>0){ //limit to 1,3,5
+              player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,5+1);
+            } else { //limit to 1,3
+              player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,3+1);
+            }
+            break;
+
+        //Release '3' Key'
+          case '3':
+            player.low_jump=!player.low_jump;
+            break;
+
+        //Release 'E' Key
+  	      case 'E':
+            if (player.uppercut) {
+              player.uppercut=FALSE;
+            }
+	        break;
+        }
+
+      } else { 
+        switch (main_menu_chosen) {
+          //Release '0' Key
+          case 0:
+            switch (wParam) {
+              case '1':
+                main_menu_chosen=1;
+                PlaySound(L"snd/FE_COMMON_MB_05.wav", NULL, SND_FILENAME | SND_ASYNC);
+                break;
+              case '2':
+                main_menu_chosen=2;
+                PlaySound(L"snd/FE_COMMON_MB_05.wav", NULL, SND_FILENAME | SND_ASYNC);
+                break;
+            }
+            break;
+
+
+
+          //Release '1' Key
+          case 1:
+            switch (wParam) {
+               case '1':
+               case VK_ESCAPE:
+                 if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT) || wParam=='1') { //ESC + L/RSHIFT = QUIT
+                   main_menu_chosen=0;
+
+                   DeleteObject(mouse_cursor_sprite_cache);
+                   mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,draw_color_arr[player_color],-1);
+   
+                   DeleteObject(mouse_cursor_sprite_cache2);
+                   mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,draw_color_arr[player_color],-1);
+                   PlaySound(L"snd/FE_COMMON_MB_05.wav", NULL, SND_FILENAME | SND_ASYNC);
+                 }
+                break;
+            }
+            break;
+
+
+
+          //Release '2' Key
+          case 2:
+
+            
+            switch (wParam) {
+               case VK_ESCAPE:
+                 if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = QUIT
+                   main_menu_chosen=0;
+                   PlaySound(L"snd/FE_COMMON_MB_05.wav", NULL, SND_FILENAME | SND_ASYNC);
+                 }
+                 break;
+            }
+            break;
+
+          }
+          break; //end of main menu chosen switch
+
+      } //end of !main_menu_chosen
+      break; // end of release key WM_KEYUP
+    }
+
+
+    case WM_CHAR:
+      if (in_main_menu)
+        if (main_menu_chosen==2)
+           global_wchar[0]=wParam;
       break;
-
-
 
     //Constantly Update Screen
     case WM_ERASEBKGND:
@@ -1523,8 +1604,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   timeEndPeriod(1);
 
   //In case WM_DESTROY doesnt work
-  HWND hShellWnd = FindWindowA("Shell_TrayWnd", NULL);
-  ShowWindow(hShellWnd, SW_SHOW);
+  //HWND hShellWnd = FindWindowA("Shell_TrayWnd", NULL);
+  //ShowWindow(hShellWnd, SW_SHOW);
   return (int) msg.wParam;
 }
 

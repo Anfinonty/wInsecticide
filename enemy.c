@@ -581,7 +581,7 @@ void EnemyAct(int i)
 
 
   Enemy[i]->dist_from_player=GetDistance(player.x,player.y,Enemy[i]->x,Enemy[i]->y);
-  double dist_unit=GR_WIDTH/2+VGRID_SIZE*2;
+  int dist_unit=GR_WIDTH/2+VGRID_SIZE*2;
   if (GR_WIDTH<GR_HEIGHT)
     dist_unit=GR_HEIGHT/2+VGRID_SIZE*2;
 

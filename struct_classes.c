@@ -580,9 +580,6 @@ typedef struct enemy
   int seed;
 
 
-
-  int node_neighbour[8];
-
   double health;
   double max_health;
   double LOS_x;
@@ -609,26 +606,34 @@ typedef struct enemy
   //double x_height_from_ground;
   //double x_height_from_prev_ground;
 
+  int node_neighbour[8];
 
   //6715632
 
-
   int bullet_head_y[MAX_BULLET_PER_FIRE];
   int bullet_head_x[MAX_BULLET_PER_FIRE];
+
+
   bool node_solid[MAX_NODE_NUM];
   bool node_open[MAX_NODE_NUM];
   bool node_closed[MAX_NODE_NUM];
   bool node_back[MAX_NODE_NUM];
+
+
+  int bullet_shot_arr[ENEMY_BULLET_NUM];
+
   int path_nodes[MAX_NODE_NUM/2];
   int open_nodes[MAX_NODE_NUM/2];
   int enemy_species1_solids[MAX_NODE_NUM];
   int node_x[MAX_NODE_NUM];
   int node_y[MAX_NODE_NUM];
   int node_parent[MAX_NODE_NUM];
-  double node_gcost[MAX_NODE_NUM];
-  double node_hcost[MAX_NODE_NUM];
-  double node_fcost[MAX_NODE_NUM];
-  int bullet_shot_arr[ENEMY_BULLET_NUM];
+  //double node_gcost[MAX_NODE_NUM];
+  //double node_hcost[MAX_NODE_NUM];
+  //double node_fcost[MAX_NODE_NUM];
+  int node_gcost[MAX_NODE_NUM];
+  int node_hcost[MAX_NODE_NUM];
+  int node_fcost[MAX_NODE_NUM];
 } AEnemy; 
 //} Enemy[ENEMY_NUM];
 //struct enemy Enemy[MAX_ENEMY_NUM];

@@ -802,7 +802,7 @@ void PlayerAct() {
 
       if (player.in_air_timer>=1 && player.in_air_timer<=4 && player.on_ground_id==-1) { //Grav switch //runs on speed and grav_speed
         if (player.jump_height<=0 && !player.is_swinging) {
-          if (player.previous_below)
+          if (player.previous_below && speed<=24 && grav_speed<=2)
             move_y(-player.player_grav*1.5);
         }
       }

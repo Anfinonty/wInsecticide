@@ -292,20 +292,21 @@ lunar_year
       //GrPrint(hdc,30,lvls_y+16*(level_chosen%max_lvl_rows)+16,"        \\/",WHITE);
       //DrawPlayingMusic(hdc,30,10+16*16,BLACK,WHITE);
       GrPrint(hdc,30,main_menu_y+10+16*16,"'1': Go to Options.",WHITE);
-      //GrPrint(hdc,30,main_menu_y+10+16*16*2,"'2': Create Level.",WHITE);
-      //GrPrint(hdc,30,main_menu_y+10+16*16*2,"'3': Edit Level Object Amount.",WHITE);
-      //GrPrint(hdc,30,main_menu_y+10+16*16*2,"'4': Build Selected Level.",WHITE);
+      GrPrint(hdc,30,main_menu_y+10+16*17,"'2': Create New Level.",WHITE);
+      GrPrint(hdc,30,main_menu_y+10+16*18,"'3': Edit Selected Level.",WHITE);
+      GrPrint(hdc,30,main_menu_y+10+16*19,"'4': Build Selected Level.",WHITE);
+      GrPrint(hdc,30,main_menu_y+10+16*21,"[SHIFT_ESC]: Exit.",WHITE);
       break;
 
 
     case 1:
       GrPrint(hdc,30,main_menu_y+10+16*2,"Options:",WHITE);
-      GrPrint(hdc,30,main_menu_y+10+16*4,"[SHIFT_ESC]: Exit",WHITE);
-      GrPrintW(hdc,30,main_menu_y+10+16*5,L"[SHIFT] + 'L': Unifont [ពេលរាត្រី]","",WHITE,16,FALSE,yes_unifont);
-      GrPrint(hdc,30,main_menu_y+10+16*6,"[SHIFT] + 'T': Toggle Borders",WHITE);
+      //GrPrint(hdc,30,main_menu_y+10+16*4,"[SHIFT_ESC]: Exit",WHITE);
+      GrPrintW(hdc,30,main_menu_y+10+16*4,L"[SHIFT] + 'L': Unifont [ពេលរាត្រី]","",WHITE,16,FALSE,yes_unifont);
+      GrPrint(hdc,30,main_menu_y+10+16*5,"[SHIFT] + 'T': Toggle Borders",WHITE);
 
  
-      int c=WHITE,soptions_y=16*9;
+      int c=WHITE,soptions_y=16*8;
       if (hide_taskbar)
         soptions_y+=main_menu_y;
       if (option_choose==0) {
@@ -351,6 +352,87 @@ lunar_year
 
 
       GrPrint(hdc,30,main_menu_y+10+16*14,"'1': Go back to Main Menu.",WHITE);
+      break;
+
+
+
+
+
+    case 2:
+      GrPrint(hdc,30,main_menu_y+10+16*2,"Create New Level",WHITE);
+      GrPrint(hdc,30,main_menu_y+10+16*4,"[Enter]: Create Level",WHITE);
+
+      GrPrintW(hdc,30,main_menu_y+10+16*5,L"[SHIFT] + 'L': Unifont [ពេលរាត្រី]","",WHITE,16,FALSE,yes_unifont);
+     // GrPrint(hdc,30,main_menu_y+10+16*6,"[SHIFT] + 'T': Toggle Borders",WHITE);
+
+ 
+      GrPrintW(hdc,30,main_menu_y+10+16*8,L"Level Name:","",WHITE,16,FALSE,yes_unifont);
+      GrPrintW(hdc,30+13*8,main_menu_y+10+16*8,global_wchar,"",WHITE,16,FALSE,yes_unifont);
+
+
+      GrPrint(hdc,30,main_menu_y+10+16*9,"Ground Amount:",WHITE);
+
+
+
+      GrPrint(hdc,30,main_menu_y+10+16*10,"Enemies Amount:",WHITE);
+
+
+
+
+      GrPrint(hdc,30,main_menu_y+10+16*11,"Level Width (Px):",WHITE);
+
+
+
+
+      GrPrint(hdc,30,main_menu_y+10+16*12,"Level Height (Px):",WHITE);
+
+
+      /*int c=WHITE,soptions_y=16*9;
+      if (hide_taskbar)
+        soptions_y+=main_menu_y;
+      if (option_choose==0) {
+        c=LTGREEN;
+      }
+      GrPrint(hdc,30,10+soptions_y,"Player Color:",c);
+      GrPrint(hdc,30+13*8,10+soptions_y,"<    >",c);
+      //Draw Square
+      if (player_color!=0) {
+        GrRect(hdc,30+8*14,10+soptions_y,16,16,BLACK);
+      } else {
+        GrRect(hdc,30+8*14,10+soptions_y,16,16,WHITE);
+      }
+      if (player_color>-1 && player_color<COLORS_NUM) {
+        GrRect(hdc,30+8*14+2,10+soptions_y+2,12,12,draw_color_arr[player_color]);
+      }
+
+
+      c=WHITE;
+      if (option_choose==1) {
+        c=LTGREEN;
+      }
+      GrPrint(hdc,30,10+soptions_y+16,"Audio:",c);
+      if (game_audio) {
+        GrPrint(hdc,30+13*8,10+soptions_y+16,"<ON>",c);
+      } else {
+        GrPrint(hdc,30+13*8,10+soptions_y+16,"<OFF>",c);
+      }
+
+
+      c=WHITE;
+      if (option_choose==2) {
+        c=LTGREEN;
+      }
+      GrPrint(hdc,30,10+soptions_y+16*2,"Camera Shake:",c);
+      if (game_cam_shake) {
+        GrPrint(hdc,30+13*8,10+soptions_y+16*2,"<ON>",c);
+      } else {
+        GrPrint(hdc,30+13*8,10+soptions_y+16*2,"<OFF>",c);
+      }
+
+      GrPrint(hdc,20,10+soptions_y+16*option_choose,"*",LTGREEN);*/
+
+
+      GrPrint(hdc,30,main_menu_y+10+16*14,"[SHIFT_ESC]: Go back to Main Menu.",WHITE);      
       break;
   }
   DrawPlayingMusic(hdc,16+4,help_y+48,BLACK,WHITE);
