@@ -198,7 +198,6 @@ void LoadSave(wchar_t *saves_name)
             VGRID_NUM=(MAP_WIDTH/VGRID_SIZE) * (MAP_HEIGHT/VGRID_SIZE);
             MAP_NODE_NUM=(MAP_WIDTH/NODE_SIZE) * (MAP_HEIGHT/NODE_SIZE);
 
-
             //malloc attributes
             saved_ground_is_ghost=calloc(GROUND_NUM,sizeof(bool));
             saved_ground_color=calloc(GROUND_NUM,sizeof(int));

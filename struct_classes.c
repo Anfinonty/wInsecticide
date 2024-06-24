@@ -1,4 +1,25 @@
 //classes for game
+/*typedef struct spam_snd
+{
+  int16_t* audio;
+} SpamSnd;
+
+
+SpamSnd *createSpamSnd(long filesize)
+{
+  SpamSnd *toReturn = malloc(sizeof(SpamSnd));
+  toReturn->audio=malloc(filesize);
+  return toReturn;
+}*/
+
+
+/*void freeSpamSnd(SpamSnd *mySnd)
+{
+  if (mySnd->audio != NULL)
+    free(mySnd->audio);    
+  if (mySnd)
+    free(mySnd);
+}*/
 
 
 

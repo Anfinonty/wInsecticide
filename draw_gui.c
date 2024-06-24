@@ -291,11 +291,19 @@ lunar_year
       //GrPrint(hdc,30,lvls_y+16*(level_chosen%max_lvl_rows)-16,"        /\\",WHITE);
       //GrPrint(hdc,30,lvls_y+16*(level_chosen%max_lvl_rows)+16,"        \\/",WHITE);
       //DrawPlayingMusic(hdc,30,10+16*16,BLACK,WHITE);
-      GrPrint(hdc,30,main_menu_y+10+16*16,"'1': Go to Options.",WHITE);
+      /*GrPrint(hdc,30,main_menu_y+10+16*16,"'1': Go to Options.",WHITE);
       GrPrint(hdc,30,main_menu_y+10+16*17,"'2': Create New Level.",WHITE);
       GrPrint(hdc,30,main_menu_y+10+16*18,"'3': Edit Selected Level.",WHITE);
       GrPrint(hdc,30,main_menu_y+10+16*19,"'4': Build Selected Level.",WHITE);
-      GrPrint(hdc,30,main_menu_y+10+16*21,"[SHIFT_ESC]: Exit.",WHITE);
+      GrPrint(hdc,30,main_menu_y+10+16*21,"[SHIFT_ESC]: Exit.",WHITE);*/
+      GrPrintA(hdc,30,main_menu_y+16*15,L"\n\
+'1': Go to Options.\n\
+'2': Create New Level.\n\
+'3': Edit Selected Level.\n\
+'4': Build Selected Level.\n\
+[SHIFT_ESC]: Exit."
+        ,WHITE);
+
       break;
 
 
@@ -313,15 +321,15 @@ lunar_year
         c=LTGREEN;
       }
       GrPrint(hdc,30,10+soptions_y,"Player Color:",c);
-      GrPrint(hdc,30+13*8,10+soptions_y,"<    >",c);
+      GrPrint(hdc,30+20*8,10+soptions_y,"<    >",c);
       //Draw Square
       if (player_color!=0) {
-        GrRect(hdc,30+8*14,10+soptions_y,16,16,BLACK);
+        GrRect(hdc,30+8*21,10+soptions_y,16,16,BLACK);
       } else {
-        GrRect(hdc,30+8*14,10+soptions_y,16,16,WHITE);
+        GrRect(hdc,30+8*21,10+soptions_y,16,16,WHITE);
       }
       if (player_color>-1 && player_color<COLORS_NUM) {
-        GrRect(hdc,30+8*14+2,10+soptions_y+2,12,12,draw_color_arr[player_color]);
+        GrRect(hdc,30+8*21+2,10+soptions_y+2,12,12,draw_color_arr[player_color]);
       }
 
 
@@ -331,9 +339,9 @@ lunar_year
       }
       GrPrint(hdc,30,10+soptions_y+16,"Audio:",c);
       if (game_audio) {
-        GrPrint(hdc,30+13*8,10+soptions_y+16,"<ON>",c);
+        GrPrint(hdc,30+20*8,10+soptions_y+16,"<ON>",c);
       } else {
-        GrPrint(hdc,30+13*8,10+soptions_y+16,"<OFF>",c);
+        GrPrint(hdc,30+20*8,10+soptions_y+16,"<OFF>",c);
       }
 
 
@@ -343,10 +351,22 @@ lunar_year
       }
       GrPrint(hdc,30,10+soptions_y+16*2,"Camera Shake:",c);
       if (game_cam_shake) {
-        GrPrint(hdc,30+13*8,10+soptions_y+16*2,"<ON>",c);
+        GrPrint(hdc,30+20*8,10+soptions_y+16*2,"<ON>",c);
       } else {
-        GrPrint(hdc,30+13*8,10+soptions_y+16*2,"<OFF>",c);
+        GrPrint(hdc,30+20*8,10+soptions_y+16*2,"<OFF>",c);
       }
+
+
+      c=WHITE;
+      if (option_choose==3) {
+        c=LTGREEN;
+      }
+      GrPrint(hdc,30,10+soptions_y+16*3,"Sound Effects Volume:",c);
+      char print_volume[8];
+      sprintf(print_volume,"<%1.0f%>",game_volume*100);
+      GrPrint(hdc,30+20*8,10+soptions_y+16*3,print_volume,c);
+
+
 
       GrPrint(hdc,20,10+soptions_y+16*option_choose,"*",LTGREEN);
 

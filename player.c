@@ -1478,7 +1478,8 @@ void PlayerAct() {
           player.time_breaker=FALSE;
           player.flag_revert_palette=TRUE;
            if (game_audio) {
-            PlaySound(L"snd/timebreaker__stop.wav", NULL, SND_FILENAME | SND_ASYNC);
+            //PlaySound(L"snd/timebreaker__stop.wav", NULL, SND_FILENAME | SND_ASYNC);
+            PlaySound(tb_stop_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
           }
         }
       }

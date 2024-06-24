@@ -26,6 +26,8 @@
 //#include <clocale>
 //#include <curses.h>
 #include <shlwapi.h>
+#include <mmsystem.h>
+//#include <libsndfile.h> // Make sure to install libsndfile and link it during compilation
 //#include <wiavideo.h>
 //#include <GL/glu.h>
 //#include "<resources.h>"
@@ -114,6 +116,7 @@ bool game_over=FALSE;
 bool game_cam_shake=TRUE;
 bool game_audio=TRUE;
 bool alloc_enemy_once=TRUE;
+bool load_sound=FALSE;
 
 wchar_t save_level[128];
 
@@ -145,7 +148,7 @@ long long game_timer=0;
 
 double double_best_score=0;
 double time_begin=0;
-
+double game_volume=1.0;
 
 
 //Solar Hijri Time for Drawing
@@ -236,6 +239,26 @@ double moon_angle_shift=0;
 
 
 #include "struct_classes.c"
+
+long clang_audio_filesize;
+long tb_start_audio_filesize;
+long tb_stop_audio_filesize;
+
+
+int16_t* clang_audio;
+int16_t* tb_start_audio;
+int16_t* tb_stop_audio;
+
+
+
+int16_t* clang_audio_cache;
+int16_t* tb_start_audio_cache;
+int16_t* tb_stop_audio_cache;
+
+//SpamSnd* clang_audio_cache;
+//SpamSnd* tb_start_audio_cache;
+//SpamSnd* tb_stop_audio_cache;
+
 #include "load_save.c"
 
 #include "math.c"
@@ -295,6 +318,58 @@ void InitOnce() {
     player_load_color=COLORS_NUM-player_color-1;
     player_bullet_color=BLACK;
   }
+
+
+  if (tb_start_audio_cache!=NULL)
+    free(tb_start_audio_cache);
+  if(tb_stop_audio_cache!=NULL)
+    free(tb_stop_audio_cache);
+  if (clang_audio_cache!=NULL)
+    free(clang_audio_cache);
+
+  //SpamSnd *tmp_clang_audio_cache=createSpamSnd(clang_audio_filesize);
+
+  //tb_start_audio_cache=createSpamSnd(tb_start_audio_filesize);
+  //tb_stop_audio_cache=createSpamSnd(tb_stop_audio_filesize);
+  //clang_audio_cache=createSpamSnd(clang_audio_filesize);
+
+  //printf("clang_audio: %d\n",tmp_clang_audio_cache->audio[1000]);
+
+
+
+  /*free(tmp_clang_audio_cache);
+  free(tmp_tb_start_audio_cache);
+  free(tmp_tb_stop_audio_cache);*/
+
+  /*clang_audio_cache->audio=tmp_clang_audio_cache;*/
+  //freeSpamSnd(tmp_clang_audio_cache);
+
+//  printf("sizeof %ld/%ld/%ld",sizeof(clang_audio),clang_audio_filesize,clang_audio_filesize*sizeof(int16_t));
+  //adjustVolume(clang_audio, clang_audio_filesize, game_volume);
+
+
+  //int16_t* tmp_clang_audio_cache=malloc(clang_audio_filesize);
+  //adjustVolume(clang_audio, clang_audio_filesize, game_volume);
+  //free(tmp_clang_audio_cache);
+  //printf("\nclang_audio_adjusted\n");
+
+  /*int16_t* tmp_tb_start_audio_cache=malloc(tb_start_audio_filesize);
+  adjustVolume(tmp_tb_start_audio_cache,tb_start_audio,tb_start_audio_filesize,game_volume);
+  //free(tmp_tb_start_audio_cache);
+  printf("\ntb_start_audio_adjusted\n");
+
+
+  int16_t* tmp_tb_stop_audio_cache=malloc(tb_stop_audio_filesize);
+  adjustVolume(tmp_tb_stop_audio_cache,tb_stop_audio,tb_stop_audio_filesize,game_volume);
+  //free(tmp_tb_stop_audio_cache);
+  printf("\ntb_stop_audio_adjusted\n");*/
+
+
+  tb_start_audio_cache=adjustVolume(tb_start_audio,tb_start_audio_filesize,game_volume);
+  tb_stop_audio_cache=adjustVolume(tb_stop_audio,tb_stop_audio_filesize,game_volume);
+  clang_audio_cache=adjustVolume(clang_audio,clang_audio_filesize,game_volume);
+  waveOutSetVolume(NULL,0);
+
 }
 
 
@@ -444,6 +519,18 @@ void InitLevel(HWND hwnd, HDC hdc)
 
   InitPlatformsSprite(hwnd,hdc);
 
+  /*printf("clang_audio:%lu\n",clang_audio_filesize);
+  printf("tb_start_audio:%lu\n",tb_start_audio_filesize);
+  printf("tb_death_audio:%lu\n",tb_stop_audio_filesize);
+  printf("clang_death_audio:%lu\n",clang_death_audio_filesize);*/
+
+
+  //allocate smallest to biggest
+
+
+
+
+  //load_sound=TRUE;
   level_loaded=TRUE;
   in_main_menu=FALSE;
 }
@@ -691,7 +778,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
               player.time_breaker=TRUE;
               if (game_audio) {
-                PlaySound(L"snd/timebreaker__start.wav", NULL, SND_FILENAME | SND_ASYNC);
+                //PlaySound(L"snd/timebreaker__start.wav", NULL, SND_FILENAME | SND_ASYNC);
+                PlaySound(tb_start_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
               }
               player.time_breaker_cooldown=player.time_breaker_cooldown_max;
               player.speed+=player.time_breaker_units_max/2-1;
@@ -746,7 +834,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             //Holding Down Down Arrow or 'S'
                case 'S':
                case VK_DOWN:
-                 option_choose=LimitValue(option_choose+1,0,3);
+                 option_choose=LimitValue(option_choose+1,0,4);
                  PlaySound(L"snd/FE_COMMON_MB_02.wav", NULL, SND_FILENAME | SND_ASYNC);
                  break;
 
@@ -772,6 +860,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                      else
                        PlaySound(L"snd/FE_COMMON_MB_04.wav", NULL, SND_FILENAME | SND_ASYNC);                    
                      game_cam_shake=!game_cam_shake;                
+                     break;
+                   case 3:
+                     if (game_volume>=2.0) {
+                       game_volume+=1.0;
+                     } else {
+                       game_volume+=0.1;
+                     }
+                     if (game_volume>20.0) {
+                        game_volume=0.0;
+                     }
+                     PlaySound(L"snd/FE_COMMON_MB_03.wav", NULL, SND_FILENAME | SND_ASYNC);
                      break;
                  }
                  break;
@@ -799,6 +898,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                       PlaySound(L"snd/FE_COMMON_MB_04.wav", NULL, SND_FILENAME | SND_ASYNC);                    
                     game_cam_shake=!game_cam_shake;                
                     break;
+                   case 3:
+                     if (game_volume>2.0) {
+                       game_volume-=1.0;
+                     } else {
+                       game_volume-=0.1;
+                     }
+                     if (game_volume<0.0) {
+                        game_volume=20.0;
+                     }
+                     PlaySound(L"snd/FE_COMMON_MB_03.wav", NULL, SND_FILENAME | SND_ASYNC);
+                     break;
                 }
                 break;
 
@@ -806,7 +916,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             //Holding Down Up Arrow or 'W''
               case 'W':
               case VK_UP:
-                option_choose=LimitValue(option_choose-1,0,3);
+                option_choose=LimitValue(option_choose-1,0,4);
                 PlaySound(L"snd/FE_COMMON_MB_02.wav", NULL, SND_FILENAME | SND_ASYNC);
                 break;
            } //End of switch statement for keys
@@ -1324,7 +1434,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //MessageBox(NULL, TEXT("ភាសាខ្មែរ"), TEXT("ភាសាខ្មែរ") ,MB_OK); //khmer text box
       Init8BitRGBColorsNoir(rgbColorsNoir);
       Init8BitRGBColorsDefault(rgbColorsDefault);
-
       //Delete tmp in music
       remove("music/tmp/tmp.wav");
       rmdir("music/tmp"); //remove tmp
@@ -1489,6 +1598,40 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //fullscreen
       //ShowWindow(hwnd,SW_SHOWMAXIMIZED);
 
+      //=====Load Audio=====
+    //https://stackoverflow.com/questions/32320825/load-wavs-into-memory-then-play-sounds-asynchronously-using-win32-api
+    //https://stackoverflow.com/questions/65851460/playing-sound-from-a-memory-buffer-in-pure-winapi
+    //https://stackoverflow.com/questions/2457482/processing-an-audio-wav-file-with-c
+    //https://stackoverflow.com/questions/8754111/how-to-read-the-data-in-a-wav-file-to-an-array
+      //if (load_sound && level_loaded) {
+        tb_start_audio=LoadWavA("snd/timebreaker__start.wav",&tb_start_audio_filesize);
+        tb_stop_audio=LoadWavA("snd/timebreaker__stop.wav",&tb_stop_audio_filesize);
+        clang_audio=LoadWavA("snd/clang.wav",&clang_audio_filesize);
+      //}
+
+        //DWORD tmp_clang_audio_filesize;
+        //char* tmp_clang_audio=LoadAudioData("snd/clang.wav",&tmp_clang_audio_filesize);
+
+        /*long tmp_clang_audio_filesize;
+        int16_t* tmp_clang_audio=LoadWav("snd/clang.wav",&tmp_clang_audio_filesize);
+
+
+        PlayStereoAudio(tmp_clang_audio,tmp_clang_audio_filesize);
+
+        //PlayStereoAudio(tmp_clang_audio,tmp_clang_audio_filesize);
+        //PlayStereoAudio(tmp_clang_audio,tmp_clang_audio_filesize);
+        //PlayStereoAudio(tmp_clang_audio,tmp_clang_audio_filesize);
+        //PlayStereoAudio(tmp_clang_audio,tmp_clang_audio_filesize);
+       
+
+
+        //PlayStereoAudio(clang_audio,clang_audio_filesize);
+        //PlayStereoAudio(clang_audio,clang_audio_filesize);
+        //PlayStereoAudio(clang_audio,clang_audio_filesize);
+        PlaySound(clang_audio,NULL,SND_MEMORY);
+        //PlaySound((LPCWSTR)tmp_clang_audio,NULL,SND_MEMORY);
+
+        free(tmp_clang_audio);*/
       return 0;
       break;
 

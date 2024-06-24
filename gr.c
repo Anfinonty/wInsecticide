@@ -486,12 +486,18 @@ void GrPrintW(HDC hdc, double x1, double y1, wchar_t *_txt, char *_atxt, int col
 
   SetTextColor(hdc, color); //set color of the text to be drawn
   SetBkMode(hdc, TRANSPARENT); //makes background of txt transparent  //https://stackoverflow.com/questions/10571966/  
+  RECT rect;
+  //GetClientRect(hwnd, &rect);
+  rect.left=x1;
+  rect.top=y1;
   
   //TextOutA(hdc, x1, y1, txt_reverse, txt_len); //draw text to screen
   if (!A) {
-    TextOut(hdc, x1, y1, txt, wcslen(txt)); //draw text to screen
+    //TextOut(hdc, x1, y1, txt, wcslen(txt)); //draw text to screen
+    DrawText(hdc, txt, -1, &rect, DT_NOCLIP);
   } else {
-    TextOutA(hdc, x1, y1, atxt, strlen(atxt)); //draw text to screen
+    //TextOutA(hdc, x1, y1, atxt, strlen(atxt)); //draw text to screen
+    DrawTextA(hdc, atxt, -1, &rect, DT_NOCLIP);
   }
   SelectObject(hdc,hfOld);
   DeleteObject(hfOld);
@@ -512,6 +518,26 @@ void GrPrint(HDC hdc, double x1, double y1, char *_txt, int color)
   SetTextColor(hdc, color); //set color of the text to be drawn
   SetBkMode(hdc, TRANSPARENT); //makes background of txt transparent  //https://stackoverflow.com/questions/10571966/draw-print-text-with-transparent-background-in-c-win32
   TextOutA(hdc, x1, y1, txt, strlen(txt)); //draw text to screen
+  SetTextColor(hdc, TRANSPARENT);
+}
+
+
+
+
+
+void GrPrintA(HDC hdc, double x1, double y1, wchar_t *_txt, int color) 
+{//https://forums.codeguru.com/showthread.php?329037-Drawtext-with-japanese-character
+//https://stackoverflow.com/questions/1974015/how-to-use-drawtext-to-write-text-in-a-given-window-whose-handle-is-known
+
+  LPCWSTR txt = _txt; //convert text to lpcstr
+  SetTextColor(hdc, color); //set color of the text to be drawn
+  SetBkMode(hdc, TRANSPARENT); //makes background of txt transparent
+  RECT rect;
+  //GetClientRect(hwnd, &rect);
+  rect.left=x1;
+  rect.top=y1;
+  DrawText(hdc, txt, -1, &rect, DT_NOCLIP);
+
   SetTextColor(hdc, TRANSPARENT);
 }
 

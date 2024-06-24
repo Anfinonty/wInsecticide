@@ -542,8 +542,14 @@ void BulletSndAct(int i)
 {
   if (Bullet[i].playsnd) {
     if (Bullet[i].shot) {
-      PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
-    }
+//      PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
+//https://stackoverflow.com/questions/1382051/what-is-the-c-equivalent-for-reinterpret-cast
+      //const void* soundData = LockResource(clang_audio_cache);
+      
+//      PlaySound(reinterpret_cast<LPCWSTR>(soundData), GetModuleHandle(NULL), SND_MEMORY);      
+//      PlaySound((LPCWSTR)(soundData), GetModuleHandle(NULL), SND_MEMORY | SND_ASYNC);       
+      PlaySound(clang_audio_cache, NULL, SND_MEMORY | SND_ASYNC);       
+   }
     Bullet[i].playsnd=FALSE;
   }
 }

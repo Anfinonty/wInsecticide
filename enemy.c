@@ -611,7 +611,8 @@ void EnemyAct(int i)
             if (dist_from_bullet0<=NODE_SIZE*2) {
               Enemy[i]->health-=Bullet[bk].damage;
               if (game_audio) {
-                PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
+                //PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
+                PlaySound(clang_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
               }
               Enemy[i]->knockback_timer=player.knockback_strength;
               Enemy[i]->knockback_angle=Bullet[bk].angle;
@@ -625,7 +626,8 @@ void EnemyAct(int i)
          case 1://crawl
             Enemy[i]->health-=Bullet[bk].damage;
             if (game_audio) {
-              PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
+              //PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
+              PlaySound(clang_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
             }
             Enemy[i]->knockback_timer=player.knockback_strength;
             Enemy[i]->knockback_angle=Bullet[bk].angle;
@@ -650,7 +652,8 @@ void EnemyAct(int i)
 	    case 0://fly
           if (dist_from_bullet<=NODE_SIZE*2) {
             if (game_audio) {
-              PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);
+              //PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);
+              PlaySound(clang_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
             }
             Enemy[i]->health-=Bullet[player.bullet_shot].damage;
             Enemy[i]->knockback_timer=player.knockback_strength;
@@ -660,7 +663,8 @@ void EnemyAct(int i)
           break;
         case 1://crawl
           if (game_audio) {
-            PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);
+            //PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);
+              PlaySound(clang_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
           }
           Enemy[i]->health-=Bullet[player.bullet_shot].damage;
           Enemy[i]->knockback_timer=player.knockback_strength;
@@ -807,7 +811,8 @@ void EnemyAct(int i)
       deduct_health=FALSE;
       Enemy[i]->health-=player.attack_strength;
       if (game_audio) {
-        PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
+        PlaySound(clang_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
+        //PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);
       }
     }
 

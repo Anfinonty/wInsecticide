@@ -14,6 +14,305 @@ bool toggle_stop_playing_song=FALSE;
 bool loading_flac=FALSE;
 bool skip_song=FALSE;
 
+//https://github.com/audiojs/sample-rate
+
+//https://riptutorial.com/winapi/example/5736/create-a-file-and-write-to-it
+//https://stackoverflow.com/questions/51864328/unable-to-create-dlls-getting-dll-is-not-a-valid-win32-application
+//https://learn.microsoft.com/en-us/windows/win32/fileio/creating-and-opening-files
+//https://learn.microsoft.com/en-us/windows/win32/coreaudio/capturing-a-stream
+//https://stackoverflow.com/questions/3774343/what-libraries-how-to-play-wav-file-on-windows32-in-c
+//https://stackoverflow.com/questions/1565439/how-to-playsound-in-c-using-windows-api
+//https://stackoverflow.com/questions/59483071/trying-to-create-a-wav-file-with-capturing-a-stream-from-win32-wasapi-c
+
+//https://stackoverflow.com/questions/2302841/win32-playsound-how-to-control-the-volume
+//https://stackoverflow.com/questions/16905458/reduce-the-volume-of-a-wav-audio-file-using-c// Adjusts the volume of the WAV samples by a percentage
+//https://web.archive.org/web/20090827003349/http://ccrma.stanford.edu/courses/422/projects/WaveFormat/
+//https://blog.devgenius.io/how-to-increase-volume-of-an-audio-file-with-c-6d23e04a03a6
+//http://soundfile.sapp.org/doc/WaveFormat/
+
+
+/*char* ReadWavFileIntoMemory(const char* filename, DWORD *fsize)
+{
+  char* sounddata;
+  FILE* file = fopen(filename, "rb");
+  if (file) {
+    fseek(file, 0, SEEK_END);
+    long file_size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    sounddata = (char*)malloc(file_size);
+    *fsize = file_size;
+    fread(sounddata, 1, file_size, file);
+    
+    fclose(file);
+    return sounddata;
+  } else {
+    sounddata=NULL;
+    *fsize=0;
+  }
+  return "";
+}*/
+
+
+
+
+
+// Play stereo audio from a buffer
+//void PlayStereoAudio(const int16_t* audioBuffer, long *bufferSize) {
+//https://learn.microsoft.com/en-us/windows/win32/multimedia/using-the-waveformatex-structure
+void PlayStereoAudio(const int16_t* audioBuffer, long bufferSize) {
+    HWAVEOUT hWaveOut;
+    WAVEHDR whdr;
+
+    /*WAVEFORMATEX wfx1 = {
+        .wFormatTag = WAVE_FORMAT_PCM,
+        .nChannels = 2, // Stereo
+        .nSamplesPerSec = 44100L, // Sample rate
+        .nAvgBytesPerSec = 176400L, // Sample rate
+        .nBlockAlign = 4,//(wfx1.nChannels * wfx1.wBitsPerSample) / 8,
+        .wBitsPerSample = 16, // 16-bit audio
+        .cbSize = 0
+        //.nAvgBytesPerSec = wfx1.nSamplesPerSec * wfx1.nBlockAlign
+    };*/
+
+    WAVEFORMATEX wfx1 = {
+        .wFormatTag = WAVE_FORMAT_PCM,
+        .nChannels = 1, // Stereo
+        .nSamplesPerSec = 11025L,//22050L,//11025L, // Sample rate
+        .nAvgBytesPerSec = 11025L, // Sample rate
+        .nBlockAlign = 4,//(wfx1.nChannels * wfx1.wBitsPerSample) / 8,
+        .wBitsPerSample = 16, // 16-bit audio
+        .cbSize = 0
+        //.nAvgBytesPerSec = wfx1.nSamplesPerSec * wfx1.nBlockAlign
+    };
+
+
+    // Open the audio output device
+    waveOutOpen(&hWaveOut, WAVE_MAPPER, &wfx1, 0, 0, CALLBACK_NULL);
+
+    // Prepare the audio buffer
+    whdr.lpData = (LPSTR) audioBuffer;
+    whdr.dwBufferLength = bufferSize;
+    waveOutPrepareHeader(hWaveOut, &whdr, sizeof(WAVEHDR));
+
+    // Write the audio data
+    waveOutWrite(hWaveOut, &whdr, sizeof(WAVEHDR));
+
+    // Wait for playback to finish (you can add more logic here)
+    Sleep(2000); // Example: wait for 2 seconds
+
+    // Cleanup
+    waveOutUnprepareHeader(hWaveOut, &whdr, sizeof(WAVEHDR));
+    waveOutClose(hWaveOut);
+}
+
+
+
+
+
+
+int16_t* adjustVolume(int16_t* src, long filesize, double volumeFactor)
+{
+  int16_t* dest=(int16_t*) malloc(filesize*2/*filesize+512+64+4+1*/);
+  if (!dest) {
+    printf("malloc failed");
+    return NULL;
+  }
+
+  for (long i=0; i<filesize; i++) {
+    //printf("\nfilesize: %ld/%ld",i,filesize);
+    if (i<21) { //header with 20 bytes
+      dest[i]=src[i];
+    } else {
+      double scaled_value=(double)src[i]*volumeFactor;
+      if (scaled_value >= INT16_MAX) {
+        dest[i] = INT16_MAX;
+      } else if (scaled_value <= INT16_MIN) {
+        dest[i] = INT16_MIN;
+      } else {
+        dest[i] = (int16_t)scaled_value;
+      }
+    }
+  }
+  return dest;
+}
+
+
+
+int16_t* LoadWavA(const char* filename,long *filesize)
+{
+  int16_t* sounddata;
+  FILE* file = fopen(filename, "rb");
+  if (file) {
+    fseek(file, 0, SEEK_END);
+    long file_size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    sounddata = (int16_t*)malloc(file_size);
+    fread(sounddata, 1, file_size, file); //read once filesize
+    
+    fclose(file);
+
+    *filesize=file_size;
+    return sounddata;
+  } else {
+    *filesize=0;
+  }
+  return NULL;
+}
+
+
+
+int16_t* LoadWav(const char* filename,long *datasize)
+{
+  int16_t* sounddata;
+  FILE* file = fopen(filename, "rb");
+  if (file) {
+    fseek(file, 0, SEEK_END);
+    long file_size = ftell(file) - 44; //<-- 44 is the size of the header
+    fseek(file, 44, SEEK_SET);
+
+    sounddata = malloc(file_size);
+    fread(sounddata, 1, file_size, file); //read once filesize
+    
+    fclose(file);
+
+    *datasize=file_size;
+    return sounddata;
+  } else {
+    *datasize=0;
+  }
+  return NULL;
+}
+
+
+/*
+typedef struct {
+    char chunk_id[4];
+    int chunk_size;
+    char format[4];
+    // Add other fields as needed (e.g., sample rate, channels)
+} WavHeader;
+
+char* LoadAudioData(const char* filename,DWORD *datasize)
+{
+    FILE* file = fopen(filename, "rb");
+    if (!file) {
+        printf("Error opening file: %s\n", filename);
+        return NULL;
+    }
+
+    WavHeader header;
+    fread(&header, sizeof(WavHeader), 1, file);
+
+    // Calculate audio data size (subtract header size)
+    int dataSize = header.chunk_size;// - sizeof(WavHeader);
+
+    // Allocate memory for audio data
+    char* audioData = (char*)malloc(dataSize);
+    if (!audioData) {
+        printf("Memory allocation failed.\n");
+        *datasize=0;
+        fclose(file);
+        return NULL;
+    }
+
+    // Read audio data into memory
+    fread(audioData, 1, dataSize, file);
+    *datasize=dataSize;
+    // Close the file
+    fclose(file);
+
+    // Now you have audioData in memory!
+    // Remember to free the memory when done.
+    // ...
+
+    // Clean up
+    //free(audioData);
+  return audioData;
+}
+*/
+
+
+/*char* LoadWav(const char* filename,DWORD *filesize)
+{
+  char* sounddata;
+  FILE* file = fopen(filename, "rb");
+  if (file) {
+    fseek(file, 0, SEEK_END);
+    DWORD file_size = ftell(file);
+    fseek(file, 0, SEEK_SET);
+
+    sounddata = (char*)malloc(file_size);
+    fread(sounddata, 1, file_size, file); //read once filesize
+    
+    fclose(file);
+
+    *filesize=file_size;
+    return sounddata;
+  } else {
+    *filesize=0;
+  }
+  return NULL;
+}*/
+
+
+/*typedef struct {
+    char chunk_id[4];
+    int chunk_size;
+    char format[4];
+    // Add other fields as needed (e.g., sample rate, channels)
+} WavHeader;*/
+
+/*void createNewWavWithVolume(const char* filename)
+{
+    // Open a handle to the file
+    HANDLE hFile = CreateFileA("outputlol2.wav", GENERIC_WRITE, FILE_SHARE_READ, NULL,
+        CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (hFile == INVALID_HANDLE_VALUE) {
+        perror("Error creating file");
+        return;
+    }
+
+    // Set up WAV format (16-bit PCM, mono, 44100 Hz)
+    /*WAVEFORMATEX wfx;
+    //wfx.wFormatTag = WAVE_FORMAT_PCM;
+    wfx.nChannels = 1;
+    wfx.nSamplesPerSec = 44100;
+    wfx.nAvgBytesPerSec = 44100 * sizeof(int16_t);
+    wfx.nBlockAlign = sizeof(int16_t);
+    wfx.wBitsPerSample = 16;
+    wfx.cbSize = 0;*/
+
+    // Write WAV header
+    /*DWORD bytesWritten;
+    //WriteFile(hFile, &wfx, sizeof(wfx), &bytesWritten, NULL);
+
+    // Assuming 16-bit signed integer PCM payload
+    double factor = 10.1; //alteeration volume
+    int size_block=0;
+    int16_t sample;
+    FILE *file = fopen(filename, "rb");
+    while (fread(&sample, sizeof(sample), 1, file)) {
+        // Apply volume reduction
+        double scaledValue = sample;
+        if (size_block>19) {
+          scaledValue = sample*factor;
+        }
+        // Clamp new value within INT16_MIN and INT16_MAX
+        sample = (int16_t)scaledValue;
+        // Write modified sample to output file
+        size_block++;
+        WriteFile(hFile, &sample, sizeof(sample), &bytesWritten, NULL);
+    }
+    printf("\nsize_block: %d\n",size_block);
+    // Close the file handle
+    CloseHandle(hFile);
+    fclose(file);
+}*/
+
+
+
 //https://stackoverflow.com/questions/5309471/getting-file-extension-in-c
 const wchar_t *get_filename_ext(const wchar_t *filename) 
 {
@@ -134,6 +433,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
             swprintf(songname,512,L"open \"music/tmp/tmp.wav\" alias music"); //play flac
           }
           mciSendString(songname,NULL,0,NULL);
+          mciSendString(L"setaudio music volume to 100",NULL,0,NULL);
           mciSendString(L"play music",NULL,0,NULL);
           play_new_song=FALSE;
         } else {
@@ -172,7 +472,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
 
     if (!in_main_menu) {
       //Play Game Souond
-      if (game_audio) {
+      if (game_audio && level_loaded) {
         if (!player.time_breaker) { //player sounds made by player bullets
           for (int i=0;i<player.bullet_shot_num;i++) {
             BulletSndAct(player.bullet[i]);
