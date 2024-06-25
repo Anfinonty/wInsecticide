@@ -255,6 +255,34 @@ int16_t* clang_audio_cache;
 int16_t* tb_start_audio_cache;
 int16_t* tb_stop_audio_cache;
 
+
+int16_t* fast_mem_audio;
+int16_t* fast_mem_audio_cache;
+long fast_mem_audio_filesize;
+int fast_mem_audio_duration;
+
+
+int16_t* cdeath_mem_audio;
+int16_t* cdeath_mem_audio_cache;
+long cdeath_mem_audio_filesize;
+int cdeath_mem_audio_duration;
+
+
+/*
+long tmp_clang_audio_filesize;
+int16_t* tmp_clang_audio;//=LoadWav("snd/fast.wav",&tmp_clang_audio_filesize);
+int tmp_duration;// = (double)tmp_clang_audio_filesize / (11025L * 1 * 16/8) *1000;
+
+
+
+long tmp_clang_audio_filesize2;
+int16_t* tmp_clang_audio2;//=LoadWav("snd/fast.wav",&tmp_clang_audio_filesize);
+int tmp_duration2;// = (double)tmp_clang_audio_filesize / (11025L * 1 * 16/8) *1000;
+*/
+
+
+
+
 //SpamSnd* clang_audio_cache;
 //SpamSnd* tb_start_audio_cache;
 //SpamSnd* tb_stop_audio_cache;
@@ -326,50 +354,15 @@ void InitOnce() {
     free(tb_stop_audio_cache);
   if (clang_audio_cache!=NULL)
     free(clang_audio_cache);
-
-  //SpamSnd *tmp_clang_audio_cache=createSpamSnd(clang_audio_filesize);
-
-  //tb_start_audio_cache=createSpamSnd(tb_start_audio_filesize);
-  //tb_stop_audio_cache=createSpamSnd(tb_stop_audio_filesize);
-  //clang_audio_cache=createSpamSnd(clang_audio_filesize);
-
-  //printf("clang_audio: %d\n",tmp_clang_audio_cache->audio[1000]);
+  if (fast_mem_audio_cache!=NULL)
+    free(fast_mem_audio_cache);
 
 
-
-  /*free(tmp_clang_audio_cache);
-  free(tmp_tb_start_audio_cache);
-  free(tmp_tb_stop_audio_cache);*/
-
-  /*clang_audio_cache->audio=tmp_clang_audio_cache;*/
-  //freeSpamSnd(tmp_clang_audio_cache);
-
-//  printf("sizeof %ld/%ld/%ld",sizeof(clang_audio),clang_audio_filesize,clang_audio_filesize*sizeof(int16_t));
-  //adjustVolume(clang_audio, clang_audio_filesize, game_volume);
-
-
-  //int16_t* tmp_clang_audio_cache=malloc(clang_audio_filesize);
-  //adjustVolume(clang_audio, clang_audio_filesize, game_volume);
-  //free(tmp_clang_audio_cache);
-  //printf("\nclang_audio_adjusted\n");
-
-  /*int16_t* tmp_tb_start_audio_cache=malloc(tb_start_audio_filesize);
-  adjustVolume(tmp_tb_start_audio_cache,tb_start_audio,tb_start_audio_filesize,game_volume);
-  //free(tmp_tb_start_audio_cache);
-  printf("\ntb_start_audio_adjusted\n");
-
-
-  int16_t* tmp_tb_stop_audio_cache=malloc(tb_stop_audio_filesize);
-  adjustVolume(tmp_tb_stop_audio_cache,tb_stop_audio,tb_stop_audio_filesize,game_volume);
-  //free(tmp_tb_stop_audio_cache);
-  printf("\ntb_stop_audio_adjusted\n");*/
-
-
-  tb_start_audio_cache=adjustVolume(tb_start_audio,tb_start_audio_filesize,game_volume);
-  tb_stop_audio_cache=adjustVolume(tb_stop_audio,tb_stop_audio_filesize,game_volume);
-  clang_audio_cache=adjustVolume(clang_audio,clang_audio_filesize,game_volume);
-  waveOutSetVolume(NULL,0);
-
+  tb_start_audio_cache=adjustVolumeA(tb_start_audio,tb_start_audio_filesize,game_volume);
+  tb_stop_audio_cache=adjustVolumeA(tb_stop_audio,tb_stop_audio_filesize,game_volume);
+  clang_audio_cache=adjustVolumeA(clang_audio,clang_audio_filesize,game_volume);
+  fast_mem_audio_cache=adjustVolume(fast_mem_audio,fast_mem_audio_filesize,game_volume);
+  cdeath_mem_audio_cache=adjustVolume(cdeath_mem_audio,cdeath_mem_audio_filesize,game_volume);
 }
 
 
@@ -980,6 +973,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
           break;
 
+        //release U key
+        case 'U':
+          PlayMemSnd(fast_mem_audio_cache,fast_mem_audio_filesize,fast_mem_audio_duration);
+          break;
+
+        case 'I':
+          PlayMemSnd(cdeath_mem_audio_cache,cdeath_mem_audio_filesize,cdeath_mem_audio_duration);
+          break;
 
         //Release N key while holding SHIFT or not
         case 'N':
@@ -1607,17 +1608,30 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         tb_start_audio=LoadWavA("snd/timebreaker__start.wav",&tb_start_audio_filesize);
         tb_stop_audio=LoadWavA("snd/timebreaker__stop.wav",&tb_stop_audio_filesize);
         clang_audio=LoadWavA("snd/clang.wav",&clang_audio_filesize);
+
+        fast_mem_audio=LoadWav("snd/fast.wav",&fast_mem_audio_filesize, &fast_mem_audio_duration);
+        cdeath_mem_audio=LoadWav("snd/clang_death.wav",&cdeath_mem_audio_filesize, &cdeath_mem_audio_duration);
       //}
 
         //DWORD tmp_clang_audio_filesize;
         //char* tmp_clang_audio=LoadAudioData("snd/clang.wav",&tmp_clang_audio_filesize);
 
-        /*long tmp_clang_audio_filesize;
-        int16_t* tmp_clang_audio=LoadWav("snd/clang.wav",&tmp_clang_audio_filesize);
+
+        //long tmp_clang_audio_filesize2;
+        //int16_t* tmp_clang_audio2=LoadWav("snd/clang.wav",&tmp_clang_audio_filesize2);
 
 
-        PlayStereoAudio(tmp_clang_audio,tmp_clang_audio_filesize);
+        //PlaySound(clang_audio,NULL,SND_MEMORY|SND_ASYNC);
+        //PlayStereoAudio(tmp_clang_audio,tmp_clang_audio_filesize,duration);//,tmp_clang_audio2,tmp_clang_audio_filesize2);
 
+        //SpamSoundAudio mySpamSound = {tmp_clang_audio,tmp_clang_audio_filesize,duration};
+
+        
+        //HANDLE thread_audio=CreateThread(NULL,0,PlaySpamSound,NULL,0,NULL); //Spawm Game Logic Thread
+        //HANDLE thread_audio2=CreateThread(NULL,0,PlaySpamSound2,NULL,0,NULL); //Spawm Game Logic Thread
+
+
+        //AMemSnd *myMemSnd= createMemSnd(tmp_clang_audio,tmp_clang_audio_filesize,tmp_duration);
         //PlayStereoAudio(tmp_clang_audio,tmp_clang_audio_filesize);
         //PlayStereoAudio(tmp_clang_audio,tmp_clang_audio_filesize);
         //PlayStereoAudio(tmp_clang_audio,tmp_clang_audio_filesize);
@@ -1628,10 +1642,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         //PlayStereoAudio(clang_audio,clang_audio_filesize);
         //PlayStereoAudio(clang_audio,clang_audio_filesize);
         //PlayStereoAudio(clang_audio,clang_audio_filesize);
-        PlaySound(clang_audio,NULL,SND_MEMORY);
+        //PlaySound(clang_audio,NULL,SND_MEMORY);
         //PlaySound((LPCWSTR)tmp_clang_audio,NULL,SND_MEMORY);
 
-        free(tmp_clang_audio);*/
+        //free(tmp_clang_audio);
+        //free(tmp_clang_audio2);
+
+        //free(tmp_clang_audio2);
       return 0;
       break;
 
@@ -1732,6 +1749,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   SetForegroundWindow(hwnd);
   HANDLE thread1=CreateThread(NULL,0,AnimateTask01,NULL,0,NULL); //Spawm Game Logic Thread
   HANDLE thread2=CreateThread(NULL,0,SongTask,NULL,0,NULL); //Spawn Song Player Thread
+
+  //HANDLE sound_thread1=CreateThread(NULL,0,SoundTask1,NULL,0,NULL); //Spawn Song Player Thread
+  //HANDLE sound_thread2=CreateThread(NULL,0,SoundTask2,NULL,0,NULL); //Spawn Song Player Thread
+  //HANDLE sound_thread3=CreateThread(NULL,0,SoundTask3,NULL,0,NULL); //Spawn Song Player Thread
+
   //HANDLE thread3=CreateThread(NULL,0,SndTask,NULL,0,NULL); //Spawn Sound Task
 
 
