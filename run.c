@@ -291,6 +291,7 @@ int tmp_duration2;// = (double)tmp_clang_audio_filesize / (11025L * 1 * 16/8) *1
 
 #include "math.c"
 #include "gr.c"
+#include "sound.c"
 
 #include "grid.c"
 #include "ground.c"
@@ -974,13 +975,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           break;
 
         //release U key
-        case 'U':
+        /*case 'U':
           PlayMemSnd(fast_mem_audio_cache,fast_mem_audio_filesize,fast_mem_audio_duration);
           break;
 
         case 'I':
           PlayMemSnd(cdeath_mem_audio_cache,cdeath_mem_audio_filesize,cdeath_mem_audio_duration);
-          break;
+          break;*/
 
         //Release N key while holding SHIFT or not
         case 'N':

@@ -330,6 +330,7 @@ void InitPlayer() {
 
 
   player.knives_per_throw=1;
+  player.fast_duration=0;
 
   /*player_fling_web.length=0;
   for (i=0;i<64;i++) {
@@ -1525,15 +1526,20 @@ void PlayerSndAct()
 {
   wchar_t my_status[16];
   if (player.speed>10) {
-    mciSendString(L"open snd/fast.wav alias player_speed",NULL,0,NULL);
+    /*mciSendString(L"open snd/fast.wav alias player_speed",NULL,0,NULL);
     mciSendString(L"status player_speed mode",my_status,16,NULL);
     if (_wcsicmp(my_status,L"stopped")==0) {
       mciSendString(L"seek player_speed to start",NULL,0,NULL);
       mciSendString(L"play player_speed",NULL,0,NULL);
+    }*/
+
+    if (player.fast_duration>fast_mem_audio_duration-6*10) {
+      PlayMemSnd(fast_mem_audio_cache,fast_mem_audio_filesize,fast_mem_audio_duration);
+      player.fast_duration=0;
     }
   } else {
-    mciSendString(L"pause player_speed",NULL,0,NULL);
-    mciSendString(L"close player_speed",NULL,0,NULL);
+    //mciSendString(L"pause player_speed",NULL,0,NULL);
+    //mciSendString(L"close player_speed",NULL,0,NULL);
   }
 }
 

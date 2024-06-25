@@ -554,9 +554,10 @@ void EnemyKnockbackMove(int i)
 void EnemySndAct(int i)
 {
   if (Enemy[i]->play_death_snd && !back_to_menu) {
-    wchar_t sndid[16];
+    /*wchar_t sndid[16];
     swprintf(sndid,16,L"bk_%d",i);
-    PlaySnd(L"snd/clang_death.wav",sndid);
+    PlaySnd(L"snd/clang_death.wav",sndid);*/
+    PlayMemSnd(cdeath_mem_audio_cache,cdeath_mem_audio_filesize,cdeath_mem_audio_duration);
     Enemy[i]->play_death_snd=FALSE;
   }
 }

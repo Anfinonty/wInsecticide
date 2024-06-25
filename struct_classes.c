@@ -205,6 +205,7 @@ struct player
   int time_breaker_tick;
   int decceleration_timer;
   int seed;
+  int fast_duration;
 
 
   //=== JUST A DEMO===

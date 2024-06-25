@@ -1112,6 +1112,7 @@ HBITMAP CopyStretchBitmap(HBITMAP srcBitmap,int SRCOPERATION, int nWidth, int nH
 
 
 
+/*
 void PlaySnd(wchar_t *snd,wchar_t *sndid) 
 {
     wchar_t opensnd[128];
@@ -1129,4 +1130,4 @@ void PlaySnd(wchar_t *snd,wchar_t *sndid)
     mciSendString(seeksnd,NULL,0,NULL);
     mciSendString(playsnd,NULL,0,NULL);
     //mciSendString(closesnd,NULL,0,NULL);
-}
+}*/
