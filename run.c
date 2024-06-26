@@ -27,77 +27,12 @@
 //#include <curses.h>
 #include <shlwapi.h>
 #include <mmsystem.h>
+#include <audioclient.h>
 //#include <libsndfile.h> // Make sure to install libsndfile and link it during compilation
 //#include <wiavideo.h>
 //#include <GL/glu.h>
 //#include "<resources.h>"
 
-
-#define COLORS_NUM  16
-#define BLACK       RGB(0,0,0)
-#define BLUE        RGB(0,0,170)
-#define GREEN    	RGB(0,170,0)
-#define CYAN        RGB(0,170,170)
-#define RED         RGB(170,0,0)
-#define PURPLE      RGB(170,0,170)
-#define BROWN       RGB(170,85,0)
-#define LTGRAY      RGB(170,170,170)
-#define DKGRAY      RGB(85,85,85)
-#define LTBLUE      RGB(0,0,255)
-#define LTGREEN     RGB(0,255,0)
-#define LTCYAN      RGB(0,255,255)
-#define LTRED       RGB(255,0,0)
-#define LTPURPLE    RGB(255,0,255)
-#define YELLOW      RGB(255,255,0)
-#define WHITE       RGB(255,255,255)
-
-
-#define DKBLACK     RGB(24,24,24) //For drawing
-#define LLTGREEN    RGB(0,254,0)
-#define MYCOLOR1    RGB(123,123,123)
-
-//#define IDI_MYICON  1000
-
-int color_arr[COLORS_NUM]={
-BLACK, //0
-BLUE, //1
-GREEN, //2
-CYAN, //3
-RED, //4
-PURPLE, //5
-BROWN, //6
-LTGRAY, //7
-DKGRAY, //8
-LTBLUE, //9
-LTGREEN, //10
-LTCYAN, //11
-LTRED, //12
-LTPURPLE, //13
-YELLOW, //14
-WHITE //15
-};
-
-int draw_color_arr[COLORS_NUM]={
-DKBLACK, //0
-BLUE, //1
-GREEN, //2
-CYAN, //3
-RED, //4
-PURPLE, //5
-BROWN, //6
-LTGRAY, //7
-DKGRAY, //8
-LTBLUE, //9
-LLTGREEN, //10
-LTCYAN, //11
-LTRED, //12
-LTPURPLE, //13
-YELLOW, //14
-WHITE //15
-};
-
-#define SONG_NUM 10
-#define SONG_FOLDER_NUM 23
 
 #define SCREEN_WIDTH    (GetSystemMetrics(SM_CXSCREEN))
 #define SCREEN_HEIGHT   (GetSystemMetrics(SM_CYSCREEN))
@@ -245,27 +180,27 @@ long tb_start_audio_filesize;
 long tb_stop_audio_filesize;
 
 
-int16_t* clang_audio;
-int16_t* tb_start_audio;
-int16_t* tb_stop_audio;
+static int16_t* clang_audio;
+static int16_t* tb_start_audio;
+static int16_t* tb_stop_audio;
 
 
 
-int16_t* clang_audio_cache;
-int16_t* tb_start_audio_cache;
-int16_t* tb_stop_audio_cache;
+static int16_t* clang_audio_cache;
+static int16_t* tb_start_audio_cache;
+static int16_t* tb_stop_audio_cache;
 
 
-int16_t* fast_mem_audio;
-int16_t* fast_mem_audio_cache;
+static int16_t* fast_mem_audio;
+static int16_t* fast_mem_audio_cache;
 long fast_mem_audio_filesize;
 int fast_mem_audio_duration;
 
 
-int16_t* cdeath_mem_audio;
-int16_t* cdeath_mem_audio_cache;
+static int16_t* cdeath_mem_audio;
+static int16_t* cdeath_mem_audio_cache;
 long cdeath_mem_audio_filesize;
-int cdeath_mem_audio_duration;
+//int cdeath_mem_audio_duration;
 
 
 /*
@@ -287,11 +222,13 @@ int tmp_duration2;// = (double)tmp_clang_audio_filesize / (11025L * 1 * 16/8) *1
 //SpamSnd* tb_start_audio_cache;
 //SpamSnd* tb_stop_audio_cache;
 
-#include "load_save.c"
 
 #include "math.c"
 #include "gr.c"
 #include "sound.c"
+
+
+#include "load_save.c"
 
 #include "grid.c"
 #include "ground.c"
@@ -357,13 +294,16 @@ void InitOnce() {
     free(clang_audio_cache);
   if (fast_mem_audio_cache!=NULL)
     free(fast_mem_audio_cache);
+  if (cdeath_mem_audio_cache!=NULL)
+    free(cdeath_mem_audio_cache);
 
-
-  tb_start_audio_cache=adjustVolumeA(tb_start_audio,tb_start_audio_filesize,game_volume);
-  tb_stop_audio_cache=adjustVolumeA(tb_stop_audio,tb_stop_audio_filesize,game_volume);
+ 
+  tb_stop_audio_cache=adjustVolumeA(tb_start_audio,tb_start_audio_filesize,game_volume);
+  tb_start_audio_cache=adjustVolumeA(tb_stop_audio,tb_stop_audio_filesize,game_volume);
   clang_audio_cache=adjustVolumeA(clang_audio,clang_audio_filesize,game_volume);
-  fast_mem_audio_cache=adjustVolume(fast_mem_audio,fast_mem_audio_filesize,game_volume);
+
   cdeath_mem_audio_cache=adjustVolume(cdeath_mem_audio,cdeath_mem_audio_filesize,game_volume);
+  fast_mem_audio_cache=adjustVolume(fast_mem_audio,fast_mem_audio_filesize,game_volume/5);
 }
 
 
@@ -417,6 +357,8 @@ void Init(HDC hdc) {
   InitEnemy();
   InitPlayer();
   BitmapPalette(hdc,map_platforms_sprite,rgbColorsDefault);
+  for (int i=0;i<SND_THREAD_NUM;i++)
+    waveOutReset(hWaveOut[i]);
   PlaySound(NULL, NULL, SND_ASYNC);
 }
 
@@ -1328,6 +1270,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           DeleteDC(hdcBackbuff);
           DeleteObject(screen);
 
+
+         //Manage Clean Snd Task
+          /*for (int i=0;i<SND_THREAD_NUM;i++) {
+            if (mem_snd_stopped[i]) {
+              //waveOutUnprepareHeader(hWaveOut[i], &whdr[i], sizeof(WAVEHDR));
+              //waveOutClose(hWaveOut[i]);
+              CloseHandle(hMemSndArray[i]);
+              mem_snd_playing[i]=FALSE;
+              mem_snd_stopped[i]=FALSE;
+            }
+          }*/
+
           //Trigger go back to main menu
           if (back_to_menu) {
             level_loaded=FALSE;
@@ -1610,8 +1564,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         tb_stop_audio=LoadWavA("snd/timebreaker__stop.wav",&tb_stop_audio_filesize);
         clang_audio=LoadWavA("snd/clang.wav",&clang_audio_filesize);
 
-        fast_mem_audio=LoadWav("snd/fast.wav",&fast_mem_audio_filesize, &fast_mem_audio_duration);
-        cdeath_mem_audio=LoadWav("snd/clang_death.wav",&cdeath_mem_audio_filesize, &cdeath_mem_audio_duration);
+        fast_mem_audio=LoadWav("snd/fast.wav",&fast_mem_audio_filesize/*, &fast_mem_audio_duration*/);
+        fast_mem_audio_duration=(double)fast_mem_audio_filesize / (11025L * 1 * 16/8) *1000;
+
+        cdeath_mem_audio=LoadWav("snd/clang_death.wav",&cdeath_mem_audio_filesize/*, &cdeath_mem_audio_duration*/);
+
+
+         for (int i=0;i<SND_THREAD_NUM;i++) {
+           waveOutOpen(&hWaveOut[i], WAVE_MAPPER, &wfx1, 0, 0, CALLBACK_NULL);
+           waveOutPrepareHeader(hWaveOut[i], &whdr[i], sizeof(WAVEHDR));
+         }
       //}
 
         //DWORD tmp_clang_audio_filesize;

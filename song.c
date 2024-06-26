@@ -1,4 +1,9 @@
 
+
+
+#define SONG_NUM 10
+#define SONG_FOLDER_NUM 23
+
 int current_hour;
 int current_min;
 int current_sec;
@@ -234,35 +239,29 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
             PlayerSndAct();       
           } else {
             for (int i=0;i<ENEMY_NUM;i++) {
-              wchar_t command1[16];
+              /*wchar_t command1[16];
               wchar_t command2[16];
               swprintf(command1,16,L"pause bk_%d",i);
               swprintf(command2,16,L"close bk_%d",i);
               mciSendString(command1,NULL,0,NULL);
-              mciSendString(command2,NULL,0,NULL);
+              mciSendString(command2,NULL,0,NULL);*/
               PlaySound(NULL, NULL, SND_ASYNC);
             }
-            mciSendString(L"pause player_speed",NULL,0,NULL);
-            mciSendString(L"close player_speed",NULL,0,NULL);
+            //mciSendString(L"pause player_speed",NULL,0,NULL);
+            //mciSendString(L"close player_speed",NULL,0,NULL);
             flag_restart_audio=FALSE;
           }
         }
       }
 
 
-     //Manage Clean Snd Task
-      for (int i=0;i<SND_THREAD_NUM;i++) {
-        if (mem_snd_stopped[i]) {
-          CloseHandle(hMemSndArray[i]);
-          mem_snd_playing[i]=FALSE;
-          mem_snd_stopped[i]=FALSE;
-        }
-      }
       if (player.speed>10) {
         player.fast_duration+=6;
       } else {
         player.fast_duration=0;
       }
+
+
       Sleep(6); //fast loop
     } else {
       if (clean_up_sound) {
@@ -277,16 +276,15 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
         }
         /*mciSendString(L"pause player_speed",NULL,0,NULL);
         mciSendString(L"close player_speed",NULL,0,NULL);*/
-        clean_up_sound=FALSE;
+        for (int i=0;i<SND_THREAD_NUM;i++)
+          waveOutReset(hWaveOut[i]);
 
-        for (int i=0;i<SND_THREAD_NUM;i++) {
-          mem_snd_interrupt[i]=TRUE;
-        }
+        clean_up_sound=FALSE;
       }
 
       /*for (int i=0;i<SND_THREAD_NUM;i++) {
         if (mem_snd_stopped[i]) {
-          //CloseHandle(hMemSndArray[i]);
+          CloseHandle(hMemSndArray[i]);
           mem_snd_playing[i]=FALSE;
           mem_snd_stopped[i]=FALSE;
           mem_snd_interrupt[i]=FALSE;

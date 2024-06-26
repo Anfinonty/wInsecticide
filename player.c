@@ -1524,7 +1524,7 @@ void PlayerAct() {
 
 void PlayerSndAct()
 {
-  wchar_t my_status[16];
+  /*wchar_t my_status[16];
   if (player.speed>10) {
     /*mciSendString(L"open snd/fast.wav alias player_speed",NULL,0,NULL);
     mciSendString(L"status player_speed mode",my_status,16,NULL);
@@ -1533,13 +1533,26 @@ void PlayerSndAct()
       mciSendString(L"play player_speed",NULL,0,NULL);
     }*/
 
-    if (player.fast_duration>fast_mem_audio_duration-6*10) {
-      PlayMemSnd(fast_mem_audio_cache,fast_mem_audio_filesize,fast_mem_audio_duration);
+    /*if (player.fast_duration>fast_mem_audio_duration-6) {
+      waveOutReset(hWaveOut[0]);
+      PlayMemSnd(fast_mem_audio_cache,fast_mem_audio_filesize,fast_mem_audio_duration,0);
       player.fast_duration=0;
     }
   } else {
+    waveOutReset(hWaveOut[0]);
     //mciSendString(L"pause player_speed",NULL,0,NULL);
     //mciSendString(L"close player_speed",NULL,0,NULL);
+  }*/
+  if (player.fast_duration>=fast_mem_audio_duration/2) {
+    player.fast_duration=0;
+  }
+  if (player.fast_duration==0 && player.speed>10) {
+    waveOutReset(hWaveOut[0]);
+    PlayMemSnd(fast_mem_audio_cache,fast_mem_audio_filesize,0);
+  }
+  if (player.fast_duration>0 && player.speed<=10) {
+    player.fast_duration=0;
+    waveOutReset(hWaveOut[0]);
   }
 }
 

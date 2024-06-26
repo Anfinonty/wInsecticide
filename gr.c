@@ -1,5 +1,69 @@
 
 
+#define COLORS_NUM  16
+#define BLACK       RGB(0,0,0)
+#define BLUE        RGB(0,0,170)
+#define GREEN    	RGB(0,170,0)
+#define CYAN        RGB(0,170,170)
+#define RED         RGB(170,0,0)
+#define PURPLE      RGB(170,0,170)
+#define BROWN       RGB(170,85,0)
+#define LTGRAY      RGB(170,170,170)
+#define DKGRAY      RGB(85,85,85)
+#define LTBLUE      RGB(0,0,255)
+#define LTGREEN     RGB(0,255,0)
+#define LTCYAN      RGB(0,255,255)
+#define LTRED       RGB(255,0,0)
+#define LTPURPLE    RGB(255,0,255)
+#define YELLOW      RGB(255,255,0)
+#define WHITE       RGB(255,255,255)
+
+
+#define DKBLACK     RGB(24,24,24) //For drawing
+#define LLTGREEN    RGB(0,254,0)
+#define MYCOLOR1    RGB(123,123,123)
+
+//#define IDI_MYICON  1000
+
+int color_arr[COLORS_NUM]={
+BLACK, //0
+BLUE, //1
+GREEN, //2
+CYAN, //3
+RED, //4
+PURPLE, //5
+BROWN, //6
+LTGRAY, //7
+DKGRAY, //8
+LTBLUE, //9
+LTGREEN, //10
+LTCYAN, //11
+LTRED, //12
+LTPURPLE, //13
+YELLOW, //14
+WHITE //15
+};
+
+int draw_color_arr[COLORS_NUM]={
+DKBLACK, //0
+BLUE, //1
+GREEN, //2
+CYAN, //3
+RED, //4
+PURPLE, //5
+BROWN, //6
+LTGRAY, //7
+DKGRAY, //8
+LTBLUE, //9
+LLTGREEN, //10
+LTCYAN, //11
+LTRED, //12
+LTPURPLE, //13
+YELLOW, //14
+WHITE //15
+};
+
+
 
 
 

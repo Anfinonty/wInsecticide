@@ -154,7 +154,7 @@ bool IsHasNeighbours(int nx,int ny)
 	  y+=NODE_SIZE;
           break;
       }
-    } else if (3<=i<=5) {
+    } else if (3<=i && i<=5) {
       x+=NODE_SIZE; // case 4: right
       switch (i) {
         case 3:
