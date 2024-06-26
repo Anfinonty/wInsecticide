@@ -179,16 +179,36 @@ long clang_audio_filesize;
 long tb_start_audio_filesize;
 long tb_stop_audio_filesize;
 
+long mkey_down_up_audio_filesize;
+long mkey_true_audio_filesize;
+long mkey_false_audio_filesize;
+long mkey_paint_audio_filesize;
+long mkey_esc_audio_filesize;
+
 
 static int16_t* clang_audio;
 static int16_t* tb_start_audio;
 static int16_t* tb_stop_audio;
 
+static int16_t* mkey_down_up_audio;
+static int16_t* mkey_true_audio;
+static int16_t* mkey_false_audio;
+static int16_t* mkey_paint_audio;
+static int16_t* mkey_esc_audio;
 
 
 static int16_t* clang_audio_cache;
 static int16_t* tb_start_audio_cache;
 static int16_t* tb_stop_audio_cache;
+
+
+static int16_t* mkey_down_up_audio_cache;
+static int16_t* mkey_true_audio_cache;
+static int16_t* mkey_false_audio_cache;
+static int16_t* mkey_paint_audio_cache;
+static int16_t* mkey_esc_audio_cache;
+
+
 
 
 static int16_t* fast_mem_audio;
@@ -740,14 +760,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                case 'S':
                case VK_DOWN:
                  level_chosen=LimitValue(level_chosen+1,0,level_num);
-                 PlaySound(L"snd/FE_COMMON_MB_02.wav", NULL, SND_FILENAME | SND_ASYNC);
+                 if (game_audio)
+                   PlaySound(mkey_down_up_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //up down
                  break;
 
               //Holding Down Up Arrow or 'W''
                case 'W':
                case VK_UP:
                  level_chosen=LimitValue(level_chosen-1,0,level_num);
-                 PlaySound(L"snd/FE_COMMON_MB_02.wav", NULL, SND_FILENAME | SND_ASYNC);
+                 if (game_audio)
+                   PlaySound(mkey_down_up_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //up down
                  break;
 
 
@@ -771,7 +793,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                case 'S':
                case VK_DOWN:
                  option_choose=LimitValue(option_choose+1,0,4);
-                 PlaySound(L"snd/FE_COMMON_MB_02.wav", NULL, SND_FILENAME | SND_ASYNC);
+                 if (game_audio)
+                   PlaySound(mkey_down_up_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //up down
                  break;
 
 
@@ -781,20 +804,23 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                  switch (option_choose) {
                    case 0: //Change color of player ++
                      player_color=LimitValue(player_color+1,0,COLORS_NUM);
-                     PlaySound(L"snd/FE_MB_18.wav", NULL, SND_FILENAME | SND_ASYNC);
+                     if (game_audio)
+                       PlaySound(mkey_paint_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //paint
                      break;
                    case 1: //Enable/Disable sound effects
                      if (game_audio)
-                       PlaySound(L"snd/FE_COMMON_MB_03.wav", NULL, SND_FILENAME | SND_ASYNC);
+                       PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
                      else
-                       PlaySound(L"snd/FE_COMMON_MB_04.wav", NULL, SND_FILENAME | SND_ASYNC);                    
+                       PlaySound(mkey_true_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //true
                      game_audio=!game_audio;
                      break;
                    case 2: //Enable/Disable camera shaking
                      if (game_cam_shake)
-                       PlaySound(L"snd/FE_COMMON_MB_03.wav", NULL, SND_FILENAME | SND_ASYNC);
+                       if (game_audio)
+                         PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
                      else
-                       PlaySound(L"snd/FE_COMMON_MB_04.wav", NULL, SND_FILENAME | SND_ASYNC);                    
+                       if (game_audio)
+                         PlaySound(mkey_true_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //true
                      game_cam_shake=!game_cam_shake;                
                      break;
                    case 3:
@@ -806,7 +832,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                      if (game_volume>20.0) {
                         game_volume=0.0;
                      }
-                     PlaySound(L"snd/FE_COMMON_MB_03.wav", NULL, SND_FILENAME | SND_ASYNC);
+                     if (game_audio)
+                       PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
                      break;
                  }
                  break;
@@ -818,20 +845,23 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                 switch (option_choose) {
                   case 0: //Change color of player --
                     player_color=LimitValue(player_color-1,0,COLORS_NUM);
-                    PlaySound(L"snd/FE_MB_18.wav", NULL, SND_FILENAME | SND_ASYNC);
+                    if (game_audio)
+                      PlaySound(mkey_paint_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //paint
                     break;
                   case 1: //Enable/Disable sound effects
                     if (game_audio)
-                      PlaySound(L"snd/FE_COMMON_MB_03.wav", NULL, SND_FILENAME | SND_ASYNC);
+                      PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
                     else
-                      PlaySound(L"snd/FE_COMMON_MB_04.wav", NULL, SND_FILENAME | SND_ASYNC);                    
+                      PlaySound(mkey_true_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //true
                     game_audio=!game_audio;
                     break;
                   case 2:  //Enable/Disable camera shaking 
                     if (game_cam_shake)
-                      PlaySound(L"snd/FE_COMMON_MB_03.wav", NULL, SND_FILENAME | SND_ASYNC);
+                      if (game_audio)
+                        PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
                     else
-                      PlaySound(L"snd/FE_COMMON_MB_04.wav", NULL, SND_FILENAME | SND_ASYNC);                    
+                      if (game_audio)
+                        PlaySound(mkey_true_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //true
                     game_cam_shake=!game_cam_shake;                
                     break;
                    case 3:
@@ -843,7 +873,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                      if (game_volume<0.0) {
                         game_volume=20.0;
                      }
-                     PlaySound(L"snd/FE_COMMON_MB_03.wav", NULL, SND_FILENAME | SND_ASYNC);
+                     //PlaySound(L"snd/FE_COMMON_MB_03.wav", NULL, SND_FILENAME | SND_ASYNC); //false
+                     if (game_audio)
+                       PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
                      break;
                 }
                 break;
@@ -853,7 +885,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               case 'W':
               case VK_UP:
                 option_choose=LimitValue(option_choose-1,0,4);
-                PlaySound(L"snd/FE_COMMON_MB_02.wav", NULL, SND_FILENAME | SND_ASYNC);
+                //PlaySound(L"snd/FE_COMMON_MB_02.wav", NULL, SND_FILENAME | SND_ASYNC); //up down
+                 if (game_audio)
+                  PlaySound(mkey_down_up_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //up down
                 break;
            } //End of switch statement for keys
            break;
@@ -1084,11 +1118,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             switch (wParam) {
               case '1':
                 main_menu_chosen=1;
-                PlaySound(L"snd/FE_COMMON_MB_05.wav", NULL, SND_FILENAME | SND_ASYNC);
+                if (game_audio)
+                  PlaySound(mkey_esc_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //esc
                 break;
               case '2':
                 main_menu_chosen=2;
-                PlaySound(L"snd/FE_COMMON_MB_05.wav", NULL, SND_FILENAME | SND_ASYNC);
+                if (game_audio)
+                  PlaySound(mkey_esc_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //esc
                 break;
             }
             break;
@@ -1108,7 +1144,28 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
    
                    DeleteObject(mouse_cursor_sprite_cache2);
                    mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,draw_color_arr[player_color],-1);
-                   PlaySound(L"snd/FE_COMMON_MB_05.wav", NULL, SND_FILENAME | SND_ASYNC);
+                   //PlaySound(L"snd/FE_COMMON_MB_05.wav", NULL, SND_FILENAME | SND_ASYNC); //esc
+
+                   //adjust volume
+                   if (mkey_down_up_audio_cache!=NULL)
+                     free(mkey_down_up_audio_cache);
+                   if (mkey_false_audio_cache!=NULL)
+                     free(mkey_false_audio_cache);
+                   if (mkey_true_audio_cache!=NULL)
+                     free(mkey_true_audio_cache);
+                   if (mkey_paint_audio_cache!=NULL)
+                     free(mkey_paint_audio_cache);
+                   if (mkey_esc_audio_cache!=NULL)
+                     free(mkey_esc_audio_cache);
+
+                    mkey_down_up_audio_cache=adjustVolumeA(mkey_down_up_audio,mkey_down_up_audio_filesize,game_volume);
+                    mkey_true_audio_cache=adjustVolumeA(mkey_true_audio,mkey_true_audio_filesize,game_volume);
+                    mkey_false_audio_cache=adjustVolumeA(mkey_false_audio,mkey_false_audio_filesize,game_volume);
+                    mkey_paint_audio_cache=adjustVolumeA(mkey_paint_audio,mkey_paint_audio_filesize,game_volume);
+                    mkey_esc_audio_cache=adjustVolumeA(mkey_esc_audio,mkey_esc_audio_filesize,game_volume);
+
+                    if (game_audio)
+                      PlaySound(mkey_esc_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //esc
                  }
                 break;
             }
@@ -1124,7 +1181,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                case VK_ESCAPE:
                  if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = QUIT
                    main_menu_chosen=0;
-                   PlaySound(L"snd/FE_COMMON_MB_05.wav", NULL, SND_FILENAME | SND_ASYNC);
+                   //PlaySound(L"snd/FE_COMMON_MB_05.wav", NULL, SND_FILENAME | SND_ASYNC); //esc
+                   if (game_audio)
+                     PlaySound(mkey_esc_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //esc
                  }
                  break;
             }
@@ -1563,6 +1622,20 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         tb_start_audio=LoadWavA("snd/timebreaker__start.wav",&tb_start_audio_filesize);
         tb_stop_audio=LoadWavA("snd/timebreaker__stop.wav",&tb_stop_audio_filesize);
         clang_audio=LoadWavA("snd/clang.wav",&clang_audio_filesize);
+
+
+        mkey_down_up_audio=LoadWavA("snd/FE_COMMON_MB_02.wav",&mkey_down_up_audio_filesize);
+        mkey_false_audio=LoadWavA("snd/FE_COMMON_MB_03.wav",&mkey_false_audio_filesize);
+        mkey_true_audio=LoadWavA("snd/FE_COMMON_MB_04.wav",&mkey_true_audio_filesize);
+        mkey_esc_audio=LoadWavA("snd/FE_COMMON_MB_05.wav",&mkey_esc_audio_filesize);
+        mkey_paint_audio=LoadWavA("snd/FE_MB_18.wav",&mkey_paint_audio_filesize);
+
+        mkey_down_up_audio_cache=adjustVolumeA(mkey_down_up_audio,mkey_down_up_audio_filesize,game_volume);
+        mkey_true_audio_cache=adjustVolumeA(mkey_true_audio,mkey_true_audio_filesize,game_volume);
+        mkey_false_audio_cache=adjustVolumeA(mkey_false_audio,mkey_false_audio_filesize,game_volume);
+        mkey_paint_audio_cache=adjustVolumeA(mkey_paint_audio,mkey_paint_audio_filesize,game_volume);
+        mkey_esc_audio_cache=adjustVolumeA(mkey_esc_audio,mkey_esc_audio_filesize,game_volume);
+
 
         fast_mem_audio=LoadWav("snd/fast.wav",&fast_mem_audio_filesize/*, &fast_mem_audio_duration*/);
         fast_mem_audio_duration=(double)fast_mem_audio_filesize / (11025L * 1 * 16/8) *1000;
