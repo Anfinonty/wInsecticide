@@ -557,7 +557,7 @@ void EnemySndAct(int i)
     /*wchar_t sndid[16];
     swprintf(sndid,16,L"bk_%d",i);
     PlaySnd(L"snd/clang_death.wav",sndid);*/
-    PlayMemSnd(cdeath_mem_audio_cache,cdeath_mem_audio_filesize,1);
+    PlayMemSnd(cdeath_mem_audio_cache,cdeath_mem_audio_filesize,cdeath_mem_audio_duration,0);
     Enemy[i]->play_death_snd=FALSE;
   }
 }

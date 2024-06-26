@@ -9,11 +9,11 @@ int16_t SND_MEM_STACK[SND_MEM_STACK_SIZE]; //for adjusting volume because access
 HANDLE hMemSndArray[SND_THREAD_NUM];
 //bool mem_snd_playing[SND_THREAD_NUM]={FALSE,FALSE,FALSE};
 //bool mem_snd_stopped[SND_THREAD_NUM]={FALSE,FALSE,FALSE};
-//bool mem_snd_interrupt[SND_THREAD_NUM]={FALSE,FALSE,FALSE};
+bool mem_snd_interrupt[SND_THREAD_NUM]={FALSE,FALSE,FALSE};
 
-/*int mem_snd_duration1;
+int mem_snd_duration1;
 int mem_snd_duration2;
-int mem_snd_duration3;*/
+int mem_snd_duration3;
 long mem_snd_filesize1;
 long mem_snd_filesize2;
 long mem_snd_filesize3;
@@ -120,7 +120,7 @@ int16_t* LoadWavA(const char* filename,long *filesize)
 
 
 
-int16_t* LoadWav(const char* filename,long *datasize/*,int *duration*/)
+int16_t* LoadWav(const char* filename,long *datasize,int *duration)
 {
   int16_t* sounddata;
   FILE* file = fopen(filename, "rb");
@@ -137,11 +137,11 @@ int16_t* LoadWav(const char* filename,long *datasize/*,int *duration*/)
     *datasize=file_size;
     //https://forum.lazarus.freepascal.org/index.php?topic=24547.0
     //duration = filesize in bytes / (samplerate * #of channels * (bitspersample/eight))
-    //*duration = (double)file_size / (11025L * 1 * 16/8) *1000;
+    *duration = (double)file_size / (11025L * 1 * 16/8) *1000;
     return sounddata;
   } else {
     *datasize=0;
-    //*duration=2000;
+    *duration=1;
   }
   return NULL;
 }
@@ -152,14 +152,20 @@ int16_t* LoadWav(const char* filename,long *datasize/*,int *duration*/)
 //void PlayStereoAudio(const int16_t* audioBuffer, long *bufferSize) {
 //https://learn.microsoft.com/en-us/windows/win32/multimedia/using-the-waveformatex-structure
 
-void PlayThreadSound(const int16_t* audioBuffer, long bufferSize/*, int duration*/, int id) 
+void PlayThreadSound(const int16_t* audioBuffer, long bufferSize, int duration, int id) 
 {
-
+    mem_snd_interrupt[id]=FALSE;
     whdr[id].lpData = (LPSTR) audioBuffer;
     whdr[id].dwBufferLength = bufferSize;
 
     // Write the audio data
     waveOutWrite(hWaveOut[id], &whdr[id], sizeof(WAVEHDR));    
+
+    while (duration>0 && !mem_snd_interrupt[id]) {
+      duration--;
+      Sleep(1);
+    }
+    mem_snd_interrupt[id]=FALSE;
 }
 
 
@@ -168,39 +174,42 @@ void PlayThreadSound(const int16_t* audioBuffer, long bufferSize/*, int duration
 
 DWORD WINAPI PlayMemSnd1(LPVOID lpParam)
 {
-  PlayThreadSound(mem_snd_audio1,mem_snd_filesize1,0);
+  PlayThreadSound(mem_snd_audio1,mem_snd_filesize1,mem_snd_duration1,0);
 }
 
 DWORD WINAPI PlayMemSnd2(LPVOID lpParam)
 {
-  PlayThreadSound(mem_snd_audio2,mem_snd_filesize2,1);
+  PlayThreadSound(mem_snd_audio2,mem_snd_filesize2,mem_snd_duration2,1);
 }
 
 DWORD WINAPI PlayMemSnd3(LPVOID lpParam)
 {
-  PlayThreadSound(mem_snd_audio3,mem_snd_filesize3,2);
+  PlayThreadSound(mem_snd_audio3,mem_snd_filesize3,mem_snd_duration3,2);
 }
 
 
-void PlayMemSnd(const int16_t* read_audio,const long read_audio_size,int thread_id) //thread 0,1,2
+void PlayMemSnd(const int16_t* read_audio,const long read_audio_size,const int read_audio_duration,int thread_id) //thread 0,1,2
 {
+  mem_snd_interrupt[thread_id]=TRUE;
   waveOutReset(hWaveOut[thread_id]);
   CloseHandle(hMemSndArray[thread_id]);
-
 
   switch (thread_id) {
     case 0:
       mem_snd_audio1=(int16_t*) read_audio; //!!reading, not creating new!!
+      mem_snd_duration1=read_audio_duration;
       mem_snd_filesize1=read_audio_size;
       hMemSndArray[0] = CreateThread(NULL,0,PlayMemSnd1,NULL,0,NULL);
       break;
     case 1:
       mem_snd_audio2=(int16_t*) read_audio;
+      mem_snd_duration2=read_audio_duration;
       mem_snd_filesize2=read_audio_size;
       hMemSndArray[1] = CreateThread(NULL,0,PlayMemSnd2,NULL,0,NULL);
       break;
     case 2:
       mem_snd_audio3=(int16_t*) read_audio;
+      mem_snd_duration3=read_audio_duration;
       mem_snd_filesize3=read_audio_size;
       hMemSndArray[2] = CreateThread(NULL,0,PlayMemSnd3,NULL,0,NULL);
       break;

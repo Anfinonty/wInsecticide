@@ -1547,12 +1547,12 @@ void PlayerSndAct()
     player.fast_duration=0;
   }
   if (player.fast_duration==0 && player.speed>10) {
-    waveOutReset(hWaveOut[0]);
-    PlayMemSnd(fast_mem_audio_cache,fast_mem_audio_filesize,0);
+    PlayMemSnd(fast_mem_audio_cache,fast_mem_audio_filesize,fast_mem_audio_duration/2,1);
   }
   if (player.fast_duration>0 && player.speed<=10) {
     player.fast_duration=0;
-    waveOutReset(hWaveOut[0]);
+    mem_snd_interrupt[1]=TRUE;
+    waveOutReset(hWaveOut[1]);
   }
 }
 

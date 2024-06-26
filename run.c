@@ -220,7 +220,7 @@ int fast_mem_audio_duration;
 static int16_t* cdeath_mem_audio;
 static int16_t* cdeath_mem_audio_cache;
 long cdeath_mem_audio_filesize;
-//int cdeath_mem_audio_duration;
+int cdeath_mem_audio_duration;
 
 
 /*
@@ -377,8 +377,10 @@ void Init(HDC hdc) {
   InitEnemy();
   InitPlayer();
   BitmapPalette(hdc,map_platforms_sprite,rgbColorsDefault);
-  for (int i=0;i<SND_THREAD_NUM;i++)
+  for (int i=0;i<SND_THREAD_NUM;i++) {
+    mem_snd_interrupt[i]=TRUE;
     waveOutReset(hWaveOut[i]);
+  }
   PlaySound(NULL, NULL, SND_ASYNC);
 }
 
@@ -1453,7 +1455,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       remove("music/tmp/tmp.wav");
       rmdir("music/tmp"); //remove tmp
 
-      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៩ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1969-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1445-12-13_02"), TEXT("អាពីងស៊ីរុយ") ,MB_OK);
+      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៩ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1969-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1445-12-20"), TEXT("អាពីងស៊ីរុយ") ,MB_OK);
 
       //load levels in save
       GetSavesInDir(L"saves");
@@ -1637,10 +1639,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         mkey_esc_audio_cache=adjustVolumeA(mkey_esc_audio,mkey_esc_audio_filesize,game_volume);
 
 
-        fast_mem_audio=LoadWav("snd/fast.wav",&fast_mem_audio_filesize/*, &fast_mem_audio_duration*/);
-        fast_mem_audio_duration=(double)fast_mem_audio_filesize / (11025L * 1 * 16/8) *1000;
+        fast_mem_audio=LoadWav("snd/fast.wav",&fast_mem_audio_filesize, &fast_mem_audio_duration);
+        //fast_mem_audio_duration=(double)fast_mem_audio_filesize / (11025L * 1 * 16/8) *1000;
 
-        cdeath_mem_audio=LoadWav("snd/clang_death.wav",&cdeath_mem_audio_filesize/*, &cdeath_mem_audio_duration*/);
+        cdeath_mem_audio=LoadWav("snd/clang_death.wav",&cdeath_mem_audio_filesize, &cdeath_mem_audio_duration);
 
 
          for (int i=0;i<SND_THREAD_NUM;i++) {

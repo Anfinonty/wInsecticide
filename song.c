@@ -276,9 +276,10 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
         }
         /*mciSendString(L"pause player_speed",NULL,0,NULL);
         mciSendString(L"close player_speed",NULL,0,NULL);*/
-        for (int i=0;i<SND_THREAD_NUM;i++)
+        for (int i=0;i<SND_THREAD_NUM;i++) {
           waveOutReset(hWaveOut[i]);
-
+          mem_snd_interrupt[i]=TRUE;
+        }
         clean_up_sound=FALSE;
       }
 
