@@ -35,6 +35,18 @@ WAVEFORMATEX wfx1 = {
 };
 
 
+//https://learn.microsoft.com/en-us/windows/win32/multimedia/using-the-waveformatex-structure
+WAVEFORMATEX wfx_wav = {
+    .wFormatTag = WAVE_FORMAT_PCM,
+    .nChannels = 2, // Stereo
+    .nSamplesPerSec = 44100L, // Sample rate
+    .nAvgBytesPerSec = 176400L, // Sample rate
+    .nBlockAlign = 4,//(wfx1.nChannels * wfx1.wBitsPerSample) / 8,
+    .wBitsPerSample = 16, // 16-bit audio
+    .cbSize = 0
+};
+
+
 //Responsible for handling audio async in different threads
 HWAVEOUT hWaveOut[SND_THREAD_NUM];
 WAVEHDR whdr[SND_THREAD_NUM];
@@ -147,7 +159,58 @@ int16_t* LoadWav(const char* filename,long *datasize,int *duration)
 }
 
 
+/*int16_t* LoadMusicWav(const char* filename,long *datasize,int *duration)
+{
+  int16_t* sounddata;
+  FILE* file = fopen(filename, "rb");
+  if (file) {
+    fseek(file, 0, SEEK_END);
+    long file_size = ftell(file) - 44; //<-- 44 is the size of the header
+    fseek(file, 44, SEEK_SET);
 
+    sounddata = malloc(file_size);
+    fread(sounddata, 1, file_size, file); //read once filesize
+    
+    fclose(file);
+
+    *datasize=file_size;
+    //https://forum.lazarus.freepascal.org/index.php?topic=24547.0
+    //duration = filesize in bytes / (samplerate * #of channels * (bitspersample/eight))
+    *duration = (double)file_size / (44100L * 2 * 16/8) *1000;
+    return sounddata;
+  } else {
+    *datasize=0;
+    *duration=1;
+  }
+  return NULL;
+}*/
+
+
+int16_t* LoadMusicWavW(const wchar_t* filename,long *datasize,int *duration)
+{
+  int16_t* sounddata;
+  FILE* file = _wfopen(filename, L"rb");
+  if (file) {
+    fseek(file, 0, SEEK_END);
+    long file_size = ftell(file) - 44; //<-- 44 is the size of the header
+    fseek(file, 44, SEEK_SET);
+
+    sounddata = malloc(file_size);
+    fread(sounddata, 1, file_size, file); //read once filesize
+    
+    fclose(file);
+
+    *datasize=file_size;
+    //https://forum.lazarus.freepascal.org/index.php?topic=24547.0
+    //duration = filesize in bytes / (samplerate * #of channels * (bitspersample/eight))
+    *duration = (double)file_size / (44100L * 2 * 16/8) *1000;
+    return sounddata;
+  } else {
+    *datasize=0;
+    *duration=1;
+  }
+  return NULL;
+}
 // Play stereo audio from a buffer
 //void PlayStereoAudio(const int16_t* audioBuffer, long *bufferSize) {
 //https://learn.microsoft.com/en-us/windows/win32/multimedia/using-the-waveformatex-structure

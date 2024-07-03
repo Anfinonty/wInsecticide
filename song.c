@@ -13,10 +13,13 @@ int song_mode=0;
 int song_rand_num=-1;
 wchar_t song_names[2000][256];
 bool is_flac[2000];
+bool is_wav[2000];
 bool play_new_song=FALSE;
 bool stop_playing_song=FALSE;
 bool toggle_stop_playing_song=FALSE;
 bool loading_flac=FALSE;
+bool loading_wav=FALSE;
+bool playing_wav=FALSE;
 bool skip_song=FALSE;
 
 //https://github.com/audiojs/sample-rate
@@ -104,6 +107,15 @@ int GetSongsInDir(const wchar_t *dirname,const wchar_t *indirname, int song_num)
           } else {
             is_flac[song_num]=FALSE;
           }
+
+
+          if (_wcsicmp(ext,L"wav")==0) {
+            is_wav[song_num]=TRUE;
+          } else {
+            is_wav[song_num]=FALSE;
+          }
+
+
           wchar_t indir[256];
           swprintf(indir,256,L"%s/%s",indirname,dir->d_name);
           wcsncpy(song_names[song_num],indir,256);
@@ -137,75 +149,198 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
     //All Song Tasks
     if (song_num>0) {
       if (!stop_playing_song) {
-        wchar_t my_status[16];
-        //char my_length[16];
-        mciSendString(L"status music mode",my_status,16,NULL); //periodically check status
-        //printf("\nstatus: %s\n",my_status);
-        if ((_wcsicmp(my_status,L"stopped")==0 || _wcsicmp(my_status,L"")==0 || play_new_song)) //song status: stopped
-        {
-      
-          //play new music
-          if (!loading_flac) {
-            mciSendString(L"pause music",NULL,0,NULL);
-            mciSendString(L"close music",NULL,0,NULL);
+
+        if (playing_wav) { //hi im currently playing a flac/wav
+          if (!in_main_menu) {
+            current_song_duration+=6;
+          } else {
+            current_song_duration+=1000;
+          }
+          if (current_song_duration>=song_duration) { //stop playing flac when duration is over
+            play_new_song=TRUE;
+            loading_flac=FALSE;
+            loading_wav=FALSE;
+            playing_wav=FALSE;
+            if (song_audio!=NULL)
+              free(song_audio);
+            current_song_duration=0;
+          }
+
+          if (flag_adjust_song_audio) {
+            long int vol=VolumeValue(song_volume*100,30);
+            waveOutSetVolume(hWaveOut[2],vol);
+            flag_adjust_song_audio=FALSE;
+          }
+
+
+        } else {//im not playing a wav music
+          //char my_length[16];
+          //printf("\nstatus: %ls\n",my_status);
+          if (loading_flac) {//loading flac or wav, flac
+            wchar_t my_status[16];
+            mciSendString(L"status music mode",my_status,16,NULL); //periodically check status
+            //printf("\nstatus: %ls\n",my_status);
+            if (_wcsicmp(my_status,L"stopped")==0) {  //flac has finished loading
+              mciSendString(L"pause music",NULL,0,NULL);
+              mciSendString(L"close music",NULL,0,NULL);
+
+              playing_wav=TRUE;
+              loading_flac=FALSE;
+              loading_wav=FALSE;
+              play_new_song=FALSE;
+          
+            //load music into memory and play in wav2
+              if (song_audio!=NULL)
+                free(song_audio);
+              current_song_duration=0;
+              
+              song_audio=LoadMusicWavW(L"music/tmp/tmp.wav",&song_audio_filesize, &song_duration);
+              PlayMemSnd(song_audio,song_audio_filesize,song_duration,2);
+
+              remove("music/tmp/tmp.wav");
+              rmdir("music/tmp"); //remove tmp, manually because C is like that
+            }
+          } else if (loading_wav) {//loading flac or wav, wav
+            playing_wav=TRUE;
+            loading_flac=FALSE;
+            loading_wav=FALSE;
+            play_new_song=FALSE;
+
+            if (song_audio!=NULL)
+              free(song_audio);
+            current_song_duration=0;
+
+
+            wchar_t wav_song_playing[256];
+            swprintf(wav_song_playing,256,L"music/%s",song_names[song_rand_num]);
+            song_audio=LoadMusicWavW(wav_song_playing, &song_audio_filesize, &song_duration);
+            PlayMemSnd(song_audio,song_audio_filesize,song_duration,2);
+
+            //attempt to remove left overs
             remove("music/tmp/tmp.wav");
             rmdir("music/tmp"); //remove tmp, manually because C is like that
+          }        
 
-             if (!skip_song) {
-               switch (song_mode) {
-                 case 0: //play songs shuffle
-                  song_rand_num=RandNum(0,song_num-1,1);
-                  break;
-                 case 1: //Play Songs acending
-                  song_rand_num=LimitValue(song_rand_num+1,0,song_num);
-                  break;
-                case 2: //Play songs decending
-                 song_rand_num=LimitValue(song_rand_num-1,0,song_num);
-                 break;
+
+
+          if (flag_adjust_song_audio) {
+            //LIVE adjust audio
+            long int vol=VolumeValue(song_volume*100,30);
+            waveOutSetVolume(hWaveOut[2],vol);
+
+            wchar_t set_audio_volume_cmd[32];
+            swprintf(set_audio_volume_cmd,32,L"setaudio music volume to %d",(int)(song_volume*100/2));
+            mciSendString(set_audio_volume_cmd,NULL,0,NULL);
+
+            flag_adjust_song_audio=FALSE;
+          }
+
+          wchar_t my_status[16];
+          mciSendString(L"status music mode",my_status,16,NULL); //periodically check status
+          if ((_wcsicmp(my_status,L"stopped")==0 || _wcsicmp(my_status,L"")==0 || play_new_song)) //song status: stopped
+          {
+            //printf("playing new mp3...\n");
+            //play new music
+            //stop mp3 player
+            mciSendString(L"pause music",NULL,0,NULL);
+            mciSendString(L"close music",NULL,0,NULL);
+            if (!loading_wav && !loading_flac && !playing_wav) {            
+              remove("music/tmp/tmp.wav");
+              rmdir("music/tmp"); //remove tmp, manually because C is like that
+
+              //stop .wav player
+              mem_snd_interrupt[2]=TRUE;
+              waveOutReset(hWaveOut[2]);
+              CloseHandle(hMemSndArray[2]);
+
+              current_song_duration=0;
+              if (song_audio!=NULL)
+                free(song_audio);
+
+
+              if (!skip_song) {
+                switch (song_mode) {
+                  case 0: //play songs shuffle
+                    song_rand_num=RandNum(0,song_num-1,1);
+                    break;
+                  case 1: //Play Songs acending
+                    song_rand_num=LimitValue(song_rand_num+1,0,song_num);
+                    break;
+                  case 2: //Play songs decending
+                    song_rand_num=LimitValue(song_rand_num-1,0,song_num);
+                    break;
+                }
+              } else {
+                skip_song=FALSE;
               }
-            } else {
-              skip_song=FALSE;
-            }
           
-            if (is_flac[song_rand_num]) { //loaded song is a flac
-              wchar_t my_command[512];
-              loading_flac=TRUE;
-              system("mkdir \"music/tmp\""); //make new tmp
-              swprintf(my_command,512,L"flac.exe --totally-silent -d -f \"music/%s\" -o music/tmp/tmp.wav",song_names[song_rand_num]);
-              _wsystem(my_command);
+              
+              if (is_flac[song_rand_num]) { //loaded song is a flac
+                wchar_t my_command[512];
+                loading_flac=TRUE;
+                system("mkdir \"music/tmp\""); //make new tmp
+                swprintf(my_command,512,L"flac.exe --totally-silent -d -f \"music/%s\" -o music/tmp/tmp.wav",song_names[song_rand_num]);
+                _wsystem(my_command);
+              } else if (is_wav[song_rand_num]) {
+                //wchar_t my_command[512];
+                loading_wav=TRUE;
+                //wchar_t wfilename[512];
+                //swprintf(wfilename,512,song_names[song_rand_num]);
+                //system("mkdir \"music/tmp\""); //make new tmp
+                //system("copy_music.bat");
+                //swprintf(my_command,512,L"copy \"%s\" \"tmp/tmp.wav\"",song_names[song_rand_num]); //copy music file
+                //_wsystem(my_command); //do copy music file
+              }
             }
-          }
 
-          wchar_t songname[512];
-          if (!is_flac[song_rand_num]) {
-            swprintf(songname,512,L"open \"music/%s\" alias music",song_names[song_rand_num]);
-          } else {
-            swprintf(songname,512,L"open \"music/tmp/tmp.wav\" alias music"); //play flac
-          }
-          mciSendString(songname,NULL,0,NULL);
-          mciSendString(L"setaudio music volume to 100",NULL,0,NULL);
-          mciSendString(L"play music",NULL,0,NULL);
-          play_new_song=FALSE;
-        } else {
-          if (loading_flac) { //flac has finished loading
-            if (_wcsicmp(my_status,L"playing")==0) {
-              loading_flac=FALSE;
+            wchar_t songname[512];
+            if (!is_flac[song_rand_num] && !is_wav[song_rand_num]) {
+              swprintf(songname,512,L"open \"music/%s\" alias music",song_names[song_rand_num]);
+            } else {
+              swprintf(songname,512,L"open \"music/tmp/tmp.wav\" alias music"); //play flac
             }
-          }
-        }
-      } else { //song is playing
-        if (toggle_stop_playing_song) {
-          mciSendString(L"pause music",NULL,0,NULL);
-          mciSendString(L"close music",NULL,0,NULL);
-          remove("music/tmp/tmp.wav");
-          rmdir("music/tmp"); //remove tmp
-          loading_flac=FALSE;
+            mciSendString(songname,NULL,0,NULL);
+            wchar_t set_audio_volume_cmd[32];
+            swprintf(set_audio_volume_cmd,32,L"setaudio music volume to %d",(int)(song_volume*100/2));
+            mciSendString(set_audio_volume_cmd,NULL,0,NULL);
+            if (!is_flac[song_rand_num] && !is_wav[song_rand_num])
+              mciSendString(L"play music",NULL,0,NULL);
+            play_new_song=FALSE;
+          } else { //song status: playing
+            //wchar_t my_status[16];
+            //mciSendString(L"status music mode",my_status,16,NULL); //periodically check status
+            //char my_length[16];
+            //printf("\nstatus: %ls\n",my_status);
 
-          toggle_stop_playing_song=FALSE;
-        }
+          }
+        }  
       }
     }
     //End of song Task
+
+
+    if (toggle_stop_playing_song) {
+        //stop mp3 player
+      mciSendString(L"pause music",NULL,0,NULL);
+      mciSendString(L"close music",NULL,0,NULL);
+      remove("music/tmp/tmp.wav");
+      rmdir("music/tmp"); //remove tmp
+
+        //stop .wav player
+      mem_snd_interrupt[2]=TRUE;
+      waveOutReset(hWaveOut[2]);
+      CloseHandle(hMemSndArray[2]);
+
+      current_song_duration=0;
+      playing_wav=FALSE;
+      loading_flac=FALSE;
+      loading_wav=FALSE;
+      if (song_audio!=NULL)
+        free(song_audio);
+
+
+      toggle_stop_playing_song=FALSE;
+    }
 
     //Persian time update if new day
     if (in_main_menu) {
@@ -215,12 +350,9 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
         PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);
         PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift);
       }
-    }
+    } 
 
-
-
-
-    if (!in_main_menu) {
+    if (!in_main_menu){ //NOT in main menu
       //Play Game Souond
       if (game_audio && level_loaded) {
         if (!player.time_breaker) { //player sounds made by player bullets
@@ -276,7 +408,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
         }
         /*mciSendString(L"pause player_speed",NULL,0,NULL);
         mciSendString(L"close player_speed",NULL,0,NULL);*/
-        for (int i=0;i<SND_THREAD_NUM;i++) {
+        for (int i=0;i<SND_THREAD_NUM-1;i++) {
           waveOutReset(hWaveOut[i]);
           mem_snd_interrupt[i]=TRUE;
         }

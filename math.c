@@ -597,3 +597,16 @@ double LimitValue(double value,double min,double max)
 //------------------------------------------------------
 
 
+
+DWORD VolumeValue(const int percentage, const int reduce) {
+    // Clamp percentage value
+    int hpercentage = percentage/reduce;
+    int p = (hpercentage < 0) ? 0 : (hpercentage > 100) ? 100 : hpercentage;
+    // Calculate scaled value for one channel
+    const WORD wVol = (WORD)((65535 * p) / 100);
+    // Construct return value for both channels
+    const DWORD retVal = ((wVol << 16) | wVol);
+    return retVal;
+}
+
+

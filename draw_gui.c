@@ -108,6 +108,10 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4)
     GrPrint(hdc,x+1,y+1+16,txt2,c4);
   }
 
+  /*char txt3[32];
+  sprintf(txt3,"%d/%d",(int)current_song_duration,(int)song_duration);
+  GrPrint(hdc,x,y+32,txt3,c);*/
+  
   /*char txt3[6];
   sprintf(txt3,"%d",song_mode);
   GrPrint(hdc,x,y+32,txt3,c);
@@ -368,10 +372,21 @@ lunar_year
 
 
 
+      c=WHITE;
+      if (option_choose==4) {
+        c=LTGREEN;
+      }
+      GrPrint(hdc,30,10+soptions_y+16*4,"Music Volume:",c);
+      char print_song_volume[8];
+      sprintf(print_song_volume,"<%1.0f%>",song_volume*100);
+      GrPrint(hdc,30+20*8,10+soptions_y+16*4,print_song_volume,c);
+
+
+
       GrPrint(hdc,20,10+soptions_y+16*option_choose,"*",LTGREEN);
 
 
-      GrPrint(hdc,30,main_menu_y+10+16*14,"'1': Go back to Main Menu.",WHITE);
+      GrPrint(hdc,30,main_menu_y+10+16*15,"'1': Go back to Main Menu.",WHITE);
       break;
 
 

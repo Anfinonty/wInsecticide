@@ -27,7 +27,8 @@
 //#include <curses.h>
 #include <shlwapi.h>
 #include <mmsystem.h>
-#include <audioclient.h>
+//#include <audioclient.h>
+//#include <locale.h>
 //#include <libsndfile.h> // Make sure to install libsndfile and link it during compilation
 //#include <wiavideo.h>
 //#include <GL/glu.h>
@@ -45,6 +46,8 @@ bool level_loaded=FALSE;
 bool hide_taskbar=FALSE;
 bool flag_restart=FALSE;
 bool flag_restart_audio=FALSE;
+bool flag_adjust_audio=FALSE;
+bool flag_adjust_song_audio=FALSE;
 bool back_to_menu=FALSE;
 bool in_main_menu=TRUE;
 bool game_over=FALSE;
@@ -60,7 +63,8 @@ int windowx=0;
 int windowy=0;
 
 int enemy_kills=0;
-int FPS = 60;
+//int FPS = 60;
+int FPS = 24; //minimum FPS, otherwise run according to screen refresh rate
 int main_menu_chosen=0; //options for main menu
 int option_choose=0;
 
@@ -69,6 +73,7 @@ int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
 int frame_tick=-10;
 int int_best_score=0; //to store to write
 int player_color=0;
+int old_player_color=0;
 int player_load_color=0;
 int player_bullet_color=0;
 
@@ -83,8 +88,9 @@ long long game_timer=0;
 
 double double_best_score=0;
 double time_begin=0;
-double game_volume=1.0;
-
+double game_volume=0.5;
+double old_game_volume=0.5;
+double song_volume=1.0;
 
 //Solar Hijri Time for Drawing
 int solar_sec=0,solar_min=0,solar_hour=0,solar_day=0,solar_month=0,solar_year=0,solar_day_of_week=0;
@@ -221,6 +227,12 @@ static int16_t* cdeath_mem_audio;
 static int16_t* cdeath_mem_audio_cache;
 long cdeath_mem_audio_filesize;
 int cdeath_mem_audio_duration;
+
+
+static int16_t* song_audio;
+long song_audio_filesize;
+int song_duration;
+int current_song_duration=0;
 
 
 /*
@@ -377,7 +389,7 @@ void Init(HDC hdc) {
   InitEnemy();
   InitPlayer();
   BitmapPalette(hdc,map_platforms_sprite,rgbColorsDefault);
-  for (int i=0;i<SND_THREAD_NUM;i++) {
+  for (int i=0;i<SND_THREAD_NUM-1;i++) {
     mem_snd_interrupt[i]=TRUE;
     waveOutReset(hWaveOut[i]);
   }
@@ -644,6 +656,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                   skip_song=TRUE;
                   play_new_song=TRUE;
                   loading_flac=FALSE;
+                  playing_wav=FALSE;
                 }
               }
             }
@@ -657,6 +670,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                 skip_song=TRUE;
                 play_new_song=TRUE;
                 loading_flac=FALSE;
+                playing_wav=FALSE;
               }
             }
             break;
@@ -794,7 +808,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             //Holding Down Down Arrow or 'S'
                case 'S':
                case VK_DOWN:
-                 option_choose=LimitValue(option_choose+1,0,4);
+                 option_choose=LimitValue(option_choose+1,0,5);
                  if (game_audio)
                    PlaySound(mkey_down_up_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //up down
                  break;
@@ -836,6 +850,20 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                      }
                      if (game_audio)
                        PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
+                     flag_adjust_audio=TRUE;
+                     break;
+                   case 4:
+                     if (song_volume>=2.0) {
+                       song_volume+=1.0;
+                     } else {
+                       song_volume+=0.1;
+                     }
+                     if (song_volume>20.0) { //max song volume
+                        song_volume=0.0;
+                     }
+                     flag_adjust_song_audio=TRUE;
+                     if (game_audio)
+                       PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
                      break;
                  }
                  break;
@@ -867,7 +895,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                     game_cam_shake=!game_cam_shake;                
                     break;
                    case 3:
-                     if (game_volume>2.0) {
+                     if (game_volume>3.0) {
                        game_volume-=1.0;
                      } else {
                        game_volume-=0.1;
@@ -878,6 +906,20 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                      //PlaySound(L"snd/FE_COMMON_MB_03.wav", NULL, SND_FILENAME | SND_ASYNC); //false
                      if (game_audio)
                        PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
+                     flag_adjust_audio=TRUE;
+                     break;
+                   case 4:
+                     if (song_volume>3.0) {
+                       song_volume-=1.0;
+                     } else {
+                       song_volume-=0.1;
+                     }
+                     if (song_volume<0.0) {
+                       song_volume=20.0;
+                     }
+                     if (game_audio)
+                       PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
+                     flag_adjust_song_audio=TRUE;
                      break;
                 }
                 break;
@@ -886,7 +928,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             //Holding Down Up Arrow or 'W''
               case 'W':
               case VK_UP:
-                option_choose=LimitValue(option_choose-1,0,4);
+                option_choose=LimitValue(option_choose-1,0,5);
                 //PlaySound(L"snd/FE_COMMON_MB_02.wav", NULL, SND_FILENAME | SND_ASYNC); //up down
                  if (game_audio)
                   PlaySound(mkey_down_up_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //up down
@@ -981,6 +1023,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             if (!stop_playing_song) {
               play_new_song=TRUE;
               loading_flac=FALSE;
+              loading_wav=FALSE;
+              playing_wav=FALSE;
             }
           }
           break;//end current song
@@ -1006,6 +1050,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             if (!stop_playing_song) {
               play_new_song=TRUE;
               loading_flac=FALSE;
+              loading_wav=FALSE;
+              playing_wav=FALSE;
             }
           }
           break;//end current song
@@ -1115,7 +1161,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       } else { 
         switch (main_menu_chosen) {
-          //Release '0' Key
           case 0:
             switch (wParam) {
               case '1':
@@ -1133,22 +1178,54 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
 
-          //Release '1' Key
           case 1:
             switch (wParam) {
-               case '1':
+               case '1':           //Release '1' Key or ESC+SHIFT
                case VK_ESCAPE:
                  if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT) || wParam=='1') { //ESC + L/RSHIFT = QUIT
                    main_menu_chosen=0;
 
-                   DeleteObject(mouse_cursor_sprite_cache);
-                   mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,draw_color_arr[player_color],-1);
+                   if (old_player_color!=player_color) {
+                     DeleteObject(mouse_cursor_sprite_cache);
+                     mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,draw_color_arr[player_color],-1);
    
-                   DeleteObject(mouse_cursor_sprite_cache2);
-                   mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,draw_color_arr[player_color],-1);
+                     DeleteObject(mouse_cursor_sprite_cache2);
+                     mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,draw_color_arr[player_color],-1);
+                     old_player_color=player_color;
+                   }
                    //PlaySound(L"snd/FE_COMMON_MB_05.wav", NULL, SND_FILENAME | SND_ASYNC); //esc
 
                    //adjust volume
+                   if (old_game_volume!=game_volume) {
+                     if (mkey_down_up_audio_cache!=NULL)
+                       free(mkey_down_up_audio_cache);
+                     if (mkey_false_audio_cache!=NULL)
+                       free(mkey_false_audio_cache);
+                     if (mkey_true_audio_cache!=NULL)
+                       free(mkey_true_audio_cache);
+                     if (mkey_paint_audio_cache!=NULL)
+                       free(mkey_paint_audio_cache);
+                     if (mkey_esc_audio_cache!=NULL)
+                       free(mkey_esc_audio_cache);
+
+                      mkey_down_up_audio_cache=adjustVolumeA(mkey_down_up_audio,mkey_down_up_audio_filesize,game_volume);
+                      mkey_true_audio_cache=adjustVolumeA(mkey_true_audio,mkey_true_audio_filesize,game_volume);
+                      mkey_false_audio_cache=adjustVolumeA(mkey_false_audio,mkey_false_audio_filesize,game_volume);
+                      mkey_paint_audio_cache=adjustVolumeA(mkey_paint_audio,mkey_paint_audio_filesize,game_volume);
+                      mkey_esc_audio_cache=adjustVolumeA(mkey_esc_audio,mkey_esc_audio_filesize,game_volume);
+                      old_game_volume=game_volume;
+                    }
+
+                    if (game_audio)
+                      PlaySound(mkey_esc_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //esc
+                 }
+                 break;
+               case 'A':    //Release LEFT key
+               case VK_LEFT:
+               case 'D':    //Release RIGHT key
+               case VK_RIGHT:
+                 //LIVE adjust volume
+                 if (old_game_volume!=game_volume) { //change when not the same
                    if (mkey_down_up_audio_cache!=NULL)
                      free(mkey_down_up_audio_cache);
                    if (mkey_false_audio_cache!=NULL)
@@ -1165,20 +1242,27 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                     mkey_false_audio_cache=adjustVolumeA(mkey_false_audio,mkey_false_audio_filesize,game_volume);
                     mkey_paint_audio_cache=adjustVolumeA(mkey_paint_audio,mkey_paint_audio_filesize,game_volume);
                     mkey_esc_audio_cache=adjustVolumeA(mkey_esc_audio,mkey_esc_audio_filesize,game_volume);
-
-                    if (game_audio)
-                      PlaySound(mkey_esc_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //esc
+                    old_game_volume=game_volume;
                  }
-                break;
+
+                 //LIVE change color of player
+                 if (old_player_color!=player_color) { //change when not same
+
+                   DeleteObject(mouse_cursor_sprite_cache);
+                   mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,draw_color_arr[player_color],-1);
+   
+                   DeleteObject(mouse_cursor_sprite_cache2);
+                   mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,draw_color_arr[player_color],-1);
+
+                   old_player_color=player_color;
+                 }
+                 break;
             }
             break;
 
 
 
-          //Release '2' Key
-          case 2:
-
-            
+          case 2:            
             switch (wParam) {
                case VK_ESCAPE:
                  if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = QUIT
@@ -1230,6 +1314,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           windowx = rect.left;
           windowy = rect.top;
         }
+
+        if (flag_adjust_audio) {
+          if (mkey_false_audio_cache!=NULL)
+            free(mkey_false_audio_cache);
+          mkey_false_audio_cache=adjustVolumeA(mkey_false_audio,mkey_false_audio_filesize,game_volume);
+          flag_adjust_audio=FALSE;
+        }
+
 
         if (GR_WIDTH!=OLD_GR_WIDTH || GR_HEIGHT!=OLD_GR_HEIGHT) {
           InitPlayerCamera();
@@ -1455,7 +1547,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       remove("music/tmp/tmp.wav");
       rmdir("music/tmp"); //remove tmp
 
-      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៩ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1969-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1445-12-20"), TEXT("អាពីងស៊ីរុយ") ,MB_OK);
+      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៩ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1969-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1445-12-25"), TEXT("អាពីងស៊ីរុយ") ,MB_OK);
 
       //load levels in save
       GetSavesInDir(L"saves");
@@ -1645,10 +1737,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         cdeath_mem_audio=LoadWav("snd/clang_death.wav",&cdeath_mem_audio_filesize, &cdeath_mem_audio_duration);
 
 
-         for (int i=0;i<SND_THREAD_NUM;i++) {
+         //for wav sound effects
+         for (int i=0;i<SND_THREAD_NUM-1;i++) {
            waveOutOpen(&hWaveOut[i], WAVE_MAPPER, &wfx1, 0, 0, CALLBACK_NULL);
            waveOutPrepareHeader(hWaveOut[i], &whdr[i], sizeof(WAVEHDR));
          }
+
+         //For wav music
+         waveOutOpen(&hWaveOut[2], WAVE_MAPPER, &wfx_wav, 0, 0, CALLBACK_NULL);
+         long int vol=VolumeValue(100,30);
+         waveOutSetVolume(hWaveOut[2],vol);
+         waveOutPrepareHeader(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));
+
       //}
 
         //DWORD tmp_clang_audio_filesize;
