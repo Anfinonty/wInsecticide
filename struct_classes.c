@@ -145,6 +145,7 @@ struct player
   bool on_a_ground;
   bool low_jump;
 
+  bool is_on_ground_edge;
     //Render
   //int rendered_vgrid_num;
   //int rendered_enemy_num;
@@ -207,6 +208,8 @@ struct player
   int seed;
   int fast_duration;
 
+  int on_ground_edge_id;
+  int saved_on_ground_edge_id;
 
   //=== JUST A DEMO===
   /*int sprite_width;

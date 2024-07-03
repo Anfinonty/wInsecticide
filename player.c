@@ -248,6 +248,9 @@ void InitPlayer() {
   player.destroy_ground=FALSE;
   player.uppercut=FALSE;
   player.flag_revert_palette=FALSE;
+  player.is_on_ground_edge=FALSE;
+  player.on_ground_edge_id=-1;
+  player.saved_on_ground_edge_id=-1;
 
   player.grav=2;
   player.decceleration_timer=0;
@@ -732,6 +735,8 @@ void PlayerAct() {
   if (player.rst_up && player.on_a_ground) { //on ground and jumping
     //player.key_jump_timer=player.player_jump_height;
     player.jump=TRUE;
+    player.on_ground_edge_id=-1;
+    player.is_on_ground_edge=FALSE;
   }
 
   if (player.jump && player.jump_height==0) {
@@ -766,6 +771,7 @@ void PlayerAct() {
 
   for (speed=0;speed<player.speed;speed++) {
     for (grav_speed=0;grav_speed<player.grav;grav_speed++) {
+      //player.on_ground_id=GetOnGroundIdPlayer(player.x,player.y,5,4);
       player.on_ground_id=GetOnGroundIdPlayer(player.x,player.y,5,4);
       //player.on_ground_id=GetOnGroundId(player.x,player.y,5,4,TRUE);
 
@@ -801,12 +807,12 @@ void PlayerAct() {
 
 
 
-      if (player.in_air_timer>=1 && player.in_air_timer<=4 && player.on_ground_id==-1) { //Grav switch //runs on speed and grav_speed //retiring
+      /*if (player.in_air_timer>=1 && player.in_air_timer<=4 && player.on_ground_id==-1) { //Grav switch //runs on speed and grav_speed //retiring
         if (player.jump_height<=0 && !player.is_swinging) {
           if (player.previous_below && speed<=24 && grav_speed<=2)
             move_y(-player.player_grav*1.5);
         }
-      }
+      }*/
 
    //Ground action
    //on a ground
@@ -840,122 +846,7 @@ void PlayerAct() {
             //}
           }
         }*/
-        //player edge interaction, mini web rotation
-        /*double edge_dist1;
-        double edge_dist2;
-        edge_dist1=GetDistance(player.x,player.y,Ground[player.on_ground_id]->x1,Ground[player.on_ground_id]->y1);
-        edge_dist2=GetDistance(player.x,player.y,Ground[player.on_ground_id]->x2,Ground[player.on_ground_id]->y2);
-  
-        if (edge_dist1<10) {
-          double edge_angle=GetCosAngle(player.x-Ground[player.on_ground_id]->x1,edge_dist1)+M_PI_2;
-          move_x(-cos(-edge_angle));
-          move_y(sin(-edge_angle));
 
-          //move_x(-cos(-player.pivot_angle+M_PI_2));
-          //move_y(sin(-player.pivot_angle+M_PI_2));
-        }
-        
-        /*if (edge_dist2<10) {
-          double edge_angle=GetCosAngle(player.x-Ground[player.on_ground_id]->x2,edge_dist2)-M_PI_2;
-          move_x(-cos(edge_angle));
-          move_y(-sin(edge_angle));
-        }*/
-
-
-
-/*
-
-        //>>>Calculate the Angle of incidence of player when swung from pivot
-        if (player.y>player.pivot_y) { //lower quad
-          if(player.last_left) {
-            player.angle_of_incidence=player.pivot_angle+M_PI_2;
-          } else {
-            player.angle_of_incidence=player.pivot_angle-M_PI_2;
-          }
-        } else {//upper quad
-          if(player.last_left) {
-            player.angle_of_incidence=2*M_PI-player.pivot_angle-M_PI_2;
-          } else {
-            player.angle_of_incidence=2*M_PI-player.pivot_angle+M_PI_2;
-          }
-        }
-        player.angle_of_reflection=player.angle_of_incidence;
-
-        if (grav_speed==0) {
-          if (!player.on_a_ground) {
-            if (player.y>player.pivot_y) { //below pivot
-              if (player.rst_right) { //Clockwize
-                if (!player.uppercut) { //move the usual direction
-                  move_x(-cos(-player.pivot_angle+M_PI_2));
-                  move_y(sin(-player.pivot_angle+M_PI_2));
-                  player.last_left=TRUE;
-                } else { //move the opposite direction, anticlockwize
-                  move_x(cos(-player.pivot_angle+M_PI_2));
-                  move_y(-sin(-player.pivot_angle+M_PI_2));
-                  player.last_left=FALSE;
-                }
-              }
-              if (player.rst_left) {  //Anticlockwize
-                if (!player.uppercut) {
-                  move_x(cos(-player.pivot_angle+M_PI_2));
-                  move_y(-sin(-player.pivot_angle+M_PI_2));
-                  player.last_left=FALSE;
-                } else { //clockwize
-                  move_x(-cos(-player.pivot_angle+M_PI_2));
-                  move_y(sin(-player.pivot_angle+M_PI_2));
-                  player.last_left=TRUE;
-                }
-              } else if (player.rst_up && !player.on_a_ground && player.pivot_length>2){ //Retract Web
-                move_x(-cos(-player.pivot_angle));
-                move_y(sin(-player.pivot_angle));
-              } else if (player.rst_down && player.pivot_length<NODE_SIZE*DEFAULT_PLAYER_BUILD_RANGE/2) {
-                move_x(cos(-player.pivot_angle));
-                move_y(-sin(-player.pivot_angle));
-              }
-            } else { //above pivot
-              if (player.rst_right) { //Clockwize
-                //if (!player.uppercut) {
-                  move_x(cos(-player.pivot_angle+M_PI_2));
-                  move_y(sin(-player.pivot_angle+M_PI_2));
-                  player.last_left=FALSE;
-                /*} else {
-                  move_x(-cos(-player.pivot_angle+M_PI_2));
-                  move_y(-sin(-player.pivot_angle+M_PI_2));
-                  player.last_left=TRUE;
-                }*/
-/*              }
-              if (player.rst_left) { //Anticlockwize
-                //if (!player.uppercut) {
-                  move_x(-cos(-player.pivot_angle+M_PI_2));
-                  move_y(-sin(-player.pivot_angle+M_PI_2));
-                  player.last_left=TRUE;
-                /*} else {
-                  move_x(cos(-player.pivot_angle+M_PI_2));
-                  move_y(sin(-player.pivot_angle+M_PI_2));
-                  player.last_left=FALSE;
-                }*//*
-              } else if (player.rst_up && !player.on_a_ground && player.pivot_length>2){ //Retract web
-                move_x(-cos(-player.pivot_angle));
-                move_y(-sin(-player.pivot_angle));
-              } else if (player.rst_down && player.pivot_length<NODE_SIZE*DEFAULT_PLAYER_BUILD_RANGE/2) {
-                move_x(cos(-player.pivot_angle));
-                move_y(sin(-player.pivot_angle));
-              }
-            }
-          }
-        } else if (grav_speed==1) {//only occurs right after grav_speed==0
-          if (player.pivot_length>NODE_SIZE*DEFAULT_PLAYER_BUILD_RANGE/2 && !player.on_a_ground) { //rubber band back if pivot length too long
-            if (player.y>player.pivot_y) {
-              move_x(-cos(-player.pivot_angle));
-              move_y(sin(-player.pivot_angle));
-            } else {
-              move_x(-cos(-player.pivot_angle));
-              move_y(-sin(-player.pivot_angle));
-            }
-          }       
-        } //End of player swinging movement
-      } //end of grav==0
-*/
 
         //player ground interaction
         if  ((Ground[player.on_ground_id]->x1-10<player.x &&  player.x<Ground[player.on_ground_id]->x2+10) &&
@@ -1008,6 +899,7 @@ void PlayerAct() {
               move_x(-cos(player.angle+M_PI_2));
               move_y(-sin(player.angle+M_PI_2));
             }
+            player.is_on_ground_edge=FALSE;
             player.jump_angle=player.angle+M_PI_2;
             if (player.angle<0) {/*Slope -. /*/
               player.jump_angle2=2*M_PI+player.angle-M_PI_2;
@@ -1033,6 +925,7 @@ void PlayerAct() {
               move_x(-cos(player.angle-M_PI_2));
               move_y(-sin(player.angle-M_PI_2));
             }
+            player.is_on_ground_edge=FALSE;
             player.jump_angle=player.angle-M_PI_2;
             if (player.angle<0) {/*Slope -. /*/
               player.jump_angle2=M_PI_2+player.angle;
@@ -1091,7 +984,7 @@ void PlayerAct() {
 
     //Gravity
       if (grav_speed==0 && speed==0) {
-        if (player.on_ground_id==-1 && !player.is_swinging) {
+        if (player.on_ground_id==-1 && !player.is_swinging && !player.is_on_ground_edge) {
           player.in_air_timer++;
           if (player.in_air_timer>2002) { //dont go above this limit
             player.in_air_timer--;
@@ -1170,9 +1063,9 @@ void PlayerAct() {
       allow_act=FALSE;
       if (player.fling_distance<=0) { //player's fling distance is 0
         player.previous_web_placed=-1;
-        if (!player.is_swinging) { // player is not swinging
+        if (!player.is_swinging && !player.is_on_ground_edge) { // player is not swinging
           if (player.on_ground_id==-1) { //player is not on ground
-	        allow_act=TRUE;
+            allow_act=TRUE;
           } else if (!player.blocking) { //on a ground but not blocking
             allow_act=TRUE;
           }  
@@ -1223,6 +1116,104 @@ void PlayerAct() {
         }
       }
 
+
+      //====PLAYER GROUND EDGE MOVEMENT====
+      //player edge interaction, mini web rotation
+      player.on_ground_edge_id=player.on_ground_id;//GetOnGroundId(player.x,player.y,10,9);
+      int tmp_on_ground_id=player.on_ground_edge_id;
+      if (tmp_on_ground_id==-1) {
+        tmp_on_ground_id=player.saved_on_ground_edge_id;
+      }
+      if (tmp_on_ground_id!=-1) {
+        if (player.on_ground_edge_id!=-1) {
+          player.saved_on_ground_edge_id=player.on_ground_edge_id;
+        }
+        if (!player.blocking && !player.rst_up) {
+        if (grav_speed==0) {
+          double edge_dist1=GetDistance(player.x,player.y,Ground[tmp_on_ground_id]->x1,Ground[tmp_on_ground_id]->y1); //left edge
+          double edge_dist2=GetDistance(player.x,player.y,Ground[tmp_on_ground_id]->x2,Ground[tmp_on_ground_id]->y2);
+          if (edge_dist1<30 || edge_dist2<30) {  
+            player.is_on_ground_edge=TRUE;
+            player.in_air_timer=0;
+            if (edge_dist1<30) {  //at edge 1
+              double edge_angle=GetCosAngle(player.x-Ground[tmp_on_ground_id]->x1,edge_dist1);
+              if (player.y<Ground[tmp_on_ground_id]->y1) { //above pivot
+                if (edge_dist1<2) {
+                  move_x(cos(-edge_angle));
+                  move_y(sin(-edge_angle));
+                } else {
+                  if (player.rst_right) { //clockwize
+                    move_x(cos(-edge_angle+M_PI_2));
+                    move_y(sin(-edge_angle+M_PI_2));
+                    player.last_left=FALSE;
+                  } else if (player.rst_left) { //anticlockwize
+                    move_x(-cos(-edge_angle+M_PI_2));
+                    move_y(-sin(-edge_angle+M_PI_2));
+                    player.last_left=TRUE;
+                  }
+                }
+              } else { //below pivot
+                if (edge_dist1<2) {
+                  move_x(cos(-edge_angle));
+                  move_y(-sin(-edge_angle));
+                } else {
+                  if (player.rst_right) { //clockwize
+                    move_x(-cos(-edge_angle+M_PI_2));
+                    move_y(sin(-edge_angle+M_PI_2));
+                    player.last_left=TRUE;
+                  } else if (player.rst_left) { //anticlockwize
+                    move_x(cos(-edge_angle+M_PI_2));
+                    move_y(-sin(-edge_angle+M_PI_2));
+                    player.last_left=FALSE;
+                  }
+                }
+              }
+            } else if (edge_dist2<30) {//at edge 2
+              double edge_angle=GetCosAngle(player.x-Ground[tmp_on_ground_id]->x2,edge_dist2);
+              if (player.y<Ground[tmp_on_ground_id]->y2) { //above pivot
+                if (edge_dist2<2) {
+                  move_x(cos(-edge_angle));
+                  move_y(sin(-edge_angle));
+                 } else {
+                  if (player.rst_right) { //clockwize
+                    move_x(cos(-edge_angle+M_PI_2));
+                    move_y(sin(-edge_angle+M_PI_2));
+                    player.last_left=FALSE;
+                  } else if (player.rst_left) { //anticlockwize
+                    move_x(-cos(-edge_angle+M_PI_2));
+                    move_y(-sin(-edge_angle+M_PI_2));
+                    player.last_left=TRUE;
+                  }
+                }
+              } else { //below pivot
+                if (edge_dist2<2) {
+                  move_x(cos(-edge_angle));
+                  move_y(-sin(-edge_angle));
+                } else {
+                  if (player.rst_right) { //clockwize
+                    move_x(-cos(-edge_angle+M_PI_2));
+                    move_y(sin(-edge_angle+M_PI_2));
+                    player.last_left=TRUE;
+                  } else if (player.rst_left) { //anticlockwize
+                    move_x(cos(-edge_angle+M_PI_2));
+                    move_y(-sin(-edge_angle+M_PI_2));
+                    player.last_left=FALSE;
+                  }
+                }
+              }
+            } // end of edge 2
+          } else { //neither edge 1 or 2
+            player.on_ground_edge_id=-1;
+            player.is_on_ground_edge=FALSE;
+          }
+        }
+        } else { //player is blocking
+          player.on_ground_edge_id=-1;
+          player.is_on_ground_edge=FALSE;
+        }
+      } else {
+        player.on_ground_edge_id=-1;
+      }
 
       //====PLAYER CIRCULAR WEB SWINGING MOVEMENT======
       if (player.is_swinging && grav_speed<=1) {

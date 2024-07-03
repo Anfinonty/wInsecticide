@@ -632,6 +632,9 @@ void DrawGround(HDC hdc)
                 Ground[i]->y2,
                 Ground[i]->color);
 
+//         GrCircle(hdc,Ground[i]->x1,Ground[i]->y1,10,Ground[i]->color,-1);
+//         GrCircle(hdc,Ground[i]->x2,Ground[i]->y2,10,Ground[i]->color,-1);
+
       }
     }
   }
