@@ -609,13 +609,14 @@ void PlayerAct() {
   } else { //meelee attack only
     if (player.is_swinging) {
       if (player.left_click_hold_timer==62 || player.attack_rst || player.right_click_hold_timer==62) { //swing but no web is placed
-        player.is_swinging=FALSE;
+        player.is_swinging=FALSE; //stop swinging
         if (player.uppercut) {
           player.fling_distance=0;
         } else {
           player.fling_distance=player.pivot_length;
         }
         //player.key_jump_timer=player.player_jump_height;
+        player.grav=3; //grav when swing let go
         player.in_air_timer=1000;
         player.decceleration_timer=0;
         if (player.speed<10)
@@ -1291,8 +1292,8 @@ void PlayerAct() {
             }
             if (player.rst_left) { //Anticlockwize
               //if (!player.uppercut) {
-              move_x(0.5*-cos(-player.pivot_angle+M_PI_2));
-              move_y(0.5*-sin(-player.pivot_angle+M_PI_2));
+              move_x(-cos(-player.pivot_angle+M_PI_2));
+              move_y(-sin(-player.pivot_angle+M_PI_2));
               player.last_left=TRUE;
               /*} else {
                 move_x(cos(-player.pivot_angle+M_PI_2));
