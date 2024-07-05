@@ -720,12 +720,12 @@ void DrawUI(HDC hdc) {
 
 
 
-  char shuriken_dmg_txt[40];
+  char shuriken_dmg_txt[42];
   int print_shuriken_dmg=player.attack_strength;
   if (!display_controls)
     sprintf(shuriken_dmg_txt,"<:-%d>",print_shuriken_dmg);
   else
-    sprintf(shuriken_dmg_txt,"<:-%d> Ricochet-Shuriken:-DMG",print_shuriken_dmg);
+    sprintf(shuriken_dmg_txt,"<:-%d> Melee / Ricochet-Shuriken:-DMG",print_shuriken_dmg);
 
   GrPrint(hdc,player.sprite_x+48-1,player.sprite_y-48-1,shuriken_dmg_txt,c2);
   GrPrint(hdc,player.sprite_x+48,player.sprite_y-48,shuriken_dmg_txt,c5);

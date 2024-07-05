@@ -703,21 +703,21 @@ void EnemyAct(int i)
 	    break;
     }
     //^^ condition
-    if (allow_act) {
+    /*if (allow_act) {
       //within player claws
       allow_act=FALSE;
 	  if (!player.time_breaker) {
-	    if (Enemy[i]->knockback_timer==0) {
+	    //if (Enemy[i]->knockback_timer==0) {
 	      allow_act=TRUE;
-	    }
+	    //}
 	  } else {
-	    if (!Enemy[i]->time_breaker_immune) {
+	    //if (!Enemy[i]->time_breaker_immune) {
 	      allow_act=TRUE;
-	    } else if (Enemy[i]->knockback_timer==0) {
-	      allow_act=TRUE;
-	    }
+	    //} else if (Enemy[i]->knockback_timer==0) {
+	      //allow_act=TRUE;
+	    //}
 	  }
-    }
+    }*/
     //^^ condition 
     if (allow_act) {
       allow_act=FALSE;
@@ -728,8 +728,8 @@ void EnemyAct(int i)
           }
 	      break;
 	    case 1:
-	      if (player.attack_timer<=39) {
-		    if (player.attack_timer>34) { //more damage to roach at underside when player is upside down
+	      /*if (player.attack_timer<=39) {
+		    /*if (player.attack_timer>34) { //more damage to roach at underside when player is upside down
 		      if (Enemy[i]->above_ground) {
                 if (player.print_current_below && player.y<Enemy[i]->y-6) {
   		          allow_act=TRUE;
@@ -739,8 +739,10 @@ void EnemyAct(int i)
 		          allow_act=TRUE;
 		        }
 		      }
-		    }
-	      }
+		    }*/
+	      //}
+          if (player.attack_timer>38)
+            allow_act=TRUE;
 	      break;
 	  }
     }
