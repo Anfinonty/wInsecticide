@@ -52,14 +52,18 @@ void DrawCursor(HDC hDC)
   if (!(player.speed>24 && frame_tick%2==0)) {
     if (player.health>PLAYER_LOW_HEALTH) {
       GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_cache,FALSE);
+      GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_iris_cache,FALSE);
+      GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_pupil_cache,FALSE);
     } else {
       GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_cache2,FALSE);
+      GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_iris_cache2,FALSE);
+      GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_pupil_cache2,FALSE);
     }
   }
-  if (!IsInvertedBackground())
+  /*if (!IsInvertedBackground())
     GrCircle(hDC,mouse_x,mouse_y,1,WHITE,-1);
   else
-    GrCircle(hDC,mouse_x,mouse_y,1,BLACK,-1);
+    GrCircle(hDC,mouse_x,mouse_y,1,BLACK,-1);*/
 }
 
 
@@ -321,6 +325,8 @@ lunar_year
       int c=WHITE,soptions_y=16*8;
       if (hide_taskbar)
         soptions_y+=main_menu_y;
+
+
       if (option_choose==0) {
         c=LTGREEN;
       }
@@ -337,56 +343,93 @@ lunar_year
       }
 
 
+
       c=WHITE;
       if (option_choose==1) {
         c=LTGREEN;
       }
-      GrPrint(hdc,30,10+soptions_y+16,"Audio:",c);
-      if (game_audio) {
-        GrPrint(hdc,30+20*8,10+soptions_y+16,"<ON>",c);
+      GrPrint(hdc,30,10+soptions_y+16,"Iris:",c);
+      GrPrint(hdc,30+20*8,10+soptions_y+16,"<    >",c);
+      //Draw Square
+      if (player_iris_color!=0) {
+        GrRect(hdc,30+8*21,10+soptions_y+16,16,16,BLACK);
       } else {
-        GrPrint(hdc,30+20*8,10+soptions_y+16,"<OFF>",c);
+        GrRect(hdc,30+8*21,10+soptions_y+16,16,16,WHITE);
       }
+      if (player_iris_color>-1 && player_color<COLORS_NUM) {
+        GrRect(hdc,30+8*21+2,10+soptions_y+16+2,12,12,draw_color_arr[player_iris_color]);
+      }
+
 
 
       c=WHITE;
       if (option_choose==2) {
         c=LTGREEN;
       }
-      GrPrint(hdc,30,10+soptions_y+16*2,"Camera Shake:",c);
-      if (game_cam_shake) {
-        GrPrint(hdc,30+20*8,10+soptions_y+16*2,"<ON>",c);
+      GrPrint(hdc,30,10+soptions_y+16*2,"Pupil:",c);
+      GrPrint(hdc,30+20*8,10+soptions_y+16*2,"<    >",c);
+      //Draw Square
+      if (player_pupil_color!=0) {
+        GrRect(hdc,30+8*21,10+soptions_y+16*2,16,16,BLACK);
       } else {
-        GrPrint(hdc,30+20*8,10+soptions_y+16*2,"<OFF>",c);
+        GrRect(hdc,30+8*21,10+soptions_y+16*2,16,16,WHITE);
       }
+      if (player_pupil_color>-1 && player_color<COLORS_NUM) {
+        GrRect(hdc,30+8*21+2,10+soptions_y+2+16*2,12,12,draw_color_arr[player_pupil_color]);
+      }
+
 
 
       c=WHITE;
       if (option_choose==3) {
         c=LTGREEN;
       }
-      GrPrint(hdc,30,10+soptions_y+16*3,"Sound Effects Volume:",c);
-      char print_volume[8];
-      sprintf(print_volume,"<%1.0f%>",game_volume*100);
-      GrPrint(hdc,30+20*8,10+soptions_y+16*3,print_volume,c);
-
+      GrPrint(hdc,30,10+soptions_y+16*3,"Audio:",c);
+      if (game_audio) {
+        GrPrint(hdc,30+20*8,10+soptions_y+16*3,"<ON>",c);
+      } else {
+        GrPrint(hdc,30+20*8,10+soptions_y+16*3,"<OFF>",c);
+      }
 
 
       c=WHITE;
       if (option_choose==4) {
         c=LTGREEN;
       }
-      GrPrint(hdc,30,10+soptions_y+16*4,"Music Volume:",c);
+      GrPrint(hdc,30,10+soptions_y+16*4,"Camera Shake:",c);
+      if (game_cam_shake) {
+        GrPrint(hdc,30+20*8,10+soptions_y+16*4,"<ON>",c);
+      } else {
+        GrPrint(hdc,30+20*8,10+soptions_y+16*4,"<OFF>",c);
+      }
+
+
+      c=WHITE;
+      if (option_choose==5) {
+        c=LTGREEN;
+      }
+      GrPrint(hdc,30,10+soptions_y+16*5,"Sound Effects Volume:",c);
+      char print_volume[8];
+      sprintf(print_volume,"<%1.0f%>",game_volume*100);
+      GrPrint(hdc,30+20*8,10+soptions_y+16*5,print_volume,c);
+
+
+
+      c=WHITE;
+      if (option_choose==6) {
+        c=LTGREEN;
+      }
+      GrPrint(hdc,30,10+soptions_y+16*6,"Music Volume:",c);
       char print_song_volume[8];
       sprintf(print_song_volume,"<%1.0f%>",song_volume*100);
-      GrPrint(hdc,30+20*8,10+soptions_y+16*4,print_song_volume,c);
+      GrPrint(hdc,30+20*8,10+soptions_y+16*6,print_song_volume,c);
 
 
 
       GrPrint(hdc,20,10+soptions_y+16*option_choose,"*",LTGREEN);
 
 
-      GrPrint(hdc,30,main_menu_y+10+16*15,"'1': Go back to Main Menu.",WHITE);
+      GrPrint(hdc,30,main_menu_y+10+16*17,"'1': Go back to Main Menu.",WHITE);
       break;
 
 
@@ -420,52 +463,6 @@ lunar_year
 
 
       GrPrint(hdc,30,main_menu_y+10+16*12,"Level Height (Px):",WHITE);
-
-
-      /*int c=WHITE,soptions_y=16*9;
-      if (hide_taskbar)
-        soptions_y+=main_menu_y;
-      if (option_choose==0) {
-        c=LTGREEN;
-      }
-      GrPrint(hdc,30,10+soptions_y,"Player Color:",c);
-      GrPrint(hdc,30+13*8,10+soptions_y,"<    >",c);
-      //Draw Square
-      if (player_color!=0) {
-        GrRect(hdc,30+8*14,10+soptions_y,16,16,BLACK);
-      } else {
-        GrRect(hdc,30+8*14,10+soptions_y,16,16,WHITE);
-      }
-      if (player_color>-1 && player_color<COLORS_NUM) {
-        GrRect(hdc,30+8*14+2,10+soptions_y+2,12,12,draw_color_arr[player_color]);
-      }
-
-
-      c=WHITE;
-      if (option_choose==1) {
-        c=LTGREEN;
-      }
-      GrPrint(hdc,30,10+soptions_y+16,"Audio:",c);
-      if (game_audio) {
-        GrPrint(hdc,30+13*8,10+soptions_y+16,"<ON>",c);
-      } else {
-        GrPrint(hdc,30+13*8,10+soptions_y+16,"<OFF>",c);
-      }
-
-
-      c=WHITE;
-      if (option_choose==2) {
-        c=LTGREEN;
-      }
-      GrPrint(hdc,30,10+soptions_y+16*2,"Camera Shake:",c);
-      if (game_cam_shake) {
-        GrPrint(hdc,30+13*8,10+soptions_y+16*2,"<ON>",c);
-      } else {
-        GrPrint(hdc,30+13*8,10+soptions_y+16*2,"<OFF>",c);
-      }
-
-      GrPrint(hdc,20,10+soptions_y+16*option_choose,"*",LTGREEN);*/
-
 
       GrPrint(hdc,30,main_menu_y+10+16*14,"[SHIFT_ESC]: Go back to Main Menu.",WHITE);      
       break;
@@ -620,9 +617,9 @@ void DrawUI(HDC hdc) {
 
 //========================
 
-
-  DrawPlayingMusic(hdc,16+4,help_y+48,c,c4);
-
+  if (call_help_timer<5000) {
+    DrawPlayingMusic(hdc,16+4,help_y+48,c,c4);
+  }
 
 
 //=========Draw Player UI
@@ -849,10 +846,12 @@ void DrawUI(HDC hdc) {
     }
     GrPrint(hdc,16+4,help_y-16,"[SHIFT_ESC] to Quit",c4);
     GrPrint(hdc,16+5,help_y+1-16,"[SHIFT_ESC] to Quit",c);
-  } 
-
-  GrPrint(hdc,16+4,help_y+16,"Press '*' for Controls Help",c4);
-  GrPrint(hdc,16+5,help_y+17,"Press '*' for Controls Help",c);
+    GrPrint(hdc,16+4,help_y+16,"Press '*' for Controls Help",c4);
+    GrPrint(hdc,16+5,help_y+17,"Press '*' for Controls Help",c);
+  } else if (call_help_timer<5000) {
+    GrPrint(hdc,16+4,help_y+16,"Press '*' for Controls Help",c4);
+    GrPrint(hdc,16+5,help_y+17,"Press '*' for Controls Help",c);
+  }
 }
 
 

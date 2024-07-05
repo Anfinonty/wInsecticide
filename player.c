@@ -249,6 +249,8 @@ void InitPlayer() {
   player.uppercut=FALSE;
   player.flag_revert_palette=FALSE;
   player.is_on_ground_edge=FALSE;
+  player.is_on_left_ground_edge=FALSE;
+  player.is_on_right_ground_edge=FALSE;
   player.on_ground_edge_id=-1;
   player.saved_on_ground_edge_id=-1;
 
@@ -737,6 +739,8 @@ void PlayerAct() {
     player.jump=TRUE;
     player.on_ground_edge_id=-1;
     player.is_on_ground_edge=FALSE;
+    player.is_on_left_ground_edge=FALSE;
+    player.is_on_right_ground_edge=FALSE;
   }
 
   if (player.jump && player.jump_height==0) {
@@ -900,6 +904,8 @@ void PlayerAct() {
               move_y(-sin(player.angle+M_PI_2));
             }
             player.is_on_ground_edge=FALSE;
+            player.is_on_left_ground_edge=FALSE;
+            player.is_on_right_ground_edge=FALSE;
             player.jump_angle=player.angle+M_PI_2;
             if (player.angle<0) {/*Slope -. /*/
               player.jump_angle2=2*M_PI+player.angle-M_PI_2;
@@ -926,6 +932,8 @@ void PlayerAct() {
               move_y(-sin(player.angle-M_PI_2));
             }
             player.is_on_ground_edge=FALSE;
+            player.is_on_left_ground_edge=FALSE;
+            player.is_on_right_ground_edge=FALSE;
             player.jump_angle=player.angle-M_PI_2;
             if (player.angle<0) {/*Slope -. /*/
               player.jump_angle2=M_PI_2+player.angle;
@@ -1039,7 +1047,7 @@ void PlayerAct() {
             //}
           }
         } else { //landed on ground
-	      if (player.grav>=3 && !player.is_swinging) {
+	      if (player.grav>=3 && !player.is_swinging && !player.is_on_ground_edge) {
 	        if (player.grav>7) {
 	          player.cam_move_x*=-1;
 	        }
@@ -1133,10 +1141,12 @@ void PlayerAct() {
         if (!player.blocking && !player.rst_up) {
           double edge_dist1=GetDistance(player.x,player.y,Ground[tmp_on_ground_id]->x1,Ground[tmp_on_ground_id]->y1); //left edge
           double edge_dist2=GetDistance(player.x,player.y,Ground[tmp_on_ground_id]->x2,Ground[tmp_on_ground_id]->y2);
-          if (edge_dist1<30 || edge_dist2<30) {  
+          if (edge_dist1<20 || edge_dist2<20) {  
             player.is_on_ground_edge=TRUE;
             player.in_air_timer=0;
-            if (edge_dist1<30) {  //at edge 1
+            if (edge_dist1<20) {  //at edge 1
+              player.is_on_left_ground_edge=TRUE;
+              player.is_on_right_ground_edge=FALSE;
               double edge_angle=GetCosAngle(player.x-Ground[tmp_on_ground_id]->x1,edge_dist1);
               if (player.y<Ground[tmp_on_ground_id]->y1) { //above pivot
                 /*if (edge_dist1<25) {
@@ -1173,7 +1183,9 @@ void PlayerAct() {
                   }
                 //}
               }
-            } else if (edge_dist2<30) {//at edge 2
+            } else if (edge_dist2<20) {//at edge 2
+              player.is_on_right_ground_edge=TRUE;
+              player.is_on_left_ground_edge=FALSE;
               double edge_angle=GetCosAngle(player.x-Ground[tmp_on_ground_id]->x2,edge_dist2);
               if (player.y<Ground[tmp_on_ground_id]->y2) { //above pivot
                 /*if (edge_dist2<25) {
@@ -1214,10 +1226,14 @@ void PlayerAct() {
           } else { //neither edge 1 or 2
             player.on_ground_edge_id=-1;
             player.is_on_ground_edge=FALSE;
+            player.is_on_left_ground_edge=FALSE;
+            player.is_on_right_ground_edge=FALSE;
           }
         } else { //player is blocking
           player.on_ground_edge_id=-1;
           player.is_on_ground_edge=FALSE;
+          player.is_on_left_ground_edge=FALSE;
+          player.is_on_right_ground_edge=FALSE;
         }
       } else {
         player.on_ground_edge_id=-1;
@@ -1225,7 +1241,7 @@ void PlayerAct() {
       }
 
       //====PLAYER CIRCULAR WEB SWINGING MOVEMENT======
-      if (player.is_swinging) {
+      if (player.is_swinging && !player.is_on_ground_edge) {
         player.grav=5;
         player.is_rebounding=FALSE;
         player.pivot_length=GetDistance(player.pivot_x,player.pivot_y,player.x,player.y);
@@ -1780,6 +1796,17 @@ void DrawPlayer(HDC hdc)
     player.time_breaker_tick=0;
   }
 
+  if (player.is_on_ground_edge) {
+    int tmp_ground_id=player.on_ground_edge_id;
+    if (tmp_ground_id==-1)
+      tmp_ground_id=player.saved_on_ground_edge_id;
+    if (player.is_on_left_ground_edge) {
+      GrLine(hdc,player.x+player.cam_x+player.cam_move_x,player.y+player.cam_y+player.cam_move_y,Ground[tmp_ground_id]->x1+player.cam_x+player.cam_move_x,Ground[tmp_ground_id]->y1+player.cam_y+player.cam_move_y,LTCYAN);
+    } else if (player.is_on_right_ground_edge) {
+      GrLine(hdc,player.x+player.cam_x+player.cam_move_x,player.y+player.cam_y+player.cam_move_y,Ground[tmp_ground_id]->x2+player.cam_x+player.cam_move_x,Ground[tmp_ground_id]->y2+player.cam_y+player.cam_move_y,LTCYAN);
+    }
+  }
+
   //GrRect(hdc,player.x-PLAYER_WIDTH,player.y-PLAYER_HEIGHT,PLAYER_WIDTH,PLAYER_HEIGHT,RGB(34,139,34));
   //Mathematics
   if (player.on_ground_id!=-1) {
@@ -1842,8 +1869,8 @@ void DrawPlayer(HDC hdc)
   if (player.saved_sprite_angle!=player.sprite_angle && player.on_ground_id!=-1) { //detect chnage in walk sprite angle
     DeleteObject(player.sprite_1_cache);
     DeleteObject(player.sprite_2_cache);
-    player.sprite_1_cache = RotateSprite(hdc, player.sprite_1,player.sprite_angle,LTGREEN,draw_color_arr[player.load_color],-1);
-    player.sprite_2_cache = RotateSprite(hdc, player.sprite_2,player.sprite_angle,LTGREEN,draw_color_arr[player.load_color],-1);
+    player.sprite_1_cache = RotateSprite(hdc, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player.load_color],-1);
+    player.sprite_2_cache = RotateSprite(hdc, player.sprite_2,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player.load_color],-1);
     player.saved_sprite_angle=player.sprite_angle;
   }
 
@@ -1853,9 +1880,9 @@ void DrawPlayer(HDC hdc)
     DeleteObject(player.block_sprite_2_cache);
     DeleteObject(player.block_sprite_3_cache);
 
-    player.block_sprite_1_cache = RotateSprite(hdc, player.block_sprite_1,player.sprite_angle,LTGREEN,draw_color_arr[player.load_color],-1);
-    player.block_sprite_2_cache = RotateSprite(hdc, player.block_sprite_2,player.sprite_angle,LTGREEN,draw_color_arr[player.load_color],-1);
-    player.block_sprite_3_cache = RotateSprite(hdc, player.block_sprite_3,player.sprite_angle,LTGREEN,draw_color_arr[player.load_color],-1);
+    player.block_sprite_1_cache = RotateSprite(hdc, player.block_sprite_1,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player.load_color],-1);
+    player.block_sprite_2_cache = RotateSprite(hdc, player.block_sprite_2,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player.load_color],-1);
+    player.block_sprite_3_cache = RotateSprite(hdc, player.block_sprite_3,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player.load_color],-1);
 
     player.saved_block_sprite_angle=player.sprite_angle;
   }
@@ -1865,10 +1892,10 @@ void DrawPlayer(HDC hdc)
     DeleteObject(player.attack_sprite_3_cache);
     DeleteObject(player.attack_sprite_4_cache);
 
-    player.attack_sprite_1_cache = RotateSprite(hdc, player.attack_sprite_1,player.sprite_angle,LTGREEN,draw_color_arr[player.load_color],-1);
-    player.attack_sprite_2_cache = RotateSprite(hdc, player.attack_sprite_2,player.sprite_angle,LTGREEN,draw_color_arr[player.load_color],-1);
-    player.attack_sprite_3_cache = RotateSprite(hdc, player.attack_sprite_3,player.sprite_angle,LTGREEN,draw_color_arr[player.load_color],-1);
-    player.attack_sprite_4_cache = RotateSprite(hdc, player.attack_sprite_4,player.sprite_angle,LTGREEN,draw_color_arr[player.load_color],-1);
+    player.attack_sprite_1_cache = RotateSprite(hdc, player.attack_sprite_1,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player.load_color],-1);
+    player.attack_sprite_2_cache = RotateSprite(hdc, player.attack_sprite_2,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player.load_color],-1);
+    player.attack_sprite_3_cache = RotateSprite(hdc, player.attack_sprite_3,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player.load_color],-1);
+    player.attack_sprite_4_cache = RotateSprite(hdc, player.attack_sprite_4,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player.load_color],-1);
     player.saved_attack_sprite_angle=player.sprite_angle;
   }
   bool is_blink=TRUE;

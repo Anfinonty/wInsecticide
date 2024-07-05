@@ -146,6 +146,8 @@ struct player
   bool low_jump;
 
   bool is_on_ground_edge;
+  bool is_on_left_ground_edge;
+  bool is_on_right_ground_edge;
     //Render
   //int rendered_vgrid_num;
   //int rendered_enemy_num;
@@ -259,6 +261,8 @@ struct player
   double sprite_y;
   double claws_x;
   double claws_y;
+  //double cam_edge_move_x;
+  //double cam_edge_move_y;
 
   double block_health_max;
   double block_health;
@@ -280,6 +284,21 @@ struct player
   int cdwebs[MAX_WEB_NUM];
   //int render_vgrids[VRDGRID_NUM];
   int bullet[PLAYER_BULLET_NUM];
+
+
+//
+  HBITMAP osprite_1;
+  HBITMAP osprite_2;
+  HBITMAP osprite_jump;
+  HBITMAP oattack_sprite_1;
+  HBITMAP oattack_sprite_2;
+  HBITMAP oattack_sprite_3;
+  HBITMAP oattack_sprite_4;
+  HBITMAP oblock_sprite_1;
+  HBITMAP oblock_sprite_2;
+  HBITMAP oblock_sprite_3;
+  HBITMAP ospin_sprite;
+
 
 
 //sprites
@@ -713,8 +732,13 @@ int mouse_x;
 int mouse_y;
 HBITMAP mouse_cursor_sprite;
 HBITMAP mouse_cursor_sprite_cache;
+HBITMAP mouse_cursor_sprite_iris_cache;
+HBITMAP mouse_cursor_sprite_pupil_cache;
+
 HBITMAP mouse_cursor_sprite2;
 HBITMAP mouse_cursor_sprite_cache2;
+HBITMAP mouse_cursor_sprite_iris_cache2;
+HBITMAP mouse_cursor_sprite_pupil_cache2;
 
 HBITMAP enemy1_sprite_1;
 HBITMAP enemy1_sprite_2;

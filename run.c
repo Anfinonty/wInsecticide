@@ -61,6 +61,7 @@ wchar_t save_level[128];
 int level_chosen=0;
 int windowx=0;
 int windowy=0;
+int call_help_timer=0;
 
 int enemy_kills=0;
 //int FPS = 60;
@@ -72,9 +73,20 @@ int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
 
 int frame_tick=-10;
 int int_best_score=0; //to store to write
+
 int player_color=0;
 int old_player_color=0;
 int player_load_color=0;
+
+int player_iris_color=4;
+int old_player_iris_color=4;
+int player_load_iris_color=4;
+
+int player_pupil_color=12;
+int old_player_pupil_color=12;
+int player_load_pupil_color=12;
+
+
 int player_bullet_color=0;
 
 
@@ -311,9 +323,15 @@ void InitOnce() {
 
 //  alloc_enemy_once=TRUE;
   player_load_color=player_color;
+  player_load_iris_color=player_iris_color;
+  player_load_pupil_color=player_pupil_color;
   player_bullet_color=WHITE;
+
   if (IsInvertedBackground()) { //invert player color if background is inverted
     player_load_color=COLORS_NUM-player_color-1;
+    player_load_iris_color=COLORS_NUM-player_iris_color-1;
+    player_load_pupil_color=COLORS_NUM-player_pupil_color-1;
+
     player_bullet_color=BLACK;
   }
 
@@ -441,49 +459,92 @@ void InitLevel(HWND hwnd, HDC hdc)
   Init(hdc);
 
 
+
+  //Load Player Cosmetics
+  DeleteObject(player.sprite_1);
+  DeleteObject(player.sprite_2);
+  DeleteObject(player.sprite_jump);
+
+  DeleteObject(player.attack_sprite_1);
+  DeleteObject(player.attack_sprite_2);
+  DeleteObject(player.attack_sprite_3);
+  DeleteObject(player.attack_sprite_4);
+
+  DeleteObject(player.block_sprite_1);
+  DeleteObject(player.block_sprite_2);
+  DeleteObject(player.block_sprite_3);
+
+  DeleteObject(player.spin_sprite);
+
+
+
+  player.sprite_1 = RotateSprite(NULL, player.osprite_1,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
+  player.sprite_2 = RotateSprite(NULL, player.osprite_2,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
+  player.sprite_jump = RotateSprite(NULL, player.osprite_jump,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
+
+  player.attack_sprite_1 = RotateSprite(NULL, player.oattack_sprite_1,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
+  player.attack_sprite_2 = RotateSprite(NULL, player.oattack_sprite_2,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
+  player.attack_sprite_3 = RotateSprite(NULL, player.oattack_sprite_3,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
+  player.attack_sprite_4 = RotateSprite(NULL, player.oattack_sprite_4,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
+
+  player.block_sprite_1 = RotateSprite(NULL, player.oblock_sprite_1,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
+  player.block_sprite_2 = RotateSprite(NULL, player.oblock_sprite_2,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
+  player.block_sprite_3 = RotateSprite(NULL, player.oblock_sprite_3,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
+
+  player.spin_sprite = RotateSprite(NULL, player.ospin_sprite,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
+
+
+
+
   //Load Player Sprites
-  player.sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,player.sprite_angle,LTGREEN,draw_color_arr[player_load_color],-1);
-  player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,draw_color_arr[player_load_color],-1);
-  player.sprite_2_cache = RotateSprite(NULL, player.sprite_2,player.sprite_angle,LTGREEN,draw_color_arr[player_load_color],-1);
+  player.sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
+  player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
+  player.sprite_2_cache = RotateSprite(NULL, player.sprite_2,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
 
-  player.attack_sprite_1_cache = RotateSprite(NULL, player.attack_sprite_1,player.sprite_angle,LTGREEN,draw_color_arr[player_load_color],-1);
-  player.attack_sprite_2_cache = RotateSprite(NULL, player.attack_sprite_2,player.sprite_angle,LTGREEN,draw_color_arr[player_load_color],-1);
-  player.attack_sprite_3_cache = RotateSprite(NULL, player.attack_sprite_3,player.sprite_angle,LTGREEN,draw_color_arr[player_load_color],-1);
-  player.attack_sprite_4_cache = RotateSprite(NULL, player.attack_sprite_4,player.sprite_angle,LTGREEN,draw_color_arr[player_load_color],-1);
+  player.attack_sprite_1_cache = RotateSprite(NULL, player.attack_sprite_1,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
+  player.attack_sprite_2_cache = RotateSprite(NULL, player.attack_sprite_2,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
+  player.attack_sprite_3_cache = RotateSprite(NULL, player.attack_sprite_3,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
+  player.attack_sprite_4_cache = RotateSprite(NULL, player.attack_sprite_4,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
 
-  player.block_sprite_1_cache = RotateSprite(NULL, player.block_sprite_1,player.sprite_angle,LTGREEN,draw_color_arr[player_load_color],-1);
-  player.block_sprite_2_cache = RotateSprite(NULL, player.block_sprite_2,player.sprite_angle,LTGREEN,draw_color_arr[player_load_color],-1);
-  player.block_sprite_3_cache = RotateSprite(NULL, player.block_sprite_3,player.sprite_angle,LTGREEN,draw_color_arr[player_load_color],-1);
+  player.block_sprite_1_cache = RotateSprite(NULL, player.block_sprite_1,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
+  player.block_sprite_2_cache = RotateSprite(NULL, player.block_sprite_2,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
+  player.block_sprite_3_cache = RotateSprite(NULL, player.block_sprite_3,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
 
-  player.spin_sprite_1_cache = RotateSprite(NULL, player.spin_sprite,0.1,LTGREEN,draw_color_arr[player_load_color],-1);
-  player.spin_sprite_2_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI_2,LTGREEN,draw_color_arr[player_load_color],-1);
-  player.spin_sprite_3_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI,LTGREEN,draw_color_arr[player_load_color],-1);
-  player.spin_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,draw_color_arr[player_load_color],-1);
+  player.spin_sprite_1_cache = RotateSprite(NULL, player.spin_sprite,0.1,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
+  player.spin_sprite_2_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI_2,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
+  player.spin_sprite_3_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
+  player.spin_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
 
   //moon sprite
   DeleteObject(moon_sprite_cache);
   HBITMAP tmp_moon_sprite=CopyCrunchyBitmap(moon_sprite,NOTSRCCOPY);
-  moon_sprite_cache=RotateSprite(NULL, tmp_moon_sprite,0,PURPLE,BLACK,-1);
+  moon_sprite_cache=RotateSprite(NULL, tmp_moon_sprite,0,PURPLE,BLACK,BLACK,-1);
   DeleteObject(tmp_moon_sprite);
 
   DeleteObject(mouse_cursor_sprite_cache);
-  //if (!IsInvertedBackground()) {
-    mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,draw_color_arr[player_load_color],-1);
-  /*} else {
-    HBITMAP tmp_mouse_cursor_sprite=CopyCrunchyBitmap(mouse_cursor_sprite,NOTSRCCOPY);
-    mouse_cursor_sprite_cache=RotateSprite(NULL, tmp_mouse_cursor_sprite,0,PURPLE,draw_color_arr[player_load_color],-1);
-    DeleteObject(tmp_mouse_cursor_sprite);
-  }*/
-
-
   DeleteObject(mouse_cursor_sprite_cache2);
-  //if (!IsInvertedBackground()) {
-    mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,draw_color_arr[player_load_color],-1);
-  /*} else {
-    HBITMAP tmp_mouse_cursor_sprite2=CopyCrunchyBitmap(mouse_cursor_sprite2,NOTSRCCOPY);
-    mouse_cursor_sprite_cache2=RotateSprite(NULL, tmp_mouse_cursor_sprite2,0,PURPLE,draw_color_arr[player_load_color],-1);
-    DeleteObject(tmp_mouse_cursor_sprite2);
-  }*/
+  DeleteObject(mouse_cursor_sprite_iris_cache);
+  DeleteObject(mouse_cursor_sprite_cache2);
+  DeleteObject(mouse_cursor_sprite_pupil_cache);
+  DeleteObject(mouse_cursor_sprite_pupil_cache2);
+
+  mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
+
+  mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
+
+
+
+  mouse_cursor_sprite_iris_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,RED,draw_color_arr[player_load_iris_color]);
+
+  mouse_cursor_sprite_iris_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,RED,draw_color_arr[player_load_iris_color]);
+
+
+
+  mouse_cursor_sprite_pupil_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTRED,draw_color_arr[player_load_pupil_color]);
+
+  mouse_cursor_sprite_pupil_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTRED,draw_color_arr[player_load_pupil_color]);
+
+
   //Load Enemy cache spritesF
   InitEnemySprites();
 
@@ -649,6 +710,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         switch (wParam) {
         //Holding down '9' Key
           case '9'://skip song, upwnwards (previous)
+            call_help_timer=0;
             if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
               if (song_mode<=2) {
                 if  (!keydownalt()) {
@@ -664,6 +726,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         //Holding down '0' Key
           case '0'://skip song, downwards (next)
+            call_help_timer=0;
             if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
               if (song_mode<=2) {
                 song_rand_num=LimitValue(song_rand_num+1,0,song_num);
@@ -808,7 +871,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             //Holding Down Down Arrow or 'S'
                case 'S':
                case VK_DOWN:
-                 option_choose=LimitValue(option_choose+1,0,5);
+                 option_choose=LimitValue(option_choose+1,0,7);
                  if (game_audio)
                    PlaySound(mkey_down_up_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //up down
                  break;
@@ -823,23 +886,35 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                      if (game_audio)
                        PlaySound(mkey_paint_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //paint
                      break;
-                   case 1: //Enable/Disable sound effects
+                   case 1: //Change color of player iris ++
+                     player_iris_color=LimitValue(player_iris_color+1,0,COLORS_NUM);
+                     if (game_audio)
+                       PlaySound(mkey_paint_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //paint
+                     break;
+                   case 2: //Change color of player pupil ++
+                     player_pupil_color=LimitValue(player_pupil_color+1,0,COLORS_NUM);
+                     if (game_audio)
+                       PlaySound(mkey_paint_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //paint
+                     break;
+
+
+                   case 3: //Enable/Disable sound effects
                      if (game_audio)
                        PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
                      else
                        PlaySound(mkey_true_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //true
                      game_audio=!game_audio;
                      break;
-                   case 2: //Enable/Disable camera shaking
-                     if (game_cam_shake)
-                       if (game_audio)
+                   case 4: //Enable/Disable camera shaking
+                     if (game_audio) {
+                       if (game_cam_shake)
                          PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
-                     else
-                       if (game_audio)
+                       else
                          PlaySound(mkey_true_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //true
+                     }
                      game_cam_shake=!game_cam_shake;                
                      break;
-                   case 3:
+                   case 5:
                      if (game_volume>=2.0) {
                        game_volume+=1.0;
                      } else {
@@ -852,13 +927,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                        PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
                      flag_adjust_audio=TRUE;
                      break;
-                   case 4:
+                   case 6:
                      if (song_volume>=2.0) {
                        song_volume+=1.0;
                      } else {
                        song_volume+=0.1;
                      }
-                     if (song_volume>20.0) { //max song volume
+                     if (song_volume>10.0) { //max song volume
                         song_volume=0.0;
                      }
                      flag_adjust_song_audio=TRUE;
@@ -878,24 +953,36 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                     if (game_audio)
                       PlaySound(mkey_paint_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //paint
                     break;
-                  case 1: //Enable/Disable sound effects
+                  case 1: //Change color of player iris --
+                    player_iris_color=LimitValue(player_iris_color-1,0,COLORS_NUM);
+                    if (game_audio)
+                      PlaySound(mkey_paint_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //paint
+                    break;
+                  case 2: //Change color of player pupil --
+                    player_pupil_color=LimitValue(player_pupil_color-1,0,COLORS_NUM);
+                    if (game_audio)
+                      PlaySound(mkey_paint_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //paint
+                    break;
+
+
+                  case 3: //Enable/Disable sound effects
                     if (game_audio)
                       PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
                     else
                       PlaySound(mkey_true_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //true
                     game_audio=!game_audio;
                     break;
-                  case 2:  //Enable/Disable camera shaking 
-                    if (game_cam_shake)
-                      if (game_audio)
+                  case 4:  //Enable/Disable camera shaking 
+                    if (game_audio) {
+                      if (game_cam_shake)
                         PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
-                    else
-                      if (game_audio)
+                      else
                         PlaySound(mkey_true_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //true
+                    }
                     game_cam_shake=!game_cam_shake;                
                     break;
-                   case 3:
-                     if (game_volume>3.0) {
+                   case 5:
+                     if (game_volume>=3.0) {
                        game_volume-=1.0;
                      } else {
                        game_volume-=0.1;
@@ -908,14 +995,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                        PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
                      flag_adjust_audio=TRUE;
                      break;
-                   case 4:
-                     if (song_volume>3.0) {
+                   case 6:
+                     if (song_volume>=3.0) {
                        song_volume-=1.0;
                      } else {
                        song_volume-=0.1;
                      }
                      if (song_volume<0.0) {
-                       song_volume=20.0;
+                       song_volume=10.0;
                      }
                      if (game_audio)
                        PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
@@ -928,7 +1015,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             //Holding Down Up Arrow or 'W''
               case 'W':
               case VK_UP:
-                option_choose=LimitValue(option_choose-1,0,5);
+                option_choose=LimitValue(option_choose-1,0,7);
                 //PlaySound(L"snd/FE_COMMON_MB_02.wav", NULL, SND_FILENAME | SND_ASYNC); //up down
                  if (game_audio)
                   PlaySound(mkey_down_up_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //up down
@@ -1005,6 +1092,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         //Release N key while holding SHIFT or not
         case 'N':
+          call_help_timer=0;
           if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
             if (song_mode==0 || song_mode==3) {
               if (!stop_playing_song) {
@@ -1032,6 +1120,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         //Release M key while holding SHIFT or not
         case 'M':
+          call_help_timer=0;
           if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
             if (song_mode>=2) {
               if (!stop_playing_song) {
@@ -1074,6 +1163,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
           //Release '8' key holding SHIFT
           case '8':
+            call_help_timer=0;
             if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = QUIT
               if (!display_controls) {
                 display_controls=TRUE;
@@ -1187,12 +1277,39 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
                    if (old_player_color!=player_color) {
                      DeleteObject(mouse_cursor_sprite_cache);
-                     mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,draw_color_arr[player_color],-1);
-   
+                     mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
+
                      DeleteObject(mouse_cursor_sprite_cache2);
-                     mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,draw_color_arr[player_color],-1);
+                     mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
                      old_player_color=player_color;
                    }
+
+
+                   if (old_player_iris_color!=player_iris_color) {
+                     DeleteObject(mouse_cursor_sprite_iris_cache);
+                     mouse_cursor_sprite_iris_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,RED,draw_color_arr[player_iris_color]);
+
+                     DeleteObject(mouse_cursor_sprite_iris_cache2);
+                     mouse_cursor_sprite_iris_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,RED,draw_color_arr[player_iris_color]);
+                     old_player_iris_color=player_iris_color;
+                   }
+
+
+
+
+                   if (old_player_pupil_color!=player_pupil_color) {
+                     DeleteObject(mouse_cursor_sprite_pupil_cache);
+                     mouse_cursor_sprite_pupil_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTRED,draw_color_arr[player_pupil_color]);
+
+                     DeleteObject(mouse_cursor_sprite_pupil_cache2);
+                     mouse_cursor_sprite_pupil_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTRED,draw_color_arr[player_pupil_color]);
+                     old_player_pupil_color=player_pupil_color;
+                   }
+
+
+
+
+
                    //PlaySound(L"snd/FE_COMMON_MB_05.wav", NULL, SND_FILENAME | SND_ASYNC); //esc
 
                    //adjust volume
@@ -1249,12 +1366,33 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                  if (old_player_color!=player_color) { //change when not same
 
                    DeleteObject(mouse_cursor_sprite_cache);
-                   mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,draw_color_arr[player_color],-1);
-   
+                   mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);   
                    DeleteObject(mouse_cursor_sprite_cache2);
-                   mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,draw_color_arr[player_color],-1);
+                   mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
 
                    old_player_color=player_color;
+                 }
+
+
+                 if (old_player_iris_color!=player_iris_color) {
+                   DeleteObject(mouse_cursor_sprite_iris_cache);
+                   mouse_cursor_sprite_iris_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,RED,draw_color_arr[player_iris_color]);
+
+                   DeleteObject(mouse_cursor_sprite_iris_cache2);
+                   mouse_cursor_sprite_iris_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,RED,draw_color_arr[player_iris_color]);
+                   old_player_iris_color=player_iris_color;
+                 }
+
+
+
+
+                 if (old_player_pupil_color!=player_pupil_color) {
+                   DeleteObject(mouse_cursor_sprite_pupil_cache);
+                   mouse_cursor_sprite_pupil_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTRED,draw_color_arr[player_pupil_color]);
+
+                   DeleteObject(mouse_cursor_sprite_pupil_cache2);
+                   mouse_cursor_sprite_pupil_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTRED,draw_color_arr[player_pupil_color]);
+                   old_player_pupil_color=player_pupil_color;
                  }
                  break;
             }
@@ -1447,6 +1585,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             //CleanUpGround();
             CleanupPlayerAttributes();
             save_level[0]='\0';
+            call_help_timer=0;
 
 
 
@@ -1504,14 +1643,31 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             in_main_menu=TRUE;
 
             DeleteObject(moon_sprite_cache);
-            moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,-1);
+            moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,BLACK,-1);
 
             DeleteObject(mouse_cursor_sprite_cache);
-            mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,draw_color_arr[player_color],-1);
-
             DeleteObject(mouse_cursor_sprite_cache2);
-            mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,draw_color_arr[player_color],-1);
+            DeleteObject(mouse_cursor_sprite_iris_cache);
+            DeleteObject(mouse_cursor_sprite_cache2);
+            DeleteObject(mouse_cursor_sprite_pupil_cache);
+            DeleteObject(mouse_cursor_sprite_pupil_cache2);
 
+
+            mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
+
+            mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
+
+
+
+            mouse_cursor_sprite_iris_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,RED,draw_color_arr[player_iris_color]);
+
+            mouse_cursor_sprite_iris_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,RED,draw_color_arr[player_iris_color]);
+
+
+
+            mouse_cursor_sprite_pupil_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTRED,draw_color_arr[player_pupil_color]);
+
+            mouse_cursor_sprite_pupil_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTRED,draw_color_arr[player_pupil_color]);
 
           }
         } else { //In Main Menu
@@ -1547,7 +1703,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       remove("music/tmp/tmp.wav");
       rmdir("music/tmp"); //remove tmp
 
-      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៩ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1969-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1445-12-25"), TEXT("អាពីងស៊ីរុយ") ,MB_OK);
+      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៩ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1969-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1445-12-28"), TEXT("អាពីងស៊ីរុយ") ,MB_OK);
 
       //load levels in save
       GetSavesInDir(L"saves");
@@ -1634,20 +1790,54 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //uncanny =  (HBITMAP) LoadImageW(NULL, L"sprites/uncanny.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
 
-      player.sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/player1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      player.sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/player2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      player.sprite_jump = (HBITMAP) LoadImageW(NULL, L"sprites/player3-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      player.osprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/player1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      player.osprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/player2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      player.osprite_jump = (HBITMAP) LoadImageW(NULL, L"sprites/player3-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
-      player.attack_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/player-attack-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      player.attack_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/player-attack-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      player.attack_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/player-attack-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      player.attack_sprite_4 = (HBITMAP) LoadImageW(NULL, L"sprites/player-attack-4.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      player.oattack_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/player-attack-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      player.oattack_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/player-attack-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      player.oattack_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/player-attack-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      player.oattack_sprite_4 = (HBITMAP) LoadImageW(NULL, L"sprites/player-attack-4.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
-      player.block_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/player-block-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      player.block_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/player-block-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      player.block_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/player-block-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      player.oblock_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/player-block-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      player.oblock_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/player-block-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      player.oblock_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/player-block-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
-      player.spin_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/player-spin.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      player.ospin_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/player-spin.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+
+
+      /*DeleteObject(player.sprite_1);
+      DeleteObject(player.sprite_2);
+      DeleteObject(player.jump);
+
+      DeleteObject(player.attack_sprite_1);
+      DeleteObject(player.attack_sprite_2);
+      DeleteObject(player.attack_sprite_3);
+      DeleteObject(player.attack_sprite_4);
+
+      DeleteObject(player.block_sprite_1);
+      DeleteObject(player.block_sprite_2);
+      DeleteObject(player.block_sprite_3);
+
+      DeleteObject(player.spin_sprite);*/
+
+
+
+      player.sprite_1 = RotateSprite(NULL, player.osprite_1,0,-1,LTRED,LTRED,-1);
+      player.sprite_2 = RotateSprite(NULL, player.osprite_2,0,-1,LTRED,LTRED,-1);
+      player.sprite_jump = RotateSprite(NULL, player.osprite_jump,0,-1,LTRED,LTRED,-1);
+
+      player.attack_sprite_1 = RotateSprite(NULL, player.oattack_sprite_1,0,-1,LTRED,LTRED,-1);
+      player.attack_sprite_2 = RotateSprite(NULL, player.oattack_sprite_2,0,-1,LTRED,LTRED,-1);
+      player.attack_sprite_3 = RotateSprite(NULL, player.oattack_sprite_3,0,-1,LTRED,LTRED,-1);
+      player.attack_sprite_4 = RotateSprite(NULL, player.oattack_sprite_4,0,-1,LTRED,LTRED,-1);
+
+      player.block_sprite_1 = RotateSprite(NULL, player.oblock_sprite_1,0,-1,LTRED,LTRED,-1);
+      player.block_sprite_2 = RotateSprite(NULL, player.oblock_sprite_2,0,-1,LTRED,LTRED,-1);
+      player.block_sprite_3 = RotateSprite(NULL, player.oblock_sprite_3,0,-1,LTRED,LTRED,-1);
+
+      player.spin_sprite = RotateSprite(NULL, player.ospin_sprite,0,-1,LTRED,LTRED,-1);
 
 
       /*player.sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/canny.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
@@ -1676,11 +1866,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
       //Load mouse cursor sprite
-      mouse_cursor_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/player_cursor1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      mouse_cursor_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/player_cursor2_1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       mouse_cursor_sprite2 = (HBITMAP) LoadImageW(NULL, L"sprites/player_cursor2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
-      mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,-1);
-      mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,BLACK,-1);
+      //mouse_cursor_sprite_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,BLACK,BLACK);
+      //mouse_cursor_sprite_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,BLACK,BLACK);
+      mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
+      mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
+
+      mouse_cursor_sprite_iris_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,RED,RED);
+      mouse_cursor_sprite_iris_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,RED,RED);
+
+      mouse_cursor_sprite_pupil_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTRED,LTRED);
+      mouse_cursor_sprite_pupil_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTRED,LTRED);
 
       //Load moon sprite based on lunar day
       if (lunar_day>=1 && lunar_day<=5) { //1, 2, 3, 4, 5
@@ -1701,7 +1899,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-28.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       }
       //moon_sprite_cache=CreteLargeBitmap(NULL, 128, 128);
-      moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,-1);
+      moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,BLACK,-1);
       }
 
       //fullscreen

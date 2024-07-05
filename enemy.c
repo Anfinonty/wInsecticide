@@ -1137,21 +1137,21 @@ void InitEnemySprites()
     Enemy[i]->current_draw_row=-9999;
     if (Enemy[i]->species==0) {
       if (EnemySprite[i].sprite_1==NULL) {
-        EnemySprite[i].sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,Enemy[i]->color,-1);
+        EnemySprite[i].sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,BLACK,Enemy[i]->color,-1);
       }
       if (EnemySprite[i].sprite_2==NULL) {
-        EnemySprite[i].sprite_2=RotateSprite(NULL, enemy1_sprite_2,0,LTGREEN,Enemy[i]->color,-1);
+        EnemySprite[i].sprite_2=RotateSprite(NULL, enemy1_sprite_2,0,LTGREEN,BLACK,Enemy[i]->color,-1);
       }
       EnemySprite[i].sprite_3=NULL;
     } else {
       if (EnemySprite[i].sprite_1==NULL) {
-        EnemySprite[i].sprite_1=RotateSprite(NULL, enemy2_sprite_1,0,LTGREEN,Enemy[i]->color,-1);
+        EnemySprite[i].sprite_1=RotateSprite(NULL, enemy2_sprite_1,0,LTGREEN,BLACK,Enemy[i]->color,-1);
       }
       if (EnemySprite[i].sprite_2==NULL) {
-        EnemySprite[i].sprite_2=RotateSprite(NULL, enemy2_sprite_2,0,LTGREEN,Enemy[i]->color,-1);
+        EnemySprite[i].sprite_2=RotateSprite(NULL, enemy2_sprite_2,0,LTGREEN,BLACK,Enemy[i]->color,-1);
       }
       if (EnemySprite[i].sprite_3==NULL) {
-        EnemySprite[i].sprite_3=RotateSprite(NULL, enemy2_sprite_3,0,LTGREEN,Enemy[i]->color,-1);
+        EnemySprite[i].sprite_3=RotateSprite(NULL, enemy2_sprite_3,0,LTGREEN,BLACK,Enemy[i]->color,-1);
       }
     }
   }
@@ -1275,7 +1275,7 @@ void DrawEnemy(HDC hdc)
     for (i=0;i<ENEMY_NUM;i++) {
       if (Enemy[i]->species==1) {
         DeleteObject(EnemySprite[i].sprite_3);
-        EnemySprite[i].sprite_3=RotateSprite(hdc, enemy2_sprite_3,0,LTGREEN,Enemy[i]->color,-1);
+        EnemySprite[i].sprite_3=RotateSprite(hdc, enemy2_sprite_3,0,LTGREEN,BLACK,Enemy[i]->color,-1);
       }
     }
   }
@@ -1355,8 +1355,8 @@ void DrawEnemy(HDC hdc)
             DeleteObject(EnemySprite[i].sprite_2);
           }
 
-          EnemySprite[i].sprite_1=RotateSprite(hdc, enemy1_sprite_1,Enemy[i]->sprite_angle,LTGREEN,Enemy[i]->color,-1);
-          EnemySprite[i].sprite_2=RotateSprite(hdc, enemy1_sprite_2,Enemy[i]->sprite_angle,LTGREEN,Enemy[i]->color,-1);
+          EnemySprite[i].sprite_1=RotateSprite(hdc, enemy1_sprite_1,Enemy[i]->sprite_angle,LTGREEN,BLACK,Enemy[i]->color,-1);
+          EnemySprite[i].sprite_2=RotateSprite(hdc, enemy1_sprite_2,Enemy[i]->sprite_angle,LTGREEN,BLACK,Enemy[i]->color,-1);
           Enemy[i]->saved_angle=0;
         }
       }
@@ -1438,8 +1438,8 @@ void DrawEnemy(HDC hdc)
           DeleteObject(EnemySprite[i].sprite_2);
         }
         Enemy[i]->play_death_snd=TRUE;
-        EnemySprite[i].sprite_1=RotateSprite(hdc, enemy1_sprite_1,Enemy[i]->sprite_angle,LTGREEN,DKBLACK,TRANSPARENT);
-        EnemySprite[i].sprite_2=RotateSprite(hdc, enemy1_sprite_2,Enemy[i]->sprite_angle,LTGREEN,DKBLACK,TRANSPARENT);
+        EnemySprite[i].sprite_1=RotateSprite(hdc, enemy1_sprite_1,Enemy[i]->sprite_angle,LTGREEN,BLACK,DKBLACK,TRANSPARENT);
+        EnemySprite[i].sprite_2=RotateSprite(hdc, enemy1_sprite_2,Enemy[i]->sprite_angle,LTGREEN,BLACK,DKBLACK,TRANSPARENT);
         Enemy[i]->health=-99999;
       }
     }

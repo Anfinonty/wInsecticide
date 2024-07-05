@@ -229,7 +229,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
             waveOutSetVolume(hWaveOut[2],vol);
 
             wchar_t set_audio_volume_cmd[32];
-            swprintf(set_audio_volume_cmd,32,L"setaudio music volume to %d",(int)(song_volume*100/2));
+            swprintf(set_audio_volume_cmd,32,L"setaudio music volume to %d",(int)(song_volume*100));
             mciSendString(set_audio_volume_cmd,NULL,0,NULL);
 
             flag_adjust_song_audio=FALSE;
@@ -245,6 +245,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
             mciSendString(L"pause music",NULL,0,NULL);
             mciSendString(L"close music",NULL,0,NULL);
             if (!loading_wav && !loading_flac && !playing_wav) {            
+              call_help_timer=0;
               remove("music/tmp/tmp.wav");
               rmdir("music/tmp"); //remove tmp, manually because C is like that
 
@@ -301,7 +302,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
             }
             mciSendString(songname,NULL,0,NULL);
             wchar_t set_audio_volume_cmd[32];
-            swprintf(set_audio_volume_cmd,32,L"setaudio music volume to %d",(int)(song_volume*100/2));
+            swprintf(set_audio_volume_cmd,32,L"setaudio music volume to %d",(int)(song_volume*100));
             mciSendString(set_audio_volume_cmd,NULL,0,NULL);
             if (!is_flac[song_rand_num] && !is_wav[song_rand_num])
               mciSendString(L"play music",NULL,0,NULL);
@@ -321,6 +322,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
 
     if (toggle_stop_playing_song) {
         //stop mp3 player
+      call_help_timer=0;
       mciSendString(L"pause music",NULL,0,NULL);
       mciSendString(L"close music",NULL,0,NULL);
       remove("music/tmp/tmp.wav");
@@ -393,7 +395,9 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
         player.fast_duration=0;
       }
 
-
+      if (call_help_timer<5000) {
+        call_help_timer+=6;
+      }
       Sleep(6); //fast loop
     } else {
       if (clean_up_sound) {
