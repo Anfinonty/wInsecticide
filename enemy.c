@@ -651,16 +651,20 @@ void EnemyAct(int i)
     if (dist_from_bullet<=NODE_SIZE*4) {
       switch (Enemy[i]->species) {
 	    case 0://fly
-          if (dist_from_bullet<=NODE_SIZE*2) {
+          //if (dist_from_bullet<=NODE_SIZE*2) {
             if (game_audio) {
               //PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);
               PlaySound(clang_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
             }
-            Enemy[i]->health-=Bullet[player.bullet_shot].damage;
+            if (dist_from_bullet<=NODE_SIZE*2) {
+              Enemy[i]->health-=Bullet[player.bullet_shot].damage;
+            } else {
+              Enemy[i]->health-=Bullet[player.bullet_shot].damage/4;
+            }
             Enemy[i]->knockback_timer=player.knockback_strength;
             Enemy[i]->knockback_angle=Bullet[player.bullet_shot].angle;            
             Enemy[i]->player_knockback=FALSE;
-          }
+          //}
           break;
         case 1://crawl
           if (game_audio) {

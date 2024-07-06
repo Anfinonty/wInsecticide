@@ -213,7 +213,7 @@ void BulletAct(int bullet_id)
           if (game_audio) {
             Bullet[player.bullet_shot].playsnd=TRUE;
           }
-          Bullet[player.bullet_shot].range-=2;
+          //Bullet[player.bullet_shot].range-=2;
         }
         for (int k=0;k<player.bullet_shot_num;k++) {
           int bk=player.bullet[k];
