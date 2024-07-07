@@ -1644,13 +1644,6 @@ void PlayerAct() {
   if (player.sprite_angle<-M_PI*2) {
     player.sprite_angle=0;
   }
-
-
-
-  //sprite axes
-  player.sprite_x=GR_WIDTH/2+player.cam_move_x;
-  player.sprite_y=GR_HEIGHT/2+player.cam_move_y-PLAYER_HEIGHT/2;
- //
 }
 
 
@@ -1776,6 +1769,10 @@ void PlayerCameraShake()
 
 void DrawPlayer(HDC hdc)
 {
+  //sprite axes
+  player.sprite_x=GR_WIDTH/2+player.cam_move_x;
+  player.sprite_y=GR_HEIGHT/2+player.cam_move_y-PLAYER_HEIGHT/2;
+  //
   //Platform bitmap palette conversion
   if (player.flag_revert_palette && player.time_breaker_tick<=0) {
     BitmapPalette(hdc,map_platforms_sprite,rgbColorsDefault);

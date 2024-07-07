@@ -1073,9 +1073,6 @@ void EnemyAct(int i)
       }
     }//end of tbt
   }//end of health
-  Enemy[i]->sprite_x=Enemy[i]->x+player.cam_x+player.cam_move_x;
-  Enemy[i]->sprite_y=Enemy[i]->y+player.cam_y+player.cam_move_y;
-
 }
 
 void SetEnemyByType(int i,int type)
@@ -1287,6 +1284,8 @@ void DrawEnemy(HDC hdc)
   }
 
   for (i=0;i<ENEMY_NUM;i++) {  
+    Enemy[i]->sprite_x=Enemy[i]->x+player.cam_x+player.cam_move_x;
+    Enemy[i]->sprite_y=Enemy[i]->y+player.cam_y+player.cam_move_y;
     if (Enemy[i]->species==1 && Enemy[i]->within_render_distance) {//rotate sprite
       if (Enemy[i]->on_ground_id!=-1) {
         Enemy[i]->sprite_angle=Enemy[i]->angle;
