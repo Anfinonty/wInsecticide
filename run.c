@@ -40,24 +40,37 @@
 
 
 //Global Variables Game state variables
-bool yes_unifont=FALSE;
-bool clean_up_sound=FALSE;
-bool level_loaded=FALSE;
-bool hide_taskbar=FALSE;
+//flags
 bool flag_restart=FALSE;
 bool flag_restart_audio=FALSE;
 bool flag_adjust_audio=FALSE;
 bool flag_adjust_song_audio=FALSE;
+bool flag_adjust_wav_out_audio=FALSE;
+bool load_sound=FALSE;
 bool back_to_menu=FALSE;
-bool in_main_menu=TRUE;
-bool game_over=FALSE;
+bool clean_up_sound=FALSE;
+
+
+//game options
+bool yes_unifont=FALSE;
 bool game_cam_shake=TRUE;
 bool game_audio=TRUE;
-bool alloc_enemy_once=TRUE;
-bool load_sound=FALSE;
 
+
+
+//game state
+bool hide_taskbar=FALSE;
+bool in_main_menu=TRUE;
+bool level_loaded=FALSE;
+bool game_over=FALSE;
+//bool alloc_enemy_once=TRUE;
+
+//to be used to load a level
 wchar_t save_level[128];
+//lvl name type in or editing
+wchar_t typing_level_name[128];//=//{' ',L'H',L'I'};
 
+//Game System Values
 int level_chosen=0;
 int windowx=0;
 int windowy=0;
@@ -65,15 +78,20 @@ int call_help_timer=0;
 
 int enemy_kills=0;
 //int FPS = 60;
-int FPS = 24; //minimum FPS, otherwise run according to screen refresh rate
+int FPS = 35; //minimum FPS, otherwise run according to screen refresh rate
 int main_menu_chosen=0; //options for main menu
 int option_choose=0;
 
-int GR_WIDTH,GR_HEIGHT,OLD_GR_WIDTH,OLD_GR_HEIGHT;
+int GR_WIDTH;
+int GR_HEIGHT;
+int OLD_GR_WIDTH;
+int OLD_GR_HEIGHT;
 
 int frame_tick=-10;
 int int_best_score=0; //to store to write
 
+
+//Player visuals Options Values
 int player_color=0;
 int old_player_color=0;
 int player_load_color=0;
@@ -86,23 +104,21 @@ int player_pupil_color=12;
 int old_player_pupil_color=12;
 int player_load_pupil_color=12;
 
-
 int player_bullet_color=0;
 
 
-
-
-wchar_t global_wchar[3]={' ',L'H',L'I'};
-
-
+//double, game state system values
 long long game_timer=0;
-
-
 double double_best_score=0;
+
+
+
+//double, game options
 double time_begin=0;
-double game_volume=0.5;
-double old_game_volume=0.5;
-double song_volume=1.0;
+double game_volume=1.0;
+double old_game_volume=1.0;
+double song_volume=0.1;
+
 
 //Solar Hijri Time for Drawing
 int solar_sec=0,solar_min=0,solar_hour=0,solar_day=0,solar_month=0,solar_year=0,solar_day_of_week=0;
@@ -191,8 +207,13 @@ double moon_angle_shift=0;
 #define PLAYER_BULLET_NUM 24//16
 
 
+#define GAME_OPTIONS_NUM    8
+
 #include "struct_classes.c"
 
+
+//All audio attributes
+//filesize
 long clang_audio_filesize;
 long tb_start_audio_filesize;
 long tb_stop_audio_filesize;
@@ -203,7 +224,7 @@ long mkey_false_audio_filesize;
 long mkey_paint_audio_filesize;
 long mkey_esc_audio_filesize;
 
-
+//audio binary stored in memory, loaded
 static int16_t* clang_audio;
 static int16_t* tb_start_audio;
 static int16_t* tb_stop_audio;
@@ -214,7 +235,7 @@ static int16_t* mkey_false_audio;
 static int16_t* mkey_paint_audio;
 static int16_t* mkey_esc_audio;
 
-
+//audio binary stored in memory, adjustable
 static int16_t* clang_audio_cache;
 static int16_t* tb_start_audio_cache;
 static int16_t* tb_stop_audio_cache;
@@ -226,9 +247,7 @@ static int16_t* mkey_false_audio_cache;
 static int16_t* mkey_paint_audio_cache;
 static int16_t* mkey_esc_audio_cache;
 
-
-
-
+//audio played in different threads
 static int16_t* fast_mem_audio;
 static int16_t* fast_mem_audio_cache;
 long fast_mem_audio_filesize;
@@ -241,30 +260,11 @@ long cdeath_mem_audio_filesize;
 int cdeath_mem_audio_duration;
 
 
+//for song
 static int16_t* song_audio;
 long song_audio_filesize;
 int song_duration;
 int current_song_duration=0;
-
-
-/*
-long tmp_clang_audio_filesize;
-int16_t* tmp_clang_audio;//=LoadWav("snd/fast.wav",&tmp_clang_audio_filesize);
-int tmp_duration;// = (double)tmp_clang_audio_filesize / (11025L * 1 * 16/8) *1000;
-
-
-
-long tmp_clang_audio_filesize2;
-int16_t* tmp_clang_audio2;//=LoadWav("snd/fast.wav",&tmp_clang_audio_filesize);
-int tmp_duration2;// = (double)tmp_clang_audio_filesize / (11025L * 1 * 16/8) *1000;
-*/
-
-
-
-
-//SpamSnd* clang_audio_cache;
-//SpamSnd* tb_start_audio_cache;
-//SpamSnd* tb_stop_audio_cache;
 
 
 #include "math.c"
@@ -285,8 +285,13 @@ int tmp_duration2;// = (double)tmp_clang_audio_filesize / (11025L * 1 * 16/8) *1
 #include "cleanup.c"
 
 
-
-
+//Detect Exception occured
+//https://stackoverflow.com/questions/1394250/detect-program-termination-c-windows
+LONG myTry(LPEXCEPTION_POINTERS p)
+{
+   waveOutSetVolume(hWaveOut[2],wav_out_original_volume);
+   return EXCEPTION_EXECUTE_HANDLER;
+}
 
 //Init
 LARGE_INTEGER m_high_perf_timer_freq;
@@ -347,13 +352,18 @@ void InitOnce() {
   if (cdeath_mem_audio_cache!=NULL)
     free(cdeath_mem_audio_cache);
 
- 
-  tb_stop_audio_cache=adjustVolumeA(tb_start_audio,tb_start_audio_filesize,game_volume);
-  tb_start_audio_cache=adjustVolumeA(tb_stop_audio,tb_stop_audio_filesize,game_volume);
-  clang_audio_cache=adjustVolumeA(clang_audio,clang_audio_filesize,game_volume);
+  double wo_denominator=wav_out_volume;
+  double wo_addon=0.25;
+  if (wo_denominator<=0 || game_volume<=0.4) {
+    wo_denominator=1;
+    wo_addon=0;
+  }
+  tb_stop_audio_cache=adjustVolumeA(tb_start_audio,tb_start_audio_filesize,(game_volume+(wo_addon*(1/wo_denominator)))/3);
+  tb_start_audio_cache=adjustVolumeA(tb_stop_audio,tb_stop_audio_filesize,(game_volume+(wo_addon*(1/wo_denominator)))/3);
+  clang_audio_cache=adjustVolumeA(clang_audio,clang_audio_filesize,game_volume+(wo_addon*(1/wo_denominator)));
 
-  cdeath_mem_audio_cache=adjustVolume(cdeath_mem_audio,cdeath_mem_audio_filesize,game_volume);
-  fast_mem_audio_cache=adjustVolume(fast_mem_audio,fast_mem_audio_filesize,game_volume/5);
+  cdeath_mem_audio_cache=adjustVolume(cdeath_mem_audio,cdeath_mem_audio_filesize,game_volume+(wo_addon*(1/wo_denominator)));
+  fast_mem_audio_cache=adjustVolume(fast_mem_audio,fast_mem_audio_filesize,(game_volume+(wo_addon*(1/wo_denominator)))/5);
 }
 
 
@@ -613,6 +623,7 @@ void FrameRateSleep(int max_fps)
 
 DWORD WINAPI AnimateTask01(LPVOID lpArg) {
   while (TRUE) {
+    SetUnhandledExceptionFilter((LPTOP_LEVEL_EXCEPTION_FILTER)&myTry); 
     if (!in_main_menu) { //In Game
       if (level_loaded) {
         PlayerAct();
@@ -871,7 +882,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             //Holding Down Down Arrow or 'S'
                case 'S':
                case VK_DOWN:
-                 option_choose=LimitValue(option_choose+1,0,7);
+                 option_choose=LimitValue(option_choose+1,0,GAME_OPTIONS_NUM);
                  if (game_audio)
                    PlaySound(mkey_down_up_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //up down
                  break;
@@ -928,15 +939,27 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                      flag_adjust_audio=TRUE;
                      break;
                    case 6:
-                     if (song_volume>=2.0) {
+                     /*if (song_volume>=2.0) {
                        song_volume+=1.0;
                      } else {
                        song_volume+=0.1;
                      }
                      if (song_volume>10.0) { //max song volume
                         song_volume=0.0;
-                     }
+                     }*/
+                     song_volume+=0.01;
+                     if (song_volume>1.0)//max song volume
+                       song_volume=0.0;
                      flag_adjust_song_audio=TRUE;
+                     if (game_audio)
+                       PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
+                     break;
+                   case 7:
+                     wav_out_volume+=0.1;
+                     if (wav_out_volume>1.0) { //max song volume
+                        wav_out_volume=0.0;
+                     }
+                     flag_adjust_wav_out_audio=TRUE;
                      if (game_audio)
                        PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
                      break;
@@ -996,17 +1019,29 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                      flag_adjust_audio=TRUE;
                      break;
                    case 6:
-                     if (song_volume>=3.0) {
+                     /*if (song_volume>=3.0) {
                        song_volume-=1.0;
                      } else {
                        song_volume-=0.1;
                      }
                      if (song_volume<0.0) {
                        song_volume=10.0;
-                     }
+                     }*/
+                     song_volume-=0.01;
+                     if (song_volume<0.0)
+                       song_volume=1.0;
                      if (game_audio)
                        PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
                      flag_adjust_song_audio=TRUE;
+                     break;
+                   case 7:
+                     wav_out_volume-=0.1;
+                     if (wav_out_volume<0.0) {
+                       wav_out_volume=1.0;
+                     }
+                     if (game_audio)
+                       PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
+                     flag_adjust_wav_out_audio=TRUE;
                      break;
                 }
                 break;
@@ -1015,7 +1050,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             //Holding Down Up Arrow or 'W''
               case 'W':
               case VK_UP:
-                option_choose=LimitValue(option_choose-1,0,7);
+                option_choose=LimitValue(option_choose-1,0,GAME_OPTIONS_NUM);
                 //PlaySound(L"snd/FE_COMMON_MB_02.wav", NULL, SND_FILENAME | SND_ASYNC); //up down
                  if (game_audio)
                   PlaySound(mkey_down_up_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //up down
@@ -1424,7 +1459,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     case WM_CHAR:
       if (in_main_menu)
         if (main_menu_chosen==2)
-           global_wchar[0]=wParam;
+           //global_wchar[0]=wParam;
+          typing_level_name[0]=wParam;
       break;
 
     //Constantly Update Screen
@@ -1441,6 +1477,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       FrameRateSleep(FPS); // (Uncapped) //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
       if (!IsIconic(hwnd)) //no action when minimized, prevents crash https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-isiconic?redirectedfrom=MSDN
       {
+        SetUnhandledExceptionFilter((LPTOP_LEVEL_EXCEPTION_FILTER)&myTry); 
         HBITMAP screen;
         PAINTSTRUCT ps;
         hdc=BeginPaint(hwnd, &ps);
@@ -1699,11 +1736,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //MessageBox(NULL, TEXT("ភាសាខ្មែរ"), TEXT("ភាសាខ្មែរ") ,MB_OK); //khmer text box
       Init8BitRGBColorsNoir(rgbColorsNoir);
       Init8BitRGBColorsDefault(rgbColorsDefault);
+      wav_out_original_volume=VolumeValue(50,1);
+      //waveOutGetVolume(hWaveOut[2],&wav_out_original_volume);
+
+
       //Delete tmp in music
       remove("music/tmp/tmp.wav");
       rmdir("music/tmp"); //remove tmp
 
-      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៩ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1969-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1445-12-28_1"), TEXT("អាពីងស៊ីរុយ") ,MB_OK);
+      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៩ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1969-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1445-12-30"), TEXT("អាពីងស៊ីរុយ") ,MB_OK);
 
       //load levels in save
       GetSavesInDir(L"saves");
@@ -1943,7 +1984,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
          //For wav music
          waveOutOpen(&hWaveOut[2], WAVE_MAPPER, &wfx_wav, 0, 0, CALLBACK_NULL);
-         long int vol=VolumeValue(100,30);
+         long int vol=VolumeValue(10,1);
          waveOutSetVolume(hWaveOut[2],vol);
          waveOutPrepareHeader(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));
 
@@ -2107,6 +2148,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   //In case WM_DESTROY doesnt work
   //HWND hShellWnd = FindWindowA("Shell_TrayWnd", NULL);
   //ShowWindow(hShellWnd, SW_SHOW);
+  waveOutSetVolume(hWaveOut[2],wav_out_original_volume);
   return (int) msg.wParam;
 }
 

@@ -53,13 +53,17 @@ void DrawCursor(HDC hDC)
     if (player.health>PLAYER_LOW_HEALTH) {
       GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_cache,FALSE);
       GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_iris_cache,FALSE);
-      GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_pupil_cache,FALSE);
     } else {
       GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_cache2,FALSE);
       GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_iris_cache2,FALSE);
-      GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_pupil_cache2,FALSE);
     }
   }
+  if (player.health>PLAYER_LOW_HEALTH) {
+    GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_pupil_cache,FALSE);
+  } else {
+    GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_pupil_cache2,FALSE);
+  }
+
   /*if (!IsInvertedBackground())
     GrCircle(hDC,mouse_x,mouse_y,1,WHITE,-1);
   else
@@ -419,17 +423,29 @@ lunar_year
       if (option_choose==6) {
         c=LTGREEN;
       }
-      GrPrint(hdc,30,10+soptions_y+16*6,"Music Volume:",c);
+      GrPrint(hdc,30,10+soptions_y+16*6,"Encoded Music Volume:",c);
       char print_song_volume[8];
-      sprintf(print_song_volume,"<%1.0f%>",song_volume*100);
+      sprintf(print_song_volume,"<%1.0f%%>",song_volume*100);
       GrPrint(hdc,30+20*8,10+soptions_y+16*6,print_song_volume,c);
+
+
+
+      c=WHITE;
+      if (option_choose==7) {
+        c=LTGREEN;
+      }
+      GrPrint(hdc,30,10+soptions_y+16*7,"Raw Wav Volume:",c);
+      char print_wav_out_volume[8];
+      sprintf(print_wav_out_volume,"<%1.0f%%>",wav_out_volume*100);
+      GrPrint(hdc,30+20*8,10+soptions_y+16*7,print_wav_out_volume,c);
+
 
 
 
       GrPrint(hdc,20,10+soptions_y+16*option_choose,"*",LTGREEN);
 
 
-      GrPrint(hdc,30,main_menu_y+10+16*17,"'1': Go back to Main Menu.",WHITE);
+      GrPrint(hdc,30,main_menu_y+10+16*18,"'1': Go back to Main Menu.",WHITE);
       break;
 
 
@@ -445,7 +461,7 @@ lunar_year
 
  
       GrPrintW(hdc,30,main_menu_y+10+16*8,L"Level Name:","",WHITE,16,FALSE,yes_unifont);
-      GrPrintW(hdc,30+13*8,main_menu_y+10+16*8,global_wchar,"",WHITE,16,FALSE,yes_unifont);
+      GrPrintW(hdc,30+13*8,main_menu_y+10+16*8,typing_level_name,"",WHITE,16,FALSE,yes_unifont);
 
 
       GrPrint(hdc,30,main_menu_y+10+16*9,"Ground Amount:",WHITE);

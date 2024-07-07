@@ -167,9 +167,13 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
           }
 
           if (flag_adjust_song_audio) {
-            long int vol=VolumeValue(song_volume*100,30);
-            waveOutSetVolume(hWaveOut[2],vol);
             flag_adjust_song_audio=FALSE;
+          }
+
+          if (flag_adjust_wav_out_audio) {
+            long int vol=VolumeValue(wav_out_volume*100,1);
+            waveOutSetVolume(hWaveOut[2],vol);
+            flag_adjust_wav_out_audio=FALSE;
           }
 
 
@@ -222,18 +226,34 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
           }        
 
 
+          if (flag_adjust_wav_out_audio || flag_adjust_song_audio) {
+            if (flag_adjust_wav_out_audio) {
+              long int vol=VolumeValue(wav_out_volume*100,1);
+              waveOutSetVolume(hWaveOut[2],vol);
+              flag_adjust_wav_out_audio=FALSE;
+            }
 
-          if (flag_adjust_song_audio) {
+
             //LIVE adjust audio
-            long int vol=VolumeValue(song_volume*100,30);
-            waveOutSetVolume(hWaveOut[2],vol);
-
             wchar_t set_audio_volume_cmd[32];
-            swprintf(set_audio_volume_cmd,32,L"setaudio music volume to %d",(int)(song_volume*100));
+            double wo=1;
+            double denominator=wav_out_volume;
+            if (denominator<=0 || song_volume<=0.09) {
+              denominator=1;
+              wo=0;
+            }
+            int wo_adder=wo/denominator*35;
+            int mp3_song_volume=(song_volume*1000)+wo_adder;
+            if (mp3_song_volume>1000) {
+              mp3_song_volume=1000;
+            }
+            swprintf(set_audio_volume_cmd,32,L"setaudio music volume to %d",mp3_song_volume);
             mciSendString(set_audio_volume_cmd,NULL,0,NULL);
 
             flag_adjust_song_audio=FALSE;
           }
+
+
 
           wchar_t my_status[16];
           mciSendString(L"status music mode",my_status,16,NULL); //periodically check status
@@ -302,7 +322,18 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
             }
             mciSendString(songname,NULL,0,NULL);
             wchar_t set_audio_volume_cmd[32];
-            swprintf(set_audio_volume_cmd,32,L"setaudio music volume to %d",(int)(song_volume*100));
+            double wo=1;
+            double denominator=wav_out_volume;
+            if (denominator<=0 || song_volume<=0.09) {
+              denominator=1;
+              wo=0;
+            }
+            int wo_adder=wo/denominator*35;
+            int mp3_song_volume=(song_volume*1000)+wo_adder;
+            if (mp3_song_volume>1000) {
+              mp3_song_volume=1000;
+            }
+            swprintf(set_audio_volume_cmd,32,L"setaudio music volume to %d",mp3_song_volume);
             mciSendString(set_audio_volume_cmd,NULL,0,NULL);
             if (!is_flac[song_rand_num] && !is_wav[song_rand_num])
               mciSendString(L"play music",NULL,0,NULL);

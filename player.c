@@ -586,13 +586,16 @@ void PlayerAct() {
 
       player.attack=TRUE; 
 	  player.bullet_shot=current_bullet_id;
+      int b_speed_mul=15+player.speed*2; //speed multiplier
+      if (b_speed_mul>25)
+        b_speed_mul=25;
       ShootBullet(current_bullet_id,
 	-1,
 	CYAN,
     5, //graphics type
 	MAX_WEB_LENGTH, //range
     1, //speed
-	15+player.speed*2, //speed multiplier
+	b_speed_mul, //speed multiplier
 	4+player.attack_strength*2, //damage
 	-1,
 	player.x,//player.above_x2, //so it doest get stuck to ground

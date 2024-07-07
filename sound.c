@@ -2,7 +2,7 @@
 
 
 #define SND_MEM_STACK_SIZE  100000
-int16_t SND_MEM_STACK[SND_MEM_STACK_SIZE]; //for adjusting volume because access via heap is finicky!!, 1 megabyte 100k KB Ram
+int16_t SND_MEM_STACK[SND_MEM_STACK_SIZE]; //for adjusting volume because access via heap is finicky!!, 1 megabyte 100k KB Ram allowed max
 
 #define SND_THREAD_NUM    3
 //int mem_snd_play=0;
@@ -50,6 +50,10 @@ WAVEFORMATEX wfx_wav = {
 //Responsible for handling audio async in different threads
 HWAVEOUT hWaveOut[SND_THREAD_NUM];
 WAVEHDR whdr[SND_THREAD_NUM];
+
+//to restore on shutdown (what if crash)?
+double wav_out_volume=0.10;
+DWORD wav_out_original_volume;
 
 /*
 WAVEFORMATEX wfx1 = {
