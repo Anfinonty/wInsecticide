@@ -1723,7 +1723,7 @@ void PlayerCameraShake()
         }
       }
     //}
-    if (player.grav>3 || player.speed>=5) { //falling cam effect
+    if ((player.grav>3 || player.speed>=5) && (!player.is_on_ground_edge)) { //falling cam effect
       y_bob=(player.grav-2)/2;
 
       switch (player.speed) {
