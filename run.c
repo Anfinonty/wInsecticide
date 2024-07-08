@@ -71,24 +71,28 @@ wchar_t save_level[128];
 wchar_t typing_level_name[128];//=//{' ',L'H',L'I'};
 
 //Game System Values
-int level_chosen=0;
 int windowx=0;
 int windowy=0;
-int call_help_timer=0;
-
-int enemy_kills=0;
-//int FPS = 60;
-int FPS = 35; //minimum FPS, otherwise run according to screen refresh rate
-int main_menu_chosen=0; //options for main menu
-int option_choose=0;
 
 int GR_WIDTH;
 int GR_HEIGHT;
 int OLD_GR_WIDTH;
 int OLD_GR_HEIGHT;
+int RESOLUTION_X[3]={640,800,0};
+int RESOLUTION_Y[3]={480,600,0};
+int level_chosen=0;
+int main_menu_chosen=-1; //options for main menu
+int select_main_menu=0;
+int option_choose=0;
+int resolution_choose=0; //640,480, 800,600, SCREEN_WIDTH,SCREEN_HEIGHT
 
-int frame_tick=-10;
+int call_help_timer=0;
+
+int enemy_kills=0;
+//int FPS = 60;
 int int_best_score=0; //to store to write
+int frame_tick=-10;
+int FPS = 35; //minimum FPS, otherwise run according to screen refresh rate
 
 
 //Player visuals Options Values
@@ -207,7 +211,7 @@ double moon_angle_shift=0;
 #define PLAYER_BULLET_NUM 24//16
 
 
-#define GAME_OPTIONS_NUM    8
+#define GAME_OPTIONS_NUM    12
 
 #include "struct_classes.c"
 
@@ -264,7 +268,6 @@ int cdeath_mem_audio_duration;
 static int16_t* song_audio;
 long song_audio_filesize;
 int song_duration;
-int current_song_duration=0;
 
 
 #include "math.c"
@@ -283,6 +286,9 @@ int current_song_duration=0;
 #include "song.c"
 #include "draw_gui.c"
 #include "cleanup.c"
+
+#include "load_level.c"
+#include "keybinds.c"
 
 
 //Detect Exception occured
@@ -318,263 +324,6 @@ void InitFPS() { //https://cboard.cprogramming.com/windows-programming/30730-fin
 }
 
 
-
-void InitOnce() {
-  GR_WIDTH=SCREEN_WIDTH;
-  GR_HEIGHT=SCREEN_HEIGHT;
-
-  player.cam_move_x=0;
-  player.cam_move_y=0;
-
-//  alloc_enemy_once=TRUE;
-  player_load_color=player_color;
-  player_load_iris_color=player_iris_color;
-  player_load_pupil_color=player_pupil_color;
-  player_bullet_color=WHITE;
-
-  if (IsInvertedBackground()) { //invert player color if background is inverted
-    player_load_color=COLORS_NUM-player_color-1;
-    player_load_iris_color=COLORS_NUM-player_iris_color-1;
-    player_load_pupil_color=COLORS_NUM-player_pupil_color-1;
-
-    player_bullet_color=BLACK;
-  }
-
-
-  if (tb_start_audio_cache!=NULL)
-    free(tb_start_audio_cache);
-  if(tb_stop_audio_cache!=NULL)
-    free(tb_stop_audio_cache);
-  if (clang_audio_cache!=NULL)
-    free(clang_audio_cache);
-  if (fast_mem_audio_cache!=NULL)
-    free(fast_mem_audio_cache);
-  if (cdeath_mem_audio_cache!=NULL)
-    free(cdeath_mem_audio_cache);
-
-  double wo_denominator=wav_out_volume;
-  double wo_addon=0.25;
-  if (wo_denominator<=0 || game_volume<=0.4) {
-    wo_denominator=1;
-    wo_addon=0;
-  }
-  tb_stop_audio_cache=adjustVolumeA(tb_start_audio,tb_start_audio_filesize,(game_volume+(wo_addon*(1/wo_denominator)))/3);
-  tb_start_audio_cache=adjustVolumeA(tb_stop_audio,tb_stop_audio_filesize,(game_volume+(wo_addon*(1/wo_denominator)))/3);
-  clang_audio_cache=adjustVolumeA(clang_audio,clang_audio_filesize,game_volume+(wo_addon*(1/wo_denominator)));
-
-  cdeath_mem_audio_cache=adjustVolume(cdeath_mem_audio,cdeath_mem_audio_filesize,game_volume+(wo_addon*(1/wo_denominator)));
-  fast_mem_audio_cache=adjustVolume(fast_mem_audio,fast_mem_audio_filesize,(game_volume+(wo_addon*(1/wo_denominator)))/5);
-}
-
-
-
-void Init(HDC hdc) {
-  time_begin=current_timestamp();
-
-  //Load Best Score
-  //Folder & file creation
-  FILE *fptr;
-  if (_waccess(save_level, F_OK)==0) { //if file exists
-  //do nothing
-  } else if (ENOENT==errno) { //if file doesnt exist
-    fptr = _wfopen(save_level,L"a");
-    fprintf(fptr,"2147483646\n");
-    fclose(fptr);
-  }
-
-
-  int_best_score=0;
-  FILE *fr; //Begin setting best score
-  int c;
-  int current_int;
-  fr = _wfopen(save_level,L"r"); //check if scoresave data of levelname
-  while ((c=fgetc(fr))!=EOF) {
-    if (c>='0' && c<='9') {
-      current_int=c-'0';
-      int_best_score*=10; //shift digit by left,  //Read from file while !=EOF score*=10
-      int_best_score+=current_int; //add to right digit //after reading, convert into (double)/1000
-    }
-  }
-  fclose(fr);
-  double_best_score=(double)int_best_score/1000;
-
-
-  //Start level
-  OLD_GR_WIDTH=0;
-  OLD_GR_HEIGHT=0;
-  game_timer=0;
-  enemy_kills=0;
-  game_over=FALSE;
-  frame_tick=-10;
-
-
-  //Initialize Level
-  InitBullet();
-  InitGrid();
-  InitNodeGrid();
-  InitGround();
-  InitNodeGridAttributes();
-  InitEnemy();
-  InitPlayer();
-  BitmapPalette(hdc,map_platforms_sprite,rgbColorsDefault);
-  for (int i=0;i<SND_THREAD_NUM-1;i++) {
-    mem_snd_interrupt[i]=TRUE;
-    waveOutReset(hWaveOut[i]);
-  }
-  PlaySound(NULL, NULL, SND_ASYNC);
-}
-
-
-
-void InitPlatformsSprite(HWND hwnd, HDC hdc)
-{
-  PAINTSTRUCT ps; //Suggestion Credit: https://git.xslendi.xyz
-  hdc=BeginPaint(hwnd, &ps);
-  HDC hdc2=CreateCompatibleDC(hdc);
-
-
-  map_platforms_sprite=CreateCrunchyBitmap(MAP_WIDTH,MAP_HEIGHT);
-  //map_platforms_sprite=CreateLargeBitmap(MAP_WIDTH,MAP_HEIGHT);
-
-  SelectObject(hdc2,map_platforms_sprite);
-
-  GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,MYCOLOR1); //Create Background with random color over platforms
-
-  DrawGroundTriFill(hdc2);
-  DrawGround(hdc2);
-  DrawGroundText(hdc2);
-
-  DeleteDC(hdc2);
-  EndPaint(hwnd, &ps);
-
-  //map_platforms_sprite=ReplaceColor(tmp_map_platforms_sprite,MYCOLOR1,BLACK,NULL);
-  map_platforms_sprite_mask=CreateBitmapMask(map_platforms_sprite,MYCOLOR1,NULL); //create mask where black becomes   //end of platform sprite creation
-}
-
-
-
-void InitLevel(HWND hwnd, HDC hdc)
-{
-  wchar_t txt[128];
-  swprintf(txt,128,L"saves/%s/level.txt",level_names[level_chosen]);
-  swprintf(save_level,128,L"saves/%s/scores.txt",level_names[level_chosen]);
-
-  LoadSave(txt);
-
-  srand(time(NULL));
-  timeBeginPeriod(1);
-
-
-  InitOnce();//cannot be repeatedly run
-  Init(hdc);
-
-
-
-  //Load Player Cosmetics
-  DeleteObject(player.sprite_1);
-  DeleteObject(player.sprite_2);
-  DeleteObject(player.sprite_jump);
-
-  DeleteObject(player.attack_sprite_1);
-  DeleteObject(player.attack_sprite_2);
-  DeleteObject(player.attack_sprite_3);
-  DeleteObject(player.attack_sprite_4);
-
-  DeleteObject(player.block_sprite_1);
-  DeleteObject(player.block_sprite_2);
-  DeleteObject(player.block_sprite_3);
-
-  DeleteObject(player.spin_sprite);
-
-
-
-  player.sprite_1 = RotateSprite(NULL, player.osprite_1,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
-  player.sprite_2 = RotateSprite(NULL, player.osprite_2,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
-  player.sprite_jump = RotateSprite(NULL, player.osprite_jump,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
-
-  player.attack_sprite_1 = RotateSprite(NULL, player.oattack_sprite_1,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
-  player.attack_sprite_2 = RotateSprite(NULL, player.oattack_sprite_2,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
-  player.attack_sprite_3 = RotateSprite(NULL, player.oattack_sprite_3,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
-  player.attack_sprite_4 = RotateSprite(NULL, player.oattack_sprite_4,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
-
-  player.block_sprite_1 = RotateSprite(NULL, player.oblock_sprite_1,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
-  player.block_sprite_2 = RotateSprite(NULL, player.oblock_sprite_2,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
-  player.block_sprite_3 = RotateSprite(NULL, player.oblock_sprite_3,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
-
-  player.spin_sprite = RotateSprite(NULL, player.ospin_sprite,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
-
-
-
-
-  //Load Player Sprites
-  player.sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-  player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-  player.sprite_2_cache = RotateSprite(NULL, player.sprite_2,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-
-  player.attack_sprite_1_cache = RotateSprite(NULL, player.attack_sprite_1,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-  player.attack_sprite_2_cache = RotateSprite(NULL, player.attack_sprite_2,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-  player.attack_sprite_3_cache = RotateSprite(NULL, player.attack_sprite_3,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-  player.attack_sprite_4_cache = RotateSprite(NULL, player.attack_sprite_4,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-
-  player.block_sprite_1_cache = RotateSprite(NULL, player.block_sprite_1,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-  player.block_sprite_2_cache = RotateSprite(NULL, player.block_sprite_2,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-  player.block_sprite_3_cache = RotateSprite(NULL, player.block_sprite_3,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-
-  player.spin_sprite_1_cache = RotateSprite(NULL, player.spin_sprite,0.1,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-  player.spin_sprite_2_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI_2,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-  player.spin_sprite_3_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-  player.spin_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-
-  //moon sprite
-  DeleteObject(moon_sprite_cache);
-  HBITMAP tmp_moon_sprite=CopyCrunchyBitmap(moon_sprite,NOTSRCCOPY);
-  moon_sprite_cache=RotateSprite(NULL, tmp_moon_sprite,0,PURPLE,BLACK,BLACK,-1);
-  DeleteObject(tmp_moon_sprite);
-
-  DeleteObject(mouse_cursor_sprite_cache);
-  DeleteObject(mouse_cursor_sprite_cache2);
-  DeleteObject(mouse_cursor_sprite_iris_cache);
-  DeleteObject(mouse_cursor_sprite_cache2);
-  DeleteObject(mouse_cursor_sprite_pupil_cache);
-  DeleteObject(mouse_cursor_sprite_pupil_cache2);
-
-  mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-
-  mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-
-
-
-  mouse_cursor_sprite_iris_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTBLUE,draw_color_arr[player_load_iris_color]);
-
-  mouse_cursor_sprite_iris_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTBLUE,draw_color_arr[player_load_iris_color]);
-
-
-
-  mouse_cursor_sprite_pupil_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTRED,draw_color_arr[player_load_pupil_color]);
-
-  mouse_cursor_sprite_pupil_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTRED,draw_color_arr[player_load_pupil_color]);
-
-
-  //Load Enemy cache spritesF
-  InitEnemySprites();
-
-  InitPlatformsSprite(hwnd,hdc);
-
-  /*printf("clang_audio:%lu\n",clang_audio_filesize);
-  printf("tb_start_audio:%lu\n",tb_start_audio_filesize);
-  printf("tb_death_audio:%lu\n",tb_stop_audio_filesize);
-  printf("clang_death_audio:%lu\n",clang_death_audio_filesize);*/
-
-
-  //allocate smallest to biggest
-
-
-
-
-  //load_sound=TRUE;
-  level_loaded=TRUE;
-  in_main_menu=FALSE;
-}
 
 
 
@@ -655,20 +404,6 @@ void LoadMainMenuBackground()
 
 
 
-bool keydown(int key) //https://stackoverflow.com/questions/47667367/is-there-a-way-to-check-for-shift-held-down-then-control-held-down-for-each-inpu
-{
-    return (GetAsyncKeyState(key) & 0x8000) != 0;
-}
-
-
-
-bool keydownalt()
-{
-    return (GetAsyncKeyState(VK_RMENU) & 0x8000)!= 0;
-}
-
-
-
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   HDC hdc, hdcBackbuff;
   //HWND hShellWnd = FindWindowA("Shell_TrayWnd", NULL);
@@ -718,362 +453,30 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     {
       //Global keydown press
       if (main_menu_chosen!=2) {
-        switch (wParam) {
-        //Holding down '9' Key
-          case '9'://skip song, upwnwards (previous)
-            call_help_timer=0;
-            if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
-              if (song_mode<=2) {
-                if  (!keydownalt()) {
-                  song_rand_num=LimitValue(song_rand_num-1,0,song_num);
-                  skip_song=TRUE;
-                  play_new_song=TRUE;
-                  loading_flac=FALSE;
-                  playing_wav=FALSE;
-                }
-              }
-            }
-            break;
-
-        //Holding down '0' Key
-          case '0'://skip song, downwards (next)
-            call_help_timer=0;
-            if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
-              if (song_mode<=2) {
-                song_rand_num=LimitValue(song_rand_num+1,0,song_num);
-                skip_song=TRUE;
-                play_new_song=TRUE;
-                loading_flac=FALSE;
-                playing_wav=FALSE;
-              }
-            }
-            break;
-        }
+        GlobalKeydownPress(wParam);
       }
-
 
       //Key Down Presses depending on game state
       if (!in_main_menu) {
-
-        switch (wParam) {
-        //Holding Down Shift && Escape
-          case VK_ESCAPE:
-            if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = QUIT
-              if (level_loaded) { //allow back to menu only if level is fully loaded
-                back_to_menu=TRUE;
-              }
-            }
-            break;
-
-        //Holding Down Down Arrow or 'S'
-          case 'S':
-          case VK_DOWN:
-            player.rst_down=TRUE;
-            break;
-
-
-        //Holding Down Right Arrow or 'D'
-          case 'D':
-          case VK_RIGHT:
-            player.rst_right=TRUE;
-            break;
-
-
-        //Holding Down Left Arrow or 'A'
-          case 'A':
-          case VK_LEFT:
-            player.rst_left=TRUE;
-            break;
-
-
-        //Holding Down Up Arrow or 'W''
-          case 'W':
-          case VK_UP:
-            player.rst_up=TRUE;
-            break;
-
-
-        //Holding down ENTER key
-          case VK_RETURN:
-            flag_restart=TRUE;
-            break;
-
-        //Holding down SPACE key
-          case ' ':
-            player.sleep_timer=SLOWDOWN_SLEEP_TIMER;
-            break;
-
-
-        //Holding down 'E' key
-	      case 'E':
-            player.uppercut=TRUE;
-	        break;
-
-        //Holding down 'C' Key
-          case 'C':
-            if (player.sleep_timer==DEFAULT_SLEEP_TIMER) {
-              player.sleep_timer=SLOWDOWN_SLEEP_TIMER;
-            } else {
-              player.sleep_timer=DEFAULT_SLEEP_TIMER;
-            }
-            break;
-
-
-        //Holding down 'Z' Key
-          case 'Z':
-            if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
-              player.time_breaker=TRUE;
-              if (game_audio) {
-                //PlaySound(L"snd/timebreaker__start.wav", NULL, SND_FILENAME | SND_ASYNC);
-                PlaySound(tb_start_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
-              }
-              player.time_breaker_cooldown=player.time_breaker_cooldown_max;
-              player.speed+=player.time_breaker_units_max/2-1;
-            }
-            break;
-        } //End of Keys switch statement
-
-
+        GameKeydownPress(wParam);
       } else { //Main menu
         switch (main_menu_chosen) {
-           case 0:
-             switch (wParam) {
-              //Holding Down Shift && Escape
-               case VK_ESCAPE:
-                 if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = QUIT
-                   PostQuitMessage(0);
-                   return 0;
-                 }
-                 break;
-
-              //Holding Down Down Arrow or 'S'
-               case 'S':
-               case VK_DOWN:
-                 level_chosen=LimitValue(level_chosen+1,0,level_num);
-                 if (game_audio)
-                   PlaySound(mkey_down_up_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //up down
-                 break;
-
-              //Holding Down Up Arrow or 'W''
-               case 'W':
-               case VK_UP:
-                 level_chosen=LimitValue(level_chosen-1,0,level_num);
-                 if (game_audio)
-                   PlaySound(mkey_down_up_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //up down
-                 break;
-
-
-              //Holding down ENTER key
-               case VK_RETURN:
-                 if (player_color>-1 && player_color<COLORS_NUM) {               
-                   if (level_chosen>=0 && level_chosen<level_num && main_menu_chosen==0)
-                     InitLevel(hwnd, hdc);
-                 }
-                 break;
-
-             } //End of switch statement
+           case -1:
+             MinusOneMenuKeypressDown(wParam);
              break;
 
-
+           case 0:
+             ZeroMenuKeypressDown(hwnd,hdc,wParam);
+             break;
 
            //Player options in main menu
            case 1:
-             switch (wParam) {
-            //Holding Down Down Arrow or 'S'
-               case 'S':
-               case VK_DOWN:
-                 option_choose=LimitValue(option_choose+1,0,GAME_OPTIONS_NUM);
-                 if (game_audio)
-                   PlaySound(mkey_down_up_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //up down
-                 break;
-
-
-            //Holding Down Right Arrow or 'D'
-               case 'D':
-               case VK_RIGHT:
-                 switch (option_choose) {
-                   case 0: //Change color of player ++
-                     player_color=LimitValue(player_color+1,0,COLORS_NUM);
-                     if (game_audio)
-                       PlaySound(mkey_paint_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //paint
-                     break;
-                   case 1: //Change color of player iris ++
-                     player_iris_color=LimitValue(player_iris_color+1,0,COLORS_NUM);
-                     if (game_audio)
-                       PlaySound(mkey_paint_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //paint
-                     break;
-                   case 2: //Change color of player pupil ++
-                     player_pupil_color=LimitValue(player_pupil_color+1,0,COLORS_NUM);
-                     if (game_audio)
-                       PlaySound(mkey_paint_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //paint
-                     break;
-
-
-                   case 3: //Enable/Disable sound effects
-                     if (game_audio)
-                       PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
-                     else
-                       PlaySound(mkey_true_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //true
-                     game_audio=!game_audio;
-                     break;
-                   case 4: //Enable/Disable camera shaking
-                     if (game_audio) {
-                       if (game_cam_shake)
-                         PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
-                       else
-                         PlaySound(mkey_true_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //true
-                     }
-                     game_cam_shake=!game_cam_shake;                
-                     break;
-                   case 5:
-                     if (game_volume>=2.0) {
-                       game_volume+=1.0;
-                     } else {
-                       game_volume+=0.1;
-                     }
-                     if (game_volume>20.0) {
-                        game_volume=0.0;
-                     }
-                     if (game_audio)
-                       PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
-                     flag_adjust_audio=TRUE;
-                     break;
-                   case 6:
-                     /*if (song_volume>=2.0) {
-                       song_volume+=1.0;
-                     } else {
-                       song_volume+=0.1;
-                     }
-                     if (song_volume>10.0) { //max song volume
-                        song_volume=0.0;
-                     }*/
-                     song_volume+=0.01;
-                     if (song_volume>1.0)//max song volume
-                       song_volume=0.0;
-                     flag_adjust_song_audio=TRUE;
-                     if (game_audio)
-                       PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
-                     break;
-                   case 7:
-                     wav_out_volume+=0.1;
-                     if (wav_out_volume>1.0) { //max song volume
-                        wav_out_volume=0.0;
-                     }
-                     flag_adjust_wav_out_audio=TRUE;
-                     if (game_audio)
-                       PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
-                     break;
-                 }
-                 break;
-
-
-            //Holding Down Left Arrow or 'A'
-              case 'A':
-              case VK_LEFT:
-                switch (option_choose) {
-                  case 0: //Change color of player --
-                    player_color=LimitValue(player_color-1,0,COLORS_NUM);
-                    if (game_audio)
-                      PlaySound(mkey_paint_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //paint
-                    break;
-                  case 1: //Change color of player iris --
-                    player_iris_color=LimitValue(player_iris_color-1,0,COLORS_NUM);
-                    if (game_audio)
-                      PlaySound(mkey_paint_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //paint
-                    break;
-                  case 2: //Change color of player pupil --
-                    player_pupil_color=LimitValue(player_pupil_color-1,0,COLORS_NUM);
-                    if (game_audio)
-                      PlaySound(mkey_paint_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //paint
-                    break;
-
-
-                  case 3: //Enable/Disable sound effects
-                    if (game_audio)
-                      PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
-                    else
-                      PlaySound(mkey_true_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //true
-                    game_audio=!game_audio;
-                    break;
-                  case 4:  //Enable/Disable camera shaking 
-                    if (game_audio) {
-                      if (game_cam_shake)
-                        PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
-                      else
-                        PlaySound(mkey_true_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //true
-                    }
-                    game_cam_shake=!game_cam_shake;                
-                    break;
-                   case 5:
-                     if (game_volume>=3.0) {
-                       game_volume-=1.0;
-                     } else {
-                       game_volume-=0.1;
-                     }
-                     if (game_volume<0.0) {
-                        game_volume=20.0;
-                     }
-                     //PlaySound(L"snd/FE_COMMON_MB_03.wav", NULL, SND_FILENAME | SND_ASYNC); //false
-                     if (game_audio)
-                       PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
-                     flag_adjust_audio=TRUE;
-                     break;
-                   case 6:
-                     /*if (song_volume>=3.0) {
-                       song_volume-=1.0;
-                     } else {
-                       song_volume-=0.1;
-                     }
-                     if (song_volume<0.0) {
-                       song_volume=10.0;
-                     }*/
-                     song_volume-=0.01;
-                     if (song_volume<0.0)
-                       song_volume=1.0;
-                     if (game_audio)
-                       PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
-                     flag_adjust_song_audio=TRUE;
-                     break;
-                   case 7:
-                     wav_out_volume-=0.1;
-                     if (wav_out_volume<0.0) {
-                       wav_out_volume=1.0;
-                     }
-                     if (game_audio)
-                       PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
-                     flag_adjust_wav_out_audio=TRUE;
-                     break;
-                }
-                break;
-
-
-            //Holding Down Up Arrow or 'W''
-              case 'W':
-              case VK_UP:
-                option_choose=LimitValue(option_choose-1,0,GAME_OPTIONS_NUM);
-                //PlaySound(L"snd/FE_COMMON_MB_02.wav", NULL, SND_FILENAME | SND_ASYNC); //up down
-                 if (game_audio)
-                  PlaySound(mkey_down_up_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //up down
-                break;
-           } //End of switch statement for keys
-           break;
-
-
-          /*case 2:
-              //https://learn.microsoft.com/en-us/windows/win32/learnwin32/keyboard-input
-              //https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/getch-getwch?view=msvc-170
-              //swprintf_s(le_msg,32,L"Key: 0x%x\n",wParam); 
-              //wprintf(le_msg);
-          {
-            //int a_wchar=_getwch();
-            //global_wchar[0]=a_wchar;
-            global_wchar[0]=wParam;
-          }*/
-          break;
+             OptionsKeypressDown(hwnd, wParam);
+             break;
         } //end of switch statement for menu chosen
       } //end of menu chosen if else
       break; //Break WM_KEYDOWN;
-    }  
+    } 
 
 
     //Key Release
@@ -1081,371 +484,28 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     {
   //GLOBAL wParam Release Key
       if (main_menu_chosen!=2) {
-      switch (wParam) {
-        //Release 'T' key holding SHIFT
-        case 'T': //Hide or Show Taskbar
-          if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
-            if (!hide_taskbar) {
-              //ShowWindow(hShellWnd, SW_HIDE); //hide taskbar
-
-              //https://stackoverflow.com/questions/2398746/removing-window-border
-              LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
-              lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
-              SetWindowLong(hwnd, GWL_STYLE, lStyle);
-
-
-              SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
-
-
-              SetForegroundWindow(hwnd); //return back focus
-
-              hide_taskbar=TRUE;
-            } else {
-              //ShowWindow(hShellWnd, SW_SHOW); //show taskbar again
-
-
-              LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
-              lStyle |= (WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
-              SetWindowLong(hwnd, GWL_STYLE, lStyle);
-
-              SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
-
-              SetForegroundWindow(hwnd);
-              hide_taskbar=FALSE;
-            }
-          }
-          break;
-
-        //release U key
-        /*case 'U':
-          PlayMemSnd(fast_mem_audio_cache,fast_mem_audio_filesize,fast_mem_audio_duration);
-          break;
-
-        case 'I':
-          PlayMemSnd(cdeath_mem_audio_cache,cdeath_mem_audio_filesize,cdeath_mem_audio_duration);
-          break;*/
-
-        //Release N key while holding SHIFT or not
-        case 'N':
-          call_help_timer=0;
-          if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
-            if (song_mode==0 || song_mode==3) {
-              if (!stop_playing_song) {
-                stop_playing_song=TRUE;
-                toggle_stop_playing_song=TRUE;
-              } else { //renable song
-                remove("music/tmp/tmp.wav");
-                rmdir("music/tmp"); //remove tmp
-                InitSongBank();
-                song_rand_num=LimitValue(-1,0,song_num);
-                stop_playing_song=FALSE;
-              }
-            }
-            song_mode=LimitValue(song_mode-1,0,4);
-          } else {
-            if (!stop_playing_song) {
-              play_new_song=TRUE;
-              loading_flac=FALSE;
-              loading_wav=FALSE;
-              playing_wav=FALSE;
-            }
-          }
-          break;//end current song
-
-
-        //Release M key while holding SHIFT or not
-        case 'M':
-          call_help_timer=0;
-          if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
-            if (song_mode>=2) {
-              if (!stop_playing_song) {
-                stop_playing_song=TRUE;
-                toggle_stop_playing_song=TRUE;
-              } else { //renable song
-                remove("music/tmp/tmp.wav");
-                rmdir("music/tmp"); //remove tmp
-                InitSongBank();
-                song_rand_num=LimitValue(-1,0,song_num);
-                stop_playing_song=FALSE;
-              }
-            }
-            song_mode=LimitValue(song_mode+1,0,4);
-          } else {
-            if (!stop_playing_song) {
-              play_new_song=TRUE;
-              loading_flac=FALSE;
-              loading_wav=FALSE;
-              playing_wav=FALSE;
-            }
-          }
-          break;//end current song
-
-        //Release 'L' Key
-        case 'L':
-          if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
-            if (yes_unifont) {
-              yes_unifont=FALSE;
-            } else {
-              yes_unifont=TRUE;
-            }
-          }
-          break;
-      } //end of global key release
+        GlobalKeypressUp(hwnd,wParam);
       }
 
       if (!in_main_menu) { //Gaming
-        switch (wParam) {
-
-          //Release '8' key holding SHIFT
-          case '8':
-            call_help_timer=0;
-            if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = QUIT
-              if (!display_controls) {
-                display_controls=TRUE;
-              } else {
-                display_controls=FALSE;
-              }
-            }
-            break;
-
-
-          //Release Q key
-          case 'Q':
-            player.destroy_ground=TRUE;
-            break;
-
-        //Release S or Down key
-          case 'S':
-          case VK_DOWN:
-            player.rst_down=FALSE;
-            break;
-
-        //Release D or Right key
-          case 'D':
-          case VK_RIGHT:
-            player.rst_right=FALSE;
-            break;
-
-
-        //Release A or Left key
-          case 'A':
-          case VK_LEFT:
-            player.rst_left=FALSE;
-            break;
-
-        //Release W or Up key
-          case 'W':
-          case VK_UP:
-            player.rst_up=FALSE;
-            break;
-
-        //Release Space key
-          case ' ': 
-            player.sleep_timer=DEFAULT_SLEEP_TIMER;
-            break;
-
-
-        //Release '1' Key
-	      case '1':
-            player.attack_rst=TRUE;
-	        break;
-
-
-        //Release '2' Key
-          case '2':
-            if (player.max_web_num-player.placed_web_num>=3 && player.knives_per_throw==5) {
-              player.knives_per_throw=13;
-            }
-            /*if (player.max_web_num-player.placed_web_num>=6 && player.knives_per_throw==15) {
-              player.knives_per_throw=28;
-            }*/
-            /*if (player.max_web_num-player.placed_web_num>5) {
-              player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,30+1); //limit to 1,3,5,15
-          } else*/
-            if (player.max_web_num-player.placed_web_num>2) {          
-              player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,15+1); //limit to 1,3,5,15
-            } else if (player.max_web_num-player.placed_web_num>0){ //limit to 1,3,5
-              player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,5+1);
-            } else { //limit to 1,3
-              player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,3+1);
-            }
-            break;
-
-        //Release '3' Key'
-          case '3':
-            player.low_jump=!player.low_jump;
-            break;
-
-        //Release 'E' Key
-  	      case 'E':
-            if (player.uppercut) {
-              player.uppercut=FALSE;
-            }
-	        break;
-        }
-
+        GameKeypressUp(wParam);
       } else { 
         switch (main_menu_chosen) {
-          case 0:
-            switch (wParam) {
-              case '1':
-                main_menu_chosen=1;
-                if (game_audio)
-                  PlaySound(mkey_esc_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //esc
-                break;
-              case '2':
-                main_menu_chosen=2;
-                if (game_audio)
-                  PlaySound(mkey_esc_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //esc
-                break;
-            }
+          case -1:
+            MinusOneMenuKeypressUp(wParam);
             break;
 
-
+          case 0: //Level select keyup
+            ZeroMenuKeypressUp(wParam);
+            break;
 
           case 1:
-            switch (wParam) {
-               case '1':           //Release '1' Key or ESC+SHIFT
-               case VK_ESCAPE:
-                 if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT) || wParam=='1') { //ESC + L/RSHIFT = QUIT
-                   main_menu_chosen=0;
-
-                   if (old_player_color!=player_color) {
-                     DeleteObject(mouse_cursor_sprite_cache);
-                     mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
-
-                     DeleteObject(mouse_cursor_sprite_cache2);
-                     mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
-                     old_player_color=player_color;
-                   }
-
-
-                   if (old_player_iris_color!=player_iris_color) {
-                     DeleteObject(mouse_cursor_sprite_iris_cache);
-                     mouse_cursor_sprite_iris_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTBLUE,draw_color_arr[player_iris_color]);
-
-                     DeleteObject(mouse_cursor_sprite_iris_cache2);
-                     mouse_cursor_sprite_iris_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTBLUE,draw_color_arr[player_iris_color]);
-                     old_player_iris_color=player_iris_color;
-                   }
-
-
-
-
-                   if (old_player_pupil_color!=player_pupil_color) {
-                     DeleteObject(mouse_cursor_sprite_pupil_cache);
-                     mouse_cursor_sprite_pupil_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTRED,draw_color_arr[player_pupil_color]);
-
-                     DeleteObject(mouse_cursor_sprite_pupil_cache2);
-                     mouse_cursor_sprite_pupil_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTRED,draw_color_arr[player_pupil_color]);
-                     old_player_pupil_color=player_pupil_color;
-                   }
-
-
-
-
-
-                   //PlaySound(L"snd/FE_COMMON_MB_05.wav", NULL, SND_FILENAME | SND_ASYNC); //esc
-
-                   //adjust volume
-                   if (old_game_volume!=game_volume) {
-                     if (mkey_down_up_audio_cache!=NULL)
-                       free(mkey_down_up_audio_cache);
-                     if (mkey_false_audio_cache!=NULL)
-                       free(mkey_false_audio_cache);
-                     if (mkey_true_audio_cache!=NULL)
-                       free(mkey_true_audio_cache);
-                     if (mkey_paint_audio_cache!=NULL)
-                       free(mkey_paint_audio_cache);
-                     if (mkey_esc_audio_cache!=NULL)
-                       free(mkey_esc_audio_cache);
-
-                      mkey_down_up_audio_cache=adjustVolumeA(mkey_down_up_audio,mkey_down_up_audio_filesize,game_volume);
-                      mkey_true_audio_cache=adjustVolumeA(mkey_true_audio,mkey_true_audio_filesize,game_volume);
-                      mkey_false_audio_cache=adjustVolumeA(mkey_false_audio,mkey_false_audio_filesize,game_volume);
-                      mkey_paint_audio_cache=adjustVolumeA(mkey_paint_audio,mkey_paint_audio_filesize,game_volume);
-                      mkey_esc_audio_cache=adjustVolumeA(mkey_esc_audio,mkey_esc_audio_filesize,game_volume);
-                      old_game_volume=game_volume;
-                    }
-
-                    if (game_audio)
-                      PlaySound(mkey_esc_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //esc
-                 }
-                 break;
-               case 'A':    //Release LEFT key
-               case VK_LEFT:
-               case 'D':    //Release RIGHT key
-               case VK_RIGHT:
-                 //LIVE adjust volume
-                 if (old_game_volume!=game_volume) { //change when not the same
-                   if (mkey_down_up_audio_cache!=NULL)
-                     free(mkey_down_up_audio_cache);
-                   if (mkey_false_audio_cache!=NULL)
-                     free(mkey_false_audio_cache);
-                   if (mkey_true_audio_cache!=NULL)
-                     free(mkey_true_audio_cache);
-                   if (mkey_paint_audio_cache!=NULL)
-                     free(mkey_paint_audio_cache);
-                   if (mkey_esc_audio_cache!=NULL)
-                     free(mkey_esc_audio_cache);
-
-                    mkey_down_up_audio_cache=adjustVolumeA(mkey_down_up_audio,mkey_down_up_audio_filesize,game_volume);
-                    mkey_true_audio_cache=adjustVolumeA(mkey_true_audio,mkey_true_audio_filesize,game_volume);
-                    mkey_false_audio_cache=adjustVolumeA(mkey_false_audio,mkey_false_audio_filesize,game_volume);
-                    mkey_paint_audio_cache=adjustVolumeA(mkey_paint_audio,mkey_paint_audio_filesize,game_volume);
-                    mkey_esc_audio_cache=adjustVolumeA(mkey_esc_audio,mkey_esc_audio_filesize,game_volume);
-                    old_game_volume=game_volume;
-                 }
-
-                 //LIVE change color of player
-                 if (old_player_color!=player_color) { //change when not same
-
-                   DeleteObject(mouse_cursor_sprite_cache);
-                   mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);   
-                   DeleteObject(mouse_cursor_sprite_cache2);
-                   mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
-
-                   old_player_color=player_color;
-                 }
-
-
-                 if (old_player_iris_color!=player_iris_color) {
-                   DeleteObject(mouse_cursor_sprite_iris_cache);
-                   mouse_cursor_sprite_iris_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTBLUE,draw_color_arr[player_iris_color]);
-
-                   DeleteObject(mouse_cursor_sprite_iris_cache2);
-                   mouse_cursor_sprite_iris_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTBLUE,draw_color_arr[player_iris_color]);
-                   old_player_iris_color=player_iris_color;
-                 }
-
-
-
-
-                 if (old_player_pupil_color!=player_pupil_color) {
-                   DeleteObject(mouse_cursor_sprite_pupil_cache);
-                   mouse_cursor_sprite_pupil_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTRED,draw_color_arr[player_pupil_color]);
-
-                   DeleteObject(mouse_cursor_sprite_pupil_cache2);
-                   mouse_cursor_sprite_pupil_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTRED,draw_color_arr[player_pupil_color]);
-                   old_player_pupil_color=player_pupil_color;
-                 }
-                 break;
-            }
+            OptionsKeypressUp(wParam);
             break;
-
 
 
           case 2:            
-            switch (wParam) {
-               case VK_ESCAPE:
-                 if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = QUIT
-                   main_menu_chosen=0;
-                   //PlaySound(L"snd/FE_COMMON_MB_05.wav", NULL, SND_FILENAME | SND_ASYNC); //esc
-                   if (game_audio)
-                     PlaySound(mkey_esc_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //esc
-                 }
-                 break;
-            }
+            TwoMenuKeypressUp(wParam);
             break;
 
           }
@@ -1457,6 +517,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
     case WM_CHAR:
+      //https://learn.microsoft.com/en-us/windows/win32/learnwin32/keyboard-input
+      //https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/getch-getwch?view=msvc-170
       if (in_main_menu)
         if (main_menu_chosen==2)
            //global_wchar[0]=wParam;
@@ -1472,7 +534,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
 
-    //Graphics
+    //Graphics DrawIt()
     case WM_PAINT: //https://cplusplus.com/forum/beginner/269434/
       FrameRateSleep(FPS); // (Uncapped) //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
       if (!IsIconic(hwnd)) //no action when minimized, prevents crash https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-isiconic?redirectedfrom=MSDN
@@ -1597,19 +659,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
           DeleteDC(hdcBackbuff);
           DeleteObject(screen);
-
-
-         //Manage Clean Snd Task
-          /*for (int i=0;i<SND_THREAD_NUM;i++) {
-            if (mem_snd_stopped[i]) {
-              //waveOutUnprepareHeader(hWaveOut[i], &whdr[i], sizeof(WAVEHDR));
-              //waveOutClose(hWaveOut[i]);
-              CloseHandle(hMemSndArray[i]);
-              mem_snd_playing[i]=FALSE;
-              mem_snd_stopped[i]=FALSE;
-            }
-          }*/
-
           //Trigger go back to main menu
           if (back_to_menu) {
             level_loaded=FALSE;
@@ -1675,9 +724,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DeleteObject(map_platforms_sprite); //delete sprites
             DeleteObject(map_platforms_sprite_mask);
             LoadMainMenuBackground();
-            back_to_menu=FALSE;
-            clean_up_sound=TRUE;
-            in_main_menu=TRUE;
 
             DeleteObject(moon_sprite_cache);
             moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,BLACK,-1);
@@ -1706,6 +752,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             mouse_cursor_sprite_pupil_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTRED,draw_color_arr[player_pupil_color]);
 
+
+
+
+            back_to_menu=FALSE;
+            clean_up_sound=TRUE;
+            in_main_menu=TRUE;
           }
         } else { //In Main Menu
           PAINTSTRUCT ps;
@@ -1737,6 +789,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       Init8BitRGBColorsNoir(rgbColorsNoir);
       Init8BitRGBColorsDefault(rgbColorsDefault);
       wav_out_original_volume=VolumeValue(50,1);
+      RESOLUTION_X[2]=SCREEN_WIDTH;
+      RESOLUTION_Y[2]=SCREEN_HEIGHT;
+
       //waveOutGetVolume(hWaveOut[2],&wav_out_original_volume);
 
 
@@ -1744,7 +799,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       remove("music/tmp/tmp.wav");
       rmdir("music/tmp"); //remove tmp
 
-      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៩ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1969-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1445-12-30"), TEXT("អាពីងស៊ីរុយ") ,MB_OK);
+      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៩ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1969-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1446-1-1"), TEXT("អាពីងស៊ីរុយ") ,MB_OK);
 
       //load levels in save
       GetSavesInDir(L"saves");
@@ -1847,25 +902,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       player.ospin_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/player-spin.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
 
-
-      /*DeleteObject(player.sprite_1);
-      DeleteObject(player.sprite_2);
-      DeleteObject(player.jump);
-
-      DeleteObject(player.attack_sprite_1);
-      DeleteObject(player.attack_sprite_2);
-      DeleteObject(player.attack_sprite_3);
-      DeleteObject(player.attack_sprite_4);
-
-      DeleteObject(player.block_sprite_1);
-      DeleteObject(player.block_sprite_2);
-      DeleteObject(player.block_sprite_3);
-
-      DeleteObject(player.spin_sprite);*/
-
-
-
-      player.sprite_1 = RotateSprite(NULL, player.osprite_1,0,-1,LTRED,LTRED,-1);
+      /*player.sprite_1 = RotateSprite(NULL, player.osprite_1,0,-1,LTRED,LTRED,-1);
       player.sprite_2 = RotateSprite(NULL, player.osprite_2,0,-1,LTRED,LTRED,-1);
       player.sprite_jump = RotateSprite(NULL, player.osprite_jump,0,-1,LTRED,LTRED,-1);
 
@@ -1878,7 +915,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       player.block_sprite_2 = RotateSprite(NULL, player.oblock_sprite_2,0,-1,LTRED,LTRED,-1);
       player.block_sprite_3 = RotateSprite(NULL, player.oblock_sprite_3,0,-1,LTRED,LTRED,-1);
 
-      player.spin_sprite = RotateSprite(NULL, player.ospin_sprite,0,-1,LTRED,LTRED,-1);
+      player.spin_sprite = RotateSprite(NULL, player.ospin_sprite,0,-1,LTRED,LTRED,-1);*/
 
 
       /*player.sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/canny.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
@@ -1987,45 +1024,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
          long int vol=VolumeValue(10,1);
          waveOutSetVolume(hWaveOut[2],vol);
          waveOutPrepareHeader(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));
-
-      //}
-
-        //DWORD tmp_clang_audio_filesize;
-        //char* tmp_clang_audio=LoadAudioData("snd/clang.wav",&tmp_clang_audio_filesize);
-
-
-        //long tmp_clang_audio_filesize2;
-        //int16_t* tmp_clang_audio2=LoadWav("snd/clang.wav",&tmp_clang_audio_filesize2);
-
-
-        //PlaySound(clang_audio,NULL,SND_MEMORY|SND_ASYNC);
-        //PlayStereoAudio(tmp_clang_audio,tmp_clang_audio_filesize,duration);//,tmp_clang_audio2,tmp_clang_audio_filesize2);
-
-        //SpamSoundAudio mySpamSound = {tmp_clang_audio,tmp_clang_audio_filesize,duration};
-
-        
-        //HANDLE thread_audio=CreateThread(NULL,0,PlaySpamSound,NULL,0,NULL); //Spawm Game Logic Thread
-        //HANDLE thread_audio2=CreateThread(NULL,0,PlaySpamSound2,NULL,0,NULL); //Spawm Game Logic Thread
-
-
-        //AMemSnd *myMemSnd= createMemSnd(tmp_clang_audio,tmp_clang_audio_filesize,tmp_duration);
-        //PlayStereoAudio(tmp_clang_audio,tmp_clang_audio_filesize);
-        //PlayStereoAudio(tmp_clang_audio,tmp_clang_audio_filesize);
-        //PlayStereoAudio(tmp_clang_audio,tmp_clang_audio_filesize);
-        //PlayStereoAudio(tmp_clang_audio,tmp_clang_audio_filesize);
-       
-
-
-        //PlayStereoAudio(clang_audio,clang_audio_filesize);
-        //PlayStereoAudio(clang_audio,clang_audio_filesize);
-        //PlayStereoAudio(clang_audio,clang_audio_filesize);
-        //PlaySound(clang_audio,NULL,SND_MEMORY);
-        //PlaySound((LPCWSTR)tmp_clang_audio,NULL,SND_MEMORY);
-
-        //free(tmp_clang_audio);
-        //free(tmp_clang_audio2);
-
-        //free(tmp_clang_audio2);
       return 0;
       break;
 
@@ -2067,25 +1065,30 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   RegisterClassW(&wc);
 
 
-
   //https://cplusplus.com/forum/beginner/9908/
   //create window
+  int small_screen_x=640;
+  int small_screen_y=480;
+  resolution_choose=0;
+  if (SCREEN_WIDTH>640) {
+    small_screen_x=800;
+    small_screen_y=600;
+    resolution_choose=1;
+  }
   HWND hwnd = CreateWindowW(wc.lpszClassName,
                 L"អាពីងស៊ីរុយ - wInsecticide",
                 WS_POPUP | WS_BORDER | WS_OVERLAPPEDWINDOW | WS_VISIBLE | CW_USEDEFAULT| CW_USEDEFAULT /*| WS_MINIMIZE*/,
-                SCREEN_WIDTH/2-400,
-                SCREEN_HEIGHT/2-300,
+                SCREEN_WIDTH/2-small_screen_x/2,
+                SCREEN_HEIGHT/2-small_screen_y/2,
                 //800,//SCREEN_WIDTH,//GR_WIDTH+7,
                 //600-8*4,//SCREEN_HEIGHT,//GR_HEIGHT+27, //4:3 aspect ratio
-                800,
-                600,
+                small_screen_x,
+                small_screen_y,
                 NULL,
                 NULL,
                 hInstance, 
                 NULL);
   //HMONITOR hmon = MonitorFromWindow(hwnd, MONITOR_DEFAULTTONEAREST);
-
-
   //SetWindowLong(hwnd, GWL_STYLE, 0);
   //ShowWindow(hwnd, SW_SHOW);
   //https://www.codeproject.com/Questions/441008/Hide-TaskBar-in-C-through-Win32
@@ -2121,17 +1124,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 
     Sleep(100);
   }
-  //SetFocus(hwnd);
-  //BringWindowToTop(hwnd);
+
   SetForegroundWindow(hwnd);
   HANDLE thread1=CreateThread(NULL,0,AnimateTask01,NULL,0,NULL); //Spawm Game Logic Thread
   HANDLE thread2=CreateThread(NULL,0,SongTask,NULL,0,NULL); //Spawn Song Player Thread
-
-  //HANDLE sound_thread1=CreateThread(NULL,0,SoundTask1,NULL,0,NULL); //Spawn Song Player Thread
-  //HANDLE sound_thread2=CreateThread(NULL,0,SoundTask2,NULL,0,NULL); //Spawn Song Player Thread
-  //HANDLE sound_thread3=CreateThread(NULL,0,SoundTask3,NULL,0,NULL); //Spawn Song Player Thread
-
-  //HANDLE thread3=CreateThread(NULL,0,SndTask,NULL,0,NULL); //Spawn Sound Task
 
 
   MSG msg;

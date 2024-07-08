@@ -22,6 +22,11 @@ bool loading_wav=FALSE;
 bool playing_wav=FALSE;
 bool skip_song=FALSE;
 
+unsigned long long time_song_start;
+unsigned long long time_song_end;
+unsigned long long current_song_time;
+
+
 //https://github.com/audiojs/sample-rate
 
 //https://riptutorial.com/winapi/example/5736/create-a-file-and-write-to-it
@@ -151,19 +156,17 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
       if (!stop_playing_song) {
 
         if (playing_wav) { //hi im currently playing a flac/wav
-          if (!in_main_menu) {
-            current_song_duration+=6;
-          } else {
-            current_song_duration+=1000;
-          }
-          if (current_song_duration>=song_duration) { //stop playing flac when duration is over
+          
+          current_song_time=current_timestamp();
+          if (current_song_time>time_song_end) { //stop playing flac when duration is over
             play_new_song=TRUE;
             loading_flac=FALSE;
             loading_wav=FALSE;
             playing_wav=FALSE;
+            time_song_start=0;
+            time_song_end=0;
             if (song_audio!=NULL)
               free(song_audio);
-            current_song_duration=0;
           }
 
           if (flag_adjust_song_audio) {
@@ -196,9 +199,10 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
             //load music into memory and play in wav2
               if (song_audio!=NULL)
                 free(song_audio);
-              current_song_duration=0;
               
               song_audio=LoadMusicWavW(L"music/tmp/tmp.wav",&song_audio_filesize, &song_duration);
+              time_song_start=current_timestamp();
+              time_song_end=time_song_start+song_duration;
               PlayMemSnd(song_audio,song_audio_filesize,song_duration,2);
 
               remove("music/tmp/tmp.wav");
@@ -212,12 +216,14 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
 
             if (song_audio!=NULL)
               free(song_audio);
-            current_song_duration=0;
 
 
             wchar_t wav_song_playing[256];
             swprintf(wav_song_playing,256,L"music/%s",song_names[song_rand_num]);
             song_audio=LoadMusicWavW(wav_song_playing, &song_audio_filesize, &song_duration);
+            time_song_start=current_timestamp();
+            time_song_end=time_song_start+song_duration;
+
             PlayMemSnd(song_audio,song_audio_filesize,song_duration,2);
 
             //attempt to remove left overs
@@ -274,7 +280,6 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
               waveOutReset(hWaveOut[2]);
               CloseHandle(hMemSndArray[2]);
 
-              current_song_duration=0;
               if (song_audio!=NULL)
                 free(song_audio);
 
@@ -364,7 +369,6 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
       waveOutReset(hWaveOut[2]);
       CloseHandle(hMemSndArray[2]);
 
-      current_song_duration=0;
       playing_wav=FALSE;
       loading_flac=FALSE;
       loading_wav=FALSE;

@@ -65,6 +65,13 @@ WHITE //15
 
 
 
+int Highlight(bool predicate,int color1, int color2)
+{
+  if (predicate)
+    return color2;
+  return color1;
+}
+
 
 
 RGBQUAD rgbColorsNoir[256];
