@@ -559,7 +559,10 @@ lunar_year
     char fpstxt[10];
     sprintf(fpstxt,"FPS: %d / %d",saved_showoff,FPS);
     int FPS_x=GR_WIDTH-strlen(fpstxt)*8-14;
-    GrPrint(hdc,FPS_x,main_menu_y+10+32,fpstxt,WHITE);
+    if (hide_taskbar)
+      GrPrint(hdc,FPS_x,main_menu_y+10+16,fpstxt,WHITE);
+    else
+      GrPrint(hdc,FPS_x,main_menu_y+10+32,fpstxt,WHITE);
   }
 }
 
