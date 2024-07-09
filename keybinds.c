@@ -816,7 +816,7 @@ void MinusOneMenuKeypressDown(WPARAM wParam)
   //Holding Down Down Arrow or 'S'
    case 'S':
    case VK_DOWN:
-     select_main_menu=LimitValue(select_main_menu+1,0,3);
+     select_main_menu=LimitValue(select_main_menu+1,0,6);
      if (game_audio)
        PlaySound(mkey_down_up_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //up down
      break;
@@ -825,7 +825,7 @@ void MinusOneMenuKeypressDown(WPARAM wParam)
    case 'W':
    case VK_UP:
      //level_chosen=LimitValue(level_chosen-1,0,level_num);
-     select_main_menu=LimitValue(select_main_menu-1,0,3);
+     select_main_menu=LimitValue(select_main_menu-1,0,6);
      if (game_audio)
        PlaySound(mkey_down_up_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //up down
      break;
@@ -843,9 +843,16 @@ int MinusOneMenuKeypressUp(WPARAM wParam)
            if (game_audio)
              PlaySound(mkey_esc_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //esc
          }
+         if (select_main_menu==5) { //exit
+           if (game_audio)
+             PlaySound(mkey_esc_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //esc        
+           PostQuitMessage(0);
+           return 0;
+         }
          break;
 
-       case VK_ESCAPE: //release ESC+SHIFT key, exit
+       //case VK_ESCAPE: //release ESC+SHIFT key, exit
+       case 'Q': // release Q and shift
          if ((keydown(VK_LSHIFT) || keydown(VK_RSHIFT))) { //ESC + L/RSHIFT = QUIT
            PostQuitMessage(0);
            return 0;

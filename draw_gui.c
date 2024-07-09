@@ -298,9 +298,11 @@ lunar_year
       GrPrint(hdc,30,main_menu_y+10+16*6,"Build Selected Level.",c);
 
 
-      GrPrint(hdc,20,main_menu_y+10+16*2+16*select_main_menu,"*",LTGREEN);
+      if (select_main_menu<5)
+        GrPrint(hdc,20,main_menu_y+10+16*2+16*select_main_menu,"*",LTGREEN);
 
-      GrPrint(hdc,30,main_menu_y+10+16*10,"[SHIFT_ESC]: Exit.",WHITE);
+      c=Highlight((select_main_menu==5),WHITE,LTGREEN);
+      GrPrint(hdc,30,main_menu_y+10+16*10,"[SHIFT]+'Q':  Exit.",c);
     }
       break;
      
