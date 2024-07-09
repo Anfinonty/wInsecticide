@@ -486,6 +486,19 @@ lunar_year
       c=Highlight((option_choose==11),WHITE,LTGREEN);
       GrPrint(hdc,30,10+soptions_y+16*13,"Window Align Position:",c);
       GrPrint(hdc,30+20*8,10+soptions_y+16*13,"<Corner || Middle>",c);
+
+
+
+      c=Highlight((option_choose==12),WHITE,LTGREEN);
+      GrPrint(hdc,30,10+soptions_y+16*14,"Show FPS:",c);
+      if (show_fps) {
+        GrPrint(hdc,30+20*8,10+soptions_y+16*14,"<ON>",c);
+      } else {
+        GrPrint(hdc,30+20*8,10+soptions_y+16*14,"<OFF>",c);
+      }
+
+
+
       //===========================
 
       int add_option_choose=0;
@@ -498,9 +511,9 @@ lunar_year
 
 
       if (hide_taskbar)
-        GrPrint(hdc,30,main_menu_y+10+16*21,"[SHIFT_ESC]: Back.",WHITE);
+        GrPrint(hdc,30,main_menu_y+10+16*22,"[SHIFT_ESC]: Back.",WHITE);
       else
-        GrPrint(hdc,30,main_menu_y+10+16*20,"[SHIFT_ESC]: Back.",WHITE);
+        GrPrint(hdc,30,main_menu_y+10+16*21,"[SHIFT_ESC]: Back.",WHITE);
       break;
 
 
@@ -539,6 +552,13 @@ lunar_year
       break;
   }
   DrawPlayingMusic(hdc,16+4,help_y+48,BLACK,WHITE);
+
+  if (show_fps) {
+    char fpstxt[10];
+    sprintf(fpstxt,"FPS: %d / %d",saved_showoff,FPS);
+    int FPS_x=GR_WIDTH-strlen(fpstxt)*8-14;
+    GrPrint(hdc,FPS_x,main_menu_y+10+32,fpstxt,WHITE);
+  }
 }
 
 
@@ -692,6 +712,12 @@ void DrawUI(HDC hdc) {
     DrawPlayingMusic(hdc,16+4,help_y+48,c,c4);
   }
 
+  if (show_fps) {
+    char fpstxt[10];
+    sprintf(fpstxt,"FPS: %d / %d",saved_showoff,FPS);
+    int FPS_x=GR_WIDTH-strlen(fpstxt)*8-14;
+    GrPrint(hdc,FPS_x,10+32,fpstxt,c);
+  }
 
 //=========Draw Player UI
   int i=0,j=0;

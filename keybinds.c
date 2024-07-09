@@ -495,6 +495,16 @@ void OptionsKeypressDown(HWND hwnd, WPARAM wParam)
                PlaySound(mkey_true_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //true
              }             
              break;
+
+           case 12: //toggle show fps
+             if (game_audio) {
+               if (show_fps)
+                 PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
+               else
+                 PlaySound(mkey_true_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //true
+             }
+             show_fps=!show_fps;             
+             break;
          }
          break;
 
@@ -639,7 +649,17 @@ void OptionsKeypressDown(HWND hwnd, WPARAM wParam)
              SetForegroundWindow(hwnd); //return back focus            
              if (game_audio) {
                PlaySound(mkey_true_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //true
-             }             
+             }
+             break;
+
+           case 12: //toggle show fps
+             if (game_audio) {
+               if (show_fps)
+                 PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
+               else
+                 PlaySound(mkey_true_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //true
+             }
+             show_fps=!show_fps;             
              break;
         }
         break;

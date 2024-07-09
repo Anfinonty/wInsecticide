@@ -63,6 +63,7 @@ bool hide_taskbar=FALSE;
 bool in_main_menu=TRUE;
 bool level_loaded=FALSE;
 bool game_over=FALSE;
+bool show_fps=FALSE;
 //bool alloc_enemy_once=TRUE;
 
 //to be used to load a level
@@ -110,6 +111,8 @@ int player_load_pupil_color=12;
 
 int player_bullet_color=0;
 
+int showoff=0;
+int saved_showoff=0;
 
 //double, game state system values
 long long game_timer=0;
@@ -211,7 +214,7 @@ double moon_angle_shift=0;
 #define PLAYER_BULLET_NUM 24//16
 
 
-#define GAME_OPTIONS_NUM    12
+#define GAME_OPTIONS_NUM    13
 
 #include "struct_classes.c"
 
@@ -384,6 +387,15 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
     } else {
       Sleep(1000);
     }
+  }
+}
+
+
+DWORD WINAPI AnimateTask02(LPVOID lpArg) { //FPS counter
+  while (TRUE) {
+    saved_showoff=showoff;
+    showoff=0;
+    Sleep(1000);
   }
 }
 
@@ -593,6 +605,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         if (!in_main_menu) //### LevelLoaded
         { //https://stackoverflow.com/questions/752593/win32-app-suspends-on-minimize-window-animation
           frame_tick++;
+          showoff++;
           if (frame_tick>FPS) {
             frame_tick=0;
           }
@@ -760,6 +773,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             in_main_menu=TRUE;
           }
         } else { //In Main Menu
+          showoff++;
           PAINTSTRUCT ps;
           hdc=BeginPaint(hwnd, &ps);
           hdcBackbuff=CreateCompatibleDC(hdc);
@@ -799,7 +813,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       remove("music/tmp/tmp.wav");
       rmdir("music/tmp"); //remove tmp
 
-      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៩ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1969-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1446-1-1"), TEXT("អាពីងស៊ីរុយ") ,MB_OK);
+      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៩ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1969-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1446-1-2"), TEXT("អាពីងស៊ីរុយ") ,MB_OK);
 
       //load levels in save
       GetSavesInDir(L"saves");
@@ -1127,7 +1141,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 
   SetForegroundWindow(hwnd);
   HANDLE thread1=CreateThread(NULL,0,AnimateTask01,NULL,0,NULL); //Spawm Game Logic Thread
-  HANDLE thread2=CreateThread(NULL,0,SongTask,NULL,0,NULL); //Spawn Song Player Thread
+  HANDLE thread2=CreateThread(NULL,0,AnimateTask02,NULL,0,NULL); //Spawm Game Logic Thread
+  HANDLE thread3=CreateThread(NULL,0,SongTask,NULL,0,NULL); //Spawn Song Player Thread
 
 
   MSG msg;
