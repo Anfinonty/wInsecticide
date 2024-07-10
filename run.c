@@ -69,7 +69,20 @@ bool show_fps=FALSE;
 //to be used to load a level
 wchar_t save_level[128];
 //lvl name type in or editing
-wchar_t typing_level_name[128];//=//{' ',L'H',L'I'};
+
+
+//Create Level Menu
+//Typing level name attributes
+wchar_t typing_lvl_name[16];//=//{' ',L'H',L'I'};
+int typing_lvl_name_pos=0;
+int set_ground_amount=10;
+int set_enemy_amount=1;
+int set_map_width_amount=640;
+int set_map_height_amount=480;
+int create_lvl_option_choose=0;
+
+
+
 
 //Game System Values
 int windowx=0;
@@ -179,9 +192,9 @@ double moon_angle_shift=0;
 
 #define MAX_MAP_NODE_NUM (640*20)/NODE_SIZE * (480*20)/NODE_SIZE //MAX_WIDTH/NODE_SIZE * MAX_HEIGHT/NODE_SIZE
 #define MAX_VGRID_NUM   4800 //(640/160)*20 * (480/160)*20
-#define MAX_GRID_NUM    4800
+//#define MAX_GRID_NUM    4800
 #define MAX_GROUND_NUM  1000
-#define MAX_ENEMY_NUM   50
+#define MAX_ENEMY_NUM   200//50
 
 
 
@@ -485,6 +498,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
            case 1:
              OptionsKeypressDown(hwnd, wParam);
              break;
+
+           case 2:
+             TwoMenuKeypressDown(wParam);
+             break;
         } //end of switch statement for menu chosen
       } //end of menu chosen if else
       break; //Break WM_KEYDOWN;
@@ -531,10 +548,39 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     case WM_CHAR:
       //https://learn.microsoft.com/en-us/windows/win32/learnwin32/keyboard-input
       //https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/getch-getwch?view=msvc-170
-      if (in_main_menu)
-        if (main_menu_chosen==2)
-           //global_wchar[0]=wParam;
-          typing_level_name[0]=wParam;
+      if (in_main_menu) {
+        if (main_menu_chosen==2 && create_lvl_option_choose==0) {
+          if (typing_lvl_name_pos<17) {
+            if (wParam==0x08) { //Backspace
+              if (typing_lvl_name_pos>0) {
+                typing_lvl_name_pos--;
+                typing_lvl_name[typing_lvl_name_pos]=0;
+              }
+            } else {
+              if (typing_lvl_name_pos<16) {
+                if (wParam!='\\' && 
+                    wParam!='/' &&
+                    wParam!='<' &&
+                    wParam!='>' &&
+                    wParam!=':' &&
+                    wParam!='"' &&
+                    wParam!='|' &&
+                    wParam!='?' &&
+                    wParam!='*' &&
+                    wParam!='.' &&
+                    wParam!=' ' &&
+                    wParam!='\n' &&
+                    wParam!=0 &&
+                    !(wParam>=0 && wParam<=31) 
+                ) { //Disallaw illegal characters
+                  typing_lvl_name[typing_lvl_name_pos]=wParam;
+                  typing_lvl_name_pos++;
+                }
+              }
+            }
+          }
+        }
+      }
       break;
 
     //Constantly Update Screen
@@ -813,7 +859,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       remove("music/tmp/tmp.wav");
       rmdir("music/tmp"); //remove tmp
 
-      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៩ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1969-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1446-1-2"), TEXT("អាពីងស៊ីរុយ") ,MB_OK);
+      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៩ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1969-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1446-01-02"), TEXT("អាពីងស៊ីរុយ") ,MB_OK);
 
       //load levels in save
       GetSavesInDir(L"saves");

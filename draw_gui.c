@@ -524,33 +524,66 @@ lunar_year
 
     case 2:
       GrPrint(hdc,30,main_menu_y+10+16*2,"Create New Level",WHITE);
-      GrPrint(hdc,30,main_menu_y+10+16*4,"[Enter]: Create Level",WHITE);
 
-      GrPrintW(hdc,30,main_menu_y+10+16*5,L"[SHIFT] + 'L': Unifont [ពេលរាត្រី]","",WHITE,16,FALSE,yes_unifont);
+     // GrPrintW(hdc,30,main_menu_y+10+16*5,L"[SHIFT] + 'L': Unifont [ពេលរាត្រី]","",WHITE,16,FALSE,yes_unifont);
      // GrPrint(hdc,30,main_menu_y+10+16*6,"[SHIFT] + 'T': Toggle Borders",WHITE);
 
- 
-      GrPrintW(hdc,30,main_menu_y+10+16*8,L"Level Name:","",WHITE,16,FALSE,yes_unifont);
-      GrPrintW(hdc,30+13*8,main_menu_y+10+16*8,typing_level_name,"",WHITE,16,FALSE,yes_unifont);
+      int create_lvl_y=main_menu_y+10+16*4;
+      c=Highlight((create_lvl_option_choose==0),WHITE,LTGREEN);
+      GrPrintW(hdc,30,create_lvl_y,L"Level Name:","",c,16,FALSE,yes_unifont);
+      if (typing_lvl_name_pos>0)
+        GrPrintW(hdc,30+20*8,create_lvl_y,typing_lvl_name,"",c,16,FALSE,yes_unifont);
 
 
-      GrPrint(hdc,30,main_menu_y+10+16*9,"Ground Amount:",WHITE);
+      c=Highlight((create_lvl_option_choose==1),WHITE,LTGREEN);
+      GrPrint(hdc,30,create_lvl_y+16,"Ground Amount:",c);
+      char print_set_ground_amount[8];
+      sprintf(print_set_ground_amount,"<%d>",set_ground_amount);
+      GrPrint(hdc,30+20*8,create_lvl_y+16,print_set_ground_amount,c);
+      
+
+      c=Highlight((create_lvl_option_choose==2),WHITE,LTGREEN);
+      GrPrint(hdc,30,create_lvl_y+16*2,"Enemies Amount:",c);
+      char print_set_enemy_amount[8];
+      sprintf(print_set_enemy_amount,"<%d>",set_enemy_amount);
+      GrPrint(hdc,30+20*8,create_lvl_y+16*2,print_set_enemy_amount,c);
 
 
-
-      GrPrint(hdc,30,main_menu_y+10+16*10,"Enemies Amount:",WHITE);
-
-
-
-
-      GrPrint(hdc,30,main_menu_y+10+16*11,"Level Width (Px):",WHITE);
+      c=Highlight((create_lvl_option_choose==3),WHITE,LTGREEN);
+      GrPrint(hdc,30,create_lvl_y+16*3,"Level Width (Px):",c);
+      char print_set_map_width_amount[16];
+      sprintf(print_set_map_width_amount,"<%d>",set_map_width_amount);
+      GrPrint(hdc,30+20*8,create_lvl_y+16*3,print_set_map_width_amount,c);
 
 
+      c=Highlight((create_lvl_option_choose==4),WHITE,LTGREEN);
+      GrPrint(hdc,30,create_lvl_y+16*4,"Level Height (Px):",c);
+      char print_set_map_height_amount[16];
+      sprintf(print_set_map_height_amount,"<%d>",set_map_height_amount);
+      GrPrint(hdc,30+20*8,create_lvl_y+16*4,print_set_map_height_amount,c);
+
+      GrPrint(hdc,20,create_lvl_y+16*create_lvl_option_choose,"*",LTGREEN);
+
+      int map_ratio1=set_map_width_amount/160;
+      int map_ratio2=set_map_height_amount/160;
+      int calc_grid_value=map_ratio1*map_ratio2;
+      char print_calc_grid_value[32];
+      sprintf(print_calc_grid_value,"%d (Must be less than 4800)",(set_map_width_amount/160*set_map_height_amount/160));
+
+      c=Highlight(calc_grid_value>MAX_VGRID_NUM,WHITE,LTRED);
+      GrPrint(hdc,30,create_lvl_y+16*7,"Grid Amount:",c);
+      GrPrint(hdc,30+20*8,create_lvl_y+16*7,print_calc_grid_value,c);
 
 
-      GrPrint(hdc,30,main_menu_y+10+16*12,"Level Height (Px):",WHITE);
+      char print_calc_ratio_value[32];
 
-      GrPrint(hdc,30,main_menu_y+10+16*14,"[SHIFT_ESC]: Back.",WHITE);      
+      GrPrint(hdc,30,create_lvl_y+16*8,"Level Grids Ratio:",WHITE);
+      sprintf(print_calc_ratio_value,"%d:%d",map_ratio1,map_ratio2);
+      GrPrint(hdc,30+20*8,create_lvl_y+16*8,print_calc_ratio_value,WHITE);
+
+
+      GrPrint(hdc,30,main_menu_y+10+16*17,"[Enter]: Create Level",WHITE);
+      GrPrint(hdc,30,main_menu_y+10+16*18,"[SHIFT_ESC]: Back.",WHITE);      
       break;
   }
   DrawPlayingMusic(hdc,16+4,help_y+48,BLACK,WHITE);

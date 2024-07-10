@@ -918,6 +918,76 @@ void ZeroMenuKeypressUp(WPARAM wParam)
 
 
 
+void TwoMenuKeypressDown(WPARAM wParam)
+{
+  switch (wParam) {
+  //Holding Down Down Arrow or 'S'
+    case 'S':
+    case VK_DOWN:
+       if ((wParam=='S' && create_lvl_option_choose==0) || wParam==VK_DOWN) {
+       create_lvl_option_choose=LimitValue(create_lvl_option_choose+1,0,5);
+       if (game_audio)
+         PlaySound(mkey_down_up_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //up down
+       }
+       break;
+
+  //Holding Down Up Arrow or 'W''
+    case 'W':
+    case VK_UP:
+     //level_chosen=LimitValue(level_chosen-1,0,level_num);
+      if ((wParam=='W' && create_lvl_option_choose==0) || wParam==VK_UP) {
+        create_lvl_option_choose=LimitValue(create_lvl_option_choose-1,0,5);
+        if (game_audio)
+          PlaySound(mkey_down_up_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //up down
+      }
+      break;
+
+    case 'A':
+    case VK_LEFT:
+      if ((wParam=='A' && create_lvl_option_choose==0) || wParam==VK_LEFT) {
+        switch (create_lvl_option_choose) {
+          case 1: //Max Ground Num Decrease --
+            set_ground_amount=LimitValue(set_ground_amount-10,10,MAX_GROUND_NUM+1);
+            break;    
+          case 2: //Max Enemy Num Decrease --
+            set_enemy_amount=LimitValue(set_enemy_amount-1,1,MAX_ENEMY_NUM+1);
+            break;    
+          case 3: //Max Width Num Decrease --
+            set_map_width_amount=LimitValue(set_map_width_amount-160,640,256001);
+            break;    
+          case 4: //Max Height Num Decrease --
+            set_map_height_amount=LimitValue(set_map_height_amount-160,480,192001);
+            break;    
+        }
+      }
+      break;
+
+
+    case 'D':
+    case VK_RIGHT:
+      if ((wParam=='D' && create_lvl_option_choose==0) || wParam==VK_RIGHT) {
+        switch (create_lvl_option_choose) {
+          case 1: //Max Ground Num Increase ++
+            set_ground_amount=LimitValue(set_ground_amount+10,10,MAX_GROUND_NUM+1);
+            break;    
+          case 2: //Max Enemy Num Increase ++
+            set_enemy_amount=LimitValue(set_enemy_amount+1,1,MAX_ENEMY_NUM+1);
+            break;
+          case 3: //Max Width Num Increase ++
+            set_map_width_amount=LimitValue(set_map_width_amount+160,640,256001/*MAX_VGRID_NUM*160*/);
+            break;
+          case 4: //Max Height Num Increase ++
+            set_map_height_amount=LimitValue(set_map_height_amount+160,480,192001/*MAX_VGRID_NUM*160*/);
+            break;    
+        }
+      }
+      break;
+  }
+}
+
+
+
+
 void TwoMenuKeypressUp(WPARAM wParam)
 {
     switch (wParam) {
