@@ -22,11 +22,10 @@ int16_t* mem_snd_audio2;
 int16_t* mem_snd_audio3;
 
 
-
 //Custom Audio format
 WAVEFORMATEX wfx1 = {
     .wFormatTag = WAVE_FORMAT_PCM,
-    .nChannels = 1, // Stereo
+    .nChannels = 1, // Mono
     .nSamplesPerSec = 11025L,//22050L,//11025L, // Sample rate
     .wBitsPerSample = 16, // 16-bit audio
     .nBlockAlign = (1 *  16) / 8,

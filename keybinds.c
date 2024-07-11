@@ -18,7 +18,7 @@ bool keydownalt()
 
 
 
-void GlobalKeydownPress(WPARAM wParam)
+void GlobalKeypressDown(WPARAM wParam)
 {
     switch (wParam) {
     //Holding down '9' Key
@@ -166,7 +166,7 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
 
 
 
-void GameKeydownPress(WPARAM wParam)
+void GameKeypressDown(WPARAM wParam)
 {
     switch (wParam) {
     //Holding Down Down Arrow or 'S'
@@ -726,7 +726,11 @@ void OptionsKeypressUp(WPARAM wParam)
                free(mkey_paint_audio_cache);
              if (mkey_esc_audio_cache!=NULL)
                free(mkey_esc_audio_cache);
+             if (mkey_play_level_audio_cache!=NULL)
+               free(mkey_play_level_audio_cache);
 
+
+              mkey_play_level_audio_cache=adjustVolumeA(mkey_play_level_audio,mkey_play_level_audio_filesize,game_volume);
               mkey_down_up_audio_cache=adjustVolumeA(mkey_down_up_audio,mkey_down_up_audio_filesize,game_volume);
               mkey_true_audio_cache=adjustVolumeA(mkey_true_audio,mkey_true_audio_filesize,game_volume);
               mkey_false_audio_cache=adjustVolumeA(mkey_false_audio,mkey_false_audio_filesize,game_volume);
@@ -755,7 +759,10 @@ void OptionsKeypressUp(WPARAM wParam)
              free(mkey_paint_audio_cache);
            if (mkey_esc_audio_cache!=NULL)
              free(mkey_esc_audio_cache);
+           if (mkey_play_level_audio_cache!=NULL)
+             free(mkey_play_level_audio_cache);
 
+            mkey_play_level_audio_cache=adjustVolumeA(mkey_play_level_audio,mkey_play_level_audio_filesize,game_volume);
             mkey_down_up_audio_cache=adjustVolumeA(mkey_down_up_audio,mkey_down_up_audio_filesize,game_volume);
             mkey_true_audio_cache=adjustVolumeA(mkey_true_audio,mkey_true_audio_filesize,game_volume);
             mkey_false_audio_cache=adjustVolumeA(mkey_false_audio,mkey_false_audio_filesize,game_volume);
@@ -887,7 +894,9 @@ void ZeroMenuKeypressDown( HWND hwnd,  HDC hdc, WPARAM wParam)
 
       //Holding down ENTER key
        case VK_RETURN:
-         if (player_color>-1 && player_color<COLORS_NUM) {               
+         if (player_color>-1 && player_color<COLORS_NUM) {         
+           if (game_audio)
+             PlaySound(mkey_play_level_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //esc             
            if (level_chosen>=0 && level_chosen<level_num && main_menu_chosen==0)
              InitLevel(hwnd, hdc);
          }
@@ -924,7 +933,7 @@ void TwoMenuKeypressDown(WPARAM wParam)
   //Holding Down Down Arrow or 'S'
     case 'S':
     case VK_DOWN:
-       if ((wParam=='S' && create_lvl_option_choose==0) || wParam==VK_DOWN) {
+       if ((wParam=='S' && create_lvl_option_choose>0) || wParam==VK_DOWN) {
        create_lvl_option_choose=LimitValue(create_lvl_option_choose+1,0,5);
        if (game_audio)
          PlaySound(mkey_down_up_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //up down
@@ -935,7 +944,7 @@ void TwoMenuKeypressDown(WPARAM wParam)
     case 'W':
     case VK_UP:
      //level_chosen=LimitValue(level_chosen-1,0,level_num);
-      if ((wParam=='W' && create_lvl_option_choose==0) || wParam==VK_UP) {
+      if ((wParam=='W' && create_lvl_option_choose>0) || wParam==VK_UP) {
         create_lvl_option_choose=LimitValue(create_lvl_option_choose-1,0,5);
         if (game_audio)
           PlaySound(mkey_down_up_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //up down
@@ -944,7 +953,7 @@ void TwoMenuKeypressDown(WPARAM wParam)
 
     case 'A':
     case VK_LEFT:
-      if ((wParam=='A' && create_lvl_option_choose==0) || wParam==VK_LEFT) {
+      if ((wParam=='A' && create_lvl_option_choose>0) || wParam==VK_LEFT) {
         switch (create_lvl_option_choose) {
           case 1: //Max Ground Num Decrease --
             set_ground_amount=LimitValue(set_ground_amount-10,10,MAX_GROUND_NUM+1);
@@ -959,13 +968,17 @@ void TwoMenuKeypressDown(WPARAM wParam)
             set_map_height_amount=LimitValue(set_map_height_amount-160,480,192001);
             break;    
         }
+        if (create_lvl_option_choose>0) {
+          if (game_audio)
+            PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
+        }
       }
       break;
 
 
     case 'D':
     case VK_RIGHT:
-      if ((wParam=='D' && create_lvl_option_choose==0) || wParam==VK_RIGHT) {
+      if ((wParam=='D' && create_lvl_option_choose>0) || wParam==VK_RIGHT) {
         switch (create_lvl_option_choose) {
           case 1: //Max Ground Num Increase ++
             set_ground_amount=LimitValue(set_ground_amount+10,10,MAX_GROUND_NUM+1);
@@ -979,6 +992,10 @@ void TwoMenuKeypressDown(WPARAM wParam)
           case 4: //Max Height Num Increase ++
             set_map_height_amount=LimitValue(set_map_height_amount+160,480,192001/*MAX_VGRID_NUM*160*/);
             break;    
+        }
+        if (create_lvl_option_choose>0) {
+          if (game_audio)
+            PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
         }
       }
       break;
@@ -999,5 +1016,8 @@ void TwoMenuKeypressUp(WPARAM wParam)
              PlaySound(mkey_esc_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //esc
          }
          break;
+
+        case VK_RETURN:
+          break;
     }
 }

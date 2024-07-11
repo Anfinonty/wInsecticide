@@ -49,7 +49,7 @@ bool flag_adjust_wav_out_audio=FALSE;
 bool load_sound=FALSE;
 bool back_to_menu=FALSE;
 bool clean_up_sound=FALSE;
-
+bool run_after_once=FALSE;
 
 //game options
 bool yes_unifont=FALSE;
@@ -228,6 +228,8 @@ double moon_angle_shift=0;
 
 
 #define GAME_OPTIONS_NUM    13
+#define GAME_SOUND_EFFECTS_NUM  
+
 
 #include "struct_classes.c"
 
@@ -238,6 +240,7 @@ long clang_audio_filesize;
 long tb_start_audio_filesize;
 long tb_stop_audio_filesize;
 
+long mkey_play_level_audio_filesize;
 long mkey_down_up_audio_filesize;
 long mkey_true_audio_filesize;
 long mkey_false_audio_filesize;
@@ -249,6 +252,7 @@ static int16_t* clang_audio;
 static int16_t* tb_start_audio;
 static int16_t* tb_stop_audio;
 
+static int16_t* mkey_play_level_audio;
 static int16_t* mkey_down_up_audio;
 static int16_t* mkey_true_audio;
 static int16_t* mkey_false_audio;
@@ -260,7 +264,7 @@ static int16_t* clang_audio_cache;
 static int16_t* tb_start_audio_cache;
 static int16_t* tb_stop_audio_cache;
 
-
+static int16_t* mkey_play_level_audio_cache;
 static int16_t* mkey_down_up_audio_cache;
 static int16_t* mkey_true_audio_cache;
 static int16_t* mkey_false_audio_cache;
@@ -478,12 +482,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     {
       //Global keydown press
       if (main_menu_chosen!=2) {
-        GlobalKeydownPress(wParam);
+        GlobalKeypressDown(wParam);
       }
 
       //Key Down Presses depending on game state
       if (!in_main_menu) {
-        GameKeydownPress(wParam);
+        GameKeypressDown(wParam);
       } else { //Main menu
         switch (main_menu_chosen) {
            case -1:
@@ -733,7 +737,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             call_help_timer=0;
 
 
-
             //free saved grounds pointer & Ground
             free(saved_ground_is_ghost);
             free(saved_ground_color);
@@ -815,6 +818,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
             back_to_menu=FALSE;
+            run_after_once=FALSE;
             clean_up_sound=TRUE;
             in_main_menu=TRUE;
           }
@@ -1053,13 +1057,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         tb_stop_audio=LoadWavA("snd/timebreaker__stop.wav",&tb_stop_audio_filesize);
         clang_audio=LoadWavA("snd/clang.wav",&clang_audio_filesize);
 
-
+        mkey_play_level_audio=LoadWavA("snd/play_level.wav",&mkey_play_level_audio_filesize);
         mkey_down_up_audio=LoadWavA("snd/FE_COMMON_MB_02.wav",&mkey_down_up_audio_filesize);
         mkey_false_audio=LoadWavA("snd/FE_COMMON_MB_03.wav",&mkey_false_audio_filesize);
         mkey_true_audio=LoadWavA("snd/FE_COMMON_MB_04.wav",&mkey_true_audio_filesize);
         mkey_esc_audio=LoadWavA("snd/FE_COMMON_MB_05.wav",&mkey_esc_audio_filesize);
         mkey_paint_audio=LoadWavA("snd/FE_MB_18.wav",&mkey_paint_audio_filesize);
 
+        mkey_play_level_audio_cache=adjustVolumeA(mkey_play_level_audio,mkey_play_level_audio_filesize,game_volume);
         mkey_down_up_audio_cache=adjustVolumeA(mkey_down_up_audio,mkey_down_up_audio_filesize,game_volume);
         mkey_true_audio_cache=adjustVolumeA(mkey_true_audio,mkey_true_audio_filesize,game_volume);
         mkey_false_audio_cache=adjustVolumeA(mkey_false_audio,mkey_false_audio_filesize,game_volume);

@@ -102,7 +102,12 @@ void Init(HDC hdc) {
     mem_snd_interrupt[i]=TRUE;
     waveOutReset(hWaveOut[i]);
   }
-  PlaySound(NULL, NULL, SND_ASYNC);
+
+  if (!run_after_once) {
+    run_after_once=TRUE;
+  } else {
+    PlaySound(NULL, NULL, SND_ASYNC);
+  }
 }
 
 
