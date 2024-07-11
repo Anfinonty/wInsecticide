@@ -233,57 +233,6 @@ double moon_angle_shift=0;
 
 #include "struct_classes.c"
 
-
-//All audio attributes
-//filesize
-long clang_audio_filesize;
-long tb_start_audio_filesize;
-long tb_stop_audio_filesize;
-
-long mkey_play_level_audio_filesize;
-long mkey_down_up_audio_filesize;
-long mkey_true_audio_filesize;
-long mkey_false_audio_filesize;
-long mkey_paint_audio_filesize;
-long mkey_esc_audio_filesize;
-
-//audio binary stored in memory, loaded
-static int16_t* clang_audio;
-static int16_t* tb_start_audio;
-static int16_t* tb_stop_audio;
-
-static int16_t* mkey_play_level_audio;
-static int16_t* mkey_down_up_audio;
-static int16_t* mkey_true_audio;
-static int16_t* mkey_false_audio;
-static int16_t* mkey_paint_audio;
-static int16_t* mkey_esc_audio;
-
-//audio binary stored in memory, adjustable
-static int16_t* clang_audio_cache;
-static int16_t* tb_start_audio_cache;
-static int16_t* tb_stop_audio_cache;
-
-static int16_t* mkey_play_level_audio_cache;
-static int16_t* mkey_down_up_audio_cache;
-static int16_t* mkey_true_audio_cache;
-static int16_t* mkey_false_audio_cache;
-static int16_t* mkey_paint_audio_cache;
-static int16_t* mkey_esc_audio_cache;
-
-//audio played in different threads
-static int16_t* fast_mem_audio;
-static int16_t* fast_mem_audio_cache;
-long fast_mem_audio_filesize;
-int fast_mem_audio_duration;
-
-
-static int16_t* cdeath_mem_audio;
-static int16_t* cdeath_mem_audio_cache;
-long cdeath_mem_audio_filesize;
-int cdeath_mem_audio_duration;
-
-
 //for song
 static int16_t* song_audio;
 long song_audio_filesize;
@@ -615,9 +564,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         }
 
         if (flag_adjust_audio) {
-          if (mkey_false_audio_cache!=NULL)
-            free(mkey_false_audio_cache);
-          mkey_false_audio_cache=adjustVolumeA(mkey_false_audio,mkey_false_audio_filesize,game_volume);
+          freeSoundEffect(&keySoundEffectCache[2]);
+          keySoundEffectCache[2].audio=adjustVolumeA(keySoundEffect[2].audio,keySoundEffect[2].filesize,game_volume);
           flag_adjust_audio=FALSE;
         }
 
@@ -1053,29 +1001,26 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     //https://stackoverflow.com/questions/2457482/processing-an-audio-wav-file-with-c
     //https://stackoverflow.com/questions/8754111/how-to-read-the-data-in-a-wav-file-to-an-array
       //if (load_sound && level_loaded) {
-        tb_start_audio=LoadWavA("snd/timebreaker__start.wav",&tb_start_audio_filesize);
-        tb_stop_audio=LoadWavA("snd/timebreaker__stop.wav",&tb_stop_audio_filesize);
-        clang_audio=LoadWavA("snd/clang.wav",&clang_audio_filesize);
-
-        mkey_play_level_audio=LoadWavA("snd/play_level.wav",&mkey_play_level_audio_filesize);
-        mkey_down_up_audio=LoadWavA("snd/FE_COMMON_MB_02.wav",&mkey_down_up_audio_filesize);
-        mkey_false_audio=LoadWavA("snd/FE_COMMON_MB_03.wav",&mkey_false_audio_filesize);
-        mkey_true_audio=LoadWavA("snd/FE_COMMON_MB_04.wav",&mkey_true_audio_filesize);
-        mkey_esc_audio=LoadWavA("snd/FE_COMMON_MB_05.wav",&mkey_esc_audio_filesize);
-        mkey_paint_audio=LoadWavA("snd/FE_MB_18.wav",&mkey_paint_audio_filesize);
-
-        mkey_play_level_audio_cache=adjustVolumeA(mkey_play_level_audio,mkey_play_level_audio_filesize,game_volume);
-        mkey_down_up_audio_cache=adjustVolumeA(mkey_down_up_audio,mkey_down_up_audio_filesize,game_volume);
-        mkey_true_audio_cache=adjustVolumeA(mkey_true_audio,mkey_true_audio_filesize,game_volume);
-        mkey_false_audio_cache=adjustVolumeA(mkey_false_audio,mkey_false_audio_filesize,game_volume);
-        mkey_paint_audio_cache=adjustVolumeA(mkey_paint_audio,mkey_paint_audio_filesize,game_volume);
-        mkey_esc_audio_cache=adjustVolumeA(mkey_esc_audio,mkey_esc_audio_filesize,game_volume);
+         loadSoundEffect(&spamSoundEffect[0],"snd/timebreaker__start.wav",FALSE);
+         loadSoundEffect(&spamSoundEffect[1],"snd/timebreaker__stop.wav",FALSE);
+         loadSoundEffect(&spamSoundEffect[2],"snd/clang.wav",FALSE);
 
 
-        fast_mem_audio=LoadWav("snd/fast.wav",&fast_mem_audio_filesize, &fast_mem_audio_duration);
-        //fast_mem_audio_duration=(double)fast_mem_audio_filesize / (11025L * 1 * 16/8) *1000;
+         loadSoundEffect(&keySoundEffect[0],"snd/play_level.wav",FALSE); //Enter Sound Effect (Sometimes) [0]
+         loadSoundEffect(&keySoundEffect[1],"snd/FE_COMMON_MB_02.wav",FALSE); //Key Up Down Sound Effect [1]
+         loadSoundEffect(&keySoundEffect[2],"snd/FE_COMMON_MB_03.wav",FALSE); //False Sound Effect --> [2]
+         loadSoundEffect(&keySoundEffect[3],"snd/FE_COMMON_MB_04.wav",FALSE); //True Sound Effect --> [3]
+         loadSoundEffect(&keySoundEffect[4],"snd/FE_COMMON_MB_05.wav",FALSE); //ESC Sound Effect --> [4]
+         loadSoundEffect(&keySoundEffect[5],"snd/FE_MB_18.wav",FALSE); //Paint Sound Effect --> [5]
 
-        cdeath_mem_audio=LoadWav("snd/clang_death.wav",&cdeath_mem_audio_filesize, &cdeath_mem_audio_duration);
+
+         for (int i=0;i<5;i++) {
+           keySoundEffectCache[i].audio=adjustVolumeA(keySoundEffect[i].audio,keySoundEffect[i].filesize,game_volume);
+         }
+
+         loadSoundEffect(&channelSoundEffect[0],"snd/fast.wav",TRUE);
+         loadSoundEffect(&channelSoundEffect[1],"snd/clang_death.wav",TRUE);
+
 
 
          //for wav sound effects

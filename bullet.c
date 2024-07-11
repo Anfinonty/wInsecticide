@@ -548,8 +548,10 @@ void BulletSndAct(int i)
       
 //      PlaySound(reinterpret_cast<LPCWSTR>(soundData), GetModuleHandle(NULL), SND_MEMORY);      
 //      PlaySound((LPCWSTR)(soundData), GetModuleHandle(NULL), SND_MEMORY | SND_ASYNC);       
-      PlaySound(clang_audio_cache, NULL, SND_MEMORY | SND_ASYNC);       
-   }
+      //PlaySound(clang_audio_cache, NULL, SND_MEMORY | SND_ASYNC);       
+      //PlaySound(clang_audio_cache, NULL, SND_MEMORY | SND_ASYNC);       
+      PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC); //clang
+    }
     Bullet[i].playsnd=FALSE;
   }
 }

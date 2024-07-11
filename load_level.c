@@ -21,17 +21,12 @@ void InitOnce() {
     player_bullet_color=BLACK;
   }
 
-
-  if (tb_start_audio_cache!=NULL)
-    free(tb_start_audio_cache);
-  if(tb_stop_audio_cache!=NULL)
-    free(tb_stop_audio_cache);
-  if (clang_audio_cache!=NULL)
-    free(clang_audio_cache);
-  if (fast_mem_audio_cache!=NULL)
-    free(fast_mem_audio_cache);
-  if (cdeath_mem_audio_cache!=NULL)
-    free(cdeath_mem_audio_cache);
+  for (int i=0;i<3;i++) {
+    freeSoundEffect(&spamSoundEffectCache[i]);
+  }
+  for (int i=0;i<2;i++) {
+    freeSoundEffect(&channelSoundEffectCache[i]);
+  }
 
   double wo_denominator=wav_out_volume;
   double wo_addon=0.25;
@@ -39,12 +34,13 @@ void InitOnce() {
     wo_denominator=1;
     wo_addon=0;
   }
-  tb_stop_audio_cache=adjustVolumeA(tb_start_audio,tb_start_audio_filesize,(game_volume+(wo_addon*(1/wo_denominator)))/3);
-  tb_start_audio_cache=adjustVolumeA(tb_stop_audio,tb_stop_audio_filesize,(game_volume+(wo_addon*(1/wo_denominator)))/3);
-  clang_audio_cache=adjustVolumeA(clang_audio,clang_audio_filesize,game_volume+(wo_addon*(1/wo_denominator)));
 
-  cdeath_mem_audio_cache=adjustVolume(cdeath_mem_audio,cdeath_mem_audio_filesize,game_volume+(wo_addon*(1/wo_denominator)));
-  fast_mem_audio_cache=adjustVolume(fast_mem_audio,fast_mem_audio_filesize,(game_volume+(wo_addon*(1/wo_denominator)))/5);
+  spamSoundEffectCache[0].audio=adjustVolumeA(spamSoundEffect[0].audio,spamSoundEffect[0].filesize,(game_volume+(wo_addon*(1/wo_denominator)))/3);
+  spamSoundEffectCache[1].audio=adjustVolumeA(spamSoundEffect[1].audio,spamSoundEffect[1].filesize,(game_volume+(wo_addon*(1/wo_denominator)))/3);
+  spamSoundEffectCache[2].audio=adjustVolumeA(spamSoundEffect[2].audio,spamSoundEffect[2].filesize,(wo_addon*(1/wo_denominator)));
+
+  channelSoundEffectCache[0].audio=adjustVolume(channelSoundEffect[0].audio,channelSoundEffect[0].filesize,game_volume+(wo_addon*(1/wo_denominator)));
+  channelSoundEffectCache[1].audio=adjustVolume(channelSoundEffect[1].audio,channelSoundEffect[1].filesize,game_volume+(wo_addon*(1/wo_denominator))/5);
 }
 
 

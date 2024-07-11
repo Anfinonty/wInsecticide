@@ -1610,9 +1610,10 @@ void PlayerAct() {
         if (player.time_breaker_units==0) {
           player.time_breaker=FALSE;
           player.flag_revert_palette=TRUE;
-           if (game_audio) {
+          if (game_audio) {
             //PlaySound(L"snd/timebreaker__stop.wav", NULL, SND_FILENAME | SND_ASYNC);
-            PlaySound(tb_stop_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
+            //PlaySound(tb_stop_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
+            PlaySound(spamSoundEffect[1].audio, NULL, SND_MEMORY | SND_ASYNC);
           }
         }
       }
@@ -1675,11 +1676,13 @@ void PlayerSndAct()
     //mciSendString(L"pause player_speed",NULL,0,NULL);
     //mciSendString(L"close player_speed",NULL,0,NULL);
   }*/
-  if (player.fast_duration>=fast_mem_audio_duration/2) {
+  //if (player.fast_duration>=fast_mem_audio_duration/2) {
+  if (player.fast_duration>=channelSoundEffect[0].duration/2) {
     player.fast_duration=0;
   }
   if (player.fast_duration==0 && player.speed>10) {
-    PlayMemSnd(fast_mem_audio_cache,fast_mem_audio_filesize,fast_mem_audio_duration/2,1);
+//    PlayMemSnd(fast_mem_audio_cache,fast_mem_audio_filesize,fast_mem_audio_duration/2,1);
+    PlayMemSnd(channelSoundEffect[0].audio,channelSoundEffect[0].filesize,channelSoundEffect[0].duration/2,1);
   }
   if (player.fast_duration>0 && player.speed<=10) {
     player.fast_duration=0;

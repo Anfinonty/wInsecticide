@@ -71,6 +71,42 @@ WAVEFORMATEX wfx1 = {
 
 
 
+
+/*
+void adjustSoundEffectVolume(wavSoundEffect* mySoundEffect,wavSoundEffect* originalSoundEffect,double volumeFactor,bool skip_header)//(const int16_t* src, long filesize, double volumeFactor)
+{
+  long filesize=originalSoundEffect->filesize;
+  int duration=originalSoundEffect->duration;
+  long start=0;
+  if (skip_header)
+    start=21;
+  memset(SND_MEM_STACK, 0, SND_MEM_STACK_SIZE); //reset sound in stack
+  memcpy(SND_MEM_STACK,originalSoundEffect->audio,filesize); //copy original sound effect to stack
+  for (long i=start; i<filesize; i++) {
+    double scaled_value=(double)SND_MEM_STACK[i]*volumeFactor;
+    if (scaled_value >= INT16_MAX) {
+      SND_MEM_STACK[i] = INT16_MAX;
+    } else if (scaled_value <= INT16_MIN) {
+      SND_MEM_STACK[i] = INT16_MIN;
+    } else {
+      SND_MEM_STACK[i] = (int16_t)scaled_value;
+    }
+  }
+
+  mySoundEffect->filesize = filesize;
+  mySoundEffect->duration = duration;
+  if (mySoundEffect->audio!=NULL)
+    free(mySoundEffect->audio);
+  mySoundEffect->audio = malloc(filesize);
+  int16_t* dest=malloc(filesize);
+  memcpy(dest,SND_MEM_STACK,filesize); //copy from stack to heap :P
+  memcpy(mySoundEffect->audio,dest,filesize); //copy from stack to heap :P
+  free(dest);
+}*/
+
+
+
+
 int16_t* adjustVolumeA(const int16_t* src, long filesize, double volumeFactor)
 {  
   memset(SND_MEM_STACK, 0, SND_MEM_STACK_SIZE);

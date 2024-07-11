@@ -557,7 +557,8 @@ void EnemySndAct(int i)
     /*wchar_t sndid[16];
     swprintf(sndid,16,L"bk_%d",i);
     PlaySnd(L"snd/clang_death.wav",sndid);*/
-    PlayMemSnd(cdeath_mem_audio_cache,cdeath_mem_audio_filesize,cdeath_mem_audio_duration,0);
+    //PlayMemSnd(cdeath_mem_audio_cache,cdeath_mem_audio_filesize,cdeath_mem_audio_duration,0);
+    PlayMemSnd(channelSoundEffectCache[1].audio,channelSoundEffect[1].filesize,channelSoundEffect[1].duration,0); //clang_death
     Enemy[i]->play_death_snd=FALSE;
   }
 }
@@ -612,8 +613,9 @@ void EnemyAct(int i)
             if (dist_from_bullet0<=NODE_SIZE*2) {
               Enemy[i]->health-=Bullet[bk].damage;
               if (game_audio) {
+                PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
                 //PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
-                PlaySound(clang_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
+                //PlaySound(clang_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
               }
               Enemy[i]->knockback_timer=player.knockback_strength;
               Enemy[i]->knockback_angle=Bullet[bk].angle;
@@ -627,8 +629,9 @@ void EnemyAct(int i)
          case 1://crawl
             Enemy[i]->health-=Bullet[bk].damage;
             if (game_audio) {
+              PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
               //PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
-              PlaySound(clang_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
+              //PlaySound(clang_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
             }
             Enemy[i]->knockback_timer=player.knockback_strength;
             Enemy[i]->knockback_angle=Bullet[bk].angle;
@@ -651,25 +654,27 @@ void EnemyAct(int i)
     if (dist_from_bullet<=NODE_SIZE*4) {
       switch (Enemy[i]->species) {
 	    case 0://fly
-          //if (dist_from_bullet<=NODE_SIZE*2) {
+          if (dist_from_bullet<=NODE_SIZE*2) {
             if (game_audio) {
+              PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
               //PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);
-              PlaySound(clang_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
+              //PlaySound(clang_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
             }
-            if (dist_from_bullet<=NODE_SIZE*2) {
+            //if (dist_from_bullet<=NODE_SIZE*2) {
               Enemy[i]->health-=Bullet[player.bullet_shot].damage;
-            } else {
-              Enemy[i]->health-=Bullet[player.bullet_shot].damage/4;
-            }
+            //} else {
+              //Enemy[i]->health-=Bullet[player.bullet_shot].damage/4;
+            //}
             Enemy[i]->knockback_timer=player.knockback_strength;
             Enemy[i]->knockback_angle=Bullet[player.bullet_shot].angle;            
             Enemy[i]->player_knockback=FALSE;
-          //}
+          }
           break;
         case 1://crawl
           if (game_audio) {
+            PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
             //PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);
-              PlaySound(clang_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
+            //PlaySound(clang_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
           }
           Enemy[i]->health-=Bullet[player.bullet_shot].damage;
           Enemy[i]->knockback_timer=player.knockback_strength;
@@ -818,7 +823,8 @@ void EnemyAct(int i)
       deduct_health=FALSE;
       Enemy[i]->health-=player.attack_strength;
       if (game_audio) {
-        PlaySound(clang_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
+        PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
+        //PlaySound(clang_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
         //PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);
       }
     }

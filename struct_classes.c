@@ -1,26 +1,57 @@
 //classes for game
-/*typedef struct spam_snd
+
+
+
+typedef struct WavSoundEffect
 {
+  int duration;
+  long filesize;  
   int16_t* audio;
-} SpamSnd;
+} wavSoundEffect;
 
 
-SpamSnd *createSpamSnd(long filesize)
+
+void loadSoundEffect(wavSoundEffect* mySoundEffect, const char* filename,bool skip_header)
 {
-  SpamSnd *toReturn = malloc(sizeof(SpamSnd));
-  toReturn->audio=malloc(filesize);
-  return toReturn;
-}*/
+  FILE* file = fopen(filename, "rb");
+  if (file) {
+    fseek(file, 0, SEEK_END);
+    long filesize;
+    if (skip_header) {
+      filesize = ftell(file) - 44; //<-- 44 is the size of the header
+      fseek(file, 44, SEEK_SET);
+    } else {
+      filesize = ftell(file);
+      fseek(file, 0, SEEK_SET);
+    }
+    mySoundEffect->audio = malloc(filesize);
+    fread(mySoundEffect->audio, 1, filesize, file); //read once filesize
+    fclose(file);
+
+    mySoundEffect->filesize = filesize;
+    if (skip_header)
+      mySoundEffect->duration = (double)filesize / (11025L * 1 * 16/8) *1000;
+    else 
+      mySoundEffect->duration = 0;
+  }
+}
 
 
-/*void freeSpamSnd(SpamSnd *mySnd)
+
+void freeSoundEffect(wavSoundEffect* mySoundEffect) 
 {
-  if (mySnd->audio != NULL)
-    free(mySnd->audio);    
-  if (mySnd)
-    free(mySnd);
-}*/
+  if (mySoundEffect->audio!=NULL)
+    free(mySoundEffect->audio);
+}
 
+
+wavSoundEffect spamSoundEffect[3];
+wavSoundEffect keySoundEffect[6];
+wavSoundEffect channelSoundEffect[2];
+
+wavSoundEffect spamSoundEffectCache[3];
+wavSoundEffect keySoundEffectCache[6];
+wavSoundEffect channelSoundEffectCache[2];
 
 
 typedef struct GroundLine
