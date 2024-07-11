@@ -21,13 +21,6 @@ void InitOnce() {
     player_bullet_color=BLACK;
   }
 
-  for (int i=0;i<3;i++) {
-    freeSoundEffect(&spamSoundEffectCache[i]);
-  }
-  for (int i=0;i<2;i++) {
-    freeSoundEffect(&channelSoundEffectCache[i]);
-  }
-
   double wo_denominator=wav_out_volume;
   double wo_addon=0.25;
   if (wo_denominator<=0 || game_volume<=0.4) {
@@ -35,12 +28,12 @@ void InitOnce() {
     wo_addon=0;
   }
 
-  spamSoundEffectCache[0].audio=adjustVolumeA(spamSoundEffect[0].audio,spamSoundEffect[0].filesize,(game_volume+(wo_addon*(1/wo_denominator)))/3);
-  spamSoundEffectCache[1].audio=adjustVolumeA(spamSoundEffect[1].audio,spamSoundEffect[1].filesize,(game_volume+(wo_addon*(1/wo_denominator)))/3);
-  spamSoundEffectCache[2].audio=adjustVolumeA(spamSoundEffect[2].audio,spamSoundEffect[2].filesize,(wo_addon*(1/wo_denominator)));
+  adjustSFXVolume(&spamSFX[0],(game_volume+(wo_addon*(1/wo_denominator)))/3,FALSE); //start
+  adjustSFXVolume(&spamSFX[1],(game_volume+(wo_addon*(1/wo_denominator)))/3,FALSE); //stop
+  adjustSFXVolume(&spamSFX[2],(game_volume+(wo_addon*(1/wo_denominator))),FALSE); //clang
 
-  channelSoundEffectCache[0].audio=adjustVolume(channelSoundEffect[0].audio,channelSoundEffect[0].filesize,game_volume+(wo_addon*(1/wo_denominator)));
-  channelSoundEffectCache[1].audio=adjustVolume(channelSoundEffect[1].audio,channelSoundEffect[1].filesize,game_volume+(wo_addon*(1/wo_denominator))/5);
+  adjustSFXVolume(&channelSFX[0],game_volume+(wo_addon*(1/wo_denominator))/5,TRUE); //speed
+  adjustSFXVolume(&channelSFX[1],game_volume+(wo_addon*(1/wo_denominator)),TRUE); //clang_death
 }
 
 

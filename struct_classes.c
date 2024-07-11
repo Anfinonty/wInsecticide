@@ -1,6 +1,11 @@
 //classes for game
 
 
+typedef struct WavSoundEffectCache
+{
+  int16_t* audio;
+} wavSoundEffectCache;
+
 
 typedef struct WavSoundEffect
 {
@@ -10,10 +15,16 @@ typedef struct WavSoundEffect
 } wavSoundEffect;
 
 
-
-void loadSoundEffect(wavSoundEffect* mySoundEffect, const char* filename,bool skip_header)
+typedef struct WavSFX
 {
-  FILE* file = fopen(filename, "rb");
+  wavSoundEffect* wavSFX;
+  wavSoundEffectCache* wavSFXCache;
+} AWavSFX;
+
+
+void loadSoundEffect(wavSoundEffect* mySoundEffect, const wchar_t* filename,WAVEFORMATEX wfx,bool skip_header)
+{
+  FILE* file = _wfopen(filename, L"rb");
   if (file) {
     fseek(file, 0, SEEK_END);
     long filesize;
@@ -29,10 +40,7 @@ void loadSoundEffect(wavSoundEffect* mySoundEffect, const char* filename,bool sk
     fclose(file);
 
     mySoundEffect->filesize = filesize;
-    if (skip_header)
-      mySoundEffect->duration = (double)filesize / (11025L * 1 * 16/8) *1000;
-    else 
-      mySoundEffect->duration = 0;
+    mySoundEffect->duration = (double)filesize / (wfx.nSamplesPerSec * wfx.nChannels * wfx.wBitsPerSample/8) *1000;
   }
 }
 
@@ -45,13 +53,29 @@ void freeSoundEffect(wavSoundEffect* mySoundEffect)
 }
 
 
-wavSoundEffect spamSoundEffect[3];
-wavSoundEffect keySoundEffect[6];
-wavSoundEffect channelSoundEffect[2];
+void freeSoundEffectCache(wavSoundEffectCache* mySoundEffect) 
+{
+  if (mySoundEffect->audio!=NULL)
+    free(mySoundEffect->audio);
+}
 
-wavSoundEffect spamSoundEffectCache[3];
-wavSoundEffect keySoundEffectCache[6];
-wavSoundEffect channelSoundEffectCache[2];
+#define SPAM_SFX_NUM    3
+#define KEY_SFX_NUM     6
+#define CHANNEL_SFX_NUM 2
+
+wavSoundEffect spamSoundEffect[SPAM_SFX_NUM];
+wavSoundEffect keySoundEffect[KEY_SFX_NUM];
+wavSoundEffect channelSoundEffect[CHANNEL_SFX_NUM];
+
+wavSoundEffectCache spamSoundEffectCache[SPAM_SFX_NUM];
+wavSoundEffectCache keySoundEffectCache[KEY_SFX_NUM];
+wavSoundEffectCache channelSoundEffectCache[CHANNEL_SFX_NUM];
+
+
+AWavSFX spamSFX[SPAM_SFX_NUM];
+AWavSFX keySFX[KEY_SFX_NUM];
+AWavSFX channelSFX[CHANNEL_SFX_NUM];
+
 
 
 typedef struct GroundLine

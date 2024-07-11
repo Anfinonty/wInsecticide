@@ -564,8 +564,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         }
 
         if (flag_adjust_audio) {
-          freeSoundEffect(&keySoundEffectCache[2]);
-          keySoundEffectCache[2].audio=adjustVolumeA(keySoundEffect[2].audio,keySoundEffect[2].filesize,game_volume);
+          //freeSoundEffectCache(&keySoundEffectCache[2]);
+          //keySoundEffectCache[2].audio=adjustVolumeA(keySoundEffect[2].audio,keySoundEffect[2].filesize,game_volume);
+          adjustSFXVolume(&keySFX[2],game_volume,FALSE);
           flag_adjust_audio=FALSE;
         }
 
@@ -1001,25 +1002,39 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     //https://stackoverflow.com/questions/2457482/processing-an-audio-wav-file-with-c
     //https://stackoverflow.com/questions/8754111/how-to-read-the-data-in-a-wav-file-to-an-array
       //if (load_sound && level_loaded) {
-         loadSoundEffect(&spamSoundEffect[0],"snd/timebreaker__start.wav",FALSE);
-         loadSoundEffect(&spamSoundEffect[1],"snd/timebreaker__stop.wav",FALSE);
-         loadSoundEffect(&spamSoundEffect[2],"snd/clang.wav",FALSE);
+         for (int i=0;i<SPAM_SFX_NUM;i++) {
+           spamSFX[i].wavSFX=&spamSoundEffect[i];
+           spamSFX[i].wavSFXCache=&spamSoundEffectCache[i];
+         }
+         for (int i=0;i<KEY_SFX_NUM;i++) {
+           keySFX[i].wavSFX=&keySoundEffect[i];
+           keySFX[i].wavSFXCache=&keySoundEffectCache[i];
+         }
+         for (int i=0;i<CHANNEL_SFX_NUM;i++) {
+           channelSFX[i].wavSFX=&channelSoundEffect[i];
+           channelSFX[i].wavSFXCache=&channelSoundEffectCache[i];
+         }
+    
+         loadSoundEffect(&spamSoundEffect[0],L"snd/timebreaker__start.wav",wfx1,FALSE);
+         loadSoundEffect(&spamSoundEffect[1],L"snd/timebreaker__stop.wav",wfx1,FALSE);
+         loadSoundEffect(&spamSoundEffect[2],L"snd/clang.wav",wfx1,FALSE);
 
 
-         loadSoundEffect(&keySoundEffect[0],"snd/play_level.wav",FALSE); //Enter Sound Effect (Sometimes) [0]
-         loadSoundEffect(&keySoundEffect[1],"snd/FE_COMMON_MB_02.wav",FALSE); //Key Up Down Sound Effect [1]
-         loadSoundEffect(&keySoundEffect[2],"snd/FE_COMMON_MB_03.wav",FALSE); //False Sound Effect --> [2]
-         loadSoundEffect(&keySoundEffect[3],"snd/FE_COMMON_MB_04.wav",FALSE); //True Sound Effect --> [3]
-         loadSoundEffect(&keySoundEffect[4],"snd/FE_COMMON_MB_05.wav",FALSE); //ESC Sound Effect --> [4]
-         loadSoundEffect(&keySoundEffect[5],"snd/FE_MB_18.wav",FALSE); //Paint Sound Effect --> [5]
+         loadSoundEffect(&keySoundEffect[0],L"snd/play_level.wav",wfx1,FALSE); //Enter Sound Effect (Sometimes) [0]
+         loadSoundEffect(&keySoundEffect[1],L"snd/FE_COMMON_MB_02.wav",wfx1,FALSE); //Key Up Down Sound Effect [1]
+         loadSoundEffect(&keySoundEffect[2],L"snd/FE_COMMON_MB_03.wav",wfx1,FALSE); //False Sound Effect --> [2]
+         loadSoundEffect(&keySoundEffect[3],L"snd/FE_COMMON_MB_04.wav",wfx1,FALSE); //True Sound Effect --> [3]
+         loadSoundEffect(&keySoundEffect[4],L"snd/FE_COMMON_MB_05.wav",wfx1,FALSE); //ESC Sound Effect --> [4]
+         loadSoundEffect(&keySoundEffect[5],L"snd/FE_MB_18.wav",wfx1,FALSE); //Paint Sound Effect --> [5]
 
 
-         for (int i=0;i<5;i++) {
-           keySoundEffectCache[i].audio=adjustVolumeA(keySoundEffect[i].audio,keySoundEffect[i].filesize,game_volume);
+         for (int i=0;i<KEY_SFX_NUM;i++) {
+           //keySoundEffectCache[i].audio=adjustVolumeA(keySoundEffect[i].audio,keySoundEffect[i].filesize,game_volume);
+           adjustSFXVolume(&keySFX[i],game_volume,FALSE);
          }
 
-         loadSoundEffect(&channelSoundEffect[0],"snd/fast.wav",TRUE);
-         loadSoundEffect(&channelSoundEffect[1],"snd/clang_death.wav",TRUE);
+         loadSoundEffect(&channelSoundEffect[0],L"snd/fast.wav",wfx1,TRUE);
+         loadSoundEffect(&channelSoundEffect[1],L"snd/clang_death.wav",wfx1,TRUE);
 
 
 

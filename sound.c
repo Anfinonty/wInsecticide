@@ -68,46 +68,8 @@ WAVEFORMATEX wfx1 = {
     //.nAvgBytesPerSec = wfx1.nSamplesPerSec * wfx1.nBlockAlign
 };*/
 
-
-
-
-
-/*
-void adjustSoundEffectVolume(wavSoundEffect* mySoundEffect,wavSoundEffect* originalSoundEffect,double volumeFactor,bool skip_header)//(const int16_t* src, long filesize, double volumeFactor)
-{
-  long filesize=originalSoundEffect->filesize;
-  int duration=originalSoundEffect->duration;
-  long start=0;
-  if (skip_header)
-    start=21;
-  memset(SND_MEM_STACK, 0, SND_MEM_STACK_SIZE); //reset sound in stack
-  memcpy(SND_MEM_STACK,originalSoundEffect->audio,filesize); //copy original sound effect to stack
-  for (long i=start; i<filesize; i++) {
-    double scaled_value=(double)SND_MEM_STACK[i]*volumeFactor;
-    if (scaled_value >= INT16_MAX) {
-      SND_MEM_STACK[i] = INT16_MAX;
-    } else if (scaled_value <= INT16_MIN) {
-      SND_MEM_STACK[i] = INT16_MIN;
-    } else {
-      SND_MEM_STACK[i] = (int16_t)scaled_value;
-    }
-  }
-
-  mySoundEffect->filesize = filesize;
-  mySoundEffect->duration = duration;
-  if (mySoundEffect->audio!=NULL)
-    free(mySoundEffect->audio);
-  mySoundEffect->audio = malloc(filesize);
-  int16_t* dest=malloc(filesize);
-  memcpy(dest,SND_MEM_STACK,filesize); //copy from stack to heap :P
-  memcpy(mySoundEffect->audio,dest,filesize); //copy from stack to heap :P
-  free(dest);
-}*/
-
-
-
-
-int16_t* adjustVolumeA(const int16_t* src, long filesize, double volumeFactor)
+//used for spam audio
+/*int16_t* adjustVolumeA(const int16_t* src, long filesize, double volumeFactor)
 {  
   memset(SND_MEM_STACK, 0, SND_MEM_STACK_SIZE);
   memcpy(SND_MEM_STACK,src,filesize);  
@@ -126,7 +88,7 @@ int16_t* adjustVolumeA(const int16_t* src, long filesize, double volumeFactor)
   return dest;
 }
 
-
+//used for channel audio
 int16_t* adjustVolume(const int16_t* src, long filesize, double volumeFactor)
 {
   memset(SND_MEM_STACK, 0, SND_MEM_STACK_SIZE);
@@ -144,10 +106,40 @@ int16_t* adjustVolume(const int16_t* src, long filesize, double volumeFactor)
   int16_t* dest=malloc(filesize);
   memcpy(dest,SND_MEM_STACK,filesize);
   return dest;
+}*/
+
+int16_t* adjustSFXVol(const int16_t* src, long filesize, double volumeFactor,bool skipped_header)
+{
+  memset(SND_MEM_STACK, 0, SND_MEM_STACK_SIZE);
+  memcpy(SND_MEM_STACK,src,filesize);  
+  long start=21;
+  if (skipped_header)
+    start=0;
+  for (long i=start; i<filesize; i++) {
+    double scaled_value=(double)SND_MEM_STACK[i]*volumeFactor;
+    if (scaled_value >= INT16_MAX) {
+      SND_MEM_STACK[i] = INT16_MAX;
+    } else if (scaled_value <= INT16_MIN) {
+      SND_MEM_STACK[i] = INT16_MIN;
+    } else {
+      SND_MEM_STACK[i] = (int16_t)scaled_value;
+    }
+  }
+  int16_t* dest=malloc(filesize);
+  memcpy(dest,SND_MEM_STACK,filesize);
+  return dest;
 }
 
 
-int16_t* LoadWavA(const char* filename,long *filesize)
+void adjustSFXVolume(AWavSFX *mySFX, double game_volume,bool skipped_header)
+{
+  //keySoundEffectCache[i].audio=adjustSFXVolume(keySoundEffect[i].audio,keySoundEffect[i].filesize,game_volume);  
+  freeSoundEffectCache(mySFX->wavSFXCache);
+  mySFX->wavSFXCache->audio = adjustSFXVol( mySFX->wavSFX->audio, mySFX->wavSFX->filesize, game_volume, skipped_header);
+}
+
+
+/*int16_t* LoadWavA(const char* filename,long *filesize)
 {
   int16_t* sounddata;
   FILE* file = fopen(filename, "rb");
@@ -195,7 +187,7 @@ int16_t* LoadWav(const char* filename,long *datasize,int *duration)
     *duration=1;
   }
   return NULL;
-}
+}*/
 
 
 /*int16_t* LoadMusicWav(const char* filename,long *datasize,int *duration)
