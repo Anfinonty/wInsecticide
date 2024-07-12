@@ -44,7 +44,6 @@
 bool flag_restart=FALSE;
 bool flag_restart_audio=FALSE;
 bool flag_adjust_audio=FALSE;
-bool flag_adjust_song_audio=FALSE;
 bool flag_adjust_wav_out_audio=FALSE;
 bool load_sound=FALSE;
 bool back_to_menu=FALSE;
@@ -137,7 +136,6 @@ double double_best_score=0;
 double time_begin=0;
 double game_volume=1.0;
 double old_game_volume=1.0;
-double song_volume=0.1;
 
 
 //Solar Hijri Time for Drawing
@@ -227,22 +225,15 @@ double moon_angle_shift=0;
 #define PLAYER_BULLET_NUM 24//16
 
 
-#define GAME_OPTIONS_NUM    13
-#define SND_THREAD_NUM    3
+#define GAME_OPTIONS_NUM    12
 
 
 #include "struct_classes.c"
-
-//for song
-/*static int16_t* song_audio;
-long song_audio_filesize;
-int song_duration;*/
 
 
 #include "math.c"
 #include "gr.c"
 #include "sound.c"
-
 
 #include "load_save.c"
 
@@ -721,6 +712,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             for (int i=0;i<ENEMY_NUM;i++) {
               freeEnemy(Enemy[i]);
             }
+
+            for (int i=0;i<ENEMY_NUM;i++) {
+              freeEnemySprite(EnemySprite[i]);
+            }
             //printf("===All objects freed\n");
 
 
@@ -729,6 +724,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             free(NodeGrid); //free pointer to pointers
             free(VGrid); //free pointer to pointers
             free(Enemy);
+            free(EnemySprite);
             //printf("===All pointers freed\n");
 
 
@@ -812,7 +808,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       remove("music/tmp/tmp.wav");
       rmdir("music/tmp"); //remove tmp
 
-      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៩ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1969-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1446-01-02"), TEXT("អាពីងស៊ីរុយ") ,MB_OK);
+      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៩ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1969-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1446-01-05"), TEXT("អាពីងស៊ីរុយ") ,MB_OK);
 
       //load levels in save
       GetSavesInDir(L"saves");

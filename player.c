@@ -1797,14 +1797,14 @@ void DrawPlayer(HDC hdc)
         if (Enemy[i]->species==1) {
           Enemy[i]->saved_angle=Enemy[i]->sprite_angle-1;
         }
-        if (EnemySprite[i].sprite_1!=NULL) {
-          BitmapPalette(hdc,EnemySprite[i].sprite_1,rgbColorsDefault);
+        if (EnemySprite[i]->sprite_1!=NULL) {
+          BitmapPalette(hdc,EnemySprite[i]->sprite_1,rgbColorsDefault);
         }
-        if (EnemySprite[i].sprite_2!=NULL) {
-          BitmapPalette(hdc,EnemySprite[i].sprite_2,rgbColorsDefault);
+        if (EnemySprite[i]->sprite_2!=NULL) {
+          BitmapPalette(hdc,EnemySprite[i]->sprite_2,rgbColorsDefault);
         }
-        if (EnemySprite[i].sprite_3!=NULL) {
-          BitmapPalette(hdc,EnemySprite[i].sprite_3,rgbColorsDefault);
+        if (EnemySprite[i]->sprite_3!=NULL) {
+          BitmapPalette(hdc,EnemySprite[i]->sprite_3,rgbColorsDefault);
         }
       }
     }
@@ -1855,14 +1855,14 @@ void DrawPlayer(HDC hdc)
     } else {
       for (int i=0;i<ENEMY_NUM;i++) {
         if (Enemy[i]->health>0) {
-        if (EnemySprite[i].sprite_1!=NULL && !Enemy[i]->time_breaker_immune) {
-          BitmapPalette(hdc,EnemySprite[i].sprite_1,rgbColorsNoir);
+        if (EnemySprite[i]->sprite_1!=NULL && !Enemy[i]->time_breaker_immune) {
+          BitmapPalette(hdc,EnemySprite[i]->sprite_1,rgbColorsNoir);
         }
-        if (EnemySprite[i].sprite_2!=NULL && !Enemy[i]->time_breaker_immune) {
-          BitmapPalette(hdc,EnemySprite[i].sprite_2,rgbColorsNoir);
+        if (EnemySprite[i]->sprite_2!=NULL && !Enemy[i]->time_breaker_immune) {
+          BitmapPalette(hdc,EnemySprite[i]->sprite_2,rgbColorsNoir);
         }
-        if (EnemySprite[i].sprite_3!=NULL && !Enemy[i]->time_breaker_immune) {
-          BitmapPalette(hdc,EnemySprite[i].sprite_3,rgbColorsNoir);
+        if (EnemySprite[i]->sprite_3!=NULL && !Enemy[i]->time_breaker_immune) {
+          BitmapPalette(hdc,EnemySprite[i]->sprite_3,rgbColorsNoir);
         }
         }
       }

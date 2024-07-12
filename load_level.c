@@ -21,19 +21,12 @@ void InitOnce() {
     player_bullet_color=BLACK;
   }
 
-  double wo_denominator=wav_out_volume;
-  double wo_addon=0.25;
-  if (wo_denominator<=0 || game_volume<=0.4) {
-    wo_denominator=1;
-    wo_addon=0;
-  }
+  adjustSFXVolume(&spamSFX[0],game_volume,FALSE); //start
+  adjustSFXVolume(&spamSFX[1],game_volume,FALSE); //stop
+  adjustSFXVolume(&spamSFX[2],game_volume,FALSE); //clang
 
-  adjustSFXVolume(&spamSFX[0],(game_volume+(wo_addon*(1/wo_denominator)))/3,FALSE); //start
-  adjustSFXVolume(&spamSFX[1],(game_volume+(wo_addon*(1/wo_denominator)))/3,FALSE); //stop
-  adjustSFXVolume(&spamSFX[2],(game_volume+(wo_addon*(1/wo_denominator))),FALSE); //clang
-
-  adjustSFXVolume(&channelSFX[0],game_volume+(wo_addon*(1/wo_denominator))/5,TRUE); //speed
-  adjustSFXVolume(&channelSFX[1],game_volume+(wo_addon*(1/wo_denominator)),TRUE); //clang_death
+  adjustSFXVolume(&channelSFX[0],game_volume/5,TRUE); //speed
+  adjustSFXVolume(&channelSFX[1],game_volume,TRUE); //clang_death
 }
 
 

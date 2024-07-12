@@ -21,34 +21,22 @@ bool keydownalt()
 void GlobalKeypressDown(WPARAM wParam)
 {
     switch (wParam) {
-    //Holding down '9' Key
+    //Holding down '9' or '9' Key
       case '9'://skip song, upwnwards (previous)
-        call_help_timer=0;
-        if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
-          if (song_mode<=2) {
-            if  (!keydownalt()) {
-              song_rand_num=LimitValue(song_rand_num-1,0,song_num);
-              skip_song=TRUE;
-              play_new_song=TRUE;
-              loading_flac=FALSE;
-              playing_wav=FALSE;
-            }
-          }
-        }
-        break;
-
-    //Holding down '0' Key
       case '0'://skip song, downwards (next)
         call_help_timer=0;
         if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
           if (song_mode<=2) {
-            song_rand_num=LimitValue(song_rand_num+1,0,song_num);
-            skip_song=TRUE;
-            play_new_song=TRUE;
-            loading_flac=FALSE;
-            playing_wav=FALSE;
+            skipping_song=TRUE;
+
+            if (wParam=='0')
+              song_rand_num=LimitValue(song_rand_num+1,0,song_num);
+            else if (wParam=='9')
+              song_rand_num=LimitValue(song_rand_num-1,0,song_num);
           }
         }
+        if (song_mode>2)
+          skipping_song=FALSE;
         break;
     }
 }
@@ -58,7 +46,21 @@ void GlobalKeypressDown(WPARAM wParam)
 
 void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
 {
-      switch (wParam) {
+    switch (wParam) {
+    //Letting go '0' or '9' Key
+      case '9':
+      case '0':
+        call_help_timer=0;        
+        if (song_mode<=2) {
+          if (skipping_song) {
+            if (playing_wav) {
+              skip_song=TRUE;
+              play_new_song=TRUE;
+            }
+            skipping_song=FALSE;
+          }
+        }
+        break;
         //Release 'T' key holding SHIFT
         case 'T': //Hide or Show Taskbar
           if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
@@ -95,53 +97,37 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
 
 
         //Release N key while holding SHIFT or not
-        case 'N':
-          call_help_timer=0;
-          if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
-            if (song_mode==0 || song_mode==3) {
-              if (!stop_playing_song) {
-                stop_playing_song=TRUE;
-                toggle_stop_playing_song=TRUE;
-              } else { //renable song
-                remove("music/tmp/tmp.wav");
-                rmdir("music/tmp"); //remove tmp
-                InitSongBank();
-                song_rand_num=LimitValue(-1,0,song_num);
-                stop_playing_song=FALSE;
-              }
-            }
-            song_mode=LimitValue(song_mode-1,0,4);
-          } else {
-            if (!stop_playing_song) {
-              play_new_song=TRUE;
-              loading_flac=FALSE;
-              loading_wav=FALSE;
-              playing_wav=FALSE;
-            }
-          }
-          break;//end current song
-
-
         //Release M key while holding SHIFT or not
+        case 'N':
         case 'M':
           call_help_timer=0;
           if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
-            if (song_mode>=2) {
+            if (wParam=='M') {
+              song_mode=LimitValue(song_mode+1,0,4);
+            } else if (wParam=='N'){
+              song_mode=LimitValue(song_mode-1,0,4);
+            }
+
+            if (song_mode==3) {
               if (!stop_playing_song) {
                 stop_playing_song=TRUE;
                 toggle_stop_playing_song=TRUE;
-              } else { //renable song
+              }
+            } else {
+              if (stop_playing_song) {//reenable song
                 remove("music/tmp/tmp.wav");
                 rmdir("music/tmp"); //remove tmp
                 InitSongBank();
                 song_rand_num=LimitValue(-1,0,song_num);
                 stop_playing_song=FALSE;
+                play_new_song=TRUE;
               }
             }
-            song_mode=LimitValue(song_mode+1,0,4);
+
           } else {
             if (!stop_playing_song) {
               play_new_song=TRUE;
+              loading_mp3=FALSE;
               loading_flac=FALSE;
               loading_wav=FALSE;
               playing_wav=FALSE;
@@ -351,18 +337,17 @@ void OptionsKeypressDown(HWND hwnd, WPARAM wParam)
       case 'W':
       case VK_UP:
         option_choose=LimitValue(option_choose-1,0,GAME_OPTIONS_NUM);
-        //PlaySound(L"snd/FE_COMMON_MB_02.wav", NULL, SND_FILENAME | SND_ASYNC); //up down
         if (game_audio)
           PlaySound(keySoundEffectCache[1].audio,NULL,SND_MEMORY | SND_ASYNC); //up down
-          //PlaySound(mkey_down_up_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //up down
         break;
+
+
     //Holding Down Down Arrow or 'S'
        case 'S':
        case VK_DOWN:
          option_choose=LimitValue(option_choose+1,0,GAME_OPTIONS_NUM);
          if (game_audio)
            PlaySound(keySoundEffectCache[1].audio,NULL,SND_MEMORY | SND_ASYNC); //up down
-           //PlaySound(mkey_down_up_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //up down
          break;
 
 
@@ -374,44 +359,40 @@ void OptionsKeypressDown(HWND hwnd, WPARAM wParam)
              player_color=LimitValue(player_color+1,0,COLORS_NUM);
              if (game_audio)
                PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
-               //PlaySound(mkey_paint_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //paint
              break;
            case 1: //Change color of player iris ++
              player_iris_color=LimitValue(player_iris_color+1,0,COLORS_NUM);
              if (game_audio)
                PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
-               //PlaySound(mkey_paint_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //paint
              break;
+
+
            case 2: //Change color of player pupil ++
              player_pupil_color=LimitValue(player_pupil_color+1,0,COLORS_NUM);
              if (game_audio)
                PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
-               //PlaySound(mkey_paint_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //paint
              break;
+
 
            case 3: //Enable/Disable camera shaking
              if (game_audio) {
                if (game_cam_shake)
                  PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
-                 //PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
                else
                  PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
-                 //PlaySound(mkey_true_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //true
              }
              game_cam_shake=!game_cam_shake;                
              break;
 
 
-
            case 4: //Enable/Disable sound effects
              if (game_audio)
                PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
-               //PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
              else
                PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
-               //PlaySound(mkey_true_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //true
              game_audio=!game_audio;
              break;
+
 
            case 5:
              if (game_volume>=2.0) {
@@ -424,9 +405,10 @@ void OptionsKeypressDown(HWND hwnd, WPARAM wParam)
              }
              if (game_audio)
                PlaySound(keySoundEffectCache[2].audio, NULL, SND_MEMORY | SND_ASYNC); //false
-               //PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
              flag_adjust_audio=TRUE;
              break;
+
+/*
            case 6:
              song_volume+=0.01;
              if (song_volume>1.0)//max song volume
@@ -434,9 +416,10 @@ void OptionsKeypressDown(HWND hwnd, WPARAM wParam)
              flag_adjust_song_audio=TRUE;
              if (game_audio)
                PlaySound(keySoundEffectCache[2].audio, NULL, SND_MEMORY | SND_ASYNC); //false
-               //PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
              break;
-           case 7:
+*/
+
+           case 6:
              wav_out_volume+=0.1;
              if (wav_out_volume>1.0) { //max song volume
                 wav_out_volume=0.0;
@@ -444,27 +427,26 @@ void OptionsKeypressDown(HWND hwnd, WPARAM wParam)
              flag_adjust_wav_out_audio=TRUE;
              if (game_audio)
                PlaySound(keySoundEffectCache[2].audio, NULL, SND_MEMORY | SND_ASYNC); //false
-               //PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
              break;
-           case 8: //toggle unifont
+
+
+           case 7: //toggle unifont
              if (game_audio) {
                if (yes_unifont)
                  PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
-                 //PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
                else
                  PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
-                 //PlaySound(mkey_true_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //true
              }
              yes_unifont=!yes_unifont;
              break;
-           case 9://togle borders
+
+
+           case 8://togle borders
              if (game_audio) {
                if (hide_taskbar)
                  PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
-                 //PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
                else
                  PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
-                 //PlaySound(mkey_true_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //true
              }
              if (!hide_taskbar) { //Hide taskbar
                LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
@@ -480,13 +462,10 @@ void OptionsKeypressDown(HWND hwnd, WPARAM wParam)
              SetForegroundWindow(hwnd); //return back focus
              hide_taskbar=!hide_taskbar;
              break;
-           case 10: //toggle resolution, holding right button
-             //if (resolution_choose==2) {
-               //SetWindowPos(hwnd,HWND_NOTOPMOST,0,0,640,480, SWP_FRAMECHANGED);
-             //}
+
+
+           case 9: //toggle resolution, holding right button
              resolution_choose=LimitValue(resolution_choose+1,0,3);
-             //windowx=SCREEN_WIDTH/2-GR_WIDTH/2;
-             //windowy=SCREEN_HEIGHT/2-GR_HEIGHT/2;
              if (!hide_taskbar) {
                SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],SWP_FRAMECHANGED);
              } else {
@@ -496,10 +475,11 @@ void OptionsKeypressDown(HWND hwnd, WPARAM wParam)
              SetForegroundWindow(hwnd); //return back focus
              if (game_audio) {
                PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
-               //PlaySound(mkey_true_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //true
              }
              break;
-           case 11: //right button, center
+
+
+           case 10: //right button, center
              windowx=SCREEN_WIDTH/2-GR_WIDTH/2;
              windowy=SCREEN_HEIGHT/2-GR_HEIGHT/2;
              if (!hide_taskbar) {
@@ -510,17 +490,14 @@ void OptionsKeypressDown(HWND hwnd, WPARAM wParam)
              SetForegroundWindow(hwnd); //return back focus
              if (game_audio) {
                PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
-               //PlaySound(mkey_true_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //true
              }
              break;
 
-           case 12: //toggle show fps
+           case 11: //toggle show fps
              if (game_audio) {
                if (show_fps)
-                 //PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
                  PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
                else
-                 //PlaySound(mkey_true_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //true
                  PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
              }
              show_fps=!show_fps;             
@@ -537,19 +514,16 @@ void OptionsKeypressDown(HWND hwnd, WPARAM wParam)
             player_color=LimitValue(player_color-1,0,COLORS_NUM);
             if (game_audio)
               PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
-              //PlaySound(mkey_paint_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //paint
             break;
           case 1: //Change color of player iris --
             player_iris_color=LimitValue(player_iris_color-1,0,COLORS_NUM);
             if (game_audio)
               PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
-              //PlaySound(mkey_paint_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //paint
             break;
           case 2: //Change color of player pupil --
             player_pupil_color=LimitValue(player_pupil_color-1,0,COLORS_NUM);
             if (game_audio)
               PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
-              //PlaySound(mkey_paint_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //paint
             break;
 
 
@@ -557,10 +531,8 @@ void OptionsKeypressDown(HWND hwnd, WPARAM wParam)
             if (game_audio) {
               if (game_cam_shake)
                 PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
-                //PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
               else
                 PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
-                //PlaySound(mkey_true_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //true
             }
             game_cam_shake=!game_cam_shake;                
             break;
@@ -569,10 +541,8 @@ void OptionsKeypressDown(HWND hwnd, WPARAM wParam)
           case 4: //Enable/Disable sound effects
             if (game_audio)
               PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
-              //PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
             else
               PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
-              //PlaySound(mkey_true_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //true
             game_audio=!game_audio;
             break;
 
@@ -585,49 +555,45 @@ void OptionsKeypressDown(HWND hwnd, WPARAM wParam)
              if (game_volume<0.0) {
                 game_volume=20.0;
              }
-             //PlaySound(L"snd/FE_COMMON_MB_03.wav", NULL, SND_FILENAME | SND_ASYNC); //false
              if (game_audio)
                PlaySound(keySoundEffectCache[2].audio, NULL, SND_MEMORY | SND_ASYNC); //false
-               //PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
              flag_adjust_audio=TRUE;
              break;
+/*
            case 6:
              song_volume-=0.01;
              if (song_volume<0.0)
                song_volume=1.0;
              if (game_audio)
                PlaySound(keySoundEffectCache[2].audio, NULL, SND_MEMORY | SND_ASYNC); //false
-               //PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
              flag_adjust_song_audio=TRUE;
              break;
-           case 7:
+*/
+           case 6:
              wav_out_volume-=0.1;
              if (wav_out_volume<0.0) {
                wav_out_volume=1.0;
              }
              if (game_audio)
                PlaySound(keySoundEffectCache[2].audio, NULL, SND_MEMORY | SND_ASYNC); //false
-               //PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
              flag_adjust_wav_out_audio=TRUE;
              break;
-           case 8: //toggle unifont
+
+           case 7: //toggle unifont
              if (game_audio) {
                if (yes_unifont)
-                 //PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
                  PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
                else
-                 //PlaySound(mkey_true_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //true
                  PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
              }
              yes_unifont=!yes_unifont;
              break;
-           case 9://togle borders
+
+           case 8://togle borders
              if (game_audio) {
                if (hide_taskbar)
-                 //PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
                  PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
                else
-                 //PlaySound(mkey_true_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //true
                  PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
              }
              if (resolution_choose==2) {
@@ -653,13 +619,7 @@ void OptionsKeypressDown(HWND hwnd, WPARAM wParam)
              break;
 
 
-           case 10: //toggle resolution, lower
-             //if (resolution_choose==2) {
-               //SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,800,600, SWP_FRAMECHANGED);
-             //}
-
-             //windowx=SCREEN_WIDTH/2-GR_WIDTH/2;
-             //windowy=SCREEN_HEIGHT/2-GR_HEIGHT/2;
+           case 9: //toggle resolution, lower
              resolution_choose=LimitValue(resolution_choose-1,0,3);
              if (!hide_taskbar) {
                SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],SWP_FRAMECHANGED);
@@ -668,12 +628,11 @@ void OptionsKeypressDown(HWND hwnd, WPARAM wParam)
              }
              SetForegroundWindow(hwnd); //return back focus
              if (game_audio) {
-               //PlaySound(mkey_true_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //true
                PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
              }
              break;
 
-           case 11: //left button, corner
+           case 10: //left button, corner
              windowx=0;
              windowy=0;
              if (!hide_taskbar) {
@@ -683,19 +642,16 @@ void OptionsKeypressDown(HWND hwnd, WPARAM wParam)
              }
              SetForegroundWindow(hwnd); //return back focus            
              if (game_audio) {
-               //PlaySound(mkey_true_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //true
                PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
              }
              break;
 
-           case 12: //toggle show fps
+           case 11: //toggle show fps
              if (game_audio) {
                if (show_fps)
                  PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
-                 //PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
                else
                  PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
-                 //PlaySound(mkey_true_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //true
              }
              show_fps=!show_fps;             
              break;
@@ -831,7 +787,6 @@ void MinusOneMenuKeypressDown(WPARAM wParam)
    case VK_DOWN:
      select_main_menu=LimitValue(select_main_menu+1,0,6);
      if (game_audio)
-       //PlaySound(mkey_down_up_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //up down
        PlaySound(keySoundEffectCache[1].audio,NULL,SND_MEMORY | SND_ASYNC); //up down
      break;
 
@@ -841,7 +796,6 @@ void MinusOneMenuKeypressDown(WPARAM wParam)
      //level_chosen=LimitValue(level_chosen-1,0,level_num);
      select_main_menu=LimitValue(select_main_menu-1,0,6);
      if (game_audio)
-       //PlaySound(mkey_down_up_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //up down
        PlaySound(keySoundEffectCache[1].audio,NULL,SND_MEMORY | SND_ASYNC); //up down
      break;
   }
@@ -857,12 +811,10 @@ int MinusOneMenuKeypressUp(WPARAM wParam)
            main_menu_chosen=select_main_menu;
            if (game_audio)
              PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
-             //PlaySound(mkey_esc_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //esc
          }
          if (select_main_menu==5) { //exit
            if (game_audio)
              PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
-             //PlaySound(mkey_esc_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //esc        
            PostQuitMessage(0);
            return 0;
          }
@@ -900,7 +852,6 @@ void ZeroMenuKeypressDown( HWND hwnd,  HDC hdc, WPARAM wParam)
          level_chosen=LimitValue(level_chosen-1,0,level_num);
          if (game_audio)
            PlaySound(keySoundEffectCache[1].audio,NULL,SND_MEMORY | SND_ASYNC); //up down
-           //PlaySound(mkey_down_up_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //up down
          break;
 
 
@@ -930,7 +881,6 @@ void ZeroMenuKeypressUp(WPARAM wParam)
             main_menu_chosen=-1;
            if (game_audio)
              PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
-              //PlaySound(mkey_esc_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //esc
           }
         }
         break;
@@ -950,7 +900,6 @@ void TwoMenuKeypressDown(WPARAM wParam)
          create_lvl_option_choose=LimitValue(create_lvl_option_choose+1,0,5);
          if (game_audio)
            PlaySound(keySoundEffectCache[1].audio,NULL,SND_MEMORY | SND_ASYNC); //up down
-         //PlaySound(mkey_down_up_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //up down
        }
        break;
 
@@ -962,7 +911,6 @@ void TwoMenuKeypressDown(WPARAM wParam)
         create_lvl_option_choose=LimitValue(create_lvl_option_choose-1,0,5);
         if (game_audio)
           PlaySound(keySoundEffectCache[1].audio,NULL,SND_MEMORY | SND_ASYNC); //up down
-          //PlaySound(mkey_down_up_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //up down
       }
       break;
 
@@ -986,7 +934,6 @@ void TwoMenuKeypressDown(WPARAM wParam)
         if (create_lvl_option_choose>0) {
           if (game_audio)
             PlaySound(keySoundEffectCache[2].audio, NULL, SND_MEMORY | SND_ASYNC); //false
-            //PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
         }
       }
       break;
@@ -1012,7 +959,6 @@ void TwoMenuKeypressDown(WPARAM wParam)
         if (create_lvl_option_choose>0) {
           if (game_audio)
             PlaySound(keySoundEffectCache[2].audio, NULL, SND_MEMORY | SND_ASYNC); //false
-            //PlaySound(mkey_false_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //false
         }
       }
       break;
@@ -1028,10 +974,8 @@ void TwoMenuKeypressUp(WPARAM wParam)
        case VK_ESCAPE:
          if ((keydown(VK_LSHIFT) || keydown(VK_RSHIFT))) { //ESC + L/RSHIFT = QUIT
            main_menu_chosen=-1;
-           //PlaySound(L"snd/FE_COMMON_MB_05.wav", NULL, SND_FILENAME | SND_ASYNC); //esc
            if (game_audio)
              PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
-             //PlaySound(mkey_esc_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //esc
          }
          break;
 

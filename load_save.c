@@ -67,6 +67,27 @@ bool saved_enemy_type_time_breaker_immune[ENEMY_TYPE_NUM];
 
 
 
+//Sound called in the Stack
+#define SPAM_SFX_NUM    3
+#define KEY_SFX_NUM     6
+#define CHANNEL_SFX_NUM 2
+
+wavSoundEffect spamSoundEffect[SPAM_SFX_NUM];
+wavSoundEffect keySoundEffect[KEY_SFX_NUM];
+wavSoundEffect channelSoundEffect[CHANNEL_SFX_NUM];
+wavSoundEffect songAudio;
+
+wavSoundEffectCache spamSoundEffectCache[SPAM_SFX_NUM];
+wavSoundEffectCache keySoundEffectCache[KEY_SFX_NUM];
+wavSoundEffectCache channelSoundEffectCache[CHANNEL_SFX_NUM];
+
+AWavSFX spamSFX[SPAM_SFX_NUM];
+AWavSFX keySFX[KEY_SFX_NUM];
+AWavSFX channelSFX[CHANNEL_SFX_NUM];
+AWavSFX songSFX;
+
+
+
 /*double *enemy_type_double_pointer[ENEMY_F64_ATTRIBUTES_NUM]=
 {
   saved_enemy_type_speed,
@@ -219,7 +240,7 @@ void LoadSave(wchar_t *saves_name)
             VGrid = calloc(VGRID_NUM,sizeof(struct AVGrid*));
             NodeGrid = calloc(MAP_NODE_NUM,sizeof(ANode*));
             Enemy = calloc(ENEMY_NUM,sizeof(AEnemy*));
-
+            EnemySprite = calloc(ENEMY_NUM,sizeof(AEnemySprite*));
 
             //printf("Pointers Made==\n");
             
@@ -250,6 +271,13 @@ void LoadSave(wchar_t *saves_name)
               AEnemy *newEnemy = createEnemy();
               Enemy[i] = newEnemy;
             }
+
+
+            for (int i=0;i<ENEMY_NUM;i++) {
+              AEnemySprite *newEnemySprite = createEnemySprite();
+              EnemySprite[i] = newEnemySprite;
+            }
+
             break;
           case 40:
             saved_player_x=(double)int_saved_val;

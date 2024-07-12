@@ -1,106 +1,4 @@
 //classes for game
-
-
-typedef struct WavSoundEffectCache
-{
-  int16_t* audio;
-} wavSoundEffectCache;
-
-
-typedef struct WavSoundEffect
-{
-  int duration;
-  long filesize;  
-  int16_t* audio;
-} wavSoundEffect;
-
-
-
-
-typedef struct WavSFX
-{
-  wavSoundEffect* wavSFX;
-  wavSoundEffectCache* wavSFXCache;
-} AWavSFX;
-
-
-typedef struct WavChannelSFX
-{
-  bool is_cache;
-  int duration;
-  long filesize;
-  wavSoundEffect* wavSFX;
-  wavSoundEffectCache* wavSFXCache;
-} AWavChannelSFX;
-
-
-void InitWavSFX(AWavSFX* myWavSFX, wavSoundEffect* wavSFX, wavSoundEffectCache* wavSFXCache)
-{
-  myWavSFX->wavSFX=wavSFX;
-  myWavSFX->wavSFXCache=wavSFXCache;
-}
-
-void freeSoundEffect(wavSoundEffect* mySoundEffect) 
-{
-  if (mySoundEffect->audio!=NULL)
-    free(mySoundEffect->audio);
-}
-
-
-//void loadSoundEffect(wavSoundEffect* mySoundEffect, const wchar_t* filename,WAVEFORMATEX wfx,bool skip_header)
-void loadSoundEffect(AWavSFX* mySoundEffect, const wchar_t* filename,WAVEFORMATEX wfx,bool skip_header)
-{
-  freeSoundEffect(mySoundEffect->wavSFX);
-  FILE* file = _wfopen(filename, L"rb");
-  if (file) {
-    fseek(file, 0, SEEK_END);
-    long filesize;
-    if (skip_header) {
-      filesize = ftell(file) - 44; //<-- 44 is the size of the header
-      fseek(file, 44, SEEK_SET);
-    } else {
-      filesize = ftell(file);
-      fseek(file, 0, SEEK_SET);
-    }
-    mySoundEffect->wavSFX->audio = malloc(filesize);
-    fread(mySoundEffect->wavSFX->audio, 1, filesize, file); //read once filesize
-    fclose(file);
-
-    mySoundEffect->wavSFX->filesize = filesize;
-    mySoundEffect->wavSFX->duration = (double)filesize / (wfx.nSamplesPerSec * wfx.nChannels * wfx.wBitsPerSample/8) *1000;
-  }
-}
-
-
-
-
-
-void freeSoundEffectCache(wavSoundEffectCache* mySoundEffect) 
-{
-  if (mySoundEffect->audio!=NULL)
-    free(mySoundEffect->audio);
-}
-
-#define SPAM_SFX_NUM    3
-#define KEY_SFX_NUM     6
-#define CHANNEL_SFX_NUM 2
-
-wavSoundEffect spamSoundEffect[SPAM_SFX_NUM];
-wavSoundEffect keySoundEffect[KEY_SFX_NUM];
-wavSoundEffect channelSoundEffect[CHANNEL_SFX_NUM];
-wavSoundEffect songAudio;
-
-wavSoundEffectCache spamSoundEffectCache[SPAM_SFX_NUM];
-wavSoundEffectCache keySoundEffectCache[KEY_SFX_NUM];
-wavSoundEffectCache channelSoundEffectCache[CHANNEL_SFX_NUM];
-
-AWavSFX spamSFX[SPAM_SFX_NUM];
-AWavSFX keySFX[KEY_SFX_NUM];
-AWavSFX channelSFX[CHANNEL_SFX_NUM];
-AWavSFX songSFX;
-AWavChannelSFX memSFX[SND_THREAD_NUM];
-
-
 typedef struct GroundLine
 {
   bool is_ghost; //Can be colided or not collided
@@ -781,14 +679,30 @@ AEnemy **Enemy;
 
 
 
-struct enemy_sprites
+typedef struct enemy_sprites
 {
   HBITMAP sprite_1;
   HBITMAP sprite_2;
   HBITMAP sprite_3;
 
-};
-struct enemy_sprites EnemySprite[MAX_ENEMY_NUM];
+}AEnemySprite;
+
+AEnemySprite** EnemySprite;
+
+AEnemySprite *createEnemySprite()
+{
+  AEnemySprite *toReturn = malloc(sizeof(AEnemySprite));
+  return toReturn;
+}
+
+
+void freeEnemySprite(AEnemySprite *myEnemySprite)
+{
+  if (myEnemySprite)
+    free(myEnemySprite);
+}
+
+//struct enemy_sprites EnemySprite[MAX_ENEMY_NUM];
 
 
 

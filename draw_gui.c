@@ -432,24 +432,35 @@ lunar_year
 
 
 
-      c=Highlight((option_choose==6),WHITE,LTGREEN);
-      GrPrint(hdc,30,10+soptions_y+16*7,"Encoded Music Volume:",c);
-      char print_song_volume[8];
-      sprintf(print_song_volume,"<%1.0f%%>",song_volume*100);
-      GrPrint(hdc,30+20*8,10+soptions_y+16*7,print_song_volume,c);
+      //c=Highlight((option_choose==6),WHITE,LTGREEN);
+      //GrPrint(hdc,30,10+soptions_y+16*7,"Encoded Music Volume:",c);
+      //char print_song_volume[8];
+      //sprintf(print_song_volume,"<%1.0f%%>",song_volume*100);
+      //GrPrint(hdc,30+20*8,10+soptions_y+16*7,print_song_volume,c);
 
+
+
+      c=Highlight((option_choose==6),WHITE,LTGREEN);
+      GrPrint(hdc,30,10+soptions_y+16*7,"Raw Wav Volume:",c);
+      char print_wav_out_volume[7];
+      sprintf(print_wav_out_volume,"<%1.0f%%>",wav_out_volume*100);
+      GrPrint(hdc,30+20*8,10+soptions_y+16*7,print_wav_out_volume,c);
 
 
       c=Highlight((option_choose==7),WHITE,LTGREEN);
-      GrPrint(hdc,30,10+soptions_y+16*8,"Raw Wav Volume:",c);
-      char print_wav_out_volume[8];
-      sprintf(print_wav_out_volume,"<%1.0f%%>",wav_out_volume*100);
-      GrPrint(hdc,30+20*8,10+soptions_y+16*8,print_wav_out_volume,c);
-
-
-      c=Highlight((option_choose==8),WHITE,LTGREEN);
-      GrPrint(hdc,30,10+soptions_y+16*10,"Unifont:",c);
+      GrPrint(hdc,30,10+soptions_y+16*9,"Unifont:",c);
       if (yes_unifont) {
+        GrPrint(hdc,30+20*8,10+soptions_y+16*9,"<ON>",c);
+      } else {
+        GrPrint(hdc,30+20*8,10+soptions_y+16*9,"<OFF>",c);
+      }
+
+
+
+      //Misc============
+      c=Highlight((option_choose==8),WHITE,LTGREEN);
+      GrPrint(hdc,30,10+soptions_y+16*10,"Window Borders:",c);
+      if (!hide_taskbar) {
         GrPrint(hdc,30+20*8,10+soptions_y+16*10,"<ON>",c);
       } else {
         GrPrint(hdc,30+20*8,10+soptions_y+16*10,"<OFF>",c);
@@ -457,46 +468,35 @@ lunar_year
 
 
 
-      //Misc============
       c=Highlight((option_choose==9),WHITE,LTGREEN);
-      GrPrint(hdc,30,10+soptions_y+16*11,"Window Borders:",c);
-      if (!hide_taskbar) {
-        GrPrint(hdc,30+20*8,10+soptions_y+16*11,"<ON>",c);
-      } else {
-        GrPrint(hdc,30+20*8,10+soptions_y+16*11,"<OFF>",c);
-      }
-
-
-
-      c=Highlight((option_choose==10),WHITE,LTGREEN);
-      GrPrint(hdc,30,10+soptions_y+16*12,"Toggle Resolution:",c);
+      GrPrint(hdc,30,10+soptions_y+16*11,"Toggle Resolution:",c);
       switch (resolution_choose) {
         case 0:
-          GrPrint(hdc,30+20*8,10+soptions_y+16*12,"<640x480>",c);
+          GrPrint(hdc,30+20*8,10+soptions_y+16*11,"<640x480>",c);
           break;
         case 1:
-          GrPrint(hdc,30+20*8,10+soptions_y+16*12,"<800x600>",c);
+          GrPrint(hdc,30+20*8,10+soptions_y+16*11,"<800x600>",c);
           break;
         case 2: {
           char print_screen_size[20];
           sprintf(print_screen_size,"<%dx%d> (MAX)",SCREEN_WIDTH,SCREEN_HEIGHT);
-          GrPrint(hdc,30+20*8,10+soptions_y+16*12,print_screen_size,c);
+          GrPrint(hdc,30+20*8,10+soptions_y+16*11,print_screen_size,c);
           }
           break;
       } 
 
+      c=Highlight((option_choose==10),WHITE,LTGREEN);
+      GrPrint(hdc,30,10+soptions_y+16*12,"Window Align Position:",c);
+      GrPrint(hdc,30+20*8,10+soptions_y+16*12,"<Corner || Middle>",c);
+
+
+
       c=Highlight((option_choose==11),WHITE,LTGREEN);
-      GrPrint(hdc,30,10+soptions_y+16*13,"Window Align Position:",c);
-      GrPrint(hdc,30+20*8,10+soptions_y+16*13,"<Corner || Middle>",c);
-
-
-
-      c=Highlight((option_choose==12),WHITE,LTGREEN);
-      GrPrint(hdc,30,10+soptions_y+16*14,"Show FPS:",c);
+      GrPrint(hdc,30,10+soptions_y+16*13,"Show FPS:",c);
       if (show_fps) {
-        GrPrint(hdc,30+20*8,10+soptions_y+16*14,"<ON>",c);
+        GrPrint(hdc,30+20*8,10+soptions_y+16*13,"<ON>",c);
       } else {
-        GrPrint(hdc,30+20*8,10+soptions_y+16*14,"<OFF>",c);
+        GrPrint(hdc,30+20*8,10+soptions_y+16*13,"<OFF>",c);
       }
 
 
@@ -504,7 +504,7 @@ lunar_year
       //===========================
 
       int add_option_choose=0;
-      if (option_choose>7) {
+      if (option_choose>6) {
         add_option_choose=16*2;
       } else if (option_choose>3) {
         add_option_choose=16;

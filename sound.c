@@ -1,5 +1,84 @@
 
+typedef struct WavSoundEffectCache
+{
+  int16_t* audio;
+} wavSoundEffectCache;
 
+
+typedef struct WavSoundEffect
+{
+  int duration;
+  long filesize;  
+  int16_t* audio;
+} wavSoundEffect;
+
+
+typedef struct WavSFX
+{
+  wavSoundEffect* wavSFX;
+  wavSoundEffectCache* wavSFXCache;
+} AWavSFX;
+
+
+typedef struct WavChannelSFX
+{
+  bool is_cache;
+  int duration;
+  long filesize;
+  wavSoundEffect* wavSFX;
+  wavSoundEffectCache* wavSFXCache;
+} AWavChannelSFX;
+
+#define SND_THREAD_NUM    3
+AWavChannelSFX memSFX[SND_THREAD_NUM];
+
+
+void InitWavSFX(AWavSFX* myWavSFX, wavSoundEffect* wavSFX, wavSoundEffectCache* wavSFXCache)
+{
+  myWavSFX->wavSFX=wavSFX;
+  myWavSFX->wavSFXCache=wavSFXCache;
+}
+
+void freeSoundEffect(wavSoundEffect* mySoundEffect) 
+{
+  if (mySoundEffect->audio!=NULL)
+    free(mySoundEffect->audio);
+}
+
+
+//void loadSoundEffect(wavSoundEffect* mySoundEffect, const wchar_t* filename,WAVEFORMATEX wfx,bool skip_header)
+void loadSoundEffect(AWavSFX* mySoundEffect, const wchar_t* filename,WAVEFORMATEX wfx,bool skip_header)
+{
+  freeSoundEffect(mySoundEffect->wavSFX);
+  FILE* file = _wfopen(filename, L"rb");
+  if (file) {
+    fseek(file, 0, SEEK_END);
+    long filesize;
+    if (skip_header) {
+      filesize = ftell(file) - 44; //<-- 44 is the size of the header
+      fseek(file, 44, SEEK_SET);
+    } else {
+      filesize = ftell(file);
+      fseek(file, 0, SEEK_SET);
+    }
+    mySoundEffect->wavSFX->audio = malloc(filesize);
+    fread(mySoundEffect->wavSFX->audio, 1, filesize, file); //read once filesize
+    fclose(file);
+
+    mySoundEffect->wavSFX->filesize = filesize;
+    mySoundEffect->wavSFX->duration = (double)filesize / (wfx.nSamplesPerSec * wfx.nChannels * wfx.wBitsPerSample/8) *1000;
+  }
+}
+
+
+
+
+
+void freeSoundEffectCache(wavSoundEffectCache* mySoundEffect) 
+{
+  if (mySoundEffect->audio!=NULL)
+    free(mySoundEffect->audio);
+}
 
 #define SND_MEM_STACK_SIZE  100000
 int16_t SND_MEM_STACK[SND_MEM_STACK_SIZE]; //for adjusting volume because access via heap is finicky!!, 1 megabyte 100k KB Ram allowed max
@@ -69,6 +148,8 @@ void adjustSFXVolume(AWavSFX *mySFX, double game_volume,bool skipped_header)
 {
   //keySoundEffectCache[i].audio=adjustSFXVolume(keySoundEffect[i].audio,keySoundEffect[i].filesize,game_volume);  
   freeSoundEffectCache(mySFX->wavSFXCache);
+  //if (mySFX->wavSFXCache->audio!=NULL)
+    //free(mySFX->wavSFXCache->audio);
   mySFX->wavSFXCache->audio = adjustSFXVol( mySFX->wavSFX->audio, mySFX->wavSFX->filesize, game_volume, skipped_header);
 }
 

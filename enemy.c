@@ -1128,17 +1128,17 @@ void SetEnemyByType(int i,int type)
 void CleanUpEnemySprites()
 {
   for (int i=0;i<ENEMY_NUM;i++) {
-    if (EnemySprite[i].sprite_1!=NULL) {
-      DeleteObject(EnemySprite[i].sprite_1);
-      EnemySprite[i].sprite_1=NULL;
+    if (EnemySprite[i]->sprite_1!=NULL) {
+      DeleteObject(EnemySprite[i]->sprite_1);
+      EnemySprite[i]->sprite_1=NULL;
     }
-    if (EnemySprite[i].sprite_2!=NULL) {
-      DeleteObject(EnemySprite[i].sprite_2);
-      EnemySprite[i].sprite_2=NULL;
+    if (EnemySprite[i]->sprite_2!=NULL) {
+      DeleteObject(EnemySprite[i]->sprite_2);
+      EnemySprite[i]->sprite_2=NULL;
     }
-    if (EnemySprite[i].sprite_3!=NULL) {
-      DeleteObject(EnemySprite[i].sprite_3);
-      EnemySprite[i].sprite_3=NULL;
+    if (EnemySprite[i]->sprite_3!=NULL) {
+      DeleteObject(EnemySprite[i]->sprite_3);
+      EnemySprite[i]->sprite_3=NULL;
     }
   }
 }
@@ -1149,22 +1149,22 @@ void InitEnemySprites()
   for (int i=0;i<ENEMY_NUM;i++) {
     Enemy[i]->current_draw_row=-9999;
     if (Enemy[i]->species==0) {
-      if (EnemySprite[i].sprite_1==NULL) {
-        EnemySprite[i].sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,BLACK,Enemy[i]->color,-1);
+      if (EnemySprite[i]->sprite_1==NULL) {
+        EnemySprite[i]->sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,BLACK,Enemy[i]->color,-1);
       }
-      if (EnemySprite[i].sprite_2==NULL) {
-        EnemySprite[i].sprite_2=RotateSprite(NULL, enemy1_sprite_2,0,LTGREEN,BLACK,Enemy[i]->color,-1);
+      if (EnemySprite[i]->sprite_2==NULL) {
+        EnemySprite[i]->sprite_2=RotateSprite(NULL, enemy1_sprite_2,0,LTGREEN,BLACK,Enemy[i]->color,-1);
       }
-      EnemySprite[i].sprite_3=NULL;
+      EnemySprite[i]->sprite_3=NULL;
     } else {
-      if (EnemySprite[i].sprite_1==NULL) {
-        EnemySprite[i].sprite_1=RotateSprite(NULL, enemy2_sprite_1,0,LTGREEN,BLACK,Enemy[i]->color,-1);
+      if (EnemySprite[i]->sprite_1==NULL) {
+        EnemySprite[i]->sprite_1=RotateSprite(NULL, enemy2_sprite_1,0,LTGREEN,BLACK,Enemy[i]->color,-1);
       }
-      if (EnemySprite[i].sprite_2==NULL) {
-        EnemySprite[i].sprite_2=RotateSprite(NULL, enemy2_sprite_2,0,LTGREEN,BLACK,Enemy[i]->color,-1);
+      if (EnemySprite[i]->sprite_2==NULL) {
+        EnemySprite[i]->sprite_2=RotateSprite(NULL, enemy2_sprite_2,0,LTGREEN,BLACK,Enemy[i]->color,-1);
       }
-      if (EnemySprite[i].sprite_3==NULL) {
-        EnemySprite[i].sprite_3=RotateSprite(NULL, enemy2_sprite_3,0,LTGREEN,BLACK,Enemy[i]->color,-1);
+      if (EnemySprite[i]->sprite_3==NULL) {
+        EnemySprite[i]->sprite_3=RotateSprite(NULL, enemy2_sprite_3,0,LTGREEN,BLACK,Enemy[i]->color,-1);
       }
     }
   }
@@ -1287,8 +1287,8 @@ void DrawEnemy(HDC hdc)
   if (frame_tick==-8) { //initiate on start of app
     for (i=0;i<ENEMY_NUM;i++) {
       if (Enemy[i]->species==1) {
-        DeleteObject(EnemySprite[i].sprite_3);
-        EnemySprite[i].sprite_3=RotateSprite(hdc, enemy2_sprite_3,0,LTGREEN,BLACK,Enemy[i]->color,-1);
+        DeleteObject(EnemySprite[i]->sprite_3);
+        EnemySprite[i]->sprite_3=RotateSprite(hdc, enemy2_sprite_3,0,LTGREEN,BLACK,Enemy[i]->color,-1);
       }
     }
   }
@@ -1314,11 +1314,11 @@ void DrawEnemy(HDC hdc)
       if (Enemy[i]->species==1 && Enemy[i]->within_render_distance) { //Cockroach sprite species1
         if (Enemy[i]->sprite_angle!=Enemy[i]->saved_angle) { // enemy is on ground
           Enemy[i]->being_drawn=TRUE;
-          if (EnemySprite[i].sprite_1!=NULL) { //delete old sprites
-            DeleteObject(EnemySprite[i].sprite_1);
+          if (EnemySprite[i]->sprite_1!=NULL) { //delete old sprites
+            DeleteObject(EnemySprite[i]->sprite_1);
           }
-          if (EnemySprite[i].sprite_2!=NULL) {
-            DeleteObject(EnemySprite[i].sprite_2);
+          if (EnemySprite[i]->sprite_2!=NULL) {
+            DeleteObject(EnemySprite[i]->sprite_2);
           }
 
           SetRotatedSpriteSize(
@@ -1335,8 +1335,8 @@ void DrawEnemy(HDC hdc)
             &Enemy[i]->sine
           );
 
-          EnemySprite[i].sprite_1=CreateCrunchyBitmap(Enemy[i]->sprite_width,Enemy[i]->sprite_height); //create new sprite with new height and width
-          EnemySprite[i].sprite_2=CreateCrunchyBitmap(Enemy[i]->sprite_width,Enemy[i]->sprite_height);
+          EnemySprite[i]->sprite_1=CreateCrunchyBitmap(Enemy[i]->sprite_width,Enemy[i]->sprite_height); //create new sprite with new height and width
+          EnemySprite[i]->sprite_2=CreateCrunchyBitmap(Enemy[i]->sprite_width,Enemy[i]->sprite_height);
 
           Enemy[i]->current_draw_row=Enemy[i]->sprite_miny;
 
@@ -1345,8 +1345,8 @@ void DrawEnemy(HDC hdc)
 
         for (int k=0;k<2;k++) {
           if (Enemy[i]->current_draw_row>=Enemy[i]->sprite_miny && Enemy[i]->current_draw_row<=Enemy[i]->sprite_maxy) {
-            RotateSpriteII(hdc, enemy2_sprite_1, EnemySprite[i].sprite_1,Enemy[i]->cosine, Enemy[i]->sine, LTGREEN, Enemy[i]->color, -1, Enemy[i]->sprite_minx, Enemy[i]->sprite_miny, Enemy[i]->sprite_maxx, Enemy[i]->sprite_maxy, Enemy[i]->current_draw_row); 
-            RotateSpriteII(hdc, enemy2_sprite_2, EnemySprite[i].sprite_2,Enemy[i]->cosine, Enemy[i]->sine, LTGREEN, Enemy[i]->color, -1, Enemy[i]->sprite_minx, Enemy[i]->sprite_miny, Enemy[i]->sprite_maxx, Enemy[i]->sprite_maxy, Enemy[i]->current_draw_row);
+            RotateSpriteII(hdc, enemy2_sprite_1, EnemySprite[i]->sprite_1,Enemy[i]->cosine, Enemy[i]->sine, LTGREEN, Enemy[i]->color, -1, Enemy[i]->sprite_minx, Enemy[i]->sprite_miny, Enemy[i]->sprite_maxx, Enemy[i]->sprite_maxy, Enemy[i]->current_draw_row); 
+            RotateSpriteII(hdc, enemy2_sprite_2, EnemySprite[i]->sprite_2,Enemy[i]->cosine, Enemy[i]->sine, LTGREEN, Enemy[i]->color, -1, Enemy[i]->sprite_minx, Enemy[i]->sprite_miny, Enemy[i]->sprite_maxx, Enemy[i]->sprite_maxy, Enemy[i]->current_draw_row);
             Enemy[i]->current_draw_row++;
             //printf("===Drawing!\n");
             if (Enemy[i]->current_draw_row>=Enemy[i]->sprite_maxy) {
@@ -1361,15 +1361,15 @@ void DrawEnemy(HDC hdc)
 
       } else { //other species 0
         if (Enemy[i]->saved_angle==-9999) {
-          if (EnemySprite[i].sprite_1!=NULL) {
-            DeleteObject(EnemySprite[i].sprite_1);
+          if (EnemySprite[i]->sprite_1!=NULL) {
+            DeleteObject(EnemySprite[i]->sprite_1);
           }
-          if (EnemySprite[i].sprite_2!=NULL) {
-            DeleteObject(EnemySprite[i].sprite_2);
+          if (EnemySprite[i]->sprite_2!=NULL) {
+            DeleteObject(EnemySprite[i]->sprite_2);
           }
 
-          EnemySprite[i].sprite_1=RotateSprite(hdc, enemy1_sprite_1,Enemy[i]->sprite_angle,LTGREEN,BLACK,Enemy[i]->color,-1);
-          EnemySprite[i].sprite_2=RotateSprite(hdc, enemy1_sprite_2,Enemy[i]->sprite_angle,LTGREEN,BLACK,Enemy[i]->color,-1);
+          EnemySprite[i]->sprite_1=RotateSprite(hdc, enemy1_sprite_1,Enemy[i]->sprite_angle,LTGREEN,BLACK,Enemy[i]->color,-1);
+          EnemySprite[i]->sprite_2=RotateSprite(hdc, enemy1_sprite_2,Enemy[i]->sprite_angle,LTGREEN,BLACK,Enemy[i]->color,-1);
           Enemy[i]->saved_angle=0;
         }
       }
@@ -1397,15 +1397,15 @@ void DrawEnemy(HDC hdc)
 
       if (Enemy[i]->species==1) {  //Cockroach sprite
         if (Enemy[i]->health>-500) {
-          if (EnemySprite[i].sprite_1!=NULL) {
-            DeleteObject(EnemySprite[i].sprite_1);
+          if (EnemySprite[i]->sprite_1!=NULL) {
+            DeleteObject(EnemySprite[i]->sprite_1);
           }
-          if (EnemySprite[i].sprite_2!=NULL) {
-            DeleteObject(EnemySprite[i].sprite_2);
+          if (EnemySprite[i]->sprite_2!=NULL) {
+            DeleteObject(EnemySprite[i]->sprite_2);
           }
 
-          if (EnemySprite[i].sprite_3!=NULL) {
-            DeleteObject(EnemySprite[i].sprite_3);
+          if (EnemySprite[i]->sprite_3!=NULL) {
+            DeleteObject(EnemySprite[i]->sprite_3);
           }
 
 
@@ -1423,9 +1423,9 @@ void DrawEnemy(HDC hdc)
               &Enemy[i]->sine
           );
 
-          EnemySprite[i].sprite_1=CreateCrunchyBitmap(Enemy[i]->sprite_width,Enemy[i]->sprite_height);
-          EnemySprite[i].sprite_2=CreateCrunchyBitmap(Enemy[i]->sprite_width,Enemy[i]->sprite_height);
-          EnemySprite[i].sprite_3=CreateCrunchyBitmap(Enemy[i]->sprite_width,Enemy[i]->sprite_height);
+          EnemySprite[i]->sprite_1=CreateCrunchyBitmap(Enemy[i]->sprite_width,Enemy[i]->sprite_height);
+          EnemySprite[i]->sprite_2=CreateCrunchyBitmap(Enemy[i]->sprite_width,Enemy[i]->sprite_height);
+          EnemySprite[i]->sprite_3=CreateCrunchyBitmap(Enemy[i]->sprite_width,Enemy[i]->sprite_height);
 
           Enemy[i]->current_draw_row=Enemy[i]->sprite_miny;
           Enemy[i]->play_death_snd=TRUE;
@@ -1434,9 +1434,9 @@ void DrawEnemy(HDC hdc)
 
 
         if (Enemy[i]->current_draw_row>=Enemy[i]->sprite_miny && Enemy[i]->current_draw_row<=Enemy[i]->sprite_maxy && Enemy[i]->within_render_distance) {
-          RotateSpriteII(hdc, enemy2_sprite_1, EnemySprite[i].sprite_1,Enemy[i]->cosine,Enemy[i]->sine, LTGREEN, DKBLACK, TRANSPARENT, Enemy[i]->sprite_minx, Enemy[i]->sprite_miny, Enemy[i]->sprite_maxx, Enemy[i]->sprite_maxy,Enemy[i]->current_draw_row);
-          RotateSpriteII(hdc, enemy2_sprite_2, EnemySprite[i].sprite_2,Enemy[i]->cosine,Enemy[i]->sine, LTGREEN, DKBLACK, TRANSPARENT, Enemy[i]->sprite_minx, Enemy[i]->sprite_miny, Enemy[i]->sprite_maxx, Enemy[i]->sprite_maxy, Enemy[i]->current_draw_row);
-          RotateSpriteII(hdc, enemy2_sprite_3, EnemySprite[i].sprite_3,Enemy[i]->cosine,Enemy[i]->sine, LTGREEN, DKBLACK, TRANSPARENT, Enemy[i]->sprite_minx, Enemy[i]->sprite_miny, Enemy[i]->sprite_maxx, Enemy[i]->sprite_maxy, Enemy[i]->current_draw_row);
+          RotateSpriteII(hdc, enemy2_sprite_1, EnemySprite[i]->sprite_1,Enemy[i]->cosine,Enemy[i]->sine, LTGREEN, DKBLACK, TRANSPARENT, Enemy[i]->sprite_minx, Enemy[i]->sprite_miny, Enemy[i]->sprite_maxx, Enemy[i]->sprite_maxy,Enemy[i]->current_draw_row);
+          RotateSpriteII(hdc, enemy2_sprite_2, EnemySprite[i]->sprite_2,Enemy[i]->cosine,Enemy[i]->sine, LTGREEN, DKBLACK, TRANSPARENT, Enemy[i]->sprite_minx, Enemy[i]->sprite_miny, Enemy[i]->sprite_maxx, Enemy[i]->sprite_maxy, Enemy[i]->current_draw_row);
+          RotateSpriteII(hdc, enemy2_sprite_3, EnemySprite[i]->sprite_3,Enemy[i]->cosine,Enemy[i]->sine, LTGREEN, DKBLACK, TRANSPARENT, Enemy[i]->sprite_minx, Enemy[i]->sprite_miny, Enemy[i]->sprite_maxx, Enemy[i]->sprite_maxy, Enemy[i]->current_draw_row);
           Enemy[i]->current_draw_row++;
           if (Enemy[i]->current_draw_row>=Enemy[i]->sprite_maxy) {
             Enemy[i]->current_draw_row=-9999;
@@ -1444,15 +1444,15 @@ void DrawEnemy(HDC hdc)
           }
         }
       } else { //Fly sprite
-        if (EnemySprite[i].sprite_1!=NULL) {
-          DeleteObject(EnemySprite[i].sprite_1);
+        if (EnemySprite[i]->sprite_1!=NULL) {
+          DeleteObject(EnemySprite[i]->sprite_1);
         }
-        if (EnemySprite[i].sprite_2!=NULL) {
-          DeleteObject(EnemySprite[i].sprite_2);
+        if (EnemySprite[i]->sprite_2!=NULL) {
+          DeleteObject(EnemySprite[i]->sprite_2);
         }
         Enemy[i]->play_death_snd=TRUE;
-        EnemySprite[i].sprite_1=RotateSprite(hdc, enemy1_sprite_1,Enemy[i]->sprite_angle,LTGREEN,BLACK,DKBLACK,TRANSPARENT);
-        EnemySprite[i].sprite_2=RotateSprite(hdc, enemy1_sprite_2,Enemy[i]->sprite_angle,LTGREEN,BLACK,DKBLACK,TRANSPARENT);
+        EnemySprite[i]->sprite_1=RotateSprite(hdc, enemy1_sprite_1,Enemy[i]->sprite_angle,LTGREEN,BLACK,DKBLACK,TRANSPARENT);
+        EnemySprite[i]->sprite_2=RotateSprite(hdc, enemy1_sprite_2,Enemy[i]->sprite_angle,LTGREEN,BLACK,DKBLACK,TRANSPARENT);
         Enemy[i]->health=-99999;
       }
     }
@@ -1486,9 +1486,9 @@ void DrawEnemy(HDC hdc)
       switch (Enemy[i]->species) {
         case 0:
           if (Enemy[i]->sprite_timer%2==0) {
-            GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,EnemySprite[i].sprite_1,Enemy[i]->last_left);
+            GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,EnemySprite[i]->sprite_1,Enemy[i]->last_left);
           } else {
-            GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,EnemySprite[i].sprite_2,Enemy[i]->last_left);
+            GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,EnemySprite[i]->sprite_2,Enemy[i]->last_left);
           }
          // if (Enemy[i]->health>0)
             //GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,uncanny,Enemy[i]->last_left);
@@ -1498,25 +1498,25 @@ void DrawEnemy(HDC hdc)
           if (Enemy[i]->in_air_timer==0 && !Enemy[i]->being_drawn) {
             if (Enemy[i]->above_ground) {
               if (Enemy[i]->sprite_timer%8==0) {
-                GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,EnemySprite[i].sprite_1,Enemy[i]->last_left);
+                GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,EnemySprite[i]->sprite_1,Enemy[i]->last_left);
                 //GrPrint(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y-72,"1",Enemy[i]->color); //Debug sprite spazzing
               } else {
-                GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,EnemySprite[i].sprite_2,Enemy[i]->last_left);
+                GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,EnemySprite[i]->sprite_2,Enemy[i]->last_left);
                 //GrPrint(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y-72,"2",Enemy[i]->color);
               }
             } else if (Enemy[i]->below_ground) {
               if (Enemy[i]->sprite_timer%8==0) {
-                GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,EnemySprite[i].sprite_1,Enemy[i]->flip_sprite);
+                GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,EnemySprite[i]->sprite_1,Enemy[i]->flip_sprite);
                 //GrPrint(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y-72,"3",Enemy[i]->color);
               } else {
-                GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,EnemySprite[i].sprite_2,Enemy[i]->flip_sprite);
+                GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,EnemySprite[i]->sprite_2,Enemy[i]->flip_sprite);
                 //GrPrint(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y-72,"4",Enemy[i]->color);
               }
             } else {
-              GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,EnemySprite[i].sprite_3,Enemy[i]->last_left);
+              GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,EnemySprite[i]->sprite_3,Enemy[i]->last_left);
             }
           } else {
-            GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,EnemySprite[i].sprite_3,Enemy[i]->last_left);
+            GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,EnemySprite[i]->sprite_3,Enemy[i]->last_left);
           }
         //if (Enemy[i]->health>0)
           //GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,uncanny,Enemy[i]->last_left);

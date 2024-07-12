@@ -23,6 +23,7 @@ bool loading_flac=FALSE;
 bool loading_wav=FALSE;
 bool playing_wav=FALSE;
 bool skip_song=FALSE;
+bool skipping_song=FALSE;
 
 unsigned long long time_song_start;
 unsigned long long time_song_end;
@@ -172,7 +173,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
         if (playing_wav) { //hi im currently playing a flac/wav
           
           current_song_time=current_timestamp();
-          if (current_song_time>time_song_end) { //stop playing flac when duration is over
+          if (current_song_time>time_song_end || play_new_song) { //stop playing flac when duration is over
             play_new_song=TRUE;
             loading_mp3=FALSE;
             loading_flac=FALSE;
@@ -180,20 +181,11 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
             playing_wav=FALSE;
             time_song_start=0;
             time_song_end=0;
-            //if (song_audio!=NULL)
-              //free(song_audio);
-            freeSoundEffect(&songAudio);
-          }
-
-          if (flag_adjust_song_audio) {
-            flag_adjust_song_audio=FALSE;
           }
 
 
 
         } else {//im not playing a wav music
-          //char my_length[16];
-          //printf("\nstatus: %ls\n",my_status);
           if (loading_flac) {//loading flac or wav, flac
             playing_wav=TRUE;
             loading_flac=FALSE;
@@ -241,7 +233,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
             //attempt to remove left overs
             remove("music/tmp/tmp.wav");
             rmdir("music/tmp"); //remove tmp, manually because C is like that
-          }        
+          } else { //not loading song 
 
           if (play_new_song) //song status: stopped
           {
@@ -251,12 +243,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
               remove("music/tmp/tmp.wav");
               rmdir("music/tmp"); //remove tmp, manually because C is like that
 
-              //stop .wav player
-              mem_snd_interrupt[2]=TRUE;
-              waveOutReset(hWaveOut[2]);
-              CloseHandle(hMemSndArray[2]);
 
-              freeSoundEffect(&songAudio);
 
               if (!skip_song) {
                 switch (song_mode) {
@@ -274,6 +261,11 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
                 skip_song=FALSE;
               }
           
+              //stop .wav player
+              mem_snd_interrupt[2]=TRUE;
+              waveOutReset(hWaveOut[2]);
+              CloseHandle(hMemSndArray[2]);
+              freeSoundEffect(&songAudio);
               
               if (is_flac[song_rand_num]) { //loaded song is a flac
                 wchar_t my_command[512];
@@ -297,7 +289,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
             play_new_song=FALSE;
           } //else { //song status: playing
 
-          //}
+          }
         }  
       }
     }
@@ -379,6 +371,14 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
           waveOutReset(hWaveOut[i]);
           mem_snd_interrupt[i]=TRUE;
         }
+        /*for (int i=0;i<SPAM_SFX_NUM;i++) {
+          if (spamSoundEffectCache[i].audio!=NULL)
+            free(spamSoundEffectCache[i].audio);
+        }
+        for (int i=0;i<CHANNEL_SFX_NUM;i++) {
+          if (channelSoundEffectCache[i].audio!=NULL)
+            free(channelSoundEffectCache[i].audio);
+        }*/
         clean_up_sound=FALSE;
       }
       Sleep(1000); //eepy loop
