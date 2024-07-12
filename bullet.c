@@ -300,7 +300,7 @@ void BulletAct(int bullet_id)
                 /*if (player.speed<6) {
                   player.health-=(player.block_health_max-player.block_health+1)/player.block_health_max*Bullet[bullet_id].damage;
                 }*/
-	            blocked_bullet_dmg=0;
+	            //blocked_bullet_dmg=0;
 	          } else {//perfect block , 23 or less than
 	            blocked_bullet_dmg=0;
                 if (player.time_breaker_units<player.time_breaker_units_max) { //causes speed to increase

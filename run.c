@@ -228,15 +228,15 @@ double moon_angle_shift=0;
 
 
 #define GAME_OPTIONS_NUM    13
-#define GAME_SOUND_EFFECTS_NUM  
+#define SND_THREAD_NUM    3
 
 
 #include "struct_classes.c"
 
 //for song
-static int16_t* song_audio;
+/*static int16_t* song_audio;
 long song_audio_filesize;
-int song_duration;
+int song_duration;*/
 
 
 #include "math.c"
@@ -1003,29 +1003,28 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     //https://stackoverflow.com/questions/8754111/how-to-read-the-data-in-a-wav-file-to-an-array
       //if (load_sound && level_loaded) {
          for (int i=0;i<SPAM_SFX_NUM;i++) {
-           spamSFX[i].wavSFX=&spamSoundEffect[i];
-           spamSFX[i].wavSFXCache=&spamSoundEffectCache[i];
+           InitWavSFX(&spamSFX[i],&spamSoundEffect[i],&spamSoundEffectCache[i]);
          }
          for (int i=0;i<KEY_SFX_NUM;i++) {
-           keySFX[i].wavSFX=&keySoundEffect[i];
-           keySFX[i].wavSFXCache=&keySoundEffectCache[i];
+           InitWavSFX(&keySFX[i],&keySoundEffect[i],&keySoundEffectCache[i]);
          }
          for (int i=0;i<CHANNEL_SFX_NUM;i++) {
-           channelSFX[i].wavSFX=&channelSoundEffect[i];
-           channelSFX[i].wavSFXCache=&channelSoundEffectCache[i];
+           InitWavSFX(&channelSFX[i],&channelSoundEffect[i],&channelSoundEffectCache[i]);
          }
+
+         InitWavSFX(&songSFX,&songAudio,NULL);
     
-         loadSoundEffect(&spamSoundEffect[0],L"snd/timebreaker__start.wav",wfx1,FALSE);
-         loadSoundEffect(&spamSoundEffect[1],L"snd/timebreaker__stop.wav",wfx1,FALSE);
-         loadSoundEffect(&spamSoundEffect[2],L"snd/clang.wav",wfx1,FALSE);
+         loadSoundEffect(&spamSFX[0],L"snd/timebreaker__start.wav",wfx_wav_sfx,FALSE);
+         loadSoundEffect(&spamSFX[1],L"snd/timebreaker__stop.wav",wfx_wav_sfx,FALSE);
+         loadSoundEffect(&spamSFX[2],L"snd/clang.wav",wfx_wav_sfx,FALSE);
 
 
-         loadSoundEffect(&keySoundEffect[0],L"snd/play_level.wav",wfx1,FALSE); //Enter Sound Effect (Sometimes) [0]
-         loadSoundEffect(&keySoundEffect[1],L"snd/FE_COMMON_MB_02.wav",wfx1,FALSE); //Key Up Down Sound Effect [1]
-         loadSoundEffect(&keySoundEffect[2],L"snd/FE_COMMON_MB_03.wav",wfx1,FALSE); //False Sound Effect --> [2]
-         loadSoundEffect(&keySoundEffect[3],L"snd/FE_COMMON_MB_04.wav",wfx1,FALSE); //True Sound Effect --> [3]
-         loadSoundEffect(&keySoundEffect[4],L"snd/FE_COMMON_MB_05.wav",wfx1,FALSE); //ESC Sound Effect --> [4]
-         loadSoundEffect(&keySoundEffect[5],L"snd/FE_MB_18.wav",wfx1,FALSE); //Paint Sound Effect --> [5]
+         loadSoundEffect(&keySFX[0],L"snd/play_level.wav",wfx_wav_sfx,FALSE); //Enter Sound Effect (Sometimes) [0]
+         loadSoundEffect(&keySFX[1],L"snd/FE_COMMON_MB_02.wav",wfx_wav_sfx,FALSE); //Key Up Down Sound Effect [1]
+         loadSoundEffect(&keySFX[2],L"snd/FE_COMMON_MB_03.wav",wfx_wav_sfx,FALSE); //False Sound Effect --> [2]
+         loadSoundEffect(&keySFX[3],L"snd/FE_COMMON_MB_04.wav",wfx_wav_sfx,FALSE); //True Sound Effect --> [3]
+         loadSoundEffect(&keySFX[4],L"snd/FE_COMMON_MB_05.wav",wfx_wav_sfx,FALSE); //ESC Sound Effect --> [4]
+         loadSoundEffect(&keySFX[5],L"snd/FE_MB_18.wav",wfx_wav_sfx,FALSE); //Paint Sound Effect --> [5]
 
 
          for (int i=0;i<KEY_SFX_NUM;i++) {
@@ -1033,19 +1032,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
            adjustSFXVolume(&keySFX[i],game_volume,FALSE);
          }
 
-         loadSoundEffect(&channelSoundEffect[0],L"snd/fast.wav",wfx1,TRUE);
-         loadSoundEffect(&channelSoundEffect[1],L"snd/clang_death.wav",wfx1,TRUE);
+         loadSoundEffect(&channelSFX[0],L"snd/fast.wav",wfx_wav_sfx,TRUE);
+         loadSoundEffect(&channelSFX[1],L"snd/clang_death.wav",wfx_wav_sfx,TRUE);
 
 
 
          //for wav sound effects
          for (int i=0;i<SND_THREAD_NUM-1;i++) {
-           waveOutOpen(&hWaveOut[i], WAVE_MAPPER, &wfx1, 0, 0, CALLBACK_NULL);
+           waveOutOpen(&hWaveOut[i], WAVE_MAPPER, &wfx_wav_sfx, 0, 0, CALLBACK_NULL);
            waveOutPrepareHeader(hWaveOut[i], &whdr[i], sizeof(WAVEHDR));
          }
 
          //For wav music
-         waveOutOpen(&hWaveOut[2], WAVE_MAPPER, &wfx_wav, 0, 0, CALLBACK_NULL);
+         waveOutOpen(&hWaveOut[2], WAVE_MAPPER, &wfx_wav_music, 0, 0, CALLBACK_NULL);
          long int vol=VolumeValue(10,1);
          waveOutSetVolume(hWaveOut[2],vol);
          waveOutPrepareHeader(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));

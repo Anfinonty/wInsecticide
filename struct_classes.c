@@ -15,6 +15,8 @@ typedef struct WavSoundEffect
 } wavSoundEffect;
 
 
+
+
 typedef struct WavSFX
 {
   wavSoundEffect* wavSFX;
@@ -22,8 +24,33 @@ typedef struct WavSFX
 } AWavSFX;
 
 
-void loadSoundEffect(wavSoundEffect* mySoundEffect, const wchar_t* filename,WAVEFORMATEX wfx,bool skip_header)
+typedef struct WavChannelSFX
 {
+  bool is_cache;
+  int duration;
+  long filesize;
+  wavSoundEffect* wavSFX;
+  wavSoundEffectCache* wavSFXCache;
+} AWavChannelSFX;
+
+
+void InitWavSFX(AWavSFX* myWavSFX, wavSoundEffect* wavSFX, wavSoundEffectCache* wavSFXCache)
+{
+  myWavSFX->wavSFX=wavSFX;
+  myWavSFX->wavSFXCache=wavSFXCache;
+}
+
+void freeSoundEffect(wavSoundEffect* mySoundEffect) 
+{
+  if (mySoundEffect->audio!=NULL)
+    free(mySoundEffect->audio);
+}
+
+
+//void loadSoundEffect(wavSoundEffect* mySoundEffect, const wchar_t* filename,WAVEFORMATEX wfx,bool skip_header)
+void loadSoundEffect(AWavSFX* mySoundEffect, const wchar_t* filename,WAVEFORMATEX wfx,bool skip_header)
+{
+  freeSoundEffect(mySoundEffect->wavSFX);
   FILE* file = _wfopen(filename, L"rb");
   if (file) {
     fseek(file, 0, SEEK_END);
@@ -35,22 +62,17 @@ void loadSoundEffect(wavSoundEffect* mySoundEffect, const wchar_t* filename,WAVE
       filesize = ftell(file);
       fseek(file, 0, SEEK_SET);
     }
-    mySoundEffect->audio = malloc(filesize);
-    fread(mySoundEffect->audio, 1, filesize, file); //read once filesize
+    mySoundEffect->wavSFX->audio = malloc(filesize);
+    fread(mySoundEffect->wavSFX->audio, 1, filesize, file); //read once filesize
     fclose(file);
 
-    mySoundEffect->filesize = filesize;
-    mySoundEffect->duration = (double)filesize / (wfx.nSamplesPerSec * wfx.nChannels * wfx.wBitsPerSample/8) *1000;
+    mySoundEffect->wavSFX->filesize = filesize;
+    mySoundEffect->wavSFX->duration = (double)filesize / (wfx.nSamplesPerSec * wfx.nChannels * wfx.wBitsPerSample/8) *1000;
   }
 }
 
 
 
-void freeSoundEffect(wavSoundEffect* mySoundEffect) 
-{
-  if (mySoundEffect->audio!=NULL)
-    free(mySoundEffect->audio);
-}
 
 
 void freeSoundEffectCache(wavSoundEffectCache* mySoundEffect) 
@@ -66,16 +88,17 @@ void freeSoundEffectCache(wavSoundEffectCache* mySoundEffect)
 wavSoundEffect spamSoundEffect[SPAM_SFX_NUM];
 wavSoundEffect keySoundEffect[KEY_SFX_NUM];
 wavSoundEffect channelSoundEffect[CHANNEL_SFX_NUM];
+wavSoundEffect songAudio;
 
 wavSoundEffectCache spamSoundEffectCache[SPAM_SFX_NUM];
 wavSoundEffectCache keySoundEffectCache[KEY_SFX_NUM];
 wavSoundEffectCache channelSoundEffectCache[CHANNEL_SFX_NUM];
 
-
 AWavSFX spamSFX[SPAM_SFX_NUM];
 AWavSFX keySFX[KEY_SFX_NUM];
 AWavSFX channelSFX[CHANNEL_SFX_NUM];
-
+AWavSFX songSFX;
+AWavChannelSFX memSFX[SND_THREAD_NUM];
 
 
 typedef struct GroundLine

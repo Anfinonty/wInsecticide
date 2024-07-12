@@ -776,7 +776,16 @@ void PlayerAct() {
     player.decceleration_timer=0;
   }
 
-  for (speed=0;speed<player.speed;speed++) {
+
+  int speed_limiter=player.speed;
+  if (player.speed>24) {
+    speed_limiter=player.speed;//17+(player.speed-24)/8;
+  } else if (player.speed>10) {
+    speed_limiter=10+(player.speed-10)/4;
+  } else if (player.speed>5) {
+    speed_limiter=5+(player.speed-5)/2;
+  }
+  for (speed=0;speed<speed_limiter;speed++) {
     for (grav_speed=0;grav_speed<player.grav;grav_speed++) {
       //player.on_ground_id=GetOnGroundIdPlayer(player.x,player.y,5,4);
       player.on_ground_id=GetOnGroundIdPlayer(player.x,player.y,5,4);
@@ -1682,7 +1691,8 @@ void PlayerSndAct()
   }
   if (player.fast_duration==0 && player.speed>10) {
 //    PlayMemSnd(fast_mem_audio_cache,fast_mem_audio_filesize,fast_mem_audio_duration/2,1);
-    PlayMemSnd(channelSoundEffect[0].audio,channelSoundEffect[0].filesize,channelSoundEffect[0].duration/2,1);
+//    PlayMemSnd(channelSoundEffect[0].audio,channelSoundEffect[0].filesize,channelSoundEffect[0].duration/2,1);
+    PlayMemSnd(&channelSFX[0],TRUE,1);
   }
   if (player.fast_duration>0 && player.speed<=10) {
     player.fast_duration=0;
