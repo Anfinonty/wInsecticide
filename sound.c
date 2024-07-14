@@ -1,17 +1,36 @@
 
-typedef struct WavSoundEffectCache
-{
-  int16_t* audio;
-} wavSoundEffectCache;
+
+
+//https://onestepcode.com/read-wav-header/
+typedef struct WAV_HEADER {
+  char RIFF[4];
+  int ChunkSize;
+  char WAVE[4];
+  char fmt[4];
+  int Subchunk1Size;
+  short int AudioFormat;
+  short int NumOfChan;
+  int SamplesPerSec;
+  int bytesPerSec;
+  short int blockAlign;
+  short int bitsPerSample;
+  int Subchunk2Size;
+  char Subchunk2ID[4];
+} AWavHeader;
 
 
 typedef struct WavSoundEffect
 {
+  AWavHeader* wav_header;
   int duration;
   long filesize;  
   int16_t* audio;
 } wavSoundEffect;
 
+typedef struct WavSoundEffectCache
+{
+  int16_t* audio;
+} wavSoundEffectCache;
 
 typedef struct WavSFX
 {
@@ -39,6 +58,12 @@ void InitWavSFX(AWavSFX* myWavSFX, wavSoundEffect* wavSFX, wavSoundEffectCache* 
   myWavSFX->wavSFXCache=wavSFXCache;
 }
 
+void freeSoundEffectWFX(wavSoundEffect* mySoundEffect)
+{
+  if (mySoundEffect->wav_header!=NULL)
+    free(mySoundEffect->wav_header);
+}
+
 void freeSoundEffect(wavSoundEffect* mySoundEffect) 
 {
   if (mySoundEffect->audio!=NULL)
@@ -47,26 +72,35 @@ void freeSoundEffect(wavSoundEffect* mySoundEffect)
 
 
 //void loadSoundEffect(wavSoundEffect* mySoundEffect, const wchar_t* filename,WAVEFORMATEX wfx,bool skip_header)
-void loadSoundEffect(AWavSFX* mySoundEffect, const wchar_t* filename,WAVEFORMATEX wfx,bool skip_header)
+void loadSoundEffect(AWavSFX* mySoundEffect, const wchar_t* filename,bool skip_header)
 {
   freeSoundEffect(mySoundEffect->wavSFX);
+  freeSoundEffectWFX(mySoundEffect->wavSFX);
   FILE* file = _wfopen(filename, L"rb");
+  int wav_header_size=0; 
+  if (skip_header) {
+    wav_header_size=sizeof(AWavHeader); //44
+  }
   if (file) {
     fseek(file, 0, SEEK_END);
     long filesize;
-    if (skip_header) {
-      filesize = ftell(file) - 44; //<-- 44 is the size of the header
-      fseek(file, 44, SEEK_SET);
-    } else {
-      filesize = ftell(file);
-      fseek(file, 0, SEEK_SET);
-    }
+    filesize = ftell(file) - wav_header_size; 
+
+    //Alloc wav header
+    fseek(file, 0, SEEK_SET);
+    mySoundEffect->wavSFX->wav_header = malloc(wav_header_size);
+    fread(mySoundEffect->wavSFX->wav_header,1,wav_header_size,file);
+
+
+    //Alloc actual audio int16_t*
+    fseek(file, wav_header_size, SEEK_SET);
     mySoundEffect->wavSFX->audio = malloc(filesize);
     fread(mySoundEffect->wavSFX->audio, 1, filesize, file); //read once filesize
+
     fclose(file);
 
     mySoundEffect->wavSFX->filesize = filesize;
-    mySoundEffect->wavSFX->duration = (double)filesize / (wfx.nSamplesPerSec * wfx.nChannels * wfx.wBitsPerSample/8) *1000;
+    mySoundEffect->wavSFX->duration = (double)filesize / ( mySoundEffect->wavSFX->wav_header->SamplesPerSec * mySoundEffect->wavSFX->wav_header->NumOfChan * mySoundEffect->wavSFX->wav_header->bitsPerSample/8) *1000;
   }
 }
 
@@ -101,7 +135,7 @@ WAVEFORMATEX wfx_wav_sfx = {
 
 
 //https://learn.microsoft.com/en-us/windows/win32/multimedia/using-the-waveformatex-structure
-WAVEFORMATEX wfx_wav_music = {
+/*WAVEFORMATEX wfx_wav_music = {
     .wFormatTag = WAVE_FORMAT_PCM,
     .nChannels = 2, // Stereo
     .nSamplesPerSec = 44100L, // Sample rate
@@ -109,7 +143,7 @@ WAVEFORMATEX wfx_wav_music = {
     .nBlockAlign = 4,//(wfx1.nChannels * wfx1.wBitsPerSample) / 8,
     .wBitsPerSample = 16, // 16-bit audio
     .cbSize = 0
-};
+};*/
 
 
 //Responsible for handling audio async in different threads
@@ -155,7 +189,7 @@ void adjustSFXVolume(AWavSFX *mySFX, double game_volume,bool skipped_header)
 
 
 
-
+/*
 int16_t* LoadMusicWavW(const wchar_t* filename,long *datasize,int *duration)
 {
   int16_t* sounddata;
@@ -180,7 +214,7 @@ int16_t* LoadMusicWavW(const wchar_t* filename,long *datasize,int *duration)
     *duration=1;
   }
   return NULL;
-}
+}*/
 // Play stereo audio from a buffer
 //void PlayStereoAudio(const int16_t* audioBuffer, long *bufferSize) {
 //https://learn.microsoft.com/en-us/windows/win32/multimedia/using-the-waveformatex-structure
@@ -200,6 +234,18 @@ void PlayThreadSound(AWavChannelSFX* myChannelSFX, int id)
     } else {
       const int16_t* audio=myChannelSFX->wavSFX->audio;
       whdr[id].lpData = (LPSTR)audio;//(LPSTR) myChannelSFX->wavSFX->audio;
+      WAVEFORMATEX wfx_wav_music = {
+        .wFormatTag = WAVE_FORMAT_PCM,
+        .nChannels = myChannelSFX->wavSFX->wav_header->NumOfChan,
+        .nSamplesPerSec = myChannelSFX->wavSFX->wav_header->SamplesPerSec,
+        .nAvgBytesPerSec = myChannelSFX->wavSFX->wav_header->bytesPerSec,
+        .nBlockAlign = myChannelSFX->wavSFX->wav_header->blockAlign,
+        .wBitsPerSample = myChannelSFX->wavSFX->wav_header->bitsPerSample,
+        .cbSize = 0
+      };
+      waveOutOpen(&hWaveOut[id], WAVE_MAPPER, &wfx_wav_music, 0, 0, CALLBACK_NULL);
+      waveOutPrepareHeader(hWaveOut[id], &whdr[id], sizeof(WAVEHDR));
+      waveOutSetVolume(hWaveOut[id], VolumeValue(wav_out_volume*100,1));
     }
     whdr[id].dwBufferLength = bufferSize;
 

@@ -196,7 +196,14 @@ void BulletAct(int bullet_id)
 
 
       } else if (!player.time_breaker || Enemy[enemy_id]->time_breaker_immune) {//enemy
-	    allow_act=TRUE;
+        if (Bullet[bullet_id].graphics_type==6 && Bullet[bullet_id].range<=Bullet[bullet_id].start_range-120) {
+          Bullet[bullet_id].graphics_type=5;
+        }
+        if (!player.time_breaker) {
+          allow_act=TRUE;
+        } else if (Bullet[bullet_id].start_range-Bullet[bullet_id].range<50) {
+          allow_act=TRUE;
+        }
       }
       if (allow_act) { //bullet movement default
         Bullet[bullet_id].x+=cos(Bullet[bullet_id].angle)*Bullet[bullet_id].speed;
@@ -356,16 +363,30 @@ void BulletAct(int bullet_id)
 	      }
         }
 	  }*/
-        
-      StopBullet(bullet_id,FALSE); 
+      if (hit_player || Bullet[bullet_id].graphics_type!=5 || Bullet[bullet_id].range<=0) {
+        StopBullet(bullet_id,FALSE); 
         //Enemy bullet shot array arrangement
-	  for (j=Bullet[bullet_id].saved_pos;j<Enemy[enemy_id]->bullet_shot_num-1;j++) { //shift to left in enemy bullet shot arr from bullet shot
-	    Enemy[enemy_id]->bullet_shot_arr[j]=Enemy[enemy_id]->bullet_shot_arr[j+1];
-        Bullet[Enemy[enemy_id]->bullet_shot_arr[j]].saved_pos--;
+	    for (j=Bullet[bullet_id].saved_pos;j<Enemy[enemy_id]->bullet_shot_num-1;j++) { //shift to left in enemy bullet shot arr from bullet shot
+	      Enemy[enemy_id]->bullet_shot_arr[j]=Enemy[enemy_id]->bullet_shot_arr[j+1];
+          Bullet[Enemy[enemy_id]->bullet_shot_arr[j]].saved_pos--;
+        }
+        Bullet[bullet_id].saved_pos=-1;
+	    Enemy[enemy_id]->bullet_shot_arr[Enemy[enemy_id]->bullet_shot_num-1]=-1; //remove bullet from arr
+        Enemy[enemy_id]->bullet_shot_num--;
+      } else {
+        Bullet[bullet_id].angle=2*M_PI-Bullet[bullet_id].angle+2*Ground[bullet_on_ground_id]->angle; //real
+        if (Bullet[bullet_id].angle>2*M_PI) { //hreater
+          Bullet[bullet_id].angle-=2*M_PI;
+        }
+        if (Bullet[bullet_id].angle<0) {
+          Bullet[bullet_id].angle+=2*M_PI;
+        }
+     
+        if (Bullet[bullet_id].saved_ground_id==bullet_on_ground_id) { //prevents riding of wall
+          Bullet[bullet_id].range=-1;
+        }
+        Bullet[bullet_id].saved_ground_id=bullet_on_ground_id;
       }
-      Bullet[bullet_id].saved_pos=-1;
-	  Enemy[enemy_id]->bullet_shot_arr[Enemy[enemy_id]->bullet_shot_num-1]=-1; //remove bullet from arr
-      Enemy[enemy_id]->bullet_shot_num--;
     } //end of allow act
   } else {//player bullet while travelling
     bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2);
@@ -393,7 +414,7 @@ void BulletAct(int bullet_id)
         //---------------------
           StopBullet(bullet_id,FALSE);
         }
-      } else if (enemy_id==-2) {
+      } else if (enemy_id==-2) { //ricochet bullet
         if (IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) {
           Bullet[bullet_id].range=-1;
         } else { //Ricochet off ground

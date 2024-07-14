@@ -180,7 +180,8 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
             loading_wav=FALSE;
             playing_wav=FALSE;
             time_song_start=0;
-            time_song_end=0;
+            time_song_end=-1;
+            current_song_time=-1;
           }
 
 
@@ -192,8 +193,9 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
             loading_mp3=FALSE;
             loading_wav=FALSE;
             play_new_song=FALSE;
+            current_song_time=-1;
 
-            loadSoundEffect(&songSFX,L"music/tmp/tmp.wav",wfx_wav_music,FALSE);
+            loadSoundEffect(&songSFX,L"music/tmp/tmp.wav",TRUE);
             time_song_start=current_timestamp();
             time_song_end=time_song_start+songAudio.duration;
             PlayMemSnd(&songSFX,FALSE,2);
@@ -206,8 +208,9 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
             loading_mp3=FALSE;
             loading_wav=FALSE;
             play_new_song=FALSE;
+            current_song_time=-1;
 
-            loadSoundEffect(&songSFX,L"music/tmp/tmp.wav",wfx_wav_music,FALSE);
+            loadSoundEffect(&songSFX,L"music/tmp/tmp.wav",TRUE);
             time_song_start=current_timestamp();
             time_song_end=time_song_start+songAudio.duration;
             PlayMemSnd(&songSFX,FALSE,2);
@@ -221,11 +224,12 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
             loading_mp3=FALSE;
             loading_wav=FALSE;
             play_new_song=FALSE;
+            current_song_time=-1;
 
             wchar_t wav_song_playing[256];
             swprintf(wav_song_playing,256,L"music/%s",song_names[song_rand_num]);
             //song_audio=LoadMusicWavW(wav_song_playing, &song_audio_filesize, &song_duration);
-            loadSoundEffect(&songSFX,wav_song_playing,wfx_wav_music,FALSE);
+            loadSoundEffect(&songSFX,wav_song_playing,TRUE);
             time_song_start=current_timestamp();
             time_song_end=time_song_start+songAudio.duration;
             PlayMemSnd(&songSFX,FALSE,2);
@@ -266,7 +270,8 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
               waveOutReset(hWaveOut[2]);
               CloseHandle(hMemSndArray[2]);
               freeSoundEffect(&songAudio);
-              
+              current_song_time=-1;
+              time_song_end=-1;
               if (is_flac[song_rand_num]) { //loaded song is a flac
                 wchar_t my_command[512];
                 loading_flac=TRUE;
@@ -280,7 +285,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
                 //http://mpg123.de/download/win32/mpg123-1.10.1-static-x86.zip //currently used to decode mp3
                 //swprintf(my_command,512,L"madplay.exe -b 16 -Q -R 44100  \"music/%s\" -o music/tmp/tmp.wav",song_names[song_rand_num]); //not compatible with unicode/utf16
                 //swprintf(my_command,512,L"lame.exe --decode  \"music/%s\" -o music/tmp/tmp.wav",song_names[song_rand_num]); //unable to decode to a specific desired sample rate
-                swprintf(my_command,512,L"mpg123.exe -q -r 44100 -w \"music/tmp/tmp.wav\"  \"music/%s\"",song_names[song_rand_num]);
+                swprintf(my_command,512,L"mpg123.exe -q -w \"music/tmp/tmp.wav\"  \"music/%s\"",song_names[song_rand_num]);
                 _wsystem(my_command);
               } else if (is_wav[song_rand_num]) {
                 loading_wav=TRUE;

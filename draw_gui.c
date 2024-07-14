@@ -79,7 +79,25 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4)
 
     if (song_num>0) {
       wchar_t txt[32+256];
-      swprintf(txt,32+256,L"%c%d/%d%c: %s",171,song_rand_num+1,song_num,187,song_names[song_rand_num]);
+      if (time_song_end==-1 && current_song_time==-1) {
+        if (showoff%15>10) {
+          swprintf(txt,32+256,L"%c%d/%d%c: %s  [.  ]",171,song_rand_num+1,song_num,187,song_names[song_rand_num]);
+        } else if (showoff%15>5){
+          swprintf(txt,32+256,L"%c%d/%d%c: %s  [.. ]",171,song_rand_num+1,song_num,187,song_names[song_rand_num]);
+        } else {
+          swprintf(txt,32+256,L"%c%d/%d%c: %s  [...]",171,song_rand_num+1,song_num,187,song_names[song_rand_num]);
+        }
+
+      } else {
+        int songtimediff;
+        if (current_song_time!=-1)
+          songtimediff=(int)((time_song_end-current_song_time)/1000);
+        else
+          songtimediff=(int)((songAudio.duration)/1000);
+        int min=songtimediff/60;
+        int seconds=songtimediff%60;
+        swprintf(txt,32+256,L"%c%d/%d%c: %s  [%d:%02d]",171,song_rand_num+1,song_num,187,song_names[song_rand_num],min,seconds);
+      }
       //%c 187
 
       GrPrintW(hdc,x,y,txt,"",c,16,FALSE,yes_unifont);
