@@ -557,6 +557,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         if (flag_adjust_audio) {
           //freeSoundEffectCache(&keySoundEffectCache[2]);
           //keySoundEffectCache[2].audio=adjustVolumeA(keySoundEffect[2].audio,keySoundEffect[2].filesize,game_volume);
+  //freeSFXCache(mySFX);
           adjustSFXVolume(&keySFX[2],game_volume,FALSE);
           flag_adjust_audio=FALSE;
         }
@@ -803,7 +804,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       //waveOutGetVolume(hWaveOut[2],&wav_out_original_volume);
 
-
       //Delete tmp in music
       remove("music/tmp/tmp.wav");
       rmdir("music/tmp"); //remove tmp
@@ -881,6 +881,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       level_chosen=0;
       stop_playing_song=FALSE;
 
+
+
      //Load Song
       InitSongBank();
      //
@@ -893,23 +895,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //Load Player Sprites
       //canny =  (HBITMAP) LoadImageW(NULL, L"sprites/canny.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       //uncanny =  (HBITMAP) LoadImageW(NULL, L"sprites/uncanny.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-
-
-      player.osprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/player1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      player.osprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/player2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      player.osprite_jump = (HBITMAP) LoadImageW(NULL, L"sprites/player3-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-
-      player.oattack_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/player-attack-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      player.oattack_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/player-attack-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      player.oattack_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/player-attack-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      player.oattack_sprite_4 = (HBITMAP) LoadImageW(NULL, L"sprites/player-attack-4.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-
-      player.oblock_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/player-block-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      player.oblock_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/player-block-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      player.oblock_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/player-block-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-
-      player.ospin_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/player-spin.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-
 
       /*player.sprite_1 = RotateSprite(NULL, player.osprite_1,0,-1,LTRED,LTRED,-1);
       player.sprite_2 = RotateSprite(NULL, player.osprite_2,0,-1,LTRED,LTRED,-1);
@@ -942,6 +927,23 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       player.spin_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/canny.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);*/
 
+
+
+      player.osprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/player1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      player.osprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/player2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      player.osprite_jump = (HBITMAP) LoadImageW(NULL, L"sprites/player3-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+      player.oattack_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/player-attack-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      player.oattack_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/player-attack-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      player.oattack_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/player-attack-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      player.oattack_sprite_4 = (HBITMAP) LoadImageW(NULL, L"sprites/player-attack-4.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+      player.oblock_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/player-block-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      player.oblock_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/player-block-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      player.oblock_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/player-block-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+      player.ospin_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/player-spin.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
       //Load Enemy Sprites
       enemy1_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy1-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       enemy1_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy1-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
@@ -956,8 +958,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       mouse_cursor_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/player_cursor2_1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       mouse_cursor_sprite2 = (HBITMAP) LoadImageW(NULL, L"sprites/player_cursor2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
-      //mouse_cursor_sprite_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,BLACK,BLACK);
-      //mouse_cursor_sprite_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,BLACK,BLACK);
       mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
       mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
 
@@ -966,6 +966,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       mouse_cursor_sprite_pupil_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTRED,LTRED);
       mouse_cursor_sprite_pupil_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTRED,LTRED);
+
+
 
       //Load moon sprite based on lunar day
       if (lunar_day>=1 && lunar_day<=5) { //1, 2, 3, 4, 5
@@ -998,54 +1000,52 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     //https://stackoverflow.com/questions/2457482/processing-an-audio-wav-file-with-c
     //https://stackoverflow.com/questions/8754111/how-to-read-the-data-in-a-wav-file-to-an-array
       //if (load_sound && level_loaded) {
-         for (int i=0;i<SPAM_SFX_NUM;i++) {
-           InitWavSFX(&spamSFX[i],&spamSoundEffect[i],&spamSoundEffectCache[i]);
-         }
-         for (int i=0;i<KEY_SFX_NUM;i++) {
-           InitWavSFX(&keySFX[i],&keySoundEffect[i],&keySoundEffectCache[i]);
-         }
-         for (int i=0;i<CHANNEL_SFX_NUM;i++) {
-           InitWavSFX(&channelSFX[i],&channelSoundEffect[i],&channelSoundEffectCache[i]);
-         }
+       for (int i=0;i<SPAM_SFX_NUM;i++) {
+         InitWavSFX(&spamSFX[i],&spamSoundEffect[i],&spamSoundEffectCache[i]);
+       }
+       for (int i=0;i<KEY_SFX_NUM;i++) {
+         InitWavSFX(&keySFX[i],&keySoundEffect[i],&keySoundEffectCache[i]);
+       }
+       for (int i=0;i<CHANNEL_SFX_NUM;i++) {
+         InitWavSFX(&channelSFX[i],&channelSoundEffect[i],&channelSoundEffectCache[i]);
+       }
 
-         InitWavSFX(&songSFX,&songAudio,NULL);
-    
-         loadSoundEffect(&spamSFX[0],L"snd/timebreaker__start.wav",wfx_wav_sfx,FALSE);
-         loadSoundEffect(&spamSFX[1],L"snd/timebreaker__stop.wav",wfx_wav_sfx,FALSE);
-         loadSoundEffect(&spamSFX[2],L"snd/clang.wav",wfx_wav_sfx,FALSE);
+       InitWavSFX(&songSFX,&songAudio,NULL);
 
-
-         loadSoundEffect(&keySFX[0],L"snd/play_level.wav",wfx_wav_sfx,FALSE); //Enter Sound Effect (Sometimes) [0]
-         loadSoundEffect(&keySFX[1],L"snd/FE_COMMON_MB_02.wav",wfx_wav_sfx,FALSE); //Key Up Down Sound Effect [1]
-         loadSoundEffect(&keySFX[2],L"snd/FE_COMMON_MB_03.wav",wfx_wav_sfx,FALSE); //False Sound Effect --> [2]
-         loadSoundEffect(&keySFX[3],L"snd/FE_COMMON_MB_04.wav",wfx_wav_sfx,FALSE); //True Sound Effect --> [3]
-         loadSoundEffect(&keySFX[4],L"snd/FE_COMMON_MB_05.wav",wfx_wav_sfx,FALSE); //ESC Sound Effect --> [4]
-         loadSoundEffect(&keySFX[5],L"snd/FE_MB_18.wav",wfx_wav_sfx,FALSE); //Paint Sound Effect --> [5]
+       loadSoundEffect(&spamSFX[0],L"snd/timebreaker__start.wav",FALSE);
+       loadSoundEffect(&spamSFX[1],L"snd/timebreaker__stop.wav",FALSE);
+       loadSoundEffect(&spamSFX[2],L"snd/clang.wav",FALSE);
 
 
-         for (int i=0;i<KEY_SFX_NUM;i++) {
-           //keySoundEffectCache[i].audio=adjustVolumeA(keySoundEffect[i].audio,keySoundEffect[i].filesize,game_volume);
-           adjustSFXVolume(&keySFX[i],game_volume,FALSE);
-         }
-
-         loadSoundEffect(&channelSFX[0],L"snd/fast.wav",wfx_wav_sfx,TRUE);
-         loadSoundEffect(&channelSFX[1],L"snd/clang_death.wav",wfx_wav_sfx,TRUE);
-
+       loadSoundEffect(&keySFX[0],L"snd/play_level.wav",FALSE); //Enter Sound Effect (Sometimes) [0]
+       loadSoundEffect(&keySFX[1],L"snd/FE_COMMON_MB_02.wav",FALSE); //Key Up Down Sound Effect [1]
+       loadSoundEffect(&keySFX[2],L"snd/FE_COMMON_MB_03.wav",FALSE); //False Sound Effect --> [2]
+       loadSoundEffect(&keySFX[3],L"snd/FE_COMMON_MB_04.wav",FALSE); //True Sound Effect --> [3]
+       loadSoundEffect(&keySFX[4],L"snd/FE_COMMON_MB_05.wav",FALSE); //ESC Sound Effect --> [4]
+       loadSoundEffect(&keySFX[5],L"snd/FE_MB_18.wav",FALSE); //Paint Sound Effect --> [5]
 
 
-         //for wav sound effects
-         for (int i=0;i<SND_THREAD_NUM-1;i++) {
-           waveOutOpen(&hWaveOut[i], WAVE_MAPPER, &wfx_wav_sfx, 0, 0, CALLBACK_NULL);
-           waveOutPrepareHeader(hWaveOut[i], &whdr[i], sizeof(WAVEHDR));
-         }
+       for (int i=0;i<KEY_SFX_NUM;i++) {
+         //keySoundEffectCache[i].audio=adjustVolumeA(keySoundEffect[i].audio,keySoundEffect[i].filesize,game_volume);
+         adjustSFXVolume(&keySFX[i],game_volume,FALSE);
+       }
 
-         //For wav music
-         waveOutOpen(&hWaveOut[2], WAVE_MAPPER, &wfx_wav_music, 0, 0, CALLBACK_NULL);
-         long int vol=VolumeValue(10,1);
-         waveOutSetVolume(hWaveOut[2],vol);
-         waveOutPrepareHeader(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));
-      return 0;
-      break;
+       loadSoundEffect(&channelSFX[0],L"snd/fast.wav",TRUE);
+       loadSoundEffect(&channelSFX[1],L"snd/clang_death.wav",TRUE);
+
+
+
+       //for wav sound effects
+       for (int i=0;i<SND_THREAD_NUM-1;i++) {
+         waveOutOpen(&hWaveOut[i], WAVE_MAPPER, &wfx_wav_sfx, 0, 0, CALLBACK_NULL);
+         waveOutPrepareHeader(hWaveOut[i], &whdr[i], sizeof(WAVEHDR));
+       }
+
+     //For wav music
+       //waveOutOpen(&hWaveOut[2], WAVE_MAPPER, &wfx_wav_music, 0, 0, CALLBACK_NULL);
+       //waveOutPrepareHeader(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));
+       return 0;
+       break;
 
 
 

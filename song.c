@@ -310,7 +310,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
         //stop .wav player
       mem_snd_interrupt[2]=TRUE;
       waveOutReset(hWaveOut[2]);
-      CloseHandle(hMemSndArray[2]);
+      //CloseHandle(hMemSndArray[2]);
 
       playing_wav=FALSE;
       loading_flac=FALSE;
@@ -376,14 +376,21 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
           waveOutReset(hWaveOut[i]);
           mem_snd_interrupt[i]=TRUE;
         }
-        /*for (int i=0;i<SPAM_SFX_NUM;i++) {
-          if (spamSoundEffectCache[i].audio!=NULL)
-            free(spamSoundEffectCache[i].audio);
+        for (int i=0;i<SPAM_SFX_NUM;i++) {
+          //if (spamSoundEffectCache[i].audio!=NULL)
+            //free(spamSoundEffectCache[i].audio);
+          //freeSoundEffectCache(&spamSoundEffectCache[i]);
+          //freeSoundEffectCache(spamSFX[i].wavSFXCache);
+          freeSFXCache(&spamSFX[i]);
         }
         for (int i=0;i<CHANNEL_SFX_NUM;i++) {
-          if (channelSoundEffectCache[i].audio!=NULL)
-            free(channelSoundEffectCache[i].audio);
-        }*/
+          //if (channelSoundEffectCache[i].audio!=NULL)
+            //free(channelSoundEffectCache[i].audio);
+          //freeSoundEffectCache(&channelSoundEffectCache[i]);
+          //freeSoundEffectCache(channelSFX[i].wavSFXCache);
+          freeSFXCache(&channelSFX[i]);
+        }
+        //freeSoundEffectCache();
         clean_up_sound=FALSE;
       }
       Sleep(1000); //eepy loop

@@ -21,9 +21,9 @@ typedef struct WAV_HEADER {
 
 typedef struct WavSoundEffect
 {
-  AWavHeader* wav_header;
   int duration;
   long filesize;  
+  AWavHeader* wav_header;
   int16_t* audio;
 } wavSoundEffect;
 
@@ -34,6 +34,7 @@ typedef struct WavSoundEffectCache
 
 typedef struct WavSFX
 {
+  bool freed;
   wavSoundEffect* wavSFX;
   wavSoundEffectCache* wavSFXCache;
 } AWavSFX;
@@ -54,6 +55,7 @@ AWavChannelSFX memSFX[SND_THREAD_NUM];
 
 void InitWavSFX(AWavSFX* myWavSFX, wavSoundEffect* wavSFX, wavSoundEffectCache* wavSFXCache)
 {
+  myWavSFX->freed=FALSE;
   myWavSFX->wavSFX=wavSFX;
   myWavSFX->wavSFXCache=wavSFXCache;
 }
@@ -71,11 +73,18 @@ void freeSoundEffect(wavSoundEffect* mySoundEffect)
 }
 
 
+void freeSFX(AWavSFX* mySFX)
+{
+  freeSoundEffect(mySFX->wavSFX);
+  freeSoundEffectWFX(mySFX->wavSFX);
+  if (mySFX->wavSFX!=NULL)
+    free(mySFX->wavSFX);
+}
+
 //void loadSoundEffect(wavSoundEffect* mySoundEffect, const wchar_t* filename,WAVEFORMATEX wfx,bool skip_header)
 void loadSoundEffect(AWavSFX* mySoundEffect, const wchar_t* filename,bool skip_header)
 {
-  freeSoundEffect(mySoundEffect->wavSFX);
-  freeSoundEffectWFX(mySoundEffect->wavSFX);
+  freeSFX(mySoundEffect);
   FILE* file = _wfopen(filename, L"rb");
   int wav_header_size=0; 
   if (skip_header) {
@@ -108,10 +117,25 @@ void loadSoundEffect(AWavSFX* mySoundEffect, const wchar_t* filename,bool skip_h
 
 
 
-void freeSoundEffectCache(wavSoundEffectCache* mySoundEffect) 
+void freeSoundEffectCache(wavSoundEffectCache* mySoundEffectCache) 
 {
-  if (mySoundEffect->audio!=NULL)
-    free(mySoundEffect->audio);
+  if (mySoundEffectCache->audio!=NULL)
+    free(mySoundEffectCache->audio);
+}
+
+
+
+void freeSFXCache(AWavSFX* mySFX)
+{
+  //freeSoundEffectCache(mySFX->wavSFXCache);
+  mySFX->freed=TRUE;
+
+  if (mySFX->wavSFXCache->audio!=NULL)
+    free(mySFX->wavSFXCache->audio);
+
+
+  if (mySFX->wavSFXCache!=NULL)
+    free(mySFX->wavSFXCache);
 }
 
 #define SND_MEM_STACK_SIZE  100000
@@ -181,9 +205,11 @@ int16_t* adjustSFXVol(const int16_t* src, long filesize, double volumeFactor,boo
 void adjustSFXVolume(AWavSFX *mySFX, double game_volume,bool skipped_header)
 {
   //keySoundEffectCache[i].audio=adjustSFXVolume(keySoundEffect[i].audio,keySoundEffect[i].filesize,game_volume);  
-  freeSoundEffectCache(mySFX->wavSFXCache);
   //if (mySFX->wavSFXCache->audio!=NULL)
     //free(mySFX->wavSFXCache->audio);
+  if (!mySFX->freed)
+    freeSFXCache(mySFX);
+  mySFX->freed=FALSE;
   mySFX->wavSFXCache->audio = adjustSFXVol( mySFX->wavSFX->audio, mySFX->wavSFX->filesize, game_volume, skipped_header);
 }
 
@@ -266,17 +292,22 @@ void PlayThreadSound(AWavChannelSFX* myChannelSFX, int id)
 DWORD WINAPI PlayMemSnd1(LPVOID lpParam)
 {
   PlayThreadSound(&memSFX[0],0);
+  ExitThread(0);
 }
 
 DWORD WINAPI PlayMemSnd2(LPVOID lpParam)
 {
   PlayThreadSound(&memSFX[1],1);
+  ExitThread(0);
 }
 
 DWORD WINAPI PlayMemSnd3(LPVOID lpParam)
 {
   PlayThreadSound(&memSFX[2],2);
+  ExitThread(0);
 }
+
+
 
 
 void PlayMemSnd(AWavSFX* myWavSFX,bool play_cache,int thread_id) //thread 0,1,2
@@ -286,9 +317,6 @@ void PlayMemSnd(AWavSFX* myWavSFX,bool play_cache,int thread_id) //thread 0,1,2
   DWORD exitCode;
   CloseHandle(hMemSndArray[thread_id]);
   //TerminateThread(hMemSndArray[thread_id],exitCode);
-
-  //const int16_t* read_audio;
-  
 
   if (thread_id>=0 && thread_id<=2) {
       if (play_cache) {
