@@ -563,7 +563,7 @@ void DestroyGround(int i)
 {
   int lg_grid_id=0,node_grid_id=0,x=0,y=0,min=0,max=0;
   double lg_x=0,lg_y=0;
-  if (-1<Ground[i]->gradient<1) {
+  if (-1<Ground[i]->gradient && Ground[i]->gradient<1) {
     for (x=Ground[i]->x1;x<Ground[i]->x2;x++) {
       lg_y=x*Ground[i]->gradient+Ground[i]->c;
       lg_grid_id=GetGridId(x,lg_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);

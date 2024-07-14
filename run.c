@@ -830,7 +830,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         num_char='+';
       }
 
-      printf("\n~:: Solar Hijri ::~ %c\n~:: %d.%s(%d).%d // %s // [%d:%d:%d] ::~\n",
+      printf("\n~:: Solar Hijri ::~ %c\n~:: %02d.%s(%02d).%02d // %s // [%02d:%02d:%02d] ::~\n",
         num_char,
         solar_year,
         solar_months_en_txt[solar_month-1],
@@ -865,7 +865,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
 
-      printf("\n~:: %d.%s(%d).%d // %s // [%d:%d:%d] ::~\n",
+      printf("\n~:: %d.%s(%d).%d // %s // [%02d:%02d:%02d] ::~\n",
         lunar_year,
         lunar_months_en_txt[lunar_month-1],
         lunar_month,
