@@ -362,7 +362,7 @@ VGRID_SIZE,
 //!!NO CLIPPING PROTECTION BUT BLAZING FAST
 int GetOnGroundId(double x,double y,double min_range_1,double min_range_2)
 {
-  int i=0,j=-1,Ground_id=0,on_grid_id=0;
+  int i=0,Ground_id=0,on_grid_id=0;
   double ground_entity_E=0,height_from_ground=0;
   if (0<x && x<MAP_WIDTH && 0<y && y<MAP_HEIGHT) { //within bounderies
     on_grid_id=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);//maths to get grid

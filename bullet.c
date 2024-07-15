@@ -150,7 +150,6 @@ void StopBullet(int bullet_id,bool is_player)
 void BulletAct(int bullet_id)
 {
   int i=0,j=0,
-      web_id=0,
       bullet_on_ground_id=-1,
       enemy_id=Bullet[bullet_id].from_enemy_id;
   //double bm_x1=0,bm_y1=0,bm_x2=0,bm_y2=0;
@@ -580,7 +579,6 @@ void BulletSndAct(int i)
 
 void DrawBullet2(HDC hdc,int i,double x,double y,int color)
 {
-  int j=0;
   switch (Bullet[i].graphics_type) {
     case 0:
       GrCircle(hdc,x,y,2,color,-1);

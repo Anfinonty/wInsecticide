@@ -448,7 +448,7 @@ void EnemyTargetPlayer(int i)
 void EnemyLOSAct(int i)
 {
   int los_on_ground_id=0,j=0;
-  double x1=0,x2=0,y1=0,y2=0,bullet_gradient=0,bullet_c=0;
+  double x1=0,x2=0,y1=0,y2=0,bullet_gradient=0;
   bool allow_act=FALSE;
   for (j=0;j<10;j++) {//LOS Speed
     if (Enemy[i]->LOS_shot) {
@@ -497,7 +497,6 @@ void EnemyLOSAct(int i)
         Enemy[i]->LOS_left=FALSE;
       }
       bullet_gradient=GetGradient(x1,y1,x2,y2);
-      bullet_c=GetGroundC(x1,y1,bullet_gradient);
       Enemy[i]->LOS_angle=GetCosAngle(x2-x1,GetDistance(x1,y1,x2,y2));//cos(angle) = adjacent/hypothenuse
       if (bullet_gradient<=0) {
         Enemy[i]->LOS_angle=-Enemy[i]->LOS_angle;
@@ -572,9 +571,7 @@ void EnemyAct(int i)
 	j=0,
 	slash_time=1,
 	slash_time_i=0,
-	current_grid_id=0,
 	target_node=0,
-	saved_grid_id=0,
 	knock_max=0;
   double target_x=0,target_y=0;
   bool allow_act=FALSE;
@@ -874,9 +871,11 @@ void EnemyAct(int i)
         }
 
         if (Enemy[i]->species==1) {//Species 1 gravity
+          if (slash_time==1) {
           EnemySpecies1Gravity(i);
           if (Enemy[i]->in_air_timer>0) {
             Enemy[i]->in_air_timer--;
+          }
           }
         }
         /*int above_player_node1=GetGridId(

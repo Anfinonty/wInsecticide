@@ -151,7 +151,7 @@ void CleanUpNodeGrid()
 
 void CleanUpGrid()
 {
-  int i=0,j=0,x=0,y=0;
+  int i=0,j=0;
   for (i=0;i<VGRID_NUM;i++) {
     VGrid[i]->within_render_distance=FALSE;
     VGrid[i]->max_ground_num=0;

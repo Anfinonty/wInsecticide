@@ -73,9 +73,9 @@ void InitRDGrid()
   RDGrid.y1=player.y-(GR_HEIGHT/2)-2*GRID_SIZE;//top left corner y
   RDGrid.x2=player.x+(GR_WIDTH/2)+2*GRID_SIZE;//down right corner x
   RDGrid.y2=player.y+(GR_HEIGHT/2)+2*GRID_SIZE;//down right cornder y
-  /*for (int i=0;i<player.rendered_enemy_num;i++) {
+  for (int i=0;i<player.rendered_enemy_num;i++) {
     player_render_enemies[i]=-1;
-  }*/
+  }
   //player.rendered_enemy_num=0;
 
   /*for (int i=0;i<ENEMY_NUM;i++) {
@@ -402,9 +402,8 @@ void RegainWeb(int web_id)
 
 
 void PlayerAct() {
-  int i=0,speed=0,grav_speed=0,claws_l=NODE_SIZE,web_id=0;
-  double cur_dist=0,cur_angle=0,grad_x1=0,grad_y1=0,grad_x2=0,grad_y2=0;
-  double x1,x2,y1,y2;
+  int speed=0,grav_speed=0,claws_l=NODE_SIZE;
+  double grad_x1=0,grad_y1=0,grad_x2=0,grad_y2=0;
   bool allow_act=FALSE;
 
 
@@ -1666,25 +1665,6 @@ void PlayerAct() {
 
 void PlayerSndAct()
 {
-  /*wchar_t my_status[16];
-  if (player.speed>10) {
-    /*mciSendString(L"open snd/fast.wav alias player_speed",NULL,0,NULL);
-    mciSendString(L"status player_speed mode",my_status,16,NULL);
-    if (_wcsicmp(my_status,L"stopped")==0) {
-      mciSendString(L"seek player_speed to start",NULL,0,NULL);
-      mciSendString(L"play player_speed",NULL,0,NULL);
-    }*/
-
-    /*if (player.fast_duration>fast_mem_audio_duration-6) {
-      waveOutReset(hWaveOut[0]);
-      PlayMemSnd(fast_mem_audio_cache,fast_mem_audio_filesize,fast_mem_audio_duration,0);
-      player.fast_duration=0;
-    }
-  } else {
-    waveOutReset(hWaveOut[0]);
-    //mciSendString(L"pause player_speed",NULL,0,NULL);
-    //mciSendString(L"close player_speed",NULL,0,NULL);
-  }*/
   //if (player.fast_duration>=fast_mem_audio_duration/2) {
   if (player.fast_duration>=channelSoundEffect[0].duration/2) {
     player.fast_duration=0;

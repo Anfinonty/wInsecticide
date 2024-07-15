@@ -314,7 +314,7 @@ void PlayMemSnd(AWavSFX* myWavSFX,bool play_cache,int thread_id) //thread 0,1,2
 {
   mem_snd_interrupt[thread_id]=TRUE;
   waveOutReset(hWaveOut[thread_id]);
-  DWORD exitCode;
+  //DWORD exitCode;
   CloseHandle(hMemSndArray[thread_id]);
   //TerminateThread(hMemSndArray[thread_id],exitCode);
 

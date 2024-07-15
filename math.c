@@ -476,8 +476,6 @@ void PersiaLunarTime(int64_t _seconds,
     }
   }
 
-  int _start_solar_day=0;
-  int _start_solar_year=0;
   int _;
   if (print_days+1>=29) { //new moon
     lunar_day_start+=(print_days*day_seconds);
