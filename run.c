@@ -63,12 +63,6 @@ bool in_main_menu=TRUE;
 bool level_loaded=FALSE;
 bool game_over=FALSE;
 bool show_fps=FALSE;
-
-
-bool loading_mp3=FALSE;
-bool loading_flac=FALSE;
-bool loading_wav=FALSE;
-
 //bool alloc_enemy_once=TRUE;
 
 //to be used to load a level

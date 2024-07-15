@@ -18,6 +18,9 @@ bool is_mp3[2000];
 bool play_new_song=TRUE;
 bool stop_playing_song=FALSE;
 bool toggle_stop_playing_song=FALSE;
+bool loading_mp3=FALSE;
+bool loading_flac=FALSE;
+bool loading_wav=FALSE;
 bool playing_wav=FALSE;
 bool skip_song=FALSE;
 bool skipping_song=FALSE;
@@ -170,7 +173,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
         if (playing_wav) { //hi im currently playing a flac/wav
           
           current_song_time=current_timestamp();
-          if (current_song_time>time_song_end || play_new_song) { //stop playing flac when duration is over //second delay
+          if (current_song_time>time_song_end || play_new_song) { //stop playing flac when duration is over
             play_new_song=TRUE;
             loading_mp3=FALSE;
             loading_flac=FALSE;
@@ -180,10 +183,10 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
             time_song_end=-1;
             current_song_time=-1;
           }
-        }
 
 
-        if (!playing_wav) {//im not playing a wav music
+
+        } else {//im not playing a wav music
           if (loading_flac) {//loading flac or wav, flac
             playing_wav=TRUE;
             loading_flac=FALSE;
@@ -215,7 +218,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
             remove("music/tmp/tmp.wav");
             rmdir("music/tmp"); //remove tmp, manually because C is like that
 
-          } else if (loading_wav) {//loading flac or wav, wav
+          }else if (loading_wav) {//loading flac or wav, wav
             playing_wav=TRUE;
             loading_flac=FALSE;
             loading_mp3=FALSE;
@@ -239,7 +242,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
           if (play_new_song) //song status: stopped
           {
             //play new music
-            if (!loading_wav && !loading_flac && !loading_mp3) {            
+            if (!loading_wav && !loading_flac && !loading_mp3 && !playing_wav) {            
               call_help_timer=0;
               remove("music/tmp/tmp.wav");
               rmdir("music/tmp"); //remove tmp, manually because C is like that
@@ -266,8 +269,9 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
               mem_snd_interrupt[2]=TRUE;
               waveOutReset(hWaveOut[2]);
               CloseHandle(hMemSndArray[2]);
-              //current_song_time=-1;
-              //time_song_end=-1;
+              freeSoundEffect(&songAudio);
+              current_song_time=-1;
+              time_song_end=-1;
               if (is_flac[song_rand_num]) { //loaded song is a flac
                 wchar_t my_command[512];
                 loading_flac=TRUE;
@@ -286,7 +290,6 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
               } else if (is_wav[song_rand_num]) {
                 loading_wav=TRUE;
               }
-              freeSoundEffect(&songAudio);
             }
             play_new_song=FALSE;
           } //else { //song status: playing

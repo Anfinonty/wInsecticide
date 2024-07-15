@@ -558,9 +558,7 @@ void EnemySndAct(int i)
     PlaySnd(L"snd/clang_death.wav",sndid);*/
     //PlayMemSnd(cdeath_mem_audio_cache,cdeath_mem_audio_filesize,cdeath_mem_audio_duration,0);
     //PlayMemSnd(channelSoundEffectCache[1].audio,channelSoundEffect[1].filesize,channelSoundEffect[1].duration,0); //clang_death
-    if (!loading_wav && !loading_flac && !loading_mp3)
-      PlayMemSnd(&channelSFX[1],TRUE,0);
-
+    PlayMemSnd(&channelSFX[1],TRUE,0);
     Enemy[i]->play_death_snd=FALSE;
   }
 }
