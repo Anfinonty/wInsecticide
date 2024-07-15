@@ -321,10 +321,14 @@ void PlayMemSnd(AWavSFX* myWavSFX,bool play_cache,int thread_id) //thread 0,1,2
   if (thread_id>=0 && thread_id<=2) {
       if (play_cache) {
         //read_audio=myWavSFX->wavSFXCache->audio; //!!reading, not creating new!!
+        if (memSFX[thread_id].wavSFXCache!=NULL)
+          free(memSFX[thread_id].wavSFXCache);
         memSFX[thread_id].wavSFXCache=myWavSFX->wavSFXCache;
         memSFX[thread_id].is_cache=TRUE;
       } else {
         //read_audio=myWavSFX->wavSFX->audio; //!!reading, not creating new!!
+       if (memSFX[thread_id].wavSFX!=NULL)
+         free(memSFX[thread_id].wavSFX);
         memSFX[thread_id].wavSFX=myWavSFX->wavSFX;
         memSFX[thread_id].is_cache=FALSE;
       }

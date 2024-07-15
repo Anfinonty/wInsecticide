@@ -389,7 +389,11 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
           //freeSoundEffectCache(&channelSoundEffectCache[i]);
           //freeSoundEffectCache(channelSFX[i].wavSFXCache);
           freeSFXCache(&channelSFX[i]);
+          if (memSFX[i].wavSFXCache!=NULL)
+            free(memSFX[i].wavSFXCache);
         }
+
+
         //freeSoundEffectCache();
         clean_up_sound=FALSE;
       }

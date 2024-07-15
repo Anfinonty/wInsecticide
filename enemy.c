@@ -282,7 +282,7 @@ void EnemyPathFinding(int enemy_id)
 
 void EnemySpecies1Gravity(int enemy_id)
 {
-  Enemy[enemy_id]->on_ground_id=GetOnGroundId(Enemy[enemy_id]->x,Enemy[enemy_id]->y,30,29);//GetOnGroundIdE(Enemy[enemy_id]->x,Enemy[enemy_id]->y,30,29,enemy_id);    //Get Ground id
+  Enemy[enemy_id]->on_ground_id=GetOnGroundIdE(Enemy[enemy_id]->x,Enemy[enemy_id]->y,30,29,enemy_id);    //Get Ground id
 
   if (Enemy[enemy_id]->on_ground_id==-1) {//not on ground
     Enemy[enemy_id]->y+=1; //falling down
@@ -518,7 +518,7 @@ void EnemyKnockbackMove(int i)
       }
       break;
     case 1:
-      if (GetOnGroundId(Enemy[i]->x,Enemy[i]->y,24,23)!=-1) { //dont knockback enemy 
+      if (GetOnGroundId(Enemy[i]->x,Enemy[i]->y,24,23)!=-1) { //dont knockback enemy  //warning: can cause enemy to clip  through grounds
 	    allow_act=TRUE;
       }
       break;
