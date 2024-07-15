@@ -63,6 +63,12 @@ bool in_main_menu=TRUE;
 bool level_loaded=FALSE;
 bool game_over=FALSE;
 bool show_fps=FALSE;
+
+
+bool loading_mp3=FALSE;
+bool loading_flac=FALSE;
+bool loading_wav=FALSE;
+
 //bool alloc_enemy_once=TRUE;
 
 //to be used to load a level
@@ -558,7 +564,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           //freeSoundEffectCache(&keySoundEffectCache[2]);
           //keySoundEffectCache[2].audio=adjustVolumeA(keySoundEffect[2].audio,keySoundEffect[2].filesize,game_volume);
   //freeSFXCache(mySFX);
-          adjustSFXVolume(&keySFX[2],game_volume,FALSE);
+          adjustSFXVolume(&keySoundEffectCache[2],&keySoundEffect[2],game_volume,FALSE);
           flag_adjust_audio=FALSE;
         }
 
@@ -808,7 +814,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       remove("music/tmp/tmp.wav");
       rmdir("music/tmp"); //remove tmp
 
-      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៩ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1969-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1446-01-05"), TEXT("អាពីងស៊ីរុយ") ,MB_OK);
+      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៩ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1969-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1446-01-08"), TEXT("អាពីងស៊ីរុយ") ,MB_OK);
 
       //load levels in save
       GetSavesInDir(L"saves");
@@ -1000,38 +1006,27 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     //https://stackoverflow.com/questions/2457482/processing-an-audio-wav-file-with-c
     //https://stackoverflow.com/questions/8754111/how-to-read-the-data-in-a-wav-file-to-an-array
       //if (load_sound && level_loaded) {
-       for (int i=0;i<SPAM_SFX_NUM;i++) {
-         InitWavSFX(&spamSFX[i],&spamSoundEffect[i],&spamSoundEffectCache[i]);
-       }
-       for (int i=0;i<KEY_SFX_NUM;i++) {
-         InitWavSFX(&keySFX[i],&keySoundEffect[i],&keySoundEffectCache[i]);
-       }
-       for (int i=0;i<CHANNEL_SFX_NUM;i++) {
-         InitWavSFX(&channelSFX[i],&channelSoundEffect[i],&channelSoundEffectCache[i]);
-       }
 
-       InitWavSFX(&songSFX,&songAudio,NULL);
-
-       loadSoundEffect(&spamSFX[0],L"snd/timebreaker__start.wav",FALSE);
-       loadSoundEffect(&spamSFX[1],L"snd/timebreaker__stop.wav",FALSE);
-       loadSoundEffect(&spamSFX[2],L"snd/clang.wav",FALSE);
+       loadSoundEffect(&spamSoundEffect[0],L"snd/timebreaker__start.wav",FALSE);
+       loadSoundEffect(&spamSoundEffect[1],L"snd/timebreaker__stop.wav",FALSE);
+       loadSoundEffect(&spamSoundEffect[2],L"snd/clang.wav",FALSE);
 
 
-       loadSoundEffect(&keySFX[0],L"snd/play_level.wav",FALSE); //Enter Sound Effect (Sometimes) [0]
-       loadSoundEffect(&keySFX[1],L"snd/FE_COMMON_MB_02.wav",FALSE); //Key Up Down Sound Effect [1]
-       loadSoundEffect(&keySFX[2],L"snd/FE_COMMON_MB_03.wav",FALSE); //False Sound Effect --> [2]
-       loadSoundEffect(&keySFX[3],L"snd/FE_COMMON_MB_04.wav",FALSE); //True Sound Effect --> [3]
-       loadSoundEffect(&keySFX[4],L"snd/FE_COMMON_MB_05.wav",FALSE); //ESC Sound Effect --> [4]
-       loadSoundEffect(&keySFX[5],L"snd/FE_MB_18.wav",FALSE); //Paint Sound Effect --> [5]
+       loadSoundEffect(&keySoundEffect[0],L"snd/play_level.wav",FALSE); //Enter Sound Effect (Sometimes) [0]
+       loadSoundEffect(&keySoundEffect[1],L"snd/FE_COMMON_MB_02.wav",FALSE); //Key Up Down Sound Effect [1]
+       loadSoundEffect(&keySoundEffect[2],L"snd/FE_COMMON_MB_03.wav",FALSE); //False Sound Effect --> [2]
+       loadSoundEffect(&keySoundEffect[3],L"snd/FE_COMMON_MB_04.wav",FALSE); //True Sound Effect --> [3]
+       loadSoundEffect(&keySoundEffect[4],L"snd/FE_COMMON_MB_05.wav",FALSE); //ESC Sound Effect --> [4]
+       loadSoundEffect(&keySoundEffect[5],L"snd/FE_MB_18.wav",FALSE); //Paint Sound Effect --> [5]
 
 
        for (int i=0;i<KEY_SFX_NUM;i++) {
          //keySoundEffectCache[i].audio=adjustVolumeA(keySoundEffect[i].audio,keySoundEffect[i].filesize,game_volume);
-         adjustSFXVolume(&keySFX[i],game_volume,FALSE);
+         adjustSFXVolume(&keySoundEffectCache[i],&keySoundEffect[i],game_volume,FALSE);
        }
 
-       loadSoundEffect(&channelSFX[0],L"snd/fast.wav",TRUE);
-       loadSoundEffect(&channelSFX[1],L"snd/clang_death.wav",TRUE);
+       loadSoundEffect(&channelSoundEffect[0],L"snd/fast.wav",TRUE);
+       loadSoundEffect(&channelSoundEffect[1],L"snd/clang_death.wav",TRUE);
 
 
 
@@ -1147,8 +1142,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 
   SetForegroundWindow(hwnd);
   HANDLE thread1=CreateThread(NULL,0,AnimateTask01,NULL,0,NULL); //Spawm Game Logic Thread
-  HANDLE thread2=CreateThread(NULL,0,AnimateTask02,NULL,0,NULL); //Spawm Game Logic Thread
-  HANDLE thread3=CreateThread(NULL,0,SongTask,NULL,0,NULL); //Spawn Song Player Thread
+  //HANDLE thread2=CreateThread(NULL,0,AnimateTask02,NULL,0,NULL); //Spawm Game Logic Thread
+  //HANDLE thread3=CreateThread(NULL,0,SongTask,NULL,0,NULL); //Spawn Song Player Thread
 
 
   MSG msg;

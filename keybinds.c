@@ -708,7 +708,7 @@ void OptionsKeypressUp(WPARAM wParam)
            if (old_game_volume!=game_volume) {
               for (int i=0;i<KEY_SFX_NUM;i++) {
                 //keySoundEffectCache[i].audio=adjustVolumeA(keySoundEffect[i].audio,keySoundEffect[i].filesize,game_volume);
-                adjustSFXVolume(&keySFX[i],game_volume,FALSE);
+                adjustSFXVolume(&keySoundEffectCache[i],&keySoundEffect[i],game_volume,FALSE);
               }
 
               old_game_volume=game_volume;
@@ -727,7 +727,7 @@ void OptionsKeypressUp(WPARAM wParam)
          if (old_game_volume!=game_volume) { //change when not the same
             for (int i=0;i<KEY_SFX_NUM;i++) {
               //keySoundEffectCache[i].audio=adjustVolumeA(keySoundEffect[i].audio,keySoundEffect[i].filesize,game_volume);
-             adjustSFXVolume(&keySFX[i],game_volume,FALSE);
+             adjustSFXVolume(&keySoundEffectCache[i],&keySoundEffect[i],game_volume,FALSE);
             }
 
             old_game_volume=game_volume;

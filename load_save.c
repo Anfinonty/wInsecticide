@@ -81,10 +81,6 @@ wavSoundEffectCache spamSoundEffectCache[SPAM_SFX_NUM];
 wavSoundEffectCache keySoundEffectCache[KEY_SFX_NUM];
 wavSoundEffectCache channelSoundEffectCache[CHANNEL_SFX_NUM];
 
-AWavSFX spamSFX[SPAM_SFX_NUM];
-AWavSFX keySFX[KEY_SFX_NUM];
-AWavSFX channelSFX[CHANNEL_SFX_NUM];
-AWavSFX songSFX;
 
 
 

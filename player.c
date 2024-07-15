@@ -1672,7 +1672,8 @@ void PlayerSndAct()
   if (player.fast_duration==0 && player.speed>10) {
 //    PlayMemSnd(fast_mem_audio_cache,fast_mem_audio_filesize,fast_mem_audio_duration/2,1);
 //    PlayMemSnd(channelSoundEffect[0].audio,channelSoundEffect[0].filesize,channelSoundEffect[0].duration/2,1);
-    PlayMemSnd(&channelSFX[0],TRUE,1);
+//    if (!loading_wav && !loading_flac && !loading_mp3)
+//      PlayMemSnd(&channelSFX[0],TRUE,1);
   }
   if (player.fast_duration>0 && player.speed<=10) {
     player.fast_duration=0;

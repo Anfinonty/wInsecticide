@@ -21,12 +21,12 @@ void InitOnce() {
     player_bullet_color=BLACK;
   }
 
-  adjustSFXVolume(&spamSFX[0],game_volume,FALSE); //start
-  adjustSFXVolume(&spamSFX[1],game_volume,FALSE); //stop
-  adjustSFXVolume(&spamSFX[2],game_volume,FALSE); //clang
+  adjustSFXVolume(&spamSoundEffectCache[0],&spamSoundEffect[0],game_volume,FALSE); //start
+  adjustSFXVolume(&spamSoundEffectCache[1],&spamSoundEffect[1],game_volume,FALSE); //stop
+  adjustSFXVolume(&spamSoundEffectCache[2],&spamSoundEffect[2],game_volume,FALSE); //clang
 
-  adjustSFXVolume(&channelSFX[0],game_volume/5,TRUE); //speed
-  adjustSFXVolume(&channelSFX[1],game_volume,TRUE); //clang_death
+  adjustSFXVolume(&channelSoundEffectCache[0],&channelSoundEffect[0],game_volume/5,TRUE); //speed
+  adjustSFXVolume(&channelSoundEffectCache[1],&channelSoundEffect[1],game_volume,TRUE); //clang_death
 }
 
 
