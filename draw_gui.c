@@ -80,9 +80,10 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4)
     if (song_num>0) {
       wchar_t txt[32+256];
       if (time_song_end==-1 && current_song_time==-1) {
-        if (showoff%15>10) {
+        call_help_timer=0;
+        if (showoff%30<5 || showoff%30>25) {
           swprintf(txt,32+256,L"%c%d/%d%c: %s  [.  ]",171,song_rand_num+1,song_num,187,song_names[song_rand_num]);
-        } else if (showoff%15>5){
+        } else if ((showoff%30>4 && showoff%30<10) || showoff%30>19){
           swprintf(txt,32+256,L"%c%d/%d%c: %s  [.. ]",171,song_rand_num+1,song_num,187,song_names[song_rand_num]);
         } else {
           swprintf(txt,32+256,L"%c%d/%d%c: %s  [...]",171,song_rand_num+1,song_num,187,song_names[song_rand_num]);
