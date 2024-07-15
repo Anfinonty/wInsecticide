@@ -275,6 +275,7 @@ void PlayThreadSound(AWavChannelSFX* myChannelSFX, int id)
 
     // Write the audio data
     waveOutWrite(hWaveOut[id], &whdr[id], sizeof(WAVEHDR));    
+
     while (duration>0 && !mem_snd_interrupt[id]) {
       duration--;
       Sleep(1);
@@ -306,16 +307,13 @@ DWORD WINAPI PlayMemSnd3(LPVOID lpParam)
 
 
 
+
 void PlayMemSnd(AWavSFX* myWavSFX,bool play_cache,int thread_id) //thread 0,1,2
 {
-  //if (hMemSndArray[thread_id]!=NULL) {
   mem_snd_interrupt[thread_id]=TRUE;
   waveOutReset(hWaveOut[thread_id]);
-  if (hMemSndArray[thread_id]!=NULL)
-    CloseHandle(hMemSndArray[thread_id]);
   //DWORD exitCode;
-  //closeHandleSafely(hMemSndArray[thread_id]); //WARNING CAUSES CRASH
-  //}
+  CloseHandle(hMemSndArray[thread_id]);
   //TerminateThread(hMemSndArray[thread_id],exitCode);
 
   if (thread_id>=0 && thread_id<=2) {

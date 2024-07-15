@@ -263,7 +263,9 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
               }
           
               //stop .wav player
-              //freeSoundEffect(&songAudio);
+              mem_snd_interrupt[2]=TRUE;
+              waveOutReset(hWaveOut[2]);
+              CloseHandle(hMemSndArray[2]);
               //current_song_time=-1;
               //time_song_end=-1;
               if (is_flac[song_rand_num]) { //loaded song is a flac
@@ -284,13 +286,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
               } else if (is_wav[song_rand_num]) {
                 loading_wav=TRUE;
               }
-
-              mem_snd_interrupt[2]=TRUE;
-              waveOutReset(hWaveOut[2]);
-              freeSFX(&songSFX);
-              //CloseHandle(hMemSndArray[2]);
-              //closeHandleSafely(hMemSndArray[2]); //WARNING CAUSES CRASH
-
+              freeSoundEffect(&songAudio);
             }
             play_new_song=FALSE;
           } //else { //song status: playing
