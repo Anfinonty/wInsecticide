@@ -202,7 +202,7 @@ void InitLevel(HWND hwnd, HDC hdc)
   DeleteObject(mouse_cursor_sprite_cache);
   DeleteObject(mouse_cursor_sprite_cache2);
   DeleteObject(mouse_cursor_sprite_iris_cache);
-  DeleteObject(mouse_cursor_sprite_cache2);
+  DeleteObject(mouse_cursor_sprite_iris_cache2);
   DeleteObject(mouse_cursor_sprite_pupil_cache);
   DeleteObject(mouse_cursor_sprite_pupil_cache2);
 

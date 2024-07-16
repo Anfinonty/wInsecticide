@@ -167,7 +167,6 @@ int16_t* adjustSFXVol(const int16_t* src, long filesize, double volumeFactor,boo
 void adjustSFXVolume(wavSoundEffectCache* mySoundEffectCache, wavSoundEffect* mySoundEffect, double game_volume,bool skipped_header)
 {
   //keySoundEffectCache[i].audio=adjustSFXVolume(keySoundEffect[i].audio,keySoundEffect[i].filesize,game_volume);
-  freeSoundEffectCache(mySoundEffectCache);
   mySoundEffectCache->audio = adjustSFXVol( mySoundEffect->audio, mySoundEffect->filesize, game_volume, skipped_header);
 }
 
@@ -244,6 +243,9 @@ void PlayMemSnd(wavSoundEffect* mySoundEffect,wavSoundEffectCache* mySoundEffect
   //TerminateThread(hMemSndArray[thread_id],exitCode);
 
   if (thread_id>=0 && thread_id<=2) {
+      memSFX[thread_id].audio=NULL;
+      memSFX[thread_id].wav_header=NULL;
+
       if (play_cache) {
         memSFX[thread_id].audio=mySoundEffectCache->audio;
         memSFX[thread_id].is_cache=TRUE;

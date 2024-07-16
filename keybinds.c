@@ -707,6 +707,9 @@ void OptionsKeypressUp(WPARAM wParam)
            //adjust volume
            if (old_game_volume!=game_volume) {
               for (int i=0;i<KEY_SFX_NUM;i++) {
+                freeSoundEffectCache(&keySoundEffectCache[i]);
+              }
+              for (int i=0;i<KEY_SFX_NUM;i++) {
                 //keySoundEffectCache[i].audio=adjustVolumeA(keySoundEffect[i].audio,keySoundEffect[i].filesize,game_volume);
                 adjustSFXVolume(&keySoundEffectCache[i],&keySoundEffect[i],game_volume,FALSE);
               }
@@ -725,6 +728,9 @@ void OptionsKeypressUp(WPARAM wParam)
        case VK_RIGHT:
          //LIVE adjust volume
          if (old_game_volume!=game_volume) { //change when not the same
+             for (int i=0;i<KEY_SFX_NUM;i++) {
+               freeSoundEffectCache(&keySoundEffectCache[i]);
+             }
             for (int i=0;i<KEY_SFX_NUM;i++) {
               //keySoundEffectCache[i].audio=adjustVolumeA(keySoundEffect[i].audio,keySoundEffect[i].filesize,game_volume);
              adjustSFXVolume(&keySoundEffectCache[i],&keySoundEffect[i],game_volume,FALSE);

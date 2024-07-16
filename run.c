@@ -559,7 +559,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           //freeSoundEffectCache(&keySoundEffectCache[2]);
           //keySoundEffectCache[2].audio=adjustVolumeA(keySoundEffect[2].audio,keySoundEffect[2].filesize,game_volume);
   //freeSFXCache(mySFX);
-          adjustSFXVolume(&keySoundEffectCache[2],&keySoundEffect[2],game_volume,FALSE);
+          freeSoundEffectCache(&keySoundEffectCache[2]);
+         adjustSFXVolume(&keySoundEffectCache[2],&keySoundEffect[2],game_volume,FALSE);// keySoundEffectCache[2].audio=adjustSFXVolume(keySoundEffect[2].audio,keySoundEffect[2].filesize,game_volume,FALSE);
           flag_adjust_audio=FALSE;
         }
 
@@ -740,7 +741,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DeleteObject(mouse_cursor_sprite_cache);
             DeleteObject(mouse_cursor_sprite_cache2);
             DeleteObject(mouse_cursor_sprite_iris_cache);
-            DeleteObject(mouse_cursor_sprite_cache2);
+            DeleteObject(mouse_cursor_sprite_iris_cache2);
             DeleteObject(mouse_cursor_sprite_pupil_cache);
             DeleteObject(mouse_cursor_sprite_pupil_cache2);
 
@@ -1018,6 +1019,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
        for (int i=0;i<KEY_SFX_NUM;i++) {
          //keySoundEffectCache[i].audio=adjustVolumeA(keySoundEffect[i].audio,keySoundEffect[i].filesize,game_volume);
          adjustSFXVolume(&keySoundEffectCache[i],&keySoundEffect[i],game_volume,FALSE);
+         //keySoundEffectCache[i].audio=adjustSFXVolume(keySoundEffect[i].audio,keySoundEffect[i].filesize,game_volume,FALSE);
        }
 
        loadSoundEffect(&channelSoundEffect[0],L"snd/fast.wav",TRUE);

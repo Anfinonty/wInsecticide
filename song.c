@@ -379,12 +379,12 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
           waveOutReset(hWaveOut[i]);
           mem_snd_interrupt[i]=TRUE;
         }
-        /*for (int i=0;i<SPAM_SFX_NUM;i++) {
+        for (int i=0;i<SPAM_SFX_NUM;i++) {
           freeSoundEffectCache(&spamSoundEffectCache[i]);
         }
         for (int i=0;i<CHANNEL_SFX_NUM;i++) {
           freeSoundEffectCache(&channelSoundEffectCache[i]);
-        }*/
+        }
 
 
         //freeSoundEffectCache();

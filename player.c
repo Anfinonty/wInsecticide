@@ -1621,7 +1621,7 @@ void PlayerAct() {
           if (game_audio) {
             //PlaySound(L"snd/timebreaker__stop.wav", NULL, SND_FILENAME | SND_ASYNC);
             //PlaySound(tb_stop_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
-            PlaySound(spamSoundEffect[1].audio, NULL, SND_MEMORY | SND_ASYNC);
+            PlaySound(spamSoundEffectCache[1].audio, NULL, SND_MEMORY | SND_ASYNC);
           }
         }
       }
