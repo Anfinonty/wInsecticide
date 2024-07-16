@@ -266,9 +266,8 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
               }
           
               //stop .wav player
-              //freeSoundEffect(&songAudio);
-              //current_song_time=-1;
-              //time_song_end=-1;
+              current_song_time=-1;
+              time_song_end=-1;
               if (is_flac[song_rand_num]) { //loaded song is a flac
                 wchar_t my_command[512];
                 loading_flac=TRUE;
