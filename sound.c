@@ -34,6 +34,17 @@ typedef struct WavSoundEffectCache
 
 
 #define SND_THREAD_NUM    3
+typedef struct threadSFX
+{
+  bool is_cache;
+  int duration;
+  long filesize;
+  AWavHeader* wav_header;
+  int16_t* audio;
+} AWavChannelSFX;
+
+AWavChannelSFX memSFX[SND_THREAD_NUM];
+
 //AWavChannelSFX memSFX[SND_THREAD_NUM];
 
 
@@ -49,11 +60,17 @@ void freeSoundEffect(wavSoundEffect* mySoundEffect)
     free(mySoundEffect->audio);
 }
 
+
+void freeSoundEffectCache(wavSoundEffectCache* mySoundEffectCache) 
+{
+  if (mySoundEffectCache->audio!=NULL)
+    free(mySoundEffectCache->audio);
+}
+
+
 //void loadSoundEffect(wavSoundEffect* mySoundEffect, const wchar_t* filename,WAVEFORMATEX wfx,bool skip_header)
 void loadSoundEffect(wavSoundEffect* mySoundEffect,const wchar_t* filename,bool skip_header)
 {
-  freeSoundEffectWFX(mySoundEffect);
-  freeSoundEffect(mySoundEffect);
   FILE* file = _wfopen(filename, L"rb");
   int wav_header_size=0; 
   if (skip_header) {
@@ -80,13 +97,6 @@ void loadSoundEffect(wavSoundEffect* mySoundEffect,const wchar_t* filename,bool 
     mySoundEffect->filesize = filesize;
     mySoundEffect->duration = (double)filesize / ( mySoundEffect->wav_header->SamplesPerSec * mySoundEffect->wav_header->NumOfChan * mySoundEffect->wav_header->bitsPerSample/8) *1000;
   }
-}
-
-
-void freeSoundEffectCache(wavSoundEffectCache* mySoundEffectCache) 
-{
-  if (mySoundEffectCache->audio!=NULL)
-    free(mySoundEffectCache->audio);
 }
 
 
@@ -156,62 +166,32 @@ int16_t* adjustSFXVol(const int16_t* src, long filesize, double volumeFactor,boo
 
 void adjustSFXVolume(wavSoundEffectCache* mySoundEffectCache, wavSoundEffect* mySoundEffect, double game_volume,bool skipped_header)
 {
-  //keySoundEffectCache[i].audio=adjustSFXVolume(keySoundEffect[i].audio,keySoundEffect[i].filesize,game_volume);  
+  //keySoundEffectCache[i].audio=adjustSFXVolume(keySoundEffect[i].audio,keySoundEffect[i].filesize,game_volume);
+  freeSoundEffectCache(mySoundEffectCache);
   mySoundEffectCache->audio = adjustSFXVol( mySoundEffect->audio, mySoundEffect->filesize, game_volume, skipped_header);
 }
 
-
-
-/*
-int16_t* LoadMusicWavW(const wchar_t* filename,long *datasize,int *duration)
-{
-  int16_t* sounddata;
-  FILE* file = _wfopen(filename, L"rb");
-  if (file) {
-    fseek(file, 0, SEEK_END);
-    long file_size = ftell(file) - 44; //<-- 44 is the size of the header
-    fseek(file, 44, SEEK_SET);
-
-    sounddata = malloc(file_size);
-    fread(sounddata, 1, file_size, file); //read once filesize
-    
-    fclose(file);
-
-    *datasize=file_size;
-    //https://forum.lazarus.freepascal.org/index.php?topic=24547.0
-    //duration = filesize in bytes / (samplerate * #of channels * (bitspersample/eight))
-    *duration = (double)file_size / (44100L * 2 * 16/8) *1000;
-    return sounddata;
-  } else {
-    *datasize=0;
-    *duration=1;
-  }
-  return NULL;
-}*/
 // Play stereo audio from a buffer
 //void PlayStereoAudio(const int16_t* audioBuffer, long *bufferSize) {
 //https://learn.microsoft.com/en-us/windows/win32/multimedia/using-the-waveformatex-structure
 
 //void PlayThreadSound(const int16_t* audioBuffer, long bufferSize, int duration, int id) 
-/*void PlayThreadSound(AWavChannelSFX* myChannelSFX, int id) 
+void PlayThreadSound(AWavChannelSFX* myChannelSFX, int id) 
 {
     long bufferSize=myChannelSFX->filesize;
     int duration=myChannelSFX->duration;
     bool is_cache=myChannelSFX->is_cache;
 
-
     mem_snd_interrupt[id]=FALSE;
-    if (is_cache) {
-      whdr[id].lpData = (LPSTR)myChannelSFX->wavSFXCache->audio;//(LPSTR);
-    } else {
-      whdr[id].lpData = (LPSTR)myChannelSFX->wavSFX->audio;//(LPSTR) myChannelSFX->wavSFX->audio;
+    whdr[id].lpData = (LPSTR)myChannelSFX->audio;//(LPSTR);
+    if (!is_cache) {
       WAVEFORMATEX wfx_wav_music = {
         .wFormatTag = WAVE_FORMAT_PCM,
-        .nChannels = myChannelSFX->wavSFX->wav_header->NumOfChan,
-        .nSamplesPerSec = myChannelSFX->wavSFX->wav_header->SamplesPerSec,
-        .nAvgBytesPerSec = myChannelSFX->wavSFX->wav_header->bytesPerSec,
-        .nBlockAlign = myChannelSFX->wavSFX->wav_header->blockAlign,
-        .wBitsPerSample = myChannelSFX->wavSFX->wav_header->bitsPerSample,
+        .nChannels = myChannelSFX->wav_header->NumOfChan,
+        .nSamplesPerSec = myChannelSFX->wav_header->SamplesPerSec,
+        .nAvgBytesPerSec = myChannelSFX->wav_header->bytesPerSec,
+        .nBlockAlign = myChannelSFX->wav_header->blockAlign,
+        .wBitsPerSample = myChannelSFX->wav_header->bitsPerSample,
         .cbSize = 0
       };
       waveOutOpen(&hWaveOut[id], WAVE_MAPPER, &wfx_wav_music, 0, 0, CALLBACK_NULL);
@@ -228,11 +208,9 @@ int16_t* LoadMusicWavW(const wchar_t* filename,long *datasize,int *duration)
     }
     mem_snd_interrupt[id]=FALSE;
 }
-*/
 
 
 
-/*
 DWORD WINAPI PlayMemSnd1(LPVOID lpParam)
 {
   PlayThreadSound(&memSFX[0],0);
@@ -250,10 +228,10 @@ DWORD WINAPI PlayMemSnd3(LPVOID lpParam)
   PlayThreadSound(&memSFX[2],2);
   ExitThread(0);
 }
-*/
 
 
-/*void PlayMemSnd(AWavSFX* myWavSFX,bool play_cache,int thread_id) //thread 0,1,2
+
+void PlayMemSnd(wavSoundEffect* mySoundEffect,wavSoundEffectCache* mySoundEffectCache,bool play_cache,int thread_id) //thread 0,1,2
 {
   //if (hMemSndArray[thread_id]!=NULL) {
   mem_snd_interrupt[thread_id]=TRUE;
@@ -265,24 +243,17 @@ DWORD WINAPI PlayMemSnd3(LPVOID lpParam)
   //}
   //TerminateThread(hMemSndArray[thread_id],exitCode);
 
-  /*if (thread_id>=0 && thread_id<=2) {
+  if (thread_id>=0 && thread_id<=2) {
       if (play_cache) {
-        //read_audio=myWavSFX->wavSFXCache->audio; //!!reading, not creating new!!
-        //if (memSFX[thread_id].wavSFXCache!=NULL)
-          //free(memSFX[thread_id].wavSFXCache);
-        memSFX[thread_id].wavSFXCache=myWavSFX->wavSFXCache;
+        memSFX[thread_id].audio=mySoundEffectCache->audio;
         memSFX[thread_id].is_cache=TRUE;
       } else {
-        //read_audio=myWavSFX->wavSFX->audio; //!!reading, not creating new!!
-       //if (memSFX[thread_id].wavSFX!=NULL)
-         //free(memSFX[thread_id].wavSFX);
-        memSFX[thread_id].wavSFX=myWavSFX->wavSFX;
+        memSFX[thread_id].audio=mySoundEffect->audio;
+        memSFX[thread_id].wav_header=mySoundEffect->wav_header;
         memSFX[thread_id].is_cache=FALSE;
       }
-      //memSoundEffect[thread_id].audio=read_audio; //!!reading, not creating new!!
-      //memSoundEffect[thread_id].duration=myWavSFX->wavSFX->duration;
-      memSFX[thread_id].duration=myWavSFX->wavSFX->duration;
-      memSFX[thread_id].filesize=myWavSFX->wavSFX->filesize;
+      memSFX[thread_id].duration=mySoundEffect->duration;
+      memSFX[thread_id].filesize=mySoundEffect->filesize;
       switch (thread_id) {
         case 0:
           hMemSndArray[0] = CreateThread(NULL,0,PlayMemSnd1,NULL,0,NULL);
@@ -294,9 +265,8 @@ DWORD WINAPI PlayMemSnd3(LPVOID lpParam)
           hMemSndArray[2] = CreateThread(NULL,0,PlayMemSnd3,NULL,0,NULL);
           break;
       }
-  }*/
-
-//}
+  }
+}
 
 
 

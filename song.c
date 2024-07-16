@@ -19,6 +19,9 @@ bool play_new_song=TRUE;
 bool stop_playing_song=FALSE;
 bool toggle_stop_playing_song=FALSE;
 bool playing_wav=FALSE;
+bool loading_mp3=FALSE;
+bool loading_flac=FALSE;
+bool loading_wav=FALSE;
 bool skip_song=FALSE;
 bool skipping_song=FALSE;
 
@@ -195,7 +198,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
             loadSoundEffect(&songAudio,L"music/tmp/tmp.wav",TRUE);
             time_song_start=current_timestamp();
             time_song_end=time_song_start+songAudio.duration;
-//            PlayMemSnd(&songSFX,FALSE,2);
+            PlayMemSnd(&songAudio,NULL,FALSE,2);
 
             remove("music/tmp/tmp.wav");
             rmdir("music/tmp"); //remove tmp, manually because C is like that
@@ -210,10 +213,10 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
             loadSoundEffect(&songAudio,L"music/tmp/tmp.wav",TRUE);
             time_song_start=current_timestamp();
             time_song_end=time_song_start+songAudio.duration;
-//            PlayMemSnd(&songSFX,FALSE,2);
+            PlayMemSnd(&songAudio,NULL,FALSE,2);
 
-            remove("music/tmp/tmp.wav");
-            rmdir("music/tmp"); //remove tmp, manually because C is like that
+            //remove("music/tmp/tmp.wav");
+            //rmdir("music/tmp"); //remove tmp, manually because C is like that
 
           } else if (loading_wav) {//loading flac or wav, wav
             playing_wav=TRUE;
@@ -229,11 +232,11 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
             loadSoundEffect(&songAudio,wav_song_playing,TRUE);
             time_song_start=current_timestamp();
             time_song_end=time_song_start+songAudio.duration;
-//            PlayMemSnd(&songSFX,FALSE,2);
+            PlayMemSnd(&songAudio,NULL,FALSE,2);
 
             //attempt to remove left overs
-            remove("music/tmp/tmp.wav");
-            rmdir("music/tmp"); //remove tmp, manually because C is like that
+            //remove("music/tmp/tmp.wav");
+            //rmdir("music/tmp"); //remove tmp, manually because C is like that
           } else { //not loading song 
 
           if (play_new_song) //song status: stopped
@@ -287,10 +290,8 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
 
               mem_snd_interrupt[2]=TRUE;
               waveOutReset(hWaveOut[2]);
-              //freeSFX(&songSFX);
-              //CloseHandle(hMemSndArray[2]);
-              //closeHandleSafely(hMemSndArray[2]); //WARNING CAUSES CRASH
-
+              freeSoundEffectWFX(&songAudio); //Free Header
+              freeSoundEffect(&songAudio); // Free audio int16_t*
             }
             play_new_song=FALSE;
           } //else { //song status: playing
@@ -311,13 +312,14 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
         //stop .wav player
       mem_snd_interrupt[2]=TRUE;
       waveOutReset(hWaveOut[2]);
-      //CloseHandle(hMemSndArray[2]);
+      CloseHandle(hMemSndArray[2]);
+      freeSoundEffectWFX(&songAudio); //Free Header
+      freeSoundEffect(&songAudio); // Free audio int16_t*
 
       playing_wav=FALSE;
       loading_flac=FALSE;
       loading_mp3=FALSE;
       loading_wav=FALSE;
-      freeSoundEffect(&songAudio);
 
 
       toggle_stop_playing_song=FALSE;
@@ -378,20 +380,10 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
           mem_snd_interrupt[i]=TRUE;
         }
         /*for (int i=0;i<SPAM_SFX_NUM;i++) {
-          //if (spamSoundEffectCache[i].audio!=NULL)
-            //free(spamSoundEffectCache[i].audio);
-          //freeSoundEffectCache(&spamSoundEffectCache[i]);
-          //freeSoundEffectCache(spamSFX[i].wavSFXCache);
-          freeSFXCache(&spamSFX[i]);
+          freeSoundEffectCache(&spamSoundEffectCache[i]);
         }
         for (int i=0;i<CHANNEL_SFX_NUM;i++) {
-          //if (channelSoundEffectCache[i].audio!=NULL)
-            //free(channelSoundEffectCache[i].audio);
-          //freeSoundEffectCache(&channelSoundEffectCache[i]);
-          //freeSoundEffectCache(channelSFX[i].wavSFXCache);
-          freeSFXCache(&channelSFX[i]);
-          if (memSFX[i].wavSFXCache!=NULL)
-            free(memSFX[i].wavSFXCache);
+          freeSoundEffectCache(&channelSoundEffectCache[i]);
         }*/
 
 
