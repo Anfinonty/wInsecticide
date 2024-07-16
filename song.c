@@ -215,8 +215,8 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
             time_song_end=time_song_start+songAudio.duration;
             PlayMemSnd(&songAudio,NULL,FALSE,2);
 
-            //remove("music/tmp/tmp.wav");
-            //rmdir("music/tmp"); //remove tmp, manually because C is like that
+            remove("music/tmp/tmp.wav");
+            rmdir("music/tmp"); //remove tmp, manually because C is like that
 
           } else if (loading_wav) {//loading flac or wav, wav
             playing_wav=TRUE;
@@ -235,8 +235,8 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
             PlayMemSnd(&songAudio,NULL,FALSE,2);
 
             //attempt to remove left overs
-            //remove("music/tmp/tmp.wav");
-            //rmdir("music/tmp"); //remove tmp, manually because C is like that
+            remove("music/tmp/tmp.wav");
+            rmdir("music/tmp"); //remove tmp, manually because C is like that
           } else { //not loading song 
 
           if (play_new_song) //song status: stopped
