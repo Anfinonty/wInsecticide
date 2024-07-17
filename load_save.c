@@ -139,6 +139,11 @@ saves
 */
 void GetSavesInDir(const wchar_t *dirname)
 {
+  for (int i=0;i<level_num;i++) {
+    level_names[i][0]='\0';
+  }
+  level_num=0;
+
   _WDIR *d;
   struct _wdirent *dir; //https://castor-project.org/doc/castor3_0/struct__wdirent.html
   d = _wopendir(dirname);//

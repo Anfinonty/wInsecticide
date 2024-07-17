@@ -22,11 +22,12 @@
 #include <math.h>
 #include <limits.h>
 #include <dirent.h>
+#include <direct.h>
 #include <errno.h>
-//#include <clocale>
-//#include <curses.h>
 #include <shlwapi.h>
 #include <mmsystem.h>
+//#include <clocale>
+//#include <curses.h>
 //#include <audioclient.h>
 //#include <locale.h>
 //#include <libsndfile.h> // Make sure to install libsndfile and link it during compilation
@@ -192,7 +193,7 @@ double moon_angle_shift=0;
 #define MAX_MAP_NODE_NUM (640*20)/NODE_SIZE * (480*20)/NODE_SIZE //MAX_WIDTH/NODE_SIZE * MAX_HEIGHT/NODE_SIZE
 #define MAX_VGRID_NUM   4800 //(640/160)*20 * (480/160)*20
 //#define MAX_GRID_NUM    4800
-#define MAX_GROUND_NUM  1000
+#define MAX_GROUND_NUM  2000
 #define MAX_ENEMY_NUM   200//50
 
 

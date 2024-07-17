@@ -974,6 +974,90 @@ void TwoMenuKeypressDown(WPARAM wParam)
 
 
 
+
+/*
+level.txt format
+GROUND_NUM
+ENEMY_NUM
+MAP_WIDTH
+MAP_HEIGHT
+
+
+
+
+
+saved_ground_x1
+saved_ground_y1
+saved_ground_x2
+saved_ground-y2
+saved_ground_x3
+saved_ground_y3
+
+saved_ground_is_ghost
+saved_ground_is_color
+
+saved_ground_type
+saved_ground_text
+
+
+
+
+
+
+saved_enemy_type
+saved_enemy_x
+saved_enemy_y
+
+saved_enemy_type_speed
+saved_enemy_type_bullet_speed
+saved_enemy_type_species
+saved_enemy_type_follow_range
+saved_enemy_type_unchase_range
+saved_enemy_type_chase_range
+saved_enemy_type_color
+saved_enemy_type_speed
+saved_enemy_type_health
+saved_enemy_type_shoot_at_player_range
+saved_enemy_type_aim_rand
+
+saved_enemy_type_bullet_cooldown
+saved_enemy_type_bullet_fire_cooldown
+saved_enemy_type_bullet_fire_at_once
+saved_enemy_type_bullet_length
+saved_enemy_type_bullet_damage
+saved_enemy_type_bullet_speed_multiplier
+saved_enemy_type_bullet_range
+saved_enemy_type_bullet_color
+saved_enemy_type_bullet_graphics_type
+
+saved_enemy_type_time_Breaker_rare
+saved_enemy_type_time_Breaker_length
+saved_enemy_type_time_Breaker_immune
+
+
+
+
+
+
+
+saved_player_x
+saved_player_y
+map_background
+custom_map_background_color
+is_inverted
+...
+*/
+
+
+//If folder not found
+//Create folder
+//|_->images folder
+//|_->scores folder
+//|_->song folder
+//|->level.txt
+
+//Else print error (folder exists!)
+
 void TwoMenuKeypressUp(WPARAM wParam)
 {
     switch (wParam) {
@@ -985,7 +1069,200 @@ void TwoMenuKeypressUp(WPARAM wParam)
          }
          break;
 
-        case VK_RETURN:
+        case VK_RETURN: //Create New Levels
+        {
+          _WDIR *d;
+          struct _wdirent *dir;
+          wchar_t create_lvl_name[32];
+          swprintf(create_lvl_name,32,L"saves/%s",typing_lvl_name);
+          if (typing_lvl_name_pos>0 && (set_map_width_amount/160*set_map_height_amount/160)<4801) {
+            d = _wopendir(create_lvl_name);
+            if (d) {
+              _wclosedir(d);
+            } else {
+              //Create New Folder
+              _wmkdir(create_lvl_name);
+              if (game_audio)
+                PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
+
+              //Create Subfolders
+              wchar_t create_lvl_name_sub1[48];
+              swprintf(create_lvl_name_sub1,48,L"%s/images",create_lvl_name);
+              _wmkdir(create_lvl_name_sub1);
+              wchar_t create_lvl_name_sub2[48];
+              swprintf(create_lvl_name_sub2,48,L"%s/scores",create_lvl_name);
+              _wmkdir(create_lvl_name_sub2);
+              wchar_t create_lvl_name_sub3[48];
+              swprintf(create_lvl_name_sub3,48,L"%s/song",create_lvl_name);
+              _wmkdir(create_lvl_name_sub3);
+
+
+              FILE *fptr;
+              wchar_t create_lvl_name[64];
+              swprintf(create_lvl_name,64,L"saves/%s/level.txt",typing_lvl_name);
+              fptr = _wfopen(create_lvl_name,L"w");
+
+
+              //beginning attributes
+              fprintf(fptr,"%d;\n",set_ground_amount);
+              fprintf(fptr,"%d;\n",set_enemy_amount);
+              fprintf(fptr,"%d;\n",set_map_width_amount);
+              fprintf(fptr,"%d;\n",set_map_height_amount);
+
+
+              //GROUND
+              for (int j=0;j<6;j++) { //x1,y1,x2,y2,x3,y3
+                for (int i=0;i<set_ground_amount;i++) {
+                  if (i==0) {//first ground
+                    switch (j) {
+                      case 0://x1
+                        fprintf(fptr,"2,");
+                        break;
+                      case 1://y1
+                        fprintf(fptr,"450,");
+                        break;
+                      case 2://x2
+                        fprintf(fptr,"639,");
+                        break;
+                      case 3://y2
+                        fprintf(fptr,"412,");
+                        break;
+                      default:
+                        fprintf(fptr,"-20,");
+                        break;
+                    }
+                  } else {
+                    fprintf(fptr,"-20,");
+                  }
+                }
+                fprintf(fptr,";\n");
+              }
+
+              for (int j=0;j<3;j++) {
+                for (int i=0;i<set_ground_amount;i++) {//is_ghost,color,type
+                  fprintf(fptr,"0,");
+                }
+                fprintf(fptr,";\n");
+              } 
+
+              for (int i=0;i<set_ground_amount;i++) {//text
+                fprintf(fptr,"\"\",");
+              }
+              fprintf(fptr,";\n");
+
+
+
+              //Enemy
+              for (int i=0;i<set_enemy_amount;i++) { //type
+                fprintf(fptr,"0,");
+              }
+              fprintf(fptr,";\n");
+
+
+              for (int i=0;i<set_enemy_amount;i++) { //x
+                fprintf(fptr,"483,");
+              }
+              fprintf(fptr,";\n");
+
+
+              for (int i=0;i<set_enemy_amount;i++) { //y
+                fprintf(fptr,"306,");
+              }
+              fprintf(fptr,";\n");
+
+              //enemy Type
+              for (int j=0;j<2;j++) {
+                for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+                  fprintf(fptr,"1.0,");
+                }
+                fprintf(fptr,";\n");
+              }
+
+              for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+                fprintf(fptr,"0,");
+              }
+              fprintf(fptr,";\n");
+
+              for (int j=0;j<2;j++) {
+                for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+                  fprintf(fptr,"1,");
+                }
+                fprintf(fptr,";\n");
+              }
+
+              for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+                fprintf(fptr,"100,");
+              }
+              fprintf(fptr,";\n");
+
+              for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+                fprintf(fptr,"0,");
+              }
+              fprintf(fptr,";\n");
+
+              for (int j=0;j<3;j++) {
+                for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+                  fprintf(fptr,"1,");
+                }
+                fprintf(fptr,";\n");
+              }
+ 
+              for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+                fprintf(fptr,"0,");
+              }
+              fprintf(fptr,";\n");
+
+              for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+                fprintf(fptr,"500,");
+              }
+              fprintf(fptr,";\n");
+
+              for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+                fprintf(fptr,"0,");
+              }
+              fprintf(fptr,";\n");
+
+              for (int j=0;j<6;j++) {
+                for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+                  fprintf(fptr,"1,");
+                }
+                fprintf(fptr,";\n");
+              }
+
+              for (int j=0;j<4;j++) {
+                for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+                  fprintf(fptr,"0,");
+                }
+                fprintf(fptr,";\n");
+              }
+
+
+              fprintf(fptr,"228;\n"); //player x
+              fprintf(fptr,"400;\n"); //player y
+
+              fprintf(fptr,"2;\n");
+              fprintf(fptr,"15;\n");
+              fprintf(fptr,"0;\n");
+
+
+              fclose(fptr);
+              GetSavesInDir(L"saves");
+
+
+              typing_lvl_name_pos=0;
+              typing_lvl_name[0]='\0';
+              set_ground_amount=10;
+              set_enemy_amount=1;
+              set_map_width_amount=640;
+              set_map_height_amount=480;
+
+              
+              main_menu_chosen=0;
+            }
+          } else {         
+            printf("Level Not Found\n");
+          }
+        }
           break;
     }
 }

@@ -291,7 +291,7 @@ lunar_year
   char page_num[32];
   //Print Loaded Levels to Choose
   switch (main_menu_chosen) {
-    case -1: {
+    case -1: { //Main menu
 /*      GrPrintA(hdc,30,main_menu_y,L"\n\
 \n\
 \n\
@@ -326,6 +326,8 @@ lunar_year
     }
       break;
      
+
+    //Level chooser
     case 0:
       sprintf(page_num,"Levels - [%d/%d]",(level_chosen/max_lvl_rows)+1,(level_num/max_lvl_rows)+1);
       GrPrint(hdc,30,main_menu_y+10+32,page_num,WHITE);
@@ -368,6 +370,7 @@ lunar_year
       break;
 
 
+    //Game Options
     case 1:
       GrPrint(hdc,30,main_menu_y+10+16*2,"Options:",WHITE);
       //GrPrint(hdc,30,main_menu_y+10+16*4,"[SHIFT_ESC]: Exit",WHITE);
@@ -542,7 +545,7 @@ lunar_year
 
 
 
-    case 2:
+    case 2: //Create New Level 
       GrPrint(hdc,30,main_menu_y+10+16*2,"Create New Level",WHITE);
 
      // GrPrintW(hdc,30,main_menu_y+10+16*5,L"[SHIFT] + 'L': Unifont [ពេលរាត្រី]","",WHITE,16,FALSE,yes_unifont);
@@ -588,7 +591,7 @@ lunar_year
       int map_ratio2=set_map_height_amount/160;
       int calc_grid_value=map_ratio1*map_ratio2;
       char print_calc_grid_value[32];
-      sprintf(print_calc_grid_value,"%d (Must be less than 4800)",(set_map_width_amount/160*set_map_height_amount/160));
+      sprintf(print_calc_grid_value,"%d (Must be less than 4800)",map_ratio1*map_ratio2);
 
       c=Highlight(calc_grid_value>MAX_VGRID_NUM,WHITE,LTRED);
       GrPrint(hdc,30,create_lvl_y+16*7,"Grid Amount:",c);
