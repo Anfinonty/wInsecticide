@@ -147,11 +147,19 @@ int GetSongsInDir(const wchar_t *dirname,const wchar_t *indirname, int song_num)
   return song_num;
 }
 
-
-void InitSongBank() {
-  song_num=GetSongsInDir(L"music",L"",0);
+void ResetSongBank() {
+  for (int i=0;i<song_num;i++) {
+    song_names[i][0]='\0';
+    is_flac[i]=is_mp3[i]=is_wav[i]=FALSE;
+  }
+  song_num=0;
 }
 
+
+void InitSongBank() {
+  ResetSongBank();
+  song_num=GetSongsInDir(L"music",L"",0);
+}
 
 
 
@@ -227,7 +235,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
             current_song_time=-1;
 
             wchar_t wav_song_playing[256];
-            swprintf(wav_song_playing,256,L"music/%s",song_names[song_rand_num]);
+            swprintf(wav_song_playing,256,L"%s/%s",src_music_dir,song_names[song_rand_num]);
             //song_audio=LoadMusicWavW(wav_song_playing, &song_audio_filesize, &song_duration);
             loadSoundEffect(&songAudio,wav_song_playing,TRUE);
             time_song_start=current_timestamp();
@@ -268,11 +276,12 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
               //stop .wav player
               current_song_time=-1;
               time_song_end=-1;
+
               if (is_flac[song_rand_num]) { //loaded song is a flac
                 wchar_t my_command[512];
                 loading_flac=TRUE;
                 system("mkdir \"music/tmp\""); //make new tmp
-                swprintf(my_command,512,L"flac.exe --totally-silent -d -f \"music/%s\" -o music/tmp/tmp.wav",song_names[song_rand_num]);
+                swprintf(my_command,512,L"flac.exe --totally-silent -d -f \"%s/%s\" -o music/tmp/tmp.wav",src_music_dir,song_names[song_rand_num]); //correct later
                 _wsystem(my_command);
               } else if (is_mp3[song_rand_num]) {
                 wchar_t my_command[512];
@@ -281,7 +290,8 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
                 //http://mpg123.de/download/win32/mpg123-1.10.1-static-x86.zip //currently used to decode mp3
                 //swprintf(my_command,512,L"madplay.exe -b 16 -Q -R 44100  \"music/%s\" -o music/tmp/tmp.wav",song_names[song_rand_num]); //not compatible with unicode/utf16
                 //swprintf(my_command,512,L"lame.exe --decode  \"music/%s\" -o music/tmp/tmp.wav",song_names[song_rand_num]); //unable to decode to a specific desired sample rate
-                swprintf(my_command,512,L"mpg123.exe -q -w \"music/tmp/tmp.wav\"  \"music/%s\"",song_names[song_rand_num]);
+
+                swprintf(my_command,512,L"mpg123.exe -q -w \"music/tmp/tmp.wav\"  \"%s/%s\"",src_music_dir,song_names[song_rand_num]);
                 _wsystem(my_command);
               } else if (is_wav[song_rand_num]) {
                 loading_wav=TRUE;
@@ -385,8 +395,15 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
           freeSoundEffectCache(&channelSoundEffectCache[i]);
         }
 
+        if (lvl_has_song) {
+          ResetSongBank();
+          swprintf(src_music_dir,64,L"music");
+          song_num=GetSongsInDir(L"music",L"",0);
+          play_new_song=TRUE;
+        }
+        lvl_has_song=FALSE;
 
-        //freeSoundEffectCache();
+
         clean_up_sound=FALSE;
       }
       Sleep(1000); //eepy loop

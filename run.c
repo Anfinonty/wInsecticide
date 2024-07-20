@@ -103,6 +103,12 @@ int resolution_choose=0; //640,480, 800,600, SCREEN_WIDTH,SCREEN_HEIGHT
 
 int call_help_timer=0;
 
+
+
+bool lvl_has_song=FALSE;
+wchar_t src_music_dir[64];
+
+
 int enemy_kills=0;
 //int FPS = 60;
 int int_best_score=0; //to store to write
@@ -247,9 +253,11 @@ double moon_angle_shift=0;
 
 #include "song.c"
 #include "draw_gui.c"
-#include "cleanup.c"
 
 #include "load_level.c"
+#include "cleanup.c"
+
+
 #include "keybinds.c"
 
 
@@ -359,18 +367,23 @@ DWORD WINAPI AnimateTask02(LPVOID lpArg) { //FPS counter
 }
 
 
-
-void LoadMainMenuBackground()
+void RemoveFolderRecursive(const wchar_t* dirname)
 {
-  DeleteObject(map_background_sprite);
-  HBITMAP tmp_map_background_sprite;
-  if (solar_hour>6 && solar_hour<18) { //day
-    tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-  } else { //night
-    tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+  _WDIR *d;
+  struct _wdirent *dir;
+  d = _wopendir(dirname);
+  if (d) {
+    while ((dir=_wreaddir(d))!=NULL) {
+      wchar_t indir[256];
+      swprintf(indir,256,L"%s/%s",dirname,dir->d_name);
+      if (PathIsDirectory(indir) && wcscmp(dir->d_name,L".")!=0 && wcscmp(dir->d_name,L"..")!=0) { //folder, check for 
+        RemoveFolderRecursive(indir);
+      } else {
+        _wremove(indir);
+      }
+    }
+    _wrmdir(dirname);
   }
-  map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH,GR_HEIGHT); //note runs once only
-  DeleteObject(tmp_map_background_sprite);
 }
 
 
@@ -525,6 +538,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               }
             }
           }
+        } else if (main_menu_chosen==0) {
+          if (wParam==0x08) { //backspace = delete level
+            if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = QUIT
+              if (level_chosen>=0 && level_chosen<level_num) {
+                wchar_t remove_folder_name[48];
+                swprintf(remove_folder_name,48,L"saves/%s",level_names[level_chosen]);
+                RemoveFolderRecursive(remove_folder_name);
+                GetSavesInDir(L"saves");
+              }
+              if (game_audio)
+                PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
+            }
+          }
         }
       }
       break;
@@ -573,22 +599,31 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           CameraInit(player.x,player.y+PLAYER_HEIGHT/2); //idk scaling is weird for sprite
           OLD_GR_WIDTH = GR_WIDTH;
           OLD_GR_HEIGHT = GR_HEIGHT;
-
-
           //Load Map Background sprites
           if (!in_main_menu) {
-            if (map_background>=0 && map_background<=1) {
+            if (map_background>=0 && map_background<=2) {
               DeleteObject(map_background_sprite);
               HBITMAP tmp_map_background_sprite;
-              switch (map_background) {
-                case 0:
-                  tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-                  break;
-                case 1:
-                  tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-                  break;
+
+              wchar_t lvl_background_bmp[64];
+              swprintf(lvl_background_bmp,64,L"saves/%s/images/background.bmp",level_names[level_chosen]);
+              tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, lvl_background_bmp, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+              if (tmp_map_background_sprite==NULL) { //not found :/
+                switch (map_background) {
+                  case 0:
+                    tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+                    break;
+                  case 1:
+                    tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+                    break;
+                }
               }
-              map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH,GR_HEIGHT); //note runs once only
+              if (tmp_map_background_sprite!=NULL) {
+                map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH,GR_HEIGHT); //note runs once only
+              } else {
+                map_background_sprite=NULL;
+              }
               DeleteObject(tmp_map_background_sprite);
             }
           } else {            
@@ -668,108 +703,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           DeleteObject(screen);
           //Trigger go back to main menu
           if (back_to_menu) {
-            level_loaded=FALSE;
-            InitBullet();
-            CleanUpPlayer(); //clean up all sprites
-            CleanUpEnemySprites();
-            //CleanUpGrid();
-            //CleanUpNodeGrid();
-            //CleanUpEnemy();
-            //CleanUpGround();
-            CleanupPlayerAttributes();
-            save_level[0]='\0';
-            call_help_timer=0;
-
-
-            //free saved grounds pointer & Ground
-            free(saved_ground_is_ghost);
-            free(saved_ground_color);
-            free(saved_ground_type);
-            free(saved_ground_x1);
-            free(saved_ground_y1);
-            free(saved_ground_x2);
-            free(saved_ground_y2);
-            free(saved_ground_x3);
-            free(saved_ground_y3);
-            for (int i=0;i<GROUND_NUM;i++) {
-              free(saved_ground_text[i]);
-            }
-            free(saved_ground_text);
-
-
-
-            for (int i=0;i<GROUND_NUM+MAX_WEB_NUM;i++) {//free objects
-              freeGround(Ground[i]);
-            }
-
-
-            for (int i=0;i<MAP_NODE_NUM;i++) {
-              freeNode(NodeGrid[i]); //free actual obj
-            }
-
-
-            for (int i=0;i<VGRID_NUM;i++) {
-              freeVGrid(VGrid[i]); //free actual obj
-            }
-
-
-            for (int i=0;i<ENEMY_NUM;i++) {
-              freeEnemy(Enemy[i]);
-            }
-
-            for (int i=0;i<ENEMY_NUM;i++) {
-              freeEnemySprite(EnemySprite[i]);
-            }
-            //printf("===All objects freed\n");
-
-
-
-            free(Ground); //free pointer to pointers
-            free(NodeGrid); //free pointer to pointers
-            free(VGrid); //free pointer to pointers
-            free(Enemy);
-            free(EnemySprite);
-            //printf("===All pointers freed\n");
-
-
-            DeleteObject(map_platforms_sprite); //delete sprites
-            DeleteObject(map_platforms_sprite_mask);
-            LoadMainMenuBackground();
-
-            DeleteObject(moon_sprite_cache);
-            moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,BLACK,-1);
-
-            DeleteObject(mouse_cursor_sprite_cache);
-            DeleteObject(mouse_cursor_sprite_cache2);
-            DeleteObject(mouse_cursor_sprite_iris_cache);
-            DeleteObject(mouse_cursor_sprite_iris_cache2);
-            DeleteObject(mouse_cursor_sprite_pupil_cache);
-            DeleteObject(mouse_cursor_sprite_pupil_cache2);
-
-
-            mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
-
-            mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
-
-
-
-            mouse_cursor_sprite_iris_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTBLUE,draw_color_arr[player_iris_color]);
-
-            mouse_cursor_sprite_iris_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTBLUE,draw_color_arr[player_iris_color]);
-
-
-
-            mouse_cursor_sprite_pupil_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTRED,draw_color_arr[player_pupil_color]);
-
-            mouse_cursor_sprite_pupil_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTRED,draw_color_arr[player_pupil_color]);
-
-
-
-
-            back_to_menu=FALSE;
-            run_after_once=FALSE;
-            clean_up_sound=TRUE;
-            in_main_menu=TRUE;
+            CleanupAll();
           }
         } else { //In Main Menu
           showoff++;
@@ -804,6 +738,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       wav_out_original_volume=VolumeValue(50,1);
       RESOLUTION_X[2]=SCREEN_WIDTH;
       RESOLUTION_Y[2]=SCREEN_HEIGHT;
+      swprintf(src_music_dir,64,L"music");
 
       //waveOutGetVolume(hWaveOut[2],&wav_out_original_volume);
 

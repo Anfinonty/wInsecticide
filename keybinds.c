@@ -791,7 +791,7 @@ void MinusOneMenuKeypressDown(WPARAM wParam)
   //Holding Down Down Arrow or 'S'
    case 'S':
    case VK_DOWN:
-     select_main_menu=LimitValue(select_main_menu+1,0,6);
+     select_main_menu=LimitValue(select_main_menu+1,0,3);
      if (game_audio)
        PlaySound(keySoundEffectCache[1].audio,NULL,SND_MEMORY | SND_ASYNC); //up down
      break;
@@ -800,7 +800,7 @@ void MinusOneMenuKeypressDown(WPARAM wParam)
    case 'W':
    case VK_UP:
      //level_chosen=LimitValue(level_chosen-1,0,level_num);
-     select_main_menu=LimitValue(select_main_menu-1,0,6);
+     select_main_menu=LimitValue(select_main_menu-1,0,3);
      if (game_audio)
        PlaySound(keySoundEffectCache[1].audio,NULL,SND_MEMORY | SND_ASYNC); //up down
      break;
@@ -813,12 +813,12 @@ int MinusOneMenuKeypressUp(WPARAM wParam)
     switch (wParam) {
       //release ENTER key
        case VK_RETURN:
-         if (select_main_menu>=0 && select_main_menu<=2) {
+         if (select_main_menu>=0 && select_main_menu<=1) {
            main_menu_chosen=select_main_menu;
            if (game_audio)
              PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
          }
-         if (select_main_menu==5) { //exit
+         if (select_main_menu==2) { //exit
            if (game_audio)
              PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
            PostQuitMessage(0);
@@ -835,6 +835,9 @@ int MinusOneMenuKeypressUp(WPARAM wParam)
          break;
     }
 }
+
+
+
 
 
 
@@ -890,6 +893,21 @@ void ZeroMenuKeypressUp(WPARAM wParam)
           }
         }
         break;
+      case '1':
+        main_menu_chosen=2;
+        if (game_audio)
+          PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
+        break;
+      /*case '2':
+        main_menu_chosen=3;
+        if (game_audio)
+          PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
+        break;
+      case '3':
+        main_menu_chosen=4;
+        if (game_audio)
+          PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
+        break;*/
     }
 }
 
@@ -1063,7 +1081,7 @@ void TwoMenuKeypressUp(WPARAM wParam)
     switch (wParam) {
        case VK_ESCAPE:
          if ((keydown(VK_LSHIFT) || keydown(VK_RSHIFT))) { //ESC + L/RSHIFT = QUIT
-           main_menu_chosen=-1;
+           main_menu_chosen=0;
            if (game_audio)
              PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
          }
@@ -1122,7 +1140,7 @@ void TwoMenuKeypressUp(WPARAM wParam)
                         fprintf(fptr,"450,");
                         break;
                       case 2://x2
-                        fprintf(fptr,"639,");
+                        fprintf(fptr,"638,");
                         break;
                       case 3://y2
                         fprintf(fptr,"412,");
@@ -1250,7 +1268,9 @@ void TwoMenuKeypressUp(WPARAM wParam)
 
 
               typing_lvl_name_pos=0;
-              typing_lvl_name[0]='\0';
+              for (int i=0;i<16;i++)
+                typing_lvl_name[i]='\0';
+
               set_ground_amount=10;
               set_enemy_amount=1;
               set_map_width_amount=640;
@@ -1266,3 +1286,32 @@ void TwoMenuKeypressUp(WPARAM wParam)
           break;
     }
 }
+
+
+
+
+/*void FourMenuKeypressDown(WPARAM wParam)
+{
+  //LoadSave(blablabla,FALSE); //in main menu==0
+
+}
+
+
+
+void FourMenuKeypressUp(WPARAM wParam)
+{
+  switch (wParam) {
+    case VK_RETURN:
+      //move to trash
+      //_wfopen
+      //_wfclose\
+
+
+      //free saved!!
+      
+      break;
+  }
+}*/
+
+
+

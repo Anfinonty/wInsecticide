@@ -15,7 +15,15 @@ void DrawBackground(HDC hdc) {
       GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
       break;
     default:
-      GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,custom_map_background_color);
+      if (map_background_sprite==NULL) {
+        GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,custom_map_background_color);
+      } else {
+        if (IsInvertedBackground()) {
+          DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,NOTSRCCOPY,FALSE);
+        } else {
+          DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE);
+        }
+      }
       break;
   }
 }
@@ -258,7 +266,7 @@ lunar_month,
 lunar_year
 );
 
-  if (main_menu_chosen==-1 || (resolution_choose>=1 && SCREEN_WIDTH>640)) {
+  if (main_menu_chosen==-1 || (GR_WIDTH>=800 && GR_HEIGHT>=600)) {
     GrPrintW(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y-64,time_row1,"",WHITE,16,FALSE,yes_unifont);
     GrPrintW(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y-32,L"",s_hijri_row1,WHITE,16,TRUE,yes_unifont);
     GrPrintW(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y-16,s_hijri_row2,"",WHITE,16,FALSE,yes_unifont);
@@ -287,7 +295,8 @@ lunar_year
 
 
 
-  int max_lvl_rows=15;
+  //int max_lvl_rows=15;
+  int max_lvl_rows=10;
   char page_num[32];
   //Print Loaded Levels to Choose
   switch (main_menu_chosen) {
@@ -308,20 +317,20 @@ lunar_year
       c=Highlight((select_main_menu==1),WHITE,LTGREEN);
       GrPrint(hdc,30,main_menu_y+10+16*3,"Options.",c);
 
-      c=Highlight((select_main_menu==2),WHITE,LTGREEN);
+      /*c=Highlight((select_main_menu==2),WHITE,LTGREEN);
       GrPrint(hdc,30,main_menu_y+10+16*4,"Create New Level.",c);
 
       c=Highlight((select_main_menu==3),WHITE,LTGREEN);
       GrPrint(hdc,30,main_menu_y+10+16*5,"Edit Selected Level.",c);
 
       c=Highlight((select_main_menu==4),WHITE,LTGREEN);
-      GrPrint(hdc,30,main_menu_y+10+16*6,"Build Selected Level.",c);
+      GrPrint(hdc,30,main_menu_y+10+16*6,"Build Selected Level.",c);*/
 
 
-      if (select_main_menu<5)
+      if (select_main_menu<2)
         GrPrint(hdc,20,main_menu_y+10+16*2+16*select_main_menu,"*",LTGREEN);
 
-      c=Highlight((select_main_menu==5),WHITE,LTGREEN);
+      c=Highlight((select_main_menu==2),WHITE,LTGREEN);
       GrPrint(hdc,30,main_menu_y+10+16*10,"[SHIFT]+'Q':  Exit.",c);
     }
       break;
@@ -329,7 +338,7 @@ lunar_year
 
     //Level chooser
     case 0:
-      sprintf(page_num,"Levels - [%d/%d]",(level_chosen/max_lvl_rows)+1,(level_num/max_lvl_rows)+1);
+      sprintf(page_num,"Levels - [%d/%1.0f]",(level_chosen/max_lvl_rows)+1,ceil(((double)(level_num)/max_lvl_rows)));
       GrPrint(hdc,30,main_menu_y+10+32,page_num,WHITE);
 
       int lvls_y=10+16*4;
@@ -365,6 +374,10 @@ lunar_year
       //GrPrint(hdc,30,main_menu_y+10+16*17,"'2': Create New Level.",WHITE);
       //GrPrint(hdc,30,main_menu_y+10+16*18,"'3': Edit Selected Level.",WHITE);
       //GrPrint(hdc,30,main_menu_y+10+16*19,"'4': Build Selected Level.",WHITE);
+      GrPrint(hdc,30,main_menu_y+10+16*16,"'1': Create New Level.",WHITE);
+      GrPrint(hdc,30,main_menu_y+10+16*17,"'2': Build Selected Level.",WHITE);
+      GrPrint(hdc,30,main_menu_y+10+16*18,"'3': Change Selected Level Limits.",WHITE);
+      GrPrint(hdc,30,main_menu_y+10+16*19,"[SHIFT]+[BACKSPACE]: Delete Map.",WHITE);
       GrPrint(hdc,30,main_menu_y+10+16*21,"[SHIFT_ESC]: Back.",WHITE);
 
       break;

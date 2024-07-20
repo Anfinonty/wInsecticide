@@ -165,7 +165,7 @@ void GetSavesInDir(const wchar_t *dirname)
 
 
 
-void LoadSave(wchar_t *saves_name)
+void LoadSave(wchar_t *saves_name, bool spawn_objects)
 {
   int row=0;
   int column=0;
@@ -237,6 +237,8 @@ void LoadSave(wchar_t *saves_name)
 
             //printf("pt:%d\n",sizeof(struct GroundLine*));
             //printf("act:%d\n",sizeof(struct GroundLine));
+
+            if (spawn_objects) {
             Ground = calloc((GROUND_NUM+MAX_WEB_NUM),sizeof(AGround*));
             VGrid = calloc(VGRID_NUM,sizeof(struct AVGrid*));
             NodeGrid = calloc(MAP_NODE_NUM,sizeof(ANode*));
@@ -277,6 +279,7 @@ void LoadSave(wchar_t *saves_name)
             for (int i=0;i<ENEMY_NUM;i++) {
               AEnemySprite *newEnemySprite = createEnemySprite();
               EnemySprite[i] = newEnemySprite;
+            }
             }
 
             break;

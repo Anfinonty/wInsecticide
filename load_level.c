@@ -27,6 +27,22 @@ void InitOnce() {
 
   adjustSFXVolume(&channelSoundEffectCache[0],&channelSoundEffect[0],game_volume/5,TRUE); //speed
   adjustSFXVolume(&channelSoundEffectCache[1],&channelSoundEffect[1],game_volume,TRUE); //clang_death
+
+  //Load custom song
+  _WDIR *d;
+  struct _wdirent *dir;
+  wchar_t dirname[64];
+  swprintf(dirname,64,L"saves/%s/music",level_names[level_chosen]);
+  d = _wopendir(dirname);
+  if (d) {
+    lvl_has_song=TRUE;
+    //stop_playing_song=TRUE;
+    //toggle_stop_playing_song=TRUE;
+    ResetSongBank();
+    song_num=GetSongsInDir(dirname,L"",0);
+    swprintf(src_music_dir,64,L"saves/%s/music",level_names[level_chosen]);
+    play_new_song=TRUE;
+  }
 }
 
 
@@ -127,7 +143,7 @@ void InitLevel(HWND hwnd, HDC hdc)
   swprintf(txt,128,L"saves/%s/level.txt",level_names[level_chosen]);
   swprintf(save_level,128,L"saves/%s/scores.txt",level_names[level_chosen]);
 
-  LoadSave(txt);
+  LoadSave(txt,TRUE);
 
   srand(time(NULL));
   timeBeginPeriod(1);
@@ -228,11 +244,6 @@ void InitLevel(HWND hwnd, HDC hdc)
 
   InitPlatformsSprite(hwnd,hdc);
 
-  /*printf("clang_audio:%lu\n",clang_audio_filesize);
-  printf("tb_start_audio:%lu\n",tb_start_audio_filesize);
-  printf("tb_death_audio:%lu\n",tb_stop_audio_filesize);
-  printf("clang_death_audio:%lu\n",clang_death_audio_filesize);*/
-
 
   //allocate smallest to biggest
 
@@ -243,5 +254,22 @@ void InitLevel(HWND hwnd, HDC hdc)
   level_loaded=TRUE;
   in_main_menu=FALSE;
 }
+
+
+
+void LoadMainMenuBackground()
+{
+  DeleteObject(map_background_sprite);
+  HBITMAP tmp_map_background_sprite;
+  if (solar_hour>6 && solar_hour<18) { //day
+    tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+  } else { //night
+    tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+  }
+  map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH,GR_HEIGHT); //note runs once only
+  DeleteObject(tmp_map_background_sprite);
+}
+
+
 
 

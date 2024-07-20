@@ -324,3 +324,110 @@ void CleanupPlayerAttributes()
   player.angle_of_incidence=
   player.angle_of_reflection=0.0;
 }
+
+
+
+void CleanupAll()
+{
+    level_loaded=FALSE;
+    InitBullet();
+    CleanUpPlayer(); //clean up all sprites
+    CleanUpEnemySprites();
+    //CleanUpGrid();
+    //CleanUpNodeGrid();
+    //CleanUpEnemy();
+    //CleanUpGround();
+    CleanupPlayerAttributes();
+    save_level[0]='\0';
+    call_help_timer=0;
+
+
+    //free saved grounds pointer & Ground
+    free(saved_ground_is_ghost);
+    free(saved_ground_color);
+    free(saved_ground_type);
+    free(saved_ground_x1);
+    free(saved_ground_y1);
+    free(saved_ground_x2);
+    free(saved_ground_y2);
+    free(saved_ground_x3);
+    free(saved_ground_y3);
+    for (int i=0;i<GROUND_NUM;i++) {
+      free(saved_ground_text[i]);
+    }
+    free(saved_ground_text);
+
+
+
+    for (int i=0;i<GROUND_NUM+MAX_WEB_NUM;i++) {//free objects
+      freeGround(Ground[i]);
+    }
+
+
+    for (int i=0;i<MAP_NODE_NUM;i++) {
+      freeNode(NodeGrid[i]); //free actual obj
+    }
+
+
+    for (int i=0;i<VGRID_NUM;i++) {
+      freeVGrid(VGrid[i]); //free actual obj
+    }
+
+
+    for (int i=0;i<ENEMY_NUM;i++) {
+      freeEnemy(Enemy[i]);
+    }
+
+    for (int i=0;i<ENEMY_NUM;i++) {
+      freeEnemySprite(EnemySprite[i]);
+    }
+    //printf("===All objects freed\n");
+
+
+
+    free(Ground); //free pointer to pointers
+    free(NodeGrid); //free pointer to pointers
+    free(VGrid); //free pointer to pointers
+    free(Enemy);
+    free(EnemySprite);
+    //printf("===All pointers freed\n");
+
+
+    DeleteObject(map_platforms_sprite); //delete sprites
+    DeleteObject(map_platforms_sprite_mask);
+    LoadMainMenuBackground();
+
+    DeleteObject(moon_sprite_cache);
+    moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,BLACK,-1);
+
+    DeleteObject(mouse_cursor_sprite_cache);
+    DeleteObject(mouse_cursor_sprite_cache2);
+    DeleteObject(mouse_cursor_sprite_iris_cache);
+    DeleteObject(mouse_cursor_sprite_iris_cache2);
+    DeleteObject(mouse_cursor_sprite_pupil_cache);
+    DeleteObject(mouse_cursor_sprite_pupil_cache2);
+
+
+    mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
+
+    mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
+
+
+
+    mouse_cursor_sprite_iris_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTBLUE,draw_color_arr[player_iris_color]);
+
+    mouse_cursor_sprite_iris_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTBLUE,draw_color_arr[player_iris_color]);
+
+
+
+    mouse_cursor_sprite_pupil_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTRED,draw_color_arr[player_pupil_color]);
+
+    mouse_cursor_sprite_pupil_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTRED,draw_color_arr[player_pupil_color]);
+
+
+
+    back_to_menu=FALSE;
+    run_after_once=FALSE;
+    clean_up_sound=TRUE;
+    in_main_menu=TRUE;
+}
