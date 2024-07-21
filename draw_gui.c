@@ -338,15 +338,22 @@ lunar_year
 
     //Level chooser
     case 0:
-      sprintf(page_num,"Levels - [%d/%1.0f]",(level_chosen/max_lvl_rows)+1,ceil(((double)(level_num)/max_lvl_rows)));
+    {
+      int current_page=(level_chosen/max_lvl_rows)+1;
+      double max_page=ceil(((double)(level_num)/max_lvl_rows));
+      sprintf(page_num,"Levels - [%d/%1.0f]",current_page,max_page);
       GrPrint(hdc,30,main_menu_y+10+32,page_num,WHITE);
 
-      int lvls_y=10+16*4;
+      int lvls_y=10+16*4+4;
       int lvl_i=0;
 
       if (hide_taskbar)
         lvls_y+=main_menu_y;
 
+
+      if (current_page>1) {
+        GrPrint(hdc,20,lvls_y-16,"- ...",WHITE);
+      }
       for (int i=0;i<max_lvl_rows;i++) { //Print Levels
          lvl_i=i+max_lvl_rows*(level_chosen/max_lvl_rows);
          //GrPrint(hdc,30,lvls_y+16*i,"-_________",WHITE);
@@ -363,6 +370,10 @@ lunar_year
            GrPrint(hdc,20,lvls_y+16*i,"__________",WHITE);
          }
       }
+      if (current_page<max_page && max_page>1) {
+        GrPrint(hdc,20,lvls_y+16*max_lvl_rows,"- ...",WHITE);
+      }
+
 
       //Draw Level Selector
       //GrPrint(hdc,30,lvls_y+16*(level_chosen%max_lvl_rows),"   [ENTER]",WHITE);
@@ -379,7 +390,7 @@ lunar_year
       GrPrint(hdc,30,main_menu_y+10+16*18,"'3': Build Selected Level.",WHITE);
       GrPrint(hdc,30,main_menu_y+10+16*19,"[SHIFT]+[BACKSPACE]: Delete Map.",WHITE);
       GrPrint(hdc,30,main_menu_y+10+16*21,"[SHIFT_ESC]: Back.",WHITE);
-
+      }
       break;
 
 
