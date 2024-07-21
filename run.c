@@ -461,6 +461,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
            case 2:
              TwoMenuKeypressDown(wParam);
              break;
+
+           case 3:
+             ThreeMenuKeypressDown(wParam);
+             break;
         } //end of switch statement for menu chosen
       } //end of menu chosen if else
       break; //Break WM_KEYDOWN;
@@ -496,6 +500,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             TwoMenuKeypressUp(wParam);
             break;
 
+           case 3:
+             ThreeMenuKeypressUp(wParam);
           }
           break; //end of main menu chosen switch
 

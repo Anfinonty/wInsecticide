@@ -608,3 +608,31 @@ DWORD VolumeValue(const int percentage, const int reduce) {
 }
 
 
+
+//https://www.geeksforgeeks.org/c-program-copy-contents-one-file-another-file/
+int myCopyFile(const wchar_t* filename_dest,const wchar_t* filename_src)
+{
+    FILE *fptr1, *fptr2;
+    int c;
+
+    // Open one file for reading
+    fptr1 = _wfopen(filename_src, L"r");
+    if (fptr1 == NULL)
+      return 0;
+
+    // Open another file for writing
+    fptr2 = _wfopen(filename_dest, L"w");
+    if (fptr2 == NULL)
+      return 0;
+
+    // Read contents from file
+    while ((c = fgetwc(fptr1)) != WEOF)
+    {
+        fputwc(c, fptr2);
+    }
+
+    fclose(fptr1);
+    fclose(fptr2);
+    return 0;
+}
+

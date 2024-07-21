@@ -79,6 +79,38 @@ const wchar_t *get_filename_ext(const wchar_t *filename)
   return dot + 1;
 }
 
+
+int CountSongsInDir(const wchar_t *dirname,const wchar_t *indirname, int song_num)
+{
+  _WDIR *d;
+  struct _wdirent *dir; //https://castor-project.org/doc/castor3_0/struct__wdirent.html
+  d = _wopendir(dirname);//
+  if (d) {
+    while ((dir=_wreaddir(d))!=NULL) {
+      wchar_t indir[256];
+      swprintf(indir,256,L"%s/%s",dirname,dir->d_name);
+      if (PathIsDirectory(indir) && wcscmp(dir->d_name,L".")!=0 && wcscmp(dir->d_name,L"..")!=0) { //folder, check for songs in folder
+        wchar_t indir2[256];
+        swprintf(indir2,256,L"%s/%s",indirname,dir->d_name);
+        song_num=CountSongsInDir(indir,indir2,song_num);
+      } else {
+        const wchar_t *ext=get_filename_ext(dir->d_name);
+        if (_wcsicmp(ext,L"wav")==0 || 
+            _wcsicmp(ext,L"mp3")==0 || 
+            _wcsicmp(ext,L"flac")==0) {
+          song_num++;
+          if (song_num>=2000) {
+            break;
+          }
+        }      
+      }
+    }
+    _wclosedir(d);
+  }
+  return song_num;
+}
+
+
 //https://stackoverflow.com/questions/4204666/how-to-list-files-in-a-directory-in-a-c-program
 int GetSongsInDir(const wchar_t *dirname,const wchar_t *indirname, int song_num)
 {

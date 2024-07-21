@@ -29,19 +29,24 @@ void InitOnce() {
   adjustSFXVolume(&channelSoundEffectCache[1],&channelSoundEffect[1],game_volume,TRUE); //clang_death
 
   //Load custom song
-  _WDIR *d;
-  struct _wdirent *dir;
   wchar_t dirname[64];
   swprintf(dirname,64,L"saves/%s/music",level_names[level_chosen]);
-  d = _wopendir(dirname);
-  if (d) {
-    lvl_has_song=TRUE;
-    //stop_playing_song=TRUE;
-    //toggle_stop_playing_song=TRUE;
-    ResetSongBank();
-    song_num=GetSongsInDir(dirname,L"",0);
-    swprintf(src_music_dir,64,L"saves/%s/music",level_names[level_chosen]);
-    play_new_song=TRUE;
+  int tmp_song_num=CountSongsInDir(dirname,L"",0);
+
+  if (tmp_song_num>0) { //only reload songs are present
+    _WDIR *d;
+    struct _wdirent *dir;
+    d = _wopendir(dirname);
+    if (d) {
+      lvl_has_song=TRUE;
+      if (tmp_song_num>0) {
+        ResetSongBank();
+        song_num=GetSongsInDir(dirname,L"",0);
+        swprintf(src_music_dir,64,L"saves/%s/music",level_names[level_chosen]);
+        play_new_song=TRUE;
+      }
+      _wclosedir(d);
+    }
   }
 }
 

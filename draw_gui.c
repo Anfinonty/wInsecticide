@@ -375,8 +375,8 @@ lunar_year
       //GrPrint(hdc,30,main_menu_y+10+16*18,"'3': Edit Selected Level.",WHITE);
       //GrPrint(hdc,30,main_menu_y+10+16*19,"'4': Build Selected Level.",WHITE);
       GrPrint(hdc,30,main_menu_y+10+16*16,"'1': Create New Level.",WHITE);
-      GrPrint(hdc,30,main_menu_y+10+16*17,"'2': Build Selected Level.",WHITE);
-      GrPrint(hdc,30,main_menu_y+10+16*18,"'3': Change Selected Level Limits.",WHITE);
+      GrPrint(hdc,30,main_menu_y+10+16*17,"'2': Change Selected Level Limits.",WHITE);
+      GrPrint(hdc,30,main_menu_y+10+16*18,"'3': Build Selected Level.",WHITE);
       GrPrint(hdc,30,main_menu_y+10+16*19,"[SHIFT]+[BACKSPACE]: Delete Map.",WHITE);
       GrPrint(hdc,30,main_menu_y+10+16*21,"[SHIFT_ESC]: Back.",WHITE);
 
@@ -559,8 +559,11 @@ lunar_year
 
 
     case 2: //Create New Level 
-      GrPrint(hdc,30,main_menu_y+10+16*2,"Create New Level",WHITE);
-
+    case 3:
+      if (main_menu_chosen==2)
+        GrPrint(hdc,30,main_menu_y+10+16*2,"Create New Level",WHITE);
+      else
+        GrPrint(hdc,30,main_menu_y+10+16*2,"Edit Level Limits",WHITE);
      // GrPrintW(hdc,30,main_menu_y+10+16*5,L"[SHIFT] + 'L': Unifont [ពេលរាត្រី]","",WHITE,16,FALSE,yes_unifont);
      // GrPrint(hdc,30,main_menu_y+10+16*6,"[SHIFT] + 'T': Toggle Borders",WHITE);
 
@@ -618,7 +621,12 @@ lunar_year
       GrPrint(hdc,30+20*8,create_lvl_y+16*8,print_calc_ratio_value,WHITE);
 
 
-      GrPrint(hdc,30,main_menu_y+10+16*17,"[Enter]: Create Level",WHITE);
+      if (main_menu_chosen==2)
+        GrPrint(hdc,30,main_menu_y+10+16*17,"[Enter]: Create Level",WHITE);
+      else
+        GrPrint(hdc,30,main_menu_y+10+16*17,"[Enter]: Change Level Limits",WHITE);
+
+
       GrPrint(hdc,30,main_menu_y+10+16*18,"[SHIFT_ESC]: Back.",WHITE);      
       break;
   }

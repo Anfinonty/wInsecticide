@@ -21,9 +21,21 @@ wchar_t saved_ground_text[MAX_GROUND_NUM][512];*/ //charsize 512
 
 
 //saved ground attributes pointers
+//int saved_enemy_type[MAX_ENEMY_NUM];
+//double saved_enemy_x[MAX_ENEMY_NUM];
+//double saved_enemy_y[MAX_ENEMY_NUM];
+
+
+
 bool *saved_ground_is_ghost;
 int *saved_ground_color;
 int *saved_ground_type;
+
+int *saved_enemy_type;//[MAX_ENEMY_NUM];
+double *saved_enemy_x;//[MAX_ENEMY_NUM];
+double *saved_enemy_y;//[MAX_ENEMY_NUM];
+
+
 double *saved_ground_x1;
 double *saved_ground_y1;
 double *saved_ground_x2;
@@ -32,12 +44,6 @@ double *saved_ground_x3;
 double *saved_ground_y3;
 wchar_t **saved_ground_text;
 
-
-
-//ENEMY_NUM
-int saved_enemy_type[MAX_ENEMY_NUM];
-double saved_enemy_x[MAX_ENEMY_NUM];
-double saved_enemy_y[MAX_ENEMY_NUM];
 
 
 //Enemy Type (fixed value of 10)
@@ -119,6 +125,7 @@ double saved_player_x;
 double saved_player_y;
 int map_background;
 int custom_map_background_color;
+int custom_map_background_color_i;
 bool is_inverted;
 
 int level_num=0;
@@ -221,9 +228,17 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
             MAP_NODE_NUM=(MAP_WIDTH/NODE_SIZE) * (MAP_HEIGHT/NODE_SIZE);
 
             //malloc attributes
+
+
             saved_ground_is_ghost=calloc(GROUND_NUM,sizeof(bool));
             saved_ground_color=calloc(GROUND_NUM,sizeof(int));
             saved_ground_type=calloc(GROUND_NUM,sizeof(int));
+
+            saved_enemy_type=calloc(ENEMY_NUM,sizeof(int));
+            saved_enemy_x=calloc(ENEMY_NUM,sizeof(double));
+            saved_enemy_y=calloc(ENEMY_NUM,sizeof(double));
+
+
             saved_ground_x1=calloc(GROUND_NUM,sizeof(double));
             saved_ground_y1=calloc(GROUND_NUM,sizeof(double));
             saved_ground_x2=calloc(GROUND_NUM,sizeof(double));
@@ -234,6 +249,9 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
             for (int i=0;i<GROUND_NUM;i++) {
               saved_ground_text[i]=(wchar_t*)malloc(512*sizeof(wchar_t));
             }
+
+
+
 
             //printf("pt:%d\n",sizeof(struct GroundLine*));
             //printf("act:%d\n",sizeof(struct GroundLine));
@@ -293,6 +311,7 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
             map_background=int_saved_val;
             break;
           case 43:
+            custom_map_background_color_i=int_saved_val;
             custom_map_background_color=color_arr[int_saved_val];
             break;
           case 44:

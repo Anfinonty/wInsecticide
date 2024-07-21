@@ -898,12 +898,25 @@ void ZeroMenuKeypressUp(WPARAM wParam)
         if (game_audio)
           PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
         break;
-      /*case '2':
+      case '2':
         main_menu_chosen=3;
+        /*LOAD selected level details*/
+        wchar_t txt[128];
+        swprintf(txt,128,L"saves/%s/level.txt",level_names[level_chosen]);
+        LoadSave(txt,FALSE); //load saves
+
+        wcsncpy(typing_lvl_name,level_names[level_chosen],16);
+        typing_lvl_name_pos=lstrlenW(typing_lvl_name);
+        set_ground_amount=GROUND_NUM;
+        set_enemy_amount=ENEMY_NUM;
+        set_map_width_amount=MAP_WIDTH;
+        set_map_height_amount=MAP_HEIGHT;
+
+
         if (game_audio)
           PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
         break;
-      case '3':
+      /*case '3':
         main_menu_chosen=4;
         if (game_audio)
           PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
@@ -1078,240 +1091,770 @@ is_inverted
 
 void TwoMenuKeypressUp(WPARAM wParam)
 {
-    switch (wParam) {
-       case VK_ESCAPE:
-         if ((keydown(VK_LSHIFT) || keydown(VK_RSHIFT))) { //ESC + L/RSHIFT = QUIT
-           main_menu_chosen=0;
-           if (game_audio)
-             PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
-         }
-         break;
+  switch (wParam) {
+    case VK_ESCAPE:
+      if ((keydown(VK_LSHIFT) || keydown(VK_RSHIFT))) { //ESC + L/RSHIFT = QUIT
+        typing_lvl_name_pos=0;
+        for (int i=0;i<16;i++)
+          typing_lvl_name[i]='\0';
 
-        case VK_RETURN: //Create New Levels
-        {
-          _WDIR *d;
-          struct _wdirent *dir;
-          wchar_t create_lvl_name[32];
-          swprintf(create_lvl_name,32,L"saves/%s",typing_lvl_name);
-          if (typing_lvl_name_pos>0 && (set_map_width_amount/160*set_map_height_amount/160)<4801) {
-            d = _wopendir(create_lvl_name);
-            if (d) {
-              _wclosedir(d);
-            } else {
-              //Create New Folder
-              _wmkdir(create_lvl_name);
-              if (game_audio)
-                PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
-
-              //Create Subfolders
-              wchar_t create_lvl_name_sub1[48];
-              swprintf(create_lvl_name_sub1,48,L"%s/images",create_lvl_name);
-              _wmkdir(create_lvl_name_sub1);
-              wchar_t create_lvl_name_sub2[48];
-              swprintf(create_lvl_name_sub2,48,L"%s/scores",create_lvl_name);
-              _wmkdir(create_lvl_name_sub2);
-              wchar_t create_lvl_name_sub3[48];
-              swprintf(create_lvl_name_sub3,48,L"%s/song",create_lvl_name);
-              _wmkdir(create_lvl_name_sub3);
+        set_ground_amount=10;
+        set_enemy_amount=1;
+        set_map_width_amount=640;
+        set_map_height_amount=480;
 
 
-              FILE *fptr;
-              wchar_t create_lvl_name[64];
-              swprintf(create_lvl_name,64,L"saves/%s/level.txt",typing_lvl_name);
-              fptr = _wfopen(create_lvl_name,L"w");
-
-
-              //beginning attributes
-              fprintf(fptr,"%d;\n",set_ground_amount);
-              fprintf(fptr,"%d;\n",set_enemy_amount);
-              fprintf(fptr,"%d;\n",set_map_width_amount);
-              fprintf(fptr,"%d;\n",set_map_height_amount);
-
-
-              //GROUND
-              for (int j=0;j<6;j++) { //x1,y1,x2,y2,x3,y3
-                for (int i=0;i<set_ground_amount;i++) {
-                  if (i==0) {//first ground
-                    switch (j) {
-                      case 0://x1
-                        fprintf(fptr,"2,");
-                        break;
-                      case 1://y1
-                        fprintf(fptr,"450,");
-                        break;
-                      case 2://x2
-                        fprintf(fptr,"638,");
-                        break;
-                      case 3://y2
-                        fprintf(fptr,"412,");
-                        break;
-                      default:
-                        fprintf(fptr,"-20,");
-                        break;
-                    }
-                  } else {
-                    fprintf(fptr,"-20,");
-                  }
-                }
-                fprintf(fptr,";\n");
-              }
-
-              for (int j=0;j<3;j++) {
-                for (int i=0;i<set_ground_amount;i++) {//is_ghost,color,type
-                  fprintf(fptr,"0,");
-                }
-                fprintf(fptr,";\n");
-              } 
-
-              for (int i=0;i<set_ground_amount;i++) {//text
-                fprintf(fptr,"\"\",");
-              }
-              fprintf(fptr,";\n");
-
-
-
-              //Enemy
-              for (int i=0;i<set_enemy_amount;i++) { //type
-                fprintf(fptr,"0,");
-              }
-              fprintf(fptr,";\n");
-
-
-              for (int i=0;i<set_enemy_amount;i++) { //x
-                fprintf(fptr,"483,");
-              }
-              fprintf(fptr,";\n");
-
-
-              for (int i=0;i<set_enemy_amount;i++) { //y
-                fprintf(fptr,"306,");
-              }
-              fprintf(fptr,";\n");
-
-              //enemy Type
-              for (int j=0;j<2;j++) {
-                for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-                  fprintf(fptr,"1.0,");
-                }
-                fprintf(fptr,";\n");
-              }
-
-              for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-                fprintf(fptr,"0,");
-              }
-              fprintf(fptr,";\n");
-
-              for (int j=0;j<2;j++) {
-                for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-                  fprintf(fptr,"1,");
-                }
-                fprintf(fptr,";\n");
-              }
-
-              for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-                fprintf(fptr,"100,");
-              }
-              fprintf(fptr,";\n");
-
-              for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-                fprintf(fptr,"0,");
-              }
-              fprintf(fptr,";\n");
-
-              for (int j=0;j<3;j++) {
-                for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-                  fprintf(fptr,"1,");
-                }
-                fprintf(fptr,";\n");
-              }
- 
-              for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-                fprintf(fptr,"0,");
-              }
-              fprintf(fptr,";\n");
-
-              for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-                fprintf(fptr,"500,");
-              }
-              fprintf(fptr,";\n");
-
-              for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-                fprintf(fptr,"0,");
-              }
-              fprintf(fptr,";\n");
-
-              for (int j=0;j<6;j++) {
-                for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-                  fprintf(fptr,"1,");
-                }
-                fprintf(fptr,";\n");
-              }
-
-              for (int j=0;j<4;j++) {
-                for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-                  fprintf(fptr,"0,");
-                }
-                fprintf(fptr,";\n");
-              }
-
-
-              fprintf(fptr,"228;\n"); //player x
-              fprintf(fptr,"400;\n"); //player y
-
-              fprintf(fptr,"2;\n");
-              fprintf(fptr,"15;\n");
-              fprintf(fptr,"0;\n");
-
-
-              fclose(fptr);
-              GetSavesInDir(L"saves");
-
-
-              typing_lvl_name_pos=0;
-              for (int i=0;i<16;i++)
-                typing_lvl_name[i]='\0';
-
-              set_ground_amount=10;
-              set_enemy_amount=1;
-              set_map_width_amount=640;
-              set_map_height_amount=480;
-
-              
-              main_menu_chosen=0;
-            }
-          } else {         
-            printf("Level Not Found\n");
-          }
+        main_menu_chosen=0;
+        if (game_audio)
+          PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
         }
-          break;
+        break;
+
+    case VK_RETURN: //Create New Levels
+    {
+      _WDIR *d;
+      struct _wdirent *dir;
+      wchar_t create_lvl_name[32];
+      swprintf(create_lvl_name,32,L"saves/%s",typing_lvl_name);
+      if (typing_lvl_name_pos>0 && (set_map_width_amount/160*set_map_height_amount/160)<4801) {
+        d = _wopendir(create_lvl_name);
+        if (d) {
+          _wclosedir(d);
+        } else {
+          //Create New Folder
+          _wmkdir(create_lvl_name);
+          if (game_audio)
+            PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
+
+          //Create Subfolders
+          wchar_t create_lvl_name_sub1[48];
+          swprintf(create_lvl_name_sub1,48,L"%s/images",create_lvl_name);
+          _wmkdir(create_lvl_name_sub1);
+          wchar_t create_lvl_name_sub2[48];
+          swprintf(create_lvl_name_sub2,48,L"%s/scores",create_lvl_name);
+          _wmkdir(create_lvl_name_sub2);
+          wchar_t create_lvl_name_sub3[48];
+          swprintf(create_lvl_name_sub3,48,L"%s/song",create_lvl_name);
+          _wmkdir(create_lvl_name_sub3);
+
+
+          FILE *fptr;
+          wchar_t create_lvl_name[64];
+          swprintf(create_lvl_name,64,L"saves/%s/level.txt",typing_lvl_name);
+          fptr = _wfopen(create_lvl_name,L"w");
+
+
+          //beginning attributes
+          fprintf(fptr,"%d;\n",set_ground_amount);
+          fprintf(fptr,"%d;\n",set_enemy_amount);
+          fprintf(fptr,"%d;\n",set_map_width_amount);
+          fprintf(fptr,"%d;\n",set_map_height_amount);
+
+
+          //GROUND
+          for (int j=0;j<6;j++) { //x1,y1,x2,y2,x3,y3
+            for (int i=0;i<set_ground_amount;i++) {
+              if (i==0) {//first ground
+                switch (j) {
+                  case 0://x1
+                    fprintf(fptr,"2,");
+                    break;
+                  case 1://y1
+                    fprintf(fptr,"450,");
+                    break;
+                  case 2://x2
+                    fprintf(fptr,"638,");
+                    break;
+                  case 3://y2
+                    fprintf(fptr,"412,");
+                    break;
+                  default:
+                    fprintf(fptr,"15,");
+                    break;
+                }
+              } else {
+                if (j>=1 && j<=2) {
+                  fprintf(fptr,"5,");
+                } else if (j>=3 && j<=4) {
+                  fprintf(fptr,"10,");
+                } else if (j>=5 && j<=6) {
+                  fprintf(fptr,"15,");
+                }
+              }
+            }
+            fprintf(fptr,";\n");
+          }
+
+          for (int j=0;j<3;j++) {
+            for (int i=0;i<set_ground_amount;i++) {//is_ghost,color,type
+              fprintf(fptr,"0,");
+            }
+            fprintf(fptr,";\n");
+          } 
+
+          for (int i=0;i<set_ground_amount;i++) {//text
+            fprintf(fptr,"\"\",");
+          }
+          fprintf(fptr,";\n");
+
+
+
+          //Enemy
+          for (int i=0;i<set_enemy_amount;i++) { //type
+            fprintf(fptr,"0,");
+          }
+          fprintf(fptr,";\n");
+
+
+          for (int i=0;i<set_enemy_amount;i++) { //x
+            fprintf(fptr,"483,");
+          }
+          fprintf(fptr,";\n");
+
+
+          for (int i=0;i<set_enemy_amount;i++) { //y
+            fprintf(fptr,"306,");
+          }
+          fprintf(fptr,";\n");
+
+          //enemy Type
+          for (int j=0;j<2;j++) {
+            for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+              fprintf(fptr,"1.0,");
+            }
+            fprintf(fptr,";\n");
+          }
+
+          for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+            fprintf(fptr,"0,");
+          }
+          fprintf(fptr,";\n");
+
+          for (int j=0;j<2;j++) {
+            for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+              fprintf(fptr,"1,");
+            }
+            fprintf(fptr,";\n");
+          }
+
+          for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+            fprintf(fptr,"100,");
+          }
+          fprintf(fptr,";\n");
+
+          for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+            fprintf(fptr,"0,");
+          }
+          fprintf(fptr,";\n");
+
+          for (int j=0;j<3;j++) {
+            for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+              fprintf(fptr,"1,");
+            }
+            fprintf(fptr,";\n");
+          }
+
+          for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+            fprintf(fptr,"0,");
+          }
+          fprintf(fptr,";\n");
+
+          for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+            fprintf(fptr,"500,");
+          }
+          fprintf(fptr,";\n");
+
+          for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+            fprintf(fptr,"0,");
+          }
+          fprintf(fptr,";\n");
+
+          for (int j=0;j<6;j++) {
+            for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+              fprintf(fptr,"1,");
+            }
+            fprintf(fptr,";\n");
+          }
+
+          for (int j=0;j<4;j++) {
+            for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+              fprintf(fptr,"0,");
+            }
+            fprintf(fptr,";\n");
+          }
+
+
+          fprintf(fptr,"228;\n"); //player x
+          fprintf(fptr,"400;\n"); //player y
+
+          fprintf(fptr,"2;\n");
+          fprintf(fptr,"15;\n");
+          fprintf(fptr,"0;\n");
+
+
+          fclose(fptr);
+          GetSavesInDir(L"saves");
+
+
+          typing_lvl_name_pos=0;
+          for (int i=0;i<16;i++)
+            typing_lvl_name[i]='\0';
+
+          set_ground_amount=10;
+          set_enemy_amount=1;
+          set_map_width_amount=640;
+          set_map_height_amount=480;
+
+          
+          main_menu_chosen=0;
+        }
+      } else {         
+        //printf("Level Not Found\n");
+      }
     }
+    break;
+  }
 }
 
 
 
 
-/*void FourMenuKeypressDown(WPARAM wParam)
+void ThreeMenuKeypressDown(WPARAM wParam)
 {
-  //LoadSave(blablabla,FALSE); //in main menu==0
-
+  TwoMenuKeypressDown(wParam);
 }
 
 
 
-void FourMenuKeypressUp(WPARAM wParam)
+
+void ThreeMenuKeypressUp(WPARAM wParam)
 {
   switch (wParam) {
-    case VK_RETURN:
-      //move to trash
+    case VK_ESCAPE:
+      if ((keydown(VK_LSHIFT) || keydown(VK_RSHIFT))) { //ESC + L/RSHIFT = QUIT
+        main_menu_chosen=0;
+
+
+        //free saved grounds pointer & Ground
+        free(saved_ground_is_ghost);
+        free(saved_ground_color);
+        free(saved_ground_type);
+
+        //free enemy
+        free(saved_enemy_type);
+        free(saved_enemy_x);
+        free(saved_enemy_y);
+
+
+        free(saved_ground_x1);
+        free(saved_ground_y1);
+        free(saved_ground_x2);
+        free(saved_ground_y2);
+        free(saved_ground_x3);
+        free(saved_ground_y3);
+        for (int i=0;i<GROUND_NUM;i++) {
+          free(saved_ground_text[i]);
+        }
+        free(saved_ground_text);
+
+
+
+
+        typing_lvl_name_pos=0;
+        for (int i=0;i<16;i++)
+          typing_lvl_name[i]='\0';
+
+        set_ground_amount=10;
+        set_enemy_amount=1;
+        set_map_width_amount=640;
+        set_map_height_amount=480;
+
+        if (game_audio)
+          PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
+        }
+        break;
+
+
+    case VK_RETURN: //Release Enter Key
+    {
+      if (typing_lvl_name_pos>0 && (set_map_width_amount/160*set_map_height_amount/160)<4801) {
+        if (game_audio)
+          PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
+
+
+
+        FILE *fptr;
+        wchar_t create_lvl_name[64];
+        swprintf(create_lvl_name,64,L"saves/%s/level.txt",typing_lvl_name);
+
+
+        //create trash folder if it doesnt exist
+
+
+        wchar_t trash_lvl_name[64];
+        swprintf(trash_lvl_name,64,L"trash/%s-level.txt",typing_lvl_name);
+        //copy old file to trash
+        myCopyFile(trash_lvl_name,create_lvl_name);
+
+
+
+        fptr = _wfopen(create_lvl_name,L"w");
+
+
+        //beginning attributes
+        fprintf(fptr,"%d;\n",set_ground_amount);
+        fprintf(fptr,"%d;\n",set_enemy_amount);
+        fprintf(fptr,"%d;\n",set_map_width_amount);
+        fprintf(fptr,"%d;\n",set_map_height_amount);
+
+        //GROUND X1,Y1
+        if (set_ground_amount>GROUND_NUM) { // add new grounds
+          for (int i=0;i<GROUND_NUM;i++) {
+            if (saved_ground_x1[i]>set_map_width_amount) //over new map limit, adjust
+              fprintf(fptr,"%1.0f,",set_map_width_amount-2);
+            else //within new map limit, remain the same
+              fprintf(fptr,"%1.0f,",saved_ground_x1[i]);
+          }
+          for (int i=GROUND_NUM;i<set_ground_amount;i++) {
+            fprintf(fptr,"5,");
+          }
+        } else {
+          for (int i=0;i<set_ground_amount;i++) {
+            if (saved_ground_x1[i]>set_map_width_amount) //over new map limit, adjust
+              fprintf(fptr,"%1.0f,",set_map_width_amount-2);
+            else //within new map limit, remain the same
+              fprintf(fptr,"%1.0f,",saved_ground_x1[i]);
+          }
+        }
+        fprintf(fptr,";\n");
+
+
+
+
+        if (set_ground_amount>GROUND_NUM) { // add new grounds
+          for (int i=0;i<GROUND_NUM;i++) {
+            if (saved_ground_y1[i]>set_map_height_amount) //over new map limit, adjust
+              fprintf(fptr,"%1.0f,",set_map_height_amount-2);
+            else //within new map limit, remain the same
+              fprintf(fptr,"%1.0f,",saved_ground_y1[i]);
+          }
+          for (int i=GROUND_NUM;i<set_ground_amount;i++) {
+            fprintf(fptr,"5,");
+          }
+        } else {
+          for (int i=0;i<set_ground_amount;i++) {
+            if (saved_ground_y1[i]>set_map_height_amount) //over new map limit, adjust
+              fprintf(fptr,"%1.0f,",set_map_height_amount-2);
+            else //within new map limit, remain the same
+              fprintf(fptr,"%1.0f,",saved_ground_y1[i]);
+          }
+        }
+        fprintf(fptr,";\n");
+
+
+
+
+        //GROUND X2,Y2
+        if (set_ground_amount>GROUND_NUM) { // add new grounds
+          for (int i=0;i<GROUND_NUM;i++) {
+            if (saved_ground_x2[i]>set_map_width_amount) //over new map limit, adjust
+              fprintf(fptr,"%1.0f,",set_map_width_amount-2);
+            else //within new map limit, remain the same
+              fprintf(fptr,"%1.0f,",saved_ground_x2[i]);
+          }
+          for (int i=GROUND_NUM;i<set_ground_amount;i++) {
+            fprintf(fptr,"10,");
+          }
+        } else {
+          for (int i=0;i<set_ground_amount;i++) {
+            if (saved_ground_x2[i]>set_map_width_amount) //over new map limit, adjust
+              fprintf(fptr,"%1.0f,",set_map_width_amount-2);
+            else //within new map limit, remain the same
+              fprintf(fptr,"%1.0f,",saved_ground_x2[i]);
+          }
+        }
+        fprintf(fptr,";\n");
+
+
+
+
+        if (set_ground_amount>GROUND_NUM) { // add new grounds
+          for (int i=0;i<GROUND_NUM;i++) {
+            if (saved_ground_y2[i]>set_map_height_amount) //over new map limit, adjust
+              fprintf(fptr,"%1.0f,",set_map_height_amount-2);
+            else //within new map limit, remain the same
+              fprintf(fptr,"%1.0f,",saved_ground_y2[i]);
+          }
+          for (int i=GROUND_NUM;i<set_ground_amount;i++) {
+            fprintf(fptr,"10,");
+          }
+        } else {
+          for (int i=0;i<set_ground_amount;i++) {
+            if (saved_ground_y2[i]>set_map_height_amount) //over new map limit, adjust
+              fprintf(fptr,"%1.0f,",set_map_height_amount-2);
+            else //within new map limit, remain the same
+              fprintf(fptr,"%1.0f,",saved_ground_y2[i]);
+          }
+        }
+        fprintf(fptr,";\n");
+
+
+
+        //GROUND X3,Y3
+        if (set_ground_amount>GROUND_NUM) { // add new grounds
+          for (int i=0;i<GROUND_NUM;i++) {
+            if (saved_ground_x3[i]>set_map_width_amount) //over new map limit, adjust
+              fprintf(fptr,"%1.0f,",set_map_width_amount-2);
+            else //within new map limit, remain the same
+              fprintf(fptr,"%1.0f,",saved_ground_x3[i]);
+          }
+          for (int i=GROUND_NUM;i<set_ground_amount;i++) {
+            fprintf(fptr,"15,");
+          }
+        } else {
+          for (int i=0;i<set_ground_amount;i++) {
+            if (saved_ground_x3[i]>set_map_width_amount) //over new map limit, adjust
+              fprintf(fptr,"%1.0f,",set_map_width_amount-2);
+            else //within new map limit, remain the same
+              fprintf(fptr,"%1.0f,",saved_ground_x3[i]);
+          }
+        }
+        fprintf(fptr,";\n");
+
+
+
+
+        if (set_ground_amount>GROUND_NUM) { // add new grounds
+          for (int i=0;i<GROUND_NUM;i++) {
+            fprintf(fptr,"%1.0f,",saved_ground_y3[i]);
+          }
+          for (int i=GROUND_NUM;i<set_ground_amount;i++) {
+            fprintf(fptr,"15,");
+          }
+        } else {
+          for (int i=0;i<set_ground_amount;i++) {
+            if (saved_ground_y3[i]>set_map_height_amount) //over new map limit, adjust
+              fprintf(fptr,"%1.0f,",set_map_height_amount-2);
+            else //within new map limit, remain the same
+              fprintf(fptr,"%1.0f,",saved_ground_y3[i]);
+          }
+        }
+        fprintf(fptr,";\n");
+
+
+
+        //GROUND is_ghost
+        if (set_ground_amount>GROUND_NUM) { // add new grounds
+          for (int i=0;i<GROUND_NUM;i++) {
+            fprintf(fptr,"%d,",saved_ground_is_ghost[i]);
+          }
+          for (int i=GROUND_NUM;i<set_ground_amount;i++) {
+            fprintf(fptr,"0,");
+          }
+        } else {
+          for (int i=0;i<set_ground_amount;i++) {
+            fprintf(fptr,"%d,",saved_ground_is_ghost[i]);
+          }
+        }
+        fprintf(fptr,";\n");
+
+
+
+
+
+
+        //GROUND color
+        if (set_ground_amount>GROUND_NUM) { // add new grounds
+          for (int i=0;i<GROUND_NUM;i++) {
+            fprintf(fptr,"%d,",saved_ground_color[i]);
+          }
+          for (int i=GROUND_NUM;i<set_ground_amount;i++) {
+            fprintf(fptr,"0,");
+          }
+        } else {
+          for (int i=0;i<set_ground_amount;i++) {
+            fprintf(fptr,"%d,",saved_ground_color[i]);
+          }
+        }
+        fprintf(fptr,";\n");
+
+
+
+
+
+
+        //GROUND type
+        if (set_ground_amount>GROUND_NUM) { // add new grounds
+          for (int i=0;i<GROUND_NUM;i++) {
+            fprintf(fptr,"%d,",saved_ground_type[i]);
+          }
+          for (int i=GROUND_NUM;i<set_ground_amount;i++) {
+            fprintf(fptr,"0,");
+          }
+        } else {
+          for (int i=0;i<set_ground_amount;i++) {
+            fprintf(fptr,"%d,",saved_ground_type[i]);
+          }
+        }
+        fprintf(fptr,";\n");
+
+
+
+        //GROUND text
+        if (set_ground_amount>GROUND_NUM) { // text
+          for (int i=0;i<GROUND_NUM;i++) {
+            fprintf(fptr,"\"");
+            fprintf(fptr,"%s",saved_ground_text[i]);
+            fprintf(fptr,"\",");
+          }
+          for (int i=GROUND_NUM;i<set_ground_amount;i++) {
+            fprintf(fptr,"\"\",");
+          }
+        } else {
+          for (int i=0;i<set_ground_amount;i++) {
+            fprintf(fptr,"\"");
+            fprintf(fptr,"%s",saved_ground_text[i]);
+            fprintf(fptr,"\",");
+          }
+        }
+        fprintf(fptr,";\n");
+
+
+
+        //Enemy
+        if (set_enemy_amount>ENEMY_NUM) { // type enemy
+          for (int i=0;i<ENEMY_NUM;i++) {
+            fprintf(fptr,"%d,",saved_enemy_type[i]);
+          }
+          for (int i=ENEMY_NUM;i<set_enemy_amount;i++) { //type
+            fprintf(fptr,"0,");
+          }
+        } else {
+          for (int i=0;i<set_enemy_amount;i++) {
+            fprintf(fptr,"%d,",saved_enemy_type[i]);
+          }
+        }
+        fprintf(fptr,";\n");
+
+
+        if (set_enemy_amount>ENEMY_NUM) { // x enemy
+          for (int i=0;i<ENEMY_NUM;i++) {
+            if (saved_enemy_x[i]>set_map_width_amount) //over new map limit, adjust
+              fprintf(fptr,"%1.0f,",set_map_width_amount-2);
+            else //within new map limit, remain the same
+              fprintf(fptr,"%1.0f,",saved_enemy_x[i]);
+          }
+          for (int i=ENEMY_NUM;i<set_enemy_amount;i++) {
+            fprintf(fptr,"483,");
+          }
+        } else {
+          for (int i=0;i<set_enemy_amount;i++) { //x
+            if (saved_enemy_x[i]>set_map_width_amount) //over new map limit, adjust
+              fprintf(fptr,"%1.0f,",set_map_width_amount-2);
+            else //within new map limit, remain the same
+              fprintf(fptr,"%1.0f,",saved_enemy_x[i]);
+          }
+        }
+        fprintf(fptr,";\n");
+
+
+        if (set_enemy_amount>ENEMY_NUM) { // y enemy
+          for (int i=0;i<ENEMY_NUM;i++) {
+            if (saved_enemy_y[i]>set_map_width_amount) //over new map limit, adjust
+              fprintf(fptr,"%1.0f,",set_map_width_amount-2);
+            else //within new map limit, remain the same
+              fprintf(fptr,"%1.0f,",saved_enemy_y[i]);
+          }
+          for (int i=ENEMY_NUM;i<set_enemy_amount;i++) { //y
+            fprintf(fptr,"306,");
+          }
+        } else {
+          for (int i=0;i<set_enemy_amount;i++) { //y
+            if (saved_enemy_y[i]>set_map_width_amount) //over new map limit, adjust
+              fprintf(fptr,"%1.0f,",set_map_width_amount-2);
+            else //within new map limit, remain the same
+              fprintf(fptr,"%1.0f,",saved_enemy_y[i]);
+          }
+        }
+        fprintf(fptr,";\n");
+
+
+
+
+
+        //ENEMY TYPE
+        //enemy Type,, NOTE: ENEMY_TYPE NUM DOES NOT CHANGE
+
+        for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+          fprintf(fptr,"%3.1f,",saved_enemy_type_speed[i]);
+        }
+        fprintf(fptr,";\n");
+
+        for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+          fprintf(fptr,"%3.1f,",saved_enemy_type_bullet_speed[i]);
+        }
+        fprintf(fptr,";\n");
+
+        for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+          fprintf(fptr,"%d,",saved_enemy_type_species[i]);
+        }
+        fprintf(fptr,";\n");
+
+        for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+          fprintf(fptr,"%d,",saved_enemy_type_follow_range[i]);
+        }
+        fprintf(fptr,";\n");
+
+        for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+          fprintf(fptr,"%d,",saved_enemy_type_unchase_range[i]);
+        }
+        fprintf(fptr,";\n");
+
+        for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+          fprintf(fptr,"%d,",saved_enemy_type_chase_range[i]);
+        }
+        fprintf(fptr,";\n");
+
+        for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+          fprintf(fptr,"%d,",saved_enemy_type_color[i]);
+        }
+        fprintf(fptr,";\n");
+
+        for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+          fprintf(fptr,"%d,",saved_enemy_type_speed_multiplier[i]);
+        }
+        fprintf(fptr,";\n");
+
+        for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+          fprintf(fptr,"%d,",saved_enemy_type_health[i]);
+        }
+        fprintf(fptr,";\n");
+
+        for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+          fprintf(fptr,"%d,",saved_enemy_type_shoot_at_player_range[i]);
+        }
+        fprintf(fptr,";\n");
+
+        for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+          fprintf(fptr,"%d,",saved_enemy_type_aim_rand[i]);
+        }
+        fprintf(fptr,";\n");
+
+        for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+          fprintf(fptr,"%d,",saved_enemy_type_bullet_cooldown[i]);
+        }
+        fprintf(fptr,";\n");
+
+        for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+          fprintf(fptr,"%d,",saved_enemy_type_bullet_fire_cooldown[i]);
+        }
+        fprintf(fptr,";\n");
+
+        for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+          fprintf(fptr,"%d,",saved_enemy_type_bullet_fire_at_once[i]);
+        }
+        fprintf(fptr,";\n");
+
+        for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+          fprintf(fptr,"%d,",saved_enemy_type_bullet_length[i]);
+        }
+        fprintf(fptr,";\n");
+
+        for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+          fprintf(fptr,"%d,",saved_enemy_type_bullet_damage[i]);
+        }
+        fprintf(fptr,";\n");
+
+        for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+          fprintf(fptr,"%d,",saved_enemy_type_bullet_speed_multiplier[i]);
+        }
+        fprintf(fptr,";\n");
+
+        for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+          fprintf(fptr,"%d,",saved_enemy_type_bullet_range[i]);
+        }
+        fprintf(fptr,";\n");
+
+        for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+          fprintf(fptr,"%d,",saved_enemy_type_bullet_color[i]);
+        }
+        fprintf(fptr,";\n");
+
+        for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+          fprintf(fptr,"%d,",saved_enemy_type_bullet_graphics_type[i]);
+        }
+        fprintf(fptr,";\n");
+
+        for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+          fprintf(fptr,"%d,",saved_enemy_type_time_breaker_rare[i]);
+        }
+        fprintf(fptr,";\n");
+
+        for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+          fprintf(fptr,"%d,",saved_enemy_type_time_breaker_length[i]);
+        }
+        fprintf(fptr,";\n");
+
+        for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+          fprintf(fptr,"%d,",saved_enemy_type_time_breaker_immune[i]);
+        }
+        fprintf(fptr,";\n");
+
+
+
+        fprintf(fptr,"%1.0f;\n",saved_player_x); //player x
+        fprintf(fptr,"%1.0f;\n",saved_player_y); //player y
+
+        fprintf(fptr,"%d;\n",map_background); //
+        fprintf(fptr,"%d;\n",custom_map_background_color_i); // 
+        fprintf(fptr,"%d;\n",is_inverted); //
+
+
+        fclose(fptr);
+        //GetSavesInDir(L"saves");
+
+        //free enemy
+
+        //free saved grounds pointer & Ground
+        free(saved_ground_is_ghost);
+        free(saved_ground_color);
+        free(saved_ground_type);
+
+        free(saved_enemy_type);
+        free(saved_enemy_x);
+        free(saved_enemy_y);
+
+        free(saved_ground_x1);
+        free(saved_ground_y1);
+        free(saved_ground_x2);
+        free(saved_ground_y2);
+        free(saved_ground_x3);
+        free(saved_ground_y3);
+        for (int i=0;i<GROUND_NUM;i++) {
+          free(saved_ground_text[i]);
+        }
+        free(saved_ground_text);
+
+
+
+
+        typing_lvl_name_pos=0;
+        for (int i=0;i<16;i++)
+          typing_lvl_name[i]='\0';
+
+        set_ground_amount=10;
+        set_enemy_amount=1;
+        set_map_width_amount=640;
+        set_map_height_amount=480;
+        
+        main_menu_chosen=0;
+      }
+    }
+    break;
+  }      //move to trash
       //_wfopen
       //_wfclose\
 
 
       //free saved!!
-      
-      break;
-  }
-}*/
-
-
-
+}

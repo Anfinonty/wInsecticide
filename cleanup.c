@@ -342,10 +342,19 @@ void CleanupAll()
     call_help_timer=0;
 
 
+    //free saved enemy
     //free saved grounds pointer & Ground
+
     free(saved_ground_is_ghost);
     free(saved_ground_color);
     free(saved_ground_type);
+
+
+    free(saved_enemy_type);
+    free(saved_enemy_x);
+    free(saved_enemy_y);
+
+
     free(saved_ground_x1);
     free(saved_ground_y1);
     free(saved_ground_x2);
