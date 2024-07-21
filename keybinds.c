@@ -1168,16 +1168,16 @@ void TwoMenuKeypressUp(WPARAM wParam)
                   case 3://y2
                     fprintf(fptr,"412,");
                     break;
-                  default:
+                  default: //x3,y3
                     fprintf(fptr,"15,");
                     break;
                 }
               } else {
-                if (j>=1 && j<=2) {
+                if (j>=0 && j<=1) {
                   fprintf(fptr,"5,");
-                } else if (j>=3 && j<=4) {
+                } else if (j>=2 && j<=3) {
                   fprintf(fptr,"10,");
-                } else if (j>=5 && j<=6) {
+                } else if (j>=4 && j<=5) {
                   fprintf(fptr,"15,");
                 }
               }
@@ -1604,7 +1604,9 @@ void ThreeMenuKeypressUp(WPARAM wParam)
         if (set_ground_amount>GROUND_NUM) { // text
           for (int i=0;i<GROUND_NUM;i++) {
             fprintf(fptr,"\"");
-            fprintf(fptr,"%s",saved_ground_text[i]);
+            for (int j=0;j<lstrlenW(saved_ground_text[i]);j++) {
+              fprintf(fptr,"{u%X}",saved_ground_text[i][j]);
+            }
             fprintf(fptr,"\",");
           }
           for (int i=GROUND_NUM;i<set_ground_amount;i++) {
@@ -1613,7 +1615,9 @@ void ThreeMenuKeypressUp(WPARAM wParam)
         } else {
           for (int i=0;i<set_ground_amount;i++) {
             fprintf(fptr,"\"");
-            fprintf(fptr,"%s",saved_ground_text[i]);
+            for (int j=0;j<lstrlenW(saved_ground_text[i]);j++) {
+              fprintf(fptr,"{u%X}",saved_ground_text[i][j]);
+            }
             fprintf(fptr,"\",");
           }
         }
