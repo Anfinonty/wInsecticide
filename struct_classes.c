@@ -590,6 +590,7 @@ typedef struct enemy
   int shoot_at_player_range;
   int aim_rand;
   int color;
+  int ospeed_multiplier;
   int speed_multiplier;
   int time_breaker_rare;
   int time_breaker_length;

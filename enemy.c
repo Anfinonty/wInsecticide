@@ -869,12 +869,12 @@ void EnemyAct(int i)
           Enemy[i]->y--;
         }
 
-        if (Enemy[i]->species==1) {//Species 1 gravity
-          if (slash_time==1) {
-          EnemySpecies1Gravity(i);
-          if (Enemy[i]->in_air_timer>0) {
-            Enemy[i]->in_air_timer--;
-          }
+        if (Enemy[i]->species==1 && !Enemy[i]->move_to_target) {//Species 1 gravity
+          if (slash_time_i==0) {
+            EnemySpecies1Gravity(i);
+            if (Enemy[i]->in_air_timer>0) {
+              Enemy[i]->in_air_timer--;
+            }
           }
         }
         /*int above_player_node1=GetGridId(
