@@ -899,6 +899,7 @@ void ZeroMenuKeypressUp(WPARAM wParam)
           PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
         break;
       case '2':
+        {
         main_menu_chosen=3;
         /*LOAD selected level details*/
         wchar_t txt[128];
@@ -915,12 +916,20 @@ void ZeroMenuKeypressUp(WPARAM wParam)
 
         if (game_audio)
           PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
+        }
         break;
-      /*case '3':
+      case '3':
+        {
         main_menu_chosen=4;
+        wchar_t txt[128];
+        swprintf(txt,128,L"saves/%s/level.txt",level_names[level_chosen]);
+        LoadSave(txt,FALSE); //load saves
+
+
         if (game_audio)
-          PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
-        break;*/
+          PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
+        }
+        break;
     }
 }
 

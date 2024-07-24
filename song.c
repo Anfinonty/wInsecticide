@@ -331,8 +331,12 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
 
               mem_snd_interrupt[2]=TRUE;
               waveOutReset(hWaveOut[2]);
+              //CloseHandle(hMemSndArray[2]);
+              //hMemSndArray[2]=NULL;
               freeSoundEffectWFX(&songAudio); //Free Header
               freeSoundEffect(&songAudio); // Free audio int16_t*
+              waveOutClose(hWaveOut[2]);
+              waveOutUnprepareHeader(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));
             }
             play_new_song=FALSE;
           } //else { //song status: playing
@@ -353,9 +357,12 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
         //stop .wav player
       mem_snd_interrupt[2]=TRUE;
       waveOutReset(hWaveOut[2]);
-      CloseHandle(hMemSndArray[2]);
+      //CloseHandle(hMemSndArray[2]);
+      //hMemSndArray[2]=NULL;
       freeSoundEffectWFX(&songAudio); //Free Header
       freeSoundEffect(&songAudio); // Free audio int16_t*
+      waveOutClose(hWaveOut[2]);
+      waveOutUnprepareHeader(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));
 
       playing_wav=FALSE;
       loading_flac=FALSE;

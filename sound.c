@@ -119,7 +119,7 @@ WAVEFORMATEX wfx_wav_sfx = {
     .nAvgBytesPerSec = 11025L * (1 *  16) / 8
 };
 
-
+WAVEFORMATEX wfx_wav_music;
 //https://learn.microsoft.com/en-us/windows/win32/multimedia/using-the-waveformatex-structure
 /*WAVEFORMATEX wfx_wav_music = {
     .wFormatTag = WAVE_FORMAT_PCM,
@@ -173,6 +173,7 @@ void adjustSFXVolume(wavSoundEffectCache* mySoundEffectCache, wavSoundEffect* my
 // Play stereo audio from a buffer
 //void PlayStereoAudio(const int16_t* audioBuffer, long *bufferSize) {
 //https://learn.microsoft.com/en-us/windows/win32/multimedia/using-the-waveformatex-structure
+//https://learn.microsoft.com/en-us/windows/win32/api/mmeapi/nf-mmeapi-waveoutunprepareheader
 
 //void PlayThreadSound(const int16_t* audioBuffer, long bufferSize, int duration, int id) 
 void PlayThreadSound(AWavChannelSFX* myChannelSFX, int id) 
@@ -183,21 +184,19 @@ void PlayThreadSound(AWavChannelSFX* myChannelSFX, int id)
 
     mem_snd_interrupt[id]=FALSE;
     whdr[id].lpData = (LPSTR)myChannelSFX->audio;//(LPSTR);
+    whdr[id].dwBufferLength = bufferSize;
     if (!is_cache) {
-      WAVEFORMATEX wfx_wav_music = {
-        .wFormatTag = WAVE_FORMAT_PCM,
-        .nChannels = myChannelSFX->wav_header->NumOfChan,
-        .nSamplesPerSec = myChannelSFX->wav_header->SamplesPerSec,
-        .nAvgBytesPerSec = myChannelSFX->wav_header->bytesPerSec,
-        .nBlockAlign = myChannelSFX->wav_header->blockAlign,
-        .wBitsPerSample = myChannelSFX->wav_header->bitsPerSample,
-        .cbSize = 0
-      };
+      wfx_wav_music.wFormatTag = WAVE_FORMAT_PCM;
+      wfx_wav_music.nChannels = myChannelSFX->wav_header->NumOfChan;
+      wfx_wav_music.nSamplesPerSec = myChannelSFX->wav_header->SamplesPerSec;
+      wfx_wav_music.nAvgBytesPerSec = myChannelSFX->wav_header->bytesPerSec;
+      wfx_wav_music.nBlockAlign = myChannelSFX->wav_header->blockAlign;
+      wfx_wav_music.wBitsPerSample = myChannelSFX->wav_header->bitsPerSample;
+      wfx_wav_music.cbSize = 0;
       waveOutOpen(&hWaveOut[id], WAVE_MAPPER, &wfx_wav_music, 0, 0, CALLBACK_NULL);
       waveOutPrepareHeader(hWaveOut[id], &whdr[id], sizeof(WAVEHDR));
       waveOutSetVolume(hWaveOut[id], VolumeValue(wav_out_volume*100,1));
     }
-    whdr[id].dwBufferLength = bufferSize;
 
     // Write the audio data
     waveOutWrite(hWaveOut[id], &whdr[id], sizeof(WAVEHDR));    
@@ -205,6 +204,7 @@ void PlayThreadSound(AWavChannelSFX* myChannelSFX, int id)
       duration--;
       Sleep(1);
     }
+    free(whdr[id].lpData);
     mem_snd_interrupt[id]=FALSE;
 }
 
@@ -235,7 +235,7 @@ void PlayMemSnd(wavSoundEffect* mySoundEffect,wavSoundEffectCache* mySoundEffect
   //if (hMemSndArray[thread_id]!=NULL) {
   mem_snd_interrupt[thread_id]=TRUE;
   waveOutReset(hWaveOut[thread_id]);
-  if (hMemSndArray[thread_id]!=NULL)
+  //if (hMemSndArray[thread_id]!=NULL)
     CloseHandle(hMemSndArray[thread_id]);
   //DWORD exitCode;
   //closeHandleSafely(hMemSndArray[thread_id]); //WARNING CAUSES CRASH
@@ -245,6 +245,8 @@ void PlayMemSnd(wavSoundEffect* mySoundEffect,wavSoundEffectCache* mySoundEffect
   if (thread_id>=0 && thread_id<=2) {
       memSFX[thread_id].audio=NULL;
       memSFX[thread_id].wav_header=NULL;
+      //free(memSFX[thread_id].audio);
+      //free(memSFX[thread_id].wav_header);
 
       if (play_cache) {
         memSFX[thread_id].audio=mySoundEffectCache->audio;
