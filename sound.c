@@ -73,6 +73,7 @@ void loadSoundEffect(wavSoundEffect* mySoundEffect,const wchar_t* filename,bool 
 {
   FILE* file = _wfopen(filename, L"rb");
   int wav_header_size=0; 
+  //printf("%d\n",sizeof(AWavHeader));
   if (skip_header) {
     wav_header_size=sizeof(AWavHeader); //44
   }
@@ -197,14 +198,13 @@ void PlayThreadSound(AWavChannelSFX* myChannelSFX, int id)
       waveOutPrepareHeader(hWaveOut[id], &whdr[id], sizeof(WAVEHDR));
       waveOutSetVolume(hWaveOut[id], VolumeValue(wav_out_volume*100,1));
     }
-
     // Write the audio data
     waveOutWrite(hWaveOut[id], &whdr[id], sizeof(WAVEHDR));    
     while (duration>0 && !mem_snd_interrupt[id]) {
       duration--;
       Sleep(1);
     }
-    free(whdr[id].lpData);
+    //free(whdr[id].lpData);
     mem_snd_interrupt[id]=FALSE;
 }
 

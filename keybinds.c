@@ -18,6 +18,51 @@ bool keydownalt()
 
 
 
+
+//Keybind
+void MapEditorKeypressDown(WPARAM wParam)
+{
+  switch (wParam) {
+
+
+  //Holding down ENTER key
+    case VK_RETURN:
+      flag_restart=TRUE;
+      break;
+  }
+}
+
+
+void MapEditorKeypressUp(WPARAM wParam)
+{
+  switch (wParam) {
+    /*case VK_ESC: //ESCAPE
+      if () { //Shift Included, ABORT
+
+      } else {//Shuft not included, SAVE
+
+      }
+      //regardless, shift or not, free all
+      back_to_menu=TRUE;
+      break;*/
+
+
+    //flagmapeditorloaded=FALSE
+    //Holding Down Shift && Escape
+    case VK_ESCAPE:
+      if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = QUIT
+        if (level_loaded) { //allow back to menu only if level is fully loaded
+          back_to_menu=TRUE;
+        }
+      }
+      break;
+  }
+
+}
+
+
+
+
 void GlobalKeypressDown(WPARAM wParam)
 {
     switch (wParam) {
@@ -881,7 +926,7 @@ void ZeroMenuKeypressDown( HWND hwnd,  HDC hdc, WPARAM wParam)
 
 
 
-void ZeroMenuKeypressUp(WPARAM wParam)
+void ZeroMenuKeypressUp( HWND hwnd,  HDC hdc, WPARAM wParam)
 {
     switch (wParam) { //release key shift esc
       case VK_ESCAPE:
@@ -893,12 +938,12 @@ void ZeroMenuKeypressUp(WPARAM wParam)
           }
         }
         break;
-      case '1':
+      case '1': // Create New Level
         main_menu_chosen=2;
         if (game_audio)
           PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
         break;
-      case '2':
+      case '2': // Edit Selected Level Limits
         {
         main_menu_chosen=3;
         /*LOAD selected level details*/
@@ -918,16 +963,26 @@ void ZeroMenuKeypressUp(WPARAM wParam)
           PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
         }
         break;
-      case '3':
+      case '3': //Build Selected Level
+        if (player_color>-1 && player_color<COLORS_NUM)
         {
         main_menu_chosen=4;
-        wchar_t txt[128];
-        swprintf(txt,128,L"saves/%s/level.txt",level_names[level_chosen]);
-        LoadSave(txt,FALSE); //load saves
-
-
         if (game_audio)
           PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
+        InitLevelMapEditor(hwnd, hdc);
+
+
+/*
+      //Holding down ENTER key
+       case VK_RETURN:
+         if (player_color>-1 && player_color<COLORS_NUM) {         
+           if (game_audio)
+             PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
+           if (level_chosen>=0 && level_chosen<level_num && main_menu_chosen==0)
+             InitLevel(hwnd, hdc);
+         }
+*/
+
         }
         break;
     }

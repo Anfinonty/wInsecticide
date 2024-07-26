@@ -64,6 +64,7 @@ bool in_main_menu=TRUE;
 bool level_loaded=FALSE;
 bool game_over=FALSE;
 bool show_fps=FALSE;
+bool in_map_editor=FALSE;
 
 //bool alloc_enemy_once=TRUE;
 
@@ -258,8 +259,8 @@ double moon_angle_shift=0;
 #include "cleanup.c"
 
 
+#include "map_editor.c"
 #include "keybinds.c"
-
 
 //Detect Exception occured
 //https://stackoverflow.com/questions/1394250/detect-program-termination-c-windows
@@ -349,8 +350,12 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
         for (int i=0;i<ENEMY_NUM;i++) {
           EnemyAct(i);
         }
+        Sleep(player.sleep_timer);
+      } else {
+        Sleep(1000);
       }
-      Sleep(player.sleep_timer);
+    } else if (in_map_editor) {
+      Sleep(1000);
     } else {
       Sleep(1000);
     }
@@ -465,6 +470,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
            case 3:
              ThreeMenuKeypressDown(wParam);
              break;
+
+
+           case 4:
+             MapEditorKeypressDown(wParam);
+             break;
+
         } //end of switch statement for menu chosen
       } //end of menu chosen if else
       break; //Break WM_KEYDOWN;
@@ -488,13 +499,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             break;
 
           case 0: //Level select keyup
-            ZeroMenuKeypressUp(wParam);
+            ZeroMenuKeypressUp(hwnd,hdc,wParam);
             break;
 
           case 1:
             OptionsKeypressUp(wParam);
             break;
-
 
           case 2:            
             TwoMenuKeypressUp(wParam);
@@ -502,6 +512,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
            case 3:
              ThreeMenuKeypressUp(wParam);
+             break;
+
+           case 4:
+             MapEditorKeypressUp(wParam);
+             break;
           }
           break; //end of main menu chosen switch
 
@@ -606,7 +621,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           OLD_GR_WIDTH = GR_WIDTH;
           OLD_GR_HEIGHT = GR_HEIGHT;
           //Load Map Background sprites
-          if (!in_main_menu) {
+          if (!in_main_menu || in_map_editor) {
             if (map_background>=0 && map_background<=2) {
               DeleteObject(map_background_sprite);
               HBITMAP tmp_map_background_sprite;
@@ -637,7 +652,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
         }
 
-        if (!in_main_menu) //### LevelLoaded
+        if (!in_main_menu) //### In game
         { //https://stackoverflow.com/questions/752593/win32-app-suspends-on-minimize-window-animation
           frame_tick++;
           showoff++;
@@ -645,71 +660,104 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             frame_tick=0;
           }
 
-          if (enemy_kills<ENEMY_NUM) {
-            game_timer= current_timestamp() - time_begin;
-          } else {
-            if (!game_over) {
-              if (game_timer<int_best_score) { //New high score
+          if (level_loaded) {
+            if (enemy_kills<ENEMY_NUM) {
+              game_timer= current_timestamp() - time_begin;
+            } else {
+              if (!game_over) {
+                if (game_timer<int_best_score) { //New high score
                 /*DIR* dir;
                 dir=opendir("score_saves");
                 if (ENOENT==errno) {
                   mkdir("score_saves");
                 }*/
-                FILE *fptr;
-                fptr = _wfopen(save_level,L"w");
-                char txt[12];
-                int tmp_game_timer=game_timer;
-                sprintf(txt,"%d\n",tmp_game_timer);
-                fprintf(fptr,txt);
-                fclose(fptr);
+                  FILE *fptr;
+                  fptr = _wfopen(save_level,L"w");
+                  char txt[12];
+                  int tmp_game_timer=game_timer;
+                  sprintf(txt,"%d\n",tmp_game_timer);
+                  fprintf(fptr,txt);
+                  fclose(fptr);
+                }
+                game_over=TRUE;
               }
-              game_over=TRUE;
+            }
+
+
+            if (!(player.time_breaker || player.is_swinging || player.is_rebounding)) {
+              if (game_cam_shake) {
+                PlayerCameraShake();
+              }
+            } else {
+              player.cam_move_x=0;
+              player.cam_move_y=0;
+            }
+
+            player.seed=rand();
+
+            if (level_loaded && (player.health<=0 || flag_restart)) { // restart level when player health hits 0 or VK_RETURN
+              flag_restart_audio=TRUE;
+              Init(hdc);
+              flag_restart=FALSE;
+            }
+
+            hdcBackbuff=CreateCompatibleDC(hdc);
+
+            //HBITMAP screen = CreateGreyscaleBitmap(GR_WIDTH,GR_HEIGHT);
+            screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+            SelectObject(hdcBackbuff,screen);
+            DrawBackground(hdcBackbuff);
+            DrawPlatforms(hdcBackbuff);
+            DrawWebs(hdcBackbuff);
+            DrawEnemy(hdcBackbuff);
+            DrawPlayer(hdcBackbuff);
+            DrawUI(hdcBackbuff);
+            DrawCursor(hdcBackbuff);
+            //DrawGrids(hdcBackbuff);
+
+            if (!IsInvertedBackground()){ //Inverted palette level
+              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
+            } else { //non inverted palette level
+              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
+            }
+            DeleteDC(hdcBackbuff);
+            DeleteObject(screen);
+            //Trigger go back to main menu
+            if (back_to_menu) {
+              CleanupAll();
             }
           }
-
-
-          if (!(player.time_breaker || player.is_swinging || player.is_rebounding)) {
-            if (game_cam_shake) {
-              PlayerCameraShake();
+        } else if (in_map_editor) {
+          if (level_loaded) {
+            frame_tick++;
+            showoff++;
+            if (frame_tick>FPS) {
+              frame_tick=0;
             }
-          } else {
-            player.cam_move_x=0;
-            player.cam_move_y=0;
-          }
 
-          player.seed=rand();
+            hdcBackbuff=CreateCompatibleDC(hdc);
+            screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+            SelectObject(hdcBackbuff,screen);
+            DrawBackground(hdcBackbuff);
+            DrawMapEditorPlatforms(hdcBackbuff);
+            //DrawMapEditorEnemy(hdcBackbuff);
+            //DrawMapEditorPlayer(hdcBackbuff);
+            //DrawMapEditorUI(hdcBackbuff);
+            DrawCursor(hdcBackbuff);
+            //DrawGrids(hdcBackbuff);
 
+            if (!IsInvertedBackground()){ //Inverted palette level
+              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
+            } else { //non inverted palette level
+              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
+            }
+            DeleteDC(hdcBackbuff);
+            DeleteObject(screen);
 
-          if (level_loaded && (player.health<=0 || flag_restart)) { // restart level when player health hits 0 or VK_RETURN
-            flag_restart_audio=TRUE;
-            Init(hdc);
-            flag_restart=FALSE;
-          }
-
-          hdcBackbuff=CreateCompatibleDC(hdc);
-
-          //HBITMAP screen = CreateGreyscaleBitmap(GR_WIDTH,GR_HEIGHT);
-          screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
-          SelectObject(hdcBackbuff,screen);
-          DrawBackground(hdcBackbuff);
-          DrawPlatforms(hdcBackbuff);
-          DrawWebs(hdcBackbuff);
-          DrawEnemy(hdcBackbuff);
-          DrawPlayer(hdcBackbuff);
-          DrawUI(hdcBackbuff);
-          DrawCursor(hdcBackbuff);
-          //DrawGrids(hdcBackbuff);
-
-          if (!IsInvertedBackground()){ //Inverted palette level
-            BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
-          } else { //non inverted palette level
-            BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
-          }
-          DeleteDC(hdcBackbuff);
-          DeleteObject(screen);
-          //Trigger go back to main menu
-          if (back_to_menu) {
-            CleanupAll();
+              //Trigger go back to main menu
+            if (back_to_menu) {
+              CleanupMapEditorAll();
+            }
           }
         } else { //In Main Menu
           showoff++;
