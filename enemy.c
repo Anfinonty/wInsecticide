@@ -358,6 +358,15 @@ void EnemyMove(int enemy_id)
       Enemy[enemy_id]->sprite_timer=0;
     }
   }
+
+  bool allow_act=TRUE;
+  int tmp_node_id=GetGridId(Enemy[enemy_id]->x,Enemy[enemy_id]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM); //all nodes
+  if (tmp_node_id!=-1) {
+    if (NodeGrid[tmp_node_id]->node_solid)
+      allow_act=FALSE;
+  }
+
+  if (allow_act) {
   if (Enemy[enemy_id]->x<path_node_center_x) {
     Enemy[enemy_id]->last_left=FALSE;
     Enemy[enemy_id]->x+=Enemy[enemy_id]->speed;
@@ -375,11 +384,15 @@ void EnemyMove(int enemy_id)
       break;
     case 1://mite
       if (Enemy[enemy_id]->y<path_node_center_y) {
-        Enemy[enemy_id]->y+=Enemy[enemy_id]->speed;//Go against gravity
+        Enemy[enemy_id]->y+=Enemy[enemy_id]->speed;
       } else {
         Enemy[enemy_id]->y-=Enemy[enemy_id]->speed;
       }
       break;
+    }
+  } else {
+    Enemy[enemy_id]->idling=TRUE;
+    Enemy[enemy_id]->move_to_target=FALSE;
   }
   if (path_node_center_y-1<=Enemy[enemy_id]->y && Enemy[enemy_id]->y<=path_node_center_y+1 &&
       path_node_center_x-1<=Enemy[enemy_id]->x && Enemy[enemy_id]->x<=path_node_center_x+1) {
@@ -389,6 +402,7 @@ void EnemyMove(int enemy_id)
       Enemy[enemy_id]->move_to_target=FALSE;
     }
   }
+  
 }
 
 void EnemyTargetPlayer(int i)
@@ -512,7 +526,7 @@ void EnemyKnockbackMove(int i)
   bool allow_act=FALSE;
   switch (Enemy[i]->species) {
     case 0:
-      if (GetOnGroundId(Enemy[i]->x,Enemy[i]->y,10,9)!=-1) {
+      if (GetOnGroundId(Enemy[i]->x,Enemy[i]->y,14,13)!=-1) {
   	    allow_act=TRUE;
       }
       break;
@@ -521,6 +535,11 @@ void EnemyKnockbackMove(int i)
 	    allow_act=TRUE;
       }
       break;
+  }
+  int tmp_node_id=GetGridId(Enemy[i]->x,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM); //all nodes
+  if (tmp_node_id!=-1) {
+    if (NodeGrid[tmp_node_id]->node_solid)
+      allow_act=TRUE;
   }
 // ^^ condition
   if (allow_act || IsOutOfBounds(Enemy[i]->x,Enemy[i]->y,5,MAP_WIDTH,MAP_HEIGHT)) {

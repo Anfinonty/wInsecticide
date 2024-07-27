@@ -355,7 +355,8 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
         Sleep(1000);
       }
     } else if (in_map_editor) {
-      Sleep(1000);
+      MapEditorAct();
+      Sleep(6);
     } else {
       Sleep(1000);
     }
@@ -740,11 +741,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             SelectObject(hdcBackbuff,screen);
             DrawBackground(hdcBackbuff);
             DrawMapEditorPlatforms(hdcBackbuff);
-            //DrawMapEditorEnemy(hdcBackbuff);
-            //DrawMapEditorPlayer(hdcBackbuff);
-            //DrawMapEditorUI(hdcBackbuff);
+            DrawMapEditorEnemy(hdcBackbuff);
+            DrawMapEditorPlayer(hdcBackbuff);
+            DrawGrids(hdcBackbuff);
+            DrawMapEditorUI(hdcBackbuff);
             DrawCursor(hdcBackbuff);
-            //DrawGrids(hdcBackbuff);
 
             if (!IsInvertedBackground()){ //Inverted palette level
               BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
@@ -983,6 +984,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,BLACK,-1);
       }
 
+
+      title_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/title.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      title_sprite_mask=CreateBitmapMask(title_sprite,LTGREEN,NULL);
+      //title_sprite_cache=RotateSprite(NULL, title_sprite,0,LTGREEN,BLACK,YELLOW,-1);
+
       //fullscreen
       //ShowWindow(hwnd,SW_SHOWMAXIMIZED);
 
@@ -1014,18 +1020,33 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
        loadSoundEffect(&channelSoundEffect[0],L"snd/fast.wav",TRUE);
        loadSoundEffect(&channelSoundEffect[1],L"snd/clang_death.wav",TRUE);
-
+       loadSoundEffect(&channelSoundEffect[2],L"snd/S_DIO_00033.wav",TRUE);
 
 
        //for wav sound effects
-       for (int i=0;i<SND_THREAD_NUM-1;i++) {
-         waveOutOpen(&hWaveOut[i], WAVE_MAPPER, &wfx_wav_sfx, 0, 0, CALLBACK_NULL);
-         waveOutPrepareHeader(hWaveOut[i], &whdr[i], sizeof(WAVEHDR));
-       }
+       waveOutOpen(&hWaveOut[0], WAVE_MAPPER, &wfx_wav_sfx, 0, 0, CALLBACK_NULL);
+       waveOutPrepareHeader(hWaveOut[0], &whdr[0], sizeof(WAVEHDR));
 
-     //For wav music
-       //waveOutOpen(&hWaveOut[2], WAVE_MAPPER, &wfx_wav_music, 0, 0, CALLBACK_NULL);
-       //waveOutPrepareHeader(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));
+       waveOutOpen(&hWaveOut[1], WAVE_MAPPER, &wfx_wav_sfx, 0, 0, CALLBACK_NULL);
+       waveOutPrepareHeader(hWaveOut[1], &whdr[1], sizeof(WAVEHDR));
+
+
+       //Get details of sfx2, 2nd type of audio, its smaller (8000hz)
+       wfx_wav_sfx2.wFormatTag = WAVE_FORMAT_PCM;
+       wfx_wav_sfx2.nChannels = channelSoundEffect[2].wav_header->NumOfChan;
+       wfx_wav_sfx2.nSamplesPerSec = channelSoundEffect[2].wav_header->SamplesPerSec;
+       wfx_wav_sfx2.nAvgBytesPerSec = channelSoundEffect[2].wav_header->bytesPerSec;
+       wfx_wav_sfx2.nBlockAlign = channelSoundEffect[2].wav_header->blockAlign;
+       wfx_wav_sfx2.wBitsPerSample = channelSoundEffect[2].wav_header->bitsPerSample;
+       wfx_wav_sfx2.cbSize = 0;
+
+       /*printf("%d\n", wfx_wav_sfx2.nChannels);
+       printf("%d\n", wfx_wav_sfx2.nSamplesPerSec);
+       printf("%d\n", wfx_wav_sfx2.nAvgBytesPerSec);
+       printf("%d\n", wfx_wav_sfx2.nBlockAlign);
+       printf("%d\n", wfx_wav_sfx2.wBitsPerSample);*/
+       waveOutOpen(&hWaveOut[3], WAVE_MAPPER, &wfx_wav_sfx2, 0, 0, CALLBACK_NULL);
+       waveOutPrepareHeader(hWaveOut[3], &whdr[3], sizeof(WAVEHDR));
        return 0;
        break;
 

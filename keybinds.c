@@ -23,11 +23,37 @@ bool keydownalt()
 void MapEditorKeypressDown(WPARAM wParam)
 {
   switch (wParam) {
+    //Holding Down Down Arrow or 'S'
+      case 'S':
+      case VK_DOWN:
+        player.rst_down=TRUE;
+        break;
+
+
+    //Holding Down Right Arrow or 'D'
+      case 'D':
+      case VK_RIGHT:
+        player.rst_right=TRUE;
+        break;
+
+
+    //Holding Down Left Arrow or 'A'
+      case 'A':
+      case VK_LEFT:
+        player.rst_left=TRUE;
+        break;
+
+
+    //Holding Down Up Arrow or 'W''
+      case 'W':
+      case VK_UP:
+        player.rst_up=TRUE;
+        break;
 
 
   //Holding down ENTER key
     case VK_RETURN:
-      flag_restart=TRUE;
+      //flag_restart=TRUE;
       break;
   }
 }
@@ -36,6 +62,33 @@ void MapEditorKeypressDown(WPARAM wParam)
 void MapEditorKeypressUp(WPARAM wParam)
 {
   switch (wParam) {
+
+    //Release S or Down key
+      case 'S':
+      case VK_DOWN:
+        player.rst_down=FALSE;
+        break;
+
+    //Release D or Right key
+      case 'D':
+      case VK_RIGHT:
+        player.rst_right=FALSE;
+        break;
+
+
+    //Release A or Left key
+      case 'A':
+      case VK_LEFT:
+        player.rst_left=FALSE;
+        break;
+
+    //Release W or Up key
+      case 'W':
+      case VK_UP:
+        player.rst_up=FALSE;
+        break;
+
+
     /*case VK_ESC: //ESCAPE
       if () { //Shift Included, ABORT
 
@@ -47,7 +100,8 @@ void MapEditorKeypressUp(WPARAM wParam)
       break;*/
 
 
-    //flagmapeditorloaded=FALSE
+
+
     //Holding Down Shift && Escape
     case VK_ESCAPE:
       if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = QUIT

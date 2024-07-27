@@ -161,8 +161,31 @@ void DrawMainMenu(HDC hdc)
   //draw bkgrnd
   DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE);
 
+  //GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
+
+
   //Draw Moon Phase
   GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
+//  GrSprite(hdc, GR_WIDTH/2, 128, title_sprite,FALSE);
+//  GrSprite(hdc, GR_WIDTH/2, 128, title_sprite_cache,FALSE);
+
+  DrawBitmap(hdc,GR_WIDTH/2-352/2,
+                 -32,
+                 0,
+                 0,
+                 352,
+                 256,
+                title_sprite_mask,SRCAND,FALSE);
+  //Draw platforms paint
+  DrawBitmap(hdc,GR_WIDTH/2-352/2,
+                 -32,
+                 0,
+                 0,
+                 352,
+                 256,
+                title_sprite,SRCPAINT,FALSE);
+
+
   int help_y=GR_HEIGHT-128;
   if (!hide_taskbar) { //task bar is shown
     help_y-=8*4; //go up abit
@@ -287,7 +310,7 @@ lunar_year
   int main_menu_y=0;
   if (hide_taskbar)
     main_menu_y=15;
-  GrPrintW(hdc,30,main_menu_y+10,L"អាពីងស៊ីរុយ - Welcome to the wInsecticide Menu!","",WHITE,16,FALSE,yes_unifont);
+  //GrPrintW(hdc,30,main_menu_y+10,L"អាពីងស៊ីរុយ - Welcome to the wInsecticide Menu!","",WHITE,16,FALSE,yes_unifont);
 
 
 

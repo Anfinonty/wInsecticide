@@ -336,6 +336,7 @@ void InitPlayer() {
 
   player.knives_per_throw=1;
   player.fast_duration=0;
+  player.shoot_knife_duration=0;
 
   /*player_fling_web.length=0;
   for (i=0;i<64;i++) {
@@ -513,6 +514,14 @@ void PlayerAct() {
           }
         }
 	    player.bullet[player.bullet_shot_num]=current_bullet_id;
+        /*if (game_audio) {
+          mem_snd_interrupt[3]=TRUE;
+          waveOutReset(hWaveOut[3]);
+          PlayMemSnd(&channelSoundEffect[2],&channelSoundEffectCache[2],TRUE,3); 
+        }*/
+        if (game_audio) {
+          player.shoot_knife_duration=1;
+        }
         ShootBullet(
             current_bullet_id,
 	        player.bullet_shot_num,
@@ -1669,15 +1678,34 @@ void PlayerSndAct()
   if (player.fast_duration>=channelSoundEffect[0].duration/2) {
     player.fast_duration=0;
   }
-  if (player.fast_duration==0 && player.speed>10) {
-//    PlayMemSnd(fast_mem_audio_cache,fast_mem_audio_filesize,fast_mem_audio_duration/2,1);
-//    PlayMemSnd(channelSoundEffect[0].audio,channelSoundEffect[0].filesize,channelSoundEffect[0].duration/2,1);
+  if (player.fast_duration==0 && player.speed>10) { //sound effect fast sound effect
     PlayMemSnd(&channelSoundEffect[0],&channelSoundEffectCache[0],TRUE,1); 
   }
   if (player.fast_duration>0 && player.speed<=10) {
     player.fast_duration=0;
     mem_snd_interrupt[1]=TRUE;
     waveOutReset(hWaveOut[1]);
+  }
+  if (player.shoot_knife_duration==1) { //sound effect knife throw
+    PlayMemSnd(&channelSoundEffect[2],&channelSoundEffectCache[2],TRUE,3);
+  }
+
+  //sound timers limiter
+  //player shooting knife sound limiter
+  if (player.shoot_knife_duration>0)
+    player.shoot_knife_duration+=6;
+  if (player.shoot_knife_duration>330/*341*/) {//special case, old audio has popping noise at the end
+    mem_snd_interrupt[3]=TRUE;
+    waveOutReset(hWaveOut[3]);
+    player.shoot_knife_duration=0;
+  }
+
+
+  //player running fast sound limiter
+  if (player.speed>10) {
+    player.fast_duration+=6;
+  } else {
+    player.fast_duration=0;
   }
 }
 

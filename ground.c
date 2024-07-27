@@ -188,11 +188,14 @@ void SetGround(int i)
 }
 
 
-void InitGround()
+void InitGround(bool is_max)
 {
   int i,j;
+  int max=GROUND_NUM;
+  if (is_max)
+    max=GROUND_NUM+MAX_WEB_NUM;
 //Set ground default and Web
-  for (i=0;i<GROUND_NUM+MAX_WEB_NUM;i++) {
+  for (i=0;i<max;i++) {
     //printf("-Ground%d/%d\n",i,GROUND_NUM);
     for (j=0;j<VGRID_NUM;j++) {
       Ground[i]->already_in_grid[j]=FALSE;
@@ -239,17 +242,7 @@ void InitGround()
       if (Ground[i]->y3==Ground[i]->y2) {
 	    Ground[i]->y3+=2;
       }
-      //if (!IsInvertedBackground()) {
       Ground[i]->color=color_arr[saved_ground_color[i]];
-      /*} else {
-        Ground[i]->color=palette_dark_arr[saved_ground_color[i]];
-      }*/
-      //for (j=0;j<256;j++) {
-        //Ground[i]->text[j]=saved_ground_text[i][j];
-      //}
-
-      //char* b=saved_ground_text[i];
-      //printf("%s\n",b);
       wcsncpy(Ground[i]->text,saved_ground_text[i],512);
       //printf("\n%d ghost?%d",i,saved_ground_is_ghost[i]);
       if (saved_ground_is_ghost[i]) {

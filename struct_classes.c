@@ -61,7 +61,7 @@ AGround **Ground;
 
 
 
-void InitGround();
+void InitGround(bool is_max);
 void InitGround2();
 double GetLineTargetAngle(int Ground_id,double x,double y);
 double GetLineTargetHeight(int Ground_id,double E,double x,double y);
@@ -77,14 +77,17 @@ void DrawGroundTriFill(HDC hdc);
 
 
 
-/*struct RenderDistanceGrid
+struct RenderDistanceGrid
 {
   int x1;
   int y1;
   int x2;
   int y2;
-} RDGrid;*/
+} RDGrid[81]; //9*9
 
+
+int *rendered_ground_num;
+int *rendered_ground;
 
 
 struct player 
@@ -185,6 +188,7 @@ struct player
   int decceleration_timer;
   int seed;
   int fast_duration;
+  int shoot_knife_duration;
 
   int on_ground_edge_id;
   int saved_on_ground_edge_id;
@@ -746,3 +750,8 @@ HBITMAP map_platforms_sprite_mask;
 
 HBITMAP moon_sprite;
 HBITMAP moon_sprite_cache;
+
+
+HBITMAP title_sprite;
+HBITMAP title_sprite_mask;
+//HBITMAP title_sprite_cache;

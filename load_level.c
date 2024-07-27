@@ -27,6 +27,7 @@ void InitOnce() {
 
   adjustSFXVolume(&channelSoundEffectCache[0],&channelSoundEffect[0],game_volume/5,TRUE); //speed
   adjustSFXVolume(&channelSoundEffectCache[1],&channelSoundEffect[1],game_volume,TRUE); //clang_death
+  adjustSFXVolume(&channelSoundEffectCache[2],&channelSoundEffect[2],game_volume/4,TRUE); //knife throw
 
   //Load custom song
   wchar_t dirname[64];
@@ -96,15 +97,22 @@ void Init(HDC hdc) {
   InitBullet();
   InitGrid();
   InitNodeGrid();
-  InitGround();
+  InitGround(TRUE);
   InitNodeGridAttributes();
   InitEnemy();
   InitPlayer();
   BitmapPalette(hdc,map_platforms_sprite,rgbColorsDefault);
-  for (int i=0;i<SND_THREAD_NUM-1;i++) {
-    mem_snd_interrupt[i]=TRUE;
-    waveOutReset(hWaveOut[i]);
-  }
+
+  mem_snd_interrupt[0]=TRUE;
+  waveOutReset(hWaveOut[0]);
+
+  mem_snd_interrupt[1]=TRUE;
+  waveOutReset(hWaveOut[1]);
+
+  mem_snd_interrupt[3]=TRUE;
+  waveOutReset(hWaveOut[3]);
+
+
 
   if (!run_after_once) {
     run_after_once=TRUE;

@@ -399,13 +399,6 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
         }
       }
 
-
-      if (player.speed>10) {
-        player.fast_duration+=6;
-      } else {
-        player.fast_duration=0;
-      }
-
       if (call_help_timer<5000) {
         call_help_timer+=6;
       }
@@ -423,10 +416,17 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
         for (int i=0;i<MAX_ENEMY_NUM;i++) {
           PlaySound(NULL, NULL, SND_ASYNC);
         }
-        for (int i=0;i<SND_THREAD_NUM-1;i++) {
-          waveOutReset(hWaveOut[i]);
-          mem_snd_interrupt[i]=TRUE;
-        }
+
+
+        waveOutReset(hWaveOut[0]);
+        mem_snd_interrupt[0]=TRUE;
+  
+        waveOutReset(hWaveOut[1]);
+        mem_snd_interrupt[1]=TRUE;
+
+        waveOutReset(hWaveOut[3]);
+        mem_snd_interrupt[3]=TRUE;
+
         for (int i=0;i<SPAM_SFX_NUM;i++) {
           freeSoundEffectCache(&spamSoundEffectCache[i]);
         }

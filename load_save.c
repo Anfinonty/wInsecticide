@@ -7,26 +7,6 @@ int VGRID_NUM;
 int MAP_NODE_NUM;
 
 
-//GROUND_NUM
-/*double saved_ground_x1[MAX_GROUND_NUM];
-double saved_ground_y1[MAX_GROUND_NUM];
-double saved_ground_x2[MAX_GROUND_NUM];
-double saved_ground_y2[MAX_GROUND_NUM];
-double saved_ground_x3[MAX_GROUND_NUM];
-double saved_ground_y3[MAX_GROUND_NUM];
-bool saved_ground_is_ghost[MAX_GROUND_NUM];
-int saved_ground_color[MAX_GROUND_NUM];
-int saved_ground_type[MAX_GROUND_NUM];
-wchar_t saved_ground_text[MAX_GROUND_NUM][512];*/ //charsize 512
-
-
-//saved ground attributes pointers
-//int saved_enemy_type[MAX_ENEMY_NUM];
-//double saved_enemy_x[MAX_ENEMY_NUM];
-//double saved_enemy_y[MAX_ENEMY_NUM];
-
-
-
 bool *saved_ground_is_ghost;
 int *saved_ground_color;
 int *saved_ground_type;
@@ -73,10 +53,38 @@ bool saved_enemy_type_time_breaker_immune[ENEMY_TYPE_NUM];
 
 
 
+
+double set_enemy_type_speed[ENEMY_TYPE_NUM];
+double set_enemy_type_bullet_speed[ENEMY_TYPE_NUM];
+int set_enemy_type_species[ENEMY_TYPE_NUM];
+int set_enemy_type_follow_range[ENEMY_TYPE_NUM];
+int set_enemy_type_unchase_range[ENEMY_TYPE_NUM];
+int set_enemy_type_chase_range[ENEMY_TYPE_NUM];
+int set_enemy_type_color[ENEMY_TYPE_NUM];
+int set_enemy_type_speed_multiplier[ENEMY_TYPE_NUM];
+int set_enemy_type_health[ENEMY_TYPE_NUM];
+int set_enemy_type_shoot_at_player_range[ENEMY_TYPE_NUM];
+int set_enemy_type_aim_rand[ENEMY_TYPE_NUM];
+int set_enemy_type_bullet_cooldown[ENEMY_TYPE_NUM];
+int set_enemy_type_bullet_fire_cooldown[ENEMY_TYPE_NUM];
+int set_enemy_type_bullet_fire_at_once[ENEMY_TYPE_NUM];
+int set_enemy_type_bullet_length[ENEMY_TYPE_NUM];
+int set_enemy_type_bullet_damage[ENEMY_TYPE_NUM];
+int set_enemy_type_bullet_speed_multiplier[ENEMY_TYPE_NUM];
+int set_enemy_type_bullet_range[ENEMY_TYPE_NUM];
+int set_enemy_type_bullet_color[ENEMY_TYPE_NUM];
+int set_enemy_type_bullet_graphics_type[ENEMY_TYPE_NUM];
+int set_enemy_type_time_breaker_rare[ENEMY_TYPE_NUM];
+int set_enemy_type_time_breaker_length[ENEMY_TYPE_NUM];
+bool set_enemy_type_time_breaker_immune[ENEMY_TYPE_NUM];
+
+
+
+
 //Sound called in the Stack
 #define SPAM_SFX_NUM    3
 #define KEY_SFX_NUM     6
-#define CHANNEL_SFX_NUM 2
+#define CHANNEL_SFX_NUM 3
 
 wavSoundEffect spamSoundEffect[SPAM_SFX_NUM];
 wavSoundEffect keySoundEffect[KEY_SFX_NUM];
@@ -201,14 +209,12 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
 
 
   while ((c=fgetwc(fptr))!=WEOF) {
-    //wprintf(L"%c",c);
     if (row<=3 || row>=40) { //first 4 rows
       if (c!=';') {//not yet a semicolon
         if (c>='0' && c<='9') { //numerical chars only
           int_val=c-'0'; //ascii convert to num
           int_saved_val*=10; //move digit to left
           int_saved_val+=int_val; //append number digit to right side
-          //printf(int_val);
         }
       } else {//semi colon ;
         switch (row) {//save value
@@ -252,52 +258,39 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
 
 
 
-
-            //printf("pt:%d\n",sizeof(struct GroundLine*));
-            //printf("act:%d\n",sizeof(struct GroundLine));
-
             if (spawn_objects) {
-            Ground = calloc((GROUND_NUM+MAX_WEB_NUM),sizeof(AGround*));
-            VGrid = calloc(VGRID_NUM,sizeof(struct AVGrid*));
-            NodeGrid = calloc(MAP_NODE_NUM,sizeof(ANode*));
-            Enemy = calloc(ENEMY_NUM,sizeof(AEnemy*));
-            EnemySprite = calloc(ENEMY_NUM,sizeof(AEnemySprite*));
+              Ground = calloc((GROUND_NUM+MAX_WEB_NUM),sizeof(AGround*));
+              VGrid = calloc(VGRID_NUM,sizeof(struct AVGrid*));
+              NodeGrid = calloc(MAP_NODE_NUM,sizeof(ANode*));
+              Enemy = calloc(ENEMY_NUM,sizeof(AEnemy*));
+              EnemySprite = calloc(ENEMY_NUM,sizeof(AEnemySprite*));
 
-            //printf("Pointers Made==\n");
             
 
-            for (int i=0;i<(GROUND_NUM+MAX_WEB_NUM);i++) {
-              //struct GroundLine* buf = malloc(sizeof(struct GroundLine));
-              //printf("buf:%d\n",i);
-              AGround *newGround = createGround(VGRID_NUM);
-              Ground[i] = newGround;//malloc(sizeof(struct GroundLine));
-            }
-            
+              for (int i=0;i<(GROUND_NUM+MAX_WEB_NUM);i++) {
+                AGround *newGround = createGround(VGRID_NUM);
+                Ground[i] = newGround;
+              }
 
-            for (int i=0;i<VGRID_NUM;i++) {
-              AVGrid *newVGrid = createVGrid();
-              VGrid[i] = newVGrid;
-            }
-            //printf("Alloc Grids==\n");
+              for (int i=0;i<VGRID_NUM;i++) {
+                AVGrid *newVGrid = createVGrid();
+                VGrid[i] = newVGrid;
+              }
 
+              for (int i=0;i<MAP_NODE_NUM;i++) {
+                ANode *newNode = createNode();
+                NodeGrid[i] = newNode;
+              }
 
-            for (int i=0;i<MAP_NODE_NUM;i++) {
-              ANode *newNode = createNode();
-              NodeGrid[i] = newNode;
-            }
-            //printf("Alloc Nodes==\n");
+              for (int i=0;i<ENEMY_NUM;i++) {
+                AEnemy *newEnemy = createEnemy();
+                Enemy[i] = newEnemy;
+              }
 
-
-            for (int i=0;i<ENEMY_NUM;i++) {
-              AEnemy *newEnemy = createEnemy();
-              Enemy[i] = newEnemy;
-            }
-
-
-            for (int i=0;i<ENEMY_NUM;i++) {
-              AEnemySprite *newEnemySprite = createEnemySprite();
-              EnemySprite[i] = newEnemySprite;
-            }
+              for (int i=0;i<ENEMY_NUM;i++) {
+                AEnemySprite *newEnemySprite = createEnemySprite();
+                EnemySprite[i] = newEnemySprite;
+              }
             }
 
             break;
@@ -318,7 +311,6 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
             is_inverted=(bool)int_saved_val;
             break;
         }
-        //printf("\n-%d: %d",row, int_saved_val);
         column=int_val=int_saved_val=0;//restart values
         row++;
       }
@@ -328,14 +320,12 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
           if (c>='0' && c<='9') { //numerical chars only
             if (row!=17 && row!=18) {
               int_val=(int)c-'0'; //ascii convert to num
-              //wprintf(L"%c",c);
               int_saved_val*=10; //move digit to left
               int_saved_val+=int_val; //append number digit to right side
             } else {
               if (deci) {
                 double_val=(double)(c-'0')*0.1;
                 double_saved_val+=double_val;
-                //printf("\n-%3.2f",double_saved_val);
                 deci=FALSE;
               } else {
                 double_saved_val=c-'0';
@@ -404,9 +394,7 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
               writing_txt=TRUE;
             } else {//end of string
               writing_txt=FALSE;
-              //saved_ground_text[column]=txt;
               wcsncpy(saved_ground_text[column],txt,512);
-              //printf("%d@@@%s\n",column,saved_ground_text[column]);                
               column++;
               txt[0]='\0';
               char_pos=0;//restart value
@@ -436,18 +424,13 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
           }
         }
         //End of characters only
-
-
-
       } else { //semi colon ;
-        //printf(";\n");
         column=int_val=int_saved_val=0;//restart values
         row++;
       }
     }
   }
   fclose(fptr);
-  //printf("\n\n\n===Level Loaded===\n\n\n");
 }
 
 
