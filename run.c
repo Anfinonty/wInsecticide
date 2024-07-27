@@ -186,8 +186,8 @@ double moon_angle_shift=0;
 #define MAX_FOLLOW_RANGE 100
 #define MAX_NODE_NUM	 MAX_FOLLOW_RANGE*MAX_FOLLOW_RANGE
 
-//#define VRENDER_DIST      9//20
-//#define VRDGRID_NUM       VRENDER_DIST*VRENDER_DIST
+#define RENDER_DIST      10//20
+#define RDGRID_NUM       RENDER_DIST*RENDER_DIST
 
 
 #define BULLET_NUM	5000
@@ -794,6 +794,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       RESOLUTION_X[2]=SCREEN_WIDTH;
       RESOLUTION_Y[2]=SCREEN_HEIGHT;
       swprintf(src_music_dir,64,L"music");
+
 
       //waveOutGetVolume(hWaveOut[2],&wav_out_original_volume);
 

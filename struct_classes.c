@@ -76,18 +76,18 @@ void DrawGroundTriFill(HDC hdc);
 
 
 
-
+//For map editor
 struct RenderDistanceGrid
 {
-  int x1;
-  int y1;
-  int x2;
-  int y2;
-} RDGrid[81]; //9*9
+  int x;
+  int y;
+} RDGrid[RDGRID_NUM]; //9*9
 
 
-int *rendered_ground_num;
-int *rendered_ground;
+//int rendered_grid_num;
+//int render_grids[RDGRID_NUM];
+int rendered_ground_num;
+int render_grounds[MAX_GROUND_NUM];
 
 
 struct player 

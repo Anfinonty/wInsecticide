@@ -1,7 +1,7 @@
 
 void InitBullet()
 {
-  int i=0,j=0;
+  int i=0;
   current_bullet_id=0;
   for (i=0;i<BULLET_NUM;i++) {
     Bullet[i].playsnd=FALSE;
@@ -22,16 +22,6 @@ void InitBullet()
     Bullet[i].graphics_type=0;
     Bullet[i].angle=0;
     Bullet[i].saved_ground_id=-1;
-//
-/*    Bullet[i].msprite_hold_timer=0;
-    Bullet[i].msprite_hold_timer_max=0,
-    Bullet[i].current_sm=0;
-    for (j=0;j<MULTI_SPRITE_NUM;j++) {
-      Bullet[i].appear_timer[j]=0;
-      Bullet[i].msprite_x[j]=0;
-      Bullet[i].msprite_y[j]=0;
-    }*/
-//
   }
 }
 
@@ -562,14 +552,7 @@ void BulletSndAct(int i)
 {
   if (Bullet[i].playsnd) {
     if (Bullet[i].shot) {
-//      PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
-//https://stackoverflow.com/questions/1382051/what-is-the-c-equivalent-for-reinterpret-cast
-      //const void* soundData = LockResource(clang_audio_cache);
-      
-//      PlaySound(reinterpret_cast<LPCWSTR>(soundData), GetModuleHandle(NULL), SND_MEMORY);      
-//      PlaySound((LPCWSTR)(soundData), GetModuleHandle(NULL), SND_MEMORY | SND_ASYNC);       
-      //PlaySound(clang_audio_cache, NULL, SND_MEMORY | SND_ASYNC);       
-      //PlaySound(clang_audio_cache, NULL, SND_MEMORY | SND_ASYNC);       
+      //https://stackoverflow.com/questions/1382051/what-is-the-c-equivalent-for-reinterpret-cast
       PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC); //clang
     }
     Bullet[i].playsnd=FALSE;
@@ -609,6 +592,7 @@ void DrawBullet2(HDC hdc,int i,double x,double y,int color)
       break;
   }
 }
+
 
 void DrawBullet(HDC hdc,int i)
 {

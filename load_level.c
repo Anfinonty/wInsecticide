@@ -27,7 +27,7 @@ void InitOnce() {
 
   adjustSFXVolume(&channelSoundEffectCache[0],&channelSoundEffect[0],game_volume/5,TRUE); //speed
   adjustSFXVolume(&channelSoundEffectCache[1],&channelSoundEffect[1],game_volume,TRUE); //clang_death
-  adjustSFXVolume(&channelSoundEffectCache[2],&channelSoundEffect[2],game_volume/4,TRUE); //knife throw
+  adjustSFXVolume(&channelSoundEffectCache[2],&channelSoundEffect[2],game_volume/5,TRUE); //knife throw
 
   //Load custom song
   wchar_t dirname[64];
