@@ -295,3 +295,18 @@ void InitNodeGridAttributes()
 
 
 
+
+void DrawGrids(HDC hdc,int player_cam_move_x,int player_cam_move_y)
+{
+  for (int y=0;y<=MAP_HEIGHT;y+=GRID_SIZE) { // ---->
+    GrLine(hdc,0+player_cam_move_x,y+player_cam_move_y,MAP_WIDTH+player_cam_move_x,y+player_cam_move_y,BLACK);
+  }
+
+  for (int x=0;x<=MAP_WIDTH;x+=GRID_SIZE) {  // |
+    GrLine(hdc,x+player_cam_move_x,0+player_cam_move_y,x+player_cam_move_x,MAP_HEIGHT+player_cam_move_y,BLACK);
+  }
+}
+
+
+
+

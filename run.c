@@ -615,10 +615,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
         if (GR_WIDTH!=OLD_GR_WIDTH || GR_HEIGHT!=OLD_GR_HEIGHT) {
-          InitPlayerCamera();
-          player.cam_x=0;
-          player.cam_y=0;
-          CameraInit(player.x,player.y+PLAYER_HEIGHT/2); //idk scaling is weird for sprite
+          if (!in_map_editor) {
+            InitPlayerCamera();
+            player.cam_x=0;
+            player.cam_y=0;
+            CameraInit(player.x,player.y+PLAYER_HEIGHT/2); //idk scaling is weird for sprite
+          }
           OLD_GR_WIDTH = GR_WIDTH;
           OLD_GR_HEIGHT = GR_HEIGHT;
           //Load Map Background sprites
@@ -743,7 +745,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DrawMapEditorPlatforms(hdcBackbuff);
             DrawMapEditorEnemy(hdcBackbuff);
             DrawMapEditorPlayer(hdcBackbuff);
-            DrawGrids(hdcBackbuff);
+            DrawGrids(hdcBackbuff,player.cam_x+GR_WIDTH/2,player.cam_y+GR_HEIGHT/2);
             DrawMapEditorUI(hdcBackbuff);
             DrawCursor(hdcBackbuff);
 

@@ -24,35 +24,78 @@ void MapEditorKeypressDown(WPARAM wParam)
 {
   switch (wParam) {
     //Holding Down Down Arrow or 'S'
-      case 'S':
-      case VK_DOWN:
+      case 'S': //movement down y
         player.rst_down=TRUE;
         break;
 
-
-    //Holding Down Right Arrow or 'D'
-      case 'D':
-      case VK_RIGHT:
-        player.rst_right=TRUE;
+      case VK_DOWN: //change type to alter ++
+        MapEditor.selected_ground_option=LimitValue(MapEditor.selected_ground_option+1,0,4);
         break;
 
-
-    //Holding Down Left Arrow or 'A'
-      case 'A':
-      case VK_LEFT:
-        player.rst_left=TRUE;
-        break;
 
 
     //Holding Down Up Arrow or 'W''
       case 'W':
-      case VK_UP:
         player.rst_up=TRUE;
+        break;
+
+      case VK_UP: //change type to alter --
+        MapEditor.selected_ground_option=LimitValue(MapEditor.selected_ground_option-1,0,4);
+        break;
+
+
+
+    //Holding Down Left Arrow or 'A'
+      case 'A':
+        player.rst_left=TRUE;
+        break;
+
+      case VK_LEFT:// change value --
+        switch (MapEditor.selected_ground_option) {
+          case 0: //ground_id
+            MapEditor.selected_ground_id=LimitValue(MapEditor.selected_ground_id-1,0,GROUND_NUM);
+            break;
+          case 1: // type
+            Ground[MapEditor.selected_ground_id]->type=LimitValue(Ground[MapEditor.selected_ground_id]->type-1,0,4);
+            break;
+          case 2: // color
+            Ground[MapEditor.selected_ground_id]->color_id=LimitValue(Ground[MapEditor.selected_ground_id]->color_id-1,0,COLORS_NUM);
+            break;
+          case 3: // is_ghost
+            Ground[MapEditor.selected_ground_id]->is_ghost = !Ground[MapEditor.selected_ground_id]->is_ghost;
+            break;
+        }
+        break;
+
+
+
+    //Holding Down Right Arrow or 'D'
+      case 'D': //movement up y
+        player.rst_right=TRUE;
+        break;
+
+      case VK_RIGHT: //change value ++
+        switch (MapEditor.selected_ground_option) {
+          case 0: //ground_id
+            MapEditor.selected_ground_id=LimitValue(MapEditor.selected_ground_id+1,0,GROUND_NUM);
+            break;
+          case 1: // type
+            Ground[MapEditor.selected_ground_id]->type=LimitValue(Ground[MapEditor.selected_ground_id]->type+1,0,4);
+            break;
+          case 2: // color
+            Ground[MapEditor.selected_ground_id]->color_id=LimitValue(Ground[MapEditor.selected_ground_id]->color_id+1,0,COLORS_NUM);
+            break;
+          case 3: // is_ghost
+            Ground[MapEditor.selected_ground_id]->is_ghost = !Ground[MapEditor.selected_ground_id]->is_ghost;
+            break;
+        }
         break;
 
 
   //Holding down ENTER key
     case VK_RETURN:
+      player.cam_x=-player.x;
+      player.cam_y=-player.y;
       //flag_restart=TRUE;
       break;
   }

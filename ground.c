@@ -242,6 +242,7 @@ void InitGround(bool is_max)
       if (Ground[i]->y3==Ground[i]->y2) {
 	    Ground[i]->y3+=2;
       }
+      Ground[i]->color_id=saved_ground_color[i];
       Ground[i]->color=color_arr[saved_ground_color[i]];
       wcsncpy(Ground[i]->text,saved_ground_text[i],512);
       //printf("\n%d ghost?%d",i,saved_ground_is_ghost[i]);
@@ -686,27 +687,4 @@ void DrawGroundTriFill(HDC hdc)
     }
   }
 }
-
-
-
-void DrawGrids(HDC hdc)
-{
-  for (int i=0;i<VGRID_NUM;i++) {
-//    GrLine(hdc,VGrid[i]->x1+player.cam_x+player.cam_move_x,VGrid[i]->y1+player.cam_y+player.cam_move_y,VGrid[i]->x2+player.cam_x+player.cam_move_x,VGrid[i]->y1+player.cam_y+player.cam_move_y,BLACK);
-//    GrLine(hdc,VGrid[i]->x1+player.cam_x+player.cam_move_x,VGrid[i]->y1+player.cam_y+player.cam_move_y,VGrid[i]->x1+player.cam_x+player.cam_move_x,VGrid[i]->y2+player.cam_y+player.cam_move_y,BLACK);
-//    GrLine(hdc,VGrid[i]->x2+player.cam_x+player.cam_move_x,VGrid[i]->y2+player.cam_y+player.cam_move_y,VGrid[i]->x2+player.cam_x+player.cam_move_x,VGrid[i]->y1+player.cam_y+player.cam_move_y,BLACK);
-//    GrLine(hdc,VGrid[i]->x2+player.cam_x+player.cam_move_x,VGrid[i]->y2+player.cam_y+player.cam_move_y,VGrid[i]->x1+player.cam_x+player.cam_move_x,VGrid[i]->y2+player.cam_y+player.cam_move_y,BLACK);
-    GrLine(hdc,VGrid[i]->x1+player.cam_x,VGrid[i]->y1+player.cam_y,VGrid[i]->x2+player.cam_x,VGrid[i]->y1+player.cam_y,BLACK);
-    GrLine(hdc,VGrid[i]->x1+player.cam_x,VGrid[i]->y1+player.cam_y,VGrid[i]->x1+player.cam_x,VGrid[i]->y2+player.cam_y,BLACK);
-    GrLine(hdc,VGrid[i]->x2+player.cam_x,VGrid[i]->y2+player.cam_y,VGrid[i]->x2+player.cam_x,VGrid[i]->y1+player.cam_y,BLACK);
-    GrLine(hdc,VGrid[i]->x2+player.cam_x,VGrid[i]->y2+player.cam_y,VGrid[i]->x1+player.cam_x,VGrid[i]->y2+player.cam_y,BLACK);
-
-  }
-
-
-  for (int i=0;i<RDGRID_NUM;i++) {
-    GrCircle(hdc,RDGrid[i].x+player.cam_x,RDGrid[i].y+player.cam_y,5,BLACK,-1);
-  }
-}
-
 

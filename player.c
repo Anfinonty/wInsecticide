@@ -110,7 +110,6 @@ void CameraInit(double x,double y)
 void InitPlayerCamera()
 {
 //set camera
-
   player.cam_x=0;
   player.cam_y=0;
   CameraInit(player.saved_x,player.saved_y+PLAYER_HEIGHT/2); //idk scaling is weird for sprite

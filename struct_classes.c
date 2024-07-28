@@ -6,6 +6,7 @@ typedef struct GroundLine
 
 
   int health; //For Webs, health of ground
+  int color_id;
   int color; //Color of ground, RGB()
   int type; //Regular, Text ground or TriFill 
 
@@ -87,7 +88,8 @@ struct RenderDistanceGrid
 //int rendered_grid_num;
 //int render_grids[RDGRID_NUM];
 int rendered_ground_num;
-int render_grounds[MAX_GROUND_NUM];
+int *render_grounds;
+//int render_grounds[MAX_GROUND_NUM];
 
 
 struct player 

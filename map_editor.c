@@ -1,4 +1,20 @@
 
+//global variables -- in struct now :)
+struct MapEditor
+{
+  int cursor_x;
+  int cursor_y;
+
+  //overal
+  int selected_option; //0:ground, 1:player, 2:enemy, 3:enemy_type, 4:background&pallette
+
+
+  //Ground 
+  int selected_ground_option; //0:ground_id, 1:type, 2:color, 3:is_ghost
+  int selected_ground_id; //0 -> GROUND_NUM
+  int selected_ground_pivot; //0:x1y1 ,1:x2y2, 2:x3y3 
+
+} MapEditor;
 
 
 typedef struct MEEnemy
@@ -62,8 +78,7 @@ void CleanUpMEEnemySprites()
 
 
 //Map Editor Init()
-
-
+//
 void SetMENodeGridAttributes2(int i)
 {
   int j=0,x=0,y=0,lg_grid_id=0,min=0,max=0,x1=0,y1=0;
@@ -103,7 +118,7 @@ void SetMENodeGridAttributes2(int i)
         SetGridLineArray(lg_grid_id,i);
       }
     } else {// x=(y-c)/m
-      if (y1<Ground[i]->y3) { //y1 is lower than x3
+      if (y1<Ground[i]->y3) { //y1 is lower than y3
 	    min=y1;
 	    max=Ground[i]->y3;
       } else {
@@ -151,212 +166,6 @@ void SetMENodeGridAttributes(int i)
 }
 
 
-
-void InitMENodeGridAttributes()
-{
-  for (int i=0;i<GROUND_NUM;i++) {
-    SetMENodeGridAttributes(i);
-  }
-}
-
-
-
-
-void InitMapEditorEnemy()
-{
-  for (int i=0;i<ENEMY_NUM;i++) {
-    MEEnemy[i]->x=saved_enemy_x[i];
-    MEEnemy[i]->y=saved_enemy_y[i];
-    MEEnemy[i]->type=saved_enemy_type[i];
-  }
-
-
-
-  //Load 10 Sprites
-  //init set enemy type
-  for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-    set_enemy_type_speed[i]=saved_enemy_type_speed[i];
-    set_enemy_type_bullet_speed[i]=saved_enemy_type_bullet_speed[i];
-    set_enemy_type_species[i]=saved_enemy_type_species[i];
-    set_enemy_type_follow_range[i]=saved_enemy_type_follow_range[i];
-    set_enemy_type_unchase_range[i]=saved_enemy_type_unchase_range[i];
-    set_enemy_type_chase_range[i]=saved_enemy_type_chase_range[i];
-    set_enemy_type_color[i]=saved_enemy_type_color[i];
-    set_enemy_type_speed_multiplier[i]=saved_enemy_type_speed_multiplier[i];
-    set_enemy_type_health[i]=saved_enemy_type_health[i];
-    set_enemy_type_shoot_at_player_range[i]=saved_enemy_type_shoot_at_player_range[i];
-    set_enemy_type_aim_rand[i]=saved_enemy_type_aim_rand[i];
-    set_enemy_type_bullet_cooldown[i]=saved_enemy_type_bullet_cooldown[i];
-    set_enemy_type_bullet_fire_cooldown[i]=saved_enemy_type_bullet_fire_cooldown[i];
-    set_enemy_type_bullet_fire_at_once[i]=saved_enemy_type_bullet_fire_at_once[i];
-    set_enemy_type_bullet_length[i]=saved_enemy_type_bullet_length[i];
-    set_enemy_type_bullet_damage[i]=saved_enemy_type_bullet_damage[i];
-    set_enemy_type_bullet_speed_multiplier[i]=saved_enemy_type_bullet_speed_multiplier[i];
-    set_enemy_type_bullet_range[i]=saved_enemy_type_bullet_range[i];
-    set_enemy_type_bullet_color[i]=saved_enemy_type_bullet_color[i];
-    set_enemy_type_bullet_graphics_type[i]=saved_enemy_type_bullet_graphics_type[i];
-    set_enemy_type_time_breaker_rare[i]=saved_enemy_type_time_breaker_rare[i];
-    set_enemy_type_time_breaker_length[i]=saved_enemy_type_time_breaker_length[i];
-    set_enemy_type_time_breaker_immune[i]=saved_enemy_type_time_breaker_immune[i];
-  }
-
-
-  //Generate Sprites for 10 enemy types
-  for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-    if (set_enemy_type_species[i]==0) {
-      MEEnemySprite[i]->sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,BLACK,color_arr[set_enemy_type_color[i]],-1);
-    } else {
-      MEEnemySprite[i]->sprite_1=RotateSprite(NULL, enemy2_sprite_1,0,LTGREEN,BLACK,color_arr[set_enemy_type_color[i]],-1);
-    }
-  }
-}
-
-
-
-
-
-void InitMapEditor(HDC hdc)
-{
-  rendered_ground_num=0;
-  for (int i=0;i<MAX_GROUND_NUM;i++)
-    render_grounds[i]=-1;
-
-
-  //Create Class Objects()
-  Ground = calloc(GROUND_NUM,sizeof(AGround*));
-  VGrid = calloc(VGRID_NUM,sizeof(struct AVGrid*));
-  MEEnemy = calloc(ENEMY_NUM,sizeof(AMEEnemy*));
-  MEEnemySprite = calloc(ENEMY_TYPE_NUM,sizeof(AMEEnemySprite*));
-
-  for (int i=0;i<GROUND_NUM;i++) {
-    AGround *newGround = createGround(VGRID_NUM);
-    Ground[i] = newGround;//malloc(sizeof(struct GroundLine));
-  }
-    
-
-  for (int i=0;i<VGRID_NUM;i++) {
-    AVGrid *newVGrid = createVGrid();
-    VGrid[i] = newVGrid;
-  }
-
-  //Special --> for enemy only
-  for (int i=0;i<ENEMY_NUM;i++) {
-    AMEEnemy *newMEEnemy = createMEEnemy();
-    MEEnemy[i] = newMEEnemy;
-  }
-
-  for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-    AMEEnemySprite *newMEEnemySprite = createMEEnemySprite();
-    MEEnemySprite[i] = newMEEnemySprite;
-  }
-
-
-  //Init
-  InitGrid();
-  InitGround(FALSE);
-  InitMENodeGridAttributes();
-  InitMapEditorEnemy();
-  InitPlayer(); //but i only use player.x and player.y
-  BitmapPalette(hdc,map_platforms_sprite,rgbColorsDefault);
-
-  if (!run_after_once) {
-    run_after_once=TRUE;
-  } else {
-    PlaySound(NULL, NULL, SND_ASYNC);
-  }
-}
-
-
-
-
-
-
-void InitLevelMapEditor(HWND hwnd, HDC hdc)
-{
-  wchar_t txt[128];
-  swprintf(txt,128,L"saves/%s/level.txt",level_names[level_chosen]);
-  LoadSave(txt,FALSE); //load saves
-  srand(time(NULL));
-  timeBeginPeriod(1);
-
-
-
-  player.cam_move_x=0;
-  player.cam_move_y=0;
-
-//  alloc_enemy_once=TRUE;
-  player_load_color=player_color;
-  player_load_iris_color=player_iris_color;
-  player_load_pupil_color=player_pupil_color;
-  player_bullet_color=WHITE;
-
-  if (IsInvertedBackground()) { //invert player color if background is inverted
-    player_load_color=COLORS_NUM-player_color-1;
-    player_load_iris_color=COLORS_NUM-player_iris_color-1;
-    player_load_pupil_color=COLORS_NUM-player_pupil_color-1;
-
-    player_bullet_color=BLACK;
-  }
-
-
-
-  InitMapEditor(hdc);
-
-  //Load Player Cosmetics
-  DeleteObject(player.sprite_1);
-
-  player.sprite_1 = RotateSprite(NULL, player.osprite_1,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
-
-  //Load Player Sprites
-  player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-
-  //moon sprite
-  DeleteObject(moon_sprite_cache);
-  HBITMAP tmp_moon_sprite=CopyCrunchyBitmap(moon_sprite,NOTSRCCOPY);
-  moon_sprite_cache=RotateSprite(NULL, tmp_moon_sprite,0,PURPLE,BLACK,BLACK,-1);
-  DeleteObject(tmp_moon_sprite);
-
-  DeleteObject(mouse_cursor_sprite_cache);
-  DeleteObject(mouse_cursor_sprite_cache2);
-  DeleteObject(mouse_cursor_sprite_iris_cache);
-  DeleteObject(mouse_cursor_sprite_iris_cache2);
-  DeleteObject(mouse_cursor_sprite_pupil_cache);
-  DeleteObject(mouse_cursor_sprite_pupil_cache2);
-
-  mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-  mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-
-  mouse_cursor_sprite_iris_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTBLUE,draw_color_arr[player_load_iris_color]);
-  mouse_cursor_sprite_iris_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTBLUE,draw_color_arr[player_load_iris_color]);
-
-  mouse_cursor_sprite_pupil_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTRED,draw_color_arr[player_load_pupil_color]);
-  mouse_cursor_sprite_pupil_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTRED,draw_color_arr[player_load_pupil_color]);
-
-  main_menu_chosen=4;
-  in_map_editor=TRUE;
-  level_loaded=TRUE;
-
-  OLD_GR_WIDTH=0;
-  OLD_GR_HEIGHT=0;
-}
-
-
-//Logic
-void MEmove_x(double x)
-{
-  player.cam_x-=x;
-  player.cam_move_x=-player.cam_x;
-  if (player.cam_move_x<0 || player.cam_move_x>MAP_WIDTH)
-    player.cam_x+=x;
-}
-
-void MEmove_y(double y)
-{
-  player.cam_y-=y;
-  player.cam_move_y=-player.cam_y;
-  if (player.cam_move_y<0 || player.cam_move_y>MAP_HEIGHT)
-    player.cam_y+=y;
-}
 
 
 
@@ -429,24 +238,336 @@ bool YesInitRDGrid()
 }
 
 
-void MapEditorAct()
-{
-  /*for (int i=0;i<GROUND_NUM;i++) { //rip
-    Ground[i]->sprite_x1=Ground[i]->x1+player.cam_x;
-    Ground[i]->sprite_y1=Ground[i]->y1+player.cam_y;
-    Ground[i]->sprite_x2=Ground[i]->x2+player.cam_x;
-    Ground[i]->sprite_y2=Ground[i]->y2+player.cam_y;
-    Ground[i]->sprite_x3=Ground[i]->x3+player.cam_x;
-    Ground[i]->sprite_y3=Ground[i]->y3+player.cam_y;
-  }*/
-//if (player.left_click_hold_timer==62 || player.attack_rst || player.right_click_hold_timer==62) { //swing but no 
-//  Click();
 
-  if (level_loaded) {
-    if (YesInitRDGrid())
-      InitRDGrid();
+void InitMENodeGridAttributes()
+{
+  for (int i=0;i<GROUND_NUM;i++) {
+    SetMENodeGridAttributes(i);
+  }
+}
+
+
+
+void DestroyMEGround2(int i)
+{
+  int j=0,x=0,y=0,lg_grid_id=0,min=0,max=0,x1=0,y1=0;
+  double gradient1,gradient2,c1,c2,lg_x=0,lg_y=0,gradient=0,c=0;
+  gradient1=GetGradient(Ground[i]->x1,Ground[i]->y1,Ground[i]->x3,Ground[i]->y3);
+  gradient2=GetGradient(Ground[i]->x2,Ground[i]->y2,Ground[i]->x3,Ground[i]->y3);
+  c1=GetGroundC(Ground[i]->x3,Ground[i]->y3,gradient1);
+  c2=GetGroundC(Ground[i]->x3,Ground[i]->y3,gradient2);
+  for (j=0;j<2;j++) {
+    switch (j) {
+      case 0:
+	    x1=Ground[i]->x1;
+	    y1=Ground[i]->y1;
+        gradient=gradient1;
+        c=c1;
+	    break;
+      case 1:
+	    x1=Ground[i]->x2;
+	    y1=Ground[i]->y2;
+        gradient=gradient2;
+        c=c2;
+	    break;
+    }
+
+
+    if (-1<gradient && gradient<1) {//y=mx+c
+      if (x1<Ground[i]->x3) { //x1 is lower than x3
+	    min=x1;
+	    max=Ground[i]->x3;
+      } else {
+	    min=Ground[i]->x3;
+	    max=x1;
+      }
+      for (x=min;x<max;x++) {
+        lg_y=x*gradient+c;
+        lg_grid_id=GetGridId(x,lg_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
+        UnSetGridLineArray(lg_grid_id,i);
+      }
+    } else {// x=(y-c)/m
+      if (y1<Ground[i]->y3) { //y1 is lower than x3
+	    min=y1;
+	    max=Ground[i]->y3;
+      } else {
+	    min=Ground[i]->y3;
+	    max=y1;
+      }
+      for (y=min;y<max;y++) {
+        lg_x=(y-c)/gradient;
+        lg_grid_id=GetGridId(lg_x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
+        UnSetGridLineArray(lg_grid_id,i);
+      }
+    }
+  }
+}
+
+
+
+
+void DestroyMEGround(int i)
+{
+  int lg_grid_id=0,x=0,y=0,min=0,max=0;
+  double lg_x=0,lg_y=0;
+  if (-1<Ground[i]->gradient && Ground[i]->gradient<1) {
+    for (x=Ground[i]->x1;x<Ground[i]->x2;x++) {
+      lg_y=x*Ground[i]->gradient+Ground[i]->c;
+      lg_grid_id=GetGridId(x,lg_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
+      UnSetGridLineArray(lg_grid_id,i);
+    }
+  } else { // x=(y-c)/m
+    if (Ground[i]->y1>Ground[i]->y2) {
+      min=Ground[i]->y2;
+      max=Ground[i]->y1;
+    } else {
+      min=Ground[i]->y1;
+      max=Ground[i]->y2;
+    }
+    for (y=min;y<max;y++) {
+      lg_x=(y-Ground[i]->c)/Ground[i]->gradient;
+      lg_grid_id=GetGridId(lg_x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
+      UnSetGridLineArray(lg_grid_id,i);
+    }
+  }
+  if (Ground[i]->type==3) {//triangle ground
+    DestroyMEGround2(i);
   }
 
+  Ground[i]->health=-1;
+  //Ground[i]->x1=Ground[i]->y1=Ground[i]->x2=Ground[i]->y2=Ground[i]->x3=Ground[i]->y3=-20;
+}
+
+
+
+
+void InitMapEditorEnemy()
+{
+  for (int i=0;i<ENEMY_NUM;i++) {
+    MEEnemy[i]->x=saved_enemy_x[i];
+    MEEnemy[i]->y=saved_enemy_y[i];
+    MEEnemy[i]->type=saved_enemy_type[i];
+  }
+
+
+
+  //Load 10 Sprites
+  //init set enemy type
+  for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+    set_enemy_type_speed[i]=saved_enemy_type_speed[i];
+    set_enemy_type_bullet_speed[i]=saved_enemy_type_bullet_speed[i];
+    set_enemy_type_species[i]=saved_enemy_type_species[i];
+    set_enemy_type_follow_range[i]=saved_enemy_type_follow_range[i];
+    set_enemy_type_unchase_range[i]=saved_enemy_type_unchase_range[i];
+    set_enemy_type_chase_range[i]=saved_enemy_type_chase_range[i];
+    set_enemy_type_color[i]=saved_enemy_type_color[i];
+    set_enemy_type_speed_multiplier[i]=saved_enemy_type_speed_multiplier[i];
+    set_enemy_type_health[i]=saved_enemy_type_health[i];
+    set_enemy_type_shoot_at_player_range[i]=saved_enemy_type_shoot_at_player_range[i];
+    set_enemy_type_aim_rand[i]=saved_enemy_type_aim_rand[i];
+    set_enemy_type_bullet_cooldown[i]=saved_enemy_type_bullet_cooldown[i];
+    set_enemy_type_bullet_fire_cooldown[i]=saved_enemy_type_bullet_fire_cooldown[i];
+    set_enemy_type_bullet_fire_at_once[i]=saved_enemy_type_bullet_fire_at_once[i];
+    set_enemy_type_bullet_length[i]=saved_enemy_type_bullet_length[i];
+    set_enemy_type_bullet_damage[i]=saved_enemy_type_bullet_damage[i];
+    set_enemy_type_bullet_speed_multiplier[i]=saved_enemy_type_bullet_speed_multiplier[i];
+    set_enemy_type_bullet_range[i]=saved_enemy_type_bullet_range[i];
+    set_enemy_type_bullet_color[i]=saved_enemy_type_bullet_color[i];
+    set_enemy_type_bullet_graphics_type[i]=saved_enemy_type_bullet_graphics_type[i];
+    set_enemy_type_time_breaker_rare[i]=saved_enemy_type_time_breaker_rare[i];
+    set_enemy_type_time_breaker_length[i]=saved_enemy_type_time_breaker_length[i];
+    set_enemy_type_time_breaker_immune[i]=saved_enemy_type_time_breaker_immune[i];
+  }
+
+
+  //Generate Sprites for 10 enemy types
+  for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+    if (set_enemy_type_species[i]==0) {
+      MEEnemySprite[i]->sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,BLACK,color_arr[set_enemy_type_color[i]],-1);
+    } else {
+      MEEnemySprite[i]->sprite_1=RotateSprite(NULL, enemy2_sprite_1,0,LTGREEN,BLACK,color_arr[set_enemy_type_color[i]],-1);
+    }
+  }
+}
+
+
+
+
+void InitMapEditorPlayer()
+{
+  //
+  InitPlayer(); //but i only use player.x and player.y
+
+//  alloc_enemy_once=TRUE;
+  player_load_color=player_color;
+  player_load_iris_color=player_iris_color;
+  player_load_pupil_color=player_pupil_color;
+  player_bullet_color=WHITE;
+
+  if (IsInvertedBackground()) { //invert player color if background is inverted
+    player_load_color=COLORS_NUM-player_color-1;
+    player_load_iris_color=COLORS_NUM-player_iris_color-1;
+    player_load_pupil_color=COLORS_NUM-player_pupil_color-1;
+
+    player_bullet_color=BLACK;
+  }
+
+  player.cam_move_x=0;
+  player.cam_move_y=0;
+
+  player.cam_x=-player.x;
+  player.cam_y=-player.y;
+}
+
+
+
+void InitMapEditor(HDC hdc)
+{
+  rendered_ground_num=0;
+
+  MapEditor.selected_option=0;
+
+  MapEditor.selected_ground_option=0;
+  MapEditor.selected_ground_id=0;
+  MapEditor.selected_ground_pivot=0;
+  MapEditor.selected_ground_option=0;
+
+  //for (int i=0;i<MAX_GROUND_NUM;i++)
+    //render_grounds[i]=-1;
+  render_grounds=calloc(GROUND_NUM,sizeof(int));
+  for (int i=0;i<GROUND_NUM;i++)
+    render_grounds[i]=-1;
+
+  //Create Class Objects()
+  Ground = calloc(GROUND_NUM,sizeof(AGround*));
+  VGrid = calloc(VGRID_NUM,sizeof(struct AVGrid*));
+  MEEnemy = calloc(ENEMY_NUM,sizeof(AMEEnemy*));
+  MEEnemySprite = calloc(ENEMY_TYPE_NUM,sizeof(AMEEnemySprite*));
+
+  for (int i=0;i<GROUND_NUM;i++) {
+    AGround *newGround = createGround(VGRID_NUM);
+    Ground[i] = newGround;//malloc(sizeof(struct GroundLine));
+  }
+    
+
+  for (int i=0;i<VGRID_NUM;i++) {
+    AVGrid *newVGrid = createVGrid();
+    VGrid[i] = newVGrid;
+  }
+
+  //Special --> for enemy only
+  for (int i=0;i<ENEMY_NUM;i++) {
+    AMEEnemy *newMEEnemy = createMEEnemy();
+    MEEnemy[i] = newMEEnemy;
+  }
+
+  for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+    AMEEnemySprite *newMEEnemySprite = createMEEnemySprite();
+    MEEnemySprite[i] = newMEEnemySprite;
+  }
+
+
+  //Init
+  InitGrid();
+  InitGround(FALSE);
+  InitMENodeGridAttributes();
+  InitMapEditorEnemy();
+  InitMapEditorPlayer();
+  InitRDGrid();
+
+
+  BitmapPalette(hdc,map_platforms_sprite,rgbColorsDefault);
+
+  if (!run_after_once) {
+    run_after_once=TRUE;
+  } else {
+    PlaySound(NULL, NULL, SND_ASYNC);
+  }
+}
+
+
+
+
+
+
+void InitLevelMapEditor(HWND hwnd, HDC hdc)
+{
+  wchar_t txt[128];
+  swprintf(txt,128,L"saves/%s/level.txt",level_names[level_chosen]);
+  LoadSave(txt,FALSE); //load saves
+  srand(time(NULL));
+  timeBeginPeriod(1);
+
+
+
+
+
+  InitMapEditor(hdc);
+
+  //Load Player Cosmetics
+  DeleteObject(player.sprite_1);
+
+  player.sprite_1 = RotateSprite(NULL, player.osprite_1,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
+
+  //Load Player Sprites
+  player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
+
+  //moon sprite
+  DeleteObject(moon_sprite_cache);
+  HBITMAP tmp_moon_sprite=CopyCrunchyBitmap(moon_sprite,NOTSRCCOPY);
+  moon_sprite_cache=RotateSprite(NULL, tmp_moon_sprite,0,PURPLE,BLACK,BLACK,-1);
+  DeleteObject(tmp_moon_sprite);
+
+  DeleteObject(mouse_cursor_sprite_cache);
+  DeleteObject(mouse_cursor_sprite_cache2);
+  DeleteObject(mouse_cursor_sprite_iris_cache);
+  DeleteObject(mouse_cursor_sprite_iris_cache2);
+  DeleteObject(mouse_cursor_sprite_pupil_cache);
+  DeleteObject(mouse_cursor_sprite_pupil_cache2);
+
+  mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
+  mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
+
+  mouse_cursor_sprite_iris_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTBLUE,draw_color_arr[player_load_iris_color]);
+  mouse_cursor_sprite_iris_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTBLUE,draw_color_arr[player_load_iris_color]);
+
+  mouse_cursor_sprite_pupil_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTRED,draw_color_arr[player_load_pupil_color]);
+  mouse_cursor_sprite_pupil_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTRED,draw_color_arr[player_load_pupil_color]);
+
+  main_menu_chosen=4;
+  in_map_editor=TRUE;
+  level_loaded=TRUE;
+
+  OLD_GR_WIDTH=0;
+  OLD_GR_HEIGHT=0;
+}
+
+
+//Logic
+void MEmove_x(double x)
+{
+  player.cam_x-=x;
+  //limiter x
+  if (player.cam_move_x<0)
+    player.cam_x=-5;
+  else if (player.cam_move_x>MAP_WIDTH)
+    player.cam_x=-MAP_WIDTH+5;
+}
+
+void MEmove_y(double y)
+{
+  player.cam_y-=y;
+  //limiter y
+  if (player.cam_move_y<0)
+    player.cam_y=-5;
+  else if (player.cam_move_y>MAP_HEIGHT)
+    player.cam_y=-MAP_HEIGHT+5;
+}
+
+
+void MapEditorAct()
+{
+  //movement x,y
   if (player.rst_left) {
     MEmove_x(-5);
   }
@@ -462,6 +583,74 @@ void MapEditorAct()
   if (player.rst_down) {
     MEmove_y(5);
   }
+
+
+  //map editor cursor
+  MapEditor.cursor_x=mouse_x+player.cam_move_x-GR_WIDTH/2;
+  MapEditor.cursor_y=mouse_y+player.cam_move_y-GR_HEIGHT/2;
+
+  //lvl maker movement limiter
+  player.cam_move_x=-player.cam_x;
+  player.cam_move_y=-player.cam_y;
+
+  if (level_loaded) {
+    if (YesInitRDGrid())
+      InitRDGrid();
+
+
+    Click();
+    if (player.right_click_hold_timer==62) {
+      MapEditor.selected_ground_pivot=LimitValue(MapEditor.selected_ground_pivot+1,0,3);
+    }
+    if (player.attack_rst) { //release mouse
+      player.attack_rst=FALSE;
+      if (!IsOutOfBounds(MapEditor.cursor_x,MapEditor.cursor_y,1,MAP_WIDTH,MAP_HEIGHT)) {
+        DestroyMEGround(MapEditor.selected_ground_id);
+        switch (MapEditor.selected_ground_pivot) {
+          case 0:          
+            Ground[MapEditor.selected_ground_id]->x1=MapEditor.cursor_x;
+            Ground[MapEditor.selected_ground_id]->y1=MapEditor.cursor_y;
+            break;
+          case 1:
+            Ground[MapEditor.selected_ground_id]->x2=MapEditor.cursor_x;
+            Ground[MapEditor.selected_ground_id]->y2=MapEditor.cursor_y;
+            break;
+          case 2:
+            Ground[MapEditor.selected_ground_id]->x3=MapEditor.cursor_x;
+            Ground[MapEditor.selected_ground_id]->y3=MapEditor.cursor_y;
+            break;
+        }
+
+        //swap when axis overtake
+        int i=MapEditor.selected_ground_id;
+        if (Ground[i]->x2<=Ground[i]->x1) {
+          Ground[i]->x2=Ground[i]->x1+1;
+        }
+        if (Ground[i]->x3==Ground[i]->x1 || Ground[i]->x3==Ground[i]->x2) {
+	      Ground[i]->x3++;
+        }
+
+
+        if (Ground[i]->type==3) {//trifill
+	      if (Ground[i]->y1==Ground[i]->y2) {
+	        Ground[i]->y2++;
+          }
+        }
+        if (Ground[i]->y3==Ground[i]->y1) {
+	      Ground[i]->y3+=2;
+        }
+        if (Ground[i]->y3==Ground[i]->y2) {
+	      Ground[i]->y3+=2;
+        }
+
+
+
+        SetGround(MapEditor.selected_ground_id);
+        SetMENodeGridAttributes(MapEditor.selected_ground_id);
+        InitRDGrid();
+      }
+    }
+  }
 }
 
 
@@ -469,13 +658,15 @@ void CleanupMapEditorAll()
 {
     level_loaded=FALSE;
 
+
+    //for (int i=0;i<rendered_ground_num;i++)
+      //render_grounds[i]=-1;
+    free(render_grounds);
+
     //CleanUpPlayer(); //clean up all sprites
     if (player.sprite_1_cache!=NULL) { //clean up 1 sprite
       DeleteObject(player.sprite_1_cache);
     }
-
-    for (int i=0;i<rendered_ground_num;i++)
-      render_grounds[i]=-1;
 
     CleanUpMEEnemySprites();
     CleanupPlayerAttributes();
@@ -580,29 +771,31 @@ void DrawMapEditorPlatforms(HDC hdc)
   //Draw type 3
   int c;
   int i;
+  int player_cam_move_x=+player.cam_x+GR_WIDTH/2;
+  int player_cam_move_y=+player.cam_y+GR_HEIGHT/2;
   for (int k=0;k<rendered_ground_num;k++) {
     i=render_grounds[k];
     if (i!=-1) {
     if (Ground[i]->type==3) { 
-	  c=Ground[i]->color;
+	  c=color_arr[Ground[i]->color_id];
       if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
           !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
         if (!IsInvertedBackground()) {
 	      DrawTriFill(hdc,c,
-                Ground[i]->x1+player.cam_x,
-				Ground[i]->y1+player.cam_y,
-				Ground[i]->x2+player.cam_x,
-				Ground[i]->y2+player.cam_y,
-				Ground[i]->x3+player.cam_x,
-				Ground[i]->y3+player.cam_y,FALSE,0);
+                Ground[i]->x1+player.cam_x+GR_WIDTH/2,
+				Ground[i]->y1+player.cam_y+GR_HEIGHT/2,
+				Ground[i]->x2+player.cam_x+GR_WIDTH/2,
+				Ground[i]->y2+player.cam_y+GR_HEIGHT/2,
+				Ground[i]->x3+player.cam_x+GR_WIDTH/2,
+				Ground[i]->y3+player.cam_y+GR_HEIGHT/2,FALSE,0);
         } else {
 	      DrawTriFill(hdc,c,
-                Ground[i]->x1+player.cam_x,
-				Ground[i]->y1+player.cam_y,
-				Ground[i]->x2+player.cam_x,
-				Ground[i]->y2+player.cam_y,
-				Ground[i]->x3+player.cam_x,
-				Ground[i]->y3+player.cam_y,TRUE,HS_BDIAGONAL);
+                Ground[i]->x1+player.cam_x+GR_WIDTH/2,
+				Ground[i]->y1+player.cam_y+GR_HEIGHT/2,
+				Ground[i]->x2+player.cam_x+GR_WIDTH/2,
+				Ground[i]->y2+player.cam_y+GR_HEIGHT/2,
+				Ground[i]->x3+player.cam_x+GR_WIDTH/2,
+				Ground[i]->y3+player.cam_y+GR_HEIGHT/2,TRUE,HS_BDIAGONAL);
         }
       }
     }
@@ -611,18 +804,19 @@ void DrawMapEditorPlatforms(HDC hdc)
 
 
   //Draw type 0
-  for (int k=0;k<GROUND_NUM;k++) {
+  for (int k=0;k<rendered_ground_num;k++) {
     i=render_grounds[k];
     if (i!=-1) {
     if (Ground[i]->type==0) { //draw ground type 1
       if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
           !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
+          
           GrLine(hdc,
-                Ground[i]->x1+player.cam_x,
-                Ground[i]->y1+player.cam_y,
-                Ground[i]->x2+player.cam_x,
-                Ground[i]->y2+player.cam_y,
-                Ground[i]->color);
+                Ground[i]->x1+player.cam_x+GR_WIDTH/2,
+                Ground[i]->y1+player.cam_y+GR_HEIGHT/2,
+                Ground[i]->x2+player.cam_x+GR_WIDTH/2,
+                Ground[i]->y2+player.cam_y+GR_HEIGHT/2,
+                color_arr[Ground[i]->color_id]);
 
       }
     }
@@ -633,18 +827,18 @@ void DrawMapEditorPlatforms(HDC hdc)
 
 
   //Draw type 2
-  for (int k=0;k<GROUND_NUM;k++) {
+  for (int k=0;k<rendered_ground_num;k++) {
     i=render_grounds[k];
     if (i!=-1) {
     if (Ground[i]->type==2) { 
       if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
           !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
 	    GrPrintW(hdc,
-            Ground[i]->x1+player.cam_x,
-            Ground[i]->y1+player.cam_y,
+            Ground[i]->x1+player.cam_x+GR_WIDTH/2,
+            Ground[i]->y1+player.cam_y+GR_HEIGHT/2,
             Ground[i]->text,
             "",
-            Ground[i]->color,
+            color_arr[Ground[i]->color_id],
             16,
             FALSE,
             yes_unifont);
@@ -652,6 +846,41 @@ void DrawMapEditorPlatforms(HDC hdc)
     }
     }
   }
+
+
+  //Print ground details
+  char print_ground_id[4];
+  for (int k=0;k<rendered_ground_num;k++) {
+    i=render_grounds[k];
+    if (i!=-1) {
+      c=Highlight((i==MapEditor.selected_ground_id),BLACK,LTPURPLE);
+      sprintf(print_ground_id,"%d",i);
+      GrPrint(hdc,Ground[i]->x1+player_cam_move_x,Ground[i]->y1+player_cam_move_y-16,print_ground_id,c);
+      if (i==MapEditor.selected_ground_id) {
+        c=Highlight((MapEditor.selected_ground_pivot==0),BLACK,LTPURPLE);
+        GrCircle(hdc,Ground[i]->x1+player_cam_move_x,Ground[i]->y1+player_cam_move_y,6,c,-1);
+        c=Highlight((MapEditor.selected_ground_pivot==1),BLACK,LTPURPLE);
+        GrCircle(hdc,Ground[i]->x2+player_cam_move_x,Ground[i]->y2+player_cam_move_y,6,c,-1);
+        if (Ground[i]->type==3) {
+          c=Highlight((MapEditor.selected_ground_pivot==2),BLACK,LTPURPLE);
+          GrCircle(hdc,Ground[i]->x3+player_cam_move_x,Ground[i]->y3+player_cam_move_y,6,c,-1);
+        }
+
+        switch (MapEditor.selected_ground_pivot) {
+          case 0:
+            GrCircle(hdc,Ground[i]->x1+player_cam_move_x,Ground[i]->y1+player_cam_move_y,8,LTPURPLE,-1);
+            break;
+          case 1:
+            GrCircle(hdc,Ground[i]->x2+player_cam_move_x,Ground[i]->y2+player_cam_move_y,8,LTPURPLE,-1);
+            break;
+          case 2:
+            GrCircle(hdc,Ground[i]->x3+player_cam_move_x,Ground[i]->y3+player_cam_move_y,8,LTPURPLE,-1);
+            break;
+        }
+      }
+    }
+  }
+
 }
 
 
@@ -662,12 +891,12 @@ void DrawMapEditorEnemy(HDC hdc)
     int type=MEEnemy[i]->type;
     sprintf(txt_i,"%d",i);
     if (set_enemy_type_species[type]==0)
-      GrPrint(hdc,MEEnemy[i]->x+player.cam_x,MEEnemy[i]->y+player.cam_y-32,txt_i,color_arr[set_enemy_type_color[type]]);
+      GrPrint(hdc,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y-32+GR_HEIGHT/2,txt_i,color_arr[set_enemy_type_color[type]]);
     else
-      GrPrint(hdc,MEEnemy[i]->x+player.cam_x,MEEnemy[i]->y+player.cam_y-64,txt_i,color_arr[set_enemy_type_color[type]]);
+      GrPrint(hdc,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y-64+GR_HEIGHT/2,txt_i,color_arr[set_enemy_type_color[type]]);
 
 
-    GrSprite(hdc,MEEnemy[i]->x+player.cam_x,MEEnemy[i]->y+player.cam_y,MEEnemySprite[type]->sprite_1,FALSE);
+    GrSprite(hdc,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y+GR_HEIGHT/2,MEEnemySprite[type]->sprite_1,FALSE);
   }
 }
 
@@ -675,31 +904,80 @@ void DrawMapEditorEnemy(HDC hdc)
 
 void DrawMapEditorPlayer(HDC hdc)
 {
-  GrSprite(hdc,player.x+player.cam_x,player.y+player.cam_y,player.sprite_1_cache,FALSE);
+  GrSprite(hdc,player.x+player.cam_x+GR_WIDTH/2,player.y+player.cam_y+GR_HEIGHT/2,player.sprite_1_cache,FALSE);
 }
 
 
 void DrawMapEditorUI(HDC hdc)
 {
-  //GrPrint(hdc,8,8,"Text Coming Soon",BLACK);
-  //GrPrint(hdc,9,9,"Text Coming Soon",WHITE);
-
+  //Print cursor Axis
   char axis_x[16];
   char axis_y[16];
-  sprintf(axis_x,"x:%1.0f",player.cam_move_x);
-  sprintf(axis_y,"y:%1.0f",player.cam_move_y);
-  GrPrint(hdc,8,8,axis_x,BLACK);
-  GrPrint(hdc,9,9,axis_x,WHITE);
+  sprintf(axis_x,"cam_x:%1.0f",player.cam_move_x);
+  sprintf(axis_y,"cam_y:%1.0f",player.cam_move_y);
+  GrPrint(hdc,mouse_x,mouse_y+32+8,axis_x,BLACK);
+  //GrPrint(hdc,mouse_x+1,mouse_y+32+9,axis_x,WHITE);
 
-  GrPrint(hdc,8,17,axis_y,BLACK);
-  GrPrint(hdc,9,18,axis_y,WHITE);
+  GrPrint(hdc,mouse_x,mouse_y+50+8,axis_y,BLACK);
+  //GrPrint(hdc,mouse_x+1,mouse_y+50+9,axis_y,WHITE);
 
-  /*if (level_loaded) {
-    GrPrint(hdc,8,32,"GROUNDS:",WHITE);
-    for (int i=0;i<rendered_ground_num;i++) {
-      char txt[8];
-      sprintf(txt,"%d",render_grounds[i]);
-      GrPrint(hdc,16+8+16*i,32,txt,WHITE);
+  sprintf(axis_x,"cursor_x:%d",MapEditor.cursor_x);
+  sprintf(axis_y,"cursor_y:%d",MapEditor.cursor_y);
+  GrPrint(hdc,mouse_x,mouse_y+68+8,axis_x,BLACK);
+  //GrPrint(hdc,mouse_x+1,mouse_y+68+9,axis_x,WHITE);
+  GrPrint(hdc,mouse_x,mouse_y+82+8,axis_y,BLACK);
+  //GrPrint(hdc,mouse_x+1,mouse_y+82+9,axis_y,WHITE);
+
+
+  int c;
+  if (level_loaded) {
+   // GrPrint(hdc,8+1,16+1,"GROUNDS:",WHITE);
+   // GrPrint(hdc,8+1,34+1,"Type:",WHITE);
+   // GrPrint(hdc,8+1,52+1,"Color:",WHITE);
+   // GrPrint(hdc,8+1,70+1,"IsGhost:",WHITE);
+
+
+    c = Highlight((MapEditor.selected_ground_option==0),BLACK,LTPURPLE);
+    GrPrint(hdc,8,16,"GROUNDS:",c);
+    char print_ground_id[8];
+    sprintf(print_ground_id,"<%d>",MapEditor.selected_ground_id);
+    GrPrint(hdc,8*11,16,print_ground_id,c);
+    //GrPrint(hdc,8*11+1,16+1,print_ground_id,c);
+
+
+    //type
+    c = Highlight((MapEditor.selected_ground_option==1),BLACK,LTPURPLE);
+    GrPrint(hdc,8,34,"Type:",c);
+    char print_ground_type[8];
+    sprintf(print_ground_id,"<%d>",Ground[MapEditor.selected_ground_id]->type);
+    GrPrint(hdc,8*11,34,print_ground_id,c);
+    //GrPrint(hdc,8*11+1,34+1,print_ground_id,c);
+
+    //color
+    c = Highlight((MapEditor.selected_ground_option==2),BLACK,LTPURPLE);
+    GrPrint(hdc,8,52,"Color:",c);
+    GrPrint(hdc,8*11,52,"<    >",c);
+    //GrPrint(hdc,8*11+1,52+1,"<    >",c);
+
+    if (Ground[MapEditor.selected_ground_id]->color_id!=0) {
+      GrRect(hdc,8*12+1,52,16,16,BLACK);
+    } else {
+      GrRect(hdc,8*12+1,52,16,16,WHITE);
     }
-  }*/
+    //if (player_iris_color>-1 && player_color<COLORS_NUM) {
+    GrRect(hdc,8*12+2+1,52+2,12,12,draw_color_arr[Ground[MapEditor.selected_ground_id]->color_id]);
+    //}
+
+    //is_ghost
+    c = Highlight((MapEditor.selected_ground_option==3),BLACK,LTPURPLE);
+    GrPrint(hdc,8,70,"IsGhost:",c);
+    if (Ground[MapEditor.selected_ground_id]->is_ghost) {
+      GrPrint(hdc,8*11,70,"<TRUE>",c);
+      //GrPrint(hdc,8*11+1,70+1,"<TRUE>",c);
+    } else {
+      GrPrint(hdc,8*11,70,"<FALSE>",c);
+      //GrPrint(hdc,8*11+1,70+1,"<FALSE>",c);
+    }
+
+  }
 }
