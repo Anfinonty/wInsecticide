@@ -260,6 +260,7 @@ double moon_angle_shift=0;
 
 
 #include "map_editor.c"
+#include "save_level.c"
 #include "keybinds.c"
 
 //Detect Exception occured
@@ -527,6 +528,35 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
     case WM_CHAR:
+      if (MapEditor.is_ground_txt_typing) {
+          if (MapEditor.typing_ground_txt_pos<512) {
+            if (wParam==0x08) { //Backspace
+              if (MapEditor.typing_ground_txt_pos>0) {
+                MapEditor.typing_ground_txt_pos--;
+                MapEditor.typing_ground_txt[MapEditor.typing_ground_txt_pos]=0;
+              }
+            } else {
+              if (MapEditor.typing_ground_txt_pos<512) {
+                if (wParam!='"' &&
+                    wParam!='{' &&
+                    wParam!='}' &&
+                    !(wParam>=0 && wParam<13) &&
+                    !(wParam>13 && wParam<=31)
+                ) { //Disallaw illegal characters
+                  if (wParam==13) {
+                    if (MapEditor.typing_ground_txt_pos!=0) {
+                      MapEditor.typing_ground_txt[MapEditor.typing_ground_txt_pos]=wParam;
+                      MapEditor.typing_ground_txt_pos++;
+                    }
+                  } else {
+                    MapEditor.typing_ground_txt[MapEditor.typing_ground_txt_pos]=wParam;
+                    MapEditor.typing_ground_txt_pos++;
+                  }
+                }
+              }
+            }
+          }        
+      }
       //https://learn.microsoft.com/en-us/windows/win32/learnwin32/keyboard-input
       //https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/getch-getwch?view=msvc-170
       if (in_main_menu) {
@@ -551,7 +581,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                     wParam!='.' &&
                     wParam!=' ' &&
                     wParam!='\n' &&
-                    wParam!=0 &&
                     !(wParam>=0 && wParam<=31) 
                 ) { //Disallaw illegal characters
                   typing_lvl_name[typing_lvl_name_pos]=wParam;

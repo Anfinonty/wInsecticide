@@ -14,6 +14,12 @@ struct MapEditor
   int selected_ground_id; //0 -> GROUND_NUM
   int selected_ground_pivot; //0:x1y1 ,1:x2y2, 2:x3y3 
 
+
+  bool is_ground_txt_typing;
+  int typing_ground_txt_pos;
+  wchar_t typing_ground_txt[512]; //same ant as ground
+  //wchar_t typing_ground_txt2[512]; //same ant as ground //inbetween txt
+
 } MapEditor;
 
 
@@ -432,6 +438,15 @@ void InitMapEditor(HDC hdc)
   MapEditor.selected_ground_pivot=0;
   MapEditor.selected_ground_option=0;
 
+
+  MapEditor.is_ground_txt_typing=FALSE;
+  MapEditor.typing_ground_txt_pos=0;
+  for (int i=0;i<512;i++)
+    MapEditor.typing_ground_txt[i]='\0';
+  //swprintf(MapEditor.typing_ground_txt,512,L"%s",Ground[MapEditor.selected_ground_id]->text);
+
+
+
   //for (int i=0;i<MAX_GROUND_NUM;i++)
     //render_grounds[i]=-1;
   render_grounds=calloc(GROUND_NUM,sizeof(int));
@@ -568,22 +583,23 @@ void MEmove_y(double y)
 void MapEditorAct()
 {
   //movement x,y
-  if (player.rst_left) {
-    MEmove_x(-5);
+  if (!MapEditor.is_ground_txt_typing) {//only move when not typing
+    if (player.rst_left) {
+      MEmove_x(-5);
+    }
+
+    if (player.rst_right) {
+      MEmove_x(5);
+    }
+
+    if (player.rst_up) {
+      MEmove_y(-5);
+    } 
+
+    if (player.rst_down) {
+      MEmove_y(5);
+    }
   }
-
-  if (player.rst_right) {
-    MEmove_x(5);
-  }
-
-  if (player.rst_up) {
-    MEmove_y(-5);
-  } 
-
-  if (player.rst_down) {
-    MEmove_y(5);
-  }
-
 
   //map editor cursor
   MapEditor.cursor_x=mouse_x+player.cam_move_x-GR_WIDTH/2;
@@ -600,7 +616,11 @@ void MapEditorAct()
 
     Click();
     if (player.right_click_hold_timer==62) {
-      MapEditor.selected_ground_pivot=LimitValue(MapEditor.selected_ground_pivot+1,0,3);
+      if (Ground[MapEditor.selected_ground_id]->type==3) { //trifill
+        MapEditor.selected_ground_pivot=LimitValue(MapEditor.selected_ground_pivot+1,0,3);
+      } else {
+        MapEditor.selected_ground_pivot=LimitValue(MapEditor.selected_ground_pivot+1,0,2);
+      }
     }
     if (player.attack_rst) { //release mouse
       player.attack_rst=FALSE;
@@ -623,8 +643,17 @@ void MapEditorAct()
 
         //swap when axis overtake
         int i=MapEditor.selected_ground_id;
-        if (Ground[i]->x2<=Ground[i]->x1) {
-          Ground[i]->x2=Ground[i]->x1+1;
+        int tmp_saved_ground_x1=Ground[i]->x1;
+        int tmp_saved_ground_y1=Ground[i]->y1;
+        if (Ground[i]->x2<=Ground[i]->x1) {//x1 is less than x2, swap
+          Ground[i]->x1=Ground[i]->x2;
+          Ground[i]->y1=Ground[i]->y2;
+          Ground[i]->x2=tmp_saved_ground_x1;
+          Ground[i]->y2=tmp_saved_ground_y1;
+          if (MapEditor.selected_ground_pivot==1)//2nd pivot, right pivot
+            MapEditor.selected_ground_pivot=0;
+          else
+            MapEditor.selected_ground_pivot=1;
         }
         if (Ground[i]->x3==Ground[i]->x1 || Ground[i]->x3==Ground[i]->x2) {
 	      Ground[i]->x3++;
@@ -826,7 +855,7 @@ void DrawMapEditorPlatforms(HDC hdc)
 
 
 
-  //Draw type 2
+  //Draw type 2 == Text
   for (int k=0;k<rendered_ground_num;k++) {
     i=render_grounds[k];
     if (i!=-1) {
@@ -931,18 +960,12 @@ void DrawMapEditorUI(HDC hdc)
 
   int c;
   if (level_loaded) {
-   // GrPrint(hdc,8+1,16+1,"GROUNDS:",WHITE);
-   // GrPrint(hdc,8+1,34+1,"Type:",WHITE);
-   // GrPrint(hdc,8+1,52+1,"Color:",WHITE);
-   // GrPrint(hdc,8+1,70+1,"IsGhost:",WHITE);
-
 
     c = Highlight((MapEditor.selected_ground_option==0),BLACK,LTPURPLE);
     GrPrint(hdc,8,16,"GROUNDS:",c);
     char print_ground_id[8];
     sprintf(print_ground_id,"<%d>",MapEditor.selected_ground_id);
     GrPrint(hdc,8*11,16,print_ground_id,c);
-    //GrPrint(hdc,8*11+1,16+1,print_ground_id,c);
 
 
     //type
@@ -951,32 +974,52 @@ void DrawMapEditorUI(HDC hdc)
     char print_ground_type[8];
     sprintf(print_ground_id,"<%d>",Ground[MapEditor.selected_ground_id]->type);
     GrPrint(hdc,8*11,34,print_ground_id,c);
-    //GrPrint(hdc,8*11+1,34+1,print_ground_id,c);
 
     //color
     c = Highlight((MapEditor.selected_ground_option==2),BLACK,LTPURPLE);
     GrPrint(hdc,8,52,"Color:",c);
     GrPrint(hdc,8*11,52,"<    >",c);
-    //GrPrint(hdc,8*11+1,52+1,"<    >",c);
 
     if (Ground[MapEditor.selected_ground_id]->color_id!=0) {
       GrRect(hdc,8*12+1,52,16,16,BLACK);
     } else {
       GrRect(hdc,8*12+1,52,16,16,WHITE);
     }
-    //if (player_iris_color>-1 && player_color<COLORS_NUM) {
+
     GrRect(hdc,8*12+2+1,52+2,12,12,draw_color_arr[Ground[MapEditor.selected_ground_id]->color_id]);
-    //}
 
     //is_ghost
     c = Highlight((MapEditor.selected_ground_option==3),BLACK,LTPURPLE);
     GrPrint(hdc,8,70,"IsGhost:",c);
     if (Ground[MapEditor.selected_ground_id]->is_ghost) {
       GrPrint(hdc,8*11,70,"<TRUE>",c);
-      //GrPrint(hdc,8*11+1,70+1,"<TRUE>",c);
     } else {
       GrPrint(hdc,8*11,70,"<FALSE>",c);
-      //GrPrint(hdc,8*11+1,70+1,"<FALSE>",c);
+    }
+
+
+
+    wchar_t duplicate_txt_visual[513];
+    if (Ground[MapEditor.selected_ground_id]->type==2) { //Ground text, show gui
+      if (!MapEditor.is_ground_txt_typing) {
+        GrPrint(hdc,8,86,"[Enter]: Begin Typing",GREEN);
+      } else {
+        GrRect(hdc,0,86+16*2,GR_WIDTH,GR_HEIGHT-86-16*2,BLACK);
+        GrPrint(hdc,8,86+16*2,"[ESC]: Exit and Save.  [SHIFT_ESC]: Abort.  [BACKSPACE]: Backspace",GREEN);
+      }
+      
+      if (frame_tick%FPS>10) {
+        //swprintf(duplicate_txt_visual,MapEditor.typing_ground_txt_pos+2,L"%s*",MapEditor.typing_ground_txt);
+        for (int i=0;i<MapEditor.typing_ground_txt_pos;i++) {
+          duplicate_txt_visual[i]=MapEditor.typing_ground_txt[i];
+        }
+        duplicate_txt_visual[MapEditor.typing_ground_txt_pos]='_';
+        for (int i=MapEditor.typing_ground_txt_pos+1;i<513;i++) {
+          duplicate_txt_visual[i]=0;
+        }
+        GrPrintW(hdc,8,94+16*3,duplicate_txt_visual,"",GREEN,16,FALSE,yes_unifont);
+      }
+      GrPrintW(hdc,8,94+16*3,MapEditor.typing_ground_txt,"",WHITE,16,FALSE,yes_unifont);
     }
 
   }
