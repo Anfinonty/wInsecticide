@@ -88,25 +88,25 @@ void MapEditorKeypressDown(WPARAM wParam)
 
       case VK_RIGHT: //change value ++
         if (!MapEditor.is_ground_txt_typing) {
-        switch (MapEditor.selected_ground_option) {
-          case 0: //ground_id
-            MapEditor.selected_ground_id=LimitValue(MapEditor.selected_ground_id+1,0,GROUND_NUM);
-            MapEditor.selected_ground_pivot=0;
-            break;
-          case 1: // type
-            if (Ground[MapEditor.selected_ground_id]->type==0)
-              Ground[MapEditor.selected_ground_id]->is_ghost = TRUE;
-            Ground[MapEditor.selected_ground_id]->type=LimitValue(Ground[MapEditor.selected_ground_id]->type+1,0,4);
-            MapEditor.selected_ground_pivot=0;
-            break;
-          case 2: // color
-            Ground[MapEditor.selected_ground_id]->color_id=LimitValue(Ground[MapEditor.selected_ground_id]->color_id+1,0,COLORS_NUM);
-            break;
-          case 3: // is_ghost
-            if (Ground[MapEditor.selected_ground_id]->type==0)
-              Ground[MapEditor.selected_ground_id]->is_ghost = !Ground[MapEditor.selected_ground_id]->is_ghost;
-            break;
-        }
+          switch (MapEditor.selected_ground_option) {
+            case 0: //ground_id
+              MapEditor.selected_ground_id=LimitValue(MapEditor.selected_ground_id+1,0,GROUND_NUM);
+              MapEditor.selected_ground_pivot=0;
+              break;
+            case 1: // type
+              if (Ground[MapEditor.selected_ground_id]->type==0)
+                Ground[MapEditor.selected_ground_id]->is_ghost = TRUE;
+              Ground[MapEditor.selected_ground_id]->type=LimitValue(Ground[MapEditor.selected_ground_id]->type+1,0,4);
+              MapEditor.selected_ground_pivot=0;
+              break;
+            case 2: // color
+              Ground[MapEditor.selected_ground_id]->color_id=LimitValue(Ground[MapEditor.selected_ground_id]->color_id+1,0,COLORS_NUM);
+              break;
+            case 3: // is_ghost
+              if (Ground[MapEditor.selected_ground_id]->type==0)
+                Ground[MapEditor.selected_ground_id]->is_ghost = !Ground[MapEditor.selected_ground_id]->is_ghost;
+              break;
+          }
         } else {
           //if (MapEditor.typing_ground_txt_pos<lstrlenW(MapEditor.typing_ground_txt))
             //MapEditor.typing_ground_txt_pos++;
@@ -119,6 +119,7 @@ void MapEditorKeypressDown(WPARAM wParam)
       if (Ground[MapEditor.selected_ground_id]->type==2) {
         if (!MapEditor.is_ground_txt_typing) {
           MapEditor.is_ground_txt_typing=TRUE;
+          MapEditor.is_ground_txt_typing_loaded=FALSE;
           MapEditor.typing_ground_txt_pos=lstrlenW(Ground[MapEditor.selected_ground_id]->text);
           swprintf(MapEditor.typing_ground_txt,512,L"%s",Ground[MapEditor.selected_ground_id]->text);
         }
@@ -139,6 +140,12 @@ void MapEditorKeypressUp(WPARAM wParam)
     //Release S or Down key
       case 'S':
       case VK_DOWN:
+        if (keydown(VK_CONTROL) && wParam=='S') {//CTRL + 'S' ==> SAVE
+          //printf("Level Saved!\n");
+          if (game_audio)
+            PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start        
+          SaveMELvl();
+        }
         player.rst_down=FALSE;
         break;
 
@@ -162,30 +169,40 @@ void MapEditorKeypressUp(WPARAM wParam)
         break;
 
 
-    /*case VK_ESC: //ESCAPE
-      if () { //Shift Included, ABORT
-
-      } else {//Shuft not included, SAVE
-
-      }
-      //regardless, shift or not, free all
-      back_to_menu=TRUE;
-      break;*/
-
-
-
 
     //Holding Down Shift && Escape
     case VK_ESCAPE:
-      if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = QUIT
+      if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = ABORT DONT SAVE
         if (level_loaded) { //allow back to menu only if level is fully loaded
           if (MapEditor.is_ground_txt_typing) {
+            if (game_audio)
+              PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
+            MapEditor.is_ground_txt_typing=FALSE;
+            MapEditor.typing_ground_txt_pos=0;
+            for (int i=0;i<512;i++)
+              MapEditor.typing_ground_txt[i]=0;
+          } else {
+            if (game_audio)
+              PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
+            back_to_menu=TRUE;
+          }
+        }
+      } else {
+        if (level_loaded) { //allow back to menu only if level is fully loaded, QUIT && SAVE
+          if (MapEditor.is_ground_txt_typing) {
+            if (game_audio)
+              PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
+
+            for (int i=0;i<512;i++)
+              Ground[MapEditor.selected_ground_id]->text[i]=0;
             swprintf(Ground[MapEditor.selected_ground_id]->text,512,L"%s",MapEditor.typing_ground_txt);
             MapEditor.is_ground_txt_typing=FALSE;
             MapEditor.typing_ground_txt_pos=0;
             for (int i=0;i<512;i++)
               MapEditor.typing_ground_txt[i]=0;
           } else {
+            if (game_audio)
+              PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
             SaveMELvl();
             back_to_menu=TRUE;
           }
@@ -1300,7 +1317,7 @@ void TwoMenuKeypressUp(WPARAM wParam)
       if ((keydown(VK_LSHIFT) || keydown(VK_RSHIFT))) { //ESC + L/RSHIFT = QUIT
         typing_lvl_name_pos=0;
         for (int i=0;i<16;i++)
-          typing_lvl_name[i]='\0';
+          typing_lvl_name[i]=0;
 
         set_ground_amount=10;
         set_enemy_amount=1;
@@ -1336,7 +1353,7 @@ void TwoMenuKeypressUp(WPARAM wParam)
 
           typing_lvl_name_pos=0;
           for (int i=0;i<16;i++)
-            typing_lvl_name[i]='\0';
+            typing_lvl_name[i]=0;
 
           set_ground_amount=10;
           set_enemy_amount=1;
@@ -1403,7 +1420,7 @@ void ThreeMenuKeypressUp(WPARAM wParam)
 
         typing_lvl_name_pos=0;
         for (int i=0;i<16;i++)
-          typing_lvl_name[i]='\0';
+          typing_lvl_name[i]=0;
 
         set_ground_amount=10;
         set_enemy_amount=1;
@@ -1447,7 +1464,7 @@ void ThreeMenuKeypressUp(WPARAM wParam)
         //reset menu values
         typing_lvl_name_pos=0;
         for (int i=0;i<16;i++)
-          typing_lvl_name[i]='\0';
+          typing_lvl_name[i]=0;
 
         set_ground_amount=10;
         set_enemy_amount=1;

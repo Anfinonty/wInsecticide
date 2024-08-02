@@ -537,20 +537,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               }
             } else {
               if (MapEditor.typing_ground_txt_pos<512) {
-                if (wParam!='"' &&
-                    wParam!='{' &&
-                    wParam!='}' &&
-                    !(wParam>=0 && wParam<13) &&
-                    !(wParam>13 && wParam<=31)
-                ) { //Disallaw illegal characters
-                  if (wParam==13) {
-                    if (MapEditor.typing_ground_txt_pos!=0) {
-                      MapEditor.typing_ground_txt[MapEditor.typing_ground_txt_pos]=wParam;
-                      MapEditor.typing_ground_txt_pos++;
-                    }
-                  } else {
+                if (!(wParam>=0 && wParam<13) &&
+                    !(wParam>13 && wParam<=31) //13 == '\n'
+                ) { //Disallow illegal characters
+                  if (MapEditor.is_ground_txt_typing_loaded) {
                     MapEditor.typing_ground_txt[MapEditor.typing_ground_txt_pos]=wParam;
                     MapEditor.typing_ground_txt_pos++;
+                  } else {
+                    MapEditor.is_ground_txt_typing_loaded=TRUE;
                   }
                 }
               }

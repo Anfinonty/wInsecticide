@@ -396,7 +396,8 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
               writing_txt=FALSE;
               wcsncpy(saved_ground_text[column],txt,512);
               column++;
-              txt[0]='\0';
+              for (int i=0;i<512;i++) //init txt array
+                txt[i] = 0;
               char_pos=0;//restart value
             }
           } else { //not double quotations

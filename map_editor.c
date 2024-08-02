@@ -16,6 +16,7 @@ struct MapEditor
 
 
   bool is_ground_txt_typing;
+  bool is_ground_txt_typing_loaded;
   int typing_ground_txt_pos;
   wchar_t typing_ground_txt[512]; //same ant as ground
   //wchar_t typing_ground_txt2[512]; //same ant as ground //inbetween txt
@@ -440,6 +441,7 @@ void InitMapEditor(HDC hdc)
 
 
   MapEditor.is_ground_txt_typing=FALSE;
+  MapEditor.is_ground_txt_typing_loaded=FALSE;
   MapEditor.typing_ground_txt_pos=0;
   for (int i=0;i<512;i++)
     MapEditor.typing_ground_txt[i]='\0';
@@ -621,11 +623,11 @@ void MapEditorAct()
       } else {
         MapEditor.selected_ground_pivot=LimitValue(MapEditor.selected_ground_pivot+1,0,2);
       }
-    }
-    if (player.attack_rst) { //release mouse
-      player.attack_rst=FALSE;
+    }    
+    if (player.attack_rst || player.rst_left_click) { //release mouse
       if (!IsOutOfBounds(MapEditor.cursor_x,MapEditor.cursor_y,1,MAP_WIDTH,MAP_HEIGHT)) {
-        DestroyMEGround(MapEditor.selected_ground_id);
+        if (player.attack_rst)
+          DestroyMEGround(MapEditor.selected_ground_id);
         switch (MapEditor.selected_ground_pivot) {
           case 0:          
             Ground[MapEditor.selected_ground_id]->x1=MapEditor.cursor_x;
@@ -672,13 +674,18 @@ void MapEditorAct()
 	      Ground[i]->y3+=2;
         }
 
-
-
-        SetGround(MapEditor.selected_ground_id);
-        SetMENodeGridAttributes(MapEditor.selected_ground_id);
-        InitRDGrid();
+        if (player.attack_rst) { //let go of left click
+          SetGround(MapEditor.selected_ground_id);
+          SetMENodeGridAttributes(MapEditor.selected_ground_id);
+          InitRDGrid();
+          player.attack_rst=FALSE;
+        }
       }
     }
+
+
+
+
   }
 }
 

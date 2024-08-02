@@ -279,7 +279,7 @@ void SaveMELvl()
 
     //Enemy tyoe
     for (int i=0;i<ENEMY_NUM;i++) {
-      fprintf(fptr,"%1.0f,",MEEnemy[i]->type);
+      fprintf(fptr,"%d,",MEEnemy[i]->type);
     }
     fprintf(fptr,";\n");
 
