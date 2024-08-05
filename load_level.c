@@ -225,7 +225,7 @@ void InitLevel(HWND hwnd, HDC hdc)
   //moon sprite
   DeleteObject(moon_sprite_cache);
   HBITMAP tmp_moon_sprite=CopyCrunchyBitmap(moon_sprite,NOTSRCCOPY);
-  moon_sprite_cache=RotateSprite(NULL, tmp_moon_sprite,0,PURPLE,BLACK,BLACK,-1);
+  moon_sprite_cache=RotateSprite(NULL, tmp_moon_sprite,0,LPURPLE,BLACK,BLACK,-1);
   DeleteObject(tmp_moon_sprite);
 
   DeleteObject(mouse_cursor_sprite_cache);

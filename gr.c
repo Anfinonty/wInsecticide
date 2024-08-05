@@ -19,9 +19,49 @@
 #define WHITE       RGB(255,255,255)
 
 
-#define DKBLACK     RGB(24,24,24) //For drawing
+#define DKBLACK     RGB(2,2,2) //For drawing
+#define LPURPLE     RGB(170,43,170)
 #define LLTGREEN    RGB(0,254,0)
 #define MYCOLOR1    RGB(123,123,123)
+
+
+#define DKRBLACK       RGB(0,0,0)
+#define DKRBLUE        RGB(0,0,32)
+#define DKRGREEN       RGB(0,32,0)
+#define DKRCYAN        RGB(0,32,32)
+#define DKRRED         RGB(32,0,0)
+#define DKRPURPLE      RGB(32,0,132)
+#define DKRBROWN       RGB(32,16,0)
+#define DKRLTGRAY      RGB(170,170,170)
+#define DKRDKGRAY      RGB(85,85,85)
+#define DKRLTBLUE      RGB(0,0,48)
+#define DKRLTGREEN     RGB(0,48,0)
+#define DKRLTCYAN      RGB(0,48,48)
+#define DKRLTRED       RGB(48,0,0)
+#define DKRLTPURPLE    RGB(48,0,48)
+#define DKRYELLOW      RGB(48,48,0)
+#define DKRWHITE       RGB(255,255,255)
+
+
+
+#define LTRBLACK       RGB(0,0,0)
+#define LTRBLUE        RGB(85,85,170)
+#define LTRGREEN       RGB(85,170,85)
+#define LTRCYAN        RGB(85,170,170)
+#define LTRRED         RGB(170,85,85)
+#define LTRPURPLE      RGB(170,85,170)
+#define LTRBROWN       RGB(170,170,85)
+#define LTRLTGRAY      RGB(170,170,170)
+#define LTRDKGRAY      RGB(85,85,85)
+#define LTRLTBLUE      RGB(170,170,255)
+#define LTRLTGREEN     RGB(170,255,170)
+#define LTRLTCYAN      RGB(170,255,255)
+#define LTRLTRED       RGB(255,170,170)
+#define LTRLTPURPLE    RGB(255,170,255)
+#define LTRYELLOW      RGB(255,255,170)
+#define LTRWHITE       RGB(255,255,255)
+
+
 
 //#define IDI_MYICON  1000
 
@@ -65,6 +105,48 @@ WHITE //15
 
 
 
+int draw_darker_color_arr[COLORS_NUM]={
+DKRBLACK, //0
+DKRBLUE, //1
+DKRGREEN, //2
+DKRCYAN, //3
+DKRRED, //4
+DKRPURPLE, //5
+DKRBROWN, //6
+DKRLTGRAY, //7
+DKRDKGRAY, //8
+DKRLTBLUE, //9
+DKRLTGREEN, //10
+DKRLTCYAN, //11
+DKRLTRED, //12
+DKRLTPURPLE, //13
+DKRYELLOW, //14
+DKRWHITE //15
+};
+
+
+
+int draw_lighter_color_arr[COLORS_NUM]={
+LTRBLACK, //0
+LTRBLUE, //1
+LTRGREEN, //2
+LTRCYAN, //3
+LTRRED, //4
+LTRPURPLE, //5
+LTRBROWN, //6
+LTRLTGRAY, //7
+LTRDKGRAY, //8
+LTRLTBLUE, //9
+LTRLTGREEN, //10
+LTRLTCYAN, //11
+LTRLTRED, //12
+LTRLTPURPLE, //13
+LTRYELLOW, //14
+LTRWHITE //15
+};
+
+
+
 int Highlight(bool predicate,int color1, int color2)
 {
   if (predicate)
@@ -94,6 +176,7 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
   int calc;
   for(int i=0; i<256; i++) {
     calc=i/16;
+    double index_range = i-16*calc+1; //0 to 15 //0,1, 2,3, 4,5, 6,7      8,9, 10,11, 12,13, 14,15
     switch (calc) {
       case 0: //BLACK
         rgbColors[i].rgbRed = i/2;
@@ -102,96 +185,191 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
         rgbColors[i].rgbReserved = 0;
         break;
       case 1: //BLUE
-        rgbColors[i].rgbRed = 0;
-        rgbColors[i].rgbGreen = 0;
-        rgbColors[i].rgbBlue = 170;
+        if (index_range<=8) { //1->7 Darker values, 8 is true value
+          rgbColors[i].rgbRed = 0;
+          rgbColors[i].rgbGreen = 0;
+          rgbColors[i].rgbBlue = ceil(index_range*170/8);
+        } else { //9->16 Lighter values
+          if (index_range==16) { //1->7 Darker values, 8 is true value
+            rgbColors[i].rgbRed = 160;
+            rgbColors[i].rgbGreen = 160;
+          } else {
+            rgbColors[i].rgbRed = ceil((index_range-8)*170/8);
+            rgbColors[i].rgbGreen = ceil((index_range-8)*170/8);
+          }
+          rgbColors[i].rgbBlue = 170;
+        }
         rgbColors[i].rgbReserved = 0;
         break;
       case 2: //GREEN
-        rgbColors[i].rgbRed = 0;
-        rgbColors[i].rgbGreen = 170;
-        rgbColors[i].rgbBlue = 0;
+        if (index_range<=8) { //1->7 Darker values, 8 is true value
+          rgbColors[i].rgbRed = 0;
+          rgbColors[i].rgbGreen = ceil(index_range*170/8);
+          rgbColors[i].rgbBlue = 0;
+        } else { //9->16 Lighter values
+          rgbColors[i].rgbGreen = 170;
+          if (index_range==16) {
+            rgbColors[i].rgbRed = 160;
+            rgbColors[i].rgbBlue = 160;
+          } else {
+            rgbColors[i].rgbRed = ceil((index_range-8)*170/8);
+            rgbColors[i].rgbBlue = ceil((index_range-8)*170/8);
+          }
+        }
         rgbColors[i].rgbReserved = 0;
         break;
       case 3: //CYAN
-        rgbColors[i].rgbRed = 0;
-        rgbColors[i].rgbGreen = 170;
-        rgbColors[i].rgbBlue = 170;
+        if (index_range<=8) { //1->7 Darker values, 8 is true value
+          rgbColors[i].rgbRed = 0;
+          rgbColors[i].rgbGreen = ceil(index_range*170/8);
+          rgbColors[i].rgbBlue = ceil(index_range*170/8);
+        } else { //9->16 Lighter values
+          if (index_range==16) {
+            rgbColors[i].rgbRed = 160;
+          } else {
+            rgbColors[i].rgbRed = ceil((index_range-8)*170/8);
+          }
+          rgbColors[i].rgbGreen = 170;
+          rgbColors[i].rgbBlue = 170;
+        }
         rgbColors[i].rgbReserved = 0;
         break;
       case 4: //RED
-        rgbColors[i].rgbRed = 170;
-        rgbColors[i].rgbGreen = 0;
-        rgbColors[i].rgbBlue = 0;
+        if (index_range<=8) { //1->7 Darker values, 8 is true value
+          rgbColors[i].rgbRed = ceil(index_range*170/8);
+          rgbColors[i].rgbGreen = 0;
+          rgbColors[i].rgbBlue = 0;
+        } else { //9->16 Lighter values
+          rgbColors[i].rgbRed = 170;
+          if (index_range==16) {
+            rgbColors[i].rgbGreen = 160;
+            rgbColors[i].rgbBlue = 160;
+          } else {
+            rgbColors[i].rgbGreen = ceil((index_range-8)*170/8);
+            rgbColors[i].rgbBlue = ceil((index_range-8)*170/8);
+          }
+        }
         rgbColors[i].rgbReserved = 0;
         break;
       case 5: //PURPLE
-        rgbColors[i].rgbRed = 170;
-        rgbColors[i].rgbGreen = 0;
-        rgbColors[i].rgbBlue = 170;
+        if (index_range<=8) { //1->7 Darker values, 8 is true value
+          rgbColors[i].rgbRed = ceil(index_range*170/8);
+          rgbColors[i].rgbGreen = 0;
+          rgbColors[i].rgbBlue = ceil(index_range*170/8);
+        } else { //9->16 Lighter values
+          rgbColors[i].rgbRed = 170;
+          if (index_range==16) {
+            rgbColors[i].rgbGreen = 160;
+          } else {         
+            rgbColors[i].rgbGreen = ceil((index_range-8)*170/8);
+          }
+          rgbColors[i].rgbBlue = 170;
+        }
         rgbColors[i].rgbReserved = 0;
         break;
       case 6: //BROWN
-        rgbColors[i].rgbRed = 170;
-        rgbColors[i].rgbGreen = 85;
-        rgbColors[i].rgbBlue = 0;
+        if (index_range<=8) { //1->7 Darker values, 8 is true value
+          rgbColors[i].rgbRed = ceil(index_range*170/8);
+          rgbColors[i].rgbGreen = ceil(index_range*85/8);
+          rgbColors[i].rgbBlue = 0;
+        } else { //9->16 Lighter values
+          rgbColors[i].rgbRed = 170;
+          rgbColors[i].rgbGreen = 85+ceil((index_range-8)*85/8);
+          rgbColors[i].rgbBlue = ceil((index_range-8)*170/8);
+        }
         rgbColors[i].rgbReserved = 0;
         break;
       case 7: //DKGRAY
-        rgbColors[i].rgbRed = 85+(i-16*7);
-        rgbColors[i].rgbGreen = 85+(i-16*7);
-        rgbColors[i].rgbBlue = 85+(i-16*7);
+        rgbColors[i].rgbRed = 171;//+(index_range-1)*4;//ceil((index_range-1)*42/16);//+(i-16*8);//85+ceil((index_range)*85/16);
+        rgbColors[i].rgbGreen = 170;//+(index_range-1)*4;//ceil((index_range-1)*42/16);//+(i-16*8);//85+ceil((index_range)*85/16);
+        rgbColors[i].rgbBlue = 170;//+(index_range-1)*4;//ceil((index_range-1)*42/16);//+(i-16*8);//85+ceil((index_range)*85/16);
         rgbColors[i].rgbReserved = 0;
         break;
       case 8: //LTGRAY
-        rgbColors[i].rgbRed = 170;
-        rgbColors[i].rgbGreen = 170;
-        rgbColors[i].rgbBlue = 170;
+        rgbColors[i].rgbRed = 86;//-(index_range-1)*4;//+(i-16*7);
+        rgbColors[i].rgbGreen = 85;//-(index_range-1)*4;//+(i-16*7);
+        rgbColors[i].rgbBlue = 85;//-(index_range-1)*4;//+(i-16*7);
         rgbColors[i].rgbReserved = 0;
         break;
       case 9: //LTBLUE
-        rgbColors[i].rgbRed = 0;
-        rgbColors[i].rgbGreen = 0;
-        rgbColors[i].rgbBlue = 255;
+        if (index_range<=8) { //1->7 Darker values, 8 is true value
+          rgbColors[i].rgbRed = 0;
+          rgbColors[i].rgbGreen = 0;
+          rgbColors[i].rgbBlue = ceil(index_range*255/8);
+        } else { //9->16 Lighter values
+          rgbColors[i].rgbRed = ceil((index_range-8)*170/8);
+          rgbColors[i].rgbGreen = ceil((index_range-8)*170/8);
+          rgbColors[i].rgbBlue = 255;
+        }
         rgbColors[i].rgbReserved = 0;
         break;
-      case 10: //LTGREEN
-        rgbColors[i].rgbRed = 0;
-        if (i<160+8)
-          rgbColors[i].rgbGreen = 254;
-        else
+      case 10: //LTGREEN 160->175
+        if (index_range<=8) { //1->7 Darker values, 8 is true value
+          rgbColors[i].rgbRed = 0;
+          rgbColors[i].rgbBlue = 0;
+          if (index_range==7)
+            rgbColors[i].rgbGreen = 254;
+          else
+            rgbColors[i].rgbGreen = ceil(index_range*255/8);
+        } else { //9->16 Lighter values
+          rgbColors[i].rgbRed = ceil((index_range-8)*170/8);
+          rgbColors[i].rgbBlue = ceil((index_range-8)*170/8);
           rgbColors[i].rgbGreen = 255;
-        rgbColors[i].rgbBlue = 0;
+        }
         rgbColors[i].rgbReserved = 0;
         break;
       case 11: //LTCYAN
-        rgbColors[i].rgbRed = 0;
-        rgbColors[i].rgbGreen = 255;
-        rgbColors[i].rgbBlue = 255;
+        if (index_range<=8) { //1->7 Darker values, 8 is true value
+          rgbColors[i].rgbRed = 0;
+          rgbColors[i].rgbGreen = ceil(index_range*255/8);
+          rgbColors[i].rgbBlue = ceil(index_range*255/8);
+        } else { //9->16 Lighter values
+          rgbColors[i].rgbRed = ceil((index_range-8)*170/8);
+          rgbColors[i].rgbGreen = 255;
+          rgbColors[i].rgbBlue = 255;
+        }
         rgbColors[i].rgbReserved = 0;
         break;
       case 12: //LTRED
-        rgbColors[i].rgbRed = 255;
-        rgbColors[i].rgbGreen = 0;
-        rgbColors[i].rgbBlue = 0;
+        if (index_range<=8) { //1->7 Darker values, 8 is true value
+          rgbColors[i].rgbRed = ceil(index_range*255/8);
+          rgbColors[i].rgbGreen = 0;
+          rgbColors[i].rgbBlue = 0;
+        } else { //9->16 Lighter values
+          rgbColors[i].rgbRed = 255;
+          rgbColors[i].rgbGreen = ceil((index_range-8)*170/8);
+          rgbColors[i].rgbBlue = ceil((index_range-8)*170/8);
+        }
         rgbColors[i].rgbReserved = 0;
         break;
       case 13: //LTPURPLE
-        rgbColors[i].rgbRed = 255;
-        rgbColors[i].rgbGreen = 0;
-        rgbColors[i].rgbBlue = 255;
+        if (index_range<=8) { //1->7 Darker values, 8 is true value
+          rgbColors[i].rgbRed = ceil(index_range*255/8);
+          rgbColors[i].rgbGreen = 0;
+          rgbColors[i].rgbBlue = ceil(index_range*255/8);
+        } else { //9->16 Lighter values
+          rgbColors[i].rgbRed = 255;
+          rgbColors[i].rgbGreen = ceil((index_range-8)*170/8);
+          rgbColors[i].rgbBlue = 255;
+        }
         rgbColors[i].rgbReserved = 0;
         break;
       case 14: //YELLOW
-        rgbColors[i].rgbRed = 255;
-        rgbColors[i].rgbGreen = 255;
-        rgbColors[i].rgbBlue = 0;
+        if (index_range<=8) { //1->7 Darker values, 8 is true value
+          rgbColors[i].rgbRed = ceil(index_range*255/8);
+          rgbColors[i].rgbGreen = ceil(index_range*255/8);
+          rgbColors[i].rgbBlue = 0;
+        } else { //9->16 Lighter values
+          rgbColors[i].rgbRed = 255;
+          rgbColors[i].rgbGreen = 255;
+          rgbColors[i].rgbBlue = ceil((index_range-8)*170/8);
+        }
         rgbColors[i].rgbReserved = 0;
         break;
       case 15: //WHITE
-        rgbColors[i].rgbRed = 255;
-        rgbColors[i].rgbGreen = 255;
-        rgbColors[i].rgbBlue = 255;
+        rgbColors[i].rgbRed = 255;//ceil((double)(i-16*calc+1)*255/16);
+        rgbColors[i].rgbGreen = 255;//ceil((double)(i-16*calc+1)*255/16);
+        rgbColors[i].rgbBlue = 255;//ceil((double)(i-16*calc+1)*255/16);
         rgbColors[i].rgbReserved = 0;
         break;
       /*default:
