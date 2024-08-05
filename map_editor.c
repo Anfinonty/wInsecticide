@@ -1,13 +1,17 @@
 
-//global variables -- in struct now :)
+//Map Editor global variables -- in struct now :)
 struct MapEditor
 {
   int cursor_x;
   int cursor_y;
 
-  //overal
+  //overall
   int selected_option; //0:ground, 1:player, 2:enemy, 3:enemy_type, 4:background&pallette
 
+  //typing search
+  bool is_typing_search;
+  int typing_search_txt_pos;
+  int typing_search_id;
 
   //===== Ground ===== 
   int selected_ground_option; //0:ground_id, 1:type, 2:color, 3:is_ghost
@@ -443,6 +447,11 @@ void InitMapEditor(HDC hdc)
   rendered_ground_num=0;
 
   MapEditor.selected_option=0;
+
+  MapEditor.typing_search_txt_pos=0;
+  MapEditor.typing_search_id=0;
+  MapEditor.is_typing_search=FALSE;
+
 
   MapEditor.selected_ground_option=0;
   MapEditor.selected_ground_id=0;
@@ -919,32 +928,37 @@ void DrawMapEditorPlatforms(HDC hdc)
 
 
   //Print ground details
+  int c2;
+  if (MapEditor.selected_option==0)
+    c2=LTPURPLE;
+  else
+    c2=BLACK;
   char print_ground_id[4];
   for (int k=0;k<rendered_ground_num;k++) {
     i=render_grounds[k];
     if (i!=-1) {
-      c=Highlight((i==MapEditor.selected_ground_id),BLACK,LTPURPLE);
+      c=Highlight((i==MapEditor.selected_ground_id),BLACK,c2);
       sprintf(print_ground_id,"%d",i);
       GrPrint(hdc,Ground[i]->x1+player_cam_move_x,Ground[i]->y1+player_cam_move_y-16,print_ground_id,c);
       if (i==MapEditor.selected_ground_id) {
-        c=Highlight((MapEditor.selected_ground_pivot==0),BLACK,LTPURPLE);
+        c=Highlight((MapEditor.selected_ground_pivot==0),BLACK,c2);
         GrCircle(hdc,Ground[i]->x1+player_cam_move_x,Ground[i]->y1+player_cam_move_y,6,c,-1);
-        c=Highlight((MapEditor.selected_ground_pivot==1),BLACK,LTPURPLE);
+        c=Highlight((MapEditor.selected_ground_pivot==1),BLACK,c2);
         GrCircle(hdc,Ground[i]->x2+player_cam_move_x,Ground[i]->y2+player_cam_move_y,6,c,-1);
         if (Ground[i]->type==3) {
-          c=Highlight((MapEditor.selected_ground_pivot==2),BLACK,LTPURPLE);
+          c=Highlight((MapEditor.selected_ground_pivot==2),BLACK,c2);
           GrCircle(hdc,Ground[i]->x3+player_cam_move_x,Ground[i]->y3+player_cam_move_y,6,c,-1);
         }
 
         switch (MapEditor.selected_ground_pivot) {
           case 0:
-            GrCircle(hdc,Ground[i]->x1+player_cam_move_x,Ground[i]->y1+player_cam_move_y,8,LTPURPLE,-1);
+            GrCircle(hdc,Ground[i]->x1+player_cam_move_x,Ground[i]->y1+player_cam_move_y,8,c2,-1);
             break;
           case 1:
-            GrCircle(hdc,Ground[i]->x2+player_cam_move_x,Ground[i]->y2+player_cam_move_y,8,LTPURPLE,-1);
+            GrCircle(hdc,Ground[i]->x2+player_cam_move_x,Ground[i]->y2+player_cam_move_y,8,c2,-1);
             break;
           case 2:
-            GrCircle(hdc,Ground[i]->x3+player_cam_move_x,Ground[i]->y3+player_cam_move_y,8,LTPURPLE,-1);
+            GrCircle(hdc,Ground[i]->x3+player_cam_move_x,Ground[i]->y3+player_cam_move_y,8,c2,-1);
             break;
         }
       }
@@ -956,14 +970,16 @@ void DrawMapEditorPlatforms(HDC hdc)
 
 void DrawMapEditorEnemy(HDC hdc)
 {
+  int c;
+  char txt_i[4];
   for (int i=0;i<ENEMY_NUM;i++) {
-    char txt_i[4];
     int type=MEEnemy[i]->type;
     sprintf(txt_i,"%d",i);
+    c=Highlight((i==MapEditor.selected_enemy_id && MapEditor.selected_option==2),color_arr[set_enemy_type_color[type]],LTPURPLE);
     if (set_enemy_type_species[type]==0)
-      GrPrint(hdc,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y-32+GR_HEIGHT/2,txt_i,color_arr[set_enemy_type_color[type]]);
+      GrPrint(hdc,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y-32+GR_HEIGHT/2,txt_i,c);
     else
-      GrPrint(hdc,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y-64+GR_HEIGHT/2,txt_i,color_arr[set_enemy_type_color[type]]);
+      GrPrint(hdc,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y-64+GR_HEIGHT/2,txt_i,c);
 
 
     GrSprite(hdc,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y+GR_HEIGHT/2,MEEnemySprite[type]->sprite_1,FALSE);
@@ -1042,10 +1058,8 @@ void DrawMapEditorUI(HDC hdc)
           GrPrint(hdc,8*11,70,"<FALSE>",c);
         }
 
-
-
         wchar_t duplicate_txt_visual[513];
-        if (Ground[MapEditor.selected_ground_id]->type==2) { //Ground text, show gui
+        if (Ground[MapEditor.selected_ground_id]->type==2 && !MapEditor.is_typing_search) { //Ground text, show gui
           if (!MapEditor.is_ground_txt_typing) {
             GrPrint(hdc,8,86,"[Enter]: Begin Typing",GREEN);
           } else {
@@ -1099,6 +1113,19 @@ void DrawMapEditorUI(HDC hdc)
         GrPrint(hdc,8,16,"LEVEL",BLACK);
         break;
 
+    }
+
+    if (MapEditor.selected_option==0 || MapEditor.selected_option==2) {
+      char print_search_id[8];
+      if (!MapEditor.is_typing_search) {
+        if (!MapEditor.is_ground_txt_typing)
+          GrPrint(hdc,8,102,"[CTRL+F]: Find",GREEN);
+      } else {
+        GrRect(hdc,0,86,8*40,102-16*3,BLACK);
+        GrPrint(hdc,8,86,"[CTRL+F]: Abort.  [Enter]: Search.",GREEN);
+        sprintf(print_search_id,"Find: %d",MapEditor.typing_search_id);
+        GrPrint(hdc,8,86+16,print_search_id,GREEN);          
+      }
     }
   }
 }

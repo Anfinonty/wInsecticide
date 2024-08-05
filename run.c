@@ -538,7 +538,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                 MapEditor.typing_ground_txt[MapEditor.typing_ground_txt_pos]=0;
               }
             } else {
-              if (MapEditor.typing_ground_txt_pos<512) {
+              if (MapEditor.typing_ground_txt_pos<511) {
                 if (!(wParam>=0 && wParam<13) &&
                     !(wParam>13 && wParam<=31) //13 == '\n'
                 ) { //Disallow illegal characters
@@ -552,6 +552,23 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               }
             }
           }        
+      } else if (MapEditor.is_typing_search) {
+        if (MapEditor.typing_search_txt_pos<5) {
+          if (wParam==0x08) { //Backspace
+            if (MapEditor.typing_search_txt_pos>0) {
+              MapEditor.typing_search_txt_pos--;
+              MapEditor.typing_search_id/=10;
+            }
+          } else {
+            if (MapEditor.typing_search_txt_pos<4) {
+              if (wParam>='0' && wParam<='9') { //keys '0' to '9' only
+                MapEditor.typing_search_id*=10;
+                MapEditor.typing_search_id+=wParam-'0';
+                MapEditor.typing_search_txt_pos++;
+              }
+            }
+          }
+        }
       }
       //https://learn.microsoft.com/en-us/windows/win32/learnwin32/keyboard-input
       //https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/getch-getwch?view=msvc-170
@@ -798,6 +815,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           SelectObject(hdcBackbuff,screen);
       
           DrawMainMenu(hdcBackbuff);
+          //DrawPaletteSquare(hdcBackbuff,200,200);
           DrawCursor(hdcBackbuff);
 
           BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);

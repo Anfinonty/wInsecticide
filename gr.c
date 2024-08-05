@@ -323,14 +323,14 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
         rgbColors[i].rgbReserved = 0;
         break;
       case 7: //DKGRAY
-        if (index_range==11) {
+        if (index_range==6) {
           rgbColors[i].rgbRed = 171;
           rgbColors[i].rgbGreen = 170; // 98 .. .. .. .. 170 .. .. .. .. 242
           rgbColors[i].rgbBlue = 170;
         } else {
-          rgbColors[i].rgbRed = 125+8*index_range;
-          rgbColors[i].rgbGreen = 125+8*index_range;
-          rgbColors[i].rgbBlue = 125+8*index_range;
+          rgbColors[i].rgbRed = 120+8*index_range;
+          rgbColors[i].rgbGreen = 120+8*index_range;
+          rgbColors[i].rgbBlue = 120+8*index_range;
         }
         rgbColors[i].rgbReserved = 0;
         break;
@@ -1635,5 +1635,19 @@ HBITMAP CopyStretchBitmap(HBITMAP srcBitmap,int SRCOPERATION, int nWidth, int nH
   DeleteDC(hdcMem2);
 
   return destBitmap;
+}
+
+
+
+void DrawPaletteSquare(HDC hdc,int move_x,int move_y)
+{
+  int size=8;
+  int index=0;
+  for (int y=0;y<16;y++) {
+    for (int x=0;x<16;x++) {
+      GrRect(hdc,move_x+x*size,move_y+y*size,size,size,RGB(rgbColorsDefault[index].rgbRed,rgbColorsDefault[index].rgbGreen,rgbColorsDefault[index].rgbBlue));
+      index++;
+    }
+  }
 }
 

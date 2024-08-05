@@ -23,10 +23,30 @@ bool keydownalt()
 void MapEditorKeypressDown(WPARAM wParam)
 {
   switch (wParam) {
+    //F
+      case 'F':
+        if (keydown(VK_CONTROL)) {//CTRL + 'F' ==> Find
+          if (!MapEditor.is_ground_txt_typing &&
+              (MapEditor.selected_option==0 || MapEditor.selected_option==2)) {
+            if (MapEditor.is_typing_search) {
+              MapEditor.is_typing_search=FALSE;
+            } else {
+              MapEditor.is_typing_search=TRUE;
+            }
+
+            //Clear All typing search
+            MapEditor.typing_search_txt_pos=0;
+            MapEditor.typing_search_id=0;
+            //MapEditor.is_typing_search=FALSE;
+          }
+        }
+        break;
 
     //Tab
       case 0x09:
-        MapEditor.selected_option=LimitValue(MapEditor.selected_option+1,0,5);
+        if (!MapEditor.is_typing_search && !MapEditor.is_ground_txt_typing) {
+          MapEditor.selected_option=LimitValue(MapEditor.selected_option+1,0,5);
+        }
         break;
 
     //Holding Down Down Arrow or 'S'
@@ -164,17 +184,53 @@ void MapEditorKeypressDown(WPARAM wParam)
   //Holding down ENTER key
     case VK_RETURN:
       if (Ground[MapEditor.selected_ground_id]->type==2) {
-        if (!MapEditor.is_ground_txt_typing) {
+        if (!MapEditor.is_ground_txt_typing && !MapEditor.is_typing_search) {
           MapEditor.is_ground_txt_typing=TRUE;
           MapEditor.is_ground_txt_typing_loaded=FALSE;
           MapEditor.typing_ground_txt_pos=lstrlenW(Ground[MapEditor.selected_ground_id]->text);
           swprintf(MapEditor.typing_ground_txt,512,L"%s",Ground[MapEditor.selected_ground_id]->text);
         }
-      } else {
-        player.cam_x=-player.x;
-        player.cam_y=-player.y;
+      } 
+      if (MapEditor.is_typing_search) {
+        switch (MapEditor.selected_option) {
+          case 0: //Searching for Ground
+            MapEditor.selected_ground_id=LimitValue(MapEditor.typing_search_id,0,GROUND_NUM-1);
+            break;
+          case 2: //Searching for Enemy
+            MapEditor.selected_enemy_id=LimitValue(MapEditor.typing_search_id,0,ENEMY_NUM-1);
+            break;
+        }
+        //Clear All typing search
+        MapEditor.typing_search_txt_pos=0;
+        MapEditor.typing_search_id=0;
+        MapEditor.is_typing_search=FALSE;
       }
-      //flag_restart=TRUE;
+      switch (MapEditor.selected_option) {
+        case 0: //Goto Ground
+          switch (MapEditor.selected_ground_pivot) {
+            case 0:
+              player.cam_x=-Ground[MapEditor.selected_ground_id]->x1;
+              player.cam_y=-Ground[MapEditor.selected_ground_id]->y1;
+              break;
+            case 1:
+              player.cam_x=-Ground[MapEditor.selected_ground_id]->x2;
+              player.cam_y=-Ground[MapEditor.selected_ground_id]->y2;
+              break;
+            case 2:
+              player.cam_x=-Ground[MapEditor.selected_ground_id]->x3;
+              player.cam_y=-Ground[MapEditor.selected_ground_id]->y3;
+              break;
+          }
+          break;
+        case 1: //Goto player
+          player.cam_x=-player.x;
+          player.cam_y=-player.y;
+          break;
+        case 2: //Goto enemy
+          player.cam_x=-MEEnemy[MapEditor.selected_enemy_id]->x;
+          player.cam_y=-MEEnemy[MapEditor.selected_enemy_id]->y;
+          break;
+      }
       break;
   }
 }
@@ -227,6 +283,7 @@ void MapEditorKeypressUp(WPARAM wParam)
             MapEditor.typing_ground_txt_pos=0;
             for (int i=0;i<512;i++)
               MapEditor.typing_ground_txt[i]=0;
+          } else if (MapEditor.is_typing_search) {
           } else {
             if (game_audio)
               PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
@@ -246,6 +303,7 @@ void MapEditorKeypressUp(WPARAM wParam)
             MapEditor.typing_ground_txt_pos=0;
             for (int i=0;i<512;i++)
               MapEditor.typing_ground_txt[i]=0;
+          } else if (MapEditor.is_typing_search) {
           } else {
             if (game_audio)
               PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
@@ -1173,18 +1231,6 @@ void ZeroMenuKeypressUp( HWND hwnd,  HDC hdc, WPARAM wParam)
         if (game_audio)
           PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
         InitLevelMapEditor(hwnd, hdc);
-
-
-/*
-      //Holding down ENTER key
-       case VK_RETURN:
-         if (player_color>-1 && player_color<COLORS_NUM) {         
-           if (game_audio)
-             PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
-           if (level_chosen>=0 && level_chosen<level_num && main_menu_chosen==0)
-             InitLevel(hwnd, hdc);
-         }
-*/
 
         }
         break;
