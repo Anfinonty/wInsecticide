@@ -9,9 +9,11 @@
 //I've lost track of the logs XD'
 
 //Command
-//i686-w64-mingw32-gcc-win32 run.c -o run.exe  -lgdi32 -municode -lwinmm -lshlwapi
+//i686-w64-mingw32-gcc-win32 run.c -o "WINSECTICIDE.EXE" my.o -lgdi32 -lgdiplus -lmsimg32 -municode -lwinmm -lshlwapi 
 //-lopengl32 -lglu32 is not used for now Jan-06-2024 -credit: sothea.dev
 #include <windows.h>
+//#include <wingdi.h>
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -734,10 +736,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             SelectObject(hdcBackbuff,screen);
             DrawBackground(hdcBackbuff);
             DrawPlatforms(hdcBackbuff);
+            //DrawForeground(hdcBackbuff);
             DrawWebs(hdcBackbuff);
             DrawEnemy(hdcBackbuff);
             DrawPlayer(hdcBackbuff);
             DrawUI(hdcBackbuff);
+            //GrGlassRect(hdcBackbuff,0,0,GR_WIDTH,GR_HEIGHT,YELLOW,128);
             DrawCursor(hdcBackbuff);
             //DrawGrids(hdcBackbuff);
 

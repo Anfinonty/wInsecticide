@@ -663,7 +663,12 @@ void DrawGroundTriFill(HDC hdc)
   int i=0,c=0;//,j=0;
   for (i=0;i<GROUND_NUM;i++) {
     if (Ground[i]->type==3) { 
-	  c=Ground[i]->color;
+      /*if (!IsInvertedBackground()) {
+	    c=Ground[i]->color;
+      } else {
+	    c=draw_darker_color_arr[Ground[i]->color_id];
+      }*/
+      c=Ground[i]->color;
       if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
           !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
         if (!IsInvertedBackground()) {
@@ -686,5 +691,32 @@ void DrawGroundTriFill(HDC hdc)
       }
     }
   }
+  /*if (IsInvertedBackground()) {
+  for (i=0;i<GROUND_NUM;i++) {
+    if (Ground[i]->type==3) { 
+	  c=Ground[i]->color;
+      if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
+          !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
+        //if (!IsInvertedBackground()) {
+	      DrawGlassTriFill(hdc,WHITE,
+                Ground[i]->x1,
+				Ground[i]->y1,
+				Ground[i]->x2,
+				Ground[i]->y2,
+				Ground[i]->x3,
+				Ground[i]->y3,128); //0->255
+        /*} else {
+	      DrawTriFill(hdc,c,
+                Ground[i]->x1,
+				Ground[i]->y1,
+				Ground[i]->x2,
+				Ground[i]->y2,
+				Ground[i]->x3,
+				Ground[i]->y3,TRUE,HS_BDIAGONAL);*/
+       // }
+      /*}
+    }
+  }
+  }*/
 }
 

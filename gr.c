@@ -95,43 +95,43 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
   for(int i=0; i<256; i++) {
     calc=i/16;
     switch (calc) {
-      case 0:
+      case 0: //BLACK
         rgbColors[i].rgbRed = i/2;
         rgbColors[i].rgbGreen = i/2;
         rgbColors[i].rgbBlue = i/2;
         rgbColors[i].rgbReserved = 0;
         break;
-      case 1:
+      case 1: //BLUE
         rgbColors[i].rgbRed = 0;
         rgbColors[i].rgbGreen = 0;
         rgbColors[i].rgbBlue = 170;
         rgbColors[i].rgbReserved = 0;
         break;
-      case 2:
+      case 2: //GREEN
         rgbColors[i].rgbRed = 0;
         rgbColors[i].rgbGreen = 170;
         rgbColors[i].rgbBlue = 0;
         rgbColors[i].rgbReserved = 0;
         break;
-      case 3:
+      case 3: //CYAN
         rgbColors[i].rgbRed = 0;
         rgbColors[i].rgbGreen = 170;
         rgbColors[i].rgbBlue = 170;
         rgbColors[i].rgbReserved = 0;
         break;
-      case 4:
+      case 4: //RED
         rgbColors[i].rgbRed = 170;
         rgbColors[i].rgbGreen = 0;
         rgbColors[i].rgbBlue = 0;
         rgbColors[i].rgbReserved = 0;
         break;
-      case 5:
+      case 5: //PURPLE
         rgbColors[i].rgbRed = 170;
         rgbColors[i].rgbGreen = 0;
         rgbColors[i].rgbBlue = 170;
         rgbColors[i].rgbReserved = 0;
         break;
-      case 6:
+      case 6: //BROWN
         rgbColors[i].rgbRed = 170;
         rgbColors[i].rgbGreen = 85;
         rgbColors[i].rgbBlue = 0;
@@ -149,13 +149,13 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
         rgbColors[i].rgbBlue = 170;
         rgbColors[i].rgbReserved = 0;
         break;
-      case 9:
+      case 9: //LTBLUE
         rgbColors[i].rgbRed = 0;
         rgbColors[i].rgbGreen = 0;
         rgbColors[i].rgbBlue = 255;
         rgbColors[i].rgbReserved = 0;
         break;
-      case 10:
+      case 10: //LTGREEN
         rgbColors[i].rgbRed = 0;
         if (i<160+8)
           rgbColors[i].rgbGreen = 254;
@@ -164,31 +164,31 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
         rgbColors[i].rgbBlue = 0;
         rgbColors[i].rgbReserved = 0;
         break;
-      case 11:
+      case 11: //LTCYAN
         rgbColors[i].rgbRed = 0;
         rgbColors[i].rgbGreen = 255;
         rgbColors[i].rgbBlue = 255;
         rgbColors[i].rgbReserved = 0;
         break;
-      case 12:
+      case 12: //LTRED
         rgbColors[i].rgbRed = 255;
         rgbColors[i].rgbGreen = 0;
         rgbColors[i].rgbBlue = 0;
         rgbColors[i].rgbReserved = 0;
         break;
-      case 13:
+      case 13: //LTPURPLE
         rgbColors[i].rgbRed = 255;
         rgbColors[i].rgbGreen = 0;
         rgbColors[i].rgbBlue = 255;
         rgbColors[i].rgbReserved = 0;
         break;
-      case 14:
+      case 14: //YELLOW
         rgbColors[i].rgbRed = 255;
         rgbColors[i].rgbGreen = 255;
         rgbColors[i].rgbBlue = 0;
         rgbColors[i].rgbReserved = 0;
         break;
-      case 15:
+      case 15: //WHITE
         rgbColors[i].rgbRed = 255;
         rgbColors[i].rgbGreen = 255;
         rgbColors[i].rgbBlue = 255;
@@ -468,6 +468,54 @@ void GrRect(HDC hdc, double x,double y,int l, int h,int COLOR) {
   DeleteObject(hBrush);
 }
 
+
+//https://stackoverflow.com/questions/10966008/draw-slightly-transparent-blue-rectangle-in-native-win32-gdi
+//https://www.codeproject.com/Articles/286/Using-the-AlphaBlend-function
+void GrGlassRect(HDC hdc, int x, int y, int width, int height, int COLOR, BYTE alpha) {
+    BLENDFUNCTION blendFunction;
+    blendFunction.BlendOp = AC_SRC_OVER;
+    blendFunction.BlendFlags = 0;
+    blendFunction.SourceConstantAlpha = alpha; // Transparency level (0-255)
+    blendFunction.AlphaFormat = 0;
+
+    HDC hdcMem = CreateCompatibleDC(hdc);
+    HBITMAP hBitmap = CreateCompatibleBitmap(hdc, width, height);
+    SelectObject(hdcMem, hBitmap);
+
+    // Fill the rectangle with the desired color
+    HBRUSH hBrush = CreateSolidBrush(COLOR); // Blue color
+    RECT rect = {x, y, width, height};
+    FillRect(hdcMem, &rect, hBrush);
+
+    // Use AlphaBlend to draw the transparent rectangle
+    AlphaBlend(hdc, 0, 0, width, height, hdcMem, 0, 0, width, height, blendFunction);
+
+    // Clean up
+    DeleteObject(hBrush);
+    DeleteObject(hBitmap);
+    DeleteDC(hdcMem);
+}
+
+
+/*
+#include <windows.h>
+
+void DrawTransparentRectangle(HDC hdc) {
+    // Define the rectangle coordinates
+    RECT rect = {50, 50, 200, 150};
+
+    // Create a solid brush with transparency (50% transparent blue)
+    HBRUSH hBrush = CreateSolidBrush(RGB(0, 0, 255) | 0x80000000);
+    HBRUSH hOldBrush = (HBRUSH)SelectObject(hdc, hBrush);
+
+    // Draw the rectangle
+    Rectangle(hdc, rect.left, rect.top, rect.right, rect.bottom);
+
+    // Clean up
+    SelectObject(hdc, hOldBrush);
+    DeleteObject(hBrush);
+}
+*/
 
 void GrLine(HDC hdc, double x1,double y1,double x2,double y2,int COLOR) {
   HPEN hPen = CreatePen(PS_SOLID, 1, COLOR);
@@ -1128,6 +1176,103 @@ void DrawTriFill(HDC hdc, int tri_color,double x1,double y1,double x2,double y2,
 }
 
 
+//https://learn.microsoft.com/en-us/windows/win32/gdi/drawing-a-shaded-triangle
+/*void DrawGlassTriFill(HDC hdc, int tri_color,double x1,double y1,double x2,double y2,double x3,double y3,BYTE alpha)
+{//https://stackoverflow.com/questions/33447305/c-windows32-gdi-fill-triangle
+    BLENDFUNCTION blendFunction;
+    blendFunction.BlendOp = AC_SRC_OVER;
+    blendFunction.BlendFlags = 0;
+    blendFunction.SourceConstantAlpha = alpha; // Transparency level (0-255)
+    blendFunction.AlphaFormat = 0;
+
+    HDC hdcMem = CreateCompatibleDC(hdc);
+    HBITMAP hBitmap = CreateCompatibleBitmap(hdc, width, height);
+    SelectObject(hdcMem, hBitmap);
+
+    // Fill the rectangle with the desired color
+    HBRUSH hBrush = CreateSolidBrush(COLOR); // Blue color
+    RECT rect = {x, y, width, height};
+    FillRect(hdcMem, &rect, hBrush);
+
+    // Use AlphaBlend to draw the transparent rectangle
+    AlphaBlend(hdc, 0, 0, width, height, hdcMem, 0, 0, width, height, blendFunction);
+
+    // Clean up
+    DeleteObject(hBrush);
+    DeleteObject(hBitmap);
+    DeleteDC(hdcMem);
+*/
+/*    BLENDFUNCTION blendFunction;
+    blendFunction.BlendOp = AC_SRC_OVER;
+    blendFunction.BlendFlags = 0;
+    blendFunction.SourceConstantAlpha = alpha; // Transparency level (0-255)
+    blendFunction.AlphaFormat = 0;
+
+
+    int lowest_x=min(x1,min(x2,x3));
+    int lowest_y=min(y1,min(y2,y3));
+    int highest_x=max(x1,max(x2,x3));
+    int highest_y=max(y1,max(y2,y3));
+    int width=highest_x-lowest_x;
+    int height=highest_y-lowest_y;
+
+    HDC hdcMem = CreateCompatibleDC(hdc);
+    HBITMAP hBitmap = CreateCompatibleBitmap(hdc, width, height);
+    SelectObject(hdcMem, hBitmap);
+
+    /*HPEN hPen = CreatePen(PS_SOLID, 2, tri_color);
+    HPEN hOldPen = SelectObject(hdcMem, hPen);
+
+    HBRUSH hBrush = CreateSolidBrush(tri_color);
+    HBRUSH hOldBrush = SelectObject(hdcMem, hBrush);*/
+
+
+    /*POINT vertices[] = { {x1, y1}, {x2, y2}, {x3, y3} };
+    Polygon(hdc, vertices, sizeof(vertices) / sizeof(vertices[0]));*/
+    /*HBRUSH hBrush = CreateSolidBrush(tri_color);
+    RECT rect = {lowest_x, lowest_y, width, height};
+    FillRect(hdcMem, &rect, hBrush);
+
+    AlphaBlend(hdc, lowest_x, lowest_y, width, height, hdcMem, 0, 0, width, height, blendFunction);
+
+    
+    // Use AlphaBlend to draw the transparent rectangle
+    //AlphaBlend(hdc, lowest_x,lowest_y, width, height, hdcMem, 0, 0, width, height, blendFunction);
+
+
+    /*SelectObject(hdcMem, hOldBrush);
+    DeleteObject(hBrush);
+
+    SelectObject(hdcMem, hOldPen);
+    DeleteObject(hPen);*/
+
+    // Clean up
+/*    DeleteObject(hBrush);
+    //DeleteObject(hBitmap);
+    //DeleteDC(hdcMem);
+}*/
+
+
+/*
+#include <windows.h>
+
+void DrawTransparentTriangle(HDC hdc) {
+    // Define the vertices of the triangle
+    POINT vertices[] = { {100, 50}, {150, 150}, {50, 150} };
+
+    // Create a solid brush with transparency (50% transparent red)
+    HBRUSH hBrush = CreateSolidBrush(RGB(255, 0, 0) | 0x80000000);
+    HBRUSH hOldBrush = (HBRUSH)SelectObject(hdc, hBrush);
+
+    // Draw the triangle
+    Polygon(hdc, vertices, 3);
+
+    // Clean up
+    SelectObject(hdc, hOldBrush);
+    DeleteObject(hBrush);
+}
+
+*/
 
 //https://stackoverflow.com/questions/3142349/drawing-on-8bpp-grayscale-bitmap-unmanaged-c
 HBITMAP CreateGreyscaleBitmap(int cx, int cy)

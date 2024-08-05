@@ -23,14 +23,27 @@ bool keydownalt()
 void MapEditorKeypressDown(WPARAM wParam)
 {
   switch (wParam) {
+
+    //Tab
+      case 0x09:
+        MapEditor.selected_option=LimitValue(MapEditor.selected_option+1,0,5);
+        break;
+
     //Holding Down Down Arrow or 'S'
       case 'S': //movement down y
         player.rst_down=TRUE;
         break;
 
       case VK_DOWN: //change type to alter ++
-        if (!MapEditor.is_ground_txt_typing)
-          MapEditor.selected_ground_option=LimitValue(MapEditor.selected_ground_option+1,0,4);
+        switch (MapEditor.selected_option) {
+          case 0:
+            if (!MapEditor.is_ground_txt_typing)
+              MapEditor.selected_ground_option=LimitValue(MapEditor.selected_ground_option+1,0,4);
+            break;
+          case 2:
+            MapEditor.selected_enemy_option=LimitValue(MapEditor.selected_enemy_option+1,0,2);
+            break;
+        }
         break;
 
 
@@ -41,8 +54,15 @@ void MapEditorKeypressDown(WPARAM wParam)
         break;
 
       case VK_UP: //change type to alter --
-        if (!MapEditor.is_ground_txt_typing)
-          MapEditor.selected_ground_option=LimitValue(MapEditor.selected_ground_option-1,0,4);
+        switch (MapEditor.selected_option) {
+          case 0:
+            if (!MapEditor.is_ground_txt_typing)
+              MapEditor.selected_ground_option=LimitValue(MapEditor.selected_ground_option-1,0,4);
+            break;
+          case 2:
+            MapEditor.selected_enemy_option=LimitValue(MapEditor.selected_enemy_option-1,0,2);
+            break;
+        }
         break;
 
 
@@ -53,33 +73,46 @@ void MapEditorKeypressDown(WPARAM wParam)
         break;
 
       case VK_LEFT:// change value --
-        if (!MapEditor.is_ground_txt_typing) {
-        switch (MapEditor.selected_ground_option) {
-          case 0: //ground_id
-            MapEditor.selected_ground_id=LimitValue(MapEditor.selected_ground_id-1,0,GROUND_NUM);
-            MapEditor.selected_ground_pivot=0;
+        switch (MapEditor.selected_option) {
+          case 0: //Ground
+            if (!MapEditor.is_ground_txt_typing) {
+            switch (MapEditor.selected_ground_option) {
+              case 0: //ground_id
+                MapEditor.selected_ground_id=LimitValue(MapEditor.selected_ground_id-1,0,GROUND_NUM);
+                MapEditor.selected_ground_pivot=0;
+                break;
+              case 1: // type
+                if (Ground[MapEditor.selected_ground_id]->type==0)
+                  Ground[MapEditor.selected_ground_id]->is_ghost = TRUE;
+                Ground[MapEditor.selected_ground_id]->type=LimitValue(Ground[MapEditor.selected_ground_id]->type-1,0,4);
+                MapEditor.selected_ground_pivot=0;
+                break;
+              case 2: // color
+                Ground[MapEditor.selected_ground_id]->color_id=LimitValue(Ground[MapEditor.selected_ground_id]->color_id-1,0,COLORS_NUM);
+                break;
+              case 3: // is_ghost
+                if (Ground[MapEditor.selected_ground_id]->type==0)
+                  Ground[MapEditor.selected_ground_id]->is_ghost = !Ground[MapEditor.selected_ground_id]->is_ghost;
+                break;
+            }
+            } else {
+            //if (MapEditor.typing_ground_txt_pos>0)
+              //MapEditor.typing_ground_txt_pos--;
+            }
             break;
-          case 1: // type
-            if (Ground[MapEditor.selected_ground_id]->type==0)
-              Ground[MapEditor.selected_ground_id]->is_ghost = TRUE;
-            Ground[MapEditor.selected_ground_id]->type=LimitValue(Ground[MapEditor.selected_ground_id]->type-1,0,4);
-            MapEditor.selected_ground_pivot=0;
+
+          case 2: //Enemy
+            switch (MapEditor.selected_enemy_option) {
+              case 0:
+                MapEditor.selected_enemy_id=LimitValue(MapEditor.selected_enemy_id-1,0,ENEMY_NUM);
+                break;
+              case 1:
+                MEEnemy[MapEditor.selected_enemy_id]->type=LimitValue(MEEnemy[MapEditor.selected_enemy_id]->type-1,0,ENEMY_TYPE_NUM);
+                break;                
+            }
             break;
-          case 2: // color
-            Ground[MapEditor.selected_ground_id]->color_id=LimitValue(Ground[MapEditor.selected_ground_id]->color_id-1,0,COLORS_NUM);
-            break;
-          case 3: // is_ghost
-            if (Ground[MapEditor.selected_ground_id]->type==0)
-              Ground[MapEditor.selected_ground_id]->is_ghost = !Ground[MapEditor.selected_ground_id]->is_ghost;
-            break;
-        }
-        } else {
-          //if (MapEditor.typing_ground_txt_pos>0)
-            //MapEditor.typing_ground_txt_pos--;
         }
         break;
-
-
 
     //Holding Down Right Arrow or 'D'
       case 'D': //movement up y
@@ -87,29 +120,43 @@ void MapEditorKeypressDown(WPARAM wParam)
         break;
 
       case VK_RIGHT: //change value ++
-        if (!MapEditor.is_ground_txt_typing) {
-          switch (MapEditor.selected_ground_option) {
-            case 0: //ground_id
-              MapEditor.selected_ground_id=LimitValue(MapEditor.selected_ground_id+1,0,GROUND_NUM);
-              MapEditor.selected_ground_pivot=0;
-              break;
-            case 1: // type
-              if (Ground[MapEditor.selected_ground_id]->type==0)
-                Ground[MapEditor.selected_ground_id]->is_ghost = TRUE;
-              Ground[MapEditor.selected_ground_id]->type=LimitValue(Ground[MapEditor.selected_ground_id]->type+1,0,4);
-              MapEditor.selected_ground_pivot=0;
-              break;
-            case 2: // color
-              Ground[MapEditor.selected_ground_id]->color_id=LimitValue(Ground[MapEditor.selected_ground_id]->color_id+1,0,COLORS_NUM);
-              break;
-            case 3: // is_ghost
-              if (Ground[MapEditor.selected_ground_id]->type==0)
-                Ground[MapEditor.selected_ground_id]->is_ghost = !Ground[MapEditor.selected_ground_id]->is_ghost;
-              break;
-          }
-        } else {
-          //if (MapEditor.typing_ground_txt_pos<lstrlenW(MapEditor.typing_ground_txt))
-            //MapEditor.typing_ground_txt_pos++;
+        switch (MapEditor.selected_option) {
+          case 0:
+            if (!MapEditor.is_ground_txt_typing) {
+              switch (MapEditor.selected_ground_option) {
+                case 0: //ground_id
+                  MapEditor.selected_ground_id=LimitValue(MapEditor.selected_ground_id+1,0,GROUND_NUM);
+                  MapEditor.selected_ground_pivot=0;
+                  break;
+                case 1: // type
+                  if (Ground[MapEditor.selected_ground_id]->type==0)
+                    Ground[MapEditor.selected_ground_id]->is_ghost = TRUE;
+                  Ground[MapEditor.selected_ground_id]->type=LimitValue(Ground[MapEditor.selected_ground_id]->type+1,0,4);
+                  MapEditor.selected_ground_pivot=0;
+                  break;
+                case 2: // color
+                  Ground[MapEditor.selected_ground_id]->color_id=LimitValue(Ground[MapEditor.selected_ground_id]->color_id+1,0,COLORS_NUM);
+                  break;
+                case 3: // is_ghost
+                  if (Ground[MapEditor.selected_ground_id]->type==0)
+                    Ground[MapEditor.selected_ground_id]->is_ghost = !Ground[MapEditor.selected_ground_id]->is_ghost;
+                  break;
+              }
+            } else {
+              //if (MapEditor.typing_ground_txt_pos<lstrlenW(MapEditor.typing_ground_txt))
+                //MapEditor.typing_ground_txt_pos++;
+            }
+            break;
+          case 2: // Enemy
+            switch (MapEditor.selected_enemy_option) {
+              case 0:
+                MapEditor.selected_enemy_id=LimitValue(MapEditor.selected_enemy_id+1,0,ENEMY_NUM);
+                break;
+              case 1:
+                MEEnemy[MapEditor.selected_enemy_id]->type=LimitValue(MEEnemy[MapEditor.selected_enemy_id]->type+1,0,ENEMY_TYPE_NUM);
+                break;                
+            }
+            break;
         }
         break;
 
@@ -166,8 +213,7 @@ void MapEditorKeypressUp(WPARAM wParam)
       case 'W':
       case VK_UP:
         player.rst_up=FALSE;
-        break;
-
+        break;    
 
 
     //Holding Down Shift && Escape

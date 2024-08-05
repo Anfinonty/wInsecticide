@@ -29,6 +29,14 @@ void DrawBackground(HDC hdc) {
 }
 
 
+
+/*void DrawForeground(HDC hdc) {
+  //if (IsInvertedBackground()) {
+    //GrGlassRect(hdc,GR_WIDTH/2,GR_HEIGHT/2,GR_WIDTH,GR_HEIGHT,WHITE,128);
+  //}
+}*/
+
+
 void DrawPlatforms(HDC hDC)
 { //Dynamically scale with window size 
   //Draw platforms bitmap mask

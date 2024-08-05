@@ -9,7 +9,7 @@ struct MapEditor
   int selected_option; //0:ground, 1:player, 2:enemy, 3:enemy_type, 4:background&pallette
 
 
-  //Ground 
+  //===== Ground ===== 
   int selected_ground_option; //0:ground_id, 1:type, 2:color, 3:is_ghost
   int selected_ground_id; //0 -> GROUND_NUM
   int selected_ground_pivot; //0:x1y1 ,1:x2y2, 2:x3y3 
@@ -20,6 +20,16 @@ struct MapEditor
   int typing_ground_txt_pos;
   wchar_t typing_ground_txt[512]; //same ant as ground
   //wchar_t typing_ground_txt2[512]; //same ant as ground //inbetween txt
+
+
+
+  //===== Enemy ===== 
+  int selected_enemy_option;
+  int selected_enemy_id;
+
+
+  //===== Enemy Type ===== (0->9)
+  int selected_enemy_type_id;
 
 } MapEditor;
 
@@ -439,6 +449,9 @@ void InitMapEditor(HDC hdc)
   MapEditor.selected_ground_pivot=0;
   MapEditor.selected_ground_option=0;
 
+  MapEditor.selected_enemy_id=0;
+  MapEditor.selected_enemy_option=0;
+
 
   MapEditor.is_ground_txt_typing=FALSE;
   MapEditor.is_ground_txt_typing_loaded=FALSE;
@@ -617,75 +630,96 @@ void MapEditorAct()
 
 
     Click();
-    if (player.right_click_hold_timer==62) {
-      if (Ground[MapEditor.selected_ground_id]->type==3) { //trifill
-        MapEditor.selected_ground_pivot=LimitValue(MapEditor.selected_ground_pivot+1,0,3);
-      } else {
-        MapEditor.selected_ground_pivot=LimitValue(MapEditor.selected_ground_pivot+1,0,2);
-      }
-    }    
-    if (player.attack_rst || player.rst_left_click) { //release mouse
-      if (!IsOutOfBounds(MapEditor.cursor_x,MapEditor.cursor_y,1,MAP_WIDTH,MAP_HEIGHT)) {
-        if (player.attack_rst)
-          DestroyMEGround(MapEditor.selected_ground_id);
-        switch (MapEditor.selected_ground_pivot) {
-          case 0:          
-            Ground[MapEditor.selected_ground_id]->x1=MapEditor.cursor_x;
-            Ground[MapEditor.selected_ground_id]->y1=MapEditor.cursor_y;
-            break;
-          case 1:
-            Ground[MapEditor.selected_ground_id]->x2=MapEditor.cursor_x;
-            Ground[MapEditor.selected_ground_id]->y2=MapEditor.cursor_y;
-            break;
-          case 2:
-            Ground[MapEditor.selected_ground_id]->x3=MapEditor.cursor_x;
-            Ground[MapEditor.selected_ground_id]->y3=MapEditor.cursor_y;
-            break;
-        }
-
-        //swap when axis overtake
-        int i=MapEditor.selected_ground_id;
-        int tmp_saved_ground_x1=Ground[i]->x1;
-        int tmp_saved_ground_y1=Ground[i]->y1;
-        if (Ground[i]->x2<=Ground[i]->x1) {//x1 is less than x2, swap
-          Ground[i]->x1=Ground[i]->x2;
-          Ground[i]->y1=Ground[i]->y2;
-          Ground[i]->x2=tmp_saved_ground_x1;
-          Ground[i]->y2=tmp_saved_ground_y1;
-          if (MapEditor.selected_ground_pivot==1)//2nd pivot, right pivot
-            MapEditor.selected_ground_pivot=0;
-          else
-            MapEditor.selected_ground_pivot=1;
-        }
-        if (Ground[i]->x3==Ground[i]->x1 || Ground[i]->x3==Ground[i]->x2) {
-	      Ground[i]->x3++;
-        }
 
 
-        if (Ground[i]->type==3) {//trifill
-	      if (Ground[i]->y1==Ground[i]->y2) {
-	        Ground[i]->y2++;
+    switch (MapEditor.selected_option) {
+      case 0:
+        if (player.right_click_hold_timer==62) {
+          if (Ground[MapEditor.selected_ground_id]->type==3) { //trifill
+            MapEditor.selected_ground_pivot=LimitValue(MapEditor.selected_ground_pivot+1,0,3);
+          } else {
+            MapEditor.selected_ground_pivot=LimitValue(MapEditor.selected_ground_pivot+1,0,2);
+          }
+        }    
+        if (player.attack_rst || player.rst_left_click) { //release mouse
+          if (!IsOutOfBounds(MapEditor.cursor_x,MapEditor.cursor_y,1,MAP_WIDTH,MAP_HEIGHT)) {
+            if (player.attack_rst)
+              DestroyMEGround(MapEditor.selected_ground_id);
+            switch (MapEditor.selected_ground_pivot) {
+              case 0:          
+                Ground[MapEditor.selected_ground_id]->x1=MapEditor.cursor_x;
+                Ground[MapEditor.selected_ground_id]->y1=MapEditor.cursor_y;
+                break;
+              case 1:
+                Ground[MapEditor.selected_ground_id]->x2=MapEditor.cursor_x;
+                Ground[MapEditor.selected_ground_id]->y2=MapEditor.cursor_y;
+                break;
+              case 2:
+                Ground[MapEditor.selected_ground_id]->x3=MapEditor.cursor_x;
+                Ground[MapEditor.selected_ground_id]->y3=MapEditor.cursor_y;
+                break;
+            }
+
+            //swap when axis overtake
+            int i=MapEditor.selected_ground_id;
+            int tmp_saved_ground_x1=Ground[i]->x1;
+            int tmp_saved_ground_y1=Ground[i]->y1;
+            if (Ground[i]->x2<=Ground[i]->x1) {//x1 is less than x2, swap
+              Ground[i]->x1=Ground[i]->x2;
+              Ground[i]->y1=Ground[i]->y2;
+              Ground[i]->x2=tmp_saved_ground_x1;
+              Ground[i]->y2=tmp_saved_ground_y1;
+              if (MapEditor.selected_ground_pivot==1)//2nd pivot, right pivot
+                MapEditor.selected_ground_pivot=0;
+              else
+                MapEditor.selected_ground_pivot=1;
+            }
+            if (Ground[i]->x3==Ground[i]->x1 || Ground[i]->x3==Ground[i]->x2) {
+	          Ground[i]->x3++;
+            }
+
+
+            if (Ground[i]->type==3) {//trifill
+	          if (Ground[i]->y1==Ground[i]->y2) {
+	            Ground[i]->y2++;
+              }
+            }
+            if (Ground[i]->y3==Ground[i]->y1) {
+	          Ground[i]->y3+=2;
+            }
+            if (Ground[i]->y3==Ground[i]->y2) {
+	          Ground[i]->y3+=2;
+            }
+            if (player.attack_rst) { //let go of left click
+              SetGround(MapEditor.selected_ground_id);
+              SetMENodeGridAttributes(MapEditor.selected_ground_id);
+              InitRDGrid();
+              player.attack_rst=FALSE;
+            }
           }
         }
-        if (Ground[i]->y3==Ground[i]->y1) {
-	      Ground[i]->y3+=2;
+        break;
+
+      case 1: //click action, player axes
+        if (!IsOutOfBounds(MapEditor.cursor_x,MapEditor.cursor_y,1,MAP_WIDTH,MAP_HEIGHT)) {
+          if (player.rst_left_click) { //release mouse
+            player.x=MapEditor.cursor_x;
+            player.y=MapEditor.cursor_y;
+          }
         }
-        if (Ground[i]->y3==Ground[i]->y2) {
-	      Ground[i]->y3+=2;
+        break;
+
+      case 2: //click action, enemey axes and set type 0->9
+        if (!IsOutOfBounds(MapEditor.cursor_x,MapEditor.cursor_y,1,MAP_WIDTH,MAP_HEIGHT)) {
+          if (player.rst_left_click) { //release mouse
+            MEEnemy[MapEditor.selected_enemy_id]->x=MapEditor.cursor_x;
+            MEEnemy[MapEditor.selected_enemy_id]->y=MapEditor.cursor_y;
+          }
         }
-
-        if (player.attack_rst) { //let go of left click
-          SetGround(MapEditor.selected_ground_id);
-          SetMENodeGridAttributes(MapEditor.selected_ground_id);
-          InitRDGrid();
-          player.attack_rst=FALSE;
-        }
-      }
-    }
+        break;
 
 
-
-
+    } //End of switch statement
   }
 }
 
@@ -968,66 +1002,103 @@ void DrawMapEditorUI(HDC hdc)
   int c;
   if (level_loaded) {
 
-    c = Highlight((MapEditor.selected_ground_option==0),BLACK,LTPURPLE);
-    GrPrint(hdc,8,16,"GROUNDS:",c);
-    char print_ground_id[8];
-    sprintf(print_ground_id,"<%d>",MapEditor.selected_ground_id);
-    GrPrint(hdc,8*11,16,print_ground_id,c);
 
 
-    //type
-    c = Highlight((MapEditor.selected_ground_option==1),BLACK,LTPURPLE);
-    GrPrint(hdc,8,34,"Type:",c);
-    char print_ground_type[8];
-    sprintf(print_ground_id,"<%d>",Ground[MapEditor.selected_ground_id]->type);
-    GrPrint(hdc,8*11,34,print_ground_id,c);
-
-    //color
-    c = Highlight((MapEditor.selected_ground_option==2),BLACK,LTPURPLE);
-    GrPrint(hdc,8,52,"Color:",c);
-    GrPrint(hdc,8*11,52,"<    >",c);
-
-    if (Ground[MapEditor.selected_ground_id]->color_id!=0) {
-      GrRect(hdc,8*12+1,52,16,16,BLACK);
-    } else {
-      GrRect(hdc,8*12+1,52,16,16,WHITE);
-    }
-
-    GrRect(hdc,8*12+2+1,52+2,12,12,draw_color_arr[Ground[MapEditor.selected_ground_id]->color_id]);
-
-    //is_ghost
-    c = Highlight((MapEditor.selected_ground_option==3),BLACK,LTPURPLE);
-    GrPrint(hdc,8,70,"IsGhost:",c);
-    if (Ground[MapEditor.selected_ground_id]->is_ghost) {
-      GrPrint(hdc,8*11,70,"<TRUE>",c);
-    } else {
-      GrPrint(hdc,8*11,70,"<FALSE>",c);
-    }
+    switch (MapEditor.selected_option) {
+      case 0:
+        c = Highlight((MapEditor.selected_ground_option==0),BLACK,LTPURPLE);
+        GrPrint(hdc,8,16,"GROUNDS:",c);
+        char print_ground_id[8];
+        sprintf(print_ground_id,"<%d>",MapEditor.selected_ground_id);
+        GrPrint(hdc,8*11,16,print_ground_id,c);
 
 
+        //type
+        c = Highlight((MapEditor.selected_ground_option==1),BLACK,LTPURPLE);
+        GrPrint(hdc,8,34,"Type:",c);
+        char print_ground_type[8];
+        sprintf(print_ground_id,"<%d>",Ground[MapEditor.selected_ground_id]->type);
+        GrPrint(hdc,8*11,34,print_ground_id,c);
 
-    wchar_t duplicate_txt_visual[513];
-    if (Ground[MapEditor.selected_ground_id]->type==2) { //Ground text, show gui
-      if (!MapEditor.is_ground_txt_typing) {
-        GrPrint(hdc,8,86,"[Enter]: Begin Typing",GREEN);
-      } else {
-        GrRect(hdc,0,86+16*2,GR_WIDTH,GR_HEIGHT-86-16*2,BLACK);
-        GrPrint(hdc,8,86+16*2,"[ESC]: Exit and Save.  [SHIFT_ESC]: Abort.  [BACKSPACE]: Backspace",GREEN);
-      }
-      
-      if (frame_tick%FPS>10) {
-        //swprintf(duplicate_txt_visual,MapEditor.typing_ground_txt_pos+2,L"%s*",MapEditor.typing_ground_txt);
-        for (int i=0;i<MapEditor.typing_ground_txt_pos;i++) {
-          duplicate_txt_visual[i]=MapEditor.typing_ground_txt[i];
+        //color
+        c = Highlight((MapEditor.selected_ground_option==2),BLACK,LTPURPLE);
+        GrPrint(hdc,8,52,"Color:",c);
+        GrPrint(hdc,8*11,52,"<    >",c);
+
+        if (Ground[MapEditor.selected_ground_id]->color_id!=0) {
+          GrRect(hdc,8*12+1,52,16,16,BLACK);
+        } else {
+          GrRect(hdc,8*12+1,52,16,16,WHITE);
         }
-        duplicate_txt_visual[MapEditor.typing_ground_txt_pos]='_';
-        for (int i=MapEditor.typing_ground_txt_pos+1;i<513;i++) {
-          duplicate_txt_visual[i]=0;
-        }
-        GrPrintW(hdc,8,94+16*3,duplicate_txt_visual,"",GREEN,16,FALSE,yes_unifont);
-      }
-      GrPrintW(hdc,8,94+16*3,MapEditor.typing_ground_txt,"",WHITE,16,FALSE,yes_unifont);
-    }
 
+        GrRect(hdc,8*12+2+1,52+2,12,12,draw_color_arr[Ground[MapEditor.selected_ground_id]->color_id]);
+
+        //is_ghost
+        c = Highlight((MapEditor.selected_ground_option==3),BLACK,LTPURPLE);
+        GrPrint(hdc,8,70,"IsGhost:",c);
+        if (Ground[MapEditor.selected_ground_id]->is_ghost) {
+          GrPrint(hdc,8*11,70,"<TRUE>",c);
+        } else {
+          GrPrint(hdc,8*11,70,"<FALSE>",c);
+        }
+
+
+
+        wchar_t duplicate_txt_visual[513];
+        if (Ground[MapEditor.selected_ground_id]->type==2) { //Ground text, show gui
+          if (!MapEditor.is_ground_txt_typing) {
+            GrPrint(hdc,8,86,"[Enter]: Begin Typing",GREEN);
+          } else {
+            GrRect(hdc,0,86+16*2,GR_WIDTH,GR_HEIGHT-86-16*2,BLACK);
+            GrPrint(hdc,8,86+16*2,"[ESC]: Exit and Save.  [SHIFT_ESC]: Abort.  [BACKSPACE]: Backspace",GREEN);
+          }
+          
+          if (frame_tick%FPS>10) {
+            //swprintf(duplicate_txt_visual,MapEditor.typing_ground_txt_pos+2,L"%s*",MapEditor.typing_ground_txt);
+            for (int i=0;i<MapEditor.typing_ground_txt_pos;i++) {
+              duplicate_txt_visual[i]=MapEditor.typing_ground_txt[i];
+            }
+            duplicate_txt_visual[MapEditor.typing_ground_txt_pos]='_';
+            for (int i=MapEditor.typing_ground_txt_pos+1;i<513;i++) {
+              duplicate_txt_visual[i]=0;
+            }
+            GrPrintW(hdc,8,94+16*3,duplicate_txt_visual,"",GREEN,16,FALSE,yes_unifont);
+          }
+          GrPrintW(hdc,8,94+16*3,MapEditor.typing_ground_txt,"",WHITE,16,FALSE,yes_unifont);
+        }
+        break;
+
+
+      case 1: //move player
+        //c = Highlight((MapEditor.selected_ground_option==0),BLACK,LTPURPLE);
+        GrPrint(hdc,8,16,"PLAYER",BLACK);
+        break;
+
+
+      case 2: //move enemy
+        c = Highlight((MapEditor.selected_enemy_option==0),BLACK,LTPURPLE);
+        GrPrint(hdc,8,16,"ENEMY:",c);
+        char print_enemy_id[8];
+        sprintf(print_enemy_id,"<%d>",MapEditor.selected_enemy_id);
+        GrPrint(hdc,8*11,16,print_enemy_id,c);
+
+
+
+        c = Highlight((MapEditor.selected_enemy_option==1),BLACK,LTPURPLE);
+        GrPrint(hdc,8,34,"Type:",c);
+        char print_enemy_type[8];
+        sprintf(print_enemy_type,"<%d>",MEEnemy[MapEditor.selected_enemy_id]->type);
+        GrPrint(hdc,8*11,34,print_enemy_type,c);
+        break;
+
+      case 3: //set enemy type
+        GrPrint(hdc,8,16,"ENEMY TYPE:",BLACK);
+        break;
+
+      case 4: //set map backgroudn and palette
+        GrPrint(hdc,8,16,"LEVEL",BLACK);
+        break;
+
+    }
   }
 }
