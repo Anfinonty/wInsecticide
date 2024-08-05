@@ -1,6 +1,8 @@
 
 
 #define COLORS_NUM  16
+
+//REGULAR COLORS
 #define BLACK       RGB(0,0,0)
 #define BLUE        RGB(0,0,170)
 #define GREEN    	RGB(0,170,0)
@@ -25,15 +27,16 @@
 #define MYCOLOR1    RGB(123,123,123)
 
 
+//DARK COLORS
 #define DKRBLACK       RGB(0,0,0)
 #define DKRBLUE        RGB(0,0,32)
 #define DKRGREEN       RGB(0,32,0)
 #define DKRCYAN        RGB(0,32,32)
 #define DKRRED         RGB(32,0,0)
-#define DKRPURPLE      RGB(32,0,132)
+#define DKRPURPLE      RGB(32,0,32)
 #define DKRBROWN       RGB(32,16,0)
-#define DKRLTGRAY      RGB(170,170,170)
-#define DKRDKGRAY      RGB(85,85,85)
+#define DKRLTGRAY      RGB(48,48,48)
+#define DKRDKGRAY      RGB(32,32,32)
 #define DKRLTBLUE      RGB(0,0,48)
 #define DKRLTGREEN     RGB(0,48,0)
 #define DKRLTCYAN      RGB(0,48,48)
@@ -43,7 +46,7 @@
 #define DKRWHITE       RGB(255,255,255)
 
 
-
+//LIGHT COLORS
 #define LTRBLACK       RGB(0,0,0)
 #define LTRBLUE        RGB(85,85,170)
 #define LTRGREEN       RGB(85,170,85)
@@ -60,6 +63,27 @@
 #define LTRLTPURPLE    RGB(255,170,255)
 #define LTRYELLOW      RGB(255,255,170)
 #define LTRWHITE       RGB(255,255,255)
+
+
+//LIGHTER COLORS
+#define LTR2BLACK       RGB(0,0,0)
+#define LTR2BLUE        RGB(149,149,170)
+#define LTR2GREEN       RGB(149,170,149)
+#define LTR2CYAN        RGB(149,170,170)
+#define LTR2RED         RGB(170,149,149)
+#define LTR2PURPLE      RGB(170,149,170)
+#define LTR2BROWN       RGB(170,160,149)
+
+#define LTR2LTGRAY      RGB(224,224,224)
+#define LTR2DKGRAY      RGB(170,170,170)
+
+#define LTR2LTBLUE      RGB(224,224,255)
+#define LTR2LTGREEN     RGB(224,255,224)
+#define LTR2LTCYAN      RGB(224,255,255)
+#define LTR2LTRED       RGB(255,224,224)
+#define LTR2LTPURPLE    RGB(255,224,255)
+#define LTR2YELLOW      RGB(255,255,224)
+#define LTR2WHITE       RGB(255,255,255)
 
 
 
@@ -143,6 +167,25 @@ LTRLTRED, //12
 LTRLTPURPLE, //13
 LTRYELLOW, //14
 LTRWHITE //15
+};
+
+int draw_lighter_color_arr2[COLORS_NUM]={
+LTR2BLACK, //0
+LTR2BLUE, //1
+LTR2GREEN, //2
+LTR2CYAN, //3
+LTR2RED, //4
+LTR2PURPLE, //5
+LTR2BROWN, //6
+LTR2LTGRAY, //7
+LTR2DKGRAY, //8
+LTR2LTBLUE, //9
+LTR2LTGREEN, //10
+LTR2LTCYAN, //11
+LTR2LTRED, //12
+LTR2LTPURPLE, //13
+LTR2YELLOW, //14
+LTR2WHITE //15
 };
 
 
@@ -253,9 +296,9 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
         break;
       case 5: //PURPLE
         if (index_range<=8) { //1->7 Darker values, 8 is true value
-          rgbColors[i].rgbRed = ceil(index_range*170/8);
+          rgbColors[i].rgbRed = ceil((index_range-1)*170/8);
           rgbColors[i].rgbGreen = 0;
-          rgbColors[i].rgbBlue = ceil(index_range*170/8);
+          rgbColors[i].rgbBlue = ceil((index_range-1)*170/8);
         } else { //9->16 Lighter values
           rgbColors[i].rgbRed = 170;
           if (index_range==16) {
@@ -280,25 +323,41 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
         rgbColors[i].rgbReserved = 0;
         break;
       case 7: //DKGRAY
-        rgbColors[i].rgbRed = 171;//+(index_range-1)*4;//ceil((index_range-1)*42/16);//+(i-16*8);//85+ceil((index_range)*85/16);
-        rgbColors[i].rgbGreen = 170;//+(index_range-1)*4;//ceil((index_range-1)*42/16);//+(i-16*8);//85+ceil((index_range)*85/16);
-        rgbColors[i].rgbBlue = 170;//+(index_range-1)*4;//ceil((index_range-1)*42/16);//+(i-16*8);//85+ceil((index_range)*85/16);
+        if (index_range==11) {
+          rgbColors[i].rgbRed = 171;
+          rgbColors[i].rgbGreen = 170; // 98 .. .. .. .. 170 .. .. .. .. 242
+          rgbColors[i].rgbBlue = 170;
+        } else {
+          rgbColors[i].rgbRed = 125+8*index_range;
+          rgbColors[i].rgbGreen = 125+8*index_range;
+          rgbColors[i].rgbBlue = 125+8*index_range;
+        }
         rgbColors[i].rgbReserved = 0;
         break;
       case 8: //LTGRAY
-        rgbColors[i].rgbRed = 86;//-(index_range-1)*4;//+(i-16*7);
-        rgbColors[i].rgbGreen = 85;//-(index_range-1)*4;//+(i-16*7);
-        rgbColors[i].rgbBlue = 85;//-(index_range-1)*4;//+(i-16*7);
+        if (index_range==11) {
+          rgbColors[i].rgbRed = 86;
+          rgbColors[i].rgbGreen = 85;
+          rgbColors[i].rgbBlue = 85;
+        } else {
+          rgbColors[i].rgbRed = 8*index_range+1;    //.. .. .. .. 85 .. .. .. .. 97
+          rgbColors[i].rgbGreen = 8*index_range+1;
+          rgbColors[i].rgbBlue = 8*index_range+1;
+        }
+
         rgbColors[i].rgbReserved = 0;
         break;
+
+
+//Lighter values
       case 9: //LTBLUE
         if (index_range<=8) { //1->7 Darker values, 8 is true value
           rgbColors[i].rgbRed = 0;
           rgbColors[i].rgbGreen = 0;
           rgbColors[i].rgbBlue = ceil(index_range*255/8);
         } else { //9->16 Lighter values
-          rgbColors[i].rgbRed = ceil((index_range-8)*170/8);
-          rgbColors[i].rgbGreen = ceil((index_range-8)*170/8);
+          rgbColors[i].rgbRed = ceil((index_range-8)*224/8);
+          rgbColors[i].rgbGreen = ceil((index_range-8)*224/8);
           rgbColors[i].rgbBlue = 255;
         }
         rgbColors[i].rgbReserved = 0;
@@ -312,8 +371,8 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
           else
             rgbColors[i].rgbGreen = ceil(index_range*255/8);
         } else { //9->16 Lighter values
-          rgbColors[i].rgbRed = ceil((index_range-8)*170/8);
-          rgbColors[i].rgbBlue = ceil((index_range-8)*170/8);
+          rgbColors[i].rgbRed = ceil((index_range-8)*224/8);
+          rgbColors[i].rgbBlue = ceil((index_range-8)*224/8);
           rgbColors[i].rgbGreen = 255;
         }
         rgbColors[i].rgbReserved = 0;
@@ -324,7 +383,7 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
           rgbColors[i].rgbGreen = ceil(index_range*255/8);
           rgbColors[i].rgbBlue = ceil(index_range*255/8);
         } else { //9->16 Lighter values
-          rgbColors[i].rgbRed = ceil((index_range-8)*170/8);
+          rgbColors[i].rgbRed = ceil((index_range-8)*224/8);
           rgbColors[i].rgbGreen = 255;
           rgbColors[i].rgbBlue = 255;
         }
@@ -337,8 +396,8 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
           rgbColors[i].rgbBlue = 0;
         } else { //9->16 Lighter values
           rgbColors[i].rgbRed = 255;
-          rgbColors[i].rgbGreen = ceil((index_range-8)*170/8);
-          rgbColors[i].rgbBlue = ceil((index_range-8)*170/8);
+          rgbColors[i].rgbGreen = ceil((index_range-8)*224/8);
+          rgbColors[i].rgbBlue = ceil((index_range-8)*224/8);
         }
         rgbColors[i].rgbReserved = 0;
         break;
@@ -349,7 +408,7 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
           rgbColors[i].rgbBlue = ceil(index_range*255/8);
         } else { //9->16 Lighter values
           rgbColors[i].rgbRed = 255;
-          rgbColors[i].rgbGreen = ceil((index_range-8)*170/8);
+          rgbColors[i].rgbGreen = ceil((index_range-8)*224/8);
           rgbColors[i].rgbBlue = 255;
         }
         rgbColors[i].rgbReserved = 0;
@@ -362,7 +421,7 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
         } else { //9->16 Lighter values
           rgbColors[i].rgbRed = 255;
           rgbColors[i].rgbGreen = 255;
-          rgbColors[i].rgbBlue = ceil((index_range-8)*170/8);
+          rgbColors[i].rgbBlue = ceil((index_range-8)*224/8);
         }
         rgbColors[i].rgbReserved = 0;
         break;
@@ -624,10 +683,6 @@ HBITMAP CreateBitmapMask(HBITMAP hbmColour, COLORREF crTransparent, HDC hdc)
 }
 
 
-
-
-
-
 //Graphics
 void GrRect(HDC hdc, double x,double y,int l, int h,int COLOR) {
   HBRUSH hBrush,holdBrush;
@@ -662,11 +717,11 @@ void GrGlassRect(HDC hdc, int x, int y, int width, int height, int COLOR, BYTE a
 
     // Fill the rectangle with the desired color
     HBRUSH hBrush = CreateSolidBrush(COLOR); // Blue color
-    RECT rect = {x, y, width, height};
+    RECT rect = {0, 0, width, height};
     FillRect(hdcMem, &rect, hBrush);
 
     // Use AlphaBlend to draw the transparent rectangle
-    AlphaBlend(hdc, 0, 0, width, height, hdcMem, 0, 0, width, height, blendFunction);
+    AlphaBlend(hdc, x, y, width, height, hdcMem, 0, 0, width, height, blendFunction);
 
     // Clean up
     DeleteObject(hBrush);
@@ -674,26 +729,6 @@ void GrGlassRect(HDC hdc, int x, int y, int width, int height, int COLOR, BYTE a
     DeleteDC(hdcMem);
 }
 
-
-/*
-#include <windows.h>
-
-void DrawTransparentRectangle(HDC hdc) {
-    // Define the rectangle coordinates
-    RECT rect = {50, 50, 200, 150};
-
-    // Create a solid brush with transparency (50% transparent blue)
-    HBRUSH hBrush = CreateSolidBrush(RGB(0, 0, 255) | 0x80000000);
-    HBRUSH hOldBrush = (HBRUSH)SelectObject(hdc, hBrush);
-
-    // Draw the rectangle
-    Rectangle(hdc, rect.left, rect.top, rect.right, rect.bottom);
-
-    // Clean up
-    SelectObject(hdc, hOldBrush);
-    DeleteObject(hBrush);
-}
-*/
 
 void GrLine(HDC hdc, double x1,double y1,double x2,double y2,int COLOR) {
   HPEN hPen = CreatePen(PS_SOLID, 1, COLOR);
@@ -1602,25 +1637,3 @@ HBITMAP CopyStretchBitmap(HBITMAP srcBitmap,int SRCOPERATION, int nWidth, int nH
   return destBitmap;
 }
 
-
-
-
-/*
-void PlaySnd(wchar_t *snd,wchar_t *sndid) 
-{
-    wchar_t opensnd[128];
-    wchar_t seeksnd[32];
-    wchar_t playsnd[32];
-    //wchar_t closesnd[32];
-    //wchar_t stopsnd[32];
-
-    swprintf(opensnd,128,L"open \"%s\" alias %s",snd,sndid);
-    swprintf(seeksnd,128,L"seek %s to start",sndid);
-    swprintf(playsnd,128,L"play %s",sndid);
-    //swprintf(closesnd,128,L"close %s",sndid);
-
-    mciSendString(opensnd,NULL,0,NULL);
-    mciSendString(seeksnd,NULL,0,NULL);
-    mciSendString(playsnd,NULL,0,NULL);
-    //mciSendString(closesnd,NULL,0,NULL);
-}*/

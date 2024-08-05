@@ -31,9 +31,10 @@ void DrawBackground(HDC hdc) {
 
 
 /*void DrawForeground(HDC hdc) {
-  //if (IsInvertedBackground()) {
-    //GrGlassRect(hdc,GR_WIDTH/2,GR_HEIGHT/2,GR_WIDTH,GR_HEIGHT,WHITE,128);
-  //}
+  if (IsInvertedBackground()) {
+    //GrGlassRect(hdc,player.sprite_x-32,player.sprite_y-32,64,64,draw_color_arr[player_load_pupil_color],128);
+    GrGlassCircle(hdc,player.sprite_x,player.sprite_y,32,LTGREEN,128);
+  }
 }*/
 
 
