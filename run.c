@@ -661,7 +661,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             InitPlayerCamera();
             player.cam_x=0;
             player.cam_y=0;
-            CameraInit(player.x,player.y+PLAYER_HEIGHT/2); //idk scaling is weird for sprite
+            CameraInit(player.x,player.y); //idk scaling is weird for sprite
           }
           OLD_GR_WIDTH = GR_WIDTH;
           OLD_GR_HEIGHT = GR_HEIGHT;

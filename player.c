@@ -112,7 +112,7 @@ void InitPlayerCamera()
 //set camera
   player.cam_x=0;
   player.cam_y=0;
-  CameraInit(player.saved_x,player.saved_y+PLAYER_HEIGHT/2); //idk scaling is weird for sprite
+  CameraInit(player.saved_x,player.saved_y); //idk scaling is weird for sprite
 }
 
 /*bool NearCrawler()
@@ -337,6 +337,10 @@ void InitPlayer() {
   player.fast_duration=0;
   player.shoot_knife_duration=0;
 
+
+  player.mouse_dist=0;
+  player.mouse_angle=0;
+
   /*player_fling_web.length=0;
   for (i=0;i<64;i++) {
     player_fling_web.on_ground_id[i]=-1;
@@ -436,6 +440,17 @@ void PlayerAct() {
     }
   }*/
 
+
+
+  //Mouse Actions
+  player.mouse_dist=GetDistance(GR_WIDTH/2,GR_HEIGHT/2,mouse_x,mouse_y);
+  player.mouse_angle=GetCosAngle(mouse_x-GR_WIDTH/2,player.mouse_dist);
+
+  player.cam_mouse_move_x=-cos(player.mouse_angle)*player.mouse_dist/3;
+  if (mouse_y>GR_HEIGHT/2) //below half of screen
+    player.cam_mouse_move_y=-sin(player.mouse_angle)*player.mouse_dist/3;
+  else
+    player.cam_mouse_move_y=sin(player.mouse_angle)*player.mouse_dist/3;
 
   //Clicking Actions
   if (player.bullet_shot!=-1) {
@@ -1665,8 +1680,8 @@ void PlayerAct() {
 
 
   //sprite axes
-  player.sprite_x=GR_WIDTH/2+player.cam_move_x;
-  player.sprite_y=GR_HEIGHT/2+player.cam_move_y-PLAYER_HEIGHT/2;
+  player.sprite_x=GR_WIDTH/2+player.cam_move_x+player.cam_mouse_move_x;
+  player.sprite_y=GR_HEIGHT/2+player.cam_move_y+player.cam_mouse_move_y;
  //
 }
 
@@ -1744,7 +1759,7 @@ void PlayerCameraShake()
       }
     //}
     if ((player.grav>3 || player.speed>=5) && (!player.is_on_ground_edge)) { //falling cam effect
-      y_bob=(player.grav-2)/2;
+      y_bob=0;//(player.grav-2)/2;
 
       switch (player.speed) {
          case 1:
@@ -1824,9 +1839,9 @@ void DrawPlayer(HDC hdc)
     if (tmp_ground_id==-1)
       tmp_ground_id=player.saved_on_ground_edge_id;
     if (player.is_on_left_ground_edge) {
-      GrLine(hdc,player.x+player.cam_x+player.cam_move_x,player.y+player.cam_y+player.cam_move_y,Ground[tmp_ground_id]->x1+player.cam_x+player.cam_move_x,Ground[tmp_ground_id]->y1+player.cam_y+player.cam_move_y,LTCYAN);
+      GrLine(hdc,player.sprite_x,player.sprite_y,Ground[tmp_ground_id]->x1+player.cam_x+player.cam_move_x+player.cam_mouse_move_x,Ground[tmp_ground_id]->y1+player.cam_y+player.cam_move_y+player.cam_mouse_move_y,LTCYAN);
     } else if (player.is_on_right_ground_edge) {
-      GrLine(hdc,player.x+player.cam_x+player.cam_move_x,player.y+player.cam_y+player.cam_move_y,Ground[tmp_ground_id]->x2+player.cam_x+player.cam_move_x,Ground[tmp_ground_id]->y2+player.cam_y+player.cam_move_y,LTCYAN);
+      GrLine(hdc,player.sprite_x,player.sprite_y,Ground[tmp_ground_id]->x2+player.cam_x+player.cam_move_x+player.cam_mouse_move_x,Ground[tmp_ground_id]->y2+player.cam_y+player.cam_move_y+player.cam_mouse_move_y,LTCYAN);
     }
   }
 
@@ -1851,13 +1866,12 @@ void DrawPlayer(HDC hdc)
     if (player.time_breaker_tick<GR_WIDTH || player.time_breaker_tick<GR_HEIGHT) {
       player.time_breaker_tick+=1;
       player.time_breaker_tick+=player.time_breaker_tick;
-    //GrCircle(hdc,player.pivot_x+player.cam_x+player.cam_move_x,player.pivot_y+player.cam_y+player.cam_move_y,DEFAULT_PLAYER_BUILD_RANGE/2*NODE_SIZE,WHITE,-1);
       if (!IsInvertedBackground()) {
-        GrCircle(hdc,player.x+player.cam_x+player.cam_move_x,player.y+player.cam_y+player.cam_move_y,player.time_breaker_tick,WHITE,-1);
-        GrCircle(hdc,player.x+player.cam_x+player.cam_move_x,player.y+player.cam_y+player.cam_move_y,player.time_breaker_tick-1,WHITE,-1);
+        GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick,WHITE,-1);
+        GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick-1,WHITE,-1);
       } else {
-        GrCircle(hdc,player.x+player.cam_x+player.cam_move_x,player.y+player.cam_y+player.cam_move_y,player.time_breaker_tick,BLACK,-1);
-        GrCircle(hdc,player.x+player.cam_x+player.cam_move_x,player.y+player.cam_y+player.cam_move_y,player.time_breaker_tick-1,BLACK,-1);
+        GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick,BLACK,-1);
+        GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick-1,BLACK,-1);
       }
     } else {
       for (int i=0;i<ENEMY_NUM;i++) {
@@ -1880,11 +1894,11 @@ void DrawPlayer(HDC hdc)
       player.time_breaker_tick--;
       player.time_breaker_tick-=player.time_breaker_tick/2;
       if (!IsInvertedBackground()) {
-        GrCircle(hdc,player.x+player.cam_x+player.cam_move_x,player.y+player.cam_y+player.cam_move_y,player.time_breaker_tick,WHITE,-1);
-        GrCircle(hdc,player.x+player.cam_x+player.cam_move_x,player.y+player.cam_y+player.cam_move_y,player.time_breaker_tick-1,WHITE,-1);
+        GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick,WHITE,-1);
+        GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick-1,WHITE,-1);
       } else {
-        GrCircle(hdc,player.x+player.cam_x+player.cam_move_x,player.y+player.cam_y+player.cam_move_y,player.time_breaker_tick,BLACK,-1);
-        GrCircle(hdc,player.x+player.cam_x+player.cam_move_x,player.y+player.cam_y+player.cam_move_y,player.time_breaker_tick-1,BLACK,-1);
+        GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick,BLACK,-1);
+        GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick-1,BLACK,-1);
       }
     }
   }
@@ -1973,13 +1987,19 @@ void DrawPlayer(HDC hdc)
 
   //Shapes Drawn when swinging to show direction of swing
   if (player.is_swinging) {
-    GrLine(hdc,player.x+player.cam_x+player.cam_move_x,player.y+player.cam_y+player.cam_move_y,player.pivot_x+player.cam_x+player.cam_move_x,player.pivot_y+player.cam_y+player.cam_move_y,LTCYAN);
+    GrLine(hdc,player.sprite_x,
+               player.sprite_y,
+                player.pivot_x+player.cam_x+player.cam_move_x+player.cam_mouse_move_x,
+                player.pivot_y+player.cam_y+player.cam_move_y+player.cam_mouse_move_y,
+                LTCYAN);
     int color=BLACK;
     if (!IsInvertedBackground()) {
       color=WHITE;
     }
     //line showing where player will launc/fling to
-    GrCircle(hdc,player.pivot_x+player.cam_x+player.cam_move_x,player.pivot_y+player.cam_y+player.cam_move_y,DEFAULT_PLAYER_BUILD_RANGE/2*NODE_SIZE,color,-1);
+    GrCircle(hdc,player.pivot_x+player.cam_x+player.cam_move_x+player.cam_mouse_move_x,
+                 player.pivot_y+player.cam_y+player.cam_move_y+player.cam_mouse_move_y,
+                DEFAULT_PLAYER_BUILD_RANGE/2*NODE_SIZE,color,-1);
     GrLine(hdc,player.sprite_x,player.sprite_y,player.sprite_x+100*cos(player.angle_of_incidence),player.sprite_y+100*sin(player.angle_of_incidence),LTGREEN);
   }
 
@@ -1987,7 +2007,7 @@ void DrawPlayer(HDC hdc)
   if (player.bullet_shot!=-1) {
     if (player.right_click_hold_timer<62) {
       DrawBullet(hdc,player.bullet_shot);
-      GrLine(hdc,player.x+player.cam_x+player.cam_move_x,player.y+player.cam_y+player.cam_move_y,Bullet[player.bullet_shot].sprite_x,Bullet[player.bullet_shot].sprite_y,LTCYAN);    
+      GrLine(hdc,player.sprite_x,player.sprite_y,Bullet[player.bullet_shot].sprite_x,Bullet[player.bullet_shot].sprite_y,LTCYAN);    
     }
   }
   

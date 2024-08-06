@@ -5,6 +5,8 @@ struct MapEditor
   int cursor_x;
   int cursor_y;
 
+  int sticky_level;
+  
   //overall
   int selected_option; //0:ground, 1:player, 2:enemy, 3:enemy_type, 4:background&pallette
 
@@ -448,6 +450,10 @@ void InitMapEditor(HDC hdc)
 
   MapEditor.selected_option=0;
 
+
+  MapEditor.sticky_level=0;
+
+
   MapEditor.typing_search_txt_pos=0;
   MapEditor.typing_search_id=0;
   MapEditor.is_typing_search=FALSE;
@@ -512,6 +518,10 @@ void InitMapEditor(HDC hdc)
   InitMENodeGridAttributes();
   InitMapEditorEnemy();
   InitMapEditorPlayer();
+
+
+  player.cam_move_x=-player.cam_x;
+  player.cam_move_y=-player.cam_y;
   InitRDGrid();
 
 
@@ -554,7 +564,7 @@ void InitLevelMapEditor(HWND hwnd, HDC hdc)
   //moon sprite
   DeleteObject(moon_sprite_cache);
   HBITMAP tmp_moon_sprite=CopyCrunchyBitmap(moon_sprite,NOTSRCCOPY);
-  moon_sprite_cache=RotateSprite(NULL, tmp_moon_sprite,0,PURPLE,BLACK,BLACK,-1);
+  moon_sprite_cache=RotateSprite(NULL, tmp_moon_sprite,0,LPURPLE,BLACK,BLACK,-1);
   DeleteObject(tmp_moon_sprite);
 
   DeleteObject(mouse_cursor_sprite_cache);
@@ -656,16 +666,16 @@ void MapEditorAct()
               DestroyMEGround(MapEditor.selected_ground_id);
             switch (MapEditor.selected_ground_pivot) {
               case 0:          
-                Ground[MapEditor.selected_ground_id]->x1=MapEditor.cursor_x;
-                Ground[MapEditor.selected_ground_id]->y1=MapEditor.cursor_y;
+                Ground[MapEditor.selected_ground_id]->x1=stickyTo(MapEditor.cursor_x,MapEditor.sticky_level);
+                Ground[MapEditor.selected_ground_id]->y1=stickyTo(MapEditor.cursor_y,MapEditor.sticky_level);
                 break;
               case 1:
-                Ground[MapEditor.selected_ground_id]->x2=MapEditor.cursor_x;
-                Ground[MapEditor.selected_ground_id]->y2=MapEditor.cursor_y;
+                Ground[MapEditor.selected_ground_id]->x2=stickyTo(MapEditor.cursor_x,MapEditor.sticky_level);
+                Ground[MapEditor.selected_ground_id]->y2=stickyTo(MapEditor.cursor_y,MapEditor.sticky_level);
                 break;
               case 2:
-                Ground[MapEditor.selected_ground_id]->x3=MapEditor.cursor_x;
-                Ground[MapEditor.selected_ground_id]->y3=MapEditor.cursor_y;
+                Ground[MapEditor.selected_ground_id]->x3=stickyTo(MapEditor.cursor_x,MapEditor.sticky_level);
+                Ground[MapEditor.selected_ground_id]->y3=stickyTo(MapEditor.cursor_y,MapEditor.sticky_level);
                 break;
             }
 
@@ -928,37 +938,38 @@ void DrawMapEditorPlatforms(HDC hdc)
 
 
   //Print ground details
-  int c2;
-  if (MapEditor.selected_option==0)
-    c2=LTPURPLE;
-  else
-    c2=BLACK;
   char print_ground_id[4];
   for (int k=0;k<rendered_ground_num;k++) {
     i=render_grounds[k];
+
     if (i!=-1) {
-      c=Highlight((i==MapEditor.selected_ground_id),BLACK,c2);
+
+      c=Highlight((i==MapEditor.selected_ground_id),BLACK,LTPURPLE);
       sprintf(print_ground_id,"%d",i);
       GrPrint(hdc,Ground[i]->x1+player_cam_move_x,Ground[i]->y1+player_cam_move_y-16,print_ground_id,c);
-      if (i==MapEditor.selected_ground_id) {
-        c=Highlight((MapEditor.selected_ground_pivot==0),BLACK,c2);
-        GrCircle(hdc,Ground[i]->x1+player_cam_move_x,Ground[i]->y1+player_cam_move_y,6,c,-1);
-        c=Highlight((MapEditor.selected_ground_pivot==1),BLACK,c2);
-        GrCircle(hdc,Ground[i]->x2+player_cam_move_x,Ground[i]->y2+player_cam_move_y,6,c,-1);
-        if (Ground[i]->type==3) {
-          c=Highlight((MapEditor.selected_ground_pivot==2),BLACK,c2);
-          GrCircle(hdc,Ground[i]->x3+player_cam_move_x,Ground[i]->y3+player_cam_move_y,6,c,-1);
-        }
 
+      c=Highlight((MapEditor.selected_ground_pivot==0 && i==MapEditor.selected_ground_id),BLACK,LTPURPLE);
+      GrCircle(hdc,Ground[i]->x1+player_cam_move_x,Ground[i]->y1+player_cam_move_y,6,c,-1);
+      c=Highlight((MapEditor.selected_ground_pivot==1 && i==MapEditor.selected_ground_id),BLACK,LTPURPLE);
+      GrCircle(hdc,Ground[i]->x2+player_cam_move_x,Ground[i]->y2+player_cam_move_y,6,c,-1);
+      if (Ground[i]->type==3) {
+        c=Highlight((MapEditor.selected_ground_pivot==2 && i==MapEditor.selected_ground_id),BLACK,LTPURPLE);
+        GrCircle(hdc,Ground[i]->x3+player_cam_move_x,Ground[i]->y3+player_cam_move_y,6,c,-1);
+      }
+
+      if (i==MapEditor.selected_ground_id) {
         switch (MapEditor.selected_ground_pivot) {
           case 0:
-            GrCircle(hdc,Ground[i]->x1+player_cam_move_x,Ground[i]->y1+player_cam_move_y,8,c2,-1);
+            c=Highlight((MapEditor.selected_ground_pivot==0),BLACK,LTPURPLE);
+            GrCircle(hdc,Ground[i]->x1+player_cam_move_x,Ground[i]->y1+player_cam_move_y,8,c,-1);
             break;
           case 1:
-            GrCircle(hdc,Ground[i]->x2+player_cam_move_x,Ground[i]->y2+player_cam_move_y,8,c2,-1);
+            c=Highlight((MapEditor.selected_ground_pivot==1),BLACK,LTPURPLE);
+            GrCircle(hdc,Ground[i]->x2+player_cam_move_x,Ground[i]->y2+player_cam_move_y,8,c,-1);
             break;
           case 2:
-            GrCircle(hdc,Ground[i]->x3+player_cam_move_x,Ground[i]->y3+player_cam_move_y,8,c2,-1);
+            c=Highlight((MapEditor.selected_ground_pivot==2),BLACK,LTPURPLE);
+            GrCircle(hdc,Ground[i]->x3+player_cam_move_x,Ground[i]->y3+player_cam_move_y,8,c,-1);
             break;
         }
       }
@@ -1013,6 +1024,10 @@ void DrawMapEditorUI(HDC hdc)
   //GrPrint(hdc,mouse_x+1,mouse_y+68+9,axis_x,WHITE);
   GrPrint(hdc,mouse_x,mouse_y+82+8,axis_y,BLACK);
   //GrPrint(hdc,mouse_x+1,mouse_y+82+9,axis_y,WHITE);
+
+
+  sprintf(axis_y,"sticky:%d",MapEditor.sticky_level);
+  GrPrint(hdc,mouse_x,mouse_y+100+8,axis_y,GREEN);
 
 
   int c;

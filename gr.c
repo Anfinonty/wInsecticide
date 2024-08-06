@@ -190,6 +190,27 @@ LTR2WHITE //15
 
 
 
+int draw_lighter_color_arr3[COLORS_NUM]={
+LTR2WHITE, //0
+LTR2LTBLUE, //9
+LTR2LTGREEN, //10
+LTR2LTCYAN, //11
+LTR2LTRED, //12
+LTR2LTPURPLE, //13
+LTR2YELLOW, //14
+LTR2LTGRAY, //7
+LTR2DKGRAY, //8
+LTR2LTBLUE, //9
+LTR2LTGREEN, //10
+LTR2LTCYAN, //11
+LTR2LTRED, //12
+LTR2LTPURPLE, //13
+LTR2YELLOW, //14
+LTR2WHITE //15
+};
+
+
+
 int Highlight(bool predicate,int color1, int color2)
 {
   if (predicate)
@@ -202,10 +223,20 @@ int Highlight(bool predicate,int color1, int color2)
 RGBQUAD rgbColorsNoir[256];
 void Init8BitRGBColorsNoir(RGBQUAD *rgbColors)
 {
+  int calc;
+  int index_range;
   for (int i = 0; i < 256; i++) {
-    rgbColors[i].rgbRed = i;
-    rgbColors[i].rgbGreen = i;
-    rgbColors[i].rgbBlue = i;
+    calc = i/16;
+    //green->ltpurple
+    if (calc==0 || calc==15) {
+      rgbColors[i].rgbRed = i;
+      rgbColors[i].rgbGreen = i;
+      rgbColors[i].rgbBlue = i;
+    } else {
+      rgbColors[i].rgbRed = 255-i;
+      rgbColors[i].rgbGreen = 255-i;
+      rgbColors[i].rgbBlue = 255-i;
+    }
   }
 }
 
@@ -323,18 +354,6 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
         rgbColors[i].rgbReserved = 0;
         break;
       case 7: //DKGRAY
-        if (index_range==6) {
-          rgbColors[i].rgbRed = 171;
-          rgbColors[i].rgbGreen = 170; // 98 .. .. .. .. 170 .. .. .. .. 242
-          rgbColors[i].rgbBlue = 170;
-        } else {
-          rgbColors[i].rgbRed = 120+8*index_range;
-          rgbColors[i].rgbGreen = 120+8*index_range;
-          rgbColors[i].rgbBlue = 120+8*index_range;
-        }
-        rgbColors[i].rgbReserved = 0;
-        break;
-      case 8: //LTGRAY
         if (index_range==11) {
           rgbColors[i].rgbRed = 86;
           rgbColors[i].rgbGreen = 85;
@@ -344,7 +363,18 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
           rgbColors[i].rgbGreen = 8*index_range+1;
           rgbColors[i].rgbBlue = 8*index_range+1;
         }
-
+        rgbColors[i].rgbReserved = 0;
+        break;
+      case 8: //LTGRAY
+        if (index_range==6) {
+          rgbColors[i].rgbRed = 171;
+          rgbColors[i].rgbGreen = 170; // 98 .. .. .. .. 170 .. .. .. .. 242
+          rgbColors[i].rgbBlue = 170;
+        } else {
+          rgbColors[i].rgbRed = 120+8*index_range;
+          rgbColors[i].rgbGreen = 120+8*index_range;
+          rgbColors[i].rgbBlue = 120+8*index_range;
+        }
         rgbColors[i].rgbReserved = 0;
         break;
 

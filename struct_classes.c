@@ -239,6 +239,8 @@ struct player
   double cam_y;
   double cam_move_x;
   double cam_move_y;
+  double cam_mouse_move_x;
+  double cam_mouse_move_y;
   double sprite_x;
   double sprite_y;
   double claws_x;
@@ -260,6 +262,9 @@ struct player
   double fling_distance;
   double angle_of_incidence;
   double angle_of_reflection;
+
+  double mouse_angle;
+  double mouse_dist;
 
 
   int web_storage[MAX_WEB_NUM];

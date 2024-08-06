@@ -147,8 +147,8 @@ void BulletAct(int bullet_id)
   if (Bullet[bullet_id].shot) {
     for (i=0;i<Bullet[bullet_id].speed_multiplier;i++) {
       allow_act=FALSE;
-      Bullet[bullet_id].sprite_x=Bullet[bullet_id].x+player.cam_x+player.cam_move_x;
-      Bullet[bullet_id].sprite_y=Bullet[bullet_id].y+player.cam_y+player.cam_move_y;
+      Bullet[bullet_id].sprite_x=Bullet[bullet_id].x+player.cam_x+player.cam_move_x+player.cam_mouse_move_x;
+      Bullet[bullet_id].sprite_y=Bullet[bullet_id].y+player.cam_y+player.cam_move_y+player.cam_mouse_move_y;
   //----------------
       if (enemy_id<0) {//player bullet movement
         if (enemy_id==-1) {

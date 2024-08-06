@@ -1097,8 +1097,8 @@ void EnemyAct(int i)
       }
     }//end of tbt
   }//end of health
-  Enemy[i]->sprite_x=Enemy[i]->x+player.cam_x+player.cam_move_x;
-  Enemy[i]->sprite_y=Enemy[i]->y+player.cam_y+player.cam_move_y;
+  Enemy[i]->sprite_x=Enemy[i]->x+player.cam_x+player.cam_move_x+player.cam_mouse_move_x;
+  Enemy[i]->sprite_y=Enemy[i]->y+player.cam_y+player.cam_move_y+ player.cam_mouse_move_y;
 
 }
 

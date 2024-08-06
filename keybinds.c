@@ -87,6 +87,14 @@ void MapEditorKeypressDown(WPARAM wParam)
 
 
 
+    //Holding Down 'G' key
+      case 'G':
+        if (keydown(VK_CONTROL)) {//CTRL + 'G' ==> Sticky increase
+          MapEditor.sticky_level=LimitValue(MapEditor.sticky_level+4,0,33);
+        }
+        break;
+
+
     //Holding Down Left Arrow or 'A'
       case 'A':
         player.rst_left=TRUE;
@@ -205,6 +213,7 @@ void MapEditorKeypressDown(WPARAM wParam)
         MapEditor.typing_search_id=0;
         MapEditor.is_typing_search=FALSE;
       }
+      InitRDGrid();
       switch (MapEditor.selected_option) {
         case 0: //Goto Ground
           switch (MapEditor.selected_ground_pivot) {
@@ -270,7 +279,6 @@ void MapEditorKeypressUp(WPARAM wParam)
       case VK_UP:
         player.rst_up=FALSE;
         break;    
-
 
     //Holding Down Shift && Escape
     case VK_ESCAPE:

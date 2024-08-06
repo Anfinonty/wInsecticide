@@ -638,3 +638,11 @@ int myCopyFile(const wchar_t* filename_dest,const wchar_t* filename_src)
 
 
 
+
+int stickyTo(int num, int sticky) {
+  if (sticky==0)
+    return num;
+  return sticky * ((num + (sticky-1)) /sticky);
+}
+
+

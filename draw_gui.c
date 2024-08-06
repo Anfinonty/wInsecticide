@@ -44,21 +44,23 @@ void DrawPlatforms(HDC hDC)
   int extra_h=0;
   if (hide_taskbar)
     extra_h=8*4;
-  DrawBitmap(hDC,player.cam_move_x+player.cam_x+player.x-GR_WIDTH/2,
-                 player.cam_move_y+player.cam_y+player.y-GR_HEIGHT/2,
-                 player.x-GR_WIDTH/2,
-                 player.y-GR_HEIGHT/2,
+  DrawBitmap(hDC,
+                 0,
+                 0,
+                 player.x-player.cam_mouse_move_x-player.cam_move_x-GR_WIDTH/2,
+                 player.y-player.cam_mouse_move_y-player.cam_move_y-GR_HEIGHT/2,
                  GR_WIDTH,
-                 GR_HEIGHT+player.grav*2+extra_h,
-                map_platforms_sprite_mask,SRCAND,FALSE);
+                 GR_HEIGHT+extra_h,
+                 map_platforms_sprite_mask,SRCAND,FALSE);
   //Draw platforms paint
-  DrawBitmap(hDC,player.cam_move_x+player.cam_x+player.x-GR_WIDTH/2,
-                 player.cam_move_y+player.cam_y+player.y-GR_HEIGHT/2,
-                 player.x-GR_WIDTH/2,
-                 player.y-GR_HEIGHT/2,
+  DrawBitmap(hDC,
+                 0,
+                 0,                    
+                 player.x-player.cam_mouse_move_x-player.cam_move_x-GR_WIDTH/2,
+                 player.y-player.cam_mouse_move_y-player.cam_move_y-GR_HEIGHT/2,
                  GR_WIDTH,
-                 GR_HEIGHT+player.grav*2+extra_h,
-                map_platforms_sprite,SRCPAINT,FALSE);
+                 GR_HEIGHT+extra_h,
+                 map_platforms_sprite,SRCPAINT,FALSE);
 }
 
 

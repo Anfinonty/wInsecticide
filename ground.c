@@ -597,10 +597,10 @@ void DrawWebs(HDC hdc)
     id=i;
     if (id<GROUND_NUM+MAX_WEB_NUM && Ground[id]->x1>-20) {
       GrLine(hdc,
-        Ground[id]->x1+player.cam_x+player.cam_move_x,
-        Ground[id]->y1+player.cam_y+player.cam_move_y,
-        Ground[id]->x2+player.cam_x+player.cam_move_x,
-        Ground[id]->y2+player.cam_y+player.cam_move_y,
+        Ground[id]->x1+player.cam_x+player.cam_move_x+player.cam_mouse_move_x,
+        Ground[id]->y1+player.cam_y+player.cam_move_y+player.cam_mouse_move_y,
+        Ground[id]->x2+player.cam_x+player.cam_move_x+player.cam_mouse_move_x,
+        Ground[id]->y2+player.cam_y+player.cam_move_y+player.cam_mouse_move_y,
         CYAN
       );
     }
@@ -611,6 +611,7 @@ void DrawWebs(HDC hdc)
 void DrawGround(HDC hdc)
 {
   int i=0;//,j=0;
+  int c;
   for (i=0;i<GROUND_NUM;i++) {
     if (Ground[i]->type==0) {
       if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
@@ -619,12 +620,18 @@ void DrawGround(HDC hdc)
           //char angletxt[12];
           //sprintf(angletxt,"%3.2f",le_angle);
           //GrPrint(hdc,Ground[i]->x1,Ground[i]->y1-16,angletxt,Ground[i]->color);
+          //if (!IsInvertedBackground()) {
+	        c=Ground[i]->color;
+	        //c=draw_darker_color_arr[Ground[i]->color_id];
+          //} else {
+	        //c=draw_lighter_color_arr[Ground[i]->color_id];
+          //}
           GrLine(hdc,
                 Ground[i]->x1,
                 Ground[i]->y1,
                 Ground[i]->x2,
                 Ground[i]->y2,
-                Ground[i]->color);
+                c);
 
 //         GrCircle(hdc,Ground[i]->x1,Ground[i]->y1,10,Ground[i]->color,-1);
 //         GrCircle(hdc,Ground[i]->x2,Ground[i]->y2,10,Ground[i]->color,-1);
