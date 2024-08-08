@@ -1298,9 +1298,11 @@ void InitEnemy()
 }
 
 
+//int cenemy=0;
 void DrawEnemy(HDC hdc)
 {
   int i=0,k=0;
+  //int min_enemy=0, max_enemy=100;
   if (frame_tick==-8) { //initiate on start of app
     for (i=0;i<ENEMY_NUM;i++) {
       if (Enemy[i]->species==1) {
@@ -1310,7 +1312,37 @@ void DrawEnemy(HDC hdc)
     }
   }
 
+
+
+  /*if (ENEMY_NUM>20) {
+    switch (cenemy) {
+      case 0:
+        min_enemy=0;
+        max_enemy=ENEMY_NUM/4;
+        break;
+      case 1:
+        min_enemy=ENEMY_NUM/4;
+        max_enemy=ENEMY_NUM/2;
+        break;
+      case 2:
+        min_enemy=ENEMY_NUM/2;
+        max_enemy=ENEMY_NUM/2+ENEMY_NUM/4;
+        break;
+      case 3:
+        min_enemy=ENEMY_NUM/2+ENEMY_NUM/4;
+        max_enemy=ENEMY_NUM/2;
+        break;
+    }
+    cenemy=LimitValue(cenemy+1,0,4);
+  } else {
+    cenemy=0;
+    min_enemy=0;
+    max_enemy=ENEMY_NUM;
+  }*/
+  
+
   for (i=0;i<ENEMY_NUM;i++) {  
+  //for (i=min_enemy;i<max_enemy;i++) {  
     if (Enemy[i]->species==1 && Enemy[i]->within_render_distance) {//rotate sprite
       if (Enemy[i]->on_ground_id!=-1) {
         Enemy[i]->sprite_angle=Enemy[i]->angle;

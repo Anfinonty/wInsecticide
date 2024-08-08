@@ -95,6 +95,7 @@ void InitNodeGrid()
   for (i=0;i<MAP_NODE_NUM;i++) {
     NodeGrid[i]->node_solid=FALSE;
     NodeGrid[i]->non_web=FALSE;
+    NodeGrid[i]->node_water=FALSE;
     NodeGrid[i]->x1=x;
     NodeGrid[i]->y1=y;
     NodeGrid[i]->x2=NodeGrid[i]->x1+NODE_SIZE;
@@ -239,6 +240,95 @@ void SetNodeGridAttributes2(int i)
   }
 }
 
+void TriFillWater(int gid)
+{
+/*
+                 ^
+               /~~~\
+            /~~~~~~!\
+         /~~~~~~~~~~~\
+      /~~~~~~~~~~~~~~~\
+   <_____~~~~~~~~~~~~~~\
+          _____ ~~~~~~~~\
+                _________>
+*/
+
+
+  if (Ground[gid]->type==1) {
+  double
+      gradient_middle1,gradient_middle2,gradient_largest,
+      c_middle1,c_middle2,c_largest,
+      smallest=INT_MAX,largest=0,
+      x_arr[3],y_arr[3];
+  x_arr[0]=Ground[gid]->x1;
+  x_arr[1]=Ground[gid]->x2;
+  x_arr[2]=Ground[gid]->x3;
+  y_arr[0]=Ground[gid]->y1;
+  y_arr[1]=Ground[gid]->y2;
+  y_arr[2]=Ground[gid]->y3;
+  int x_1,x_2,i,x,y,k,saved_largest=0,saved_smallest=0,saved_middle=0;
+  for (i=0;i<3;i++) {
+    if (y_arr[i]<smallest) {
+      smallest=y_arr[i];
+      saved_smallest=i;
+    }
+  }
+  for (i=0;i<3;i++) {
+    if (y_arr[i]>largest) {
+      largest=y_arr[i];
+      saved_largest=i;
+    }
+  }
+  for (i=0;i<3;i++) {
+    if (i!=saved_smallest && i!=saved_largest) {
+      saved_middle=i;
+    }
+  }
+  gradient_middle1=GetGradient(x_arr[saved_smallest],y_arr[saved_smallest],x_arr[saved_middle],y_arr[saved_middle]); //Gradient of main line
+  c_middle1=GetGroundC(x_arr[saved_smallest],y_arr[saved_smallest],gradient_middle1);
+
+  gradient_middle2=GetGradient(x_arr[saved_largest],y_arr[saved_largest],x_arr[saved_middle],y_arr[saved_middle]);
+  c_middle2=GetGroundC(x_arr[saved_largest],y_arr[saved_largest],gradient_middle2);
+
+  gradient_largest=GetGradient(x_arr[saved_largest],y_arr[saved_largest],x_arr[saved_smallest],y_arr[saved_smallest]);
+  c_largest=GetGroundC(x_arr[saved_smallest],y_arr[saved_smallest],gradient_largest);
+
+
+
+  int smallest_y=stickyTo(smallest,NODE_SIZE);
+  int middle_y=stickyTo(y_arr[saved_middle],NODE_SIZE);
+  int largest_y=stickyTo(largest,NODE_SIZE);
+
+  int x1,x2;
+  for (y=smallest_y;y<middle_y;y+=NODE_SIZE) {//small to middle
+    x_1=GetX(y,gradient_middle1,c_middle1);
+    x_2=GetX(y,gradient_largest,c_largest);
+    x_1=stickyTo(x_1,NODE_SIZE);
+    x_2=stickyTo(x_2,NODE_SIZE);
+    x1=min(x_1,x_2);
+    x2=max(x_1,x_2);
+    for (x=x1;x<x2;x+=NODE_SIZE) {
+      k=GetGridId(x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
+      if (k!=-1)
+        NodeGrid[k]->node_water=TRUE;
+    }
+  }
+  for (y=middle_y;y<largest_y;y+=NODE_SIZE) {//middle to largest
+    x_1=GetX(y,gradient_middle2,c_middle2);
+    x_2=GetX(y,gradient_largest,c_largest);
+    x_1=stickyTo(x_1,NODE_SIZE);
+    x_2=stickyTo(x_2,NODE_SIZE);
+    x1=min(x_1,x_2);
+    x2=max(x_1,x_2);
+    for (x=x1;x<x2;x+=NODE_SIZE) {
+      k=GetGridId(x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
+      if (k!=-1)
+        NodeGrid[k]->node_water=TRUE;
+
+    }
+  }
+  }
+}
 
 
 void SetNodeGridAttributes(int i)
@@ -279,8 +369,11 @@ void SetNodeGridAttributes(int i)
       }
     }
   }
-  if (Ground[i]->type==3) {//triangle
+  if (Ground[i]->type==3 || Ground[i]->type==1) {//triangle
     SetNodeGridAttributes2(i);
+  }
+  if (Ground[i]->type==1) { //water trifill
+    TriFillWater(i);
   }
 }
 

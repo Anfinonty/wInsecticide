@@ -134,6 +134,7 @@ int player_load_pupil_color=12;
 
 int player_bullet_color=0;
 
+
 int showoff=0;
 int saved_showoff=0;
 
@@ -262,8 +263,13 @@ double moon_angle_shift=0;
 
 
 #include "map_editor.c"
+#include "draw_it_map_editor.c"
+
 #include "save_level.c"
+
+
 #include "keybinds.c"
+#include "keybinds_map_editor.c"
 
 //Detect Exception occured
 //https://stackoverflow.com/questions/1394250/detect-program-termination-c-windows
@@ -706,6 +712,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
 
           if (level_loaded) {
+
             if (enemy_kills<ENEMY_NUM) {
               game_timer= current_timestamp() - time_begin;
             } else {
@@ -761,6 +768,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             //GrGlassRect(hdcBackbuff,0,0,GR_WIDTH,GR_HEIGHT,YELLOW,128);
             DrawCursor(hdcBackbuff);
             //DrawGrids(hdcBackbuff);
+            DrawWaterShader(hdcBackbuff);
 
             if (!IsInvertedBackground()){ //Inverted palette level
               BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);

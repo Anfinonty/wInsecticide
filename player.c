@@ -341,6 +341,10 @@ void InitPlayer() {
   player.mouse_dist=0;
   player.mouse_angle=0;
 
+
+  player.in_water=FALSE;
+
+
   /*player_fling_web.length=0;
   for (i=0;i<64;i++) {
     player_fling_web.on_ground_id[i]=-1;
@@ -446,11 +450,15 @@ void PlayerAct() {
   player.mouse_dist=GetDistance(GR_WIDTH/2,GR_HEIGHT/2,mouse_x,mouse_y);
   player.mouse_angle=GetCosAngle(mouse_x-GR_WIDTH/2,player.mouse_dist);
 
-  player.cam_mouse_move_x=-cos(player.mouse_angle)*player.mouse_dist/3;
+  int divider=3;
+  /*if (player.mouse_dist>GRID_SIZE) {
+    divider=2;
+  }*/
+  player.cam_mouse_move_x=-cos(player.mouse_angle)*player.mouse_dist/divider;
   if (mouse_y>GR_HEIGHT/2) //below half of screen
-    player.cam_mouse_move_y=-sin(player.mouse_angle)*player.mouse_dist/3;
+    player.cam_mouse_move_y=-sin(player.mouse_angle)*player.mouse_dist/divider;
   else
-    player.cam_mouse_move_y=sin(player.mouse_angle)*player.mouse_dist/3;
+    player.cam_mouse_move_y=sin(player.mouse_angle)*player.mouse_dist/divider;
 
   //Clicking Actions
   if (player.bullet_shot!=-1) {
@@ -807,6 +815,11 @@ void PlayerAct() {
   } else if (player.speed>5) {
     speed_limiter=5+(player.speed-5)/2;
   }
+
+  if (player.in_water) {
+    player.grav=1;
+    speed_limiter=speed_limiter/2+1;
+  }
   for (speed=0;speed<speed_limiter;speed++) {
     for (grav_speed=0;grav_speed<player.grav;grav_speed++) {
       //player.on_ground_id=GetOnGroundIdPlayer(player.x,player.y,5,4);
@@ -819,6 +832,17 @@ void PlayerAct() {
       } else {
         player.hiding=FALSE;
       }*/
+
+      int in_node_grid_id=GetGridId(player.x,player.y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
+      if (in_node_grid_id!=-1) {
+        if (NodeGrid[in_node_grid_id]->node_water) {
+          player.in_water=TRUE;
+        } else {
+          player.in_water=FALSE;
+        }
+      } else {
+        player.in_water=FALSE;
+      }
 
 
    //Destroy Ground (regainable)
@@ -1070,7 +1094,7 @@ void PlayerAct() {
       if (speed==0) { //runs on grav speed
         if (player.on_ground_id==-1 && player.jump_height<=0) { //Credit: y4my4m for pushing me to pursue this gameplay aspect
           if (!player.is_swinging) { //not swinigng and player is not flinging
-            if (player.in_air_timer>4 || player.fling_distance<0) {
+            if ((player.in_air_timer>4 || player.fling_distance<0) || (player.in_water && player.blocking)) {
               move_y(player.player_grav); //include while being rebounding and flinging
 	        } //else {
               //if (player.previous_below)

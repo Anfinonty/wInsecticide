@@ -38,6 +38,18 @@ void DrawBackground(HDC hdc) {
 }*/
 
 
+void DrawWaterShader(HDC hdc) 
+{
+  if (player.in_water) {
+    if (!IsInvertedBackground()) {
+      GrGlassRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,BLUE,128);
+    } else {
+      GrGlassRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,LTR2YELLOW,128);
+    }
+  }
+}
+
+
 void DrawPlatforms(HDC hDC)
 { //Dynamically scale with window size 
   //Draw platforms bitmap mask

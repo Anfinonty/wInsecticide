@@ -129,6 +129,8 @@ struct player
   bool is_on_ground_edge;
   bool is_on_left_ground_edge;
   bool is_on_right_ground_edge;
+ 
+  bool in_water;
     //Render
   //int rendered_vgrid_num;
   //int rendered_enemy_num;
@@ -395,6 +397,7 @@ AVGrid **VGrid;
 typedef struct node
 {
   bool node_solid;
+  bool node_water;
   bool non_web;
   int x1;
   int y1;
