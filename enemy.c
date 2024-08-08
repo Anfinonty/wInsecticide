@@ -959,7 +959,7 @@ void EnemyAct(int i)
                     Enemy[i]->bullet_shot_num++;
                   //after shooting
                     current_bullet_id++;
-                    if (current_bullet_id>=BULLET_NUM-1) {
+                    if (current_bullet_id>=SHOOT_BULLET_NUM-1) {
                       current_bullet_id=0;
                     }
                   }

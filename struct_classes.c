@@ -398,6 +398,8 @@ typedef struct node
 {
   bool node_solid;
   bool node_water;
+  bool node_no_rain;
+  bool node_no_shade;
   bool non_web;
   int x1;
   int y1;

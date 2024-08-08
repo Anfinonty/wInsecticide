@@ -96,6 +96,8 @@ void InitNodeGrid()
     NodeGrid[i]->node_solid=FALSE;
     NodeGrid[i]->non_web=FALSE;
     NodeGrid[i]->node_water=FALSE;
+    NodeGrid[i]->node_no_rain=FALSE;
+    NodeGrid[i]->node_no_shade=FALSE;
     NodeGrid[i]->x1=x;
     NodeGrid[i]->y1=y;
     NodeGrid[i]->x2=NodeGrid[i]->x1+NODE_SIZE;
@@ -104,6 +106,33 @@ void InitNodeGrid()
     if (x>MAP_WIDTH-NODE_SIZE) {
       x=0;
       y+=NODE_SIZE;
+    }
+  }
+}
+
+
+
+void InitNodeShade()
+{  
+  int on_node_grid_id=-1;
+  double gradient=20/8; //y/x to down-right
+  double start_x=0,x=0,y=0;
+  while (start_x<MAP_WIDTH) {
+    on_node_grid_id=GetGridId(x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
+    if (on_node_grid_id!=-1) {
+      if (NodeGrid[on_node_grid_id]->node_solid || NodeGrid[on_node_grid_id]->node_no_rain || y>=MAP_HEIGHT) { //solid detected, move to next start_x nodegrid
+        start_x+=NODE_SIZE;
+        x=start_x;
+        y=0;
+      } else { //keep going down.
+        NodeGrid[on_node_grid_id]->node_no_shade=TRUE;
+        y+=NODE_SIZE;
+        x=start_x+GetX(y,gradient,0);
+      }
+    } else {
+      start_x+=NODE_SIZE;
+      x=start_x;
+      y=0;
     }
   }
 }
@@ -240,7 +269,9 @@ void SetNodeGridAttributes2(int i)
   }
 }
 
-void TriFillWater(int gid)
+
+
+void TriFillNodeGridType(int gid)
 {
 /*
                  ^
@@ -254,7 +285,7 @@ void TriFillWater(int gid)
 */
 
 
-  if (Ground[gid]->type==1) {
+  if (Ground[gid]->type==1 || Ground[gid]->type==3) {
   double
       gradient_middle1,gradient_middle2,gradient_largest,
       c_middle1,c_middle2,c_largest,
@@ -309,8 +340,13 @@ void TriFillWater(int gid)
     x2=max(x_1,x_2);
     for (x=x1;x<x2;x+=NODE_SIZE) {
       k=GetGridId(x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
-      if (k!=-1)
-        NodeGrid[k]->node_water=TRUE;
+      if (k!=-1) {
+        if (Ground[gid]->type==1) {
+          NodeGrid[k]->node_water=TRUE;
+        } else if (Ground[gid]->type==3) {
+          NodeGrid[k]->node_no_rain=TRUE;
+        }
+      }
     }
   }
   for (y=middle_y;y<largest_y;y+=NODE_SIZE) {//middle to largest
@@ -322,9 +358,13 @@ void TriFillWater(int gid)
     x2=max(x_1,x_2);
     for (x=x1;x<x2;x+=NODE_SIZE) {
       k=GetGridId(x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
-      if (k!=-1)
-        NodeGrid[k]->node_water=TRUE;
-
+      if (k!=-1) {
+        if (Ground[gid]->type==1) {
+          NodeGrid[k]->node_water=TRUE;
+        } else if (Ground[gid]->type==3) {
+          NodeGrid[k]->node_no_rain=TRUE;
+        }
+      }
     }
   }
   }
@@ -372,8 +412,8 @@ void SetNodeGridAttributes(int i)
   if (Ground[i]->type==3 || Ground[i]->type==1) {//triangle
     SetNodeGridAttributes2(i);
   }
-  if (Ground[i]->type==1) { //water trifill
-    TriFillWater(i);
+  if (Ground[i]->type==3 || Ground[i]->type==1) { //water trifill
+    TriFillNodeGridType(i);
   }
 }
 
@@ -384,6 +424,7 @@ void InitNodeGridAttributes()
   for (int i=0;i<GROUND_NUM;i++) {
     SetNodeGridAttributes(i);
   }
+  InitNodeShade();
 }
 
 
@@ -401,5 +442,15 @@ void DrawGrids(HDC hdc,int player_cam_move_x,int player_cam_move_y)
 }
 
 
+
+void DrawNodeGrids(HDC hdc)
+{
+  for (int i=0;i<MAP_NODE_NUM;i++) {
+    if (NodeGrid[i]->node_no_rain)
+      GrCircle(hdc,NodeGrid[i]->x1+player.cam_x,NodeGrid[i]->y1+player.cam_y,3,YELLOW,-1);
+    /*if (NodeGrid[i]->node_no_shade)
+      GrCircle(hdc,NodeGrid[i]->x1+player.cam_x,NodeGrid[i]->y1+player.cam_y,3,BLUE,-1);*/
+  }
+}
 
 

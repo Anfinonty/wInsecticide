@@ -101,6 +101,9 @@ void Init(HDC hdc) {
   InitNodeGridAttributes();
   InitEnemy();
   InitPlayer();
+
+
+  InitBulletRain();
   BitmapPalette(hdc,map_platforms_sprite,rgbColorsDefault);
 
   mem_snd_interrupt[0]=TRUE;

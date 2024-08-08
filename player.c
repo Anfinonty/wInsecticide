@@ -566,7 +566,7 @@ void PlayerAct() {
       //Bullet[current_bullet_id].playsnd=TRUE;
         player.bullet_shot_num++;
         current_bullet_id++;
-        if (current_bullet_id>=BULLET_NUM-1) {
+        if (current_bullet_id>=SHOOT_BULLET_NUM-1) {
           current_bullet_id=0;
         }
 
@@ -637,7 +637,7 @@ void PlayerAct() {
     0
       );
       current_bullet_id++; //public
-      if (current_bullet_id>=BULLET_NUM-1) {
+      if (current_bullet_id>=SHOOT_BULLET_NUM-1) {
         current_bullet_id=0;
       } 
     }
@@ -2040,6 +2040,7 @@ void DrawPlayer(HDC hdc)
   for (int i=0;i<player.bullet_shot_num;i++) {
     DrawBullet(hdc,player.bullet[i]);
   }
+
 
   /*char hi[5];
   sprintf(hi,"%d",player.on_ground_timer);
