@@ -359,6 +359,10 @@ void InitPlayer() {
     player.web_storage[i]=GROUND_NUM+i;
   }
 
+  /*for (i=0;i<MAX_WEB_NUM;i++) {
+    player.placed_web[i]=-1;
+  }*/
+
   player.cdweb_player_pos=0;
   player.cdweb_pos=0;
   player.cdweb_num=0;
@@ -402,10 +406,10 @@ void RegainWeb(int web_id)
   }
   player.web_storage[player.destroyed_web_pos]=web_id;
   player.destroyed_web_pos=LimitValue(player.destroyed_web_pos+1,0,player.max_web_num);
+
+  //player.placed_web[player.placed_web_num]=-1;
   player.placed_web_num--;
 }
-
-
 
 
 
@@ -450,7 +454,7 @@ void PlayerAct() {
   player.mouse_dist=GetDistance(GR_WIDTH/2,GR_HEIGHT/2,mouse_x,mouse_y);
   player.mouse_angle=GetCosAngle(mouse_x-GR_WIDTH/2,player.mouse_dist);
 
-  int divider=3;
+  int divider=2;
   /*if (player.mouse_dist>GRID_SIZE) {
     divider=2;
   }*/
@@ -724,7 +728,8 @@ void PlayerAct() {
             Ground[web_id]->y2=bm_y2;
             SetGround(web_id);
             SetNodeGridAttributes(web_id);
-            PlayerPlaceWeb();
+            //player.placed_web[player.placed_web_num]=web_id;
+            PlayerPlaceWeb();            
             PlayerBulletLimitAct();
             Ground[web_id]->health=150;//-q;
           }

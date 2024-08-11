@@ -535,6 +535,12 @@ double GetX(double y,double gradient,double c)
   return (y-c)/gradient;
 }
 
+
+double GetY(double x,double gradient,double c)
+{
+  return x*gradient+c;
+}
+
 double GetDistance(double x1,double y1,double x2,double y2)
 {
   double dist=sqrt(pow(y2-y1,2)+pow(x2-x1,2));
@@ -647,4 +653,37 @@ int stickyTo(int num, int sticky) {
 
 
 
+
+
+//https://www.baeldung.com/cs/check-if-point-is-in-2d-triangle
+
+//https://stackoverflow.com/questions/9513107/find-if-4-points-form-a-quadrilateral
+//https://www.geeksforgeeks.org/geometric-algorithms/
+//https://www.geeksforgeeks.org/c-cpp-programs-for-geometric-algorithms/
+//https://stackoverflow.com/questions/18084065/find-order-of-points-to-make-a-quadrilateral
+
+// Function to calculate the area of a triangle given its vertices
+float triangleArea(float x1, float y1, float x2, float y2, float x3, float y3) {
+    float area=(x1*(y2 - y3) + x2*(y3 - y1) + x3*(y1 - y2)) / 2.0;
+    return fabs(area);
+}
+
+// Function to check if a point is inside a quadrilateral
+bool isPointInQuadrilateral(float x, float y, float x1, float y1, float x2, float y2, float x3, float y3, float x4, float y4) {
+    // Calculate the area of the quadrilateral
+    float quadArea = triangleArea(x1, y1, x2, y2, x3, y3) + triangleArea(x2, y2, x3, y3, x4, y4);
+
+    // Calculate the area of triangles formed with the point and the vertices of the quadrilateral
+    float area1 = triangleArea(x, y, x1, y1, x2, y2);
+    float area2 = triangleArea(x, y, x2, y2, x4, y4);
+    float area3 = triangleArea(x, y, x1, y1, x3, y3);
+    float area4 = triangleArea(x, y, x3, y3, x4, y4);
+    float total_area=area1+area2+area3+area4;
+
+    // Check if the sum of the areas of the triangles is equal to the area of the quadrilateral
+    if (total_area>=quadArea-1 && total_area<=quadArea+1) {
+      return true;
+    }
+    return false;
+}
 

@@ -490,7 +490,7 @@ Ascii art woo!! :D
 void InitBulletRain()
 {
   for (int i=SHOOT_BULLET_NUM;i<BULLET_NUM;i++) {
-    int rand_x=RandNum(player.x-GR_WIDTH/2+6,player.x+GR_WIDTH/2-6,frame_tick); //so it doest get stuck to ground
+    int rand_x=RandNum(player.x-GR_WIDTH/2,player.x+GR_WIDTH/2,frame_tick); //so it doest get stuck to ground
     if (rand_x<10)
       rand_x=RandNum(10,player.x+GR_WIDTH/2-6,frame_tick);
     else if (rand_x>MAP_WIDTH)
@@ -509,8 +509,8 @@ void InitBulletRain()
         10,
         0,
         0,
-        8,
-        20,
+        rain_grad_run,
+        rain_grad_rise,
         0 //angle            
     );
   }
@@ -631,7 +631,51 @@ void BulletAct(int bullet_id)
             else if (rand_y>MAP_HEIGHT)
               rand_y=RandNum(player.y-GR_HEIGHT/2-player.cam_mouse_move_y,MAP_HEIGHT-10,frame_tick);
 
-            ShootBullet(
+            bool allow_spawn=TRUE;
+            //check if below spawned web
+            double check_x1,check_x2,c1,c2;
+            double rain_gradient=rain_grad_rise/rain_grad_run;
+            for (int q=GROUND_NUM;q<GROUND_NUM+MAX_WEB_NUM;q++) {                
+              //if (q!=-1) {
+                //if (rand_x>=Ground[q]->x1 && rand_x<=Ground[q]->x2) { //within x1 and x2,
+                  //if (rand_y>=Ground[q]->y1 || rand_y>=Ground[q]->y2) { //below y1 or y2
+              if (Ground[q]->x1>-1 && Ground[q]->y1>-1) {
+                //y=mx+c
+                //MAP_HEIGHT=(20/8)(x)+c
+                //double GetGroundC(double x,double y,double gradient)
+                c1=GetGroundC(Ground[q]->x1-NODE_SIZE,Ground[q]->y1,rain_gradient);
+                c2=GetGroundC(Ground[q]->x2+NODE_SIZE,Ground[q]->y2,rain_gradient);
+                check_x1=GetX(rand_y,rain_gradient,c1);
+                check_x2=GetX(rand_y,rain_gradient,c2);
+
+                /*if (isPointInQuadrilateral(rand_x,rand_y,
+                             Ground[q]->x1,Ground[q]->y1,
+                             Ground[q]->x2,Ground[q]->y2,
+                             check_x1,MAP_HEIGHT,
+                             check_x2,MAP_HEIGHT)) {*/
+                if (check_x1<=rand_x && rand_x<=check_x2 && (rand_y>=Ground[q]->y1 || rand_y>=Ground[q]->y2)) {
+                  allow_spawn=FALSE;
+                  break;
+                }
+              }
+                  //}
+                //}
+              //}
+            }
+
+            int spawn_on_ng=GetGridId(rand_x,rand_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
+            if (spawn_on_ng!=-1) {
+              //if ((NodeGrid[spawn_on_ng]->node_no_rain || !NodeGrid[spawn_on_ng]->node_no_shade)) {
+              if (NodeGrid[spawn_on_ng]->node_no_rain || !NodeGrid[spawn_on_ng]->node_no_shade) {
+                allow_spawn=FALSE;
+              }
+            } else { //==-1
+              allow_spawn=FALSE;
+            }
+
+
+            if (allow_spawn) {
+              ShootBullet(
                 bullet_id,
                 -1,
                 BLUE,
@@ -641,14 +685,34 @@ void BulletAct(int bullet_id)
                 10, //speed multiplier
                 0, //damage
                 -3,
-                stickyTo(rand_x,NODE_SIZE*4), //so it doest get stuck to ground
+                stickyTo(rand_x,NODE_SIZE*4),
                 stickyTo(rand_y,NODE_SIZE*4),
                 0,
                 0,
-                8,
-                20,
+                rain_grad_run,
+                rain_grad_rise,
                 0 //angle            
-            );
+              );
+            } else {
+              ShootBullet(
+                bullet_id,
+                -1,
+                BLUE,
+                8, //graphics type
+                -1, //range ==>
+                1, //speed
+                1, //speed multiplier
+                0, //damage
+                -3,
+                0,
+                0,
+                0,
+                0,
+                rain_grad_run,
+                rain_grad_rise,
+                0 //angle            
+              );
+            }
           }
         }
       } else if (!player.time_breaker || Enemy[enemy_id]->time_breaker_immune) {//enemy

@@ -115,7 +115,7 @@ void InitNodeGrid()
 void InitNodeShade()
 {  
   int on_node_grid_id=-1;
-  double gradient=20/8; //y/x to down-right
+  double gradient=rain_grad_rise/rain_grad_run; //y/x to down-right
   double start_x=0,x=0,y=0;
   while (start_x<MAP_WIDTH) {
     on_node_grid_id=GetGridId(x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);

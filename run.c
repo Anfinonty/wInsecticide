@@ -158,6 +158,9 @@ double solar_angle_day=0;
 int lunar_sec=0,lunar_min=0,lunar_hour=0,lunar_day=0,lunar_month=0,lunar_year=0,lunar_day_of_week=0;
 double moon_angle_shift=0;
 
+
+
+double rain_grad_rise=20,rain_grad_run=-20;
 //HBITMAP canny;
 //HBITMAP uncanny;
 
