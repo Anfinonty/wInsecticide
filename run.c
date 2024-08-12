@@ -160,7 +160,7 @@ double moon_angle_shift=0;
 
 
 
-double rain_grad_rise=20,rain_grad_run=-20;
+double rain_grad_rise=20,rain_grad_run=8;
 //HBITMAP canny;
 //HBITMAP uncanny;
 
@@ -365,7 +365,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
         for (int i=0;i<ENEMY_NUM;i++) {
           EnemyAct(i);
         }
-        RainAct();
+        //RainAct();
         Sleep(player.sleep_timer);
       } else {
         Sleep(1000);
@@ -776,7 +776,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DrawCursor(hdcBackbuff);
             //DrawGrids(hdcBackbuff);
             DrawWaterShader(hdcBackbuff);
-            DrawRain(hdcBackbuff);
+            //DrawRain(hdcBackbuff);
             //DrawNodeGrids(hdcBackbuff);
 
             if (!IsInvertedBackground()){ //Inverted palette level

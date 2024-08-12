@@ -446,10 +446,10 @@ void DrawGrids(HDC hdc,int player_cam_move_x,int player_cam_move_y)
 void DrawNodeGrids(HDC hdc)
 {
   for (int i=0;i<MAP_NODE_NUM;i++) {
-    if (NodeGrid[i]->node_no_rain)
-      GrCircle(hdc,NodeGrid[i]->x1+player.cam_x,NodeGrid[i]->y1+player.cam_y,3,YELLOW,-1);
-    /*if (NodeGrid[i]->node_no_shade)
-      GrCircle(hdc,NodeGrid[i]->x1+player.cam_x,NodeGrid[i]->y1+player.cam_y,3,BLUE,-1);*/
+    //if (NodeGrid[i]->node_no_rain)
+      //GrCircle(hdc,NodeGrid[i]->x1+player.cam_x,NodeGrid[i]->y1+player.cam_y,3,YELLOW,-1);
+    if (NodeGrid[i]->node_no_shade)
+      GrCircle(hdc,NodeGrid[i]->x1+player.cam_x,NodeGrid[i]->y1+player.cam_y,3,BLUE,-1);
   }
 }
 

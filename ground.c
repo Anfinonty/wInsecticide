@@ -671,8 +671,8 @@ void DrawGroundTriFill(HDC hdc)
   for (i=0;i<GROUND_NUM;i++) {
     if (Ground[i]->type==3) { 
       if (!IsInvertedBackground()) {
-	    //c=Ground[i]->color;
-	    c=draw_darker_color_arr[Ground[i]->color_id];
+	    c=Ground[i]->color;
+	    //c=draw_darker_color_arr[Ground[i]->color_id];
       } else {
 	    c=draw_lighter_color_arr[Ground[i]->color_id];
       }

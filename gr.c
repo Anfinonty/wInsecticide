@@ -240,6 +240,13 @@ void Init8BitRGBColorsNoir(RGBQUAD *rgbColors)
   }
 }
 
+/*typedef struct SPRITE
+{
+  int width,height;
+  HBITMAP sprite_mask;
+  HBITMAP sprite_paint;
+} ASPRITE;*/
+
 //HBITMAP ReplaceColor(int num, COLOR* oldColor, COLOR* newColor, HBITMAP hBitmap)
 //https://gamedev.net/forums/topic/267754-win32-replacing-color-in-a-bitmap/267754/
 
@@ -924,6 +931,28 @@ void DrawBitmap(HDC hDC,double _x1,double _y1, double _x2, double _y2, int width
 }
 
 
+
+/*
+void DrawSprite(HDC hdc,int x1, int y1, ASPRITE mySprite)
+{
+  DrawBitmap(hdc,
+                 0,
+                 0,
+                 x1,//-player.cam_mouse_move_x-player.cam_move_x-GR_WIDTH/2,
+                 y1,//player.y-player.cam_mouse_move_y-player.cam_move_y-GR_HEIGHT/2,
+                 mySprite->width,
+                 mySprite->height,
+                 mySprite->sprite_mask,SRCAND,FALSE);
+  //Draw platforms paint
+  DrawBitmap(hdc,
+                 0,
+                 0,                    
+                 x1,//player.x-player.cam_mouse_move_x-player.cam_move_x-GR_WIDTH/2,
+                 y1,//player.y-player.cam_mouse_move_y-player.cam_move_y-GR_HEIGHT/2,
+                 mySprite->width,
+                 mySprite->height,
+                 mySprite->sprite_paint,SRCPAINT,FALSE);
+}*/
 
 
 
