@@ -319,6 +319,25 @@ struct player
   HBITMAP spin_sprite_2_cache;
   HBITMAP spin_sprite_3_cache;
   HBITMAP spin_sprite_4_cache;
+
+
+
+//sprite to be drawn
+  DRAWSPRITE draw_sprite_1;
+  DRAWSPRITE draw_sprite_2;
+  DRAWSPRITE draw_sprite_jump;
+  DRAWSPRITE draw_attack_sprite_1;
+  DRAWSPRITE draw_attack_sprite_2;
+  DRAWSPRITE draw_attack_sprite_3;
+  DRAWSPRITE draw_attack_sprite_4;
+  DRAWSPRITE draw_block_sprite_1;
+  DRAWSPRITE draw_block_sprite_2;
+  DRAWSPRITE draw_block_sprite_3;
+  DRAWSPRITE draw_spin_sprite_1;
+  DRAWSPRITE draw_spin_sprite_2;
+  DRAWSPRITE draw_spin_sprite_3;
+  DRAWSPRITE draw_spin_sprite_4;
+
 } player;
 
 
@@ -702,6 +721,10 @@ typedef struct enemy_sprites
   HBITMAP sprite_2;
   HBITMAP sprite_3;
 
+  DRAWSPRITE draw_sprite_1;
+  DRAWSPRITE draw_sprite_2;
+  DRAWSPRITE draw_sprite_3;
+
 }AEnemySprite;
 
 AEnemySprite** EnemySprite;
@@ -737,6 +760,8 @@ void DrawEnemy(HDC hdc);
 
 
 
+
+//mouse 
 int mouse_x;
 int mouse_y;
 HBITMAP mouse_cursor_sprite;
@@ -749,21 +774,39 @@ HBITMAP mouse_cursor_sprite_cache2;
 HBITMAP mouse_cursor_sprite_iris_cache2;
 HBITMAP mouse_cursor_sprite_pupil_cache2;
 
+
+DRAWSPRITE draw_mouse_cursor_sprite;
+DRAWSPRITE draw_mouse_cursor_sprite_iris;
+DRAWSPRITE draw_mouse_cursor_sprite_pupil;
+
+DRAWSPRITE draw_mouse_cursor_sprite2;
+DRAWSPRITE draw_mouse_cursor_sprite_iris2;
+DRAWSPRITE draw_mouse_cursor_sprite_pupil2;
+
+
+
+//enemy global
 HBITMAP enemy1_sprite_1;
 HBITMAP enemy1_sprite_2;
 HBITMAP enemy2_sprite_1;
 HBITMAP enemy2_sprite_2;
 HBITMAP enemy2_sprite_3;
 
+
+//map background
 HBITMAP map_background_sprite;
 
+
+//map platforms
 HBITMAP map_platforms_sprite;
 HBITMAP map_platforms_sprite_mask;
 
+
+//moon
 HBITMAP moon_sprite;
 HBITMAP moon_sprite_cache;
+DRAWSPRITE draw_moon_sprite;
 
-
+//main menu title
 HBITMAP title_sprite;
 HBITMAP title_sprite_mask;
-//HBITMAP title_sprite_cache;

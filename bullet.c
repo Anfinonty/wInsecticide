@@ -717,7 +717,8 @@ void BulletAct(int bullet_id)
         }
       } else if (!player.time_breaker || Enemy[enemy_id]->time_breaker_immune) {//enemy
         if (Bullet[bullet_id].graphics_type==6 && Bullet[bullet_id].range<=Bullet[bullet_id].start_range-120) {
-          Bullet[bullet_id].graphics_type=1;
+          //Bullet[bullet_id].graphics_type=1;
+          Bullet[bullet_id].graphics_type=5;
         }
         if (!player.time_breaker) {
           allow_act=TRUE;

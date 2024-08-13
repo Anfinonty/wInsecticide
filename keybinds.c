@@ -678,21 +678,33 @@ void OptionsKeypressUp(WPARAM wParam)
            main_menu_chosen=-1;
 
            if (old_player_color!=player_color) {
+             FreeDrawSprite(&draw_mouse_cursor_sprite);
              DeleteObject(mouse_cursor_sprite_cache);
              mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
 
+             FreeDrawSprite(&draw_mouse_cursor_sprite2);
              DeleteObject(mouse_cursor_sprite_cache2);
              mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
+
+             GenerateDrawSprite(&draw_mouse_cursor_sprite,mouse_cursor_sprite_cache);
+             GenerateDrawSprite(&draw_mouse_cursor_sprite2,mouse_cursor_sprite_cache2);
+
              old_player_color=player_color;
            }
 
 
            if (old_player_iris_color!=player_iris_color) {
+             FreeDrawSprite(&draw_mouse_cursor_sprite_iris);
              DeleteObject(mouse_cursor_sprite_iris_cache);
              mouse_cursor_sprite_iris_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTBLUE,draw_color_arr[player_iris_color]);
 
+             FreeDrawSprite(&draw_mouse_cursor_sprite_iris2);
              DeleteObject(mouse_cursor_sprite_iris_cache2);
              mouse_cursor_sprite_iris_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTBLUE,draw_color_arr[player_iris_color]);
+
+             GenerateDrawSprite(&draw_mouse_cursor_sprite_iris,mouse_cursor_sprite_iris_cache);
+             GenerateDrawSprite(&draw_mouse_cursor_sprite_iris2,mouse_cursor_sprite_iris_cache2);
+
              old_player_iris_color=player_iris_color;
            }
 
@@ -700,14 +712,18 @@ void OptionsKeypressUp(WPARAM wParam)
 
 
            if (old_player_pupil_color!=player_pupil_color) {
+             FreeDrawSprite(&draw_mouse_cursor_sprite_pupil);
              DeleteObject(mouse_cursor_sprite_pupil_cache);
              mouse_cursor_sprite_pupil_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTRED,draw_color_arr[player_pupil_color]);
 
+             FreeDrawSprite(&draw_mouse_cursor_sprite_pupil2);
              DeleteObject(mouse_cursor_sprite_pupil_cache2);
              mouse_cursor_sprite_pupil_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTRED,draw_color_arr[player_pupil_color]);
+            
+             GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil,mouse_cursor_sprite_pupil_cache);
+             GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil2,mouse_cursor_sprite_pupil_cache2);
+
              old_player_pupil_color=player_pupil_color;
-
-
            }
 
            //adjust volume
@@ -748,33 +764,49 @@ void OptionsKeypressUp(WPARAM wParam)
          //LIVE change color of player
          if (old_player_color!=player_color) { //change when not same
 
+           FreeDrawSprite(&draw_mouse_cursor_sprite);
            DeleteObject(mouse_cursor_sprite_cache);
            mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);   
+  
+           FreeDrawSprite(&draw_mouse_cursor_sprite2);
            DeleteObject(mouse_cursor_sprite_cache2);
            mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
+
+           GenerateDrawSprite(&draw_mouse_cursor_sprite,mouse_cursor_sprite_cache);
+           GenerateDrawSprite(&draw_mouse_cursor_sprite2,mouse_cursor_sprite_cache2);
 
            old_player_color=player_color;
          }
 
 
          if (old_player_iris_color!=player_iris_color) {
+           FreeDrawSprite(&draw_mouse_cursor_sprite_iris);
            DeleteObject(mouse_cursor_sprite_iris_cache);
            mouse_cursor_sprite_iris_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTBLUE,draw_color_arr[player_iris_color]);
 
+           FreeDrawSprite(&draw_mouse_cursor_sprite_iris2);
            DeleteObject(mouse_cursor_sprite_iris_cache2);
            mouse_cursor_sprite_iris_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTBLUE,draw_color_arr[player_iris_color]);
+
+
+           GenerateDrawSprite(&draw_mouse_cursor_sprite_iris,mouse_cursor_sprite_iris_cache);
+           GenerateDrawSprite(&draw_mouse_cursor_sprite_iris2,mouse_cursor_sprite_iris_cache2);
+
            old_player_iris_color=player_iris_color;
          }
 
-
-
-
          if (old_player_pupil_color!=player_pupil_color) {
+           FreeDrawSprite(&draw_mouse_cursor_sprite_pupil);
            DeleteObject(mouse_cursor_sprite_pupil_cache);
            mouse_cursor_sprite_pupil_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTRED,draw_color_arr[player_pupil_color]);
 
+           FreeDrawSprite(&draw_mouse_cursor_sprite_pupil2);
            DeleteObject(mouse_cursor_sprite_pupil_cache2);
            mouse_cursor_sprite_pupil_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTRED,draw_color_arr[player_pupil_color]);
+
+           GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil,mouse_cursor_sprite_pupil_cache);
+           GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil2,mouse_cursor_sprite_pupil_cache2);
+
            old_player_pupil_color=player_pupil_color;
          }
          break;

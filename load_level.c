@@ -187,6 +187,21 @@ void InitLevel(HWND hwnd, HDC hdc)
   DeleteObject(player.spin_sprite);
 
 
+  FreeDrawSprite(&player.draw_sprite_1);
+  FreeDrawSprite(&player.draw_sprite_2);
+  FreeDrawSprite(&player.draw_sprite_jump);
+  FreeDrawSprite(&player.draw_attack_sprite_1);
+  FreeDrawSprite(&player.draw_attack_sprite_2);
+  FreeDrawSprite(&player.draw_attack_sprite_3);
+  FreeDrawSprite(&player.draw_attack_sprite_4);
+  FreeDrawSprite(&player.draw_block_sprite_1);
+  FreeDrawSprite(&player.draw_block_sprite_2);
+  FreeDrawSprite(&player.draw_block_sprite_3);
+  FreeDrawSprite(&player.draw_spin_sprite_1);
+  FreeDrawSprite(&player.draw_spin_sprite_2);
+  FreeDrawSprite(&player.draw_spin_sprite_3);
+  FreeDrawSprite(&player.draw_spin_sprite_4);
+
 
   player.sprite_1 = RotateSprite(NULL, player.osprite_1,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
   player.sprite_2 = RotateSprite(NULL, player.osprite_2,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
@@ -225,11 +240,35 @@ void InitLevel(HWND hwnd, HDC hdc)
   player.spin_sprite_3_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
   player.spin_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
 
+
+  GenerateDrawSprite(&player.draw_sprite_jump,player.sprite_jump_cache);
+  GenerateDrawSprite(&player.draw_sprite_1,player.sprite_1_cache);
+  GenerateDrawSprite(&player.draw_sprite_2,player.sprite_2_cache);
+
+  GenerateDrawSprite(&player.draw_attack_sprite_1,player.attack_sprite_1_cache);
+  GenerateDrawSprite(&player.draw_attack_sprite_2,player.attack_sprite_2_cache);
+  GenerateDrawSprite(&player.draw_attack_sprite_3,player.attack_sprite_3_cache); 
+  GenerateDrawSprite(&player.draw_attack_sprite_4,player.attack_sprite_4_cache);
+
+  GenerateDrawSprite(&player.draw_block_sprite_1,player.block_sprite_1_cache);
+  GenerateDrawSprite(&player.draw_block_sprite_2,player.block_sprite_2_cache);
+  GenerateDrawSprite(&player.draw_block_sprite_3,player.block_sprite_3_cache);
+
+  GenerateDrawSprite(&player.draw_spin_sprite_1,player.spin_sprite_1_cache);
+  GenerateDrawSprite(&player.draw_spin_sprite_2,player.spin_sprite_2_cache);
+  GenerateDrawSprite(&player.draw_spin_sprite_3,player.spin_sprite_3_cache);
+  GenerateDrawSprite(&player.draw_spin_sprite_4,player.spin_sprite_4_cache);
+
+
+
   //moon sprite
   DeleteObject(moon_sprite_cache);
+  FreeDrawSprite(&draw_moon_sprite);
+
   HBITMAP tmp_moon_sprite=CopyCrunchyBitmap(moon_sprite,NOTSRCCOPY);
   moon_sprite_cache=RotateSprite(NULL, tmp_moon_sprite,0,LPURPLE,BLACK,BLACK,-1);
   DeleteObject(tmp_moon_sprite);
+  GenerateDrawSprite(&draw_moon_sprite,moon_sprite_cache);
 
   DeleteObject(mouse_cursor_sprite_cache);
   DeleteObject(mouse_cursor_sprite_cache2);
@@ -237,6 +276,15 @@ void InitLevel(HWND hwnd, HDC hdc)
   DeleteObject(mouse_cursor_sprite_iris_cache2);
   DeleteObject(mouse_cursor_sprite_pupil_cache);
   DeleteObject(mouse_cursor_sprite_pupil_cache2);
+
+
+  FreeDrawSprite(&draw_mouse_cursor_sprite);
+  FreeDrawSprite(&draw_mouse_cursor_sprite_iris);
+  FreeDrawSprite(&draw_mouse_cursor_sprite_pupil);
+
+  FreeDrawSprite(&draw_mouse_cursor_sprite2);
+  FreeDrawSprite(&draw_mouse_cursor_sprite_iris2);
+  FreeDrawSprite(&draw_mouse_cursor_sprite_pupil2);
 
   mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
 
@@ -253,6 +301,18 @@ void InitLevel(HWND hwnd, HDC hdc)
   mouse_cursor_sprite_pupil_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTRED,draw_color_arr[player_load_pupil_color]);
 
   mouse_cursor_sprite_pupil_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTRED,draw_color_arr[player_load_pupil_color]);
+
+
+
+  GenerateDrawSprite(&draw_mouse_cursor_sprite,mouse_cursor_sprite_cache);
+  GenerateDrawSprite(&draw_mouse_cursor_sprite_iris,mouse_cursor_sprite_iris_cache);
+  GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil,mouse_cursor_sprite_pupil_cache);
+
+  GenerateDrawSprite(&draw_mouse_cursor_sprite2,mouse_cursor_sprite_cache2);
+  GenerateDrawSprite(&draw_mouse_cursor_sprite_iris2,mouse_cursor_sprite_iris_cache2);
+  GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil2,mouse_cursor_sprite_pupil_cache2);
+
+
 
 
   //Load Enemy cache spritesF

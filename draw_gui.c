@@ -8,20 +8,22 @@ void DrawBackground(HDC hdc) {
 //  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255))); //RAVE
   switch (map_background) {
     case 0:
-      DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE);
+      DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
       break;
     case 1:
-      DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,NOTSRCCOPY,FALSE);
-      GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
+      DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,NOTSRCCOPY,FALSE,FALSE);
+      //GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
+//      DrawSprite(hdc, GR_WIDTH-128,128,&draw_moon_sprite,FALSE);
+      DrawSprite(hdc, GR_WIDTH-128,128,&draw_moon_sprite,FALSE);
       break;
     default:
       if (map_background_sprite==NULL) {
         GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,custom_map_background_color);
       } else {
         if (IsInvertedBackground()) {
-          DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,NOTSRCCOPY,FALSE);
+          DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,NOTSRCCOPY,FALSE,FALSE);
         } else {
-          DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE);
+          DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
         }
       }
       break;
@@ -63,7 +65,7 @@ void DrawPlatforms(HDC hDC)
                  player.y-player.cam_mouse_move_y-player.cam_move_y-GR_HEIGHT/2,
                  GR_WIDTH,
                  GR_HEIGHT+extra_h,
-                 map_platforms_sprite_mask,SRCAND,FALSE);
+                 map_platforms_sprite_mask,SRCAND,FALSE,FALSE);
   //Draw platforms paint
   DrawBitmap(hDC,
                  0,
@@ -72,7 +74,7 @@ void DrawPlatforms(HDC hDC)
                  player.y-player.cam_mouse_move_y-player.cam_move_y-GR_HEIGHT/2,
                  GR_WIDTH,
                  GR_HEIGHT+extra_h,
-                 map_platforms_sprite,SRCPAINT,FALSE);
+                 map_platforms_sprite,SRCPAINT,FALSE,FALSE);
 }
 
 
@@ -82,17 +84,23 @@ void DrawCursor(HDC hDC)
   //DrawBitmap(hDC,mouse_x,mouse_y,0,0,64,64,mouse_cursor_sprite_mask,SRCPAINT,FALSE);
   if (!(player.speed>24 && frame_tick%2==0)) {
     if (player.health>PLAYER_LOW_HEALTH) {
-      GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_cache,FALSE);
-      GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_iris_cache,FALSE);
+      //GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_cache,FALSE);
+      //GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_iris_cache,FALSE);
+      DrawSprite(hDC,mouse_x,mouse_y,&draw_mouse_cursor_sprite,FALSE);
+      DrawSprite(hDC,mouse_x,mouse_y,&draw_mouse_cursor_sprite_iris,FALSE);
     } else {
-      GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_cache2,FALSE);
-      GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_iris_cache2,FALSE);
+      //GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_cache2,FALSE);
+      //GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_iris_cache2,FALSE);
+      DrawSprite(hDC,mouse_x,mouse_y,&draw_mouse_cursor_sprite2,FALSE);
+      DrawSprite(hDC,mouse_x,mouse_y,&draw_mouse_cursor_sprite_iris2,FALSE);
     }
   }
   if (player.health>PLAYER_LOW_HEALTH) {
-    GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_pupil_cache,FALSE);
+    DrawSprite(hDC,mouse_x,mouse_y,&draw_mouse_cursor_sprite_pupil,FALSE);
+    //GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_pupil_cache,FALSE);
   } else {
-    GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_pupil_cache2,FALSE);
+    DrawSprite(hDC,mouse_x,mouse_y,&draw_mouse_cursor_sprite_pupil2,FALSE);
+    //GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_pupil_cache2,FALSE);
   }
 
   /*if (!IsInvertedBackground())
@@ -182,15 +190,13 @@ void DrawMainMenu(HDC hdc)
 {
 
   //draw bkgrnd
-  DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE);
-
-  //GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
+  DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
 
 
   //Draw Moon Phase
-  GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
-//  GrSprite(hdc, GR_WIDTH/2, 128, title_sprite,FALSE);
-//  GrSprite(hdc, GR_WIDTH/2, 128, title_sprite_cache,FALSE);
+  //GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
+  //DrawSprite(hdc, GR_WIDTH-128,128,&draw_moon_sprite,FALSE);
+  DrawSprite(hdc, GR_WIDTH-128,128,&draw_moon_sprite,FALSE);
 
   DrawBitmap(hdc,GR_WIDTH/2-352/2,
                  -32,
@@ -198,7 +204,7 @@ void DrawMainMenu(HDC hdc)
                  0,
                  352,
                  256,
-                title_sprite_mask,SRCAND,FALSE);
+                title_sprite_mask,SRCAND,FALSE,FALSE);
   //Draw platforms paint
   DrawBitmap(hdc,GR_WIDTH/2-352/2,
                  -32,
@@ -206,7 +212,7 @@ void DrawMainMenu(HDC hdc)
                  0,
                  352,
                  256,
-                title_sprite,SRCPAINT,FALSE);
+                title_sprite,SRCPAINT,FALSE,FALSE);
 
 
   int help_y=GR_HEIGHT-128;

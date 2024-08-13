@@ -245,13 +245,14 @@ double rain_grad_rise=20,rain_grad_run=8;
 
 #define GAME_OPTIONS_NUM    12
 
+#include "gr.c"
+#include "math.c"
+#include "sound.c"
+
 
 #include "struct_classes.c"
 
 
-#include "math.c"
-#include "gr.c"
-#include "sound.c"
 
 #include "load_save.c"
 
@@ -1027,6 +1028,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       mouse_cursor_sprite_pupil_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTRED,LTRED);
 
 
+      GenerateDrawSprite(&draw_mouse_cursor_sprite,mouse_cursor_sprite_cache);
+      GenerateDrawSprite(&draw_mouse_cursor_sprite_iris,mouse_cursor_sprite_iris_cache);
+      GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil,mouse_cursor_sprite_pupil_cache);
+
+      GenerateDrawSprite(&draw_mouse_cursor_sprite2,mouse_cursor_sprite_cache2);
+      GenerateDrawSprite(&draw_mouse_cursor_sprite_iris2,mouse_cursor_sprite_iris_cache2);
+      GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil2,mouse_cursor_sprite_pupil_cache2);
+
 
       //Load moon sprite based on lunar day
       if (lunar_day>=1 && lunar_day<=5) { //1, 2, 3, 4, 5
@@ -1048,6 +1057,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       }
       //moon_sprite_cache=CreteLargeBitmap(NULL, 128, 128);
       moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,BLACK,-1);
+
+      
+      GenerateDrawSprite(&draw_moon_sprite,moon_sprite_cache);
+
       }
 
 
