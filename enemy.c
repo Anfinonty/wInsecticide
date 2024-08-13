@@ -1591,11 +1591,11 @@ void DrawEnemy(HDC hdc)
               if (Enemy[i]->sprite_timer%8==0) {
                 //GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,EnemySprite[i]->sprite_1,Enemy[i]->flip_sprite);
                 //GrPrint(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y-72,"3",Enemy[i]->color);
-                DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemySprite[i]->draw_sprite_1,Enemy[i]->last_left);
+                DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemySprite[i]->draw_sprite_1,Enemy[i]->flip_sprite);
               } else {
                 //GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,EnemySprite[i]->sprite_2,Enemy[i]->flip_sprite);
                 //GrPrint(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y-72,"4",Enemy[i]->color);
-                DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemySprite[i]->draw_sprite_2,Enemy[i]->last_left);
+                DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemySprite[i]->draw_sprite_2,Enemy[i]->flip_sprite);
               }
             } else {
               //GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,EnemySprite[i]->sprite_3,Enemy[i]->last_left);
