@@ -9,6 +9,7 @@ typedef struct GroundLine
   int color_id;
   int color; //Color of ground, RGB()
   int type; //Regular, Text ground or TriFill 
+  int font_size;
 
   double x1;
   double y1;

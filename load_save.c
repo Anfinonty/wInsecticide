@@ -10,6 +10,7 @@ int MAP_NODE_NUM;
 bool *saved_ground_is_ghost;
 int *saved_ground_color;
 int *saved_ground_type;
+int *saved_ground_text_size;
 
 int *saved_enemy_type;//[MAX_ENEMY_NUM];
 double *saved_enemy_x;//[MAX_ENEMY_NUM];
@@ -184,6 +185,7 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
 {
   int row=0;
   int column=0;
+  int set_txt_size=0;
   int int_val=0;
   int int_saved_val=0;
   double double_val;
@@ -241,6 +243,7 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
             saved_ground_type=calloc(GROUND_NUM,sizeof(int));
 
             saved_enemy_type=calloc(ENEMY_NUM,sizeof(int));
+            saved_ground_text_size=calloc(GROUND_NUM,sizeof(int));
             saved_enemy_x=calloc(ENEMY_NUM,sizeof(double));
             saved_enemy_y=calloc(ENEMY_NUM,sizeof(double));
 
@@ -395,10 +398,15 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
             } else {//end of string
               writing_txt=FALSE;
               wcsncpy(saved_ground_text[column],txt,512);
+              if (set_txt_size!=0)
+                saved_ground_text_size[column]=set_txt_size;
+              else 
+                saved_ground_text_size[column]=16; //default text size
               column++;
               for (int i=0;i<512;i++) //init txt array
                 txt[i] = 0;
               char_pos=0;//restart value
+              set_txt_size=0;
             }
           } else { //not double quotations
             if (writing_txt) {
@@ -421,7 +429,12 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
                   char_utf16=char_utf16*16+(c-'A'+10); //shift digit to left
                 }
               }
-            } 
+            } else { //non writing txt, check for size 
+              if (c>='0' && c<='9') {
+                set_txt_size*=10; //shift digit to left
+                set_txt_size+=c-'0';
+              }
+            }
           }
         }
         //End of characters only

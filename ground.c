@@ -245,6 +245,7 @@ void InitGround(bool is_max)
       Ground[i]->color_id=saved_ground_color[i];
       Ground[i]->color=color_arr[saved_ground_color[i]];
       wcsncpy(Ground[i]->text,saved_ground_text[i],512);
+      Ground[i]->font_size=saved_ground_text_size[i];
       //printf("\n%d ghost?%d",i,saved_ground_is_ghost[i]);
       if (saved_ground_is_ghost[i]) {
         Ground[i]->is_ghost=TRUE;
@@ -264,6 +265,7 @@ void InitGround(bool is_max)
         Ground[i]->text[j]=0;
       }*/
       Ground[i]->text[0]='\0';
+      Ground[i]->font_size=0;
       Ground[i]->is_ghost=FALSE;
     }
     Ground[i]->health=-1;
@@ -656,7 +658,8 @@ void DrawGroundText(HDC hdc)
             Ground[i]->text,
             "",
             Ground[i]->color,
-            16,
+            Ground[i]->font_size,
+            //16,
             FALSE,
             yes_unifont);
       }

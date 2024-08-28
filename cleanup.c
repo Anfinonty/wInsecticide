@@ -348,6 +348,7 @@ void CleanupAll()
     free(saved_ground_is_ghost);
     free(saved_ground_color);
     free(saved_ground_type);
+    free(saved_ground_text_size);
 
 
     free(saved_enemy_type);

@@ -67,6 +67,7 @@ AMEEnemy **MEEnemy;
 typedef struct MEEnemySprite
 {
   HBITMAP sprite_1;
+  DRAWSPRITE draw_sprite_1;
 } AMEEnemySprite;
 
 
@@ -91,6 +92,7 @@ void CleanUpMEEnemySprites()
     if (MEEnemySprite[i]->sprite_1!=NULL) {
       DeleteObject(MEEnemySprite[i]->sprite_1);
       MEEnemySprite[i]->sprite_1=NULL;
+      FreeDrawSprite(&MEEnemySprite[i]->draw_sprite_1);
     }
   }
 }
@@ -459,6 +461,7 @@ void InitMapEditorEnemy()
     } else {
       MEEnemySprite[i]->sprite_1=RotateSprite(NULL, enemy2_sprite_1,0,LTGREEN,BLACK,color_arr[set_enemy_type_color[i]],-1);
     }
+    GenerateDrawSprite(&MEEnemySprite[i]->draw_sprite_1,MEEnemySprite[i]->sprite_1);
   }
 }
 
@@ -604,16 +607,20 @@ void InitLevelMapEditor(HWND hwnd, HDC hdc)
 
   //Load Player Cosmetics
   DeleteObject(player.sprite_1);
+  FreeDrawSprite(&player.draw_sprite_1);
 
   player.sprite_1 = RotateSprite(NULL, player.osprite_1,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
 
   //Load Player Sprites
   player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
+  GenerateDrawSprite(&player.draw_sprite_1,player.sprite_1_cache);
 
   //moon sprite
   DeleteObject(moon_sprite_cache);
+  FreeDrawSprite(&draw_moon_sprite);
   HBITMAP tmp_moon_sprite=CopyCrunchyBitmap(moon_sprite,NOTSRCCOPY);
   moon_sprite_cache=RotateSprite(NULL, tmp_moon_sprite,0,LPURPLE,BLACK,BLACK,-1);
+  GenerateDrawSprite(&draw_moon_sprite,moon_sprite_cache);
   DeleteObject(tmp_moon_sprite);
 
   DeleteObject(mouse_cursor_sprite_cache);
@@ -623,6 +630,13 @@ void InitLevelMapEditor(HWND hwnd, HDC hdc)
   DeleteObject(mouse_cursor_sprite_pupil_cache);
   DeleteObject(mouse_cursor_sprite_pupil_cache2);
 
+  FreeDrawSprite(&draw_mouse_cursor_sprite);
+  FreeDrawSprite(&draw_mouse_cursor_sprite_iris);
+  FreeDrawSprite(&draw_mouse_cursor_sprite_pupil);
+  FreeDrawSprite(&draw_mouse_cursor_sprite2);
+  FreeDrawSprite(&draw_mouse_cursor_sprite_iris2);
+  FreeDrawSprite(&draw_mouse_cursor_sprite_pupil2);
+
   mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
   mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
 
@@ -631,6 +645,16 @@ void InitLevelMapEditor(HWND hwnd, HDC hdc)
 
   mouse_cursor_sprite_pupil_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTRED,draw_color_arr[player_load_pupil_color]);
   mouse_cursor_sprite_pupil_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTRED,draw_color_arr[player_load_pupil_color]);
+
+  GenerateDrawSprite(&draw_mouse_cursor_sprite,mouse_cursor_sprite_cache);
+  GenerateDrawSprite(&draw_mouse_cursor_sprite_iris,mouse_cursor_sprite_iris_cache);
+  GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil,mouse_cursor_sprite_pupil_cache);
+  GenerateDrawSprite(&draw_mouse_cursor_sprite2,mouse_cursor_sprite2);
+  GenerateDrawSprite(&draw_mouse_cursor_sprite_iris2,mouse_cursor_sprite_iris_cache2);
+  GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil2,mouse_cursor_sprite_pupil_cache2);
+
+
+
 
   main_menu_chosen=4;
   in_map_editor=TRUE;
@@ -806,6 +830,7 @@ void CleanupMapEditorAll()
     //CleanUpPlayer(); //clean up all sprites
     if (player.sprite_1_cache!=NULL) { //clean up 1 sprite
       DeleteObject(player.sprite_1_cache);
+      FreeDrawSprite(&player.draw_sprite_1);
     }
 
     CleanUpMEEnemySprites();
@@ -870,7 +895,9 @@ void CleanupMapEditorAll()
     LoadMainMenuBackground();
 
     DeleteObject(moon_sprite_cache);
+    FreeDrawSprite(&draw_moon_sprite);
     moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,BLACK,-1);
+    GenerateDrawSprite(&draw_moon_sprite,moon_sprite_cache);
 
     DeleteObject(mouse_cursor_sprite_cache);
     DeleteObject(mouse_cursor_sprite_cache2);
@@ -879,6 +906,12 @@ void CleanupMapEditorAll()
     DeleteObject(mouse_cursor_sprite_pupil_cache);
     DeleteObject(mouse_cursor_sprite_pupil_cache2);
 
+    FreeDrawSprite(&draw_mouse_cursor_sprite);
+    FreeDrawSprite(&draw_mouse_cursor_sprite_iris);
+    FreeDrawSprite(&draw_mouse_cursor_sprite_pupil);
+    FreeDrawSprite(&draw_mouse_cursor_sprite2);
+    FreeDrawSprite(&draw_mouse_cursor_sprite_iris2);
+    FreeDrawSprite(&draw_mouse_cursor_sprite_pupil2);
 
     mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
     mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
@@ -890,6 +923,16 @@ void CleanupMapEditorAll()
 
     mouse_cursor_sprite_pupil_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTRED,draw_color_arr[player_pupil_color]);
     mouse_cursor_sprite_pupil_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTRED,draw_color_arr[player_pupil_color]);
+
+
+
+    GenerateDrawSprite(&draw_mouse_cursor_sprite,mouse_cursor_sprite_cache);
+    GenerateDrawSprite(&draw_mouse_cursor_sprite_iris,mouse_cursor_sprite_iris_cache);
+    GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil,mouse_cursor_sprite_pupil_cache);
+    GenerateDrawSprite(&draw_mouse_cursor_sprite2,mouse_cursor_sprite2);
+    GenerateDrawSprite(&draw_mouse_cursor_sprite_iris2,mouse_cursor_sprite_iris_cache2);
+    GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil2,mouse_cursor_sprite_pupil_cache2);
+
 
 
     main_menu_chosen=0;

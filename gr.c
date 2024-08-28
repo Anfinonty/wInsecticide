@@ -937,32 +937,6 @@ void DrawBitmap(HDC hDC,double _x1,double _y1, double _x2, double _y2, int width
 
 
 
-/*
-void DRAWSPRITE(HDC hdc,int x1, int y1, ASPRITE mySprite)
-{
-  DrawBitmap(hdc,
-                 0,
-                 0,
-                 x1,//-player.cam_mouse_move_x-player.cam_move_x-GR_WIDTH/2,
-                 y1,//player.y-player.cam_mouse_move_y-player.cam_move_y-GR_HEIGHT/2,
-                 mySprite->width,
-                 mySprite->height,
-                 mySprite->sprite_mask,SRCAND,FALSE);
-  //Draw platforms paint
-  DrawBitmap(hdc,
-                 0,
-                 0,                    
-                 x1,//player.x-player.cam_mouse_move_x-player.cam_move_x-GR_WIDTH/2,
-                 y1,//player.y-player.cam_mouse_move_y-player.cam_move_y-GR_HEIGHT/2,
-                 mySprite->width,
-                 mySprite->height,
-                 mySprite->sprite_paint,SRCPAINT,FALSE);
-}*/
-
-
-
-
-
 //Set values to variables
 void SetRotatedSpriteSize(HDC hDC, HBITMAP hSourceBitmap,double radians, int *minx, int *miny, int *maxx, int *maxy, int *width, int *height, double *_cosine, double *_sine)
 {
@@ -1604,8 +1578,8 @@ void DrawPaletteSquare(HDC hdc,int move_x,int move_y)
 
 
 
-
-
+//GrSprite Deprecated
+/*
 void GrSprite(HDC hDC,double _x1,double _y1, HBITMAP hSourceBitmap,bool is_left) {
   if (hSourceBitmap != NULL) { ////https://ftp.zx.net.nz/pub/Patches/ftp.microsoft.com/MISC/KB/en-us/77/127.HTM
     //BITMAP bm;
@@ -1620,7 +1594,7 @@ void GrSprite(HDC hDC,double _x1,double _y1, HBITMAP hSourceBitmap,bool is_left)
     hMemDest = CreateCompatibleDC(hDC);*/
 
 
-    GetObject(hSourceBitmap, sizeof(bm), &bm);
+    //GetObject(hSourceBitmap, sizeof(bm), &bm);
 
 
     /*hBitmap = CreateBitmap(bm.bmWidth, bm.bmHeight, 
@@ -1638,6 +1612,7 @@ void GrSprite(HDC hDC,double _x1,double _y1, HBITMAP hSourceBitmap,bool is_left)
     DeleteDC(hMemSrc);*/
     //hBitmap = CopyCrunchyBitmap(hSourceBitmap, IMAGE_BITMAP, 0,0, LR_DEFAULTSIZE); //causes memleak
 
+/*
     hBitmap=CopyCrunchyBitmap(hSourceBitmap,SRCCOPY);
     HBITMAP hBitmapMask=CreateBitmapMask(hBitmap,BLACK,NULL);
 
@@ -1687,7 +1662,7 @@ void GrSprite(HDC hDC,double _x1,double _y1, HBITMAP hSourceBitmap,bool is_left)
     HDC hdcMem2 = CreateCompatibleDC(hdcMem);
     static HBITMAP hBitmapMask;
     hBitmapMask = CreateBitmapMask(hDestBitmapCopy, BLACK, hdcMem);*/
-
+/*
     HBITMAP oldbitmap,oldbitmap2;
     BITMAP bitmap;
     HDC hdcMemA = CreateCompatibleDC(hDC);
@@ -1736,14 +1711,10 @@ void GrSprite(HDC hDC,double _x1,double _y1, HBITMAP hSourceBitmap,bool is_left)
                  bm.bmWidth,
                  bm.bmHeight,
                  hSourceBitmap,SRCPAINT,FALSE);*/
-  } else {
+/*  } else {
     GrPrint(hDC,_x1,_y1,"(No Sprite)",WHITE); //Print Message if sprite cannot be loaded
   }
-}
-
-
-
-
+}*/
 
 
 
@@ -1752,6 +1723,7 @@ typedef struct DRAWSPRITE
   HBITMAP sprite_mask;
   HBITMAP sprite_paint;
 } DRAWSPRITE;
+
 
 
 void GenerateDrawSprite(DRAWSPRITE* myDrawSprite,HBITMAP srcBitmap)
@@ -1769,6 +1741,8 @@ void FreeDrawSprite(DRAWSPRITE* myDrawSprite)
   if (myDrawSprite->sprite_paint!=NULL)
     DeleteObject(myDrawSprite->sprite_paint);
 }
+
+
 
 void DrawSprite(HDC hdc,int _x1, int _y1, DRAWSPRITE* myDrawSprite,bool is_left)
 {
