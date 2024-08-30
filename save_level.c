@@ -267,6 +267,10 @@ void SaveMELvl()
 
     //GROUND text
     for (int i=0;i<GROUND_NUM;i++) {
+      //ground size
+      if (Ground[i]->font_size!=16) { //only set font size if font_size is NOT 16
+        fprintf(fptr,"%d",Ground[i]->font_size);
+      }
       fprintf(fptr,"\"");
       for (int j=0;j<lstrlenW(Ground[i]->text);j++) {
         fprintf(fptr,"{u%X}",Ground[i]->text[j]);
@@ -303,12 +307,12 @@ void SaveMELvl()
 
     //ENEMY TYPE
     //enemy Type,, NOTE: ENEMY_TYPE NUM DOES NOT CHANGE
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+    for (int i=0;i<ENEMY_TYPE_NUM;i++) { //double type var
       fprintf(fptr,"%3.1f,",set_enemy_type_speed[i]);
     }
     fprintf(fptr,";\n");
 
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+    for (int i=0;i<ENEMY_TYPE_NUM;i++) { //double type var
       fprintf(fptr,"%3.1f,",set_enemy_type_bullet_speed[i]);
     }
     fprintf(fptr,";\n");
@@ -413,7 +417,7 @@ void SaveMELvl()
     }
     fprintf(fptr,";\n");
 
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+    for (int i=0;i<ENEMY_TYPE_NUM;i++) { //bool type var
       fprintf(fptr,"%d,",set_enemy_type_time_breaker_immune[i]);
     }
     fprintf(fptr,";\n");

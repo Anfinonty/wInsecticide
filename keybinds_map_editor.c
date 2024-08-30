@@ -1,5 +1,21 @@
 
 
+
+void UpdateMEDrawSprite()
+{
+    int ei=MapEditor.selected_enemy_type_id;
+    DeleteObject(MEEnemySprite[ei]->sprite_1); //delete old sprite
+    MEEnemySprite[ei]->sprite_1=NULL;
+    FreeDrawSprite(&MEEnemySprite[ei]->draw_sprite_1);
+    //Create New Sprite
+    if (set_enemy_type_species[ei]==0) {
+      MEEnemySprite[ei]->sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,BLACK,color_arr[set_enemy_type_color[ei]],-1);
+    } else {
+      MEEnemySprite[ei]->sprite_1=RotateSprite(NULL, enemy2_sprite_1,0,LTGREEN,BLACK,color_arr[set_enemy_type_color[ei]],-1);
+    }
+    GenerateDrawSprite(&MEEnemySprite[ei]->draw_sprite_1,MEEnemySprite[ei]->sprite_1);
+}
+
 void MapEditorKeypressDown(WPARAM wParam)
 {
   switch (wParam) {
@@ -24,8 +40,11 @@ void MapEditorKeypressDown(WPARAM wParam)
 
     //Tab
       case 0x09:
+        if (MapEditor.selected_option==3) {
+          UpdateMEDrawSprite();
+        }
         if (!MapEditor.is_typing_search && !MapEditor.is_ground_txt_typing) {
-          MapEditor.selected_option=LimitValue(MapEditor.selected_option+1,0,5);
+          MapEditor.selected_option=LimitValueInt(MapEditor.selected_option+1,0,5);
         }
         break;
 
@@ -38,10 +57,13 @@ void MapEditorKeypressDown(WPARAM wParam)
         switch (MapEditor.selected_option) {
           case 0:
             if (!MapEditor.is_ground_txt_typing)
-              MapEditor.selected_ground_option=LimitValue(MapEditor.selected_ground_option+1,0,4);
+              MapEditor.selected_ground_option=LimitValueInt(MapEditor.selected_ground_option+1,0,5);
             break;
           case 2:
-            MapEditor.selected_enemy_option=LimitValue(MapEditor.selected_enemy_option+1,0,2);
+            MapEditor.selected_enemy_option=LimitValueInt(MapEditor.selected_enemy_option+1,0,2);
+            break;
+          case 3:
+            MapEditor.selected_enemy_type_option=LimitValueInt(MapEditor.selected_enemy_type_option+1,0,ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM+ENEMY_TYPE_BOOL_ATTR_NUM+1);
             break;
         }
         break;
@@ -57,10 +79,13 @@ void MapEditorKeypressDown(WPARAM wParam)
         switch (MapEditor.selected_option) {
           case 0:
             if (!MapEditor.is_ground_txt_typing)
-              MapEditor.selected_ground_option=LimitValue(MapEditor.selected_ground_option-1,0,4);
+              MapEditor.selected_ground_option=LimitValueInt(MapEditor.selected_ground_option-1,0,5);
             break;
           case 2:
-            MapEditor.selected_enemy_option=LimitValue(MapEditor.selected_enemy_option-1,0,2);
+            MapEditor.selected_enemy_option=LimitValueInt(MapEditor.selected_enemy_option-1,0,2);
+            break;
+          case 3:
+            MapEditor.selected_enemy_type_option=LimitValueInt(MapEditor.selected_enemy_type_option-1,0,ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM+ENEMY_TYPE_BOOL_ATTR_NUM+1);
             break;
         }
         break;
@@ -70,7 +95,7 @@ void MapEditorKeypressDown(WPARAM wParam)
     //Holding Down 'G' key
       case 'G':
         if (keydown(VK_CONTROL)) {//CTRL + 'G' ==> Sticky increase
-          MapEditor.sticky_level=LimitValue(MapEditor.sticky_level+4,0,33);
+          MapEditor.sticky_level=LimitValueInt(MapEditor.sticky_level+4,0,33);
         }
         break;
 
@@ -86,22 +111,27 @@ void MapEditorKeypressDown(WPARAM wParam)
             if (!MapEditor.is_ground_txt_typing) {
             switch (MapEditor.selected_ground_option) {
               case 0: //ground_id
-                MapEditor.selected_ground_id=LimitValue(MapEditor.selected_ground_id-1,0,GROUND_NUM);
+                MapEditor.selected_ground_id=LimitValueInt(MapEditor.selected_ground_id-1,0,GROUND_NUM);
                 MapEditor.selected_ground_pivot=0;
                 break;
               case 1: // type
                 if (Ground[MapEditor.selected_ground_id]->type==0)
                   Ground[MapEditor.selected_ground_id]->is_ghost = TRUE;
-                Ground[MapEditor.selected_ground_id]->type=LimitValue(Ground[MapEditor.selected_ground_id]->type-1,0,4);
+                Ground[MapEditor.selected_ground_id]->type=LimitValueInt(Ground[MapEditor.selected_ground_id]->type-1,0,4);
                 MapEditor.selected_ground_pivot=0;
                 break;
               case 2: // color
-                Ground[MapEditor.selected_ground_id]->color_id=LimitValue(Ground[MapEditor.selected_ground_id]->color_id-1,0,COLORS_NUM);
+                Ground[MapEditor.selected_ground_id]->color_id=LimitValueInt(Ground[MapEditor.selected_ground_id]->color_id-1,0,COLORS_NUM);
                 break;
               case 3: // is_ghost
                 if (Ground[MapEditor.selected_ground_id]->type==0)
                   Ground[MapEditor.selected_ground_id]->is_ghost = !Ground[MapEditor.selected_ground_id]->is_ghost;
                 break;
+
+                case 4: //font size
+                  Ground[MapEditor.selected_ground_id]->font_size=LimitValueInt(Ground[MapEditor.selected_ground_id]->font_size-1,0,64);
+                break;
+
             }
             } else {
             //if (MapEditor.typing_ground_txt_pos>0)
@@ -112,13 +142,42 @@ void MapEditorKeypressDown(WPARAM wParam)
           case 2: //Enemy
             switch (MapEditor.selected_enemy_option) {
               case 0:
-                MapEditor.selected_enemy_id=LimitValue(MapEditor.selected_enemy_id-1,0,ENEMY_NUM);
+                MapEditor.selected_enemy_id=LimitValueInt(MapEditor.selected_enemy_id-1,0,ENEMY_NUM);
                 break;
               case 1:
-                MEEnemy[MapEditor.selected_enemy_id]->type=LimitValue(MEEnemy[MapEditor.selected_enemy_id]->type-1,0,ENEMY_TYPE_NUM);
+                MEEnemy[MapEditor.selected_enemy_id]->type=LimitValueInt(MEEnemy[MapEditor.selected_enemy_id]->type-1,0,ENEMY_TYPE_NUM);
                 break;                
             }
             break;
+
+          case 3: //enemy type --
+            if (MapEditor.selected_enemy_type_option>0) { //set enemy_type
+              int seto = MapEditor.selected_enemy_type_option-1;
+              
+              if (seto<ENEMY_TYPE_INT_ATTR_NUM) {//int values
+                set_enemy_type_int_attr[seto][MapEditor.selected_enemy_type_id]=
+                LimitValueInt(
+                  set_enemy_type_int_attr[seto][MapEditor.selected_enemy_type_id]-enemy_int_attr_delta[seto],
+                  enemy_int_attr_min[seto],
+                  enemy_int_attr_max[seto]
+                );
+              } else if (seto>=ENEMY_TYPE_INT_ATTR_NUM && seto<ENEMY_TYPE_DOUBLE_ATTR_NUM+ENEMY_TYPE_INT_ATTR_NUM) { //double values
+                seto-=ENEMY_TYPE_INT_ATTR_NUM;
+                set_enemy_type_double_attr[seto][MapEditor.selected_enemy_type_id]=
+                LimitValue(
+                  set_enemy_type_double_attr[seto][MapEditor.selected_enemy_type_id]-enemy_double_attr_delta[seto],
+                  enemy_double_attr_min[seto],
+                  enemy_double_attr_max[seto]+1
+                );                
+              } else { //bool values
+                seto-=(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM);
+                set_enemy_type_bool_attr[seto][MapEditor.selected_enemy_type_id]=!set_enemy_type_bool_attr[seto][MapEditor.selected_enemy_type_id];
+              }
+            } else { //changing tyoe 0 to 10
+              MapEditor.selected_enemy_type_id = LimitValueInt(MapEditor.selected_enemy_type_id-1,0,ENEMY_TYPE_NUM);
+            }
+            break;
+
         }
         break;
 
@@ -133,22 +192,26 @@ void MapEditorKeypressDown(WPARAM wParam)
             if (!MapEditor.is_ground_txt_typing) {
               switch (MapEditor.selected_ground_option) {
                 case 0: //ground_id
-                  MapEditor.selected_ground_id=LimitValue(MapEditor.selected_ground_id+1,0,GROUND_NUM);
+                  MapEditor.selected_ground_id=LimitValueInt(MapEditor.selected_ground_id+1,0,GROUND_NUM);
                   MapEditor.selected_ground_pivot=0;
                   break;
                 case 1: // type
                   if (Ground[MapEditor.selected_ground_id]->type==0)
                     Ground[MapEditor.selected_ground_id]->is_ghost = TRUE;
-                  Ground[MapEditor.selected_ground_id]->type=LimitValue(Ground[MapEditor.selected_ground_id]->type+1,0,4);
+                  Ground[MapEditor.selected_ground_id]->type=LimitValueInt(Ground[MapEditor.selected_ground_id]->type+1,0,4);
                   MapEditor.selected_ground_pivot=0;
                   break;
                 case 2: // color
-                  Ground[MapEditor.selected_ground_id]->color_id=LimitValue(Ground[MapEditor.selected_ground_id]->color_id+1,0,COLORS_NUM);
+                  Ground[MapEditor.selected_ground_id]->color_id=LimitValueInt(Ground[MapEditor.selected_ground_id]->color_id+1,0,COLORS_NUM);
                   break;
                 case 3: // is_ghost
                   if (Ground[MapEditor.selected_ground_id]->type==0)
                     Ground[MapEditor.selected_ground_id]->is_ghost = !Ground[MapEditor.selected_ground_id]->is_ghost;
                   break;
+                case 4: //font size
+                  Ground[MapEditor.selected_ground_id]->font_size=LimitValueInt(Ground[MapEditor.selected_ground_id]->font_size+1,0,64+1);
+                  break;
+
               }
             } else {
               //if (MapEditor.typing_ground_txt_pos<lstrlenW(MapEditor.typing_ground_txt))
@@ -158,11 +221,39 @@ void MapEditorKeypressDown(WPARAM wParam)
           case 2: // Enemy
             switch (MapEditor.selected_enemy_option) {
               case 0:
-                MapEditor.selected_enemy_id=LimitValue(MapEditor.selected_enemy_id+1,0,ENEMY_NUM);
+                MapEditor.selected_enemy_id=LimitValueInt(MapEditor.selected_enemy_id+1,0,ENEMY_NUM);
                 break;
               case 1:
-                MEEnemy[MapEditor.selected_enemy_id]->type=LimitValue(MEEnemy[MapEditor.selected_enemy_id]->type+1,0,ENEMY_TYPE_NUM);
+                MEEnemy[MapEditor.selected_enemy_id]->type=LimitValueInt(MEEnemy[MapEditor.selected_enemy_id]->type+1,0,ENEMY_TYPE_NUM);
                 break;                
+            }
+            break;
+
+
+          case 3: //Enemy Type ++ 
+            if (MapEditor.selected_enemy_type_option>0) { //set enemy_type
+              int seto = MapEditor.selected_enemy_type_option-1;
+              if (seto<ENEMY_TYPE_INT_ATTR_NUM) {//int values
+                set_enemy_type_int_attr[seto][MapEditor.selected_enemy_type_id]=
+                LimitValueInt(
+                  set_enemy_type_int_attr[seto][MapEditor.selected_enemy_type_id]+enemy_int_attr_delta[seto],
+                  enemy_int_attr_min[seto],
+                  enemy_int_attr_max[seto]
+                );
+              } else if (seto>=ENEMY_TYPE_INT_ATTR_NUM && seto<ENEMY_TYPE_DOUBLE_ATTR_NUM+ENEMY_TYPE_INT_ATTR_NUM) { //double values
+                seto-=ENEMY_TYPE_INT_ATTR_NUM;
+                set_enemy_type_double_attr[seto][MapEditor.selected_enemy_type_id]=
+                LimitValue(
+                  set_enemy_type_double_attr[seto][MapEditor.selected_enemy_type_id]+enemy_double_attr_delta[seto],
+                  enemy_double_attr_min[seto],
+                  enemy_double_attr_max[seto]
+                );                
+              } else { //bool values
+                seto-=(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM);
+                set_enemy_type_bool_attr[seto][MapEditor.selected_enemy_type_id]=!set_enemy_type_bool_attr[seto][MapEditor.selected_enemy_type_id];
+              }
+            } else { //changing tyoe 0 to 10
+              MapEditor.selected_enemy_type_id = LimitValueInt(MapEditor.selected_enemy_type_id+1,0,ENEMY_TYPE_NUM);
             }
             break;
         }
@@ -182,10 +273,10 @@ void MapEditorKeypressDown(WPARAM wParam)
       if (MapEditor.is_typing_search) {
         switch (MapEditor.selected_option) {
           case 0: //Searching for Ground
-            MapEditor.selected_ground_id=LimitValue(MapEditor.typing_search_id,0,GROUND_NUM-1);
+            MapEditor.selected_ground_id=LimitValueInt(MapEditor.typing_search_id,0,GROUND_NUM-1);
             break;
           case 2: //Searching for Enemy
-            MapEditor.selected_enemy_id=LimitValue(MapEditor.typing_search_id,0,ENEMY_NUM-1);
+            MapEditor.selected_enemy_id=LimitValueInt(MapEditor.typing_search_id,0,ENEMY_NUM-1);
             break;
         }
         //Clear All typing search
@@ -245,6 +336,11 @@ void MapEditorKeypressUp(WPARAM wParam)
       case 'D':
       case VK_RIGHT:
         player.rst_right=FALSE;
+        switch (MapEditor.selected_option) {
+          case 3: //Enemy Type
+            UpdateMEDrawSprite();
+            break;
+        }
         break;
 
 
@@ -252,6 +348,11 @@ void MapEditorKeypressUp(WPARAM wParam)
       case 'A':
       case VK_LEFT:
         player.rst_left=FALSE;
+        switch (MapEditor.selected_option) {
+          case 3: //Enemy Type
+            UpdateMEDrawSprite();
+            break;
+        }
         break;
 
     //Release W or Up key

@@ -1,5 +1,38 @@
 
+char *enemy_type_int_attr_names[ENEMY_TYPE_INT_ATTR_NUM]=
+{
+"Species",
+"Follow Range",
+"Unchase Range",
+"Chase Range",
+"Color",
+"Speed *",
+"Health",
+"Shoot at Player Range",
+"Aim Randomness",
+"Bullet Cooldown",
+"Bullet Fire Cooldown",
+"Bullet Fired At Once",
+"Bullet Length",
+"Bullet Damage",
+"Bullet Speed *",
+"Bullet Range",
+"Bullet Color",
+"Bullet Type",
+"Timebreaker Rare",
+"Timebreaker Length"
+};
 
+char *enemy_type_double_attr_names[ENEMY_TYPE_DOUBLE_ATTR_NUM]=
+{
+"Speed",
+"Bullet Speed"
+};
+
+char *enemy_type_bool_attr_names[ENEMY_TYPE_BOOL_ATTR_NUM]=
+{
+"Timebreaker Immune"
+};
 
 //Graphics
 void DrawMapEditorPlatforms(HDC hdc)
@@ -85,7 +118,8 @@ void DrawMapEditorPlatforms(HDC hdc)
             Ground[i]->text,
             "",
             color_arr[Ground[i]->color_id],
-            16,
+            //16,
+            Ground[i]->font_size,
             FALSE,
             yes_unifont);
       }
@@ -197,7 +231,7 @@ void DrawMapEditorUI(HDC hdc)
 
 
     switch (MapEditor.selected_option) {
-      case 0:
+      case 0: //move ground
         c = Highlight((MapEditor.selected_ground_option==0),BLACK,LTPURPLE);
         GrPrint(hdc,8,16,"GROUNDS:",c);
         char print_ground_id[8];
@@ -234,10 +268,19 @@ void DrawMapEditorUI(HDC hdc)
           GrPrint(hdc,8*11,70,"<FALSE>",c);
         }
 
+        //font size
+        c = Highlight((MapEditor.selected_ground_option==4),BLACK,LTPURPLE);
+        GrPrint(hdc,8,86,"Font Size:",c);
+        char print_ground_font_size[8];
+        sprintf(print_ground_font_size,"<%d>",Ground[MapEditor.selected_ground_id]->font_size);
+        GrPrint(hdc,8*11,86,print_ground_font_size,c);
+        
+
+        //ground text
         wchar_t duplicate_txt_visual[513];
         if (Ground[MapEditor.selected_ground_id]->type==2 && !MapEditor.is_typing_search) { //Ground text, show gui
           if (!MapEditor.is_ground_txt_typing) {
-            GrPrint(hdc,8,86,"[Enter]: Begin Typing",GREEN);
+            GrPrint(hdc,8,86+16*2,"[Enter]: Begin Typing",GREEN);
           } else {
             GrRect(hdc,0,86+16*2,GR_WIDTH,GR_HEIGHT-86-16*2,BLACK);
             GrPrint(hdc,8,86+16*2,"[ESC]: Exit and Save.  [SHIFT_ESC]: Abort.  [BACKSPACE]: Backspace",GREEN);
@@ -282,10 +325,43 @@ void DrawMapEditorUI(HDC hdc)
         break;
 
       case 3: //set enemy type
-        GrPrint(hdc,8,16,"ENEMY TYPE:",BLACK);
+//        GrPrint(hdc,8,16,"ENEMY TYPE:",BLACK);
+        c = Highlight((MapEditor.selected_enemy_type_option==0),BLACK,LTPURPLE);
+        GrPrint(hdc,8,16,"ENEMY TYPE:",c);
+        char print_enemy_type_id[8];
+        sprintf(print_enemy_type_id,"<%d>",MapEditor.selected_enemy_type_id);
+        GrPrint(hdc,8*13,16,print_enemy_type_id,c);
+
+
+
+        for (int i=0;i<ENEMY_TYPE_INT_ATTR_NUM;i++) {
+          c = Highlight((MapEditor.selected_enemy_type_option==i+1),BLACK,LTPURPLE);
+          char print_enemy_type_int_attr[32];
+          sprintf(print_enemy_type_int_attr,"%s <%d>",enemy_type_int_attr_names[i],set_enemy_type_int_attr[i][MapEditor.selected_enemy_type_id]);
+          GrPrint(hdc,8,32+16*i,print_enemy_type_int_attr,c);
+        }
+
+
+        for (int i=0;i<ENEMY_TYPE_DOUBLE_ATTR_NUM;i++) {
+          c = Highlight((MapEditor.selected_enemy_type_option==i+ENEMY_TYPE_INT_ATTR_NUM+1),BLACK,LTPURPLE);
+          char print_enemy_type_double_attr[32];
+          sprintf(print_enemy_type_double_attr,"%s <%1.1f>",enemy_type_double_attr_names[i],set_enemy_type_double_attr[i][MapEditor.selected_enemy_type_id]);
+          GrPrint(hdc,8,32+16*ENEMY_TYPE_INT_ATTR_NUM+16*i,print_enemy_type_double_attr,c);
+        }
+
+
+        for (int i=0;i<ENEMY_TYPE_BOOL_ATTR_NUM;i++) {
+          c = Highlight((MapEditor.selected_enemy_type_option==i+ENEMY_TYPE_DOUBLE_ATTR_NUM+ENEMY_TYPE_INT_ATTR_NUM+1),BLACK,LTPURPLE);
+          char print_enemy_type_bool_attr[32];
+          sprintf(print_enemy_type_bool_attr,"%s <%d>",enemy_type_bool_attr_names[i],set_enemy_type_bool_attr[i][MapEditor.selected_enemy_type_id]);
+          GrPrint(hdc,8,32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM)+16*i,print_enemy_type_bool_attr,c);
+        }
+
+
 /*
     set_enemy_type_speed[i]=saved_enemy_type_speed[i];
     set_enemy_type_bullet_speed[i]=saved_enemy_type_bullet_speed[i];
+
     set_enemy_type_species[i]=saved_enemy_type_species[i];
     set_enemy_type_follow_range[i]=saved_enemy_type_follow_range[i];
     set_enemy_type_unchase_range[i]=saved_enemy_type_unchase_range[i];
@@ -306,10 +382,12 @@ void DrawMapEditorUI(HDC hdc)
     set_enemy_type_bullet_graphics_type[i]=saved_enemy_type_bullet_graphics_type[i];
     set_enemy_type_time_breaker_rare[i]=saved_enemy_type_time_breaker_rare[i];
     set_enemy_type_time_breaker_length[i]=saved_enemy_type_time_breaker_length[i];
+
     set_enemy_type_time_breaker_immune[i]=saved_enemy_type_time_breaker_immune[i];
 
 */
-
+        //GrPrint();
+        
         break;
 
       case 4: //set map backgroudn and palette

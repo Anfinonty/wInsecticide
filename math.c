@@ -587,6 +587,18 @@ bool IsOutOfBounds(double x,double y,int r,int max_width,int max_height)
 
 
 
+int LimitValueInt(int value, int min, int max)
+{
+  int num=value;
+  if (value>=max) {
+    num=min;
+  } else if (value<min) {
+    num=max-1;
+  }
+  return num;
+}
+
+
 double LimitValue(double value,double min,double max)
 {
   double num=value;

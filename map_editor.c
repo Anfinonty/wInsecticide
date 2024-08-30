@@ -36,6 +36,7 @@ struct MapEditor
 
   //===== Enemy Type ===== (0->9)
   int selected_enemy_type_id;
+  int selected_enemy_type_option;
 
 } MapEditor;
 
@@ -97,12 +98,13 @@ void CleanUpMEEnemySprites()
   }
 }
 
-
 /*Set Enemy Type will be in the stack to be consistent with Saved Enemy Type being in the stack*/
 
 #define ENEMY_TYPE_INT_ATTR_NUM 20
+#define ENEMY_TYPE_DOUBLE_ATTR_NUM 2
+#define ENEMY_TYPE_BOOL_ATTR_NUM 1
 
-int enemey_int_attr_min[ENEMY_TYPE_INT_ATTR_NUM]=
+int enemy_int_attr_min[ENEMY_TYPE_INT_ATTR_NUM]=
 {
 0, //species
 15, //follow range
@@ -149,6 +151,70 @@ MAX_FOLLOW_RANGE+1, //bullet range
 10001, //time breaker rare
 20001 //time breaker immune
 };
+
+
+int enemy_int_attr_delta[ENEMY_TYPE_INT_ATTR_NUM]=
+{
+1, // species
+1, //follow range
+1, //unchase range
+1, //chase range
+1, //color
+1, //speed multiplier*
+1, //health
+1, //shoot at player range
+1, //aim random
+1, //bullet cooldown
+1, //bullet fire cooldown
+1, //bullet fire at once
+1, //bullet length
+1, //bullet damage
+1, //bullet speed multiplier*
+1, //bullet range
+1, //bullet color
+1, //bullet_graphics_type
+25, //time breaker rare
+25 //time breaker immune
+};
+
+int *set_enemy_type_int_attr[ENEMY_TYPE_INT_ATTR_NUM]=
+{
+    set_enemy_type_species,
+    set_enemy_type_follow_range,
+    set_enemy_type_unchase_range,
+    set_enemy_type_chase_range,
+    set_enemy_type_color,
+    set_enemy_type_speed_multiplier,
+    set_enemy_type_health,
+    set_enemy_type_shoot_at_player_range,
+    set_enemy_type_aim_rand,
+    set_enemy_type_bullet_cooldown,
+    set_enemy_type_bullet_fire_cooldown,
+    set_enemy_type_bullet_fire_at_once,
+    set_enemy_type_bullet_length,
+    set_enemy_type_bullet_damage,
+    set_enemy_type_bullet_speed_multiplier,
+    set_enemy_type_bullet_range,
+    set_enemy_type_bullet_color,
+    set_enemy_type_bullet_graphics_type,
+    set_enemy_type_time_breaker_rare,
+    set_enemy_type_time_breaker_length
+};
+
+
+double enemy_double_attr_min[ENEMY_TYPE_DOUBLE_ATTR_NUM]={0,0};
+double enemy_double_attr_max[ENEMY_TYPE_DOUBLE_ATTR_NUM]={1.0,1.0};
+double enemy_double_attr_delta[ENEMY_TYPE_DOUBLE_ATTR_NUM]={0.1,0.1};
+double *set_enemy_type_double_attr[ENEMY_TYPE_DOUBLE_ATTR_NUM]={
+  set_enemy_type_speed,
+  set_enemy_type_bullet_speed
+};
+
+
+bool *set_enemy_type_bool_attr[ENEMY_TYPE_BOOL_ATTR_NUM]={
+  set_enemy_type_time_breaker_immune
+};
+
 
 
 //Map Editor Init()
@@ -518,6 +584,10 @@ void InitMapEditor(HDC hdc)
 
   MapEditor.selected_enemy_id=0;
   MapEditor.selected_enemy_option=0;
+
+
+  MapEditor.selected_enemy_type_id=0;
+  MapEditor.selected_enemy_type_option=0;
 
 
   MapEditor.is_ground_txt_typing=FALSE;

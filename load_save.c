@@ -80,8 +80,6 @@ int set_enemy_type_time_breaker_length[ENEMY_TYPE_NUM];
 bool set_enemy_type_time_breaker_immune[ENEMY_TYPE_NUM];
 
 
-
-
 //Sound called in the Stack
 #define SPAM_SFX_NUM    3
 #define KEY_SFX_NUM     6
