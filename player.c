@@ -243,6 +243,12 @@ void InitPlayer() {
   player.rst_left=FALSE;
   player.rst_right=FALSE;
   player.rst_up=FALSE;
+
+  player.rst_arrow_down=FALSE;
+  player.rst_arrow_left=FALSE;
+  player.rst_arrow_right=FALSE;
+  player.rst_arrow_up=FALSE;
+
   player.low_jump=FALSE;
   //player.rst_key_sprint=TRUE;
   player.last_left=FALSE;
@@ -1856,6 +1862,23 @@ void PlayerCameraShake()
 void DrawPlayer(HDC hdc)
 {
   //Platform bitmap palette conversion
+  if (player.rst_arrow_left) {
+    if (mouse_x>0)
+      mouse_x-=20;
+  } else if (player.rst_arrow_right) {
+    if (mouse_x<GR_WIDTH)
+      mouse_x+=20;
+  }
+
+
+  if (player.rst_arrow_up) {
+    if (mouse_y>0)
+      mouse_y-=20;
+  } else if (player.rst_arrow_down) {
+    if (mouse_y<GR_HEIGHT)
+      mouse_y+=20;
+  }
+
   if (player.flag_revert_palette && player.time_breaker_tick<=0) {
     BitmapPalette(hdc,map_platforms_sprite,rgbColorsDefault);
     for (int i=0;i<ENEMY_NUM;i++) {

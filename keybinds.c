@@ -163,29 +163,43 @@ void GameKeypressDown(WPARAM wParam)
     switch (wParam) {
     //Holding Down Down Arrow or 'S'
       case 'S':
-      case VK_DOWN:
         player.rst_down=TRUE;
+        break;
+
+
+      case VK_DOWN:
+        player.rst_arrow_down=TRUE;
         break;
 
 
     //Holding Down Right Arrow or 'D'
       case 'D':
+        player.rst_right=TRUE;        
+        break;
+
       case VK_RIGHT:
-        player.rst_right=TRUE;
+        player.rst_arrow_right=TRUE;
         break;
 
 
     //Holding Down Left Arrow or 'A'
       case 'A':
-      case VK_LEFT:
         player.rst_left=TRUE;
+        break;
+
+
+      case VK_LEFT:
+        player.rst_arrow_left=TRUE;
         break;
 
 
     //Holding Down Up Arrow or 'W''
       case 'W':
-      case VK_UP:
         player.rst_up=TRUE;
+        break;
+
+      case VK_UP:
+        player.rst_arrow_up=TRUE;
         break;
 
 
@@ -212,6 +226,11 @@ void GameKeypressDown(WPARAM wParam)
         } else {
           player.sleep_timer=DEFAULT_SLEEP_TIMER;
         }
+        break;
+
+    //Holding down '4' Key
+      case '4':
+        player.rst_right_click=TRUE;
         break;
 
 
@@ -267,27 +286,37 @@ void GameKeypressUp(WPARAM wParam)
 
     //Release S or Down key
       case 'S':
-      case VK_DOWN:
         player.rst_down=FALSE;
+        break;
+
+      case VK_DOWN:
+        player.rst_arrow_down=FALSE;
         break;
 
     //Release D or Right key
       case 'D':
-      case VK_RIGHT:
         player.rst_right=FALSE;
+        break;
+
+      case VK_RIGHT:
+        player.rst_arrow_right=FALSE;
         break;
 
 
     //Release A or Left key
       case 'A':
-      case VK_LEFT:
         player.rst_left=FALSE;
+        break;
+      case VK_LEFT:
+        player.rst_arrow_left=FALSE;
         break;
 
     //Release W or Up key
       case 'W':
-      case VK_UP:
         player.rst_up=FALSE;
+        break;
+      case VK_UP:
+        player.rst_arrow_up=FALSE;
         break;
 
     //Release Space key
@@ -301,6 +330,10 @@ void GameKeypressUp(WPARAM wParam)
         player.attack_rst=TRUE;
         break;
 
+    //Release '4' Key    
+      case '4':
+        player.rst_right_click=FALSE;
+        break;
 
     //Release '2' Key
       case '2':

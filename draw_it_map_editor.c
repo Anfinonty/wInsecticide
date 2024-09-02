@@ -356,38 +356,29 @@ void DrawMapEditorUI(HDC hdc)
           sprintf(print_enemy_type_bool_attr,"%s <%d>",enemy_type_bool_attr_names[i],set_enemy_type_bool_attr[i][MapEditor.selected_enemy_type_id]);
           GrPrint(hdc,8,32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM)+16*i,print_enemy_type_bool_attr,c);
         }
-
-
-/*
-    set_enemy_type_speed[i]=saved_enemy_type_speed[i];
-    set_enemy_type_bullet_speed[i]=saved_enemy_type_bullet_speed[i];
-
-    set_enemy_type_species[i]=saved_enemy_type_species[i];
-    set_enemy_type_follow_range[i]=saved_enemy_type_follow_range[i];
-    set_enemy_type_unchase_range[i]=saved_enemy_type_unchase_range[i];
-    set_enemy_type_chase_range[i]=saved_enemy_type_chase_range[i];
-    set_enemy_type_color[i]=saved_enemy_type_color[i];
-    set_enemy_type_speed_multiplier[i]=saved_enemy_type_speed_multiplier[i];
-    set_enemy_type_health[i]=saved_enemy_type_health[i];
-    set_enemy_type_shoot_at_player_range[i]=saved_enemy_type_shoot_at_player_range[i];
-    set_enemy_type_aim_rand[i]=saved_enemy_type_aim_rand[i];
-    set_enemy_type_bullet_cooldown[i]=saved_enemy_type_bullet_cooldown[i];
-    set_enemy_type_bullet_fire_cooldown[i]=saved_enemy_type_bullet_fire_cooldown[i];
-    set_enemy_type_bullet_fire_at_once[i]=saved_enemy_type_bullet_fire_at_once[i];
-    set_enemy_type_bullet_length[i]=saved_enemy_type_bullet_length[i];
-    set_enemy_type_bullet_damage[i]=saved_enemy_type_bullet_damage[i];
-    set_enemy_type_bullet_speed_multiplier[i]=saved_enemy_type_bullet_speed_multiplier[i];
-    set_enemy_type_bullet_range[i]=saved_enemy_type_bullet_range[i];
-    set_enemy_type_bullet_color[i]=saved_enemy_type_bullet_color[i];
-    set_enemy_type_bullet_graphics_type[i]=saved_enemy_type_bullet_graphics_type[i];
-    set_enemy_type_time_breaker_rare[i]=saved_enemy_type_time_breaker_rare[i];
-    set_enemy_type_time_breaker_length[i]=saved_enemy_type_time_breaker_length[i];
-
-    set_enemy_type_time_breaker_immune[i]=saved_enemy_type_time_breaker_immune[i];
-
-*/
-        //GrPrint();
         
+
+        //Draw Sprite -> Follow Range
+    GrLine(hdc,8+NODE_SIZE*set_enemy_type_follow_range[MapEditor.selected_enemy_type_id],32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM)+16*3,
+               8,32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM)+16*3,LTGREEN);
+    DrawSprite(hdc,8+NODE_SIZE*set_enemy_type_follow_range[MapEditor.selected_enemy_type_id],32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM)+16*3,&MEEnemySprite[MapEditor.selected_enemy_type_id]->draw_sprite_1,TRUE);
+  DrawSprite(hdc,8,32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM)+16*3,&player.draw_sprite_1,FALSE);
+
+        //Draw Sprite -> Chase Range
+    GrLine(hdc,8+NODE_SIZE*set_enemy_type_chase_range[MapEditor.selected_enemy_type_id],-4+32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM)+16*3,
+               8,-4+32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM)+16*3,LTRED);
+    DrawSprite(hdc,8+NODE_SIZE*set_enemy_type_chase_range[MapEditor.selected_enemy_type_id],32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM)+16*3,&MEEnemySprite[MapEditor.selected_enemy_type_id]->draw_sprite_1,TRUE);
+
+        //Draw Sprite -> Unchase Range
+    GrLine(hdc,8+NODE_SIZE*set_enemy_type_unchase_range[MapEditor.selected_enemy_type_id],4+32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM)+16*3,
+               8,4+32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM)+16*3,LTBLUE);
+    DrawSprite(hdc,8+NODE_SIZE*set_enemy_type_unchase_range[MapEditor.selected_enemy_type_id],32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM)+16*3,&MEEnemySprite[MapEditor.selected_enemy_type_id]->draw_sprite_1,FALSE);
+
+        //Draw Sprite -> Bullet Range and Frequency
+    DrawSprite(hdc,8+NODE_SIZE*set_enemy_type_shoot_at_player_range[MapEditor.selected_enemy_type_id],32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM)+16*3,&MEEnemySprite[MapEditor.selected_enemy_type_id]->draw_sprite_1,TRUE);
+
+
+
         break;
 
       case 4: //set map backgroudn and palette

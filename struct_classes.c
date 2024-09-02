@@ -102,10 +102,17 @@ struct player
   bool right_click;
   bool rst_left_click;
   bool rst_right_click;
+
   bool rst_down;
   bool rst_left;
   bool rst_right;
   bool rst_up;
+
+  bool rst_arrow_down;
+  bool rst_arrow_left;
+  bool rst_arrow_right;
+  bool rst_arrow_up;
+
   //bool rst_key_sprint;
   bool last_left;
   bool jump;

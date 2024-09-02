@@ -730,7 +730,7 @@ char help_txt_arr1[HELP_TEXT_ARR_NUM1][64]=
   "'3' - Toggle Low Jump",
   "[Space] or 'C' - Increase Reaction Time",
   "[Left Click] or '1' - Throw Web-Kunai & Stop Web-Sling",
-  "[Right Click] - Sling Web",
+  "[Right Click] or '4' - Sling Web",
   "[Enter] - Restart Level"
 };
 
@@ -747,7 +747,7 @@ char help_txt_arr2[HELP_TEXT_ARR_NUM2][64]=
   "'E' - Hold for no flinging after Web Placement",
   " |__- Hold for opposite lower quadrant swing",
   "[Left Click] or '1' - Swing without Web Placement",
-  "[Right Click] - Swing with Web Placement"
+  "[Right Click] or '4' - Swing with Web Placement"
 };
 
 
