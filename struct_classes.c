@@ -93,6 +93,63 @@ int *render_grounds;
 //int render_grounds[MAX_GROUND_NUM];
 
 
+struct console
+{
+  //DPAD
+  //bool rst_d_up;
+  //bool rst_d_down;
+  //bool rst_d_left;
+  //bool rst_d_right;
+
+  //Right pad
+  bool rst_cross;
+  //bool rst_square;
+  //bool rst_circle;
+  bool rst_triangle;
+  bool rst_l3;
+  bool rst_r3;
+
+  //Corners
+  //bool rst_l1;
+  //bool rst_l2;
+
+  //bool rst_r1;
+  //bool rst_r2;
+
+  //joystick
+  //bool rst_l3;
+  //bool rst_r3;
+
+  //misc
+  //bool rst_select;
+  //bool rst_start;
+  
+  //DPAD
+  int rst_d_up_timer;
+  int rst_d_down_timer;
+  int rst_d_left_timer;
+  int rst_d_right_timer;
+
+  //joystick
+
+} ccontroller;
+
+
+void InitCController()
+{
+  ccontroller.rst_d_up_timer=0;
+  ccontroller.rst_d_down_timer=0;
+  ccontroller.rst_d_left_timer=0;
+  ccontroller.rst_d_right_timer=0;
+
+  ccontroller.rst_cross=FALSE;
+  ccontroller.rst_triangle=FALSE;
+
+  ccontroller.rst_l3=FALSE;
+  ccontroller.rst_r3=FALSE;
+}
+
+
 struct player 
 {
   bool is_rebounding;

@@ -281,6 +281,7 @@ double rain_grad_rise=20,rain_grad_run=8;
 
 
 #include "keybinds.c"
+#include "keybinds_controller.c"
 #include "keybinds_map_editor.c"
 
 //Detect Exception occured
@@ -878,146 +879,32 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
                 // Add code here to interpret the joystick data
-                //DPAD [5]
-                switch (raw->data.hid.bRawData[5] & 0xF) { //RIGHT digit only
-                  case 0x06: //LEFT
-                    player.rst_left=TRUE;
-                    break;
-                  case 0x02: //RIGHT
-                    player.rst_right=TRUE;
-                    break;
-                  case 0x00:
-                  case 0x07: //UP
-                    //player.rst_up=TRUE;
-                    break;
-                  case 0x04: //DOWN
-                    //player.rst_down=TRUE;
-                    break;
-                  case 0x0F: //Default value
-                    if (player.rst_left)
-                      player.rst_left=FALSE;
-                    if (player.rst_right)
-                      player.rst_right=FALSE;
-                    /*if (player.rst_up)
-                      player.rst_up=FALSE;
-                    if (player.rst_down)
-                      player.rst_down=FALSE;*/
-                    break;
-                }
+                GlobalJoystickMove(raw->data.hid.bRawData);
 
-                //RIGHTPAD [5]
-                switch (raw->data.hid.bRawData[5] & 0xF0) { //LEFT digit only
-                  case 0x10: //TRIANGLE 0x10 //toggle slow mo
-                    /*if (player.sleep_timer==DEFAULT_SLEEP_TIMER) {
-                      player.sleep_timer=SLOWDOWN_SLEEP_TIMER;
-                    } else {
-                      player.sleep_timer=DEFAULT_SLEEP_TIMER;
-                    }*/
-                    break;
-                  case 0x80: //SQUARE 0x80 //toggle timebreaker
-                    if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
-                      player.time_breaker=TRUE;
-                      if (game_audio)
-                        PlaySound(spamSoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //tb_start_audio
-                      player.time_breaker_cooldown=player.time_breaker_cooldown_max;
-                      player.speed+=player.time_breaker_units_max/2-1;
-                    }
-                    break;
-                  case 0x40: //CROSS 0x40
-                    player.rst_up=TRUE;
-                    break;
-                  case 0x20: //CIRCLE 0x20
-                    player.rst_down=TRUE;
-                    break;
-                  case 0x00: //Default value
-                    if (player.rst_up)
-                      player.rst_up=FALSE;
-                    if (player.rst_down)
-                      player.rst_down=FALSE;
-                    break;
-                }
-
-
-                //RIGHT Joystick LR[1] UD[2]
-                if (raw->data.hid.bRawData[1]>0x7F) {//right
-                  if (mouse_x<GR_WIDTH)
-                    mouse_x+=(raw->data.hid.bRawData[1]-0x7F)/8;
-                } else if (raw->data.hid.bRawData[1]<0x7F) {//left
-                  if (mouse_x>0)
-                    mouse_x-=(0x7F-raw->data.hid.bRawData[1])/8;
-                }
-
-                if (raw->data.hid.bRawData[2]>0x7F) {//down
-                  if (mouse_y<GR_HEIGHT)
-                    mouse_y+=(raw->data.hid.bRawData[2]-0x7F)/8;
-                } else if (raw->data.hid.bRawData[2]<0x7F) {//up
-                  if (mouse_y>0)
-                    mouse_y-=(0x7F-raw->data.hid.bRawData[2])/8;
-                }
-
-
-                //LEFT Joystick LR[3] UD[4]
-                if (raw->data.hid.bRawData[3]>0x7F) {//right
-                  if (mouse_x<GR_WIDTH)
-                    mouse_x+=(raw->data.hid.bRawData[3]-0x7F)/8;
-                } else if (raw->data.hid.bRawData[3]<0x7F) {//left
-                  if (mouse_x>0)
-                    mouse_x-=(0x7F-raw->data.hid.bRawData[3])/8;
-                }
-
-                if (raw->data.hid.bRawData[4]>0x7F) {//down
-                  if (mouse_y<GR_HEIGHT)
-                    mouse_y+=(raw->data.hid.bRawData[4]-0x7F)/8;
-                } else if (raw->data.hid.bRawData[4]<0x7F) {//up
-                  if (mouse_y>0)
-                    mouse_y-=(0x7F-raw->data.hid.bRawData[4])/8;
-                }
-
-                    
-
-                switch (raw->data.hid.bRawData[6] & 0xF) { //RIGHT digit only
-                  //L1 --> Hold Slow Mo
-                  case 0x01:
-                  //L2 --> Hold Slow Mo
-                  case 0x04:
-                    player.sleep_timer=SLOWDOWN_SLEEP_TIMER;
-                    if (player.rst_left_click) {
-                      player.rst_left_click=FALSE;
-                      player.attack_rst=TRUE;
-                    }
-                    if (player.rst_right_click)
-                      player.rst_right_click=FALSE;
-                    break;
-
-
-                  case 0x00: //default value
-                    if (player.rst_left_click) {
-                      player.rst_left_click=FALSE;
-                      player.attack_rst=TRUE;
-                    }
-                    if (player.rst_right_click)
-                      player.rst_right_click=FALSE;
-                    if (player.sleep_timer==SLOWDOWN_SLEEP_TIMER)
-                      player.sleep_timer=DEFAULT_SLEEP_TIMER;
-                    break;
-                }
-
-
-                switch (raw->data.hid.bRawData[6] & 0xF) { //RIGHT digit only
-                  //R1 --> Left Click
-                  case 0x02:
-                  case 0x03: //plus slowmo L1
-                  case 0x06: //plus slowmo L2
-                    player.rst_left_click=TRUE;
-                    break;
-
-                  //R2 --> Right Click 0x08
-                  case 0x08:
-                  case 0x09://plus slowmo L1
-                  case 0x0C://plus slowmo L2
-                    player.rst_right_click=TRUE;
-                    break;
-                }
+                if (!in_main_menu) {
+                  GameCKeyPress(raw->data.hid.bRawData);
+                } else { //Main menu
+                  switch (main_menu_chosen) {
+                     case -1:
+                       MinusOneMenuCKeyPress(raw->data.hid.bRawData);
+                       break;
+                     case 0:
+                       ZeroMenuCKeyPress(hwnd,hdc,raw->data.hid.bRawData);
+                       break;
+                     case 1:
+                       OptionsCKeyPress(hwnd, raw->data.hid.bRawData);
+                       break;
+                     //case 2:
+                       //TwoMenuCKeyPress(raw->data.hid.bRawData);
+                       //break;
+                     //case 3:
+                       //ThreeMenuCKeyPress(raw->data.hid.bRawData);
+                       //break;
+                     //case 4:
+                       //MapEditorCKeyPress(raw->data.hid.bRawData);
+                       //break;
+                  } //end of switch statement for menu chosen
+                } //end of menu chosen if else
             }
 
             free(lpb);
@@ -1398,8 +1285,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
       printf("Failed to register raw input device\n");
       //return -1;
    }
-
-
+   InitCController();
 
   Sleep(100);
   INPUT ip;

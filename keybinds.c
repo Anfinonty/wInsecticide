@@ -366,6 +366,454 @@ void GameKeypressUp(WPARAM wParam)
 
 
 
+void OptionKeyPressRight(HWND hwnd, int option_choose)
+{
+     switch (option_choose) {
+       case 0: //Change color of player ++
+         player_color=LimitValue(player_color+1,0,COLORS_NUM);
+         if (game_audio)
+           PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
+         break;
+       case 1: //Change color of player iris ++
+         player_iris_color=LimitValue(player_iris_color+1,0,COLORS_NUM);
+         if (game_audio)
+           PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
+         break;
+
+
+       case 2: //Change color of player pupil ++
+         player_pupil_color=LimitValue(player_pupil_color+1,0,COLORS_NUM);
+         if (game_audio)
+           PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
+         break;
+
+
+       case 3: //Enable/Disable camera shaking
+         if (game_audio) {
+           if (game_cam_shake)
+             PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
+           else
+             PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
+         }
+         game_cam_shake=!game_cam_shake;                
+         break;
+
+
+       case 4: //Enable/Disable sound effects
+         if (game_audio)
+           PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
+         else
+           PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
+         game_audio=!game_audio;
+         break;
+
+
+       case 5:
+         if (game_volume>=2.0) {
+           game_volume+=1.0;
+         } else {
+           game_volume+=0.1;
+         }
+         if (game_volume>20.0) {
+            game_volume=0.0;
+         }
+         if (game_audio)
+           PlaySound(keySoundEffectCache[2].audio, NULL, SND_MEMORY | SND_ASYNC); //false
+         flag_adjust_audio=TRUE;
+         break;
+
+/*
+       case 6:
+         song_volume+=0.01;
+         if (song_volume>1.0)//max song volume
+           song_volume=0.0;
+         flag_adjust_song_audio=TRUE;
+         if (game_audio)
+           PlaySound(keySoundEffectCache[2].audio, NULL, SND_MEMORY | SND_ASYNC); //false
+         break;
+*/
+
+       case 6:
+         wav_out_volume+=0.1;
+         if (wav_out_volume>1.0) { //max song volume
+            wav_out_volume=0.0;
+         }
+         flag_adjust_wav_out_audio=TRUE;
+         if (game_audio)
+           PlaySound(keySoundEffectCache[2].audio, NULL, SND_MEMORY | SND_ASYNC); //false
+         break;
+
+
+       case 7: //toggle unifont
+         if (game_audio) {
+           if (yes_unifont)
+             PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
+           else
+             PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
+         }
+         yes_unifont=!yes_unifont;
+         break;
+
+
+       case 8://togle borders
+         if (game_audio) {
+           if (hide_taskbar)
+             PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
+           else
+             PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
+         }
+         if (!hide_taskbar) { //Hide taskbar
+           LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
+           lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+           SetWindowLong(hwnd, GWL_STYLE, lStyle);
+           SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose], SWP_FRAMECHANGED);
+         } else { //return taskbar
+           LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
+           lStyle |= (WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+           SetWindowLong(hwnd, GWL_STYLE, lStyle);
+           SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose], SWP_FRAMECHANGED);
+         }
+         SetForegroundWindow(hwnd); //return back focus
+         hide_taskbar=!hide_taskbar;
+         break;
+
+
+       case 9: //toggle resolution, holding right button
+         resolution_choose=LimitValue(resolution_choose+1,0,3);
+         if (!hide_taskbar) {
+           SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],SWP_FRAMECHANGED);
+         } else {
+           SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],SWP_FRAMECHANGED);
+         }
+
+         SetForegroundWindow(hwnd); //return back focus
+         if (game_audio) {
+           PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
+         }
+
+
+       case 10: //right button, center
+         windowx=SCREEN_WIDTH/2-GR_WIDTH/2;
+         windowy=SCREEN_HEIGHT/2-GR_HEIGHT/2;
+         if (!hide_taskbar) {
+           SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
+         } else {
+           SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
+         }
+         SetForegroundWindow(hwnd); //return back focus
+         if (game_audio) {
+           PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
+         }
+         break;
+
+       case 11: //toggle show fps
+         if (game_audio) {
+           if (show_fps)
+             PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
+           else
+             PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
+         }
+         show_fps=!show_fps;             
+         break;
+    }
+}
+
+
+
+void OptionKeyPressLeft(HWND hwnd,int option_choose)
+{
+    switch (option_choose) {
+      case 0: //Change color of player --
+        player_color=LimitValue(player_color-1,0,COLORS_NUM);
+        if (game_audio)
+          PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
+        break;
+      case 1: //Change color of player iris --
+        player_iris_color=LimitValue(player_iris_color-1,0,COLORS_NUM);
+        if (game_audio)
+          PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
+        break;
+      case 2: //Change color of player pupil --
+        player_pupil_color=LimitValue(player_pupil_color-1,0,COLORS_NUM);
+        if (game_audio)
+          PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
+        break;
+
+
+      case 3:  //Enable/Disable camera shaking 
+        if (game_audio) {
+          if (game_cam_shake)
+            PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
+          else
+            PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
+        }
+        game_cam_shake=!game_cam_shake;                
+        break;
+
+
+      case 4: //Enable/Disable sound effects
+        if (game_audio)
+          PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
+        else
+          PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
+        game_audio=!game_audio;
+        break;
+
+       case 5:
+         if (game_volume>=3.0) {
+           game_volume-=1.0;
+         } else {
+           game_volume-=0.1;
+         }
+         if (game_volume<0.0) {
+            game_volume=20.0;
+         }
+         if (game_audio)
+           PlaySound(keySoundEffectCache[2].audio, NULL, SND_MEMORY | SND_ASYNC); //false
+         flag_adjust_audio=TRUE;
+         break;
+/*
+       case 6:
+         song_volume-=0.01;
+         if (song_volume<0.0)
+           song_volume=1.0;
+         if (game_audio)
+           PlaySound(keySoundEffectCache[2].audio, NULL, SND_MEMORY | SND_ASYNC); //false
+         flag_adjust_song_audio=TRUE;
+         break;
+*/
+       case 6:
+         wav_out_volume-=0.1;
+         if (wav_out_volume<0.0) {
+           wav_out_volume=1.0;
+         }
+         if (game_audio)
+           PlaySound(keySoundEffectCache[2].audio, NULL, SND_MEMORY | SND_ASYNC); //false
+         flag_adjust_wav_out_audio=TRUE;
+         break;
+
+       case 7: //toggle unifont
+         if (game_audio) {
+           if (yes_unifont)
+             PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
+           else
+             PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
+         }
+         yes_unifont=!yes_unifont;
+         break;
+
+       case 8://togle borders
+         if (game_audio) {
+           if (hide_taskbar)
+             PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
+           else
+             PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
+         }
+         if (resolution_choose==2) {
+           windowx=0;
+           windowy=0;
+         }
+         if (!hide_taskbar) {
+           LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
+           lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+           SetWindowLong(hwnd, GWL_STYLE, lStyle);
+           if (resolution_choose==2)
+             SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,SCREEN_WIDTH,SCREEN_HEIGHT, SWP_FRAMECHANGED);
+           else
+             SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
+         } else {
+           LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
+           lStyle |= (WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+           SetWindowLong(hwnd, GWL_STYLE, lStyle);
+           SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
+         }
+         SetForegroundWindow(hwnd); //return back focus
+         hide_taskbar=!hide_taskbar;
+         break;
+
+
+       case 9: //toggle resolution, lower
+         resolution_choose=LimitValue(resolution_choose-1,0,3);
+         if (!hide_taskbar) {
+           SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],SWP_FRAMECHANGED);
+         } else {
+           SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],SWP_FRAMECHANGED);
+         }
+         SetForegroundWindow(hwnd); //return back focus
+         if (game_audio) {
+           PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
+         }
+         break;
+
+       case 10: //left button, corner
+         windowx=0;
+         windowy=0;
+         if (!hide_taskbar) {
+           SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose], SWP_FRAMECHANGED);
+         } else {
+           SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose], SWP_FRAMECHANGED);
+         }
+         SetForegroundWindow(hwnd); //return back focus            
+         if (game_audio) {
+           PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
+         }
+         break;
+
+       case 11: //toggle show fps
+         if (game_audio) {
+           if (show_fps)
+             PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
+           else
+             PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
+         }
+         show_fps=!show_fps;
+         break;
+    }
+}
+
+
+void OptionKeyPressRelease1()
+{
+   main_menu_chosen=-1;
+
+   if (old_player_color!=player_color) {
+     FreeDrawSprite(&draw_mouse_cursor_sprite);
+     DeleteObject(mouse_cursor_sprite_cache);
+     mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
+
+     FreeDrawSprite(&draw_mouse_cursor_sprite2);
+     DeleteObject(mouse_cursor_sprite_cache2);
+     mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
+
+     GenerateDrawSprite(&draw_mouse_cursor_sprite,mouse_cursor_sprite_cache);
+     GenerateDrawSprite(&draw_mouse_cursor_sprite2,mouse_cursor_sprite_cache2);
+
+     old_player_color=player_color;
+   }
+
+
+   if (old_player_iris_color!=player_iris_color) {
+     FreeDrawSprite(&draw_mouse_cursor_sprite_iris);
+     DeleteObject(mouse_cursor_sprite_iris_cache);
+     mouse_cursor_sprite_iris_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTBLUE,draw_color_arr[player_iris_color]);
+
+     FreeDrawSprite(&draw_mouse_cursor_sprite_iris2);
+     DeleteObject(mouse_cursor_sprite_iris_cache2);
+     mouse_cursor_sprite_iris_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTBLUE,draw_color_arr[player_iris_color]);
+
+     GenerateDrawSprite(&draw_mouse_cursor_sprite_iris,mouse_cursor_sprite_iris_cache);
+     GenerateDrawSprite(&draw_mouse_cursor_sprite_iris2,mouse_cursor_sprite_iris_cache2);
+
+     old_player_iris_color=player_iris_color;
+   }
+
+
+
+
+   if (old_player_pupil_color!=player_pupil_color) {
+     FreeDrawSprite(&draw_mouse_cursor_sprite_pupil);
+     DeleteObject(mouse_cursor_sprite_pupil_cache);
+     mouse_cursor_sprite_pupil_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTRED,draw_color_arr[player_pupil_color]);
+
+     FreeDrawSprite(&draw_mouse_cursor_sprite_pupil2);
+     DeleteObject(mouse_cursor_sprite_pupil_cache2);
+     mouse_cursor_sprite_pupil_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTRED,draw_color_arr[player_pupil_color]);
+    
+     GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil,mouse_cursor_sprite_pupil_cache);
+     GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil2,mouse_cursor_sprite_pupil_cache2);
+
+     old_player_pupil_color=player_pupil_color;
+   }
+
+   //adjust volume
+   if (old_game_volume!=game_volume) {
+      for (int i=0;i<KEY_SFX_NUM;i++) {
+        freeSoundEffectCache(&keySoundEffectCache[i]);
+      }
+      for (int i=0;i<KEY_SFX_NUM;i++) {
+        //keySoundEffectCache[i].audio=adjustVolumeA(keySoundEffect[i].audio,keySoundEffect[i].filesize,game_volume);
+        adjustSFXVolume(&keySoundEffectCache[i],&keySoundEffect[i],game_volume,FALSE);
+      }
+
+      old_game_volume=game_volume;
+    }
+
+    if (game_audio)
+      PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
+      //PlaySound(mkey_esc_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //esc
+}
+
+
+
+
+
+
+void OptionKeyPressRelease2()
+{
+     //LIVE adjust volume
+     if (old_game_volume!=game_volume) { //change when not the same
+         for (int i=0;i<KEY_SFX_NUM;i++) {
+           freeSoundEffectCache(&keySoundEffectCache[i]);
+         }
+        for (int i=0;i<KEY_SFX_NUM;i++) {
+          //keySoundEffectCache[i].audio=adjustVolumeA(keySoundEffect[i].audio,keySoundEffect[i].filesize,game_volume);
+         adjustSFXVolume(&keySoundEffectCache[i],&keySoundEffect[i],game_volume,FALSE);
+        }
+
+        old_game_volume=game_volume;
+     }
+
+     //LIVE change color of player
+     if (old_player_color!=player_color) { //change when not same
+
+       FreeDrawSprite(&draw_mouse_cursor_sprite);
+       DeleteObject(mouse_cursor_sprite_cache);
+       mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);   
+
+       FreeDrawSprite(&draw_mouse_cursor_sprite2);
+       DeleteObject(mouse_cursor_sprite_cache2);
+       mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
+
+       GenerateDrawSprite(&draw_mouse_cursor_sprite,mouse_cursor_sprite_cache);
+       GenerateDrawSprite(&draw_mouse_cursor_sprite2,mouse_cursor_sprite_cache2);
+
+       old_player_color=player_color;
+     }
+
+
+     if (old_player_iris_color!=player_iris_color) {
+       FreeDrawSprite(&draw_mouse_cursor_sprite_iris);
+       DeleteObject(mouse_cursor_sprite_iris_cache);
+       mouse_cursor_sprite_iris_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTBLUE,draw_color_arr[player_iris_color]);
+
+       FreeDrawSprite(&draw_mouse_cursor_sprite_iris2);
+       DeleteObject(mouse_cursor_sprite_iris_cache2);
+       mouse_cursor_sprite_iris_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTBLUE,draw_color_arr[player_iris_color]);
+
+
+       GenerateDrawSprite(&draw_mouse_cursor_sprite_iris,mouse_cursor_sprite_iris_cache);
+       GenerateDrawSprite(&draw_mouse_cursor_sprite_iris2,mouse_cursor_sprite_iris_cache2);
+
+       old_player_iris_color=player_iris_color;
+     }
+
+     if (old_player_pupil_color!=player_pupil_color) {
+       FreeDrawSprite(&draw_mouse_cursor_sprite_pupil);
+       DeleteObject(mouse_cursor_sprite_pupil_cache);
+       mouse_cursor_sprite_pupil_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTRED,draw_color_arr[player_pupil_color]);
+
+       FreeDrawSprite(&draw_mouse_cursor_sprite_pupil2);
+       DeleteObject(mouse_cursor_sprite_pupil_cache2);
+       mouse_cursor_sprite_pupil_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTRED,draw_color_arr[player_pupil_color]);
+
+       GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil,mouse_cursor_sprite_pupil_cache);
+       GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil2,mouse_cursor_sprite_pupil_cache2);
+
+       old_player_pupil_color=player_pupil_color;
+     }
+
+}
+
 
 
 
@@ -393,308 +841,14 @@ void OptionsKeypressDown(HWND hwnd, WPARAM wParam)
     //Holding Down Right Arrow or 'D'
        case 'D':
        case VK_RIGHT:
-         switch (option_choose) {
-           case 0: //Change color of player ++
-             player_color=LimitValue(player_color+1,0,COLORS_NUM);
-             if (game_audio)
-               PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
-             break;
-           case 1: //Change color of player iris ++
-             player_iris_color=LimitValue(player_iris_color+1,0,COLORS_NUM);
-             if (game_audio)
-               PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
-             break;
-
-
-           case 2: //Change color of player pupil ++
-             player_pupil_color=LimitValue(player_pupil_color+1,0,COLORS_NUM);
-             if (game_audio)
-               PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
-             break;
-
-
-           case 3: //Enable/Disable camera shaking
-             if (game_audio) {
-               if (game_cam_shake)
-                 PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
-               else
-                 PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
-             }
-             game_cam_shake=!game_cam_shake;                
-             break;
-
-
-           case 4: //Enable/Disable sound effects
-             if (game_audio)
-               PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
-             else
-               PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
-             game_audio=!game_audio;
-             break;
-
-
-           case 5:
-             if (game_volume>=2.0) {
-               game_volume+=1.0;
-             } else {
-               game_volume+=0.1;
-             }
-             if (game_volume>20.0) {
-                game_volume=0.0;
-             }
-             if (game_audio)
-               PlaySound(keySoundEffectCache[2].audio, NULL, SND_MEMORY | SND_ASYNC); //false
-             flag_adjust_audio=TRUE;
-             break;
-
-/*
-           case 6:
-             song_volume+=0.01;
-             if (song_volume>1.0)//max song volume
-               song_volume=0.0;
-             flag_adjust_song_audio=TRUE;
-             if (game_audio)
-               PlaySound(keySoundEffectCache[2].audio, NULL, SND_MEMORY | SND_ASYNC); //false
-             break;
-*/
-
-           case 6:
-             wav_out_volume+=0.1;
-             if (wav_out_volume>1.0) { //max song volume
-                wav_out_volume=0.0;
-             }
-             flag_adjust_wav_out_audio=TRUE;
-             if (game_audio)
-               PlaySound(keySoundEffectCache[2].audio, NULL, SND_MEMORY | SND_ASYNC); //false
-             break;
-
-
-           case 7: //toggle unifont
-             if (game_audio) {
-               if (yes_unifont)
-                 PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
-               else
-                 PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
-             }
-             yes_unifont=!yes_unifont;
-             break;
-
-
-           case 8://togle borders
-             if (game_audio) {
-               if (hide_taskbar)
-                 PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
-               else
-                 PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
-             }
-             if (!hide_taskbar) { //Hide taskbar
-               LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
-               lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
-               SetWindowLong(hwnd, GWL_STYLE, lStyle);
-               SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose], SWP_FRAMECHANGED);
-             } else { //return taskbar
-               LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
-               lStyle |= (WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
-               SetWindowLong(hwnd, GWL_STYLE, lStyle);
-               SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose], SWP_FRAMECHANGED);
-             }
-             SetForegroundWindow(hwnd); //return back focus
-             hide_taskbar=!hide_taskbar;
-             break;
-
-
-           case 9: //toggle resolution, holding right button
-             resolution_choose=LimitValue(resolution_choose+1,0,3);
-             if (!hide_taskbar) {
-               SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],SWP_FRAMECHANGED);
-             } else {
-               SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],SWP_FRAMECHANGED);
-             }
-
-             SetForegroundWindow(hwnd); //return back focus
-             if (game_audio) {
-               PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
-             }
-             break;
-
-
-           case 10: //right button, center
-             windowx=SCREEN_WIDTH/2-GR_WIDTH/2;
-             windowy=SCREEN_HEIGHT/2-GR_HEIGHT/2;
-             if (!hide_taskbar) {
-               SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
-             } else {
-               SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
-             }
-             SetForegroundWindow(hwnd); //return back focus
-             if (game_audio) {
-               PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
-             }
-             break;
-
-           case 11: //toggle show fps
-             if (game_audio) {
-               if (show_fps)
-                 PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
-               else
-                 PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
-             }
-             show_fps=!show_fps;             
-             break;
-         }
-         break;
+          OptionKeyPressRight(hwnd,option_choose);
+          break;
 
 
     //Holding Down Left Arrow or 'A'
       case 'A':
       case VK_LEFT:
-        switch (option_choose) {
-          case 0: //Change color of player --
-            player_color=LimitValue(player_color-1,0,COLORS_NUM);
-            if (game_audio)
-              PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
-            break;
-          case 1: //Change color of player iris --
-            player_iris_color=LimitValue(player_iris_color-1,0,COLORS_NUM);
-            if (game_audio)
-              PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
-            break;
-          case 2: //Change color of player pupil --
-            player_pupil_color=LimitValue(player_pupil_color-1,0,COLORS_NUM);
-            if (game_audio)
-              PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
-            break;
-
-
-          case 3:  //Enable/Disable camera shaking 
-            if (game_audio) {
-              if (game_cam_shake)
-                PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
-              else
-                PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
-            }
-            game_cam_shake=!game_cam_shake;                
-            break;
-
-
-          case 4: //Enable/Disable sound effects
-            if (game_audio)
-              PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
-            else
-              PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
-            game_audio=!game_audio;
-            break;
-
-           case 5:
-             if (game_volume>=3.0) {
-               game_volume-=1.0;
-             } else {
-               game_volume-=0.1;
-             }
-             if (game_volume<0.0) {
-                game_volume=20.0;
-             }
-             if (game_audio)
-               PlaySound(keySoundEffectCache[2].audio, NULL, SND_MEMORY | SND_ASYNC); //false
-             flag_adjust_audio=TRUE;
-             break;
-/*
-           case 6:
-             song_volume-=0.01;
-             if (song_volume<0.0)
-               song_volume=1.0;
-             if (game_audio)
-               PlaySound(keySoundEffectCache[2].audio, NULL, SND_MEMORY | SND_ASYNC); //false
-             flag_adjust_song_audio=TRUE;
-             break;
-*/
-           case 6:
-             wav_out_volume-=0.1;
-             if (wav_out_volume<0.0) {
-               wav_out_volume=1.0;
-             }
-             if (game_audio)
-               PlaySound(keySoundEffectCache[2].audio, NULL, SND_MEMORY | SND_ASYNC); //false
-             flag_adjust_wav_out_audio=TRUE;
-             break;
-
-           case 7: //toggle unifont
-             if (game_audio) {
-               if (yes_unifont)
-                 PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
-               else
-                 PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
-             }
-             yes_unifont=!yes_unifont;
-             break;
-
-           case 8://togle borders
-             if (game_audio) {
-               if (hide_taskbar)
-                 PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
-               else
-                 PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
-             }
-             if (resolution_choose==2) {
-               windowx=0;
-               windowy=0;
-             }
-             if (!hide_taskbar) {
-               LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
-               lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
-               SetWindowLong(hwnd, GWL_STYLE, lStyle);
-               if (resolution_choose==2)
-                 SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,SCREEN_WIDTH,SCREEN_HEIGHT, SWP_FRAMECHANGED);
-               else
-                 SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
-             } else {
-               LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
-               lStyle |= (WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
-               SetWindowLong(hwnd, GWL_STYLE, lStyle);
-               SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
-             }
-             SetForegroundWindow(hwnd); //return back focus
-             hide_taskbar=!hide_taskbar;
-             break;
-
-
-           case 9: //toggle resolution, lower
-             resolution_choose=LimitValue(resolution_choose-1,0,3);
-             if (!hide_taskbar) {
-               SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],SWP_FRAMECHANGED);
-             } else {
-               SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],SWP_FRAMECHANGED);
-             }
-             SetForegroundWindow(hwnd); //return back focus
-             if (game_audio) {
-               PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
-             }
-             break;
-
-           case 10: //left button, corner
-             windowx=0;
-             windowy=0;
-             if (!hide_taskbar) {
-               SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose], SWP_FRAMECHANGED);
-             } else {
-               SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose], SWP_FRAMECHANGED);
-             }
-             SetForegroundWindow(hwnd); //return back focus            
-             if (game_audio) {
-               PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
-             }
-             break;
-
-           case 11: //toggle show fps
-             if (game_audio) {
-               if (show_fps)
-                 PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
-               else
-                 PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
-             }
-             show_fps=!show_fps;             
-             break;
-        }
+        OptionKeyPressLeft(hwnd,option_choose);
         break;
 
    } //End of switch statement for keys
@@ -708,140 +862,14 @@ void OptionsKeypressUp(WPARAM wParam)
        case '1':           //Release '1' Key or ESC+SHIFT
        case VK_ESCAPE:
          if ((keydown(VK_LSHIFT) || keydown(VK_RSHIFT))) { //ESC + L/RSHIFT = QUIT
-           main_menu_chosen=-1;
-
-           if (old_player_color!=player_color) {
-             FreeDrawSprite(&draw_mouse_cursor_sprite);
-             DeleteObject(mouse_cursor_sprite_cache);
-             mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
-
-             FreeDrawSprite(&draw_mouse_cursor_sprite2);
-             DeleteObject(mouse_cursor_sprite_cache2);
-             mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
-
-             GenerateDrawSprite(&draw_mouse_cursor_sprite,mouse_cursor_sprite_cache);
-             GenerateDrawSprite(&draw_mouse_cursor_sprite2,mouse_cursor_sprite_cache2);
-
-             old_player_color=player_color;
-           }
-
-
-           if (old_player_iris_color!=player_iris_color) {
-             FreeDrawSprite(&draw_mouse_cursor_sprite_iris);
-             DeleteObject(mouse_cursor_sprite_iris_cache);
-             mouse_cursor_sprite_iris_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTBLUE,draw_color_arr[player_iris_color]);
-
-             FreeDrawSprite(&draw_mouse_cursor_sprite_iris2);
-             DeleteObject(mouse_cursor_sprite_iris_cache2);
-             mouse_cursor_sprite_iris_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTBLUE,draw_color_arr[player_iris_color]);
-
-             GenerateDrawSprite(&draw_mouse_cursor_sprite_iris,mouse_cursor_sprite_iris_cache);
-             GenerateDrawSprite(&draw_mouse_cursor_sprite_iris2,mouse_cursor_sprite_iris_cache2);
-
-             old_player_iris_color=player_iris_color;
-           }
-
-
-
-
-           if (old_player_pupil_color!=player_pupil_color) {
-             FreeDrawSprite(&draw_mouse_cursor_sprite_pupil);
-             DeleteObject(mouse_cursor_sprite_pupil_cache);
-             mouse_cursor_sprite_pupil_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTRED,draw_color_arr[player_pupil_color]);
-
-             FreeDrawSprite(&draw_mouse_cursor_sprite_pupil2);
-             DeleteObject(mouse_cursor_sprite_pupil_cache2);
-             mouse_cursor_sprite_pupil_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTRED,draw_color_arr[player_pupil_color]);
-            
-             GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil,mouse_cursor_sprite_pupil_cache);
-             GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil2,mouse_cursor_sprite_pupil_cache2);
-
-             old_player_pupil_color=player_pupil_color;
-           }
-
-           //adjust volume
-           if (old_game_volume!=game_volume) {
-              for (int i=0;i<KEY_SFX_NUM;i++) {
-                freeSoundEffectCache(&keySoundEffectCache[i]);
-              }
-              for (int i=0;i<KEY_SFX_NUM;i++) {
-                //keySoundEffectCache[i].audio=adjustVolumeA(keySoundEffect[i].audio,keySoundEffect[i].filesize,game_volume);
-                adjustSFXVolume(&keySoundEffectCache[i],&keySoundEffect[i],game_volume,FALSE);
-              }
-
-              old_game_volume=game_volume;
-            }
-
-            if (game_audio)
-              PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
-              //PlaySound(mkey_esc_audio_cache, NULL, SND_MEMORY | SND_ASYNC); //esc
+           OptionKeyPressRelease1();
          }
          break;
        case 'A':    //Release LEFT key
        case VK_LEFT:
        case 'D':    //Release RIGHT key
        case VK_RIGHT:
-         //LIVE adjust volume
-         if (old_game_volume!=game_volume) { //change when not the same
-             for (int i=0;i<KEY_SFX_NUM;i++) {
-               freeSoundEffectCache(&keySoundEffectCache[i]);
-             }
-            for (int i=0;i<KEY_SFX_NUM;i++) {
-              //keySoundEffectCache[i].audio=adjustVolumeA(keySoundEffect[i].audio,keySoundEffect[i].filesize,game_volume);
-             adjustSFXVolume(&keySoundEffectCache[i],&keySoundEffect[i],game_volume,FALSE);
-            }
-
-            old_game_volume=game_volume;
-         }
-
-         //LIVE change color of player
-         if (old_player_color!=player_color) { //change when not same
-
-           FreeDrawSprite(&draw_mouse_cursor_sprite);
-           DeleteObject(mouse_cursor_sprite_cache);
-           mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);   
-  
-           FreeDrawSprite(&draw_mouse_cursor_sprite2);
-           DeleteObject(mouse_cursor_sprite_cache2);
-           mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
-
-           GenerateDrawSprite(&draw_mouse_cursor_sprite,mouse_cursor_sprite_cache);
-           GenerateDrawSprite(&draw_mouse_cursor_sprite2,mouse_cursor_sprite_cache2);
-
-           old_player_color=player_color;
-         }
-
-
-         if (old_player_iris_color!=player_iris_color) {
-           FreeDrawSprite(&draw_mouse_cursor_sprite_iris);
-           DeleteObject(mouse_cursor_sprite_iris_cache);
-           mouse_cursor_sprite_iris_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTBLUE,draw_color_arr[player_iris_color]);
-
-           FreeDrawSprite(&draw_mouse_cursor_sprite_iris2);
-           DeleteObject(mouse_cursor_sprite_iris_cache2);
-           mouse_cursor_sprite_iris_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTBLUE,draw_color_arr[player_iris_color]);
-
-
-           GenerateDrawSprite(&draw_mouse_cursor_sprite_iris,mouse_cursor_sprite_iris_cache);
-           GenerateDrawSprite(&draw_mouse_cursor_sprite_iris2,mouse_cursor_sprite_iris_cache2);
-
-           old_player_iris_color=player_iris_color;
-         }
-
-         if (old_player_pupil_color!=player_pupil_color) {
-           FreeDrawSprite(&draw_mouse_cursor_sprite_pupil);
-           DeleteObject(mouse_cursor_sprite_pupil_cache);
-           mouse_cursor_sprite_pupil_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTRED,draw_color_arr[player_pupil_color]);
-
-           FreeDrawSprite(&draw_mouse_cursor_sprite_pupil2);
-           DeleteObject(mouse_cursor_sprite_pupil_cache2);
-           mouse_cursor_sprite_pupil_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTRED,draw_color_arr[player_pupil_color]);
-
-           GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil,mouse_cursor_sprite_pupil_cache);
-           GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil2,mouse_cursor_sprite_pupil_cache2);
-
-           old_player_pupil_color=player_pupil_color;
-         }
+         OptionKeyPressRelease2();
          break;
     }
 }
