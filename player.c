@@ -679,6 +679,9 @@ void PlayerAct() {
 
       player.attack=TRUE; 
 	  player.bullet_shot=current_bullet_id;
+      if (game_audio) {
+        player.shoot_knife_duration=1;
+      }
       int b_speed_mul=15+player.speed*2; //speed multiplier
       if (b_speed_mul>25)
         b_speed_mul=25;
@@ -707,6 +710,9 @@ void PlayerAct() {
   } else { //meelee attack only
     if (player.is_swinging) {
       if (player.left_click_hold_timer==62 || player.attack_rst || player.right_click_hold_timer==62) { //swing but no web is placed
+        if (game_audio) {
+          player.shoot_knife_duration=1;
+        }
         player.is_swinging=FALSE; //stop swinging
         if (player.uppercut) {
           player.fling_distance=0;
@@ -733,6 +739,7 @@ void PlayerAct() {
         player.attack=TRUE;
         player.blocking=FALSE; //unblock
     //player place web after swing
+    //BUG: sometimes web placed doesnt get placed as expected
         double bm_x1=0,bm_y1=0,bm_x2=0,bm_y2=0;
         if (player.x<player.pivot_x) {
           bm_x1=player.x;
