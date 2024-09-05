@@ -223,7 +223,7 @@ double rain_grad_rise=20,rain_grad_run=8;
 #define SLOWDOWN_SLEEP_TIMER			30
 
 #define DEFAULT_PLAYER_HEALTH			20
-#define DEFAULT_PLAYER_BLOCK_HEALTH_MAX 20
+#define DEFAULT_PLAYER_BLOCK_HEALTH_MAX 100//20
 #define DEFAULT_PLAYER_JUMP_HEIGHT 		85//100
 #define DEFAULT_PLAYER_ATTACK_STRENGTH  	1
 #define DEFAULT_PLAYER_KNOCKBACK_STRENGTH	50
@@ -243,12 +243,15 @@ double rain_grad_rise=20,rain_grad_run=8;
 #define DEFAULT_PLAYER_TIME_BREAKER_RECHARGE_MAX	200 //1 seconds
 #define DEFAULT_PLAYER_TIME_BREAKER_TICK_MAX	22 //45
 
+#define HP_SHOW_TIMER_NUM   450
+
 #define PLAYER_LOW_HEALTH   3
 //#define PLAYER_BULLET_NUM 32
 #define PLAYER_BULLET_NUM 24//16
 
 
 #define GAME_OPTIONS_NUM    12
+#define PLAYER_BLUR_NUM     2
 
 #include "gr.c"
 #include "math.c"
@@ -669,7 +672,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           //keySoundEffectCache[2].audio=adjustVolumeA(keySoundEffect[2].audio,keySoundEffect[2].filesize,game_volume);
   //freeSFXCache(mySFX);
           freeSoundEffectCache(&keySoundEffectCache[2]);
-         adjustSFXVolume(&keySoundEffectCache[2],&keySoundEffect[2],game_volume,FALSE);// keySoundEffectCache[2].audio=adjustSFXVolume(keySoundEffect[2].audio,keySoundEffect[2].filesize,game_volume,FALSE);
+          adjustSFXVolume(&keySoundEffectCache[2],&keySoundEffect[2],game_volume,FALSE);
           flag_adjust_audio=FALSE;
         }
 
@@ -783,6 +786,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DrawWaterShader(hdcBackbuff);
             //DrawRain(hdcBackbuff);
             //DrawNodeGrids(hdcBackbuff);
+            //DrawTBitmap(hdcBackbuff,&draw_moon_sprite,GR_WIDTH/2,GR_HEIGHT/2,50);
 
             if (!IsInvertedBackground()){ //Inverted palette level
               BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
@@ -879,6 +883,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
                 // Add code here to interpret the joystick data
+                ccontroller.connected=TRUE;
                 GlobalJoystickMove(raw->data.hid.bRawData);
 
                 if (!in_main_menu) {
@@ -905,6 +910,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                        //break;
                   } //end of switch statement for menu chosen
                 } //end of menu chosen if else
+            } else {
+              ccontroller.connected=FALSE;
             }
 
             free(lpb);
@@ -941,7 +948,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       remove("music/tmp/tmp.wav");
       rmdir("music/tmp"); //remove tmp
 
-      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៥ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1965-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1446-02-02"), TEXT("អ្នករាបចង្រៃ") ,MB_OK);
+      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៣ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1963-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1446-02-29"), TEXT("អ្នករាបចង្រៃ") ,MB_OK);
 //TEXT("អាពីងស៊ីរុយ") ,MB_OK); //ឈ្មោះចាស់
 
       //load levels in save
@@ -1155,6 +1162,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
        loadSoundEffect(&spamSoundEffect[0],L"snd/timebreaker__start.wav",FALSE);
        loadSoundEffect(&spamSoundEffect[1],L"snd/timebreaker__stop.wav",FALSE);
        loadSoundEffect(&spamSoundEffect[2],L"snd/clang.wav",FALSE);
+       loadSoundEffect(&spamSoundEffect[3],L"snd/player_block.wav",FALSE);
+       loadSoundEffect(&spamSoundEffect[4],L"snd/player_block_perfect.wav",FALSE);
+       loadSoundEffect(&spamSoundEffect[5],L"snd/player_hurt.wav",FALSE);
 
 
        loadSoundEffect(&keySoundEffect[0],L"snd/play_level.wav",FALSE); //Enter Sound Effect (Sometimes) [0]
@@ -1166,9 +1176,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
        for (int i=0;i<KEY_SFX_NUM;i++) {
-         //keySoundEffectCache[i].audio=adjustVolumeA(keySoundEffect[i].audio,keySoundEffect[i].filesize,game_volume);
          adjustSFXVolume(&keySoundEffectCache[i],&keySoundEffect[i],game_volume,FALSE);
-         //keySoundEffectCache[i].audio=adjustSFXVolume(keySoundEffect[i].audio,keySoundEffect[i].filesize,game_volume,FALSE);
        }
 
        loadSoundEffect(&channelSoundEffect[0],L"snd/fast.wav",TRUE);

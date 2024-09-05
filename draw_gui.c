@@ -723,7 +723,7 @@ char help_txt_arr1[HELP_TEXT_ARR_NUM1][64]=
   "'D' - Move Right (Anti-Clockwise)",
   "'Q' - Pick Up Web Standing On",
   "'Z' - Time Breaker Ability",
-  "'E'_- Hold with Attack for Uppercut",
+  "'E'_- Hold with Attack for Uppercut or Check HP",
   " |__- Hold with Movement to Break Jump or Flinging",
   " |__- Hold with Jump to Jump Once",
   "'2' - Change Web-Kunai per Throw [ 1/ 3/ 5(1)/ 15(3)]",
@@ -866,36 +866,82 @@ void DrawUI(HDC hdc) {
 
 //=========Draw Player UI
   int i=0,j=0;
-  int c2,c3;
+  int c2,c3,ca;
 
-  if (!IsInvertedBackground()) {
-    c2=LTRED;
-    c3=BLACK;
-  } else {
-    c2=LTCYAN;
-    c3=CYAN;
+  c2 = Highlight(IsInvertedBackground(),LTRED,LTCYAN);
+  ca = Highlight(IsInvertedBackground(),RED,CYAN);
+//  c3 = Highlight(IsInvertedBackground(),BLACK,CYAN);
+  c3 = Highlight(IsInvertedBackground(),LTGRAY,DKGRAY);
+
+  double percentage=player.health/DEFAULT_PLAYER_HEALTH;
+  double health_length=64*percentage;
+
+  double bpercentage=player.block_health/player.block_health_max;
+  double bhealth_length=150*bpercentage;
+
+  //Draw Block Health
+  if (player.show_block_health_timer>0 || (player.health<=PLAYER_LOW_HEALTH+1)) {
+    //if (bhealth_length>150)
+      //bhealth_length=150;
+    //GrRect(hdc,player.sprite_x-33,player.sprite_y-60,66,12,c4);
+    //GrRect(hdc,player.sprite_x-bhealth_length/2,player.sprite_y-58,bhealth_length,8,c3);
+//    GrRect(hdc,player.sprite_x-33,player.sprite_y-50-3,66,8,c4);
+//    GrRect(hdc,player.sprite_x-32,player.sprite_y-50-2,bhealth_length,6,c3);
+    GrRect(hdc,player.sprite_x-76,player.sprite_y-50-3,152,8,c4);
+    GrRect(hdc,player.sprite_x-75,player.sprite_y-50-2,bhealth_length,6,c3);
   }
+
+  //Draw Player Health
+  if (player.show_health_timer>0 || (player.health<=PLAYER_LOW_HEALTH+1)) {
+    if (health_length>150) {
+      health_length=150;
+    }
+
+    if (player.health>PLAYER_LOW_HEALTH+1) {
+      GrRect(hdc,player.sprite_x-health_length/2,player.sprite_y-42,health_length,4,c2);
+    } else {
+      health_length*=4;
+      if (frame_tick%15<7) {
+        GrRect(hdc,player.sprite_x-health_length/2,player.sprite_y-42,health_length,4,ca);
+      } else {
+        GrRect(hdc,player.sprite_x-health_length/2,player.sprite_y-42,health_length,4,c2);
+      }
+    }
+
+
+    if (health_length>=150) {
+      //print health numbers
+      char txt[16];
+      int print_health=player.health;
+      sprintf(txt,"%d",print_health);
+      int sprite_x_health=(int)player.sprite_x-strlen(txt)*8/2;
+      GrPrint(hdc,sprite_x_health,player.sprite_y-48,txt,c);
+    }
+  }
+
+
+
   //draw player block health
-  for (i=0;i<player.block_health;i++) {
+  /*for (i=0;i<player.block_health;i++) {
     j=i/10; //new row
     GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2+4,player.sprite_y+48+8*j,5,BLACK,BLACK);
-  }
+  }*/
 
   //draw player health
-  for (i=0;i<player.health;i++) {
+  /*for (i=0;i<player.health;i++) {
     j=i/10; //new row of hearts
     if (i<DEFAULT_PLAYER_HEALTH) {
       GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2+4,player.sprite_y+48+8*j,4,c2,c3);
     } else {
       GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2+4,player.sprite_y+50+8*j,3,c,YELLOW);
     }
-  }
+  }*/
 
   //draw player block health
-  for (i=0;i<player.block_health;i++) {
+  /*for (i=0;i<player.block_health;i++) {
     j=i/10; //new row
     GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2+4,player.sprite_y+48+8*j,1,c,c);
-  }
+  }*/
 
   //GrLine(hdc,GR_WIDTH/2,0,GR_WIDTH/2,GR_HEIGHT,BLACK);
   //===--- Draw player speed ---===
@@ -925,8 +971,10 @@ void DrawUI(HDC hdc) {
       }
     }
     GrCircle(hdc,
-      player.sprite_x-speed_dist*cos(speed_angle),
-      player.sprite_y-speed_dist*sin(speed_angle),
+      //player.sprite_x-speed_dist*cos(speed_angle),
+      //player.sprite_y-speed_dist*sin(speed_angle),
+      mouse_x-speed_dist*cos(speed_angle),
+      mouse_y-speed_dist*sin(speed_angle),
       3,c2,c2
     );
   }
@@ -961,6 +1009,7 @@ void DrawUI(HDC hdc) {
   }
 
 
+  const int right_cursor_len=68;
 
   char shuriken_dmg_txt[42];
   int print_shuriken_dmg=player.attack_strength;
@@ -969,8 +1018,10 @@ void DrawUI(HDC hdc) {
   else
     sprintf(shuriken_dmg_txt,"<:-%d> Melee / Ricochet-Shuriken:-DMG",print_shuriken_dmg);
 
-  GrPrint(hdc,player.sprite_x+48-1,player.sprite_y-48-1,shuriken_dmg_txt,c2);
-  GrPrint(hdc,player.sprite_x+48,player.sprite_y-48,shuriken_dmg_txt,c5);
+  //GrPrint(hdc,player.sprite_x+48-1,player.sprite_y-48-1,shuriken_dmg_txt,c2);
+  //GrPrint(hdc,player.sprite_x+48,player.sprite_y-48,shuriken_dmg_txt,c5);
+  GrPrint(hdc,mouse_x+right_cursor_len-1,mouse_y-48-1,shuriken_dmg_txt,c2);
+  GrPrint(hdc,mouse_x+right_cursor_len,mouse_y-48,shuriken_dmg_txt,c5);
   
 
   char bullet_num_txt[48];
@@ -983,9 +1034,10 @@ void DrawUI(HDC hdc) {
   char bullet_num_txt_[8];
   sprintf(bullet_num_txt_,"[%d]:",player.max_web_num-player.placed_web_num);
 
-  GrPrint(hdc,player.sprite_x+48,player.sprite_y-32,bullet_num_txt,c5);
-  GrPrint(hdc,player.sprite_x+48,player.sprite_y-32,bullet_num_txt_,LTCYAN);
-
+//  GrPrint(hdc,player.sprite_x+48,player.sprite_y-32,bullet_num_txt,c5);
+//  GrPrint(hdc,player.sprite_x+48,player.sprite_y-32,bullet_num_txt_,LTCYAN);
+  GrPrint(hdc,mouse_x+right_cursor_len,mouse_y-32,bullet_num_txt,c5);
+  GrPrint(hdc,mouse_x+right_cursor_len,mouse_y-32,bullet_num_txt_,LTCYAN);
 
 
 
@@ -999,36 +1051,51 @@ void DrawUI(HDC hdc) {
   sprintf(bullet_num_txt2_,"[%d/%d]",PLAYER_BULLET_NUM-player.bullet_shot_num,player.knives_per_throw);
 
   if (player.knives_per_throw<5) {
-    GrPrint(hdc,player.sprite_x+48,player.sprite_y-16,bullet_num_txt2,c5);
-    GrPrint(hdc,player.sprite_x+48,player.sprite_y-16,bullet_num_txt2_,c);
+    //GrPrint(hdc,player.sprite_x+48,player.sprite_y-16,bullet_num_txt2,c5);
+    //GrPrint(hdc,player.sprite_x+48,player.sprite_y-16,bullet_num_txt2_,c);
+
+    GrPrint(hdc,mouse_x+right_cursor_len,mouse_y-16,bullet_num_txt2,c5);
+    GrPrint(hdc,mouse_x+right_cursor_len,mouse_y-16,bullet_num_txt2_,c);
   } else {
-    if (player.knives_per_throw>5)
+    /*if (player.knives_per_throw>5)
       GrPrint(hdc,player.sprite_x+48-1,player.sprite_y-16-1,bullet_num_txt2,CYAN);
     GrPrint(hdc,player.sprite_x+48,player.sprite_y-16,bullet_num_txt2,c5);
-    GrPrint(hdc,player.sprite_x+48,player.sprite_y-16,bullet_num_txt2_,LTCYAN);
+    GrPrint(hdc,player.sprite_x+48,player.sprite_y-16,bullet_num_txt2_,LTCYAN);*/
+    if (player.knives_per_throw>5)
+      GrPrint(hdc,mouse_x+right_cursor_len-1,mouse_y-16-1,bullet_num_txt2,CYAN);
+    GrPrint(hdc,mouse_x+right_cursor_len,mouse_y-16,bullet_num_txt2,c5);
+    GrPrint(hdc,mouse_x+right_cursor_len,mouse_y-16,bullet_num_txt2_,LTCYAN);
   }
 
 
 
   //draw perfect block
   if (player.block_timer>0) {
-    GrPrint(hdc,player.sprite_x+48,player.sprite_y,"*",c);
+    /*GrPrint(hdc,player.sprite_x+48,player.sprite_y,"*",c);
     if (player.block_timer<=23) {
       GrPrint(hdc,player.sprite_x+48,player.sprite_y,"*&",c);
+    }*/
+    GrPrint(hdc,mouse_x+right_cursor_len,mouse_y,"*",c);
+    if (player.block_timer<=23) {
+      GrPrint(hdc,mouse_x+right_cursor_len,mouse_y,"*&",c);
     }
   }
   if (display_controls) {
-    GrPrint(hdc,player.sprite_x+48,player.sprite_y,   "      *& = Perfect-Block || * = Block",c);
-    GrPrint(hdc,player.sprite_x+48,player.sprite_y+16,"      Block = ++Speed",c);
+    //GrPrint(hdc,player.sprite_x+48,player.sprite_y,   "      *& = Perfect-Block || * = Block",c);
+    //GrPrint(hdc,player.sprite_x+48,player.sprite_y+16,"      Block = ++Speed",c);
+    GrPrint(hdc,mouse_x+right_cursor_len,mouse_y,   "      *& = Perfect-Block || * = Block",c);
+    GrPrint(hdc,mouse_x+right_cursor_len,mouse_y+16,"      Block = ++Speed",c);
   }
 
 
   if (player.uppercut) {
-    GrPrint(hdc,player.sprite_x+48,player.sprite_y+16,"e",c);
+    //GrPrint(hdc,player.sprite_x+48,player.sprite_y+16,"e",c);
+    GrPrint(hdc,mouse_x+right_cursor_len,mouse_y+16,"e",c);
   }
 
   if (player.low_jump) {
-    GrPrint(hdc,player.sprite_x+48,player.sprite_y+32,"3",LTGREEN);
+    //GrPrint(hdc,player.sprite_x+48,player.sprite_y+32,"3",LTGREEN);
+    GrPrint(hdc,mouse_x+right_cursor_len,mouse_y+32,"3",LTGREEN);
   }
 
   //draw perfect block -- too confusing
@@ -1038,19 +1105,27 @@ void DrawUI(HDC hdc) {
 
 
 
-  //===-- Draw Timebreaker Circle ---===
 
-  if (!player.time_breaker) {
-    c5=PURPLE;
+  //===-- Draw Timebreaker Circle ---===
+  if (!IsInvertedBackground()) {
+    c5 = Highlight(player.time_breaker,PURPLE,LTPURPLE);
   } else {
-    c5=LTPURPLE;
+    c5 = Highlight(player.time_breaker,LTRGREEN,LTGREEN);
   }
+
+  int c6 = Highlight(IsInvertedBackground(),LTPURPLE,LTRLTGREEN);
+
   //draw player time breaker
+  const int tb_circle_r=8;
   for (i=0;i<player.time_breaker_units;i++) {
     double tb_angle=M_PI_2+2*M_PI_2/player.time_breaker_units_max*i*2;
-    GrCircle(hdc,
+    /*GrCircle(hdc,
       player.sprite_x-32*cos(tb_angle),
       player.sprite_y-32*sin(tb_angle),
+      2,c5,c5);*/
+    GrCircle(hdc,
+      mouse_x-tb_circle_r*cos(tb_angle),
+      mouse_y-tb_circle_r*sin(tb_angle),
       2,c5,c5);
   }
 
@@ -1058,18 +1133,22 @@ void DrawUI(HDC hdc) {
     int frame_t=frame_tick%20;
     for (i=0;i<3;i++) {
       double tb_angle=M_PI_2+2*M_PI_2/player.time_breaker_units_max*(frame_t-i)*2;
-      GrCircle(hdc,
+      /*GrCircle(hdc,
         player.sprite_x-32*cos(tb_angle),
         player.sprite_y-32*sin(tb_angle),
-        3,LTPURPLE,LTPURPLE);
+        3,LTPURPLE,LTPURPLE);*/
+      GrCircle(hdc,
+        mouse_x-tb_circle_r*cos(tb_angle),
+        mouse_y-tb_circle_r*sin(tb_angle),
+        3,c6,c6);
     }
   }
 
 
-  if (player.on_ground_id==-1) {
-    GrLine(hdc,player.sprite_x+cos(player.angle_of_incidence)*50,player.sprite_y+sin(player.angle_of_incidence)*50,player.sprite_x+cos(player.angle_of_incidence)*60,player.sprite_y+sin(player.angle_of_incidence)*60,LTGREEN);
+  //if (player.on_ground_id==-1) {
+    //GrLine(hdc,player.sprite_x+cos(player.angle_of_incidence)*50,player.sprite_y+sin(player.angle_of_incidence)*50,player.sprite_x+cos(player.angle_of_incidence)*60,player.sprite_y+sin(player.angle_of_incidence)*60,LTGREEN);
     //GrLine(hdc,player.sprite_x+cos(player.angle_of_reflection)*50,player.sprite_y+sin(player.angle_of_reflection)*50,player.sprite_x+cos(player.angle_of_reflection)*60,player.sprite_y+sin(player.angle_of_reflection)*60,YELLOW);
-  }
+  //}
   //GrLine(hdc,player.sprite_x+cos(player.angle_of_reflection)*50,player.sprite_y+sin(player.angle_of_reflection)*50,player.sprite_x+cos(player.angle_of_reflection)*60,player.sprite_y+sin(player.angle_of_reflection)*60,YELLOW);
 
   if (display_controls) {

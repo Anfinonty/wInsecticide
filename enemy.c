@@ -618,6 +618,11 @@ void EnemyAct(int i)
     }
     EnemyLOSAct(i);//Shoot line of sight bullet
 
+
+    if (Enemy[i]->damage_taken_timer>0) {
+      Enemy[i]->damage_taken_timer--;
+    }
+
     for (int k=0;k<player.bullet_shot_num;k++) {
       int bk=player.bullet[k];
       double dist_from_bullet0=GetDistance(Bullet[bk].x,Bullet[bk].y,Enemy[i]->x,Enemy[i]->y);
@@ -627,6 +632,7 @@ void EnemyAct(int i)
         switch (Enemy[i]->species) {
       	  case 0://fly
             if (dist_from_bullet0<=NODE_SIZE*2) {
+              Enemy[i]->damage_taken_timer=256;
               Enemy[i]->health-=Bullet[bk].damage;
               if (game_audio) {
                 PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
@@ -643,6 +649,7 @@ void EnemyAct(int i)
             }
 	        break;
          case 1://crawl
+            Enemy[i]->damage_taken_timer=256;
             Enemy[i]->health-=Bullet[bk].damage;
             if (game_audio) {
               PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
@@ -677,6 +684,7 @@ void EnemyAct(int i)
               //PlaySound(clang_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
             }
             //if (dist_from_bullet<=NODE_SIZE*2) {
+              Enemy[i]->damage_taken_timer=256;
               Enemy[i]->health-=Bullet[player.bullet_shot].damage;
             //} else {
               //Enemy[i]->health-=Bullet[player.bullet_shot].damage/4;
@@ -692,6 +700,7 @@ void EnemyAct(int i)
             //PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);
             //PlaySound(clang_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
           }
+          Enemy[i]->damage_taken_timer=256;
           Enemy[i]->health-=Bullet[player.bullet_shot].damage;
           Enemy[i]->knockback_timer=player.knockback_strength;
           Enemy[i]->knockback_angle=Bullet[player.bullet_shot].angle;
@@ -837,6 +846,7 @@ void EnemyAct(int i)
     //Deduct health
     if (deduct_health) {
       deduct_health=FALSE;
+      Enemy[i]->damage_taken_timer=256;
       Enemy[i]->health-=player.attack_strength;
       if (game_audio) {
         PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
@@ -1167,8 +1177,9 @@ void CleanUpEnemySprites()
 
 void InitEnemySprites()
 {
+  CleanUpEnemySprites();
   for (int i=0;i<ENEMY_NUM;i++) {
-    Enemy[i]->current_draw_row=-9999;
+    Enemy[i]->current_draw_row=-9999;    
     if (Enemy[i]->species==0) {
       if (EnemySprite[i]->sprite_1==NULL) {
         EnemySprite[i]->sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,BLACK,Enemy[i]->color,-1);
@@ -1228,6 +1239,7 @@ void InitEnemy()
     Enemy[i]->angle=0;
     Enemy[i]->sprite_angle=0;
     Enemy[i]->saved_angle=-9999;
+    Enemy[i]->damage_taken_timer=0;
   //bullet
     Enemy[i]->bullet_shot_num=0;
     for (j=0;j<ENEMY_BULLET_NUM;j++) {
@@ -1311,7 +1323,7 @@ void InitEnemy()
 //int cenemy=0;
 void DrawEnemy(HDC hdc)
 {
-  int i=0,k=0;
+  int i=0,k=0,c=0,c2=0;
   //int min_enemy=0, max_enemy=100;
   if (frame_tick==-8) { //initiate on start of app
     for (i=0;i<ENEMY_NUM;i++) {
@@ -1449,6 +1461,13 @@ void DrawEnemy(HDC hdc)
       if (Enemy[i]->health>-500) {
         enemy_kills++;
         player.health+=2;
+        player.block_health+=10;
+        if (player.block_health>player.block_health_max) {
+          player.block_health=player.block_health_max;
+          player.health+=2;
+        }
+        player.show_health_timer=HP_SHOW_TIMER_NUM;
+        player.show_block_health_timer=HP_SHOW_TIMER_NUM;
         if (player.max_web_num<MAX_WEB_NUM) {
           player.max_web_num++;
         }
@@ -1539,29 +1558,64 @@ void DrawEnemy(HDC hdc)
 
     //enemy Display on screen operations
     if (/*Enemy[i]->saw_player &&*/ Enemy[i]->within_render_distance) {
-      if (Enemy[i]->health>0) {
-        char txt[16];
-        int print_health=Enemy[i]->health;
-        if (print_health>1) {
-          sprintf(txt,"%d",print_health);        
-        } else {
-          sprintf(txt,"1");
-        }
-        int sprite_x_health=(int)Enemy[i]->sprite_x-strlen(txt)*8/2;
+      if (Enemy[i]->health>0 && Enemy[i]->damage_taken_timer>0) {
+        //percentage 
+        c = Highlight(IsInvertedBackground(),LTRED,LTCYAN);
+        c2 = Highlight(IsInvertedBackground(),WHITE,BLACK);
+        double percentage = Enemy[i]->health/Enemy[i]->max_health;
+        double health_length_max=64;
         if (Enemy[i]->species==1) {
-          if (!player.time_breaker || Enemy[i]->time_breaker_immune) {
-            GrPrint(hdc,sprite_x_health,Enemy[i]->sprite_y-64,txt,Enemy[i]->color);
-          } else {
-            GrPrint(hdc,sprite_x_health,Enemy[i]->sprite_y-64,txt,LTGRAY);
+          health_length_max=100;
+        }
+        if (Enemy[i]->max_health>=150) {
+          health_length_max=150;
+        } else if (Enemy[i]->max_health>64) {
+          health_length_max=Enemy[i]->max_health;
+          if (Enemy[i]->species==1) {
+            health_length_max=100;
           }
+        }
+
+        double health_length = health_length_max*percentage;
+        if (Enemy[i]->species==1) {
+          GrRect(hdc,Enemy[i]->sprite_x-health_length/2,
+                    Enemy[i]->sprite_y-58,
+                    health_length,
+                    4,c);
         } else {
-          if (!player.time_breaker || Enemy[i]->time_breaker_immune) {
-            GrPrint(hdc,sprite_x_health,Enemy[i]->sprite_y-32,txt,Enemy[i]->color);
+          GrRect(hdc,Enemy[i]->sprite_x-health_length/2,
+                    Enemy[i]->sprite_y-26,
+                    health_length,
+                    4,c);
+        }
+
+
+        if (health_length>32) {
+          char txt[16];
+          int print_health=Enemy[i]->health;
+          if (print_health>1) {
+            sprintf(txt,"%d",print_health);        
           } else {
-            GrPrint(hdc,sprite_x_health,Enemy[i]->sprite_y-32,txt,LTGRAY);
+            sprintf(txt,"1");
+          }
+          int sprite_x_health=(int)Enemy[i]->sprite_x-strlen(txt)*8/2;
+          if (Enemy[i]->species==1) {
+            if (!player.time_breaker || Enemy[i]->time_breaker_immune) {
+              GrPrint(hdc,sprite_x_health,Enemy[i]->sprite_y-64,txt,c2);
+            } else {
+              GrPrint(hdc,sprite_x_health,Enemy[i]->sprite_y-64,txt,LTGRAY);
+            }
+          } else {
+            if (!player.time_breaker || Enemy[i]->time_breaker_immune) {
+              GrPrint(hdc,sprite_x_health,Enemy[i]->sprite_y-32,txt,c2);
+            } else {
+              GrPrint(hdc,sprite_x_health,Enemy[i]->sprite_y-32,txt,LTGRAY);
+            }
           }
         }
       }
+
+
       switch (Enemy[i]->species) {
         case 0:
           if (Enemy[i]->sprite_timer%2==0) {

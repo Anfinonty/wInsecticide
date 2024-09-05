@@ -233,6 +233,11 @@ void GameKeypressDown(WPARAM wParam)
         player.rst_right_click=TRUE;
         break;
 
+    //'5'
+      //case '5':
+        //mouse_x=GR_WIDTH/2;
+        //mouse_y=GR_HEIGHT/2-100;
+        //break;
 
     //Holding down 'Z' Key
       case 'Z':
@@ -356,8 +361,10 @@ void GameKeypressUp(WPARAM wParam)
 
     //Release 'E' Key
       case 'E':
+        player.show_health_timer=HP_SHOW_TIMER_NUM;
+        player.show_block_health_timer=HP_SHOW_TIMER_NUM;
         if (player.uppercut) {
-          player.uppercut=FALSE;
+          player.uppercut=FALSE;        
         }
         break;
     }

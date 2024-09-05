@@ -25,6 +25,10 @@ void InitOnce() {
   adjustSFXVolume(&spamSoundEffectCache[1],&spamSoundEffect[1],game_volume/4,FALSE); //stop
   adjustSFXVolume(&spamSoundEffectCache[2],&spamSoundEffect[2],game_volume,FALSE); //clang
 
+  adjustSFXVolume(&spamSoundEffectCache[3],&spamSoundEffect[3],game_volume/4,FALSE);//block
+  adjustSFXVolume(&spamSoundEffectCache[4],&spamSoundEffect[4],game_volume/4,FALSE);//block perfect
+  adjustSFXVolume(&spamSoundEffectCache[5],&spamSoundEffect[5],game_volume/4,FALSE);//hurt
+
   adjustSFXVolume(&channelSoundEffectCache[0],&channelSoundEffect[0],game_volume/5,TRUE); //speed
   adjustSFXVolume(&channelSoundEffectCache[1],&channelSoundEffect[1],game_volume,TRUE); //clang_death
   adjustSFXVolume(&channelSoundEffectCache[2],&channelSoundEffect[2],game_volume/5,TRUE); //knife throw
@@ -203,6 +207,14 @@ void InitLevel(HWND hwnd, HDC hdc)
   FreeDrawSprite(&player.draw_spin_sprite_4);
 
 
+  FreeDrawSprite(&player.draw_blur_sprite_jump);
+  FreeDrawSprite(&player.draw_spin_blur_sprite_1);
+  FreeDrawSprite(&player.draw_spin_blur_sprite_2);
+  FreeDrawSprite(&player.draw_spin_blur_sprite_3);
+  FreeDrawSprite(&player.draw_spin_blur_sprite_4);
+
+
+
   player.sprite_1 = RotateSprite(NULL, player.osprite_1,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
   player.sprite_2 = RotateSprite(NULL, player.osprite_2,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
   player.sprite_jump = RotateSprite(NULL, player.osprite_jump,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
@@ -241,7 +253,18 @@ void InitLevel(HWND hwnd, HDC hdc)
   player.spin_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
 
 
+
+
+  player.blur_sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],TRANSPARENT);
+
+  player.spin_blur_sprite_1_cache = RotateSprite(NULL, player.spin_sprite,0.1,LTGREEN,BLACK,draw_color_arr[player_load_color],TRANSPARENT);
+  player.spin_blur_sprite_2_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI_2,LTGREEN,BLACK,draw_color_arr[player_load_color],TRANSPARENT);
+  player.spin_blur_sprite_3_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI,LTGREEN,BLACK,draw_color_arr[player_load_color],TRANSPARENT);
+  player.spin_blur_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,BLACK,draw_color_arr[player_load_color],TRANSPARENT);
+
+
   GenerateDrawSprite(&player.draw_sprite_jump,player.sprite_jump_cache);
+
   GenerateDrawSprite(&player.draw_sprite_1,player.sprite_1_cache);
   GenerateDrawSprite(&player.draw_sprite_2,player.sprite_2_cache);
 
@@ -260,6 +283,12 @@ void InitLevel(HWND hwnd, HDC hdc)
   GenerateDrawSprite(&player.draw_spin_sprite_4,player.spin_sprite_4_cache);
 
 
+  GenerateDrawSprite(&player.draw_blur_sprite_jump,player.blur_sprite_jump_cache);
+  GenerateDrawSprite(&player.draw_spin_blur_sprite_1,player.spin_blur_sprite_1_cache);
+  GenerateDrawSprite(&player.draw_spin_blur_sprite_2,player.spin_blur_sprite_2_cache);
+  GenerateDrawSprite(&player.draw_spin_blur_sprite_3,player.spin_blur_sprite_3_cache);
+  GenerateDrawSprite(&player.draw_spin_blur_sprite_4,player.spin_blur_sprite_4_cache);
+
 
   //moon sprite
   DeleteObject(moon_sprite_cache);
@@ -269,6 +298,8 @@ void InitLevel(HWND hwnd, HDC hdc)
   moon_sprite_cache=RotateSprite(NULL, tmp_moon_sprite,0,LPURPLE,BLACK,BLACK,-1);
   DeleteObject(tmp_moon_sprite);
   GenerateDrawSprite(&draw_moon_sprite,moon_sprite_cache);
+
+
 
   DeleteObject(mouse_cursor_sprite_cache);
   DeleteObject(mouse_cursor_sprite_cache2);

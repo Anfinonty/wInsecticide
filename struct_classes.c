@@ -101,6 +101,8 @@ struct console
   //bool rst_d_left;
   //bool rst_d_right;
 
+  bool connected;
+
   //Right pad
   bool rst_cross;
   //bool rst_square;
@@ -137,6 +139,8 @@ struct console
 
 void InitCController()
 {
+  ccontroller.connected=FALSE;
+
   ccontroller.rst_d_up_timer=0;
   ccontroller.rst_d_down_timer=0;
   ccontroller.rst_d_left_timer=0;
@@ -261,6 +265,15 @@ struct player
 
   int on_ground_edge_id;
   int saved_on_ground_edge_id;
+  int show_block_health_timer;
+  int show_health_timer;
+
+  int current_blur_sprite;
+  int blur_timer[PLAYER_BLUR_NUM];
+  int blur_x[PLAYER_BLUR_NUM];
+  int blur_y[PLAYER_BLUR_NUM];
+  int blur_sprite_x[PLAYER_BLUR_NUM];
+  int blur_sprite_y[PLAYER_BLUR_NUM];
 
   //=== JUST A DEMO===
   /*int sprite_width;
@@ -385,24 +398,41 @@ struct player
   HBITMAP spin_sprite_3_cache;
   HBITMAP spin_sprite_4_cache;
 
+  //blur sprite caches
+  HBITMAP blur_sprite_jump_cache;
+  HBITMAP spin_blur_sprite_1_cache;
+  HBITMAP spin_blur_sprite_2_cache;
+  HBITMAP spin_blur_sprite_3_cache;
+  HBITMAP spin_blur_sprite_4_cache;
 
 
 //sprite to be drawn
   DRAWSPRITE draw_sprite_1;
   DRAWSPRITE draw_sprite_2;
+
   DRAWSPRITE draw_sprite_jump;
+
   DRAWSPRITE draw_attack_sprite_1;
   DRAWSPRITE draw_attack_sprite_2;
   DRAWSPRITE draw_attack_sprite_3;
   DRAWSPRITE draw_attack_sprite_4;
+
   DRAWSPRITE draw_block_sprite_1;
   DRAWSPRITE draw_block_sprite_2;
   DRAWSPRITE draw_block_sprite_3;
+
   DRAWSPRITE draw_spin_sprite_1;
   DRAWSPRITE draw_spin_sprite_2;
   DRAWSPRITE draw_spin_sprite_3;
   DRAWSPRITE draw_spin_sprite_4;
 
+
+  //blur sprites
+  DRAWSPRITE draw_blur_sprite_jump;
+  DRAWSPRITE draw_spin_blur_sprite_1;
+  DRAWSPRITE draw_spin_blur_sprite_2;
+  DRAWSPRITE draw_spin_blur_sprite_3;
+  DRAWSPRITE draw_spin_blur_sprite_4;
 } player;
 
 
@@ -699,7 +729,7 @@ typedef struct enemy
   int knockback_timer;
   int node_num;
   int seed;
-
+  int damage_taken_timer;
 
   double health;
   double max_health;
@@ -875,3 +905,22 @@ DRAWSPRITE draw_moon_sprite;
 //main menu title
 HBITMAP title_sprite;
 HBITMAP title_sprite_mask;
+
+
+
+
+//Sound
+//Sound called in the Stack
+#define SPAM_SFX_NUM    6
+#define KEY_SFX_NUM     6
+#define CHANNEL_SFX_NUM 3
+
+wavSoundEffect spamSoundEffect[SPAM_SFX_NUM];
+wavSoundEffect keySoundEffect[KEY_SFX_NUM];
+wavSoundEffect channelSoundEffect[CHANNEL_SFX_NUM];
+wavSoundEffect songAudio;
+
+wavSoundEffectCache spamSoundEffectCache[SPAM_SFX_NUM];
+wavSoundEffectCache keySoundEffectCache[KEY_SFX_NUM];
+wavSoundEffectCache channelSoundEffectCache[CHANNEL_SFX_NUM];
+

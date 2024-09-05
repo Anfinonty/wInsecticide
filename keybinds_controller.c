@@ -307,6 +307,9 @@ void GameCKeyPress(BYTE *rawData)
         if (player.rst_down)
           player.rst_down=FALSE;
         if (ccontroller.rst_triangle) {
+          player.show_health_timer=HP_SHOW_TIMER_NUM;
+          player.show_block_health_timer=HP_SHOW_TIMER_NUM;
+
           ccontroller.rst_triangle=FALSE;
           player.rst_left_click=TRUE;
         }

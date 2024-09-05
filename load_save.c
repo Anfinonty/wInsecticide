@@ -80,23 +80,6 @@ int set_enemy_type_time_breaker_length[ENEMY_TYPE_NUM];
 bool set_enemy_type_time_breaker_immune[ENEMY_TYPE_NUM];
 
 
-//Sound called in the Stack
-#define SPAM_SFX_NUM    3
-#define KEY_SFX_NUM     6
-#define CHANNEL_SFX_NUM 3
-
-wavSoundEffect spamSoundEffect[SPAM_SFX_NUM];
-wavSoundEffect keySoundEffect[KEY_SFX_NUM];
-wavSoundEffect channelSoundEffect[CHANNEL_SFX_NUM];
-wavSoundEffect songAudio;
-
-wavSoundEffectCache spamSoundEffectCache[SPAM_SFX_NUM];
-wavSoundEffectCache keySoundEffectCache[KEY_SFX_NUM];
-wavSoundEffectCache channelSoundEffectCache[CHANNEL_SFX_NUM];
-
-
-
-
 /*double *enemy_type_double_pointer[ENEMY_F64_ATTRIBUTES_NUM]=
 {
   saved_enemy_type_speed,

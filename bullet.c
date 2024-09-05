@@ -197,6 +197,11 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
     if (allow_act) {
       if (hit_player) {
         if (player.block_timer<=0 || player.block_health<=0) {
+          if (game_audio) {
+            PlaySound(spamSoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //hurt snd
+          }
+          player.show_health_timer=HP_SHOW_TIMER_NUM;
+          player.show_block_health_timer=HP_SHOW_TIMER_NUM;
           blocked_bullet_dmg=Bullet[bullet_id].damage;
           if (player.health>PLAYER_LOW_HEALTH+1) { //usual response
             player.health-=blocked_bullet_dmg;
@@ -216,8 +221,12 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
 
         } else {//player is blocking
          // Bullet[bullet_id].angle=RandAngle(0,360,Enemy[enemy_id]->seed);
+          player.show_block_health_timer=HP_SHOW_TIMER_NUM;
           blocked_bullet_dmg=Bullet[bullet_id].damage;
           if (player.block_timer>23) {//non-perfect block
+            if (game_audio) {
+              PlaySound(spamSoundEffectCache[3].audio, NULL, SND_MEMORY | SND_ASYNC); //block normal
+            }
             if (player.on_ground_id!=-1) {//on ground
 	          if (player.block_timer<26) {
                 player.block_health-=blocked_bullet_dmg/4;
@@ -236,6 +245,10 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
             }*/
             //blocked_bullet_dmg=0;
           } else {//perfect block , 23 or less than
+            if (game_audio) {
+              PlaySound(spamSoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //block perfect
+            }
+            player.show_block_health_timer=HP_SHOW_TIMER_NUM;
             blocked_bullet_dmg=0;
             if (player.time_breaker_units<player.time_breaker_units_max) { //causes speed to increase
               player.time_breaker_units++;
@@ -246,7 +259,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
         if (blocked_bullet_dmg>0) {
           if (!player.time_breaker) { //penalty for hitting a bullet
             if (player.speed>5) {
-              player.speed--;
+              //player.speed--;
             } else { //penalty only at low speed
               if (player.time_breaker_units>1) {
                 player.time_breaker_units=1;
@@ -256,7 +269,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
         } else {
           if (!IsSpeedBreaking()) {
             player.decceleration_timer=0;
-            player.speed++;
+            //player.speed++;
           }
         }
 

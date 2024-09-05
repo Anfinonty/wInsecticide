@@ -766,6 +766,10 @@ void GrGlassRect(HDC hdc, int x, int y, int width, int height, int COLOR, BYTE a
 }
 
 
+
+
+
+
 void GrLine(HDC hdc, double x1,double y1,double x2,double y2,int COLOR) {
   HPEN hPen = CreatePen(PS_SOLID, 1, COLOR);
   HPEN hOldPen = SelectObject(hdc, hPen);
@@ -934,6 +938,28 @@ void DrawBitmap(HDC hDC,double _x1,double _y1, double _x2, double _y2, int width
     DeleteDC(hdcMem);
   }
 }
+
+
+
+/*void DrawGlassBitmap(HDC hDC,double _x1,double _y1, double _x2, double _y2, int width, int height, HBITMAP hSourceBitmap,bool stretch,bool is_left)
+{
+  if (hSourceBitmap!=NULL) {
+    BITMAP bitmap;
+    HDC hdcMem = CreateCompatibleDC(hDC);
+    GetObject(hSourceBitmap,sizeof(bitmap),&bitmap);
+    SelectObject(hdcMem,hSourceBitmap);
+    int b_width=width;
+    if (is_left) {
+      b_width=-bitmap.bmWidth-1;
+      _x1+=width;
+    }
+    if (stretch || is_left)
+      TransparentBlt(hDC, _x1, _y1, b_width, height, hdcMem, 0,0, bitmap.bmWidth, bitmap.bmHeight, BLACK);
+    else
+      TransparentBlt(hDC, _x1, _y1, width, height, hdcMem, 0,0, bitmap.bmWidth, bitmap.bmHeight, BLACK);
+    DeleteDC(hdcMem);
+  }
+}*/
 
 
 
@@ -1769,4 +1795,68 @@ void DrawSprite(HDC hdc,int _x1, int _y1, DRAWSPRITE* myDrawSprite,bool is_left)
 }
 
 
+//Sprites must be 32-bit :/
+/*void DrawGlassBitmap(HDC hdc, HBITMAP hBitmap, int x, int y, int level)
+{
+    // Create a memory device context compatible with the specified device context
+    BITMAP bm;
+    GetObject(hBitmap, sizeof(bm), &bm);
+    int width = bm.bmWidth;
+    int height = bm.bmHeight;
+
+    HDC hdcMem = CreateCompatibleDC(hdc);
+    //if (!hdcMem) return;
+
+    // Select the bitmap into the memory device context
+    HBITMAP hOldBitmap = (HBITMAP)SelectObject(hdcMem, hBitmap);
+
+    // Set up the blend function
+    BLENDFUNCTION blendFunc;
+    blendFunc.BlendOp = AC_SRC_OVER;
+    blendFunc.BlendFlags = 0;
+    blendFunc.SourceConstantAlpha = level; // 50% transparency
+    blendFunc.AlphaFormat = 0;//AC_SRC_ALPHA;//0;
+
+    // Perform the alpha blending
+    AlphaBlend(hdc, x-width/2, y-height/2, width, height, hdcMem, 0, 0, width, height, blendFunc);
+
+    // Clean up
+    SelectObject(hdcMem, hOldBitmap);
+    DeleteDC(hdcMem);
+}
+
+
+
+void DrawTBitmap(HDC hdc,  DRAWSPRITE* myDrawSprite, int x, int y, int level,bool is_left)
+{
+    BITMAP bm;
+    GetObject(myDrawSprite->sprite_mask, sizeof(bm), &bm);
+    int width=bm.bmWidth;
+    int height=bm.bmHeight;
+
+    BLENDFUNCTION blendFunction;
+    blendFunction.BlendOp = AC_SRC_OVER;
+    blendFunction.BlendFlags = 0;
+    blendFunction.SourceConstantAlpha = level;//alpha; // Transparency level (0-255),255 == not transparent
+    blendFunction.AlphaFormat = AC_SRC_ALPHA;//0;
+
+    HDC hdcMem = CreateCompatibleDC(hdc);
+    HBITMAP hBitmap = CreateCompatibleBitmap(hdc, width, height);
+    SelectObject(hdcMem, hBitmap);
+
+    DrawSprite(hdcMem, width/2,height/2, myDrawSprite, is_left);
+
+    // Use AlphaBlend to draw the transparent rectangle
+    AlphaBlend(hdc, x-width/2, y-height/2, width, height, hdcMem, 0, 0, width, height, blendFunction);
+
+    // Clean up
+    DeleteObject(hBitmap);
+    DeleteDC(hdcMem);
+
+}
+
+void DrawGlassSprite(HDC hdc,int _x1, int _y1, DRAWSPRITE* myDrawSprite,bool is_left) 
+{
+  DrawTBitmap(hdc,myDrawSprite,_x1,_y1,127,is_left);
+}*/
 
