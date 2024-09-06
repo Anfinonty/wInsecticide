@@ -986,24 +986,43 @@ void DrawUI(HDC hdc) {
     GrCircle(hdc,player.sprite_x+64+8*j,player.sprite_y+8*(i%10)-(11*8)/2,3,LTCYAN,CYAN);
   }*/
   int b_dmg_m=1;
+  if (player.knives_per_throw==1) {
+    b_dmg_m=3;
+  }
   int c5=LTGREEN;
   if (!IsInvertedBackground()) {
     if (player.speed>10) {
-      b_dmg_m=2;
+      if (player.knives_per_throw==1) {
+        b_dmg_m=6;
+      } else {
+        b_dmg_m=2;
+      }
       c5=LTRED;
     }
     if (player.speed>24) {
-      b_dmg_m=4;
+      if (player.knives_per_throw==1) {
+        b_dmg_m=12;
+      } else {
+        b_dmg_m=4;
+      }
       c5=LTCYAN;
     }
   } else {
     c5=LTPURPLE;
     if (player.speed>10) {
-      b_dmg_m=2;
+      if (player.knives_per_throw==1) {
+        b_dmg_m=6;
+      } else {
+        b_dmg_m=2;
+      }
       c5=LTCYAN;
     }
     if (player.speed>24) {
-      b_dmg_m=4;
+      if (player.knives_per_throw==1) {
+        b_dmg_m=12;
+      } else {
+        b_dmg_m=4;
+      }
       c5=RED;
     }
   }

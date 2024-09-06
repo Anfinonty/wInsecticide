@@ -584,9 +584,11 @@ void PlayerAct() {
       if (player.max_web_num-player.placed_web_num<1) {  //0,1,3
         player.knives_per_throw=LimitValue(player.knives_per_throw,1,4);
       }
-
       if (player.knives_per_throw>4) {
         b_g_type=6;
+      } else if (player.knives_per_throw==1) {
+        b_g_type=9;
+        b_dmg_m=3;
       }
 
 
@@ -599,11 +601,6 @@ void PlayerAct() {
           }
         }
 	    player.bullet[player.bullet_shot_num]=current_bullet_id;
-        /*if (game_audio) {
-          mem_snd_interrupt[3]=TRUE;
-          waveOutReset(hWaveOut[3]);
-          PlayMemSnd(&channelSoundEffect[2],&channelSoundEffectCache[2],TRUE,3); 
-        }*/
         if (game_audio) {
           player.shoot_knife_duration=1;
         }
@@ -625,8 +622,6 @@ void PlayerAct() {
 	        grad_y2,
             tmp_angle //angle            
          );
-
-      //Bullet[current_bullet_id].playsnd=TRUE;
         player.bullet_shot_num++;
         current_bullet_id++;
         if (current_bullet_id>=SHOOT_BULLET_NUM-1) {

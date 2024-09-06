@@ -221,9 +221,9 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
 
         } else {//player is blocking
          // Bullet[bullet_id].angle=RandAngle(0,360,Enemy[enemy_id]->seed);
-          player.show_block_health_timer=HP_SHOW_TIMER_NUM;
           blocked_bullet_dmg=Bullet[bullet_id].damage;
           if (player.block_timer>23) {//non-perfect block
+            player.show_block_health_timer=HP_SHOW_TIMER_NUM;
             if (game_audio) {
               PlaySound(spamSoundEffectCache[3].audio, NULL, SND_MEMORY | SND_ASYNC); //block normal
             }
@@ -248,7 +248,6 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
             if (game_audio) {
               PlaySound(spamSoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //block perfect
             }
-            player.show_block_health_timer=HP_SHOW_TIMER_NUM;
             blocked_bullet_dmg=0;
             if (player.time_breaker_units<player.time_breaker_units_max) { //causes speed to increase
               player.time_breaker_units++;
@@ -816,6 +815,11 @@ void DrawBullet2(HDC hdc,int i,double x,double y,int color)
     case 8: //rain
       {
       GrLine(hdc,x,y,x-32*cos(Bullet[i].angle),y-32*sin(Bullet[i].angle),color);
+      }
+      break;
+    case 9: //long bullet 1
+      {
+      GrLine(hdc,x,y,x-20*cos(Bullet[i].angle),y-20*sin(Bullet[i].angle),color);
       }
       break;
   }
