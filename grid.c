@@ -98,6 +98,7 @@ void InitNodeGrid()
     NodeGrid[i]->node_water=FALSE;
     NodeGrid[i]->node_no_rain=FALSE;
     NodeGrid[i]->node_no_shade=FALSE;
+    NodeGrid[i]->tmp_wet=FALSE;
     NodeGrid[i]->x1=x;
     NodeGrid[i]->y1=y;
     NodeGrid[i]->x2=NodeGrid[i]->x1+NODE_SIZE;
@@ -448,7 +449,9 @@ void DrawNodeGrids(HDC hdc)
   for (int i=0;i<MAP_NODE_NUM;i++) {
     //if (NodeGrid[i]->node_no_rain)
       //GrCircle(hdc,NodeGrid[i]->x1+player.cam_x,NodeGrid[i]->y1+player.cam_y,3,YELLOW,-1);
-    if (NodeGrid[i]->node_no_shade)
+    //if (NodeGrid[i]->node_no_shade)
+      //GrCircle(hdc,NodeGrid[i]->x1+player.cam_x,NodeGrid[i]->y1+player.cam_y,3,BLUE,-1);
+    if (NodeGrid[i]->tmp_wet)
       GrCircle(hdc,NodeGrid[i]->x1+player.cam_x,NodeGrid[i]->y1+player.cam_y,3,BLUE,-1);
   }
 }

@@ -200,7 +200,7 @@ struct player
   bool is_on_right_ground_edge;
  
   bool in_water;
-    //Render
+  //Render
   //int rendered_vgrid_num;
   //int rendered_enemy_num;
 
@@ -269,6 +269,10 @@ struct player
   int show_health_timer;
 
   int current_blur_sprite;
+
+  int rain_wet_timer;
+  int visible_rain_wet_timer;
+
   int blur_timer[PLAYER_BLUR_NUM];
   int blur_x[PLAYER_BLUR_NUM];
   int blur_y[PLAYER_BLUR_NUM];
@@ -483,9 +487,6 @@ typedef struct vgrid
   int max_ground_num; //how many grounds are occupying this grid
   int ground_ids[MAX_GROUNDS_WITHIN_GRID]; //id of grounds that are occupying this grid
 } AVGrid;
-//} VGrid[VGRID_NUM];
-//struct vgrid VGrid[MAX_VGRID_NUM];
-//struct vgrid* VGridA;
 
 
 AVGrid *createVGrid()
@@ -512,6 +513,7 @@ typedef struct node
 {
   bool node_solid;
   bool node_water;
+  bool tmp_wet;
   bool node_no_rain;
   bool node_no_shade;
   bool non_web;
@@ -520,10 +522,6 @@ typedef struct node
   int x2;
   int y2;
 } ANode;
-//} NodeGrid[MAP_NODE_NUM];
-//struct node NodeGrid[MAX_MAP_NODE_NUM];
-//struct node* NodeGridA;
-//struct node** NodeGrid;
 
 
 ANode *createNode()
@@ -582,6 +580,7 @@ struct Bullet
   int graphics_type;
   int saved_pos;
   int saved_ground_id;
+  int saved_node_grid_id;
   double damage;
   double sprite_x;
   double sprite_y;
@@ -615,7 +614,7 @@ void ShootBullet(
   double target_y,
   double off_angle);
 
-bool HitPlayer(int bullet_id);
+bool HitPlayer(int bullet_id,int r1,int r2);
 void StopBullet(int bullet_id,bool is_player);
 void BulletAct(int bullet_id);
 void DrawBullet2(HDC hdc,int i,double x,double y,int color);
@@ -779,16 +778,10 @@ typedef struct enemy
   int node_x[MAX_NODE_NUM];
   int node_y[MAX_NODE_NUM];
   int node_parent[MAX_NODE_NUM];
-  //double node_gcost[MAX_NODE_NUM];
-  //double node_hcost[MAX_NODE_NUM];
-  //double node_fcost[MAX_NODE_NUM];
   int node_gcost[MAX_NODE_NUM];
   int node_hcost[MAX_NODE_NUM];
   int node_fcost[MAX_NODE_NUM];
 } AEnemy; 
-//} Enemy[ENEMY_NUM];
-//struct enemy Enemy[MAX_ENEMY_NUM];
-//struct enemy* EnemyA;
 
 
 
@@ -836,8 +829,6 @@ void freeEnemySprite(AEnemySprite *myEnemySprite)
   if (myEnemySprite)
     free(myEnemySprite);
 }
-
-//struct enemy_sprites EnemySprite[MAX_ENEMY_NUM];
 
 
 
@@ -913,7 +904,7 @@ HBITMAP title_sprite_mask;
 //Sound called in the Stack
 #define SPAM_SFX_NUM    6
 #define KEY_SFX_NUM     6
-#define CHANNEL_SFX_NUM 3
+#define CHANNEL_SFX_NUM 5
 
 wavSoundEffect spamSoundEffect[SPAM_SFX_NUM];
 wavSoundEffect keySoundEffect[KEY_SFX_NUM];

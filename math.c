@@ -1,4 +1,11 @@
 
+//Solar Hijri Time for Drawing
+int solar_sec=0,solar_min=0,solar_hour=0,solar_day=0,solar_month=0,solar_year=0,solar_day_of_week=0;
+double solar_angle_day=0;
+
+//Lunar Hijri Time for Drawing
+int lunar_sec=0,lunar_min=0,lunar_hour=0,lunar_day=0,lunar_month=0,lunar_year=0,lunar_day_of_week=0;
+double moon_angle_shift=0;
 
 
 unsigned long long current_timestamp() {//https://copyprogramming.com/howto/c-sleep-in-milliseconds-in-c-code-example

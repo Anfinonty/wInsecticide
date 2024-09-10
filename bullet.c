@@ -22,6 +22,7 @@ void InitBullet()
     Bullet[i].graphics_type=0;
     Bullet[i].angle=0;
     Bullet[i].saved_ground_id=-1;
+    Bullet[i].saved_node_grid_id=-1;
   }
 }
 
@@ -101,16 +102,90 @@ void ShootBullet(
 }
 
 
-bool HitPlayer(int bullet_id)
+void BulletDamagePlayerAct(int bullet_id)
+{
+    double blocked_bullet_dmg=Bullet[bullet_id].damage;
+    if (player.block_timer<=0 || player.block_health<=0) {
+      if (game_audio) {
+        PlaySound(spamSoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //hurt snd
+      }
+      player.show_health_timer=HP_SHOW_TIMER_NUM;
+      player.show_block_health_timer=HP_SHOW_TIMER_NUM;
+      blocked_bullet_dmg=Bullet[bullet_id].damage;
+      if (player.health>PLAYER_LOW_HEALTH+1) { //usual response
+        player.health-=blocked_bullet_dmg;
+      } else { //Player when low health
+        if (player.health<PLAYER_LOW_HEALTH) {
+          player.health-=0.1;
+        } else {
+          player.health-=1;
+        }
+      }
+    //player_snd_dur=DEFAULT_PLAYER_SND_DURATION;
+
+    } else {//player is blocking
+     // Bullet[bullet_id].angle=RandAngle(0,360,Enemy[enemy_id]->seed);
+      blocked_bullet_dmg=Bullet[bullet_id].damage;
+      if (player.block_timer>23) {//non-perfect block
+        player.show_block_health_timer=HP_SHOW_TIMER_NUM;
+        if (game_audio) {
+          PlaySound(spamSoundEffectCache[3].audio, NULL, SND_MEMORY | SND_ASYNC); //block normal
+        }
+        if (player.on_ground_id!=-1) {//on ground
+          if (player.block_timer<26) {
+            player.block_health-=blocked_bullet_dmg/4;
+          } else {
+            player.block_health-=blocked_bullet_dmg/2;
+          }
+        } else {//in air
+          if (player.block_timer<26) {
+            player.block_health-=blocked_bullet_dmg/4;
+          } else {
+            player.block_health-=blocked_bullet_dmg;
+          }
+        }
+        //blocked_bullet_dmg=0;
+      } else {//perfect block , 23 or less than
+        if (game_audio) {
+          PlaySound(spamSoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //block perfect
+        }
+        blocked_bullet_dmg=0;
+        /*if (player.time_breaker_units<player.time_breaker_units_max) { //causes speed to increase
+          player.time_breaker_units++;
+        }*/
+      }
+    }
+    
+    if (blocked_bullet_dmg>0) {
+      if (!player.time_breaker) { //penalty for hitting a bullet
+        if (player.speed>5) {
+          //player.speed--;
+        } else { //penalty only at low speed
+          if (player.time_breaker_units>1) {
+            player.time_breaker_units=1;
+          }
+        }
+      }
+    } else {
+      if (!IsSpeedBreaking()) {
+        player.decceleration_timer=0;
+        //player.speed++;
+      }
+    }
+}
+
+
+
+bool HitPlayer(int bullet_id,int r1,int r2)
 {
   double dist=GetDistance(player.x,player.y,Bullet[bullet_id].x,Bullet[bullet_id].y);
   if (!player.time_breaker && player.hit_cooldown_timer<=0) {//near miss
-    if (dist>10 && dist<=22) {
+    if (dist>r1 && dist<=r2) {
       //combo_timer[0]=PLAYER_COMBO_TIME_LIMIT,
       Bullet[bullet_id].near_miss=TRUE;
     }
   }
-  if (0<=dist && dist<=10) {
+  if (0<=dist && dist<=r1) {
     return TRUE;
   }
   return FALSE;
@@ -125,6 +200,10 @@ void StopBullet(int bullet_id,bool is_player)
   Bullet[bullet_id].range=0;
   Bullet[bullet_id].from_enemy_id=-1;
   Bullet[bullet_id].speed=0;
+  if (Bullet[bullet_id].saved_node_grid_id!=-1) {
+    NodeGrid[Bullet[bullet_id].saved_node_grid_id]->tmp_wet=FALSE;
+  }
+  Bullet[bullet_id].saved_node_grid_id=-1;
   Bullet[bullet_id].saved_ground_id=-1;
   Bullet[bullet_id].speed_multiplier=0;
   Bullet[bullet_id].x=-20;
@@ -133,6 +212,18 @@ void StopBullet(int bullet_id,bool is_player)
   Bullet[bullet_id].sprite_y=-20;//Bullet[bullet_id].y+player.cam_y+player.cam_move_y;
   if (is_player) {
     Bullet[bullet_id].saved_pos=-1;
+  }
+}
+
+
+void RainBulletTransitNodeGrid(int bullet_id)
+{
+  int on_node_grid_id=GetGridId(Bullet[bullet_id].x,Bullet[bullet_id].y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
+  if (on_node_grid_id!=Bullet[bullet_id].saved_node_grid_id) {
+    if (Bullet[bullet_id].saved_node_grid_id!=-1)
+      NodeGrid[Bullet[bullet_id].saved_node_grid_id]->tmp_wet=FALSE;
+    NodeGrid[on_node_grid_id]->tmp_wet=TRUE;
+    Bullet[bullet_id].saved_node_grid_id=on_node_grid_id;
   }
 }
 
@@ -175,7 +266,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
       }
     }
   } //end of for,
-  hit_player=HitPlayer(bullet_id);
+  hit_player=HitPlayer(bullet_id,10,22);
 
   bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2);
   allow_act=FALSE;
@@ -193,85 +284,9 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
       }
     }
 //^^ condition
-    double blocked_bullet_dmg=Bullet[bullet_id].damage;
     if (allow_act) {
       if (hit_player) {
-        if (player.block_timer<=0 || player.block_health<=0) {
-          if (game_audio) {
-            PlaySound(spamSoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //hurt snd
-          }
-          player.show_health_timer=HP_SHOW_TIMER_NUM;
-          player.show_block_health_timer=HP_SHOW_TIMER_NUM;
-          blocked_bullet_dmg=Bullet[bullet_id].damage;
-          if (player.health>PLAYER_LOW_HEALTH+1) { //usual response
-            player.health-=blocked_bullet_dmg;
-          } else { //Player when low health
-            if (player.health<PLAYER_LOW_HEALTH) {
-              player.health-=0.1;
-            } else {
-              player.health-=1;
-            }
-          }
-        //player_snd_dur=DEFAULT_PLAYER_SND_DURATION;
-    //cancel combos
-        /*player_hit_cooldown_timer=player_hit_cooldown_timer_max;
-	    if (player_speed_breaker_recharge_minus>0) {
-  	        player_speed_breaker_recharge_minus-=2;
-	    }*/
-
-        } else {//player is blocking
-         // Bullet[bullet_id].angle=RandAngle(0,360,Enemy[enemy_id]->seed);
-          blocked_bullet_dmg=Bullet[bullet_id].damage;
-          if (player.block_timer>23) {//non-perfect block
-            player.show_block_health_timer=HP_SHOW_TIMER_NUM;
-            if (game_audio) {
-              PlaySound(spamSoundEffectCache[3].audio, NULL, SND_MEMORY | SND_ASYNC); //block normal
-            }
-            if (player.on_ground_id!=-1) {//on ground
-	          if (player.block_timer<26) {
-                player.block_health-=blocked_bullet_dmg/4;
-	          } else {
-                player.block_health-=blocked_bullet_dmg/2;
-	          }
-            } else {//in air
-	          if (player.block_timer<26) {
-                player.block_health-=blocked_bullet_dmg/4;
-	          } else {
-                player.block_health-=blocked_bullet_dmg;
-	          }
-            }
-            /*if (player.speed<6) {
-              player.health-=(player.block_health_max-player.block_health+1)/player.block_health_max*Bullet[bullet_id].damage;
-            }*/
-            //blocked_bullet_dmg=0;
-          } else {//perfect block , 23 or less than
-            if (game_audio) {
-              PlaySound(spamSoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //block perfect
-            }
-            blocked_bullet_dmg=0;
-            if (player.time_breaker_units<player.time_breaker_units_max) { //causes speed to increase
-              player.time_breaker_units++;
-            }
-          }
-        }
-        
-        if (blocked_bullet_dmg>0) {
-          if (!player.time_breaker) { //penalty for hitting a bullet
-            if (player.speed>5) {
-              //player.speed--;
-            } else { //penalty only at low speed
-              if (player.time_breaker_units>1) {
-                player.time_breaker_units=1;
-              }
-            }
-          }
-        } else {
-          if (!IsSpeedBreaking()) {
-            player.decceleration_timer=0;
-            //player.speed++;
-          }
-        }
-
+        BulletDamagePlayerAct(bullet_id);
       //End of Hit Player
       } else if (bullet_on_ground_id>=GROUND_NUM && bullet_on_ground_id!=player.web_being_shot) { //Not on web being shot
         Ground[bullet_on_ground_id]->health-=Bullet[bullet_id].damage;
@@ -528,10 +543,9 @@ void InitBulletRain()
   }
 }
 
-
-
 void RainBulletAct(int bullet_id)
 {
+  bool hit_player=FALSE;
   int allow_act=-1;
   int bullet_on_ground_id=-1,bullet_on_node_grid_id=-1;
   bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2);
@@ -549,6 +563,60 @@ void RainBulletAct(int bullet_id)
       bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,NODE_SIZE,NODE_SIZE);
     }
   } 
+
+
+  /*if (GetDistance(Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
+    //Bullet[bullet_id].angle=RandAngle(0,360,player.seed);//RandNum(-M_PI_2*100,M_PI_2*100,Enemy[enemy_id]->seed)/100;
+    //Bullet[bullet_id].speed=Bullet[player.bullet_shot].speed;
+    //Bullet[bullet_id].speed_multiplier=Bullet[player.bullet_shot].speed_multiplier;
+    if (game_audio) {
+      Bullet[player.bullet_shot].playsnd=TRUE;
+    }
+    allow_act=0;
+  }*/
+
+  /*int bk;
+  for (int k=0;k<player.bullet_shot_num;k++) {//playerknives interact with enemy bullet
+    bk=player.bullet[k];
+    if (GetDistance(Bullet[bk].x,Bullet[bk].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
+      if (!Bullet[bk].playsnd && game_audio) {
+        Bullet[bk].playsnd=TRUE;
+      }
+
+      Bullet[bullet_id].angle=RandAngle(0,360,player.seed); //scatter type 6
+      Bullet[bullet_id].speed=Bullet[bk].speed;
+      Bullet[bullet_id].speed_multiplier=Bullet[bk].speed_multiplier;
+      Bullet[bullet_id].range-=3;
+
+      if (Bullet[bk].graphics_type!=6) { //hit enemy bullet, scatter if NOT type 6
+        Bullet[bk].angle=RandAngle(0,360,player.seed);
+        Bullet[bk].range-=4;
+      }
+      allow_act=0;
+    }
+  }*/ //end of for,
+
+  hit_player=HitPlayer(bullet_id,22,22);
+  if (hit_player) { //hit player
+    if (player.rain_wet_timer==0) {
+      rain_duration=0;
+    }
+    player.rain_wet_timer=260;//60;
+    //BulletDamagePlayerAct(bullet_id);
+  }
+
+  if (player.rain_wet_timer==0) {
+    if (Bullet[bullet_id].sprite_x>0 && Bullet[bullet_id].sprite_y<GR_WIDTH) {
+      if (Bullet[bullet_id].sprite_y>0 && Bullet[bullet_id].sprite_y<GR_HEIGHT) {
+        if (player.visible_rain_wet_timer==0) {
+          rain_duration=0;
+        }
+          player.visible_rain_wet_timer=160;
+      }
+    }
+  }
+
+  RainBulletTransitNodeGrid(bullet_id);
 
   if (bullet_on_ground_id!=-1) {//hit platform
     allow_act=0;
@@ -648,49 +716,34 @@ void BulletAct(int bullet_id)
             double check_x1,check_x2,c1,c2;
             double rain_gradient=rain_grad_rise/rain_grad_run;
             for (int q=GROUND_NUM;q<GROUND_NUM+MAX_WEB_NUM;q++) {                
-              //if (q!=-1) {
-                //if (rand_x>=Ground[q]->x1 && rand_x<=Ground[q]->x2) { //within x1 and x2,
-                  //if (rand_y>=Ground[q]->y1 || rand_y>=Ground[q]->y2) { //below y1 or y2
               if (Ground[q]->x1>-1 && Ground[q]->y1>-1) {
-                //y=mx+c
-                //MAP_HEIGHT=(20/8)(x)+c
-                //double GetGroundC(double x,double y,double gradient)
                 c1=GetGroundC(Ground[q]->x1-NODE_SIZE,Ground[q]->y1,rain_gradient);
                 c2=GetGroundC(Ground[q]->x2+NODE_SIZE,Ground[q]->y2,rain_gradient);
                 check_x1=GetX(rand_y,rain_gradient,c1);
                 check_x2=GetX(rand_y,rain_gradient,c2);
 
-                /*if (isPointInQuadrilateral(rand_x,rand_y,
-                             Ground[q]->x1,Ground[q]->y1,
-                             Ground[q]->x2,Ground[q]->y2,
-                             check_x1,MAP_HEIGHT,
-                             check_x2,MAP_HEIGHT)) {*/
                 if (check_x1<=rand_x && rand_x<=check_x2 && (rand_y>=Ground[q]->y1 || rand_y>=Ground[q]->y2)) {
                   allow_spawn=FALSE;
                   break;
                 }
               }
-                  //}
-                //}
-              //}
             }
 
             int spawn_on_ng=GetGridId(rand_x,rand_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
             if (spawn_on_ng!=-1) {
-              //if ((NodeGrid[spawn_on_ng]->node_no_rain || !NodeGrid[spawn_on_ng]->node_no_shade)) {
               if (NodeGrid[spawn_on_ng]->node_no_rain || !NodeGrid[spawn_on_ng]->node_no_shade) {
                 allow_spawn=FALSE;
               }
             } else { //==-1
               allow_spawn=FALSE;
             }
-
+            int c=Highlight(IsInvertedBackground(),BLUE,YELLOW);
 
             if (allow_spawn) {
               ShootBullet(
                 bullet_id,
                 -1,
-                BLUE,
+                c,
                 8, //graphics type
                 MAP_HEIGHT, //range ==>
                 1, //speed
@@ -709,15 +762,15 @@ void BulletAct(int bullet_id)
               ShootBullet(
                 bullet_id,
                 -1,
-                BLUE,
+                c,
                 8, //graphics type
                 -1, //range ==>
                 1, //speed
                 1, //speed multiplier
                 0, //damage
                 -3,
-                0,
-                0,
+                0,//x
+                0,//y
                 0,
                 0,
                 rain_grad_run,

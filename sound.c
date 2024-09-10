@@ -33,7 +33,7 @@ typedef struct WavSoundEffectCache
 } wavSoundEffectCache;
 
 
-#define SND_THREAD_NUM    4
+#define SND_THREAD_NUM    5
 typedef struct threadSFX
 {
   bool is_cache;
@@ -100,13 +100,13 @@ void loadSoundEffect(wavSoundEffect* mySoundEffect,const wchar_t* filename,bool 
 }
 
 
-#define SND_MEM_STACK_SIZE  100000
+#define SND_MEM_STACK_SIZE  500000
 int16_t SND_MEM_STACK[SND_MEM_STACK_SIZE]; //for adjusting volume because access via heap is finicky!!, 1 megabyte 100k KB Ram allowed max
 //int mem_snd_play=0;
 HANDLE hMemSndArray[SND_THREAD_NUM];
 //bool mem_snd_playing[SND_THREAD_NUM]={FALSE,FALSE,FALSE};
 //bool mem_snd_stopped[SND_THREAD_NUM]={FALSE,FALSE,FALSE};
-bool mem_snd_interrupt[SND_THREAD_NUM]={FALSE,FALSE,FALSE,FALSE};
+bool mem_snd_interrupt[SND_THREAD_NUM]={FALSE,FALSE,FALSE,FALSE,FALSE};
 
 //Custom Audio format
 WAVEFORMATEX wfx_wav_sfx = {
@@ -121,6 +121,7 @@ WAVEFORMATEX wfx_wav_sfx = {
 
 WAVEFORMATEX wfx_wav_music;
 WAVEFORMATEX wfx_wav_sfx2;
+WAVEFORMATEX wfx_wav_sfx3;
 //https://learn.microsoft.com/en-us/windows/win32/multimedia/using-the-waveformatex-structure
 /*WAVEFORMATEX wfx_wav_music = {
     .wFormatTag = WAVE_FORMAT_PCM,
@@ -213,40 +214,37 @@ void PlayThreadSound(AWavChannelSFX* myChannelSFX, int id)
 DWORD WINAPI PlayMemSnd1(LPVOID lpParam)
 {
   PlayThreadSound(&memSFX[0],0);
-  //ExitThread(0);
 }
 
 DWORD WINAPI PlayMemSnd2(LPVOID lpParam)
 {
   PlayThreadSound(&memSFX[1],1);
-  //ExitThread(0);
 }
 
 DWORD WINAPI PlayMemSnd3(LPVOID lpParam)
 {
   PlayThreadSound(&memSFX[2],2);
-  //ExitThread(0);
 }
 
 
 DWORD WINAPI PlayMemSnd4(LPVOID lpParam)
 {
   PlayThreadSound(&memSFX[3],3);
-  //ExitThread(0);
 }
+
+
+DWORD WINAPI PlayMemSnd5(LPVOID lpParam)
+{
+  PlayThreadSound(&memSFX[4],4);
+}
+
 
 
 void PlayMemSnd(wavSoundEffect* mySoundEffect,wavSoundEffectCache* mySoundEffectCache,bool play_cache,int thread_id) //thread 0,1,2
 {
-  //if (hMemSndArray[thread_id]!=NULL) {
   mem_snd_interrupt[thread_id]=TRUE;
   waveOutReset(hWaveOut[thread_id]);
-  //if (hMemSndArray[thread_id]!=NULL)
-    CloseHandle(hMemSndArray[thread_id]);
-  //DWORD exitCode;
-  //closeHandleSafely(hMemSndArray[thread_id]); //WARNING CAUSES CRASH
-  //}
-  //TerminateThread(hMemSndArray[thread_id],exitCode);
+  CloseHandle(hMemSndArray[thread_id]);
 
   if (thread_id>=0 && thread_id<SND_THREAD_NUM) {
       memSFX[thread_id].audio=NULL;
@@ -276,6 +274,9 @@ void PlayMemSnd(wavSoundEffect* mySoundEffect,wavSoundEffectCache* mySoundEffect
           break;
         case 3:
           hMemSndArray[3] = CreateThread(NULL,0,PlayMemSnd4,NULL,0,NULL);
+          break;
+        case 4:
+          hMemSndArray[4] = CreateThread(NULL,0,PlayMemSnd5,NULL,0,NULL);
           break;
       }
   }

@@ -52,6 +52,83 @@ void DrawWaterShader(HDC hdc)
 }
 
 
+#define SC_RAINDROP_NUM  20
+struct screenraindrop
+{
+  int lifetime,olifetime;
+  double oy,x,y,speed;
+} sc_raindrop[SC_RAINDROP_NUM];
+
+
+void InitScreenRainDrop()
+{
+  for (int i=0;i<SC_RAINDROP_NUM;i++) {
+    sc_raindrop[i].x=RandNum(-20,GR_WIDTH+20,player.seed);
+    sc_raindrop[i].oy=RandNum(-20,GR_HEIGHT+20,player.seed);
+    sc_raindrop[i].y=sc_raindrop[i].oy;
+    sc_raindrop[i].speed=RandNum(2,10,player.seed)*0.1;
+    sc_raindrop[i].olifetime=RandNum(50,200,player.seed);
+    sc_raindrop[i].lifetime=sc_raindrop[i].olifetime;
+  }
+}
+
+
+void ScreenRainDropAct()
+{
+  for (int i=0;i<SC_RAINDROP_NUM;i++) {
+    if (sc_raindrop[i].lifetime>0) {
+      sc_raindrop[i].lifetime--;
+      sc_raindrop[i].y+=sc_raindrop[i].speed;
+      sc_raindrop[i].oy+=sc_raindrop[i].speed/3;
+    } else {
+      sc_raindrop[i].x=RandNum(-20,GR_WIDTH+20,player.seed);
+      sc_raindrop[i].oy=RandNum(-20,GR_HEIGHT+20,player.seed);
+      sc_raindrop[i].y=sc_raindrop[i].oy;
+      sc_raindrop[i].speed=RandNum(2,10,player.seed)*0.1;
+      sc_raindrop[i].olifetime=RandNum(50,200,player.seed);
+      sc_raindrop[i].lifetime=sc_raindrop[i].olifetime;
+    }
+  } 
+}
+
+void DrawRainShader(HDC hdc)
+{
+  if (player.rain_wet_timer>0) {
+    int c=Highlight(IsInvertedBackground(),BLACK,WHITE);
+    BLENDFUNCTION blendFunction;
+    blendFunction.BlendOp = AC_SRC_OVER;
+    blendFunction.BlendFlags = 0;
+    if (player.rain_wet_timer>60) {
+      blendFunction.SourceConstantAlpha = 32;// Transparency level (0-255)
+    } else {
+      player.visible_rain_wet_timer=160;
+      blendFunction.SourceConstantAlpha = 16;
+    }
+    blendFunction.AlphaFormat = 0;
+
+    HDC hdcMem = CreateCompatibleDC(hdc);
+    HBITMAP hBitmap = CreateCompatibleBitmap(hdc, GR_WIDTH, GR_HEIGHT);
+    SelectObject(hdcMem, hBitmap);
+    GrRect(hdcMem,0,0,GR_WIDTH,GR_HEIGHT,c);
+    for (int i=0;i<SC_RAINDROP_NUM;i++) {
+      GrLine(hdcMem,sc_raindrop[i].x,sc_raindrop[i].y,sc_raindrop[i].x,sc_raindrop[i].oy,LTGRAY); //trails of rain
+      GrLine(hdcMem,sc_raindrop[i].x+1,sc_raindrop[i].y,sc_raindrop[i].x+1,sc_raindrop[i].oy,LTGRAY);
+
+      GrRect(hdcMem,sc_raindrop[i].x-2,sc_raindrop[i].y-10,7,10,LTGRAY);
+      GrCircle(hdcMem,sc_raindrop[i].x+1,sc_raindrop[i].y,3,LTGRAY,LTGRAY);
+      if (sc_raindrop[i].olifetime-sc_raindrop[i].lifetime<10)
+        GrCircle(hdcMem,sc_raindrop[i].x+1,sc_raindrop[i].oy,5,LTGRAY,LTGRAY);
+
+    }  
+    AlphaBlend(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcMem, 0, 0, GR_WIDTH, GR_HEIGHT, blendFunction);
+  // Clean up
+    DeleteObject(hBitmap);
+    DeleteDC(hdcMem);
+  }
+}
+
+
+
 void DrawPlatforms(HDC hDC)
 { //Dynamically scale with window size 
   //Draw platforms bitmap mask

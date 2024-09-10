@@ -11,6 +11,8 @@
 //Command
 //i686-w64-mingw32-gcc-win32 run.c -o "WINSECTICIDE.EXE" my.o -lgdi32 -lgdiplus -lmsimg32 -municode -lwinmm -lshlwapi 
 //-lopengl32 -lglu32 is not used for now Jan-06-2024 -credit: sothea.dev
+
+//#include <winsock2.h> //for multiplayer
 #include <windows.h>
 //#include <wingdi.h>
 
@@ -27,8 +29,7 @@
 #include <direct.h>
 #include <errno.h>
 #include <shlwapi.h>
-#include <mmsystem.h>
-
+//#include <mmsystem.h>
 //#include <hidsdi.h>
 //#include <hidusage.h>
 
@@ -155,16 +156,8 @@ double game_volume=1.0;
 double old_game_volume=1.0;
 
 
-//Solar Hijri Time for Drawing
-int solar_sec=0,solar_min=0,solar_hour=0,solar_day=0,solar_month=0,solar_year=0,solar_day_of_week=0;
-double solar_angle_day=0;
-
-//Lunar Hijri Time for Drawing
-int lunar_sec=0,lunar_min=0,lunar_hour=0,lunar_day=0,lunar_month=0,lunar_year=0,lunar_day_of_week=0;
-double moon_angle_shift=0;
-
-
-
+bool raining=FALSE;
+int rain_duration=0;
 double rain_grad_rise=20,rain_grad_run=8;
 //HBITMAP canny;
 //HBITMAP uncanny;
@@ -372,7 +365,12 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
         for (int i=0;i<ENEMY_NUM;i++) {
           EnemyAct(i);
         }
-        //RainAct();
+        if (raining) {
+          RainAct();
+          if (!player.time_breaker) {
+            ScreenRainDropAct();
+          }
+        }
         Sleep(player.sleep_timer);
       } else {
         Sleep(1000);
@@ -769,8 +767,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
 
             hdcBackbuff=CreateCompatibleDC(hdc);
-
-            //HBITMAP screen = CreateGreyscaleBitmap(GR_WIDTH,GR_HEIGHT);
             screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
             SelectObject(hdcBackbuff,screen);
             DrawBackground(hdcBackbuff);
@@ -784,7 +780,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DrawCursor(hdcBackbuff);
             //DrawGrids(hdcBackbuff);
             DrawWaterShader(hdcBackbuff);
-            //DrawRain(hdcBackbuff);
+            if (raining) {
+              DrawRain(hdcBackbuff);
+              DrawRainShader(hdcBackbuff);
+            }            
             //DrawNodeGrids(hdcBackbuff);
             //DrawTBitmap(hdcBackbuff,&draw_moon_sprite,GR_WIDTH/2,GR_HEIGHT/2,50);
 
@@ -1182,6 +1181,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
        loadSoundEffect(&channelSoundEffect[0],L"snd/fast.wav",TRUE);
        loadSoundEffect(&channelSoundEffect[1],L"snd/clang_death.wav",TRUE);
        loadSoundEffect(&channelSoundEffect[2],L"snd/S_DIO_00033.wav",TRUE);
+       loadSoundEffect(&channelSoundEffect[3],L"snd/rain2classic.wav",TRUE);
+       loadSoundEffect(&channelSoundEffect[4],L"snd/rain2classic.wav",TRUE);
 
 
        //for wav sound effects
@@ -1201,6 +1202,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
        wfx_wav_sfx2.wBitsPerSample = channelSoundEffect[2].wav_header->bitsPerSample;
        wfx_wav_sfx2.cbSize = 0;
 
+
+       wfx_wav_sfx3.wFormatTag = WAVE_FORMAT_PCM;
+       wfx_wav_sfx3.nChannels = channelSoundEffect[3].wav_header->NumOfChan;
+       wfx_wav_sfx3.nSamplesPerSec = channelSoundEffect[3].wav_header->SamplesPerSec;
+       wfx_wav_sfx3.nAvgBytesPerSec = channelSoundEffect[3].wav_header->bytesPerSec;
+       wfx_wav_sfx3.nBlockAlign = channelSoundEffect[3].wav_header->blockAlign;
+       wfx_wav_sfx3.wBitsPerSample = channelSoundEffect[3].wav_header->bitsPerSample;
+       wfx_wav_sfx3.cbSize = 0;
+
        /*printf("%d\n", wfx_wav_sfx2.nChannels);
        printf("%d\n", wfx_wav_sfx2.nSamplesPerSec);
        printf("%d\n", wfx_wav_sfx2.nAvgBytesPerSec);
@@ -1208,6 +1218,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
        printf("%d\n", wfx_wav_sfx2.wBitsPerSample);*/
        waveOutOpen(&hWaveOut[3], WAVE_MAPPER, &wfx_wav_sfx2, 0, 0, CALLBACK_NULL);
        waveOutPrepareHeader(hWaveOut[3], &whdr[3], sizeof(WAVEHDR));
+
+       waveOutOpen(&hWaveOut[4], WAVE_MAPPER, &wfx_wav_sfx3, 0, 0, CALLBACK_NULL);
+       waveOutPrepareHeader(hWaveOut[4], &whdr[4], sizeof(WAVEHDR));
+
+       waveOutOpen(&hWaveOut[5], WAVE_MAPPER, &wfx_wav_sfx3, 0, 0, CALLBACK_NULL);
+       waveOutPrepareHeader(hWaveOut[5], &whdr[5], sizeof(WAVEHDR));
        return 0;
        break;
 

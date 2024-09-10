@@ -390,6 +390,9 @@ void InitPlayer() {
   player.mouse_angle=0;
 
 
+
+  player.rain_wet_timer=0;
+  player.visible_rain_wet_timer=0;
   player.in_water=FALSE;
 
 
@@ -472,6 +475,12 @@ void PlayerAct() {
   double grad_x1=0,grad_y1=0,grad_x2=0,grad_y2=0;
   bool allow_act=FALSE;
 
+  if (player.rain_wet_timer>0) {
+    player.rain_wet_timer--;
+  }
+  if (player.visible_rain_wet_timer>0) {
+    player.visible_rain_wet_timer--;
+  }
 
   //========Player attacking timer==============
   if (player.attack_timer>=0) {
@@ -901,6 +910,8 @@ void PlayerAct() {
 
       int in_node_grid_id=GetGridId(player.x,player.y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
       if (in_node_grid_id!=-1) {
+        //if (NodeGrid[in_node_grid_id]->tmp_wet)
+          //player.rain_wet_timer=260;
         if (NodeGrid[in_node_grid_id]->node_water) {
           player.in_water=TRUE;
         } else {
@@ -909,6 +920,11 @@ void PlayerAct() {
       } else {
         player.in_water=FALSE;
       }
+      if (player.time_breaker && player.rain_wet_timer>0) {
+        player.rain_wet_timer=160;
+      }
+
+
 
 
    //Destroy Ground (regainable)
@@ -1807,7 +1823,62 @@ void PlayerAct() {
 
 void PlayerSndAct()
 {
-  //if (player.fast_duration>=fast_mem_audio_duration/2) {
+  //rain snd act
+  if (player.rain_wet_timer>60) {
+    if (player.visible_rain_wet_timer>0) {
+      player.visible_rain_wet_timer=0;
+      rain_duration=0;
+      mem_snd_interrupt[4]=TRUE; 
+      waveOutReset(hWaveOut[4]);
+    }
+
+    if (rain_duration>=channelSoundEffect[3].duration/2) {
+      rain_duration=0;
+    }
+    if (rain_duration==0 && player.rain_wet_timer>0) { //sound effect fast sound effect
+      PlayMemSnd(&channelSoundEffect[3],&channelSoundEffectCache[3],TRUE,4); 
+    }
+
+    if (rain_duration>0 && player.rain_wet_timer==0) {
+      rain_duration=0;
+      mem_snd_interrupt[4]=TRUE;
+      waveOutReset(hWaveOut[4]);
+    }
+    rain_duration+=6;
+
+  //soft rain snd act
+  } else {
+    if (player.rain_wet_timer==60) {
+      player.visible_rain_wet_timer=160;
+      rain_duration=0;
+      mem_snd_interrupt[4]=TRUE; 
+      waveOutReset(hWaveOut[4]);
+    }
+    /*if (rain_duration>0 && player.rain_wet_timer>0) {
+      //player.visible_rain_wet_timer=160;
+      //player.rain_wet_timer=0;
+      mem_snd_interrupt[4]=TRUE; 
+      waveOutReset(hWaveOut[4]);
+    }*/
+
+    if (rain_duration>=channelSoundEffect[4].duration/2) {
+      rain_duration=0;
+    }
+    if (rain_duration==0 && player.visible_rain_wet_timer>0) { //sound effect fast sound effect
+      PlayMemSnd(&channelSoundEffect[4],&channelSoundEffectCache[4],TRUE,4); 
+    }
+
+    if (rain_duration>0 && player.visible_rain_wet_timer==0) {
+      rain_duration=0;
+      mem_snd_interrupt[4]=TRUE;
+      waveOutReset(hWaveOut[4]);
+    }
+    rain_duration+=6;
+  }
+
+
+
+
   if (player.fast_duration>=channelSoundEffect[0].duration/2) {
     player.fast_duration=0;
   }

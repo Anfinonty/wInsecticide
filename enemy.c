@@ -352,6 +352,24 @@ void EnemyMove(int enemy_id)
       path_node_id=Enemy[enemy_id]->path_nodes[path_node_arr_id];
   double path_node_center_x=Enemy[enemy_id]->node_x[path_node_id]+NODE_SIZE/2,
       path_node_center_y=Enemy[enemy_id]->node_y[path_node_id]+NODE_SIZE/2;
+
+
+  /*if (raining) { //move ment interruption due to rain
+    int enemy_on_node_grid_id=GetGridId(Enemy[enemy_id]->x,Enemy[enemy_id]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
+
+        //Raining
+    if (enemy_on_node_grid_id!=-1 && !Enemy[enemy_id]->ignore_player) {
+      if (NodeGrid[enemy_on_node_grid_id]->node_no_shade) {
+        Enemy[enemy_id]->ignore_player=TRUE;
+        Enemy[enemy_id]->speed_multiplier=Enemy[enemy_id]->ospeed_multiplier*2;
+        Enemy[enemy_id]->idling=TRUE;
+        Enemy[enemy_id]->move_to_target=FALSE;
+      }
+    }
+  }*/
+
+
+
   if (Enemy[enemy_id]->species==1) {
     Enemy[enemy_id]->sprite_timer++;
     if (Enemy[enemy_id]->sprite_timer>16) {
@@ -367,33 +385,35 @@ void EnemyMove(int enemy_id)
   }
 
   if (allow_act) {
-  if (Enemy[enemy_id]->x<path_node_center_x) {
-    Enemy[enemy_id]->last_left=FALSE;
-    Enemy[enemy_id]->x+=Enemy[enemy_id]->speed;
-  } else {
-    Enemy[enemy_id]->last_left=TRUE;
-    Enemy[enemy_id]->x-=Enemy[enemy_id]->speed;  
-  }
-  switch (Enemy[enemy_id]->species) {
-    case 0://fly
-      if (Enemy[enemy_id]->y<path_node_center_y) {
-        Enemy[enemy_id]->y+=Enemy[enemy_id]->speed;
-      } else {
-        Enemy[enemy_id]->y-=Enemy[enemy_id]->speed;
-      }
-      break;
-    case 1://mite
-      if (Enemy[enemy_id]->y<path_node_center_y) {
-        Enemy[enemy_id]->y+=Enemy[enemy_id]->speed;
-      } else {
-        Enemy[enemy_id]->y-=Enemy[enemy_id]->speed;
-      }
-      break;
+    if (Enemy[enemy_id]->x<path_node_center_x) {
+      Enemy[enemy_id]->last_left=FALSE;
+      Enemy[enemy_id]->x+=Enemy[enemy_id]->speed;
+    } else {
+      Enemy[enemy_id]->last_left=TRUE;
+      Enemy[enemy_id]->x-=Enemy[enemy_id]->speed;  
+    }
+    switch (Enemy[enemy_id]->species) {
+      case 0://fly
+        if (Enemy[enemy_id]->y<path_node_center_y) {
+          Enemy[enemy_id]->y+=Enemy[enemy_id]->speed;
+        } else {
+          Enemy[enemy_id]->y-=Enemy[enemy_id]->speed;
+        }
+        break;
+      case 1://roach
+        if (Enemy[enemy_id]->y<path_node_center_y) {
+          Enemy[enemy_id]->y+=Enemy[enemy_id]->speed;
+        } else {
+          Enemy[enemy_id]->y-=Enemy[enemy_id]->speed;
+        }
+        break;
     }
   } else {
     Enemy[enemy_id]->idling=TRUE;
     Enemy[enemy_id]->move_to_target=FALSE;
   }
+
+
   if (path_node_center_y-1<=Enemy[enemy_id]->y && Enemy[enemy_id]->y<=path_node_center_y+1 &&
       path_node_center_x-1<=Enemy[enemy_id]->x && Enemy[enemy_id]->x<=path_node_center_x+1) {
     Enemy[enemy_id]->path_nodes_num--;
@@ -402,7 +422,8 @@ void EnemyMove(int enemy_id)
       Enemy[enemy_id]->move_to_target=FALSE;
     }
   }
-  
+
+
 }
 
 void EnemyTargetPlayer(int i)
@@ -595,6 +616,7 @@ void EnemyAct(int i)
   bool allow_act=FALSE;
   //Attack
   bool deduct_health=FALSE;
+  bool force_search=FALSE;
 
 
 
@@ -680,15 +702,9 @@ void EnemyAct(int i)
           if (dist_from_bullet<=NODE_SIZE*2) {
             if (game_audio) {
               PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
-              //PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);
-              //PlaySound(clang_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
             }
-            //if (dist_from_bullet<=NODE_SIZE*2) {
-              Enemy[i]->damage_taken_timer=256;
-              Enemy[i]->health-=Bullet[player.bullet_shot].damage;
-            //} else {
-              //Enemy[i]->health-=Bullet[player.bullet_shot].damage/4;
-            //}
+            Enemy[i]->damage_taken_timer=256;
+            Enemy[i]->health-=Bullet[player.bullet_shot].damage;
             Enemy[i]->knockback_timer=player.knockback_strength;
             Enemy[i]->knockback_angle=Bullet[player.bullet_shot].angle;            
             Enemy[i]->player_knockback=FALSE;
@@ -697,8 +713,6 @@ void EnemyAct(int i)
         case 1://crawl
           if (game_audio) {
             PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
-            //PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);
-            //PlaySound(clang_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
           }
           Enemy[i]->damage_taken_timer=256;
           Enemy[i]->health-=Bullet[player.bullet_shot].damage;
@@ -911,7 +925,24 @@ void EnemyAct(int i)
                 player.above_y-Enemy[i]->node_y[0],
                 Enemy[i]->follow_range*NODE_SIZE,
                 NODE_SIZE,Enemy[i]->node_num);*/
-        //Crawler
+
+        int enemy_on_node_grid_id=GetGridId(Enemy[i]->x,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
+
+        //Raining
+        /*if (raining && !Enemy[i]->move_to_target) {
+          if (enemy_on_node_grid_id!=-1) {
+            if (NodeGrid[enemy_on_node_grid_id]->node_no_shade) {
+              Enemy[i]->ignore_player=TRUE;
+              force_search=TRUE;
+              Enemy[i]->speed_multiplier=Enemy[i]->ospeed_multiplier*2;
+            } else {
+              if (Enemy[i]->speed_multiplier!=Enemy[i]->ospeed_multiplier)
+                Enemy[i]->speed_multiplier=Enemy[i]->ospeed_multiplier;
+            }
+          }
+        }*/
+
+
         if ((!Enemy[i]->ignore_player /*&&  //not ignore & within range
              Enemy[i]->dist_from_player<Enemy[i]->follow_range/2*NODE_SIZE*/
             )
@@ -927,44 +958,27 @@ void EnemyAct(int i)
             if (Enemy[i]->bullet_cooldown<=0) {
 	          if (Enemy[i]->bullet_shot_num<500) {//shot less than 500 bullets
 	            for (j=0;j<Enemy[i]->bullet_fire_at_once_max;j++) {//several bullets at once
-		      //allow_act=FALSE;
-		      //if (Enemy[i]->saw_player) {
-		        /*switch (Enemy[i]->species) {
-		          case 0:
-			        //if (!Enemy[i]->node_solid[above_player_node1] && !player.hiding) {
-			        allow_act=TRUE;
-			        //}
-			        break;
-		          case 1:
-			        //if (Enemy[i]->in_air_timer==0 || slash_time>1) {
-			        allow_act=TRUE;
-			        //}
-			        break;
-		        }*/
-               // allow_act=TRUE;
-		      //}
-
 		          if (Enemy[i]->saw_player) {
                     if (Enemy[i]->dist_from_player<Enemy[i]->shoot_at_player_range/2*NODE_SIZE) {
     		          Enemy[i]->shoot_target_x=Enemy[i]->bullet_head_x[j];
         		      Enemy[i]->shoot_target_y=Enemy[i]->bullet_head_y[j];
                       ShootBullet(current_bullet_id,
-		        Enemy[i]->bullet_shot_num,
-		        Enemy[i]->bullet_color,
-		        Enemy[i]->bullet_graphics_type,
-		        Enemy[i]->bullet_range,
-		        Enemy[i]->bullet_speed,
-		        Enemy[i]->bullet_speed_multiplier,
-		        Enemy[i]->bullet_damage,
-		        i,
-		        Enemy[i]->x,
-		        Enemy[i]->y,
-		        Enemy[i]->x,
-		        Enemy[i]->y,
-		        Enemy[i]->shoot_target_x,
-		        Enemy[i]->shoot_target_y,
-                0
-                  );
+		                Enemy[i]->bullet_shot_num,
+		                Enemy[i]->bullet_color,
+		                Enemy[i]->bullet_graphics_type,
+		                Enemy[i]->bullet_range,
+		                Enemy[i]->bullet_speed,
+		                Enemy[i]->bullet_speed_multiplier,
+		                Enemy[i]->bullet_damage,
+		                i,
+		                Enemy[i]->x,
+		                Enemy[i]->y,
+		                Enemy[i]->x,
+		                Enemy[i]->y,
+		                Enemy[i]->shoot_target_x,
+		                Enemy[i]->shoot_target_y,
+                        0
+                    );
                     Enemy[i]->bullet_shot_arr[Enemy[i]->bullet_shot_num]=current_bullet_id;
                     Enemy[i]->bullet_shot_num++;
                   //after shooting
@@ -1015,8 +1029,11 @@ void EnemyAct(int i)
         Enemy[i]->target_player=FALSE;
         dice=RandNum(0,5,i);
         Enemy[i]->idle_timer=0;
-        if (dice==1) { //Start searching
+        if (dice==1 || force_search) { //Start searching
 	    //total ignore player (still hostile)
+          if (force_search) {
+            force_search=FALSE;
+          }
           target_x=Enemy[i]->x+RandNum(-Enemy[i]->follow_range/4*NODE_SIZE,abs(Enemy[i]->follow_range/4*NODE_SIZE),Enemy[i]->seed);
           target_y=Enemy[i]->y+RandNum(-Enemy[i]->follow_range/4*NODE_SIZE,abs(Enemy[i]->follow_range/4*NODE_SIZE),Enemy[i]->seed);
           target_node=GetGridId(target_x-Enemy[i]->node_x[0],
@@ -1024,10 +1041,12 @@ void EnemyAct(int i)
                                 Enemy[i]->follow_range*NODE_SIZE,
 		                        NODE_SIZE,
     	                        Enemy[i]->node_num);
-          if (!Enemy[i]->node_solid[target_node]) {
+          if (!Enemy[i]->node_solid[target_node]/* && (!raining ||
+              (raining && !NodeGrid[enemy_on_node_grid_id]->node_no_shade))*/
+             ) {
             Enemy[i]->idling=FALSE;
             Enemy[i]->search_target=TRUE;
-            InitEnemyPathfinding(i,target_x,target_y);	    
+            InitEnemyPathfinding(i,target_x,target_y);
           } else {
             Enemy[i]->idling=TRUE;
           }
@@ -1128,6 +1147,7 @@ void SetEnemyByType(int i,int type)
   }
   Enemy[i]->color=color_arr[saved_enemy_type_color[type]];
   Enemy[i]->speed=saved_enemy_type_speed[type];
+  Enemy[i]->ospeed_multiplier=saved_enemy_type_speed_multiplier[type];
   Enemy[i]->speed_multiplier=saved_enemy_type_speed_multiplier[type];
 //bool
   Enemy[i]->time_breaker_immune=saved_enemy_type_time_breaker_immune[type];

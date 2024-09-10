@@ -32,6 +32,8 @@ void InitOnce() {
   adjustSFXVolume(&channelSoundEffectCache[0],&channelSoundEffect[0],game_volume/5,TRUE); //speed
   adjustSFXVolume(&channelSoundEffectCache[1],&channelSoundEffect[1],game_volume,TRUE); //clang_death
   adjustSFXVolume(&channelSoundEffectCache[2],&channelSoundEffect[2],game_volume/5,TRUE); //knife throw
+  adjustSFXVolume(&channelSoundEffectCache[3],&channelSoundEffect[3],game_volume/10,TRUE); //rain
+  adjustSFXVolume(&channelSoundEffectCache[4],&channelSoundEffect[4],game_volume/30,TRUE); //rain softer
 
   //Load custom song
   wchar_t dirname[64];
@@ -107,6 +109,7 @@ void Init(HDC hdc) {
   InitPlayer();
 
 
+  InitScreenRainDrop();
   InitBulletRain();
   BitmapPalette(hdc,map_platforms_sprite,rgbColorsDefault);
 
