@@ -447,13 +447,314 @@ void DrawGrids(HDC hdc,int player_cam_move_x,int player_cam_move_y)
 void DrawNodeGrids(HDC hdc)
 {
   for (int i=0;i<MAP_NODE_NUM;i++) {
-    //if (NodeGrid[i]->node_no_rain)
-      //GrCircle(hdc,NodeGrid[i]->x1+player.cam_x,NodeGrid[i]->y1+player.cam_y,3,YELLOW,-1);
-    //if (NodeGrid[i]->node_no_shade)
-      //GrCircle(hdc,NodeGrid[i]->x1+player.cam_x,NodeGrid[i]->y1+player.cam_y,3,BLUE,-1);
-    if (NodeGrid[i]->tmp_wet)
+    if (NodeGrid[i]->node_no_rain) //solid trifill
+      GrCircle(hdc,NodeGrid[i]->x1+player.cam_x,NodeGrid[i]->y1+player.cam_y,3,YELLOW,-1);
+    if (NodeGrid[i]->node_no_shade)
       GrCircle(hdc,NodeGrid[i]->x1+player.cam_x,NodeGrid[i]->y1+player.cam_y,3,BLUE,-1);
+    /*if (NodeGrid[i]->tmp_wet)
+      GrCircle(hdc,NodeGrid[i]->x1+player.cam_x,NodeGrid[i]->y1+player.cam_y,3,BLUE,-1);*/
   }
+}
+
+
+
+
+//Shadows
+struct photon
+{
+  bool in_solid,
+       passed_solid;
+  //double x,y;
+  int dist_travelled;
+  double rise,run;
+} photon;
+
+
+void DrawShadows2(HDC hdcSrc, HDC hdcDest, int x,int y,bool t)
+{
+    int c=Highlight(IsInvertedBackground(),DKGRAY,WHITE);
+    int color = GetPixel(hdcSrc, x, y);
+    /*if (color == CLR_INVALID) {
+        printf("Failed to get pixel color\n");
+    } else {
+        //printf("Pixel color at (%d, %d): R=%d, G=%d, B=%d\n", x, y, GetRValue(color), GetGValue(color), GetBValue(color));
+        printf("Pixel color at (%d, %d): %d\n", x, y, color);
+    }*/
+    //printf("Pixel color at (%d, %d): %d\n", x, y, color);
+    if (color!=MYCOLOR1) { //<------ color that shows that it is NOT in non-solid, it is a solid
+      //GrCircle(hdc,x,y,1,LTGRAY,-1);
+      photon.in_solid=TRUE;
+    }
+    if (photon.in_solid && color!=MYCOLOR1) {
+      photon.dist_travelled++;
+    }
+
+    if (photon.in_solid && color==MYCOLOR1) { //RGB(121,121,121)
+      photon.in_solid=FALSE;
+      photon.passed_solid=TRUE;
+      photon.dist_travelled=0;
+    }
+
+    if ((t && photon.passed_solid) || (!t && photon.passed_solid && photon.in_solid)) {
+      if (photon.in_solid) {
+        photon.dist_travelled++;
+      }
+      if (photon.in_solid) {
+        if (x%4==0) { //even
+          if (y%4==0) {
+            GrCircle(hdcDest,x,y,1,c,-1);
+          }
+        } else { //odd
+          if (x%2==0) {
+            if (y%4!=0 && y%2==0) {
+              GrCircle(hdcDest,x,y,1,c,-1);
+            }
+          }
+        }
+      } else {
+        /*if (x%4==0) { //even
+          if (y%4==0) {
+            GrCircle(hdc,x,y,1,c,-1);
+          }
+        } else { //odd
+          if (x%2==0) {
+            if (y%2==0 || y%3==0) {
+              GrCircle(hdc,x,y,1,c,-1);
+            }
+          }
+        }*/
+        //if (x%10==0 && y%3==0) {
+        GrCircle(hdcDest,x,y,1,c,-1);
+        //}
+      } 
+      if (photon.dist_travelled>20) {
+        photon.passed_solid=FALSE;
+        photon.dist_travelled=0;
+      }
+    }
+}
+
+
+/*void DrawShadows(HDC hdc) 
+{
+   //pass through first surface, hit second surface
+/*
+
+struct photon
+{
+    bool passed_solid;
+    double x,y;
+}
+
+
+
+            photons
+              |             |
+              |       v v v v v v v v
+              |     v ------------- <---------solids
+              v v v /       |       \     |
+            -------/ -----------------\   V
+              |             |  no shad- --\____
+              |             |  ows cuz no triangle below
+              |             |
+              v             v      _____________
+above-----> ______________________/|||||||||   <--- shadow dist on triangle below
+blocks      |||||||||||||||||||||||---------
+are         -----------------------
+non-solids
+
+*/
+/*
+
+  photon.passed_solid=FALSE;
+  photon.in_solid=FALSE;
+  photon.dist_travelled=0;
+
+  photon.rise=20;
+  photon.run=5;
+
+  // Set mapping mode so that +ve y axis is upwords
+  HDC hMemSrc = CreateCompatibleDC(hdc);
+  SelectObject(hMemSrc, map_platforms_sprite_mask);
+
+  /*for (int x=0;x<MAP_WIDTH;x++) {
+    /*for (int y=0;y<MAP_HEIGHT;y++) {
+      DrawShadows2(hdc,x,y);
+    }
+    photon.dist_travelled=0;
+    photon.passed_solid=FALSE;
+    photon.in_solid=FALSE;*/
+
+    /*for (int y=MAP_HEIGHT;y>0;y--) {
+      DrawShadows2(hdc,GetX(y,,c),y);
+    }
+    photon.dist_travelled=0;
+    photon.saved_dist_travelled=0;
+    photon.passed_solid=FALSE;
+    photon.in_solid=FALSE;
+  }*/
+/*
+  double gradient=photon.rise/photon.run;
+  double start_x=0,x=0,y=0;
+  while (start_x<MAP_WIDTH) {
+    if (y>=MAP_HEIGHT) { //solid detected, move to next start_x nodegrid
+      start_x++;
+      x=start_x;
+      y=0;
+      photon.dist_travelled=0;
+      photon.passed_solid=FALSE;
+      photon.in_solid=FALSE;
+
+    } else { //keep going down.
+      DrawShadows2(hdc,x,y,TRUE);
+      y++;
+      x=start_x+GetX(y,gradient,0);
+    }
+  }
+  photon.dist_travelled=0;
+  photon.passed_solid=FALSE;
+  photon.in_solid=FALSE;
+
+  start_x=0,x=0,y=MAP_HEIGHT;
+  while (start_x<MAP_WIDTH) {
+    if (y<=0) { //solid detected, move to next start_x nodegrid
+      start_x++;
+      x=start_x;
+      y=MAP_HEIGHT;
+      photon.dist_travelled=0;
+      photon.passed_solid=FALSE;
+      photon.in_solid=FALSE;
+
+    } else { //keep going up.
+      DrawShadows2(hdc,x,y,FALSE);
+      y--;
+      x=start_x+GetX(y,gradient,0);
+    }
+  }
+  photon.dist_travelled=0;
+  photon.passed_solid=FALSE;
+  photon.in_solid=FALSE;
+
+
+  DeleteDC(hMemSrc);
+}*/
+
+
+
+
+
+void CreatePlatformShadowBitmap(HDC hdc)
+{
+    photon.rise = 20;
+    photon.run = 5;
+
+    // Set mapping mode so that +ve y axis is upwards
+    HDC hMemSrc = CreateCompatibleDC(hdc);
+    HDC hMemDest = CreateCompatibleDC(hdc);
+
+    // Create a compatible bitmap for the shadow shader
+    map_platforms_shadow_shader = CreateCrunchyBitmap(MAP_WIDTH, MAP_HEIGHT);
+
+    // Select the bitmaps into the device contexts
+    SelectObject(hMemSrc, map_platforms_sprite_mask);
+    SelectObject(hMemDest, map_platforms_shadow_shader);
+    GrRect(hMemDest,0,0,MAP_WIDTH,MAP_HEIGHT,LTGRAY);
+    //GrRect(hMemDest,0,0,MAP_WIDTH,MAP_HEIGHT,MYCOLOR1);
+    //GrRect(hMemDest,400,600,300,300,RED);
+
+
+    double gradient = (double)photon.rise / photon.run;
+    double start_x = 0, x = 0, y = 0;
+
+  while (start_x<MAP_WIDTH) {
+    if (y>=MAP_HEIGHT) { //solid detected, move to next start_x nodegrid
+      start_x++;
+      x=start_x;
+      y=0;
+      photon.dist_travelled=0;
+      photon.passed_solid=FALSE;
+      photon.in_solid=FALSE;
+
+    } else { //keep going down.
+      //DrawShadows2(hdc,x,y,TRUE);
+
+
+
+    int c=Highlight(IsInvertedBackground(),BLACK,/*DKGRAY*/WHITE);
+    int color = GetPixel(hdc, x, y);
+    /*if (color == CLR_INVALID) {
+        printf("Failed to get pixel color\n");
+    } else {
+        //printf("Pixel color at (%d, %d): R=%d, G=%d, B=%d\n", x, y, GetRValue(color), GetGValue(color), GetBValue(color));
+        printf("Pixel color at (%d, %d): %d\n", x, y, color);
+    }*/
+    //printf("Pixel color at (%d, %d): %d\n", x, y, color);
+    if (color!=MYCOLOR1) { //<------ color that shows that it is NOT in non-solid, it is a solid
+      //GrCircle(hdc,x,y,1,LTGRAY,-1);
+      photon.in_solid=TRUE;
+    }
+    if (photon.in_solid && color!=MYCOLOR1) {
+      photon.dist_travelled++;
+    }
+
+    if (photon.in_solid && color==MYCOLOR1) { //RGB(121,121,121)
+      photon.in_solid=FALSE;
+      photon.passed_solid=TRUE;
+      photon.dist_travelled=0;
+    }
+
+    if ((photon.passed_solid)) {
+      if (photon.in_solid) {
+        photon.dist_travelled++;
+      }
+      if (photon.in_solid) {
+        if ((int)x%4==0) { //even
+          if ((int)y%4==0) {
+            GrCircle(hMemDest,x,y,1,c,-1);
+          }
+        } else { //odd
+          if ((int)x%2==0) {
+            if ((int)y%4!=0 && (int)y%2==0) {
+              GrCircle(hMemDest,x,y,1,c,-1);
+            }
+          }
+        }
+      } else {
+        /*if (x%4==0) { //even
+          if (y%4==0) {
+            GrCircle(hdc,x,y,1,c,-1);
+          }
+        } else { //odd
+          if (x%2==0) {
+            if (y%2==0 || y%3==0) {
+              GrCircle(hdc,x,y,1,c,-1);
+            }
+          }
+        }*/
+        //if (x%10==0 && y%3==0) {
+        GrCircle(hMemDest,x,y,1,c,-1);
+      } 
+      if (photon.dist_travelled>20) {
+        photon.passed_solid=FALSE;
+        photon.dist_travelled=0;
+      }
+    }
+
+
+
+
+
+
+      y++;
+      x=start_x+GetX(y,gradient,0);
+    }
+  }
+  photon.dist_travelled=0;
+  photon.passed_solid=FALSE;
+  photon.in_solid=FALSE;
+
+  DeleteDC(hMemDest);
+  DeleteDC(hMemSrc);
 }
 
 

@@ -727,5 +727,3 @@ void DrawGroundTriFill(HDC hdc)
   }
 }
 
-
-

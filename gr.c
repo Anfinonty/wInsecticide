@@ -24,7 +24,7 @@
 #define DKBLACK     RGB(2,2,2) //For drawing
 #define LPURPLE     RGB(170,43,170)
 #define LLTGREEN    RGB(0,254,0)
-#define MYCOLOR1    RGB(123,123,123)
+#define MYCOLOR1    RGB(121,121,121)
 
 
 //DARK COLORS
@@ -1795,8 +1795,32 @@ void DrawSprite(HDC hdc,int _x1, int _y1, DRAWSPRITE* myDrawSprite,bool is_left)
 }
 
 
+void GrGlassPixel(HDC hdc, int x, int y, COLORREF color, BYTE alpha) {
+    // Create a memory DC and a bitmap
+    HDC memDC = CreateCompatibleDC(hdc);
+    HBITMAP hBitmap = CreateCompatibleBitmap(hdc, 1, 1);
+    SelectObject(memDC, hBitmap);
+
+    // Set the pixel color
+    SetPixel(memDC, 0, 0, color);
+
+    // Create a BLENDFUNCTION structure
+    BLENDFUNCTION blendFunc;
+    blendFunc.BlendOp = AC_SRC_OVER;
+    blendFunc.BlendFlags = 0;
+    blendFunc.SourceConstantAlpha = alpha; // 50% transparency
+    blendFunc.AlphaFormat = 0;
+
+    // Use AlphaBlend to draw the pixel with transparency
+    AlphaBlend(hdc, x, y, 1, 1, memDC, 0, 0, 1, 1, blendFunc);
+
+    // Clean up
+    DeleteObject(hBitmap);
+    DeleteDC(memDC);
+}
+
 //Sprites must be 32-bit :/
-/*void DrawGlassBitmap(HDC hdc, HBITMAP hBitmap, int x, int y, int level)
+void DrawGlassBitmap(HDC hdc, HBITMAP hBitmap, int x, int y, int level)
 {
     // Create a memory device context compatible with the specified device context
     BITMAP bm;
@@ -1818,7 +1842,7 @@ void DrawSprite(HDC hdc,int _x1, int _y1, DRAWSPRITE* myDrawSprite,bool is_left)
     blendFunc.AlphaFormat = 0;//AC_SRC_ALPHA;//0;
 
     // Perform the alpha blending
-    AlphaBlend(hdc, x-width/2, y-height/2, width, height, hdcMem, 0, 0, width, height, blendFunc);
+    AlphaBlend(hdc, x, y, width, height, hdcMem, 0, 0, width, height, blendFunc);
 
     // Clean up
     SelectObject(hdcMem, hOldBitmap);
@@ -1827,7 +1851,7 @@ void DrawSprite(HDC hdc,int _x1, int _y1, DRAWSPRITE* myDrawSprite,bool is_left)
 
 
 
-void DrawTBitmap(HDC hdc,  DRAWSPRITE* myDrawSprite, int x, int y, int level,bool is_left)
+/*void DrawTBitmap(HDC hdc,  DRAWSPRITE* myDrawSprite, int x, int y, int level,bool is_left)
 {
     BITMAP bm;
     GetObject(myDrawSprite->sprite_mask, sizeof(bm), &bm);

@@ -150,12 +150,20 @@ void InitPlatformsSprite(HWND hwnd, HDC hdc)
   DrawGroundTriFill(hdc2);
   DrawGround(hdc2);
   DrawGroundText(hdc2);
-
+  //DrawShadows(hdc2);
+  CreatePlatformShadowBitmap(hdc2);//,map_platforms_sprite);
+  
   DeleteDC(hdc2);
   EndPaint(hwnd, &ps);
 
+
+
+
   //map_platforms_sprite=ReplaceColor(tmp_map_platforms_sprite,MYCOLOR1,BLACK,NULL);
   map_platforms_sprite_mask=CreateBitmapMask(map_platforms_sprite,MYCOLOR1,NULL); //create mask where black becomes   //end of platform sprite creation
+
+
+  //map_platforms_shadow_shader_mask=CreateBitmapMask(map_platforms_shadow_shader,MYCOLOR1,NULL);
 }
 
 

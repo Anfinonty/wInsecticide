@@ -886,7 +886,8 @@ HBITMAP map_background_sprite;
 //map platforms
 HBITMAP map_platforms_sprite;
 HBITMAP map_platforms_sprite_mask;
-
+HBITMAP map_platforms_shadow_shader;
+//HBITMAP map_platforms_shadow_shader_mask;
 
 //moon
 HBITMAP moon_sprite;

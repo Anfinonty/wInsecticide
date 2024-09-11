@@ -405,6 +405,7 @@ void CleanupAll()
 
     DeleteObject(map_platforms_sprite); //delete sprites
     DeleteObject(map_platforms_sprite_mask);
+    DeleteObject(map_platforms_shadow_shader);
     LoadMainMenuBackground();
 
     DeleteObject(moon_sprite_cache);
