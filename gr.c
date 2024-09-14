@@ -1884,3 +1884,161 @@ void DrawGlassSprite(HDC hdc,int _x1, int _y1, DRAWSPRITE* myDrawSprite,bool is_
   DrawTBitmap(hdc,myDrawSprite,_x1,_y1,127,is_left);
 }*/
 
+
+/*
+void BlendPixel(BYTE* dest, BYTE* src, BYTE alpha) {
+    dest[0] = (src[0] * alpha + dest[0] * (255 - alpha)) / 255; // Blue
+    dest[1] = (src[1] * alpha + dest[1] * (255 - alpha)) / 255; // Green
+    dest[2] = (src[2] * alpha + dest[2] * (255 - alpha)) / 255; // Red
+}
+
+void DrawTransparentSprite(HDC hdc, HBITMAP hSprite, int x, int y, BYTE alpha) {
+    BITMAP bm;
+    GetObject(hSprite, sizeof(BITMAP), &bm);
+
+    HDC hMemDC = CreateCompatibleDC(hdc);
+    SelectObject(hMemDC, hSprite);
+
+    BITMAPINFO bmi = {0};
+    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    bmi.bmiHeader.biWidth = bm.bmWidth;
+    bmi.bmiHeader.biHeight = -bm.bmHeight; // Top-down
+    bmi.bmiHeader.biPlanes = 1;
+    bmi.bmiHeader.biBitCount = 24;
+    bmi.bmiHeader.biCompression = BI_RGB;
+
+    BYTE* pBits = (BYTE*)malloc(bm.bmWidth * bm.bmHeight * 3);
+    GetDIBits(hMemDC, hSprite, 0, bm.bmHeight, pBits, &bmi, DIB_RGB_COLORS);
+
+    for (int j = 0; j < bm.bmHeight; ++j) {
+        for (int i = 0; i < bm.bmWidth; ++i) {
+            COLORREF bgColor = GetPixel(hdc, x + i, y + j);
+            BYTE bg[3] = { GetBValue(bgColor), GetGValue(bgColor), GetRValue(bgColor) };
+            BYTE* src = &pBits[(j * bm.bmWidth + i) * 3];
+            BlendPixel(bg, src, alpha);
+            SetPixel(hdc, x + i, y + j, RGB(bg[2], bg[1], bg[0]));
+        }
+    }
+
+    free(pBits);
+    DeleteDC(hMemDC);
+}*/
+
+
+
+/*void BlendPixel(BYTE* dest, BYTE* src, BYTE alpha) {
+    dest[0] = (src[0] * alpha + dest[0] * (255 - alpha)) / 255; // Blue
+    dest[1] = (src[1] * alpha + dest[1] * (255 - alpha)) / 255; // Green
+    dest[2] = (src[2] * alpha + dest[2] * (255 - alpha)) / 255; // Red
+}
+
+void DrawTransparentSprite(HDC hdc, HBITMAP hSprite, int x, int y, BYTE alpha) {
+    BITMAP bm;
+    GetObject(hSprite, sizeof(BITMAP), &bm);
+
+    HDC hMemDC = CreateCompatibleDC(hdc);
+    SelectObject(hMemDC, hSprite);
+
+    BITMAPINFO bmi = {0};
+    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    bmi.bmiHeader.biWidth = bm.bmWidth;
+    bmi.bmiHeader.biHeight = -bm.bmHeight; // Top-down
+    bmi.bmiHeader.biPlanes = 1;
+    bmi.bmiHeader.biBitCount = 24;
+    bmi.bmiHeader.biCompression = BI_RGB;
+
+    BYTE* pSpriteBits = (BYTE*)malloc(bm.bmWidth * bm.bmHeight * 3);
+    GetDIBits(hMemDC, hSprite, 0, bm.bmHeight, pSpriteBits, &bmi, DIB_RGB_COLORS);
+
+    HDC hMemDC2 = CreateCompatibleDC(hdc);
+    HBITMAP hBackground = CreateCompatibleBitmap(hdc, bm.bmWidth, bm.bmHeight);
+    SelectObject(hMemDC2, hBackground);
+    BitBlt(hMemDC2, 0, 0, bm.bmWidth, bm.bmHeight, hdc, x, y, SRCCOPY);
+
+    BYTE* pBackgroundBits = (BYTE*)malloc(bm.bmWidth * bm.bmHeight * 3);
+    GetDIBits(hMemDC2, hBackground, 0, bm.bmHeight, pBackgroundBits, &bmi, DIB_RGB_COLORS);
+
+    for (int j = 0; j < bm.bmHeight; ++j) {
+        for (int i = 0; i < bm.bmWidth; ++i) {
+            BYTE* bg = &pBackgroundBits[(j * bm.bmWidth + i) * 3];
+            BYTE* src = &pSpriteBits[(j * bm.bmWidth + i) * 3];
+            BlendPixel(bg, src, alpha);
+        }
+    }
+
+    SetDIBits(hMemDC2, hBackground, 0, bm.bmHeight, pBackgroundBits, &bmi, DIB_RGB_COLORS);
+    BitBlt(hdc, x, y, bm.bmWidth, bm.bmHeight, hMemDC2, 0, 0, SRCCOPY);
+
+    free(pSpriteBits);
+    free(pBackgroundBits);
+    DeleteObject(hBackground);
+    DeleteDC(hMemDC);
+    DeleteDC(hMemDC2);
+}
+
+/*
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
+    // Initialize and create window...
+
+    HBITMAP hSprite = (HBITMAP)LoadImage(NULL, "sprite.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    if (!hSprite) {
+        MessageBox(NULL, "Failed to load sprite", "Error", MB_OK);
+        return 0;
+    }
+
+    // In your window's paint handler:
+    PAINTSTRUCT ps;
+    HDC hdc = BeginPaint(hWnd, &ps);
+    DrawTransparentSprite(hdc, hSprite, 50, 50, 128); // 50% transparency
+    EndPaint(hWnd, &ps);
+
+    // Cleanup and exit...
+    DeleteObject(hSprite);
+    return 0;
+}*/
+
+
+// Function to draw a transparent sprite
+/*void DrawTransparentSprite(HDC hdcDest, int xDest, int yDest, HBITMAP hBitmap, int width, int height) {
+    HDC hdcMem = CreateCompatibleDC(hdcDest);
+    HBITMAP hOldBitmap = (HBITMAP)SelectObject(hdcMem, hBitmap);
+
+    // Create a temporary bitmap to hold the modified image
+    HBITMAP hTempBitmap = CreateCompatibleBitmap(hdcDest, width, height);
+    HDC hdcTemp = CreateCompatibleDC(hdcDest);
+    HBITMAP hOldTempBitmap = (HBITMAP)SelectObject(hdcTemp, hTempBitmap);
+
+    // Copy the original image to the temporary bitmap
+    BitBlt(hdcTemp, 0, 0, width, height, hdcMem, 0, 0, SRCCOPY);
+
+    // Modify the pixels to achieve 50% transparency
+    BITMAPINFO bmi;
+    ZeroMemory(&bmi, sizeof(BITMAPINFO));
+    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    bmi.bmiHeader.biWidth = width;
+    bmi.bmiHeader.biHeight = -height; // Negative to indicate top-down DIB
+    bmi.bmiHeader.biPlanes = 1;
+    bmi.bmiHeader.biBitCount = 32;
+    bmi.bmiHeader.biCompression = BI_RGB;
+
+    RGBQUAD* pPixels = (RGBQUAD*)malloc(width * height * sizeof(RGBQUAD));
+    GetDIBits(hdcTemp, hTempBitmap, 0, height, pPixels, &bmi, DIB_RGB_COLORS);
+
+    for (int i = 0; i < width * height; ++i) {
+        pPixels[i].rgbReserved = (BYTE)(pPixels[i].rgbReserved * 0.5); // 50% transparency
+    }
+
+    SetDIBits(hdcTemp, hTempBitmap, 0, height, pPixels, &bmi, DIB_RGB_COLORS);
+    free(pPixels);
+
+    // Draw the modified image to the destination DC
+    BitBlt(hdcDest, xDest, yDest, width, height, hdcTemp, 0, 0, SRCCOPY);
+
+    // Cleanup
+    SelectObject(hdcTemp, hOldTempBitmap);
+    DeleteDC(hdcTemp);
+    DeleteObject(hTempBitmap);
+    SelectObject(hdcMem, hOldBitmap);
+    DeleteDC(hdcMem);
+}*/
+

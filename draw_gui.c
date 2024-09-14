@@ -91,6 +91,8 @@ void ScreenRainDropAct()
   } 
 }
 
+
+
 void DrawRainShader(HDC hdc)
 {
   if (player.rain_wet_timer>0) {
@@ -152,8 +154,12 @@ void DrawPlatforms(HDC hDC)
                  GR_WIDTH,
                  GR_HEIGHT+extra_h,
                  map_platforms_sprite,SRCPAINT,FALSE,FALSE);
+}
 
-  DrawGlassBitmap(hDC, 
+
+void DrawShadows(HDC hdc)
+{
+  DrawGlassBitmap(hdc, 
         map_platforms_shadow_shader, 
         GR_WIDTH/2-player.x+player.cam_mouse_move_x+player.cam_move_x,
         GR_HEIGHT/2-player.y+player.cam_mouse_move_y+player.cam_move_y,

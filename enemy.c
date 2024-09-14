@@ -367,6 +367,7 @@ void EnemyMove(int enemy_id)
       }
     }
   }*/
+  Enemy[enemy_id]->on_ground_id=GetOnGroundIdE(Enemy[enemy_id]->x,Enemy[enemy_id]->y,30,29,enemy_id);    //Get Ground id
 
 
 
@@ -1110,17 +1111,23 @@ void EnemyAct(int i)
             EnemyTargetPlayer(i);
             Enemy[i]->in_chase_range=FALSE;
             Enemy[i]->in_unchase_range=FALSE;
-              }
-            }
-          }
-        }//end of slash_time
-      //other
-        if (Enemy[i]->species==0) {
-          Enemy[i]->sprite_timer++;
-          if (Enemy[i]->sprite_timer>3) {
-            Enemy[i]->sprite_timer=0;
           }
         }
+      }
+    }//end of slash_time
+      //other
+    if (Enemy[i]->species==0) {
+      Enemy[i]->sprite_timer++;
+      if (Enemy[i]->sprite_timer>3) {
+        Enemy[i]->sprite_timer=0;
+      }
+    } else if (Enemy[i]->species==1) {
+      if (!Enemy[i]->move_to_target) {
+        if (Enemy[i]->sprite_timer<0) {
+          Enemy[i]->sprite_timer=0;
+        }    
+      }
+    }
 
 
       }
@@ -1651,32 +1658,26 @@ void DrawEnemy(HDC hdc)
         case 1: 
         {
           if (Enemy[i]->in_air_timer==0 && !Enemy[i]->being_drawn) {
-            if (Enemy[i]->above_ground) {
-              if (Enemy[i]->sprite_timer%8==0) {
-                //GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,EnemySprite[i]->sprite_1,Enemy[i]->last_left);
-                //GrPrint(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y-72,"1",Enemy[i]->color); //Debug sprite spazzing
-                DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemySprite[i]->draw_sprite_1,Enemy[i]->last_left);
-              } else {
-                //GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,EnemySprite[i]->sprite_2,Enemy[i]->last_left);
-                //GrPrint(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y-72,"2",Enemy[i]->color);
-                DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemySprite[i]->draw_sprite_2,Enemy[i]->last_left);
-              }
-            } else if (Enemy[i]->below_ground) {
-              if (Enemy[i]->sprite_timer%8==0) {
-                //GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,EnemySprite[i]->sprite_1,Enemy[i]->flip_sprite);
-                //GrPrint(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y-72,"3",Enemy[i]->color);
-                DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemySprite[i]->draw_sprite_1,Enemy[i]->flip_sprite);
-              } else {
-                //GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,EnemySprite[i]->sprite_2,Enemy[i]->flip_sprite);
-                //GrPrint(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y-72,"4",Enemy[i]->color);
-                DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemySprite[i]->draw_sprite_2,Enemy[i]->flip_sprite);
-              }
-            } else {
-              //GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,EnemySprite[i]->sprite_3,Enemy[i]->last_left);
+            if (Enemy[i]->on_ground_id==-1) {
               DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemySprite[i]->draw_sprite_3,Enemy[i]->last_left);
+            } else {
+              if (Enemy[i]->above_ground) {
+                if (Enemy[i]->sprite_timer%8==0) {
+                  DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemySprite[i]->draw_sprite_1,Enemy[i]->last_left);
+                } else {
+                  DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemySprite[i]->draw_sprite_2,Enemy[i]->last_left);
+                }
+              } else if (Enemy[i]->below_ground) {
+                if (Enemy[i]->sprite_timer%8==0) {
+                  DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemySprite[i]->draw_sprite_1,Enemy[i]->flip_sprite);
+                } else {
+                  DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemySprite[i]->draw_sprite_2,Enemy[i]->flip_sprite);
+                }
+              } else {
+                DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemySprite[i]->draw_sprite_3,Enemy[i]->last_left);
+              }
             }
           } else {
-            //GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,EnemySprite[i]->sprite_3,Enemy[i]->last_left);
             DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemySprite[i]->draw_sprite_3,Enemy[i]->last_left);
           }
         //if (Enemy[i]->health>0)

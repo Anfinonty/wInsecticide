@@ -156,9 +156,9 @@ double game_volume=1.0;
 double old_game_volume=1.0;
 
 
-bool raining=FALSE;
+bool raining=TRUE;
 int rain_duration=0;
-double rain_grad_rise=20,rain_grad_run=8;
+double rain_grad_rise=1,rain_grad_run=1;
 //HBITMAP canny;
 //HBITMAP uncanny;
 
@@ -416,7 +416,7 @@ void RemoveFolderRecursive(const wchar_t* dirname)
 
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-  HDC hdc, hdcBackbuff;
+  HDC hdc, hdcBackbuff;//, hdcBackbuff2;
   //HWND hShellWnd = FindWindowA("Shell_TrayWnd", NULL);
   //LONG originalStyle = GetWindowLong(hwnd, GWL_STYLE);
 
@@ -653,7 +653,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       if (!IsIconic(hwnd)) //no action when minimized, prevents crash https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-isiconic?redirectedfrom=MSDN
       {
         SetUnhandledExceptionFilter((LPTOP_LEVEL_EXCEPTION_FILTER)&myTry); 
-        HBITMAP screen;
+        HBITMAP screen;//,screen2;
         PAINTSTRUCT ps;
         hdc=BeginPaint(hwnd, &ps);
         RECT rect;
@@ -767,6 +767,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
 
             hdcBackbuff=CreateCompatibleDC(hdc);
+            //hdcBackbuff2=CreateCompatibleDC(hdc);
             screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
             SelectObject(hdcBackbuff,screen);
             DrawBackground(hdcBackbuff);
@@ -775,15 +776,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DrawWebs(hdcBackbuff);
             DrawEnemy(hdcBackbuff);
             DrawPlayer(hdcBackbuff);
+
+            DrawShadows(hdcBackbuff);
+
             DrawUI(hdcBackbuff);
             //GrGlassRect(hdcBackbuff,0,0,GR_WIDTH,GR_HEIGHT,YELLOW,128);
             DrawCursor(hdcBackbuff);
             //DrawGrids(hdcBackbuff);
-            DrawWaterShader(hdcBackbuff);
+            DrawWaterShader(hdcBackbuff);           
             if (raining) {
               DrawRain(hdcBackbuff);
               DrawRainShader(hdcBackbuff);
-            }            
+            }
             //void DrawGlassBitmap(HDC hdc, HBITMAP hBitmap, int x, int y, int level)
             //DrawGlassBitmap(hdcBackbuff,map_platforms_shadow_shaders,MAP_WIDTH/2,MAP_HEIGHT/2,128);
             //DrawNodeGrids(hdcBackbuff);
@@ -794,8 +798,33 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             } else { //non inverted palette level
               BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
             }
+
+            /*BLENDFUNCTION blendFunction;
+            blendFunction.BlendOp = AC_SRC_OVER;
+            blendFunction.BlendFlags = 0;
+            AlphaBlend(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0, GR_WIDTH, GR_HEIGHT, blendFunction);*/
+
+
+
+            /*screen2=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+            SelectObject(hdcBackbuff2,screen2);
+            if (raining) {
+              DrawRainShader(hdcBackbuff2);
+            }
+            if (!IsInvertedBackground()){ //Inverted palette level
+              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff2, 0, 0,  SRCCOPY);
+            } else { //non inverted palette level
+              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff2, 0, 0,  NOTSRCCOPY);
+            }*/
+
+
+            
             DeleteDC(hdcBackbuff);
             DeleteObject(screen);
+            /*DeleteDC(hdcBackbuff2);
+            DeleteObject(screen2);*/
+
+
             //Trigger go back to main menu
             if (back_to_menu) {
               CleanupAll();
