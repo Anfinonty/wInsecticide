@@ -14,6 +14,7 @@
 
 //#include <winsock2.h> //for multiplayer
 #include <windows.h>
+#include <gdiplus.h> //for gif
 //#include <wingdi.h>
 
 #include <stdint.h>
@@ -156,7 +157,7 @@ double game_volume=1.0;
 double old_game_volume=1.0;
 
 
-bool raining=TRUE;
+bool raining=FALSE;
 int rain_duration=0;
 double rain_grad_rise=1,rain_grad_run=1;
 //HBITMAP canny;
@@ -355,6 +356,46 @@ void FrameRateSleep(int max_fps)
 }
 
 
+//gif testing
+/*ULONG_PTR gdiplusToken;
+GpImage *image;
+UINT frameCount;
+UINT currentFrame = 30;
+int currentFrameTimer=0;
+UINT *frameDelays;
+
+void OnPaint(HDC hdc) {
+    GpGraphics *graphics;
+    GdipCreateFromHDC(hdc, &graphics);
+    GdipDrawImage(graphics, image, 0, 0);
+    GdipDeleteGraphics(graphics);
+}*/
+
+
+/*void UpdateFrame(HWND hwnd) {
+    //currentFrame = (currentFrame + 1) % frameCount;
+    
+    if (current_song_time!=-1) {
+    if(currentFrameTimer<=0) {
+      currentFrameTimer=frameDelays[currentFrame];
+      currentFrame++;
+    } else {
+      currentFrameTimer-=FPS;
+    } else {
+      currentFrame=30;
+    }
+
+
+    if (currentFrame>frameCount) {
+      currentFrame=0;
+    }
+
+    GUID pageGuid = FrameDimensionTime;
+    GdipImageSelectActiveFrame(image, &pageGuid, currentFrame);
+    }
+//    InvalidateRect(hwnd, NULL, TRUE);
+//    SetTimer(hwnd, 1, frameDelays[currentFrame] /1000000, NULL);
+}*/
 
 DWORD WINAPI AnimateTask01(LPVOID lpArg) {
   while (TRUE) {
@@ -652,6 +693,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       FrameRateSleep(FPS); // (Uncapped) //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
       if (!IsIconic(hwnd)) //no action when minimized, prevents crash https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-isiconic?redirectedfrom=MSDN
       {
+        //UpdateFrame(hwnd);
         SetUnhandledExceptionFilter((LPTOP_LEVEL_EXCEPTION_FILTER)&myTry); 
         HBITMAP screen;//,screen2;
         PAINTSTRUCT ps;
@@ -767,12 +809,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
 
             hdcBackbuff=CreateCompatibleDC(hdc);
-            //hdcBackbuff2=CreateCompatibleDC(hdc);
             screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
             SelectObject(hdcBackbuff,screen);
             DrawBackground(hdcBackbuff);
             DrawPlatforms(hdcBackbuff);
-            //DrawForeground(hdcBackbuff);
             DrawWebs(hdcBackbuff);
             DrawEnemy(hdcBackbuff);
             DrawPlayer(hdcBackbuff);
@@ -782,12 +822,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DrawUI(hdcBackbuff);
             //GrGlassRect(hdcBackbuff,0,0,GR_WIDTH,GR_HEIGHT,YELLOW,128);
             DrawCursor(hdcBackbuff);
-            //DrawGrids(hdcBackbuff);
+            //DrawGrids(hdcBackbuff); //debugging
             DrawWaterShader(hdcBackbuff);           
             if (raining) {
               DrawRain(hdcBackbuff);
               DrawRainShader(hdcBackbuff);
             }
+
+
             //void DrawGlassBitmap(HDC hdc, HBITMAP hBitmap, int x, int y, int level)
             //DrawGlassBitmap(hdcBackbuff,map_platforms_shadow_shaders,MAP_WIDTH/2,MAP_HEIGHT/2,128);
             //DrawNodeGrids(hdcBackbuff);
@@ -799,30 +841,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
             }
 
-            /*BLENDFUNCTION blendFunction;
-            blendFunction.BlendOp = AC_SRC_OVER;
-            blendFunction.BlendFlags = 0;
-            AlphaBlend(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0, GR_WIDTH, GR_HEIGHT, blendFunction);*/
-
-
-
-            /*screen2=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
-            SelectObject(hdcBackbuff2,screen2);
-            if (raining) {
-              DrawRainShader(hdcBackbuff2);
-            }
-            if (!IsInvertedBackground()){ //Inverted palette level
-              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff2, 0, 0,  SRCCOPY);
-            } else { //non inverted palette level
-              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff2, 0, 0,  NOTSRCCOPY);
-            }*/
-
-
             
             DeleteDC(hdcBackbuff);
             DeleteObject(screen);
-            /*DeleteDC(hdcBackbuff2);
-            DeleteObject(screen2);*/
 
 
             //Trigger go back to main menu
@@ -872,6 +893,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       
           DrawMainMenu(hdcBackbuff);
           //DrawPaletteSquare(hdcBackbuff,200,200);
+          //OnPaint(hdcBackbuff);
           DrawCursor(hdcBackbuff);
 
           BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
@@ -978,7 +1000,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       remove("music/tmp/tmp.wav");
       rmdir("music/tmp"); //remove tmp
 
-      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៣ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1963-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1446-03-07"), TEXT("អ្នករាបចង្រៃ") ,MB_OK);
+      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៣ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1963-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1446-03-11"), TEXT("អ្នករាបចង្រៃ") ,MB_OK);
 //TEXT("អាពីងស៊ីរុយ") ,MB_OK); //ឈ្មោះចាស់
 
       //load levels in save
@@ -1259,9 +1281,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
        break;
 
 
+    /*case WM_TIMER:
+      UpdateFrame(hwnd);
+      break;*/
 
     //Tasks to perform on exit
     case WM_DESTROY:
+/*      KillTimer(hwnd, 1);
+      GdipDisposeImage(image);
+      GdiplusShutdown(gdiplusToken);*/
+
       remove("music/tmp/tmp.wav");
       rmdir("music/tmp"); //remove tmp
       //HWND hShellWnd = FindWindowA("Shell_TrayWnd", NULL);
@@ -1282,7 +1311,27 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
 
-int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nCmdShow) {
+int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nCmdShow)
+{
+    /*GdiplusStartupInput gdiplusStartupInput;
+    GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+
+    GdipLoadImageFromFile(L"sprites/bad_apple_gif.gif", &image);
+
+    // Get the frame count
+    GUID pageGuid = FrameDimensionTime;
+    GdipImageGetFrameCount(image, &pageGuid, &frameCount);
+
+    // Get the frame delays
+    UINT size;
+    GdipGetPropertyItemSize(image, PropertyTagFrameDelay, &size);
+    PropertyItem *propertyItem = (PropertyItem*)malloc(size);
+    GdipGetPropertyItem(image, PropertyTagFrameDelay, size, propertyItem);
+    frameDelays = (UINT*)propertyItem->value;*/
+
+
+
+
   //Window Class
   WNDCLASSW wc = {0};
   wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS; 
@@ -1378,6 +1427,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   HANDLE thread2=CreateThread(NULL,0,AnimateTask02,NULL,0,NULL); //Spawm Game Logic Thread
   HANDLE thread3=CreateThread(NULL,0,SongTask,NULL,0,NULL); //Spawn Song Player Thread
 
+  //SetTimer(hwnd, 1, frameDelays[currentFrame] , NULL);
 
   MSG msg;
   while (true) {
@@ -1388,12 +1438,18 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
       DispatchMessage(&msg);
     }
   }
-  timeEndPeriod(1);
+  /*MSG msg;
+  while (GetMessage(&msg, NULL, 0, 0)) {
+    TranslateMessage(&msg);
+    DispatchMessage(&msg);
+  }
+  timeEndPeriod(1);*/
 
   //In case WM_DESTROY doesnt work
   //HWND hShellWnd = FindWindowA("Shell_TrayWnd", NULL);
   //ShowWindow(hShellWnd, SW_SHOW);
   waveOutSetVolume(hWaveOut[2],wav_out_original_volume);
+  //free(propertyItem);
   return (int) msg.wParam;
 }
 

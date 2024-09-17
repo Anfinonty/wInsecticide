@@ -2042,3 +2042,265 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     DeleteDC(hdcMem);
 }*/
 
+
+
+//https://github.com/jroop6/SimpleKeylogger/blob/2a8fd44237a2ba85bcdb9b6bd05bec26ac2cd4f5/SimpleKeylogger/MainWindow.cpp
+//https://github.com/MarySoroka/OSASP-2/blob/70c997b0f58a3a2886654fc97feaf82572038c95/Paint/Paint/paint.cpp
+
+
+bool SaveLargeBitmapToFile(HBITMAP hBitmap, LPCWSTR lpszFileName) {
+    BITMAP bmp;
+    PBITMAPINFO pbmi;
+    WORD cClrBits;
+    HANDLE hf;                  // file handle
+    BITMAPFILEHEADER hdr;       // bitmap file-header
+    PBITMAPINFOHEADER pbih;     // bitmap info-header
+    LPBYTE lpBits;              // memory pointer
+    DWORD dwTotal;              // total count of bytes
+    DWORD cb;                   // incremental count of bytes
+    BYTE *hp;                   // byte pointer
+    DWORD dwTmp;
+
+    // Retrieve the bitmap color format, width, and height.
+    if (!GetObject(hBitmap, sizeof(BITMAP), (LPSTR)&bmp)) {
+        return FALSE;
+    }
+
+    // Convert the color format to a count of bits.
+    cClrBits = (WORD)(bmp.bmPlanes * bmp.bmBitsPixel);
+    if (cClrBits == 1) {
+        cClrBits = 1;
+    } else if (cClrBits <= 4) {
+        cClrBits = 4;
+    } else if (cClrBits <= 8) {
+        cClrBits = 8;
+    } else if (cClrBits <= 16) {
+        cClrBits = 16;
+    } else if (cClrBits <= 24) {
+        cClrBits = 24;
+    } else {
+        cClrBits = 32;
+    }
+
+    // Allocate memory for the BITMAPINFO structure.
+    if (cClrBits != 24) {
+        pbmi = (PBITMAPINFO) LocalAlloc(LPTR, sizeof(BITMAPINFOHEADER) + sizeof(RGBQUAD) * (1 << cClrBits));
+    } else {
+        pbmi = (PBITMAPINFO) LocalAlloc(LPTR, sizeof(BITMAPINFOHEADER));
+    }
+
+    // Initialize the fields in the BITMAPINFO structure.
+    pbih = (PBITMAPINFOHEADER) pbmi;
+    pbih->biSize = sizeof(BITMAPINFOHEADER);
+    pbih->biWidth = bmp.bmWidth;
+    pbih->biHeight = bmp.bmHeight;
+    pbih->biPlanes = bmp.bmPlanes;
+    pbih->biBitCount = bmp.bmBitsPixel;
+    if (cClrBits < 24) {
+        pbih->biClrUsed = (1 << cClrBits);
+    }
+
+    // If the bitmap is not compressed, set the BI_RGB flag.
+    pbih->biCompression = BI_RGB;
+
+    // Compute the number of bytes in the array of color indices and store the result in biSizeImage.
+    pbih->biSizeImage = ((pbih->biWidth * cClrBits + 31) & ~31) / 8 * pbih->biHeight;
+    pbih->biClrImportant = 0;
+
+    // Allocate memory for the array of color indices.
+    lpBits = (LPBYTE) GlobalAlloc(GMEM_FIXED, pbih->biSizeImage);
+
+    // Retrieve the color table (RGBQUAD array) and the bits (array of palette indices).
+    if (!GetDIBits(GetDC(0), hBitmap, 0, (WORD) pbih->biHeight, lpBits, pbmi, DIB_RGB_COLORS)) {
+        return FALSE;
+    }
+
+    // Create the .BMP file.
+    hf = CreateFile(lpszFileName, GENERIC_READ | GENERIC_WRITE, (DWORD) 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, (HANDLE) NULL);
+    if (hf == INVALID_HANDLE_VALUE) {
+        return FALSE;
+    }
+
+    hdr.bfType = 0x4D42;  // "BM"
+    hdr.bfSize = (DWORD) (sizeof(BITMAPFILEHEADER) + pbih->biSize + pbih->biClrUsed * sizeof(RGBQUAD) + pbih->biSizeImage);
+    hdr.bfReserved1 = 0;
+    hdr.bfReserved2 = 0;
+    hdr.bfOffBits = (DWORD) sizeof(BITMAPFILEHEADER) + pbih->biSize + pbih->biClrUsed * sizeof (RGBQUAD);
+
+    // Write the BITMAPFILEHEADER to the .BMP file.
+    if (!WriteFile(hf, (LPVOID) &hdr, sizeof(BITMAPFILEHEADER), (LPDWORD) &dwTmp, NULL)) {
+        return FALSE;
+    }
+
+    // Write the BITMAPINFOHEADER and RGBQUAD array to the file.
+    if (!WriteFile(hf, (LPVOID) pbih, sizeof(BITMAPINFOHEADER) + pbih->biClrUsed * sizeof (RGBQUAD), (LPDWORD) &dwTmp, NULL)) {
+        return FALSE;
+    }
+
+    // Copy the array of color indices into the .BMP file.
+    dwTotal = cb = pbih->biSizeImage;
+    hp = lpBits;
+    if (!WriteFile(hf, (LPSTR) hp, (int) cb, (LPDWORD) &dwTmp, NULL)) {
+        return FALSE;
+    }
+
+    // Close the .BMP file.
+    if (!CloseHandle(hf)) {
+        return FALSE;
+    }
+
+    // Free memory.
+    GlobalFree((HGLOBAL)lpBits);
+    LocalFree((HLOCAL)pbmi);
+
+    return TRUE;
+}
+
+
+//DONT DELETE
+void SaveBitmapToFile(HBITMAP hBitmap, RGBQUAD* palette, const wchar_t* filename) {
+    BITMAP bmp;
+    BITMAPINFOHEADER bi;
+    BITMAPFILEHEADER bf;
+    FILE* file;
+    HDC hdc;
+
+    // Get the bitmap information
+    GetObject(hBitmap, sizeof(BITMAP), &bmp);
+
+    // Initialize the bitmap info header
+    bi.biSize = sizeof(BITMAPINFOHEADER);
+    bi.biWidth = bmp.bmWidth;
+    bi.biHeight = bmp.bmHeight;
+    bi.biPlanes = 1;
+    bi.biBitCount = 8;
+    bi.biCompression = BI_RGB;
+    bi.biSizeImage = bmp.bmWidth * bmp.bmHeight;
+    bi.biXPelsPerMeter = 0;
+    bi.biYPelsPerMeter = 0;
+    bi.biClrUsed = 256;
+    bi.biClrImportant = 256;
+
+    // Initialize the bitmap file header
+    bf.bfType = 0x4D42; // 'BM'
+    bf.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + sizeof(RGBQUAD) * 256;
+    bf.bfSize = bf.bfOffBits + bi.biSizeImage;
+    bf.bfReserved1 = 0;
+    bf.bfReserved2 = 0;
+
+    // Open the file for writing
+    file = _wfopen(filename, L"wb");
+    if (!file) {
+        printf("Error opening file for writing.\n");
+        return;
+    }
+
+    // Write the file headers
+    fwrite(&bf, sizeof(BITMAPFILEHEADER), 1, file);
+    fwrite(&bi, sizeof(BITMAPINFOHEADER), 1, file);
+
+    // Write the palette to the file
+    fwrite(palette, sizeof(RGBQUAD), 256, file);
+
+    // Write the bitmap bits to the file
+    fwrite(bmp.bmBits, bi.biSizeImage, 1, file);
+
+    // Close the file
+    fclose(file);
+    //printf("drawn\n");
+}
+
+
+
+
+
+
+void SaveBitmapToFile2(HBITMAP hBitmap, RGBQUAD* palette, const wchar_t* filename) {
+    BITMAP bmp;
+    BITMAPINFOHEADER bi;
+    BITMAPFILEHEADER bf;
+    FILE* file;
+    BYTE* rleData;
+    DWORD rleSize = 0;
+
+    // Get the bitmap information
+    GetObject(hBitmap, sizeof(BITMAP), &bmp);
+
+    // Initialize the bitmap info header
+    bi.biSize = sizeof(BITMAPINFOHEADER);
+    bi.biWidth = bmp.bmWidth;
+    bi.biHeight = bmp.bmHeight;
+    bi.biPlanes = 1;
+    bi.biBitCount = 8;
+    bi.biCompression = BI_RLE8; // Use RLE compression
+    bi.biSizeImage = 0; // Set to 0 for RLE compression
+    bi.biXPelsPerMeter = 14173;
+    bi.biYPelsPerMeter = 14173;
+    bi.biClrUsed = 256;
+    bi.biClrImportant = 256;
+
+    // Initialize the bitmap file header
+    bf.bfType = 0x4D42; // 'BM'
+    bf.bfOffBits = sizeof(BITMAPFILEHEADER) + sizeof(BITMAPINFOHEADER) + sizeof(RGBQUAD) * 256;
+    bf.bfSize = bf.bfOffBits; // We'll add the RLE size later
+    bf.bfReserved1 = 0;
+    bf.bfReserved2 = 0;
+
+    // Open the file for writing
+    file = _wfopen(filename, L"wb");
+    if (!file) {
+        printf("Error opening file for writing.\n");
+        return;
+    }
+
+    // Write the file headers
+    fwrite(&bf, sizeof(BITMAPFILEHEADER), 1, file);
+    fwrite(&bi, sizeof(BITMAPINFOHEADER), 1, file);
+
+    // Write the palette to the file
+    fwrite(palette, sizeof(RGBQUAD), 256, file);
+
+    // Allocate memory for RLE data
+    rleData = (BYTE*)malloc(bmp.bmWidth * bmp.bmHeight * 2); // Allocate enough memory for worst-case scenario
+
+    // Encode the bitmap bits to RLE format
+    BYTE* src = (BYTE*)bmp.bmBits;
+    BYTE* dst = rleData;
+    for (int y = 0; y < bmp.bmHeight; y++) {
+        int x = 0;
+        while (x < bmp.bmWidth) {
+            BYTE count = 1;
+            BYTE value = src[y * bmp.bmWidth + x];
+            while (x + count < bmp.bmWidth && src[y * bmp.bmWidth + x + count] == value && count < 255) {
+                count++;
+            }
+            *dst++ = count;
+            *dst++ = value;
+            x += count;
+        }
+        *dst++ = 0; // End of line
+        *dst++ = 0;
+    }
+    rleSize = dst - rleData;
+
+    // Update the size image field
+    bi.biSizeImage = rleSize;
+
+    // Write the RLE data to the file
+    fwrite(rleData, rleSize, 1, file);
+
+    // Update the file size in the file header
+    bf.bfSize += rleSize;
+    fseek(file, 0, SEEK_SET);
+    fwrite(&bf, sizeof(BITMAPFILEHEADER), 1, file);
+    fseek(file, sizeof(BITMAPFILEHEADER), SEEK_SET);
+    fwrite(&bi, sizeof(BITMAPINFOHEADER), 1, file);
+
+    // Close the file
+    fclose(file);
+
+    // Free the allocated memory
+    free(rleData);
+    //printf("drawn\n");
+}
+

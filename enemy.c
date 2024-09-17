@@ -367,15 +367,43 @@ void EnemyMove(int enemy_id)
       }
     }
   }*/
+
+
+
   Enemy[enemy_id]->on_ground_id=GetOnGroundIdE(Enemy[enemy_id]->x,Enemy[enemy_id]->y,30,29,enemy_id);    //Get Ground id
-
-
 
   if (Enemy[enemy_id]->species==1) {
     Enemy[enemy_id]->sprite_timer++;
     if (Enemy[enemy_id]->sprite_timer>16) {
       Enemy[enemy_id]->sprite_timer=0;
     }
+
+
+    double ground_entity_angle=GetLineTargetAngle(Enemy[enemy_id]->on_ground_id,Enemy[enemy_id]->x,Enemy[enemy_id]->y);
+    double height_from_ground=GetLineTargetHeight(Enemy[enemy_id]->on_ground_id,ground_entity_angle,Enemy[enemy_id]->x,Enemy[enemy_id]->y);
+
+    if (abs(height_from_ground)<=31) {
+      if (height_from_ground>0) {    //species 1 above ground (positive)
+        Enemy[enemy_id]->angle=Ground[Enemy[enemy_id]->on_ground_id]->angle;
+        Enemy[enemy_id]->above_ground=TRUE;
+        Enemy[enemy_id]->below_ground=FALSE;
+        Enemy[enemy_id]->flip_sprite=FALSE;
+      } else {    //species 1 below ground
+        Enemy[enemy_id]->angle=-Ground[Enemy[enemy_id]->on_ground_id]->angle-M_PI;
+        Enemy[enemy_id]->above_ground=FALSE;
+        Enemy[enemy_id]->below_ground=TRUE;
+        if(Enemy[enemy_id]->last_left) {
+          Enemy[enemy_id]->flip_sprite=FALSE;
+        } else {
+          Enemy[enemy_id]->flip_sprite=TRUE;
+        }
+      }
+    } else {
+      Enemy[enemy_id]->on_ground_id=-1;
+    }
+
+
+
   }
 
   bool allow_act=TRUE;
@@ -1362,34 +1390,6 @@ void DrawEnemy(HDC hdc)
       }
     }
   }
-
-
-
-  /*if (ENEMY_NUM>20) {
-    switch (cenemy) {
-      case 0:
-        min_enemy=0;
-        max_enemy=ENEMY_NUM/4;
-        break;
-      case 1:
-        min_enemy=ENEMY_NUM/4;
-        max_enemy=ENEMY_NUM/2;
-        break;
-      case 2:
-        min_enemy=ENEMY_NUM/2;
-        max_enemy=ENEMY_NUM/2+ENEMY_NUM/4;
-        break;
-      case 3:
-        min_enemy=ENEMY_NUM/2+ENEMY_NUM/4;
-        max_enemy=ENEMY_NUM/2;
-        break;
-    }
-    cenemy=LimitValue(cenemy+1,0,4);
-  } else {
-    cenemy=0;
-    min_enemy=0;
-    max_enemy=ENEMY_NUM;
-  }*/
   
 
   for (i=0;i<ENEMY_NUM;i++) {  
@@ -1400,6 +1400,15 @@ void DrawEnemy(HDC hdc)
         if (!Enemy[i]->last_left) {
           Enemy[i]->sprite_angle*=-1;
         }
+      } else {
+        Enemy[i]->sprite_angle=0;
+        Enemy[i]->angle=0;
+        Enemy[i]->saved_angle=0;
+        if (!Enemy[i]->last_left) {
+          Enemy[i]->sprite_angle*=-1;
+        }
+        Enemy[i]->above_ground=FALSE;
+        Enemy[i]->below_ground=FALSE;
       }
     }
 
@@ -1646,10 +1655,8 @@ void DrawEnemy(HDC hdc)
       switch (Enemy[i]->species) {
         case 0:
           if (Enemy[i]->sprite_timer%2==0) {
-            //GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,EnemySprite[i]->sprite_1,Enemy[i]->last_left);
             DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemySprite[i]->draw_sprite_1,Enemy[i]->last_left);
           } else {
-            //GrSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,EnemySprite[i]->sprite_2,Enemy[i]->last_left);
             DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemySprite[i]->draw_sprite_2,Enemy[i]->last_left);
           }
          // if (Enemy[i]->health>0)

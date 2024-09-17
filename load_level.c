@@ -135,33 +135,61 @@ void Init(HDC hdc) {
 
 void InitPlatformsSprite(HWND hwnd, HDC hdc)
 {
-  PAINTSTRUCT ps; //Suggestion Credit: https://git.xslendi.xyz
-  hdc=BeginPaint(hwnd, &ps);
-  HDC hdc2=CreateCompatibleDC(hdc);
 
 
-  map_platforms_sprite=CreateCrunchyBitmap(MAP_WIDTH,MAP_HEIGHT);
+  wchar_t bmp_save[64];
+  swprintf(bmp_save,64,L"saves/%s/map.bmp",level_names[level_chosen]);
+  wchar_t bmp_save_shadow[64];
+  swprintf(bmp_save_shadow,64,L"saves/%s/map_shadow.bmp",level_names[level_chosen]);
+  //SaveBitmapToFile2(map_platforms_sprite,rgbColorsDefault,bmp_save);
+
+  map_platforms_sprite=(HBITMAP)LoadImageW(
+        NULL,               // Handle to the instance (NULL for file)
+        bmp_save,           // File name of the bitmap
+        IMAGE_BITMAP,       // Type of image
+        0, 0,               // Desired width and height (0 to use actual size)
+        LR_LOADFROMFILE   // Load from file
+        | LR_CREATEDIBSECTION // Create a DIB section
+    );
+  map_platforms_shadow_shader = (HBITMAP)LoadImageW(
+        NULL,               // Handle to the instance (NULL for file)
+        bmp_save_shadow,           // File name of the bitmap
+        IMAGE_BITMAP,       // Type of image
+        0, 0,               // Desired width and height (0 to use actual size)
+        LR_LOADFROMFILE   // Load from file
+        | LR_CREATEDIBSECTION // Create a DIB section
+  );
+
+  if (map_platforms_sprite==NULL || map_platforms_shadow_shader==NULL) {
+    PAINTSTRUCT ps; //Suggestion Credit: https://git.xslendi.xyz
+    hdc=BeginPaint(hwnd, &ps);
+    HDC hdc2=CreateCompatibleDC(hdc);
+
+
+    map_platforms_sprite=CreateCrunchyBitmap(MAP_WIDTH,MAP_HEIGHT);
   //map_platforms_sprite=CreateLargeBitmap(MAP_WIDTH,MAP_HEIGHT);
 
-  SelectObject(hdc2,map_platforms_sprite);
+    SelectObject(hdc2,map_platforms_sprite);
 
-  GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,MYCOLOR1); //Create Background with random color over platforms
+    GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,MYCOLOR1); //Create Background with random color over platforms
 
-  DrawGroundTriFill(hdc2);
-  DrawGround(hdc2);
-  DrawGroundText(hdc2);
-  //DrawShadows(hdc2);
-  CreatePlatformShadowBitmap(hdc2);//,map_platforms_sprite);
-  
-  DeleteDC(hdc2);
-  EndPaint(hwnd, &ps);
+    DrawGroundTriFill(hdc2);
+    DrawGround(hdc2);
+    DrawGroundText(hdc2);
 
+    //if (map_platforms_shadow_shader==NULL) {
+    CreatePlatformShadowBitmap(hdc2);//,map_platforms_sprite);
+    SaveBitmapToFile2(map_platforms_shadow_shader,rgbColorsDefault, bmp_save_shadow);
+    //}  
 
+    DeleteDC(hdc2);
+    EndPaint(hwnd, &ps);
+    SaveBitmapToFile2(map_platforms_sprite,rgbColorsDefault, bmp_save);
+    //BitmapPalette(hdc,map_platforms_sprite,rgbColorsDefault);
+  }
 
-
-  //map_platforms_sprite=ReplaceColor(tmp_map_platforms_sprite,MYCOLOR1,BLACK,NULL);
   map_platforms_sprite_mask=CreateBitmapMask(map_platforms_sprite,MYCOLOR1,NULL); //create mask where black becomes   //end of platform sprite creation
-
+  //printf("mask created\n");
 
   //map_platforms_shadow_shader_mask=CreateBitmapMask(map_platforms_shadow_shader,MYCOLOR1,NULL);
 }
