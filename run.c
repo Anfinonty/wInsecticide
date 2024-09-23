@@ -14,7 +14,7 @@
 
 //#include <winsock2.h> //for multiplayer
 #include <windows.h>
-#include <gdiplus.h> //for gif
+//#include <gdiplus.h> //for gif
 //#include <wingdi.h>
 
 #include <stdint.h>
@@ -30,6 +30,26 @@
 #include <direct.h>
 #include <errno.h>
 #include <shlwapi.h>
+
+//for .avi
+#include <vfw.h>
+
+//#define KHMER_CHARSET   0x6B //107
+
+
+//for complex scripts
+//#include <usp10.h>
+//#include <tchar.h>
+
+//#pragma comment(lib, "usp10.lib") // This line ensures the linker includes usp10.lib
+
+//https://learn.microsoft.com/en-us/windows/win32/api/usp10/nf-usp10-scriptlayout?source=recommendations
+//https://learn.microsoft.com/en-us/windows/win32/intl/about-complex-scripts?redirectedfrom=MSDN
+//https://learn.microsoft.com/en-us/windows/win32/intl/complex-script-processing
+//https://learn.microsoft.com/en-us/windows/win32/gdi/complex-scripts
+//https://learn.microsoft.com/en-us/globalization/fonts-layout/font-support
+//https://learn.microsoft.com/en-us/windows/win32/intl/complex-script-processing
+
 //#include <mmsystem.h>
 //#include <hidsdi.h>
 //#include <hidusage.h>
@@ -157,13 +177,14 @@ double game_volume=1.0;
 double old_game_volume=1.0;
 
 
+bool shadows=FALSE;
 bool raining=FALSE;
 int rain_duration=0;
 double rain_grad_rise=1,rain_grad_run=1;
-//HBITMAP canny;
-//HBITMAP uncanny;
 
 
+
+bool is_khmer=TRUE;
 
 #define DEFAULT_PLAYER_SPEED			1
 
@@ -356,47 +377,6 @@ void FrameRateSleep(int max_fps)
 }
 
 
-//gif testing
-/*ULONG_PTR gdiplusToken;
-GpImage *image;
-UINT frameCount;
-UINT currentFrame = 30;
-int currentFrameTimer=0;
-UINT *frameDelays;
-
-void OnPaint(HDC hdc) {
-    GpGraphics *graphics;
-    GdipCreateFromHDC(hdc, &graphics);
-    GdipDrawImage(graphics, image, 0, 0);
-    GdipDeleteGraphics(graphics);
-}*/
-
-
-/*void UpdateFrame(HWND hwnd) {
-    //currentFrame = (currentFrame + 1) % frameCount;
-    
-    if (current_song_time!=-1) {
-    if(currentFrameTimer<=0) {
-      currentFrameTimer=frameDelays[currentFrame];
-      currentFrame++;
-    } else {
-      currentFrameTimer-=FPS;
-    } else {
-      currentFrame=30;
-    }
-
-
-    if (currentFrame>frameCount) {
-      currentFrame=0;
-    }
-
-    GUID pageGuid = FrameDimensionTime;
-    GdipImageSelectActiveFrame(image, &pageGuid, currentFrame);
-    }
-//    InvalidateRect(hwnd, NULL, TRUE);
-//    SetTimer(hwnd, 1, frameDelays[currentFrame] /1000000, NULL);
-}*/
-
 DWORD WINAPI AnimateTask01(LPVOID lpArg) {
   while (TRUE) {
     SetUnhandledExceptionFilter((LPTOP_LEVEL_EXCEPTION_FILTER)&myTry); 
@@ -456,12 +436,11 @@ void RemoveFolderRecursive(const wchar_t* dirname)
 
 
 
-LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-  HDC hdc, hdcBackbuff;//, hdcBackbuff2;
-  //HWND hShellWnd = FindWindowA("Shell_TrayWnd", NULL);
-  //LONG originalStyle = GetWindowLong(hwnd, GWL_STYLE);
 
-  //wchar_t le_msg[32];
+
+LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+  HDC hdc, hdcBackbuff;
+
   switch(msg) {
 
     //Left Click Hold
@@ -708,9 +687,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         }
 
         if (flag_adjust_audio) {
-          //freeSoundEffectCache(&keySoundEffectCache[2]);
-          //keySoundEffectCache[2].audio=adjustVolumeA(keySoundEffect[2].audio,keySoundEffect[2].filesize,game_volume);
-  //freeSFXCache(mySFX);
           freeSoundEffectCache(&keySoundEffectCache[2]);
           adjustSFXVolume(&keySoundEffectCache[2],&keySoundEffect[2],game_volume,FALSE);
           flag_adjust_audio=FALSE;
@@ -739,10 +715,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               if (tmp_map_background_sprite==NULL) { //not found :/
                 switch (map_background) {
                   case 0:
-                    tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+                    if (GR_WIDTH<800 && GR_HEIGHT<600) {
+                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+                    } else {
+                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+                    }
                     break;
                   case 1:
-                    tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+                    if (GR_WIDTH<800 && GR_HEIGHT<600) {
+                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+                    } else {
+                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+                    }
                     break;
                 }
               }
@@ -754,7 +738,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               DeleteObject(tmp_map_background_sprite);
             }
           } else {            
-            LoadMainMenuBackground();
+            //LoadMainMenuBackground();
           }
         }
 
@@ -817,7 +801,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DrawEnemy(hdcBackbuff);
             DrawPlayer(hdcBackbuff);
 
-            DrawShadows(hdcBackbuff);
+
+            if (shadows) {
+              DrawShadows(hdcBackbuff);
+            }
 
             DrawUI(hdcBackbuff);
             //GrGlassRect(hdcBackbuff,0,0,GR_WIDTH,GR_HEIGHT,YELLOW,128);
@@ -826,7 +813,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DrawWaterShader(hdcBackbuff);           
             if (raining) {
               DrawRain(hdcBackbuff);
-              DrawRainShader(hdcBackbuff);
+              DrawRainShader2(hdcBackbuff);
             }
 
 
@@ -892,8 +879,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           SelectObject(hdcBackbuff,screen);
       
           DrawMainMenu(hdcBackbuff);
-          //DrawPaletteSquare(hdcBackbuff,200,200);
-          //OnPaint(hdcBackbuff);
           DrawCursor(hdcBackbuff);
 
           BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
@@ -982,9 +967,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     case WM_CREATE:
     {
       //MessageBox(NULL, TEXT("ភាសាខ្មែរ"), TEXT("ភាសាខ្មែរ") ,MB_OK); //khmer text box
-      //printf("boolsize:%d",sizeof(bool));
-
-
+      //printf("boolsize:%d",sizeof(bool));      
+      AddFontResource(L"fonts/unifont-8.0.01.ttf");
+      //AddFontResource(L"fonts/KhmerUI.ttf");
+      AddFontResource(L"fonts/KhmerOS.ttf");
+      //AddFontResource(L"fonts/KhmerOSsys.ttf");
       Init8BitRGBColorsNoir(rgbColorsNoir);
       Init8BitRGBColorsDefault(rgbColorsDefault);
       wav_out_original_volume=VolumeValue(50,1);
@@ -1000,7 +987,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       remove("music/tmp/tmp.wav");
       rmdir("music/tmp"); //remove tmp
 
-      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៣ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1963-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1446-03-11"), TEXT("អ្នករាបចង្រៃ") ,MB_OK);
+      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៣ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1963-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1446-03-19"), TEXT("អ្នករាបចង្រៃ") ,MB_OK);
 //TEXT("អាពីងស៊ីរុយ") ,MB_OK); //ឈ្មោះចាស់
 
       //load levels in save
@@ -1074,6 +1061,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       level_chosen=0;
       stop_playing_song=FALSE;
 
+      if (solar_hour>6 && solar_hour<18) { //day
+        InitExtractAVIFrames(L"avi/mainmenu_gameplay_day.avi",0);
+      } else {
+        InitExtractAVIFrames(L"avi/mainmenu_gameplay_night.avi",0);
+      }
 
 
      //Load Song
@@ -1086,42 +1078,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //,,,
 
       //Load Player Sprites
-      //canny =  (HBITMAP) LoadImageW(NULL, L"sprites/canny.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      //uncanny =  (HBITMAP) LoadImageW(NULL, L"sprites/uncanny.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-
-      /*player.sprite_1 = RotateSprite(NULL, player.osprite_1,0,-1,LTRED,LTRED,-1);
-      player.sprite_2 = RotateSprite(NULL, player.osprite_2,0,-1,LTRED,LTRED,-1);
-      player.sprite_jump = RotateSprite(NULL, player.osprite_jump,0,-1,LTRED,LTRED,-1);
-
-      player.attack_sprite_1 = RotateSprite(NULL, player.oattack_sprite_1,0,-1,LTRED,LTRED,-1);
-      player.attack_sprite_2 = RotateSprite(NULL, player.oattack_sprite_2,0,-1,LTRED,LTRED,-1);
-      player.attack_sprite_3 = RotateSprite(NULL, player.oattack_sprite_3,0,-1,LTRED,LTRED,-1);
-      player.attack_sprite_4 = RotateSprite(NULL, player.oattack_sprite_4,0,-1,LTRED,LTRED,-1);
-
-      player.block_sprite_1 = RotateSprite(NULL, player.oblock_sprite_1,0,-1,LTRED,LTRED,-1);
-      player.block_sprite_2 = RotateSprite(NULL, player.oblock_sprite_2,0,-1,LTRED,LTRED,-1);
-      player.block_sprite_3 = RotateSprite(NULL, player.oblock_sprite_3,0,-1,LTRED,LTRED,-1);
-
-      player.spin_sprite = RotateSprite(NULL, player.ospin_sprite,0,-1,LTRED,LTRED,-1);*/
-
-
-      /*player.sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/canny.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      player.sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/canny.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      player.sprite_jump = (HBITMAP) LoadImageW(NULL, L"sprites/canny.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-
-      player.attack_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/canny.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      player.attack_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/canny.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      player.attack_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/canny.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      player.attack_sprite_4 = (HBITMAP) LoadImageW(NULL, L"sprites/canny.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-
-      player.block_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/canny.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      player.block_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/canny.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      player.block_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/canny.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-
-      player.spin_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/canny.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);*/
-
-
-
       player.osprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/player1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       player.osprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/player2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       player.osprite_jump = (HBITMAP) LoadImageW(NULL, L"sprites/player3-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
@@ -1199,7 +1155,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       title_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/title.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       title_sprite_mask=CreateBitmapMask(title_sprite,LTGREEN,NULL);
-      //title_sprite_cache=RotateSprite(NULL, title_sprite,0,LTGREEN,BLACK,YELLOW,-1);
 
       //fullscreen
       //ShowWindow(hwnd,SW_SHOWMAXIMIZED);
@@ -1279,22 +1234,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
        waveOutPrepareHeader(hWaveOut[5], &whdr[5], sizeof(WAVEHDR));
        return 0;
        break;
-
-
-    /*case WM_TIMER:
-      UpdateFrame(hwnd);
-      break;*/
-
     //Tasks to perform on exit
     case WM_DESTROY:
-/*      KillTimer(hwnd, 1);
-      GdipDisposeImage(image);
-      GdiplusShutdown(gdiplusToken);*/
 
       remove("music/tmp/tmp.wav");
       rmdir("music/tmp"); //remove tmp
-      //HWND hShellWnd = FindWindowA("Shell_TrayWnd", NULL);
-      //ShowWindow(hShellWnd, SW_SHOW);
       PostQuitMessage(0);
       return 0;
       break;
@@ -1313,25 +1257,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nCmdShow)
 {
-    /*GdiplusStartupInput gdiplusStartupInput;
-    GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
-
-    GdipLoadImageFromFile(L"sprites/bad_apple_gif.gif", &image);
-
-    // Get the frame count
-    GUID pageGuid = FrameDimensionTime;
-    GdipImageGetFrameCount(image, &pageGuid, &frameCount);
-
-    // Get the frame delays
-    UINT size;
-    GdipGetPropertyItemSize(image, PropertyTagFrameDelay, &size);
-    PropertyItem *propertyItem = (PropertyItem*)malloc(size);
-    GdipGetPropertyItem(image, PropertyTagFrameDelay, size, propertyItem);
-    frameDelays = (UINT*)propertyItem->value;*/
-
-
-
-
   //Window Class
   WNDCLASSW wc = {0};
   wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC | CS_DBLCLKS; 
@@ -1426,6 +1351,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   HANDLE thread1=CreateThread(NULL,0,AnimateTask01,NULL,0,NULL); //Spawm Game Logic Thread
   HANDLE thread2=CreateThread(NULL,0,AnimateTask02,NULL,0,NULL); //Spawm Game Logic Thread
   HANDLE thread3=CreateThread(NULL,0,SongTask,NULL,0,NULL); //Spawn Song Player Thread
+  HANDLE thread4=CreateThread(NULL,0,AnimateAVI,NULL,0,NULL); //Spawm Game Logic Thread
 
   //SetTimer(hwnd, 1, frameDelays[currentFrame] , NULL);
 

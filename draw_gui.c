@@ -14,7 +14,7 @@ void DrawBackground(HDC hdc) {
       DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,NOTSRCCOPY,FALSE,FALSE);
       //GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
 //      DrawSprite(hdc, GR_WIDTH-128,128,&draw_moon_sprite,FALSE);
-      DrawSprite(hdc, GR_WIDTH-128,128,&draw_moon_sprite,FALSE);
+//      DrawSprite(hdc, GR_WIDTH-128,128,&draw_moon_sprite,FALSE);
       break;
     default:
       if (map_background_sprite==NULL) {
@@ -130,6 +130,28 @@ void DrawRainShader(HDC hdc)
 }
 
 
+void DrawRainShader2(HDC hdc)
+{
+  int c;
+  if (player.rain_wet_timer>60) {
+    c=Highlight(IsInvertedBackground(),LTGRAY,RGB(200,200,200));
+  } else {
+    c=Highlight(IsInvertedBackground(),RGB(125,125,125),RGB(215,215,215));
+  }
+
+  if (player.rain_wet_timer>0) {
+    for (int i=0;i<SC_RAINDROP_NUM;i++) {
+      GrLine(hdc,sc_raindrop[i].x,sc_raindrop[i].y,sc_raindrop[i].x,sc_raindrop[i].oy,c); //trails of rain
+      GrLine(hdc,sc_raindrop[i].x+1,sc_raindrop[i].y,sc_raindrop[i].x+1,sc_raindrop[i].oy,c);
+
+      GrCircle(hdc,sc_raindrop[i].x+1,sc_raindrop[i].y,3,c,-1);
+      if (sc_raindrop[i].olifetime-sc_raindrop[i].lifetime<10)
+        GrCircle(hdc,sc_raindrop[i].x+1,sc_raindrop[i].oy,5,c,-1);
+
+    }  
+  }
+}
+
 
 void DrawPlatforms(HDC hDC)
 { //Dynamically scale with window size 
@@ -174,23 +196,17 @@ void DrawCursor(HDC hDC)
   //DrawBitmap(hDC,mouse_x,mouse_y,0,0,64,64,mouse_cursor_sprite_mask,SRCPAINT,FALSE);
   if (!(player.speed>24 && frame_tick%2==0)) {
     if (player.health>PLAYER_LOW_HEALTH) {
-      //GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_cache,FALSE);
-      //GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_iris_cache,FALSE);
       DrawSprite(hDC,mouse_x,mouse_y,&draw_mouse_cursor_sprite,FALSE);
       DrawSprite(hDC,mouse_x,mouse_y,&draw_mouse_cursor_sprite_iris,FALSE);
     } else {
-      //GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_cache2,FALSE);
-      //GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_iris_cache2,FALSE);
       DrawSprite(hDC,mouse_x,mouse_y,&draw_mouse_cursor_sprite2,FALSE);
       DrawSprite(hDC,mouse_x,mouse_y,&draw_mouse_cursor_sprite_iris2,FALSE);
     }
   }
   if (player.health>PLAYER_LOW_HEALTH) {
     DrawSprite(hDC,mouse_x,mouse_y,&draw_mouse_cursor_sprite_pupil,FALSE);
-    //GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_pupil_cache,FALSE);
   } else {
     DrawSprite(hDC,mouse_x,mouse_y,&draw_mouse_cursor_sprite_pupil2,FALSE);
-    //GrSprite(hDC,mouse_x,mouse_y,mouse_cursor_sprite_pupil_cache2,FALSE);
   }
 
   /*if (!IsInvertedBackground())
@@ -276,40 +292,23 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4)
 }
 
 
-void DrawMainMenu(HDC hdc)
+void DrawCrosses(HDC hdc)
 {
+  char C[1];
+  sprintf(C,"%c",134);
+  
+  GrPrintW(hdc,GR_WIDTH-8*18,8*23+10,L"",C,WHITE,16,TRUE,FALSE);
+  GrPrintW(hdc,GR_WIDTH-8*18-8*2,8*23+12,L"",C,WHITE,16,TRUE,FALSE);
+  GrPrintW(hdc,GR_WIDTH-8*18+8*2,8*23+12,L"",C,WHITE,16,TRUE,FALSE);
+  
 
-  //draw bkgrnd
-  DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
-
-
-  //Draw Moon Phase
-  //GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
-  //DrawSprite(hdc, GR_WIDTH-128,128,&draw_moon_sprite,FALSE);
-  DrawSprite(hdc, GR_WIDTH-128,128,&draw_moon_sprite,FALSE);
-
-  DrawBitmap(hdc,GR_WIDTH/2-352/2,
-                 -32,
-                 0,
-                 0,
-                 352,
-                 256,
-                title_sprite_mask,SRCAND,FALSE,FALSE);
-  //Draw platforms paint
-  DrawBitmap(hdc,GR_WIDTH/2-352/2,
-                 -32,
-                 0,
-                 0,
-                 352,
-                 256,
-                title_sprite,SRCPAINT,FALSE,FALSE);
+  GrLine(hdc,GR_WIDTH-8*17-4,8*25+10,GR_WIDTH-8*17-4-8*8,8*25+12,WHITE);
+  GrLine(hdc,GR_WIDTH-8*17-4,8*25+10,GR_WIDTH-8*17-4+8*8,8*25+12,WHITE);
+}
 
 
-  int help_y=GR_HEIGHT-128;
-  if (!hide_taskbar) { //task bar is shown
-    help_y-=8*4; //go up abit
-  }
-
+void DrawPersianClock(HDC hdc)
+{
   //Moon Pos
   int mcalendar_l=64;
   int mcalendar_x=GR_WIDTH-mcalendar_l*2;
@@ -320,16 +319,20 @@ void DrawMainMenu(HDC hdc)
   double moon_angle=0; 
   //Space Clock
   //Draw blue marbel
-  GrCircle(hdc,mcalendar_x,mcalendar_y,10,LTBLUE,LTBLUE);
-  GrRect(hdc,mcalendar_x,mcalendar_y,3,4,LTGREEN);
-  GrRect(hdc,mcalendar_x-3,mcalendar_y,9,4,LTGREEN);
-  GrRect(hdc,mcalendar_x+4,mcalendar_y,5,2,LTGREEN);
-  GrRect(hdc,mcalendar_x-4,mcalendar_y-4,9,9,LTGREEN);
-  GrCircle(hdc,mcalendar_x-4,mcalendar_y,2,LTGREEN,LTGREEN);
-  GrCircle(hdc,mcalendar_x+2,mcalendar_y+5,3,LTGREEN,LTGREEN);
-  GrCircle(hdc,mcalendar_x-2,mcalendar_y-3,3,LTGREEN,LTGREEN);
-  GrCircle(hdc,mcalendar_x-3,mcalendar_y-5,2,LTGREEN,LTGREEN);
-  GrCircle(hdc,mcalendar_x-3,mcalendar_y+5,2,LTGREEN,LTGREEN);
+  if (GR_WIDTH>=800) {
+    GrCircle(hdc,mcalendar_x,mcalendar_y,10,LTBLUE,LTBLUE);
+    GrRect(hdc,mcalendar_x,mcalendar_y,3,4,LTGREEN);
+    GrRect(hdc,mcalendar_x-3,mcalendar_y,9,4,LTGREEN);
+    GrRect(hdc,mcalendar_x+4,mcalendar_y,5,2,LTGREEN);
+    GrRect(hdc,mcalendar_x-4,mcalendar_y-4,9,9,LTGREEN);
+    GrCircle(hdc,mcalendar_x-4,mcalendar_y,2,LTGREEN,LTGREEN);
+    GrCircle(hdc,mcalendar_x+2,mcalendar_y+5,3,LTGREEN,LTGREEN);
+    GrCircle(hdc,mcalendar_x-2,mcalendar_y-3,3,LTGREEN,LTGREEN);
+    GrCircle(hdc,mcalendar_x-3,mcalendar_y-5,2,LTGREEN,LTGREEN);
+    GrCircle(hdc,mcalendar_x-3,mcalendar_y+5,2,LTGREEN,LTGREEN);
+  } else {
+    DrawSprite(hdc, mcalendar_x,mcalendar_y,&draw_moon_sprite,FALSE);
+  }
 
   if (lunar_day<27) //0 to 26
     moon_angle=(-2*M_PI/27 * lunar_day ) - moon_angle_shift;
@@ -416,19 +419,208 @@ lunar_year
     GrPrintW(hdc,mcalendar_x-mcalendar_l*6,mcalendar_y+32,l_hijri_row2,"",WHITE,16,FALSE,yes_unifont);
   }
 
-  char C[1];
-  sprintf(C,"%c",134);
-  GrPrintW(hdc,GR_WIDTH-8*18,8*23+10,L"",C,WHITE,16,TRUE,FALSE);
-  GrPrintW(hdc,GR_WIDTH-8*18-8*2,8*23+12,L"",C,WHITE,16,TRUE,FALSE);
-  GrPrintW(hdc,GR_WIDTH-8*18+8*2,8*23+12,L"",C,WHITE,16,TRUE,FALSE);
-  
 
-  GrLine(hdc,GR_WIDTH-8*17-4,8*25+10,GR_WIDTH-8*17-4-8*8,8*25+12,WHITE);
-  GrLine(hdc,GR_WIDTH-8*17-4,8*25+10,GR_WIDTH-8*17-4+8*8,8*25+12,WHITE);
+  //DrawCrosses(hdc);
+}
+
+
+
+
+
+int global_frames=0;
+int iNumFrames=0;
+HBITMAP global_avi_bitmap1;
+HBITMAP global_avi_bitmap2;
+
+
+PAVIFILE avi;
+AVIFILEINFO avi_info;
+PAVISTREAM pStream;
+int res;
+BITMAPINFOHEADER bih;
+int iNumFrames;
+int iFirstFrame;
+PGETFRAME pFrame;
+
+
+void DrawMovingAVI(HDC hdc) 
+{
+    if (global_frames%2==0) {
+      DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,global_avi_bitmap2,SRCCOPY,TRUE,FALSE);
+    } else {
+      DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,global_avi_bitmap1,SRCCOPY,TRUE,FALSE);
+    }
+}
+
+HBITMAP CreateFromPackedDIBPointer2(LPBYTE pDIB)
+{
+    /*if (pDIB == NULL)
+    {
+        return NULL;
+    }*/
+
+    // The BITMAPINFOHEADER is at the start of the DIB
+    BITMAPINFOHEADER* _bih = (BITMAPINFOHEADER*)pDIB;
+
+    // The pixel data starts immediately after the BITMAPINFOHEADER
+    BYTE* _pPixels = pDIB + sizeof(BITMAPINFOHEADER);
+
+    // Create a device context
+    HDC hdc = GetDC(NULL);
+
+    // Create a bitmap from the DIB
+    HBITMAP hBitmap = CreateDIBitmap(hdc, _bih, CBM_INIT, _pPixels, (BITMAPINFO*)_bih, DIB_RGB_COLORS);
+
+    // Release the device context
+    ReleaseDC(NULL, hdc);
+    return hBitmap;
+}
+
+
+bool InitExtractAVIFrames(const wchar_t* szFileName,int index)
+{
+    AVIFileInit();
+    res=AVIFileOpen(&avi, szFileName, OF_READ, NULL);
+    AVIFileInfo(avi, &avi_info, sizeof(AVIFILEINFO));
+    res=AVIFileGetStream(avi, &pStream, streamtypeVIDEO /*video stream*/, 
+                                               0 /*first stream*/);
+
+    //do some task with the stream
+
+    //iFirstFrame=AVIStreamStart(pStream);
+    iNumFrames=AVIStreamLength(pStream);
+
+    //getting bitmap from frame
+    ZeroMemory(&bih, sizeof(BITMAPINFOHEADER));
+
+    bih.biBitCount=8;    //24 bit per pixel
+    bih.biClrImportant=0;
+    bih.biClrUsed = 0;
+    bih.biCompression = BI_RGB;
+    bih.biPlanes = 1;
+    bih.biSize = 40;
+    bih.biXPelsPerMeter = 0;
+    bih.biYPelsPerMeter = 0;
+    //calculate total size of RGBQUAD scanlines (DWORD aligned)
+    bih.biSizeImage = (((bih.biWidth * 3) + 3) & 0xFFFC) * bih.biHeight ;
+
+
+    pFrame=AVIStreamGetFrameOpen(pStream, NULL);
+    //https://www.codeproject.com/Questions/238467/AVIStreamGetFrameOpen-returns-NULL
+    //https://www.codeproject.com/Articles/8739/Extracting-AVI-Frames
+    //https://www.vbforums.com/showthread.php?293534-Memory-leak-problem-resolved
+    //https://www.codeproject.com/Articles/8739/Extracting-AVI-Frames
+    //https://stackoverflow.com/questions/39059959/vfw-avistreamgetframeopen-returns-null
+
+
+    return TRUE;
+}
+
+
+DWORD WINAPI AnimateAVI(LPVOID lpArg) {
+  while (TRUE) {
+    //https://www.vbforums.com/showthread.php?604246-AVIStreamGetFrameOpen-AVIStreamGetFrameClose-memory-leak
+    //https://forum.doom9.org/showthread.php?t=100297
+    //https://forums.qhimm.com/index.php?topic=2402.25
+    //https://www.codeproject.com/Articles/8739/Extracting-AVI-Frames
+    //https://stackoverflow.com/questions/39059959/vfw-avistreamgetframeopen-returns-null
+    //ffmpeg -i gameplay_day_crop.mp4 -vcodec cinepak -vf scale=320:240 -r 15 gameplay_day_crop_crt5.avi
+    //ffmpeg -i gameplay_day_crop.mp4 -vcodec cinepak -r 15 gameplay_day_crop_crt5_1.avi
+
+
+    //15 frames = 1000ms
+    //1frame = 1000/15 = 66.666666667
+
+
+    //30 frames = 1000ms
+    //1frame = 1000/30 = 33.33333333333
+      if (in_main_menu) {
+        BYTE* pDIB = (BYTE*) AVIStreamGetFrame(pFrame, global_frames);
+        if (global_frames%2!=0) {
+          DeleteObject(global_avi_bitmap2);
+          global_avi_bitmap2=CreateFromPackedDIBPointer2(pDIB); //set up and draw even
+        } else {
+          DeleteObject(global_avi_bitmap1);
+          global_avi_bitmap1=CreateFromPackedDIBPointer2(pDIB); //set up and draw odd
+        }
+
+        global_frames++;
+        if (global_frames>=iNumFrames)
+          global_frames=0;
+
+        Sleep(33);
+      } else {
+        Sleep(2000); //standby
+      }
+  }
+}
+
+
+
+
+
+
+
+
+void DrawMainMenu(HDC hdc)
+{
+
+  //draw bkgrnd
+  //DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
+
+  DrawMovingAVI(hdc);
+  //Draw Moon Phase
+  //GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
+  if (GR_WIDTH>=800)
+    DrawSprite(hdc, GR_WIDTH-128,128,&draw_moon_sprite,FALSE);
+
+
+  int title_x=GR_WIDTH/2-352/2+8;
+  int title_y=-32;
+  if (GR_HEIGHT>=600) {
+      if (main_menu_chosen!=-1) {
+        title_x=GR_WIDTH-352-352/8;
+        //title_y=-64;
+      }
+  } else {
+    //title_y=-72;
+    if (main_menu_chosen!=-1) {
+      title_x=GR_WIDTH-352-352/8;
+    }
+  }
+  DrawBitmap(hdc,title_x,
+                 title_y,
+                 0,
+                 0,
+                 352,
+                 256,
+                title_sprite_mask,SRCAND,FALSE,FALSE);
+  //Draw platforms paint
+  DrawBitmap(hdc,title_x,
+                 title_y,
+                 0,
+                 0,
+                 352,
+                 256,
+                title_sprite,SRCPAINT,FALSE,FALSE);
+
+
+  int help_y=GR_HEIGHT-128;
+  if (!hide_taskbar) { //task bar is shown
+    help_y-=8*4; //go up abit
+  }
+
+  DrawPersianClock(hdc);
 
   int main_menu_y=0;
-  if (hide_taskbar)
+  int main_menu_y2=0;
+  if (hide_taskbar) {
     main_menu_y=15;
+//    main_menu_y2=15;
+  } else {
+    main_menu_y=0;
+//    main_menu_y2=35;
+  }
   //GrPrintW(hdc,30,main_menu_y+10,L"អាពីងស៊ីរុយ - Welcome to the wInsecticide Menu!","",WHITE,16,FALSE,yes_unifont);
 
 
@@ -453,27 +645,27 @@ lunar_year
 [SHIFT_ESC]: Exit."
         ,WHITE);*/
       int c;
-      c=Highlight((select_main_menu==0),WHITE,LTGREEN);
+      /*c=Highlight((select_main_menu==0),WHITE,LTGREEN);
       GrPrint(hdc,30,main_menu_y+10+16*2,"Levels.",c);
 
       c=Highlight((select_main_menu==1),WHITE,LTGREEN);
-      GrPrint(hdc,30,main_menu_y+10+16*3,"Options.",c);
+      GrPrint(hdc,30,main_menu_y+10+16*3,"Options.",c);*/
 
-      /*c=Highlight((select_main_menu==2),WHITE,LTGREEN);
-      GrPrint(hdc,30,main_menu_y+10+16*4,"Create New Level.",c);
+      //GrLine(hdc,GR_WIDTH/2,0,GR_WIDTH/2,GR_HEIGHT,WHITE);
 
-      c=Highlight((select_main_menu==3),WHITE,LTGREEN);
-      GrPrint(hdc,30,main_menu_y+10+16*5,"Edit Selected Level.",c);
+      c=Highlight((select_main_menu==0),WHITE,LTGREEN);
+      GrPrint(hdc,GR_WIDTH/2-7*6/2-4,GR_HEIGHT/2-16*4-main_menu_y2,"LEVELS",c);
 
-      c=Highlight((select_main_menu==4),WHITE,LTGREEN);
-      GrPrint(hdc,30,main_menu_y+10+16*6,"Build Selected Level.",c);*/
-
-
-      if (select_main_menu<2)
-        GrPrint(hdc,20,main_menu_y+10+16*2+16*select_main_menu,"*",LTGREEN);
+      c=Highlight((select_main_menu==1),WHITE,LTGREEN);
+      GrPrint(hdc,GR_WIDTH/2-7*8/2-1,GR_HEIGHT/2-16*2-main_menu_y2,"OPTIONS",c);
 
       c=Highlight((select_main_menu==2),WHITE,LTGREEN);
-      GrPrint(hdc,30,main_menu_y+10+16*10,"[SHIFT]+'Q':  Exit.",c);
+      GrPrint(hdc,GR_WIDTH/2-8*4/2+2,GR_HEIGHT/2-main_menu_y2,"EXIT",c);
+      /*if (select_main_menu<2)
+        GrPrint(hdc,20,main_menu_y+10+16*2+16*select_main_menu,"*",LTGREEN);*/
+
+      //c=Highlight((select_main_menu==2),WHITE,LTGREEN);
+      //GrPrint(hdc,30,main_menu_y+10+16*10,"[SHIFT]+'Q':  Exit.",c);
     }
       break;
      
