@@ -1140,7 +1140,7 @@ HBITMAP RotateSpriteExclude(HDC hDC, HBITMAP hSourceBitmap, double radians, int 
   /*hDestBitmap = CreateBitmap(height, width, iSrcBitmap.bmPlanes,
                   iSrcBitmap.bmBitsPixel, NULL);*/
 
-  hDestBitmap = CreateCrunchyBitmap(height,width);//CreateLargeBitmap(height, width);
+  hDestBitmap = CreateCrunchyBitmap(width,height);//CreateLargeBitmap(height, width);
   hOldSourceBitmap = SelectObject(hMemSrc, hSourceBitmap);
   hOldDestBitmap = SelectObject(hMemDest, hDestBitmap);
 
@@ -1191,8 +1191,6 @@ HBITMAP RotateSpriteExclude(HDC hDC, HBITMAP hSourceBitmap, double radians, int 
 
 
 
-
-
 HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, double radians,int rTransparent, int old_color, int sprite_color, int sprite_color_2) 
 { //if (hSourceBitmap != NULL) { ////https://ftp.zx.net.nz/pub/Patches/ftp.microsoft.com/MISC/KB/en-us/77/127.HTM
   HBITMAP hOldSourceBitmap, hOldDestBitmap, hDestBitmap; ////https://www.codeguru.com/multimedia/rotate-a-bitmap-image/
@@ -1229,6 +1227,12 @@ HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, double radians,int rTranspa
   int width = maxx - minx;
   int height = maxy - miny;
 
+  /*if (iSrcBitmap.bmHeight!=iSrcBitmap.bmWidth) {
+    maxx=minx+iSrcBitmap.bmWidth;
+    printf("w:%d\n",iSrcBitmap.bmWidth);
+    printf("h:%d\n",iSrcBitmap.bmHeight);
+  }*/
+
    // Step 3: Select the source bitmap into the source DC. Create a
    //         destination bitmap, and select it into the destination DC.
 
@@ -1236,7 +1240,7 @@ HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, double radians,int rTranspa
   /*hDestBitmap = CreateBitmap(height, width, iSrcBitmap.bmPlanes,
                   iSrcBitmap.bmBitsPixel, NULL);*/
 
-  hDestBitmap = CreateCrunchyBitmap(height,width);//CreateLargeBitmap(height, width);
+  hDestBitmap = CreateCrunchyBitmap(width,height);//CreateLargeBitmap(height, width);
   hOldSourceBitmap = SelectObject(hMemSrc, hSourceBitmap);
   hOldDestBitmap = SelectObject(hMemDest, hDestBitmap);
 
@@ -1257,6 +1261,10 @@ HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, double radians,int rTranspa
 	for(int x=minx;x<maxx;x++) { //0 to max width of bitmap
 	  int sourcex = (int)(x*cosine+y*sine); //get pixel from sprite, x-axis
 	  int sourcey = (int)(y*cosine-x*sine); //get pixel from sprite, y-axis
+      /*if (iSrcBitmap.bmHeight!=iSrcBitmap.bmWidth) {
+        sourcex=x;
+        sourcey=y;
+      }*/
 	  if(sourcex>=0 && sourcex<iSrcBitmap.bmWidth && sourcey>=0
 	   	 && sourcey<iSrcBitmap.bmHeight ) {
          current_pixel=GetPixel(hMemSrc,sourcex,sourcey); //get current pixel color
@@ -2302,5 +2310,154 @@ void SaveBitmapToFile2(HBITMAP hBitmap, RGBQUAD* palette, const wchar_t* filenam
     // Free the allocated memory
     free(rleData);
     //printf("drawn\n");
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+int global_frames=0;
+int iNumFrames=0;
+HBITMAP global_avi_bitmap1;
+HBITMAP global_avi_bitmap2;
+
+
+PAVIFILE avi;
+AVIFILEINFO avi_info;
+PAVISTREAM pStream;
+int res;
+BITMAPINFOHEADER bih;
+int iNumFrames;
+int iFirstFrame;
+PGETFRAME pFrame;
+
+
+void DrawMovingAVI(HDC hdc) 
+{
+    if (global_frames%2==0) {
+      DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,global_avi_bitmap2,SRCCOPY,TRUE,FALSE);
+    } else {
+      DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,global_avi_bitmap1,SRCCOPY,TRUE,FALSE);
+    }
+}
+
+HBITMAP CreateFromPackedDIBPointer2(LPBYTE pDIB)
+{
+    /*if (pDIB == NULL)
+    {
+        return NULL;
+    }*/
+
+    // The BITMAPINFOHEADER is at the start of the DIB
+    BITMAPINFOHEADER* _bih = (BITMAPINFOHEADER*)pDIB;
+
+    // The pixel data starts immediately after the BITMAPINFOHEADER
+    BYTE* _pPixels = pDIB + sizeof(BITMAPINFOHEADER);
+
+    // Create a device context
+    HDC hdc = GetDC(NULL);
+
+    // Create a bitmap from the DIB
+    HBITMAP hBitmap = CreateDIBitmap(hdc, _bih, CBM_INIT, _pPixels, (BITMAPINFO*)_bih, DIB_RGB_COLORS);
+
+    // Release the device context
+    ReleaseDC(NULL, hdc);
+    return hBitmap;
+}
+
+
+bool InitExtractAVIFrames(const wchar_t* szFileName,int index)
+{
+    AVIFileInit();
+    res=AVIFileOpen(&avi, szFileName, OF_READ, NULL);
+    AVIFileInfo(avi, &avi_info, sizeof(AVIFILEINFO));
+    res=AVIFileGetStream(avi, &pStream, streamtypeVIDEO /*video stream*/, 
+                                               0 /*first stream*/);
+
+    //do some task with the stream
+
+    //iFirstFrame=AVIStreamStart(pStream);
+    iNumFrames=AVIStreamLength(pStream);
+
+    //getting bitmap from frame
+    ZeroMemory(&bih, sizeof(BITMAPINFOHEADER));
+
+    bih.biBitCount=8;    //24 bit per pixel
+    bih.biClrImportant=0;
+    bih.biClrUsed = 0;
+    bih.biCompression = BI_RGB;
+    bih.biPlanes = 1;
+    bih.biSize = 40;
+    bih.biXPelsPerMeter = 0;
+    bih.biYPelsPerMeter = 0;
+    //calculate total size of RGBQUAD scanlines (DWORD aligned)
+    bih.biSizeImage = (((bih.biWidth * 3) + 3) & 0xFFFC) * bih.biHeight ;
+
+
+    pFrame=AVIStreamGetFrameOpen(pStream, NULL);
+    //https://www.codeproject.com/Questions/238467/AVIStreamGetFrameOpen-returns-NULL
+    //https://www.codeproject.com/Articles/8739/Extracting-AVI-Frames
+    //https://www.vbforums.com/showthread.php?293534-Memory-leak-problem-resolved
+    //https://www.codeproject.com/Articles/8739/Extracting-AVI-Frames
+    //https://stackoverflow.com/questions/39059959/vfw-avistreamgetframeopen-returns-null
+
+
+    return TRUE;
+}
+
+
+DWORD WINAPI AnimateAVI(LPVOID lpArg) {
+  while (TRUE) {
+    //https://www.vbforums.com/showthread.php?604246-AVIStreamGetFrameOpen-AVIStreamGetFrameClose-memory-leak
+    //https://forum.doom9.org/showthread.php?t=100297
+    //https://forums.qhimm.com/index.php?topic=2402.25
+    //https://www.codeproject.com/Articles/8739/Extracting-AVI-Frames
+    //https://stackoverflow.com/questions/39059959/vfw-avistreamgetframeopen-returns-null
+    //ffmpeg -i gameplay_day_crop.mp4 -vcodec cinepak -vf scale=320:240 -r 15 gameplay_day_crop_crt5.avi
+    //ffmpeg -i gameplay_day_crop.mp4 -vcodec cinepak -r 15 gameplay_day_crop_crt5_1.avi
+
+
+    //15 frames = 1000ms
+    //1frame = 1000/15 = 66.666666667
+
+
+    //30 frames = 1000ms
+    //1frame = 1000/30 = 33.33333333333
+      if (in_main_menu) {
+        BYTE* pDIB = (BYTE*) AVIStreamGetFrame(pFrame, global_frames);
+        if (global_frames%2!=0) {
+          DeleteObject(global_avi_bitmap2);
+          global_avi_bitmap2=CreateFromPackedDIBPointer2(pDIB); //set up and draw even
+        } else {
+          DeleteObject(global_avi_bitmap1);
+          global_avi_bitmap1=CreateFromPackedDIBPointer2(pDIB); //set up and draw odd
+        }
+
+        global_frames++;
+        if (global_frames>=iNumFrames)
+          global_frames=0;
+
+        Sleep(33);
+      } else {
+        Sleep(1000); //standby
+      }
+  }
 }
 

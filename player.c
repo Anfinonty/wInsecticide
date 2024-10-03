@@ -236,6 +236,21 @@ void CleanUpPlayer()
 }
 
 
+
+
+void InitPlayerFlingWeb()
+{
+  for (int i=0;i<PLAYER_FLING_WEB_NUM;i++) {
+    player_fling_web.x[i]=0;
+    player_fling_web.y[i]=0;
+    player_fling_web.sprite_x[i]=0;
+    player_fling_web.sprite_y[i]=0;
+  }
+}
+
+
+
+
 void PlayerBulletLimitAct()
 {
   /*if (player.max_web_num-player.placed_web_num>=3 && player.knives_per_throw==5) {
@@ -451,6 +466,8 @@ void InitPlayer() {
   }
 
   InitPlayerCamera();
+
+  InitPlayerFlingWeb();
 }
 
 
@@ -675,6 +692,7 @@ void PlayerAct() {
         allow_act=TRUE;
       }
     }
+    InitPlayerFlingWeb();
     if (allow_act) {
       grad_x1=player.sprite_x;
       grad_y1=player.sprite_y;
@@ -895,6 +913,8 @@ void PlayerAct() {
     player.grav=1;
     speed_limiter=speed_limiter/2+1;
   }
+
+
   for (speed=0;speed<speed_limiter;speed++) {
     for (grav_speed=0;grav_speed<player.grav;grav_speed++) {
       //player.on_ground_id=GetOnGroundIdPlayer(player.x,player.y,5,4);
@@ -929,11 +949,17 @@ void PlayerAct() {
 
    //Destroy Ground (regainable)
       if (player.destroy_ground) {
-        if (player.on_ground_id>=GROUND_NUM && player.on_ground_id!=player.previous_web_placed) {
-          DestroyGround(player.on_ground_id);  
-    	  RegainWeb(player.on_ground_id);
+        if (player.is_on_ground_edge) { 
+          if (player.saved_on_ground_edge_id>=GROUND_NUM && player.saved_on_ground_edge_id!=player.previous_web_placed) {
+            DestroyGround(player.saved_on_ground_edge_id);  
+    	    RegainWeb(player.saved_on_ground_edge_id);
+          }
+        } else {
+          if (player.on_ground_id>=GROUND_NUM && player.on_ground_id!=player.previous_web_placed) {
+            DestroyGround(player.on_ground_id);  
+      	    RegainWeb(player.on_ground_id);
+          }
         }
-        
         player.destroy_ground=FALSE;
       }
 
@@ -1466,6 +1492,7 @@ void PlayerAct() {
             }
           }
         }
+
         if (grav_speed==4) {//only occurs right after grav_speed==0
           if (player.pivot_length>NODE_SIZE*DEFAULT_PLAYER_BUILD_RANGE/2) { //rubber band back if pivot length too long
             if (player.y>player.pivot_y) {
@@ -1476,6 +1503,44 @@ void PlayerAct() {
               move_y(-sin(-player.pivot_angle));
             }
           }       
+        }
+
+        //set axes of player fling web
+        if (grav_speed==4) {//only occurs right after grav_speed==0
+          double _a=player.x;
+          double _b=player.y;
+          double _l=player.pivot_length/PLAYER_FLING_WEB_NUM;
+          int tmp_ground_id=-1;
+          for (int i=0;i<PLAYER_FLING_WEB_NUM;i++) {
+            player_fling_web.x[i]=_a;
+            player_fling_web.y[i]=_b;          
+            player_fling_web.sprite_x[i]=_a+player.cam_x+player.cam_move_x+player.cam_mouse_move_x;
+            player_fling_web.sprite_y[i]=_b+player.cam_y+player.cam_move_y+ player.cam_mouse_move_y;
+
+          //to allow web bending
+            tmp_ground_id=GetOnGroundId(player_fling_web.x[i],player_fling_web.y[i],2,2);
+            if (tmp_ground_id!=-1) {
+              if (GetDistance(player_fling_web.x[i],player_fling_web.y[i],Ground[tmp_ground_id]->x1,Ground[tmp_ground_id]->y1)<=NODE_SIZE ||
+                  GetDistance(player_fling_web.x[i],player_fling_web.y[i],Ground[tmp_ground_id]->x2,Ground[tmp_ground_id]->y2)<=NODE_SIZE) {
+                //change pivot
+                player.pivot_x=player_fling_web.x[i];
+                player.pivot_y=player_fling_web.y[i];
+
+                InitPlayerFlingWeb();
+                break;
+              }
+            }
+    
+            if (player.y>player.pivot_y) {
+              _a-=_l*cos(player.pivot_angle);
+              _b-=_l*sin(player.pivot_angle);
+            } else {
+              _a-=_l*cos(player.pivot_angle);
+              _b+=_l*sin(player.pivot_angle);
+            }
+
+
+          }
         }
       } //End of player swinging movement
 
@@ -2270,6 +2335,10 @@ void DrawPlayer(HDC hdc)
 
   for (int i=0;i<player.bullet_shot_num;i++) {
     DrawBullet(hdc,player.bullet[i]);
+  }
+
+  for (int i=0;i<PLAYER_FLING_WEB_NUM;i++) {
+    GrCircle(hdc,player_fling_web.sprite_x[i],player_fling_web.sprite_y[i],2,color,color);
   }
 
 

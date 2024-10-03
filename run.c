@@ -177,7 +177,7 @@ double game_volume=1.0;
 double old_game_volume=1.0;
 
 
-bool shadows=FALSE;
+bool shadows=TRUE;
 bool raining=FALSE;
 int rain_duration=0;
 double rain_grad_rise=1,rain_grad_run=1;
@@ -263,7 +263,7 @@ bool is_khmer=TRUE;
 #define PLAYER_LOW_HEALTH   3
 //#define PLAYER_BULLET_NUM 32
 #define PLAYER_BULLET_NUM 24//16
-
+#define PLAYER_FLING_WEB_NUM    32
 
 #define GAME_OPTIONS_NUM    12
 #define PLAYER_BLUR_NUM     2
@@ -301,14 +301,6 @@ bool is_khmer=TRUE;
 #include "keybinds.c"
 #include "keybinds_controller.c"
 #include "keybinds_map_editor.c"
-
-//Detect Exception occured
-//https://stackoverflow.com/questions/1394250/detect-program-termination-c-windows
-LONG myTry(LPEXCEPTION_POINTERS p)
-{
-   waveOutSetVolume(hWaveOut[2],wav_out_original_volume);
-   return EXCEPTION_EXECUTE_HANDLER;
-}
 
 //Init
 LARGE_INTEGER m_high_perf_timer_freq;
@@ -377,9 +369,28 @@ void FrameRateSleep(int max_fps)
 }
 
 
+void RemoveFolderRecursive(const wchar_t* dirname)
+{
+  _WDIR *d;
+  struct _wdirent *dir;
+  d = _wopendir(dirname);
+  if (d) {
+    while ((dir=_wreaddir(d))!=NULL) {
+      wchar_t indir[256];
+      swprintf(indir,256,L"%s/%s",dirname,dir->d_name);
+      if (PathIsDirectory(indir) && wcscmp(dir->d_name,L".")!=0 && wcscmp(dir->d_name,L"..")!=0) { //folder, check for 
+        RemoveFolderRecursive(indir);
+      } else {
+        _wremove(indir);
+      }
+    }
+    _wrmdir(dirname);
+  }
+}
+
+
 DWORD WINAPI AnimateTask01(LPVOID lpArg) {
   while (TRUE) {
-    SetUnhandledExceptionFilter((LPTOP_LEVEL_EXCEPTION_FILTER)&myTry); 
     if (!in_main_menu) { //In Game
       if (level_loaded) {
         PlayerAct();
@@ -413,28 +424,6 @@ DWORD WINAPI AnimateTask02(LPVOID lpArg) { //FPS counter
     Sleep(1000);
   }
 }
-
-
-void RemoveFolderRecursive(const wchar_t* dirname)
-{
-  _WDIR *d;
-  struct _wdirent *dir;
-  d = _wopendir(dirname);
-  if (d) {
-    while ((dir=_wreaddir(d))!=NULL) {
-      wchar_t indir[256];
-      swprintf(indir,256,L"%s/%s",dirname,dir->d_name);
-      if (PathIsDirectory(indir) && wcscmp(dir->d_name,L".")!=0 && wcscmp(dir->d_name,L"..")!=0) { //folder, check for 
-        RemoveFolderRecursive(indir);
-      } else {
-        _wremove(indir);
-      }
-    }
-    _wrmdir(dirname);
-  }
-}
-
-
 
 
 
@@ -673,7 +662,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       if (!IsIconic(hwnd)) //no action when minimized, prevents crash https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-isiconic?redirectedfrom=MSDN
       {
         //UpdateFrame(hwnd);
-        SetUnhandledExceptionFilter((LPTOP_LEVEL_EXCEPTION_FILTER)&myTry); 
         HBITMAP screen;//,screen2;
         PAINTSTRUCT ps;
         hdc=BeginPaint(hwnd, &ps);
@@ -955,6 +943,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             break;
         }
         return 0;
+        break;
 
 
                 //Actions based on Joystick input
@@ -969,19 +958,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //MessageBox(NULL, TEXT("ភាសាខ្មែរ"), TEXT("ភាសាខ្មែរ") ,MB_OK); //khmer text box
       //printf("boolsize:%d",sizeof(bool));      
       AddFontResource(L"fonts/unifont-8.0.01.ttf");
-      //AddFontResource(L"fonts/KhmerUI.ttf");
       AddFontResource(L"fonts/KhmerOS.ttf");
+      //AddFontResource(L"fonts/KhmerUI.ttf");
       //AddFontResource(L"fonts/KhmerOSsys.ttf");
       Init8BitRGBColorsNoir(rgbColorsNoir);
       Init8BitRGBColorsDefault(rgbColorsDefault);
-      wav_out_original_volume=VolumeValue(50,1);
-      RESOLUTION_X[2]=SCREEN_WIDTH;
-      RESOLUTION_Y[2]=SCREEN_HEIGHT;
-      swprintf(src_music_dir,64,L"music");
-
-
-
+      wav_out_original_volume=VolumeValue(50,1); //set volume
       //waveOutGetVolume(hWaveOut[2],&wav_out_original_volume);
+      RESOLUTION_X[2]=SCREEN_WIDTH; //set resolution x to be of screen width
+      RESOLUTION_Y[2]=SCREEN_HEIGHT; //set reolution y to be of screen height
+
+      swprintf(src_music_dir,64,L"music"); //set dir of music
+
+
 
       //Delete tmp in music
       remove("music/tmp/tmp.wav");
@@ -993,19 +982,21 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //load levels in save
       GetSavesInDir(L"saves");
 
-      InitTickFrequency();
-      InitFPS();
-      //unsigned long long timenow=current_timestamp();
-      //printf("\nSeconds Passed Since Jan-1-1970: %llu",timenow);
+      InitTickFrequency(); //get ticks frequency 
+      InitFPS(); //get screen refresh rate
 
-      player.health=20;
+      player.health=20; //init player heath (for cursor)
+
+
+
+    //hijri related (*
       int64_t timenow=int64_current_timestamp(); //local timestamp is returned
 
       printf("\nSeconds Passed Since Jan-1-1970: %d",timenow);
       PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);
       PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift);
 
-      int num_char='*';
+      int num_char='*'; //hijri
       if (solar_month==1 && solar_day>=12 && solar_day<=19) {
         num_char='+';
       }
@@ -1056,17 +1047,23 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         lunar_sec
       );
 
+
+
+
+
+      //init for sound
       back_to_menu=FALSE;
       in_main_menu=TRUE;
       level_chosen=0;
       stop_playing_song=FALSE;
 
+
+      //Init avi playing
       if (solar_hour>6 && solar_hour<18) { //day
         InitExtractAVIFrames(L"avi/mainmenu_gameplay_day.avi",0);
       } else {
         InitExtractAVIFrames(L"avi/mainmenu_gameplay_night.avi",0);
       }
-
 
      //Load Song
       InitSongBank();
@@ -1126,6 +1123,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil2,mouse_cursor_sprite_pupil_cache2);
 
 
+      
+
+
+
       //Load moon sprite based on lunar day
       if (lunar_day>=1 && lunar_day<=5) { //1, 2, 3, 4, 5
         moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
@@ -1154,7 +1155,40 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
       title_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/title.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      title_small_sprite = CopyStretchBitmap(title_sprite,SRCCOPY,356*3/5,256*3/5);
       title_sprite_mask=CreateBitmapMask(title_sprite,LTGREEN,NULL);
+      title_small_sprite_mask=CreateBitmapMask(title_small_sprite,LTGREEN,NULL);
+
+
+
+      //KHMER
+      for (int i=0;i<4;i++) { //main menu
+        wchar_t mm0khtxt[32];
+        swprintf(mm0khtxt,32,L"sprites/khmai/mm0kh_%d.bmp",i);
+        mm0_kh[i]=(HBITMAP) LoadImageW(NULL, mm0khtxt, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        mm0_kh_white[i]=RotateSprite(NULL, mm0_kh[i],0,LTGREEN,BLACK,WHITE,-1);
+        mm0_kh_green[i]=RotateSprite(NULL, mm0_kh[i],0,LTGREEN,BLACK,LLTGREEN,-1);
+        mm0_kh_mask[i]= CreateBitmapMask(mm0_kh[i],LTGREEN,NULL);
+      }
+
+      for (int i=0;i<2;i++) { //hijiri
+        wchar_t mm0khtxth[32];
+        swprintf(mm0khtxth,32,L"sprites/khmai/mm0kh_4_%d.bmp",i);
+        mm0_kh_hijri[i]=(HBITMAP) LoadImageW(NULL, mm0khtxth, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        mm0_kh_hijri_mask[i]= CreateBitmapMask(mm0_kh_hijri[i],LTGREEN,NULL);
+      }
+
+
+      for (int i=0;i<7;i++) { //options
+        wchar_t mm2khtxt[32];
+        swprintf(mm2khtxt,32,L"sprites/khmai/mm2kh_%d.bmp",i);
+        mm2_kh[i]=(HBITMAP) LoadImageW(NULL, mm2khtxt, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        mm2_kh_white[i]=RotateSprite(NULL, mm2_kh[i],0,LTGREEN,BLACK,WHITE,-1);
+        mm2_kh_green[i]=RotateSprite(NULL, mm2_kh[i],0,LTGREEN,BLACK,LLTGREEN,-1);
+        mm2_kh_mask[i]= CreateBitmapMask(mm2_kh[i],LTGREEN,NULL);
+      }
+
+
 
       //fullscreen
       //ShowWindow(hwnd,SW_SHOWMAXIMIZED);
@@ -1375,7 +1409,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   //HWND hShellWnd = FindWindowA("Shell_TrayWnd", NULL);
   //ShowWindow(hShellWnd, SW_SHOW);
   waveOutSetVolume(hWaveOut[2],wav_out_original_volume);
-  //free(propertyItem);
   return (int) msg.wParam;
 }
 

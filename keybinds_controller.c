@@ -1,3 +1,69 @@
+
+
+
+struct console
+{
+  //DPAD
+  //bool rst_d_up;
+  //bool rst_d_down;
+  //bool rst_d_left;
+  //bool rst_d_right;
+
+  bool connected;
+
+  //Right pad
+  bool rst_cross;
+  //bool rst_square;
+  //bool rst_circle;
+  bool rst_triangle;
+  bool rst_l3;
+  bool rst_r3;
+
+  //Corners
+  //bool rst_l1;
+  //bool rst_l2;
+
+  //bool rst_r1;
+  //bool rst_r2;
+
+  //joystick
+  //bool rst_l3;
+  //bool rst_r3;
+
+  //misc
+  //bool rst_select;
+  //bool rst_start;
+  
+  //DPAD
+  int rst_d_up_timer;
+  int rst_d_down_timer;
+  int rst_d_left_timer;
+  int rst_d_right_timer;
+
+  //joystick
+
+} ccontroller;
+
+
+void InitCController()
+{
+  ccontroller.connected=FALSE;
+
+  ccontroller.rst_d_up_timer=0;
+  ccontroller.rst_d_down_timer=0;
+  ccontroller.rst_d_left_timer=0;
+  ccontroller.rst_d_right_timer=0;
+
+  ccontroller.rst_cross=FALSE;
+  ccontroller.rst_triangle=FALSE;
+
+  ccontroller.rst_l3=FALSE;
+  ccontroller.rst_r3=FALSE;
+}
+
+
+
+
 int MinusOneMenuCKeyPress(BYTE *rawData)
 {
     //LEFT D-Pad
@@ -7,7 +73,7 @@ int MinusOneMenuCKeyPress(BYTE *rawData)
        ccontroller.rst_d_up_timer--;
        if (ccontroller.rst_d_up_timer<=0) {
          ccontroller.rst_d_up_timer=10;
-         select_main_menu=LimitValue(select_main_menu-1,0,3);
+         select_main_menu=LimitValue(select_main_menu-1,0,4);
          if (game_audio)
            PlaySound(keySoundEffectCache[1].audio,NULL,SND_MEMORY | SND_ASYNC); //up down
        }
@@ -17,7 +83,7 @@ int MinusOneMenuCKeyPress(BYTE *rawData)
         ccontroller.rst_d_down_timer--;
         if (ccontroller.rst_d_down_timer<=0) {
           ccontroller.rst_d_down_timer=10;
-          select_main_menu=LimitValue(select_main_menu+1,0,3);
+          select_main_menu=LimitValue(select_main_menu+1,0,4);
           if (game_audio)
             PlaySound(keySoundEffectCache[1].audio,NULL,SND_MEMORY | SND_ASYNC); //up down
         }
@@ -52,6 +118,12 @@ int MinusOneMenuCKeyPress(BYTE *rawData)
             PostQuitMessage(0);
             return 0;
           }
+         if (select_main_menu==3) {
+           is_khmer=!is_khmer;
+           if (game_audio)
+             PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
+         }
+
         }
         if (ccontroller.rst_triangle) {
           ccontroller.rst_triangle=FALSE;

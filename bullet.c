@@ -351,10 +351,50 @@ void PlayerBulletAct(int bullet_id,int enemy_id)
 	  allow_act=TRUE;
     } else if (IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) {//out of bounds
 	  allow_act=TRUE;
+    } else { //travelling player bullet
+       if (enemy_id==-1) {//travelling sniper bullet
+        player.pivot_length=GetDistance(Bullet[bullet_id].x,Bullet[bullet_id].y,player.x,player.y);
+        player.pivot_angle=GetCosAngle(player.x-Bullet[bullet_id].x,player.pivot_length);
+        double _a=player.x;
+        double _b=player.y;
+        double _l=player.pivot_length/PLAYER_FLING_WEB_NUM;
+        int tmp_ground_id=-1;
+        for (int i=0;i<PLAYER_FLING_WEB_NUM;i++) {
+          player_fling_web.x[i]=_a;
+          player_fling_web.y[i]=_b;          
+          player_fling_web.sprite_x[i]=-20;//_a+player.cam_x+player.cam_move_x+player.cam_mouse_move_x;
+          player_fling_web.sprite_y[i]=-20;//_b+player.cam_y+player.cam_move_y+ player.cam_mouse_move_y;
+          //printf("a");
+
+          //to allow web bending
+          tmp_ground_id=GetOnGroundId(player_fling_web.x[i],player_fling_web.y[i],2,2);
+          if (tmp_ground_id!=-1) {
+            if (GetDistance(player_fling_web.x[i],player_fling_web.y[i],Ground[tmp_ground_id]->x1,Ground[tmp_ground_id]->y1)<=NODE_SIZE ||
+                GetDistance(player_fling_web.x[i],player_fling_web.y[i],Ground[tmp_ground_id]->x2,Ground[tmp_ground_id]->y2)<=NODE_SIZE) {
+              //change pivot
+              //player.pivot_x=player_fling_web.x[i];
+              //player.pivot_y=player_fling_web.y[i];
+              //InitPlayerFlingWeb();
+              Bullet[bullet_id].x=player_fling_web.x[i];
+              Bullet[bullet_id].y=player_fling_web.y[i];
+              bullet_on_ground_id=tmp_ground_id;
+        	  allow_act=TRUE;
+              break;
+            }
+          }
+          if (player.y>Bullet[bullet_id].y) {
+            _a-=_l*cos(player.pivot_angle);
+           _b-=_l*sin(player.pivot_angle);
+           } else {
+            _a-=_l*cos(player.pivot_angle);
+            _b+=_l*sin(player.pivot_angle);
+          }
+        }
+      }     
     }
 	if (allow_act) {//reaching end of range
       //player_web_swinging related
-      if (enemy_id==-1) {
+      if (enemy_id==-1) { //sniping
         if (Bullet[bullet_id].range>0) {
           if (bullet_on_ground_id!=-1) {
             player.pivot_x=Bullet[bullet_id].x;
