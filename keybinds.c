@@ -163,7 +163,11 @@ void GameKeypressDown(WPARAM wParam)
     switch (wParam) {
     //Holding Down Down Arrow or 'S'
       case 'S':
-        player.rst_down=TRUE;
+        if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = QUIT
+          player.phase_web=TRUE;
+        } else {
+          player.rst_down=TRUE;
+        }
         break;
 
 
@@ -174,6 +178,9 @@ void GameKeypressDown(WPARAM wParam)
 
     //Holding Down Right Arrow or 'D'
       case 'D':
+        player.rst_left=FALSE;
+        player.phase_web=FALSE;
+        player.phase_web2=FALSE;
         player.rst_right=TRUE;        
         break;
 
@@ -184,6 +191,9 @@ void GameKeypressDown(WPARAM wParam)
 
     //Holding Down Left Arrow or 'A'
       case 'A':
+        player.rst_right=FALSE;
+        player.phase_web=FALSE;
+        player.phase_web2=FALSE;
         player.rst_left=TRUE;
         break;
 
@@ -195,7 +205,11 @@ void GameKeypressDown(WPARAM wParam)
 
     //Holding Down Up Arrow or 'W''
       case 'W':
-        player.rst_up=TRUE;
+        if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = QUIT
+          player.phase_web2=TRUE;
+        } else {
+          player.rst_up=TRUE;
+        }
         break;
 
       case VK_UP:
@@ -292,6 +306,7 @@ void GameKeypressUp(WPARAM wParam)
     //Release S or Down key
       case 'S':
         player.rst_down=FALSE;
+        player.phase_web=FALSE;
         break;
 
       case VK_DOWN:
@@ -319,7 +334,9 @@ void GameKeypressUp(WPARAM wParam)
     //Release W or Up key
       case 'W':
         player.rst_up=FALSE;
+        player.phase_web2=FALSE;
         break;
+
       case VK_UP:
         player.rst_arrow_up=FALSE;
         break;

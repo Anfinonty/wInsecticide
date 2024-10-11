@@ -137,10 +137,17 @@ struct player
   bool low_jump;
 
   bool is_on_ground_edge;
+  //bool is_on_ground_edge2;
   bool is_on_left_ground_edge;
   bool is_on_right_ground_edge;
  
   bool in_water;
+  bool phase_web;
+  bool phase_web2;
+  bool hiding;
+  bool in_web_corner;
+  bool key_b4_corner_is_left;
+  bool key_b4_corner_is_right;
   //Render
   //int rendered_vgrid_num;
   //int rendered_enemy_num;
@@ -192,6 +199,10 @@ struct player
   int speed;
   int on_ground_timer;
   int on_ground_id;
+  int on_ground_id_u1;
+  int on_ground_id_u2;
+  int on_ground_id_d1;
+  int on_ground_id_d2;
   int saved_ground_id;
   int walk_cycle;
   int player_jump_height;
@@ -206,6 +217,7 @@ struct player
 
   int on_ground_edge_id;
   int saved_on_ground_edge_id;
+  int pivot_on_ground_id;
   int show_block_health_timer;
   int show_health_timer;
 
@@ -248,8 +260,14 @@ struct player
   double saved_y;
   double x;
   double y;
+  double below_x1;
+  double below_y1;
+  double below_x2;
+  double below_y2;
   double above_x;
   double above_y;
+  double above_x1;
+  double above_y1;
   double above_x2;
   double above_y2;
   double sprite_angle;

@@ -397,6 +397,7 @@ void PlayerBulletAct(int bullet_id,int enemy_id)
       if (enemy_id==-1) { //sniping
         if (Bullet[bullet_id].range>0) {
           if (bullet_on_ground_id!=-1) {
+            player.pivot_on_ground_id=bullet_on_ground_id;
             player.pivot_x=Bullet[bullet_id].x;
             player.pivot_y=Bullet[bullet_id].y;
             player.is_swinging=TRUE;
