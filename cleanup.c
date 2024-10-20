@@ -330,7 +330,7 @@ void CleanupPlayerAttributes()
 void CleanupAll()
 {
     level_loaded=FALSE;
-    InitBullet();
+    InitBullet(BULLET_NUM);
     CleanUpPlayer(); //clean up all sprites
     CleanUpEnemySprites();
     //CleanUpGrid();

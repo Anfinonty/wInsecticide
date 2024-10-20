@@ -253,6 +253,7 @@ void MapEditorKeypressDown(WPARAM wParam)
                 set_enemy_type_bool_attr[seto][MapEditor.selected_enemy_type_id]=!set_enemy_type_bool_attr[seto][MapEditor.selected_enemy_type_id];
               }
             } else { //changing tyoe 0 to 10
+              InitBullet(ENEMY_BULLET_NUM);
               MapEditor.selected_enemy_type_id = LimitValueInt(MapEditor.selected_enemy_type_id+1,0,ENEMY_TYPE_NUM);
             }
             break;

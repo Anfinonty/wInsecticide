@@ -358,27 +358,34 @@ void DrawMapEditorUI(HDC hdc)
         }
         
 
-        //Draw Sprite -> Follow Range
-    GrLine(hdc,8+NODE_SIZE*set_enemy_type_follow_range[MapEditor.selected_enemy_type_id],32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM)+16*3,
-               8,32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM)+16*3,LTGREEN);
-    DrawSprite(hdc,8+NODE_SIZE*set_enemy_type_follow_range[MapEditor.selected_enemy_type_id],32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM)+16*3,&MEEnemySprite[MapEditor.selected_enemy_type_id]->draw_sprite_1,TRUE);
-  DrawSprite(hdc,8,32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM)+16*3,&player.draw_sprite_1,FALSE);
+        //Draw Circle Follow Range
+        GrCircle(hdc,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey,NODE_SIZE*set_enemy_type_follow_range[MapEditor.selected_enemy_type_id]/2,LTGREEN,-1);
+        GrLine(hdc,MapEditor.demo_enemy_spritex+NODE_SIZE*set_enemy_type_follow_range[MapEditor.selected_enemy_type_id]/2,MapEditor.demo_enemy_spritey-8,
+                   MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey-8,LTGREEN);
 
-        //Draw Sprite -> Chase Range
-    GrLine(hdc,8+NODE_SIZE*set_enemy_type_chase_range[MapEditor.selected_enemy_type_id],-4+32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM)+16*3,
-               8,-4+32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM)+16*3,LTRED);
-    DrawSprite(hdc,8+NODE_SIZE*set_enemy_type_chase_range[MapEditor.selected_enemy_type_id],32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM)+16*3,&MEEnemySprite[MapEditor.selected_enemy_type_id]->draw_sprite_1,TRUE);
+        //Draw Circle Chase Range
+        GrLine(hdc,MapEditor.demo_enemy_spritex+NODE_SIZE*set_enemy_type_chase_range[MapEditor.selected_enemy_type_id]/2,MapEditor.demo_enemy_spritey+8,
+                   MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey+8,LTRED);
+        GrCircle(hdc,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey,NODE_SIZE*set_enemy_type_chase_range[MapEditor.selected_enemy_type_id]/2,LTRED,-1);
 
-        //Draw Sprite -> Unchase Range
-    GrLine(hdc,8+NODE_SIZE*set_enemy_type_unchase_range[MapEditor.selected_enemy_type_id],4+32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM)+16*3,
-               8,4+32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM)+16*3,LTBLUE);
-    DrawSprite(hdc,8+NODE_SIZE*set_enemy_type_unchase_range[MapEditor.selected_enemy_type_id],32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM)+16*3,&MEEnemySprite[MapEditor.selected_enemy_type_id]->draw_sprite_1,FALSE);
+        //Draw Circle Unchase Range
+        GrLine(hdc,MapEditor.demo_enemy_spritex+NODE_SIZE*set_enemy_type_unchase_range[MapEditor.selected_enemy_type_id]/2,MapEditor.demo_enemy_spritey,
+                   MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey,LTBLUE);
+        GrCircle(hdc,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey,NODE_SIZE*set_enemy_type_unchase_range[MapEditor.selected_enemy_type_id]/2,LTBLUE,-1);
 
-        //Draw Sprite -> Bullet Range and Frequency
-    DrawSprite(hdc,8+NODE_SIZE*set_enemy_type_shoot_at_player_range[MapEditor.selected_enemy_type_id],32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM)+16*3,&MEEnemySprite[MapEditor.selected_enemy_type_id]->draw_sprite_1,TRUE);
-
+        //Draw 
+        DrawSprite(hdc,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey,&MEEnemySprite[MapEditor.selected_enemy_type_id]->draw_sprite_1,MapEditor.demo_enemy_spriteisleft);
 
 
+        //draw bullet frequency
+        GrLine(hdc,MapEditor.demo_enemy_spritex+NODE_SIZE*set_enemy_type_shoot_at_player_range[MapEditor.selected_enemy_type_id]/2,MapEditor.demo_enemy_spritey+24,
+                   MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey+24,LTPURPLE);
+        GrCircle(hdc,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey,NODE_SIZE*set_enemy_type_shoot_at_player_range[MapEditor.selected_enemy_type_id]/2,LTPURPLE,-1);
+        for (int i=0;i<ENEMY_BULLET_NUM;i++) {
+          if (Bullet[i].shot) {
+            DrawBullet2(hdc,i,Bullet[i].x,Bullet[i].y,Bullet[i].color);
+          }
+        }
         break;
 
       case 4: //set map backgroudn and palette

@@ -1,9 +1,9 @@
 
-void InitBullet()
+void InitBullet(int max_bullet_num)
 {
   int i=0;
   current_bullet_id=0;
-  for (i=0;i<BULLET_NUM;i++) {
+  for (i=0;i<max_bullet_num;i++) {
     Bullet[i].playsnd=FALSE;
     Bullet[i].shot=FALSE;
     Bullet[i].near_miss=FALSE;
@@ -341,6 +341,14 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
 
 
 
+void MapEditorBulletAct(int bullet_id)
+{
+  if (Bullet[bullet_id].range<=0) {
+    StopBullet(bullet_id,FALSE); 
+  }
+}
+
+
 void PlayerBulletAct(int bullet_id,int enemy_id)
 {      
     bool allow_act;
@@ -532,6 +540,8 @@ Ascii art woo!! :D
             else
               Bullet[bullet_id].damage+=0.2;
             Bullet[bullet_id].start_range=Bullet[bullet_id].range;
+          } else {
+            Bullet[bullet_id].range/=4;
           }
           if (Bullet[bullet_id].angle>2*M_PI) { //hreater
             Bullet[bullet_id].angle-=2*M_PI;
@@ -756,19 +766,6 @@ void BulletAct(int bullet_id)
             //check if below spawned web
             double check_x1,check_x2,c1,c2;
             double rain_gradient=rain_grad_rise/rain_grad_run;
-            for (int q=GROUND_NUM;q<GROUND_NUM+MAX_WEB_NUM;q++) {                
-              if (Ground[q]->x1>-1 && Ground[q]->y1>-1) {
-                c1=GetGroundC(Ground[q]->x1-NODE_SIZE,Ground[q]->y1,rain_gradient);
-                c2=GetGroundC(Ground[q]->x2+NODE_SIZE,Ground[q]->y2,rain_gradient);
-                check_x1=GetX(rand_y,rain_gradient,c1);
-                check_x2=GetX(rand_y,rain_gradient,c2);
-
-                if (check_x1<=rand_x && rand_x<=check_x2 && (rand_y>=Ground[q]->y1 || rand_y>=Ground[q]->y2)) {
-                  allow_spawn=FALSE;
-                  break;
-                }
-              }
-            }
 
             int spawn_on_ng=GetGridId(rand_x,rand_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
             if (spawn_on_ng!=-1) {
@@ -778,6 +775,28 @@ void BulletAct(int bullet_id)
             } else { //==-1
               allow_spawn=FALSE;
             }
+
+
+            if (allow_spawn) {
+              for (int q=GROUND_NUM;q<GROUND_NUM+MAX_WEB_NUM;q++) {                
+                if (Ground[q]->x1>-1 && Ground[q]->y1>-1) {
+                  c1=GetGroundC(Ground[q]->x1-NODE_SIZE,Ground[q]->y1,rain_gradient);
+                  c2=GetGroundC(Ground[q]->x2+NODE_SIZE,Ground[q]->y2,rain_gradient);
+                  check_x1=GetX(rand_y,rain_gradient,c1);
+                  check_x2=GetX(rand_y,rain_gradient,c2);
+
+                  if (check_x1-NODE_SIZE<=rand_x && rand_x<=check_x2+NODE_SIZE 
+                      && (rand_y>=min(Ground[q]->y1,Ground[q]->y2)-NODE_SIZE*10)
+                     ) 
+                    {
+                    allow_spawn=FALSE;
+                    break;
+                 }
+                }
+              }
+            }
+
+
             int c=Highlight(IsInvertedBackground(),BLUE,YELLOW);
 
             if (allow_spawn) {
@@ -820,6 +839,11 @@ void BulletAct(int bullet_id)
               );
             }
           }
+        } else if (enemy_id==-10) {
+          if (Bullet[bullet_id].graphics_type==6 && Bullet[bullet_id].range<=Bullet[bullet_id].start_range-120) {
+            Bullet[bullet_id].graphics_type=5;
+          }
+          allow_act=TRUE;
         }
       } else if (!player.time_breaker || Enemy[enemy_id]->time_breaker_immune) {//enemy
         if (Bullet[bullet_id].graphics_type==6 && Bullet[bullet_id].range<=Bullet[bullet_id].start_range-120) {
@@ -847,6 +871,8 @@ void BulletAct(int bullet_id)
           PlayerBulletAct(bullet_id,enemy_id);
         } else if (enemy_id==-3) {
           RainBulletAct(bullet_id);
+        } else if (enemy_id==-10) { //for mapeditor
+          MapEditorBulletAct(bullet_id);
         }
       }
     } // end of speedy for loop

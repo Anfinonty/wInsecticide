@@ -629,6 +629,9 @@ typedef struct enemy
   bool flip_sprite;
   bool play_death_snd;
 
+  bool is_ground_rebounding;
+  bool is_in_ground_edge;
+
   //Attacked
   bool knockback_left;
   bool player_knockback;

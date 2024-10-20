@@ -612,16 +612,94 @@ void PlayerActGroundEdgeMovement()
   }
 }
 
+void PlayerActXMovement(int grav_speed)
+{
+  if (player.is_on_ground_edge && player.grav==1) {
+    if (player.rst_left) {
+      player.last_left=TRUE;
+    } else if (player.rst_right) {
+      player.last_left=FALSE;
+    }
+    grav_speed=2;
+    player.is_on_ground_edge=FALSE;
+  }
 
+
+  bool allow_act=FALSE;
+  if (player.fling_distance<=0 && !player.phase_web && !player.phase_web2 && !player.in_web_corner) { //player's fling distance is 0
+    player.previous_web_placed=-1;
+    if (!player.is_swinging && !player.is_on_ground_edge) { // player is not swinging and not on ground edge
+      if (player.on_ground_id==-1) { //player is not on ground
+        allow_act=TRUE;
+      } else if (!player.blocking) { //on a ground but not blocking
+        allow_act=TRUE;
+      } 
+    } else if (player.on_ground_id!=-1 && !player.is_on_ground_edge) { //is swinging but on ground
+      if (player.pivot_length<DEFAULT_PLAYER_BUILD_RANGE/2*NODE_SIZE) { //allow movement if within swing distance
+        allow_act=TRUE;
+      }
+    }
+  }
+  if (grav_speed==0 && allow_act) { //ground movement
+    if (player.speed>5 && player.on_ground_timer>0) {
+      player.decceleration_timer+=2;
+    }
+    if (player.speed>10 && player.on_ground_timer>0) {
+      player.decceleration_timer+=2;
+    }
+    if (player.rst_left || player.rst_right) {
+      player.is_rebounding=FALSE;
+    }
+    if (player.print_current_above) { //player is above ground
+      if (player.rst_right) {
+        move_x(cos(player.angle));
+        move_y(sin(player.angle));
+        player.last_left=FALSE;
+      } else if (player.rst_left) {
+        move_x(-cos(player.angle));
+        move_y(-sin(player.angle));
+        player.last_left=TRUE;
+      }
+    } else if (player.print_current_below) { //player is below ground
+      if (player.rst_right) {
+        move_x(-cos(player.angle));
+        move_y(-sin(player.angle));
+        player.last_left=FALSE;
+      } else if (player.rst_left) {
+        move_x(cos(player.angle));
+        move_y(sin(player.angle));
+        player.last_left=TRUE;
+      }
+    } else { //player is not on ground
+      if (player.fling_distance==0) {
+        if (player.rst_left) {
+          move_x(-1);
+          player.last_left=TRUE;
+        } else if (player.rst_right) {
+          move_x(1);
+          player.last_left=FALSE;
+        }
+      } else {
+        if (player.angle_of_reflection>M_PI_2 && player.angle_of_reflection<M_PI+M_PI_2) {//lefft side
+          if (player.rst_right) {
+            move_x(1);
+            player.last_left=TRUE;
+          }
+        } else {
+          if (player.rst_left) {
+            move_x(-1);
+            player.last_left=FALSE;
+          }
+        }
+      }
+    }
+  }
+
+}
 
 void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
 {
   player.angle=Ground[player.on_ground_id]->angle; //set player angle
-
-  /*if (player.in_web_corner) {
-    //player.grav=1;
-  }*/
-
 
   if (player.in_air_timer>0) {
     if (player.in_air_timer>1000) { //make player rebound
@@ -676,7 +754,7 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
     player.on_ground_timer=20;
 
     if (player.on_ground_id<GROUND_NUM) {
-          if (player.on_ground_id_u2!=-1) {
+          if (player.on_ground_id_u2!=-1 || player.in_web_corner) {
             move_x(-cos(player.angle+M_PI_2)*2);
             move_y(-sin(player.angle+M_PI_2)*2);
             if (!player.in_web_corner) {
@@ -691,8 +769,13 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
             }
           } else {
             if (height_from_player_x<5 || player.is_rebounding /*|| player.is_swinging*/) {
-              move_x(-cos(player.angle+M_PI_2));
-              move_y(-sin(player.angle+M_PI_2));
+              if (player.is_rebounding) {
+                move_x(-cos(player.angle+M_PI_2)*2);
+                move_y(-sin(player.angle+M_PI_2)*2);
+              } else {
+                move_x(-cos(player.angle+M_PI_2));
+                move_y(-sin(player.angle+M_PI_2));
+              }
             }
           }
     } else {
@@ -747,7 +830,7 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
     player.on_a_ground=TRUE;
     player.on_ground_timer=20;
     if (player.on_ground_id<GROUND_NUM) {
-      if (player.on_ground_id_u2!=-1) {
+      if (player.on_ground_id_u2!=-1 || player.in_web_corner) {
             move_x(-cos(player.angle-M_PI_2)*2); //go outwards 
             move_y(-sin(player.angle-M_PI_2)*2);
             if (!player.in_web_corner) {
@@ -762,8 +845,13 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
             }
       } else {
         if (height_from_player_x>-5 || player.is_rebounding/* || player.is_swinging*/) {
+          if (player.is_rebounding) {
+            move_x(-cos(player.angle-M_PI_2)*2); //go outwards 
+            move_y(-sin(player.angle-M_PI_2)*2);
+          } else {
             move_x(-cos(player.angle-M_PI_2)); //go outwards 
             move_y(-sin(player.angle-M_PI_2));
+          }
         }
       }
     } else {
@@ -849,10 +937,13 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
     player.key_b4_corner_is_right=FALSE;
   }
 
-  if (player.is_on_ground_edge && player.on_ground_timer==0 && (player.rst_left || player.rst_right)) {
+  /*if (player.is_on_ground_edge && (player.rst_left || player.rst_right)) {
     //player.grav=1;
+    player.in_web_corner=FALSE;
+    player.key_b4_corner_is_left=FALSE;
+    player.key_b4_corner_is_right=FALSE;
     player.is_on_ground_edge=FALSE;
-  }
+  }*/
 }
 
 
@@ -1046,43 +1137,117 @@ void PlayerActSwinging(int grav_speed)
 }
 
 
-void PlayerAct() 
+
+void PlayerActGravityMovement(int grav_speed,int speed)
 {
-  int speed=0,grav_speed=0,claws_l2=NODE_SIZE,claws_l=NODE_SIZE/2;
-  double grad_x1=0,grad_y1=0,grad_x2=0,grad_y2=0;
-  bool allow_act=FALSE;
-
-  if (player.rain_wet_timer>0) {
-    player.rain_wet_timer--;
-  }
-  if (player.visible_rain_wet_timer>0) {
-    player.visible_rain_wet_timer--;
-  }
-
-  //========Player attacking timer==============
-  if (player.attack_timer>=0) {
-    player.attack_timer--;
-  }
-
-  if (player.speed>10) {
-    player.attack_strength=4;
-  } else {
-    if (player.speed>5) {
-      player.attack_strength=2;
-    } else {
-      player.attack_strength=DEFAULT_PLAYER_ATTACK_STRENGTH;
+  if (grav_speed==0 && speed==0) {
+    if (player.on_ground_id==-1 && !player.is_swinging && !player.is_on_ground_edge) {
+      player.in_air_timer++;
+      if (player.in_air_timer>2002) { //dont go above this limit
+        player.in_air_timer--;
+      }
+      if (player.jump_height==0) {
+        if (player.in_air_timer<1100) { //note: 1001 is post fling or rebounding
+          if (player.in_air_timer%20==0 && player.grav<=100) {
+            player.grav++;
+          /*if (player.is_rebounding && player.speed<4) {
+            player.speed++;
+          }*/
+          }
+        } else {
+          if (player.in_air_timer%12==0 && player.grav<=100) {
+            player.grav++;
+          }
+        }
+      }
     }
   }
 
-  if (player.speed>24) {
-    player.attack_strength*=2;
+
+  if ((speed==0 && player.speed<5) || (player.speed>=5 && grav_speed==0)) {
+
+    if (player.jump_height>0) { //Jumping action
+      player.jump_height-=player.player_grav;
+      if (player.uppercut && (player.rst_left || player.rst_right)) {
+        player.jump_height=0;
+      }
+      move_x(2*player.player_grav*-cos(player.jump_angle));
+      move_y(2*player.player_grav*-sin(player.jump_angle)); //jump go against gravity and perpendicular from platform
+      if (player.jump_height<=0) {
+        player.jump=FALSE;
+      }
+    }
   }
 
-  //======================
+
+  if (speed==0) { //Gravity runs on grav speed
+    if (player.on_ground_id==-1 && player.jump_height<=0) { //Credit: y4my4m for pushing me to pursue this gameplay aspect
+      if (!player.is_swinging) { //not swinigng and player is not flinging
+        if ((player.in_air_timer>4 || player.fling_distance<0) || (player.in_water && player.blocking)) {
+          move_y(player.player_grav); //include while being rebounding and flinging
+        }
+      }
+    } else { //landed on ground
+      if (player.grav>=3 && !player.is_swinging && !player.is_on_ground_edge) { //no gravity if on ground edge
+        if (player.grav>7) {
+          player.cam_move_x*=-1;
+        }
+        player.cam_move_y/=-1.5;
+      }
+      if (!player.is_swinging)
+        player.grav=2;
+    }
+  }
+}
 
 
 
-  //Mouse Actions
+void PlayerActFlingMovement(int grav_speed)
+{
+  if (grav_speed==0 && !player.is_swinging && !player.is_rebounding) { 
+    if (((player.rst_left || player.rst_right) && player.fling_distance<-100) || player.uppercut || player.on_ground_id!=-1) { //cancel flinging when left or right key is pressed
+      player.fling_distance=0;
+      if (player.uppercut)
+        player.rst_down=FALSE;
+    }
+
+
+    if (player.fling_distance>0) { //fling and against gravity
+      move_x(cos(player.angle_of_reflection));
+      move_y(sin(player.angle_of_reflection));
+      player.fling_distance--;
+      if (player.fling_distance==1) { //cap in air timer right before end of fling distance
+        player.in_air_timer=1002;
+        player.fling_distance=-1;
+        //player.speed+=2;
+      }
+    } else if (player.fling_distance<0){ //Continue moving but now theres gravity
+      move_x(cos(player.angle_of_reflection));
+      move_y(sin(player.angle_of_reflection));
+      player.fling_distance--;
+    }
+  }
+
+}
+
+
+
+void PlayerActReboundActions(int grav_speed, int speed)
+{
+  if (player.is_rebounding && !player.is_swinging && grav_speed==0) {
+    move_x(cos(player.angle_of_reflection));
+    move_y(sin(player.angle_of_reflection));
+    if (player.on_ground_id!=-1 && player.on_ground_id<GROUND_NUM && speed<=1 && !player.time_breaker) {
+      if (player.speed>5) {
+        player.speed=player.speed*5/6;
+      }
+    }
+  }
+}
+
+
+void PlayerActMouseMovement()
+{
   player.mouse_dist=GetDistance(GR_WIDTH/2,GR_HEIGHT/2,mouse_x,mouse_y);
   player.mouse_angle=GetCosAngle(mouse_x-GR_WIDTH/2,player.mouse_dist);
 
@@ -1097,17 +1262,13 @@ void PlayerAct()
     player.cam_mouse_move_y=sin(player.mouse_angle)*player.mouse_dist/divider;
   else
     player.cam_mouse_move_y=0;
+}
 
-  //Clicking Actions
-  if (player.bullet_shot!=-1) {
-    player.web_being_shot=player.web_storage[player.placed_web_pos];
-    BulletAct(player.bullet_shot);
-  }
-  for (int i=0;i<player.bullet_shot_num;i++) {
-    BulletAct(player.bullet[i]);
-  }
 
-  Click();
+void PlayerActMouseClick()
+{
+  double grad_x1=0,grad_y1=0,grad_x2=0,grad_y2=0;
+  bool allow_act=FALSE;
   if (player.attack_rst) {//Left click to Attack
     player.attack=TRUE;
     player.blocking=FALSE; //unblock
@@ -1370,56 +1531,42 @@ void PlayerAct()
   if (player.attack_rst) {
     player.attack_rst=FALSE;
   }
+}
 
-  //Trigger movements
-  if (player.rst_left || player.rst_right) {
-    /*if (player.rst_left) {
-      player.last_left=TRUE;
+void PlayerActDestroyGround()
+{
+  if (player.destroy_ground) {
+    if (player.is_on_ground_edge) { 
+      if (player.saved_on_ground_edge_id>=GROUND_NUM && player.saved_on_ground_edge_id!=player.previous_web_placed) {
+        DestroyGround(player.saved_on_ground_edge_id);  
+	    RegainWeb(player.saved_on_ground_edge_id);
+      }
     } else {
-      player.last_left=FALSE;
+      if (player.on_ground_id>=GROUND_NUM && player.on_ground_id!=player.previous_web_placed) {
+        DestroyGround(player.on_ground_id);  
+  	    RegainWeb(player.on_ground_id);
+      }
     }
-    if (player.rst_right) {
-      player.last_left=FALSE;
-    }*/
-    player.walk_cycle++; //Walk sprite cycle
-    if (player.walk_cycle>=4) {
-      player.walk_cycle=0;
+    player.destroy_ground=FALSE;
+  }
+
+
+  if (player.health<=PLAYER_LOW_HEALTH) {
+    if (player.speed<11) {
+      player.speed=11;
     }
-  } else {
-    player.walk_cycle=0;
-  }
-
-  //Attack mode
-  if (player.attack) {
-    player.attack=FALSE;
-    player.attack_timer=40;
-  }
-
-  //Trigger jump
-  if (!player.rst_up) { //not jumping
-    player.jump=FALSE;
-  }
-
-  if (!player.uppercut) { //no more uppercut, revert jump height
-    if (player.jump_height==-1)
-      player.jump_height=0;
-  }
-
-  if (player.rst_up && player.on_a_ground) { //on ground and jumping
-    //player.key_jump_timer=player.player_jump_height;
-    player.jump=TRUE;
-    player.on_ground_edge_id=-1;
-    player.is_on_ground_edge=FALSE;
-    player.is_on_left_ground_edge=FALSE;
-    player.is_on_right_ground_edge=FALSE;
-  }
-
-  if (player.jump && player.jump_height==0) {
-    player.jump_height=player.player_jump_height;
   }
 
 
-  //decceleration actions
+  if (player.spin_timer>0 && player.speed<4) {
+    player.speed=4;
+    player.decceleration_timer=0;
+  }
+}
+
+
+void PlayerActDecceleration()
+{
   if (player.decceleration_timer==0) {
     if (!player.is_swinging) {
       player.decceleration_timer=100; //idling, goback to 100
@@ -1464,8 +1611,103 @@ void PlayerAct()
     }
     player.decceleration_timer=0;
   }
+}
 
 
+void PlayerAct() 
+{
+  int speed=0,grav_speed=0,claws_l2=NODE_SIZE,claws_l=NODE_SIZE/2;
+  bool allow_act=FALSE;
+
+  if (player.rain_wet_timer>0) {
+    player.rain_wet_timer--;
+  }
+  if (player.visible_rain_wet_timer>0) {
+    player.visible_rain_wet_timer--;
+  }
+
+  //========Player attacking timer==============
+  if (player.attack_timer>=0) {
+    player.attack_timer--;
+  }
+
+  if (player.speed>10) {
+    player.attack_strength=4;
+  } else {
+    if (player.speed>5) {
+      player.attack_strength=2;
+    } else {
+      player.attack_strength=DEFAULT_PLAYER_ATTACK_STRENGTH;
+    }
+  }
+
+  if (player.speed>24) {
+    player.attack_strength*=2;
+  }
+
+  //======================
+
+
+  //Player Bullet Actions;
+  if (player.bullet_shot!=-1) {
+    player.web_being_shot=player.web_storage[player.placed_web_pos];
+    BulletAct(player.bullet_shot);
+  }
+  for (int i=0;i<player.bullet_shot_num;i++) {
+    BulletAct(player.bullet[i]);
+  }
+
+
+  //Mouse Actions
+  PlayerActMouseMovement();
+  Click(); //check for click
+  PlayerActMouseClick(); //action after click
+
+
+  //Trigger movements
+  if (player.rst_left || player.rst_right) {
+    player.walk_cycle++; //Walk sprite cycle
+    if (player.walk_cycle>=4) {
+      player.walk_cycle=0;
+    }
+  } else {
+    player.walk_cycle=0;
+  }
+
+  //Attack mode
+  if (player.attack) {
+    player.attack=FALSE;
+    player.attack_timer=40;
+  }
+
+  //Trigger jump
+  if (!player.rst_up) { //not jumping
+    player.jump=FALSE;
+  }
+
+  if (!player.uppercut) { //no more uppercut, revert jump height
+    if (player.jump_height==-1)
+      player.jump_height=0;
+  }
+
+  if (player.rst_up && player.on_a_ground) { //on ground and jumping
+    //player.key_jump_timer=player.player_jump_height;
+    player.jump=TRUE;
+    player.on_ground_edge_id=-1;
+    player.is_on_ground_edge=FALSE;
+    player.is_on_left_ground_edge=FALSE;
+    player.is_on_right_ground_edge=FALSE;
+  }
+
+  if (player.jump && player.jump_height==0) {
+    player.jump_height=player.player_jump_height;
+  }
+
+
+  //PLAYER ACT DECELERATION ACTIONS
+  PlayerActDecceleration();
+
+  //PLAYER TRUE SPEED LIMITER
   int speed_limiter=player.speed;
   if (player.speed>24) {
     speed_limiter=player.speed;//17+(player.speed-24)/8;
@@ -1475,6 +1717,8 @@ void PlayerAct()
     speed_limiter=5+(player.speed-5)/2;
   }
 
+
+  //PLAYER ACT SPPED IN WATER
   if (player.in_water) {
     player.grav=1;
     speed_limiter=speed_limiter/2+1;
@@ -1483,35 +1727,11 @@ void PlayerAct()
 
   for (speed=0;speed<speed_limiter;speed++) {
     for (grav_speed=0;grav_speed<player.grav;grav_speed++) {
-      //player.on_ground_id=GetOnGroundIdPlayer(player.x,player.y,5,4);
-
-
-      /*if (player.rst_left && player.rst_right) {
-        player.rst_right=FALSE;
-        player.rst_left=FALSE;
-      }*/
-
-      /*if (player.rst_left || player.rst_right) {
-        if (player.rst_left) {
-          player.rst_right=FALSE;
-        }
-        if (player.rst_right) {
-          player.rst_left=FALSE;
-        }
-      }*/
-
-
-
       player.on_ground_id=GetOnGroundIdPlayer(player.x,player.y,5,4);
-      player.on_ground_id_u1=GetOnGroundId(player.above_x1,player.above_y1,5,4); //left up
-      player.on_ground_id_d1=GetOnGroundIdPlayer(player.below_x1,player.below_y1,5,4); //left down
+      //player.on_ground_id_u1=GetOnGroundId(player.above_x1,player.above_y1,5,4); //left up
+      //player.on_ground_id_d1=GetOnGroundIdPlayer(player.below_x1,player.below_y1,5,4); //left down
       player.on_ground_id_u2=GetOnGroundId(player.above_x2,player.above_y2,5,4); //right up
-      player.on_ground_id_d2=GetOnGroundIdPlayer(player.below_x2,player.below_y2,5,4); //right down
-
-      /*if (player.on_ground_id2!=-1) {
-        player.on_ground_id=player.on_ground_id2;
-      }*/
-      //player.on_ground_id=GetOnGroundId(player.x,player.y,5,4,TRUE);
+      //player.on_ground_id_d2=GetOnGroundIdPlayer(player.below_x2,player.below_y2,5,4); //right down
 
    //hiding?    (legacy feature)
       /*int tmp_node_grid=GetGridId(player.above_x,player.above_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
@@ -1524,6 +1744,7 @@ void PlayerAct()
       }*/
 
 
+      //PLAYER IN NODE GRID ACTIONS
       int in_node_grid_id=GetGridId(player.x,player.y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
       if (in_node_grid_id!=-1) {
         //if (NodeGrid[in_node_grid_id]->tmp_wet)
@@ -1549,8 +1770,7 @@ void PlayerAct()
 
 
 
-
-
+      //PLAYER CORNER U2 ACTION
       if (player.on_ground_id_u2==-1) {
         player.in_web_corner=FALSE;
         player.key_b4_corner_is_left=FALSE;
@@ -1561,34 +1781,7 @@ void PlayerAct()
 
 
    //Destroy Ground (regainable)
-      if (player.destroy_ground) {
-        if (player.is_on_ground_edge) { 
-          if (player.saved_on_ground_edge_id>=GROUND_NUM && player.saved_on_ground_edge_id!=player.previous_web_placed) {
-            DestroyGround(player.saved_on_ground_edge_id);  
-    	    RegainWeb(player.saved_on_ground_edge_id);
-          }
-        } else {
-          if (player.on_ground_id>=GROUND_NUM && player.on_ground_id!=player.previous_web_placed) {
-            DestroyGround(player.on_ground_id);  
-      	    RegainWeb(player.on_ground_id);
-          }
-        }
-        player.destroy_ground=FALSE;
-      }
-
-
-      if (player.health<=PLAYER_LOW_HEALTH) {
-        if (player.speed<11) {
-          player.speed=11;
-        }
-      }
-
-
-      if (player.spin_timer>0 && player.speed<4) {
-        player.speed=4;
-        player.decceleration_timer=0;
-      }
-
+      PlayerActDestroyGround();
 
    //Ground action
    //on a ground
@@ -1629,23 +1822,6 @@ void PlayerAct()
         }
       }
 
-      //phase web
-      /*if (player.on_ground_id>=GROUND_NUM && !player.is_on_ground_edge) {
-        if (player.phase_web) {
-          if (player.current_above) {
-            move_x(cos(player.angle+M_PI_2)*2);
-            move_y(sin(player.angle+M_PI_2)*2);
-          }
-        } else if (player.phase_web2) {
-          if (player.current_below) {
-            move_x(-cos(player.angle+M_PI_2)*2);
-            move_y(-sin(player.angle+M_PI_2)*2);
-          }
-        }
-      }*/
-
-
-
     //Y movement
     //Condition to jump
       if (player.on_ground_timer>0) {
@@ -1653,78 +1829,12 @@ void PlayerAct()
       }
 
 
-
-      //==========REBOUND ACTIONS==========
-      if (player.is_rebounding && !player.is_swinging && grav_speed==0) {
-        move_x(cos(player.angle_of_reflection));
-        move_y(sin(player.angle_of_reflection));
-        if (player.on_ground_id!=-1 && player.on_ground_id<GROUND_NUM && speed<=1 && !player.time_breaker) {
-          if (player.speed>5) {
-            player.speed=player.speed*5/6;
-          }
-        }
-      }
-
-    //Gravity
-      if (grav_speed==0 && speed==0) {
-        if (player.on_ground_id==-1 && !player.is_swinging && !player.is_on_ground_edge) {
-          player.in_air_timer++;
-          if (player.in_air_timer>2002) { //dont go above this limit
-            player.in_air_timer--;
-          }
-	      if (player.jump_height==0) {
-            if (player.in_air_timer<1100) { //note: 1001 is post fling or rebounding
-              if (player.in_air_timer%20==0 && player.grav<=100) {
-                player.grav++;
-              /*if (player.is_rebounding && player.speed<4) {
-                player.speed++;
-              }*/
-              }
-            } else {
-              if (player.in_air_timer%12==0 && player.grav<=100) {
-                player.grav++;
-              }
-            }
-	      }
-        }
-      }
+    //==========PLAYER ACT REBOUND ACTIONS==========
+      PlayerActReboundActions(grav_speed,speed);
 
 
-      //PLAYER GRAVITY MOVEMENT
-      if ((speed==0 && player.speed<5) || (player.speed>=5 && grav_speed==0)) {
-
-        if (player.jump_height>0) { //Jumping action
-          player.jump_height-=player.player_grav;
-          if (player.uppercut && (player.rst_left || player.rst_right)) {
-            player.jump_height=0;
-          }
-          move_x(2*player.player_grav*-cos(player.jump_angle));
-          move_y(2*player.player_grav*-sin(player.jump_angle)); //jump go against gravity and perpendicular from platform
-          if (player.jump_height<=0) {
-            player.jump=FALSE;
-          }
-        }
-      }
-
-
-      if (speed==0) { //Gravity runs on grav speed
-        if (player.on_ground_id==-1 && player.jump_height<=0) { //Credit: y4my4m for pushing me to pursue this gameplay aspect
-          if (!player.is_swinging) { //not swinigng and player is not flinging
-            if ((player.in_air_timer>4 || player.fling_distance<0) || (player.in_water && player.blocking)) {
-              move_y(player.player_grav); //include while being rebounding and flinging
-	        }
-          }
-        } else { //landed on ground
-	      if (player.grav>=3 && !player.is_swinging && !player.is_on_ground_edge) { //no gravity if on ground edge
-	        if (player.grav>7) {
-	          player.cam_move_x*=-1;
-	        }
-	        player.cam_move_y/=-1.5;
-	      }
-          if (!player.is_swinging)
-            player.grav=2;
-        }
-      }
+    //==========Gravity=========
+      PlayerActGravityMovement(grav_speed,speed);
 
       if (player.y<0) { //Y axis cap
         move_y(1);
@@ -1733,94 +1843,20 @@ void PlayerAct()
         move_y(-player.player_grav);
         player.health--;
       }
-
-
+   //===========================
 
      //X movement
-      allow_act=FALSE;
-      if (player.fling_distance<=0 && !player.phase_web && !player.phase_web2 && !player.in_web_corner) { //player's fling distance is 0
-        player.previous_web_placed=-1;
-        if (!player.is_swinging && !player.is_on_ground_edge) { // player is not swinging and not on ground edge
-          if (player.on_ground_id==-1) { //player is not on ground
-            allow_act=TRUE;
-          } else if (!player.blocking) { //on a ground but not blocking
-            allow_act=TRUE;
-          } 
-        } else if (player.on_ground_id!=-1 && !player.is_on_ground_edge) { //is swinging but on ground
-          if (player.pivot_length<DEFAULT_PLAYER_BUILD_RANGE/2*NODE_SIZE) { //allow movement if within swing distance
-            allow_act=TRUE;
-          }
-        }
-      }
-      if (grav_speed==0 && allow_act) { //ground movement
-        if (player.speed>5 && player.on_ground_timer>0) {
-          player.decceleration_timer+=2;
-        }
-        if (player.speed>10 && player.on_ground_timer>0) {
-          player.decceleration_timer+=2;
-        }
-        if (player.rst_left || player.rst_right) {
-          player.is_rebounding=FALSE;
-        }
-        if (player.print_current_above) { //player is above ground
-          if (player.rst_right) {
-            move_x(cos(player.angle));
-            move_y(sin(player.angle));
-            player.last_left=FALSE;
-          } else if (player.rst_left) {
-            move_x(-cos(player.angle));
-            move_y(-sin(player.angle));
-            player.last_left=TRUE;
-          }
-        } else if (player.print_current_below) { //player is below ground
-          if (player.rst_right) {
-            move_x(-cos(player.angle));
-            move_y(-sin(player.angle));
-            player.last_left=FALSE;
-          } else if (player.rst_left) {
-            move_x(cos(player.angle));
-            move_y(sin(player.angle));
-            player.last_left=TRUE;
-          }
-        } else { //player is not on ground
-          if (player.fling_distance==0) {
-            if (player.rst_left) {
-              move_x(-1);
-              player.last_left=TRUE;
-            } else if (player.rst_right) {
-              move_x(1);
-              player.last_left=FALSE;
-            }
-          } else {
-            if (player.angle_of_reflection>M_PI_2 && player.angle_of_reflection<M_PI+M_PI_2) {//lefft side
-              if (player.rst_right) {
-                move_x(1);
-                player.last_left=TRUE;
-              }
-            } else {
-              if (player.rst_left) {
-                move_x(-1);
-                player.last_left=FALSE;
-              }
-            }
-          }
-        }
-      }
+      PlayerActXMovement(grav_speed);
 
 
-      //====PLAYER GROUND EDGE MOVEMENT====
-      //player edge interaction, mini web rotation
-      if (grav_speed==1  /*&& !player.in_web_corner*/) {
+      //====PLAYER GROUND EDGE MOVEMENT==== //player edge interaction, mini web rotation
+      if (grav_speed==1) {
         PlayerActGroundEdgeMovement();
       }
-
-
-
 
       //====PLAYER CIRCULAR WEB SWINGING MOVEMENT======
       if (player.is_swinging) {
         PlayerActSwinging(grav_speed);
-
         //set axes of player fling web
         if (grav_speed==3) {//only occurs right after grav_speed==0
           PlayerActFlingWeb(speed);
@@ -1829,32 +1865,8 @@ void PlayerAct()
 
 
 
-      //======FLING MOVEMENT======
-      if (grav_speed==0 && !player.is_swinging && !player.is_rebounding) { 
-        if (((player.rst_left || player.rst_right) && player.fling_distance<-100) || player.uppercut || player.on_ground_id!=-1) { //cancel flinging when left or right key is pressed
-          player.fling_distance=0;
-          if (player.uppercut)
-            player.rst_down=FALSE;
-        }
-
-
-        if (player.fling_distance>0) { //fling and against gravity
-          move_x(cos(player.angle_of_reflection));
-          move_y(sin(player.angle_of_reflection));
-          player.fling_distance--;
-          if (player.fling_distance==1) { //cap in air timer right before end of fling distance
-            player.in_air_timer=1002;
-            player.fling_distance=-1;
-            //player.speed+=2;
-          }
-        } else if (player.fling_distance<0){ //Continue moving but now theres gravity
-          move_x(cos(player.angle_of_reflection));
-          move_y(sin(player.angle_of_reflection));
-          player.fling_distance--;
-        }
-      }
-
-
+      //======PLAYER ACT FLING MOVEMENT======
+      PlayerActFlingMovement(grav_speed);
 
 
      //x-axis cap
@@ -1875,9 +1887,6 @@ void PlayerAct()
       }
 
       player.saved_ground_id=player.on_ground_id;
-
-
-
 
 
 
@@ -2045,10 +2054,12 @@ void PlayerAct()
     }
   } else {
     player.on_ground_id=-1;
-    player.in_web_corner=FALSE;
-    player.key_b4_corner_is_left=FALSE;
-    player.key_b4_corner_is_right=FALSE;
     player.saved_ground_id=-1;
+
+    /*player.in_web_corner=FALSE;
+    player.key_b4_corner_is_left=FALSE;
+    player.key_b4_corner_is_right=FALSE;*/
+
   }
 
 
@@ -2056,11 +2067,6 @@ void PlayerAct()
   allow_act=FALSE;
   if (player.attack_timer<=0) { // not attacking
     if (player.rst_down) { //pressing down button
-      /*if (player.on_ground_id==-1 || player.print_current_above) { //in air or on above ground
-        allow_act=TRUE;
-      } else if (player.print_current_below) { // below ground
-        allow_act=TRUE;
-      }*/
       allow_act=TRUE;
     }
   }
@@ -2078,10 +2084,6 @@ void PlayerAct()
     if (player.block_health<=0) {
       player.block_health=0;
     }
-    /*if (player.on_ground_id==-1) { //player jumping && blocking
-      if (player.speed<3)
-        player.speed++;
-    }*/
   } else {//player not blocking -regen block/dont regen when speedbreaking
     if (player.block_timer>0) {
       player.block_timer--;
@@ -2676,10 +2678,40 @@ void DrawPlayer(HDC hdc)
   for (int i=0;i<player.bullet_shot_num;i++) {
     DrawBullet(hdc,player.bullet[i]);
   }
+/*
+  char cornertxt1[20];
+  sprintf(cornertxt1,"on_ground_edge:%d",player.is_on_ground_edge);
+  GrPrint(hdc,GR_WIDTH/2+20,GR_HEIGHT/2,cornertxt1,LTGREEN);
+
+  char cornertxt2[20];
+  sprintf(cornertxt2,"ogt:%d",player.on_ground_timer);
+  GrPrint(hdc,GR_WIDTH/2+20,GR_HEIGHT/2+16,cornertxt2,LTGREEN);
 
 
+  char cornertxt3[20];
+  sprintf(cornertxt3,"iat:%d",player.in_air_timer);
+  GrPrint(hdc,GR_WIDTH/2+20,GR_HEIGHT/2+16*2,cornertxt3,LTGREEN);
 
+  char cornertxt4[20];
+  sprintf(cornertxt4,"u2:%d",player.on_ground_id_u2);
+  GrPrint(hdc,GR_WIDTH/2+20,GR_HEIGHT/2+16*3,cornertxt4,LTGREEN);
+
+  char cornertxt5[20];
+  sprintf(cornertxt5,"kb4_l:%d",player.key_b4_corner_is_left);
+  GrPrint(hdc,GR_WIDTH/2+20,GR_HEIGHT/2+16*4,cornertxt5,LTGREEN);
+
+
+  char cornertxt6[20];
+  sprintf(cornertxt6,"kb4_r:%d",player.key_b4_corner_is_right);
+  GrPrint(hdc,GR_WIDTH/2+20,GR_HEIGHT/2+16*5,cornertxt6,LTGREEN);
+
+
+  char cornertxt7[20];
+  sprintf(cornertxt7,"isinwc:%d",player.in_web_corner);
+  GrPrint(hdc,GR_WIDTH/2+20,GR_HEIGHT/2+16*6,cornertxt7,LTGREEN);
+*/
 //    player.blur_sprite_x[i]=player.blur_x[i]+player.cam_x+player.cam_move_x+player.cam_mouse_move_x;
+
 //    player.blur_sprite_y[i]=player.blur_y[i]+player.cam_y+player.cam_move_y+player.cam_mouse_move_y;
 
   /*GrCircle(hdc,

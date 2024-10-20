@@ -38,6 +38,23 @@ struct MapEditor
   int selected_enemy_type_id;
   int selected_enemy_type_option;
 
+
+
+  //Shooting bullet
+  bool demo_enemy_spriteisleft;
+  int demo_enemy_spritecooldown;  
+  double demo_enemy_spritex;
+  double demo_enemy_spritey;
+
+  int bullet_cooldown;
+  int bullet_fire_cooldown;
+  int bullet_length;
+
+  int bullet_head_x[MAX_BULLET_PER_FIRE];
+  int bullet_head_y[MAX_BULLET_PER_FIRE];
+
+
+
 } MapEditor;
 
 
@@ -593,6 +610,8 @@ void InitMapEditor(HDC hdc)
   MapEditor.is_ground_txt_typing=FALSE;
   MapEditor.is_ground_txt_typing_loaded=FALSE;
   MapEditor.typing_ground_txt_pos=0;
+
+
   for (int i=0;i<512;i++)
     MapEditor.typing_ground_txt[i]='\0';
   //swprintf(MapEditor.typing_ground_txt,512,L"%s",Ground[MapEditor.selected_ground_id]->text);
@@ -640,7 +659,7 @@ void InitMapEditor(HDC hdc)
   InitMENodeGridAttributes();
   InitMapEditorEnemy();
   InitMapEditorPlayer();
-
+  InitBullet(ENEMY_BULLET_NUM);
 
   player.cam_move_x=-player.cam_x;
   player.cam_move_y=-player.cam_y;
@@ -732,6 +751,15 @@ void InitLevelMapEditor(HWND hwnd, HDC hdc)
 
   OLD_GR_WIDTH=0;
   OLD_GR_HEIGHT=0;
+
+  MapEditor.demo_enemy_spriteisleft=FALSE;
+  MapEditor.demo_enemy_spritecooldown=300;
+  MapEditor.demo_enemy_spritex=0;
+  MapEditor.demo_enemy_spritey=0;
+
+  MapEditor.bullet_cooldown=0;
+  MapEditor.bullet_fire_cooldown=0;
+  MapEditor.bullet_length=0;
 }
 
 
@@ -883,6 +911,120 @@ void MapEditorAct()
         break;
 
 
+      case 3: { //Do bullet action when showing enemy type
+        int q=MapEditor.selected_enemy_type_id;
+        int slash_time=1;
+        int dice=0;
+        double unchase_dist=0;
+        if (mouse_x-1<=MapEditor.demo_enemy_spritex && MapEditor.demo_enemy_spritex<=mouse_x+1 &&
+            mouse_y-1<=MapEditor.demo_enemy_spritey && MapEditor.demo_enemy_spritey<=mouse_y+1) {
+          MapEditor.demo_enemy_spritecooldown=300;
+        }
+
+        if (q>-1 && q<ENEMY_TYPE_NUM) {
+          if (set_enemy_type_time_breaker_length[q]>0) {
+            dice=RandNum(0,set_enemy_type_time_breaker_rare[q],player.seed);
+            if (dice==1) {
+              slash_time=set_enemy_type_time_breaker_length[q];
+            }
+          }
+
+
+          unchase_dist=GetDistance(mouse_x,mouse_y,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey);
+          if ((unchase_dist<NODE_SIZE*set_enemy_type_unchase_range[q]/2 &&
+               GetDistance(mouse_x,mouse_y,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey)>NODE_SIZE*set_enemy_type_chase_range[q]/2)) {
+            MapEditor.demo_enemy_spritecooldown=300;
+          }
+
+          for (int slash_time_i=0;slash_time_i<slash_time;slash_time_i++) {
+            if (MapEditor.demo_enemy_spritecooldown==0) {
+              unchase_dist=GetDistance(mouse_x,mouse_y,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey);
+              if ((GetDistance(mouse_x,mouse_y,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey)<NODE_SIZE*set_enemy_type_chase_range[q]/2 &&
+                   unchase_dist<NODE_SIZE*set_enemy_type_unchase_range[q]/2) || 
+                  (unchase_dist>=NODE_SIZE*set_enemy_type_unchase_range[q]/2 &&
+                   GetDistance(mouse_x,mouse_y,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey)<NODE_SIZE*set_enemy_type_follow_range[q]/2)) {                    
+                for (int t=0;t<set_enemy_type_speed_multiplier[q];t++) {
+                  if (MapEditor.demo_enemy_spritex<mouse_x) {
+                    MapEditor.demo_enemy_spritex+=set_enemy_type_speed[q];
+                    MapEditor.demo_enemy_spriteisleft=FALSE;
+                  } else {
+                    MapEditor.demo_enemy_spritex-=set_enemy_type_speed[q];
+                    MapEditor.demo_enemy_spriteisleft=TRUE;
+                  }
+
+                  if (MapEditor.demo_enemy_spritey<mouse_y) {
+                    MapEditor.demo_enemy_spritey+=set_enemy_type_speed[q];
+                  } else {
+                    MapEditor.demo_enemy_spritey-=set_enemy_type_speed[q];
+                  }
+                }
+              }
+            } else {
+              MapEditor.demo_enemy_spritecooldown--;
+            }
+
+            if (GetDistance(mouse_x,mouse_y,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey)<=NODE_SIZE*set_enemy_type_shoot_at_player_range[q]/2) {
+              if (MapEditor.bullet_fire_cooldown<=0) {
+                if (MapEditor.bullet_length==0) {
+                  for (int j=0;j<set_enemy_type_bullet_fire_at_once[q];j++) {//shoot several bullets at once
+	                    //MapEditor.bullet_head_x[j]=8+RandNum(-set_enemy_type_aim_rand[q],set_enemy_type_aim_rand[q],player.seed);
+	                    //MapEditor.bullet_head_y[j]=32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM)+16*3+RandNum(-set_enemy_type_aim_rand[q],set_enemy_type_aim_rand[q],player.seed);
+	                  MapEditor.bullet_head_x[j]=mouse_x+RandNum(-set_enemy_type_aim_rand[q],set_enemy_type_aim_rand[q],player.seed);
+	                  MapEditor.bullet_head_y[j]=mouse_y+RandNum(-set_enemy_type_aim_rand[q],set_enemy_type_aim_rand[q],player.seed);
+                  }
+	            }
+
+
+
+                if (MapEditor.bullet_cooldown<=0) {
+                  for (int j=0;j<set_enemy_type_bullet_fire_at_once[q];j++) {//several bullets at once
+	                double shoot_target_x= MapEditor.bullet_head_x[j];
+    	  	        double shoot_target_y= MapEditor.bullet_head_y[j];
+                    ShootBullet(current_bullet_id,
+                        -1,//Enemy[i]->bullet_shot_num,
+                        color_arr[set_enemy_type_bullet_color[q]],//Enemy[i]->bullet_color,
+                        set_enemy_type_bullet_graphics_type[q],//Enemy[i]->bullet_graphics_type,
+                        set_enemy_type_bullet_range[q],//Enemy[i]->bullet_range,
+                        set_enemy_type_bullet_speed[q],//Enemy[i]->bullet_speed,
+                        set_enemy_type_bullet_speed_multiplier[q],//Enemy[i]->bullet_speed_multiplier,
+                        0,//Enemy[i]->bullet_damage,
+                        -10,//i,
+                        MapEditor.demo_enemy_spritex,//Enemy[i]->x,
+                        MapEditor.demo_enemy_spritey,//Enemy[i]->y,
+                        MapEditor.demo_enemy_spritex,//Enemy[i]->x,
+                        MapEditor.demo_enemy_spritey,//Enemy[i]->y,
+                        shoot_target_x,//Enemy[i]->shoot_target_x,
+                        shoot_target_y,//Enemy[i]->shoot_target_y,
+                        0
+                    );
+
+                //after shooting
+                    current_bullet_id++;
+                    if (current_bullet_id>ENEMY_BULLET_NUM-1) {                      
+                      current_bullet_id=0;
+                    }
+	              } //end of for
+	              MapEditor.bullet_cooldown=set_enemy_type_bullet_cooldown[q];
+	              MapEditor.bullet_length++;
+	              if (MapEditor.bullet_length>=set_enemy_type_bullet_length[q]) {
+  	                MapEditor.bullet_fire_cooldown=set_enemy_type_bullet_fire_cooldown[q];
+	                MapEditor.bullet_length=0;
+	              }
+	            } else {
+                  MapEditor.bullet_cooldown--;
+                }
+              } else {
+	            MapEditor.bullet_fire_cooldown--;
+              }
+            }
+          }
+        }
+        for (int i=0;i<ENEMY_BULLET_NUM;i++) {
+          BulletAct(i);
+            //printf("%d: hello:\n",i);
+        }
+        }
+        break;
     } //End of switch statement
   }
 }

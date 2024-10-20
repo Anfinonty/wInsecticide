@@ -100,7 +100,7 @@ void Init(HDC hdc) {
 
 
   //Initialize Level
-  InitBullet();
+  InitBullet(BULLET_NUM);
   InitGrid();
   InitNodeGrid();
   InitGround(TRUE);
