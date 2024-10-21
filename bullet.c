@@ -220,9 +220,12 @@ void RainBulletTransitNodeGrid(int bullet_id)
 {
   int on_node_grid_id=GetGridId(Bullet[bullet_id].x,Bullet[bullet_id].y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
   if (on_node_grid_id!=Bullet[bullet_id].saved_node_grid_id) {
-    if (Bullet[bullet_id].saved_node_grid_id!=-1)
+    if (Bullet[bullet_id].saved_node_grid_id!=-1) {
       NodeGrid[Bullet[bullet_id].saved_node_grid_id]->tmp_wet=FALSE;
-    NodeGrid[on_node_grid_id]->tmp_wet=TRUE;
+    }
+    if (on_node_grid_id!=-1) {
+      NodeGrid[on_node_grid_id]->tmp_wet=TRUE;
+    }
     Bullet[bullet_id].saved_node_grid_id=on_node_grid_id;
   }
 }
@@ -722,7 +725,7 @@ void BulletAct(int bullet_id)
           }
         } else if (enemy_id==-2) { //knives throw
           if (Bullet[bullet_id].graphics_type==6 && Bullet[bullet_id].range<=Bullet[bullet_id].start_range-120) {
-            Bullet[bullet_id].graphics_type=5;
+            Bullet[bullet_id].graphics_type=9;
           }
           if (Bullet[bullet_id].range>0) {
             if (!player.time_breaker) {

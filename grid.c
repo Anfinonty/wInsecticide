@@ -93,8 +93,8 @@ void InitNodeGrid()
 {
   int i=0,x=0,y=0;
   for (i=0;i<MAP_NODE_NUM;i++) {
-    NodeGrid[i]->node_solid=FALSE;
-    NodeGrid[i]->non_web=FALSE;
+    //NodeGrid[i]->node_solid=FALSE;
+    //NodeGrid[i]->non_web=FALSE;
     NodeGrid[i]->node_water=FALSE;
     NodeGrid[i]->node_no_rain=FALSE;
     NodeGrid[i]->node_no_shade=FALSE;
@@ -121,7 +121,7 @@ void InitNodeShade()
   while (start_x<MAP_WIDTH) {
     on_node_grid_id=GetGridId(x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
     if (on_node_grid_id!=-1) {
-      if (NodeGrid[on_node_grid_id]->node_solid || NodeGrid[on_node_grid_id]->node_no_rain || y>=MAP_HEIGHT) { //solid detected, move to next start_x nodegrid
+      if (/*NodeGrid[on_node_grid_id]->node_solid ||*/ NodeGrid[on_node_grid_id]->node_no_rain || y>=MAP_HEIGHT) { //solid detected, move to next start_x nodegrid
         start_x+=NODE_SIZE;
         x=start_x;
         y=0;
@@ -206,8 +206,8 @@ bool IsHasNeighbours(int nx,int ny)
       }
     }
     if (0<x && x<MAP_WIDTH && 0<y && y<MAP_HEIGHT) {
-      node_grid_id=GetGridId(x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
-      if (NodeGrid[node_grid_id]->node_solid) {
+      //node_grid_id=GetGridId(x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
+      if (GetOnGroundId(x,y,NODE_SIZE,NODE_SIZE-1)!=-1/*NodeGrid[node_grid_id]->node_solid*/) {
         return TRUE;
       }
     }
@@ -215,7 +215,7 @@ bool IsHasNeighbours(int nx,int ny)
   return FALSE;
 }
 
-void SetNodeGridAttributes2(int i)
+void SetGridAttributes2(int i)
 {
   int j=0,x=0,y=0,lg_grid_id=0,min=0,max=0,x1=0,y1=0;
   double gradient1,gradient2,c1,c2,lg_x=0,lg_y=0,gradient=0,c=0;
@@ -284,7 +284,6 @@ void TriFillNodeGridType(int gid)
           _____ ~~~~~~~~\
                 _________>
 */
-
 
   if (Ground[gid]->type==1 || Ground[gid]->type==3) {
   double
@@ -372,7 +371,7 @@ void TriFillNodeGridType(int gid)
 }
 
 
-void SetNodeGridAttributes(int i)
+void SetGridAttributes(int i)
 {
   int lg_grid_id=0,node_grid_id=0,x=0,y=0,min=0,max=0;
   double lg_x=0,lg_y=0;
@@ -381,13 +380,13 @@ void SetNodeGridAttributes(int i)
       lg_y=x*Ground[i]->gradient+Ground[i]->c;
       lg_grid_id=GetGridId(x,lg_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
       SetGridLineArray(lg_grid_id,i);
-      if (!Ground[i]->is_ghost) { //Not a ghost
+      /*if (!Ground[i]->is_ghost) { //Not a ghost
         node_grid_id=GetGridId(x,lg_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
         NodeGrid[node_grid_id]->node_solid=TRUE;
         if (i<GROUND_NUM) {
           NodeGrid[node_grid_id]->non_web=TRUE;
         }
-      }
+      }*/
     }
   } else { // x=(y-c)/m
     if (Ground[i]->y1<Ground[i]->y2) {
@@ -401,17 +400,17 @@ void SetNodeGridAttributes(int i)
       lg_x=(y-Ground[i]->c)/Ground[i]->gradient;
       lg_grid_id=GetGridId(lg_x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
       SetGridLineArray(lg_grid_id,i);
-      if (!Ground[i]->is_ghost) {
+      /*if (!Ground[i]->is_ghost) {
         node_grid_id=GetGridId(lg_x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
         NodeGrid[node_grid_id]->node_solid=TRUE;
         if (i<GROUND_NUM) {
           NodeGrid[node_grid_id]->non_web=TRUE;
         }
-      }
+      }*/
     }
   }
   if (Ground[i]->type==3 || Ground[i]->type==1) {//triangle
-    SetNodeGridAttributes2(i);
+    SetGridAttributes2(i);
   }
   if (Ground[i]->type==3 || Ground[i]->type==1) { //water trifill
     TriFillNodeGridType(i);
@@ -420,15 +419,13 @@ void SetNodeGridAttributes(int i)
 
 
 
-void InitNodeGridAttributes()
+void InitGridAttributes()
 {
   for (int i=0;i<GROUND_NUM;i++) {
-    SetNodeGridAttributes(i);
+    SetGridAttributes(i);
   }
   InitNodeShade();
 }
-
-
 
 
 void DrawGrids(HDC hdc,int player_cam_move_x,int player_cam_move_y)
@@ -443,7 +440,7 @@ void DrawGrids(HDC hdc,int player_cam_move_x,int player_cam_move_y)
 }
 
 
-
+/*
 void DrawNodeGrids(HDC hdc)
 {
   for (int i=0;i<MAP_NODE_NUM;i++) {
@@ -451,11 +448,11 @@ void DrawNodeGrids(HDC hdc)
       GrCircle(hdc,NodeGrid[i]->x1+player.cam_x,NodeGrid[i]->y1+player.cam_y,3,YELLOW,-1);
     if (NodeGrid[i]->node_no_shade)
       GrCircle(hdc,NodeGrid[i]->x1+player.cam_x,NodeGrid[i]->y1+player.cam_y,3,BLUE,-1);
-    /*if (NodeGrid[i]->tmp_wet)
-      GrCircle(hdc,NodeGrid[i]->x1+player.cam_x,NodeGrid[i]->y1+player.cam_y,3,BLUE,-1);*/
-  }
-}
-
+    if (NodeGrid[i]->tmp_wet)
+      GrCircle(hdc,NodeGrid[i]->x1+player.cam_x,NodeGrid[i]->y1+player.cam_y,3,BLUE,-1);
+  //}
+//}
+*/
 
 
 

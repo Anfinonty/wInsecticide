@@ -104,7 +104,7 @@ void Init(HDC hdc) {
   InitGrid();
   InitNodeGrid();
   InitGround(TRUE);
-  InitNodeGridAttributes();
+  InitGridAttributes();
   InitEnemy();
   InitPlayer();
 

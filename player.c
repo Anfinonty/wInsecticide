@@ -326,10 +326,10 @@ void InitPlayer() {
   player.on_ground_timer=0;
   player.on_ground_id=-1;
 
-  player.on_ground_id_u1=-1;
+//  player.on_ground_id_u1=-1;
   player.on_ground_id_u2=-1;
-  player.on_ground_id_d1=-1;
-  player.on_ground_id_d2=-1;
+//  player.on_ground_id_d1=-1;
+//  player.on_ground_id_d2=-1;
 
 
   player.on_a_ground=FALSE;
@@ -515,7 +515,7 @@ void PlayerActGroundEdgeMovement()
 {
   player.on_ground_edge_id=player.on_ground_id;//GetOnGroundId(player.x,player.y,10,9);//player.on_ground_id;//GetOnGroundId(player.x,player.y,10,9);
   int tmp_on_ground_id=player.on_ground_edge_id;
-  int distl=20;
+  int distl=22;
   if (tmp_on_ground_id==-1) {
     tmp_on_ground_id=player.saved_on_ground_edge_id;
   }
@@ -1003,7 +1003,7 @@ void PlayerActFlingWeb(int speed)
               Ground[web_id]->x2=bm_x2;
               Ground[web_id]->y2=bm_y2;
               SetGround(web_id);
-              SetNodeGridAttributes(web_id);
+              SetGridAttributes(web_id);
               //player.placed_web[player.placed_web_num]=web_id;
               PlayerPlaceWeb();            
               PlayerBulletLimitAct();
@@ -1282,6 +1282,7 @@ void PlayerActMouseClick()
     int b_speed_m=5;
     double b_dmg_m=1;
     int b_g_type=5;
+    int b_range=100;
     if (player.speed>10) {
       b_speed_m=9;
     } else if (player.speed>5) {
@@ -1312,6 +1313,10 @@ void PlayerActMouseClick()
       }
       if (player.knives_per_throw>4) {
         b_g_type=6;
+        b_dmg_m=3;
+        b_range=50;
+      } else if (player.knives_per_throw==3) { 
+        b_range=200;
       } else if (player.knives_per_throw==1) {
         b_g_type=9;
         b_dmg_m=3;
@@ -1335,7 +1340,7 @@ void PlayerActMouseClick()
 	        player.bullet_shot_num,
 	        player_bullet_color,
             b_g_type, //graphics type
-	        MAX_WEB_LENGTH+player.speed*3, //range ==>
+	        b_range/*MAX_WEB_LENGTH*/+player.speed*3, //range ==>
             1, //speed
 	        b_speed_m, //speed multiplier
 	        b_dmg_m, //damage
@@ -1518,7 +1523,7 @@ void PlayerActMouseClick()
             Ground[web_id]->x2=bm_x2;
             Ground[web_id]->y2=bm_y2;
             SetGround(web_id);
-            SetNodeGridAttributes(web_id);
+            SetGridAttributes(web_id);
             //player.placed_web[player.placed_web_num]=web_id;
             PlayerPlaceWeb();            
             PlayerBulletLimitAct();
@@ -1755,11 +1760,11 @@ void PlayerAct()
           player.in_water=FALSE;
         }
 
-        if (NodeGrid[in_node_grid_id]->node_solid) {
+        /*if (NodeGrid[in_node_grid_id]->node_solid) {
           player.hiding=TRUE;
         } else {
           player.hiding=FALSE;          
-        }
+        }*/
 
       } else {
         player.in_water=FALSE;

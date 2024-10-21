@@ -199,10 +199,10 @@ struct player
   int speed;
   int on_ground_timer;
   int on_ground_id;
-  int on_ground_id_u1;
+  //int on_ground_id_u1;
   int on_ground_id_u2;
-  int on_ground_id_d1;
-  int on_ground_id_d2;
+  //int on_ground_id_d1;
+  //int on_ground_id_d2;
   int saved_ground_id;
   int walk_cycle;
   int player_jump_height;
@@ -473,12 +473,12 @@ AVGrid **VGrid;
 
 typedef struct node
 {
-  bool node_solid;
+  //bool node_solid;
+  //bool non_web;
   bool node_water;
   bool tmp_wet;
   bool node_no_rain;
   bool node_no_shade;
-  bool non_web;
   int x1;
   int y1;
   int x2;
@@ -513,9 +513,9 @@ void DrawGrid(HDC hdc);
 void InitNodeGrid();
 bool IsCollideSolid(double x1,double y1,double x2,double y2,double gradient,double c);
 bool IsHasNeighbours(int nx,int ny);
-void SetNodeGridAttributes2(int i);
-void SetNodeGridAttributes(int i);
-void InitNodeGridAttributes();
+void SetGridAttributes2(int i);
+void SetGridAttributes(int i);
+void InitGridAttributes();
 
 
 
@@ -737,8 +737,10 @@ typedef struct enemy
 
   int bullet_shot_arr[ENEMY_BULLET_NUM];
 
-  int path_nodes[MAX_NODE_NUM/2];
-  int open_nodes[MAX_NODE_NUM/2];
+//  int path_nodes[MAX_NODE_NUM/2];
+//  int open_nodes[MAX_NODE_NUM/2];
+  int path_nodes[MAX_NODE_NUM]; //<---- f$#! ram hahah
+  int open_nodes[MAX_NODE_NUM];
   int enemy_species1_solids[MAX_NODE_NUM];
   int node_x[MAX_NODE_NUM];
   int node_y[MAX_NODE_NUM];

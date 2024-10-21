@@ -1322,7 +1322,7 @@ void DrawUI(HDC hdc) {
     GrCircle(hdc,player.sprite_x+64+8*j,player.sprite_y+8*(i%10)-(11*8)/2,3,LTCYAN,CYAN);
   }*/
   int b_dmg_m=1;
-  if (player.knives_per_throw==1) {
+  if (player.knives_per_throw==1 || player.knives_per_throw>4) {
     b_dmg_m=3;
   }
   int c5=LTGREEN;
@@ -1336,7 +1336,7 @@ void DrawUI(HDC hdc) {
       c5=LTRED;
     }
     if (player.speed>24) {
-      if (player.knives_per_throw==1) {
+      if (player.knives_per_throw==1 || player.knives_per_throw>4) {
         b_dmg_m=12;
       } else {
         b_dmg_m=4;
@@ -1346,7 +1346,7 @@ void DrawUI(HDC hdc) {
   } else {
     c5=LTPURPLE;
     if (player.speed>10) {
-      if (player.knives_per_throw==1) {
+      if (player.knives_per_throw==1 || player.knives_per_throw>4) {
         b_dmg_m=6;
       } else {
         b_dmg_m=2;
@@ -1354,7 +1354,7 @@ void DrawUI(HDC hdc) {
       c5=LTCYAN;
     }
     if (player.speed>24) {
-      if (player.knives_per_throw==1) {
+      if (player.knives_per_throw==1 || player.knives_per_throw>4) {
         b_dmg_m=12;
       } else {
         b_dmg_m=4;
