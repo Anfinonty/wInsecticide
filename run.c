@@ -1099,6 +1099,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       enemy2_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       enemy2_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       enemy2_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      enemy2_sprite_4 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-4.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
 
 
@@ -1204,10 +1205,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
        loadSoundEffect(&spamSoundEffect[0],L"snd/timebreaker__start.wav",FALSE);
        loadSoundEffect(&spamSoundEffect[1],L"snd/timebreaker__stop.wav",FALSE);
-       loadSoundEffect(&spamSoundEffect[2],L"snd/clang.wav",FALSE);
+//       loadSoundEffect(&spamSoundEffect[2],L"snd/clang.wav",FALSE);
+       loadSoundEffect(&spamSoundEffect[2],L"snd/flesh_impact_bullet2.wav",FALSE);
        loadSoundEffect(&spamSoundEffect[3],L"snd/player_block.wav",FALSE);
        loadSoundEffect(&spamSoundEffect[4],L"snd/player_block_perfect.wav",FALSE);
        loadSoundEffect(&spamSoundEffect[5],L"snd/player_hurt.wav",FALSE);
+       loadSoundEffect(&spamSoundEffect[6],L"snd/enemy_block.wav",FALSE);
+       loadSoundEffect(&spamSoundEffect[7],L"snd/clang.wav",FALSE);
 
 
        loadSoundEffect(&keySoundEffect[0],L"snd/play_level.wav",FALSE); //Enter Sound Effect (Sometimes) [0]
@@ -1224,12 +1228,24 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
        loadSoundEffect(&channelSoundEffect[0],L"snd/fast.wav",TRUE);
        loadSoundEffect(&channelSoundEffect[1],L"snd/clang_death.wav",TRUE);
+//       loadSoundEffect(&channelSoundEffect[1],L"snd/flesh_bloody_break.wav",TRUE);
        loadSoundEffect(&channelSoundEffect[2],L"snd/S_DIO_00033.wav",TRUE);
        loadSoundEffect(&channelSoundEffect[3],L"snd/rain2classic.wav",TRUE);
        loadSoundEffect(&channelSoundEffect[4],L"snd/rain2classic.wav",TRUE);
 
 
        //for wav sound effects
+       /*wfx_wav_sfx1.wFormatTag = WAVE_FORMAT_PCM;
+       wfx_wav_sfx1.nChannels = channelSoundEffect[1].wav_header->NumOfChan;
+       wfx_wav_sfx1.nSamplesPerSec = channelSoundEffect[1].wav_header->SamplesPerSec;
+       wfx_wav_sfx1.nAvgBytesPerSec = channelSoundEffect[1].wav_header->bytesPerSec;
+       wfx_wav_sfx1.nBlockAlign = channelSoundEffect[1].wav_header->blockAlign;
+       wfx_wav_sfx1.wBitsPerSample = channelSoundEffect[1].wav_header->bitsPerSample;
+       wfx_wav_sfx1.cbSize = 0;*/
+
+       /*waveOutOpen(&hWaveOut[0], WAVE_MAPPER, &wfx_wav_sfx1, 0, 0, CALLBACK_NULL);
+       waveOutPrepareHeader(hWaveOut[0], &whdr[0], sizeof(WAVEHDR));*/
+
        waveOutOpen(&hWaveOut[0], WAVE_MAPPER, &wfx_wav_sfx, 0, 0, CALLBACK_NULL);
        waveOutPrepareHeader(hWaveOut[0], &whdr[0], sizeof(WAVEHDR));
 

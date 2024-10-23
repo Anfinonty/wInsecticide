@@ -1003,7 +1003,7 @@ void PlayerActFlingWeb(int speed)
               Ground[web_id]->x2=bm_x2;
               Ground[web_id]->y2=bm_y2;
               SetGround(web_id);
-              SetGridAttributes(web_id);
+              SetNodeGridAttributes(web_id);
               //player.placed_web[player.placed_web_num]=web_id;
               PlayerPlaceWeb();            
               PlayerBulletLimitAct();
@@ -1523,7 +1523,7 @@ void PlayerActMouseClick()
             Ground[web_id]->x2=bm_x2;
             Ground[web_id]->y2=bm_y2;
             SetGround(web_id);
-            SetGridAttributes(web_id);
+            SetNodeGridAttributes(web_id);
             //player.placed_web[player.placed_web_num]=web_id;
             PlayerPlaceWeb();            
             PlayerBulletLimitAct();

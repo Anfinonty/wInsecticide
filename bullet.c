@@ -220,12 +220,9 @@ void RainBulletTransitNodeGrid(int bullet_id)
 {
   int on_node_grid_id=GetGridId(Bullet[bullet_id].x,Bullet[bullet_id].y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
   if (on_node_grid_id!=Bullet[bullet_id].saved_node_grid_id) {
-    if (Bullet[bullet_id].saved_node_grid_id!=-1) {
+    if (Bullet[bullet_id].saved_node_grid_id!=-1)
       NodeGrid[Bullet[bullet_id].saved_node_grid_id]->tmp_wet=FALSE;
-    }
-    if (on_node_grid_id!=-1) {
-      NodeGrid[on_node_grid_id]->tmp_wet=TRUE;
-    }
+    NodeGrid[on_node_grid_id]->tmp_wet=TRUE;
     Bullet[bullet_id].saved_node_grid_id=on_node_grid_id;
   }
 }
@@ -235,6 +232,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
 {
   int bullet_on_ground_id=-1,bk;
   bool hit_player=FALSE,allow_act=FALSE;
+  if (Enemy[enemy_id]->health>0) {
   if (GetDistance(Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
     Bullet[bullet_id].angle=RandAngle(0,360,Enemy[enemy_id]->seed);//RandNum(-M_PI_2*100,M_PI_2*100,Enemy[enemy_id]->seed)/100;
     Bullet[bullet_id].speed=Bullet[player.bullet_shot].speed;
@@ -244,7 +242,6 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
     }
   //Bullet[player.bullet_shot].range-=2;
   }
-
 
   for (int k=0;k<player.bullet_shot_num;k++) {//playerknives interact with enemy bullet
     bk=player.bullet[k];
@@ -269,11 +266,14 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
       }
     }
   } //end of for,
+  }
+
+
   hit_player=HitPlayer(bullet_id,10,22);
 
   bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2);
   allow_act=FALSE;
-  if (Enemy[enemy_id]->health>0) {
+  //if (Enemy[enemy_id]->health>0) {
     if (hit_player) {
             //player.time_breaker_units=0;
             //player.sleep_timer=DEFAULT_SLEEP_TIMER;
@@ -284,12 +284,14 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
         Bullet[bullet_id].range<=0 //end of range
       ) {
         allow_act=TRUE;
-      }
     }
+  //}
 //^^ condition
     if (allow_act) {
       if (hit_player) {
-        BulletDamagePlayerAct(bullet_id);
+        if (Enemy[enemy_id]->health>0) {
+          BulletDamagePlayerAct(bullet_id);
+        }
       //End of Hit Player
       } else if (bullet_on_ground_id>=GROUND_NUM && bullet_on_ground_id!=player.web_being_shot) { //Not on web being shot
         Ground[bullet_on_ground_id]->health-=Bullet[bullet_id].damage;
@@ -725,7 +727,7 @@ void BulletAct(int bullet_id)
           }
         } else if (enemy_id==-2) { //knives throw
           if (Bullet[bullet_id].graphics_type==6 && Bullet[bullet_id].range<=Bullet[bullet_id].start_range-120) {
-            Bullet[bullet_id].graphics_type=9;
+            Bullet[bullet_id].graphics_type=5;
           }
           if (Bullet[bullet_id].range>0) {
             if (!player.time_breaker) {
@@ -888,7 +890,7 @@ void BulletSndAct(int i)
   if (Bullet[i].playsnd) {
     if (Bullet[i].shot) {
       //https://stackoverflow.com/questions/1382051/what-is-the-c-equivalent-for-reinterpret-cast
-      PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC); //clang
+      PlaySound(spamSoundEffectCache[7].audio,NULL, SND_MEMORY | SND_ASYNC); //clang
     }
     Bullet[i].playsnd=FALSE;
   }

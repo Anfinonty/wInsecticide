@@ -23,11 +23,14 @@ void InitOnce() {
 
   adjustSFXVolume(&spamSoundEffectCache[0],&spamSoundEffect[0],game_volume/4,FALSE); //start
   adjustSFXVolume(&spamSoundEffectCache[1],&spamSoundEffect[1],game_volume/4,FALSE); //stop
-  adjustSFXVolume(&spamSoundEffectCache[2],&spamSoundEffect[2],game_volume,FALSE); //clang
+  adjustSFXVolume(&spamSoundEffectCache[2],&spamSoundEffect[2],game_volume/4,FALSE); //enemy hurt
 
   adjustSFXVolume(&spamSoundEffectCache[3],&spamSoundEffect[3],game_volume/4,FALSE);//block
   adjustSFXVolume(&spamSoundEffectCache[4],&spamSoundEffect[4],game_volume/4,FALSE);//block perfect
   adjustSFXVolume(&spamSoundEffectCache[5],&spamSoundEffect[5],game_volume/4,FALSE);//hurt
+  adjustSFXVolume(&spamSoundEffectCache[6],&spamSoundEffect[6],game_volume/30,FALSE);//enemy block
+  adjustSFXVolume(&spamSoundEffectCache[7],&spamSoundEffect[7],game_volume,FALSE); //clang
+
 
   adjustSFXVolume(&channelSoundEffectCache[0],&channelSoundEffect[0],game_volume/5,TRUE); //speed
   adjustSFXVolume(&channelSoundEffectCache[1],&channelSoundEffect[1],game_volume,TRUE); //clang_death
@@ -104,7 +107,7 @@ void Init(HDC hdc) {
   InitGrid();
   InitNodeGrid();
   InitGround(TRUE);
-  InitGridAttributes();
+  InitNodeGridAttributes();
   InitEnemy();
   InitPlayer();
 

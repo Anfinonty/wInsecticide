@@ -132,7 +132,7 @@ void CleanUpEnemy()
 }
 
 
-/*
+
 void CleanUpNodeGrid()
 {
   for (int i=0;i<MAP_NODE_NUM;i++) {
@@ -144,7 +144,7 @@ void CleanUpNodeGrid()
     NodeGrid[i]->y2=-20;
   }
 }
-*/
+
 
 
 

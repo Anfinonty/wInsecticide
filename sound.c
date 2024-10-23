@@ -120,6 +120,7 @@ WAVEFORMATEX wfx_wav_sfx = {
 };
 
 WAVEFORMATEX wfx_wav_music;
+WAVEFORMATEX wfx_wav_sfx1;
 WAVEFORMATEX wfx_wav_sfx2;
 WAVEFORMATEX wfx_wav_sfx3;
 //https://learn.microsoft.com/en-us/windows/win32/multimedia/using-the-waveformatex-structure
