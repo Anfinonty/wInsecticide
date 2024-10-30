@@ -223,7 +223,7 @@ bool is_khmer=TRUE;
 #define ENEMY_BULLET_NUM            1000
 #define MAX_BULLET_PER_FIRE         10
 
-
+#define MAX_EXP_NUM                 5
 
 
 #define MAX_MAP_NODE_NUM (640*20)/NODE_SIZE * (480*20)/NODE_SIZE //MAX_WIDTH/NODE_SIZE * MAX_HEIGHT/NODE_SIZE
@@ -243,12 +243,12 @@ bool is_khmer=TRUE;
 #define DEFAULT_PLAYER_ATTACK_STRENGTH  	1
 #define DEFAULT_PLAYER_KNOCKBACK_STRENGTH	50
 
-#define DEFAULT_PLAYER_BUILD_RANGE		80//100//12
-#define MAX_WEB_LENGTH		400//200//100//12
+#define DEFAULT_PLAYER_BUILD_RANGE		100//12
+#define MAX_WEB_LENGTH		200//100//12
 //#define DEFAULT_PLAYER_SHORT_BUILD_RANGE	10
-#define DEFAULT_PLAYER_WEB_HEALTH		150
+#define DEFAULT_PLAYER_WEB_HEALTH		1500
 
-#define DEFAULT_PLAYER_WEB_NUM      20
+#define DEFAULT_PLAYER_WEB_NUM      20//20
 #define MAX_WEB_NUM     200//100
 
 #define DEFAULT_PLAYER_SPEED			1
@@ -805,6 +805,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
 
 
+            int c=Highlight(IsInvertedBackground(),BLACK,WHITE);
+            if (IsSpeedBreaking()) {
+              GrRect(hdcBackbuff,0,0,GR_WIDTH+4,32,c);
+              if (hide_taskbar) {
+                GrRect(hdcBackbuff,0,GR_HEIGHT-48,GR_WIDTH+4,100,c);
+              } else {
+                GrRect(hdcBackbuff,0,GR_HEIGHT-32-32,GR_WIDTH+4,32+32,c);
+              }
+            }
+
+
             //void DrawGlassBitmap(HDC hdc, HBITMAP hBitmap, int x, int y, int level)
             //DrawGlassBitmap(hdcBackbuff,map_platforms_shadow_shaders,MAP_WIDTH/2,MAP_HEIGHT/2,128);
             //DrawNodeGrids(hdcBackbuff);
@@ -1212,6 +1223,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
        loadSoundEffect(&spamSoundEffect[5],L"snd/player_hurt.wav",FALSE);
        loadSoundEffect(&spamSoundEffect[6],L"snd/enemy_block.wav",FALSE);
        loadSoundEffect(&spamSoundEffect[7],L"snd/clang.wav",FALSE);
+       loadSoundEffect(&spamSoundEffect[8],L"snd/powerup.wav",FALSE);
 
 
        loadSoundEffect(&keySoundEffect[0],L"snd/play_level.wav",FALSE); //Enter Sound Effect (Sometimes) [0]
@@ -1227,12 +1239,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
        }
 
        loadSoundEffect(&channelSoundEffect[0],L"snd/fast.wav",TRUE);
-       loadSoundEffect(&channelSoundEffect[1],L"snd/clang_death.wav",TRUE);
-//       loadSoundEffect(&channelSoundEffect[1],L"snd/flesh_bloody_break.wav",TRUE);
-       loadSoundEffect(&channelSoundEffect[2],L"snd/S_DIO_00033.wav",TRUE);
+//       loadSoundEffect(&channelSoundEffect[1],L"snd/clang_death.wav",TRUE);
+       loadSoundEffect(&channelSoundEffect[1],L"snd/flesh_bloody_break.wav",TRUE);
+       loadSoundEffect(&channelSoundEffect[2],L"snd/knife_throw.wav",TRUE);
        loadSoundEffect(&channelSoundEffect[3],L"snd/rain2classic.wav",TRUE);
        loadSoundEffect(&channelSoundEffect[4],L"snd/rain2classic.wav",TRUE);
-
+       loadSoundEffect(&channelSoundEffect[5],L"snd/shotgun.wav",TRUE);
+       loadSoundEffect(&channelSoundEffect[6],L"snd/sniper.wav",TRUE);
+       loadSoundEffect(&channelSoundEffect[7],L"snd/shtgnreload.wav",TRUE);
+//       loadSoundEffect(&channelSoundEffect[8],L"snd/pistol.wav",TRUE);
+       loadSoundEffect(&channelSoundEffect[8],L"snd/pistol.wav",TRUE);
 
        //for wav sound effects
        /*wfx_wav_sfx1.wFormatTag = WAVE_FORMAT_PCM;
@@ -1245,45 +1261,49 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
        /*waveOutOpen(&hWaveOut[0], WAVE_MAPPER, &wfx_wav_sfx1, 0, 0, CALLBACK_NULL);
        waveOutPrepareHeader(hWaveOut[0], &whdr[0], sizeof(WAVEHDR));*/
-
-       waveOutOpen(&hWaveOut[0], WAVE_MAPPER, &wfx_wav_sfx, 0, 0, CALLBACK_NULL);
-       waveOutPrepareHeader(hWaveOut[0], &whdr[0], sizeof(WAVEHDR));
-
-       waveOutOpen(&hWaveOut[1], WAVE_MAPPER, &wfx_wav_sfx, 0, 0, CALLBACK_NULL);
-       waveOutPrepareHeader(hWaveOut[1], &whdr[1], sizeof(WAVEHDR));
-
-
-       //Get details of sfx2, 2nd type of audio, its smaller (8000hz)
-       wfx_wav_sfx2.wFormatTag = WAVE_FORMAT_PCM;
-       wfx_wav_sfx2.nChannels = channelSoundEffect[2].wav_header->NumOfChan;
-       wfx_wav_sfx2.nSamplesPerSec = channelSoundEffect[2].wav_header->SamplesPerSec;
-       wfx_wav_sfx2.nAvgBytesPerSec = channelSoundEffect[2].wav_header->bytesPerSec;
-       wfx_wav_sfx2.nBlockAlign = channelSoundEffect[2].wav_header->blockAlign;
-       wfx_wav_sfx2.wBitsPerSample = channelSoundEffect[2].wav_header->bitsPerSample;
-       wfx_wav_sfx2.cbSize = 0;
-
-
-       wfx_wav_sfx3.wFormatTag = WAVE_FORMAT_PCM;
-       wfx_wav_sfx3.nChannels = channelSoundEffect[3].wav_header->NumOfChan;
-       wfx_wav_sfx3.nSamplesPerSec = channelSoundEffect[3].wav_header->SamplesPerSec;
-       wfx_wav_sfx3.nAvgBytesPerSec = channelSoundEffect[3].wav_header->bytesPerSec;
-       wfx_wav_sfx3.nBlockAlign = channelSoundEffect[3].wav_header->blockAlign;
-       wfx_wav_sfx3.wBitsPerSample = channelSoundEffect[3].wav_header->bitsPerSample;
-       wfx_wav_sfx3.cbSize = 0;
-
        /*printf("%d\n", wfx_wav_sfx2.nChannels);
        printf("%d\n", wfx_wav_sfx2.nSamplesPerSec);
        printf("%d\n", wfx_wav_sfx2.nAvgBytesPerSec);
        printf("%d\n", wfx_wav_sfx2.nBlockAlign);
        printf("%d\n", wfx_wav_sfx2.wBitsPerSample);*/
-       waveOutOpen(&hWaveOut[3], WAVE_MAPPER, &wfx_wav_sfx2, 0, 0, CALLBACK_NULL);
+
+
+
+       //Enemy death sound
+       waveOutOpen(&hWaveOut[0], WAVE_MAPPER, &wfx_wav_sfx, 0, 0, CALLBACK_NULL);
+       waveOutPrepareHeader(hWaveOut[0], &whdr[0], sizeof(WAVEHDR));
+
+       //player fast audio
+       waveOutOpen(&hWaveOut[1], WAVE_MAPPER, &wfx_wav_sfx, 0, 0, CALLBACK_NULL);
+       waveOutPrepareHeader(hWaveOut[1], &whdr[1], sizeof(WAVEHDR));
+
+      //[2] is reserved for song
+      //
+
+       //knife throw ,shotgun , sniper 11052hz
+       waveOutOpen(&hWaveOut[3], WAVE_MAPPER, &wfx_wav_sfx, 0, 0, CALLBACK_NULL);
        waveOutPrepareHeader(hWaveOut[3], &whdr[3], sizeof(WAVEHDR));
 
-       waveOutOpen(&hWaveOut[4], WAVE_MAPPER, &wfx_wav_sfx3, 0, 0, CALLBACK_NULL);
+
+       //For Raining -> unique sfx
+       wfx_wav_sfx_rain.wFormatTag = WAVE_FORMAT_PCM;
+       wfx_wav_sfx_rain.nChannels = channelSoundEffect[3].wav_header->NumOfChan;
+       wfx_wav_sfx_rain.nSamplesPerSec = channelSoundEffect[3].wav_header->SamplesPerSec;
+       wfx_wav_sfx_rain.nAvgBytesPerSec = channelSoundEffect[3].wav_header->bytesPerSec;
+       wfx_wav_sfx_rain.nBlockAlign = channelSoundEffect[3].wav_header->blockAlign;
+       wfx_wav_sfx_rain.wBitsPerSample = channelSoundEffect[3].wav_header->bitsPerSample;
+       wfx_wav_sfx_rain.cbSize = 0;
+
+
+       waveOutOpen(&hWaveOut[4], WAVE_MAPPER, &wfx_wav_sfx_rain, 0, 0, CALLBACK_NULL);
        waveOutPrepareHeader(hWaveOut[4], &whdr[4], sizeof(WAVEHDR));
 
-       waveOutOpen(&hWaveOut[5], WAVE_MAPPER, &wfx_wav_sfx3, 0, 0, CALLBACK_NULL);
+
+       //reload
+       waveOutOpen(&hWaveOut[5], WAVE_MAPPER, &wfx_wav_sfx, 0, 0, CALLBACK_NULL);
        waveOutPrepareHeader(hWaveOut[5], &whdr[5], sizeof(WAVEHDR));
+
+
        return 0;
        break;
     //Tasks to perform on exit

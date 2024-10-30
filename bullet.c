@@ -232,7 +232,9 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
 {
   int bullet_on_ground_id=-1,bk;
   bool hit_player=FALSE,allow_act=FALSE;
-  if (Enemy[enemy_id]->health>0) {
+
+  //sniper bullet act with enemy bullet
+  if (Bullet[bullet_id].graphics_type!=10) {
   if (GetDistance(Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
     Bullet[bullet_id].angle=RandAngle(0,360,Enemy[enemy_id]->seed);//RandNum(-M_PI_2*100,M_PI_2*100,Enemy[enemy_id]->seed)/100;
     Bullet[bullet_id].speed=Bullet[player.bullet_shot].speed;
@@ -242,67 +244,109 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
     }
   //Bullet[player.bullet_shot].range-=2;
   }
+  }
 
   for (int k=0;k<player.bullet_shot_num;k++) {//playerknives interact with enemy bullet
     bk=player.bullet[k];
     if (GetDistance(Bullet[bk].x,Bullet[bk].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
-      if (!Bullet[bk].playsnd && game_audio) {
+      if (!Bullet[bk].playsnd && game_audio && Bullet[bullet_id].graphics_type!=10) {
         Bullet[bk].playsnd=TRUE;
       }
 
 
-      Bullet[bullet_id].angle=RandAngle(0,360,player.seed); //scatter type 6
-      Bullet[bullet_id].speed=Bullet[bk].speed;
-      Bullet[bullet_id].speed_multiplier=Bullet[bk].speed_multiplier;
-      Bullet[bullet_id].range-=3;
-
+      if (Bullet[bullet_id].graphics_type!=10) {
+        Bullet[bullet_id].angle=RandAngle(0,360,player.seed); //scatter type 6
+        Bullet[bullet_id].speed=Bullet[bk].speed;
+        Bullet[bullet_id].speed_multiplier=Bullet[bk].speed_multiplier;
+        Bullet[bullet_id].range-=3;
+      } else {
+        Bullet[bullet_id].angle=Bullet[bk].angle+RandAngle(-65,65,player.seed); //scatter type 6
+      }
 
       /*if (Bullet[bk].speed_multiplier<7) { //if shotgun bullet, pierce through for the first few ranges
       }*/
 
-      if (Bullet[bk].graphics_type!=6) { //hit enemy bullet, scatter if NOT type 6
+      if (Bullet[bk].graphics_type!=6 && Bullet[bullet_id].graphics_type!=10) { //hit enemy bullet, scatter if NOT type 6
         Bullet[bk].angle=RandAngle(0,360,player.seed);
         Bullet[bk].range-=4;
       }
     }
   } //end of for,
+
+     //hit player web
+     //web swinging affects enemies bullet
+     if (player.is_swinging) {
+       for (int k=0;k<PLAYER_FLING_WEB_NUM;k++) {
+         //knockback
+         double dist_from_web_string=GetDistance(player_fling_web.x[k],player_fling_web.y[k],Bullet[bullet_id].x,Bullet[bullet_id].y);
+         if (dist_from_web_string<NODE_SIZE*2) {
+           Bullet[bullet_id].angle=player.angle_of_incidence;//player.pivot_angle+M_PI_2;
+         }  
+       }
+     }
+
+
+  if (Enemy[enemy_id]->health>0) {
+    hit_player=HitPlayer(bullet_id,10,22);
+  } else {
+    if (Enemy[enemy_id]->damage_taken_timer<256) {
+      hit_player=HitPlayer(bullet_id,22,22);
+    } else {
+      hit_player=FALSE;
+    }
   }
 
 
-  hit_player=HitPlayer(bullet_id,10,22);
 
-  bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2);
+  //if (Bullet[bullet_id].graphics_type==10) {
+    //bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,0.5,0.5);
+  //} else {
+    bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2);
+  //}
   allow_act=FALSE;
   //if (Enemy[enemy_id]->health>0) {
     if (hit_player) {
-            //player.time_breaker_units=0;
-            //player.sleep_timer=DEFAULT_SLEEP_TIMER;
-      allow_act=TRUE;
+      //player.time_breaker_units=0;
+      //player.sleep_timer=DEFAULT_SLEEP_TIMER;
+      if (Enemy[enemy_id]->health>0) {
+        allow_act=TRUE;
+      } else if (Enemy[enemy_id]->damage_taken_timer<256) {
+        allow_act=TRUE;
+      }
     } else if ( //Bullet has hit something
-      bullet_on_ground_id!=-1 || //on a gound
-       IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT) ||
+        bullet_on_ground_id!=-1 || //on a gound
+        IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT) ||
         Bullet[bullet_id].range<=0 //end of range
       ) {
         allow_act=TRUE;
     }
   //}
+
+
 //^^ condition
     if (allow_act) {
       if (hit_player) {
         if (Enemy[enemy_id]->health>0) {
           BulletDamagePlayerAct(bullet_id);
         }
-      //End of Hit Player
+      //End of Hit Player======
       } else if (bullet_on_ground_id>=GROUND_NUM && bullet_on_ground_id!=player.web_being_shot) { //Not on web being shot
-        Ground[bullet_on_ground_id]->health-=Bullet[bullet_id].damage;
-        if (Ground[bullet_on_ground_id]->health<=0) {//completely destroy web at 0 health (can be regained after '4')
-          DestroyGround(bullet_on_ground_id); 
-          player.cdwebs[player.cdweb_pos]=bullet_on_ground_id;
-          player.cdweb_pos++;
-          if (player.cdweb_pos>=player.max_web_num) {
-            player.cdweb_pos=0;
-          }
-          player.cdweb_num++;
+        if (Bullet[bullet_id].graphics_type!=10) {
+            Ground[bullet_on_ground_id]->health-=Bullet[bullet_id].damage;
+            if (Ground[bullet_on_ground_id]->health<=0) {//completely destroy web at 0 health (can be regained after '4')
+              DestroyGround(bullet_on_ground_id); 
+              player.cdwebs[player.cdweb_pos]=bullet_on_ground_id;
+              player.cdweb_pos++;
+              if (player.cdweb_pos>=player.max_web_num) {
+                player.cdweb_pos=0;
+              }
+              player.cdweb_num++;
+            }
+        } else {
+          Bullet[bullet_id].speed=0.01;
+          Bullet[bullet_id].speed_multiplier=1;
+          Bullet[bullet_id].range=100;
+          Bullet[bullet_id].saved_ground_id=-1;
         }
       }
 	//bullet dodged
@@ -317,18 +361,67 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
 	      }
         }
 	  }*/
-      if (hit_player || Bullet[bullet_id].graphics_type!=5 || Bullet[bullet_id].range<=0) {
-        StopBullet(bullet_id,FALSE); 
-        //Enemy bullet shot array arrangement
-	    for (int j=Bullet[bullet_id].saved_pos;j<Enemy[enemy_id]->bullet_shot_num-1;j++) { //shift to left in enemy bullet shot arr from bullet shot
-	      Enemy[enemy_id]->bullet_shot_arr[j]=Enemy[enemy_id]->bullet_shot_arr[j+1];
-          Bullet[Enemy[enemy_id]->bullet_shot_arr[j]].saved_pos--;
+
+
+
+      bool predicate=FALSE;
+      if (Bullet[bullet_id].graphics_type==10) {
+        if (hit_player) {
+          if (Enemy[enemy_id]->health<=0 && Enemy[enemy_id]->damage_taken_timer<250) {
+            predicate=TRUE;
+          }
         }
-        Bullet[bullet_id].saved_pos=-1;
-	    Enemy[enemy_id]->bullet_shot_arr[Enemy[enemy_id]->bullet_shot_num-1]=-1; //remove bullet from arr
-        Enemy[enemy_id]->bullet_shot_num--;
       } else {
-        Bullet[bullet_id].angle=2*M_PI-Bullet[bullet_id].angle+2*Ground[bullet_on_ground_id]->angle; //real
+        if (hit_player) {
+          predicate=TRUE;
+        }
+      }
+
+      if ((Bullet[bullet_id].graphics_type!=5 && Bullet[bullet_id].graphics_type!=10) || 
+            predicate || 
+            Bullet[bullet_id].range<=0 || 
+            IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)
+          ) {
+          StopBullet(bullet_id,FALSE); 
+
+
+          if (predicate && Bullet[bullet_id].graphics_type==10) { //heal player
+            if (game_audio) {
+              PlaySound(spamSoundEffectCache[8].audio, NULL, SND_MEMORY | SND_ASYNC); //gain snd
+            }
+
+            player.health+=0.2;
+            player.block_health+=3;
+            if (player.block_health>player.block_health_max) {
+              player.block_health=player.block_health_max;
+              player.health+=0.5;
+            }
+            player.exp++;
+
+            if (player.exp>MAX_EXP_NUM) {
+              player.exp=0;
+              if (player.max_web_num<MAX_WEB_NUM) {
+                player.max_web_num++;
+              } else {
+                player.health+=0.5;
+              }
+            }
+            player.show_health_timer=HP_SHOW_TIMER_NUM;
+            player.show_block_health_timer=HP_SHOW_TIMER_NUM;
+            player.show_exp_timer=HP_SHOW_TIMER_NUM;
+          }
+
+
+        //Enemy bullet shot array arrangement
+	      for (int j=Bullet[bullet_id].saved_pos;j<Enemy[enemy_id]->bullet_shot_num-1;j++) { //shift to left in enemy bullet shot arr from bullet shot
+	        Enemy[enemy_id]->bullet_shot_arr[j]=Enemy[enemy_id]->bullet_shot_arr[j+1];
+            Bullet[Enemy[enemy_id]->bullet_shot_arr[j]].saved_pos--;
+          }
+          Bullet[bullet_id].saved_pos=-1;
+	      Enemy[enemy_id]->bullet_shot_arr[Enemy[enemy_id]->bullet_shot_num-1]=-1; //remove bullet from arr
+          Enemy[enemy_id]->bullet_shot_num--;
+      } else if (bullet_on_ground_id!=-1) {
+        Bullet[bullet_id].angle=2*M_PI-Bullet[bullet_id].angle+2*Ground[bullet_on_ground_id]->angle; //ricochet/rebounding
         if (Bullet[bullet_id].angle>2*M_PI) { //hreater
           Bullet[bullet_id].angle-=2*M_PI;
         }
@@ -336,7 +429,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
           Bullet[bullet_id].angle+=2*M_PI;
         }
      
-        if (Bullet[bullet_id].saved_ground_id==bullet_on_ground_id) { //prevents riding of wall
+        if (Bullet[bullet_id].saved_ground_id==bullet_on_ground_id && Bullet[bullet_id].graphics_type!=10) { //prevents riding of wall
           Bullet[bullet_id].range=-1;
         }
         Bullet[bullet_id].saved_ground_id=bullet_on_ground_id;
@@ -428,6 +521,7 @@ void PlayerBulletAct(int bullet_id,int enemy_id)
         if (IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) {
           Bullet[bullet_id].range=-1;
         } else { //Ricochet off ground
+//Rebounding/ricochet
 /*
          Negative                                                     Positive
 
@@ -744,9 +838,15 @@ void BulletAct(int bullet_id)
             Bullet[bullet_id].saved_pos=-1;
             player.bullet[player.bullet_shot_num-1]=-1; //remove bullet from arr
             player.bullet_shot_num--;        
+
+            if (PLAYER_BULLET_NUM-player.bullet_shot_num==15 && player.knives_per_throw>=15 && game_audio) {
+              PlayMemSnd(&channelSoundEffect[7],&channelSoundEffectCache[7],TRUE,5); 
+            }
+
           }
         } else if (enemy_id==-3) { //rain
           if (Bullet[bullet_id].range>0) {
+
             if (!player.time_breaker) {
               allow_act=TRUE;
             } else if (Bullet[bullet_id].start_range-Bullet[bullet_id].range<50) {
@@ -909,6 +1009,7 @@ void RainAct()
 
 void DrawBullet2(HDC hdc,int i,double x,double y,int color)
 {
+  int c;
   switch (Bullet[i].graphics_type) {
     case 0:
       GrCircle(hdc,x,y,2,color,-1);
@@ -917,22 +1018,22 @@ void DrawBullet2(HDC hdc,int i,double x,double y,int color)
       GrCircle(hdc,x,y,1,color,-1);
       break;
     case 2:
-      GrCircle(hdc,x,y,1,color,-1);
-      GrCircle(hdc,x,y,2,color,-1);
+      //GrCircle(hdc,x,y,1,color,-1);
+      GrCircle(hdc,x,y,2,color,color);
       break;
     case 3:
-    case 6:
-      GrCircle(hdc,x,y,RandNum(0,3,frame_tick),color,-1);
+    case 6: //no fill glitery buullet
+      GrCircle(hdc,x,y,RandNum(0,3,frame_tick*player.seed),color,-1);
       break;
-    case 4:
-      GrCircle(hdc,x,y,RandNum(0,3,frame_tick),color,color);
+    case 4: //fill glitery bullet
+      GrCircle(hdc,x,y,RandNum(0,3,frame_tick*player.seed),color,color);
       break;
-    case 5:
+    case 5: //long bullet 0
       {
       GrLine(hdc,x,y,x+10*cos(Bullet[i].angle),y+10*sin(Bullet[i].angle),color);
       }
       break;
-    case 7:
+    case 7: //long bullet 1
       {
       GrLine(hdc,x,y,x+6*cos(Bullet[i].angle),y+6*sin(Bullet[i].angle),color);
       }
@@ -942,9 +1043,17 @@ void DrawBullet2(HDC hdc,int i,double x,double y,int color)
       GrLine(hdc,x,y,x-32*cos(Bullet[i].angle),y-32*sin(Bullet[i].angle),color);
       }
       break;
-    case 9: //long bullet 1
+    case 9: //long bullet 2
       {
       GrLine(hdc,x,y,x-20*cos(Bullet[i].angle),y-20*sin(Bullet[i].angle),color);
+      }
+      break;
+    case 10: //death bullet
+      {
+        //GrCircle(hdc,x,y,Bullet[i]->size,color,color);
+        GrCircle(hdc,x,y,2,color,color);
+        c=Highlight(IsInvertedBackground(),WHITE,BLACK);
+        GrCircle(hdc,x,y,RandNum(0,3,frame_tick*player.seed),WHITE,-1);
       }
       break;
   }

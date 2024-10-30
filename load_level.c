@@ -30,13 +30,19 @@ void InitOnce() {
   adjustSFXVolume(&spamSoundEffectCache[5],&spamSoundEffect[5],game_volume/4,FALSE);//hurt
   adjustSFXVolume(&spamSoundEffectCache[6],&spamSoundEffect[6],game_volume/30,FALSE);//enemy block
   adjustSFXVolume(&spamSoundEffectCache[7],&spamSoundEffect[7],game_volume,FALSE); //clang
+  adjustSFXVolume(&spamSoundEffectCache[8],&spamSoundEffect[8],game_volume/3,FALSE); //powerup
+  //adjustSFXVolume(&spamSoundEffectCache[9],&spamSoundEffect[9],game_volume/3,FALSE); //powerup
 
 
   adjustSFXVolume(&channelSoundEffectCache[0],&channelSoundEffect[0],game_volume/5,TRUE); //speed
-  adjustSFXVolume(&channelSoundEffectCache[1],&channelSoundEffect[1],game_volume,TRUE); //clang_death
-  adjustSFXVolume(&channelSoundEffectCache[2],&channelSoundEffect[2],game_volume/5,TRUE); //knife throw
+  adjustSFXVolume(&channelSoundEffectCache[1],&channelSoundEffect[1],game_volume/2+game_volume/10,TRUE); //death //clang_death
+  adjustSFXVolume(&channelSoundEffectCache[2],&channelSoundEffect[2],game_volume,TRUE); //knife throw
   adjustSFXVolume(&channelSoundEffectCache[3],&channelSoundEffect[3],game_volume/10,TRUE); //rain
-  adjustSFXVolume(&channelSoundEffectCache[4],&channelSoundEffect[4],game_volume/30,TRUE); //rain softer
+  adjustSFXVolume(&channelSoundEffectCache[4],&channelSoundEffect[4],game_volume/30,TRUE); //rain softer <-- 2 layers
+  adjustSFXVolume(&channelSoundEffectCache[5],&channelSoundEffect[5],game_volume/2,TRUE); //shotgun
+  adjustSFXVolume(&channelSoundEffectCache[6],&channelSoundEffect[6],game_volume/2,TRUE); //sniper
+  adjustSFXVolume(&channelSoundEffectCache[7],&channelSoundEffect[7],game_volume,TRUE); //reload shotgun
+  adjustSFXVolume(&channelSoundEffectCache[8],&channelSoundEffect[8],game_volume,TRUE); //pistol
 
   //Load custom song
   wchar_t dirname[64];

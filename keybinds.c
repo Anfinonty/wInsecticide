@@ -362,7 +362,7 @@ void GameKeypressUp(WPARAM wParam)
         if (player.max_web_num-player.placed_web_num>=3 && player.knives_per_throw==5) {
           player.knives_per_throw=13;
         }
-        if (player.max_web_num-player.placed_web_num>2) {          
+        if (player.max_web_num-player.placed_web_num>3) {          
           player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,15+1); //limit to 1,3,5,15
         } else if (player.max_web_num-player.placed_web_num>0){ //limit to 1,3,5
           player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,5+1);

@@ -259,7 +259,7 @@ void PlayerBulletLimitAct()
 
   /*if (player.max_web_num-player.placed_web_num>5) {
     player.knives_per_throw=LimitValue(player.knives_per_throw,1,30+1);
-  } else*/ if (player.max_web_num-player.placed_web_num>2) {
+  } else*/ if (player.max_web_num-player.placed_web_num>3) {
     player.knives_per_throw=LimitValue(player.knives_per_throw,1,15+1); //limit to 1,3,5,15
   } else if (player.max_web_num-player.placed_web_num>0){ //limit to 1,3,5
     player.knives_per_throw=LimitValue(player.knives_per_throw,1,6);
@@ -287,6 +287,8 @@ void InitPlayer() {
   player.rst_arrow_left=FALSE;
   player.rst_arrow_right=FALSE;
   player.rst_arrow_up=FALSE;
+  player.rst_right_click_snd=FALSE;
+  player.play_gun_snd=0;
 
   player.low_jump=FALSE;
   //player.rst_key_sprint=TRUE;
@@ -316,6 +318,7 @@ void InitPlayer() {
 
   player.show_health_timer=HP_SHOW_TIMER_NUM;
   player.show_block_health_timer=HP_SHOW_TIMER_NUM;
+  player.show_exp_timer=HP_SHOW_TIMER_NUM;
 
   player.grav=2;
   player.decceleration_timer=0;
@@ -367,6 +370,7 @@ void InitPlayer() {
   player.angle=0;
   player.saved_angle=0;
   player.player_grav=0.5;
+  player.exp=0;
 
   player.seed=0;
   player.cam_x=0;
@@ -515,7 +519,7 @@ void PlayerActGroundEdgeMovement()
 {
   player.on_ground_edge_id=player.on_ground_id;//GetOnGroundId(player.x,player.y,10,9);//player.on_ground_id;//GetOnGroundId(player.x,player.y,10,9);
   int tmp_on_ground_id=player.on_ground_edge_id;
-  int distl=22;
+  int distl=20;
   if (tmp_on_ground_id==-1) {
     tmp_on_ground_id=player.saved_on_ground_edge_id;
   }
@@ -1279,6 +1283,8 @@ void PlayerActMouseClick()
       player.bullet_shot=-1;
     }
 
+
+
     int b_speed_m=5;
     double b_dmg_m=1;
     int b_g_type=5;
@@ -1289,16 +1295,23 @@ void PlayerActMouseClick()
       b_speed_m=7;      
     }
 
-    if (player.speed>10)
-      b_dmg_m=2;
     if (player.speed>24)
       b_dmg_m=4;
+    else if (player.speed>10)
+      b_dmg_m=2;
 
 
     if (player.bullet_shot_num<PLAYER_BULLET_NUM && 
         !player.is_swinging && 
         (PLAYER_BULLET_NUM-player.bullet_shot_num>=player.knives_per_throw) // a/b whehere a>=b a is bullet in storage, b is bullet consumption
     ) {
+
+      if (player.knives_per_throw>=15) {
+        player.play_gun_snd=1;
+      } else if (player.knives_per_throw==5) {
+        player.play_gun_snd=2;
+      }
+
       grad_x1=player.sprite_x;
       grad_y1=player.sprite_y;
       grad_x2=mouse_x;
@@ -1312,23 +1325,38 @@ void PlayerActMouseClick()
         player.knives_per_throw=LimitValue(player.knives_per_throw,1,4);
       }
       if (player.knives_per_throw>4) {
-        b_g_type=6;
+        if (player.knives_per_throw==15) {
+          b_g_type=6;
+        }
         b_dmg_m=3;
-        b_range=50;
+        //b_speed_m=15;
+        if (player.knives_per_throw==5) {
+          b_range=160;
+          b_speed_m=15;
+        }
       } else if (player.knives_per_throw==3) { 
-        b_range=200;
+        b_range=145;
       } else if (player.knives_per_throw==1) {
         b_g_type=9;
         b_dmg_m=3;
       }
 
+      int kpt=player.knives_per_throw;
 
       for (int q=0;q<player.knives_per_throw;q++) {
-        if (q>0) {        
-          if (q%2==0) {//even
-            tmp_angle+=M_PI_2/16*q;
+        if (q>0) {   
+          if (kpt!=5) {
+              if (q%2==0) {//even
+                tmp_angle+=M_PI_2/16*q;
+              } else {
+                tmp_angle-=M_PI_2/16*q;
+              }
           } else {
-            tmp_angle-=M_PI_2/16*q;
+              if (q%2==0) {//even
+                tmp_angle+=M_PI_2/64*q;
+              } else {
+                tmp_angle-=M_PI_2/64*q;
+              }
           }
         }
 	    player.bullet[player.bullet_shot_num]=current_bullet_id;
@@ -1391,6 +1419,7 @@ void PlayerActMouseClick()
     if (player.right_click_hold_timer==62) { //right click to shoot
       if (player.placed_web_num<player.max_web_num && //webs > 0 
         player.bullet_shot==-1) {
+        player.rst_right_click_snd=TRUE;
         allow_act=TRUE;
       }
     }
@@ -1406,17 +1435,14 @@ void PlayerActMouseClick()
       if (game_audio) {
         player.shoot_knife_duration=1;
       }
-      int b_speed_mul=15+player.speed*2; //speed multiplier
-      if (b_speed_mul>25)
-        b_speed_mul=25;
       ShootBullet(current_bullet_id,
 	-1,
 	CYAN,
     5, //graphics type
 	MAX_WEB_LENGTH, //range
     1, //speed
-	b_speed_mul, //speed multiplier
-	4+player.attack_strength*2, //damage
+	30, //speed multiplier
+	10+player.attack_strength*2, //damage
 	-1,
 	player.x,//player.above_x2, //so it doest get stuck to ground
 	player.y,//player.above_y2,
@@ -1437,7 +1463,6 @@ void PlayerActMouseClick()
         if (game_audio) {
           player.shoot_knife_duration=1;
         }
-        player.is_swinging=FALSE; //stop swinging
         if (player.uppercut || player.hiding || player.on_ground_id!=-1) { 
           player.fling_distance=0;
         } else { //begin flinging!!
@@ -1448,10 +1473,10 @@ void PlayerActMouseClick()
         player.in_air_timer=1000;
         player.decceleration_timer=0;
         if (player.on_ground_timer==0) {
-          if (player.speed<10)
+          //if (player.speed<10)
             player.speed+=2;
-          else
-            player.speed++;
+          //else
+            //player.speed++;
         }
 
         if (M_PI_2<player.angle_of_incidence && player.angle_of_incidence<M_PI+M_PI_2)
@@ -1461,8 +1486,9 @@ void PlayerActMouseClick()
       }
     }
     
-    if (player.right_click_hold_timer==62) {
-      if (player.pivot_length>NODE_SIZE*5) {//prevent build web if web too short and hiding
+    if (player.left_click_hold_timer==62 || player.attack_rst || player.right_click_hold_timer==62) {
+      if (player.pivot_length>NODE_SIZE*5 && player.is_swinging) {//prevent build web if web too short and hiding
+        player.is_swinging=FALSE; //stop swinging
         player.attack=TRUE;
         player.blocking=FALSE; //unblock
     //player place web after swing
@@ -2202,6 +2228,8 @@ void PlayerAct()
     player.show_health_timer--;
   if (player.show_block_health_timer>0)
     player.show_block_health_timer--;
+  if (player.show_exp_timer>0)
+    player.show_exp_timer--;
 
   //sprite axes
   player.sprite_x=GR_WIDTH/2+player.cam_move_x+player.cam_mouse_move_x;
@@ -2302,17 +2330,34 @@ void PlayerSndAct()
     mem_snd_interrupt[1]=TRUE;
     waveOutReset(hWaveOut[1]);
   }
-  if (player.shoot_knife_duration==1) { //sound effect knife throw
-    PlayMemSnd(&channelSoundEffect[2],&channelSoundEffectCache[2],TRUE,3);
-  }
 
+
+  if (player.rst_right_click_snd) {
+    PlayMemSnd(&channelSoundEffect[6],&channelSoundEffectCache[6],TRUE,3);
+    player.rst_right_click_snd=FALSE;
+  } else {
+    if (player.shoot_knife_duration==1) { //sound effect knife throw
+      switch (player.play_gun_snd) {
+          case 0: //knife throw
+            PlayMemSnd(&channelSoundEffect[2],&channelSoundEffectCache[2],TRUE,3);
+            break;
+          case 1: //shotgun
+            PlayMemSnd(&channelSoundEffect[2],&channelSoundEffectCache[5],TRUE,3);
+            break;
+          case 2: //pistor
+            PlayMemSnd(&channelSoundEffect[5],&channelSoundEffectCache[8],TRUE,3);
+            break;
+        }
+        player.play_gun_snd=0;
+    }
+  }
   //sound timers limiter
   //player shooting knife sound limiter
   if (player.shoot_knife_duration>0)
     player.shoot_knife_duration+=6;
   if (player.shoot_knife_duration>330/*341*/) {//special case, old audio has popping noise at the end
-    mem_snd_interrupt[3]=TRUE;
-    waveOutReset(hWaveOut[3]);
+    //mem_snd_interrupt[3]=TRUE;
+    //waveOutReset(hWaveOut[3]);
     player.shoot_knife_duration=0;
   }
 

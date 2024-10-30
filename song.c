@@ -430,6 +430,9 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
         waveOutReset(hWaveOut[4]);
         mem_snd_interrupt[4]=TRUE;
 
+        waveOutReset(hWaveOut[5]);
+        mem_snd_interrupt[5]=TRUE;
+
         for (int i=0;i<SPAM_SFX_NUM;i++) {
           freeSoundEffectCache(&spamSoundEffectCache[i]);
         }

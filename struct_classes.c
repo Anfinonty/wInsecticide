@@ -115,6 +115,8 @@ struct player
   bool rst_arrow_right;
   bool rst_arrow_up;
 
+  bool rst_right_click_snd;
+
   //bool rst_key_sprint;
   bool last_left;
   bool jump;
@@ -153,7 +155,7 @@ struct player
   //int rendered_enemy_num;
 
  // int rendered_ground_num;
-
+  int play_gun_snd;
   int knives_per_throw;
 
   int block_recharge_timer_max;
@@ -218,6 +220,7 @@ struct player
   int on_ground_edge_id;
   int saved_on_ground_edge_id;
   int pivot_on_ground_id;
+  int show_exp_timer;
   int show_block_health_timer;
   int show_health_timer;
 
@@ -225,6 +228,7 @@ struct player
 
   int rain_wet_timer;
   int visible_rain_wet_timer;
+  int exp;
 
   int blur_timer[PLAYER_BLUR_NUM];
   int blur_x[PLAYER_BLUR_NUM];
@@ -636,6 +640,9 @@ typedef struct enemy
   bool knockback_left;
   bool player_knockback;
 
+  //force search
+  bool force_search;
+
   //Bullet
   int bullet_cooldown_max;
   int bullet_cooldown;
@@ -885,9 +892,9 @@ HBITMAP mm0_kh_hijri_mask[2];
 
 //Sound
 //Sound called in the Stack
-#define SPAM_SFX_NUM    8
+#define SPAM_SFX_NUM    9
 #define KEY_SFX_NUM     6
-#define CHANNEL_SFX_NUM 5
+#define CHANNEL_SFX_NUM 9
 
 wavSoundEffect spamSoundEffect[SPAM_SFX_NUM];
 wavSoundEffect keySoundEffect[KEY_SFX_NUM];
