@@ -1,53 +1,13 @@
 
 
-//Background
-void DrawBackground(HDC hdc) {
-//  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(253, 2, 139));
-//  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(173, 216, 230));
-//  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(8,39,245));
-//  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255))); //RAVE
-  switch (map_background) {
-    case 0:
-      DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
-      break;
-    case 1:
-      DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,NOTSRCCOPY,FALSE,FALSE);
-      //GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
-//      DrawSprite(hdc, GR_WIDTH-128,128,&draw_moon_sprite,FALSE);
-      DrawSprite(hdc, GR_WIDTH-128,128,&draw_moon_sprite,FALSE);
-      break;
-    default:
-      if (map_background_sprite==NULL) {
-        GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,custom_map_background_color);
-      } else {
-        if (IsInvertedBackground()) {
-          DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,NOTSRCCOPY,FALSE,FALSE);
-        } else {
-          DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
-        }
-      }
-      break;
-  }
-}
-
-
-
-/*void DrawForeground(HDC hdc) {
-  if (IsInvertedBackground()) {
-    //GrGlassRect(hdc,player.sprite_x-32,player.sprite_y-32,64,64,draw_color_arr[player_load_pupil_color],128);
-    GrGlassCircle(hdc,player.sprite_x,player.sprite_y,32,LTGREEN,128);
-  }
-}*/
-
-
 void DrawWaterShader(HDC hdc) 
 {
   if (player.in_water) {
-    if (!IsInvertedBackground()) {
+    //if (!IsInvertedBackground()) {
       GrGlassRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,BLUE,128);
-    } else {
+    /*} else {
       GrGlassRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,LTR2YELLOW,128);
-    }
+    }*/
   }
 }
 
@@ -96,7 +56,7 @@ void ScreenRainDropAct()
 void DrawRainShader(HDC hdc)
 {
   if (player.rain_wet_timer>0) {
-    int c=Highlight(IsInvertedBackground(),BLACK,WHITE);
+    int c=BLACK;//Highlight(IsInvertedBackground(),BLACK,WHITE);
     BLENDFUNCTION blendFunction;
     blendFunction.BlendOp = AC_SRC_OVER;
     blendFunction.BlendFlags = 0;
@@ -134,9 +94,9 @@ void DrawRainShader2(HDC hdc)
 {
   int c;
   if (player.rain_wet_timer>60) {
-    c=Highlight(IsInvertedBackground(),LTGRAY,RGB(200,200,200));
+    c=LTGRAY;//Highlight(IsInvertedBackground(),LTGRAY,RGB(200,200,200));
   } else {
-    c=Highlight(IsInvertedBackground(),RGB(125,125,125),RGB(215,215,215));
+    c=RGB(125,125,125);//Highlight(IsInvertedBackground(),RGB(125,125,125),RGB(215,215,215));
   }
 
   if (player.rain_wet_timer>0) {
@@ -151,70 +111,6 @@ void DrawRainShader2(HDC hdc)
     }  
   }
 }
-
-
-void DrawPlatforms(HDC hDC)
-{ //Dynamically scale with window size 
-  //Draw platforms bitmap mask
-  int extra_h=0;
-  if (hide_taskbar)
-    extra_h=8*4;
-  DrawBitmap(hDC,
-                 0,
-                 0,
-                 player.x-player.cam_mouse_move_x-player.cam_move_x-GR_WIDTH/2,
-                 player.y-player.cam_mouse_move_y-player.cam_move_y-GR_HEIGHT/2,
-                 GR_WIDTH,
-                 GR_HEIGHT+extra_h,
-                 map_platforms_sprite_mask,SRCAND,FALSE,FALSE);
-  //Draw platforms paint
-  DrawBitmap(hDC,
-                 0,
-                 0,                    
-                 player.x-player.cam_mouse_move_x-player.cam_move_x-GR_WIDTH/2,
-                 player.y-player.cam_mouse_move_y-player.cam_move_y-GR_HEIGHT/2,
-                 GR_WIDTH,
-                 GR_HEIGHT+extra_h,
-                 map_platforms_sprite,SRCPAINT,FALSE,FALSE);
-}
-
-
-void DrawShadows(HDC hdc)
-{
-  DrawGlassBitmap(hdc, 
-        map_platforms_shadow_shader, 
-        GR_WIDTH/2-player.x+player.cam_mouse_move_x+player.cam_move_x,
-        GR_HEIGHT/2-player.y+player.cam_mouse_move_y+player.cam_move_y,
-        32//128
-  );
-}
-
-
-void DrawCursor(HDC hDC)
-{
-  //DrawBitmap(hDC,mouse_x,mouse_y,0,0,64,64,mouse_cursor_sprite,SRCAND,FALSE);
-  //DrawBitmap(hDC,mouse_x,mouse_y,0,0,64,64,mouse_cursor_sprite_mask,SRCPAINT,FALSE);
-  if (!(player.speed>24 && frame_tick%2==0)) {
-    if (player.health>PLAYER_LOW_HEALTH) {
-      DrawSprite(hDC,mouse_x,mouse_y,&draw_mouse_cursor_sprite,FALSE);
-      DrawSprite(hDC,mouse_x,mouse_y,&draw_mouse_cursor_sprite_iris,FALSE);
-    } else {
-      DrawSprite(hDC,mouse_x,mouse_y,&draw_mouse_cursor_sprite2,FALSE);
-      DrawSprite(hDC,mouse_x,mouse_y,&draw_mouse_cursor_sprite_iris2,FALSE);
-    }
-  }
-  if (player.health>PLAYER_LOW_HEALTH) {
-    DrawSprite(hDC,mouse_x,mouse_y,&draw_mouse_cursor_sprite_pupil,FALSE);
-  } else {
-    DrawSprite(hDC,mouse_x,mouse_y,&draw_mouse_cursor_sprite_pupil2,FALSE);
-  }
-
-  /*if (!IsInvertedBackground())
-    GrCircle(hDC,mouse_x,mouse_y,1,WHITE,-1);
-  else
-    GrCircle(hDC,mouse_x,mouse_y,1,BLACK,-1);*/
-}
-
 
 
 
@@ -502,7 +398,7 @@ void DrawMainMenu(HDC hdc)
     DrawSprite(hdc, GR_WIDTH-128,128,&draw_moon_sprite,FALSE);
 
 
-  int title_x=GR_WIDTH/2-352/2+8;
+  int title_x=GR_WIDTH/2-352/2+4;
   int title_y=-32;
 
   int title_x2=GR_WIDTH-352*3/5-24;
@@ -1090,16 +986,10 @@ char help_txt_arr2[HELP_TEXT_ARR_NUM2][64]=
 //======== UI =========
 
 bool display_controls=FALSE;
-void DrawUI(HDC hdc) {
-  int c;
-  int c4;
-  if (!IsInvertedBackground()) {
-    c=WHITE;
-    c4=BLACK;
-  } else {
-    c=BLACK;
-    c4=WHITE;
-  }
+void DrawUI(HDC hdc) 
+{
+  int c = WHITE;//Highlight(IsInvertedBackground(),WHITE,BLACK);
+  int c4 = BLACK;//Highlight(IsInvertedBackground(),BLACK,WHITE);
 
 
   int help_y=GR_HEIGHT-128;
@@ -1115,89 +1005,245 @@ void DrawUI(HDC hdc) {
   }
 
   char gametimetxt[32];
+  wchar_t wgametimetxt[32];
   double print_time_ms=(double)game_timer/1000;
-  if (!game_over) {
-    sprintf(gametimetxt,"Time: %5.3f",print_time_ms);
-    int digit_num=GR_WIDTH-strlen(gametimetxt)*8-16;
-    GrPrint(hdc,digit_num-4,8+16+digit_num4,gametimetxt,YELLOW);
-    GrPrint(hdc,digit_num-6,8+16+digit_num4,gametimetxt,YELLOW);
-    GrPrint(hdc,digit_num-4,10+16+digit_num4,gametimetxt,YELLOW);
-    GrPrint(hdc,digit_num-6,10+16+digit_num4,gametimetxt,YELLOW);
-    GrPrint(hdc,digit_num-5,9+16+digit_num4,gametimetxt,BROWN);
-  } else { //game is over
-    if (game_timer<int_best_score) { //New Score :D
-      sprintf(gametimetxt,"New Best! :D %5.3f",print_time_ms);
-      int digit_num=GR_WIDTH-strlen(gametimetxt)*8-16;
-      GrPrint(hdc,digit_num+5,9+16+digit_num4,gametimetxt,LTPURPLE);
-    } else {
-      sprintf(gametimetxt,"Time: %5.3f",print_time_ms);
-      int digit_num=GR_WIDTH-strlen(gametimetxt)*8-16;
-      GrPrint(hdc,digit_num-4,8+16+digit_num4,gametimetxt,YELLOW);
-      GrPrint(hdc,digit_num-6,8+16+digit_num4,gametimetxt,YELLOW);
-      GrPrint(hdc,digit_num-4,10+16+digit_num4,gametimetxt,YELLOW);
-      GrPrint(hdc,digit_num-6,10+16+digit_num4,gametimetxt,YELLOW);
-      GrPrint(hdc,digit_num-5,9+16+digit_num4,gametimetxt,BROWN);
-    }
-  }
 
   char gamebesttimetxt[32];
+  wchar_t wgamebesttimetxt[32];
   double best_time=double_best_score;
-  sprintf(gamebesttimetxt,"Best: %5.3f",best_time);
-  GrPrint(hdc,16+4,8+16+digit_num4,gamebesttimetxt,YELLOW);
-  GrPrint(hdc,16+6,8+16+digit_num4,gamebesttimetxt,YELLOW);
-  GrPrint(hdc,16+4,10+16+digit_num4,gamebesttimetxt,YELLOW);
-  GrPrint(hdc,16+6,10+16+digit_num4,gamebesttimetxt,YELLOW);
-  GrPrint(hdc,16+5,9+16+digit_num4,gamebesttimetxt,BROWN);
 
-  /*int printenemykills=ENEMY_NUM-enemy_kills;
-  int printenemynum=ENEMY_NUM;
-  sprintf(enemykills,"Enemies Left: %d/%d",printenemykills,printenemynum);
-  int digit_num=GR_WIDTH/2-(strlen(enemykills)*8)/2-4;
-  GrPrint(hdc,digit_num-4,8+16,enemykills,YELLOW);
-  GrPrint(hdc,digit_num-6,8+16,enemykills,YELLOW);
-  GrPrint(hdc,digit_num-4,10+16,enemykills,YELLOW);
-  GrPrint(hdc,digit_num-6,10+16,enemykills,YELLOW);
-  GrPrint(hdc,digit_num-5,9+16,enemykills,BROWN);*/
-
-
-  char enemykills[2];
+  char enemykills[10];
+  wchar_t wenemykills[10];
   int printenemykills=ENEMY_NUM-enemy_kills;
 
+  int digit_num;
+  int digit_num1;
+  int digit_num2;
   int digit_num3=0;
-  if (printenemykills>0) {
-    int digit_num1=GR_WIDTH/2-(12*8)/2+4+4;
-    GrPrint(hdc,digit_num1-4,8+16+digit_num4,"Enemies Left:",YELLOW);
-    GrPrint(hdc,digit_num1-6,8+16+digit_num4,"Enemies Left:",YELLOW);
-    GrPrint(hdc,digit_num1-4,10+16+digit_num4,"Enemies Left:",YELLOW);
-    GrPrint(hdc,digit_num1-6,10+16+digit_num4,"Enemies Left:",YELLOW);
-    GrPrint(hdc,digit_num1-5,9+16+digit_num4,"Enemies Left:",BROWN);
-    sprintf(enemykills,"%d",printenemykills);
-  } else {
-    digit_num3=-16;
-    if (frame_tick<FPS/2)
-      sprintf(enemykills,"GAME OVER");
-    else
-      sprintf(enemykills," ");
+
+  if (is_khmer) {
+      int c_kh1=BROWN;//GREEN;
+      int c_kh2=YELLOW;//LTGREEN;
+    //Draw Best Score
+      DrawBitmap(hdc,16+8,1+8+16+digit_num4,0,0,65,19,ga0_kh_mask[0],SRCAND,FALSE,FALSE);
+      DrawBitmap(hdc,16+8,1+8+16+digit_num4,0,0,65,19,ga0_kh[0],SRCPAINT,FALSE,FALSE);
+
+
+      swprintf(wgamebesttimetxt,32,L"%5.3f",best_time);
+      GrPrintW(hdc,16+4,24+8+16+digit_num4,ReplaceToKhmerNum(wgamebesttimetxt),"",c_kh1,16,FALSE,yes_unifont);
+      GrPrintW(hdc,16+6,24+8+16+digit_num4,ReplaceToKhmerNum(wgamebesttimetxt),"",c_kh1,16,FALSE,yes_unifont);
+      GrPrintW(hdc,16+4,24+10+16+digit_num4,ReplaceToKhmerNum(wgamebesttimetxt),"",c_kh1,16,FALSE,yes_unifont);
+      GrPrintW(hdc,16+6,24+10+16+digit_num4,ReplaceToKhmerNum(wgamebesttimetxt),"",c_kh1,16,FALSE,yes_unifont);
+      GrPrintW(hdc,16+5,24+9+16+digit_num4,ReplaceToKhmerNum(wgamebesttimetxt),"",c_kh2,16,FALSE,yes_unifont);
+
+
+
+    //Draw Current Time/Congrats
+      if (!game_over) {
+        DrawBitmap(hdc,GR_WIDTH-69-32,8+16+4+digit_num4,0,0,69,16,ga0_kh_mask[1],SRCAND,FALSE,FALSE);
+        DrawBitmap(hdc,GR_WIDTH-69-32,8+16+4+digit_num4,0,0,69,16,ga0_kh[1],SRCPAINT,FALSE,FALSE);
+
+        swprintf(wgametimetxt,32,L"%5.3f",print_time_ms);
+        digit_num=GR_WIDTH-wcslen(wgametimetxt)*12-16-24;
+        GrPrintW(hdc,digit_num-4,24+8+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh1,16,FALSE,yes_unifont);
+        GrPrintW(hdc,digit_num-6,24+8+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh1,16,FALSE,yes_unifont);
+        GrPrintW(hdc,digit_num-4,24+10+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh1,16,FALSE,yes_unifont);
+        GrPrintW(hdc,digit_num-6,24+10+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh1,16,FALSE,yes_unifont);
+        GrPrintW(hdc,digit_num-5,24+9+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh2,16,FALSE,yes_unifont);
+
+
+      } else { //game is over
+        if (game_timer<int_best_score) { //New Score :D
+          DrawBitmap(hdc,GR_WIDTH-106-32,8+16+digit_num4,0,0,106,37,ga0_kh_mask[2],SRCAND,FALSE,FALSE);
+          DrawBitmap(hdc,GR_WIDTH-106-32,8+16+digit_num4,0,0,106,37,ga0_kh[2],SRCPAINT,FALSE,FALSE);
+
+          swprintf(wgametimetxt,32,L"%5.3f",print_time_ms);
+          digit_num=GR_WIDTH-wcslen(wgametimetxt)*12-16-24;
+          GrPrintW(hdc,digit_num-4,16+24+8+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",PURPLE,16,FALSE,yes_unifont);
+          GrPrintW(hdc,digit_num-6,16+24+8+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",PURPLE,16,FALSE,yes_unifont);
+          GrPrintW(hdc,digit_num-4,16+24+10+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",PURPLE,16,FALSE,yes_unifont);
+          GrPrintW(hdc,digit_num-6,16+24+10+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",PURPLE,16,FALSE,yes_unifont);
+          GrPrintW(hdc,digit_num-5,16+24+9+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",LTPURPLE,16,FALSE,yes_unifont);
+        } else {
+          DrawBitmap(hdc,GR_WIDTH-69-32,8+16+digit_num4,0,0,69,16,ga0_kh_mask[1],SRCAND,FALSE,FALSE);
+          DrawBitmap(hdc,GR_WIDTH-69-32,8+16+digit_num4,0,0,69,16,ga0_kh[1],SRCPAINT,FALSE,FALSE);
+          swprintf(wgametimetxt,32,L"%5.3f",print_time_ms);
+          digit_num=GR_WIDTH-wcslen(wgametimetxt)*12-16-24;
+          GrPrintW(hdc,digit_num-4,24+8+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh1,16,FALSE,yes_unifont);
+          GrPrintW(hdc,digit_num-6,24+8+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh1,16,FALSE,yes_unifont);
+          GrPrintW(hdc,digit_num-4,24+10+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh1,16,FALSE,yes_unifont);
+          GrPrintW(hdc,digit_num-6,24+10+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh1,16,FALSE,yes_unifont);
+          GrPrintW(hdc,digit_num-5,24+9+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh2,16,FALSE,yes_unifont);
+        }
+      }
+
+
+    //Draw Enemy Num/game Over
+      if (printenemykills>0) {
+        digit_num1=GR_WIDTH/2-133/2+4;//-(12*8)/2+4+4;
+        DrawBitmap(hdc,digit_num1,16+10+digit_num4-4,0,0,133,26,ga0_kh_mask[3],SRCAND,FALSE,FALSE);
+        DrawBitmap(hdc,digit_num1,16+10+digit_num4-4,0,0,133,26,ga0_kh[3],SRCPAINT,FALSE,FALSE);
+
+        //print enemy kills below
+        swprintf(wenemykills,10,L"%d",printenemykills);
+        digit_num2=GR_WIDTH/2-(wcslen(wenemykills)*12)/2+4;
+        GrPrintW(hdc,digit_num2-4,16+8+24+digit_num3+digit_num4,ReplaceToKhmerNum(wenemykills),"",c_kh1,16,FALSE,yes_unifont);
+        GrPrintW(hdc,digit_num2-6,16+8+24+digit_num3+digit_num4,ReplaceToKhmerNum(wenemykills),"",c_kh1,16,FALSE,yes_unifont);
+        GrPrintW(hdc,digit_num2-4,16+10+24+digit_num3+digit_num4,ReplaceToKhmerNum(wenemykills),"",c_kh1,16,FALSE,yes_unifont);
+        GrPrintW(hdc,digit_num2-6,16+10+24+digit_num3+digit_num4,ReplaceToKhmerNum(wenemykills),"",c_kh1,16,FALSE,yes_unifont);
+        GrPrintW(hdc,digit_num2-5,16+9+24+digit_num3+digit_num4,ReplaceToKhmerNum(wenemykills),"",c_kh2,16,FALSE,yes_unifont);
+      } else { //GAME OVER
+        digit_num3=-32;//16;
+        if (frame_tick<FPS/2) {
+          DrawBitmap(hdc,GR_WIDTH/2-52/2+4,16+10+32+digit_num3+digit_num4,0,0,52,22,ga0_kh_mask[4],SRCAND,FALSE,FALSE);
+          DrawBitmap(hdc,GR_WIDTH/2-52/2+4,16+10+32+digit_num3+digit_num4,0,0,52,22,ga0_kh[4],SRCPAINT,FALSE,FALSE);
+        }
+      }
+
+    
+
+
+
+
+/*
+      int c_kh1=GREEN;//Highlight(IsInvertedBackground(),GREEN,YELLOW);
+      int c_kh2=LTGREEN;//Highlight(IsInvertedBackground(),LTGREEN,BROWN);
+      if (!game_over) {
+        swprintf(wgametimetxt,32,L"Time: %5.3f",print_time_ms);
+        digit_num=GR_WIDTH-wcslen(wgametimetxt)*12-16;
+        GrPrintW(hdc,digit_num-4,8+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh1,16,FALSE,yes_unifont);
+        GrPrintW(hdc,digit_num-6,8+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh1,16,FALSE,yes_unifont);
+        GrPrintW(hdc,digit_num-4,10+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh1,16,FALSE,yes_unifont);
+        GrPrintW(hdc,digit_num-6,10+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh1,16,FALSE,yes_unifont);
+        GrPrintW(hdc,digit_num-5,9+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh2,16,FALSE,yes_unifont);
+      } else { //game is over
+        if (game_timer<int_best_score) { //New Score :D
+          swprintf(wgametimetxt,32,L"New Best! :D %5.3f",print_time_ms);
+          digit_num=GR_WIDTH-wcslen(wgametimetxt)*12-16;
+          GrPrintW(hdc,digit_num+5,9+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",LTPURPLE,16,FALSE,yes_unifont);
+        } else {
+          swprintf(wgametimetxt,32,L"Time: %5.3f",print_time_ms);
+          digit_num=GR_WIDTH-wcslen(wgametimetxt)*12-16;
+          GrPrintW(hdc,digit_num-4,8+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh1,16,FALSE,yes_unifont);
+          GrPrintW(hdc,digit_num-6,8+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh1,16,FALSE,yes_unifont);
+          GrPrintW(hdc,digit_num-4,10+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh1,16,FALSE,yes_unifont);
+          GrPrintW(hdc,digit_num-6,10+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh1,16,FALSE,yes_unifont);
+          GrPrintW(hdc,digit_num-5,9+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh2,16,FALSE,yes_unifont);
+        }
+      }
+
+      swprintf(wgamebesttimetxt,32,L"Best: %5.3f",best_time);
+      GrPrintW(hdc,16+4,8+16+digit_num4,ReplaceToKhmerNum(wgamebesttimetxt),"",c_kh1,16,FALSE,yes_unifont);
+      GrPrintW(hdc,16+6,8+16+digit_num4,ReplaceToKhmerNum(wgamebesttimetxt),"",c_kh1,16,FALSE,yes_unifont);
+      GrPrintW(hdc,16+4,10+16+digit_num4,ReplaceToKhmerNum(wgamebesttimetxt),"",c_kh1,16,FALSE,yes_unifont);
+      GrPrintW(hdc,16+6,10+16+digit_num4,ReplaceToKhmerNum(wgamebesttimetxt),"",c_kh1,16,FALSE,yes_unifont);
+      GrPrintW(hdc,16+5,9+16+digit_num4,ReplaceToKhmerNum(wgamebesttimetxt),"",c_kh2,16,FALSE,yes_unifont);
+
+      if (printenemykills>0) {
+        digit_num1=GR_WIDTH/2-(12*8)/2+4+4;
+        GrPrintW(hdc,digit_num1-4,8+16+digit_num4,L"Enemies Left:","",c_kh1,16,FALSE,yes_unifont);
+        GrPrintW(hdc,digit_num1-6,8+16+digit_num4,L"Enemies Left:","",c_kh1,16,FALSE,yes_unifont);
+        GrPrintW(hdc,digit_num1-4,10+16+digit_num4,L"Enemies Left:","",c_kh1,16,FALSE,yes_unifont);
+        GrPrintW(hdc,digit_num1-6,10+16+digit_num4,L"Enemies Left:","",c_kh1,16,FALSE,yes_unifont);
+        GrPrintW(hdc,digit_num1-5,9+16+digit_num4,L"Enemies Left:","",c_kh2,16,FALSE,yes_unifont);
+        swprintf(wenemykills,10,L"%d",printenemykills);
+      } else {
+        digit_num3=-16;
+        if (frame_tick<FPS/2)
+          swprintf(wenemykills,10,L"GAME OVER");
+        else
+          swprintf(wenemykills,10,L" ");
+      }
+
+      digit_num2=GR_WIDTH/2-(wcslen(wenemykills)*8)/2+4;
+      if (printenemykills<=0)
+        digit_num2-=4;
+      GrPrintW(hdc,digit_num2-4,8+32+digit_num3+digit_num4,ReplaceToKhmerNum(wenemykills),"",c_kh1,16,FALSE,yes_unifont);
+      GrPrintW(hdc,digit_num2-6,8+32+digit_num3+digit_num4,ReplaceToKhmerNum(wenemykills),"",c_kh1,16,FALSE,yes_unifont);
+      GrPrintW(hdc,digit_num2-4,10+32+digit_num3+digit_num4,ReplaceToKhmerNum(wenemykills),"",c_kh1,16,FALSE,yes_unifont);
+      GrPrintW(hdc,digit_num2-6,10+32+digit_num3+digit_num4,ReplaceToKhmerNum(wenemykills),"",c_kh1,16,FALSE,yes_unifont);
+      GrPrintW(hdc,digit_num2-5,9+32+digit_num3+digit_num4,ReplaceToKhmerNum(wenemykills),"",c_kh2,16,FALSE,yes_unifont);
+*/
+  } else { //not-khmer
+      if (!game_over) {
+        sprintf(gametimetxt,"Time: %5.3f",print_time_ms);
+        digit_num=GR_WIDTH-strlen(gametimetxt)*8-16;
+        GrPrint(hdc,digit_num-4,8+16+digit_num4,gametimetxt,YELLOW);
+        GrPrint(hdc,digit_num-6,8+16+digit_num4,gametimetxt,YELLOW);
+        GrPrint(hdc,digit_num-4,10+16+digit_num4,gametimetxt,YELLOW);
+        GrPrint(hdc,digit_num-6,10+16+digit_num4,gametimetxt,YELLOW);
+        GrPrint(hdc,digit_num-5,9+16+digit_num4,gametimetxt,BROWN);
+      } else { //game is over
+        if (game_timer<int_best_score) { //New Score :D
+          sprintf(gametimetxt,"New Best! :D %5.3f",print_time_ms);
+          digit_num=GR_WIDTH-strlen(gametimetxt)*8-16;
+          GrPrint(hdc,digit_num+5,9+16+digit_num4,gametimetxt,LTPURPLE);
+        } else {
+          sprintf(gametimetxt,"Time: %5.3f",print_time_ms);
+          digit_num=GR_WIDTH-strlen(gametimetxt)*8-16;
+          GrPrint(hdc,digit_num-4,8+16+digit_num4,gametimetxt,YELLOW);
+          GrPrint(hdc,digit_num-6,8+16+digit_num4,gametimetxt,YELLOW);
+          GrPrint(hdc,digit_num-4,10+16+digit_num4,gametimetxt,YELLOW);
+          GrPrint(hdc,digit_num-6,10+16+digit_num4,gametimetxt,YELLOW);
+          GrPrint(hdc,digit_num-5,9+16+digit_num4,gametimetxt,BROWN);
+        }
+      }
+
+      sprintf(gamebesttimetxt,"Best: %5.3f",best_time);
+      GrPrint(hdc,16+4,8+16+digit_num4,gamebesttimetxt,YELLOW);
+      GrPrint(hdc,16+6,8+16+digit_num4,gamebesttimetxt,YELLOW);
+      GrPrint(hdc,16+4,10+16+digit_num4,gamebesttimetxt,YELLOW);
+      GrPrint(hdc,16+6,10+16+digit_num4,gamebesttimetxt,YELLOW);
+      GrPrint(hdc,16+5,9+16+digit_num4,gamebesttimetxt,BROWN);
+
+      /*int printenemykills=ENEMY_NUM-enemy_kills;
+      int printenemynum=ENEMY_NUM;
+      sprintf(enemykills,"Enemies Left: %d/%d",printenemykills,printenemynum);
+      int digit_num=GR_WIDTH/2-(strlen(enemykills)*8)/2-4;
+      GrPrint(hdc,digit_num-4,8+16,enemykills,YELLOW);
+      GrPrint(hdc,digit_num-6,8+16,enemykills,YELLOW);
+      GrPrint(hdc,digit_num-4,10+16,enemykills,YELLOW);
+      GrPrint(hdc,digit_num-6,10+16,enemykills,YELLOW);
+      GrPrint(hdc,digit_num-5,9+16,enemykills,BROWN);*/
+
+      digit_num3=0;
+      if (printenemykills>0) {
+        digit_num1=GR_WIDTH/2-(12*8)/2+4+4;
+        GrPrint(hdc,digit_num1-4,8+16+digit_num4,"Enemies Left:",YELLOW);
+        GrPrint(hdc,digit_num1-6,8+16+digit_num4,"Enemies Left:",YELLOW);
+        GrPrint(hdc,digit_num1-4,10+16+digit_num4,"Enemies Left:",YELLOW);
+        GrPrint(hdc,digit_num1-6,10+16+digit_num4,"Enemies Left:",YELLOW);
+        GrPrint(hdc,digit_num1-5,9+16+digit_num4,"Enemies Left:",BROWN);
+        sprintf(enemykills,"%d",printenemykills);
+      } else {
+        digit_num3=-16;
+        if (frame_tick<FPS/2)
+          sprintf(enemykills,"GAME OVER");
+        else
+          sprintf(enemykills," ");
+      }
+
+      digit_num2=GR_WIDTH/2-(strlen(enemykills)*8)/2+4;
+      if (printenemykills<=0)
+        digit_num2-=4;
+      GrPrint(hdc,digit_num2-4,8+32+digit_num3+digit_num4,enemykills,YELLOW);
+      GrPrint(hdc,digit_num2-6,8+32+digit_num3+digit_num4,enemykills,YELLOW);
+      GrPrint(hdc,digit_num2-4,10+32+digit_num3+digit_num4,enemykills,YELLOW);
+      GrPrint(hdc,digit_num2-6,10+32+digit_num3+digit_num4,enemykills,YELLOW);
+      GrPrint(hdc,digit_num2-5,9+32+digit_num3+digit_num4,enemykills,BROWN);
   }
 
-  int digit_num2=GR_WIDTH/2-(strlen(enemykills)*8)/2+4;
-  if (printenemykills<=0)
-    digit_num2-=4;
-  GrPrint(hdc,digit_num2-4,8+32+digit_num3+digit_num4,enemykills,YELLOW);
-  GrPrint(hdc,digit_num2-6,8+32+digit_num3+digit_num4,enemykills,YELLOW);
-  GrPrint(hdc,digit_num2-4,10+32+digit_num3+digit_num4,enemykills,YELLOW);
-  GrPrint(hdc,digit_num2-6,10+32+digit_num3+digit_num4,enemykills,YELLOW);
-  GrPrint(hdc,digit_num2-5,9+32+digit_num3+digit_num4,enemykills,BROWN);
+
 
 
 //========================
 
-  if (call_help_timer<5000) {
+  if (call_help_timer<1000/*5000*/) {
     DrawPlayingMusic(hdc,16+4,help_y+48,c,c4);
   }
 
   if (show_fps) {
-    char fpstxt[10];
+    char fpstxt[24];
     sprintf(fpstxt,"FPS: %d / %d",saved_showoff,FPS);
     int FPS_x=GR_WIDTH-strlen(fpstxt)*8-14;
     GrPrint(hdc,FPS_x,10+32,fpstxt,c);
@@ -1207,10 +1253,9 @@ void DrawUI(HDC hdc) {
   int i=0,j=0;
   int c2,c3,ca;
 
-  c2 = Highlight(IsInvertedBackground(),LTRED,LTCYAN);
-  ca = Highlight(IsInvertedBackground(),RED,CYAN);
-//  c3 = Highlight(IsInvertedBackground(),BLACK,CYAN);
-  c3 = Highlight(IsInvertedBackground(),LTGRAY,DKGRAY);
+  c2 = LTRED;//Highlight(IsInvertedBackground(),LTRED,LTCYAN);
+  ca = RED;//Highlight(IsInvertedBackground(),RED,CYAN);
+  c3 = LTGRAY;//Highlight(IsInvertedBackground(),LTGRAY,DKGRAY);
 
   double percentage=player.health/DEFAULT_PLAYER_HEALTH;
   double health_length=64*percentage;
@@ -1220,12 +1265,6 @@ void DrawUI(HDC hdc) {
 
   //Draw Block Health
   if (player.show_block_health_timer>0 || (player.health<=PLAYER_LOW_HEALTH+1)) {
-    //if (bhealth_length>150)
-      //bhealth_length=150;
-    //GrRect(hdc,player.sprite_x-33,player.sprite_y-60,66,12,c4);
-    //GrRect(hdc,player.sprite_x-bhealth_length/2,player.sprite_y-58,bhealth_length,8,c3);
-//    GrRect(hdc,player.sprite_x-33,player.sprite_y-50-3,66,8,c4);
-//    GrRect(hdc,player.sprite_x-32,player.sprite_y-50-2,bhealth_length,6,c3);
     GrRect(hdc,player.sprite_x-76,player.sprite_y-50-3,152,8,c4);
     GrRect(hdc,player.sprite_x-75,player.sprite_y-50-2,bhealth_length,6,c3);
   }
@@ -1250,41 +1289,28 @@ void DrawUI(HDC hdc) {
 
     if (health_length>=150) {
       //print health numbers
-      char txt[16];
       int print_health=player.health;
-      sprintf(txt,"%d",print_health);
-      int sprite_x_health=(int)player.sprite_x-strlen(txt)*8/2;
-      GrPrint(hdc,sprite_x_health,player.sprite_y-48,txt,c);
+      if (is_khmer) {
+        wchar_t txt[16];
+        swprintf(txt,16,L"%d",print_health);
+        int sprite_x_health=(int)player.sprite_x-wcslen(txt)*12/2;
+        GrPrintW(hdc,sprite_x_health,player.sprite_y-48,ReplaceToKhmerNum(txt),"",c,16,FALSE,yes_unifont);
+      } else {
+        char txt[16];
+        sprintf(txt,"%d",print_health);
+        int sprite_x_health=(int)player.sprite_x-strlen(txt)*8/2;
+        GrPrint(hdc,sprite_x_health,player.sprite_y-48,txt,c);
+      }
     }
   }
 
 
 
 
-  //draw player block health
-  /*for (i=0;i<player.block_health;i++) {
-    j=i/10; //new row
-    GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2+4,player.sprite_y+48+8*j,5,BLACK,BLACK);
-  }*/
-
-  //draw player health
-  /*for (i=0;i<player.health;i++) {
-    j=i/10; //new row of hearts
-    if (i<DEFAULT_PLAYER_HEALTH) {
-      GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2+4,player.sprite_y+48+8*j,4,c2,c3);
-    } else {
-      GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2+4,player.sprite_y+50+8*j,3,c,YELLOW);
-    }
-  }*/
-
-  //draw player block health
-  /*for (i=0;i<player.block_health;i++) {
-    j=i/10; //new row
-    GrCircle(hdc,player.sprite_x+8*(i%10)-(10*8)/2+4,player.sprite_y+48+8*j,1,c,c);
-  }*/
-
+  //debug: middle line
   //GrLine(hdc,GR_WIDTH/2,0,GR_WIDTH/2,GR_HEIGHT,BLACK);
-  //===--- Draw player speed ---===
+
+  //===--- Draw player speed ---=== (Over Cursor)
   //hehehehe
   for (i=0;i<player.speed;i++) {
     double speed_angle=i*0.1;
@@ -1294,24 +1320,20 @@ void DrawUI(HDC hdc) {
       int speed_times=speed_angle/angle_limit;
       speed_angle-=angle_limit*speed_times;
       speed_dist=64+8*speed_times;
-      if (!IsInvertedBackground()) {
-        c2=LTCYAN;
-      } else {
-        c2=RED;
-      }      
+      c2 = LTCYAN;//Highlight(IsInvertedBackground(),LTCYAN,RED);
     } else {
-      if (!IsInvertedBackground()) {
+      //if (!IsInvertedBackground()) {
         if (i<5) c2=GREEN;
         else if (i<10) c2=LTGREEN;
         else c2=RED;
-      } else {
+      /*} else {
         if (i<5) c2=DKGRAY;
         else if (i<10) c2=LTPURPLE;
         else c2=LTCYAN;
-      }
+      }*/
     }
     GrCircle(hdc,
-      //player.sprite_x-speed_dist*cos(speed_angle),
+      //player.sprite_x-speed_dist*cos(speed_angle), //player centric
       //player.sprite_y-speed_dist*sin(speed_angle),
       mouse_x-speed_dist*cos(speed_angle),
       mouse_y-speed_dist*sin(speed_angle),
@@ -1322,48 +1344,71 @@ void DrawUI(HDC hdc) {
 
 
 
-  //draw player web left
-  /*for (i=0;i<player.max_web_num-player.placed_web_num;i++) {
-    j=i/10; //new row
-    GrCircle(hdc,player.sprite_x+64+8*j,player.sprite_y+8*(i%10)-(11*8)/2,3,LTCYAN,CYAN);
-  }*/
-  int b_dmg_m=1;
-  if (player.knives_per_throw==1 || player.knives_per_throw>4) {
-    b_dmg_m=3;
-  }
-  int c5;
-  c5=Highlight(IsInvertedBackground(),LTGREEN,LTPURPLE);
-  int c10;
-  c10=Highlight(IsInvertedBackground(),LTRED,LTCYAN);
+  int c5=LTGREEN;//Highlight(IsInvertedBackground(),LTGREEN,LTPURPLE);
+  int c10=LTRED;//Highlight(IsInvertedBackground(),LTRED,LTCYAN);
 
+
+  int player_bullet_remaining=player.max_web_num-player.placed_web_num;
 
   //EXP Bar
   if (player.show_exp_timer>0) {
-    GrRect(hdc,player.sprite_x-50,player.sprite_y+23,100,5,BLACK);
-    //GrRect(hdc,player.sprite_x-50,player.sprite_y+24,20*player.exp,3,c5);
+    GrRect(hdc,player.sprite_x-50,player.sprite_y+23,100,5,c4);
     for (int k=0;k<player.exp;k++) {
       GrRect(hdc,1+player.sprite_x-50+k*20,player.sprite_y+24,18,3,c5);
     }
 
-    char bullettxt[3];
-    sprintf(bullettxt,"%d",player.max_web_num-player.placed_web_num);
-    GrPrint(hdc,player.sprite_x+58,player.sprite_y+16,bullettxt,c);
+    if (is_khmer) {
+      wchar_t wbullettxt[4];
+      swprintf(wbullettxt,4,L"%d",player_bullet_remaining);
+      GrPrintW(hdc,player.sprite_x+58,player.sprite_y+16,ReplaceToKhmerNum(wbullettxt),"",c,16,FALSE,yes_unifont);
+    } else {
+      char bullettxt[4];
+      sprintf(bullettxt,"%d",player_bullet_remaining);
+      GrPrint(hdc,player.sprite_x+58,player.sprite_y+16,bullettxt,c);
+    }
   }
 
 
   //Knives per throw Bar
   int knifethrowsx=mouse_x-32;
   int knifethrowsy=mouse_y+32;
+  int knifethrowstxtx=mouse_x+32;
+  int knifethrowstxty=mouse_y-48;
   GrRect(hdc,knifethrowsx,knifethrowsy+1,48*2,9,c4);
   GrRect(hdc,knifethrowsx,knifethrowsy,player.knives_per_throw*4,10,c10);
+  c2 = LTGREEN;//Highlight(IsInvertedBackground(),LTGREEN,LTPURPLE);
+  int ck=LTCYAN;//Highlight(IsInvertedBackground(),LTCYAN,LTRED);
   for (int k=0;k<PLAYER_BULLET_NUM-player.bullet_shot_num;k++) {
     //GrLine(hdc,player.sprite_x-48+k*4-2,player.sprite_y+32,player.sprite_x-48+k*4+2,player.sprite_y+36,c5);
     //GrLine(hdc,player.sprite_x-48+k*4+2,player.sprite_y+32,player.sprite_x-48+k*4-2,player.sprite_y+36,c5);
     //GrLine(hdc,player.sprite_x-48+k*4-2,player.sprite_y+32,player.sprite_x-24+k*4,player.sprite_y+36,c2);
     //GrCircle(hdc,player.sprite_x-48+k*4,player.sprite_y+34,2,c5,-1);
-    GrRect(hdc,knifethrowsx+k*4,knifethrowsy+2,4,6,c5);
+    int ckpt=Highlight((k<player.knives_per_throw),ck,c2);
+    GrRect(hdc,knifethrowsx+k*4,knifethrowsy+2,4,6,ckpt);
   }
 
+  //Print Bullets Remaining
+  wchar_t bulletlefttxt[7]; //[200]/3
+  int bullet_minus=0;
+  switch (player.knives_per_throw) {
+    case 1:
+    case 3:
+      {swprintf(bulletlefttxt,7,L"%d",player_bullet_remaining);}
+      break;
+    case 5:
+      {swprintf(bulletlefttxt,7,L"%d/1",player_bullet_remaining);bullet_minus=1;}
+      break;
+    case 15:
+      {swprintf(bulletlefttxt,7,L"%d/3",player_bullet_remaining);bullet_minus=3;}
+      break;
+  }
+  //GrPrint(hdc,knifethrowsx-32-8,knifethrowsy-4,bulletlefttxt,c);
+  int bc=Highlight(player_bullet_remaining<bullet_minus,c,LTRED);
+  if (is_khmer) {
+    GrPrintW(hdc,knifethrowstxtx-32-30-8,knifethrowstxty-4,ReplaceToKhmerNum(bulletlefttxt),"",bc,16,FALSE,yes_unifont);
+  } else {
+    GrPrintW(hdc,knifethrowstxtx-32-8,knifethrowstxty-4,bulletlefttxt,"",bc,16,FALSE,FALSE);
+  }
 
     //draw perfect block
     /*if (player.block_timer<=11) {
@@ -1384,166 +1429,22 @@ void DrawUI(HDC hdc) {
   //GrPrint(hdc,knifethrowsx-32,knifethrowsy-16,bulletlefttxt,c);
 
 
-  if (!IsInvertedBackground()) {
-    if (player.speed>10) {
-      if (player.knives_per_throw==1) {
-        b_dmg_m=6;
-      } else {
-        b_dmg_m=2;
-      }
-      c5=LTRED;
-    }
-    if (player.speed>24) {
-      if (player.knives_per_throw==1 || player.knives_per_throw>4) {
-        b_dmg_m=12;
-      } else {
-        b_dmg_m=4;
-      }
-      c5=LTCYAN;
-    }
-  } else {
-    c5=LTPURPLE;
-    if (player.speed>10) {
-      if (player.knives_per_throw==1 || player.knives_per_throw>4) {
-        b_dmg_m=6;
-      } else {
-        b_dmg_m=2;
-      }
-      c5=LTCYAN;
-    }
-    if (player.speed>24) {
-      if (player.knives_per_throw==1 || player.knives_per_throw>4) {
-        b_dmg_m=12;
-      } else {
-        b_dmg_m=4;
-      }
-      c5=RED;
-    }
-  }
 
+  //=== -- Draw Bullet Num -- ==
+  //[%d] bullet num
+  //[%d/%d],bullet num/bullet used per shot [ /1 /3]
 
-  const int right_cursor_len=68;
-
-  char shuriken_dmg_txt[42];
-  int print_shuriken_dmg=player.attack_strength;
-  if (!display_controls)
-    sprintf(shuriken_dmg_txt,"<:-%d>",print_shuriken_dmg);
-  else
-    sprintf(shuriken_dmg_txt,"<:-%d> Melee / Ricochet-Shuriken:-DMG",print_shuriken_dmg);
-
-  //GrPrint(hdc,player.sprite_x+48-1,player.sprite_y-48-1,shuriken_dmg_txt,c2);
-  //GrPrint(hdc,player.sprite_x+48,player.sprite_y-48,shuriken_dmg_txt,c5);
-  GrPrint(hdc,mouse_x+right_cursor_len-1,mouse_y-48-1,shuriken_dmg_txt,c2);
-  GrPrint(hdc,mouse_x+right_cursor_len,mouse_y-48,shuriken_dmg_txt,c5);
-  
-
-  char bullet_num_txt[48];
-  int print_snipe_dmg=4+player.attack_strength*2;
-  if (!display_controls)
-    sprintf(bullet_num_txt,"[%d]:-%d",player.max_web_num-player.placed_web_num,print_snipe_dmg);
-  else
-    sprintf(bullet_num_txt,"[%d]:-%d Web-Slings Remaining:-DMG",player.max_web_num-player.placed_web_num,print_snipe_dmg);
-
-  char bullet_num_txt_[8];
-  sprintf(bullet_num_txt_,"[%d]:",player.max_web_num-player.placed_web_num);
-
-//  GrPrint(hdc,player.sprite_x+48,player.sprite_y-32,bullet_num_txt,c5);
-//  GrPrint(hdc,player.sprite_x+48,player.sprite_y-32,bullet_num_txt_,LTCYAN);
-//  GrPrint(hdc,mouse_x+right_cursor_len,mouse_y-32,bullet_num_txt,c5);
-//  GrPrint(hdc,mouse_x+right_cursor_len,mouse_y-32,bullet_num_txt_,LTCYAN);
-
-
-  int print_bnum_x=knifethrowsx-52;
-  int print_bnum_y=knifethrowsy-20;
-  /*if (mouse_x<GR_WIDTH/2) {
-    print_bnum_x=mouse_x+right_cursor_len;
-    print_bnum_y=mouse_y-32;
-  }*/
-
-  GrPrint(hdc,print_bnum_x,print_bnum_y,bullet_num_txt,c5);
-  GrPrint(hdc,print_bnum_x,print_bnum_y,bullet_num_txt_,LTCYAN);
-
-
-  char bullet_num_txt2[48];
-  char bullet_num_txt2_[8];
-  int print_knum_x=knifethrowsx-64;
-  int print_knum_y=knifethrowsy-4;
-  /*if (mouse_x<GR_WIDTH/2) {
-    print_knum_x=mouse_x+right_cursor_len;
-    print_knum_y=mouse_y-16;
-  }*/
-
-  if (!display_controls)
-    sprintf(bullet_num_txt2,"[%d/%d]:-%d",PLAYER_BULLET_NUM-player.bullet_shot_num,player.knives_per_throw,b_dmg_m);
-  else
-    sprintf(bullet_num_txt2,"[%d/%d]:-%d Web-Kunai/throw:-DMG",PLAYER_BULLET_NUM-player.bullet_shot_num,player.knives_per_throw,b_dmg_m);
-
-  sprintf(bullet_num_txt2_,"[%d/%d]",PLAYER_BULLET_NUM-player.bullet_shot_num,player.knives_per_throw);
-
-  if (player.knives_per_throw<5) {
-    //GrPrint(hdc,player.sprite_x+48,player.sprite_y-16,bullet_num_txt2,c5);
-    //GrPrint(hdc,player.sprite_x+48,player.sprite_y-16,bullet_num_txt2_,c);
-
-    GrPrint(hdc,print_knum_x,print_knum_y,bullet_num_txt2,c5);
-    GrPrint(hdc,print_knum_x,print_knum_y,bullet_num_txt2_,c);
-  } else {
-    /*if (player.knives_per_throw>5)
-      GrPrint(hdc,player.sprite_x+48-1,player.sprite_y-16-1,bullet_num_txt2,CYAN);
-    GrPrint(hdc,player.sprite_x+48,player.sprite_y-16,bullet_num_txt2,c5);
-    GrPrint(hdc,player.sprite_x+48,player.sprite_y-16,bullet_num_txt2_,LTCYAN);*/
-    if (player.knives_per_throw>5)
-      GrPrint(hdc,print_knum_x-1,print_knum_y-1,bullet_num_txt2,CYAN);
-    GrPrint(hdc,print_knum_x,print_knum_y,bullet_num_txt2,c5);
-    GrPrint(hdc,print_knum_x,print_knum_y,bullet_num_txt2_,LTCYAN);
-  }
-
-
-
-  //draw perfect block
-  if (player.block_timer>0) {
-    /*GrPrint(hdc,player.sprite_x+48,player.sprite_y,"*",c);
-    if (player.block_timer<=23) {
-      GrPrint(hdc,player.sprite_x+48,player.sprite_y,"*&",c);
-    }*/
-    GrPrint(hdc,mouse_x+right_cursor_len,mouse_y,"*",c);
-    if (player.block_timer<=23) {
-      GrPrint(hdc,mouse_x+right_cursor_len,mouse_y,"*&",c);
-    }
-  }
-  if (display_controls) {
-    //GrPrint(hdc,player.sprite_x+48,player.sprite_y,   "      *& = Perfect-Block || * = Block",c);
-    //GrPrint(hdc,player.sprite_x+48,player.sprite_y+16,"      Block = ++Speed",c);
-    GrPrint(hdc,mouse_x+right_cursor_len,mouse_y,   "      *& = Perfect-Block || * = Block",c);
-    GrPrint(hdc,mouse_x+right_cursor_len,mouse_y+16,"      Block = ++Speed",c);
-  }
-
-
-  if (player.uppercut) {
-    //GrPrint(hdc,player.sprite_x+48,player.sprite_y+16,"e",c);
-    GrPrint(hdc,mouse_x+right_cursor_len,mouse_y+16,"e",c);
-  }
-
-  if (player.low_jump) {
-    //GrPrint(hdc,player.sprite_x+48,player.sprite_y+32,"3",LTGREEN);
-    GrPrint(hdc,mouse_x+right_cursor_len,mouse_y+32,"3",LTGREEN);
-  }
-
-  //draw perfect block -- too confusing
-  /*if (player.on_ground_id==-1 && player.block_timer>0 && player.block_timer<=23) {
-    GrCircle(hdc,player.sprite_x,player.sprite_y,1,LTCYAN,-1);
-  }*/
 
 
 
 
   //===-- Draw Timebreaker Circle ---===
-  if (!IsInvertedBackground()) {
-    c5 = Highlight(player.time_breaker,PURPLE,LTPURPLE);
-  } else {
-    c5 = Highlight(player.time_breaker,LTRGREEN,LTGREEN);
-  }
+  c5 = //Highlight(IsInvertedBackground(),
+        Highlight(player.time_breaker,PURPLE,LTPURPLE);//,
+        //Highlight(player.time_breaker,LTRGREEN,LTGREEN)
+  //);
 
-  int c6 = Highlight(IsInvertedBackground(),LTPURPLE,LTRLTGREEN);
+  int c6 = LTPURPLE;//Highlight(IsInvertedBackground(),LTPURPLE,LTRLTGREEN);
 
   //draw player time breaker
   const int tb_circle_r=8;
@@ -1552,11 +1453,11 @@ void DrawUI(HDC hdc) {
     /*GrCircle(hdc,
       player.sprite_x-32*cos(tb_angle),
       player.sprite_y-32*sin(tb_angle),
-      2,c5,c5);*/
+      2,c5,c5);*/ //player centric
     GrCircle(hdc,
       mouse_x-tb_circle_r*cos(tb_angle),
       mouse_y-tb_circle_r*sin(tb_angle),
-      2,c5,c5);
+      3,c5,c5);
   }
 
   if (player.time_breaker_units==player.time_breaker_units_max && !player.time_breaker) {
@@ -1566,15 +1467,31 @@ void DrawUI(HDC hdc) {
       /*GrCircle(hdc,
         player.sprite_x-32*cos(tb_angle),
         player.sprite_y-32*sin(tb_angle),
-        3,LTPURPLE,LTPURPLE);*/
+        3,LTPURPLE,LTPURPLE);*/  //player centric
       GrCircle(hdc,
         mouse_x-tb_circle_r*cos(tb_angle),
         mouse_y-tb_circle_r*sin(tb_angle),
-        3,c6,c6);
+        7,c6,c6);
     }
   }
 
 
+  //======= Draw controls are on ========
+  if (player.uppercut)
+    GrPrint(hdc,mouse_x-16,mouse_y+48,"E",LTGREEN);
+
+  if (player.low_jump)
+    GrPrint(hdc,mouse_x-32,mouse_y+48,"3",LTGREEN);
+
+  if (player.block_timer>0) {
+    if (player.block_timer<=23) {
+      GrPrint(hdc,mouse_x+24,mouse_y+48,"{___}",WHITE);
+    }
+    GrPrint(hdc,mouse_x+36,mouse_y+48,"S",LTGREEN);
+  }
+
+
+  //debug
   //if (player.on_ground_id==-1) {
     //GrLine(hdc,player.sprite_x+cos(player.angle_of_incidence)*50,player.sprite_y+sin(player.angle_of_incidence)*50,player.sprite_x+cos(player.angle_of_incidence)*60,player.sprite_y+sin(player.angle_of_incidence)*60,LTGREEN);
     //GrLine(hdc,player.sprite_x+cos(player.angle_of_reflection)*50,player.sprite_y+sin(player.angle_of_reflection)*50,player.sprite_x+cos(player.angle_of_reflection)*60,player.sprite_y+sin(player.angle_of_reflection)*60,YELLOW);
@@ -1599,7 +1516,7 @@ void DrawUI(HDC hdc) {
     GrPrint(hdc,16+5,help_y+1-16,"[SHIFT_ESC] to Quit",c);
     GrPrint(hdc,16+4,help_y+16,"Press '*' for Controls Help",c4);
     GrPrint(hdc,16+5,help_y+17,"Press '*' for Controls Help",c);
-  } else if (call_help_timer<5000) {
+  } else if (call_help_timer<1000/*5000*/) {
     GrPrint(hdc,16+4,help_y+16,"Press '*' for Controls Help",c4);
     GrPrint(hdc,16+5,help_y+17,"Press '*' for Controls Help",c);
   }

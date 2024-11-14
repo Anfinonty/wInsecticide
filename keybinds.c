@@ -163,11 +163,17 @@ void GameKeypressDown(WPARAM wParam)
     switch (wParam) {
     //Holding Down Down Arrow or 'S'
       case 'S':
-        if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = QUIT
-          player.phase_web=TRUE;
+        if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+          if (player.print_current_above && !player.phase_web2) {
+            player.phase_web=TRUE;
+          }
+          if (player.print_current_below && !player.phase_web) {
+            player.phase_web2=TRUE;
+          }
         } else {
           player.rst_down=TRUE;
         }
+        player.rst_up=FALSE;
         break;
 
 
@@ -205,11 +211,17 @@ void GameKeypressDown(WPARAM wParam)
 
     //Holding Down Up Arrow or 'W''
       case 'W':
-        if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = QUIT
-          player.phase_web2=TRUE;
+        if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+          if (player.print_current_below && !player.phase_web) {
+            player.phase_web2=TRUE;
+          }
+          if (player.print_current_above && !player.phase_web2) {
+            player.phase_web=TRUE;
+          }
         } else {
           player.rst_up=TRUE;
         }
+        player.rst_down=FALSE;
         break;
 
       case VK_UP:
@@ -307,6 +319,7 @@ void GameKeypressUp(WPARAM wParam)
       case 'S':
         player.rst_down=FALSE;
         player.phase_web=FALSE;
+        player.phase_web2=FALSE;
         break;
 
       case VK_DOWN:
@@ -334,7 +347,9 @@ void GameKeypressUp(WPARAM wParam)
     //Release W or Up key
       case 'W':
         player.rst_up=FALSE;
+        player.phase_web=FALSE;
         player.phase_web2=FALSE;
+        //player.phase_web2=FALSE;
         break;
 
       case VK_UP:
@@ -359,7 +374,7 @@ void GameKeypressUp(WPARAM wParam)
 
     //Release '2' Key
       case '2':
-        if (player.max_web_num-player.placed_web_num>=3 && player.knives_per_throw==5) {
+        /*if (player.max_web_num-player.placed_web_num>=3 && player.knives_per_throw==5) {
           player.knives_per_throw=13;
         }
         if (player.max_web_num-player.placed_web_num>3) {          
@@ -368,7 +383,26 @@ void GameKeypressUp(WPARAM wParam)
           player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,5+1);
         } else { //limit to 1,3
           player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,3+1);
+        }*/
+        switch (player.knives_per_throw) {
+          case 1:
+            player.play_gun_snd=0;
+            player.knives_per_throw=3;
+            break;
+          case 3:
+            player.play_gun_snd=1;
+            player.knives_per_throw=5;
+            break;
+          case 5:
+            player.play_gun_snd=2;
+            player.knives_per_throw=15;
+            break;
+          case 15:
+            player.play_gun_snd=0;
+            player.knives_per_throw=1;
+            break;
         }
+        PlayerActLoadWeaponSnd();
         break;
 
     //Release '3' Key'
@@ -700,54 +734,42 @@ void OptionKeyPressRelease1()
 {
    main_menu_chosen=-1;
 
-   if (old_player_color!=player_color) {
-     FreeDrawSprite(&draw_mouse_cursor_sprite);
-     DeleteObject(mouse_cursor_sprite_cache);
-     mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
-
-     FreeDrawSprite(&draw_mouse_cursor_sprite2);
-     DeleteObject(mouse_cursor_sprite_cache2);
-     mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
-
-     GenerateDrawSprite(&draw_mouse_cursor_sprite,mouse_cursor_sprite_cache);
-     GenerateDrawSprite(&draw_mouse_cursor_sprite2,mouse_cursor_sprite_cache2);
-
-     old_player_color=player_color;
-   }
+     //LIVE change color of player
+     if (old_player_color!=player_color) { //change when not same
+       for (int i=0;i<16;i++) {
+         FreeDrawSprite(&draw_player_cursor_body[i]);
+         DeleteObject(player_cursor_body[i]);
+         player_cursor_body[i]=RotateSprite(NULL, player_cursor[i],0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
+         GenerateDrawSprite(&draw_player_cursor_body[i],player_cursor_body[i]);
+       }
+       old_player_color=player_color;
+     }
 
 
-   if (old_player_iris_color!=player_iris_color) {
-     FreeDrawSprite(&draw_mouse_cursor_sprite_iris);
-     DeleteObject(mouse_cursor_sprite_iris_cache);
-     mouse_cursor_sprite_iris_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTBLUE,draw_color_arr[player_iris_color]);
+     if (old_player_iris_color!=player_iris_color) {
+       for (int i=0;i<16;i++) {
+         FreeDrawSprite(&draw_player_cursor_iris[i]);
+         DeleteObject(player_cursor_iris[i]);
+         player_cursor_iris[i]=RotateSpriteExclude(NULL, player_cursor[i],0,LTBLUE,draw_color_arr[player_iris_color]);
+         GenerateDrawSprite(&draw_player_cursor_iris[i],player_cursor_iris[i]);
+       }
+       old_player_iris_color=player_iris_color;
+     }
 
-     FreeDrawSprite(&draw_mouse_cursor_sprite_iris2);
-     DeleteObject(mouse_cursor_sprite_iris_cache2);
-     mouse_cursor_sprite_iris_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTBLUE,draw_color_arr[player_iris_color]);
+     if (old_player_pupil_color!=player_pupil_color) {
+       for (int i=0;i<2;i++) {
+         FreeDrawSprite(&draw_player_cursor_pupil[i]);
+         DeleteObject(player_cursor_pupil[i]);
+         if (i==0) {
+           player_cursor_pupil[i]=RotateSpriteExclude(NULL, player_cursor[0],0,LTRED,draw_color_arr[player_pupil_color]);
+         } else {
+           player_cursor_pupil[i]=RotateSpriteExclude(NULL, player_cursor[8],0,LTRED,draw_color_arr[player_pupil_color]);
+         }
+         GenerateDrawSprite(&draw_player_cursor_pupil[i],player_cursor_pupil[i]);
+       }
 
-     GenerateDrawSprite(&draw_mouse_cursor_sprite_iris,mouse_cursor_sprite_iris_cache);
-     GenerateDrawSprite(&draw_mouse_cursor_sprite_iris2,mouse_cursor_sprite_iris_cache2);
-
-     old_player_iris_color=player_iris_color;
-   }
-
-
-
-
-   if (old_player_pupil_color!=player_pupil_color) {
-     FreeDrawSprite(&draw_mouse_cursor_sprite_pupil);
-     DeleteObject(mouse_cursor_sprite_pupil_cache);
-     mouse_cursor_sprite_pupil_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTRED,draw_color_arr[player_pupil_color]);
-
-     FreeDrawSprite(&draw_mouse_cursor_sprite_pupil2);
-     DeleteObject(mouse_cursor_sprite_pupil_cache2);
-     mouse_cursor_sprite_pupil_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTRED,draw_color_arr[player_pupil_color]);
-    
-     GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil,mouse_cursor_sprite_pupil_cache);
-     GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil2,mouse_cursor_sprite_pupil_cache2);
-
-     old_player_pupil_color=player_pupil_color;
-   }
+       old_player_pupil_color=player_pupil_color;
+     }
 
    //adjust volume
    if (old_game_volume!=game_volume) {
@@ -789,49 +811,37 @@ void OptionKeyPressRelease2()
 
      //LIVE change color of player
      if (old_player_color!=player_color) { //change when not same
-
-       FreeDrawSprite(&draw_mouse_cursor_sprite);
-       DeleteObject(mouse_cursor_sprite_cache);
-       mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);   
-
-       FreeDrawSprite(&draw_mouse_cursor_sprite2);
-       DeleteObject(mouse_cursor_sprite_cache2);
-       mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
-
-       GenerateDrawSprite(&draw_mouse_cursor_sprite,mouse_cursor_sprite_cache);
-       GenerateDrawSprite(&draw_mouse_cursor_sprite2,mouse_cursor_sprite_cache2);
-
+       for (int i=0;i<16;i++) {
+         FreeDrawSprite(&draw_player_cursor_body[i]);
+         DeleteObject(player_cursor_body[i]);
+         player_cursor_body[i]=RotateSprite(NULL, player_cursor[i],0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
+         GenerateDrawSprite(&draw_player_cursor_body[i],player_cursor_body[i]);
+       }
        old_player_color=player_color;
      }
 
 
      if (old_player_iris_color!=player_iris_color) {
-       FreeDrawSprite(&draw_mouse_cursor_sprite_iris);
-       DeleteObject(mouse_cursor_sprite_iris_cache);
-       mouse_cursor_sprite_iris_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTBLUE,draw_color_arr[player_iris_color]);
-
-       FreeDrawSprite(&draw_mouse_cursor_sprite_iris2);
-       DeleteObject(mouse_cursor_sprite_iris_cache2);
-       mouse_cursor_sprite_iris_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTBLUE,draw_color_arr[player_iris_color]);
-
-
-       GenerateDrawSprite(&draw_mouse_cursor_sprite_iris,mouse_cursor_sprite_iris_cache);
-       GenerateDrawSprite(&draw_mouse_cursor_sprite_iris2,mouse_cursor_sprite_iris_cache2);
-
+       for (int i=0;i<16;i++) {
+         FreeDrawSprite(&draw_player_cursor_iris[i]);
+         DeleteObject(player_cursor_iris[i]);
+         player_cursor_iris[i]=RotateSpriteExclude(NULL, player_cursor[i],0,LTBLUE,draw_color_arr[player_iris_color]);
+         GenerateDrawSprite(&draw_player_cursor_iris[i],player_cursor_iris[i]);
+       }
        old_player_iris_color=player_iris_color;
      }
 
      if (old_player_pupil_color!=player_pupil_color) {
-       FreeDrawSprite(&draw_mouse_cursor_sprite_pupil);
-       DeleteObject(mouse_cursor_sprite_pupil_cache);
-       mouse_cursor_sprite_pupil_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTRED,draw_color_arr[player_pupil_color]);
-
-       FreeDrawSprite(&draw_mouse_cursor_sprite_pupil2);
-       DeleteObject(mouse_cursor_sprite_pupil_cache2);
-       mouse_cursor_sprite_pupil_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTRED,draw_color_arr[player_pupil_color]);
-
-       GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil,mouse_cursor_sprite_pupil_cache);
-       GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil2,mouse_cursor_sprite_pupil_cache2);
+       for (int i=0;i<2;i++) {
+         FreeDrawSprite(&draw_player_cursor_pupil[i]);
+         DeleteObject(player_cursor_pupil[i]);
+         if (i==0) {
+           player_cursor_pupil[i]=RotateSpriteExclude(NULL, player_cursor[0],0,LTRED,draw_color_arr[player_pupil_color]);
+         } else {
+           player_cursor_pupil[i]=RotateSpriteExclude(NULL, player_cursor[8],0,LTRED,draw_color_arr[player_pupil_color]);
+         }
+         GenerateDrawSprite(&draw_player_cursor_pupil[i],player_cursor_pupil[i]);
+       }
 
        old_player_pupil_color=player_pupil_color;
      }

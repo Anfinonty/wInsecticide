@@ -157,6 +157,7 @@ struct player
  // int rendered_ground_num;
   int play_gun_snd;
   int knives_per_throw;
+  int invalid_shoot_timer;
 
   int block_recharge_timer_max;
   int block_recharge_timer;
@@ -292,6 +293,8 @@ struct player
   double sprite_y;
   double claws_x;
   double claws_y;
+  double claws_attack_x;
+  double claws_attack_y;
   //double cam_edge_move_x;
   //double cam_edge_move_y;
 
@@ -420,7 +423,7 @@ void InitPlayerFlingWeb();
 
 
 void InitPlayer();
-bool IsInvertedBackground();
+//bool IsInvertedBackground();
 bool IsSpeedBreaking();
 bool IsCollideCrawler(double x1,double y1,double x2,double y2,double gradient,double c);
 void Click();
@@ -430,8 +433,8 @@ void InitRDGrid();
 void InitVRDGrid();
 void CameraInit(double x,double y);
 void InitPlayerCamera();
-void PlayerBulletLimitAct();
-bool NearCrawler();
+//void PlayerBulletLimitAct();
+//bool NearCrawler();
 void CleanUpPlayer();
 bool YesInitRDGrid();
 bool YesInitVRDGrid();
@@ -823,24 +826,14 @@ void DrawEnemy(HDC hdc);
 //mouse 
 int mouse_x;
 int mouse_y;
-HBITMAP mouse_cursor_sprite;
-HBITMAP mouse_cursor_sprite_cache;
-HBITMAP mouse_cursor_sprite_iris_cache;
-HBITMAP mouse_cursor_sprite_pupil_cache;
+HBITMAP player_cursor[16]; //4 left and 4 right, open or closed, loaded
+HBITMAP player_cursor_body[16];
+HBITMAP player_cursor_iris[16];
+HBITMAP player_cursor_pupil[2];// 1 left  open or closed
 
-HBITMAP mouse_cursor_sprite2;
-HBITMAP mouse_cursor_sprite_cache2;
-HBITMAP mouse_cursor_sprite_iris_cache2;
-HBITMAP mouse_cursor_sprite_pupil_cache2;
-
-
-DRAWSPRITE draw_mouse_cursor_sprite;
-DRAWSPRITE draw_mouse_cursor_sprite_iris;
-DRAWSPRITE draw_mouse_cursor_sprite_pupil;
-
-DRAWSPRITE draw_mouse_cursor_sprite2;
-DRAWSPRITE draw_mouse_cursor_sprite_iris2;
-DRAWSPRITE draw_mouse_cursor_sprite_pupil2;
+DRAWSPRITE draw_player_cursor_body[16];
+DRAWSPRITE draw_player_cursor_iris[16];
+DRAWSPRITE draw_player_cursor_pupil[2];
 
 
 
@@ -890,11 +883,16 @@ HBITMAP mm2_kh_white[7];
 HBITMAP mm0_kh_hijri[2];
 HBITMAP mm0_kh_hijri_mask[2];
 
+
+//Khmer ingame
+HBITMAP ga0_kh[5];
+HBITMAP ga0_kh_mask[5];
+
 //Sound
 //Sound called in the Stack
 #define SPAM_SFX_NUM    9
 #define KEY_SFX_NUM     6
-#define CHANNEL_SFX_NUM 9
+#define CHANNEL_SFX_NUM 13
 
 wavSoundEffect spamSoundEffect[SPAM_SFX_NUM];
 wavSoundEffect keySoundEffect[KEY_SFX_NUM];

@@ -81,7 +81,7 @@ bool clean_up_sound=FALSE;
 bool run_after_once=FALSE;
 
 //game options
-bool yes_unifont=FALSE;
+bool yes_unifont=TRUE;//FALSE;
 bool game_cam_shake=TRUE;
 bool game_audio=TRUE;
 
@@ -140,9 +140,9 @@ wchar_t src_music_dir[64];
 
 
 int enemy_kills=0;
-//int FPS = 60;
 int int_best_score=0; //to store to write
 int frame_tick=-10;
+//int FPS = 60;
 int FPS = 35; //minimum FPS, otherwise run according to screen refresh rate
 
 
@@ -175,12 +175,6 @@ double double_best_score=0;
 double time_begin=0;
 double game_volume=1.0;
 double old_game_volume=1.0;
-
-
-bool shadows=FALSE;
-bool raining=FALSE;
-int rain_duration=0;
-double rain_grad_rise=1,rain_grad_run=1;
 
 
 
@@ -286,6 +280,7 @@ bool is_khmer=TRUE;
 #include "enemy.c"
 
 #include "song.c"
+#include "draw_it.c"
 #include "draw_gui.c"
 
 #include "load_level.c"
@@ -397,7 +392,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
         for (int i=0;i<ENEMY_NUM;i++) {
           EnemyAct(i);
         }
-        if (raining) {
+        if (is_raining) {
           RainAct();
           if (!player.time_breaker) {
             ScreenRainDropAct();
@@ -790,7 +785,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DrawPlayer(hdcBackbuff);
 
 
-            if (shadows) {
+            if (is_shadows) {
               DrawShadows(hdcBackbuff);
             }
 
@@ -799,13 +794,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DrawCursor(hdcBackbuff);
             //DrawGrids(hdcBackbuff); //debugging
             DrawWaterShader(hdcBackbuff);           
-            if (raining) {
+            if (is_raining) {
               DrawRain(hdcBackbuff);
               DrawRainShader2(hdcBackbuff);
             }
 
 
-            int c=Highlight(IsInvertedBackground(),BLACK,WHITE);
+            int c=BLACK;//Highlight(IsInvertedBackground(),BLACK,WHITE);
             if (IsSpeedBreaking()) {
               GrRect(hdcBackbuff,0,0,GR_WIDTH+4,32,c);
               if (hide_taskbar) {
@@ -821,11 +816,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             //DrawNodeGrids(hdcBackbuff);
             //DrawTBitmap(hdcBackbuff,&draw_moon_sprite,GR_WIDTH/2,GR_HEIGHT/2,50);
 
-            if (!IsInvertedBackground()){ //Inverted palette level
+            //if (!IsInvertedBackground()){ //Inverted palette level
               BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
-            } else { //non inverted palette level
-              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
-            }
+            //} else { //non inverted palette level
+              //BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
+            //}
 
             
             DeleteDC(hdcBackbuff);
@@ -858,11 +853,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             player.seed=rand();
 
-            if (!IsInvertedBackground()){ //Inverted palette level
+            //if (!IsInvertedBackground()){ //Inverted palette level
               BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
-            } else { //non inverted palette level
-              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
-            }
+            //} else { //non inverted palette level
+              //BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
+            //}
             DeleteDC(hdcBackbuff);
             DeleteObject(screen);
 
@@ -880,6 +875,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           SelectObject(hdcBackbuff,screen);
       
           DrawMainMenu(hdcBackbuff);
+          //DrawPaletteSquare(hdcBackbuff,100,100);
           DrawCursor(hdcBackbuff);
 
           BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
@@ -989,7 +985,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       remove("music/tmp/tmp.wav");
       rmdir("music/tmp"); //remove tmp
 
-      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៦៣ ដល់ ១៩៩៧ កម្ពុជាក្រោមព្រៃនគរពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1963-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1446-04-16"), TEXT("អ្នករាបចង្រៃ") ,MB_OK);
+      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៥៩, ១៩៦៣ ដល់ ១៩៩៧ កម្ពុជាក្រោមពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1959, 1963-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1446-05-12"), TEXT("អ្នកសម្លាប់សត្វចង្រៃ") ,MB_OK);
 //TEXT("អាពីងស៊ីរុយ") ,MB_OK); //ឈ្មោះចាស់
 
       //load levels in save
@@ -1115,30 +1111,26 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
       //Load mouse cursor sprite
-      mouse_cursor_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/player_cursor2_1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      mouse_cursor_sprite2 = (HBITMAP) LoadImageW(NULL, L"sprites/player_cursor2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      //player cursor
+      for (int i=0;i<16;i++) { //open: 0,,3; 4..7;   closed:  8..11; 12..15
+        wchar_t fname[32];
+        swprintf(fname,32,L"sprites/player_cursor%d.bmp",i);
+        player_cursor[i]=(HBITMAP) LoadImageW(NULL, fname, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);;
+        player_cursor_body[i]=RotateSprite(NULL, player_cursor[i],0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
+        player_cursor_iris[i]=RotateSpriteExclude(NULL, player_cursor[i],0,LTBLUE,RED);
+        GenerateDrawSprite(&draw_player_cursor_body[i],player_cursor_body[i]);
+        GenerateDrawSprite(&draw_player_cursor_iris[i],player_cursor_iris[i]);
 
-      mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
-      mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
-
-      mouse_cursor_sprite_iris_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTBLUE,RED);
-      mouse_cursor_sprite_iris_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTBLUE,RED);
-
-      mouse_cursor_sprite_pupil_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTRED,LTRED);
-      mouse_cursor_sprite_pupil_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTRED,LTRED);
-
-
-      GenerateDrawSprite(&draw_mouse_cursor_sprite,mouse_cursor_sprite_cache);
-      GenerateDrawSprite(&draw_mouse_cursor_sprite_iris,mouse_cursor_sprite_iris_cache);
-      GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil,mouse_cursor_sprite_pupil_cache);
-
-      GenerateDrawSprite(&draw_mouse_cursor_sprite2,mouse_cursor_sprite_cache2);
-      GenerateDrawSprite(&draw_mouse_cursor_sprite_iris2,mouse_cursor_sprite_iris_cache2);
-      GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil2,mouse_cursor_sprite_pupil_cache2);
-
-
-      
-
+        if (i==0 || i==8) {
+          if (i==8) {
+            player_cursor_pupil[1]=RotateSpriteExclude(NULL, player_cursor[8],0,LTRED,LTRED);
+            GenerateDrawSprite(&draw_player_cursor_pupil[1],player_cursor_pupil[1]);
+          } else {
+            player_cursor_pupil[0]=RotateSpriteExclude(NULL, player_cursor[0],0,LTRED,LTRED);
+            GenerateDrawSprite(&draw_player_cursor_pupil[0],player_cursor_pupil[0]);
+          }
+        }
+      }
 
 
       //Load moon sprite based on lunar day
@@ -1169,7 +1161,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
       title_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/title.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      title_small_sprite = CopyStretchBitmap(title_sprite,SRCCOPY,356*3/5,256*3/5);
+      title_small_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/title_small.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);//CopyStretchBitmap(title_sprite,SRCCOPY,356*3/5,256*3/5);
       title_sprite_mask=CreateBitmapMask(title_sprite,LTGREEN,NULL);
       title_small_sprite_mask=CreateBitmapMask(title_small_sprite,LTGREEN,NULL);
 
@@ -1202,6 +1194,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         mm2_kh_mask[i]= CreateBitmapMask(mm2_kh[i],LTGREEN,NULL);
       }
 
+
+
+      for (int i=0;i<5;i++) { //options
+        wchar_t ga0khtxt[32];
+        swprintf(ga0khtxt,32,L"sprites/khmai/kmaigametxt%d.bmp",i);
+        ga0_kh[i]=(HBITMAP) LoadImageW(NULL, ga0khtxt, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        ga0_kh_mask[i]= CreateBitmapMask(ga0_kh[i],/*LTBLUE*/BLACK,NULL);
+      }
 
 
       //fullscreen
@@ -1247,8 +1247,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
        loadSoundEffect(&channelSoundEffect[5],L"snd/shotgun.wav",TRUE);
        loadSoundEffect(&channelSoundEffect[6],L"snd/sniper.wav",TRUE);
        loadSoundEffect(&channelSoundEffect[7],L"snd/shtgnreload.wav",TRUE);
-//       loadSoundEffect(&channelSoundEffect[8],L"snd/pistol.wav",TRUE);
        loadSoundEffect(&channelSoundEffect[8],L"snd/pistol.wav",TRUE);
+       loadSoundEffect(&channelSoundEffect[9],L"snd/load_knife.wav",TRUE);
+       loadSoundEffect(&channelSoundEffect[10],L"snd/load_3_knife.wav",TRUE);
+       loadSoundEffect(&channelSoundEffect[11],L"snd/load_pistol.wav",TRUE);
+       loadSoundEffect(&channelSoundEffect[12],L"snd/shotgun_empty.wav",TRUE);
 
        //for wav sound effects
        /*wfx_wav_sfx1.wFormatTag = WAVE_FORMAT_PCM;
@@ -1354,7 +1357,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   }
   HWND hwnd = CreateWindowW(wc.lpszClassName,
 //                L"អាពីងស៊ីរុយ - wInsecticide",
-                L"អ្នករាបចង្រៃ - wInsecticide",
+//                L"អ្នករាបចង្រៃ - wInsecticide",
+
+                L"អ្នកសម្លាប់សត្វចង្រៃ - wInsecticide",
                 WS_POPUP | WS_BORDER | WS_OVERLAPPEDWINDOW | WS_VISIBLE | CW_USEDEFAULT| CW_USEDEFAULT /*| WS_MINIMIZE*/,
                 SCREEN_WIDTH/2-small_screen_x/2,
                 SCREEN_HEIGHT/2-small_screen_y/2,

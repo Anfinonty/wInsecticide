@@ -394,7 +394,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
             player.block_health+=3;
             if (player.block_health>player.block_health_max) {
               player.block_health=player.block_health_max;
-              player.health+=0.5;
+              player.health+=0.2;
             }
             player.exp++;
 
@@ -749,7 +749,7 @@ void RainBulletAct(int bullet_id)
   hit_player=HitPlayer(bullet_id,22,22);
   if (hit_player) { //hit player
     if (player.rain_wet_timer==0) {
-      rain_duration=0;
+      rain_sound_duration=0;
     }
     player.rain_wet_timer=260;//60;
     //BulletDamagePlayerAct(bullet_id);
@@ -759,7 +759,7 @@ void RainBulletAct(int bullet_id)
     if (Bullet[bullet_id].sprite_x>0 && Bullet[bullet_id].sprite_y<GR_WIDTH) {
       if (Bullet[bullet_id].sprite_y>0 && Bullet[bullet_id].sprite_y<GR_HEIGHT) {
         if (player.visible_rain_wet_timer==0) {
-          rain_duration=0;
+          rain_sound_duration=0;
         }
           player.visible_rain_wet_timer=160;
       }
@@ -815,7 +815,7 @@ void BulletAct(int bullet_id)
           } else { //web too long, retract
             StopBullet(player.bullet_shot,TRUE); //Stop the web
             PlayerPlaceWeb(); //Web related
-            PlayerBulletLimitAct();
+            //PlayerBulletLimitAct();
             player.web_being_shot=-1;
             player.bullet_shot=-1;
           }
@@ -839,7 +839,7 @@ void BulletAct(int bullet_id)
             player.bullet[player.bullet_shot_num-1]=-1; //remove bullet from arr
             player.bullet_shot_num--;        
 
-            if (PLAYER_BULLET_NUM-player.bullet_shot_num==15 && player.knives_per_throw>=15 && game_audio) {
+            if (PLAYER_BULLET_NUM-player.bullet_shot_num==15 && player.knives_per_throw>=15 && game_audio) { //reload
               PlayMemSnd(&channelSoundEffect[7],&channelSoundEffectCache[7],TRUE,5); 
             }
 
@@ -902,7 +902,7 @@ void BulletAct(int bullet_id)
             }
 
 
-            int c=Highlight(IsInvertedBackground(),BLUE,YELLOW);
+            int c=BLUE;//Highlight(IsInvertedBackground(),BLUE,YELLOW);
 
             if (allow_spawn) {
               ShootBullet(
@@ -1023,9 +1023,11 @@ void DrawBullet2(HDC hdc,int i,double x,double y,int color)
       break;
     case 3:
     case 6: //no fill glitery buullet
+      GrCircle(hdc,x,y,1,color,-1);
       GrCircle(hdc,x,y,RandNum(0,3,frame_tick*player.seed),color,-1);
       break;
     case 4: //fill glitery bullet
+      GrCircle(hdc,x,y,1,color,color);
       GrCircle(hdc,x,y,RandNum(0,3,frame_tick*player.seed),color,color);
       break;
     case 5: //long bullet 0
@@ -1052,8 +1054,8 @@ void DrawBullet2(HDC hdc,int i,double x,double y,int color)
       {
         //GrCircle(hdc,x,y,Bullet[i]->size,color,color);
         GrCircle(hdc,x,y,2,color,color);
-        c=Highlight(IsInvertedBackground(),WHITE,BLACK);
-        GrCircle(hdc,x,y,RandNum(0,3,frame_tick*player.seed),WHITE,-1);
+        c=WHITE;//Highlight(IsInvertedBackground(),WHITE,BLACK);
+        GrCircle(hdc,x,y,RandNum(1,5,frame_tick*player.seed),c,-1);
       }
       break;
   }

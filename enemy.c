@@ -108,7 +108,7 @@ void InitEnemyPathfinding(int enemy_id,double target_x,double target_y)
           Enemy[enemy_id]->node_solid[i]=NodeGrid[node_id]->node_solid;
         }*/
 
-        if (Enemy[enemy_id]->target_player || Enemy[enemy_id]->on_ground_id==-1 || Enemy[enemy_id]->is_in_ground_edge) {
+        if (Enemy[enemy_id]->target_player || Enemy[enemy_id]->on_ground_id==-1 /*|| Enemy[enemy_id]->is_in_ground_edge*/) {
           Enemy[enemy_id]->node_solid[i]=NodeGrid[node_id]->node_solid;
         } else {
           Enemy[enemy_id]->node_solid[i]=!NodeGrid[node_id]->node_solid;
@@ -339,16 +339,17 @@ void EnemyReboundFromGround(int enemy_id,int ground_id,bool is_rebound)
     }*/
 
     //if (Enemy[enemy_id]->species==1) {
-      if (edge_1_dist<=31 || edge_2_dist<=31) {
+      //if (edge_1_dist<=31 || edge_2_dist<=31) {
+      if (edge_1_dist<=41 || edge_2_dist<=41) {
         //Enemy[enemy_id]->above_ground=
         //Enemy[enemy_id]->below_ground=FALSE;
         if (Enemy[enemy_id]->species==1) {
           Enemy[enemy_id]->in_air_timer=2;
         }
         Enemy[enemy_id]->is_in_ground_edge=TRUE;
-      } else {
+      } /*else {
         Enemy[enemy_id]->is_in_ground_edge=FALSE;
-      }
+      }*/
     //}
 
 
@@ -383,9 +384,21 @@ void EnemySpecies1Gravity(int enemy_id)
 {
 //  Enemy[enemy_id]->on_ground_id=GetOnGroundIdE(Enemy[enemy_id]->x,Enemy[enemy_id]->y,30,29,enemy_id);    //Get Ground id //clipping issue
   int tmp_=GetOnGroundId(Enemy[enemy_id]->x,Enemy[enemy_id]->y+2,30,29);
+  int node_grid_id1=GetGridId(Enemy[enemy_id]->x,Enemy[enemy_id]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
+  int node_grid_id2=GetGridId(Enemy[enemy_id]->x,Enemy[enemy_id]->y+NODE_SIZE,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
+  bool is_in_solid1=FALSE;//=NodeGrid[node_grid_id1]->node_solid;
+  bool is_in_solid2=FALSE;//=NodeGrid[node_grid_id2]->node_solid;
+  if (node_grid_id1!=-1) {
+    is_in_solid1=NodeGrid[node_grid_id1]->node_solid;
+  }
+  if (node_grid_id2!=-1) {
+    is_in_solid2=NodeGrid[node_grid_id2]->node_solid;
+  }
   if (Enemy[enemy_id]->on_ground_id==-1 && tmp_==-1) {//not on ground
-    EnemySpecies1SpriteTimer(enemy_id);
-    Enemy[enemy_id]->y+=1; //falling down
+    //EnemySpecies1SpriteTimer(enemy_id);
+    if (!is_in_solid1 && !is_in_solid2) {
+      Enemy[enemy_id]->y+=1; //falling down
+    }
     Enemy[enemy_id]->in_air_timer=2;
     Enemy[enemy_id]->above_ground=FALSE;
     Enemy[enemy_id]->below_ground=FALSE;
@@ -611,6 +624,7 @@ void EnemyLOSAct(int i)
 void EnemyKnockbackMove(int i)
 {
   bool allow_act=FALSE;
+  bool allow_act2=FALSE;
   int tmp_=-1;
   switch (Enemy[i]->species) {
     case 0:
@@ -625,18 +639,22 @@ void EnemyKnockbackMove(int i)
 	    allow_act=TRUE;
       }
       break;
-  }/*
+  }
   int tmp_node_id=GetGridId(Enemy[i]->x,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM); //all nodes
   if (tmp_node_id!=-1) {
     if (NodeGrid[tmp_node_id]->node_solid)
-      allow_act=TRUE;
-  }*/
+      allow_act2=TRUE;
+  }
 // ^^ condition
   if (allow_act || IsOutOfBounds(Enemy[i]->x,Enemy[i]->y,5,MAP_WIDTH,MAP_HEIGHT)) {
-    if (allow_act) {
-      EnemyReboundFromGround(i,tmp_,TRUE);
-    } else {
+    if (allow_act2) {
       Enemy[i]->knockback_timer=0;
+    } else {
+      if (allow_act) {
+        EnemyReboundFromGround(i,tmp_,TRUE);
+      } else {
+        Enemy[i]->knockback_timer=0;
+      }
     }
   } else {
     Enemy[i]->on_ground_id=-1;
@@ -823,7 +841,7 @@ void EnemyAct(int i)
     
    //Enemy knockback & attacked
     allow_act=FALSE;
-    double distance_from_player_claws=GetDistance(Enemy[i]->x,Enemy[i]->y,player.claws_x,player.claws_y);
+    double distance_from_player_claws=GetDistance(Enemy[i]->x,Enemy[i]->y,player.claws_attack_x,player.claws_attack_y);
     switch (Enemy[i]->species) {
       case 0://fly
 	    if (!(Enemy[i]->time_breaker_length>0)) {
@@ -893,9 +911,21 @@ void EnemyAct(int i)
       deduct_health=TRUE;
       Enemy[i]->player_knockback=TRUE;
       Enemy[i]->knockback_timer=player.knockback_strength;
-      if (!player.uppercut && !player.rst_up && !player.rst_down) {//normal
-        Enemy[i]->knockback_angle=player.angle;
-      } else if (player.uppercut) {//uppercut
+      if (!player.uppercut /*&& !player.rst_up && !player.rst_down*/) {//normal
+        if (player.on_ground_id==-1) {
+          Enemy[i]->knockback_angle=0;//player.angle;
+        } else {
+          Enemy[i]->knockback_angle=player.angle;
+        }
+
+        if (player.rst_down) {
+          if (!player.last_left) {//drag enemy to player
+            Enemy[i]->knockback_angle+=M_PI_2;
+          } else {
+            Enemy[i]->knockback_angle+=-M_PI_2;
+          }
+        }
+      } else /*if (player.uppercut)*/ {//uppercut
         if (player.print_current_above) {
           if (!player.last_left) {
             Enemy[i]->knockback_angle=player.jump_angle+M_PI;//player.angle-M_PI/2;
@@ -909,21 +939,23 @@ void EnemyAct(int i)
             Enemy[i]->knockback_angle=-player.jump_angle-M_PI_2;//player.angle-M_PI/2;
           }
         }
-      } else { //drag enemy down
-        if (!player.last_left) {//drag enemy to player
-          Enemy[i]->knockback_angle=player.angle+M_PI_2;
-        } else {
-          Enemy[i]->knockback_angle=player.angle-M_PI_2;
-        }
       }
 
-      if (player.print_current_above) {
+      if (player.on_ground_id==-1) {
         if (player.last_left) {
           Enemy[i]->knockback_left=TRUE;
+        } else {
+          Enemy[i]->knockback_left=FALSE;
         }
-      } else if (player.print_current_below) {
-        if (!player.last_left) {
-          Enemy[i]->knockback_left=TRUE;
+      } else {
+        if (player.print_current_above) {
+          if (player.last_left) {
+            Enemy[i]->knockback_left=TRUE;
+          }
+        } else if (player.print_current_below) {
+          if (!player.last_left) {
+            Enemy[i]->knockback_left=TRUE;
+          }
         }
       }
     }
@@ -964,8 +996,6 @@ void EnemyAct(int i)
       Enemy[i]->health-=player.attack_strength;
       if (game_audio) {
         PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
-        //PlaySound(clang_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
-        //PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);
       }
     }
 
@@ -1036,7 +1066,7 @@ void EnemyAct(int i)
       }
 
       if (Enemy[i]->species==1) {
-        if (Enemy[i]->knockback_timer>0 || Enemy[i]->being_drawn || Enemy[i]->is_in_ground_edge || (!Enemy[i]->above_ground && !Enemy[i]->below_ground)) {
+        if (Enemy[i]->knockback_timer>0 || Enemy[i]->being_drawn || (!Enemy[i]->above_ground && !Enemy[i]->below_ground)) {
           EnemySpecies1SpriteTimer(i);
         }
       }
@@ -1090,7 +1120,7 @@ void EnemyAct(int i)
                 Enemy[i]->follow_range*NODE_SIZE,
                 NODE_SIZE,Enemy[i]->node_num);*/
 
-        int enemy_on_node_grid_id=GetGridId(Enemy[i]->x,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
+        //int enemy_on_node_grid_id=GetGridId(Enemy[i]->x,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
 
         //Raining
         /*if (raining && !Enemy[i]->move_to_target) {
@@ -1105,9 +1135,9 @@ void EnemyAct(int i)
             }
           }
         }*/
-        if (Enemy[i]->is_in_ground_edge) {
+        /*if (Enemy[i]->is_in_ground_edge) {
           force_search=TRUE;
-        }
+        }*/
 
         if (Enemy[i]->force_search) {
           force_search=TRUE;
@@ -1243,13 +1273,13 @@ void EnemyAct(int i)
         EnemyMove(i);
       }
       if (!Enemy[i]->ignore_player && Enemy[i]->saw_player) { //chasing player
-        if (Enemy[i]->species==0 &&
+        /*if (Enemy[i]->species==0 /*&&
             NodeGrid[GetGridId(Enemy[i]->x,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM)]->node_solid)
         {   //become blind when inside a solid
           Enemy[i]->saw_player=FALSE;
           Enemy[i]->idling=TRUE;
           Enemy[i]->move_to_target=FALSE;
-        }
+        }*/
         if (!Enemy[i]->idling) {
           if (player.x<Enemy[i]->x) {
             Enemy[i]->player_at_left=TRUE;
@@ -1364,6 +1394,11 @@ void CleanUpEnemySprites()
       DeleteObject(EnemySprite[i]->sprite_3);
       EnemySprite[i]->sprite_3=NULL;
     }
+    if (EnemySprite[i]->sprite_4!=NULL) {
+      DeleteObject(EnemySprite[i]->sprite_4);
+      EnemySprite[i]->sprite_4=NULL;
+    }
+
     FreeDrawSprite(&EnemySprite[i]->draw_sprite_1);
     FreeDrawSprite(&EnemySprite[i]->draw_sprite_2);
     FreeDrawSprite(&EnemySprite[i]->draw_sprite_3);
@@ -1649,7 +1684,7 @@ void DrawEnemy(HDC hdc)
 
       } else { //other species 0
         if (Enemy[i]->saved_angle==-9999) {
-          if (EnemySprite[i]->sprite_1!=NULL) {
+          /*if (EnemySprite[i]->sprite_1!=NULL) {
             DeleteObject(EnemySprite[i]->sprite_1);
             FreeDrawSprite(&EnemySprite[i]->draw_sprite_1);
           }
@@ -1661,7 +1696,7 @@ void DrawEnemy(HDC hdc)
           EnemySprite[i]->sprite_1=RotateSprite(hdc, enemy1_sprite_1,Enemy[i]->sprite_angle,LTGREEN,BLACK,Enemy[i]->color,-1);
           EnemySprite[i]->sprite_2=RotateSprite(hdc, enemy1_sprite_2,Enemy[i]->sprite_angle,LTGREEN,BLACK,Enemy[i]->color,-1);
           GenerateDrawSprite(&EnemySprite[i]->draw_sprite_1,EnemySprite[i]->sprite_1);
-          GenerateDrawSprite(&EnemySprite[i]->draw_sprite_2,EnemySprite[i]->sprite_2);
+          GenerateDrawSprite(&EnemySprite[i]->draw_sprite_2,EnemySprite[i]->sprite_2);*/
           Enemy[i]->saved_angle=0;
         }
       }
@@ -1671,14 +1706,6 @@ void DrawEnemy(HDC hdc)
       //Add to enemy kill count and buff player stats
       if (Enemy[i]->health>-500) {
         enemy_kills++;
-        /*player.health+=2;
-        player.block_health+=10;
-        if (player.block_health>player.block_health_max) {
-          player.block_health=player.block_health_max;
-          player.health+=2;
-        }
-        player.show_health_timer=HP_SHOW_TIMER_NUM;
-        player.show_block_health_timer=HP_SHOW_TIMER_NUM;*/
         //Add to player stats after defeat
         if (!IsSpeedBreaking()) {
           if (player.time_breaker_units<player.time_breaker_units_max-2 && !player.time_breaker) {
@@ -1706,8 +1733,8 @@ void DrawEnemy(HDC hdc)
     if (/*Enemy[i]->saw_player &&*/ Enemy[i]->within_render_distance) {
       if (Enemy[i]->health>0 && Enemy[i]->damage_taken_timer>0) {
         //percentage 
-        c = Highlight(IsInvertedBackground(),LTRED,LTCYAN);
-        c2 = Highlight(IsInvertedBackground(),WHITE,BLACK);
+        c = LTRED;//Highlight(IsInvertedBackground(),LTRED,LTCYAN);
+        c2 = WHITE;//Highlight(IsInvertedBackground(),WHITE,BLACK);
         double percentage = Enemy[i]->health/Enemy[i]->max_health;
         double health_length_max=64;
         if (Enemy[i]->species==1) {
@@ -1737,8 +1764,30 @@ void DrawEnemy(HDC hdc)
 
 
         if (health_length>32) {
-          char txt[16];
           int print_health=Enemy[i]->health;
+          if (is_khmer) {
+              wchar_t wtxt[16];
+              if (print_health>1) {
+                swprintf(wtxt,16,L"%d",print_health);        
+              } else {
+                swprintf(wtxt,16,L"1");
+              }
+              int sprite_x_health=(int)Enemy[i]->sprite_x-wcslen(wtxt)*12/2-3;
+              if (Enemy[i]->species==1) {
+                if (!player.time_breaker || Enemy[i]->time_breaker_immune) {
+                  GrPrintW(hdc,sprite_x_health,Enemy[i]->sprite_y-64,ReplaceToKhmerNum(wtxt),"",c2,16,FALSE,yes_unifont);
+                } else {
+                  GrPrintW(hdc,sprite_x_health,Enemy[i]->sprite_y-64,ReplaceToKhmerNum(wtxt),"",LTGRAY,16,FALSE,yes_unifont);
+                }
+              } else {
+                if (!player.time_breaker || Enemy[i]->time_breaker_immune) {
+                  GrPrintW(hdc,sprite_x_health,Enemy[i]->sprite_y-32,ReplaceToKhmerNum(wtxt),"",c2,16,FALSE,yes_unifont);
+                } else {
+                  GrPrintW(hdc,sprite_x_health,Enemy[i]->sprite_y-32,ReplaceToKhmerNum(wtxt),"",LTGRAY,16,FALSE,yes_unifont);
+                }
+              }
+          } else {
+          char txt[16];
           if (print_health>1) {
             sprintf(txt,"%d",print_health);        
           } else {
@@ -1757,6 +1806,7 @@ void DrawEnemy(HDC hdc)
             } else {
               GrPrint(hdc,sprite_x_health,Enemy[i]->sprite_y-32,txt,LTGRAY);
             }
+          }
           }
         }
       }

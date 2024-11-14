@@ -116,7 +116,14 @@ double saved_player_y;
 int map_background;
 int custom_map_background_color;
 int custom_map_background_color_i;
-bool is_inverted;
+bool is_moon;
+
+bool is_shadows=FALSE;
+bool is_raining=FALSE;
+int rain_sound_duration=0;
+double rain_grad_rise=1;
+double rain_grad_run=1;
+
 
 int level_num=0;
 wchar_t level_names[2000][256];
@@ -292,7 +299,18 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
             custom_map_background_color=color_arr[int_saved_val];
             break;
           case 44:
-            is_inverted=(bool)int_saved_val;
+            is_moon=(bool)int_saved_val;
+            break;
+          case 45: //is_raining
+            break;
+
+          case 46: //rain rise, rain run
+            break;
+
+          case 47: //is_shadow
+            break;
+
+          case 48: //shadow rise, shadow run
             break;
         }
         column=int_val=int_saved_val=0;//restart values
@@ -340,8 +358,8 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
             } else { //17
             //enemy type
               switch (row) {
-                case 17: saved_enemy_type_speed[column]=double_saved_val;break;    //NOTE: can be in decimals (0,0.1,0.2...1), subject to change
-                case 18: saved_enemy_type_bullet_speed[column]=double_saved_val;break; //NOTE: can be in decimals 0,0.1,0.2...1), subject to change
+                case 17: saved_enemy_type_speed[column]=double_saved_val;break;    //NOTE: can be in decimals 
+                case 18: saved_enemy_type_bullet_speed[column]=double_saved_val;break; //NOTE: can be in decimals 
                 case 19: saved_enemy_type_species[column]=int_saved_val;break;
                 case 20: saved_enemy_type_follow_range[column]=int_saved_val;break;
                 case 21: saved_enemy_type_unchase_range[column]=int_saved_val;break;

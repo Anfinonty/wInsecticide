@@ -1,5 +1,5 @@
 
-bool IsInvertedBackground()
+/*bool IsInvertedBackground()
 {
   if (map_background==1) {
     return TRUE;
@@ -7,7 +7,7 @@ bool IsInvertedBackground()
     return TRUE;
   }
   return FALSE;
-}
+}*/
 
 
 
@@ -144,6 +144,115 @@ void PlayerPlaceWeb()
 void CleanUpPlayer()
 {
   player.speed=DEFAULT_PLAYER_SPEED;
+/*  DeleteObject(player.sprite_1);
+  DeleteObject(player.sprite_2);
+  DeleteObject(player.sprite_jump);
+
+  DeleteObject(player.attack_sprite_1);
+  DeleteObject(player.attack_sprite_2);
+  DeleteObject(player.attack_sprite_3);
+  DeleteObject(player.attack_sprite_4);
+
+  DeleteObject(player.block_sprite_1);
+  DeleteObject(player.block_sprite_2);
+  DeleteObject(player.block_sprite_3);
+
+  DeleteObject(player.spin_sprite);
+
+
+
+
+  DeleteObject(player.sprite_jump_cache);
+  DeleteObject(player.sprite_1_cache);
+  DeleteObject(player.sprite_2_cache);
+
+  DeleteObject(player.attack_sprite_1_cache);
+  DeleteObject(player.attack_sprite_2_cache); 
+  DeleteObject(player.attack_sprite_3_cache); 
+  DeleteObject(player.attack_sprite_4_cache);
+
+  DeleteObject(player.block_sprite_1_cache);
+  DeleteObject(player.block_sprite_2_cache);
+  DeleteObject(player.block_sprite_3_cache);
+
+  DeleteObject(player.spin_sprite_1_cache);
+  DeleteObject(player.spin_sprite_2_cache);
+  DeleteObject(player.spin_sprite_3_cache);
+  DeleteObject(player.spin_sprite_4_cache);
+
+
+  DeleteObject(player.blur_sprite_jump_cache); 
+  DeleteObject(player.spin_blur_sprite_1_cache);
+  DeleteObject(player.spin_blur_sprite_2_cache);
+  DeleteObject(player.spin_blur_sprite_3_cache); 
+  DeleteObject(player.spin_blur_sprite_4_cache); 
+
+
+  FreeDrawSprite(&player.draw_sprite_1);
+  FreeDrawSprite(&player.draw_sprite_2);
+  FreeDrawSprite(&player.draw_sprite_jump);
+  FreeDrawSprite(&player.draw_attack_sprite_1);
+  FreeDrawSprite(&player.draw_attack_sprite_2);
+  FreeDrawSprite(&player.draw_attack_sprite_3);
+  FreeDrawSprite(&player.draw_attack_sprite_4);
+  FreeDrawSprite(&player.draw_block_sprite_1);
+  FreeDrawSprite(&player.draw_block_sprite_2);
+  FreeDrawSprite(&player.draw_block_sprite_3);
+  FreeDrawSprite(&player.draw_spin_sprite_1);
+  FreeDrawSprite(&player.draw_spin_sprite_2);
+  FreeDrawSprite(&player.draw_spin_sprite_3);
+  FreeDrawSprite(&player.draw_spin_sprite_4);
+
+
+  FreeDrawSprite(&player.draw_blur_sprite_jump);
+  FreeDrawSprite(&player.draw_spin_blur_sprite_1);
+  FreeDrawSprite(&player.draw_spin_blur_sprite_2);
+  FreeDrawSprite(&player.draw_spin_blur_sprite_3);
+  FreeDrawSprite(&player.draw_spin_blur_sprite_4);*/
+
+  if (player.sprite_1!=NULL) {
+    DeleteObject(player.sprite_1);
+  }
+
+  if (player.sprite_2!=NULL) {
+    DeleteObject(player.sprite_2);
+  }
+
+  if (player.sprite_jump!=NULL) {
+    DeleteObject(player.sprite_jump);
+  }
+
+  if (player.attack_sprite_1!=NULL) {
+    DeleteObject(player.attack_sprite_1);
+  }
+
+  if (player.attack_sprite_2!=NULL) {
+    DeleteObject(player.attack_sprite_2);
+  }
+
+  if (player.attack_sprite_3!=NULL) {
+    DeleteObject(player.attack_sprite_3);
+  }
+
+  if (player.attack_sprite_4!=NULL) {
+    DeleteObject(player.attack_sprite_4);
+  }
+
+  if (player.block_sprite_1!=NULL) {
+    DeleteObject(player.block_sprite_1);
+  }
+
+  if (player.block_sprite_2!=NULL) {
+    DeleteObject(player.block_sprite_2);
+  }
+
+  if (player.block_sprite_3!=NULL) {
+    DeleteObject(player.block_sprite_3);
+  }
+
+  if (player.spin_sprite!=NULL) {
+    DeleteObject(player.spin_sprite);
+  }
 
   //Walk sprites
   if (player.sprite_1_cache!=NULL) {
@@ -250,7 +359,7 @@ void InitPlayerFlingWeb()
 
 
 
-
+/*
 void PlayerBulletLimitAct()
 {
   /*if (player.max_web_num-player.placed_web_num>=3 && player.knives_per_throw==5) {
@@ -259,15 +368,14 @@ void PlayerBulletLimitAct()
 
   /*if (player.max_web_num-player.placed_web_num>5) {
     player.knives_per_throw=LimitValue(player.knives_per_throw,1,30+1);
-  } else*/ if (player.max_web_num-player.placed_web_num>3) {
+  } else*/ /*if (player.max_web_num-player.placed_web_num>3) {
     player.knives_per_throw=LimitValue(player.knives_per_throw,1,15+1); //limit to 1,3,5,15
   } else if (player.max_web_num-player.placed_web_num>0){ //limit to 1,3,5
     player.knives_per_throw=LimitValue(player.knives_per_throw,1,6);
   } else { //limit to 1,3
     player.knives_per_throw=LimitValue(player.knives_per_throw,1,4);
   }
-
-}
+}*/
 
 
 
@@ -350,6 +458,8 @@ void InitPlayer() {
   player.y=player.saved_y;
   player.claws_x=player.x;
   player.claws_y=player.y;
+  player.claws_attack_x=player.x;
+  player.claws_attack_y=player.y;
 
   player.below_x1=player.x;
   player.below_y1=player.y;
@@ -371,6 +481,7 @@ void InitPlayer() {
   player.saved_angle=0;
   player.player_grav=0.5;
   player.exp=0;
+  player.invalid_shoot_timer=0;
 
   player.seed=0;
   player.cam_x=0;
@@ -627,7 +738,6 @@ void PlayerActXMovement(int grav_speed)
     grav_speed=2;
     player.is_on_ground_edge=FALSE;
   }
-
 
   bool allow_act=FALSE;
   if (player.fling_distance<=0 && !player.phase_web && !player.phase_web2 && !player.in_web_corner) { //player's fling distance is 0
@@ -1010,12 +1120,18 @@ void PlayerActFlingWeb(int speed)
               SetNodeGridAttributes(web_id);
               //player.placed_web[player.placed_web_num]=web_id;
               PlayerPlaceWeb();            
-              PlayerBulletLimitAct();
-              Ground[web_id]->health=150;//-q;
+              //PlayerBulletLimitAct();
+              Ground[web_id]->health=1500;//-q;
+              /*if (player.knives_per_throw==1) {
+                PlayMemSnd(&channelSoundEffect[9],&channelSoundEffectCache[9],TRUE,5);
+              }*/
+              if (game_audio) {
+                PlayMemSnd(&channelSoundEffect[2],&channelSoundEffectCache[2],TRUE,3);
+              }
             }
           }
         }
-        if (player.max_web_num-player.placed_web_num<=1) {
+        if (player.max_web_num-player.placed_web_num<=1 || !player.low_jump) {
           player.attack_rst=TRUE;
         }
 
@@ -1068,7 +1184,14 @@ void PlayerActSwinging(int grav_speed)
     }
     player.angle_of_reflection=player.angle_of_incidence;
 
-
+    if (player.on_ground_id==-1) {
+      if (player.phase_web) { 
+        player.phase_web=FALSE;
+      }
+      if (player.phase_web2) {
+        player.phase_web2=FALSE;
+      }
+    }
 
     if (grav_speed==3 && !player.is_on_ground_edge) {
       if (player.y>player.pivot_y) { //below pivot
@@ -1234,7 +1357,25 @@ void PlayerActFlingMovement(int grav_speed)
 
 }
 
-
+void PlayerActLoadWeaponSnd()
+{
+  if (game_audio) {
+  switch (player.knives_per_throw) {
+    case 1:
+      PlayMemSnd(&channelSoundEffect[9],&channelSoundEffectCache[9],TRUE,5); 
+      break;
+    case 3:
+      PlayMemSnd(&channelSoundEffect[10],&channelSoundEffectCache[10],TRUE,5); 
+      break;
+    case 5:
+      PlayMemSnd(&channelSoundEffect[11],&channelSoundEffectCache[11],TRUE,5); 
+      break;
+    case 15:
+      PlayMemSnd(&channelSoundEffect[7],&channelSoundEffectCache[7],TRUE,5); 
+      break;
+  }
+  }
+}
 
 void PlayerActReboundActions(int grav_speed, int speed)
 {
@@ -1278,39 +1419,47 @@ void PlayerActMouseClick()
     player.blocking=FALSE; //unblock
 
     if (player.bullet_shot!=-1) {
+      if (game_audio) {
+        PlayMemSnd(&channelSoundEffect[2],&channelSoundEffectCache[2],TRUE,3);
+      }
       StopBullet(player.bullet_shot,TRUE); //stop all web bullets from acting
       player.web_being_shot=-1;
       player.bullet_shot=-1;
-    }
-
-
-
-    int b_speed_m=5;
-    double b_dmg_m=1;
-    int b_g_type=5;
-    int b_range=100;
-    if (player.speed>10) {
-      b_speed_m=9;
-    } else if (player.speed>5) {
-      b_speed_m=7;      
-    }
-
-    if (player.speed>24)
-      b_dmg_m=4;
-    else if (player.speed>10)
-      b_dmg_m=2;
-
-
-    if (player.bullet_shot_num<PLAYER_BULLET_NUM && 
+    } else if (player.bullet_shot_num<PLAYER_BULLET_NUM && 
         !player.is_swinging && 
         (PLAYER_BULLET_NUM-player.bullet_shot_num>=player.knives_per_throw) // a/b whehere a>=b a is bullet in storage, b is bullet consumption
     ) {
 
-      if (player.knives_per_throw>=15) {
-        player.play_gun_snd=1;
-      } else if (player.knives_per_throw==5) {
-        player.play_gun_snd=2;
+
+
+      int b_speed_m=5;
+      double b_dmg_m=1;
+      int b_g_type=5;
+      int b_range=100;
+      if (player.speed>10) {
+        b_speed_m=9;
+      } else if (player.speed>5) {
+        b_speed_m=7;      
       }
+
+      if (player.speed>24)
+        b_dmg_m=4;
+      else if (player.speed>10)
+        b_dmg_m=2;
+
+      switch (player.knives_per_throw) {
+        case 0:
+        case 3:
+          player.play_gun_snd=0;
+          break;
+        case 5:
+          player.play_gun_snd=1;
+          break;
+        case 15:
+          player.play_gun_snd=2;
+          break;
+      }
+
 
       grad_x1=player.sprite_x;
       grad_y1=player.sprite_y;
@@ -1318,32 +1467,50 @@ void PlayerActMouseClick()
       grad_y2=mouse_y;
       double tmp_angle=0;
 
-      if (player.max_web_num-player.placed_web_num<3) {  //0,1,3,5
+      /*if (player.max_web_num-player.placed_web_num<3) {  //0,1,3,5
         player.knives_per_throw=LimitValue(player.knives_per_throw,1,6);
       } 
       if (player.max_web_num-player.placed_web_num<1) {  //0,1,3
         player.knives_per_throw=LimitValue(player.knives_per_throw,1,4);
-      }
+      }*/
       if (player.knives_per_throw>4) {
-        if (player.knives_per_throw==15) {
-          b_g_type=6;
-        }
-        b_dmg_m=3;
-        //b_speed_m=15;
         if (player.knives_per_throw==5) {
           b_range=160;
           b_speed_m=15;
+        } else if (player.knives_per_throw==15) {
+          b_range=65;
+          b_g_type=6;
         }
-      } else if (player.knives_per_throw==3) { 
-        b_range=145;
+        b_dmg_m=3;
+      //} else if (player.knives_per_throw==3) { 
       } else if (player.knives_per_throw==1) {
+        //b_range=145;
         b_g_type=9;
         b_dmg_m=3;
       }
 
       int kpt=player.knives_per_throw;
+      switch (kpt) {
+        case 5:
+          if (player.max_web_num-player.placed_web_num<=0) {
+            kpt=0;
+          }
+          break;
+        case 15:
+          if (player.max_web_num-player.placed_web_num<=2) {
+            kpt=0;
+          }
+          break;
+      }
+      if (kpt>0) {
+        if (game_audio) {
+          player.shoot_knife_duration=1;
+        }
+      } else {
+       player.invalid_shoot_timer=10;
+      }
 
-      for (int q=0;q<player.knives_per_throw;q++) {
+      for (int q=0;q<kpt;q++) {
         if (q>0) {   
           if (kpt!=5) {
               if (q%2==0) {//even
@@ -1360,15 +1527,12 @@ void PlayerActMouseClick()
           }
         }
 	    player.bullet[player.bullet_shot_num]=current_bullet_id;
-        if (game_audio) {
-          player.shoot_knife_duration=1;
-        }
         ShootBullet(
             current_bullet_id,
 	        player.bullet_shot_num,
 	        player_bullet_color,
             b_g_type, //graphics type
-	        b_range/*MAX_WEB_LENGTH*/+player.speed*3, //range ==>
+	        b_range/*MAX_WEB_LENGTH*/+player.speed, //range ==>
             1, //speed
 	        b_speed_m, //speed multiplier
 	        b_dmg_m, //damage
@@ -1390,10 +1554,10 @@ void PlayerActMouseClick()
 
         if ((q+1)%5==0) {
           PlayerPlaceWeb(); //Web related
-          PlayerBulletLimitAct();
-          if (player.max_web_num-player.placed_web_num==0) {
+          //PlayerBulletLimitAct();
+          /*if (player.max_web_num-player.placed_web_num==0) {
             player.knives_per_throw=1;
-          }
+          }*/
         }
 
 
@@ -1401,6 +1565,10 @@ void PlayerActMouseClick()
         if (player.max_web_num-player.placed_web_num==0 && q>5) {
           break;
         }
+      }
+    } else {
+      if (!player.is_swinging) {
+        player.invalid_shoot_timer=10;
       }
     }
   }
@@ -1410,6 +1578,9 @@ void PlayerActMouseClick()
       StopBullet(player.bullet_shot,TRUE);
       player.web_being_shot=-1;
       player.bullet_shot=-1;
+      if (game_audio) {
+        PlayMemSnd(&channelSoundEffect[2],&channelSoundEffectCache[2],TRUE,3);
+      }
     }
   }
 
@@ -1421,6 +1592,8 @@ void PlayerActMouseClick()
         player.bullet_shot==-1) {
         player.rst_right_click_snd=TRUE;
         allow_act=TRUE;
+      } else {
+       player.invalid_shoot_timer=10;
       }
     }
     InitPlayerFlingWeb();
@@ -1432,9 +1605,9 @@ void PlayerActMouseClick()
 
       player.attack=TRUE; 
 	  player.bullet_shot=current_bullet_id;
-      if (game_audio) {
+      /*if (game_audio) {
         player.shoot_knife_duration=1;
-      }
+      }*/
       ShootBullet(current_bullet_id,
 	-1,
 	CYAN,
@@ -1460,10 +1633,10 @@ void PlayerActMouseClick()
   } else { //meelee attack only
     if (player.is_swinging) {
       if (player.left_click_hold_timer==62 || player.attack_rst || player.right_click_hold_timer==62) { //swing but no web is placed
-        if (game_audio) {
+        /*if (game_audio) {
           player.shoot_knife_duration=1;
-        }
-        if (player.uppercut || player.hiding || player.on_ground_id!=-1) { 
+        }*/
+        if (player.uppercut /*|| player.hiding*/ || player.on_ground_id!=-1) { 
           player.fling_distance=0;
         } else { //begin flinging!!
           player.fling_distance=player.pivot_length;
@@ -1472,11 +1645,11 @@ void PlayerActMouseClick()
         player.grav=3; //grav when swing let go
         player.in_air_timer=1000;
         player.decceleration_timer=0;
-        if (player.on_ground_timer==0) {
-          //if (player.speed<10)
+        if (player.on_ground_timer==0 && !player.is_on_ground_edge && !player.rst_up && !player.rst_down) {
+          if (player.speed<10)
             player.speed+=2;
-          //else
-            //player.speed++;
+          else
+            player.speed++;
         }
 
         if (M_PI_2<player.angle_of_incidence && player.angle_of_incidence<M_PI+M_PI_2)
@@ -1486,11 +1659,20 @@ void PlayerActMouseClick()
       }
     }
     
-    if (player.left_click_hold_timer==62 || player.attack_rst || player.right_click_hold_timer==62) {
-      if (player.pivot_length>NODE_SIZE*5 && player.is_swinging) {//prevent build web if web too short and hiding
+    if ((player.left_click_hold_timer==62 || player.attack_rst || player.right_click_hold_timer==62)) {
+      if (player.is_swinging) {//prevent build web if web too short and hiding
+        if (game_audio) {
+          PlayMemSnd(&channelSoundEffect[2],&channelSoundEffectCache[2],TRUE,3);
+        }
         player.is_swinging=FALSE; //stop swinging
         player.attack=TRUE;
         player.blocking=FALSE; //unblock
+
+
+        //BUG: may be janky at times
+        //Ensures willingly placed webs never touch the ground or each other
+        if (player.pivot_length>NODE_SIZE*5 && (player.right_click_hold_timer==62)) {
+
     //player place web after swing
         double bm_x1=0,bm_y1=0,bm_x2=0,bm_y2=0;
         if (player.x<player.pivot_x) {
@@ -1506,8 +1688,6 @@ void PlayerActMouseClick()
         }
 
 
-        //BUG: may be janky at times
-        //Ensures willingly placed webs never touch the ground or each other
         if (player.y<player.pivot_y) { //player is above pivot
           //player is left
           if (player.x<player.pivot_x) {
@@ -1552,9 +1732,10 @@ void PlayerActMouseClick()
             SetNodeGridAttributes(web_id);
             //player.placed_web[player.placed_web_num]=web_id;
             PlayerPlaceWeb();            
-            PlayerBulletLimitAct();
-            Ground[web_id]->health=150;//-q;
+            //PlayerBulletLimitAct();
+            Ground[web_id]->health=1500;//-q;
           }
+        }
         }
       }
     }
@@ -1635,10 +1816,12 @@ void PlayerActDecceleration()
     player.decceleration_timer++;
   }
   if (player.decceleration_timer>350) {
-    if (player.is_swinging) {
-      player.speed--;        
-    } else if (player.speed>1 && player.on_ground_id<GROUND_NUM  && player.on_ground_id>-1 && !player.time_breaker) {
-      player.speed--;        
+    if (!player.time_breaker) {
+      if (player.is_swinging) {
+        player.speed--;        
+      } else if (player.speed>1 && player.on_ground_id<GROUND_NUM  && player.on_ground_id>-1) {
+        player.speed--;        
+      }
     }
     player.decceleration_timer=0;
   }
@@ -1647,7 +1830,7 @@ void PlayerActDecceleration()
 
 void PlayerAct() 
 {
-  int speed=0,grav_speed=0,claws_l2=NODE_SIZE,claws_l=NODE_SIZE/2;
+  int speed=0,grav_speed=0,claws_l2=NODE_SIZE/2,claws_l=NODE_SIZE/2;
   bool allow_act=FALSE;
 
   if (player.rain_wet_timer>0) {
@@ -1739,13 +1922,17 @@ void PlayerAct()
   PlayerActDecceleration();
 
   //PLAYER TRUE SPEED LIMITER
-  int speed_limiter=player.speed;
+  double speed_limiter=player.speed;
   if (player.speed>24) {
     speed_limiter=player.speed;//17+(player.speed-24)/8;
   } else if (player.speed>10) {
     speed_limiter=10+(player.speed-10)/4;
   } else if (player.speed>5) {
     speed_limiter=5+(player.speed-5)/2;
+  }
+
+  if (player.is_swinging) {
+    speed_limiter=speed_limiter+speed_limiter/4+1;
   }
 
 
@@ -1932,11 +2119,15 @@ void PlayerAct()
         if (player.last_left) {
           player.claws_x=player.x-(claws_l)*cos(player.angle);
           player.claws_y=player.y-(claws_l)*sin(player.angle);
+          player.claws_attack_x=player.x-(claws_l2)*cos(player.angle);
+          player.claws_attack_y=player.y-(claws_l2)*sin(player.angle);
           clawlx=player.x+(claws_l)*cos(player.angle);
           clawly=player.y+(claws_l)*sin(player.angle);
         } else {
           player.claws_x=player.x+(claws_l)*cos(player.angle);
           player.claws_y=player.y+(claws_l)*sin(player.angle);
+          player.claws_attack_x=player.x+(claws_l2)*cos(player.angle);
+          player.claws_attack_y=player.y+(claws_l2)*sin(player.angle);
           clawlx=player.x-(claws_l)*cos(player.angle);
           clawly=player.y-(claws_l)*sin(player.angle);
         }
@@ -1960,11 +2151,15 @@ void PlayerAct()
         if (player.last_left) {
           player.claws_x=player.x+(claws_l)*cos(player.angle);
           player.claws_y=player.y+(claws_l)*sin(player.angle);
+          player.claws_attack_x=player.x+(claws_l2)*cos(player.angle);
+          player.claws_attack_y=player.y+(claws_l2)*sin(player.angle);
           clawlx=player.x-(claws_l)*cos(player.angle);
           clawly=player.y-(claws_l)*sin(player.angle);
         } else {
           player.claws_x=player.x-(claws_l)*cos(player.angle);
           player.claws_y=player.y-(claws_l)*sin(player.angle);
+          player.claws_attack_x=player.x-(claws_l2)*cos(player.angle);
+          player.claws_attack_y=player.y-(claws_l2)*sin(player.angle);
           clawlx=player.x+(claws_l)*cos(player.angle);
           clawly=player.y+(claws_l)*sin(player.angle);
         }
@@ -1988,11 +2183,15 @@ void PlayerAct()
         if (player.last_left) {
           player.claws_x=player.x-(claws_l);
           player.claws_y=player.y;
+          player.claws_attack_x=player.x-(claws_l2);
+          player.claws_attack_y=player.y;
           clawlx=player.x+(claws_l);
           clawly=player.y;
         } else {
           player.claws_x=player.x+(claws_l);
           player.claws_y=player.y;
+          player.claws_attack_x=player.x+(claws_l2);
+          player.claws_attack_y=player.y;
           clawlx=player.x-(claws_l);
           clawly=player.y;
         }
@@ -2267,53 +2466,57 @@ void PlayerSndAct()
   if (player.rain_wet_timer>60) {
     if (player.visible_rain_wet_timer>0) {
       player.visible_rain_wet_timer=0;
-      rain_duration=0;
+      rain_sound_duration=0;
       mem_snd_interrupt[4]=TRUE; 
       waveOutReset(hWaveOut[4]);
     }
 
-    if (rain_duration>=channelSoundEffect[3].duration/2) {
-      rain_duration=0;
+    if (rain_sound_duration>=channelSoundEffect[3].duration/2) {
+      rain_sound_duration=0;
     }
-    if (rain_duration==0 && player.rain_wet_timer>0) { //sound effect fast sound effect
-      PlayMemSnd(&channelSoundEffect[3],&channelSoundEffectCache[3],TRUE,4); 
+    if (rain_sound_duration==0 && player.rain_wet_timer>0) { //sound effect fast sound effect
+      if (game_audio) {
+        PlayMemSnd(&channelSoundEffect[3],&channelSoundEffectCache[3],TRUE,4); 
+      }
     }
 
-    if (rain_duration>0 && player.rain_wet_timer==0) {
-      rain_duration=0;
+    if (rain_sound_duration>0 && player.rain_wet_timer==0) {
+      rain_sound_duration=0;
       mem_snd_interrupt[4]=TRUE;
       waveOutReset(hWaveOut[4]);
     }
-    rain_duration+=6;
+    rain_sound_duration+=6;
 
   //soft rain snd act
   } else {
     if (player.rain_wet_timer==60) {
       player.visible_rain_wet_timer=160;
-      rain_duration=0;
+      rain_sound_duration=0;
       mem_snd_interrupt[4]=TRUE; 
       waveOutReset(hWaveOut[4]);
     }
-    /*if (rain_duration>0 && player.rain_wet_timer>0) {
+    /*if (rain_sound_duration>0 && player.rain_wet_timer>0) {
       //player.visible_rain_wet_timer=160;
       //player.rain_wet_timer=0;
       mem_snd_interrupt[4]=TRUE; 
       waveOutReset(hWaveOut[4]);
     }*/
 
-    if (rain_duration>=channelSoundEffect[4].duration/2) {
-      rain_duration=0;
+    if (rain_sound_duration>=channelSoundEffect[4].duration/2) {
+      rain_sound_duration=0;
     }
-    if (rain_duration==0 && player.visible_rain_wet_timer>0) { //sound effect fast sound effect
-      PlayMemSnd(&channelSoundEffect[4],&channelSoundEffectCache[4],TRUE,4); 
+    if (rain_sound_duration==0 && player.visible_rain_wet_timer>0) { //sound effect fast sound effect
+      if (game_audio) {
+        PlayMemSnd(&channelSoundEffect[4],&channelSoundEffectCache[4],TRUE,4); 
+      }
     }
 
-    if (rain_duration>0 && player.visible_rain_wet_timer==0) {
-      rain_duration=0;
+    if (rain_sound_duration>0 && player.visible_rain_wet_timer==0) {
+      rain_sound_duration=0;
       mem_snd_interrupt[4]=TRUE;
       waveOutReset(hWaveOut[4]);
     }
-    rain_duration+=6;
+    rain_sound_duration+=6;
   }
 
 
@@ -2323,7 +2526,9 @@ void PlayerSndAct()
     player.fast_duration=0;
   }
   if (player.fast_duration==0 && player.speed>10) { //sound effect fast sound effect
-    PlayMemSnd(&channelSoundEffect[0],&channelSoundEffectCache[0],TRUE,1); 
+    if (game_audio) {
+      PlayMemSnd(&channelSoundEffect[0],&channelSoundEffectCache[0],TRUE,1); 
+    }
   }
   if (player.fast_duration>0 && player.speed<=10) {
     player.fast_duration=0;
@@ -2333,22 +2538,23 @@ void PlayerSndAct()
 
 
   if (player.rst_right_click_snd) {
-    PlayMemSnd(&channelSoundEffect[6],&channelSoundEffectCache[6],TRUE,3);
+    if (game_audio) {
+      PlayMemSnd(&channelSoundEffect[6],&channelSoundEffectCache[6],TRUE,3);
+    }
     player.rst_right_click_snd=FALSE;
   } else {
     if (player.shoot_knife_duration==1) { //sound effect knife throw
       switch (player.play_gun_snd) {
-          case 0: //knife throw
-            PlayMemSnd(&channelSoundEffect[2],&channelSoundEffectCache[2],TRUE,3);
-            break;
-          case 1: //shotgun
-            PlayMemSnd(&channelSoundEffect[2],&channelSoundEffectCache[5],TRUE,3);
-            break;
-          case 2: //pistor
-            PlayMemSnd(&channelSoundEffect[5],&channelSoundEffectCache[8],TRUE,3);
-            break;
-        }
-        player.play_gun_snd=0;
+        case 0: //knife throw
+          PlayMemSnd(&channelSoundEffect[2],&channelSoundEffectCache[2],TRUE,3);
+          break;
+        case 1: //pistol
+          PlayMemSnd(&channelSoundEffect[8],&channelSoundEffectCache[8],TRUE,3);          
+          break;
+        case 2: //shotgun/
+          PlayMemSnd(&channelSoundEffect[5],&channelSoundEffectCache[5],TRUE,3);
+          break;
+      }
     }
   }
   //sound timers limiter
@@ -2460,19 +2666,19 @@ void DrawPlayer(HDC hdc)
 {
   //Platform bitmap palette conversion
   if (player.rst_arrow_left) {
-    if (mouse_x>0)
+    if (mouse_x>20)
       mouse_x-=20;
   } else if (player.rst_arrow_right) {
-    if (mouse_x<GR_WIDTH)
+    if (mouse_x<GR_WIDTH-20)
       mouse_x+=20;
   }
 
 
   if (player.rst_arrow_up) {
-    if (mouse_y>0)
+    if (mouse_y>20)
       mouse_y-=20;
   } else if (player.rst_arrow_down) {
-    if (mouse_y<GR_HEIGHT)
+    if (mouse_y<GR_HEIGHT-20)
       mouse_y+=20;
   }
 
@@ -2530,13 +2736,13 @@ void DrawPlayer(HDC hdc)
     if (player.time_breaker_tick<GR_WIDTH || player.time_breaker_tick<GR_HEIGHT) {
       player.time_breaker_tick+=1;
       player.time_breaker_tick+=player.time_breaker_tick;
-      if (!IsInvertedBackground()) {
+      //if (!IsInvertedBackground()) {
         GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick,WHITE,-1);
         GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick-1,WHITE,-1);
-      } else {
+      /*} else {
         GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick,BLACK,-1);
         GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick-1,BLACK,-1);
-      }
+      }*/
     } else {
       for (int i=0;i<ENEMY_NUM;i++) {
         if (Enemy[i]->health>0) {
@@ -2557,13 +2763,13 @@ void DrawPlayer(HDC hdc)
     if (player.time_breaker_tick>0) {
       player.time_breaker_tick--;
       player.time_breaker_tick-=player.time_breaker_tick/2;
-      if (!IsInvertedBackground()) {
+      //if (!IsInvertedBackground()) {
         GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick,WHITE,-1);
         GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick-1,WHITE,-1);
-      } else {
+      /*} else {
         GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick,BLACK,-1);
         GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick-1,BLACK,-1);
-      }
+      }*/
     }
   }
 
@@ -2701,7 +2907,7 @@ void DrawPlayer(HDC hdc)
   }
 
   //Shapes Drawn when swinging to show direction of swing
-  int color=Highlight(IsInvertedBackground(),WHITE,BLACK);
+  int color=WHITE;//Highlight(IsInvertedBackground(),WHITE,BLACK);
   if (player.is_swinging) {
     GrLine(hdc,player.sprite_x,
                player.sprite_y,

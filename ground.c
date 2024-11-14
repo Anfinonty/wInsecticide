@@ -595,7 +595,7 @@ void DestroyGround(int i)
 
 void DrawWebs(HDC hdc)
 { int id;
-  int c=Highlight(IsInvertedBackground(),LTCYAN,LTRED);
+  int c=LTCYAN;//Highlight(IsInvertedBackground(),LTCYAN,LTRED);
   for (int i=GROUND_NUM;i<GROUND_NUM+player.max_web_num;i++) {
     id=i;
     if (id<GROUND_NUM+MAX_WEB_NUM && Ground[id]->x1>-20) {
@@ -674,12 +674,12 @@ void DrawGroundTriFill(HDC hdc)
   int i=0,c=0;//,j=0;
   for (i=0;i<GROUND_NUM;i++) {
     if (Ground[i]->type==3) { 
-      if (!IsInvertedBackground()) {
+      //if (!IsInvertedBackground()) {
 	    c=Ground[i]->color;
 	    //c=draw_darker_color_arr[Ground[i]->color_id];
-      } else {
-	    c=draw_lighter_color_arr[Ground[i]->color_id];
-      }
+      //} else {
+	    //c=draw_lighter_color_arr[Ground[i]->color_id];
+      //}
       //c=Ground[i]->color;
       if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
           !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
@@ -708,11 +708,11 @@ void DrawGroundTriFill(HDC hdc)
 
   for (i=0;i<GROUND_NUM;i++) {
     if (Ground[i]->type==1) { 
-      if (!IsInvertedBackground()) {
+      //if (!IsInvertedBackground()) {
 	    c=BLUE;
-      } else {
-	    c=LTR2YELLOW;//draw_lighter_color_arr[Ground[i]->color_id];
-      }
+      //} else {
+	    //c=LTR2YELLOW;//draw_lighter_color_arr[Ground[i]->color_id];
+      //}
       if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
           !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
 	      DrawTriFill(hdc,c,

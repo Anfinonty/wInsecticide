@@ -13,13 +13,13 @@ void InitOnce() {
   player_load_pupil_color=player_pupil_color;
   player_bullet_color=WHITE;
 
-  if (IsInvertedBackground()) { //invert player color if background is inverted
+  /*if (IsInvertedBackground()) { //invert player color if background is inverted
     player_load_color=COLORS_NUM-player_color-1;
     player_load_iris_color=COLORS_NUM-player_iris_color-1;
     player_load_pupil_color=COLORS_NUM-player_pupil_color-1;
 
     player_bullet_color=BLACK;
-  }
+  }*/
 
   adjustSFXVolume(&spamSoundEffectCache[0],&spamSoundEffect[0],game_volume/4,FALSE); //start
   adjustSFXVolume(&spamSoundEffectCache[1],&spamSoundEffect[1],game_volume/4,FALSE); //stop
@@ -42,7 +42,11 @@ void InitOnce() {
   adjustSFXVolume(&channelSoundEffectCache[5],&channelSoundEffect[5],game_volume/2,TRUE); //shotgun
   adjustSFXVolume(&channelSoundEffectCache[6],&channelSoundEffect[6],game_volume/2,TRUE); //sniper
   adjustSFXVolume(&channelSoundEffectCache[7],&channelSoundEffect[7],game_volume,TRUE); //reload shotgun
-  adjustSFXVolume(&channelSoundEffectCache[8],&channelSoundEffect[8],game_volume,TRUE); //pistol
+  adjustSFXVolume(&channelSoundEffectCache[8],&channelSoundEffect[8],game_volume,TRUE); //gun shoot
+  adjustSFXVolume(&channelSoundEffectCache[9],&channelSoundEffect[9],game_volume,TRUE); //load knife
+  adjustSFXVolume(&channelSoundEffectCache[10],&channelSoundEffect[10],game_volume,TRUE); //load 3 knife
+  adjustSFXVolume(&channelSoundEffectCache[11],&channelSoundEffect[11],game_volume,TRUE); //load gun
+  adjustSFXVolume(&channelSoundEffectCache[12],&channelSoundEffect[12],game_volume,TRUE); //gun empty
 
   //Load custom song
   wchar_t dirname[64];
@@ -223,44 +227,7 @@ void InitLevel(HWND hwnd, HDC hdc)
 
 
   //Load Player Cosmetics
-  DeleteObject(player.sprite_1);
-  DeleteObject(player.sprite_2);
-  DeleteObject(player.sprite_jump);
-
-  DeleteObject(player.attack_sprite_1);
-  DeleteObject(player.attack_sprite_2);
-  DeleteObject(player.attack_sprite_3);
-  DeleteObject(player.attack_sprite_4);
-
-  DeleteObject(player.block_sprite_1);
-  DeleteObject(player.block_sprite_2);
-  DeleteObject(player.block_sprite_3);
-
-  DeleteObject(player.spin_sprite);
-
-
-  FreeDrawSprite(&player.draw_sprite_1);
-  FreeDrawSprite(&player.draw_sprite_2);
-  FreeDrawSprite(&player.draw_sprite_jump);
-  FreeDrawSprite(&player.draw_attack_sprite_1);
-  FreeDrawSprite(&player.draw_attack_sprite_2);
-  FreeDrawSprite(&player.draw_attack_sprite_3);
-  FreeDrawSprite(&player.draw_attack_sprite_4);
-  FreeDrawSprite(&player.draw_block_sprite_1);
-  FreeDrawSprite(&player.draw_block_sprite_2);
-  FreeDrawSprite(&player.draw_block_sprite_3);
-  FreeDrawSprite(&player.draw_spin_sprite_1);
-  FreeDrawSprite(&player.draw_spin_sprite_2);
-  FreeDrawSprite(&player.draw_spin_sprite_3);
-  FreeDrawSprite(&player.draw_spin_sprite_4);
-
-
-  FreeDrawSprite(&player.draw_blur_sprite_jump);
-  FreeDrawSprite(&player.draw_spin_blur_sprite_1);
-  FreeDrawSprite(&player.draw_spin_blur_sprite_2);
-  FreeDrawSprite(&player.draw_spin_blur_sprite_3);
-  FreeDrawSprite(&player.draw_spin_blur_sprite_4);
-
+  CleanUpPlayer();
 
 
   player.sprite_1 = RotateSprite(NULL, player.osprite_1,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
@@ -277,8 +244,6 @@ void InitLevel(HWND hwnd, HDC hdc)
   player.block_sprite_3 = RotateSprite(NULL, player.oblock_sprite_3,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
 
   player.spin_sprite = RotateSprite(NULL, player.ospin_sprite,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
-
-
 
 
   //Load Player Sprites
@@ -339,58 +304,13 @@ void InitLevel(HWND hwnd, HDC hdc)
 
 
   //moon sprite
-  DeleteObject(moon_sprite_cache);
-  FreeDrawSprite(&draw_moon_sprite);
+  //DeleteObject(moon_sprite_cache);
+  //FreeDrawSprite(&draw_moon_sprite);
 
-  HBITMAP tmp_moon_sprite=CopyCrunchyBitmap(moon_sprite,NOTSRCCOPY);
-  moon_sprite_cache=RotateSprite(NULL, tmp_moon_sprite,0,LPURPLE,BLACK,BLACK,-1);
-  DeleteObject(tmp_moon_sprite);
-  GenerateDrawSprite(&draw_moon_sprite,moon_sprite_cache);
-
-
-
-  DeleteObject(mouse_cursor_sprite_cache);
-  DeleteObject(mouse_cursor_sprite_cache2);
-  DeleteObject(mouse_cursor_sprite_iris_cache);
-  DeleteObject(mouse_cursor_sprite_iris_cache2);
-  DeleteObject(mouse_cursor_sprite_pupil_cache);
-  DeleteObject(mouse_cursor_sprite_pupil_cache2);
-
-
-  FreeDrawSprite(&draw_mouse_cursor_sprite);
-  FreeDrawSprite(&draw_mouse_cursor_sprite_iris);
-  FreeDrawSprite(&draw_mouse_cursor_sprite_pupil);
-
-  FreeDrawSprite(&draw_mouse_cursor_sprite2);
-  FreeDrawSprite(&draw_mouse_cursor_sprite_iris2);
-  FreeDrawSprite(&draw_mouse_cursor_sprite_pupil2);
-
-  mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-
-  mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-
-
-
-  mouse_cursor_sprite_iris_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTBLUE,draw_color_arr[player_load_iris_color]);
-
-  mouse_cursor_sprite_iris_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTBLUE,draw_color_arr[player_load_iris_color]);
-
-
-
-  mouse_cursor_sprite_pupil_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTRED,draw_color_arr[player_load_pupil_color]);
-
-  mouse_cursor_sprite_pupil_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTRED,draw_color_arr[player_load_pupil_color]);
-
-
-
-  GenerateDrawSprite(&draw_mouse_cursor_sprite,mouse_cursor_sprite_cache);
-  GenerateDrawSprite(&draw_mouse_cursor_sprite_iris,mouse_cursor_sprite_iris_cache);
-  GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil,mouse_cursor_sprite_pupil_cache);
-
-  GenerateDrawSprite(&draw_mouse_cursor_sprite2,mouse_cursor_sprite_cache2);
-  GenerateDrawSprite(&draw_mouse_cursor_sprite_iris2,mouse_cursor_sprite_iris_cache2);
-  GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil2,mouse_cursor_sprite_pupil_cache2);
-
+  //HBITMAP tmp_moon_sprite=CopyCrunchyBitmap(moon_sprite,NOTSRCCOPY);
+  //moon_sprite_cache=RotateSprite(NULL, tmp_moon_sprite,0,LPURPLE,BLACK,BLACK,-1);
+  //DeleteObject(tmp_moon_sprite);
+  //GenerateDrawSprite(&draw_moon_sprite,moon_sprite_cache);
 
 
 
@@ -412,7 +332,7 @@ void InitLevel(HWND hwnd, HDC hdc)
 
 
 
-void LoadMainMenuBackground()
+/*void LoadMainMenuBackground()
 {
   DeleteObject(map_background_sprite);
   HBITMAP tmp_map_background_sprite;
@@ -431,7 +351,7 @@ void LoadMainMenuBackground()
   }
   map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH,GR_HEIGHT); //note runs once only
   DeleteObject(tmp_map_background_sprite);
-}
+}*/
 
 
 

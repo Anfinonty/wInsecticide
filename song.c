@@ -399,7 +399,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
         }
       }
 
-      if (call_help_timer<5000) {
+      if (call_help_timer<1000/*5000*/) {
         call_help_timer+=6;
       }
       Sleep(6); //fast loop

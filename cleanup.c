@@ -228,7 +228,7 @@ void CleanupPlayerAttributes()
   player.low_jump=
   player.on_a_ground=FALSE;
 
-  player.knives_per_throw=1;
+  player.knives_per_throw=0;
 
   player.block_recharge_timer_max=
   player.block_recharge_timer=
@@ -406,47 +406,14 @@ void CleanupAll()
     DeleteObject(map_platforms_sprite); //delete sprites
     DeleteObject(map_platforms_sprite_mask);
     DeleteObject(map_platforms_shadow_shader);
-    LoadMainMenuBackground();
 
-    DeleteObject(moon_sprite_cache);
-    FreeDrawSprite(&draw_moon_sprite);
-    moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,BLACK,-1);
-    GenerateDrawSprite(&draw_moon_sprite,moon_sprite_cache);
+    DeleteObject(map_background_sprite);
+    //LoadMainMenuBackground();
 
-    DeleteObject(mouse_cursor_sprite_cache);
-    DeleteObject(mouse_cursor_sprite_cache2);
-    DeleteObject(mouse_cursor_sprite_iris_cache);
-    DeleteObject(mouse_cursor_sprite_iris_cache2);
-    DeleteObject(mouse_cursor_sprite_pupil_cache);
-    DeleteObject(mouse_cursor_sprite_pupil_cache2);
-
-    FreeDrawSprite(&draw_mouse_cursor_sprite);
-    FreeDrawSprite(&draw_mouse_cursor_sprite_iris);
-    FreeDrawSprite(&draw_mouse_cursor_sprite_pupil);
-
-    FreeDrawSprite(&draw_mouse_cursor_sprite2);
-    FreeDrawSprite(&draw_mouse_cursor_sprite_iris2);
-    FreeDrawSprite(&draw_mouse_cursor_sprite_pupil2);
-
-    mouse_cursor_sprite_cache=RotateSprite(NULL, mouse_cursor_sprite,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
-    mouse_cursor_sprite_cache2=RotateSprite(NULL, mouse_cursor_sprite2,0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
-
-
-    mouse_cursor_sprite_iris_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTBLUE,draw_color_arr[player_iris_color]);
-    mouse_cursor_sprite_iris_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTBLUE,draw_color_arr[player_iris_color]);
-
-
-    mouse_cursor_sprite_pupil_cache=RotateSpriteExclude(NULL, mouse_cursor_sprite,0,LTRED,draw_color_arr[player_pupil_color]);
-    mouse_cursor_sprite_pupil_cache2=RotateSpriteExclude(NULL, mouse_cursor_sprite2,0,LTRED,draw_color_arr[player_pupil_color]);
-
-
-    GenerateDrawSprite(&draw_mouse_cursor_sprite,mouse_cursor_sprite_cache);
-    GenerateDrawSprite(&draw_mouse_cursor_sprite_iris,mouse_cursor_sprite_iris_cache);
-    GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil,mouse_cursor_sprite_pupil_cache);
-
-    GenerateDrawSprite(&draw_mouse_cursor_sprite2,mouse_cursor_sprite_cache2);
-    GenerateDrawSprite(&draw_mouse_cursor_sprite_iris2,mouse_cursor_sprite_iris_cache2);
-    GenerateDrawSprite(&draw_mouse_cursor_sprite_pupil2,mouse_cursor_sprite_pupil_cache2);
+    //DeleteObject(moon_sprite_cache);
+    //FreeDrawSprite(&draw_moon_sprite);
+    //moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,BLACK,-1);
+    //GenerateDrawSprite(&draw_moon_sprite,moon_sprite_cache);
 
     back_to_menu=FALSE;
     run_after_once=FALSE;

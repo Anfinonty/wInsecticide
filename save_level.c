@@ -429,7 +429,7 @@ void SaveMELvl()
 
     fprintf(fptr,"%d;\n",map_background); //
     fprintf(fptr,"%d;\n",custom_map_background_color_i); // 
-    fprintf(fptr,"%d;\n",is_inverted); //
+    fprintf(fptr,"%d;\n",is_moon); //
 
 
     fclose(fptr);
@@ -873,7 +873,7 @@ void SaveNewLimitAdjustedLvl()
 
     fprintf(fptr,"%d;\n",map_background); //
     fprintf(fptr,"%d;\n",custom_map_background_color_i); // 
-    fprintf(fptr,"%d;\n",is_inverted); //
+    fprintf(fptr,"%d;\n",is_moon); //
 
 
     fclose(fptr);

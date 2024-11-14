@@ -471,7 +471,7 @@ struct photon
 
 void DrawShadows2(HDC hdcSrc, HDC hdcDest, int x,int y,bool t)
 {
-    int c=Highlight(IsInvertedBackground(),BLACK,WHITE);
+    int c=BLACK;//Highlight(IsInvertedBackground(),BLACK,WHITE);
     int color = GetPixel(hdcSrc, x, y);
     /*if (color == CLR_INVALID) {
         printf("Failed to get pixel color\n");
@@ -569,7 +569,7 @@ non-solids
     SelectObject(hMemSrc, map_platforms_sprite_mask);
     SelectObject(hMemDest, map_platforms_shadow_shader);
 
-    int c=Highlight(IsInvertedBackground(),LTGRAY,LTR2LTGRAY/*LTRYELLOW*/);
+    int c=LTGRAY;//Highlight(IsInvertedBackground(),LTGRAY,LTR2LTGRAY/*LTRYELLOW*/);
     //GrRect(hMemDest,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,c);
     GrRect(hMemDest,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,c);
 

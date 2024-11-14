@@ -2316,10 +2316,18 @@ void SaveBitmapToFile2(HBITMAP hBitmap, RGBQUAD* palette, const wchar_t* filenam
 
 
 
-
-
-
-
+wchar_t *khnumtxt[10]={L"០",L"១",L"២",L"៣",L"៤",L"៥",L"៦",L"៧",L"៨",L"៩"};
+wchar_t* ReplaceToKhmerNum(wchar_t* mytxt) 
+{
+  int len=wcslen(mytxt);
+  for (int i=0;i<len;i++) {
+    int c = mytxt[i];
+    if ('0'<=c && c<='9') {
+      mytxt[i]=khnumtxt[c-'0'][0];
+    }
+  }
+  return mytxt;
+}
 
 
 
