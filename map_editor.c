@@ -540,9 +540,9 @@ void InitMapEditorEnemy()
   //Generate Sprites for 10 enemy types
   for (int i=0;i<ENEMY_TYPE_NUM;i++) {
     if (set_enemy_type_species[i]==0) {
-      MEEnemySprite[i]->sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,BLACK,color_arr[set_enemy_type_color[i]],-1);
+      MEEnemySprite[i]->sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[i]],-1);
     } else {
-      MEEnemySprite[i]->sprite_1=RotateSprite(NULL, enemy2_sprite_1,0,LTGREEN,BLACK,color_arr[set_enemy_type_color[i]],-1);
+      MEEnemySprite[i]->sprite_1=RotateSprite(NULL, enemy2_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[i]],-1);
     }
     GenerateDrawSprite(&MEEnemySprite[i]->draw_sprite_1,MEEnemySprite[i]->sprite_1);
   }
@@ -698,10 +698,10 @@ void InitLevelMapEditor(HWND hwnd, HDC hdc)
   DeleteObject(player.sprite_1);
   FreeDrawSprite(&player.draw_sprite_1);
 
-  player.sprite_1 = RotateSprite(NULL, player.osprite_1,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
+  player.sprite_1 = RotateSprite(NULL, player.osprite_1,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
 
   //Load Player Sprites
-  player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
+  player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
   GenerateDrawSprite(&player.draw_sprite_1,player.sprite_1_cache);
 
 
@@ -943,7 +943,7 @@ void MapEditorAct()
     	  	        double shoot_target_y= MapEditor.bullet_head_y[j];
                     ShootBullet(current_bullet_id,
                         -1,//Enemy[i]->bullet_shot_num,
-                        color_arr[set_enemy_type_bullet_color[q]],//Enemy[i]->bullet_color,
+                        rgbPaint[set_enemy_type_bullet_color[q]],//Enemy[i]->bullet_color,
                         set_enemy_type_bullet_graphics_type[q],//Enemy[i]->bullet_graphics_type,
                         set_enemy_type_bullet_range[q],//Enemy[i]->bullet_range,
                         set_enemy_type_bullet_speed[q],//Enemy[i]->bullet_speed,

@@ -9,9 +9,9 @@ void UpdateMEDrawSprite()
     FreeDrawSprite(&MEEnemySprite[ei]->draw_sprite_1);
     //Create New Sprite
     if (set_enemy_type_species[ei]==0) {
-      MEEnemySprite[ei]->sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,BLACK,color_arr[set_enemy_type_color[ei]],-1);
+      MEEnemySprite[ei]->sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[ei]],-1);
     } else {
-      MEEnemySprite[ei]->sprite_1=RotateSprite(NULL, enemy2_sprite_1,0,LTGREEN,BLACK,color_arr[set_enemy_type_color[ei]],-1);
+      MEEnemySprite[ei]->sprite_1=RotateSprite(NULL, enemy2_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[ei]],-1);
     }
     GenerateDrawSprite(&MEEnemySprite[ei]->draw_sprite_1,MEEnemySprite[ei]->sprite_1);
 }

@@ -296,7 +296,7 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
             break;
           case 43:
             custom_map_background_color_i=int_saved_val;
-            custom_map_background_color=color_arr[int_saved_val];
+            custom_map_background_color=rgbPaint[int_saved_val];//color_arr[int_saved_val];
             break;
           case 44:
             is_moon=(bool)int_saved_val;

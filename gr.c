@@ -89,7 +89,7 @@
 
 //#define IDI_MYICON  1000
 
-int color_arr[COLORS_NUM]={
+/*int color_arr[COLORS_NUM]={
 BLACK, //0
 BLUE, //1
 GREEN, //2
@@ -106,9 +106,9 @@ LTRED, //12
 LTPURPLE, //13
 YELLOW, //14
 WHITE //15
-};
+};*/
 
-int draw_color_arr[COLORS_NUM]={
+/*int draw_color_arr[COLORS_NUM]={
 DKBLACK, //0
 BLUE, //1
 GREEN, //2
@@ -125,10 +125,10 @@ LTRED, //12
 LTPURPLE, //13
 YELLOW, //14
 WHITE //15
-};
+};*/
 
 
-
+/*
 int draw_darker_color_arr[COLORS_NUM]={
 DKRBLACK, //0
 DKRBLUE, //1
@@ -207,7 +207,7 @@ LTR2LTRED, //12
 LTR2LTPURPLE, //13
 LTR2YELLOW, //14
 LTR2WHITE //15
-};
+};*/
 
 
 int Highlight(bool predicate,int color1, int color2)
@@ -248,7 +248,6 @@ void Init8BitRGBColorsNoir(RGBQUAD *rgbColors)
 
 //HBITMAP ReplaceColor(int num, COLOR* oldColor, COLOR* newColor, HBITMAP hBitmap)
 //https://gamedev.net/forums/topic/267754-win32-replacing-color-in-a-bitmap/267754/
-
 
 RGBQUAD rgbColorsDefault[256];
 void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
@@ -360,7 +359,7 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
         rgbColors[i].rgbReserved = 0;
         break;
       case 7: //DKGRAY
-        if (index_range==11) {
+        /*if (index_range==11) {
           rgbColors[i].rgbRed = 86;
           rgbColors[i].rgbGreen = 85;
           rgbColors[i].rgbBlue = 85;
@@ -368,11 +367,20 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
           rgbColors[i].rgbRed = 8*index_range+1;    //.. .. .. .. 85 .. .. .. .. 97
           rgbColors[i].rgbGreen = 8*index_range+1;
           rgbColors[i].rgbBlue = 8*index_range+1;
+        }*/
+        if (index_range<=8) { //1->7 Darker values, 8 is true value
+          rgbColors[i].rgbRed = ceil(index_range*86/8);
+          rgbColors[i].rgbGreen = ceil(index_range*85/8);
+          rgbColors[i].rgbBlue = ceil(index_range*85/8);
+        } else { //9->16 Lighter values
+          rgbColors[i].rgbRed = 86+ceil((index_range-8)*86/8);
+          rgbColors[i].rgbGreen = 85+ceil((index_range-8)*85/8);
+          rgbColors[i].rgbBlue = 85+ceil((index_range-8)*85/8);
         }
         rgbColors[i].rgbReserved = 0;
         break;
       case 8: //LTGRAY
-        if (index_range==6) {
+        /*if (index_range==6) {
           rgbColors[i].rgbRed = 171;
           rgbColors[i].rgbGreen = 170; // 98 .. .. .. .. 170 .. .. .. .. 242
           rgbColors[i].rgbBlue = 170;
@@ -380,7 +388,18 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
           rgbColors[i].rgbRed = 120+8*index_range;
           rgbColors[i].rgbGreen = 120+8*index_range;
           rgbColors[i].rgbBlue = 120+8*index_range;
+        }*/
+
+        if (index_range<=8) { //1->7 Darker values, 8 is true value
+          rgbColors[i].rgbRed = ceil(index_range*171/8);
+          rgbColors[i].rgbGreen = ceil(index_range*170/8);
+          rgbColors[i].rgbBlue = ceil(index_range*170/8);
+        } else { //9->16 Lighter values
+          rgbColors[i].rgbRed = 171+ceil((index_range-8)*10);
+          rgbColors[i].rgbGreen = 170+ceil((index_range-8)*10);
+          rgbColors[i].rgbBlue = 170+ceil((index_range-8)*10);
         }
+
         rgbColors[i].rgbReserved = 0;
         break;
 
@@ -402,9 +421,9 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
         if (index_range<=8) { //1->7 Darker values, 8 is true value
           rgbColors[i].rgbRed = 0;
           rgbColors[i].rgbBlue = 0;
-          if (index_range==7)
-            rgbColors[i].rgbGreen = 254;
-          else
+          //if (index_range==7)
+            //rgbColors[i].rgbGreen = 254; //<-------- green at 254
+          //else
             rgbColors[i].rgbGreen = ceil(index_range*255/8);
         } else { //9->16 Lighter values
           rgbColors[i].rgbRed = ceil((index_range-8)*224/8);
@@ -454,6 +473,7 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
           rgbColors[i].rgbRed = ceil(index_range*255/8);
           rgbColors[i].rgbGreen = ceil(index_range*255/8);
           rgbColors[i].rgbBlue = 0;
+          
         } else { //9->16 Lighter values
           rgbColors[i].rgbRed = 255;
           rgbColors[i].rgbGreen = 255;
@@ -462,6 +482,16 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
         rgbColors[i].rgbReserved = 0;
         break;
       case 15: //WHITE
+         /* if (index_range<8) {
+            rgbColors[i].rgbRed = ceil(index_range*255/8);//ceil((double)(i-16*calc+1)*255/16);
+            rgbColors[i].rgbGreen = ceil(index_range*255/8);//ceil((double)(i-16*calc+1)*255/16);
+            rgbColors[i].rgbBlue = ceil(index_range*255/8);//ceil((double)(i-16*calc+1)*255/16);
+          } else if (index_range>=9){
+            rgbColors[i].rgbRed = 255-ceil(index_range*255/8);//ceil((double)(i-16*calc+1)*255/16);
+            rgbColors[i].rgbGreen = 255-ceil(index_range*255/8);//ceil((double)(i-16*calc+1)*255/16);
+            rgbColors[i].rgbBlue = 255-ceil(index_range*255/8);//ceil((double)(i-16*calc+1)*255/16);
+          }
+        }*/
         rgbColors[i].rgbRed = 255;//ceil((double)(i-16*calc+1)*255/16);
         rgbColors[i].rgbGreen = 255;//ceil((double)(i-16*calc+1)*255/16);
         rgbColors[i].rgbBlue = 255;//ceil((double)(i-16*calc+1)*255/16);
@@ -473,6 +503,41 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
         rgbColors[i].rgbBlue = 255;
         rgbColors[i].rgbReserved = 0;
         break;*/
+    }
+  }
+}
+
+int rgbPaint[256];
+void Init8BitRGBPaintDefault(int *rgbPaint_dest,RGBQUAD *rgbColors_src,bool is_ascending,int start_paint_index)
+{
+  int index=0;
+  //int start_paint_index=8;
+  int paint_index=0;
+
+
+  paint_index=start_paint_index;
+  if (is_ascending) {
+    start_paint_index++;
+  } else {
+    start_paint_index--;
+  }
+  for (int x=0;x<16;x++) { //left to right
+    for (int y=0;y<16;y++) { //up to down 
+      rgbPaint_dest[index]=RGB(rgbColors_src[paint_index].rgbRed,rgbColors_src[paint_index].rgbGreen,rgbColors_src[paint_index].rgbBlue);
+      index++;
+      paint_index+=16;
+    }
+    paint_index=start_paint_index;
+    if (is_ascending) {//shift darker/lighter
+      start_paint_index++; 
+    } else {
+      start_paint_index--; 
+    }
+    if(start_paint_index>15) {
+      start_paint_index=0;
+    }
+    if (start_paint_index<0) {
+      start_paint_index=15;
     }
   }
 }
@@ -1602,14 +1667,30 @@ void DrawPaletteSquare(HDC hdc,int move_x,int move_y)
 {
   int size=8;
   int index=0;
-  for (int y=0;y<16;y++) {
-    for (int x=0;x<16;x++) {
+  for (int y=0;y<16;y++) { //up to down 
+    for (int x=0;x<16;x++) { //left to right
       GrRect(hdc,move_x+x*size,move_y+y*size,size,size,RGB(rgbColorsDefault[index].rgbRed,rgbColorsDefault[index].rgbGreen,rgbColorsDefault[index].rgbBlue));
       index++;
     }
   }
 }
 
+
+void DrawPaintSquare(HDC hdc,int move_x,int move_y,int target_index)
+{
+  const int size=8;
+  const int size2=12;
+  int index=0;
+  for (int y=0;y<16;y++) { //up to down 
+    for (int x=0;x<16;x++) { //left to right
+      if (index==target_index) {
+        GrRect(hdc,move_x+x*size-2,move_y+y*size-2,size2,size2,WHITE);        
+      }
+      GrRect(hdc,move_x+x*size,move_y+y*size,size,size,rgbPaint[index]);
+      index++;
+    }
+  }
+}
 
 
 //GrSprite Deprecated

@@ -135,7 +135,11 @@ void Init(HDC hdc) {
   mem_snd_interrupt[3]=TRUE;
   waveOutReset(hWaveOut[3]);
 
+  mem_snd_interrupt[4]=TRUE;
+  waveOutReset(hWaveOut[4]);
 
+  mem_snd_interrupt[5]=TRUE;
+  waveOutReset(hWaveOut[5]);
 
   if (!run_after_once) {
     run_after_once=TRUE;
@@ -230,50 +234,50 @@ void InitLevel(HWND hwnd, HDC hdc)
   CleanUpPlayer();
 
 
-  player.sprite_1 = RotateSprite(NULL, player.osprite_1,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
-  player.sprite_2 = RotateSprite(NULL, player.osprite_2,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
-  player.sprite_jump = RotateSprite(NULL, player.osprite_jump,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
+  player.sprite_1 = RotateSprite(NULL, player.osprite_1,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
+  player.sprite_2 = RotateSprite(NULL, player.osprite_2,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
+  player.sprite_jump = RotateSprite(NULL, player.osprite_jump,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
 
-  player.attack_sprite_1 = RotateSprite(NULL, player.oattack_sprite_1,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
-  player.attack_sprite_2 = RotateSprite(NULL, player.oattack_sprite_2,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
-  player.attack_sprite_3 = RotateSprite(NULL, player.oattack_sprite_3,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
-  player.attack_sprite_4 = RotateSprite(NULL, player.oattack_sprite_4,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
+  player.attack_sprite_1 = RotateSprite(NULL, player.oattack_sprite_1,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
+  player.attack_sprite_2 = RotateSprite(NULL, player.oattack_sprite_2,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
+  player.attack_sprite_3 = RotateSprite(NULL, player.oattack_sprite_3,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
+  player.attack_sprite_4 = RotateSprite(NULL, player.oattack_sprite_4,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
 
-  player.block_sprite_1 = RotateSprite(NULL, player.oblock_sprite_1,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
-  player.block_sprite_2 = RotateSprite(NULL, player.oblock_sprite_2,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
-  player.block_sprite_3 = RotateSprite(NULL, player.oblock_sprite_3,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
+  player.block_sprite_1 = RotateSprite(NULL, player.oblock_sprite_1,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
+  player.block_sprite_2 = RotateSprite(NULL, player.oblock_sprite_2,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
+  player.block_sprite_3 = RotateSprite(NULL, player.oblock_sprite_3,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
 
-  player.spin_sprite = RotateSprite(NULL, player.ospin_sprite,0,-1,LTRED,draw_color_arr[player_load_iris_color],-1);
+  player.spin_sprite = RotateSprite(NULL, player.ospin_sprite,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
 
 
   //Load Player Sprites
-  player.sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-  player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-  player.sprite_2_cache = RotateSprite(NULL, player.sprite_2,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
+  player.sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
+  player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
+  player.sprite_2_cache = RotateSprite(NULL, player.sprite_2,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
 
-  player.attack_sprite_1_cache = RotateSprite(NULL, player.attack_sprite_1,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-  player.attack_sprite_2_cache = RotateSprite(NULL, player.attack_sprite_2,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-  player.attack_sprite_3_cache = RotateSprite(NULL, player.attack_sprite_3,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-  player.attack_sprite_4_cache = RotateSprite(NULL, player.attack_sprite_4,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
+  player.attack_sprite_1_cache = RotateSprite(NULL, player.attack_sprite_1,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
+  player.attack_sprite_2_cache = RotateSprite(NULL, player.attack_sprite_2,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
+  player.attack_sprite_3_cache = RotateSprite(NULL, player.attack_sprite_3,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
+  player.attack_sprite_4_cache = RotateSprite(NULL, player.attack_sprite_4,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
 
-  player.block_sprite_1_cache = RotateSprite(NULL, player.block_sprite_1,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-  player.block_sprite_2_cache = RotateSprite(NULL, player.block_sprite_2,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-  player.block_sprite_3_cache = RotateSprite(NULL, player.block_sprite_3,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
+  player.block_sprite_1_cache = RotateSprite(NULL, player.block_sprite_1,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
+  player.block_sprite_2_cache = RotateSprite(NULL, player.block_sprite_2,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
+  player.block_sprite_3_cache = RotateSprite(NULL, player.block_sprite_3,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
 
-  player.spin_sprite_1_cache = RotateSprite(NULL, player.spin_sprite,0.1,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-  player.spin_sprite_2_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI_2,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-  player.spin_sprite_3_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-  player.spin_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,BLACK,draw_color_arr[player_load_color],-1);
-
-
+  player.spin_sprite_1_cache = RotateSprite(NULL, player.spin_sprite,0.1,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
+  player.spin_sprite_2_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI_2,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
+  player.spin_sprite_3_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
+  player.spin_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
 
 
-  player.blur_sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,player.sprite_angle,LTGREEN,BLACK,draw_color_arr[player_load_color],TRANSPARENT);
 
-  player.spin_blur_sprite_1_cache = RotateSprite(NULL, player.spin_sprite,0.1,LTGREEN,BLACK,draw_color_arr[player_load_color],TRANSPARENT);
-  player.spin_blur_sprite_2_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI_2,LTGREEN,BLACK,draw_color_arr[player_load_color],TRANSPARENT);
-  player.spin_blur_sprite_3_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI,LTGREEN,BLACK,draw_color_arr[player_load_color],TRANSPARENT);
-  player.spin_blur_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,BLACK,draw_color_arr[player_load_color],TRANSPARENT);
+
+  player.blur_sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],TRANSPARENT);
+
+  player.spin_blur_sprite_1_cache = RotateSprite(NULL, player.spin_sprite,0.1,LTGREEN,BLACK,rgbPaint[player_load_color],TRANSPARENT);
+  player.spin_blur_sprite_2_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI_2,LTGREEN,BLACK,rgbPaint[player_load_color],TRANSPARENT);
+  player.spin_blur_sprite_3_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI,LTGREEN,BLACK,rgbPaint[player_load_color],TRANSPARENT);
+  player.spin_blur_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,BLACK,rgbPaint[player_load_color],TRANSPARENT);
 
 
   GenerateDrawSprite(&player.draw_sprite_jump,player.sprite_jump_cache);

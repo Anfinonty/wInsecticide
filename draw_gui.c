@@ -643,15 +643,18 @@ void DrawMainMenu(HDC hdc)
 
       GrPrint(hdc,30+20*8,mm2y3,"<    >",c);
       //Draw Square
-      if (player_color!=0) {
-        GrRect(hdc,30+8*21,mm2y3,16,16,BLACK);
-      } else {
-        GrRect(hdc,30+8*21,mm2y3,16,16,WHITE);
-      }
-      if (player_color>-1 && player_color<COLORS_NUM) {
+      //if (player_color!=0) {
+        //GrRect(hdc,30+8*21,mm2y3,16,16,BLACK);
+      //} else {
+      GrRect(hdc,30+8*21,mm2y3,16,16,WHITE);
+      //}
+      /*if (player_color>-1 && player_color<COLORS_NUM) {
         GrRect(hdc,30+8*21+2,mm2y3+2,12,12,draw_color_arr[player_color]);
-      }
+      }*/
 
+      /*if (player_color>-1 && player_color<COLORS_NUM) {*/
+      GrRect(hdc,30+8*21+2,mm2y3+2,12,12,rgbPaint[player_color]);
+      
 
 
 
@@ -674,14 +677,14 @@ void DrawMainMenu(HDC hdc)
 
       GrPrint(hdc,30+20*8,mm2y3,"<    >",c);
       //Draw Square
-      if (player_iris_color!=0) {
-        GrRect(hdc,30+8*21,mm2y3,16,16,BLACK);
-      } else {
+      //if (player_iris_color!=0) {
+        //GrRect(hdc,30+8*21,mm2y3,16,16,BLACK);
+      //} else {
         GrRect(hdc,30+8*21,mm2y3,16,16,WHITE);
-      }
-      if (player_iris_color>-1 && player_color<COLORS_NUM) {
-        GrRect(hdc,30+8*21+2,mm2y3+2,12,12,draw_color_arr[player_iris_color]);
-      }
+      //}
+      //if (player_iris_color>-1 && player_color<COLORS_NUM) {
+        GrRect(hdc,30+8*21+2,mm2y3+2,12,12,rgbPaint[player_iris_color]);
+      //}
 
 
 
@@ -704,14 +707,30 @@ void DrawMainMenu(HDC hdc)
 
       GrPrint(hdc,30+20*8,mm2y3,"<    >",c);
       //Draw Square
-      if (player_pupil_color!=0) {
-        GrRect(hdc,30+8*21,mm2y3,16,16,BLACK);
-      } else {
+      //if (player_pupil_color!=0) {
+        //GrRect(hdc,30+8*21,mm2y3,16,16,BLACK);
+      //} else {
         GrRect(hdc,30+8*21,mm2y3,16,16,WHITE);
+      //}
+      //if (player_pupil_color>-1 && player_color<COLORS_NUM) {
+      if (color_chooser.is_choosing_color) {
+        if (color_chooser.color_id_choosing<256 && color_chooser.color_id_choosing>-1)
+          GrRect(hdc,30+8*21+2,mm2y3+2,12,12,rgbPaint[color_chooser.is_choosing_color]);
+      } else {
+        GrRect(hdc,30+8*21+2,mm2y3+2,12,12,rgbPaint[player_pupil_color]);
       }
-      if (player_pupil_color>-1 && player_color<COLORS_NUM) {
-        GrRect(hdc,30+8*21+2,mm2y3+2,12,12,draw_color_arr[player_pupil_color]);
+
+      //}
+
+      if (option_choose>=0 && option_choose<=2 && color_chooser.is_choosing_color) {
+        DrawPaintSquare(hdc,30+220,mm2y2,color_chooser.color_id_choosing);
       }
+
+
+
+
+
+
 
 
       //Game Options
@@ -1054,8 +1073,8 @@ void DrawUI(HDC hdc)
 
       } else { //game is over
         if (game_timer<int_best_score) { //New Score :D
-          DrawBitmap(hdc,GR_WIDTH-106-32,8+16+digit_num4,0,0,106,37,ga0_kh_mask[2],SRCAND,FALSE,FALSE);
-          DrawBitmap(hdc,GR_WIDTH-106-32,8+16+digit_num4,0,0,106,37,ga0_kh[2],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,GR_WIDTH-106-32,8+16+digit_num4,0,0,123,37,ga0_kh_mask[2],SRCAND,FALSE,FALSE);
+          DrawBitmap(hdc,GR_WIDTH-106-32,8+16+digit_num4,0,0,123,37,ga0_kh[2],SRCPAINT,FALSE,FALSE);
 
           swprintf(wgametimetxt,32,L"%5.3f",print_time_ms);
           digit_num=GR_WIDTH-wcslen(wgametimetxt)*12-16-24;

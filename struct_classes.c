@@ -808,6 +808,18 @@ void freeEnemySprite(AEnemySprite *myEnemySprite)
 
 
 
+
+
+struct color_chooser
+{
+  bool is_choosing_color;
+  int color_id;
+  int color_id_choosing;
+} color_chooser;
+
+
+
+
 int CalculateDistanceCost(int enemy_id,int a, int b);
 int smallest_f_cost(int enemy_id);
 void InitEnemyPathfinding(int enemy_id,double target_x,double target_y);

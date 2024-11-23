@@ -243,7 +243,7 @@ void InitGround(bool is_max)
 	    Ground[i]->y3+=2;
       }
       Ground[i]->color_id=saved_ground_color[i];
-      Ground[i]->color=color_arr[saved_ground_color[i]];
+      Ground[i]->color=rgbPaint[saved_ground_color[i]];//color_arr[saved_ground_color[i]];
       wcsncpy(Ground[i]->text,saved_ground_text[i],512);
       Ground[i]->font_size=saved_ground_text_size[i];
       //printf("\n%d ghost?%d",i,saved_ground_is_ghost[i]);

@@ -1352,7 +1352,7 @@ void SetEnemyByType(int i,int type)
     Enemy[i]->unchase_range=0;
     Enemy[i]->chase_range=0;
   }
-  Enemy[i]->color=color_arr[saved_enemy_type_color[type]];
+  Enemy[i]->color=rgbPaint[saved_enemy_type_color[type]];
   Enemy[i]->speed=saved_enemy_type_speed[type];
   Enemy[i]->ospeed_multiplier=saved_enemy_type_speed_multiplier[type];
   Enemy[i]->speed_multiplier=saved_enemy_type_speed_multiplier[type];
@@ -1372,7 +1372,7 @@ void SetEnemyByType(int i,int type)
   Enemy[i]->bullet_speed=saved_enemy_type_bullet_speed[type];
   Enemy[i]->bullet_speed_multiplier=saved_enemy_type_bullet_speed_multiplier[type];
   Enemy[i]->bullet_range=saved_enemy_type_bullet_range[type];
-  Enemy[i]->bullet_color=color_arr[saved_enemy_type_bullet_color[type]];
+  Enemy[i]->bullet_color=rgbPaint[saved_enemy_type_bullet_color[type]];
   Enemy[i]->bullet_graphics_type=saved_enemy_type_bullet_graphics_type[type];
   //time breaker
   Enemy[i]->time_breaker_rare=saved_enemy_type_time_breaker_rare[type];
@@ -1578,8 +1578,12 @@ void DrawEnemy(HDC hdc)
         FreeDrawSprite(&EnemySprite[i]->draw_sprite_4);
         EnemySprite[i]->sprite_4=RotateSprite(hdc, enemy2_sprite_4,0,LTGREEN,BLACK,Enemy[i]->color,-1);
         GenerateDrawSprite(&EnemySprite[i]->draw_sprite_4,EnemySprite[i]->sprite_4);
+
       }
     }
+    player.flag_revert_palette=TRUE;
+    player.time_breaker_tick=-1;
+
   }
 
 

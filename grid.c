@@ -596,6 +596,26 @@ non-solids
   photon.passed_solid=FALSE;
   photon.in_solid=FALSE;
 
+  double start_y=0;
+  while (start_y<MAP_HEIGHT) {
+    if (x>=MAP_WIDTH) { //solid detected, move to next start_y nodegrid
+      start_y++;
+      x=start_y;
+      x=0;
+      photon.dist_travelled=0;
+      photon.passed_solid=FALSE;
+      photon.in_solid=FALSE;      
+    } else {
+      DrawShadows2(hdc,hMemDest,x,y,TRUE);
+      x++;
+      y=start_y+GetY(x,gradient,0);//GetX(y,gradient,0);      
+    }
+  }
+  photon.dist_travelled=0;
+  photon.passed_solid=FALSE;
+  photon.in_solid=FALSE;
+
+
   start_x=0,x=0,y=MAP_HEIGHT;
   while (start_x<MAP_WIDTH) {
     if (y<=0) { //solid detected, move to next start_x nodegrid
@@ -615,6 +635,31 @@ non-solids
   photon.dist_travelled=0;
   photon.passed_solid=FALSE;
   photon.in_solid=FALSE;
+
+
+
+
+  start_y=0,x=MAP_WIDTH,y=0;
+  while (start_y<MAP_HEIGHT) {
+    if (x<=0) { //solid detected, move to next start_x nodegrid
+      start_y++;
+      y=start_y;
+      y=MAP_HEIGHT;
+      photon.dist_travelled=0;
+      photon.passed_solid=FALSE;
+      photon.in_solid=FALSE;
+
+    } else { //keep going up.
+      DrawShadows2(hdc,hMemDest,x,y,FALSE);
+      x--;
+      y=start_y+GetY(x,gradient,0);
+    }
+  }
+
+  photon.dist_travelled=0;
+  photon.passed_solid=FALSE;
+  photon.in_solid=FALSE;
+
 
   DeleteDC(hMemDest);
   DeleteDC(hMemSrc);

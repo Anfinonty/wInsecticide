@@ -46,7 +46,7 @@ void DrawMapEditorPlatforms(HDC hdc)
     i=render_grounds[k];
     if (i!=-1) {
       if (Ground[i]->type==3) { 
-	    c=color_arr[Ground[i]->color_id];
+	    c=rgbPaint[Ground[i]->color_id];
         if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
             !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
        // if (!IsInvertedBackground()) {
@@ -95,7 +95,7 @@ void DrawMapEditorPlatforms(HDC hdc)
                 Ground[i]->y1+player.cam_y+GR_HEIGHT/2,
                 Ground[i]->x2+player.cam_x+GR_WIDTH/2,
                 Ground[i]->y2+player.cam_y+GR_HEIGHT/2,
-                color_arr[Ground[i]->color_id]);
+                rgbPaint[Ground[i]->color_id]);
 
       }
     }
@@ -117,7 +117,7 @@ void DrawMapEditorPlatforms(HDC hdc)
             Ground[i]->y1+player.cam_y+GR_HEIGHT/2,
             Ground[i]->text,
             "",
-            color_arr[Ground[i]->color_id],
+            rgbPaint[Ground[i]->color_id],
             //16,
             Ground[i]->font_size,
             FALSE,
@@ -178,7 +178,7 @@ void DrawMapEditorEnemy(HDC hdc)
   for (int i=0;i<ENEMY_NUM;i++) {
     int type=MEEnemy[i]->type;
     sprintf(txt_i,"%d",i);
-    c=Highlight((i==MapEditor.selected_enemy_id && MapEditor.selected_option==2),color_arr[set_enemy_type_color[type]],LTPURPLE);
+    c=Highlight((i==MapEditor.selected_enemy_id && MapEditor.selected_option==2),rgbPaint[set_enemy_type_color[type]],LTPURPLE);
     if (set_enemy_type_species[type]==0)
       GrPrint(hdc,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y-32+GR_HEIGHT/2,txt_i,c);
     else
@@ -257,7 +257,7 @@ void DrawMapEditorUI(HDC hdc)
           GrRect(hdc,8*12+1,52,16,16,WHITE);
         }
 
-        GrRect(hdc,8*12+2+1,52+2,12,12,draw_color_arr[Ground[MapEditor.selected_ground_id]->color_id]);
+        GrRect(hdc,8*12+2+1,52+2,12,12,rgbPaint[Ground[MapEditor.selected_ground_id]->color_id]);
 
         //is_ghost
         c = Highlight((MapEditor.selected_ground_option==3),BLACK,LTPURPLE);

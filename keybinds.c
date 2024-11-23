@@ -16,7 +16,125 @@ bool keydownalt()
 }
 
 
+void KeyChangePlayerColor() 
+{
+     //LIVE change color of player
+     if (old_player_color!=player_color) { //change when not same
+       for (int i=0;i<16;i++) {
+         FreeDrawSprite(&draw_player_cursor_body[i]);
+         DeleteObject(player_cursor_body[i]);
+         player_cursor_body[i]=RotateSprite(NULL, player_cursor[i],0,LTGREEN,BLACK,rgbPaint[player_color]/*draw_color_arr[player_color]*/,-1);
+         GenerateDrawSprite(&draw_player_cursor_body[i],player_cursor_body[i]);
+       }
+       old_player_color=player_color;
+     }
 
+
+     if (old_player_iris_color!=player_iris_color) {
+       for (int i=0;i<16;i++) {
+         FreeDrawSprite(&draw_player_cursor_iris[i]);
+         DeleteObject(player_cursor_iris[i]);
+         player_cursor_iris[i]=RotateSpriteExclude(NULL, player_cursor[i],0,LTBLUE,rgbPaint[player_iris_color]/*draw_color_arr[player_iris_color]*/);
+         GenerateDrawSprite(&draw_player_cursor_iris[i],player_cursor_iris[i]);
+       }
+       old_player_iris_color=player_iris_color;
+     }
+
+     if (old_player_pupil_color!=player_pupil_color) {
+       for (int i=0;i<2;i++) {
+         FreeDrawSprite(&draw_player_cursor_pupil[i]);
+         DeleteObject(player_cursor_pupil[i]);
+         if (i==0) {
+           player_cursor_pupil[i]=RotateSpriteExclude(NULL, player_cursor[0],0,LTRED,rgbPaint[player_pupil_color]/*draw_color_arr[player_pupil_color]*/);
+         } else {
+           player_cursor_pupil[i]=RotateSpriteExclude(NULL, player_cursor[8],0,LTRED,rgbPaint[player_pupil_color]/*draw_color_arr[player_pupil_color]*/);
+         }
+         GenerateDrawSprite(&draw_player_cursor_pupil[i],player_cursor_pupil[i]);
+       }
+
+       old_player_pupil_color=player_pupil_color;
+     }
+}
+
+
+void ColorKeypressDown(WPARAM wParam, int *dest_color_id)
+{
+  switch (wParam) {
+    case VK_LEFT:
+      color_chooser.color_id_choosing--;
+      if (game_audio)
+        PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
+
+      if (color_chooser.color_id_choosing<0)
+        color_chooser.color_id_choosing+=256;
+      break;
+
+    case VK_RIGHT:
+      color_chooser.color_id_choosing++;
+      if (game_audio)
+        PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
+      if (color_chooser.color_id_choosing>255)
+         color_chooser.color_id_choosing-=256;
+      break;
+
+    case VK_UP:
+      color_chooser.color_id_choosing-=16;
+      if (game_audio)
+        PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
+      if (color_chooser.color_id_choosing<0)
+        color_chooser.color_id_choosing+=256;
+      break;
+
+    case VK_DOWN:
+      color_chooser.color_id_choosing+=16;
+      if (game_audio)
+        PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
+      if (color_chooser.color_id_choosing>255)
+         color_chooser.color_id_choosing-=256;
+      break;
+
+    case VK_RETURN:
+       color_chooser.color_id=color_chooser.color_id_choosing;
+       //if (game_audio)
+         //PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //...
+       *dest_color_id=color_chooser.color_id_choosing;
+       color_chooser.is_choosing_color=FALSE;
+       KeyChangePlayerColor();
+       break;
+  }
+}
+
+
+void ColorKeypressUp(WPARAM wParam, int *dest_color_id)
+{
+  switch (wParam) {
+    case VK_UP:
+    case VK_DOWN:
+    case VK_LEFT:
+    case VK_RIGHT:
+    case 'W':
+    case 'A':
+    case 'S':
+    case 'D':
+      color_chooser.color_id=color_chooser.color_id_choosing;
+       //if (game_audio)
+         //PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //...
+      *dest_color_id=color_chooser.color_id_choosing;
+      KeyChangePlayerColor();
+      break;
+
+
+    case VK_ESCAPE: //shift esc no save color
+      if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+        color_chooser.is_choosing_color=FALSE;
+       //if (game_audio)
+         //PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //...
+        *dest_color_id=color_chooser.color_id;
+        KeyChangePlayerColor();
+      }
+      break;
+  }
+}
 
 
 //Keybinds
@@ -427,7 +545,7 @@ void GameKeypressUp(WPARAM wParam)
 void OptionKeyPressRight(HWND hwnd, int option_choose)
 {
      switch (option_choose) {
-       case 0: //Change color of player ++
+       /*case 0: //Change color of player ++
          player_color=LimitValue(player_color+1,0,COLORS_NUM);
          if (game_audio)
            PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
@@ -443,7 +561,7 @@ void OptionKeyPressRight(HWND hwnd, int option_choose)
          player_pupil_color=LimitValue(player_pupil_color+1,0,COLORS_NUM);
          if (game_audio)
            PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
-         break;
+         break;*/
 
 
        case 3: //Enable/Disable camera shaking
@@ -581,7 +699,7 @@ void OptionKeyPressRight(HWND hwnd, int option_choose)
 void OptionKeyPressLeft(HWND hwnd,int option_choose)
 {
     switch (option_choose) {
-      case 0: //Change color of player --
+      /*case 0: //Change color of player --
         player_color=LimitValue(player_color-1,0,COLORS_NUM);
         if (game_audio)
           PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
@@ -595,7 +713,7 @@ void OptionKeyPressLeft(HWND hwnd,int option_choose)
         player_pupil_color=LimitValue(player_pupil_color-1,0,COLORS_NUM);
         if (game_audio)
           PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
-        break;
+        break;*/
 
 
       case 3:  //Enable/Disable camera shaking 
@@ -730,46 +848,14 @@ void OptionKeyPressLeft(HWND hwnd,int option_choose)
 }
 
 
+
+
 void OptionKeyPressRelease1()
 {
    main_menu_chosen=-1;
+   //LIVE change color of player
+   //KeyChangePlayerColor();
 
-     //LIVE change color of player
-     if (old_player_color!=player_color) { //change when not same
-       for (int i=0;i<16;i++) {
-         FreeDrawSprite(&draw_player_cursor_body[i]);
-         DeleteObject(player_cursor_body[i]);
-         player_cursor_body[i]=RotateSprite(NULL, player_cursor[i],0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
-         GenerateDrawSprite(&draw_player_cursor_body[i],player_cursor_body[i]);
-       }
-       old_player_color=player_color;
-     }
-
-
-     if (old_player_iris_color!=player_iris_color) {
-       for (int i=0;i<16;i++) {
-         FreeDrawSprite(&draw_player_cursor_iris[i]);
-         DeleteObject(player_cursor_iris[i]);
-         player_cursor_iris[i]=RotateSpriteExclude(NULL, player_cursor[i],0,LTBLUE,draw_color_arr[player_iris_color]);
-         GenerateDrawSprite(&draw_player_cursor_iris[i],player_cursor_iris[i]);
-       }
-       old_player_iris_color=player_iris_color;
-     }
-
-     if (old_player_pupil_color!=player_pupil_color) {
-       for (int i=0;i<2;i++) {
-         FreeDrawSprite(&draw_player_cursor_pupil[i]);
-         DeleteObject(player_cursor_pupil[i]);
-         if (i==0) {
-           player_cursor_pupil[i]=RotateSpriteExclude(NULL, player_cursor[0],0,LTRED,draw_color_arr[player_pupil_color]);
-         } else {
-           player_cursor_pupil[i]=RotateSpriteExclude(NULL, player_cursor[8],0,LTRED,draw_color_arr[player_pupil_color]);
-         }
-         GenerateDrawSprite(&draw_player_cursor_pupil[i],player_cursor_pupil[i]);
-       }
-
-       old_player_pupil_color=player_pupil_color;
-     }
 
    //adjust volume
    if (old_game_volume!=game_volume) {
@@ -810,42 +896,7 @@ void OptionKeyPressRelease2()
      }
 
      //LIVE change color of player
-     if (old_player_color!=player_color) { //change when not same
-       for (int i=0;i<16;i++) {
-         FreeDrawSprite(&draw_player_cursor_body[i]);
-         DeleteObject(player_cursor_body[i]);
-         player_cursor_body[i]=RotateSprite(NULL, player_cursor[i],0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
-         GenerateDrawSprite(&draw_player_cursor_body[i],player_cursor_body[i]);
-       }
-       old_player_color=player_color;
-     }
-
-
-     if (old_player_iris_color!=player_iris_color) {
-       for (int i=0;i<16;i++) {
-         FreeDrawSprite(&draw_player_cursor_iris[i]);
-         DeleteObject(player_cursor_iris[i]);
-         player_cursor_iris[i]=RotateSpriteExclude(NULL, player_cursor[i],0,LTBLUE,draw_color_arr[player_iris_color]);
-         GenerateDrawSprite(&draw_player_cursor_iris[i],player_cursor_iris[i]);
-       }
-       old_player_iris_color=player_iris_color;
-     }
-
-     if (old_player_pupil_color!=player_pupil_color) {
-       for (int i=0;i<2;i++) {
-         FreeDrawSprite(&draw_player_cursor_pupil[i]);
-         DeleteObject(player_cursor_pupil[i]);
-         if (i==0) {
-           player_cursor_pupil[i]=RotateSpriteExclude(NULL, player_cursor[0],0,LTRED,draw_color_arr[player_pupil_color]);
-         } else {
-           player_cursor_pupil[i]=RotateSpriteExclude(NULL, player_cursor[8],0,LTRED,draw_color_arr[player_pupil_color]);
-         }
-         GenerateDrawSprite(&draw_player_cursor_pupil[i],player_cursor_pupil[i]);
-       }
-
-       old_player_pupil_color=player_pupil_color;
-     }
-
+     //KeyChangePlayerColor();
 }
 
 
@@ -883,6 +934,27 @@ void OptionsKeypressDown(HWND hwnd, WPARAM wParam)
       case 'A':
       case VK_LEFT:
         OptionKeyPressLeft(hwnd,option_choose);
+        break;
+
+    //Enter
+      case VK_RETURN:
+        if (option_choose>=0 && option_choose<=2) {
+          color_chooser.is_choosing_color=TRUE;
+          switch (option_choose) {
+            case 0:
+              color_chooser.color_id=
+              color_chooser.color_id_choosing=player_color;
+              break;
+            case 1:
+              color_chooser.color_id=
+              color_chooser.color_id_choosing=player_iris_color;
+              break;
+            case 2:
+              color_chooser.color_id=
+              color_chooser.color_id_choosing=player_pupil_color;
+              break;
+          }
+        }
         break;
 
    } //End of switch statement for keys
@@ -1006,7 +1078,7 @@ void ZeroMenuKeypressDown( HWND hwnd,  HDC hdc, WPARAM wParam)
 
       //Holding down ENTER key
        case VK_RETURN:
-         if (player_color>-1 && player_color<COLORS_NUM) {         
+         if (player_color>-1 && player_color<256) {         
            if (game_audio)
              PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
            if (level_chosen>=0 && level_chosen<level_num && main_menu_chosen==0)

@@ -486,7 +486,21 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
            //Player options in main menu
            case 1:
-             OptionsKeypressDown(hwnd, wParam);
+             if (color_chooser.is_choosing_color) {
+              switch (option_choose) {
+                case 0:
+                  ColorKeypressDown(wParam,&player_color);
+                  break;
+                case 1:
+                  ColorKeypressDown(wParam,&player_iris_color);
+                  break;
+                case 2:
+                  ColorKeypressDown(wParam,&player_pupil_color);
+                  break;
+              }
+             } else {
+               OptionsKeypressDown(hwnd, wParam);
+             }
              break;
 
            case 2:
@@ -530,7 +544,21 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             break;
 
           case 1:
-            OptionsKeypressUp(wParam);
+            if (color_chooser.is_choosing_color) {
+              switch (option_choose) {
+                case 0:
+                  ColorKeypressUp(wParam,&player_color);
+                  break;
+                case 1:
+                  ColorKeypressUp(wParam,&player_iris_color);
+                  break;
+                case 2:
+                  ColorKeypressUp(wParam,&player_pupil_color);
+                  break;
+              }
+            } else {
+              OptionsKeypressUp(wParam);
+            }
             break;
 
           case 2:            
@@ -876,6 +904,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       
           DrawMainMenu(hdcBackbuff);
           //DrawPaletteSquare(hdcBackbuff,100,100);
+          //DrawPaintSquare(hdcBackbuff,100,100);
           DrawCursor(hdcBackbuff);
 
           BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
@@ -972,6 +1001,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //AddFontResource(L"fonts/KhmerOSsys.ttf");
       Init8BitRGBColorsNoir(rgbColorsNoir);
       Init8BitRGBColorsDefault(rgbColorsDefault);
+      Init8BitRGBPaintDefault(rgbPaint,rgbColorsDefault,TRUE,8);
       wav_out_original_volume=VolumeValue(50,1); //set volume
       //waveOutGetVolume(hWaveOut[2],&wav_out_original_volume);
       RESOLUTION_X[2]=SCREEN_WIDTH; //set resolution x to be of screen width
@@ -979,6 +1009,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       swprintf(src_music_dir,64,L"music"); //set dir of music
 
+
+      color_chooser.is_choosing_color=FALSE;
+      color_chooser.color_id=0;
+      color_chooser.color_id_choosing=0;
 
 
       //Delete tmp in music
@@ -1116,7 +1150,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         wchar_t fname[32];
         swprintf(fname,32,L"sprites/player_cursor%d.bmp",i);
         player_cursor[i]=(HBITMAP) LoadImageW(NULL, fname, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);;
-        player_cursor_body[i]=RotateSprite(NULL, player_cursor[i],0,LTGREEN,BLACK,draw_color_arr[player_color],-1);
+        player_cursor_body[i]=RotateSprite(NULL, player_cursor[i],0,LTGREEN,BLACK,rgbPaint[player_color],-1);
         player_cursor_iris[i]=RotateSpriteExclude(NULL, player_cursor[i],0,LTBLUE,RED);
         GenerateDrawSprite(&draw_player_cursor_body[i],player_cursor_body[i]);
         GenerateDrawSprite(&draw_player_cursor_iris[i],player_cursor_iris[i]);
