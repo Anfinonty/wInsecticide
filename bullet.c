@@ -301,7 +301,29 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
   //if (Bullet[bullet_id].graphics_type==10) {
     //bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,0.5,0.5);
   //} else {
-    bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2);
+  bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2);
+  if (bullet_on_ground_id==-1 && Enemy[enemy_id]->health<=0 && Enemy[enemy_id]->death_timer>220) {
+    double pbdist=GetDistance(player.x,player.y,Bullet[bullet_id].x,Bullet[bullet_id].y);
+    double pbt=0.2;
+    if (pbdist<250) {
+      if (pbdist<150) {
+        pbt=0.5;
+      }
+      if (Bullet[bullet_id].x<player.x) {
+        Bullet[bullet_id].x+=pbt;
+      } else {
+        Bullet[bullet_id].x-=pbt;
+      }
+
+      if (Bullet[bullet_id].y<player.y) {
+        Bullet[bullet_id].y+=pbt;
+      } else {
+        Bullet[bullet_id].y-=pbt;
+      }
+    }
+
+  }
+
   //}
   allow_act=FALSE;
   //if (Enemy[enemy_id]->health>0) {

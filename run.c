@@ -1266,6 +1266,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
        loadSoundEffect(&keySoundEffect[3],L"snd/FE_COMMON_MB_04.wav",FALSE); //True Sound Effect --> [3]
        loadSoundEffect(&keySoundEffect[4],L"snd/FE_COMMON_MB_05.wav",FALSE); //ESC Sound Effect --> [4]
        loadSoundEffect(&keySoundEffect[5],L"snd/FE_MB_18.wav",FALSE); //Paint Sound Effect --> [5]
+//       loadSoundEffect(&keySoundEffect[6],L"snd/FE_MB_16.wav",FALSE); //Paint Confirm Sound Effect --> [6]
+       loadSoundEffect(&keySoundEffect[6],L"snd/player_paint_confirm.wav",FALSE); //Paint Confirm Sound Effect --> [6]
 
 
        for (int i=0;i<KEY_SFX_NUM;i++) {

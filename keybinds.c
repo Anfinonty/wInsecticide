@@ -95,8 +95,8 @@ void ColorKeypressDown(WPARAM wParam, int *dest_color_id)
 
     case VK_RETURN:
        color_chooser.color_id=color_chooser.color_id_choosing;
-       //if (game_audio)
-         //PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //...
+       if (game_audio)
+         PlaySound(keySoundEffectCache[6].audio, NULL, SND_MEMORY | SND_ASYNC); //start
        *dest_color_id=color_chooser.color_id_choosing;
        color_chooser.is_choosing_color=FALSE;
        KeyChangePlayerColor();
@@ -116,9 +116,6 @@ void ColorKeypressUp(WPARAM wParam, int *dest_color_id)
     case 'A':
     case 'S':
     case 'D':
-      color_chooser.color_id=color_chooser.color_id_choosing;
-       //if (game_audio)
-         //PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //...
       *dest_color_id=color_chooser.color_id_choosing;
       KeyChangePlayerColor();
       break;
@@ -127,8 +124,8 @@ void ColorKeypressUp(WPARAM wParam, int *dest_color_id)
     case VK_ESCAPE: //shift esc no save color
       if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
         color_chooser.is_choosing_color=FALSE;
-       //if (game_audio)
-         //PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //...
+        if (game_audio)
+           PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
         *dest_color_id=color_chooser.color_id;
         KeyChangePlayerColor();
       }
@@ -940,6 +937,8 @@ void OptionsKeypressDown(HWND hwnd, WPARAM wParam)
       case VK_RETURN:
         if (option_choose>=0 && option_choose<=2) {
           color_chooser.is_choosing_color=TRUE;
+          if (game_audio)
+            PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
           switch (option_choose) {
             case 0:
               color_chooser.color_id=

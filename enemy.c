@@ -1332,6 +1332,8 @@ void EnemyAct(int i)
     if (Enemy[i]->damage_taken_timer>0) {
       Enemy[i]->damage_taken_timer--;
     }
+    if (Enemy[i]->death_timer<1000)
+      Enemy[i]->death_timer++;
   }
   Enemy[i]->sprite_x=Enemy[i]->x+player.cam_x+player.cam_move_x+player.cam_mouse_move_x;
   Enemy[i]->sprite_y=Enemy[i]->y+player.cam_y+player.cam_move_y+ player.cam_mouse_move_y;
@@ -1480,6 +1482,7 @@ void InitEnemy()
     Enemy[i]->sprite_angle=0;
     Enemy[i]->saved_angle=-9999;
     Enemy[i]->damage_taken_timer=0;
+    Enemy[i]->death_timer=0;
   //bullet
     Enemy[i]->bullet_shot_num=0;
     for (j=0;j<ENEMY_BULLET_NUM;j++) {

@@ -1676,7 +1676,7 @@ void DrawPaletteSquare(HDC hdc,int move_x,int move_y)
 }
 
 
-void DrawPaintSquare(HDC hdc,int move_x,int move_y,int target_index)
+void DrawPaintSquare(HDC hdc,int move_x,int move_y,int original_index, int target_index)
 {
   const int size=8;
   const int size2=12;
@@ -1687,6 +1687,9 @@ void DrawPaintSquare(HDC hdc,int move_x,int move_y,int target_index)
         GrRect(hdc,move_x+x*size-2,move_y+y*size-2,size2,size2,WHITE);        
       }
       GrRect(hdc,move_x+x*size,move_y+y*size,size,size,rgbPaint[index]);
+      if (index==original_index) {
+        GrCircle(hdc,move_x+x*size+4,move_y+y*size+4,2,WHITE,WHITE);
+       }
       index++;
     }
   }

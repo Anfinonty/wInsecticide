@@ -199,13 +199,14 @@ struct player
   int jump_height;
   int sprite_timer;
   int in_air_timer;
+  int below_ground_edge_timer;
   int speed;
   int on_ground_timer;
   int on_ground_id;
-  int on_ground_id_u1;
+  //int on_ground_id_u1;
   int on_ground_id_u2;
-  int on_ground_id_d1;
-  int on_ground_id_d2;
+  //int on_ground_id_d1;
+  //int on_ground_id_d2;
   int saved_ground_id;
   int walk_cycle;
   int player_jump_height;
@@ -687,6 +688,7 @@ typedef struct enemy
 
   int type;
   int in_air_timer;
+  int death_timer;
   int species;
   int follow_range;
   int chase_range;
@@ -903,7 +905,7 @@ HBITMAP ga0_kh_mask[5];
 //Sound
 //Sound called in the Stack
 #define SPAM_SFX_NUM    9
-#define KEY_SFX_NUM     6
+#define KEY_SFX_NUM     7
 #define CHANNEL_SFX_NUM 13
 
 wavSoundEffect spamSoundEffect[SPAM_SFX_NUM];

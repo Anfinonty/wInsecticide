@@ -641,7 +641,7 @@ void DrawMainMenu(HDC hdc)
       }
 
 
-      GrPrint(hdc,30+20*8,mm2y3,"<    >",c);
+      GrPrint(hdc,30+20*8,mm2y3,"[      ]",c);
       //Draw Square
       //if (player_color!=0) {
         //GrRect(hdc,30+8*21,mm2y3,16,16,BLACK);
@@ -653,8 +653,14 @@ void DrawMainMenu(HDC hdc)
       }*/
 
       /*if (player_color>-1 && player_color<COLORS_NUM) {*/
-      GrRect(hdc,30+8*21+2,mm2y3+2,12,12,rgbPaint[player_color]);
-      
+      //GrRect(hdc,30+8*21+2,mm2y3+2,12,12,rgbPaint[player_color]);
+      if (color_chooser.is_choosing_color && option_choose==0) {
+        if (color_chooser.color_id_choosing<256 && color_chooser.color_id_choosing>-1)
+          GrRect(hdc,30+8*21+2,mm2y3+2,12,12,rgbPaint[color_chooser.color_id_choosing]);
+      } else {
+        GrRect(hdc,30+8*21+2,mm2y3+2,12,12,rgbPaint[player_color]);
+      }
+
 
 
 
@@ -675,7 +681,7 @@ void DrawMainMenu(HDC hdc)
       }
 
 
-      GrPrint(hdc,30+20*8,mm2y3,"<    >",c);
+      GrPrint(hdc,30+20*8,mm2y3,"[      ]",c);
       //Draw Square
       //if (player_iris_color!=0) {
         //GrRect(hdc,30+8*21,mm2y3,16,16,BLACK);
@@ -683,8 +689,14 @@ void DrawMainMenu(HDC hdc)
         GrRect(hdc,30+8*21,mm2y3,16,16,WHITE);
       //}
       //if (player_iris_color>-1 && player_color<COLORS_NUM) {
-        GrRect(hdc,30+8*21+2,mm2y3+2,12,12,rgbPaint[player_iris_color]);
+        //GrRect(hdc,30+8*21+2,mm2y3+2,12,12,rgbPaint[player_iris_color]);
       //}
+      if (color_chooser.is_choosing_color && option_choose==1) {
+        if (color_chooser.color_id_choosing<256 && color_chooser.color_id_choosing>-1)
+          GrRect(hdc,30+8*21+2,mm2y3+2,12,12,rgbPaint[color_chooser.color_id_choosing]);
+      } else {
+        GrRect(hdc,30+8*21+2,mm2y3+2,12,12,rgbPaint[player_iris_color]);
+      }
 
 
 
@@ -705,7 +717,7 @@ void DrawMainMenu(HDC hdc)
       }
 
 
-      GrPrint(hdc,30+20*8,mm2y3,"<    >",c);
+      GrPrint(hdc,30+20*8,mm2y3,"[      ]",c);
       //Draw Square
       //if (player_pupil_color!=0) {
         //GrRect(hdc,30+8*21,mm2y3,16,16,BLACK);
@@ -713,9 +725,9 @@ void DrawMainMenu(HDC hdc)
         GrRect(hdc,30+8*21,mm2y3,16,16,WHITE);
       //}
       //if (player_pupil_color>-1 && player_color<COLORS_NUM) {
-      if (color_chooser.is_choosing_color) {
+      if (color_chooser.is_choosing_color && option_choose==2) {
         if (color_chooser.color_id_choosing<256 && color_chooser.color_id_choosing>-1)
-          GrRect(hdc,30+8*21+2,mm2y3+2,12,12,rgbPaint[color_chooser.is_choosing_color]);
+          GrRect(hdc,30+8*21+2,mm2y3+2,12,12,rgbPaint[color_chooser.color_id_choosing]);
       } else {
         GrRect(hdc,30+8*21+2,mm2y3+2,12,12,rgbPaint[player_pupil_color]);
       }
@@ -723,7 +735,7 @@ void DrawMainMenu(HDC hdc)
       //}
 
       if (option_choose>=0 && option_choose<=2 && color_chooser.is_choosing_color) {
-        DrawPaintSquare(hdc,30+220,mm2y2,color_chooser.color_id_choosing);
+        DrawPaintSquare(hdc,30+220,mm2y2,color_chooser.color_id,color_chooser.color_id_choosing);
       }
 
 

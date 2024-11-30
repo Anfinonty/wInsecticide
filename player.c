@@ -144,71 +144,6 @@ void PlayerPlaceWeb()
 void CleanUpPlayer()
 {
   player.speed=DEFAULT_PLAYER_SPEED;
-/*  DeleteObject(player.sprite_1);
-  DeleteObject(player.sprite_2);
-  DeleteObject(player.sprite_jump);
-
-  DeleteObject(player.attack_sprite_1);
-  DeleteObject(player.attack_sprite_2);
-  DeleteObject(player.attack_sprite_3);
-  DeleteObject(player.attack_sprite_4);
-
-  DeleteObject(player.block_sprite_1);
-  DeleteObject(player.block_sprite_2);
-  DeleteObject(player.block_sprite_3);
-
-  DeleteObject(player.spin_sprite);
-
-
-
-
-  DeleteObject(player.sprite_jump_cache);
-  DeleteObject(player.sprite_1_cache);
-  DeleteObject(player.sprite_2_cache);
-
-  DeleteObject(player.attack_sprite_1_cache);
-  DeleteObject(player.attack_sprite_2_cache); 
-  DeleteObject(player.attack_sprite_3_cache); 
-  DeleteObject(player.attack_sprite_4_cache);
-
-  DeleteObject(player.block_sprite_1_cache);
-  DeleteObject(player.block_sprite_2_cache);
-  DeleteObject(player.block_sprite_3_cache);
-
-  DeleteObject(player.spin_sprite_1_cache);
-  DeleteObject(player.spin_sprite_2_cache);
-  DeleteObject(player.spin_sprite_3_cache);
-  DeleteObject(player.spin_sprite_4_cache);
-
-
-  DeleteObject(player.blur_sprite_jump_cache); 
-  DeleteObject(player.spin_blur_sprite_1_cache);
-  DeleteObject(player.spin_blur_sprite_2_cache);
-  DeleteObject(player.spin_blur_sprite_3_cache); 
-  DeleteObject(player.spin_blur_sprite_4_cache); 
-
-
-  FreeDrawSprite(&player.draw_sprite_1);
-  FreeDrawSprite(&player.draw_sprite_2);
-  FreeDrawSprite(&player.draw_sprite_jump);
-  FreeDrawSprite(&player.draw_attack_sprite_1);
-  FreeDrawSprite(&player.draw_attack_sprite_2);
-  FreeDrawSprite(&player.draw_attack_sprite_3);
-  FreeDrawSprite(&player.draw_attack_sprite_4);
-  FreeDrawSprite(&player.draw_block_sprite_1);
-  FreeDrawSprite(&player.draw_block_sprite_2);
-  FreeDrawSprite(&player.draw_block_sprite_3);
-  FreeDrawSprite(&player.draw_spin_sprite_1);
-  FreeDrawSprite(&player.draw_spin_sprite_2);
-  FreeDrawSprite(&player.draw_spin_sprite_3);
-  FreeDrawSprite(&player.draw_spin_sprite_4);
-
-
-  FreeDrawSprite(&player.draw_blur_sprite_jump);
-  FreeDrawSprite(&player.draw_spin_blur_sprite_1);
-  FreeDrawSprite(&player.draw_spin_blur_sprite_2);
-  FreeDrawSprite(&player.draw_spin_blur_sprite_3);
-  FreeDrawSprite(&player.draw_spin_blur_sprite_4);*/
 
   if (player.sprite_1!=NULL) {
     DeleteObject(player.sprite_1);
@@ -436,6 +371,7 @@ void InitPlayer() {
   player.speed=DEFAULT_PLAYER_SPEED;
   player.on_ground_timer=0;
   player.on_ground_id=-1;
+  player.below_ground_edge_timer=0;
 
 //  player.on_ground_id_u1=-1;
   player.on_ground_id_u2=-1;
@@ -628,42 +564,36 @@ void RegainWeb(int web_id)
 
 void PlayerActGroundEdgeMovement()
 {
-  player.on_ground_edge_id=player.on_ground_id;//GetOnGroundId(player.x,player.y,10,9);//player.on_ground_id;//GetOnGroundId(player.x,player.y,10,9);
-  int tmp_on_ground_id=player.on_ground_edge_id;
-  int distl=20;
-  if (tmp_on_ground_id==-1) {
-    tmp_on_ground_id=player.saved_on_ground_edge_id;
-  }
-  /*if (tmp_on_ground_id>GROUND_NUM) {
-    tmp_on_ground_id=-1;
-  }*/
-  /*if ((player.on_ground_id_u2!=-1 && player.on_ground_id_d2!=-1)
-      player.on_ground_id_u2!=-1 ||
-      player.on_ground_id_u1!=-1
-        ) {
-    tmp_on_ground_id=-1;
-  }*/
 
+  double edge_dist1;
+  double edge_dist2;
+  double edge_angle;
+  double distl=20;
 
-
-  if (tmp_on_ground_id!=-1) {
-    if (player.on_ground_edge_id!=-1) {
-      player.saved_on_ground_edge_id=player.on_ground_edge_id;
-    }
-    /*if (player.in_web_corner) {
-      distl=60;
-    }*/
-    if (!player.blocking && !player.rst_up) {
-      double edge_dist1=GetDistance(player.x,player.y,Ground[tmp_on_ground_id]->x1,Ground[tmp_on_ground_id]->y1); //left edge
-      double edge_dist2=GetDistance(player.x,player.y,Ground[tmp_on_ground_id]->x2,Ground[tmp_on_ground_id]->y2);
-      if (edge_dist1<distl || edge_dist2<distl) {  
-        player.is_on_ground_edge=TRUE;
-        player.in_air_timer=0;
-        if (edge_dist1<distl) {  //at edge 1
-          player.is_on_left_ground_edge=TRUE;
-          player.is_on_right_ground_edge=FALSE;
-          double edge_angle=GetCosAngle(player.x-Ground[tmp_on_ground_id]->x1,edge_dist1);
-          if (player.y<Ground[tmp_on_ground_id]->y1) { //above pivot
+  if (!player.blocking && !player.rst_up) {
+      if (!player.is_on_ground_edge) {
+        if (player.on_ground_id!=-1) {
+          edge_dist1=GetDistance(player.x,player.y,Ground[player.on_ground_id]->x1,Ground[player.on_ground_id]->y1); //left edge
+          edge_dist2=GetDistance(player.x,player.y,Ground[player.on_ground_id]->x2,Ground[player.on_ground_id]->y2); //right edge
+          if (edge_dist1<distl || edge_dist2<distl) {
+            if (edge_dist1<distl) {
+              player.is_on_left_ground_edge=TRUE;
+              player.is_on_right_ground_edge=FALSE;
+            } else if (edge_dist2<distl) {
+              player.is_on_left_ground_edge=FALSE;
+              player.is_on_right_ground_edge=TRUE;
+            }
+            player.on_ground_edge_id=player.on_ground_id;
+            player.saved_on_ground_edge_id=player.on_ground_edge_id;
+            player.is_on_ground_edge=TRUE;
+          }
+        }
+      } else { //on ground edge id present
+        //player.in_air_timer=0;
+        if (player.is_on_left_ground_edge) {
+          edge_dist1=GetDistance(player.x,player.y,Ground[player.on_ground_edge_id]->x1,Ground[player.on_ground_edge_id]->y1); //left edge
+          edge_angle=GetCosAngle(player.x-Ground[player.on_ground_edge_id]->x1,edge_dist1);
+          if (player.y<Ground[player.on_ground_edge_id]->y1) { //above pivot
               if (player.rst_right) { //clockwize
                 move_x(cos(-edge_angle+M_PI_2)*0.1);
                 move_y(sin(-edge_angle+M_PI_2)*0.1);
@@ -674,6 +604,7 @@ void PlayerActGroundEdgeMovement()
                 player.last_left=TRUE;
               }
           } else { //below pivot
+              player.below_ground_edge_timer=5;
               if (player.rst_right) { //clockwize
                 move_x(-cos(-edge_angle+M_PI_2)*0.1);
                 move_y(sin(-edge_angle+M_PI_2)*0.1);
@@ -684,11 +615,17 @@ void PlayerActGroundEdgeMovement()
                 player.last_left=FALSE;
               }
           }
-        } else if (edge_dist2<distl) {//at edge 2
-          player.is_on_right_ground_edge=TRUE;
-          player.is_on_left_ground_edge=FALSE;
-          double edge_angle=GetCosAngle(player.x-Ground[tmp_on_ground_id]->x2,edge_dist2);
-          if (player.y<Ground[tmp_on_ground_id]->y2) { //above pivot
+          if (edge_dist1>distl+1) {
+            player.on_ground_edge_id=-1;
+            player.saved_on_ground_edge_id=-1;
+            player.is_on_ground_edge=FALSE;
+            player.is_on_left_ground_edge=FALSE;
+            player.is_on_right_ground_edge=FALSE;
+          }
+        } else if (player.is_on_right_ground_edge) {
+          edge_dist2=GetDistance(player.x,player.y,Ground[player.on_ground_edge_id]->x2,Ground[player.on_ground_edge_id]->y2); //right edge
+          edge_angle=GetCosAngle(player.x-Ground[player.on_ground_edge_id]->x2,edge_dist2);
+          if (player.y<Ground[player.on_ground_edge_id]->y2) { //above pivot
               if (player.rst_right) { //clockwize
                 move_x(cos(-edge_angle+M_PI_2)*0.1);
                 move_y(sin(-edge_angle+M_PI_2)*0.1);
@@ -699,6 +636,7 @@ void PlayerActGroundEdgeMovement()
                 player.last_left=TRUE;
               }
           } else { //below pivot
+              player.below_ground_edge_timer=5;
               if (player.rst_right) { //clockwize
                 move_x(-cos(-edge_angle+M_PI_2)*0.1);
                 move_y(sin(-edge_angle+M_PI_2)*0.1);
@@ -709,38 +647,48 @@ void PlayerActGroundEdgeMovement()
                 player.last_left=FALSE;
               }
           }
-        } // end of edge 2
-      } else { //neither edge 1 or 2
-        player.on_ground_edge_id=-1;
-        player.is_on_ground_edge=FALSE;
-        player.is_on_left_ground_edge=FALSE;
-        player.is_on_right_ground_edge=FALSE;
+          if (edge_dist2>distl+1) {
+            player.on_ground_edge_id=-1;
+            player.saved_on_ground_edge_id=-1;
+            player.is_on_ground_edge=FALSE;
+            player.is_on_left_ground_edge=FALSE;
+            player.is_on_right_ground_edge=FALSE;
+          }
+        }
       }
-    } else { //player is blocking
-      player.on_ground_edge_id=-1;
-      player.is_on_ground_edge=FALSE;
-      player.is_on_left_ground_edge=FALSE;
-      player.is_on_right_ground_edge=FALSE;
-    }
-  } else {
+  } else { //player is blocking
     player.on_ground_edge_id=-1;
-      player.is_on_ground_edge=FALSE;
-      player.is_on_left_ground_edge=FALSE;
-      player.is_on_right_ground_edge=FALSE;
+    player.saved_on_ground_edge_id=-1;
+    player.is_on_ground_edge=FALSE;
+    player.is_on_left_ground_edge=FALSE;
+    player.is_on_right_ground_edge=FALSE;
   }
+
+  if (player.on_ground_id!=-1 && player.on_ground_id!=player.on_ground_edge_id) {
+    player.on_ground_edge_id=player.on_ground_id;
+    player.saved_on_ground_edge_id=player.on_ground_id;
+    player.is_on_ground_edge=FALSE;
+    player.is_on_left_ground_edge=FALSE;
+    player.is_on_right_ground_edge=FALSE;
+//    player.below_ground_edge_timer=0;
+  }
+
 }
 
 void PlayerActXMovement(int grav_speed)
 {
-  if (player.is_on_ground_edge && player.grav==1) {
+  /*if (player.is_on_ground_edge && player.grav==1) {
     if (player.rst_left) {
       player.last_left=TRUE;
     } else if (player.rst_right) {
       player.last_left=FALSE;
     }
     grav_speed=2;
+    player.on_ground_edge_id=-1;
     player.is_on_ground_edge=FALSE;
-  }
+    player.is_on_left_ground_edge=FALSE;
+    player.is_on_right_ground_edge=FALSE;
+  }*/
 
   bool allow_act=FALSE;
   if (player.fling_distance<=0 && !player.phase_web && !player.phase_web2 && !player.in_web_corner) { //player's fling distance is 0
@@ -756,6 +704,9 @@ void PlayerActXMovement(int grav_speed)
         allow_act=TRUE;
       }
     }
+  }
+  if (grav_speed==0 && player.is_on_ground_edge && player.speed>5 && player.on_ground_id==-1) {
+    player.decceleration_timer+=2;
   }
   if (grav_speed==0 && allow_act) { //ground movement
     if (player.speed>5 && player.on_ground_timer>0) {
@@ -790,11 +741,21 @@ void PlayerActXMovement(int grav_speed)
     } else { //player is not on ground
       if (player.fling_distance==0) {
         if (player.rst_left) {
-          move_x(-1);
-          player.last_left=TRUE;
+          if (player.below_ground_edge_timer==0) {
+            move_x(-1);
+            player.last_left=TRUE;
+          } else {
+            move_x(1);
+            player.last_left=FALSE;
+          }
         } else if (player.rst_right) {
-          move_x(1);
-          player.last_left=FALSE;
+          if (player.below_ground_edge_timer==0) {
+            move_x(1);
+            player.last_left=FALSE;
+          } else {
+            move_x(-1);
+            player.last_left=TRUE;
+          }
         }
       } else {
         if (player.angle_of_reflection>M_PI_2 && player.angle_of_reflection<M_PI+M_PI_2) {//lefft side
@@ -839,8 +800,6 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
     }
     player.in_air_timer--;
   }
-
-
   /*int tmp_ground_id_=-1;
   tmp_ground_id_=player.on_ground_id;
   if (tmp_ground_id_==-1) {
@@ -877,10 +836,10 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
             if (!player.in_web_corner) {
               if (player.rst_left) {
                 player.key_b4_corner_is_left=TRUE;
-                player.grav=1;
+                //player.grav=1;
               } else if (player.rst_right) {
                 player.key_b4_corner_is_right=TRUE;
-                player.grav=1;
+                //player.grav=1;
               }
               player.in_web_corner=TRUE;
             }
@@ -904,10 +863,10 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
             if (!player.in_web_corner) {
               if (player.rst_left) {
                 player.key_b4_corner_is_left=TRUE;
-                player.grav=1;
+                //player.grav=1;
               } else if (player.rst_right) {
                 player.key_b4_corner_is_right=TRUE;
-                player.grav=1;
+                //player.grav=1;
               }
               player.in_web_corner=TRUE;
             }
@@ -921,11 +880,12 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
         move_y(-sin(player.angle-M_PI_2));
       }
     }
-    if (speed==0 && grav==0) {
-      player.is_on_ground_edge=FALSE;
-      player.is_on_left_ground_edge=FALSE;
-      player.is_on_right_ground_edge=FALSE;
-    }
+    //if (speed==0 && grav==0) {
+      //player.on_ground_edge_id=-1;
+      //player.is_on_ground_edge=FALSE;
+      //player.is_on_left_ground_edge=FALSE;
+      //player.is_on_right_ground_edge=FALSE;
+    //}
     player.jump_angle=player.angle+M_PI_2;
     if (player.angle<0) {/*Slope -. /*/
       player.jump_angle2=2*M_PI+player.angle-M_PI_2;
@@ -942,6 +902,7 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
 
   //below ground
   } else if (-10<height_from_player_x && height_from_player_x<=0) { 
+    player.below_ground_edge_timer=5;
     player.current_below=TRUE;
     player.current_above=FALSE;
     player.previous_above=FALSE;
@@ -955,10 +916,10 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
             if (!player.in_web_corner) {
               if (player.rst_left) {
                 player.key_b4_corner_is_left=TRUE;
-                player.grav=1;
+                //player.grav=1;
               } else if (player.rst_right) {
                 player.key_b4_corner_is_right=TRUE;
-                player.grav=1;
+                //player.grav=1;
               }
               player.in_web_corner=TRUE;
             }
@@ -982,10 +943,10 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
             if (!player.in_web_corner) {
               if (player.rst_left) {
                 player.key_b4_corner_is_left=TRUE;
-                player.grav=1;
+                //player.grav=1;
               } else if (player.rst_right) {
                 player.key_b4_corner_is_right=TRUE;
-                player.grav=1;
+                //player.grav=1;
               }
             }
             player.in_web_corner=TRUE;
@@ -999,11 +960,12 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
         move_y(-sin(player.angle+M_PI_2));
       }
     }
-    if (speed==0 && grav==0) {
-      player.is_on_ground_edge=FALSE;
-      player.is_on_left_ground_edge=FALSE;
-      player.is_on_right_ground_edge=FALSE;
-    }
+    //if (speed==0 && grav==0) {
+      //player.on_ground_edge_id=-1;
+      //player.is_on_ground_edge=FALSE;
+      //player.is_on_left_ground_edge=FALSE;
+      //player.is_on_right_ground_edge=FALSE;
+    //}
     player.jump_angle=player.angle-M_PI_2;
     if (player.angle<0) {/*Slope -. /*/
       player.jump_angle2=M_PI_2+player.angle;
@@ -1824,7 +1786,7 @@ void PlayerActDecceleration()
   }
   if (player.decceleration_timer>350) {
     if (!player.time_breaker) {
-      if (player.is_swinging) {
+      if (player.is_swinging || (player.is_on_ground_edge && player.speed>1)) {
         player.speed--;        
       } else if (player.speed>1 && player.on_ground_id<GROUND_NUM  && player.on_ground_id>-1) {
         player.speed--;        
@@ -1914,7 +1876,9 @@ void PlayerAct()
   if (player.rst_up && player.on_a_ground) { //on ground and jumping
     //player.key_jump_timer=player.player_jump_height;
     player.jump=TRUE;
+    player.below_ground_edge_timer=0;
     player.on_ground_edge_id=-1;
+    player.saved_on_ground_edge_id=-1;
     player.is_on_ground_edge=FALSE;
     player.is_on_left_ground_edge=FALSE;
     player.is_on_right_ground_edge=FALSE;
@@ -1923,7 +1887,6 @@ void PlayerAct()
   if (player.jump && player.jump_height==0) {
     player.jump_height=player.player_jump_height;
   }
-
 
   //PLAYER ACT DECELERATION ACTIONS
   PlayerActDecceleration();
@@ -1951,18 +1914,17 @@ void PlayerAct()
 
   if (player.is_on_ground_edge) {
      //speed_limiter=15;
-     speed_limiter*=10;//*=5;
+     speed_limiter*=10;//10;//*=5;
+  }
+
+  if (player.below_ground_edge_timer>0) {
+    player.below_ground_edge_timer--;
   }
 
   for (speed=0;speed<speed_limiter;speed++) {
     for (grav_speed=0;grav_speed<player.grav;grav_speed++) {
 
-      if (player.is_on_ground_edge) {
-        if (grav_speed==1)
-          player.on_ground_id=GetOnGroundIdPlayer(player.x,player.y,5,4);
-      } else {
-        player.on_ground_id=GetOnGroundIdPlayer(player.x,player.y,5,4);
-      }
+      player.on_ground_id=GetOnGroundIdPlayer(player.x,player.y,5,4);
       //player.on_ground_id_u1=GetOnGroundId(player.above_x1,player.above_y1,5,4); //left up
       //player.on_ground_id_d1=GetOnGroundIdPlayer(player.below_x1,player.below_y1,5,4); //left down
       player.on_ground_id_u2=GetOnGroundId(player.above_x2,player.above_y2,5,4); //right up
@@ -2091,6 +2053,7 @@ void PlayerAct()
 
       //====PLAYER CIRCULAR WEB SWINGING MOVEMENT======
       if (player.is_swinging) {
+        player.below_ground_edge_timer=0;
         PlayerActSwinging(grav_speed);
         //set axes of player fling web
         if (grav_speed==3) {//only occurs right after grav_speed==0
@@ -2302,7 +2265,7 @@ void PlayerAct()
   } else {
     player.on_ground_id=-1;
     player.saved_ground_id=-1;
-
+//    player.below_ground_edge_timer=0;
     /*player.in_web_corner=FALSE;
     player.key_b4_corner_is_left=FALSE;
     player.key_b4_corner_is_right=FALSE;*/
@@ -2512,12 +2475,6 @@ void PlayerSndAct()
       mem_snd_interrupt[4]=TRUE; 
       waveOutReset(hWaveOut[4]);
     }
-    /*if (rain_sound_duration>0 && player.rain_wet_timer>0) {
-      //player.visible_rain_wet_timer=160;
-      //player.rain_wet_timer=0;
-      mem_snd_interrupt[4]=TRUE; 
-      waveOutReset(hWaveOut[4]);
-    }*/
 
     if (rain_sound_duration>=channelSoundEffect[4].duration/2) {
       rain_sound_duration=0;
@@ -2756,13 +2713,8 @@ void DrawPlayer(HDC hdc)
     if (player.time_breaker_tick<GR_WIDTH || player.time_breaker_tick<GR_HEIGHT) {
       player.time_breaker_tick+=1;
       player.time_breaker_tick+=player.time_breaker_tick;
-      //if (!IsInvertedBackground()) {
-        GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick,WHITE,-1);
-        GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick-1,WHITE,-1);
-      /*} else {
-        GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick,BLACK,-1);
-        GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick-1,BLACK,-1);
-      }*/
+      GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick,WHITE,-1);
+      GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick-1,WHITE,-1);
     } else {
       for (int i=0;i<ENEMY_NUM;i++) {
         if (Enemy[i]->health>0) {
@@ -2952,100 +2904,8 @@ void DrawPlayer(HDC hdc)
     }
   }
   
-  //GrSprite(hdc,player.sprite_x,player.sprite_y,canny,player.last_left);
-
   for (int i=0;i<player.bullet_shot_num;i++) {
     DrawBullet(hdc,player.bullet[i]);
   }
-/*
-  char cornertxt1[20];
-  sprintf(cornertxt1,"on_ground_edge:%d",player.is_on_ground_edge);
-  GrPrint(hdc,GR_WIDTH/2+20,GR_HEIGHT/2,cornertxt1,LTGREEN);
-
-  char cornertxt2[20];
-  sprintf(cornertxt2,"ogt:%d",player.on_ground_timer);
-  GrPrint(hdc,GR_WIDTH/2+20,GR_HEIGHT/2+16,cornertxt2,LTGREEN);
-
-
-  char cornertxt3[20];
-  sprintf(cornertxt3,"iat:%d",player.in_air_timer);
-  GrPrint(hdc,GR_WIDTH/2+20,GR_HEIGHT/2+16*2,cornertxt3,LTGREEN);
-
-  char cornertxt4[20];
-  sprintf(cornertxt4,"u2:%d",player.on_ground_id_u2);
-  GrPrint(hdc,GR_WIDTH/2+20,GR_HEIGHT/2+16*3,cornertxt4,LTGREEN);
-
-  char cornertxt5[20];
-  sprintf(cornertxt5,"kb4_l:%d",player.key_b4_corner_is_left);
-  GrPrint(hdc,GR_WIDTH/2+20,GR_HEIGHT/2+16*4,cornertxt5,LTGREEN);
-
-
-  char cornertxt6[20];
-  sprintf(cornertxt6,"kb4_r:%d",player.key_b4_corner_is_right);
-  GrPrint(hdc,GR_WIDTH/2+20,GR_HEIGHT/2+16*5,cornertxt6,LTGREEN);
-
-
-  char cornertxt7[20];
-  sprintf(cornertxt7,"isinwc:%d",player.in_web_corner);
-  GrPrint(hdc,GR_WIDTH/2+20,GR_HEIGHT/2+16*6,cornertxt7,LTGREEN);
-*/
-//    player.blur_sprite_x[i]=player.blur_x[i]+player.cam_x+player.cam_move_x+player.cam_mouse_move_x;
-
-//    player.blur_sprite_y[i]=player.blur_y[i]+player.cam_y+player.cam_move_y+player.cam_mouse_move_y;
-
-  /*GrCircle(hdc,
-    player.above_x1+player.cam_x+player.cam_move_x+player.cam_mouse_move_x,
-    player.above_y1+player.cam_y+player.cam_move_y+player.cam_mouse_move_y,
-    2,
-    LTRED,
-    LTRED
-  );
-
-
-  GrCircle(hdc,
-    player.above_x2+player.cam_x+player.cam_move_x+player.cam_mouse_move_x,
-    player.above_y2+player.cam_y+player.cam_move_y+player.cam_mouse_move_y,
-    2,
-    LTBLUE,
-    LTBLUE
-  );
-
-
-  GrCircle(hdc,
-    player.below_x1+player.cam_x+player.cam_move_x+player.cam_mouse_move_x,
-    player.below_y1+player.cam_y+player.cam_move_y+player.cam_mouse_move_y,
-    2,
-    LTPURPLE,
-    LTPURPLE
-  );
-
-
-  GrCircle(hdc,
-    player.below_x2+player.cam_x+player.cam_move_x+player.cam_mouse_move_x,
-    player.below_y2+player.cam_y+player.cam_move_y+player.cam_mouse_move_y,
-    2,
-    LTGREEN,
-    LTGREEN
-  );*/
-
-  /*for (int i=0;i<PLAYER_FLING_WEB_NUM;i++) {
-    GrCircle(hdc,player_fling_web.sprite_x[i],player_fling_web.sprite_y[i],2,color,color);
-  }*/
-
-
-  /*char hi[5];
-  sprintf(hi,"%d",player.on_ground_timer);
-  GrPrint(hdc,player.sprite_x,player.sprite_y-30,hi,BLACK);*/
-
-  /*char hi2[5];
-  int tmp_id=GetOnGroundIdPlayer(player.x,player.y,5,4);
-  sprintf(hi2,"%d",tmp_id);
-  GrPrint(hdc,player.sprite_x,player.sprite_y-50,hi2,BLACK);
-
-
-  char hi3[5];
-  int tmp_id2=player.saved_ground_id;//GetOnGroundIdPlayer(player.x,player.y,30,29);
-  sprintf(hi3,"%d",tmp_id2);
-  GrPrint(hdc,player.sprite_x,player.sprite_y-70,hi3,BLACK);*/
 }
 
