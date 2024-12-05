@@ -116,24 +116,41 @@ void InitNodeGrid()
 void InitNodeShade()
 {  
   int on_node_grid_id=-1;
+  int lim=0,delta=0;;
   double gradient=rain_grad_rise/rain_grad_run; //y/x to down-right
   double start_x=0,x=0,y=0;
-  while (start_x<MAP_WIDTH) {
+
+  if (gradient>0) {
+    start_x=-MAP_HEIGHT;
+    delta=NODE_SIZE;
+  } else {
+    start_x=MAP_WIDTH+MAP_HEIGHT;
+    delta=-NODE_SIZE;
+  }
+
+  while (lim<MAP_WIDTH+MAP_HEIGHT) {
     on_node_grid_id=GetGridId(x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
     if (on_node_grid_id!=-1) {
       if (NodeGrid[on_node_grid_id]->node_solid || NodeGrid[on_node_grid_id]->node_no_rain || y>=MAP_HEIGHT) { //solid detected, move to next start_x nodegrid
-        start_x+=NODE_SIZE;
+        start_x+=delta;
         x=start_x;
         y=0;
+        lim++;
       } else { //keep going down.
         NodeGrid[on_node_grid_id]->node_no_shade=TRUE;
         y+=NODE_SIZE;
         x=start_x+GetX(y,gradient,0);
       }
     } else {
-      start_x+=NODE_SIZE;
-      x=start_x;
-      y=0;
+      y+=NODE_SIZE;
+      if (y>=MAP_HEIGHT) {
+        start_x+=delta;
+        x=start_x;
+        y=0;
+        lim++;
+      } else {
+        x=start_x+GetX(y,gradient,0);
+      }
     }
   }
 }
@@ -446,11 +463,18 @@ void DrawGrids(HDC hdc,int player_cam_move_x,int player_cam_move_y)
 
 void DrawNodeGrids(HDC hdc)
 {
+  int x,y;
+  double dist;
   for (int i=0;i<MAP_NODE_NUM;i++) {
-    if (NodeGrid[i]->node_no_rain) //solid trifill
-      GrCircle(hdc,NodeGrid[i]->x1+player.cam_x,NodeGrid[i]->y1+player.cam_y,3,YELLOW,-1);
-    if (NodeGrid[i]->node_no_shade)
-      GrCircle(hdc,NodeGrid[i]->x1+player.cam_x,NodeGrid[i]->y1+player.cam_y,3,BLUE,-1);
+    x=NodeGrid[i]->x1+player.cam_x;
+    y=NodeGrid[i]->y1+player.cam_y;
+    //dist=GetDistance(player.x,player.y,x,y);
+    //if (dist<GR_WIDTH) {
+      if (NodeGrid[i]->node_no_rain) //solid trifill
+        GrCircle(hdc,x,y,3,YELLOW,-1);
+      if (NodeGrid[i]->node_no_shade)
+        GrCircle(hdc,x,y,3,BLUE,-1);
+    //}
     /*if (NodeGrid[i]->tmp_wet)
       GrCircle(hdc,NodeGrid[i]->x1+player.cam_x,NodeGrid[i]->y1+player.cam_y,3,BLUE,-1);*/
   }
@@ -467,6 +491,7 @@ struct photon
   int dist_travelled;
   double rise,run;
 } photon;
+
 
 
 void DrawShadows2(HDC hdcSrc, HDC hdcDest, int x,int y,bool t)
@@ -501,17 +526,17 @@ void DrawShadows2(HDC hdcSrc, HDC hdcDest, int x,int y,bool t)
       if (photon.in_solid) {
         if (x%4==0) { //even
           if (y%4==0) {
-            GrCircle(hdcDest,x,y,1,c,-1);
+              GrCircle(hdcDest,x,y,1,c,-1);
           }
         } else { //odd
           if (x%2==0) {
             if (y%4!=0 && y%2==0) {
-              GrCircle(hdcDest,x,y,1,c,-1);
+                GrCircle(hdcDest,x,y,1,c,-1);
             }
           }
         }
       } else {
-        GrCircle(hdcDest,x,y,1,c,-1);
+          GrCircle(hdcDest,x,y,1,c,-1);
       } 
       if (photon.dist_travelled>20) {
         photon.passed_solid=FALSE;
@@ -523,9 +548,7 @@ void DrawShadows2(HDC hdcSrc, HDC hdcDest, int x,int y,bool t)
 
 
 
-
-
-void CreatePlatformShadowBitmap(HDC hdc)
+void CreatePlatformShadowBitmap(HDC hdc, double rise, double run, int color)
 {
    //pass through first surface, hit second surface
 /*
@@ -554,40 +577,59 @@ are         -----------------------
 non-solids
 
 */
-
-    photon.rise = 20;
-    photon.run = 5;
+    photon.rise = rise;
+    photon.run = run;
 
     // Set mapping mode so that +ve y axis is upwards
-    HDC hMemSrc = CreateCompatibleDC(hdc);
     HDC hMemDest = CreateCompatibleDC(hdc);
 
     // Create a compatible bitmap for the shadow shader
     map_platforms_shadow_shader = CreateCrunchyBitmap(MAP_WIDTH, MAP_HEIGHT);
 
     // Select the bitmaps into the device contexts
-    SelectObject(hMemSrc, map_platforms_sprite_mask);
     SelectObject(hMemDest, map_platforms_shadow_shader);
 
-    int c=LTGRAY;//Highlight(IsInvertedBackground(),LTGRAY,LTR2LTGRAY/*LTRYELLOW*/);
+    int c=color;//Highlight(IsInvertedBackground(),LTGRAY,LTR2LTGRAY/*LTRYELLOW*///);
     //GrRect(hMemDest,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,c);
     GrRect(hMemDest,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,c);
 
 
-    double gradient=(double)photon.rise / photon.run;
-    double start_x=0, x=0, y=0;
+    double gradient=photon.rise / photon.run;
+    double start_x=0, x=0, y=0, _start_x=0;
 
-  while (start_x<MAP_WIDTH) {
+
+
+  photon.dist_travelled=0;
+  photon.passed_solid=FALSE;
+  photon.in_solid=FALSE;
+
+
+  int lim=0;
+  int delta=0;
+
+  if (gradient>0) {
+    _start_x=-MAP_HEIGHT;
+    delta=1;
+  } else { //negative gradient
+    _start_x=MAP_WIDTH+MAP_HEIGHT;
+    delta=-1;
+  }
+
+  start_x=_start_x;
+  x=start_x;
+  while (lim<MAP_WIDTH+MAP_HEIGHT) {
     if (y>=MAP_HEIGHT) { //solid detected, move to next start_x nodegrid
-      start_x++;
+      start_x+=delta;
       x=start_x;
       y=0;
       photon.dist_travelled=0;
       photon.passed_solid=FALSE;
       photon.in_solid=FALSE;
-
+      lim++;
     } else { //keep going down.
-      DrawShadows2(hdc,hMemDest,x,y,TRUE);
+      if (x>=0 && y>=0 && x<MAP_WIDTH && y<MAP_HEIGHT) {
+        DrawShadows2(hdc,hMemDest,x,y,TRUE);
+      }
       y++;
       x=start_x+GetX(y,gradient,0);
     }
@@ -595,39 +637,22 @@ non-solids
   photon.dist_travelled=0;
   photon.passed_solid=FALSE;
   photon.in_solid=FALSE;
-
-  double start_y=0;
-  while (start_y<MAP_HEIGHT) {
-    if (x>=MAP_WIDTH) { //solid detected, move to next start_y nodegrid
-      start_y++;
-      x=start_y;
-      x=0;
-      photon.dist_travelled=0;
-      photon.passed_solid=FALSE;
-      photon.in_solid=FALSE;      
-    } else {
-      DrawShadows2(hdc,hMemDest,x,y,TRUE);
-      x++;
-      y=start_y+GetY(x,gradient,0);//GetX(y,gradient,0);      
-    }
-  }
-  photon.dist_travelled=0;
-  photon.passed_solid=FALSE;
-  photon.in_solid=FALSE;
-
-
-  start_x=0,x=0,y=MAP_HEIGHT;
-  while (start_x<MAP_WIDTH) {
+  lim=0;
+  start_x=_start_x;
+  x=_start_x,y=MAP_HEIGHT;
+  while (lim<MAP_WIDTH+MAP_HEIGHT) {
     if (y<=0) { //solid detected, move to next start_x nodegrid
-      start_x++;
+      start_x+=delta;
       x=start_x;
       y=MAP_HEIGHT;
       photon.dist_travelled=0;
       photon.passed_solid=FALSE;
       photon.in_solid=FALSE;
-
+      lim++;
     } else { //keep going up.
-      DrawShadows2(hdc,hMemDest,x,y,FALSE);
+      if (x>=0 && y>=0 && x<MAP_WIDTH && y<MAP_HEIGHT) {
+        DrawShadows2(hdc,hMemDest,x,y,FALSE);
+      }
       y--;
       x=start_x+GetX(y,gradient,0);
     }
@@ -638,31 +663,7 @@ non-solids
 
 
 
-
-  start_y=0,x=MAP_WIDTH,y=0;
-  while (start_y<MAP_HEIGHT) {
-    if (x<=0) { //solid detected, move to next start_x nodegrid
-      start_y++;
-      y=start_y;
-      y=MAP_HEIGHT;
-      photon.dist_travelled=0;
-      photon.passed_solid=FALSE;
-      photon.in_solid=FALSE;
-
-    } else { //keep going up.
-      DrawShadows2(hdc,hMemDest,x,y,FALSE);
-      x--;
-      y=start_y+GetY(x,gradient,0);
-    }
-  }
-
-  photon.dist_travelled=0;
-  photon.passed_solid=FALSE;
-  photon.in_solid=FALSE;
-
-
   DeleteDC(hMemDest);
-  DeleteDC(hMemSrc);
 }
 
 

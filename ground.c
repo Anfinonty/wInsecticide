@@ -709,7 +709,7 @@ void DrawGroundTriFill(HDC hdc)
   for (i=0;i<GROUND_NUM;i++) {
     if (Ground[i]->type==1) { 
       //if (!IsInvertedBackground()) {
-	    c=BLUE;
+	    c=Ground[i]->color;
       //} else {
 	    //c=LTR2YELLOW;//draw_lighter_color_arr[Ground[i]->color_id];
       //}
@@ -721,7 +721,7 @@ void DrawGroundTriFill(HDC hdc)
 				Ground[i]->x2,
 				Ground[i]->y2,
 				Ground[i]->x3,
-				Ground[i]->y3,TRUE,HS_BDIAGONAL);
+				Ground[i]->y3,TRUE,/*HS_BDIAGONAL*/HS_HORIZONTAL);
       }
     }
   }

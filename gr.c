@@ -21,11 +21,11 @@
 #define WHITE       RGB(255,255,255)
 
 
+
 #define DKBLACK     RGB(2,2,2) //For drawing
 #define LPURPLE     RGB(170,43,170)
 #define LLTGREEN    RGB(0,254,0)
-#define MYCOLOR1    RGB(121,121,121)
-
+#define MYCOLOR1    RGB(22,22,22)//RGB(1,1,1)
 
 //DARK COLORS
 #define DKRBLACK       RGB(0,0,0)
@@ -492,7 +492,7 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
             rgbColors[i].rgbBlue = 255-ceil(index_range*255/8);//ceil((double)(i-16*calc+1)*255/16);
           }
         }*/
-        rgbColors[i].rgbRed = 255;//ceil((double)(i-16*calc+1)*255/16);
+        rgbColors[i].rgbRed =  255;//ceil((double)(i-16*calc+1)*255/16);
         rgbColors[i].rgbGreen = 255;//ceil((double)(i-16*calc+1)*255/16);
         rgbColors[i].rgbBlue = 255;//ceil((double)(i-16*calc+1)*255/16);
         rgbColors[i].rgbReserved = 0;
@@ -1388,21 +1388,25 @@ HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, double radians,int rTranspa
 
 
 
-void DrawTriFill(HDC hdc, int tri_color,double x1,double y1,double x2,double y2,double x3,double y3,bool IsHatch,int hatch_type)
+void DrawTriFill(HDC hdc, int tri_color, double x1,double y1,double x2,double y2,double x3,double y3,bool IsHatch,int hatch_type)
 {//https://stackoverflow.com/questions/33447305/c-windows32-gdi-fill-triangle
   HPEN hPen = CreatePen(PS_SOLID, 2, tri_color);
   HPEN hOldPen = SelectObject(hdc, hPen);
 
-  HBRUSH hBrush;
+  HBRUSH hBrush, hOldBrush;
+  POINT vertices[] = { {x1, y1}, {x2, y2}, {x3, y3} };
 
   if (!IsHatch) {
     hBrush=CreateSolidBrush(tri_color);
+    hOldBrush = SelectObject(hdc, hBrush);
   } else {
-    hBrush=CreateHatchBrush(hatch_type,tri_color);
-  }  
-  HBRUSH hOldBrush = SelectObject(hdc, hBrush);
+ // Set background mode to transparent 
+    SetBkMode(hdc, TRANSPARENT);
 
-  POINT vertices[] = { {x1, y1}, {x2, y2}, {x3, y3} };
+    hBrush=CreateHatchBrush(hatch_type,tri_color);
+    hOldBrush = SelectObject(hdc, hBrush);
+  }  
+
   Polygon(hdc, vertices, sizeof(vertices) / sizeof(vertices[0]));
 
   SelectObject(hdc, hOldBrush);
@@ -1685,8 +1689,11 @@ void DrawPaintSquare(HDC hdc,int move_x,int move_y,int original_index, int targe
     for (int x=0;x<16;x++) { //left to right
       if (index==target_index) {
         GrRect(hdc,move_x+x*size-2,move_y+y*size-2,size2,size2,WHITE);        
+        GrRect(hdc,move_x+x*size,move_y+y*size,size,size,rgbPaint[index]);
+      } else {
+        GrCircle(hdc,move_x+x*size+4,move_y+y*size+4,4,rgbPaint[index],rgbPaint[index]);
       }
-      GrRect(hdc,move_x+x*size,move_y+y*size,size,size,rgbPaint[index]);
+      //GrRect(hdc,move_x+x*size,move_y+y*size,size,size,rgbPaint[index]);
       if (index==original_index) {
         GrCircle(hdc,move_x+x*size+4,move_y+y*size+4,2,WHITE,WHITE);
        }

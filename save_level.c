@@ -167,15 +167,60 @@ void SaveNewCreatedLvl(const wchar_t* create_lvl_name_)
   fprintf(fptr,"15;\n");
   fprintf(fptr,"0;\n");
 
+  fprintf(fptr,"0;\n"); //
+  fprintf(fptr,"200,200;\n"); // 
+
+  fprintf(fptr,"0;\n"); //
+  fprintf(fptr,"200,200;\n"); // 
 
   fclose(fptr);
 }
 
 
 
+void SaveLvlBmp(HWND hwnd, HDC hdc)
+{  
+  wchar_t bmp_save[64];
+  swprintf(bmp_save,64,L"saves/%s/map.bmp",level_names[level_chosen]);
+  wchar_t bmp_save_shadow[64];
+  swprintf(bmp_save_shadow,64,L"saves/%s/map_shadow.bmp",level_names[level_chosen]);
+
+  PAINTSTRUCT ps; //Suggestion Credit: https://git.xslendi.xyz
+  hdc=BeginPaint(hwnd, &ps);
+  HDC hdc2=CreateCompatibleDC(hdc);
+
+  map_platforms_sprite=CreateCrunchyBitmap(MAP_WIDTH,MAP_HEIGHT);
+
+  SelectObject(hdc2,map_platforms_sprite);
+
+  GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,MYCOLOR1); //Create Background with random color over platforms
+
+  DrawGroundTriFill(hdc2);
+  DrawGround(hdc2);
+  DrawGroundText(hdc2);
 
 
-void SaveMELvl()
+  int shadowc=LTGRAY;
+  if (MapEditor.set_lvl_ambient_val[6]==1 && 
+        (MapEditor.set_lvl_ambient_val[7]!=shadow_grad_rise || MapEditor.set_lvl_ambient_val[8]!=shadow_grad_run)) {
+    if (MapEditor.set_lvl_ambient_val[0]==1 || (MapEditor.set_lvl_ambient_val[0]==2 && MapEditor.set_lvl_ambient_val[1]>127)) {
+      shadowc=DKRDKGRAY;
+    }
+    CreatePlatformShadowBitmap(hdc2, MapEditor.set_lvl_ambient_val[7],
+                                    MapEditor.set_lvl_ambient_val[8],
+                                    shadowc); //Create Shadow Map
+    SaveBitmapToFile2(map_platforms_shadow_shader,rgbColorsDefault, bmp_save_shadow);
+  }
+
+  DeleteDC(hdc2);
+  EndPaint(hwnd, &ps);
+  SaveBitmapToFile2(map_platforms_sprite,rgbColorsDefault, bmp_save);
+
+  DeleteObject(map_platforms_sprite);
+  DeleteObject(map_platforms_shadow_shader);
+}
+
+void SaveMELvl(HWND hwnd, HDC hdc)
 {
     FILE *fptr;
     wchar_t create_lvl_name[64];
@@ -252,6 +297,7 @@ void SaveMELvl()
 
     //GROUND color
     for (int i=0;i<GROUND_NUM;i++) {
+      Ground[i]->color=rgbPaint[Ground[i]->color_id]; //for saving
       fprintf(fptr,"%d,",Ground[i]->color_id);
     }
     fprintf(fptr,";\n");
@@ -427,12 +473,19 @@ void SaveMELvl()
     fprintf(fptr,"%1.0f;\n",player.x); //player x
     fprintf(fptr,"%1.0f;\n",player.y); //player y
 
-    fprintf(fptr,"%d;\n",map_background); //
-    fprintf(fptr,"%d;\n",custom_map_background_color_i); // 
-    fprintf(fptr,"%d;\n",is_moon); //
+    fprintf(fptr,"%d;\n",MapEditor.set_lvl_ambient_val[0]/*map_background*/); //
+    fprintf(fptr,"%d;\n",MapEditor.set_lvl_ambient_val[1]/*custom_map_background_color_i*/); // 
+    fprintf(fptr,"%d;\n",MapEditor.set_lvl_ambient_val[2]/*is_moon*/); //
 
+
+    fprintf(fptr,"%d;\n",MapEditor.set_lvl_ambient_val[3]); // 
+    fprintf(fptr,"%d,%d,;\n",MapEditor.set_lvl_ambient_val[4],MapEditor.set_lvl_ambient_val[5]); //
+    fprintf(fptr,"%d;\n",MapEditor.set_lvl_ambient_val[6]); //
+    fprintf(fptr,"%d,%d,;\n",MapEditor.set_lvl_ambient_val[7],MapEditor.set_lvl_ambient_val[8]); //
 
     fclose(fptr);
+
+    SaveLvlBmp(hwnd,hdc);
 }
 
 
@@ -442,7 +495,7 @@ void SaveMELvl()
 //
 //Adjusted Lvl Min Max
 
-void SaveNewLimitAdjustedLvl()
+void SaveNewLimitAdjustedLvl(HWND hwnd, HDC hdc)
 {
     FILE *fptr;
     wchar_t create_lvl_name[64];
@@ -875,6 +928,12 @@ void SaveNewLimitAdjustedLvl()
     fprintf(fptr,"%d;\n",custom_map_background_color_i); // 
     fprintf(fptr,"%d;\n",is_moon); //
 
+    fprintf(fptr,"%d;\n",is_raining); //
+    fprintf(fptr,"%d,%d;\n",rain_grad_rise,rain_grad_run); // 
+
+    fprintf(fptr,"%d;\n",is_shadows); //
+    fprintf(fptr,"%d,%d;\n",shadow_grad_rise,shadow_grad_run); // 
 
     fclose(fptr);
+
 }

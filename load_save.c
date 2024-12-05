@@ -121,6 +121,8 @@ bool is_moon;
 bool is_shadows=FALSE;
 bool is_raining=FALSE;
 int rain_sound_duration=0;
+double shadow_grad_rise=2;
+double shadow_grad_run=1;
 double rain_grad_rise=1;
 double rain_grad_run=1;
 
@@ -185,6 +187,7 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
   wchar_t txt[512];
   bool writing_txt;
   bool deci;
+  bool is_negative_val=FALSE;
   bool is_calc_utf16=FALSE;
 
   FILE *fptr;
@@ -199,7 +202,7 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
 
 
   while ((c=fgetwc(fptr))!=WEOF) {
-    if (row<=3 || row>=40) { //first 4 rows
+    if (row<=3 || (row>=40 && row!=46 && row!=48)) { //first 4 rows
       if (c!=';') {//not yet a semicolon
         if (c>='0' && c<='9') { //numerical chars only
           int_val=c-'0'; //ascii convert to num
@@ -302,15 +305,10 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
             is_moon=(bool)int_saved_val;
             break;
           case 45: //is_raining
+            is_raining=(bool)int_saved_val;
             break;
-
-          case 46: //rain rise, rain run
-            break;
-
           case 47: //is_shadow
-            break;
-
-          case 48: //shadow rise, shadow run
+            is_shadows=(bool)int_saved_val;
             break;
         }
         column=int_val=int_saved_val=0;//restart values
@@ -334,7 +332,13 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
                 deci=TRUE;
               }
             }
+          } else if (c=='-') {
+            is_negative_val=TRUE;
           } else if (c==',') {//comma value
+            if (is_negative_val) {
+              int_saved_val=-abs(int_saved_val);
+              is_negative_val=FALSE;
+            }
             //ground
             if (row>=4 && row<=12) {
               switch (row) {
@@ -366,7 +370,7 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
                 case 22: saved_enemy_type_chase_range[column]=int_saved_val;break;
                 case 23: saved_enemy_type_color[column]=int_saved_val;break;
                 case 24: saved_enemy_type_speed_multiplier[column]=int_saved_val;break;
-                case 25:  saved_enemy_type_health[column]=int_saved_val;break;
+                case 25: saved_enemy_type_health[column]=int_saved_val;break;
                 case 26: saved_enemy_type_shoot_at_player_range[column]=int_saved_val;break;
                 case 27: saved_enemy_type_aim_rand[column]=int_saved_val;break;
                 case 28: saved_enemy_type_bullet_cooldown[column]=int_saved_val;break;
@@ -381,10 +385,31 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
                 case 37: saved_enemy_type_time_breaker_rare[column]=int_saved_val;break;
                 case 38: saved_enemy_type_time_breaker_length[column]=int_saved_val;break;
                 case 39: saved_enemy_type_time_breaker_immune[column]=int_saved_val;break;
+                case 46: 
+                  if (column==0) {
+                    rain_grad_rise=int_saved_val;
+                  } else {
+                    rain_grad_run=int_saved_val;
+                    if (rain_grad_run==0) {
+                      rain_grad_run=1;
+                    }
+                  }
+                  break;
+                case 48: 
+                  if (column==0) {
+                    shadow_grad_rise=int_saved_val;
+                  } else {
+                    shadow_grad_run=int_saved_val;
+                    if (shadow_grad_run==0) {
+                      shadow_grad_run=1;
+                    }
+                  }
+                  break;
               }
             }
             //printf("%d,",int_saved_val);//save value to arr
             column++;
+            is_negative_val=FALSE;
             int_val=int_saved_val=0;//restart values
           }
 
@@ -439,6 +464,7 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
         //End of characters only
       } else { //semi colon ;
         column=int_val=int_saved_val=0;//restart values
+        is_negative_val=FALSE;
         row++;
       }
     }

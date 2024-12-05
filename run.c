@@ -79,6 +79,7 @@ bool load_sound=FALSE;
 bool back_to_menu=FALSE;
 bool clean_up_sound=FALSE;
 bool run_after_once=FALSE;
+bool flag_update_background=FALSE;
 
 //game options
 bool yes_unifont=TRUE;//FALSE;
@@ -513,8 +514,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
            case 4:
+            if (color_chooser.is_choosing_color) {
+             MEColorPickKeypressDown(wParam);
+            } else {
              MapEditorKeypressDown(wParam);
-             break;
+            }
+            break;
 
         } //end of switch statement for menu chosen
       } //end of menu chosen if else
@@ -566,11 +571,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             break;
 
            case 3:
-             ThreeMenuKeypressUp(wParam);
+             ThreeMenuKeypressUp(wParam,hwnd,hdc);
              break;
 
            case 4:
-             MapEditorKeypressUp(wParam);
+             if (color_chooser.is_choosing_color) {
+               MEColorPickKeypressUp(wParam);
+             } else {
+               MapEditorKeypressUp(wParam, hwnd, hdc);
+             }
              break;
           }
           break; //end of main menu chosen switch
@@ -704,18 +713,27 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         }
 
 
-        if (GR_WIDTH!=OLD_GR_WIDTH || GR_HEIGHT!=OLD_GR_HEIGHT) {
+        if (GR_WIDTH!=OLD_GR_WIDTH || GR_HEIGHT!=OLD_GR_HEIGHT || flag_update_background) {
           if (!in_map_editor) {
             InitPlayerCamera();
             player.cam_x=0;
             player.cam_y=0;
             CameraInit(player.x,player.y); //idk scaling is weird for sprite
           }
+          if (flag_update_background) {
+            flag_update_background=FALSE;
+          }
           OLD_GR_WIDTH = GR_WIDTH;
           OLD_GR_HEIGHT = GR_HEIGHT;
           //Load Map Background sprites
           if (!in_main_menu || in_map_editor) {
-            if (map_background>=0 && map_background<=2) {
+             int mb_val;
+             if (!in_main_menu) {
+               mb_val=map_background;
+             } else {
+               mb_val=MapEditor.set_lvl_ambient_val[0];
+             }
+            if (mb_val>=0 && mb_val<=2) {
               DeleteObject(map_background_sprite);
               HBITMAP tmp_map_background_sprite;
 
@@ -724,7 +742,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, lvl_background_bmp, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
               if (tmp_map_background_sprite==NULL) { //not found :/
-                switch (map_background) {
+                switch (mb_val) {
                   case 0:
                     if (GR_WIDTH<800 && GR_HEIGHT<600) {
                       tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
@@ -871,7 +889,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             hdcBackbuff=CreateCompatibleDC(hdc);
             screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
             SelectObject(hdcBackbuff,screen);
-            DrawBackground(hdcBackbuff);
+            DrawMapEditorBackground(hdcBackbuff);
             DrawMapEditorPlatforms(hdcBackbuff);
             DrawMapEditorEnemy(hdcBackbuff);
             DrawMapEditorPlayer(hdcBackbuff);
@@ -1019,7 +1037,20 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       remove("music/tmp/tmp.wav");
       rmdir("music/tmp"); //remove tmp
 
-      MessageBox(NULL, TEXT("ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែលអ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយកទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពីឆ្នាំ ១៩៥៩, ១៩៦៣ ដល់ ១៩៩៧ កម្ពុជាក្រោមពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ និងកម្ពុជាខាងជើង។\n\nខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\nIn memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1959, 1963-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1446-05-12"), TEXT("អ្នកសម្លាប់សត្វចង្រៃ") ,MB_OK);
+      MessageBox(NULL, TEXT(
+"\
+ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែល\n\
+អ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយក\n\
+ទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពី\n\
+ឆ្នាំ ១៩៥៩, ១៩៦៣ ដល់ ១៩៩៧ \n\
+កម្ពុជាក្រោមពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ \n\
+និងកម្ពុជាខាងជើង ឆ្នាំ ១៩៤១។\n\n\
+\
+\
+ខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\n\
+\
+\
+In memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1959, 1963-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1446-05-12"), TEXT("អ្នកសម្លាប់សត្វចង្រៃ") ,MB_OK);
 //TEXT("អាពីងស៊ីរុយ") ,MB_OK); //ឈ្មោះចាស់
 
       //load levels in save

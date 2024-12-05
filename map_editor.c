@@ -39,6 +39,15 @@ struct MapEditor
   int selected_enemy_type_option;
 
 
+  //pick color
+  int pick_color;
+
+  //==== background ambient ====
+  int selected_lvl_ambient_option;
+
+
+  //set options for lvl ambient
+  int set_lvl_ambient_val[9];
 
   //Shooting bullet
   bool demo_enemy_spriteisleft;
@@ -53,7 +62,10 @@ struct MapEditor
   int bullet_head_x[MAX_BULLET_PER_FIRE];
   int bullet_head_y[MAX_BULLET_PER_FIRE];
 
-
+  int clipboard_ground_id;
+  int clipboard_ground_color_id;
+  int clipboard_enemy_id;
+  int clipboard_enemy_type_id;
 
 } MapEditor;
 
@@ -232,6 +244,14 @@ bool *set_enemy_type_bool_attr[ENEMY_TYPE_BOOL_ATTR_NUM]={
   set_enemy_type_time_breaker_immune
 };
 
+
+int melvlambience_min[9]={
+0,0,0,0,1,-100,0,1,-100
+};
+
+int melvlambience_max[9]={
+3,0,2,2,101,101,2,101,101
+};
 
 
 //Map Editor Init()
@@ -606,11 +626,29 @@ void InitMapEditor(HDC hdc)
   MapEditor.selected_enemy_type_id=0;
   MapEditor.selected_enemy_type_option=0;
 
+  MapEditor.selected_lvl_ambient_option=0;
+
+  MapEditor.pick_color=-1;
 
   MapEditor.is_ground_txt_typing=FALSE;
   MapEditor.is_ground_txt_typing_loaded=FALSE;
   MapEditor.typing_ground_txt_pos=0;
 
+
+  MapEditor.set_lvl_ambient_val[0]=map_background;
+  MapEditor.set_lvl_ambient_val[1]=custom_map_background_color_i;
+  MapEditor.set_lvl_ambient_val[2]=is_moon;
+  MapEditor.set_lvl_ambient_val[3]=is_raining;
+  MapEditor.set_lvl_ambient_val[4]=rain_grad_rise;
+  MapEditor.set_lvl_ambient_val[5]=rain_grad_run;
+  MapEditor.set_lvl_ambient_val[6]=is_shadows;
+  MapEditor.set_lvl_ambient_val[7]=shadow_grad_rise;
+  MapEditor.set_lvl_ambient_val[8]=shadow_grad_run;
+
+  MapEditor.clipboard_ground_id=0;
+  MapEditor.clipboard_ground_color_id=0;
+  MapEditor.clipboard_enemy_id=0;
+  MapEditor.clipboard_enemy_type_id=0;
 
   for (int i=0;i<512;i++)
     MapEditor.typing_ground_txt[i]='\0';
@@ -784,6 +822,10 @@ void MapEditorAct()
 
     Click();
 
+
+    if (MapEditor.selected_option>0 && player.attack_rst) {
+      player.attack_rst=FALSE;
+    }
 
     switch (MapEditor.selected_option) {
       case 0:

@@ -93,10 +93,18 @@ void DrawRainShader(HDC hdc)
 void DrawRainShader2(HDC hdc)
 {
   int c;
-  if (player.rain_wet_timer>60) {
-    c=LTGRAY;//Highlight(IsInvertedBackground(),LTGRAY,RGB(200,200,200));
+  if (custom_map_background_color_i>127 || map_background==1) {
+    if (player.rain_wet_timer>60) {
+      c=DKGRAY;
+    } else {
+      c=rgbPaint[119+16*2];
+    }
   } else {
-    c=RGB(125,125,125);//Highlight(IsInvertedBackground(),RGB(125,125,125),RGB(215,215,215));
+    if (player.rain_wet_timer>60) {
+      c=LTGRAY;//Highlight(IsInvertedBackground(),LTGRAY,RGB(200,200,200));
+    } else {
+      c=RGB(125,125,125);//Highlight(IsInvertedBackground(),RGB(125,125,125),RGB(215,215,215));
+    }
   }
 
   if (player.rain_wet_timer>0) {
@@ -1388,7 +1396,7 @@ void DrawUI(HDC hdc)
       GrRect(hdc,1+player.sprite_x-50+k*20,player.sprite_y+24,18,3,c5);
     }
 
-    if (is_khmer) {
+    /*if (is_khmer) {
       wchar_t wbullettxt[4];
       swprintf(wbullettxt,4,L"%d",player_bullet_remaining);
       GrPrintW(hdc,player.sprite_x+58,player.sprite_y+16,ReplaceToKhmerNum(wbullettxt),"",c,16,FALSE,yes_unifont);
@@ -1396,7 +1404,7 @@ void DrawUI(HDC hdc)
       char bullettxt[4];
       sprintf(bullettxt,"%d",player_bullet_remaining);
       GrPrint(hdc,player.sprite_x+58,player.sprite_y+16,bullettxt,c);
-    }
+    }*/
   }
 
 
@@ -1439,6 +1447,14 @@ void DrawUI(HDC hdc)
     GrPrintW(hdc,knifethrowstxtx-32-30-8,knifethrowstxty-4,ReplaceToKhmerNum(bulletlefttxt),"",bc,16,FALSE,yes_unifont);
   } else {
     GrPrintW(hdc,knifethrowstxtx-32-8,knifethrowstxty-4,bulletlefttxt,"",bc,16,FALSE,FALSE);
+  }
+
+  if (player.show_exp_timer>0) {
+    if (is_khmer) {
+      GrPrintW(hdc,player.sprite_x+58,player.sprite_y+16,ReplaceToKhmerNum(bulletlefttxt),"",bc,16,FALSE,yes_unifont);
+    } else {
+      GrPrintW(hdc,player.sprite_x+58,player.sprite_y+16,bulletlefttxt,"",bc,16,FALSE,FALSE);
+    }
   }
 
     //draw perfect block

@@ -5,7 +5,7 @@ char *enemy_type_int_attr_names[ENEMY_TYPE_INT_ATTR_NUM]=
 "Follow Range",
 "Unchase Range",
 "Chase Range",
-"Color",
+"Color", //4
 "Speed *",
 "Health",
 "Shoot at Player Range",
@@ -17,10 +17,23 @@ char *enemy_type_int_attr_names[ENEMY_TYPE_INT_ATTR_NUM]=
 "Bullet Damage",
 "Bullet Speed *",
 "Bullet Range",
-"Bullet Color",
+"Bullet Color", //16
 "Bullet Type",
 "Timebreaker Rare",
 "Timebreaker Length"
+};
+
+char *melvlambienttxt_arr[9]=
+{
+"Background Type",
+"Background Color",
+"Has Moon",
+"Has Rain",
+"Rain Rise",
+"Rain Run",
+"Has Shadow",
+"Shadow Rise",
+"Shadow Run"
 };
 
 char *enemy_type_double_attr_names[ENEMY_TYPE_DOUBLE_ATTR_NUM]=
@@ -67,15 +80,16 @@ void DrawMapEditorPlatforms(HDC hdc)
 				Ground[i]->y3+player.cam_y+GR_HEIGHT/2,TRUE,HS_BDIAGONAL);*/
         }
       } else if (Ground[i]->type==1) {
+        c=rgbPaint[Ground[i]->color_id];
         if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
             !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
-	      DrawTriFill(hdc,BLUE,
+	      DrawTriFill(hdc,c,
                 Ground[i]->x1+player.cam_x+GR_WIDTH/2,
 				Ground[i]->y1+player.cam_y+GR_HEIGHT/2,
 				Ground[i]->x2+player.cam_x+GR_WIDTH/2,
 				Ground[i]->y2+player.cam_y+GR_HEIGHT/2,
 				Ground[i]->x3+player.cam_x+GR_WIDTH/2,
-				Ground[i]->y3+player.cam_y+GR_HEIGHT/2,TRUE,HS_BDIAGONAL);
+				Ground[i]->y3+player.cam_y+GR_HEIGHT/2,TRUE,/*HS_BDIAGONAL*/HS_HORIZONTAL);
         }
       }
     } 
@@ -170,6 +184,30 @@ void DrawMapEditorPlatforms(HDC hdc)
 }
 
 
+void DrawMapEditorBackground(HDC hdc)
+{
+  switch (MapEditor.set_lvl_ambient_val[0]) {
+    case 0:
+      DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
+      break;
+    case 1:
+      DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
+      break;
+    default:
+      if (map_background_sprite==NULL) {
+        GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,rgbPaint[MapEditor.set_lvl_ambient_val[1]]);
+      } else {
+        DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
+      }
+      break;
+  }
+
+  if (MapEditor.set_lvl_ambient_val[2]==1) {
+    DrawSprite(hdc, GR_WIDTH-128,128,&draw_moon_sprite,FALSE);
+  }
+}
+
+
 
 void DrawMapEditorEnemy(HDC hdc)
 {
@@ -234,30 +272,44 @@ void DrawMapEditorUI(HDC hdc)
       case 0: //move ground
         c = Highlight((MapEditor.selected_ground_option==0),BLACK,LTPURPLE);
         GrPrint(hdc,8,16,"GROUNDS:",c);
-        char print_ground_id[8];
-        sprintf(print_ground_id,"<%d>",MapEditor.selected_ground_id);
+        char print_ground_id[16];
+        sprintf(print_ground_id,"<%d>  {%d}",MapEditor.selected_ground_id,MapEditor.clipboard_ground_id);
         GrPrint(hdc,8*11,16,print_ground_id,c);
 
 
         //type
         c = Highlight((MapEditor.selected_ground_option==1),BLACK,LTPURPLE);
         GrPrint(hdc,8,34,"Type:",c);
-        char print_ground_type[8];
-        sprintf(print_ground_id,"<%d>",Ground[MapEditor.selected_ground_id]->type);
+        char print_ground_type[16];
+        sprintf(print_ground_id,"<%d>  {%d}",Ground[MapEditor.selected_ground_id]->type,Ground[MapEditor.clipboard_ground_id]->type);
         GrPrint(hdc,8*11,34,print_ground_id,c);
 
         //color
         c = Highlight((MapEditor.selected_ground_option==2),BLACK,LTPURPLE);
         GrPrint(hdc,8,52,"Color:",c);
-        GrPrint(hdc,8*11,52,"<    >",c);
+        GrPrint(hdc,8*11,52,"[      ]",c);
+        GrPrint(hdc,8*15,52,"{     }",c);
+        GrPrint(hdc,8*19,52,"(      )",c);
 
-        if (Ground[MapEditor.selected_ground_id]->color_id!=0) {
-          GrRect(hdc,8*12+1,52,16,16,BLACK);
-        } else {
-          GrRect(hdc,8*12+1,52,16,16,WHITE);
+        //if (Ground[MapEditor.selected_ground_id]->color_id!=0) {
+          //GrRect(hdc,8*12+1,52,16,16,BLACK);
+        //} else {
+          //GrRect(hdc,8*12+1,52,16,16,WHITE);
+        //}
+
+        GrRect(hdc,8*12+1,52,16,16,WHITE);
+        GrRect(hdc,8*12+2+1,52+2,12,12,rgbPaint[Ground[MapEditor.selected_ground_id]->color_id]);
+
+        GrRect(hdc,8*16,52,16,16,WHITE);
+        GrRect(hdc,8*16+2,52+2,12,12,rgbPaint[Ground[MapEditor.clipboard_ground_id]->color_id]);
+
+        GrRect(hdc,8*20,52,16,16,WHITE);
+        GrRect(hdc,8*20+2,52+2,12,12,rgbPaint[MapEditor.clipboard_ground_color_id]);
+
+        if (color_chooser.is_choosing_color) {
+          DrawPaintSquare(hdc,8*12+2+1+64,52+2,color_chooser.color_id,color_chooser.color_id_choosing);
         }
 
-        GrRect(hdc,8*12+2+1,52+2,12,12,rgbPaint[Ground[MapEditor.selected_ground_id]->color_id]);
 
         //is_ghost
         c = Highlight((MapEditor.selected_ground_option==3),BLACK,LTPURPLE);
@@ -267,12 +319,17 @@ void DrawMapEditorUI(HDC hdc)
         } else {
           GrPrint(hdc,8*11,70,"<FALSE>",c);
         }
+        if (Ground[MapEditor.clipboard_ground_id]->is_ghost) {
+          GrPrint(hdc,8*19,70,"{TRUE}",c);
+        } else {
+          GrPrint(hdc,8*19,70,"{FALSE}",c);
+        }
 
         //font size
         c = Highlight((MapEditor.selected_ground_option==4),BLACK,LTPURPLE);
         GrPrint(hdc,8,86,"Font Size:",c);
-        char print_ground_font_size[8];
-        sprintf(print_ground_font_size,"<%d>",Ground[MapEditor.selected_ground_id]->font_size);
+        char print_ground_font_size[16];
+        sprintf(print_ground_font_size,"<%d>  {%d}",Ground[MapEditor.selected_ground_id]->font_size,Ground[MapEditor.clipboard_ground_id]->font_size);
         GrPrint(hdc,8*11,86,print_ground_font_size,c);
         
 
@@ -311,16 +368,16 @@ void DrawMapEditorUI(HDC hdc)
       case 2: //move enemy
         c = Highlight((MapEditor.selected_enemy_option==0),BLACK,LTPURPLE);
         GrPrint(hdc,8,16,"ENEMY:",c);
-        char print_enemy_id[8];
-        sprintf(print_enemy_id,"<%d>",MapEditor.selected_enemy_id);
+        char print_enemy_id[16];
+        sprintf(print_enemy_id,"<%d>  {%d}",MapEditor.selected_enemy_id,MapEditor.clipboard_enemy_id);
         GrPrint(hdc,8*11,16,print_enemy_id,c);
 
 
 
         c = Highlight((MapEditor.selected_enemy_option==1),BLACK,LTPURPLE);
         GrPrint(hdc,8,34,"Type:",c);
-        char print_enemy_type[8];
-        sprintf(print_enemy_type,"<%d>",MEEnemy[MapEditor.selected_enemy_id]->type);
+        char print_enemy_type[16];
+        sprintf(print_enemy_type,"<%d>  {%d}",MEEnemy[MapEditor.selected_enemy_id]->type,MEEnemy[MapEditor.clipboard_enemy_id]->type);
         GrPrint(hdc,8*11,34,print_enemy_type,c);
         break;
 
@@ -328,24 +385,50 @@ void DrawMapEditorUI(HDC hdc)
 //        GrPrint(hdc,8,16,"ENEMY TYPE:",BLACK);
         c = Highlight((MapEditor.selected_enemy_type_option==0),BLACK,LTPURPLE);
         GrPrint(hdc,8,16,"ENEMY TYPE:",c);
-        char print_enemy_type_id[8];
-        sprintf(print_enemy_type_id,"<%d>",MapEditor.selected_enemy_type_id);
+        char print_enemy_type_id[16];
+        sprintf(print_enemy_type_id,"<%d>  {%d}",MapEditor.selected_enemy_type_id,MapEditor.clipboard_enemy_type_id);
         GrPrint(hdc,8*13,16,print_enemy_type_id,c);
 
 
 
         for (int i=0;i<ENEMY_TYPE_INT_ATTR_NUM;i++) {
           c = Highlight((MapEditor.selected_enemy_type_option==i+1),BLACK,LTPURPLE);
-          char print_enemy_type_int_attr[32];
-          sprintf(print_enemy_type_int_attr,"%s <%d>",enemy_type_int_attr_names[i],set_enemy_type_int_attr[i][MapEditor.selected_enemy_type_id]);
-          GrPrint(hdc,8,32+16*i,print_enemy_type_int_attr,c);
+          char print_enemy_type_int_attr[40];
+          if (i!=4 && i!=16) {
+            sprintf(print_enemy_type_int_attr,"%s <%d>  {%d}",enemy_type_int_attr_names[i],set_enemy_type_int_attr[i][MapEditor.selected_enemy_type_id],set_enemy_type_int_attr[i][MapEditor.clipboard_enemy_type_id]);            
+            GrPrint(hdc,8,32+16*i,print_enemy_type_int_attr,c);
+          } else {
+
+            GrRect(hdc,8*14+1,32+16*i,16,16,WHITE);
+            GrRect(hdc,8*18,32+16*i,16,16,WHITE);
+            int di=MapEditor.selected_enemy_type_option-1;
+            if (i==4) {
+              GrRect(hdc,8*14+2+1,32+16*i+2,12,12,rgbPaint[set_enemy_type_color[MapEditor.selected_enemy_type_id]]);
+              GrPrint(hdc,8,32+16*i,"Enemy Color:",c);
+              GrPrint(hdc,8*13,32+16*i,"[      ]",c);
+
+              GrRect(hdc,8*18+2,32+16*i+2,12,12,rgbPaint[set_enemy_type_color[MapEditor.clipboard_enemy_type_id]]);
+              GrPrint(hdc,8*17,32+16*i,"{     }",c);
+            } else {
+              GrRect(hdc,8*14+2+1,32+16*i+2,12,12,rgbPaint[set_enemy_type_bullet_color[MapEditor.selected_enemy_type_id]]);
+              GrPrint(hdc,8,32+16*i,"Bullet Color:",c);
+              GrPrint(hdc,8*13,32+16*i,"[      ]",c);
+
+              GrRect(hdc,8*18+2,32+16*i+2,12,12,rgbPaint[set_enemy_type_bullet_color[MapEditor.clipboard_enemy_type_id]]);
+              GrPrint(hdc,8*17,32+16*i,"{     }",c);
+            }
+
+            if (color_chooser.is_choosing_color) {
+              DrawPaintSquare(hdc,8*24+2+1+64,32+16*di,color_chooser.color_id,color_chooser.color_id_choosing);
+            }
+          }
         }
 
 
         for (int i=0;i<ENEMY_TYPE_DOUBLE_ATTR_NUM;i++) {
           c = Highlight((MapEditor.selected_enemy_type_option==i+ENEMY_TYPE_INT_ATTR_NUM+1),BLACK,LTPURPLE);
           char print_enemy_type_double_attr[32];
-          sprintf(print_enemy_type_double_attr,"%s <%1.1f>",enemy_type_double_attr_names[i],set_enemy_type_double_attr[i][MapEditor.selected_enemy_type_id]);
+          sprintf(print_enemy_type_double_attr,"%s <%1.1f>  {%1.1f}",enemy_type_double_attr_names[i],set_enemy_type_double_attr[i][MapEditor.selected_enemy_type_id],set_enemy_type_double_attr[i][MapEditor.clipboard_enemy_type_id]);
           GrPrint(hdc,8,32+16*ENEMY_TYPE_INT_ATTR_NUM+16*i,print_enemy_type_double_attr,c);
         }
 
@@ -353,7 +436,7 @@ void DrawMapEditorUI(HDC hdc)
         for (int i=0;i<ENEMY_TYPE_BOOL_ATTR_NUM;i++) {
           c = Highlight((MapEditor.selected_enemy_type_option==i+ENEMY_TYPE_DOUBLE_ATTR_NUM+ENEMY_TYPE_INT_ATTR_NUM+1),BLACK,LTPURPLE);
           char print_enemy_type_bool_attr[32];
-          sprintf(print_enemy_type_bool_attr,"%s <%d>",enemy_type_bool_attr_names[i],set_enemy_type_bool_attr[i][MapEditor.selected_enemy_type_id]);
+          sprintf(print_enemy_type_bool_attr,"%s <%d>  {%d}",enemy_type_bool_attr_names[i],set_enemy_type_bool_attr[i][MapEditor.selected_enemy_type_id],set_enemy_type_bool_attr[i][MapEditor.clipboard_enemy_type_id]);
           GrPrint(hdc,8,32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM)+16*i,print_enemy_type_bool_attr,c);
         }
         
@@ -390,6 +473,38 @@ void DrawMapEditorUI(HDC hdc)
 
       case 4: //set map backgroudn and palette
         GrPrint(hdc,8,16,"LEVEL",BLACK);
+        GrLine(hdc,320,16*8,320+MapEditor.set_lvl_ambient_val[5],16*8+MapEditor.set_lvl_ambient_val[4],BLUE);
+        GrLine(hdc,320,16*17,320+MapEditor.set_lvl_ambient_val[8],16*17+MapEditor.set_lvl_ambient_val[7],LTGRAY);
+
+        for (int i=0;i<9;i++) {
+          c = Highlight(MapEditor.selected_lvl_ambient_option==i,BLACK,LTPURPLE);
+          char melvlambienttxt[20];
+          switch (i) {
+            case 1:
+              GrPrint(hdc,8,16*3,"Background Color: [      ]",c);
+              GrRect(hdc,8*17+1+2,16*3,16,16,WHITE);
+              GrRect(hdc,8*17+2+1+2,16*3+2,12,12,rgbPaint[MapEditor.set_lvl_ambient_val[1]]);
+              if (color_chooser.is_choosing_color) {
+                DrawPaintSquare(hdc,8*25,52+2,color_chooser.color_id,color_chooser.color_id_choosing);
+              }
+              break;
+
+            case 3:
+            case 6:
+              if (MapEditor.set_lvl_ambient_val[i]==0) {
+                sprintf(melvlambienttxt,"%s: <FALSE>",melvlambienttxt_arr[i]);
+              } else {
+                sprintf(melvlambienttxt,"%s: <TRUE>",melvlambienttxt_arr[i]);
+              }
+              GrPrint(hdc,8,16*(i+2),melvlambienttxt,c);
+              break;
+
+            default:
+              sprintf(melvlambienttxt,"%s: <%d>",melvlambienttxt_arr[i],MapEditor.set_lvl_ambient_val[i]);
+              GrPrint(hdc,8,16*(i+2),melvlambienttxt,c);
+              break;
+         }
+       }
         break;
 
     }

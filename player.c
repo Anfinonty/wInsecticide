@@ -569,6 +569,7 @@ void PlayerActGroundEdgeMovement()
   double edge_dist2;
   double edge_angle;
   double distl=20;
+//  double distl=12;
 
   if (!player.blocking && !player.rst_up) {
       if (!player.is_on_ground_edge) {
@@ -1908,7 +1909,7 @@ void PlayerAct()
 
   //PLAYER ACT SPPED IN WATER
   if (player.in_water) {
-    player.grav=1;
+    player.grav=2;
     speed_limiter=speed_limiter/2+1;
   }
 

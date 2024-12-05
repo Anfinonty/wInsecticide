@@ -150,10 +150,9 @@ void Init(HDC hdc) {
 
 
 
+
 void InitPlatformsSprite(HWND hwnd, HDC hdc)
 {
-
-
   wchar_t bmp_save[64];
   swprintf(bmp_save,64,L"saves/%s/map.bmp",level_names[level_chosen]);
   wchar_t bmp_save_shadow[64];
@@ -168,6 +167,8 @@ void InitPlatformsSprite(HWND hwnd, HDC hdc)
         LR_LOADFROMFILE   // Load from file
         | LR_CREATEDIBSECTION // Create a DIB section
     );
+
+  if (is_shadows) {
   map_platforms_shadow_shader = (HBITMAP)LoadImageW(
         NULL,               // Handle to the instance (NULL for file)
         bmp_save_shadow,           // File name of the bitmap
@@ -176,8 +177,9 @@ void InitPlatformsSprite(HWND hwnd, HDC hdc)
         LR_LOADFROMFILE   // Load from file
         | LR_CREATEDIBSECTION // Create a DIB section
   );
+  }
 
-  if (map_platforms_sprite==NULL || map_platforms_shadow_shader==NULL) {
+  if (map_platforms_sprite==NULL) {
     PAINTSTRUCT ps; //Suggestion Credit: https://git.xslendi.xyz
     hdc=BeginPaint(hwnd, &ps);
     HDC hdc2=CreateCompatibleDC(hdc);
@@ -195,13 +197,13 @@ void InitPlatformsSprite(HWND hwnd, HDC hdc)
     DrawGroundText(hdc2);
 
     //if (map_platforms_shadow_shader==NULL) {
-    CreatePlatformShadowBitmap(hdc2);//,map_platforms_sprite);
-    SaveBitmapToFile2(map_platforms_shadow_shader,rgbColorsDefault, bmp_save_shadow);
+    //CreatePlatformShadowBitmap(hdc2);//,map_platforms_sprite);
+    //SaveBitmapToFile2(map_platforms_shadow_shader,rgbColorsDefault, bmp_save_shadow);
     //}  
 
     DeleteDC(hdc2);
     EndPaint(hwnd, &ps);
-    SaveBitmapToFile2(map_platforms_sprite,rgbColorsDefault, bmp_save);
+    //SaveBitmapToFile2(map_platforms_sprite,rgbColorsDefault, bmp_save);
     //BitmapPalette(hdc,map_platforms_sprite,rgbColorsDefault);
   }
 
@@ -210,6 +212,7 @@ void InitPlatformsSprite(HWND hwnd, HDC hdc)
 
   //map_platforms_shadow_shader_mask=CreateBitmapMask(map_platforms_shadow_shader,MYCOLOR1,NULL);
 }
+
 
 
 

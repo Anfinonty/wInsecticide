@@ -1379,7 +1379,7 @@ void ThreeMenuKeypressDown(WPARAM wParam)
 
 
 
-void ThreeMenuKeypressUp(WPARAM wParam)
+void ThreeMenuKeypressUp(WPARAM wParam, HWND hwnd, HDC hdc)
 {
   switch (wParam) {
     case VK_ESCAPE:
@@ -1434,7 +1434,7 @@ void ThreeMenuKeypressUp(WPARAM wParam)
         if (game_audio)
           PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
 
-        SaveNewLimitAdjustedLvl();
+        SaveNewLimitAdjustedLvl(hwnd, hdc);
 
         //free enemy
         //free saved grounds pointer & Ground
