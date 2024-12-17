@@ -647,6 +647,9 @@ typedef struct enemy
   //force search
   bool force_search;
 
+
+  int rotated_sprite_id;
+
   //Bullet
   int bullet_cooldown_max;
   int bullet_cooldown;
@@ -780,6 +783,46 @@ AEnemy **Enemy;
 
 
 
+//static, saves memory
+//inspired while playing angry birds on Ethihide airlines to Abu Dhabi
+struct EnemyTypeSprite
+{
+  HBITMAP fly_sprite_1;
+  HBITMAP fly_sprite_2;
+  DRAWSPRITE draw_fly_sprite_1; //right/left-facing-movesprite-1,right left determined by last_left/is_left/flip_sprite
+  DRAWSPRITE draw_fly_sprite_2; //right/left-facing-movesprite-2
+} EnemyTypeSprite[ENEMY_TYPE_NUM];
+
+
+
+
+//for large enemies only malloc for large enemy
+typedef struct EnemyRotatedSprite
+{
+  HBITMAP rotated_sprite_1;
+  HBITMAP rotated_sprite_2;
+  DRAWSPRITE draw_rotated_sprite_1; //From EnemyTypeSprite.rotate_sprite_1
+  DRAWSPRITE draw_rotated_sprite_2;
+} AEnemyRotatedSprite;
+
+AEnemyRotatedSprite *createEnemyRotatedSprite()
+{
+  AEnemyRotatedSprite *toReturn = malloc(sizeof(AEnemyRotatedSprite));
+  return toReturn;
+}
+
+
+void freeEnemyRotatedSprite(AEnemyRotatedSprite *myEnemyRotatedSprite)
+{
+  if (myEnemyRotatedSprite)
+    free(myEnemyRotatedSprite);
+}
+
+AEnemyRotatedSprite **EnemyRotatedSprite;
+
+
+//...
+/*
 typedef struct enemy_sprites
 {
   HBITMAP sprite_1;
@@ -806,7 +849,7 @@ void freeEnemySprite(AEnemySprite *myEnemySprite)
 {
   if (myEnemySprite)
     free(myEnemySprite);
-}
+}*/
 
 
 

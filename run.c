@@ -85,7 +85,7 @@ bool flag_update_background=FALSE;
 bool yes_unifont=TRUE;//FALSE;
 bool game_cam_shake=TRUE;
 bool game_audio=TRUE;
-
+bool game_shadow=TRUE;//FALSE;
 
 
 //game state
@@ -831,7 +831,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DrawPlayer(hdcBackbuff);
 
 
-            if (is_shadows) {
+            if (is_shadows && game_shadow) {
               DrawShadows(hdcBackbuff);
             }
 

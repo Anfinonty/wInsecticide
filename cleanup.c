@@ -388,9 +388,9 @@ void CleanupAll()
       freeEnemy(Enemy[i]);
     }
 
-    for (int i=0;i<ENEMY_NUM;i++) {
+    /*for (int i=0;i<ENEMY_NUM;i++) {
       freeEnemySprite(EnemySprite[i]);
-    }
+    }*/
     //printf("===All objects freed\n");
 
 
@@ -399,7 +399,7 @@ void CleanupAll()
     free(NodeGrid); //free pointer to pointers
     free(VGrid); //free pointer to pointers
     free(Enemy);
-    free(EnemySprite);
+    //free(EnemySprite);
     //printf("===All pointers freed\n");
 
 

@@ -168,7 +168,7 @@ void InitPlatformsSprite(HWND hwnd, HDC hdc)
         | LR_CREATEDIBSECTION // Create a DIB section
     );
 
-  if (is_shadows) {
+  if (is_shadows && game_shadow) {
   map_platforms_shadow_shader = (HBITMAP)LoadImageW(
         NULL,               // Handle to the instance (NULL for file)
         bmp_save_shadow,           // File name of the bitmap

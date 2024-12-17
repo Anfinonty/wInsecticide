@@ -1,5 +1,6 @@
 int GROUND_NUM;
 int ENEMY_NUM;
+int LARGE_ENEMY_NUM;
 int MAP_WIDTH;
 int MAP_HEIGHT;
 int GRID_NUM;	
@@ -257,8 +258,7 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
               VGrid = calloc(VGRID_NUM,sizeof(struct AVGrid*));
               NodeGrid = calloc(MAP_NODE_NUM,sizeof(ANode*));
               Enemy = calloc(ENEMY_NUM,sizeof(AEnemy*));
-              EnemySprite = calloc(ENEMY_NUM,sizeof(AEnemySprite*));
-
+              //EnemySprite = calloc(ENEMY_NUM,sizeof(AEnemySprite*));
             
 
               for (int i=0;i<(GROUND_NUM+MAX_WEB_NUM);i++) {
@@ -280,11 +280,10 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
                 AEnemy *newEnemy = createEnemy();
                 Enemy[i] = newEnemy;
               }
-
-              for (int i=0;i<ENEMY_NUM;i++) {
+              /*for (int i=0;i<ENEMY_NUM;i++) {
                 AEnemySprite *newEnemySprite = createEnemySprite();
                 EnemySprite[i] = newEnemySprite;
-              }
+              }*/
             }
 
             break;
