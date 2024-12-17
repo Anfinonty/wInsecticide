@@ -85,7 +85,7 @@ bool flag_update_background=FALSE;
 bool yes_unifont=TRUE;//FALSE;
 bool game_cam_shake=TRUE;
 bool game_audio=TRUE;
-bool game_shadow=TRUE;//FALSE;
+bool game_shadow=FALSE;
 
 
 //game state

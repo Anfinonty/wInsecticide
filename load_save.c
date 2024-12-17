@@ -1,6 +1,6 @@
 int GROUND_NUM;
 int ENEMY_NUM;
-int LARGE_ENEMY_NUM;
+int LARGE_ENEMY_TYPE_NUM;
 int MAP_WIDTH;
 int MAP_HEIGHT;
 int GRID_NUM;	
@@ -51,6 +51,7 @@ int saved_enemy_type_bullet_color[ENEMY_TYPE_NUM];
 int saved_enemy_type_bullet_graphics_type[ENEMY_TYPE_NUM];
 int saved_enemy_type_time_breaker_rare[ENEMY_TYPE_NUM];
 int saved_enemy_type_time_breaker_length[ENEMY_TYPE_NUM];
+int saved_enemy_type_rot_sprite_id[ENEMY_TYPE_NUM];
 bool saved_enemy_type_time_breaker_immune[ENEMY_TYPE_NUM];
 
 

@@ -610,7 +610,7 @@ typedef struct enemy
   //Enemy Attributes
   //Enemy Node Attributes
 
-  bool being_drawn;
+  //bool being_drawn;
   bool saw_player; //:Enemy seen the player, player was in line of sight seconds ago.
   bool last_left; //:Enemy was going to the left
   bool target_player; //:Enemy is actively chasing the player
@@ -649,7 +649,7 @@ typedef struct enemy
 
 
   int rotated_sprite_id;
-
+  int current_rot_sprite_angle_id;
   //Bullet
   int bullet_cooldown_max;
   int bullet_cooldown;
@@ -681,14 +681,6 @@ typedef struct enemy
   int search_timer;
   int idle_timer;
   int forgor_timer;
-
-  int sprite_width;
-  int sprite_height;
-  int sprite_minx;
-  int sprite_miny;
-  int sprite_maxx;
-  int sprite_maxy;
-  int current_draw_row;
 
   int type;
   int in_air_timer;
@@ -731,8 +723,6 @@ typedef struct enemy
   double sprite_y;
   double speed;
   double knockback_angle;
-  double cosine;
-  double sine;
 
   //double x_height_from_ground;
   //double x_height_from_prev_ground;
@@ -796,14 +786,15 @@ struct EnemyTypeSprite
 
 
 
-
+#define M_PI_32     M_PI/32
+#define ROTATED_SPRITE_NUM  64 //fear not, 1 variant is very small, 8 bit
 //for large enemies only malloc for large enemy
 typedef struct EnemyRotatedSprite
 {
-  HBITMAP rotated_sprite_1;
-  HBITMAP rotated_sprite_2;
-  DRAWSPRITE draw_rotated_sprite_1; //From EnemyTypeSprite.rotate_sprite_1
-  DRAWSPRITE draw_rotated_sprite_2;
+  HBITMAP rotated_sprite1[ROTATED_SPRITE_NUM];
+  HBITMAP rotated_sprite2[ROTATED_SPRITE_NUM];
+  DRAWSPRITE draw_rotated_sprite1[ROTATED_SPRITE_NUM];
+  DRAWSPRITE draw_rotated_sprite2[ROTATED_SPRITE_NUM];
 } AEnemyRotatedSprite;
 
 AEnemyRotatedSprite *createEnemyRotatedSprite()
