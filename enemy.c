@@ -453,17 +453,35 @@ void EnemyMove(int enemy_id)
       Enemy[enemy_id]->force_search=TRUE;
     } else {
       if (Enemy[enemy_id]->x<path_node_center_x) {
+        if (Enemy[enemy_id]->species==0) {
           Enemy[enemy_id]->last_left=FALSE;
-          Enemy[enemy_id]->x+=Enemy[enemy_id]->speed;
-      } else {
-          Enemy[enemy_id]->last_left=TRUE;
-          Enemy[enemy_id]->x-=Enemy[enemy_id]->speed;  
-      }
-        if (Enemy[enemy_id]->y<path_node_center_y) {
-          Enemy[enemy_id]->y+=Enemy[enemy_id]->speed;
         } else {
-          Enemy[enemy_id]->y-=Enemy[enemy_id]->speed;
+          if (Enemy[enemy_id]->sprite_flip_timer>0) {
+            Enemy[enemy_id]->sprite_flip_timer--;
+          } else {
+            Enemy[enemy_id]->last_left=FALSE;
+            Enemy[enemy_id]->sprite_flip_timer=50;
+          }
         }
+        Enemy[enemy_id]->x+=Enemy[enemy_id]->speed;
+      } else {
+        if (Enemy[enemy_id]->species==0) {
+          Enemy[enemy_id]->last_left=TRUE;
+        } else {
+          if (Enemy[enemy_id]->sprite_flip_timer>0) {
+            Enemy[enemy_id]->sprite_flip_timer--;
+          } else {
+            Enemy[enemy_id]->last_left=TRUE;
+            Enemy[enemy_id]->sprite_flip_timer=50;
+          }
+        }
+        Enemy[enemy_id]->x-=Enemy[enemy_id]->speed;  
+      }
+      if (Enemy[enemy_id]->y<path_node_center_y) {
+        Enemy[enemy_id]->y+=Enemy[enemy_id]->speed;
+      } else {
+        Enemy[enemy_id]->y-=Enemy[enemy_id]->speed;
+      }
     }
   } else {
     //if (Enemy[enemy_id]->species==1) {
@@ -1381,63 +1399,37 @@ void SetEnemyByType(int i,int type)
   Enemy[i]->time_breaker_length=saved_enemy_type_time_breaker_length[type];
 }
 
-void CleanUpEnemySprites()
+
+void CleanUpRotatedSprites()
 {
-  /*for (int i=0;i<ENEMY_NUM;i++) {
-    if (EnemySprite[i]->sprite_1!=NULL) {
-      DeleteObject(EnemySprite[i]->sprite_1);
-      EnemySprite[i]->sprite_1=NULL;
-    }
-    if (EnemySprite[i]->sprite_2!=NULL) {
-      DeleteObject(EnemySprite[i]->sprite_2);
-      EnemySprite[i]->sprite_2=NULL;
-    }
-    if (EnemySprite[i]->sprite_3!=NULL) {
-      DeleteObject(EnemySprite[i]->sprite_3);
-      EnemySprite[i]->sprite_3=NULL;
-    }
-    if (EnemySprite[i]->sprite_4!=NULL) {
-      DeleteObject(EnemySprite[i]->sprite_4);
-      EnemySprite[i]->sprite_4=NULL;
-    }
-
-    FreeDrawSprite(&EnemySprite[i]->draw_sprite_1);
-    FreeDrawSprite(&EnemySprite[i]->draw_sprite_2);
-    FreeDrawSprite(&EnemySprite[i]->draw_sprite_3);
-    FreeDrawSprite(&EnemySprite[i]->draw_sprite_4);
-  }*/
-
-  //manual cleaning because static
-  for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-    if (EnemyTypeSprite[i].fly_sprite_1!=NULL) {
-      DeleteObject(EnemyTypeSprite[i].fly_sprite_1);
-      //EnemyTypeSprite[i].fly_sprite_1=NULL; <--- =NULL causes crash for static 
-    }
-
-    if (EnemyTypeSprite[i].fly_sprite_2!=NULL) {
-      DeleteObject(EnemyTypeSprite[i].fly_sprite_2);
-      //EnemyTypeSprite[i].fly_sprite_2=NULL;
-    }
-
-    FreeDrawSprite(&EnemyTypeSprite[i].draw_fly_sprite_1);
-    FreeDrawSprite(&EnemyTypeSprite[i].draw_fly_sprite_2);
-  }
-
   for (int i=0;i<LARGE_ENEMY_NUM;i++) {
     DeleteObject(EnemyRotatedSprite[i]->rotated_sprite_1);
     DeleteObject(EnemyRotatedSprite[i]->rotated_sprite_2);
     FreeDrawSprite(&EnemyRotatedSprite[i]->draw_rotated_sprite_1);
     FreeDrawSprite(&EnemyRotatedSprite[i]->draw_rotated_sprite_2);
-
     freeEnemyRotatedSprite(EnemyRotatedSprite[i]);
   }
   free(EnemyRotatedSprite);
 }
 
+void CleanUpEnemySprites()
+{
+  //manual cleaning because static
+  for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+    DeleteObject(EnemyTypeSprite[i].fly_sprite_1);
+    EnemyTypeSprite[i].fly_sprite_1=NULL;
+    DeleteObject(EnemyTypeSprite[i].fly_sprite_2);
+    EnemyTypeSprite[i].fly_sprite_2=NULL;
+    FreeDrawSprite(&EnemyTypeSprite[i].draw_fly_sprite_1);
+    FreeDrawSprite(&EnemyTypeSprite[i].draw_fly_sprite_2);
+  }
+}
+
 
 void InitEnemySprites()
 {
-  CleanUpEnemySprites();
+//  CleanUpEnemySprites();
+//  CleanUpRotatedSprites();
   LARGE_ENEMY_NUM=0;
   for (int i=0;i<ENEMY_NUM;i++) {
     if (Enemy[i]->species==1) {
@@ -1536,6 +1528,7 @@ void InitEnemy()
     Enemy[i]->is_ground_rebounding=FALSE;
     Enemy[i]->is_in_ground_edge=FALSE;
     Enemy[i]->force_search=FALSE;
+    Enemy[i]->sprite_flip_timer=0;
     SetEnemyByType(i,saved_enemy_type[i]);
     if (Enemy[i]->x<5) {
       Enemy[i]->x=25;

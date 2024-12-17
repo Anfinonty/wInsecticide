@@ -676,6 +676,7 @@ typedef struct enemy
      //open nodes
   int open_nodes_num;
      //timers
+  int sprite_flip_timer;
   int sprite_timer;
   int search_timer;
   int idle_timer;

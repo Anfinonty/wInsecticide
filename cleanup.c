@@ -333,6 +333,7 @@ void CleanupAll()
     InitBullet(BULLET_NUM);
     CleanUpPlayer(); //clean up all sprites
     CleanUpEnemySprites();
+    CleanUpRotatedSprites();
     //CleanUpGrid();
     //CleanUpNodeGrid();
     //CleanUpEnemy();
