@@ -80,16 +80,17 @@ bool back_to_menu=FALSE;
 bool clean_up_sound=FALSE;
 bool run_after_once=FALSE;
 bool flag_update_background=FALSE;
+bool flag_resolution_change=FALSE;
 
 //game options
 bool yes_unifont=TRUE;//FALSE;
 bool game_cam_shake=TRUE;
 bool game_audio=TRUE;
-bool game_shadow=FALSE;
+bool game_shadow=TRUE;
 
 
 //game state
-bool hide_taskbar=FALSE;
+bool hide_taskbar=TRUE;
 bool in_main_menu=TRUE;
 bool level_loaded=FALSE;
 bool game_over=FALSE;
@@ -120,12 +121,13 @@ int create_lvl_option_choose=0;
 int windowx=0;
 int windowy=0;
 
-int GR_WIDTH;
-int GR_HEIGHT;
-int OLD_GR_WIDTH;
-int OLD_GR_HEIGHT;
-int RESOLUTION_X[3]={640,800,0};
-int RESOLUTION_Y[3]={480,600,0};
+int GR_WIDTH=640;
+int GR_HEIGHT=480;
+int OLD_GR_WIDTH=640;
+int OLD_GR_HEIGHT=480;
+int MAX_RESOLUTION_I=1;
+int RESOLUTION_X[9]={640,800,1024,1280,1280,1440,1280,1680,1920};
+int RESOLUTION_Y[9]={480,600, 768, 720, 800, 900,1024,1050,1080};
 int level_chosen=0;
 int main_menu_chosen=-1; //options for main menu
 int select_main_menu=0;
@@ -260,7 +262,7 @@ bool is_khmer=TRUE;
 #define PLAYER_BULLET_NUM 24//16
 #define PLAYER_FLING_WEB_NUM    32
 
-#define GAME_OPTIONS_NUM    12
+#define GAME_OPTIONS_NUM    13
 #define PLAYER_BLUR_NUM     2
 
 #include "gr.c"
@@ -698,19 +700,20 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         PAINTSTRUCT ps;
         hdc=BeginPaint(hwnd, &ps);
         RECT rect;
-        if(GetWindowRect(hwnd, &rect))
+        /*if(GetWindowRect(hwnd, &rect) && !hide_taskbar)
         {
           GR_WIDTH = rect.right - rect.left;
           GR_HEIGHT = rect.bottom - rect.top;        
           windowx = rect.left;
           windowy = rect.top;
-        }
-
+        }*/
         if (flag_adjust_audio) {
           freeSoundEffectCache(&keySoundEffectCache[2]);
           adjustSFXVolume(&keySoundEffectCache[2],&keySoundEffect[2],game_volume,FALSE);
           flag_adjust_audio=FALSE;
         }
+         GR_WIDTH=RESOLUTION_X[resolution_choose];
+         GR_HEIGHT=RESOLUTION_Y[resolution_choose];
 
 
         if (GR_WIDTH!=OLD_GR_WIDTH || GR_HEIGHT!=OLD_GR_HEIGHT || flag_update_background) {
@@ -856,18 +859,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               }
             }
 
-
-            //void DrawGlassBitmap(HDC hdc, HBITMAP hBitmap, int x, int y, int level)
-            //DrawGlassBitmap(hdcBackbuff,map_platforms_shadow_shaders,MAP_WIDTH/2,MAP_HEIGHT/2,128);
-            //DrawNodeGrids(hdcBackbuff);
-            //DrawTBitmap(hdcBackbuff,&draw_moon_sprite,GR_WIDTH/2,GR_HEIGHT/2,50);
-
-            //if (!IsInvertedBackground()){ //Inverted palette level
+            if (hide_taskbar) {
+              BitBlt(hdc, SCREEN_WIDTH/2-RESOLUTION_X[resolution_choose]/2, 
+                            SCREEN_HEIGHT/2-RESOLUTION_Y[resolution_choose]/2, 
+                            RESOLUTION_X[resolution_choose],
+                            RESOLUTION_Y[resolution_choose],
+                            hdcBackbuff, 0, 0,  SRCCOPY);
+            } else {
               BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
-            //} else { //non inverted palette level
-              //BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
-            //}
-
+            }
             
             DeleteDC(hdcBackbuff);
             DeleteObject(screen);
@@ -899,13 +899,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             player.seed=rand();
 
-            //if (!IsInvertedBackground()){ //Inverted palette level
+            if (hide_taskbar) {
+              BitBlt(hdc, SCREEN_WIDTH/2-RESOLUTION_X[resolution_choose]/2, 
+                            SCREEN_HEIGHT/2-RESOLUTION_Y[resolution_choose]/2, 
+                            RESOLUTION_X[resolution_choose],
+                            RESOLUTION_Y[resolution_choose],
+                            hdcBackbuff, 0, 0,  SRCCOPY);
+            } else {
               BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
-            //} else { //non inverted palette level
-              //BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  NOTSRCCOPY);
-            //}
-            DeleteDC(hdcBackbuff);
-            DeleteObject(screen);
+            }
 
               //Trigger go back to main menu
             if (back_to_menu) {
@@ -915,23 +917,37 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         } else { //In Main Menu
           showoff++;
           PAINTSTRUCT ps;
+          HBITMAP screen;
           hdc=BeginPaint(hwnd, &ps);
           hdcBackbuff=CreateCompatibleDC(hdc);
-          HBITMAP screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
-          SelectObject(hdcBackbuff,screen);
+          if (flag_resolution_change) { //blackout clear screen
+            screen=CreateCompatibleBitmap(hdc,SCREEN_WIDTH,SCREEN_HEIGHT);
+            SelectObject(hdcBackbuff,screen);
+            GrRect(hdcBackbuff,0,0,SCREEN_WIDTH,SCREEN_HEIGHT,BLACK);
+            BitBlt(hdc, 0,0, SCREEN_WIDTH,SCREEN_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
+            flag_resolution_change=FALSE;
+          } else {
+            screen=CreateCompatibleBitmap(hdc,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose]);
+            SelectObject(hdcBackbuff,screen);
       
-          DrawMainMenu(hdcBackbuff);
-          //DrawPaletteSquare(hdcBackbuff,100,100);
-          //DrawPaintSquare(hdcBackbuff,100,100);
-          DrawCursor(hdcBackbuff);
+            DrawMainMenu(hdcBackbuff);
+            DrawCursor(hdcBackbuff);
 
-          BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
+            if (hide_taskbar) {
+              BitBlt(hdc, SCREEN_WIDTH/2-RESOLUTION_X[resolution_choose]/2, 
+                            SCREEN_HEIGHT/2-RESOLUTION_Y[resolution_choose]/2, 
+                            RESOLUTION_X[resolution_choose],
+                            RESOLUTION_Y[resolution_choose],
+                            hdcBackbuff, 0, 0,  SRCCOPY);
+            } else {
+              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
+            }
+          }
 
           DeleteDC(hdcBackbuff);
           DeleteObject(screen);
         
         }
-      //}
       EndPaint(hwnd, &ps);
       }
       return 0;
@@ -1017,13 +1033,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       AddFontResource(L"fonts/KhmerOS.ttf");
       //AddFontResource(L"fonts/KhmerUI.ttf");
       //AddFontResource(L"fonts/KhmerOSsys.ttf");
+      for (int i=0;i<9;i++) {
+        if (SCREEN_WIDTH==RESOLUTION_X[i] && SCREEN_HEIGHT==RESOLUTION_Y[i]) {
+          MAX_RESOLUTION_I=i+1;
+          break;
+        }
+      }
       Init8BitRGBColorsNoir(rgbColorsNoir);
       Init8BitRGBColorsDefault(rgbColorsDefault);
       Init8BitRGBPaintDefault(rgbPaint,rgbColorsDefault,TRUE,8);
       wav_out_original_volume=VolumeValue(50,1); //set volume
       //waveOutGetVolume(hWaveOut[2],&wav_out_original_volume);
-      RESOLUTION_X[2]=SCREEN_WIDTH; //set resolution x to be of screen width
-      RESOLUTION_Y[2]=SCREEN_HEIGHT; //set reolution y to be of screen height
+      //RESOLUTION_X[2]=SCREEN_WIDTH; //set resolution x to be of screen width
+      //RESOLUTION_Y[2]=SCREEN_HEIGHT; //set reolution y to be of screen height
 
       swprintf(src_music_dir,64,L"music"); //set dir of music
 
@@ -1417,23 +1439,28 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   int small_screen_x=640;
   int small_screen_y=480;
   resolution_choose=0;
-  if (SCREEN_WIDTH>640) {
+  /*if (SCREEN_WIDTH>640) {
     small_screen_x=800;
     small_screen_y=600;
     resolution_choose=1;
-  }
+  }*/
   HWND hwnd = CreateWindowW(wc.lpszClassName,
 //                L"អាពីងស៊ីរុយ - wInsecticide",
 //                L"អ្នករាបចង្រៃ - wInsecticide",
-
                 L"អ្នកសម្លាប់សត្វចង្រៃ - wInsecticide",
                 WS_POPUP | WS_BORDER | WS_OVERLAPPEDWINDOW | WS_VISIBLE | CW_USEDEFAULT| CW_USEDEFAULT /*| WS_MINIMIZE*/,
-                SCREEN_WIDTH/2-small_screen_x/2,
-                SCREEN_HEIGHT/2-small_screen_y/2,
+                //SCREEN_WIDTH/2-small_screen_x/2,
+                //SCREEN_HEIGHT/2-small_screen_y/2,
+                //640,
+                //480,
+                SCREEN_WIDTH,
+                SCREEN_HEIGHT,
                 //800,//SCREEN_WIDTH,//GR_WIDTH+7,
                 //600-8*4,//SCREEN_HEIGHT,//GR_HEIGHT+27, //4:3 aspect ratio
-                small_screen_x,
-                small_screen_y,
+                //small_screen_x,
+                //small_screen_y,
+                0,
+                0,
                 NULL,
                 NULL,
                 hInstance, 
@@ -1497,6 +1524,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   HANDLE thread3=CreateThread(NULL,0,SongTask,NULL,0,NULL); //Spawn Song Player Thread
   HANDLE thread4=CreateThread(NULL,0,AnimateAVI,NULL,0,NULL); //Spawm Game Logic Thread
 
+
+
+  LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
+  lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU); //borderless mode
+  SetWindowLong(hwnd, GWL_STYLE, lStyle);
+  SetWindowPos(hwnd,HWND_NOTOPMOST,0,0,SCREEN_WIDTH,SCREEN_HEIGHT, SWP_FRAMECHANGED);
   //SetTimer(hwnd, 1, frameDelays[currentFrame] , NULL);
 
   MSG msg;

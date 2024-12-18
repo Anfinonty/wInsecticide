@@ -1,3 +1,5 @@
+
+//Game Values
 int GROUND_NUM;
 int ENEMY_NUM;
 int LARGE_ENEMY_TYPE_NUM;
@@ -8,6 +10,8 @@ int VGRID_NUM;
 int MAP_NODE_NUM;
 
 
+
+//Dynamic Arrays holding saved values
 bool *saved_ground_is_ghost;
 int *saved_ground_color;
 int *saved_ground_type;

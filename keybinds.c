@@ -184,34 +184,26 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
         //Release 'T' key holding SHIFT
         case 'T': //Hide or Show Taskbar
           if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
-            if (!hide_taskbar) {
-              //ShowWindow(hShellWnd, SW_HIDE); //hide taskbar
-
-              //https://stackoverflow.com/questions/2398746/removing-window-border
-              LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
-              lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
-              SetWindowLong(hwnd, GWL_STYLE, lStyle);
-
-
-              SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
-
-
-              SetForegroundWindow(hwnd); //return back focus
-
-              hide_taskbar=TRUE;
-            } else {
-              //ShowWindow(hShellWnd, SW_SHOW); //show taskbar again
-
-
-              LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
-              lStyle |= (WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
-              SetWindowLong(hwnd, GWL_STYLE, lStyle);
-
-              SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
-
-              SetForegroundWindow(hwnd);
-              hide_taskbar=FALSE;
-            }
+             windowx=0;
+             windowy=0;
+             if (!hide_taskbar) {
+               LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
+               lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+               SetWindowLong(hwnd, GWL_STYLE, lStyle);
+               resolution_choose=0;
+             } else {
+               resolution_choose=MAX_RESOLUTION_I-1;
+               LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
+               lStyle |= (WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+               SetWindowLong(hwnd, GWL_STYLE, lStyle);
+    //           SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
+             }
+             GR_WIDTH=RESOLUTION_X[resolution_choose];
+             GR_HEIGHT=RESOLUTION_Y[resolution_choose];
+             flag_resolution_change=TRUE;
+             SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,SCREEN_WIDTH,SCREEN_HEIGHT, SWP_FRAMECHANGED);
+             SetForegroundWindow(hwnd); //return back focus
+             hide_taskbar=!hide_taskbar;
           }
           break;
 
@@ -383,11 +375,10 @@ void GameKeypressDown(WPARAM wParam)
     //Holding down 'Z' Key
       case 'Z':
         if (!player.time_breaker && player.time_breaker_units==player.time_breaker_units_max) {
+          player.flag_noir_palette=TRUE;
           player.time_breaker=TRUE;
           if (game_audio)
             PlaySound(spamSoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //tb_start_audio
-            //PlaySound(tb_start_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
-          //}
           player.time_breaker_cooldown=player.time_breaker_cooldown_max;
           player.speed+=player.time_breaker_units_max/2-1;
         }
@@ -489,16 +480,6 @@ void GameKeypressUp(WPARAM wParam)
 
     //Release '2' Key
       case '2':
-        /*if (player.max_web_num-player.placed_web_num>=3 && player.knives_per_throw==5) {
-          player.knives_per_throw=13;
-        }
-        if (player.max_web_num-player.placed_web_num>3) {          
-          player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,15+1); //limit to 1,3,5,15
-        } else if (player.max_web_num-player.placed_web_num>0){ //limit to 1,3,5
-          player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,5+1);
-        } else { //limit to 1,3
-          player.knives_per_throw=LimitValue(player.knives_per_throw+2,1,3+1);
-        }*/
         switch (player.knives_per_throw) {
           case 1:
             player.play_gun_snd=0;
@@ -542,25 +523,6 @@ void GameKeypressUp(WPARAM wParam)
 void OptionKeyPressRight(HWND hwnd, int option_choose)
 {
      switch (option_choose) {
-       /*case 0: //Change color of player ++
-         player_color=LimitValue(player_color+1,0,COLORS_NUM);
-         if (game_audio)
-           PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
-         break;
-       case 1: //Change color of player iris ++
-         player_iris_color=LimitValue(player_iris_color+1,0,COLORS_NUM);
-         if (game_audio)
-           PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
-         break;
-
-
-       case 2: //Change color of player pupil ++
-         player_pupil_color=LimitValue(player_pupil_color+1,0,COLORS_NUM);
-         if (game_audio)
-           PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
-         break;*/
-
-
        case 3: //Enable/Disable camera shaking
          if (game_audio) {
            if (game_cam_shake)
@@ -595,16 +557,6 @@ void OptionKeyPressRight(HWND hwnd, int option_choose)
          flag_adjust_audio=TRUE;
          break;
 
-/*
-       case 6:
-         song_volume+=0.01;
-         if (song_volume>1.0)//max song volume
-           song_volume=0.0;
-         flag_adjust_song_audio=TRUE;
-         if (game_audio)
-           PlaySound(keySoundEffectCache[2].audio, NULL, SND_MEMORY | SND_ASYNC); //false
-         break;
-*/
 
        case 6:
          wav_out_volume+=0.1;
@@ -627,8 +579,17 @@ void OptionKeyPressRight(HWND hwnd, int option_choose)
          yes_unifont=!yes_unifont;
          break;
 
+       case 8:
+         if (game_audio) {
+           if (game_shadow)
+             PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
+           else
+             PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
+          }
+          game_shadow=!game_shadow;
+          break;
 
-       case 8://togle borders
+       case 9://togle borders
          if (game_audio) {
            if (hide_taskbar)
              PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
@@ -650,36 +611,42 @@ void OptionKeyPressRight(HWND hwnd, int option_choose)
          hide_taskbar=!hide_taskbar;
          break;
 
-
-       case 9: //toggle resolution, holding right button
-         resolution_choose=LimitValue(resolution_choose+1,0,3);
+       case 10: //toggle resolution, holding right button
+         resolution_choose=LimitValue(resolution_choose+1,0,MAX_RESOLUTION_I);
+         //SetWindowPos(hwnd,HWND_TOPMOST,0,0,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],SWP_FRAMECHANGED);
+         //SetForegroundWindow(hwnd); //return back focus
+         //LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
+         //lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU); //borderless mode
+         //SetWindowLong(hwnd, GWL_STYLE, lStyle);
+         //SetWindowPos(hwnd,HWND_NOTOPMOST,0,0,SCREEN_WIDTH,SCREEN_HEIGHT, SWP_FRAMECHANGED);
          if (!hide_taskbar) {
            SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],SWP_FRAMECHANGED);
-         } else {
+         } /*else {
            SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],SWP_FRAMECHANGED);
-         }
-
+         }*/
          SetForegroundWindow(hwnd); //return back focus
-         if (game_audio) {
-           PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
-         }
 
-
-       case 10: //right button, center
-         windowx=SCREEN_WIDTH/2-GR_WIDTH/2;
-         windowy=SCREEN_HEIGHT/2-GR_HEIGHT/2;
-         if (!hide_taskbar) {
-           SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
-         } else {
-           SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
-         }
-         SetForegroundWindow(hwnd); //return back focus
+         GR_WIDTH=RESOLUTION_X[resolution_choose];
+         GR_HEIGHT=RESOLUTION_Y[resolution_choose];
+         flag_resolution_change=TRUE;
          if (game_audio) {
            PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
          }
          break;
 
-       case 11: //toggle show fps
+       case 11: //right button, center
+         if (!hide_taskbar) {
+           windowx=SCREEN_WIDTH/2-GR_WIDTH/2;
+           windowy=SCREEN_HEIGHT/2-GR_HEIGHT/2;
+           SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
+           SetForegroundWindow(hwnd); //return back focus
+           if (game_audio) {
+             PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
+           }
+         }
+         break;
+
+       case 12: //toggle show fps
          if (game_audio) {
            if (show_fps)
              PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
@@ -696,23 +663,6 @@ void OptionKeyPressRight(HWND hwnd, int option_choose)
 void OptionKeyPressLeft(HWND hwnd,int option_choose)
 {
     switch (option_choose) {
-      /*case 0: //Change color of player --
-        player_color=LimitValue(player_color-1,0,COLORS_NUM);
-        if (game_audio)
-          PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
-        break;
-      case 1: //Change color of player iris --
-        player_iris_color=LimitValue(player_iris_color-1,0,COLORS_NUM);
-        if (game_audio)
-          PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
-        break;
-      case 2: //Change color of player pupil --
-        player_pupil_color=LimitValue(player_pupil_color-1,0,COLORS_NUM);
-        if (game_audio)
-          PlaySound(keySoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //paint
-        break;*/
-
-
       case 3:  //Enable/Disable camera shaking 
         if (game_audio) {
           if (game_cam_shake)
@@ -732,7 +682,7 @@ void OptionKeyPressLeft(HWND hwnd,int option_choose)
         game_audio=!game_audio;
         break;
 
-       case 5:
+       case 5: //Adjust sfx volume
          if (game_volume>=3.0) {
            game_volume-=1.0;
          } else {
@@ -745,17 +695,8 @@ void OptionKeyPressLeft(HWND hwnd,int option_choose)
            PlaySound(keySoundEffectCache[2].audio, NULL, SND_MEMORY | SND_ASYNC); //false
          flag_adjust_audio=TRUE;
          break;
-/*
-       case 6:
-         song_volume-=0.01;
-         if (song_volume<0.0)
-           song_volume=1.0;
-         if (game_audio)
-           PlaySound(keySoundEffectCache[2].audio, NULL, SND_MEMORY | SND_ASYNC); //false
-         flag_adjust_song_audio=TRUE;
-         break;
-*/
-       case 6:
+
+       case 6: //Adjust raw wav sfx
          wav_out_volume-=0.1;
          if (wav_out_volume<0.0) {
            wav_out_volume=1.0;
@@ -775,64 +716,75 @@ void OptionKeyPressLeft(HWND hwnd,int option_choose)
          yes_unifont=!yes_unifont;
          break;
 
-       case 8://togle borders
+       case 8: //toggle shadows
+         if (game_audio) {
+           if (game_shadow)
+             PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
+           else
+             PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
+         }
+         game_shadow=!game_shadow;
+         break;
+
+       case 9://togle borders
          if (game_audio) {
            if (hide_taskbar)
              PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
            else
              PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
          }
-         if (resolution_choose==2) {
-           windowx=0;
-           windowy=0;
-         }
+         windowx=0;
+         windowy=0;
          if (!hide_taskbar) {
            LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
            lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
            SetWindowLong(hwnd, GWL_STYLE, lStyle);
-           if (resolution_choose==2)
-             SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,SCREEN_WIDTH,SCREEN_HEIGHT, SWP_FRAMECHANGED);
-           else
-             SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
+           resolution_choose=0;
          } else {
+           resolution_choose=MAX_RESOLUTION_I-1;
            LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
            lStyle |= (WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
            SetWindowLong(hwnd, GWL_STYLE, lStyle);
-           SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
+//           SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
          }
+         GR_WIDTH=RESOLUTION_X[resolution_choose];
+         GR_HEIGHT=RESOLUTION_Y[resolution_choose];
+         flag_resolution_change=TRUE;
+         SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,SCREEN_WIDTH,SCREEN_HEIGHT, SWP_FRAMECHANGED);
          SetForegroundWindow(hwnd); //return back focus
          hide_taskbar=!hide_taskbar;
          break;
 
 
-       case 9: //toggle resolution, lower
-         resolution_choose=LimitValue(resolution_choose-1,0,3);
+       case 10: //toggle resolution, lower
+         resolution_choose=LimitValue(resolution_choose-1,0,MAX_RESOLUTION_I);
+         //SetWindowPos(hwnd,HWND_TOPMOST,0,0,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],SWP_FRAMECHANGED);
+         //SetForegroundWindow(hwnd); //return back focus
+         GR_WIDTH=RESOLUTION_X[resolution_choose];
+         GR_HEIGHT=RESOLUTION_Y[resolution_choose];
          if (!hide_taskbar) {
            SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],SWP_FRAMECHANGED);
-         } else {
-           SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],SWP_FRAMECHANGED);
-         }
-         SetForegroundWindow(hwnd); //return back focus
+         } 
+         flag_resolution_change=TRUE;
          if (game_audio) {
            PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
          }
          break;
 
-       case 10: //left button, corner
-         windowx=0;
-         windowy=0;
+       case 11: //left button, corner
          if (!hide_taskbar) {
+           windowx=0;
+           windowy=0;
            SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose], SWP_FRAMECHANGED);
-         } else {
-           SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose], SWP_FRAMECHANGED);
-         }
-         SetForegroundWindow(hwnd); //return back focus            
-         if (game_audio) {
-           PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
+           //SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose], SWP_FRAMECHANGED);
+           SetForegroundWindow(hwnd); //return back focus            
+           if (game_audio) {
+             PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
+           }
          }
          break;
 
-       case 11: //toggle show fps
+       case 12: //toggle show fps
          if (game_audio) {
            if (show_fps)
              PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false

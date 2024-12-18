@@ -579,10 +579,8 @@ void DrawMainMenu(HDC hdc)
       }
       for (int i=0;i<max_lvl_rows;i++) { //Print Levels
          lvl_i=i+max_lvl_rows*(level_chosen/max_lvl_rows);
-         //GrPrint(hdc,30,lvls_y+16*i,"-_________",WHITE);
          GrPrint(hdc,20,lvls_y+16*i,"-",WHITE);
          if (lvl_i<level_num) {
-           //GrPrintW(hdc,30+8*11,lvls_y+16*i,level_names[lvl_i],"",WHITE,16,FALSE,yes_unifont);
            if (level_chosen!=lvl_i) {
              GrPrintW(hdc,30,lvls_y+16*i,level_names[lvl_i],"",WHITE,16,FALSE,yes_unifont);
            } else {
@@ -599,15 +597,7 @@ void DrawMainMenu(HDC hdc)
 
 
       //Draw Level Selector
-      //GrPrint(hdc,30,lvls_y+16*(level_chosen%max_lvl_rows),"   [ENTER]",WHITE);
       GrPrint(hdc,20,2+lvls_y+16*(level_chosen%max_lvl_rows),"*",LTGREEN);
-      //GrPrint(hdc,30,lvls_y+16*(level_chosen%max_lvl_rows)-16,"        /\\",WHITE);
-      //GrPrint(hdc,30,lvls_y+16*(level_chosen%max_lvl_rows)+16,"        \\/",WHITE);
-      //DrawPlayingMusic(hdc,30,10+16*16,BLACK,WHITE);
-      //GrPrint(hdc,30,main_menu_y+10+16*16,"'1': Go to Options.",WHITE);
-      //GrPrint(hdc,30,main_menu_y+10+16*17,"'2': Create New Level.",WHITE);
-      //GrPrint(hdc,30,main_menu_y+10+16*18,"'3': Edit Selected Level.",WHITE);
-      //GrPrint(hdc,30,main_menu_y+10+16*19,"'4': Build Selected Level.",WHITE);
       GrPrint(hdc,30,main_menu_y+10+16*16,"'1': Create New Level.",WHITE);
       GrPrint(hdc,30,main_menu_y+10+16*17,"'2': Change Selected Level Limits.",WHITE);
       GrPrint(hdc,30,main_menu_y+10+16*18,"'3': Build Selected Level.",WHITE);
@@ -619,12 +609,7 @@ void DrawMainMenu(HDC hdc)
 
     //Game Options
     case 1:
-      GrPrint(hdc,30,main_menu_y+10+16*2,"Options:",WHITE);
-      //GrPrint(hdc,30,main_menu_y+10+16*4,"[SHIFT_ESC]: Exit",WHITE);
-      //GrPrintW(hdc,30,main_menu_y+10+16*4,L"[SHIFT] + 'L': Unifont [ពេលរាត្រី]","",WHITE,16,FALSE,yes_unifont);
-      //GrPrint(hdc,30,main_menu_y+10+16*5,"[SHIFT] + 'T': Toggle Borders",WHITE);
-
- 
+      GrPrint(hdc,30,main_menu_y+10+16*2,"Options:",WHITE); 
       int c,soptions_y=16*4;
       if (hide_taskbar)
         soptions_y+=main_menu_y;
@@ -650,18 +635,7 @@ void DrawMainMenu(HDC hdc)
 
 
       GrPrint(hdc,30+20*8,mm2y3,"[      ]",c);
-      //Draw Square
-      //if (player_color!=0) {
-        //GrRect(hdc,30+8*21,mm2y3,16,16,BLACK);
-      //} else {
       GrRect(hdc,30+8*21,mm2y3,16,16,WHITE);
-      //}
-      /*if (player_color>-1 && player_color<COLORS_NUM) {
-        GrRect(hdc,30+8*21+2,mm2y3+2,12,12,draw_color_arr[player_color]);
-      }*/
-
-      /*if (player_color>-1 && player_color<COLORS_NUM) {*/
-      //GrRect(hdc,30+8*21+2,mm2y3+2,12,12,rgbPaint[player_color]);
       if (color_chooser.is_choosing_color && option_choose==0) {
         if (color_chooser.color_id_choosing<256 && color_chooser.color_id_choosing>-1)
           GrRect(hdc,30+8*21+2,mm2y3+2,12,12,rgbPaint[color_chooser.color_id_choosing]);
@@ -690,15 +664,7 @@ void DrawMainMenu(HDC hdc)
 
 
       GrPrint(hdc,30+20*8,mm2y3,"[      ]",c);
-      //Draw Square
-      //if (player_iris_color!=0) {
-        //GrRect(hdc,30+8*21,mm2y3,16,16,BLACK);
-      //} else {
-        GrRect(hdc,30+8*21,mm2y3,16,16,WHITE);
-      //}
-      //if (player_iris_color>-1 && player_color<COLORS_NUM) {
-        //GrRect(hdc,30+8*21+2,mm2y3+2,12,12,rgbPaint[player_iris_color]);
-      //}
+      GrRect(hdc,30+8*21,mm2y3,16,16,WHITE);
       if (color_chooser.is_choosing_color && option_choose==1) {
         if (color_chooser.color_id_choosing<256 && color_chooser.color_id_choosing>-1)
           GrRect(hdc,30+8*21+2,mm2y3+2,12,12,rgbPaint[color_chooser.color_id_choosing]);
@@ -726,21 +692,13 @@ void DrawMainMenu(HDC hdc)
 
 
       GrPrint(hdc,30+20*8,mm2y3,"[      ]",c);
-      //Draw Square
-      //if (player_pupil_color!=0) {
-        //GrRect(hdc,30+8*21,mm2y3,16,16,BLACK);
-      //} else {
-        GrRect(hdc,30+8*21,mm2y3,16,16,WHITE);
-      //}
-      //if (player_pupil_color>-1 && player_color<COLORS_NUM) {
+      GrRect(hdc,30+8*21,mm2y3,16,16,WHITE);
       if (color_chooser.is_choosing_color && option_choose==2) {
         if (color_chooser.color_id_choosing<256 && color_chooser.color_id_choosing>-1)
           GrRect(hdc,30+8*21+2,mm2y3+2,12,12,rgbPaint[color_chooser.color_id_choosing]);
       } else {
         GrRect(hdc,30+8*21+2,mm2y3+2,12,12,rgbPaint[player_pupil_color]);
       }
-
-      //}
 
       if (option_choose>=0 && option_choose<=2 && color_chooser.is_choosing_color) {
         DrawPaintSquare(hdc,30+220,mm2y2,color_chooser.color_id,color_chooser.color_id_choosing);
@@ -798,14 +756,6 @@ void DrawMainMenu(HDC hdc)
 
 
 
-      //c=Highlight((option_choose==6),WHITE,LTGREEN);
-      //GrPrint(hdc,30,10+soptions_y+16*7,"Encoded Music Volume:",c);
-      //char print_song_volume[8];
-      //sprintf(print_song_volume,"<%1.0f%%>",song_volume*100);
-      //GrPrint(hdc,30+20*8,10+soptions_y+16*7,print_song_volume,c);
-
-
-
       c=Highlight((option_choose==6),WHITE,LTGREEN);
       GrPrint(hdc,30,10+soptions_y+16*7,"Raw Wav Volume:",c);
       char print_wav_out_volume[7];
@@ -813,6 +763,8 @@ void DrawMainMenu(HDC hdc)
       GrPrint(hdc,30+20*8,10+soptions_y+16*7,print_wav_out_volume,c);
 
 
+
+      //Graphics===============
       c=Highlight((option_choose==7),WHITE,LTGREEN);
       GrPrint(hdc,30,10+soptions_y+16*9,"Unifont:",c);
       if (yes_unifont) {
@@ -822,11 +774,9 @@ void DrawMainMenu(HDC hdc)
       }
 
 
-
-      //Misc============
       c=Highlight((option_choose==8),WHITE,LTGREEN);
-      GrPrint(hdc,30,10+soptions_y+16*10,"Window Borders:",c);
-      if (!hide_taskbar) {
+      GrPrint(hdc,30,10+soptions_y+16*10,"Shadows:",c);
+      if (game_shadow) {
         GrPrint(hdc,30+20*8,10+soptions_y+16*10,"<ON>",c);
       } else {
         GrPrint(hdc,30+20*8,10+soptions_y+16*10,"<OFF>",c);
@@ -834,35 +784,62 @@ void DrawMainMenu(HDC hdc)
 
 
 
+
+      //Misc============
       c=Highlight((option_choose==9),WHITE,LTGREEN);
-      GrPrint(hdc,30,10+soptions_y+16*11,"Toggle Resolution:",c);
+      GrPrint(hdc,30,10+soptions_y+16*12,"Window Borders:",c);
+      if (!hide_taskbar) {
+        GrPrint(hdc,30+20*8,10+soptions_y+16*12,"<ON>",c);
+      } else {
+        GrPrint(hdc,30+20*8,10+soptions_y+16*12,"<OFF>",c);
+      }
+
+
+
+      c=Highlight((option_choose==10),WHITE,LTGREEN);
+      GrPrint(hdc,30,10+soptions_y+16*13,"Resolution:",c);
       switch (resolution_choose) {
         case 0:
-          GrPrint(hdc,30+20*8,10+soptions_y+16*11,"<640x480>",c);
+          GrPrint(hdc,30+20*8,10+soptions_y+16*13,"<640x480>",c);
           break;
         case 1:
-          GrPrint(hdc,30+20*8,10+soptions_y+16*11,"<800x600>",c);
+          GrPrint(hdc,30+20*8,10+soptions_y+16*13,"<800x600>",c);
           break;
-        case 2: {
-          char print_screen_size[20];
-          sprintf(print_screen_size,"<%dx%d> (MAX)",SCREEN_WIDTH,SCREEN_HEIGHT);
-          GrPrint(hdc,30+20*8,10+soptions_y+16*11,print_screen_size,c);
-          }
+        case 2:
+          GrPrint(hdc,30+20*8,10+soptions_y+16*13,"<1024x768>",c);
+          break;
+        case 3:
+          GrPrint(hdc,30+20*8,10+soptions_y+16*13,"<1280x720>",c);
+          break;
+        case 4:
+          GrPrint(hdc,30+20*8,10+soptions_y+16*13,"<1280x800>",c);
+          break;
+        case 5:
+          GrPrint(hdc,30+20*8,10+soptions_y+16*13,"<1440x900>",c);
+          break;
+        case 6:
+          GrPrint(hdc,30+20*8,10+soptions_y+16*13,"<1280x1024>",c);
+          break;
+        case 7:
+          GrPrint(hdc,30+20*8,10+soptions_y+16*13,"<1680x1050>",c);
+          break;
+        case 8:
+          GrPrint(hdc,30+20*8,10+soptions_y+16*13,"<1920x1080> [MAX]",c);
           break;
       } 
 
-      c=Highlight((option_choose==10),WHITE,LTGREEN);
-      GrPrint(hdc,30,10+soptions_y+16*12,"Window Align Position:",c);
-      GrPrint(hdc,30+20*8,10+soptions_y+16*12,"<Corner || Middle>",c);
-
-
-
       c=Highlight((option_choose==11),WHITE,LTGREEN);
-      GrPrint(hdc,30,10+soptions_y+16*13,"Show FPS:",c);
+      GrPrint(hdc,30,10+soptions_y+16*14,"Window Align Position:",c);
+      GrPrint(hdc,30+20*8,10+soptions_y+16*14,"<Corner || Middle>",c);
+
+
+
+      c=Highlight((option_choose==12),WHITE,LTGREEN);
+      GrPrint(hdc,30,10+soptions_y+16*15,"Show FPS:",c);
       if (show_fps) {
-        GrPrint(hdc,30+20*8,10+soptions_y+16*13,"<ON>",c);
+        GrPrint(hdc,30+20*8,10+soptions_y+16*15,"<ON>",c);
       } else {
-        GrPrint(hdc,30+20*8,10+soptions_y+16*13,"<OFF>",c);
+        GrPrint(hdc,30+20*8,10+soptions_y+16*15,"<OFF>",c);
       }
 
 
@@ -870,7 +847,9 @@ void DrawMainMenu(HDC hdc)
       //===========================
 
       int add_option_choose=0;
-      if (option_choose>6) {
+      if (option_choose>8) {
+        add_option_choose=16*3;
+      } else if (option_choose>6) {
         add_option_choose=16*2;
       } else if (option_choose>3) {
         add_option_choose=16;
@@ -882,9 +861,6 @@ void DrawMainMenu(HDC hdc)
         GrPrint(hdc,30,main_menu_y+10+16*22,"[SHIFT_ESC]: Back.",WHITE);
       else
         GrPrint(hdc,30,main_menu_y+10+16*21,"[SHIFT_ESC]: Back.",WHITE);
-
-
-
 
       break;
 

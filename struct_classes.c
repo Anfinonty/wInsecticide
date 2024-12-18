@@ -86,11 +86,9 @@ struct RenderDistanceGrid
 } RDGrid[RDGRID_NUM]; //9*9
 
 
-//int rendered_grid_num;
-//int render_grids[RDGRID_NUM];
+//map editor only
 int rendered_ground_num;
 int *render_grounds;
-//int render_grounds[MAX_GROUND_NUM];
 
 
 
@@ -135,6 +133,7 @@ struct player
   bool destroy_ground;
   bool uppercut;
   bool flag_revert_palette;
+  bool flag_noir_palette;
   bool on_a_ground;
   bool low_jump;
 
@@ -813,36 +812,18 @@ void freeEnemyRotatedSprite(AEnemyRotatedSprite *myEnemyRotatedSprite)
 AEnemyRotatedSprite **EnemyRotatedSprite;
 
 
-//...
-/*
-typedef struct enemy_sprites
+
+
+#define SSTAR_NUM   3
+struct shooting_star
 {
-  HBITMAP sprite_1;
-  HBITMAP sprite_2;
-  HBITMAP sprite_3;
-  HBITMAP sprite_4;
-
-  DRAWSPRITE draw_sprite_1;
-  DRAWSPRITE draw_sprite_2;
-  DRAWSPRITE draw_sprite_3;
-  DRAWSPRITE draw_sprite_4;
-}AEnemySprite;
-
-AEnemySprite** EnemySprite;
-
-AEnemySprite *createEnemySprite()
-{
-  AEnemySprite *toReturn = malloc(sizeof(AEnemySprite));
-  return toReturn;
-}
-
-
-void freeEnemySprite(AEnemySprite *myEnemySprite)
-{
-  if (myEnemySprite)
-    free(myEnemySprite);
-}*/
-
+  int start_time;
+  int time;
+  double x;
+  double y;
+  double speed;
+  double angle;
+} SStar[SSTAR_NUM];
 
 
 
@@ -933,7 +914,7 @@ HBITMAP mm0_kh_hijri[2];
 HBITMAP mm0_kh_hijri_mask[2];
 
 
-//Khmer ingame
+//Khmer ingame, while playing game
 HBITMAP ga0_kh[5];
 HBITMAP ga0_kh_mask[5];
 

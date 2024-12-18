@@ -1615,8 +1615,8 @@ void DrawEnemy(HDC hdc)
     player.time_breaker_tick=-1;
   }
 
-  /*funny++;
-  if (funny>31)
+  //funny++;
+  /*if (funny>63)
     funny=0;*/
 
   for (i=0;i<ENEMY_NUM;i++) {  

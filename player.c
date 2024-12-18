@@ -352,6 +352,7 @@ void InitPlayer() {
   player.destroy_ground=FALSE;
   player.uppercut=FALSE;
   player.flag_revert_palette=FALSE;
+  player.flag_noir_palette=FALSE;
   player.is_on_ground_edge=FALSE;
   //player.is_on_ground_edge2=FALSE;
   player.is_on_left_ground_edge=FALSE;
@@ -2367,8 +2368,6 @@ void PlayerAct()
           player.time_breaker=FALSE;
           player.flag_revert_palette=TRUE;
           if (game_audio) {
-            //PlaySound(L"snd/timebreaker__stop.wav", NULL, SND_FILENAME | SND_ASYNC);
-            //PlaySound(tb_stop_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
             PlaySound(spamSoundEffectCache[1].audio, NULL, SND_MEMORY | SND_ASYNC);
           }
         }
@@ -2659,25 +2658,18 @@ void DrawPlayer(HDC hdc)
 
   if (player.flag_revert_palette && player.time_breaker_tick<=0) {
     BitmapPalette(hdc,map_platforms_sprite,rgbColorsDefault);
-    for (int i=0;i<ENEMY_NUM;i++) {
-      if (Enemy[i]->health>0) {
-        if (Enemy[i]->species==1) {
-          Enemy[i]->saved_angle=Enemy[i]->sprite_angle-1;
-        }
-        /*if (EnemySprite[i]->sprite_1!=NULL) {
-          BitmapPalette(hdc,EnemySprite[i]->draw_sprite_1.sprite_paint,rgbColorsDefault);
-        }
-        if (EnemySprite[i]->sprite_2!=NULL) {
-          BitmapPalette(hdc,EnemySprite[i]->draw_sprite_2.sprite_paint,rgbColorsDefault);
-        }
-        if (EnemySprite[i]->sprite_3!=NULL) {
-          BitmapPalette(hdc,EnemySprite[i]->draw_sprite_3.sprite_paint,rgbColorsDefault);
-        }
-        if (EnemySprite[i]->sprite_4!=NULL) {
-          BitmapPalette(hdc,EnemySprite[i]->draw_sprite_4.sprite_paint,rgbColorsDefault);
-        }*/
+    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+      BitmapPalette(hdc,EnemyTypeSprite[i].draw_fly_sprite_1.sprite_paint,rgbColorsDefault);
+      BitmapPalette(hdc,EnemyTypeSprite[i].draw_fly_sprite_2.sprite_paint,rgbColorsDefault);
+    }
+    
+    for (int i=0;i<LARGE_ENEMY_TYPE_NUM;i++) {
+      for (int j=0;j<ROTATED_SPRITE_NUM;j++) {
+        BitmapPalette(hdc,EnemyRotatedSprite[i]->draw_rotated_sprite1[j].sprite_paint,rgbColorsDefault);
+        BitmapPalette(hdc,EnemyRotatedSprite[i]->draw_rotated_sprite2[j].sprite_paint,rgbColorsDefault);
       }
     }
+
     player.flag_revert_palette=FALSE;
     player.time_breaker_tick=0;
   }
@@ -2716,24 +2708,19 @@ void DrawPlayer(HDC hdc)
       player.time_breaker_tick+=player.time_breaker_tick;
       GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick,WHITE,-1);
       GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick-1,WHITE,-1);
-    } else {
-      for (int i=0;i<ENEMY_NUM;i++) {
-        if (Enemy[i]->health>0) {
-        /*if (EnemySprite[i]->sprite_1!=NULL && !Enemy[i]->time_breaker_immune) {
-          BitmapPalette(hdc,EnemySprite[i]->draw_sprite_1.sprite_paint,rgbColorsNoir);
-        }
-        if (EnemySprite[i]->sprite_2!=NULL && !Enemy[i]->time_breaker_immune) {
-          BitmapPalette(hdc,EnemySprite[i]->draw_sprite_2.sprite_paint,rgbColorsNoir);
-        }
-        if (EnemySprite[i]->sprite_3!=NULL && !Enemy[i]->time_breaker_immune) {
-          BitmapPalette(hdc,EnemySprite[i]->draw_sprite_3.sprite_paint,rgbColorsNoir);
-        }
-        if (EnemySprite[i]->sprite_4!=NULL && !Enemy[i]->time_breaker_immune) {
-          BitmapPalette(hdc,EnemySprite[i]->draw_sprite_4.sprite_paint,rgbColorsNoir);
-        }*/
+    } else if (player.flag_noir_palette) {
+      for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+        BitmapPalette(hdc,EnemyTypeSprite[i].draw_fly_sprite_1.sprite_paint,rgbColorsNoir);
+        BitmapPalette(hdc,EnemyTypeSprite[i].draw_fly_sprite_2.sprite_paint,rgbColorsNoir);
+      }
+      for (int i=0;i<LARGE_ENEMY_TYPE_NUM;i++) {
+        for (int j=0;j<ROTATED_SPRITE_NUM;j++) {
+          BitmapPalette(hdc,EnemyRotatedSprite[i]->draw_rotated_sprite1[j].sprite_paint,rgbColorsNoir);
+          BitmapPalette(hdc,EnemyRotatedSprite[i]->draw_rotated_sprite2[j].sprite_paint,rgbColorsNoir);
         }
       }
       BitmapPalette(hdc,map_platforms_sprite,rgbColorsNoir);
+      player.flag_noir_palette=FALSE;
     }
   } else {
     if (player.time_breaker_tick>0) {

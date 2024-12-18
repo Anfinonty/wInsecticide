@@ -1036,10 +1036,6 @@ void MapEditorAct()
 void CleanupMapEditorAll()
 {
     level_loaded=FALSE;
-
-
-    //for (int i=0;i<rendered_ground_num;i++)
-      //render_grounds[i]=-1;
     free(render_grounds);
 
     //CleanUpPlayer(); //clean up all sprites
