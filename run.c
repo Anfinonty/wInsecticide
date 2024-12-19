@@ -113,6 +113,7 @@ int set_enemy_amount=1;
 int set_map_width_amount=640;
 int set_map_height_amount=480;
 int create_lvl_option_choose=0;
+//int once_timer=0;
 
 
 
@@ -427,7 +428,6 @@ DWORD WINAPI AnimateTask02(LPVOID lpArg) { //FPS counter
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   HDC hdc, hdcBackbuff;
-
   switch(msg) {
 
     //Left Click Hold
@@ -462,6 +462,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           mouse_x=point.x-windowx;
           mouse_y=point.y-windowy;
         }
+        if (mouse_x>GR_WIDTH)
+          mouse_x=GR_WIDTH;
+        if (mouse_y>GR_HEIGHT)
+          mouse_y=GR_HEIGHT;
         UpdateWindow(hwnd);
       }
       break;
@@ -696,25 +700,27 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       if (!IsIconic(hwnd)) //no action when minimized, prevents crash https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-isiconic?redirectedfrom=MSDN
       {
         //UpdateFrame(hwnd);
-        HBITMAP screen;//,screen2;
+        HBITMAP screen;
         PAINTSTRUCT ps;
         hdc=BeginPaint(hwnd, &ps);
-        RECT rect;
-        /*if(GetWindowRect(hwnd, &rect) && !hide_taskbar)
-        {
-          GR_WIDTH = rect.right - rect.left;
-          GR_HEIGHT = rect.bottom - rect.top;        
-          windowx = rect.left;
-          windowy = rect.top;
-        }*/
+        
         if (flag_adjust_audio) {
           freeSoundEffectCache(&keySoundEffectCache[2]);
           adjustSFXVolume(&keySoundEffectCache[2],&keySoundEffect[2],game_volume,FALSE);
           flag_adjust_audio=FALSE;
         }
-         GR_WIDTH=RESOLUTION_X[resolution_choose];
-         GR_HEIGHT=RESOLUTION_Y[resolution_choose];
-
+        if (hide_taskbar) {
+          GR_WIDTH=RESOLUTION_X[resolution_choose];
+          GR_HEIGHT=RESOLUTION_Y[resolution_choose];
+        } else {
+          RECT rect;
+          if(GetWindowRect(hwnd, &rect)) {
+            GR_WIDTH = rect.right - rect.left;
+            GR_HEIGHT = rect.bottom - rect.top;        
+            windowx = rect.left;
+            windowy = rect.top;
+          }
+        }
 
         if (GR_WIDTH!=OLD_GR_WIDTH || GR_HEIGHT!=OLD_GR_HEIGHT || flag_update_background) {
           if (!in_map_editor) {
@@ -839,7 +845,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
 
             DrawUI(hdcBackbuff);
-            //GrGlassRect(hdcBackbuff,0,0,GR_WIDTH,GR_HEIGHT,YELLOW,128);
             DrawCursor(hdcBackbuff);
             //DrawGrids(hdcBackbuff); //debugging
             DrawWaterShader(hdcBackbuff);           
@@ -908,6 +913,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             } else {
               BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
             }
+            DeleteDC(hdcBackbuff);
+            DeleteObject(screen);
 
               //Trigger go back to main menu
             if (back_to_menu) {
@@ -920,6 +927,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           HBITMAP screen;
           hdc=BeginPaint(hwnd, &ps);
           hdcBackbuff=CreateCompatibleDC(hdc);
+          /*if (once_timer==FPS) {
+            LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
+            lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+            SetWindowLong(hwnd, GWL_STYLE, lStyle);
+            SetWindowPos(hwnd,HWND_TOPMOST,0,0,RESOLUTION_X[MAX_RESOLUTION_I],RESOLUTION_Y[MAX_RESOLUTION_I], SWP_FRAMECHANGED);
+            SetForegroundWindow(hwnd); //return back focus
+            flag_resolution_change=TRUE;
+            hide_taskbar=TRUE;
+            once_timer++;
+          } else if (once_timer<FPS){
+            once_timer++;
+          }*/
           if (flag_resolution_change) { //blackout clear screen
             screen=CreateCompatibleBitmap(hdc,SCREEN_WIDTH,SCREEN_HEIGHT);
             SelectObject(hdcBackbuff,screen);
@@ -927,7 +946,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             BitBlt(hdc, 0,0, SCREEN_WIDTH,SCREEN_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
             flag_resolution_change=FALSE;
           } else {
-            screen=CreateCompatibleBitmap(hdc,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose]);
+            screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
             SelectObject(hdcBackbuff,screen);
       
             DrawMainMenu(hdcBackbuff);
@@ -1033,20 +1052,25 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       AddFontResource(L"fonts/KhmerOS.ttf");
       //AddFontResource(L"fonts/KhmerUI.ttf");
       //AddFontResource(L"fonts/KhmerOSsys.ttf");
+
       for (int i=0;i<9;i++) {
         if (SCREEN_WIDTH==RESOLUTION_X[i] && SCREEN_HEIGHT==RESOLUTION_Y[i]) {
           MAX_RESOLUTION_I=i+1;
           break;
         }
       }
+
+      resolution_choose=0;//MAX_RESOLUTION_I-1;
+      GR_WIDTH=RESOLUTION_X[resolution_choose];
+      GR_HEIGHT=RESOLUTION_Y[resolution_choose];
+      flag_resolution_change=TRUE;
+
+
       Init8BitRGBColorsNoir(rgbColorsNoir);
       Init8BitRGBColorsDefault(rgbColorsDefault);
       Init8BitRGBPaintDefault(rgbPaint,rgbColorsDefault,TRUE,8);
       wav_out_original_volume=VolumeValue(50,1); //set volume
       //waveOutGetVolume(hWaveOut[2],&wav_out_original_volume);
-      //RESOLUTION_X[2]=SCREEN_WIDTH; //set resolution x to be of screen width
-      //RESOLUTION_Y[2]=SCREEN_HEIGHT; //set reolution y to be of screen height
-
       swprintf(src_music_dir,64,L"music"); //set dir of music
 
 
@@ -1072,7 +1096,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 ខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\n\
 \
 \
-In memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1959, 1963-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1446-05-12"), TEXT("អ្នកសម្លាប់សត្វចង្រៃ") ,MB_OK);
+In memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1959, 1963-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1446-06-17"), TEXT("អ្នកសម្លាប់សត្វចង្រៃ") ,MB_OK);
 //TEXT("អាពីងស៊ីរុយ") ,MB_OK); //ឈ្មោះចាស់
 
       //load levels in save
@@ -1436,29 +1460,13 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 
   //https://cplusplus.com/forum/beginner/9908/
   //create window
-  int small_screen_x=640;
-  int small_screen_y=480;
-  resolution_choose=0;
-  /*if (SCREEN_WIDTH>640) {
-    small_screen_x=800;
-    small_screen_y=600;
-    resolution_choose=1;
-  }*/
   HWND hwnd = CreateWindowW(wc.lpszClassName,
 //                L"អាពីងស៊ីរុយ - wInsecticide",
 //                L"អ្នករាបចង្រៃ - wInsecticide",
                 L"អ្នកសម្លាប់សត្វចង្រៃ - wInsecticide",
                 WS_POPUP | WS_BORDER | WS_OVERLAPPEDWINDOW | WS_VISIBLE | CW_USEDEFAULT| CW_USEDEFAULT /*| WS_MINIMIZE*/,
-                //SCREEN_WIDTH/2-small_screen_x/2,
-                //SCREEN_HEIGHT/2-small_screen_y/2,
-                //640,
-                //480,
                 SCREEN_WIDTH,
                 SCREEN_HEIGHT,
-                //800,//SCREEN_WIDTH,//GR_WIDTH+7,
-                //600-8*4,//SCREEN_HEIGHT,//GR_HEIGHT+27, //4:3 aspect ratio
-                //small_screen_x,
-                //small_screen_y,
                 0,
                 0,
                 NULL,
@@ -1526,11 +1534,17 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 
 
 
+  //SetTimer(hwnd, 1, frameDelays[currentFrame] , NULL);
+  /*LONG lStyle0 = GetWindowLong(hwnd, GWL_STYLE);
+  lStyle0 |= (WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+  SetWindowLong(hwnd, GWL_STYLE, lStyle0);
+  SetWindowPos(hwnd,HWND_NOTOPMOST,0,0,RESOLUTION_X[0],RESOLUTION_Y[0], SWP_FRAMECHANGED);*/
+
+  //Sleep(1000);
   LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
   lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU); //borderless mode
   SetWindowLong(hwnd, GWL_STYLE, lStyle);
-  SetWindowPos(hwnd,HWND_NOTOPMOST,0,0,SCREEN_WIDTH,SCREEN_HEIGHT, SWP_FRAMECHANGED);
-  //SetTimer(hwnd, 1, frameDelays[currentFrame] , NULL);
+  SetWindowPos(hwnd,HWND_TOPMOST,0,0,SCREEN_WIDTH,SCREEN_HEIGHT, SWP_FRAMECHANGED);
 
   MSG msg;
   while (true) {

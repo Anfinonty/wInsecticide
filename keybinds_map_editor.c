@@ -618,11 +618,13 @@ void MapEditorKeypressUp(WPARAM wParam, HWND hwnd, HDC hdc)
       case 'D':
       case VK_RIGHT:
         player.rst_right=FALSE;
-        /*switch (MapEditor.selected_option) {
+        switch (MapEditor.selected_option) {
           case 3: //Enemy Type
-            UpdateMEDrawSprite();
+            if (MapEditor.selected_enemy_type_option==1) {
+              UpdateMEDrawSprite();
+            }
             break;
-        }*/
+        }
         break;
 
 
@@ -630,11 +632,13 @@ void MapEditorKeypressUp(WPARAM wParam, HWND hwnd, HDC hdc)
       case 'A':
       case VK_LEFT:
         player.rst_left=FALSE;
-        /*switch (MapEditor.selected_option) {
-          case 3: //Enemy Type
-            UpdateMEDrawSprite();
+        switch (MapEditor.selected_option) {
+          case 3: //Enemy Type && species
+            if (MapEditor.selected_enemy_type_option==1) {
+              UpdateMEDrawSprite();
+            }
             break;
-        }*/
+        }
         break;
 
     //Release W or Up key
