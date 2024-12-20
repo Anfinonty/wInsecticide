@@ -340,16 +340,16 @@ void EnemyReboundFromGround(int enemy_id,int ground_id,bool is_rebound)
 
     //if (Enemy[enemy_id]->species==1) {
       //if (edge_1_dist<=31 || edge_2_dist<=31) {
-      if (edge_1_dist<=41 || edge_2_dist<=41) {
+      if (edge_1_dist<=31 || edge_2_dist<=31) {
         //Enemy[enemy_id]->above_ground=
         //Enemy[enemy_id]->below_ground=FALSE;
         if (Enemy[enemy_id]->species==1) {
           Enemy[enemy_id]->in_air_timer=2;
         }
         Enemy[enemy_id]->is_in_ground_edge=TRUE;
-      } /*else {
+      } else {
         Enemy[enemy_id]->is_in_ground_edge=FALSE;
-      }*/
+      }
     //}
 
 
@@ -1094,9 +1094,9 @@ void EnemyAct(int i)
             int tmp_on_ground_id2=GetOnGroundId(Enemy[i]->x,Enemy[i]->y,33,32);//GetOnGroundId(Enemy[i]->x,Enemy[i]->y,30,29);
             //Enemy[enemy_id]->on_ground_id=GetOnGroundId(Enemy[enemy_id]->x,Enemy[enemy_id]->y,31,30);    //Get 
             //Enemy[i]->on_ground_id=tmp_on_ground_id2;
-            Enemy[i]->on_ground_id=tmp_on_ground_id2;    //Get 
+             Enemy[i]->on_ground_id=tmp_on_ground_id2;    //Get 
              if (tmp_on_ground_id2!=-1) {
-               EnemyReboundFromGround(i,tmp_on_ground_id2,TRUE);
+               EnemyReboundFromGround(i,tmp_on_ground_id2,FALSE);
              } 
              if (Enemy[i]->on_ground_id==-1) {
                Enemy[i]->in_air_timer=2;
@@ -1198,6 +1198,11 @@ void EnemyAct(int i)
 		                Enemy[i]->shoot_target_y,
                         0
                     );
+                    if (Enemy[i]->shoot_target_x<Enemy[i]->x) {
+                       Enemy[i]->last_left=TRUE;
+                    } else {
+                       Enemy[i]->last_left=FALSE;
+                    }
                     Enemy[i]->bullet_shot_arr[Enemy[i]->bullet_shot_num]=current_bullet_id;
                     Enemy[i]->bullet_shot_num++;
                   //after shooting
@@ -1785,7 +1790,7 @@ void DrawEnemy(HDC hdc)
         case 1: 
         {
           //DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite1[funny],Enemy[i]->last_left);
-          if (Enemy[i]->on_ground_id!=-1 /*&& !Enemy[i]->is_in_ground_edge*/) {
+          if (Enemy[i]->on_ground_id!=-1 && !Enemy[i]->is_in_ground_edge) {
             if (Enemy[i]->above_ground) {
               if (Enemy[i]->sprite_timer%8==0) {
                 DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id],Enemy[i]->last_left);
