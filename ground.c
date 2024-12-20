@@ -231,9 +231,12 @@ void InitGround(bool is_max)
       }
 
 
-      if (Ground[i]->type==3) {//trifill
+      if (Ground[i]->type==3 || Ground[i]->type==1) {//trifill
 	    if (Ground[i]->y1==Ground[i]->y2) {
 	      Ground[i]->y2++;
+        }
+        if (Ground[i]->type==1) {
+          has_water=TRUE;
         }
       }
       if (Ground[i]->y3==Ground[i]->y1) {
@@ -648,7 +651,7 @@ void DrawGround(HDC hdc)
 
 void DrawGroundText(HDC hdc)
 {
-  int i=0;//,j=0;
+  int i=0;
   for (i=0;i<GROUND_NUM;i++) {
     if (Ground[i]->type==2) { 
       if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
@@ -668,30 +671,20 @@ void DrawGroundText(HDC hdc)
   }
 }
 
-
-void DrawGroundTriFill(HDC hdc)
-{
-  int i=0,c=0;//,j=0;
+void DrawWaterTriFill (HDC hdc) {
+  int i=0,c=0;
   for (i=0;i<GROUND_NUM;i++) {
-    if (Ground[i]->type==3) { 
-      //if (!IsInvertedBackground()) {
-	    c=Ground[i]->color;
-	    //c=draw_darker_color_arr[Ground[i]->color_id];
-      //} else {
-	    //c=draw_lighter_color_arr[Ground[i]->color_id];
-      //}
-      //c=Ground[i]->color;
+    if (Ground[i]->type==1) { 
+      c=Ground[i]->color;
       if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
           !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
-        //if (!IsInvertedBackground()) {
 	      DrawTriFill(hdc,c,
                 Ground[i]->x1,
 				Ground[i]->y1,
 				Ground[i]->x2,
 				Ground[i]->y2,
 				Ground[i]->x3,
-				Ground[i]->y3,FALSE,0);
-        /*} else {
+				Ground[i]->y3,TRUE,HS_HORIZONTAL);
 	      DrawTriFill(hdc,c,
                 Ground[i]->x1,
 				Ground[i]->y1,
@@ -699,20 +692,18 @@ void DrawGroundTriFill(HDC hdc)
 				Ground[i]->y2,
 				Ground[i]->x3,
 				Ground[i]->y3,TRUE,HS_BDIAGONAL);
-        }*/
       }
     }
   }
+}
 
 
-
+void DrawGroundTriFill(HDC hdc)
+{
+  int i=0,c=0;
   for (i=0;i<GROUND_NUM;i++) {
-    if (Ground[i]->type==1) { 
-      //if (!IsInvertedBackground()) {
-	    c=Ground[i]->color;
-      //} else {
-	    //c=LTR2YELLOW;//draw_lighter_color_arr[Ground[i]->color_id];
-      //}
+    if (Ground[i]->type==3) { 
+      c=Ground[i]->color;
       if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
           !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
 	      DrawTriFill(hdc,c,
@@ -721,7 +712,7 @@ void DrawGroundTriFill(HDC hdc)
 				Ground[i]->x2,
 				Ground[i]->y2,
 				Ground[i]->x3,
-				Ground[i]->y3,TRUE,/*HS_BDIAGONAL*/HS_HORIZONTAL);
+				Ground[i]->y3,FALSE,0);
       }
     }
   }

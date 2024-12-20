@@ -47,6 +47,40 @@ char *enemy_type_bool_attr_names[ENEMY_TYPE_BOOL_ATTR_NUM]=
 "Timebreaker Immune"
 };
 
+
+void DrawMapEditorWaterPlatforms(HDC hdc)
+{
+  //Draw type 1 == Water
+  int i,c;
+  for (int k=0;k<rendered_ground_num;k++) {
+    i=render_grounds[k];
+    if (i!=-1) {
+      if (Ground[i]->type==1) {
+        c=rgbPaint[Ground[i]->color_id];
+        if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
+            !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
+	      DrawTriFill(hdc,c,
+                Ground[i]->x1+player.cam_x+GR_WIDTH/2,
+				Ground[i]->y1+player.cam_y+GR_HEIGHT/2,
+				Ground[i]->x2+player.cam_x+GR_WIDTH/2,
+				Ground[i]->y2+player.cam_y+GR_HEIGHT/2,
+				Ground[i]->x3+player.cam_x+GR_WIDTH/2,
+				Ground[i]->y3+player.cam_y+GR_HEIGHT/2,TRUE,HS_HORIZONTAL);
+	      DrawTriFill(hdc,c,
+                Ground[i]->x1+player.cam_x+GR_WIDTH/2,
+				Ground[i]->y1+player.cam_y+GR_HEIGHT/2,
+				Ground[i]->x2+player.cam_x+GR_WIDTH/2,
+				Ground[i]->y2+player.cam_y+GR_HEIGHT/2,
+				Ground[i]->x3+player.cam_x+GR_WIDTH/2,
+				Ground[i]->y3+player.cam_y+GR_HEIGHT/2,TRUE,HS_BDIAGONAL);
+        }
+      }
+    }
+  }
+
+}
+
+
 //Graphics
 void DrawMapEditorPlatforms(HDC hdc)
 {
@@ -62,7 +96,6 @@ void DrawMapEditorPlatforms(HDC hdc)
 	    c=rgbPaint[Ground[i]->color_id];
         if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
             !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
-       // if (!IsInvertedBackground()) {
 	      DrawTriFill(hdc,c,
                 Ground[i]->x1+player.cam_x+GR_WIDTH/2,
 				Ground[i]->y1+player.cam_y+GR_HEIGHT/2,
@@ -70,28 +103,8 @@ void DrawMapEditorPlatforms(HDC hdc)
 				Ground[i]->y2+player.cam_y+GR_HEIGHT/2,
 				Ground[i]->x3+player.cam_x+GR_WIDTH/2,
 				Ground[i]->y3+player.cam_y+GR_HEIGHT/2,FALSE,0);
-        /*} else {
-	      DrawTriFill(hdc,c,
-                Ground[i]->x1+player.cam_x+GR_WIDTH/2,
-				Ground[i]->y1+player.cam_y+GR_HEIGHT/2,
-				Ground[i]->x2+player.cam_x+GR_WIDTH/2,
-				Ground[i]->y2+player.cam_y+GR_HEIGHT/2,
-				Ground[i]->x3+player.cam_x+GR_WIDTH/2,
-				Ground[i]->y3+player.cam_y+GR_HEIGHT/2,TRUE,HS_BDIAGONAL);*/
         }
-      } else if (Ground[i]->type==1) {
-        c=rgbPaint[Ground[i]->color_id];
-        if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
-            !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
-	      DrawTriFill(hdc,c,
-                Ground[i]->x1+player.cam_x+GR_WIDTH/2,
-				Ground[i]->y1+player.cam_y+GR_HEIGHT/2,
-				Ground[i]->x2+player.cam_x+GR_WIDTH/2,
-				Ground[i]->y2+player.cam_y+GR_HEIGHT/2,
-				Ground[i]->x3+player.cam_x+GR_WIDTH/2,
-				Ground[i]->y3+player.cam_y+GR_HEIGHT/2,TRUE,/*HS_BDIAGONAL*/HS_HORIZONTAL);
-        }
-      }
+      } 
     } 
   }
 
@@ -140,7 +153,6 @@ void DrawMapEditorPlatforms(HDC hdc)
     }
     }
   }
-
 
   //Print ground details
   char print_ground_id[4];

@@ -87,6 +87,7 @@ bool yes_unifont=TRUE;//FALSE;
 bool game_cam_shake=TRUE;
 bool game_audio=TRUE;
 bool game_shadow=TRUE;
+bool has_water=FALSE;
 
 
 //game state
@@ -838,6 +839,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DrawWebs(hdcBackbuff);
             DrawEnemy(hdcBackbuff);
             DrawPlayer(hdcBackbuff);
+            if (has_water) {
+              DrawWaterPlatforms(hdcBackbuff);
+            }
 
 
             if (is_shadows && game_shadow) {
@@ -899,6 +903,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DrawMapEditorEnemy(hdcBackbuff);
             DrawMapEditorPlayer(hdcBackbuff);
             DrawGrids(hdcBackbuff,player.cam_x+GR_WIDTH/2,player.cam_y+GR_HEIGHT/2);
+            DrawMapEditorWaterPlatforms(hdcBackbuff);
             DrawMapEditorUI(hdcBackbuff);
             DrawCursor(hdcBackbuff);
 
@@ -927,18 +932,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           HBITMAP screen;
           hdc=BeginPaint(hwnd, &ps);
           hdcBackbuff=CreateCompatibleDC(hdc);
-          /*if (once_timer==FPS) {
-            LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
-            lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
-            SetWindowLong(hwnd, GWL_STYLE, lStyle);
-            SetWindowPos(hwnd,HWND_TOPMOST,0,0,RESOLUTION_X[MAX_RESOLUTION_I],RESOLUTION_Y[MAX_RESOLUTION_I], SWP_FRAMECHANGED);
-            SetForegroundWindow(hwnd); //return back focus
-            flag_resolution_change=TRUE;
-            hide_taskbar=TRUE;
-            once_timer++;
-          } else if (once_timer<FPS){
-            once_timer++;
-          }*/
           if (flag_resolution_change) { //blackout clear screen
             screen=CreateCompatibleBitmap(hdc,SCREEN_WIDTH,SCREEN_HEIGHT);
             SelectObject(hdcBackbuff,screen);

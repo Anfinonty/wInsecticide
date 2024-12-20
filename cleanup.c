@@ -402,8 +402,15 @@ void CleanupAll()
     //printf("===All pointers freed\n");
 
 
-    DeleteObject(map_platforms_sprite); //delete sprites
     DeleteObject(map_platforms_sprite_mask);
+    DeleteObject(map_platforms_sprite); //delete sprites
+
+    if (has_water) {
+      DeleteObject(map_water_platforms_sprite_mask);
+      DeleteObject(map_water_platforms_sprite);
+      has_water=FALSE;
+    }
+
     DeleteObject(map_platforms_shadow_shader);
 
     DeleteObject(map_background_sprite);

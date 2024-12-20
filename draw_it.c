@@ -2,34 +2,8 @@
 
 
 //Background
-void DrawBackground(HDC hdc) {
-//  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(253, 2, 139));
-//  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(173, 216, 230));
-//  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(8,39,245));
-//  GrRect(hwnd,hdc,ps,0,0,GR_WIDTH,GR_HEIGHT,RGB(RandNum(0,255),RandNum(0,255),RandNum(0,255))); //RAVE
-/*  switch (map_background) {
-    case 0:
-      DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
-      break;
-    case 1:
-      DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,NOTSRCCOPY,FALSE,FALSE);
-      //GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
-//      DrawSprite(hdc, GR_WIDTH-128,128,&draw_moon_sprite,FALSE);
-      DrawSprite(hdc, GR_WIDTH-128,128,&draw_moon_sprite,FALSE);
-      break;
-    default:
-      if (map_background_sprite==NULL) {
-        GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,custom_map_background_color);
-      } else {
-        //if (IsInvertedBackground()) {
-          //DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,NOTSRCCOPY,FALSE,FALSE);
-        //} else {
-        DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
-        //}
-      }
-      break;
-  }*/
-
+void DrawBackground(HDC hdc) 
+{
   switch (map_background) {
     case 0:
       DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
@@ -52,6 +26,31 @@ void DrawBackground(HDC hdc) {
 }
 
 
+
+void DrawWaterPlatforms(HDC hDC) 
+{
+  int extra_h=0;
+  if (hide_taskbar) {
+    extra_h=8*4;
+  }
+  DrawBitmap(hDC,
+                 0,
+                 0,
+                 player.x-player.cam_mouse_move_x-player.cam_move_x-GR_WIDTH/2,
+                 player.y-player.cam_mouse_move_y-player.cam_move_y-GR_HEIGHT/2,
+                 GR_WIDTH,
+                 GR_HEIGHT+extra_h,
+                 map_water_platforms_sprite_mask,SRCAND,FALSE,FALSE);
+  //Draw water platforms paint
+  DrawBitmap(hDC,
+                 0,
+                 0,                    
+                 player.x-player.cam_mouse_move_x-player.cam_move_x-GR_WIDTH/2,
+                 player.y-player.cam_mouse_move_y-player.cam_move_y-GR_HEIGHT/2,
+                 GR_WIDTH,
+                 GR_HEIGHT+extra_h,
+                 map_water_platforms_sprite,SRCPAINT,FALSE,FALSE);
+}
 
 
 void DrawPlatforms(HDC hDC)

@@ -371,6 +371,7 @@ void InitPlayer() {
   player.in_air_timer=0;
   player.speed=DEFAULT_PLAYER_SPEED;
   player.on_ground_timer=0;
+  player.in_water_timer=0;
   player.on_ground_id=-1;
   player.below_ground_edge_timer=0;
 
@@ -790,7 +791,7 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
       //if (player.rst_left || player.rst_right) { //continue spin-rebound
         player.in_air_timer=1000;
       //}
-    } else { //not reboubding
+    } else if (!player.in_water) { //not reboubding
       player.is_rebounding=FALSE;
       player.in_air_timer=1;
 
@@ -980,8 +981,6 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
     player.angle_of_reflection=2*M_PI-player.angle_of_incidence+2*player.angle; //real
     if (!player.is_swinging) {
       player.angle_of_incidence=player.angle_of_reflection;
-
-
     }
   }
 
@@ -1244,7 +1243,7 @@ void PlayerActGravityMovement(int grav_speed,int speed)
       if (player.in_air_timer>2002) { //dont go above this limit
         player.in_air_timer--;
       }
-      if (player.jump_height==0) {
+      if (player.jump_height==0 && player.in_water_timer==0) {
         if (player.in_air_timer<1100) { //note: 1001 is post fling or rebounding
           if (player.in_air_timer%20==0 && player.grav<=100) {
             player.grav++;
@@ -1253,7 +1252,7 @@ void PlayerActGravityMovement(int grav_speed,int speed)
           }*/
           }
         } else {
-          if (player.in_air_timer%12==0 && player.grav<=100) {
+          if (player.in_air_timer%12==0 && player.grav<=100 && player.in_water_timer==0) {
             player.grav++;
           }
         }
@@ -1281,7 +1280,7 @@ void PlayerActGravityMovement(int grav_speed,int speed)
   if (speed==0) { //Gravity runs on grav speed
     if (player.on_ground_id==-1 && player.jump_height<=0) { //Credit: y4my4m for pushing me to pursue this gameplay aspect
       if (!player.is_swinging) { //not swinigng and player is not flinging
-        if ((player.in_air_timer>4 || player.fling_distance<0) || (player.in_water && player.blocking)) {
+        if ((player.in_air_timer>4 || player.fling_distance<0)) {
           move_y(player.player_grav); //include while being rebounding and flinging
         }
       }
@@ -1875,8 +1874,12 @@ void PlayerAct()
       player.jump_height=0;
   }
 
-  if (player.rst_up && player.on_a_ground) { //on ground and jumping
+  if (player.rst_up && (player.on_a_ground || (player.in_water && !player.is_swinging))) { //on ground and jumping
     //player.key_jump_timer=player.player_jump_height;
+    if (player.in_water && player.on_ground_id==-1 && player.jump_height==0) {
+      player.jump_angle=M_PI_2;
+      player.jump_angle2=M_PI_2;
+    }
     player.jump=TRUE;
     player.below_ground_edge_timer=0;
     player.on_ground_edge_id=-1;
@@ -1887,7 +1890,11 @@ void PlayerAct()
   }
 
   if (player.jump && player.jump_height==0) {
-    player.jump_height=player.player_jump_height;
+    if (player.in_water_timer==0) {
+      player.jump_height=player.player_jump_height;
+    } else {
+      player.jump_height=player.player_jump_height/4;
+    }
   }
 
   //PLAYER ACT DECELERATION ACTIONS
@@ -1910,15 +1917,42 @@ void PlayerAct()
 
   //PLAYER ACT SPPED IN WATER
   if (player.in_water) {
-    player.grav=2;
+    if (player.grav<2) {
+      player.grav++;
+    }
+    if (player.grav>2) {
+      player.grav--;
+    }
     speed_limiter=speed_limiter/2+1;
+  } else  {
+    if (player.in_water_timer>0) {
+      if (player.in_water_timer%20==0 && player.grav<=100) {
+        player.grav++;
+      }
+      player.in_water_timer--;
+    } 
   }
+
 
   if (player.is_on_ground_edge) {
      //speed_limiter=15;
      speed_limiter*=10;//10;//*=5;
   }
-
+              /*double le_angle=M_PI_2+M_PI;
+              if (player.angle_of_incidence>M_PI) {
+                if (player.angle_of_incidence>M_PI+M_PI_2)
+                  le_angle=2*M_PI-player.angle_of_incidence;
+                else
+                  le_angle=M_PI_2+2*M_PI-player.angle_of_incidence;
+              } else {
+                if (player.angle_of_incidence>M_PI_2)
+                  le_angle=M_PI-player.angle_of_incidence;
+                else
+                  le_angle=M_PI_2+M_PI-player.angle_of_incidence;
+              }
+              player.jump_angle=
+              player.jump_angle2=le_angle+M_PI_2;
+              player.jump_height=200;*///player.fling_distance/2;
   if (player.below_ground_edge_timer>0) {
     player.below_ground_edge_timer--;
   }
@@ -1946,21 +1980,38 @@ void PlayerAct()
       //PLAYER IN NODE GRID ACTIONS
       int in_node_grid_id=GetGridId(player.x,player.y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
       if (in_node_grid_id!=-1) {
-        //if (NodeGrid[in_node_grid_id]->tmp_wet)
-          //player.rain_wet_timer=260;
         if (NodeGrid[in_node_grid_id]->node_water) {
+          if (!player.in_water) {//entering water
+            player.in_air_timer=1002;
+            player.in_water_timer=150;
+          }
+          if (player.in_water_timer<200) {
+            player.in_water_timer++;
+            if (player.in_water_timer==198  && player.fling_distance!=0) {
+              player.fling_distance=0;
+            }
+          }
           player.in_water=TRUE;
         } else {
+          if (player.in_water) { //leaving water
+            player.jump_angle=
+            player.jump_angle2=M_PI_2;
+            player.in_air_timer=20;
+            if (player.speed>5 && !player.time_breaker) {
+              player.speed/=2;
+            }
+          }
           player.in_water=FALSE;
         }
-
-        /*if (NodeGrid[in_node_grid_id]->node_solid) {
-          player.hiding=TRUE;
-        } else {
-          player.hiding=FALSE;          
-        }*/
-
       } else {
+        if (player.in_water) {
+            player.jump_angle=
+            player.jump_angle2=M_PI_2;
+            player.in_air_timer=20;
+            if (player.speed>5 && !player.time_breaker) {
+              player.speed/=2;
+            }
+        }
         player.in_water=FALSE;
       }
       if (player.time_breaker && player.rain_wet_timer>0) {
@@ -1996,7 +2047,6 @@ void PlayerAct()
           player.player_jump_height=DEFAULT_PLAYER_JUMP_HEIGHT;
         else 
           player.player_jump_height=150;
-
         if (!player.low_jump || player.speed<10)
           player.player_jump_height+=player.speed*NODE_SIZE;
         else
@@ -2376,7 +2426,7 @@ void PlayerAct()
   }
 
   //swinging
-  if ((player.fling_distance>0 || player.is_swinging) && player.speed<6) { //fast when swinging
+  if ((player.fling_distance>0 || player.is_swinging) && player.speed<6 && player.in_water_timer==0) { //fast when swinging
     player.speed=6;
   }
 
@@ -2638,6 +2688,12 @@ void PlayerCameraShake()
 
 void DrawPlayer(HDC hdc)
 {
+  char mytxt1[6];
+  char mytxt2[6];
+  sprintf(mytxt1,"%d",player.in_water_timer);
+  sprintf(mytxt2,"%d",player.grav);//player.in_air_timer);
+  GrPrint(hdc,100,100,mytxt1,LTGREEN);
+  GrPrint(hdc,100,116,mytxt2,LTGREEN);
   //Platform bitmap palette conversion
   if (player.rst_arrow_left) {
     if (mouse_x>20)

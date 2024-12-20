@@ -189,6 +189,7 @@ struct player
   int time_breaker_units_tick;
   int time_breaker_units_tick_max;
   int spin_timer;
+  int in_water_timer;
 
   int bullet_shot_num;
   int color;
@@ -883,8 +884,12 @@ HBITMAP map_background_sprite;
 //map platforms
 HBITMAP map_platforms_sprite;
 HBITMAP map_platforms_sprite_mask;
+
+HBITMAP map_water_platforms_sprite;
+HBITMAP map_water_platforms_sprite_mask;
+
 HBITMAP map_platforms_shadow_shader;
-//HBITMAP map_platforms_shadow_shader_mask;
+
 
 //moon
 HBITMAP moon_sprite;

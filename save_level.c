@@ -182,24 +182,32 @@ void SaveLvlBmp(HWND hwnd, HDC hdc)
 {  
   wchar_t bmp_save[64];
   swprintf(bmp_save,64,L"saves/%s/map.bmp",level_names[level_chosen]);
+  wchar_t water_bmp_save[64];
+  swprintf(water_bmp_save,64,L"saves/%s/map_water.bmp",level_names[level_chosen]);
   wchar_t bmp_save_shadow[64];
   swprintf(bmp_save_shadow,64,L"saves/%s/map_shadow.bmp",level_names[level_chosen]);
 
   PAINTSTRUCT ps; //Suggestion Credit: https://git.xslendi.xyz
   hdc=BeginPaint(hwnd, &ps);
   HDC hdc2=CreateCompatibleDC(hdc);
+  HDC hdc3=CreateCompatibleDC(hdc);
 
+  //normal platforms
   map_platforms_sprite=CreateCrunchyBitmap(MAP_WIDTH,MAP_HEIGHT);
-
   SelectObject(hdc2,map_platforms_sprite);
-
-  GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,MYCOLOR1); //Create Background with random color over platforms
-
+  GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,MYCOLOR1); //Create Background with set color over platforms
   DrawGroundTriFill(hdc2);
   DrawGround(hdc2);
   DrawGroundText(hdc2);
 
+  //water platforms
+  map_water_platforms_sprite=CreateCrunchyBitmap(MAP_WIDTH,MAP_HEIGHT);
+  SelectObject(hdc3,map_water_platforms_sprite);
+  GrRect(hdc3,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,MYCOLOR1); //Create Background with set  color over platforms
+  DrawWaterTriFill(hdc3);
 
+
+  //shadow platforms, water excluded from shadow
   int shadowc=LTGRAY;
   if (MapEditor.set_lvl_ambient_val[6]==1 && 
         (MapEditor.set_lvl_ambient_val[7]!=shadow_grad_rise || MapEditor.set_lvl_ambient_val[8]!=shadow_grad_run)) {
@@ -212,11 +220,15 @@ void SaveLvlBmp(HWND hwnd, HDC hdc)
     SaveBitmapToFile2(map_platforms_shadow_shader,rgbColorsDefault, bmp_save_shadow);
   }
 
+
+  DeleteDC(hdc3);
   DeleteDC(hdc2);
   EndPaint(hwnd, &ps);
   SaveBitmapToFile2(map_platforms_sprite,rgbColorsDefault, bmp_save);
+  SaveBitmapToFile2(map_water_platforms_sprite,rgbColorsDefault, water_bmp_save);
 
   DeleteObject(map_platforms_sprite);
+  DeleteObject(map_water_platforms_sprite);
   DeleteObject(map_platforms_shadow_shader);
 }
 
