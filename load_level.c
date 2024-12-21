@@ -157,7 +157,8 @@ void InitPlatformsSprite(HWND hwnd, HDC hdc)
   wchar_t bmp_save[64];
   swprintf(bmp_save,64,L"saves/%s/map.bmp",level_names[level_chosen]);
   wchar_t bmp_water_save[64];
-  swprintf(bmp_water_save,64,L"saves/%s/map_water.bmp",level_names[level_chosen]);
+//  swprintf(bmp_water_save,64,L"saves/%s/map_water.bmp",level_names[level_chosen]);
+  swprintf(bmp_water_save,64,L"saves/%s/map_foreground.bmp",level_names[level_chosen]);
   wchar_t bmp_save_shadow[64];
   swprintf(bmp_save_shadow,64,L"saves/%s/map_shadow.bmp",level_names[level_chosen]);
   //SaveBitmapToFile2(map_platforms_sprite,rgbColorsDefault,bmp_save);

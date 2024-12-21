@@ -832,13 +832,15 @@ void BulletAct(int bullet_id)
   //double bm_x1=0,bm_y1=0,bm_x2=0,bm_y2=0;
   bool allow_act=FALSE;
   if (Bullet[bullet_id].shot) {
-    int on_node_grid_id=GetGridId(Bullet[bullet_id].x,Bullet[bullet_id].y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
-    if (on_node_grid_id!=-1) {
-      if (NodeGrid[on_node_grid_id]->node_water) {
-        Bullet[bullet_id].speed=Bullet[bullet_id].ospeed/4;
-      } else {
-        Bullet[bullet_id].speed=Bullet[bullet_id].ospeed;
-      }
+    if (!in_map_editor) {
+        int on_node_grid_id=GetGridId(Bullet[bullet_id].x,Bullet[bullet_id].y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
+        if (on_node_grid_id!=-1) {
+          if (NodeGrid[on_node_grid_id]->node_water) {
+            Bullet[bullet_id].speed=Bullet[bullet_id].ospeed/4;
+          } else {
+            Bullet[bullet_id].speed=Bullet[bullet_id].ospeed;
+          }
+        }
     }
     for (int i=0;i<Bullet[bullet_id].speed_multiplier;i++) {
       allow_act=FALSE;

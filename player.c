@@ -1890,7 +1890,7 @@ void PlayerAct()
   }
 
   if (player.jump && player.jump_height==0) {
-    if (player.in_water_timer==0) {
+    if (!player.in_water) {
       player.jump_height=player.player_jump_height;
     } else {
       player.jump_height=player.player_jump_height/4;

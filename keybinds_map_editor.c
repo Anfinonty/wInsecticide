@@ -180,9 +180,9 @@ void MapEditorKeypressDown(WPARAM wParam)
 
     //Tab
       case 0x09:
-        if (MapEditor.selected_option==3) {
+        /*if (MapEditor.selected_option==3) {
           UpdateMEDrawSprite();
-        }
+        }*/
         if (!MapEditor.is_typing_search && !MapEditor.is_ground_txt_typing) {
           MapEditor.selected_option=LimitValueInt(MapEditor.selected_option+1,0,5);
         }
