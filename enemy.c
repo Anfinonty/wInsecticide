@@ -384,7 +384,7 @@ void EnemySpecies1Gravity(int enemy_id)
 {
 //  Enemy[enemy_id]->on_ground_id=GetOnGroundIdE(Enemy[enemy_id]->x,Enemy[enemy_id]->y,30,29,enemy_id);    //Get Ground id //clipping issue
   int tmp_=GetOnGroundId(Enemy[enemy_id]->x,Enemy[enemy_id]->y+2,30,29);
-  int node_grid_id1=GetGridId(Enemy[enemy_id]->x,Enemy[enemy_id]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
+  int node_grid_id1=Enemy[enemy_id]->in_node_grid_id;//GetGridId(Enemy[enemy_id]->x,Enemy[enemy_id]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
   int node_grid_id2=GetGridId(Enemy[enemy_id]->x,Enemy[enemy_id]->y+NODE_SIZE,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
   bool is_in_solid1=FALSE;//=NodeGrid[node_grid_id1]->node_solid;
   bool is_in_solid2=FALSE;//=NodeGrid[node_grid_id2]->node_solid;
@@ -397,7 +397,11 @@ void EnemySpecies1Gravity(int enemy_id)
   if (Enemy[enemy_id]->on_ground_id==-1 && tmp_==-1) {//not on ground
     //EnemySpecies1SpriteTimer(enemy_id);
     if (!is_in_solid1 && !is_in_solid2) {
-      Enemy[enemy_id]->y+=1; //falling down
+      if (!Enemy[enemy_id]->in_water) {
+        Enemy[enemy_id]->y+=1; //falling down
+      } else {
+        Enemy[enemy_id]->y-=1; //floating up
+      }
     }
     Enemy[enemy_id]->in_air_timer=2;
     Enemy[enemy_id]->above_ground=FALSE;
@@ -658,7 +662,7 @@ void EnemyKnockbackMove(int i)
       }
       break;
   }
-  int tmp_node_id=GetGridId(Enemy[i]->x,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM); //all nodes
+  int tmp_node_id=Enemy[i]->in_node_grid_id; //all nodes
   if (tmp_node_id!=-1) {
     if (NodeGrid[tmp_node_id]->node_solid)
       allow_act2=TRUE;
@@ -679,16 +683,23 @@ void EnemyKnockbackMove(int i)
     Enemy[i]->saved_ground_id=-1;
     Enemy[i]->angle=0;
 
+    double kb_x=cos(Enemy[i]->knockback_angle)*player.knockback_speed;
+    double kb_y=sin(Enemy[i]->knockback_angle)*player.knockback_speed;      
+    if (Enemy[i]->in_water) {
+      kb_x/=2;
+      kb_y/=2;
+    }
+
     if (!Enemy[i]->player_knockback) {
-      Enemy[i]->x+=cos(Enemy[i]->knockback_angle)*player.knockback_speed;
-      Enemy[i]->y+=sin(Enemy[i]->knockback_angle)*player.knockback_speed;      
+      Enemy[i]->x+=kb_x;//cos(Enemy[i]->knockback_angle)*player.knockback_speed;
+      Enemy[i]->y+=kb_y;//sin(Enemy[i]->knockback_angle)*player.knockback_speed;      
     } else {
       if (Enemy[i]->knockback_left) {
-        Enemy[i]->x-=cos(Enemy[i]->knockback_angle)*player.knockback_speed;
-        Enemy[i]->y-=sin(Enemy[i]->knockback_angle)*player.knockback_speed;      
+        Enemy[i]->x-=kb_x;//cos(Enemy[i]->knockback_angle)*player.knockback_speed;
+        Enemy[i]->y-=kb_y;//sin(Enemy[i]->knockback_angle)*player.knockback_speed;      
       } else {
-        Enemy[i]->x+=cos(Enemy[i]->knockback_angle)*player.knockback_speed;
-        Enemy[i]->y+=sin(Enemy[i]->knockback_angle)*player.knockback_speed;      
+        Enemy[i]->x+=kb_x;//cos(Enemy[i]->knockback_angle)*player.knockback_speed;
+        Enemy[i]->y+=kb_y;//sin(Enemy[i]->knockback_angle)*player.knockback_speed;      
       }
     }
   }
@@ -775,7 +786,11 @@ void EnemyAct(int i)
                 //PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
                 //PlaySound(clang_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
               }
-              Enemy[i]->knockback_timer=player.knockback_strength;
+              if (!Enemy[i]->in_water) {
+                Enemy[i]->knockback_timer=player.knockback_strength;
+              } else {
+                Enemy[i]->knockback_timer=player.knockback_strength/2;
+              }
               Enemy[i]->knockback_angle=Bullet[bk].angle;
               Enemy[i]->player_knockback=FALSE;
               if (Bullet[bk].graphics_type!=6)
@@ -1090,6 +1105,21 @@ void EnemyAct(int i)
       }
 
       for (slash_time_i=0;slash_time_i<slash_time;slash_time_i++) {
+          Enemy[i]->in_node_grid_id=GetGridId(Enemy[i]->x,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
+          if (NodeGrid[Enemy[i]->in_node_grid_id]->node_water) {
+            if (!Enemy[i]->in_water) {
+              Enemy[i]->speed_multiplier=Enemy[i]->ospeed_multiplier/4;
+              if (Enemy[i]->speed_multiplier<=1) {
+                Enemy[i]->speed_multiplier=1;
+              }
+            }
+            Enemy[i]->in_water=TRUE;  
+          } else {
+            if (Enemy[i]->in_water) {
+              Enemy[i]->speed_multiplier=Enemy[i]->ospeed_multiplier;
+            } 
+            Enemy[i]->in_water=FALSE;
+          }
           if (Enemy[i]->species==1) {
             int tmp_on_ground_id2=GetOnGroundId(Enemy[i]->x,Enemy[i]->y,33,32);//GetOnGroundId(Enemy[i]->x,Enemy[i]->y,30,29);
             //Enemy[enemy_id]->on_ground_id=GetOnGroundId(Enemy[enemy_id]->x,Enemy[enemy_id]->y,31,30);    //Get 
@@ -1548,7 +1578,8 @@ void InitEnemy()
     Enemy[i]->knockback_timer=0;
     Enemy[i]->shoot_target_x=0;
     Enemy[i]->shoot_target_y=0;
-
+    Enemy[i]->in_node_grid_id=FALSE;
+    Enemy[i]->in_water=FALSE;
   //LOS
     Enemy[i]->LOS_left=FALSE;
     Enemy[i]->LOS_shot=FALSE;

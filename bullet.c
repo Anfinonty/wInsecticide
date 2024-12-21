@@ -9,7 +9,9 @@ void InitBullet(int max_bullet_num)
     Bullet[i].near_miss=FALSE;
     Bullet[i].range=0;
     Bullet[i].start_range=0;
+    Bullet[i].ospeed=-1;
     Bullet[i].speed=-1;
+    Bullet[i].ospeed_multiplier=0;
     Bullet[i].speed_multiplier=0;
     Bullet[i].damage=0;
     Bullet[i].saved_pos=-1;
@@ -54,7 +56,9 @@ void ShootBullet(
   Bullet[bullet_id].color=color;
   Bullet[bullet_id].start_range=range/2*NODE_SIZE;
   Bullet[bullet_id].range=range/2*NODE_SIZE;
+  Bullet[bullet_id].ospeed=speed;
   Bullet[bullet_id].speed=speed;
+  Bullet[bullet_id].ospeed_multiplier=speed_multiplier;
   Bullet[bullet_id].speed_multiplier=speed_multiplier;
   //Bullet[bullet_id].msprite_hold_timer_max=1;
   Bullet[bullet_id].damage=damage;
@@ -200,12 +204,14 @@ void StopBullet(int bullet_id,bool is_player)
   Bullet[bullet_id].range=0;
   Bullet[bullet_id].from_enemy_id=-1;
   Bullet[bullet_id].speed=0;
+  Bullet[bullet_id].ospeed=0;
   if (Bullet[bullet_id].saved_node_grid_id!=-1) {
     NodeGrid[Bullet[bullet_id].saved_node_grid_id]->tmp_wet=FALSE;
   }
   Bullet[bullet_id].saved_node_grid_id=-1;
   Bullet[bullet_id].saved_ground_id=-1;
   Bullet[bullet_id].speed_multiplier=0;
+  Bullet[bullet_id].ospeed_multiplier=0;
   Bullet[bullet_id].x=-20;
   Bullet[bullet_id].y=-20;
   Bullet[bullet_id].sprite_x=-20;//Bullet[bullet_id].x+player.cam_x+player.cam_move_x;
@@ -722,6 +728,7 @@ void RainBulletAct(int bullet_id)
   int bullet_on_ground_id=-1,bullet_on_node_grid_id=-1;
   bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2);
   bullet_on_node_grid_id=GetGridId(Bullet[bullet_id].x,Bullet[bullet_id].y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
+  
 
   if (IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) { //out of bounds
     allow_act=1;
@@ -825,6 +832,14 @@ void BulletAct(int bullet_id)
   //double bm_x1=0,bm_y1=0,bm_x2=0,bm_y2=0;
   bool allow_act=FALSE;
   if (Bullet[bullet_id].shot) {
+    int on_node_grid_id=GetGridId(Bullet[bullet_id].x,Bullet[bullet_id].y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
+    if (on_node_grid_id!=-1) {
+      if (NodeGrid[on_node_grid_id]->node_water) {
+        Bullet[bullet_id].speed=Bullet[bullet_id].ospeed/4;
+      } else {
+        Bullet[bullet_id].speed=Bullet[bullet_id].ospeed;
+      }
+    }
     for (int i=0;i<Bullet[bullet_id].speed_multiplier;i++) {
       allow_act=FALSE;
       Bullet[bullet_id].sprite_x=Bullet[bullet_id].x+player.cam_x+player.cam_move_x+player.cam_mouse_move_x;

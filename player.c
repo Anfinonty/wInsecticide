@@ -2688,12 +2688,12 @@ void PlayerCameraShake()
 
 void DrawPlayer(HDC hdc)
 {
-  char mytxt1[6];
+  /*char mytxt1[6];
   char mytxt2[6];
   sprintf(mytxt1,"%d",player.in_water_timer);
   sprintf(mytxt2,"%d",player.grav);//player.in_air_timer);
   GrPrint(hdc,100,100,mytxt1,LTGREEN);
-  GrPrint(hdc,100,116,mytxt2,LTGREEN);
+  GrPrint(hdc,100,116,mytxt2,LTGREEN);*/
   //Platform bitmap palette conversion
   if (player.rst_arrow_left) {
     if (mouse_x>20)

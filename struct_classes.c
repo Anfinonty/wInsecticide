@@ -408,10 +408,7 @@ struct player
 
 
 struct PlayerFlingWeb {
-  //player shot web attrobutes
-  //int length;
-  //int on_ground_id[64];
-  //double angle[64];
+  //player shot web attributes
   double x[PLAYER_FLING_WEB_NUM];
   double y[PLAYER_FLING_WEB_NUM];
   double sprite_x[PLAYER_FLING_WEB_NUM];
@@ -424,7 +421,6 @@ void InitPlayerFlingWeb();
 
 
 void InitPlayer();
-//bool IsInvertedBackground();
 bool IsSpeedBreaking();
 bool IsCollideCrawler(double x1,double y1,double x2,double y2,double gradient,double c);
 void Click();
@@ -546,6 +542,7 @@ struct Bullet
   bool playsnd;
   int color;
   int speed_multiplier;
+  int ospeed_multiplier;
   int from_enemy_id;
   int graphics_type;
   int saved_pos;
@@ -560,6 +557,7 @@ struct Bullet
   double y;
   double angle;
   double speed;
+  double ospeed;
   double range;
   double start_range;
 
@@ -631,14 +629,13 @@ typedef struct enemy
   bool previous_below_ground; //:For crawlers: crawler is upside down on a ground
   bool in_chase_range; //:player is within enemy's chase range
   bool in_unchase_range; //:player is within enemy's unchase range
-  bool time_breaker_immune; //:Enemy is ummune to the player's time breaker effect
-  bool LOS_left;
-  bool LOS_shot;
-  bool flip_sprite;
-  bool play_death_snd;
-
-  bool is_ground_rebounding;
-  bool is_in_ground_edge;
+  bool time_breaker_immune; //:Enemy is immune to the player's time breaker effect
+  bool LOS_left; //:line of sight bullet, is it being shot in the left
+  bool LOS_shot; //:is line of sight bullet being shot
+  bool flip_sprite; //:is sprite required to be flipped?, condition: large sprite + its upside down
+  bool play_death_snd; //:play death sound when killed
+  bool is_ground_rebounding; //:is it currently rebounding from a ground it is on
+  bool is_in_ground_edge; //:is it currently on the edge of a ground
 
   //Attacked
   bool knockback_left;
@@ -647,6 +644,8 @@ typedef struct enemy
   //force search
   bool force_search;
 
+  bool in_water;
+  int in_node_grid_id;
 
   int rotated_sprite_id;
   int current_rot_sprite_angle_id;
