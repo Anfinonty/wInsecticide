@@ -46,6 +46,13 @@ void UnSetGridLineArray(int grid_id,int ground_id)
 void InitGrid() 
 {
   int i=0,j=0,x=0,y=0;
+  bool yes_shadow=FALSE;
+  wchar_t seg_name[72];
+  if (is_shadows && game_shadow) {
+    yes_shadow=TRUE;
+  }
+  PLATFORM_GRID_NUM=0;
+  SHADOW_GRID_NUM=0;
   for (i=0;i<VGRID_NUM;i++) {
     VGrid[i]->within_render_distance=FALSE;
     VGrid[i]->max_ground_num=0;
@@ -57,13 +64,137 @@ void InitGrid()
     VGrid[i]->y1=y;
     VGrid[i]->x2=VGrid[i]->x1+VGRID_SIZE;
     VGrid[i]->y2=VGrid[i]->y1+VGRID_SIZE;
+
+    //for map editor use only
+    VGrid[i]->has_shadow=FALSE;
+    VGrid[i]->has_water=FALSE;
+
+    if (!in_map_editor && !run_once_only) {
+      swprintf(seg_name,72,L"saves/%s/seg_platforms/%d.bmp",level_names[level_chosen],i);
+      if (FileExists(seg_name)) {
+        VGrid[i]->draw_platform_seg_id=PLATFORM_GRID_NUM;
+        PLATFORM_GRID_NUM++;
+      } else {
+        VGrid[i]->draw_platform_seg_id=-1;
+      }
+    }
+
+    if (!in_map_editor && yes_shadow && !run_once_only) {
+      swprintf(seg_name,72,L"saves/%s/seg_shadow/%d.bmp",level_names[level_chosen],i);
+      if (FileExists(seg_name)) {
+        VGrid[i]->has_shadow=TRUE;
+        VGrid[i]->draw_shadow_seg_id=SHADOW_GRID_NUM;
+        SHADOW_GRID_NUM++;
+      } else {
+        VGrid[i]->draw_shadow_seg_id=-1;
+      }
+    }    
+
     x+=VGRID_SIZE;
     if (x>MAP_WIDTH-VGRID_SIZE) {
       x=0;
       y+=VGRID_SIZE;
     }
   }
+
+  if (!in_map_editor && !run_once_only) {
+    TileMapPlatform = calloc(PLATFORM_GRID_NUM,sizeof(ATileMap*));
+    for (int i=0;i<PLATFORM_GRID_NUM;i++) {
+      ATileMap *newTileMap = createTileMap();
+      TileMapPlatform[i] = newTileMap;
+    }
+
+    int tmp_id=-1;
+    for (int i=0;i<VGRID_NUM;i++) {
+      if (VGrid[i]->draw_platform_seg_id!=-1) {
+        tmp_id=VGrid[i]->draw_platform_seg_id;
+        if (tmp_id!=-1) { //0, 1, 2 , ...
+          swprintf(seg_name,72,L"saves/%s/seg_platforms/%d.bmp",level_names[level_chosen],i);
+          TileMapPlatform[tmp_id]->x=VGrid[i]->x1;
+          TileMapPlatform[tmp_id]->y=VGrid[i]->y1;
+          TileMapPlatform[tmp_id]->sprite_paint=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+          TileMapPlatform[tmp_id]->sprite_mask=CreateBitmapMask(TileMapPlatform[tmp_id]->sprite_paint,MYCOLOR1,NULL); //create mask
+        }
+      }
+    }
+  }
+
+
+  if (!in_map_editor && yes_shadow  && !run_once_only) {
+    TileMapShadow = calloc(SHADOW_GRID_NUM,sizeof(ATileMap*));
+    for (int i=0;i<SHADOW_GRID_NUM;i++) {
+      ATileMap *newTileMap = createTileMap();
+      TileMapShadow[i] = newTileMap;
+    }
+
+    int tms_id=-1;
+    for (int i=0;i<VGRID_NUM;i++) {
+      if (VGrid[i]->has_shadow) {
+        tms_id=VGrid[i]->draw_shadow_seg_id;
+        if (tms_id!=-1) { //0, 1, 2 , ...
+          swprintf(seg_name,72,L"saves/%s/seg_shadow/%d.bmp",level_names[level_chosen],i);
+          TileMapShadow[tms_id]->x=VGrid[i]->x1;
+          TileMapShadow[tms_id]->y=VGrid[i]->y1;
+          TileMapShadow[tms_id]->sprite_paint=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+          TileMapShadow[tms_id]->sprite_mask=NULL;
+        }
+      }
+    }
+  }
+
+
 }
+
+
+void InitRDGrid()
+{
+  int i=0,j=0,k=0,on_grid_id=0,column=0,row=0,
+      start_x=0,start_y=0;
+
+  //Begin rendering
+  start_x=0;//GR_WIDTH/2+player.cam_move_x-player.cam_mouse_move_x-(RENDER_DIST/2*VGRID_SIZE); //Top left corner of render distance grids to bottom right corner
+  start_y=0;//GR_HEIGHT/2+player.cam_move_y-player.cam_mouse_move_y-(RENDER_DIST/2*VGRID_SIZE);
+
+  RD_DYN_WIDTH=GR_WIDTH/VGRID_SIZE+1;
+  RD_DYN_HEIGHT=GR_HEIGHT/VGRID_SIZE+2;
+  if (RD_DYN_WIDTH>RENDER_WIDTH_MAX) {
+    RD_DYN_WIDTH=RENDER_WIDTH_MAX;
+  }
+  if (RD_DYN_HEIGHT>RENDER_HEIGHT_MAX) {
+    RD_DYN_HEIGHT=RENDER_HEIGHT_MAX;
+  }
+
+  RDGRID_DYN_NUM=RD_DYN_WIDTH*RD_DYN_HEIGHT;
+  for (i=0;i<RDGRID_DYN_NUM;i++) { //all render distance grids from top-left to bottom-right
+    RDGrid[i].x=start_x+column*VGRID_SIZE;
+    RDGrid[i].y=start_y+row*VGRID_SIZE;
+    column++; //Next column
+    if (column>=RD_DYN_WIDTH) { //if the column is beyond the render distance
+      row++; //move to the next row
+      column=0; //go back to first column
+    }
+  } 
+}
+
+
+
+/*bool YesInitRDGrid()
+{
+  int _x=GR_WIDTH/2+player.cam_move_x-player.cam_mouse_move_x,
+      _y=GR_HEIGHT/2+player.cam_move_y-player.cam_mouse_move_y;
+  if (GRID_SIZE*2<_x && _x<MAP_WIDTH-GRID_SIZE*2) {
+    if (_x<RDGrid[0].x+GRID_SIZE*2 || _x>RDGrid[RENDER_DIST-1].x-GRID_SIZE*2) {
+      return TRUE;
+    }
+  }
+  if (GRID_SIZE*2<_y && _y<MAP_HEIGHT-GRID_SIZE*2) {
+    if (_y<RDGrid[0].y+GRID_SIZE*2 || _y>RDGrid[RDGRID_NUM-1].y-GRID_SIZE*2) {
+      return TRUE;
+    }
+  }
+  return FALSE;
+}*/
+
 
 
 //void DrawGrid(HDC hdc)
@@ -288,6 +419,87 @@ void SetNodeGridAttributes2(int i)
 }
 
 
+void TriFillGridType(int gid)
+{
+  if (Ground[gid]->type==1 || Ground[gid]->type==3) {
+    double
+        gradient_middle1,gradient_middle2,gradient_largest,
+        c_middle1,c_middle2,c_largest,
+        smallest=INT_MAX,largest=0,
+        x_arr[3],y_arr[3];
+      x_arr[0]=Ground[gid]->x1;
+      x_arr[1]=Ground[gid]->x2;
+      x_arr[2]=Ground[gid]->x3;
+      y_arr[0]=Ground[gid]->y1;
+      y_arr[1]=Ground[gid]->y2;
+      y_arr[2]=Ground[gid]->y3;
+      int x_1,x_2,i,x,y,k,saved_largest=0,saved_smallest=0,saved_middle=0;
+      for (i=0;i<3;i++) {
+        if (y_arr[i]<smallest) {
+          smallest=y_arr[i];
+          saved_smallest=i;
+        }
+      }
+      for (i=0;i<3;i++) {
+        if (y_arr[i]>largest) {
+          largest=y_arr[i];
+          saved_largest=i;
+        }
+      }
+      for (i=0;i<3;i++) {
+        if (i!=saved_smallest && i!=saved_largest) {
+          saved_middle=i;
+        }
+      }
+      gradient_middle1=GetGradient(x_arr[saved_smallest],y_arr[saved_smallest],x_arr[saved_middle],y_arr[saved_middle]); //Gradient of main line
+      c_middle1=GetGroundC(x_arr[saved_smallest],y_arr[saved_smallest],gradient_middle1);
+
+      gradient_middle2=GetGradient(x_arr[saved_largest],y_arr[saved_largest],x_arr[saved_middle],y_arr[saved_middle]);
+      c_middle2=GetGroundC(x_arr[saved_largest],y_arr[saved_largest],gradient_middle2);
+
+      gradient_largest=GetGradient(x_arr[saved_largest],y_arr[saved_largest],x_arr[saved_smallest],y_arr[saved_smallest]);
+      c_largest=GetGroundC(x_arr[saved_smallest],y_arr[saved_smallest],gradient_largest);
+
+
+
+      int smallest_y=stickyTo(smallest,NODE_SIZE);
+      int middle_y=stickyTo(y_arr[saved_middle],NODE_SIZE);
+      int largest_y=stickyTo(largest,NODE_SIZE);
+
+      int x1,x2;
+      for (y=smallest_y;y<middle_y;y+=NODE_SIZE) {//small to middle
+        x_1=GetX(y,gradient_middle1,c_middle1);
+        x_2=GetX(y,gradient_largest,c_largest);
+        x_1=stickyTo(x_1,NODE_SIZE);
+        x_2=stickyTo(x_2,NODE_SIZE);
+        x1=min(x_1,x_2);
+        x2=max(x_1,x_2);
+        for (x=x1;x<x2;x+=NODE_SIZE) {
+          k=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
+          if (k!=-1) {
+            SetGridLineArray(k,gid);
+          }
+        }
+      }
+      for (y=middle_y;y<largest_y;y+=NODE_SIZE) {//middle to largest
+        x_1=GetX(y,gradient_middle2,c_middle2);
+        x_2=GetX(y,gradient_largest,c_largest);
+        x_1=stickyTo(x_1,NODE_SIZE);
+        x_2=stickyTo(x_2,NODE_SIZE);
+        x1=min(x_1,x_2);
+        x2=max(x_1,x_2);
+        for (x=x1;x<x2;x+=NODE_SIZE) {
+          k=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
+          if (k!=-1) {
+            SetGridLineArray(k,gid);
+          }
+        }
+      }
+    }
+
+}
+
+
 
 void TriFillNodeGridType(int gid)
 {
@@ -498,6 +710,7 @@ void DrawShadows2(HDC hdcSrc, HDC hdcDest, int x,int y,bool t)
 {
     int c=BLACK;//Highlight(IsInvertedBackground(),BLACK,WHITE);
     int color = GetPixel(hdcSrc, x, y);
+    int vgid=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
     /*if (color == CLR_INVALID) {
         printf("Failed to get pixel color\n");
     } else {
@@ -527,16 +740,25 @@ void DrawShadows2(HDC hdcSrc, HDC hdcDest, int x,int y,bool t)
         if (x%4==0) { //even
           if (y%4==0) {
               GrCircle(hdcDest,x,y,1,c,-1);
+              if (vgid!=1) {
+                VGrid[vgid]->has_shadow=TRUE;
+              }
           }
         } else { //odd
           if (x%2==0) {
             if (y%4!=0 && y%2==0) {
                 GrCircle(hdcDest,x,y,1,c,-1);
+                if (vgid!=1) {
+                  VGrid[vgid]->has_shadow=TRUE;
+                }
             }
           }
         }
       } else {
           GrCircle(hdcDest,x,y,1,c,-1);
+          if (vgid!=1) {
+            VGrid[vgid]->has_shadow=TRUE;
+          }
       } 
       if (photon.dist_travelled>20) {
         photon.passed_solid=FALSE;

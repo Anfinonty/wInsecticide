@@ -2714,6 +2714,8 @@ void DrawPlayer(HDC hdc)
 
   if (player.flag_revert_palette && player.time_breaker_tick<=0) {
     BitmapPalette(hdc,map_platforms_sprite,rgbColorsDefault);
+    BitmapPalette(hdc,map_water_platforms_sprite,rgbColorsDefault);
+    //BitmapPalette(hdc,map_background_sprite,rgbColorsDefault);
     for (int i=0;i<ENEMY_TYPE_NUM;i++) {
       BitmapPalette(hdc,EnemyTypeSprite[i].draw_fly_sprite_1.sprite_paint,rgbColorsDefault);
       BitmapPalette(hdc,EnemyTypeSprite[i].draw_fly_sprite_2.sprite_paint,rgbColorsDefault);
@@ -2776,6 +2778,8 @@ void DrawPlayer(HDC hdc)
         }
       }
       BitmapPalette(hdc,map_platforms_sprite,rgbColorsNoir);
+      BitmapPalette(hdc,map_water_platforms_sprite,rgbColorsNoir);
+      //BitmapPalette(hdc,map_background_sprite,rgbColorsNoir);
       player.flag_noir_palette=FALSE;
     }
   } else {

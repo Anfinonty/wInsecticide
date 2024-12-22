@@ -149,8 +149,8 @@ void CleanUpNodeGrid()
 
 void CleanUpGrid()
 {
-  int i=0,j=0;
-  for (i=0;i<VGRID_NUM;i++) {
+  //int i=0,j=0;
+  /*for (i=0;i<VGRID_NUM;i++) {
     VGrid[i]->within_render_distance=FALSE;
     VGrid[i]->max_ground_num=0;
     
@@ -161,6 +161,31 @@ void CleanUpGrid()
     VGrid[i]->y1=-20;
     VGrid[i]->x2=-20;
     VGrid[i]->y2=-20;
+  }*/
+  bool yes_shadow=FALSE;
+  if (is_shadows && game_shadow) {
+    yes_shadow=TRUE;
+  }
+  for (int i=0;i<PLATFORM_GRID_NUM;i++) {
+    if (TileMapPlatform[i]->sprite_paint!=NULL)
+      DeleteObject(TileMapPlatform[i]->sprite_paint);
+    if (TileMapPlatform[i]->sprite_mask!=NULL)
+      DeleteObject(TileMapPlatform[i]->sprite_mask);
+    freeTileMap(TileMapPlatform[i]);
+  }
+  free(TileMapPlatform);
+
+
+
+  if (yes_shadow) { //IMPORTANT: refrain from freeing empty pointers or mem leak and then crash
+      for (int i=0;i<SHADOW_GRID_NUM;i++) {
+        if (TileMapShadow[i]->sprite_paint!=NULL)
+          DeleteObject(TileMapShadow[i]->sprite_paint);
+        if (TileMapShadow[i]->sprite_mask!=NULL)
+          DeleteObject(TileMapShadow[i]->sprite_mask);
+        freeTileMap(TileMapShadow[i]);
+      }
+      free(TileMapShadow);
   }
 }
 
@@ -332,7 +357,7 @@ void CleanupAll()
     CleanUpPlayer(); //clean up all sprites
     CleanUpEnemySprites();
     CleanUpRotatedSprites();
-    //CleanUpGrid();
+    CleanUpGrid();
     //CleanUpNodeGrid();
     //CleanUpEnemy();
     //CleanUpGround();
@@ -392,26 +417,25 @@ void CleanupAll()
     }*/
     //printf("===All objects freed\n");
 
-
-
     free(Ground); //free pointer to pointers
     free(NodeGrid); //free pointer to pointers
     free(VGrid); //free pointer to pointers
     free(Enemy);
+
     //free(EnemySprite);
     //printf("===All pointers freed\n");
 
 
-    DeleteObject(map_platforms_sprite_mask);
+    /*DeleteObject(map_platforms_sprite_mask);
     DeleteObject(map_platforms_sprite); //delete sprites
 
+    DeleteObject(map_water_platforms_sprite_mask);
+    DeleteObject(map_water_platforms_sprite);
     if (has_water) {
-      DeleteObject(map_water_platforms_sprite_mask);
-      DeleteObject(map_water_platforms_sprite);
       has_water=FALSE;
     }
 
-    DeleteObject(map_platforms_shadow_shader);
+    DeleteObject(map_platforms_shadow_shader);*/
 
     DeleteObject(map_background_sprite);
     //LoadMainMenuBackground();
@@ -425,4 +449,5 @@ void CleanupAll()
     run_after_once=FALSE;
     clean_up_sound=TRUE;
     in_main_menu=TRUE;
+    run_once_only=FALSE;
 }

@@ -706,3 +706,36 @@ bool isPointInQuadrilateral(float x, float y, float x1, float y1, float x2, floa
     return false;
 }
 
+
+void RemoveFolderRecursive(const wchar_t* dirname)
+{
+  _WDIR *d;
+  struct _wdirent *dir;
+  d = _wopendir(dirname);
+  if (d) {
+    while ((dir=_wreaddir(d))!=NULL) {
+      wchar_t indir[256];
+      swprintf(indir,256,L"%s/%s",dirname,dir->d_name);
+      if (PathIsDirectory(indir) && wcscmp(dir->d_name,L".")!=0 && wcscmp(dir->d_name,L"..")!=0) { //folder, check for 
+        RemoveFolderRecursive(indir);
+      } else {
+        _wremove(indir);
+      }
+    }
+    _wrmdir(dirname);
+  }
+}
+
+
+
+bool FileExists(const wchar_t* filename)
+{
+    FILE *fptr1;
+    // Open one file for reading
+    fptr1 = _wfopen(filename, L"r");
+    if (fptr1 == NULL)
+      return 0;
+    fclose(fptr1);
+    return TRUE;
+}
+

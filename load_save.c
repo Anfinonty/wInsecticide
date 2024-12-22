@@ -7,6 +7,15 @@ int MAP_WIDTH;
 int MAP_HEIGHT;
 int GRID_NUM;	
 int VGRID_NUM;	
+
+int PLATFORM_GRID_NUM;
+int FOREGROUND_GRID_NUM;
+int SHADOW_GRID_NUM;
+
+int RD_DYN_WIDTH;
+int RD_DYN_HEIGHT;
+int RDGRID_DYN_NUM;
+
 int MAP_NODE_NUM;
 
 
@@ -289,7 +298,9 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
                 AEnemySprite *newEnemySprite = createEnemySprite();
                 EnemySprite[i] = newEnemySprite;
               }*/
-            }
+            } /*else {
+              printf("objects not spawned\n");
+            }*/
 
             break;
           case 40:

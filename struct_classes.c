@@ -446,6 +446,11 @@ void DrawPlayer(HDC hdc);
 typedef struct vgrid
 {
   bool within_render_distance;
+  bool has_water;
+  bool has_shadow;
+  int draw_shadow_seg_id;
+  int draw_platform_seg_id;
+  int draw_foreground_seg_id;
   int x1;
   int y1;
   int x2;
@@ -810,6 +815,50 @@ void freeEnemyRotatedSprite(AEnemyRotatedSprite *myEnemyRotatedSprite)
 }
 
 AEnemyRotatedSprite **EnemyRotatedSprite;
+
+
+
+
+
+
+
+
+typedef struct TileMap
+{
+  int x;
+  int y;
+  HBITMAP sprite_mask;
+  HBITMAP sprite_paint;
+} ATileMap;
+
+ATileMap *createTileMap()
+{
+  ATileMap *toReturn = malloc(sizeof(ATileMap));
+  return toReturn;
+}
+
+
+void freeTileMap(ATileMap *myTileMap)
+{
+  if (myTileMap)
+    free(myTileMap);
+}
+
+
+ATileMap **TileMapPlatform;
+//ATileMap **TileMapForeground;
+ATileMap **TileMapShadow;
+
+
+
+
+
+
+
+
+
+
+
 
 
 

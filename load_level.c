@@ -121,6 +121,7 @@ void Init(HDC hdc) {
   InitEnemy();
   InitPlayer();
 
+  InitRDGrid();
 
   InitScreenRainDrop();
   InitBulletRain();
@@ -141,6 +142,10 @@ void Init(HDC hdc) {
 
   mem_snd_interrupt[5]=TRUE;
   waveOutReset(hWaveOut[5]);
+
+  if (!run_once_only) {
+    run_once_only=TRUE;
+  }
 
   if (!run_after_once) {
     run_after_once=TRUE;
@@ -163,26 +168,26 @@ void InitPlatformsSprite(HWND hwnd, HDC hdc)
   swprintf(bmp_save_shadow,64,L"saves/%s/map_shadow.bmp",level_names[level_chosen]);
   //SaveBitmapToFile2(map_platforms_sprite,rgbColorsDefault,bmp_save);
 
-  map_platforms_sprite=(HBITMAP)LoadImageW(
+  /*map_platforms_sprite=(HBITMAP)LoadImageW(
         NULL,               // Handle to the instance (NULL for file)
         bmp_save,           // File name of the bitmap
         IMAGE_BITMAP,       // Type of image
         0, 0,               // Desired width and height (0 to use actual size)
         LR_LOADFROMFILE   // Load from file
         | LR_CREATEDIBSECTION // Create a DIB section
-    );
+    );*/
 
-  map_water_platforms_sprite=(HBITMAP)LoadImageW(
+  /*map_water_platforms_sprite=(HBITMAP)LoadImageW(
         NULL,               // Handle to the instance (NULL for file)
         bmp_water_save,           // File name of the bitmap
         IMAGE_BITMAP,       // Type of image
         0, 0,               // Desired width and height (0 to use actual size)
         LR_LOADFROMFILE   // Load from file
         | LR_CREATEDIBSECTION // Create a DIB section
-    );
+    );*/
 
 
-  if (is_shadows && game_shadow) {
+  /*if (is_shadows && game_shadow) {
   map_platforms_shadow_shader = (HBITMAP)LoadImageW(
         NULL,               // Handle to the instance (NULL for file)
         bmp_save_shadow,           // File name of the bitmap
@@ -191,9 +196,9 @@ void InitPlatformsSprite(HWND hwnd, HDC hdc)
         LR_LOADFROMFILE   // Load from file
         | LR_CREATEDIBSECTION // Create a DIB section
   );
-  }
+  }*/
 
-  if (map_platforms_sprite==NULL) {
+  /*if (map_platforms_sprite==NULL) {
     PAINTSTRUCT ps; //Suggestion Credit: https://git.xslendi.xyz
     hdc=BeginPaint(hwnd, &ps);
     HDC hdc2=CreateCompatibleDC(hdc);
@@ -219,9 +224,9 @@ void InitPlatformsSprite(HWND hwnd, HDC hdc)
     EndPaint(hwnd, &ps);
     //SaveBitmapToFile2(map_platforms_sprite,rgbColorsDefault, bmp_save);
     //BitmapPalette(hdc,map_platforms_sprite,rgbColorsDefault);
-  }
+  }*/
 
-  if (map_water_platforms_sprite==NULL && has_water) {
+  /*if (map_water_platforms_sprite==NULL && has_water) {
     PAINTSTRUCT ps; //Suggestion Credit: https://git.xslendi.xyz
     hdc=BeginPaint(hwnd, &ps);
     HDC hdc2=CreateCompatibleDC(hdc);
@@ -233,14 +238,14 @@ void InitPlatformsSprite(HWND hwnd, HDC hdc)
 
     DeleteDC(hdc2);
     EndPaint(hwnd, &ps);
-  }
+  }*/
 
 
-  map_platforms_sprite_mask=CreateBitmapMask(map_platforms_sprite,MYCOLOR1,NULL); //create mask where black becomes   //end of platform sprite creation
+  //map_platforms_sprite_mask=CreateBitmapMask(map_platforms_sprite,MYCOLOR1,NULL); //create mask where black becomes   //end of platform sprite creation
 
-  if (has_water) {
+  /*if (has_water) {
     map_water_platforms_sprite_mask=CreateBitmapMask(map_water_platforms_sprite,MYCOLOR1,NULL); //create mask where black becomes   //end of platform sprite creation
-  }
+  }*/
   //printf("mask created\n");
 
   //map_platforms_shadow_shader_mask=CreateBitmapMask(map_platforms_shadow_shader,MYCOLOR1,NULL);
@@ -357,7 +362,7 @@ void InitLevel(HWND hwnd, HDC hdc)
   //Load Enemy cache spritesF
   InitEnemySprites();
 
-  InitPlatformsSprite(hwnd,hdc);
+  //InitPlatformsSprite(hwnd,hdc);
 
 
   //allocate smallest to biggest

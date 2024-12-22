@@ -1228,11 +1228,11 @@ void EnemyAct(int i)
 		                Enemy[i]->shoot_target_y,
                         0
                     );
-                    if (Enemy[i]->shoot_target_x<Enemy[i]->x) {
+                    /*if (Enemy[i]->shoot_target_x<Enemy[i]->x) {
                        Enemy[i]->last_left=TRUE;
                     } else {
                        Enemy[i]->last_left=FALSE;
-                    }
+                    }*/
                     Enemy[i]->bullet_shot_arr[Enemy[i]->bullet_shot_num]=current_bullet_id;
                     Enemy[i]->bullet_shot_num++;
                   //after shooting

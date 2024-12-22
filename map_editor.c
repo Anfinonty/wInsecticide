@@ -346,7 +346,7 @@ void SetMENodeGridAttributes(int i)
 
 
 
-void InitRDGrid()
+void InitMERDGrid()
 {
   int i=0,j=0,k=0,on_grid_id=0,column=0,row=0,
       start_x=0,start_y=0;
@@ -364,8 +364,8 @@ void InitRDGrid()
   //rendered_grid_num=0;
 
   //Begin rendering
-  start_x=player.cam_move_x-(RENDER_DIST/2*VGRID_SIZE); //Top left corner of render distance grids to bottom right corner
-  start_y=player.cam_move_y-(RENDER_DIST/2*VGRID_SIZE);
+  start_x=player.cam_move_x-RENDER_WIDTH_MAX/2;//(RENDER_DIST/2*VGRID_SIZE); //Top left corner of render distance grids to bottom right corner
+  start_y=player.cam_move_y-RENDER_HEIGHT_MAX/2;//(RENDER_DIST/2*VGRID_SIZE);
   //"What happens when you lose everything? You just start again. Start all over again" - Maximo Park
   for (i=0;i<RDGRID_NUM;i++) { //all render distance grids from top-left to bottom-right
     RDGrid[i].x=start_x+column*VGRID_SIZE;
@@ -391,7 +391,7 @@ void InitRDGrid()
 
     }
     column++; //Next column
-    if (column>=RENDER_DIST) { //if the column is beyond the render distance
+    if (column>=RENDER_WIDTH_MAX/*RENDER_DIST*/) { //if the column is beyond the render distance
       row++; //move to the next row
       column=0; //go back to first column
     }
@@ -399,10 +399,10 @@ void InitRDGrid()
 }
 
 
-bool YesInitRDGrid()
+bool YesInitMERDGrid()
 {
   if (GRID_SIZE*2<player.cam_move_x && player.cam_move_x<MAP_WIDTH-GRID_SIZE*2) {
-    if (player.cam_move_x<RDGrid[0].x+GRID_SIZE*2 || player.cam_move_x>RDGrid[RENDER_DIST-1].x-GRID_SIZE*2) {
+    if (player.cam_move_x<RDGrid[0].x+GRID_SIZE*2 || player.cam_move_x>RDGrid[/*RENDER_DIST*/RENDER_WIDTH_MAX-1].x-GRID_SIZE*2) {
       return TRUE;
     }
   }
@@ -413,7 +413,6 @@ bool YesInitRDGrid()
   }
   return FALSE;
 }
-
 
 
 void InitMENodeGridAttributes()
@@ -581,15 +580,6 @@ void InitMapEditorPlayer()
   player_load_iris_color=player_iris_color;
   player_load_pupil_color=player_pupil_color;
   player_bullet_color=WHITE;
-
-  /*if (IsInvertedBackground()) { //invert player color if background is inverted
-    player_load_color=COLORS_NUM-player_color-1;
-    player_load_iris_color=COLORS_NUM-player_iris_color-1;
-    player_load_pupil_color=COLORS_NUM-player_pupil_color-1;
-
-    player_bullet_color=BLACK;
-  }*/
-
   player.cam_move_x=0;
   player.cam_move_y=0;
 
@@ -650,8 +640,9 @@ void InitMapEditor(HDC hdc)
   MapEditor.clipboard_enemy_id=0;
   MapEditor.clipboard_enemy_type_id=0;
 
-  for (int i=0;i<512;i++)
+  for (int i=0;i<512;i++) {
     MapEditor.typing_ground_txt[i]='\0';
+  }
   //swprintf(MapEditor.typing_ground_txt,512,L"%s",Ground[MapEditor.selected_ground_id]->text);
 
 
@@ -659,9 +650,9 @@ void InitMapEditor(HDC hdc)
   //for (int i=0;i<MAX_GROUND_NUM;i++)
     //render_grounds[i]=-1;
   render_grounds=calloc(GROUND_NUM,sizeof(int));
-  for (int i=0;i<GROUND_NUM;i++)
+  for (int i=0;i<GROUND_NUM;i++) {
     render_grounds[i]=-1;
-
+  }
   //Create Class Objects()
   Ground = calloc(GROUND_NUM,sizeof(AGround*));
   VGrid = calloc(VGRID_NUM,sizeof(struct AVGrid*));
@@ -701,10 +692,7 @@ void InitMapEditor(HDC hdc)
 
   player.cam_move_x=-player.cam_x;
   player.cam_move_y=-player.cam_y;
-  InitRDGrid();
-
-
-  BitmapPalette(hdc,map_platforms_sprite,rgbColorsDefault);
+  InitMERDGrid();
 
   if (!run_after_once) {
     run_after_once=TRUE;
@@ -725,6 +713,7 @@ void InitLevelMapEditor(HWND hwnd, HDC hdc)
   LoadSave(txt,FALSE); //load saves
   srand(time(NULL));
   timeBeginPeriod(1);
+  in_map_editor=TRUE;
 
 
 
@@ -745,7 +734,6 @@ void InitLevelMapEditor(HWND hwnd, HDC hdc)
 
 
   main_menu_chosen=4;
-  in_map_editor=TRUE;
   level_loaded=TRUE;
 
   OLD_GR_WIDTH=0;
@@ -816,8 +804,8 @@ void MapEditorAct()
   player.cam_move_y=-player.cam_y;
 
   if (level_loaded) {
-    if (YesInitRDGrid())
-      InitRDGrid();
+    if (YesInitMERDGrid())
+      InitMERDGrid();
 
 
     Click();
@@ -888,7 +876,7 @@ void MapEditorAct()
             if (player.attack_rst) { //let go of left click
               SetGround(MapEditor.selected_ground_id);
               SetMENodeGridAttributes(MapEditor.selected_ground_id);
-              InitRDGrid();
+              InitMERDGrid();
               player.attack_rst=FALSE;
             }
           }
@@ -1056,6 +1044,7 @@ void CleanupMapEditorAll()
     free(saved_ground_is_ghost);
     free(saved_ground_color);
     free(saved_ground_type);
+    free(saved_ground_text_size);
 
 
     free(saved_enemy_type);
@@ -1100,7 +1089,6 @@ void CleanupMapEditorAll()
     free(VGrid); //free pointer to pointers
     free(MEEnemy);
     free(MEEnemySprite);
-    //printf("===All pointers freed\n");
 
 
     DeleteObject(map_background_sprite);
@@ -1110,5 +1098,6 @@ void CleanupMapEditorAll()
     run_after_once=FALSE;
     //clean_up_sound=TRUE;
     in_map_editor=FALSE;
+    //printf("===All pointers freed, groundnum:%d,gridnum:%d,enemynum:%d\n",GROUND_NUM,VGRID_NUM,ENEMY_NUM);
 }
 

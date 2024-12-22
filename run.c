@@ -79,6 +79,7 @@ bool load_sound=FALSE;
 bool back_to_menu=FALSE;
 bool clean_up_sound=FALSE;
 bool run_after_once=FALSE;
+bool run_once_only=FALSE;
 bool flag_update_background=FALSE;
 bool flag_resolution_change=FALSE;
 
@@ -211,8 +212,10 @@ bool is_khmer=TRUE;
 #define MAX_FOLLOW_RANGE 100
 #define MAX_NODE_NUM	 MAX_FOLLOW_RANGE*MAX_FOLLOW_RANGE
 
-#define RENDER_DIST      10//20
-#define RDGRID_NUM       RENDER_DIST*RENDER_DIST
+//#define RENDER_DIST      12//10//20
+#define RENDER_WIDTH_MAX    13
+#define RENDER_HEIGHT_MAX   8
+#define RDGRID_NUM       RENDER_WIDTH_MAX*RENDER_HEIGHT_MAX
 
 
 #define RAIN_NUM    50
@@ -369,31 +372,15 @@ void FrameRateSleep(int max_fps)
 }
 
 
-void RemoveFolderRecursive(const wchar_t* dirname)
-{
-  _WDIR *d;
-  struct _wdirent *dir;
-  d = _wopendir(dirname);
-  if (d) {
-    while ((dir=_wreaddir(d))!=NULL) {
-      wchar_t indir[256];
-      swprintf(indir,256,L"%s/%s",dirname,dir->d_name);
-      if (PathIsDirectory(indir) && wcscmp(dir->d_name,L".")!=0 && wcscmp(dir->d_name,L"..")!=0) { //folder, check for 
-        RemoveFolderRecursive(indir);
-      } else {
-        _wremove(indir);
-      }
-    }
-    _wrmdir(dirname);
-  }
-}
-
-
 DWORD WINAPI AnimateTask01(LPVOID lpArg) {
   while (TRUE) {
     if (!in_main_menu) { //In Game
       if (level_loaded) {
         PlayerAct();
+        /*if (YesInitRDGrid()) {
+          InitRDGrid();
+        }*/
+
         for (int i=0;i<ENEMY_NUM;i++) {
           EnemyAct(i);
         }
@@ -729,6 +716,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             player.cam_x=0;
             player.cam_y=0;
             CameraInit(player.x,player.y); //idk scaling is weird for sprite
+            InitRDGrid();
           }
           if (flag_update_background) {
             flag_update_background=FALSE;
