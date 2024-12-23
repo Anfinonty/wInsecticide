@@ -122,7 +122,7 @@ int create_lvl_option_choose=0;
 
 
 //Game System Values
-//int set_fragment=0;
+int set_fragment=0;
 
 int windowx=0;
 int windowy=0;
@@ -380,10 +380,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
     if (!in_main_menu) { //In Game
       if (level_loaded) {
         PlayerAct();
-        /*if (YesInitRDGrid()) {
-          InitRDGrid();
-        }*/
-
+  
         for (int i=0;i<ENEMY_NUM;i++) {
           EnemyAct(i);
         }
@@ -394,24 +391,49 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
           }
         }
         Sleep(player.sleep_timer);
+
+        if (set_fragment<2*FPS+FPS*6) {
+          set_fragment++;
+          //if (set_fragment%5) {
+            //player.left_click_hold_timer=64;
+            //player.rst_left_click=TRUE;
+          //}
+          if (set_fragment%10==0) {
+            player.knives_per_throw=15;
+            player.attack_rst=TRUE;
+          }
+          if (set_fragment==2*FPS+FPS/2 || set_fragment==4*FPS+FPS/2) {
+            player.rst_right=TRUE;
+            player.rst_up=TRUE;
+          }
+          if (set_fragment==2*FPS+FPS*2-1) {
+              flag_restart=TRUE;
+          }
+          if (set_fragment==2*FPS+FPS*6-1) {
+            set_fragment=9*FPS;
+            back_to_menu=TRUE;
+          }
+        } else if (set_fragment<10*FPS+FPS*6) {
+          set_fragment++;
+          if (set_fragment%10==0) {
+            player.attack_rst=TRUE;
+          }
+          if (set_fragment==12*FPS+FPS/2 || set_fragment==14*FPS+FPS/2) {
+            player.rst_right=TRUE;
+            player.rst_up=TRUE;
+          }
+          if (set_fragment==12*FPS+FPS/2-1) {
+              flag_restart=TRUE;
+          }
+          if (set_fragment==10*FPS+FPS*6-1) {
+            set_fragment=16*FPS+1;
+            back_to_menu=TRUE;
+            game_audio=TRUE;
+          }
+        }
       } else {
         Sleep(1000);
       }
-     /* if (set_fragment<102) {
-//      if (set_fragment<32) {
-        set_fragment++;
-        if (set_fragment%4==0) {
-          flag_restart=TRUE;
-        }*/
-        /*if (set_fragment==11 || set_fragment==101) {
-          if (set_fragment==101) {
-            hide_taskbar=TRUE;
-            flag_fullscreen=TRUE;
-          }
-          set_fragment==12;
-          back_to_menu=TRUE;
-        }
-      }*/
     } else if (in_map_editor) {
       MapEditorAct();
       Sleep(6);
@@ -479,6 +501,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     //Various Keypress down
     case WM_KEYDOWN:
     {
+      if (set_fragment>=9*FPS) {
       //Global keydown press
       if (main_menu_chosen!=2) {
         GlobalKeypressDown(wParam);
@@ -535,6 +558,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         } //end of switch statement for menu chosen
       } //end of menu chosen if else
+      }
       break; //Break WM_KEYDOWN;
     } 
 
@@ -544,6 +568,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     {
   //GLOBAL wParam Release Key
   //    printf("%d",wParam);
+      if (set_fragment>=9*FPS) {
       if (main_menu_chosen!=2) {
         GlobalKeypressUp(hwnd,wParam);
       }
@@ -595,6 +620,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
              break;
           }
           break; //end of main menu chosen switch
+          }
 
       } //end of !main_menu_chosen
       break; // end of release key WM_KEYUP
@@ -841,7 +867,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             if (level_loaded && (player.health<=0 || flag_restart)) { // restart level when player health hits 0 or VK_RETURN
               flag_restart_audio=TRUE;
-              Init(FALSE,FALSE);
+              Init();
               flag_restart=FALSE;
             }
 
@@ -883,9 +909,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                 GrRect(hdcBackbuff,0,GR_HEIGHT-32-32,GR_WIDTH+4,32+32,c);
               }
             }
-            /*} else {
-              GrRect(hdcBackbuff,0,0,GR_WIDTH,GR_HEIGHT,BLACK);//BLUE);
-            }*/
+            if (set_fragment<16*FPS) {
+              GrRect(hdcBackbuff,0,0,GR_WIDTH+2,GR_HEIGHT+2,BLACK);//BLUE);
+            }
 
             if (hide_taskbar) {
               BitBlt(hdc, SCREEN_WIDTH/2-RESOLUTION_X[resolution_choose]/2, 
@@ -961,13 +987,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
             SelectObject(hdcBackbuff,screen);
       
-            //if (set_fragment>101) {
-            //if (set_fragment>31) {
-              DrawMainMenu(hdcBackbuff);
-              DrawCursor(hdcBackbuff);
-            /*} else {
-              GrRect(hdcBackbuff,0,0,GR_WIDTH,GR_HEIGHT,BLACK);
-            }*/
+            DrawMainMenu(hdcBackbuff);
+            DrawCursor(hdcBackbuff);
+            if (set_fragment<16*FPS) {
+              GrRect(hdcBackbuff,0,0,GR_WIDTH+2,GR_HEIGHT+2,BLACK);
+            }
 
             if (hide_taskbar) {
               BitBlt(hdc, SCREEN_WIDTH/2-RESOLUTION_X[resolution_choose]/2, 
@@ -982,14 +1006,26 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
           DeleteDC(hdcBackbuff);
           DeleteObject(screen);
-          /*if (set_fragment==0) {
+          if (set_fragment<FPS*2) {
             set_fragment++;
-            InitLevel(hwnd, hdc, TRUE);
-          }
-          if (set_fragment>=11 && set_fragment<14) {
-            set_fragment=15;
-            InitLevel(hwnd, hdc, TRUE);
-          }*/
+            if (set_fragment==FPS*2-1) {
+              set_fragment=FPS*2+1;
+              mouse_x=GR_WIDTH/2+5;
+              mouse_y=GR_HEIGHT/2-5;
+              InitLevel(hwnd, hdc, 1);
+              game_audio=FALSE;
+            }
+          } else if (set_fragment<FPS*10) {
+            set_fragment++;
+            if (set_fragment==FPS*10-1) {
+              set_fragment=FPS*10+1;
+              mouse_x=GR_WIDTH/2+5;
+              mouse_y=GR_HEIGHT/2-5;
+              InitLevel(hwnd, hdc, 2);
+              game_audio=FALSE;
+            }
+          } 
+
 
         }
       EndPaint(hwnd, &ps);

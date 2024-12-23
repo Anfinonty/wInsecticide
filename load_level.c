@@ -63,7 +63,7 @@ void InitOnce() {
 
 
 
-void Init(/*HDC hdc,*/bool refresh,bool spawn_obj) {
+void Init() {
   time_begin=current_timestamp();
 
   //Load Best Score
@@ -95,10 +95,8 @@ void Init(/*HDC hdc,*/bool refresh,bool spawn_obj) {
 
 
   //Start level
-  if (spawn_obj) {
-    OLD_GR_WIDTH=0;
-    OLD_GR_HEIGHT=0;
-  }
+  OLD_GR_WIDTH=0;
+  OLD_GR_HEIGHT=0;
   game_timer=0;
   enemy_kills=0;
   game_over=FALSE;
@@ -108,9 +106,6 @@ void Init(/*HDC hdc,*/bool refresh,bool spawn_obj) {
   //Initialize Level
   InitBullet(BULLET_NUM);
   InitGrid();
-  if (!run_once_only) {
-    InitGridTiles(FALSE);
-  }
   InitNodeGrid();
   InitGround(TRUE);
   InitNodeGridAttributes();
@@ -250,16 +245,21 @@ void Init(/*HDC hdc,*/bool refresh,bool spawn_obj) {
 
 
 
-void InitLevel(HWND hwnd, HDC hdc,bool refresh)
+void InitLevel(HWND hwnd, HDC hdc,int refresh)
 {
   wchar_t txt[128];
-  if (!refresh) {
+  if (refresh==0) {
     swprintf(txt,128,L"saves/%s/level.txt",level_names[level_chosen]);
     swprintf(save_level,128,L"saves/%s/scores.txt",level_names[level_chosen]);
     LoadSave(txt,TRUE);
   } else {
-    swprintf(txt,128,L"saves/__004__/level.txt");
-    swprintf(save_level,128,L"saves/__004__/scores.txt");
+    if (refresh==1) {
+      swprintf(txt,128,L"saves/__004__/level.txt");
+      swprintf(save_level,128,L"saves/__004__/scores.txt");
+    } else if (refresh==2) {
+      swprintf(txt,128,L"saves/__006__/level.txt");
+      swprintf(save_level,128,L"saves/__006__/scores.txt");
+    }
     LoadSave(txt,TRUE);
   }
 
@@ -268,7 +268,7 @@ void InitLevel(HWND hwnd, HDC hdc,bool refresh)
 
 
   InitOnce();//cannot be repeatedly run
-  Init(refresh,TRUE);
+  Init();
 
 
 
@@ -350,6 +350,7 @@ void InitLevel(HWND hwnd, HDC hdc,bool refresh)
 
   //Load Enemy cache spritesF
   InitEnemySprites();
+  InitGridTiles(refresh);
 
   //allocate smallest to biggest
   level_loaded=TRUE;

@@ -44,7 +44,7 @@ void UnSetGridLineArray(int grid_id,int ground_id)
 
 
 
-void InitGridTiles(bool refresh)
+void InitGridTiles(int refresh)
 {
   bool yes_shadow=FALSE;
   wchar_t seg_name[72];
@@ -58,10 +58,14 @@ void InitGridTiles(bool refresh)
   SHADOW_GRID_NUM=0;
 
   for (int i=0;i<VGRID_NUM;i++) {
-      if (!refresh) {
+      if (refresh==0) {
         swprintf(seg_name,72,L"saves/%s/seg_platforms/%d.bmp",level_names[level_chosen],i);
       } else {
-        swprintf(seg_name,72,L"saves/__004__/seg_platforms/%d.bmp",i);
+        if (refresh==1) {
+          swprintf(seg_name,72,L"saves/__004__/seg_platforms/%d.bmp",i);
+        } else if (refresh==2) {
+          swprintf(seg_name,72,L"saves/__006__/seg_platforms/%d.bmp",i);
+        }
       }
 
       if (FileExists(seg_name)) {
@@ -72,10 +76,14 @@ void InitGridTiles(bool refresh)
       }
 
 
-      if (!refresh) {
+      if(refresh==0) {
         swprintf(seg_name,72,L"saves/%s/seg_foreground/%d.bmp",level_names[level_chosen],i);
       } else {
-        swprintf(seg_name,72,L"saves/__004__/seg_foreground/%d.bmp",i);
+        if (refresh==1) {
+          swprintf(seg_name,72,L"saves/__004__/seg_foreground/%d.bmp",i);
+        } else if (refresh==2) {
+          swprintf(seg_name,72,L"saves/__006__/seg_foreground/%d.bmp",i);
+        }
       }
       if (FileExists(seg_name)) {
         VGrid[i]->draw_foreground_seg_id=FOREGROUND_GRID_NUM;
@@ -86,10 +94,14 @@ void InitGridTiles(bool refresh)
 
 
     if (yes_shadow) {
-      if (!refresh) {
+      if (refresh==0) {
         swprintf(seg_name,72,L"saves/%s/seg_shadow/%d.bmp",level_names[level_chosen],i);
       } else {
-        swprintf(seg_name,72,L"saves/__04__/seg_shadow/%d.bmp",i);
+        if (refresh==1) {
+          swprintf(seg_name,72,L"saves/__004__/seg_shadow/%d.bmp",i);
+        } else if (refresh==2) {
+          swprintf(seg_name,72,L"saves/__006__/seg_shadow/%d.bmp",i);
+        }
       }
       if (FileExists(seg_name)) {
         VGrid[i]->has_shadow=TRUE;
@@ -114,10 +126,14 @@ void InitGridTiles(bool refresh)
       if (VGrid[i]->draw_platform_seg_id!=-1) {
         tmp_id=VGrid[i]->draw_platform_seg_id;
         if (tmp_id!=-1) { //0, 1, 2 , ...
-          if (!refresh) {
+          if (refresh==0) {
             swprintf(seg_name,72,L"saves/%s/seg_platforms/%d.bmp",level_names[level_chosen],i);
           } else {
-            swprintf(seg_name,72,L"saves/__004__/seg_platforms/%d.bmp",i);
+            if (refresh==1) {
+              swprintf(seg_name,72,L"saves/__004__/seg_platforms/%d.bmp",i);
+            } else if (refresh==2) {
+              swprintf(seg_name,72,L"saves/__006__/seg_platforms/%d.bmp",i);
+            }
           }
           TileMapPlatform[tmp_id]->x=VGrid[i]->x1;
           TileMapPlatform[tmp_id]->y=VGrid[i]->y1;
@@ -140,10 +156,14 @@ void InitGridTiles(bool refresh)
       if (VGrid[i]->draw_foreground_seg_id!=-1) {
         tmf_id=VGrid[i]->draw_foreground_seg_id;
         if (tmf_id!=-1) { //0, 1, 2 , ...
-          if (!refresh) {
+          if (refresh==0) {
             swprintf(seg_name,72,L"saves/%s/seg_foreground/%d.bmp",level_names[level_chosen],i);
           } else {
-            swprintf(seg_name,72,L"saves/__004__/seg_foreground/%d.bmp",i);
+            if (refresh==1) {
+              swprintf(seg_name,72,L"saves/__004__/seg_foreground/%d.bmp",i);
+            } else if (refresh==2) {
+              swprintf(seg_name,72,L"saves/__006__/seg_foreground/%d.bmp",i);
+            }
           }
           TileMapForeground[tmf_id]->x=VGrid[i]->x1;
           TileMapForeground[tmf_id]->y=VGrid[i]->y1;
@@ -169,11 +189,7 @@ void InitGridTiles(bool refresh)
       if (VGrid[i]->has_shadow) {
         tms_id=VGrid[i]->draw_shadow_seg_id;
         if (tms_id!=-1) { //0, 1, 2 , ...
-          if (!refresh) {
-            swprintf(seg_name,72,L"saves/%s/seg_shadow/%d.bmp",level_names[level_chosen],i);
-          } else {
-            swprintf(seg_name,72,L"saves/__004__/seg_shadow/%d.bmp",i);
-          }
+          swprintf(seg_name,72,L"saves/%s/seg_shadow/%d.bmp",level_names[level_chosen],i);
           TileMapShadow[tms_id]->x=VGrid[i]->x1;
           TileMapShadow[tms_id]->y=VGrid[i]->y1;
           TileMapShadow[tms_id]->sprite_paint=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
