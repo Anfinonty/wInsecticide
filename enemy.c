@@ -1439,8 +1439,10 @@ void CleanUpRotatedSprites()
 {
   for (int i=0;i<LARGE_ENEMY_TYPE_NUM;i++) {
     for (int j=0;j<ROTATED_SPRITE_NUM;j++) {
-      DeleteObject(EnemyRotatedSprite[i]->rotated_sprite1[j]);
-      DeleteObject(EnemyRotatedSprite[i]->rotated_sprite2[j]);
+      if (EnemyRotatedSprite[i]->rotated_sprite1[j]!=NULL)
+        DeleteObject(EnemyRotatedSprite[i]->rotated_sprite1[j]);
+      if (EnemyRotatedSprite[i]->rotated_sprite2[j]!=NULL)
+        DeleteObject(EnemyRotatedSprite[i]->rotated_sprite2[j]);
       FreeDrawSprite(&EnemyRotatedSprite[i]->draw_rotated_sprite1[j]);
       FreeDrawSprite(&EnemyRotatedSprite[i]->draw_rotated_sprite2[j]);
     }
@@ -1453,10 +1455,14 @@ void CleanUpEnemySprites()
 {
   //manual cleaning because static
   for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-    DeleteObject(EnemyTypeSprite[i].fly_sprite_1);
-    EnemyTypeSprite[i].fly_sprite_1=NULL;
-    DeleteObject(EnemyTypeSprite[i].fly_sprite_2);
-    EnemyTypeSprite[i].fly_sprite_2=NULL;
+    if (EnemyTypeSprite[i].fly_sprite_1!=NULL) {
+      DeleteObject(EnemyTypeSprite[i].fly_sprite_1);
+      EnemyTypeSprite[i].fly_sprite_1=NULL;
+    }
+    if (EnemyTypeSprite[i].fly_sprite_2!=NULL) {
+      DeleteObject(EnemyTypeSprite[i].fly_sprite_2);
+      EnemyTypeSprite[i].fly_sprite_2=NULL;
+    }
     FreeDrawSprite(&EnemyTypeSprite[i].draw_fly_sprite_1);
     FreeDrawSprite(&EnemyTypeSprite[i].draw_fly_sprite_2);
   }

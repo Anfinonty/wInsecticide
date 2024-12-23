@@ -187,7 +187,7 @@ void ZeroMenuCKeyPress(HWND hwnd, HDC hdc, BYTE *rawData)
             if (game_audio)
               PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
             if (level_chosen>=0 && level_chosen<level_num && main_menu_chosen==0)
-              InitLevel(hwnd, hdc);
+              InitLevel(hwnd, hdc, FALSE);
           }
         }
         break;

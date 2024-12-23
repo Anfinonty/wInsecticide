@@ -43,16 +43,152 @@ void UnSetGridLineArray(int grid_id,int ground_id)
 }
 
 
-void InitGrid() 
+
+void InitGridTiles(bool refresh)
 {
-  int i=0,j=0,x=0,y=0;
   bool yes_shadow=FALSE;
   wchar_t seg_name[72];
   if (is_shadows && game_shadow) {
     yes_shadow=TRUE;
   }
+
+
+  FOREGROUND_GRID_NUM=0;
   PLATFORM_GRID_NUM=0;
   SHADOW_GRID_NUM=0;
+
+  for (int i=0;i<VGRID_NUM;i++) {
+      if (!refresh) {
+        swprintf(seg_name,72,L"saves/%s/seg_platforms/%d.bmp",level_names[level_chosen],i);
+      } else {
+        swprintf(seg_name,72,L"saves/__004__/seg_platforms/%d.bmp",i);
+      }
+
+      if (FileExists(seg_name)) {
+        VGrid[i]->draw_platform_seg_id=PLATFORM_GRID_NUM;
+        PLATFORM_GRID_NUM++;
+      } else {
+        VGrid[i]->draw_platform_seg_id=-1;
+      }
+
+
+      if (!refresh) {
+        swprintf(seg_name,72,L"saves/%s/seg_foreground/%d.bmp",level_names[level_chosen],i);
+      } else {
+        swprintf(seg_name,72,L"saves/__004__/seg_foreground/%d.bmp",i);
+      }
+      if (FileExists(seg_name)) {
+        VGrid[i]->draw_foreground_seg_id=FOREGROUND_GRID_NUM;
+        FOREGROUND_GRID_NUM++;
+      } else {
+        VGrid[i]->draw_foreground_seg_id=-1;
+      }
+
+
+    if (yes_shadow) {
+      if (!refresh) {
+        swprintf(seg_name,72,L"saves/%s/seg_shadow/%d.bmp",level_names[level_chosen],i);
+      } else {
+        swprintf(seg_name,72,L"saves/__04__/seg_shadow/%d.bmp",i);
+      }
+      if (FileExists(seg_name)) {
+        VGrid[i]->has_shadow=TRUE;
+        VGrid[i]->draw_shadow_seg_id=SHADOW_GRID_NUM;
+        SHADOW_GRID_NUM++;
+      } else {
+        VGrid[i]->draw_shadow_seg_id=-1;
+      }
+    }    
+  }
+
+
+
+    TileMapPlatform = calloc(PLATFORM_GRID_NUM,sizeof(ATileMap*));
+    for (int i=0;i<PLATFORM_GRID_NUM;i++) {
+      ATileMap *newTileMap = createTileMap();
+      TileMapPlatform[i] = newTileMap;
+    }
+
+    int tmp_id=-1;
+    for (int i=0;i<VGRID_NUM;i++) {
+      if (VGrid[i]->draw_platform_seg_id!=-1) {
+        tmp_id=VGrid[i]->draw_platform_seg_id;
+        if (tmp_id!=-1) { //0, 1, 2 , ...
+          if (!refresh) {
+            swprintf(seg_name,72,L"saves/%s/seg_platforms/%d.bmp",level_names[level_chosen],i);
+          } else {
+            swprintf(seg_name,72,L"saves/__004__/seg_platforms/%d.bmp",i);
+          }
+          TileMapPlatform[tmp_id]->x=VGrid[i]->x1;
+          TileMapPlatform[tmp_id]->y=VGrid[i]->y1;
+          TileMapPlatform[tmp_id]->sprite_paint=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+          TileMapPlatform[tmp_id]->sprite_mask=CreateBitmapMask(TileMapPlatform[tmp_id]->sprite_paint,MYCOLOR1,NULL); //create mask
+        }
+      }
+  }
+
+
+  if (FOREGROUND_GRID_NUM>0) {
+    TileMapForeground = calloc(FOREGROUND_GRID_NUM,sizeof(ATileMap*));
+    for (int i=0;i<FOREGROUND_GRID_NUM;i++) {
+      ATileMap *newTileMap = createTileMap();
+      TileMapForeground[i] = newTileMap;
+    }
+
+    int tmf_id=-1;
+    for (int i=0;i<VGRID_NUM;i++) {
+      if (VGrid[i]->draw_foreground_seg_id!=-1) {
+        tmf_id=VGrid[i]->draw_foreground_seg_id;
+        if (tmf_id!=-1) { //0, 1, 2 , ...
+          if (!refresh) {
+            swprintf(seg_name,72,L"saves/%s/seg_foreground/%d.bmp",level_names[level_chosen],i);
+          } else {
+            swprintf(seg_name,72,L"saves/__004__/seg_foreground/%d.bmp",i);
+          }
+          TileMapForeground[tmf_id]->x=VGrid[i]->x1;
+          TileMapForeground[tmf_id]->y=VGrid[i]->y1;
+          TileMapForeground[tmf_id]->sprite_paint=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+          TileMapForeground[tmf_id]->sprite_mask=CreateBitmapMask(TileMapForeground[tmf_id]->sprite_paint,MYCOLOR1,NULL); //create mask
+        }
+      }
+    }
+  }
+
+
+
+
+  if (yes_shadow) {
+    TileMapShadow = calloc(SHADOW_GRID_NUM,sizeof(ATileMap*));
+    for (int i=0;i<SHADOW_GRID_NUM;i++) {
+      ATileMap *newTileMap = createTileMap();
+      TileMapShadow[i] = newTileMap;
+    }
+
+    int tms_id=-1;
+    for (int i=0;i<VGRID_NUM;i++) {
+      if (VGrid[i]->has_shadow) {
+        tms_id=VGrid[i]->draw_shadow_seg_id;
+        if (tms_id!=-1) { //0, 1, 2 , ...
+          if (!refresh) {
+            swprintf(seg_name,72,L"saves/%s/seg_shadow/%d.bmp",level_names[level_chosen],i);
+          } else {
+            swprintf(seg_name,72,L"saves/__004__/seg_shadow/%d.bmp",i);
+          }
+          TileMapShadow[tms_id]->x=VGrid[i]->x1;
+          TileMapShadow[tms_id]->y=VGrid[i]->y1;
+          TileMapShadow[tms_id]->sprite_paint=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+          TileMapShadow[tms_id]->sprite_mask=NULL;
+        }
+      }
+    }
+  }
+
+}
+
+
+void InitGrid() 
+{
+  int i=0,j=0,x=0,y=0;
   for (i=0;i<VGRID_NUM;i++) {
     VGrid[i]->within_render_distance=FALSE;
     VGrid[i]->max_ground_num=0;
@@ -68,27 +204,8 @@ void InitGrid()
     //for map editor use only
     VGrid[i]->has_shadow=FALSE;
     VGrid[i]->has_water=FALSE;
-
-    if (!in_map_editor && !run_once_only) {
-      swprintf(seg_name,72,L"saves/%s/seg_platforms/%d.bmp",level_names[level_chosen],i);
-      if (FileExists(seg_name)) {
-        VGrid[i]->draw_platform_seg_id=PLATFORM_GRID_NUM;
-        PLATFORM_GRID_NUM++;
-      } else {
-        VGrid[i]->draw_platform_seg_id=-1;
-      }
-    }
-
-    if (!in_map_editor && yes_shadow && !run_once_only) {
-      swprintf(seg_name,72,L"saves/%s/seg_shadow/%d.bmp",level_names[level_chosen],i);
-      if (FileExists(seg_name)) {
-        VGrid[i]->has_shadow=TRUE;
-        VGrid[i]->draw_shadow_seg_id=SHADOW_GRID_NUM;
-        SHADOW_GRID_NUM++;
-      } else {
-        VGrid[i]->draw_shadow_seg_id=-1;
-      }
-    }    
+    VGrid[i]->not_just_water=FALSE;
+    VGrid[i]->checked=FALSE;
 
     x+=VGRID_SIZE;
     if (x>MAP_WIDTH-VGRID_SIZE) {
@@ -96,52 +213,6 @@ void InitGrid()
       y+=VGRID_SIZE;
     }
   }
-
-  if (!in_map_editor && !run_once_only) {
-    TileMapPlatform = calloc(PLATFORM_GRID_NUM,sizeof(ATileMap*));
-    for (int i=0;i<PLATFORM_GRID_NUM;i++) {
-      ATileMap *newTileMap = createTileMap();
-      TileMapPlatform[i] = newTileMap;
-    }
-
-    int tmp_id=-1;
-    for (int i=0;i<VGRID_NUM;i++) {
-      if (VGrid[i]->draw_platform_seg_id!=-1) {
-        tmp_id=VGrid[i]->draw_platform_seg_id;
-        if (tmp_id!=-1) { //0, 1, 2 , ...
-          swprintf(seg_name,72,L"saves/%s/seg_platforms/%d.bmp",level_names[level_chosen],i);
-          TileMapPlatform[tmp_id]->x=VGrid[i]->x1;
-          TileMapPlatform[tmp_id]->y=VGrid[i]->y1;
-          TileMapPlatform[tmp_id]->sprite_paint=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-          TileMapPlatform[tmp_id]->sprite_mask=CreateBitmapMask(TileMapPlatform[tmp_id]->sprite_paint,MYCOLOR1,NULL); //create mask
-        }
-      }
-    }
-  }
-
-
-  if (!in_map_editor && yes_shadow  && !run_once_only) {
-    TileMapShadow = calloc(SHADOW_GRID_NUM,sizeof(ATileMap*));
-    for (int i=0;i<SHADOW_GRID_NUM;i++) {
-      ATileMap *newTileMap = createTileMap();
-      TileMapShadow[i] = newTileMap;
-    }
-
-    int tms_id=-1;
-    for (int i=0;i<VGRID_NUM;i++) {
-      if (VGrid[i]->has_shadow) {
-        tms_id=VGrid[i]->draw_shadow_seg_id;
-        if (tms_id!=-1) { //0, 1, 2 , ...
-          swprintf(seg_name,72,L"saves/%s/seg_shadow/%d.bmp",level_names[level_chosen],i);
-          TileMapShadow[tms_id]->x=VGrid[i]->x1;
-          TileMapShadow[tms_id]->y=VGrid[i]->y1;
-          TileMapShadow[tms_id]->sprite_paint=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-          TileMapShadow[tms_id]->sprite_mask=NULL;
-        }
-      }
-    }
-  }
-
 
 }
 
@@ -419,7 +490,7 @@ void SetNodeGridAttributes2(int i)
 }
 
 
-void TriFillGridType(int gid)
+void TriFillGridType(int gid, int part)
 {
   if (Ground[gid]->type==1 || Ground[gid]->type==3) {
     double
@@ -477,7 +548,25 @@ void TriFillGridType(int gid)
         for (x=x1;x<x2;x+=NODE_SIZE) {
           k=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
           if (k!=-1) {
+            if (part==0) {
             SetGridLineArray(k,gid);
+            } else {
+            if (Ground[gid]->type==1) {
+              VGrid[k]->has_water=TRUE;
+              if (!VGrid[k]->checked) {
+                for (int z=0;z<VGrid[k]->max_ground_num;z++) {
+                  int z_=VGrid[k]->ground_ids[z];
+                  if (z_!=-1) {
+                    if (Ground[z_]->type!=1) {
+                      VGrid[k]->not_just_water=TRUE;
+                      break;
+                    }
+                  }
+                }
+                VGrid[k]->checked=TRUE;              
+              }
+            }
+            }
           }
         }
       }
@@ -491,12 +580,29 @@ void TriFillGridType(int gid)
         for (x=x1;x<x2;x+=NODE_SIZE) {
           k=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
           if (k!=-1) {
+            if (part==0) {
             SetGridLineArray(k,gid);
+            } else {
+            if (Ground[gid]->type==1) {
+              VGrid[k]->has_water=TRUE;
+              if (!VGrid[k]->checked) {
+                for (int z=0;z<VGrid[k]->max_ground_num;z++) {
+                  int z_=VGrid[k]->ground_ids[z];
+                  if (z_!=-1) {
+                    if (Ground[z_]->type!=1) {
+                      VGrid[k]->not_just_water=TRUE;
+                      break;
+                    }
+                  }
+                }
+                VGrid[k]->checked=TRUE;              
+              }
+            }
+            }
           }
         }
       }
     }
-
 }
 
 

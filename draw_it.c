@@ -27,9 +27,9 @@ void DrawBackground(HDC hdc)
 
 
 
-void DrawWaterPlatforms(HDC hDC) 
+void DrawWaterPlatforms(HDC hdc) 
 {
-  int extra_h=0;
+/*  int extra_h=0;
   if (hide_taskbar) {
     extra_h=8*4;
   }
@@ -49,7 +49,30 @@ void DrawWaterPlatforms(HDC hDC)
                  player.y-player.cam_mouse_move_y-player.cam_move_y-GR_HEIGHT/2,
                  GR_WIDTH,
                  GR_HEIGHT+extra_h,
-                 map_water_platforms_sprite,SRCPAINT,FALSE,FALSE);
+                 map_water_platforms_sprite,SRCPAINT,FALSE,FALSE);*/
+  int gid,tmf_id;
+  int x,y,_x,_y;
+  int 
+    px=player.x,
+    py=player.y,
+    cx1=player.cam_mouse_move_x,
+    cy1=player.cam_mouse_move_y,
+    cx2=player.cam_move_x,
+    cy2=player.cam_move_y;
+  for (int i=0;i<RDGRID_DYN_NUM;i++) {
+    _x=RDGrid[i].x+px-GR_WIDTH/2-cx1-cy2;//+cx1+cx2;//GR_WIDTH/2+RDGrid[i].x-px+cx1+cx2;
+    _y=RDGrid[i].y+py-GR_HEIGHT/2-cy1-cy2;//+cy1+cy2;//GR_HEIGHT/2+RDGrid[i].y-py+cy1+cy2;
+    gid=GetGridId(_x,_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
+    if (gid!=-1 && _y>0 && _x>0 && _x<MAP_WIDTH && _y<MAP_HEIGHT) {
+      tmf_id=VGrid[gid]->draw_foreground_seg_id;
+      if (tmf_id!=-1) {
+        x=GR_WIDTH/2+TileMapForeground[tmf_id]->x-px+cx1+cx2;
+        y=GR_HEIGHT/2+TileMapForeground[tmf_id]->y-py+cy1+cy2;
+        DrawBitmap(hdc,x, y,0, 0,VGRID_SIZE,VGRID_SIZE,TileMapForeground[tmf_id]->sprite_mask,SRCAND,FALSE,FALSE);
+        DrawBitmap(hdc,x,y,0, 0,VGRID_SIZE,VGRID_SIZE,TileMapForeground[tmf_id]->sprite_paint,SRCPAINT,FALSE,FALSE);
+      } 
+    } 
+  }
 }
 
 

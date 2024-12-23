@@ -166,27 +166,39 @@ void CleanUpGrid()
   if (is_shadows && game_shadow) {
     yes_shadow=TRUE;
   }
-  for (int i=0;i<PLATFORM_GRID_NUM;i++) {
-    if (TileMapPlatform[i]->sprite_paint!=NULL)
-      DeleteObject(TileMapPlatform[i]->sprite_paint);
-    if (TileMapPlatform[i]->sprite_mask!=NULL)
-      DeleteObject(TileMapPlatform[i]->sprite_mask);
-    freeTileMap(TileMapPlatform[i]);
+  if (PLATFORM_GRID_NUM>0) {
+    for (int i=0;i<PLATFORM_GRID_NUM;i++) {
+      if (TileMapPlatform[i]->sprite_paint!=NULL) {
+        DeleteObject(TileMapPlatform[i]->sprite_paint);
+      }
+      if (TileMapPlatform[i]->sprite_mask!=NULL) {
+        DeleteObject(TileMapPlatform[i]->sprite_mask);
+      }
+    }
   }
-  free(TileMapPlatform);
 
-
+  if (FOREGROUND_GRID_NUM>0) {
+    for (int i=0;i<FOREGROUND_GRID_NUM;i++) {
+      if (TileMapForeground[i]->sprite_paint!=NULL) {
+        DeleteObject(TileMapForeground[i]->sprite_paint);
+      } 
+      if (TileMapForeground[i]->sprite_mask!=NULL) {
+        DeleteObject(TileMapForeground[i]->sprite_mask);
+      }
+    }
+  }
 
   if (yes_shadow) { //IMPORTANT: refrain from freeing empty pointers or mem leak and then crash
       for (int i=0;i<SHADOW_GRID_NUM;i++) {
-        if (TileMapShadow[i]->sprite_paint!=NULL)
+        if (TileMapShadow[i]->sprite_paint!=NULL) {
           DeleteObject(TileMapShadow[i]->sprite_paint);
-        if (TileMapShadow[i]->sprite_mask!=NULL)
-          DeleteObject(TileMapShadow[i]->sprite_mask);
-        freeTileMap(TileMapShadow[i]);
+        }
       }
-      free(TileMapShadow);
   }
+
+
+
+  printf("freed:%d,%d,%d\n",PLATFORM_GRID_NUM,FOREGROUND_GRID_NUM,SHADOW_GRID_NUM);
 }
 
 
@@ -353,7 +365,7 @@ void CleanupPlayerAttributes()
 void CleanupAll()
 {
     level_loaded=FALSE;
-    InitBullet(BULLET_NUM);
+    //InitBullet(BULLET_NUM);
     CleanUpPlayer(); //clean up all sprites
     CleanUpEnemySprites();
     CleanUpRotatedSprites();
@@ -407,6 +419,20 @@ void CleanupAll()
       freeVGrid(VGrid[i]); //free actual obj
     }
 
+    
+
+     for (int i=0;i<PLATFORM_GRID_NUM;i++) {
+       freeTileMap(TileMapPlatform[i]);
+     }
+
+      for (int i=0;i<FOREGROUND_GRID_NUM;i++) {
+        freeTileMap(TileMapForeground[i]);
+      }
+
+      for (int i=0;i<SHADOW_GRID_NUM;i++) {
+        freeTileMap(TileMapShadow[i]);
+      }
+
 
     for (int i=0;i<ENEMY_NUM;i++) {
       freeEnemy(Enemy[i]);
@@ -420,6 +446,15 @@ void CleanupAll()
     free(Ground); //free pointer to pointers
     free(NodeGrid); //free pointer to pointers
     free(VGrid); //free pointer to pointers
+    if (SHADOW_GRID_NUM>0) {
+      free(TileMapShadow);
+    }
+    if (PLATFORM_GRID_NUM>0) {
+      free(TileMapPlatform);
+    }
+    if (FOREGROUND_GRID_NUM>0) {
+      free(TileMapForeground);
+    }
     free(Enemy);
 
     //free(EnemySprite);
@@ -439,11 +474,6 @@ void CleanupAll()
 
     DeleteObject(map_background_sprite);
     //LoadMainMenuBackground();
-
-    //DeleteObject(moon_sprite_cache);
-    //FreeDrawSprite(&draw_moon_sprite);
-    //moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,BLACK,-1);
-    //GenerateDrawSprite(&draw_moon_sprite,moon_sprite_cache);
 
     back_to_menu=FALSE;
     run_after_once=FALSE;

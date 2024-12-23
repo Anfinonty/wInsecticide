@@ -683,7 +683,7 @@ void InitMapEditor(HDC hdc)
 
 
   //Init
-  InitGrid();
+  InitGrid(FALSE,FALSE);
   InitGround(FALSE);
   InitMENodeGridAttributes();
   InitMapEditorEnemy();

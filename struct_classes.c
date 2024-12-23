@@ -30,31 +30,35 @@ typedef struct GroundLine
 //  bool already_in_grid[MAX_GRID_IN_GROUND]; //MAX VGRID NUM
 //  int saved_pos_in_grid_id[MAX_GRID_IN_GROUND];
 //  int saved_pos_in_grid[MAX_GRID_IN_GROUND]; //MAX VGRID NUM
-  bool* already_in_grid; //MAX VGRID NUM
-  int* saved_pos_in_grid; //MAX VGRID NUM
+  //bool* already_in_grid; //MAX VGRID NUM
+  //int* saved_pos_in_grid; //MAX VGRID NUM
+  bool already_in_grid[MAX_VGRID_NUM];
+  int saved_pos_in_grid[MAX_VGRID_NUM];
 } AGround;
 //} Ground[GROUND_NUM+MAX_WEB_NUM];
 //struct GroundLine Ground[MAX_GROUND_NUM+MAX_WEB_NUM];
 
 //https://stackoverflow.com/questions/48222554/c-creating-a-struct-array-beyond-certain-size-causes-a-crash
-AGround *createGround(int vgrid_num)
+//AGround *createGround(int vgrid_num)
+
+AGround *createGround()
 {
   AGround *toReturn = malloc(sizeof(AGround));
-  if (vgrid_num>MAX_VGRID_NUM) {
+  /*if (vgrid_num>MAX_VGRID_NUM) {
     vgrid_num=MAX_VGRID_NUM;
   }
   toReturn->already_in_grid = malloc(vgrid_num*sizeof(bool));
-  toReturn->saved_pos_in_grid = malloc(vgrid_num*sizeof(int));
+  toReturn->saved_pos_in_grid = malloc(vgrid_num*sizeof(int));*/
   return toReturn;
 }
 
 
 void freeGround(AGround *myGround)
 {
-  if (myGround->already_in_grid != NULL)
+  /*if (myGround->already_in_grid != NULL)
     free(myGround->already_in_grid);    
   if (myGround->saved_pos_in_grid != NULL)
-    free(myGround->saved_pos_in_grid);
+    free(myGround->saved_pos_in_grid);*/
   if (myGround)
     free(myGround);
 }
@@ -446,8 +450,10 @@ void DrawPlayer(HDC hdc);
 typedef struct vgrid
 {
   bool within_render_distance;
-  bool has_water;
   bool has_shadow;
+  bool has_water;
+  bool not_just_water;
+  bool checked;
   int draw_shadow_seg_id;
   int draw_platform_seg_id;
   int draw_foreground_seg_id;
@@ -518,6 +524,7 @@ int GetGridId(int x,int y,int width, int size,int max);
 void SetGridLineArray(int grid_id,int ground_id);
 void UnSetGridLineArray(int grid_id,int ground_id);
 void InitGrid();
+void InitGridTiles(bool refresh);
 void DrawGrid(HDC hdc);
 void InitNodeGrid();
 bool IsCollideSolid(double x1,double y1,double x2,double y2,double gradient,double c);
@@ -846,7 +853,7 @@ void freeTileMap(ATileMap *myTileMap)
 
 
 ATileMap **TileMapPlatform;
-//ATileMap **TileMapForeground;
+ATileMap **TileMapForeground;
 ATileMap **TileMapShadow;
 
 
@@ -931,10 +938,10 @@ HBITMAP map_background_sprite;
 
 //map platforms
 HBITMAP map_platforms_sprite;
-HBITMAP map_platforms_sprite_mask;
+//HBITMAP map_platforms_sprite_mask;
 
 HBITMAP map_water_platforms_sprite;
-HBITMAP map_water_platforms_sprite_mask;
+//HBITMAP map_water_platforms_sprite_mask;
 
 HBITMAP map_platforms_shadow_shader;
 

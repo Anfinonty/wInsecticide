@@ -82,6 +82,7 @@ bool run_after_once=FALSE;
 bool run_once_only=FALSE;
 bool flag_update_background=FALSE;
 bool flag_resolution_change=FALSE;
+bool flag_fullscreen=FALSE;
 
 //game options
 bool yes_unifont=TRUE;//FALSE;
@@ -121,6 +122,8 @@ int create_lvl_option_choose=0;
 
 
 //Game System Values
+//int set_fragment=0;
+
 int windowx=0;
 int windowy=0;
 
@@ -219,7 +222,7 @@ bool is_khmer=TRUE;
 
 
 #define RAIN_NUM    50
-#define SHOOT_BULLET_NUM    5000
+#define SHOOT_BULLET_NUM    25000// More bullets, otherwise memleak, idk why haha 2024-12-21 //5000
 #define BULLET_NUM	SHOOT_BULLET_NUM+RAIN_NUM
 
 #define ENEMY_BULLET_NUM            1000
@@ -394,6 +397,21 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
       } else {
         Sleep(1000);
       }
+     /* if (set_fragment<102) {
+//      if (set_fragment<32) {
+        set_fragment++;
+        if (set_fragment%4==0) {
+          flag_restart=TRUE;
+        }*/
+        /*if (set_fragment==11 || set_fragment==101) {
+          if (set_fragment==101) {
+            hide_taskbar=TRUE;
+            flag_fullscreen=TRUE;
+          }
+          set_fragment==12;
+          back_to_menu=TRUE;
+        }
+      }*/
     } else if (in_map_editor) {
       MapEditorAct();
       Sleep(6);
@@ -697,6 +715,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           adjustSFXVolume(&keySoundEffectCache[2],&keySoundEffect[2],game_volume,FALSE);
           flag_adjust_audio=FALSE;
         }
+        if (flag_fullscreen) {
+          flag_fullscreen=FALSE;
+          LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
+          lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU); //borderless mode
+          SetWindowLong(hwnd, GWL_STYLE, lStyle);
+          SetWindowPos(hwnd,HWND_TOPMOST,0,0,SCREEN_WIDTH,SCREEN_HEIGHT, SWP_FRAMECHANGED);
+        }
         if (hide_taskbar) {
           GR_WIDTH=RESOLUTION_X[resolution_choose];
           GR_HEIGHT=RESOLUTION_Y[resolution_choose];
@@ -769,6 +794,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
         }
 
+
         if (!in_main_menu) //### In game
         { //https://stackoverflow.com/questions/752593/win32-app-suspends-on-minimize-window-animation
           frame_tick++;
@@ -815,13 +841,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             if (level_loaded && (player.health<=0 || flag_restart)) { // restart level when player health hits 0 or VK_RETURN
               flag_restart_audio=TRUE;
-              Init(hdc);
+              Init(FALSE,FALSE);
               flag_restart=FALSE;
             }
 
             hdcBackbuff=CreateCompatibleDC(hdc);
             screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
             SelectObject(hdcBackbuff,screen);
+//            if (set_fragment>101) {
+//            if (set_fragment>31) {
             DrawBackground(hdcBackbuff);
             DrawPlatforms(hdcBackbuff);
             DrawWebs(hdcBackbuff);
@@ -846,8 +874,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
 
 
-            int c=BLACK;//Highlight(IsInvertedBackground(),BLACK,WHITE);
-            if (IsSpeedBreaking()) {
+            int c=BLACK;
+            if (IsSpeedBreaking()) { //cinema mode 
               GrRect(hdcBackbuff,0,0,GR_WIDTH+4,32,c);
               if (hide_taskbar) {
                 GrRect(hdcBackbuff,0,GR_HEIGHT-48,GR_WIDTH+4,100,c);
@@ -855,6 +883,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                 GrRect(hdcBackbuff,0,GR_HEIGHT-32-32,GR_WIDTH+4,32+32,c);
               }
             }
+            /*} else {
+              GrRect(hdcBackbuff,0,0,GR_WIDTH,GR_HEIGHT,BLACK);//BLUE);
+            }*/
 
             if (hide_taskbar) {
               BitBlt(hdc, SCREEN_WIDTH/2-RESOLUTION_X[resolution_choose]/2, 
@@ -930,8 +961,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
             SelectObject(hdcBackbuff,screen);
       
-            DrawMainMenu(hdcBackbuff);
-            DrawCursor(hdcBackbuff);
+            //if (set_fragment>101) {
+            //if (set_fragment>31) {
+              DrawMainMenu(hdcBackbuff);
+              DrawCursor(hdcBackbuff);
+            /*} else {
+              GrRect(hdcBackbuff,0,0,GR_WIDTH,GR_HEIGHT,BLACK);
+            }*/
 
             if (hide_taskbar) {
               BitBlt(hdc, SCREEN_WIDTH/2-RESOLUTION_X[resolution_choose]/2, 
@@ -946,7 +982,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
           DeleteDC(hdcBackbuff);
           DeleteObject(screen);
-        
+          /*if (set_fragment==0) {
+            set_fragment++;
+            InitLevel(hwnd, hdc, TRUE);
+          }
+          if (set_fragment>=11 && set_fragment<14) {
+            set_fragment=15;
+            InitLevel(hwnd, hdc, TRUE);
+          }*/
+
         }
       EndPaint(hwnd, &ps);
       }
@@ -1399,8 +1443,6 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
        //reload
        waveOutOpen(&hWaveOut[5], WAVE_MAPPER, &wfx_wav_sfx, 0, 0, CALLBACK_NULL);
        waveOutPrepareHeader(hWaveOut[5], &whdr[5], sizeof(WAVEHDR));
-
-
        return 0;
        break;
     //Tasks to perform on exit
@@ -1522,6 +1564,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   SetWindowPos(hwnd,HWND_NOTOPMOST,0,0,RESOLUTION_X[0],RESOLUTION_Y[0], SWP_FRAMECHANGED);*/
 
   //Sleep(1000);
+
   LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
   lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU); //borderless mode
   SetWindowLong(hwnd, GWL_STYLE, lStyle);

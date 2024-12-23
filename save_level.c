@@ -176,52 +176,25 @@ void SaveNewCreatedLvl(const wchar_t* create_lvl_name_)
   fclose(fptr);
 }
 
-void SaveLvlBmpSegmentation(HWND hwnd,HDC hdc)
+
+void SaveLvlBmpSegmentation2(HWND hwnd,HDC hdc)
 {
-  wchar_t bmp_seg_save[64];
-  swprintf(bmp_seg_save,64,L"saves/%s/seg_platforms",level_names[level_chosen]);
   wchar_t water_bmp_seg_save[64];
   swprintf(water_bmp_seg_save,64,L"saves/%s/seg_foreground",level_names[level_chosen]);
-  wchar_t shadow_bmp_seg_save[64];
-  swprintf(shadow_bmp_seg_save,64,L"saves/%s/seg_shadow",level_names[level_chosen]);
-
-
-  RemoveFolderRecursive(bmp_seg_save);
-  RemoveFolderRecursive(water_bmp_seg_save);
-
-  _wmkdir(bmp_seg_save);
-  _wmkdir(water_bmp_seg_save);
-
   wchar_t seg_save_seg[72];
-
 
   PAINTSTRUCT ps; //Suggestion Credit: https://git.xslendi.xyz
   hdc=BeginPaint(hwnd, &ps);
-  HDC hdc1=CreateCompatibleDC(hdc);
+  HDC hdc1;
   HDC hdc2;
   HBITMAP tmp_bitmap;
 
-
-  //normal platforms
-  SelectObject(hdc1,map_platforms_sprite);
-  for (int i=0;i<VGRID_NUM;i++) {
-    if (VGrid[i]->max_ground_num>0) {
-      tmp_bitmap=CreateCrunchyBitmap(VGRID_SIZE,VGRID_SIZE);
-      hdc2 = CreateCompatibleDC(hdc1); // Create a compatible DC      
-      SelectObject(hdc2,tmp_bitmap);
-      BitBlt(hdc2, 0, 0, VGRID_SIZE, VGRID_SIZE, hdc1, VGrid[i]->x1, VGrid[i]->y1, SRCCOPY); // Copy from hdc1 to hdc2
-
-      swprintf(seg_save_seg,72,L"%s/%d.bmp",bmp_seg_save,i);
-      SaveBitmapToFile2(tmp_bitmap,rgbColorsDefault, seg_save_seg);
-      DeleteDC(hdc2);
-      DeleteObject(tmp_bitmap);
-    }
-  }
-  DeleteDC(hdc1);
-
-
   //Foreground, water
-  /*if (map_water_platforms_sprite!=NULL) {
+  if (map_water_platforms_sprite!=NULL) {
+      hdc1=CreateCompatibleDC(hdc);
+      RemoveFolderRecursive(water_bmp_seg_save);
+      _wmkdir(water_bmp_seg_save);
+      hdc1=CreateCompatibleDC(hdc);
       SelectObject(hdc1,map_water_platforms_sprite);
       for (int i=0;i<VGRID_NUM;i++) {
         if (VGrid[i]->has_water) {
@@ -237,13 +210,57 @@ void SaveLvlBmpSegmentation(HWND hwnd,HDC hdc)
         }
       }
       DeleteDC(hdc1);
-  }*/
+      DeleteObject(map_water_platforms_sprite);
+  }
+  EndPaint(hwnd, &ps);
+}
+
+
+void SaveLvlBmpSegmentation1(HWND hwnd,HDC hdc)
+{
+  wchar_t bmp_seg_save[64];
+  swprintf(bmp_seg_save,64,L"saves/%s/seg_platforms",level_names[level_chosen]);
+  wchar_t shadow_bmp_seg_save[64];
+  swprintf(shadow_bmp_seg_save,64,L"saves/%s/seg_shadow",level_names[level_chosen]);
+
+
+  RemoveFolderRecursive(bmp_seg_save);
+  _wmkdir(bmp_seg_save);
+  wchar_t seg_save_seg[72];
+
+
+  PAINTSTRUCT ps; //Suggestion Credit: https://git.xslendi.xyz
+  hdc=BeginPaint(hwnd, &ps);
+  HDC hdc1;
+  HDC hdc2;
+  HBITMAP tmp_bitmap;
+
+
+  //normal platforms
+  hdc1=CreateCompatibleDC(hdc);
+  SelectObject(hdc1,map_platforms_sprite);
+  for (int i=0;i<VGRID_NUM;i++) {
+    if (VGrid[i]->max_ground_num>0 && (!VGrid[i]->has_water || VGrid[i]->not_just_water)) {
+      tmp_bitmap=CreateCrunchyBitmap(VGRID_SIZE,VGRID_SIZE);
+      hdc2 = CreateCompatibleDC(hdc1); // Create a compatible DC      
+      SelectObject(hdc2,tmp_bitmap);
+      BitBlt(hdc2, 0, 0, VGRID_SIZE, VGRID_SIZE, hdc1, VGrid[i]->x1, VGrid[i]->y1, SRCCOPY); // Copy from hdc1 to hdc2
+
+      swprintf(seg_save_seg,72,L"%s/%d.bmp",bmp_seg_save,i);
+      SaveBitmapToFile2(tmp_bitmap,rgbColorsDefault, seg_save_seg);
+      DeleteDC(hdc2);
+      DeleteObject(tmp_bitmap);
+    }
+  }
+  DeleteDC(hdc1);
+  DeleteObject(map_platforms_sprite);
+
 
 
   //shadow platforms, water excluded from shadow
-  hdc1=CreateCompatibleDC(hdc);
   if (MapEditor.set_lvl_ambient_val[6]==1 && 
         (MapEditor.set_lvl_ambient_val[7]!=shadow_grad_rise || MapEditor.set_lvl_ambient_val[8]!=shadow_grad_run)) {
+      hdc1=CreateCompatibleDC(hdc);
       RemoveFolderRecursive(shadow_bmp_seg_save);
       _wmkdir(shadow_bmp_seg_save);
       SelectObject(hdc1,map_platforms_shadow_shader);
@@ -261,11 +278,8 @@ void SaveLvlBmpSegmentation(HWND hwnd,HDC hdc)
         }
       }
       DeleteDC(hdc1);
+      DeleteObject(map_platforms_shadow_shader);
   }
-
-
-  //DeleteDC(hdc3);
-  //DeleteDC(hdc2);
   EndPaint(hwnd, &ps);
 }
 
@@ -273,7 +287,10 @@ void SaveLvlBmp(HWND hwnd, HDC hdc)
 {  
   //tri fill all triangles to be segmented
   for (int i=0;i<GROUND_NUM;i++) {
-    TriFillGridType(i);
+    TriFillGridType(i,0);
+  }
+  for (int i=0;i<GROUND_NUM;i++) {
+    TriFillGridType(i,1);
   }
 
   wchar_t bmp_save[64];
@@ -297,11 +314,6 @@ void SaveLvlBmp(HWND hwnd, HDC hdc)
   DrawGround(hdc2);
   DrawGroundText(hdc2);
 
-  //water platforms
-  //map_water_platforms_sprite=CreateCrunchyBitmap(MAP_WIDTH,MAP_HEIGHT);
-  //SelectObject(hdc3,map_water_platforms_sprite);
-  //GrRect(hdc3,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,MYCOLOR1); //Create Background with set  color over platforms
-  //DrawWaterTriFill(hdc3);
 
 
   //shadow platforms, water excluded from shadow
@@ -314,23 +326,34 @@ void SaveLvlBmp(HWND hwnd, HDC hdc)
     CreatePlatformShadowBitmap(hdc2, MapEditor.set_lvl_ambient_val[7],
                                     MapEditor.set_lvl_ambient_val[8],
                                     shadowc); //Create Shadow Map
-    SaveBitmapToFile2(map_platforms_shadow_shader,rgbColorsDefault, bmp_save_shadow);
+    //SaveBitmapToFile2(map_platforms_shadow_shader,rgbColorsDefault, bmp_save_shadow);
   }
 
 
   DeleteDC(hdc3);
   DeleteDC(hdc2);
+  SaveLvlBmpSegmentation1(hwnd,hdc);
+
+
+  hdc2=CreateCompatibleDC(hdc);
+  map_water_platforms_sprite=CreateCrunchyBitmap(MAP_WIDTH,MAP_HEIGHT);
+  SelectObject(hdc2,map_water_platforms_sprite);
+  GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,MYCOLOR1); //Create Background with set  color over platforms
+  DrawWaterTriFill(hdc2);
+  DeleteDC(hdc2);
+
+  SaveLvlBmpSegmentation2(hwnd,hdc);
+
+  //water platforms
+
   EndPaint(hwnd, &ps);
-  SaveBitmapToFile2(map_platforms_sprite,rgbColorsDefault, bmp_save);
+  //SaveBitmapToFile2(map_platforms_sprite,rgbColorsDefault, bmp_save);
   //SaveBitmapToFile2(map_water_platforms_sprite,rgbColorsDefault, water_bmp_save);
 
 
-  SaveLvlBmpSegmentation(hwnd,hdc);
 
 
-  DeleteObject(map_platforms_sprite);
   //DeleteObject(map_water_platforms_sprite);
-  DeleteObject(map_platforms_shadow_shader);
 }
 
 void SaveMELvl(HWND hwnd, HDC hdc)

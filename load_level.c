@@ -7,19 +7,10 @@ void InitOnce() {
   player.cam_move_x=0;
   player.cam_move_y=0;
 
-//  alloc_enemy_once=TRUE;
   player_load_color=player_color;
   player_load_iris_color=player_iris_color;
   player_load_pupil_color=player_pupil_color;
   player_bullet_color=WHITE;
-
-  /*if (IsInvertedBackground()) { //invert player color if background is inverted
-    player_load_color=COLORS_NUM-player_color-1;
-    player_load_iris_color=COLORS_NUM-player_iris_color-1;
-    player_load_pupil_color=COLORS_NUM-player_pupil_color-1;
-
-    player_bullet_color=BLACK;
-  }*/
 
   adjustSFXVolume(&spamSoundEffectCache[0],&spamSoundEffect[0],game_volume/4,FALSE); //start
   adjustSFXVolume(&spamSoundEffectCache[1],&spamSoundEffect[1],game_volume/4,FALSE); //stop
@@ -72,7 +63,7 @@ void InitOnce() {
 
 
 
-void Init(HDC hdc) {
+void Init(/*HDC hdc,*/bool refresh,bool spawn_obj) {
   time_begin=current_timestamp();
 
   //Load Best Score
@@ -104,8 +95,10 @@ void Init(HDC hdc) {
 
 
   //Start level
-  OLD_GR_WIDTH=0;
-  OLD_GR_HEIGHT=0;
+  if (spawn_obj) {
+    OLD_GR_WIDTH=0;
+    OLD_GR_HEIGHT=0;
+  }
   game_timer=0;
   enemy_kills=0;
   game_over=FALSE;
@@ -115,6 +108,9 @@ void Init(HDC hdc) {
   //Initialize Level
   InitBullet(BULLET_NUM);
   InitGrid();
+  if (!run_once_only) {
+    InitGridTiles(FALSE);
+  }
   InitNodeGrid();
   InitGround(TRUE);
   InitNodeGridAttributes();
@@ -125,8 +121,8 @@ void Init(HDC hdc) {
 
   InitScreenRainDrop();
   InitBulletRain();
-  BitmapPalette(hdc,map_platforms_sprite,rgbColorsDefault);
-  BitmapPalette(hdc,map_water_platforms_sprite,rgbColorsDefault);
+  //BitmapPalette(hdc,map_platforms_sprite,rgbColorsDefault);
+  //BitmapPalette(hdc,map_water_platforms_sprite,rgbColorsDefault);
 
   mem_snd_interrupt[0]=TRUE;
   waveOutReset(hWaveOut[0]);
@@ -157,7 +153,7 @@ void Init(HDC hdc) {
 
 
 
-void InitPlatformsSprite(HWND hwnd, HDC hdc)
+/*void InitPlatformsSprite(HWND hwnd, HDC hdc)
 {
   wchar_t bmp_save[64];
   swprintf(bmp_save,64,L"saves/%s/map.bmp",level_names[level_chosen]);
@@ -249,25 +245,30 @@ void InitPlatformsSprite(HWND hwnd, HDC hdc)
   //printf("mask created\n");
 
   //map_platforms_shadow_shader_mask=CreateBitmapMask(map_platforms_shadow_shader,MYCOLOR1,NULL);
-}
+//}*/
 
 
 
 
-void InitLevel(HWND hwnd, HDC hdc)
+void InitLevel(HWND hwnd, HDC hdc,bool refresh)
 {
   wchar_t txt[128];
-  swprintf(txt,128,L"saves/%s/level.txt",level_names[level_chosen]);
-  swprintf(save_level,128,L"saves/%s/scores.txt",level_names[level_chosen]);
-
-  LoadSave(txt,TRUE);
+  if (!refresh) {
+    swprintf(txt,128,L"saves/%s/level.txt",level_names[level_chosen]);
+    swprintf(save_level,128,L"saves/%s/scores.txt",level_names[level_chosen]);
+    LoadSave(txt,TRUE);
+  } else {
+    swprintf(txt,128,L"saves/__004__/level.txt");
+    swprintf(save_level,128,L"saves/__004__/scores.txt");
+    LoadSave(txt,TRUE);
+  }
 
   srand(time(NULL));
   timeBeginPeriod(1);
 
 
   InitOnce();//cannot be repeatedly run
-  Init(hdc);
+  Init(refresh,TRUE);
 
 
 
@@ -347,56 +348,15 @@ void InitLevel(HWND hwnd, HDC hdc)
   GenerateDrawSprite(&player.draw_spin_blur_sprite_3,player.spin_blur_sprite_3_cache);
   GenerateDrawSprite(&player.draw_spin_blur_sprite_4,player.spin_blur_sprite_4_cache);
 
-
-  //moon sprite
-  //DeleteObject(moon_sprite_cache);
-  //FreeDrawSprite(&draw_moon_sprite);
-
-  //HBITMAP tmp_moon_sprite=CopyCrunchyBitmap(moon_sprite,NOTSRCCOPY);
-  //moon_sprite_cache=RotateSprite(NULL, tmp_moon_sprite,0,LPURPLE,BLACK,BLACK,-1);
-  //DeleteObject(tmp_moon_sprite);
-  //GenerateDrawSprite(&draw_moon_sprite,moon_sprite_cache);
-
-
-
   //Load Enemy cache spritesF
   InitEnemySprites();
 
-  //InitPlatformsSprite(hwnd,hdc);
-
-
   //allocate smallest to biggest
-
-
-
-
-  //load_sound=TRUE;
   level_loaded=TRUE;
   in_main_menu=FALSE;
 }
 
 
-
-/*void LoadMainMenuBackground()
-{
-  DeleteObject(map_background_sprite);
-  HBITMAP tmp_map_background_sprite;
-  if (solar_hour>6 && solar_hour<18) { //day
-    if (GR_WIDTH<800 && GR_HEIGHT<600) {
-      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    } else {
-      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    }
-  } else { //night
-    if (GR_WIDTH<800 && GR_HEIGHT<600) {
-      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    } else {
-      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    }
-  }
-  map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH,GR_HEIGHT); //note runs once only
-  DeleteObject(tmp_map_background_sprite);
-}*/
 
 
 
