@@ -739,3 +739,128 @@ bool FileExists(const wchar_t* filename)
     return TRUE;
 }
 
+
+
+
+//Rebounding/ricochet
+/*
+         Negative                                                     Positive
+
+
+            /           /                                     \
+           /         /                                         \
+          /        /                                            \       
+         /      /                                                \
+        /     /                                                   \
+       /   /                                                       \
+      / /                                                           \
+     /                                                               \
+
+
+                    (Clockwise)
+
+
+                    0 . M_PI_2     |       -M_PI_2 . 0
+            M_PI . M_PI+M_PI_2     |       M_PI+M_PI_2. 2*M_PI       
+                    Positive        |       Negative
+                    --------------/m.\\---------------
+                    Negative        |       Positive
+                    -M_PI_2 . 0    |       0 . M_PI_2
+                     M_PI_2 . M_PI         0 . M_PI_2
+
+                        left              !left
+
+                                            
+
+
+
+     \          \                                                  /           /
+       \        \                                                  /         /
+         \       \                                                /        /
+           \     \                                                /      /
+             \    \                                              /     /
+               \  \                                              /   /
+                 \ \                                            / /
+                   \                                            /
+            
+         Positive gradient                                  Negative Gradient
+          Positive Angle                                     Negative Angle
+
+
+        
+
+
+   (Clockwise)
+    Right Side:
+        Upwards: M_PI+M_PI_2 . 2*M_PI
+      Downwards: 0 . M_PI_2
+
+    Left Side:
+      Downwards: M_PI_2 . M_PI 
+        Upwards: M_PI . M_PI+M_PI_2
+
+
+
+
+Ascii art woo!! :D
+
+                            ________________________
+        _ _ _ _ _ _ _ _ _ _\  _/  _ _ _ _ _ _ _ _ _ |
+ Ground _______________     \ ground_angle          |
+                        -----------------           |
+                         -- / \ /        -----------|   
+                      --   /   \   j                |
+                   --     /     \                   |
+                --    i  /  i    \                  |
+             --         /         \                 |
+          --           /           \                |
+       (O)2           /             \               |
+    --               /               \              |
+                    /                 \             |
+                   /                   (O)1---------|
+
+
+
+
+    O1 = Original Bullet Angle
+    O2 = New Bullet Angle
+    i = angle of incidence
+    j = outer angle of incidence
+    ground_angle = angle of ground
+
+
+    Find O2
+
+    j = 2pi - pi/2 - pi/2 -  (2pi - O1) - ground_angle
+      = 2pi - pi - 2pi + O1 - ground_angle
+      = -pi + O1 - ground_angle
+
+    i = pi/2 - j
+      = pi/2 - (-pi + O1 - ground_angle)
+      = pi/2 + pi - O1 + ground_angle
+      = 3/2 * pi - O1 + ground_angle
+
+
+    O2 = ground_angle + j + i + i
+       = ground_angle + j + 2i
+       = ground_angle + (-pi + O1 - ground_angle) + 2*(3/2 * pi - O1 + ground_angle)
+       = ground_angle -pi + O1 - ground_angle + 3pi - 2*O1 + 2*ground_angle
+       = 2pi -O1 + 2*ground_angle
+
+
+   *Al-Khwarizmi
+*/
+
+double GetBounceAngle(double angle1,double angle2)
+{
+  double ans;
+  ans=2*M_PI-angle1+2*angle2;
+  if (ans>2*M_PI) {
+    ans=fmod(ans,(2*M_PI));
+  }
+  if (ans<0) {
+    ans=abs(fmod(ans,(2*M_PI)));
+  }
+  return ans;
+}
+

@@ -898,7 +898,9 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
     player.fling_distance=0; //on ground, stop flinging
 
     //angle of incidence and reflection
-    player.angle_of_reflection=2*M_PI-player.angle_of_incidence+2*player.angle; //real
+    player.angle_of_reflection=GetBounceAngle(player.angle_of_incidence,player.angle);
+        //2*M_PI-player.angle_of_incidence+2*player.angle; //real
+
     if (!player.is_swinging) {
       player.angle_of_incidence=player.angle_of_reflection;
     }
@@ -978,19 +980,19 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
     player.fling_distance=0; //on ground, stop flinging
 
     //angle of incidence and reflection
-    player.angle_of_reflection=2*M_PI-player.angle_of_incidence+2*player.angle; //real
+    player.angle_of_reflection=GetBounceAngle(player.angle_of_incidence,player.angle);//2*M_PI-player.angle_of_incidence+2*player.angle; //real
     if (!player.is_swinging) {
       player.angle_of_incidence=player.angle_of_reflection;
     }
   }
 
 
-  if (player.angle_of_reflection>2*M_PI) {
+  /*if (player.angle_of_reflection>2*M_PI) {
     player.angle_of_reflection-=2*M_PI;
   }
   if (player.angle_of_reflection<0) {
     player.angle_of_reflection+=2*M_PI;
-  }
+  }*/
 
 
   if (player.is_rebounding) {//rebounding
@@ -2727,6 +2729,12 @@ void DrawPlayer(HDC hdc)
         BitmapPalette(hdc,EnemyRotatedSprite[i]->draw_rotated_sprite2[j].sprite_paint,rgbColorsDefault);
       }
     }
+    for (int i=0;i<PLATFORM_GRID_NUM;i++) {
+      BitmapPalette(hdc,TileMapPlatform[i]->draw_tile.sprite_paint,rgbColorsDefault);
+    }
+    for (int i=0;i<FOREGROUND_GRID_NUM;i++) {
+      BitmapPalette(hdc,TileMapForeground[i]->draw_tile.sprite_paint,rgbColorsDefault);
+    }
 
     player.flag_revert_palette=FALSE;
     player.time_breaker_tick=0;
@@ -2776,6 +2784,12 @@ void DrawPlayer(HDC hdc)
           BitmapPalette(hdc,EnemyRotatedSprite[i]->draw_rotated_sprite1[j].sprite_paint,rgbColorsNoir);
           BitmapPalette(hdc,EnemyRotatedSprite[i]->draw_rotated_sprite2[j].sprite_paint,rgbColorsNoir);
         }
+      }
+      for (int i=0;i<PLATFORM_GRID_NUM;i++) {
+        BitmapPalette(hdc,TileMapPlatform[i]->draw_tile.sprite_paint,rgbColorsNoir);
+      }
+      for (int i=0;i<FOREGROUND_GRID_NUM;i++) {
+        BitmapPalette(hdc,TileMapForeground[i]->draw_tile.sprite_paint,rgbColorsNoir);
       }
       //BitmapPalette(hdc,map_platforms_sprite,rgbColorsNoir);
       //BitmapPalette(hdc,map_water_platforms_sprite,rgbColorsNoir);

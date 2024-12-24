@@ -524,7 +524,7 @@ int GetGridId(int x,int y,int width, int size,int max);
 void SetGridLineArray(int grid_id,int ground_id);
 void UnSetGridLineArray(int grid_id,int ground_id);
 void InitGrid();
-void InitGridTiles(bool refresh);
+void InitGridTiles(int refresh);
 void DrawGrid(HDC hdc);
 void InitNodeGrid();
 bool IsCollideSolid(double x1,double y1,double x2,double y2,double gradient,double c);
@@ -834,8 +834,7 @@ typedef struct TileMap
 {
   int x;
   int y;
-  HBITMAP sprite_mask;
-  HBITMAP sprite_paint;
+  DRAWSPRITE draw_tile;
 } ATileMap;
 
 ATileMap *createTileMap()
@@ -854,7 +853,31 @@ void freeTileMap(ATileMap *myTileMap)
 
 ATileMap **TileMapPlatform;
 ATileMap **TileMapForeground;
-ATileMap **TileMapShadow;
+
+
+
+
+typedef struct TileMapPaint
+{
+  int x;
+  int y;
+  HBITMAP sprite_paint;
+} ATileMapPaint;
+
+ATileMapPaint *createTileMapPaint()
+{
+  ATileMapPaint *toReturn = malloc(sizeof(ATileMapPaint));
+  return toReturn;
+}
+
+
+void freeTileMapPaint(ATileMapPaint *myTileMapPaint)
+{
+  if (myTileMapPaint)
+    free(myTileMapPaint);
+}
+
+ATileMapPaint **TileMapShadow;
 
 
 

@@ -68,8 +68,9 @@ void DrawWaterPlatforms(HDC hdc)
       if (tmf_id!=-1) {
         x=GR_WIDTH/2+TileMapForeground[tmf_id]->x-px+cx1+cx2;
         y=GR_HEIGHT/2+TileMapForeground[tmf_id]->y-py+cy1+cy2;
-        DrawBitmap(hdc,x, y,0, 0,VGRID_SIZE,VGRID_SIZE,TileMapForeground[tmf_id]->sprite_mask,SRCAND,FALSE,FALSE);
-        DrawBitmap(hdc,x,y,0, 0,VGRID_SIZE,VGRID_SIZE,TileMapForeground[tmf_id]->sprite_paint,SRCPAINT,FALSE,FALSE);
+        //DrawBitmap(hdc,x, y,0, 0,VGRID_SIZE,VGRID_SIZE,TileMapForeground[tmf_id]->sprite_mask,SRCAND,FALSE,FALSE);
+        //DrawBitmap(hdc,x,y,0, 0,VGRID_SIZE,VGRID_SIZE,TileMapForeground[tmf_id]->sprite_paint,SRCPAINT,FALSE,FALSE);
+        DrawSprite(hdc,x,y,&TileMapForeground[tmf_id]->draw_tile,FALSE);
       } 
     } 
   }
@@ -118,8 +119,9 @@ void DrawPlatforms(HDC hdc)
       if (tmp_id!=-1) {
         x=GR_WIDTH/2+TileMapPlatform[tmp_id]->x-px+cx1+cx2;
         y=GR_HEIGHT/2+TileMapPlatform[tmp_id]->y-py+cy1+cy2;
-        DrawBitmap(hdc,x, y,0, 0,VGRID_SIZE,VGRID_SIZE,TileMapPlatform[tmp_id]->sprite_mask,SRCAND,FALSE,FALSE);
-        DrawBitmap(hdc,x,y,0, 0,VGRID_SIZE,VGRID_SIZE,TileMapPlatform[tmp_id]->sprite_paint,SRCPAINT,FALSE,FALSE);
+        //DrawBitmap(hdc,x, y,0, 0,VGRID_SIZE,VGRID_SIZE,TileMapPlatform[tmp_id]->sprite_mask,SRCAND,FALSE,FALSE);
+        //DrawBitmap(hdc,x,y,0, 0,VGRID_SIZE,VGRID_SIZE,TileMapPlatform[tmp_id]->sprite_paint,SRCPAINT,FALSE,FALSE);
+        DrawSprite(hdc,x,y,&TileMapPlatform[tmp_id]->draw_tile,FALSE);
       } 
     } 
   }

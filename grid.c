@@ -52,7 +52,7 @@ void InitGridTiles(int refresh)
     yes_shadow=TRUE;
   }
 
-
+  HBITMAP tmp_bitmap,tmp_bitmap_cache;
   FOREGROUND_GRID_NUM=0;
   PLATFORM_GRID_NUM=0;
   SHADOW_GRID_NUM=0;
@@ -135,14 +135,18 @@ void InitGridTiles(int refresh)
               swprintf(seg_name,72,L"saves/__006__/seg_platforms/%d.bmp",i);
             }
           }
-          TileMapPlatform[tmp_id]->x=VGrid[i]->x1;
-          TileMapPlatform[tmp_id]->y=VGrid[i]->y1;
-          TileMapPlatform[tmp_id]->sprite_paint=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-          TileMapPlatform[tmp_id]->sprite_mask=CreateBitmapMask(TileMapPlatform[tmp_id]->sprite_paint,MYCOLOR1,NULL); //create mask
+          TileMapPlatform[tmp_id]->x=VGrid[i]->x1+VGRID_SIZE/2;
+          TileMapPlatform[tmp_id]->y=VGrid[i]->y1+VGRID_SIZE/2;
+          //TileMapPlatform[tmp_id]->sprite_paint=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+          //TileMapPlatform[tmp_id]->sprite_mask=CreateBitmapMask(TileMapPlatform[tmp_id]->sprite_paint,MYCOLOR1,NULL); //create mask
+          tmp_bitmap=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+          tmp_bitmap_cache=RotateSprite(NULL, tmp_bitmap,0,MYCOLOR1,BLACK,BLACK,-1);
+          GenerateDrawSprite(&TileMapPlatform[tmp_id]->draw_tile,tmp_bitmap_cache);
+          DeleteObject(tmp_bitmap);
+          DeleteObject(tmp_bitmap_cache);
         }
       }
   }
-
 
   if (FOREGROUND_GRID_NUM>0) {
     TileMapForeground = calloc(FOREGROUND_GRID_NUM,sizeof(ATileMap*));
@@ -165,10 +169,15 @@ void InitGridTiles(int refresh)
               swprintf(seg_name,72,L"saves/__006__/seg_foreground/%d.bmp",i);
             }
           }
-          TileMapForeground[tmf_id]->x=VGrid[i]->x1;
-          TileMapForeground[tmf_id]->y=VGrid[i]->y1;
-          TileMapForeground[tmf_id]->sprite_paint=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-          TileMapForeground[tmf_id]->sprite_mask=CreateBitmapMask(TileMapForeground[tmf_id]->sprite_paint,MYCOLOR1,NULL); //create mask
+          TileMapForeground[tmf_id]->x=VGrid[i]->x1+VGRID_SIZE/2;
+          TileMapForeground[tmf_id]->y=VGrid[i]->y1+VGRID_SIZE/2;
+          //TileMapForeground[tmf_id]->sprite_paint=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+          //TileMapForeground[tmf_id]->sprite_mask=CreateBitmapMask(TileMapForeground[tmf_id]->sprite_paint,MYCOLOR1,NULL); //create mask
+          tmp_bitmap=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+          tmp_bitmap_cache=RotateSprite(NULL, tmp_bitmap,0,MYCOLOR1,BLACK,BLACK,-1);
+          GenerateDrawSprite(&TileMapForeground[tmf_id]->draw_tile,tmp_bitmap_cache);
+          DeleteObject(tmp_bitmap);
+          DeleteObject(tmp_bitmap_cache);
         }
       }
     }
@@ -178,10 +187,10 @@ void InitGridTiles(int refresh)
 
 
   if (yes_shadow) {
-    TileMapShadow = calloc(SHADOW_GRID_NUM,sizeof(ATileMap*));
+    TileMapShadow = calloc(SHADOW_GRID_NUM,sizeof(ATileMapPaint*));
     for (int i=0;i<SHADOW_GRID_NUM;i++) {
-      ATileMap *newTileMap = createTileMap();
-      TileMapShadow[i] = newTileMap;
+      ATileMapPaint *newTileMapPaint = createTileMapPaint();
+      TileMapShadow[i] = newTileMapPaint;
     }
 
     int tms_id=-1;
@@ -192,8 +201,9 @@ void InitGridTiles(int refresh)
           swprintf(seg_name,72,L"saves/%s/seg_shadow/%d.bmp",level_names[level_chosen],i);
           TileMapShadow[tms_id]->x=VGrid[i]->x1;
           TileMapShadow[tms_id]->y=VGrid[i]->y1;
-          TileMapShadow[tms_id]->sprite_paint=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-          TileMapShadow[tms_id]->sprite_mask=NULL;
+          tmp_bitmap=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+          TileMapShadow[tms_id]->sprite_paint=RotateSprite(NULL, tmp_bitmap,0,MYCOLOR1,BLACK,BLACK,-1); //does nothing other than crunch it to 8bit xd
+          DeleteObject(tmp_bitmap);
         }
       }
     }

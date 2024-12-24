@@ -168,23 +168,25 @@ void CleanUpGrid()
   }
   if (PLATFORM_GRID_NUM>0) {
     for (int i=0;i<PLATFORM_GRID_NUM;i++) {
-      if (TileMapPlatform[i]->sprite_paint!=NULL) {
+      /*if (TileMapPlatform[i]->sprite_paint!=NULL) {
         DeleteObject(TileMapPlatform[i]->sprite_paint);
       }
       if (TileMapPlatform[i]->sprite_mask!=NULL) {
         DeleteObject(TileMapPlatform[i]->sprite_mask);
-      }
+      }*/
+      FreeDrawSprite(&TileMapPlatform[i]->draw_tile);
     }
   }
 
   if (FOREGROUND_GRID_NUM>0) {
     for (int i=0;i<FOREGROUND_GRID_NUM;i++) {
-      if (TileMapForeground[i]->sprite_paint!=NULL) {
+      /*if (TileMapForeground[i]->sprite_paint!=NULL) {
         DeleteObject(TileMapForeground[i]->sprite_paint);
       } 
       if (TileMapForeground[i]->sprite_mask!=NULL) {
         DeleteObject(TileMapForeground[i]->sprite_mask);
-      }
+      }*/
+      FreeDrawSprite(&TileMapForeground[i]->draw_tile);
     }
   }
 
@@ -196,9 +198,7 @@ void CleanUpGrid()
       }
   }
 
-
-
-  printf("freed:%d,%d,%d\n",PLATFORM_GRID_NUM,FOREGROUND_GRID_NUM,SHADOW_GRID_NUM);
+  //printf("freed:%d,%d,%d\n",PLATFORM_GRID_NUM,FOREGROUND_GRID_NUM,SHADOW_GRID_NUM);
 }
 
 
@@ -430,7 +430,7 @@ void CleanupAll()
       }
 
       for (int i=0;i<SHADOW_GRID_NUM;i++) {
-        freeTileMap(TileMapShadow[i]);
+        freeTileMapPaint(TileMapShadow[i]);
       }
 
 

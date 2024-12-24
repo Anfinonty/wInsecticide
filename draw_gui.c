@@ -392,20 +392,8 @@ void DrawPersianClock(HDC hdc)
 }
 
 
-
-void DrawMainMenu(HDC hdc)
+void DrawTitle(HDC hdc)
 {
-
-  //draw bkgrnd
-  //DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
-
-  DrawMovingAVI(hdc);
-  //Draw Moon Phase
-  //GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
-  if (GR_WIDTH>=800)
-    DrawSprite(hdc, GR_WIDTH-128,128,&draw_moon_sprite,FALSE);
-
-
   int title_x=GR_WIDTH/2-352/2+4;
   int title_y=-32;
 
@@ -451,6 +439,24 @@ void DrawMainMenu(HDC hdc)
                     title_small_sprite,SRCPAINT,FALSE,FALSE);
 
   }
+
+}
+
+
+void DrawMainMenu(HDC hdc)
+{
+
+  //draw bkgrnd
+  //DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
+
+  DrawMovingAVI(hdc);
+  //Draw Moon Phase
+  //GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
+  if (GR_WIDTH>=800)
+    DrawSprite(hdc, GR_WIDTH-128,128,&draw_moon_sprite,FALSE);
+
+
+  DrawTitle(hdc);
 
   int help_y=GR_HEIGHT-128;
   if (!hide_taskbar) { //task bar is shown
@@ -1546,6 +1552,68 @@ void DrawUI(HDC hdc)
 
 
 
+}
+
+
+#define MARBLE_NUM 256//256
+struct marble
+{
+  int color_id;
+  double x,y,angle;
+} marble[MARBLE_NUM];
+
+void InitMarbles(int max_marbles)
+{
+  for (int i=0;i<max_marbles;i++) {
+    marble[i].x=GR_WIDTH/2;
+    marble[i].y=GR_HEIGHT/2;
+    marble[i].angle=(2*M_PI/(max_marbles+1)*i);
+  }
+}
+
+void DrawLoading(HDC hDC,int max_marbles)
+{
+  GrRect(hDC,0,0,GR_WIDTH+2,GR_HEIGHT+2,DKRDKGRAY);
+  //printf("x:%5.4f\n",marble[0].x);
+  for (int i=0;i<max_marbles;i++) {
+    marble[i].x+=cos(marble[i].angle)*10;
+    marble[i].y+=sin(marble[i].angle)*10;
+    if (marble[i].x>GR_WIDTH-2 || marble[i].x<2 || marble[i].y<2 || marble[i].y>GR_HEIGHT-2) {
+      if (marble[i].x>GR_WIDTH-2) {
+        marble[i].x=3;
+      } else if (marble[i].x<2) {
+        marble[i].x=GR_WIDTH-3;
+      }
+      if (marble[i].y<2) {
+        marble[i].y=GR_HEIGHT-3;
+      } else if (marble[i].y>GR_HEIGHT-2) {
+        marble[i].y=3;
+      }
+    }
+    /*if (marble[i].x>GR_WIDTH-20 || marble[i].x<20) {
+      marble[i].angle=GetBounceAngle(marble[i].angle,M_PI_2);
+    } else if ( marble[i].y<20 || marble[i].y>GR_HEIGHT-20) {
+      marble[i].angle=GetBounceAngle(marble[i].angle,0);
+    }*/
+
+
+    for (int j=0;j<max_marbles;j++) {
+      if (j!=i) {
+        if (GetDistance(marble[i].x,marble[i].y,marble[j].x,marble[j].y)<5) {
+          marble[i].angle=GetBounceAngle(marble[i].angle,marble[j].angle);
+          /*if (i==0) {
+            printf("angle:%5.4f\n",marble[0].angle);
+          }*/
+        }
+      }
+    }
+    GrCircle(hDC,marble[i].x,marble[i].y,5,rgbPaint[i],rgbPaint[i]);
+  }
+    //DrawTitle(hDC);
+    //GrCircle(hDC,mouse_x,mouse_y,(set_fragment%10)*2,LTPURPLE,-1);
+    /*DrawSprite(hDC,mouse_x-2,mouse_y-2,&draw_player_cursor_body[0],FALSE); //left ete open
+    DrawSprite(hDC,mouse_x-2,mouse_y-2,&draw_player_cursor_iris[0],FALSE);
+    DrawSprite(hDC,mouse_x-2,mouse_y-2,&draw_player_cursor_pupil[0],FALSE);*/
 }
 
 

@@ -122,7 +122,7 @@ int create_lvl_option_choose=0;
 
 
 //Game System Values
-int set_fragment=0;
+//int set_fragment=0;
 
 int windowx=0;
 int windowy=0;
@@ -392,7 +392,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
         }
         Sleep(player.sleep_timer);
 
-        if (set_fragment<2*FPS+FPS*6) {
+        /*if (set_fragment<2*FPS+FPS*6) {
           set_fragment++;
           //if (set_fragment%5) {
             //player.left_click_hold_timer=64;
@@ -416,6 +416,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
         } else if (set_fragment<10*FPS+FPS*6) {
           set_fragment++;
           if (set_fragment%10==0) {
+            player.knives_per_throw=3;
             player.attack_rst=TRUE;
           }
           if (set_fragment==12*FPS+FPS/2 || set_fragment==14*FPS+FPS/2) {
@@ -430,7 +431,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
             back_to_menu=TRUE;
             game_audio=TRUE;
           }
-        }
+        }*/
       } else {
         Sleep(1000);
       }
@@ -501,7 +502,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     //Various Keypress down
     case WM_KEYDOWN:
     {
-      if (set_fragment>=9*FPS) {
+      //if (set_fragment>=9*FPS) {
       //Global keydown press
       if (main_menu_chosen!=2) {
         GlobalKeypressDown(wParam);
@@ -558,7 +559,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         } //end of switch statement for menu chosen
       } //end of menu chosen if else
-      }
+      //}
       break; //Break WM_KEYDOWN;
     } 
 
@@ -568,7 +569,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     {
   //GLOBAL wParam Release Key
   //    printf("%d",wParam);
-      if (set_fragment>=9*FPS) {
+      //if (set_fragment>=9*FPS) {
       if (main_menu_chosen!=2) {
         GlobalKeypressUp(hwnd,wParam);
       }
@@ -620,7 +621,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
              break;
           }
           break; //end of main menu chosen switch
-          }
+          //}
 
       } //end of !main_menu_chosen
       break; // end of release key WM_KEYUP
@@ -909,9 +910,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                 GrRect(hdcBackbuff,0,GR_HEIGHT-32-32,GR_WIDTH+4,32+32,c);
               }
             }
-            if (set_fragment<16*FPS) {
-              GrRect(hdcBackbuff,0,0,GR_WIDTH+2,GR_HEIGHT+2,BLACK);//BLUE);
-            }
+
+            /*if (set_fragment<16*FPS) {
+              DrawLoading(hdcBackbuff,16);
+            }*/
+
 
             if (hide_taskbar) {
               BitBlt(hdc, SCREEN_WIDTH/2-RESOLUTION_X[resolution_choose]/2, 
@@ -989,9 +992,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       
             DrawMainMenu(hdcBackbuff);
             DrawCursor(hdcBackbuff);
-            if (set_fragment<16*FPS) {
-              GrRect(hdcBackbuff,0,0,GR_WIDTH+2,GR_HEIGHT+2,BLACK);
-            }
+            /*if (set_fragment<16*FPS) {
+              DrawLoading(hdcBackbuff,16);
+            }*/
 
             if (hide_taskbar) {
               BitBlt(hdc, SCREEN_WIDTH/2-RESOLUTION_X[resolution_choose]/2, 
@@ -1006,7 +1009,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
           DeleteDC(hdcBackbuff);
           DeleteObject(screen);
-          if (set_fragment<FPS*2) {
+          /*if (set_fragment<FPS*2) {
             set_fragment++;
             if (set_fragment==FPS*2-1) {
               set_fragment=FPS*2+1;
@@ -1024,7 +1027,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               InitLevel(hwnd, hdc, 2);
               game_audio=FALSE;
             }
-          } 
+          } */
 
 
         }
@@ -1139,6 +1142,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       color_chooser.color_id=0;
       color_chooser.color_id_choosing=0;
 
+      InitMarbles(16);
 
       //Delete tmp in music
       remove("music/tmp/tmp.wav");
@@ -1287,7 +1291,7 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
       for (int i=0;i<16;i++) { //open: 0,,3; 4..7;   closed:  8..11; 12..15
         wchar_t fname[32];
         swprintf(fname,32,L"sprites/player_cursor%d.bmp",i);
-        player_cursor[i]=(HBITMAP) LoadImageW(NULL, fname, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);;
+        player_cursor[i]=(HBITMAP) LoadImageW(NULL, fname, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
         player_cursor_body[i]=RotateSprite(NULL, player_cursor[i],0,LTGREEN,BLACK,rgbPaint[player_color],-1);
         player_cursor_iris[i]=RotateSpriteExclude(NULL, player_cursor[i],0,LTBLUE,RED);
         GenerateDrawSprite(&draw_player_cursor_body[i],player_cursor_body[i]);
