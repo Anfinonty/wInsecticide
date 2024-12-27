@@ -281,19 +281,6 @@ void InitGround(bool is_max)
   }
 }
 
-/*void InitGround2()
-{
-  int i=0;
-  for (i=0;i<GROUND_NUM+MAX_WEB_NUM;i++) {
-    Ground[i]->sprite_x1=-20;//Ground[i]->x1+player.cam_x;//+cam_move_x-PLAYER_WIDTH/2;
-    Ground[i]->sprite_y1=-20;//Ground[i]->y1+player.cam_y;//+cam_move_y-PLAYER_HEIGHT/2;
-    Ground[i]->sprite_x2=-20;//Ground[i]->x2+player.cam_x;//+cam_move_x-PLAYER_WIDTH/2;
-    Ground[i]->sprite_y2=-20;//Ground[i]->y2+player.cam_y;//+cam_move_y-PLAYER_HEIGHT/2;
-    Ground[i]->sprite_x3=-20;//Ground[i]->x3+player.cam_x;//+cam_move_x-PLAYER_WIDTH/2;
-    Ground[i]->sprite_y3=-20;//Ground[i]->y3+player.cam_y;//+cam_move_y-PLAYER_HEIGHT/2;
-  }
-}*/
-
 
 
 /*
@@ -599,14 +586,16 @@ void DestroyGround(int i)
 void DrawWebs(HDC hdc)
 { int id;
   int c=LTCYAN;//Highlight(IsInvertedBackground(),LTCYAN,LTRED);
+  int cx=(int)player.cam_x+(int)player.cam_move_x+(int)player.cam_mouse_move_x;
+  int cy=(int)player.cam_y+(int)player.cam_move_y+(int)player.cam_mouse_move_y;
   for (int i=GROUND_NUM;i<GROUND_NUM+player.max_web_num;i++) {
     id=i;
     if (id<GROUND_NUM+MAX_WEB_NUM && Ground[id]->x1>-20) {
       GrLine(hdc,
-        Ground[id]->x1+player.cam_x+player.cam_move_x+player.cam_mouse_move_x,
-        Ground[id]->y1+player.cam_y+player.cam_move_y+player.cam_mouse_move_y,
-        Ground[id]->x2+player.cam_x+player.cam_move_x+player.cam_mouse_move_x,
-        Ground[id]->y2+player.cam_y+player.cam_move_y+player.cam_mouse_move_y,
+        Ground[id]->x1+cx,
+        Ground[id]->y1+cy,
+        Ground[id]->x2+cx,
+        Ground[id]->y2+cy,
         c
       );
     }
@@ -622,26 +611,13 @@ void DrawGround(HDC hdc)
     if (Ground[i]->type==0) {
       if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
           !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
-          //double le_angle=Ground[i]->angle;
-          //char angletxt[12];
-          //sprintf(angletxt,"%3.2f",le_angle);
-          //GrPrint(hdc,Ground[i]->x1,Ground[i]->y1-16,angletxt,Ground[i]->color);
-          //if (!IsInvertedBackground()) {
-	        c=Ground[i]->color;
-	        //c=draw_darker_color_arr[Ground[i]->color_id];
-          //} else {
-	        //c=draw_lighter_color_arr[Ground[i]->color_id];
-          //}
+          c=Ground[i]->color;
           GrLine(hdc,
                 Ground[i]->x1,
                 Ground[i]->y1,
                 Ground[i]->x2,
                 Ground[i]->y2,
                 c);
-
-//         GrCircle(hdc,Ground[i]->x1,Ground[i]->y1,10,Ground[i]->color,-1);
-//         GrCircle(hdc,Ground[i]->x2,Ground[i]->y2,10,Ground[i]->color,-1);
-
       }
     }
   }

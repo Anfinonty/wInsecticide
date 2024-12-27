@@ -339,7 +339,6 @@ void EnemyReboundFromGround(int enemy_id,int ground_id,bool is_rebound)
     }*/
 
     //if (Enemy[enemy_id]->species==1) {
-      //if (edge_1_dist<=31 || edge_2_dist<=31) {
       if (edge_1_dist<=31 || edge_2_dist<=31) {
         //Enemy[enemy_id]->above_ground=
         //Enemy[enemy_id]->below_ground=FALSE;
@@ -395,7 +394,6 @@ void EnemySpecies1Gravity(int enemy_id)
     is_in_solid2=NodeGrid[node_grid_id2]->node_solid;
   }
   if (Enemy[enemy_id]->on_ground_id==-1 && tmp_==-1) {//not on ground
-    //EnemySpecies1SpriteTimer(enemy_id);
     if (!is_in_solid1 && !is_in_solid2) {
       if (!Enemy[enemy_id]->in_water) {
         Enemy[enemy_id]->y+=1; //falling down
@@ -1099,27 +1097,95 @@ void EnemyAct(int i)
       }
 
       if (Enemy[i]->species==1) {
-        if (Enemy[i]->knockback_timer>0 /*|| Enemy[i]->being_drawn*/ || (!Enemy[i]->above_ground && !Enemy[i]->below_ground)) {
+        if (Enemy[i]->knockback_timer>0 || Enemy[i]->on_ground_id==-1) {
           EnemySpecies1SpriteTimer(i);
         }
       }
 
-      for (slash_time_i=0;slash_time_i<slash_time;slash_time_i++) {
-          Enemy[i]->in_node_grid_id=GetGridId(Enemy[i]->x,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
-          if (NodeGrid[Enemy[i]->in_node_grid_id]->node_water) {
-            if (!Enemy[i]->in_water) {
-              Enemy[i]->speed_multiplier=Enemy[i]->ospeed_multiplier/4;
-              if (Enemy[i]->speed_multiplier<=1) {
-                Enemy[i]->speed_multiplier=1;
-              }
+
+
+
+      //toggle staate in water
+      Enemy[i]->in_node_grid_id=GetGridId(Enemy[i]->x,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
+      int tmp_ngid=Enemy[i]->in_node_grid_id;
+      if (tmp_ngid!=-1) {
+        if (NodeGrid[tmp_ngid]->node_water) {
+          if (!Enemy[i]->in_water) {
+            Enemy[i]->speed_multiplier=Enemy[i]->ospeed_multiplier/4;
+            if (Enemy[i]->speed_multiplier<=1) {
+              Enemy[i]->speed_multiplier=1;
             }
-            Enemy[i]->in_water=TRUE;  
-          } else {
-            if (Enemy[i]->in_water) {
-              Enemy[i]->speed_multiplier=Enemy[i]->ospeed_multiplier;
-            } 
-            Enemy[i]->in_water=FALSE;
           }
+          Enemy[i]->in_water=TRUE;  
+        } else {
+          if (Enemy[i]->in_water) {
+            Enemy[i]->speed_multiplier=Enemy[i]->ospeed_multiplier;
+          } 
+          Enemy[i]->in_water=FALSE;
+        }
+      } else {
+        if (Enemy[i]->in_water) {
+          Enemy[i]->speed_multiplier=Enemy[i]->ospeed_multiplier;
+        } 
+        Enemy[i]->in_water=FALSE;
+      }
+
+
+      //toggle state web_stuck/unstuck
+      if (Enemy[i]->flag_web_stuck) {
+        Enemy[i]->flag_web_stuck=FALSE;
+        Enemy[i]->web_stuck=TRUE;
+        Enemy[i]->speed_multiplier=Enemy[i]->ospeed_multiplier/5;
+        if (Enemy[i]->speed_multiplier<=1) {
+          Enemy[i]->speed_multiplier=1;
+        }
+        Enemy[i]->speed=Enemy[i]->ospeed/10;
+      }
+      if (Enemy[i]->flag_web_unstuck) {
+        Enemy[i]->flag_web_unstuck=FALSE;
+        Enemy[i]->web_stuck=FALSE;
+        Enemy[i]->speed_multiplier=Enemy[i]->ospeed_multiplier;
+        Enemy[i]->speed=Enemy[i]->ospeed;
+      }
+
+    
+
+
+      //check state web stuck
+      if (tmp_ngid!=-1) {
+        int nx,ny,sub_tmp_ngid;
+          for (int m=0;m<9;m++) {
+            switch (m) {
+              case 0:nx=Enemy[i]->x;ny=Enemy[i]->y;break;
+              case 1:nx=Enemy[i]->x-NODE_SIZE;ny=Enemy[i]->y-NODE_SIZE;break;
+              case 2:nx=Enemy[i]->x;ny=Enemy[i]->y-NODE_SIZE;break;
+              case 3:nx=Enemy[i]->x+NODE_SIZE;ny=Enemy[i]->y-NODE_SIZE;break;
+
+              case 4:nx=Enemy[i]->x-NODE_SIZE;ny=Enemy[i]->y+NODE_SIZE;break;
+              case 5:nx=Enemy[i]->x;ny=Enemy[i]->y+NODE_SIZE;break;
+              case 6:nx=Enemy[i]->x+NODE_SIZE;ny=Enemy[i]->y+NODE_SIZE;break;
+
+              case 7:nx=Enemy[i]->x-NODE_SIZE;ny=Enemy[i]->y;break;
+              case 8:nx=Enemy[i]->x+NODE_SIZE;ny=Enemy[i]->y;break;
+            }
+            sub_tmp_ngid=GetGridId(nx,ny,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
+            if (sub_tmp_ngid!=-1) {
+               if (!NodeGrid[sub_tmp_ngid]->non_web && NodeGrid[sub_tmp_ngid]->node_solid) { //web_detected
+                 if (!Enemy[i]->web_stuck) {
+                   Enemy[i]->flag_web_stuck=TRUE;
+                 }
+                 break;
+               }
+            }
+          }
+          if (Enemy[i]->web_stuck && !Enemy[i]->flag_web_stuck) {
+            Enemy[i]->flag_web_unstuck=TRUE;
+          }
+      }
+
+
+
+      for (slash_time_i=0;slash_time_i<slash_time;slash_time_i++) {
           if (Enemy[i]->species==1) {
             int tmp_on_ground_id2=GetOnGroundId(Enemy[i]->x,Enemy[i]->y,33,32);//GetOnGroundId(Enemy[i]->x,Enemy[i]->y,30,29);
             //Enemy[enemy_id]->on_ground_id=GetOnGroundId(Enemy[enemy_id]->x,Enemy[enemy_id]->y,31,30);    //Get 
@@ -1128,12 +1194,9 @@ void EnemyAct(int i)
              if (tmp_on_ground_id2!=-1) {
                EnemyReboundFromGround(i,tmp_on_ground_id2,FALSE);
              } 
-             if (Enemy[i]->on_ground_id==-1) {
-               Enemy[i]->in_air_timer=2;
-               Enemy[i]->above_ground=FALSE;
-               Enemy[i]->below_ground=FALSE;
-             }
-           }
+          }
+
+
 
           if (Enemy[i]->on_ground_id==-1) {
             Enemy[i]->is_in_ground_edge=FALSE;
@@ -1408,6 +1471,7 @@ void SetEnemyByType(int i,int type)
     Enemy[i]->chase_range=0;
   }
   Enemy[i]->color=rgbPaint[saved_enemy_type_color[type]];
+  Enemy[i]->ospeed=saved_enemy_type_speed[type];
   Enemy[i]->speed=saved_enemy_type_speed[type];
   Enemy[i]->ospeed_multiplier=saved_enemy_type_speed_multiplier[type];
   Enemy[i]->speed_multiplier=saved_enemy_type_speed_multiplier[type];
@@ -1487,14 +1551,17 @@ void InitEnemySprites()
     Enemy[i]->rotated_sprite_id=saved_enemy_type_rot_sprite_id[Enemy[i]->type];
     //printf("Enemy[i]->rotated_sprite_id:%d\n",Enemy[i]->rotated_sprite_id);
   }
+}
 
+
+void InitEnemySpritesObj()
+{
   EnemyRotatedSprite = calloc(LARGE_ENEMY_TYPE_NUM,sizeof(AEnemyRotatedSprite*));
 
   for (int i=0;i<LARGE_ENEMY_TYPE_NUM;i++) {
     AEnemyRotatedSprite *newERotSprite = createEnemyRotatedSprite();
     EnemyRotatedSprite[i] = newERotSprite;
   }
-
 
 
   for (int i=0;i<ENEMY_TYPE_NUM;i++) {
@@ -1515,6 +1582,7 @@ void InitEnemySprites()
     }
     GenerateDrawSprite(&EnemyTypeSprite[i].draw_fly_sprite_1,EnemyTypeSprite[i].fly_sprite_1);
     GenerateDrawSprite(&EnemyTypeSprite[i].draw_fly_sprite_2,EnemyTypeSprite[i].fly_sprite_2);
+    loading_numerator++;
   }
 
   for (int i=0;i<LARGE_ENEMY_TYPE_NUM;i++) {
@@ -1525,6 +1593,7 @@ void InitEnemySprites()
       GenerateDrawSprite(&EnemyRotatedSprite[i]->draw_rotated_sprite1[j],EnemyRotatedSprite[i]->rotated_sprite1[j]);
       GenerateDrawSprite(&EnemyRotatedSprite[i]->draw_rotated_sprite2[j],EnemyRotatedSprite[i]->rotated_sprite2[j]);
       angle_rn-=M_PI_32;
+      loading_numerator++;
     }
   }
   //rotated rotate sprite done while in game, 
@@ -1586,6 +1655,10 @@ void InitEnemy()
     Enemy[i]->shoot_target_y=0;
     Enemy[i]->in_node_grid_id=FALSE;
     Enemy[i]->in_water=FALSE;
+    Enemy[i]->web_stuck=FALSE;
+    Enemy[i]->flag_web_unstuck=FALSE;
+    Enemy[i]->flag_web_stuck=FALSE;
+
   //LOS
     Enemy[i]->LOS_left=FALSE;
     Enemy[i]->LOS_shot=FALSE;

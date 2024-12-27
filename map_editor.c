@@ -2,6 +2,11 @@
 //Map Editor global variables -- in struct now :)
 struct MapEditor
 {
+  int rd_min_x;
+  int rd_max_x;
+  int rd_min_y;
+  int rd_max_y;
+
   int cursor_x;
   int cursor_y;
 
@@ -348,50 +353,48 @@ void SetMENodeGridAttributes(int i)
 
 void InitMERDGrid()
 {
-  int i=0,j=0,k=0,on_grid_id=0,column=0,row=0,
-      start_x=0,start_y=0;
+  int i=0,j=0,k=0,gid=0,column=0,row=0,x=0,y=0,_x=0,_y=0,
+    cx2=player.cam_move_x,
+    cy2=player.cam_move_y;
 
-  /*for (i=0;i<rendered_grid_num;i++) {
-    VGrid[render_grids[i]]->within_render_distance=FALSE; //all rendered-grids are no-longer within render distance
-    render_grids[i]=-1;  //unrender all rendered grids
-  }*/
   for (i=0;i<rendered_ground_num;i++) {
     Ground[render_grounds[i]]->within_render_distance=FALSE; //All rendered-grounds are no-longer within render distance
     render_grounds[i]=-1; //unrender all rendered grounds
   }
 
+
   rendered_ground_num=0;
-  //rendered_grid_num=0;
 
   //Begin rendering
-  start_x=player.cam_move_x-RENDER_WIDTH_MAX/2;//(RENDER_DIST/2*VGRID_SIZE); //Top left corner of render distance grids to bottom right corner
-  start_y=player.cam_move_y-RENDER_HEIGHT_MAX/2;//(RENDER_DIST/2*VGRID_SIZE);
   //"What happens when you lose everything? You just start again. Start all over again" - Maximo Park
-  for (i=0;i<RDGRID_NUM;i++) { //all render distance grids from top-left to bottom-right
-    RDGrid[i].x=start_x+column*VGRID_SIZE;
-    RDGrid[i].y=start_y+row*VGRID_SIZE;
-    if (0<RDGrid[i].x && RDGrid[i].x<MAP_WIDTH && //render distance grid is within range
-        0<RDGrid[i].y && RDGrid[i].y<MAP_HEIGHT) {
+  for (i=0;i<RDGRID_DYN_NUM;i++) { //all render distance grids from top-left to bottom-right
+    _x=RDGrid[i].x+cx2-GR_WIDTH/2;
+    _y=RDGrid[i].y+cy2-GR_HEIGHT/2;
 
-      //vgrid
-      on_grid_id=GetGridId(RDGrid[i].x,RDGrid[i].y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);//get grid id based on renderdistance grid axes
-      //VGrid[on_grid_id]->within_render_distance=TRUE; //append grid to render_grids array
-      //render_grids[rendered_grid_num]=on_grid_id;//cannot be i (what if out of bounds)
-      //rendered_grid_num++; //count amount of grids rendered
+    if (i==0) {
+      MapEditor.rd_min_x=_x;
+      MapEditor.rd_min_y=_y;
+    } else if (i==RDGRID_DYN_NUM-1) {
+      MapEditor.rd_max_x=_x;
+      MapEditor.rd_max_y=_y;
+    }
+    gid=GetGridId(_x,_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
+    if (gid!=-1 && _y>0 && _x>0 && _x<MAP_WIDTH && _y<MAP_HEIGHT) {
+      x=GR_WIDTH/2+VGrid[gid]->x1-cx2;
+      y=GR_HEIGHT/2+VGrid[gid]->y1-cy2;
 
       //grounds
-      for (j=0;j<VGrid[on_grid_id]->max_ground_num;j++) { //fetch all grounds that are occupying the grid
-	    k=VGrid[on_grid_id]->ground_ids[j]; //ground_id in grid
+      for (j=0;j<VGrid[gid]->max_ground_num;j++) { //fetch all grounds that are occupying the grid
+	    k=VGrid[gid]->ground_ids[j]; //ground_id in grid
  	    if (!Ground[k]->within_render_distance) { //ground is now within render distance
 	      Ground[k]->within_render_distance=TRUE;
           render_grounds[rendered_ground_num]=k; //append ground to render_grounds array
 	      rendered_ground_num++; //count number of rendered grounds
 	    } 
       }
-
     }
     column++; //Next column
-    if (column>=RENDER_WIDTH_MAX/*RENDER_DIST*/) { //if the column is beyond the render distance
+    if (column>=RD_DYN_WIDTH) { //if the column is beyond the render distance
       row++; //move to the next row
       column=0; //go back to first column
     }
@@ -402,12 +405,12 @@ void InitMERDGrid()
 bool YesInitMERDGrid()
 {
   if (GRID_SIZE*2<player.cam_move_x && player.cam_move_x<MAP_WIDTH-GRID_SIZE*2) {
-    if (player.cam_move_x<RDGrid[0].x+GRID_SIZE*2 || player.cam_move_x>RDGrid[/*RENDER_DIST*/RENDER_WIDTH_MAX-1].x-GRID_SIZE*2) {
+    if (player.cam_move_x<MapEditor.rd_min_x+GRID_SIZE*2 || player.cam_move_x>MapEditor.rd_max_x-GRID_SIZE*2) {
       return TRUE;
     }
   }
   if (GRID_SIZE*2<player.cam_move_y && player.cam_move_y<MAP_HEIGHT-GRID_SIZE*2) {
-    if (player.cam_move_y<RDGrid[0].y+GRID_SIZE*2 || player.cam_move_y>RDGrid[RDGRID_NUM-1].y-GRID_SIZE*2) {
+    if (player.cam_move_y<MapEditor.rd_min_y+GRID_SIZE*2 || player.cam_move_y>MapEditor.rd_max_y-GRID_SIZE*2) {
       return TRUE;
     }
   }
@@ -419,6 +422,7 @@ void InitMENodeGridAttributes()
 {
   for (int i=0;i<GROUND_NUM;i++) {
     SetMENodeGridAttributes(i);
+    loading_numerator++;
   }
 }
 
@@ -523,6 +527,7 @@ void InitMapEditorEnemy()
     MEEnemy[i]->x=saved_enemy_x[i];
     MEEnemy[i]->y=saved_enemy_y[i];
     MEEnemy[i]->type=saved_enemy_type[i];
+    loading_numerator++;
   }
 
 
@@ -563,6 +568,7 @@ void InitMapEditorEnemy()
     } else {
       MEEnemySprite[i]->sprite_1=RotateSprite(NULL, enemy2_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[i]],-1);
     }
+    loading_numerator++;
     GenerateDrawSprite(&MEEnemySprite[i]->draw_sprite_1,MEEnemySprite[i]->sprite_1);
   }
 }
@@ -589,7 +595,7 @@ void InitMapEditorPlayer()
 
 
 
-void InitMapEditor(HDC hdc)
+void InitMapEditor()
 {
   rendered_ground_num=0;
 
@@ -660,7 +666,7 @@ void InitMapEditor(HDC hdc)
   MEEnemySprite = calloc(ENEMY_TYPE_NUM,sizeof(AMEEnemySprite*));
 
   for (int i=0;i<GROUND_NUM;i++) {
-    AGround *newGround = createGround(VGRID_NUM);
+    AGround *newGround = createGround();
     Ground[i] = newGround;//malloc(sizeof(struct GroundLine));
   }
     
@@ -683,7 +689,7 @@ void InitMapEditor(HDC hdc)
 
 
   //Init
-  InitGrid(FALSE,FALSE);
+  InitGrid();
   InitGround(FALSE);
   InitMENodeGridAttributes();
   InitMapEditorEnemy();
@@ -706,11 +712,25 @@ void InitMapEditor(HDC hdc)
 
 
 
-void InitLevelMapEditor(HWND hwnd, HDC hdc)
+void InitLevelMapEditor()
 {
   wchar_t txt[128];
+  loading_numerator=0;
+  loading_denominator=0;
   swprintf(txt,128,L"saves/%s/level.txt",level_names[level_chosen]);
+  level_loading=TRUE;
+  InitMarbles(256);
   LoadSave(txt,FALSE); //load saves
+
+  wcsncpy(typing_lvl_name,level_names[level_chosen],16);
+  typing_lvl_name_pos=lstrlenW(typing_lvl_name);
+  set_ground_amount=GROUND_NUM;
+  set_enemy_amount=ENEMY_NUM;
+  set_map_width_amount=MAP_WIDTH;
+  set_map_height_amount=MAP_HEIGHT;
+  loading_denominator=GROUND_NUM+ENEMY_NUM+ENEMY_TYPE_NUM;
+
+
   srand(time(NULL));
   timeBeginPeriod(1);
   in_map_editor=TRUE;
@@ -718,8 +738,7 @@ void InitLevelMapEditor(HWND hwnd, HDC hdc)
 
 
 
-
-  InitMapEditor(hdc);
+  InitMapEditor();
 
   //Load Player Cosmetics
   DeleteObject(player.sprite_1);
@@ -735,6 +754,11 @@ void InitLevelMapEditor(HWND hwnd, HDC hdc)
 
   main_menu_chosen=4;
   level_loaded=TRUE;
+  level_loading=FALSE;
+
+
+  //Unforeground and unfullscreen!!
+  flag_hide_taskbar=TRUE;
 
   OLD_GR_WIDTH=0;
   OLD_GR_HEIGHT=0;
@@ -804,8 +828,10 @@ void MapEditorAct()
   player.cam_move_y=-player.cam_y;
 
   if (level_loaded) {
-    if (YesInitMERDGrid())
+    if (YesInitMERDGrid()) {
+      InitRDGrid();
       InitMERDGrid();
+    }
 
 
     Click();

@@ -378,7 +378,7 @@ void DrawPersianClock(HDC hdc)
 
   //x=GR_WIDTH-8*18
   //y=8*23
-  DrawCrosses(hdc,GR_WIDTH-8*18,8*23);
+  //DrawCrosses(hdc,GR_WIDTH-8*18,8*23);
 
   /*char C[1];
   sprintf(C,"%c",134);
@@ -396,7 +396,6 @@ void DrawTitle(HDC hdc)
 {
   int title_x=GR_WIDTH/2-352/2+4;
   int title_y=-32;
-
   int title_x2=GR_WIDTH-352*3/5-24;
   int title_y2=-48;
   if (GR_HEIGHT>=600) {
@@ -404,7 +403,6 @@ void DrawTitle(HDC hdc)
   } else {
     title_y=-48;
   }
-
   if (main_menu_chosen==-1) {
       DrawBitmap(hdc,title_x,
                      title_y,
@@ -1369,7 +1367,7 @@ void DrawUI(HDC hdc)
   int c10=LTRED;//Highlight(IsInvertedBackground(),LTRED,LTCYAN);
 
 
-  int player_bullet_remaining=player.max_web_num-player.placed_web_num;
+  int player_web_remaining=player.max_web_num-player.placed_web_num;
 
   //EXP Bar
   if (player.show_exp_timer>0) {
@@ -1380,11 +1378,11 @@ void DrawUI(HDC hdc)
 
     /*if (is_khmer) {
       wchar_t wbullettxt[4];
-      swprintf(wbullettxt,4,L"%d",player_bullet_remaining);
+      swprintf(wbullettxt,4,L"%d",player_web_remaining);
       GrPrintW(hdc,player.sprite_x+58,player.sprite_y+16,ReplaceToKhmerNum(wbullettxt),"",c,16,FALSE,yes_unifont);
     } else {
       char bullettxt[4];
-      sprintf(bullettxt,"%d",player_bullet_remaining);
+      sprintf(bullettxt,"%d",player_web_remaining);
       GrPrint(hdc,player.sprite_x+58,player.sprite_y+16,bullettxt,c);
     }*/
   }
@@ -1409,32 +1407,43 @@ void DrawUI(HDC hdc)
   }
 
   //Print Bullets Remaining
-  wchar_t bulletlefttxt[7]; //[200]/3
+  wchar_t bulletlefttxt[32]; //[200]/3
+  wchar_t bulletlefttxt2[32]; //[200]/3
   int bullet_minus=0;
-  switch (player.knives_per_throw) {
+ /* switch (player.knives_per_throw) {
     case 1:
     case 3:
-      {swprintf(bulletlefttxt,7,L"%d",player_bullet_remaining);}
+      {swprintf(bulletlefttxt,7,L"[%d] %d/0",player.player_web_remaining);}
       break;
     case 5:
-      {swprintf(bulletlefttxt,7,L"%d/1",player_bullet_remaining);bullet_minus=1;}
+      {swprintf(bulletlefttxt,7,L"[%d] %d/1",player_web_remaining);bullet_minus=1;}
       break;
     case 15:
-      {swprintf(bulletlefttxt,7,L"%d/3",player_bullet_remaining);bullet_minus=3;}
+      {swprintf(bulletlefttxt,7,L"[%d] %d/3",player_web_remaining);bullet_minus=3;}
       break;
+  }*/
+  if (player.knives_per_throw>3) {
+    bullet_minus=player.knives_per_throw/5;
   }
+  swprintf(bulletlefttxt,32,L"%d/%d",player.bullet_num,bullet_minus);
+  swprintf(bulletlefttxt2,32,L"%d/%d [%d]",player.bullet_num,bullet_minus,player_web_remaining);
   //GrPrint(hdc,knifethrowsx-32-8,knifethrowsy-4,bulletlefttxt,c);
-  int bc=Highlight(player_bullet_remaining<bullet_minus,c,LTRED);
+  int bc=Highlight(player.bullet_num<bullet_minus,c,LTRED);
+  int bc2=Highlight(player_web_remaining==0,c,LTRED);
   if (is_khmer) {
+    GrPrintW(hdc,knifethrowstxtx-32-30-8,knifethrowstxty-4,ReplaceToKhmerNum(bulletlefttxt2),"",bc2,16,FALSE,yes_unifont);
     GrPrintW(hdc,knifethrowstxtx-32-30-8,knifethrowstxty-4,ReplaceToKhmerNum(bulletlefttxt),"",bc,16,FALSE,yes_unifont);
   } else {
+    GrPrintW(hdc,knifethrowstxtx-32-8,knifethrowstxty-4,bulletlefttxt2,"",bc2,16,FALSE,FALSE);
     GrPrintW(hdc,knifethrowstxtx-32-8,knifethrowstxty-4,bulletlefttxt,"",bc,16,FALSE,FALSE);
   }
 
   if (player.show_exp_timer>0) {
     if (is_khmer) {
+      GrPrintW(hdc,player.sprite_x+58,player.sprite_y+16,ReplaceToKhmerNum(bulletlefttxt2),"",bc2,16,FALSE,yes_unifont);
       GrPrintW(hdc,player.sprite_x+58,player.sprite_y+16,ReplaceToKhmerNum(bulletlefttxt),"",bc,16,FALSE,yes_unifont);
     } else {
+      GrPrintW(hdc,player.sprite_x+58,player.sprite_y+16,bulletlefttxt2,"",bc2,16,FALSE,FALSE);
       GrPrintW(hdc,player.sprite_x+58,player.sprite_y+16,bulletlefttxt,"",bc,16,FALSE,FALSE);
     }
   }
@@ -1573,8 +1582,11 @@ void InitMarbles(int max_marbles)
 
 void DrawLoading(HDC hDC,int max_marbles)
 {
-  GrRect(hDC,0,0,GR_WIDTH+2,GR_HEIGHT+2,DKRDKGRAY);
+  //GrRect(hDC,0,0,GR_WIDTH+2,GR_HEIGHT+2,DKRDKGRAY);
   //printf("x:%5.4f\n",marble[0].x);
+  int title_x0=GR_WIDTH/2-352/2+4;
+  //int title_y=-32;
+  if (title_x0>0) {
   for (int i=0;i<max_marbles;i++) {
     marble[i].x+=cos(marble[i].angle)*10;
     marble[i].y+=sin(marble[i].angle)*10;
@@ -1609,11 +1621,39 @@ void DrawLoading(HDC hDC,int max_marbles)
     }
     GrCircle(hDC,marble[i].x,marble[i].y,5,rgbPaint[i],rgbPaint[i]);
   }
+
+  /*DrawBitmap(hDC,title_x0,
+                 title_y,
+                 0,
+                 0,
+                 352,
+                 256,
+                title_sprite_mask,SRCAND,FALSE,FALSE);
+  //Draw platforms paint
+  DrawBitmap(hDC,title_x0,
+                 title_y,
+                 0,
+                 0,
+                 352,
+                 256,
+                title_sprite,SRCPAINT,FALSE,FALSE);*/
+    }
     //DrawTitle(hDC);
     //GrCircle(hDC,mouse_x,mouse_y,(set_fragment%10)*2,LTPURPLE,-1);
     /*DrawSprite(hDC,mouse_x-2,mouse_y-2,&draw_player_cursor_body[0],FALSE); //left ete open
     DrawSprite(hDC,mouse_x-2,mouse_y-2,&draw_player_cursor_iris[0],FALSE);
     DrawSprite(hDC,mouse_x-2,mouse_y-2,&draw_player_cursor_pupil[0],FALSE);*/
+
+  int extra_y=0;
+  if (!hide_taskbar) {
+    extra_y=32;
+  }
+  GrRect(hDC,32,GR_HEIGHT-48-extra_y,GR_WIDTH-64,8*3,WHITE);
+  if (loading_denominator>0) {
+    loading_percentage=loading_numerator/loading_denominator;
+    //printf("Loading: %%%3.2f\r",loading_percentage);
+    GrRect(hDC,34,GR_HEIGHT-46-extra_y,((double)(GR_WIDTH-34-34))*loading_percentage,6*3+1,GREEN);
+  }
 }
 
 

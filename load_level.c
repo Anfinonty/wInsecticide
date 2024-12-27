@@ -64,7 +64,6 @@ void InitOnce() {
 
 
 void Init() {
-  time_begin=current_timestamp();
 
   //Load Best Score
   //Folder & file creation
@@ -143,6 +142,7 @@ void Init() {
   } else {
     PlaySound(NULL, NULL, SND_ASYNC);
   }
+  time_begin=current_timestamp();
 }
 
 
@@ -245,23 +245,20 @@ void Init() {
 
 
 
-void InitLevel(HWND hwnd, HDC hdc,int refresh)
+void InitLevel()
 {
   wchar_t txt[128];
-  if (refresh==0) {
-    swprintf(txt,128,L"saves/%s/level.txt",level_names[level_chosen]);
-    swprintf(save_level,128,L"saves/%s/scores.txt",level_names[level_chosen]);
-    LoadSave(txt,TRUE);
-  } else {
-    if (refresh==1) {
-      swprintf(txt,128,L"saves/__004__/level.txt");
-      swprintf(save_level,128,L"saves/__004__/scores.txt");
-    } else if (refresh==2) {
-      swprintf(txt,128,L"saves/__006__/level.txt");
-      swprintf(save_level,128,L"saves/__006__/scores.txt");
-    }
-    LoadSave(txt,TRUE);
-  }
+  level_loading=TRUE;
+  InitMarbles(256);
+  loading_numerator=0;
+  loading_denominator=0;
+
+  swprintf(txt,128,L"saves/%s/level.txt",level_names[level_chosen]);
+  swprintf(save_level,128,L"saves/%s/scores.txt",level_names[level_chosen]);
+  LoadSave(txt,TRUE);
+  OLD_GR_WIDTH=0;
+  OLD_GR_HEIGHT=0;
+  
 
   srand(time(NULL));
   timeBeginPeriod(1);
@@ -349,12 +346,18 @@ void InitLevel(HWND hwnd, HDC hdc,int refresh)
   GenerateDrawSprite(&player.draw_spin_blur_sprite_4,player.spin_blur_sprite_4_cache);
 
   //Load Enemy cache spritesF
+  InitGridTiles();
   InitEnemySprites();
-  InitGridTiles(refresh);
-
+  loading_denominator=SHADOW_GRID_NUM+PLATFORM_GRID_NUM+FOREGROUND_GRID_NUM+ENEMY_TYPE_NUM+LARGE_ENEMY_TYPE_NUM*ROTATED_SPRITE_NUM;
+  InitGridTilesObj();
+  InitEnemySpritesObj();
   //allocate smallest to biggest
   level_loaded=TRUE;
+  level_loading=FALSE;
   in_main_menu=FALSE;
+  time_begin=current_timestamp();
+  OLD_GR_WIDTH=0;
+  OLD_GR_HEIGHT=0;
 }
 
 

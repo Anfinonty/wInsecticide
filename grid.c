@@ -44,29 +44,19 @@ void UnSetGridLineArray(int grid_id,int ground_id)
 
 
 
-void InitGridTiles(int refresh)
+void InitGridTiles()
 {
   bool yes_shadow=FALSE;
   wchar_t seg_name[72];
   if (is_shadows && game_shadow) {
     yes_shadow=TRUE;
   }
-
-  HBITMAP tmp_bitmap,tmp_bitmap_cache;
   FOREGROUND_GRID_NUM=0;
   PLATFORM_GRID_NUM=0;
   SHADOW_GRID_NUM=0;
 
   for (int i=0;i<VGRID_NUM;i++) {
-      if (refresh==0) {
-        swprintf(seg_name,72,L"saves/%s/seg_platforms/%d.bmp",level_names[level_chosen],i);
-      } else {
-        if (refresh==1) {
-          swprintf(seg_name,72,L"saves/__004__/seg_platforms/%d.bmp",i);
-        } else if (refresh==2) {
-          swprintf(seg_name,72,L"saves/__006__/seg_platforms/%d.bmp",i);
-        }
-      }
+      swprintf(seg_name,72,L"saves/%s/seg_platforms/%d.bmp",level_names[level_chosen],i);
 
       if (FileExists(seg_name)) {
         VGrid[i]->draw_platform_seg_id=PLATFORM_GRID_NUM;
@@ -76,15 +66,7 @@ void InitGridTiles(int refresh)
       }
 
 
-      if(refresh==0) {
-        swprintf(seg_name,72,L"saves/%s/seg_foreground/%d.bmp",level_names[level_chosen],i);
-      } else {
-        if (refresh==1) {
-          swprintf(seg_name,72,L"saves/__004__/seg_foreground/%d.bmp",i);
-        } else if (refresh==2) {
-          swprintf(seg_name,72,L"saves/__006__/seg_foreground/%d.bmp",i);
-        }
-      }
+      swprintf(seg_name,72,L"saves/%s/seg_foreground/%d.bmp",level_names[level_chosen],i);
       if (FileExists(seg_name)) {
         VGrid[i]->draw_foreground_seg_id=FOREGROUND_GRID_NUM;
         FOREGROUND_GRID_NUM++;
@@ -94,15 +76,7 @@ void InitGridTiles(int refresh)
 
 
     if (yes_shadow) {
-      if (refresh==0) {
-        swprintf(seg_name,72,L"saves/%s/seg_shadow/%d.bmp",level_names[level_chosen],i);
-      } else {
-        if (refresh==1) {
-          swprintf(seg_name,72,L"saves/__004__/seg_shadow/%d.bmp",i);
-        } else if (refresh==2) {
-          swprintf(seg_name,72,L"saves/__006__/seg_shadow/%d.bmp",i);
-        }
-      }
+      swprintf(seg_name,72,L"saves/%s/seg_shadow/%d.bmp",level_names[level_chosen],i);
       if (FileExists(seg_name)) {
         VGrid[i]->has_shadow=TRUE;
         VGrid[i]->draw_shadow_seg_id=SHADOW_GRID_NUM;
@@ -112,8 +86,19 @@ void InitGridTiles(int refresh)
       }
     }    
   }
+}
 
 
+
+
+void InitGridTilesObj() 
+{
+  bool yes_shadow=FALSE;
+  wchar_t seg_name[72];
+  if (is_shadows && game_shadow) {
+    yes_shadow=TRUE;
+  }
+  HBITMAP tmp_bitmap,tmp_bitmap_cache;
 
     TileMapPlatform = calloc(PLATFORM_GRID_NUM,sizeof(ATileMap*));
     for (int i=0;i<PLATFORM_GRID_NUM;i++) {
@@ -126,15 +111,7 @@ void InitGridTiles(int refresh)
       if (VGrid[i]->draw_platform_seg_id!=-1) {
         tmp_id=VGrid[i]->draw_platform_seg_id;
         if (tmp_id!=-1) { //0, 1, 2 , ...
-          if (refresh==0) {
-            swprintf(seg_name,72,L"saves/%s/seg_platforms/%d.bmp",level_names[level_chosen],i);
-          } else {
-            if (refresh==1) {
-              swprintf(seg_name,72,L"saves/__004__/seg_platforms/%d.bmp",i);
-            } else if (refresh==2) {
-              swprintf(seg_name,72,L"saves/__006__/seg_platforms/%d.bmp",i);
-            }
-          }
+          swprintf(seg_name,72,L"saves/%s/seg_platforms/%d.bmp",level_names[level_chosen],i);
           TileMapPlatform[tmp_id]->x=VGrid[i]->x1+VGRID_SIZE/2;
           TileMapPlatform[tmp_id]->y=VGrid[i]->y1+VGRID_SIZE/2;
           //TileMapPlatform[tmp_id]->sprite_paint=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
@@ -142,6 +119,7 @@ void InitGridTiles(int refresh)
           tmp_bitmap=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
           tmp_bitmap_cache=RotateSprite(NULL, tmp_bitmap,0,MYCOLOR1,BLACK,BLACK,-1);
           GenerateDrawSprite(&TileMapPlatform[tmp_id]->draw_tile,tmp_bitmap_cache);
+          loading_numerator++;
           DeleteObject(tmp_bitmap);
           DeleteObject(tmp_bitmap_cache);
         }
@@ -160,15 +138,7 @@ void InitGridTiles(int refresh)
       if (VGrid[i]->draw_foreground_seg_id!=-1) {
         tmf_id=VGrid[i]->draw_foreground_seg_id;
         if (tmf_id!=-1) { //0, 1, 2 , ...
-          if (refresh==0) {
-            swprintf(seg_name,72,L"saves/%s/seg_foreground/%d.bmp",level_names[level_chosen],i);
-          } else {
-            if (refresh==1) {
-              swprintf(seg_name,72,L"saves/__004__/seg_foreground/%d.bmp",i);
-            } else if (refresh==2) {
-              swprintf(seg_name,72,L"saves/__006__/seg_foreground/%d.bmp",i);
-            }
-          }
+          swprintf(seg_name,72,L"saves/%s/seg_foreground/%d.bmp",level_names[level_chosen],i);
           TileMapForeground[tmf_id]->x=VGrid[i]->x1+VGRID_SIZE/2;
           TileMapForeground[tmf_id]->y=VGrid[i]->y1+VGRID_SIZE/2;
           //TileMapForeground[tmf_id]->sprite_paint=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
@@ -176,6 +146,7 @@ void InitGridTiles(int refresh)
           tmp_bitmap=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
           tmp_bitmap_cache=RotateSprite(NULL, tmp_bitmap,0,MYCOLOR1,BLACK,BLACK,-1);
           GenerateDrawSprite(&TileMapForeground[tmf_id]->draw_tile,tmp_bitmap_cache);
+          loading_numerator++;
           DeleteObject(tmp_bitmap);
           DeleteObject(tmp_bitmap_cache);
         }
@@ -203,6 +174,7 @@ void InitGridTiles(int refresh)
           TileMapShadow[tms_id]->y=VGrid[i]->y1;
           tmp_bitmap=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
           TileMapShadow[tms_id]->sprite_paint=RotateSprite(NULL, tmp_bitmap,0,MYCOLOR1,BLACK,BLACK,-1); //does nothing other than crunch it to 8bit xd
+          loading_numerator++;
           DeleteObject(tmp_bitmap);
         }
       }
@@ -252,7 +224,7 @@ void InitRDGrid()
   start_x=0;//GR_WIDTH/2+player.cam_move_x-player.cam_mouse_move_x-(RENDER_DIST/2*VGRID_SIZE); //Top left corner of render distance grids to bottom right corner
   start_y=0;//GR_HEIGHT/2+player.cam_move_y-player.cam_mouse_move_y-(RENDER_DIST/2*VGRID_SIZE);
 
-  RD_DYN_WIDTH=GR_WIDTH/VGRID_SIZE+1;
+  RD_DYN_WIDTH=GR_WIDTH/VGRID_SIZE+2;
   RD_DYN_HEIGHT=GR_HEIGHT/VGRID_SIZE+2;
   if (RD_DYN_WIDTH>RENDER_WIDTH_MAX) {
     RD_DYN_WIDTH=RENDER_WIDTH_MAX;
@@ -564,14 +536,14 @@ void TriFillGridType(int gid, int part)
       int largest_y=stickyTo(largest,NODE_SIZE);
 
       int x1,x2;
-      for (y=smallest_y;y<middle_y;y+=NODE_SIZE) {//small to middle
+      for (y=smallest_y;y<middle_y;y+=1/*NODE_SIZE*/) {//small to middle
         x_1=GetX(y,gradient_middle1,c_middle1);
         x_2=GetX(y,gradient_largest,c_largest);
-        x_1=stickyTo(x_1,NODE_SIZE);
-        x_2=stickyTo(x_2,NODE_SIZE);
+        //x_1=stickyTo(x_1,NODE_SIZE);
+        //x_2=stickyTo(x_2,NODE_SIZE);
         x1=min(x_1,x_2);
         x2=max(x_1,x_2);
-        for (x=x1;x<x2;x+=NODE_SIZE) {
+        for (x=x1;x<x2;x+=1/*NODE_SIZE*/) {
           k=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
           if (k!=-1) {
             if (part==0) {
@@ -596,14 +568,14 @@ void TriFillGridType(int gid, int part)
           }
         }
       }
-      for (y=middle_y;y<largest_y;y+=NODE_SIZE) {//middle to largest
+      for (y=middle_y;y<largest_y;y+=1/*NODE_SIZE*/) {//middle to largest
         x_1=GetX(y,gradient_middle2,c_middle2);
         x_2=GetX(y,gradient_largest,c_largest);
-        x_1=stickyTo(x_1,NODE_SIZE);
-        x_2=stickyTo(x_2,NODE_SIZE);
+        //x_1=stickyTo(x_1,NODE_SIZE);
+        //x_2=stickyTo(x_2,NODE_SIZE);
         x1=min(x_1,x_2);
         x2=max(x_1,x_2);
-        for (x=x1;x<x2;x+=NODE_SIZE) {
+        for (x=x1;x<x2;x+=1/*NODE_SIZE*/) {
           k=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
           if (k!=-1) {
             if (part==0) {
@@ -705,6 +677,7 @@ void TriFillNodeGridType(int gid)
       if (k!=-1) {
         if (Ground[gid]->type==1) {
           NodeGrid[k]->node_water=TRUE;
+          NodeGrid[k]->node_no_rain=TRUE;
         } else if (Ground[gid]->type==3) {
           NodeGrid[k]->node_no_rain=TRUE;
         }
@@ -723,6 +696,7 @@ void TriFillNodeGridType(int gid)
       if (k!=-1) {
         if (Ground[gid]->type==1) {
           NodeGrid[k]->node_water=TRUE;
+          NodeGrid[k]->node_no_rain=TRUE;
         } else if (Ground[gid]->type==3) {
           NodeGrid[k]->node_no_rain=TRUE;
         }

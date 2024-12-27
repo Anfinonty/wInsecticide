@@ -202,7 +202,9 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
              GR_HEIGHT=RESOLUTION_Y[resolution_choose];
              flag_resolution_change=TRUE;
              SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,SCREEN_WIDTH,SCREEN_HEIGHT, SWP_FRAMECHANGED);
-             SetForegroundWindow(hwnd); //return back focus
+             if (!hide_taskbar) {
+               SetForegroundWindow(hwnd); //return back focus
+             }
              hide_taskbar=!hide_taskbar;
           }
           break;
@@ -607,7 +609,9 @@ void OptionKeyPressRight(HWND hwnd, int option_choose)
            SetWindowLong(hwnd, GWL_STYLE, lStyle);
            SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose], SWP_FRAMECHANGED);
          }
-         SetForegroundWindow(hwnd); //return back focus
+         if (!hide_taskbar) {
+           SetForegroundWindow(hwnd); //return back focus
+         }
          hide_taskbar=!hide_taskbar;
          break;
 
@@ -1032,8 +1036,12 @@ void ZeroMenuKeypressDown( HWND hwnd,  HDC hdc, WPARAM wParam)
          if (player_color>-1 && player_color<256) {         
            if (game_audio)
              PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
-           if (level_chosen>=0 && level_chosen<level_num && main_menu_chosen==0)
-             InitLevel(hwnd, hdc,FALSE);
+           if (level_chosen>=0 && level_chosen<level_num && main_menu_chosen==0) {
+             flag_load_level=TRUE;
+             //level_loading=TRUE;
+             //Sleep(1000);
+             //InitLevel(hwnd, hdc,FALSE);
+           }
          }
          break;
 
@@ -1064,7 +1072,7 @@ void ZeroMenuKeypressUp( HWND hwnd,  HDC hdc, WPARAM wParam)
       case '2': // Edit Selected Level Limits
         {
         main_menu_chosen=3;
-        /*LOAD selected level details*/
+        /*LOAD selected level details to adjust limits*/
         wchar_t txt[128];
         swprintf(txt,128,L"saves/%s/level.txt",level_names[level_chosen]);
         LoadSave(txt,FALSE); //load saves
@@ -1087,8 +1095,7 @@ void ZeroMenuKeypressUp( HWND hwnd,  HDC hdc, WPARAM wParam)
         main_menu_chosen=4;
         if (game_audio)
           PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
-        InitLevelMapEditor(hwnd, hdc);
-
+        flag_load_melevel=TRUE;
         }
         break;
     }

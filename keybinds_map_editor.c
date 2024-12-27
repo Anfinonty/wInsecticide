@@ -72,7 +72,7 @@ void MapEditorKeypressDown(WPARAM wParam)
               MapEditor.clipboard_enemy_id=MapEditor.selected_enemy_id;
               break;
             case 3: //Enemy Type
-              MapEditor.clipboard_enemy_id=MapEditor.selected_enemy_type_id;
+              MapEditor.clipboard_enemy_type_id=MapEditor.selected_enemy_type_id;
               break;
           }
         }
@@ -116,8 +116,8 @@ void MapEditorKeypressDown(WPARAM wParam)
               break;
             case 3: //Enemy Type
             {
-              int k=MapEditor.selected_enemy_id;
-              int l=MapEditor.clipboard_enemy_id;
+              int k=MapEditor.selected_enemy_type_id;
+              int l=MapEditor.clipboard_enemy_type_id;
               set_enemy_type_speed[k]=set_enemy_type_speed[l];
               set_enemy_type_bullet_speed[k]=set_enemy_type_bullet_speed[l];
               set_enemy_type_species[k]=set_enemy_type_species[l];
@@ -141,6 +141,7 @@ void MapEditorKeypressDown(WPARAM wParam)
               set_enemy_type_time_breaker_rare[k]=set_enemy_type_time_breaker_rare[l];
               set_enemy_type_time_breaker_length[k]=set_enemy_type_time_breaker_length[l];
               set_enemy_type_time_breaker_immune[k]=set_enemy_type_time_breaker_immune[l];
+              UpdateMEDrawSprite();
             }
               break;
           }    
@@ -609,7 +610,7 @@ void MapEditorKeypressUp(WPARAM wParam, HWND hwnd, HDC hdc)
           //printf("Level Saved!\n");
           if (game_audio)
             PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start        
-          SaveMELvl(hwnd, hdc);
+          SaveMELvl(hwnd,hdc);
         }
         player.rst_down=FALSE;
         break;
@@ -683,6 +684,7 @@ void MapEditorKeypressUp(WPARAM wParam, HWND hwnd, HDC hdc)
             if (game_audio)
               PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
             SaveMELvl(hwnd,hdc);
+            //flag_load_melevel=TRUE;
             back_to_menu=TRUE;
           }
         }

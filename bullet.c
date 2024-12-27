@@ -166,6 +166,7 @@ void BulletDamagePlayerAct(int bullet_id)
           //player.speed--;
         } else { //penalty only at low speed
           if (player.time_breaker_units>1) {
+            player.invalid_shoot_timer=9;
             player.time_breaker_units=1;
           }
         }
@@ -428,6 +429,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
 
             if (player.exp>MAX_EXP_NUM) {
               player.exp=0;
+              player.bullet_num++;
               if (player.max_web_num<MAX_WEB_NUM) {
                 player.max_web_num++;
               } else {
