@@ -207,6 +207,9 @@ void SaveLvlBmpSegmentation2(HWND hwnd,HDC hdc)
           SaveBitmapToFile2(tmp_bitmap,rgbColorsDefault, seg_save_seg);
           DeleteDC(hdc2);
           DeleteObject(tmp_bitmap);
+          loading_numerator++;
+          loading_percentage=(loading_numerator+1)/(loading_denominator+1)*100;
+          printf("=== %1.0f%% - [%1.0f/%1.0f]\r",loading_percentage,loading_numerator,loading_denominator);
         }
       }
       DeleteDC(hdc1);
@@ -250,6 +253,9 @@ void SaveLvlBmpSegmentation1(HWND hwnd,HDC hdc)
       SaveBitmapToFile2(tmp_bitmap,rgbColorsDefault, seg_save_seg);
       DeleteDC(hdc2);
       DeleteObject(tmp_bitmap);
+      loading_numerator++;
+      loading_percentage=(loading_numerator+1)/(loading_denominator+1)*100;
+      printf("=== %1.0f%% - [%1.0f/%1.0f]\r",loading_percentage,loading_numerator,loading_denominator);
     }
   }
   DeleteDC(hdc1);
@@ -275,6 +281,9 @@ void SaveLvlBmpSegmentation1(HWND hwnd,HDC hdc)
           SaveBitmapToFile2(tmp_bitmap,rgbColorsDefault, seg_save_seg);
           DeleteDC(hdc2);
           DeleteObject(tmp_bitmap);
+          loading_numerator++;
+          loading_percentage=(loading_numerator+1)/(loading_denominator+1)*100;
+          printf("=== %1.0f%% - [%1.0f/%1.0f]\r",loading_percentage,loading_numerator,loading_denominator);
         }
       }
       DeleteDC(hdc1);
@@ -283,7 +292,7 @@ void SaveLvlBmpSegmentation1(HWND hwnd,HDC hdc)
   EndPaint(hwnd, &ps);
 }
 
-void SaveLvlBmp(HWND hwnd, HDC hdc)
+void SaveLvlBmp(HWND hwnd,HDC hdc)
 {  
   //tri fill all triangles to be segmented
   for (int i=0;i<GROUND_NUM;i++) {
@@ -292,6 +301,38 @@ void SaveLvlBmp(HWND hwnd, HDC hdc)
   for (int i=0;i<GROUND_NUM;i++) {
     TriFillGridType(i,1);
   }
+  //printf("triangles_filled\n");
+
+
+
+    FOREGROUND_GRID_NUM=0;
+    PLATFORM_GRID_NUM=0;
+    SHADOW_GRID_NUM=0;
+    loading_numerator=0;
+    loading_denominator=0;
+
+    for (int i=0;i<VGRID_NUM;i++) {
+      if (VGrid[i]->has_water) {
+        FOREGROUND_GRID_NUM++;
+      }
+    }
+
+    for (int i=0;i<VGRID_NUM;i++) {
+      if (VGrid[i]->max_ground_num>0 && (!VGrid[i]->has_water || VGrid[i]->not_just_water)) {
+        PLATFORM_GRID_NUM++;
+      }
+    }
+
+    for (int i=0;i<VGRID_NUM;i++) {
+      if (VGrid[i]->has_shadow) {
+        SHADOW_GRID_NUM++;
+      }
+    }
+
+    loading_denominator=PLATFORM_GRID_NUM+FOREGROUND_GRID_NUM+SHADOW_GRID_NUM;
+
+
+
 
   wchar_t bmp_save[64];
   swprintf(bmp_save,64,L"saves/%s/map.bmp",level_names[level_chosen]);
@@ -356,8 +397,9 @@ void SaveLvlBmp(HWND hwnd, HDC hdc)
   //DeleteObject(map_water_platforms_sprite);
 }
 
-void SaveMELvl(HWND hwnd, HDC hdc)
+void SaveMELvl(HWND hwnd,HDC hdc)
 {
+    
     FILE *fptr;
     wchar_t create_lvl_name[64];
     swprintf(create_lvl_name,64,L"saves/%s/level.txt",level_names[level_chosen]);
@@ -621,7 +663,12 @@ void SaveMELvl(HWND hwnd, HDC hdc)
 
     fclose(fptr);
 
-    SaveLvlBmp(hwnd,hdc);
+   printf("\n=== Saving Map Id: %d ===\n\n",level_chosen);
+
+   SaveLvlBmp(hwnd,hdc);
+   level_loading=FALSE;
+   printf("\n\n=== Save Complete ===\n",level_chosen);
+
 }
 
 

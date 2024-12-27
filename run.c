@@ -75,6 +75,8 @@ bool flag_restart=FALSE;
 bool flag_restart_audio=FALSE;
 bool flag_adjust_audio=FALSE;
 bool flag_adjust_wav_out_audio=FALSE;
+bool flag_load_level=FALSE;
+bool flag_load_melevel=FALSE;
 bool load_sound=FALSE;
 bool back_to_menu=FALSE;
 bool clean_up_sound=FALSE;
@@ -83,6 +85,7 @@ bool run_once_only=FALSE;
 bool flag_update_background=FALSE;
 bool flag_resolution_change=FALSE;
 bool flag_fullscreen=FALSE;
+bool flag_hide_taskbar=FALSE;
 
 //game options
 bool yes_unifont=TRUE;//FALSE;
@@ -96,6 +99,7 @@ bool has_water=FALSE;
 bool hide_taskbar=TRUE;
 bool in_main_menu=TRUE;
 bool level_loaded=FALSE;
+bool level_loading=FALSE;
 bool game_over=FALSE;
 bool show_fps=FALSE;
 bool in_map_editor=FALSE;
@@ -122,7 +126,6 @@ int create_lvl_option_choose=0;
 
 
 //Game System Values
-//int set_fragment=0;
 
 int windowx=0;
 int windowy=0;
@@ -142,7 +145,9 @@ int resolution_choose=0; //640,480, 800,600, SCREEN_WIDTH,SCREEN_HEIGHT
 
 int call_help_timer=0;
 
-
+double loading_numerator=0;
+double loading_denominator=1;
+double loading_percentage=0;
 
 bool lvl_has_song=FALSE;
 wchar_t src_music_dir[64];
@@ -222,7 +227,7 @@ bool is_khmer=TRUE;
 
 
 #define RAIN_NUM    50
-#define SHOOT_BULLET_NUM    25000// More bullets, otherwise memleak, idk why haha 2024-12-21 //5000
+#define SHOOT_BULLET_NUM    25000//100000// More bullets, otherwise memleak, idk why haha 2024-12-21 //5000
 #define BULLET_NUM	SHOOT_BULLET_NUM+RAIN_NUM
 
 #define ENEMY_BULLET_NUM            1000
@@ -234,8 +239,11 @@ bool is_khmer=TRUE;
 #define MAX_MAP_NODE_NUM (640*20)/NODE_SIZE * (480*20)/NODE_SIZE //MAX_WIDTH/NODE_SIZE * MAX_HEIGHT/NODE_SIZE
 #define MAX_VGRID_NUM   4800 //(640/160)*20 * (480/160)*20
 //#define MAX_GRID_NUM    4800
-#define MAX_GROUND_NUM  2000
-#define MAX_ENEMY_NUM   200//50
+#define MAX_GROUND_NUM  2000//10000
+#define MAX_ENEMY_NUM   200
+//500 works but interferes with max bullet num
+//200
+//50
 
 
 
@@ -391,47 +399,6 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
           }
         }
         Sleep(player.sleep_timer);
-
-        /*if (set_fragment<2*FPS+FPS*6) {
-          set_fragment++;
-          //if (set_fragment%5) {
-            //player.left_click_hold_timer=64;
-            //player.rst_left_click=TRUE;
-          //}
-          if (set_fragment%10==0) {
-            player.knives_per_throw=15;
-            player.attack_rst=TRUE;
-          }
-          if (set_fragment==2*FPS+FPS/2 || set_fragment==4*FPS+FPS/2) {
-            player.rst_right=TRUE;
-            player.rst_up=TRUE;
-          }
-          if (set_fragment==2*FPS+FPS*2-1) {
-              flag_restart=TRUE;
-          }
-          if (set_fragment==2*FPS+FPS*6-1) {
-            set_fragment=9*FPS;
-            back_to_menu=TRUE;
-          }
-        } else if (set_fragment<10*FPS+FPS*6) {
-          set_fragment++;
-          if (set_fragment%10==0) {
-            player.knives_per_throw=3;
-            player.attack_rst=TRUE;
-          }
-          if (set_fragment==12*FPS+FPS/2 || set_fragment==14*FPS+FPS/2) {
-            player.rst_right=TRUE;
-            player.rst_up=TRUE;
-          }
-          if (set_fragment==12*FPS+FPS/2-1) {
-              flag_restart=TRUE;
-          }
-          if (set_fragment==10*FPS+FPS*6-1) {
-            set_fragment=16*FPS+1;
-            back_to_menu=TRUE;
-            game_audio=TRUE;
-          }
-        }*/
       } else {
         Sleep(1000);
       }
@@ -439,6 +406,15 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
       MapEditorAct();
       Sleep(6);
     } else {
+      if (flag_load_level) {
+        flag_load_level=FALSE;
+        if (main_menu_chosen==0) {
+          InitLevel();
+        }
+      } else if (flag_load_melevel) {
+        flag_load_melevel=FALSE;
+        InitLevelMapEditor();
+      }
       Sleep(1000);
     }
   }
@@ -502,8 +478,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     //Various Keypress down
     case WM_KEYDOWN:
     {
-      //if (set_fragment>=9*FPS) {
       //Global keydown press
+      if (!level_loading) {
       if (main_menu_chosen!=2) {
         GlobalKeypressDown(wParam);
       }
@@ -559,7 +535,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         } //end of switch statement for menu chosen
       } //end of menu chosen if else
-      //}
+      }
       break; //Break WM_KEYDOWN;
     } 
 
@@ -569,7 +545,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     {
   //GLOBAL wParam Release Key
   //    printf("%d",wParam);
-      //if (set_fragment>=9*FPS) {
+      if (!level_loading) {
       if (main_menu_chosen!=2) {
         GlobalKeypressUp(hwnd,wParam);
       }
@@ -621,7 +597,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
              break;
           }
           break; //end of main menu chosen switch
-          //}
+      }
 
       } //end of !main_menu_chosen
       break; // end of release key WM_KEYUP
@@ -732,11 +708,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       FrameRateSleep(FPS); // (Uncapped) //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
       if (!IsIconic(hwnd)) //no action when minimized, prevents crash https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-isiconic?redirectedfrom=MSDN
       {
-        //UpdateFrame(hwnd);
-        HBITMAP screen;
-        PAINTSTRUCT ps;
-        hdc=BeginPaint(hwnd, &ps);
-        
+        if (flag_hide_taskbar) {
+          flag_hide_taskbar=FALSE;
+          hide_taskbar=FALSE;
+          LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
+          lStyle |= (WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+          SetWindowLong(hwnd, GWL_STYLE, lStyle);
+          SetWindowPos(hwnd,HWND_NOTOPMOST,0,0,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose], SWP_FRAMECHANGED);
+        }
         if (flag_adjust_audio) {
           freeSoundEffectCache(&keySoundEffectCache[2]);
           adjustSFXVolume(&keySoundEffectCache[2],&keySoundEffect[2],game_volume,FALSE);
@@ -768,7 +747,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             player.cam_x=0;
             player.cam_y=0;
             CameraInit(player.x,player.y); //idk scaling is weird for sprite
-            InitRDGrid();
+          }
+          InitRDGrid();
+          if (in_map_editor) {
+            InitMERDGrid();
           }
           if (flag_update_background) {
             flag_update_background=FALSE;
@@ -776,9 +758,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           OLD_GR_WIDTH = GR_WIDTH;
           OLD_GR_HEIGHT = GR_HEIGHT;
           //Load Map Background sprites
-          if (!in_main_menu || in_map_editor) {
+          if (!in_main_menu || level_loading || in_map_editor) {
              int mb_val;
-             if (!in_main_menu) {
+             if (!in_main_menu || level_loading) {
                mb_val=map_background;
              } else {
                mb_val=MapEditor.set_lvl_ambient_val[0];
@@ -821,6 +803,34 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
         }
 
+        //UpdateFrame(hwnd);
+        HBITMAP screen;
+        PAINTSTRUCT ps;
+        
+
+        if (level_loading) {
+          hdc=BeginPaint(hwnd, &ps);
+          hdcBackbuff=CreateCompatibleDC(hdc);
+          screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+          SelectObject(hdcBackbuff,screen);
+          //GrRect(hdcBackbuff,0,0,GR_WIDTH+2,GR_HEIGHT+2,BLACK);    
+          DrawBackground(hdcBackbuff);
+          DrawLoading(hdcBackbuff,256);
+          DrawCursor(hdcBackbuff);
+          if (hide_taskbar) {
+            BitBlt(hdc, SCREEN_WIDTH/2-RESOLUTION_X[resolution_choose]/2, 
+                        SCREEN_HEIGHT/2-RESOLUTION_Y[resolution_choose]/2, 
+                        RESOLUTION_X[resolution_choose],
+                        RESOLUTION_Y[resolution_choose],
+                        hdcBackbuff, 0, 0,  SRCCOPY);
+          } else {
+            BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
+          }
+          DeleteDC(hdcBackbuff);
+          DeleteObject(screen);
+        } else {
+
+
 
         if (!in_main_menu) //### In game
         { //https://stackoverflow.com/questions/752593/win32-app-suspends-on-minimize-window-animation
@@ -831,7 +841,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
 
           if (level_loaded) {
-
             if (enemy_kills<ENEMY_NUM) {
               game_timer= current_timestamp() - time_begin;
             } else {
@@ -872,11 +881,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               flag_restart=FALSE;
             }
 
+            hdc=BeginPaint(hwnd, &ps);
             hdcBackbuff=CreateCompatibleDC(hdc);
             screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
             SelectObject(hdcBackbuff,screen);
-//            if (set_fragment>101) {
-//            if (set_fragment>31) {
             DrawBackground(hdcBackbuff);
             DrawPlatforms(hdcBackbuff);
             DrawWebs(hdcBackbuff);
@@ -911,10 +919,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               }
             }
 
-            /*if (set_fragment<16*FPS) {
-              DrawLoading(hdcBackbuff,16);
-            }*/
-
 
             if (hide_taskbar) {
               BitBlt(hdc, SCREEN_WIDTH/2-RESOLUTION_X[resolution_choose]/2, 
@@ -943,6 +947,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               frame_tick=0;
             }
 
+            hdc=BeginPaint(hwnd, &ps);
             hdcBackbuff=CreateCompatibleDC(hdc);
             screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
             SelectObject(hdcBackbuff,screen);
@@ -976,8 +981,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
         } else { //In Main Menu
           showoff++;
-          PAINTSTRUCT ps;
-          HBITMAP screen;
           hdc=BeginPaint(hwnd, &ps);
           hdcBackbuff=CreateCompatibleDC(hdc);
           if (flag_resolution_change) { //blackout clear screen
@@ -992,10 +995,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       
             DrawMainMenu(hdcBackbuff);
             DrawCursor(hdcBackbuff);
-            /*if (set_fragment<16*FPS) {
-              DrawLoading(hdcBackbuff,16);
-            }*/
-
             if (hide_taskbar) {
               BitBlt(hdc, SCREEN_WIDTH/2-RESOLUTION_X[resolution_choose]/2, 
                             SCREEN_HEIGHT/2-RESOLUTION_Y[resolution_choose]/2, 
@@ -1009,29 +1008,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
           DeleteDC(hdcBackbuff);
           DeleteObject(screen);
-          /*if (set_fragment<FPS*2) {
-            set_fragment++;
-            if (set_fragment==FPS*2-1) {
-              set_fragment=FPS*2+1;
-              mouse_x=GR_WIDTH/2+5;
-              mouse_y=GR_HEIGHT/2-5;
-              InitLevel(hwnd, hdc, 1);
-              game_audio=FALSE;
-            }
-          } else if (set_fragment<FPS*10) {
-            set_fragment++;
-            if (set_fragment==FPS*10-1) {
-              set_fragment=FPS*10+1;
-              mouse_x=GR_WIDTH/2+5;
-              mouse_y=GR_HEIGHT/2-5;
-              InitLevel(hwnd, hdc, 2);
-              game_audio=FALSE;
-            }
-          } */
-
-
         }
-      EndPaint(hwnd, &ps);
+        }
+        EndPaint(hwnd, &ps);
       }
       return 0;
       break;
@@ -1142,7 +1121,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       color_chooser.color_id=0;
       color_chooser.color_id_choosing=0;
 
-      InitMarbles(16);
+      InitMarbles(256);
 
       //Delete tmp in music
       remove("music/tmp/tmp.wav");
@@ -1161,7 +1140,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 ខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\n\
 \
 \
-In memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts (1959, 1963-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1446-06-17"), TEXT("អ្នកសម្លាប់សត្វចង្រៃ") ,MB_OK);
+In memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts by the CIA (1959, 1963-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1446-06-25"), TEXT("អ្នកសម្លាប់សត្វចង្រៃ") ,MB_OK);
 //TEXT("អាពីងស៊ីរុយ") ,MB_OK); //ឈ្មោះចាស់
 
       //load levels in save

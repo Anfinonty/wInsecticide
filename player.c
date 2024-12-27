@@ -66,27 +66,6 @@ void move_y(double y)
 }
 
 
-/*
-void InitRDGrid()
-{
-  RDGrid.x1=player.x-(GR_WIDTH/2)-2*GRID_SIZE;//top left corner x
-  RDGrid.y1=player.y-(GR_HEIGHT/2)-2*GRID_SIZE;//top left corner y
-  RDGrid.x2=player.x+(GR_WIDTH/2)+2*GRID_SIZE;//down right corner x
-  RDGrid.y2=player.y+(GR_HEIGHT/2)+2*GRID_SIZE;//down right cornder y
-  for (int i=0;i<player.rendered_enemy_num;i++) {
-    player_render_enemies[i]=-1;
-  }
-  //player.rendered_enemy_num=0;
-
-  /*for (int i=0;i<ENEMY_NUM;i++) {
-    if (Enemy[i]->x>RDGrid.x1 && Enemy[i]->x<RDGrid.x2 && Enemy[i]->y>RDGrid.y1 && Enemy[i]->y<RDGrid.y2) {
-      player_render_enemies[player.rendered_enemy_num]=i;
-      player.rendered_enemy_num++;
-    }
-  }
-}*/
-
-
 void CameraInit(double x,double y)
 {
   while (x<GR_WIDTH/2) {
@@ -137,6 +116,31 @@ void PlayerPlaceWeb()
   player.placed_web_num++; //increase number of placed web
   if (player.placed_web_pos>=player.max_web_num) { //go back to index 0 if over the limit
     player.placed_web_pos=0;
+  }
+}
+
+
+void PlayerActPlaceWeb(int bm_x1,int bm_y1,int bm_x2,int bm_y2)
+{  
+  if (player.placed_web_pos<player.max_web_num) { //if pointer to web is less than the no. of webs player has currently     
+    while (player.web_storage[player.placed_web_pos]==-1) { //find player.web_storage that is not empty
+      player.placed_web_pos=LimitValue(player.placed_web_pos+1,0,player.max_web_num); //reset back to 0 if over the max
+    }
+    int web_id=player.web_storage[player.placed_web_pos];
+    if (web_id!=-1) {
+      player.previous_web_placed=web_id;
+      Ground[web_id]->x1=bm_x1;
+      Ground[web_id]->y1=bm_y1;
+      Ground[web_id]->x2=bm_x2;
+      Ground[web_id]->y2=bm_y2;
+      SetGround(web_id);
+      SetNodeGridAttributes(web_id);
+      PlayerPlaceWeb();            
+      Ground[web_id]->health=1500;
+      if (game_audio) {
+        PlayMemSnd(&channelSoundEffect[2],&channelSoundEffectCache[2],TRUE,3);
+      }
+    }
   }
 }
 
@@ -294,26 +298,6 @@ void InitPlayerFlingWeb()
 
 
 
-/*
-void PlayerBulletLimitAct()
-{
-  /*if (player.max_web_num-player.placed_web_num>=3 && player.knives_per_throw==5) {
-    player.knives_per_throw=13;
-  }*/
-
-  /*if (player.max_web_num-player.placed_web_num>5) {
-    player.knives_per_throw=LimitValue(player.knives_per_throw,1,30+1);
-  } else*/ /*if (player.max_web_num-player.placed_web_num>3) {
-    player.knives_per_throw=LimitValue(player.knives_per_throw,1,15+1); //limit to 1,3,5,15
-  } else if (player.max_web_num-player.placed_web_num>0){ //limit to 1,3,5
-    player.knives_per_throw=LimitValue(player.knives_per_throw,1,6);
-  } else { //limit to 1,3
-    player.knives_per_throw=LimitValue(player.knives_per_throw,1,4);
-  }
-}*/
-
-
-
 void InitPlayer() {
   int i;
   //player.hiding=FALSE;
@@ -458,6 +442,7 @@ void InitPlayer() {
   player.attack_strength=DEFAULT_PLAYER_ATTACK_STRENGTH;
 
   player.max_web_num=DEFAULT_PLAYER_WEB_NUM;
+  player.bullet_num=20;
 
   player.bullet_shot=-1;
 
@@ -791,7 +776,7 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
       //if (player.rst_left || player.rst_right) { //continue spin-rebound
         player.in_air_timer=1000;
       //}
-    } else if (!player.in_water) { //not reboubding
+    } else { //not reboubding
       player.is_rebounding=FALSE;
       player.in_air_timer=1;
 
@@ -839,10 +824,8 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
             if (!player.in_web_corner) {
               if (player.rst_left) {
                 player.key_b4_corner_is_left=TRUE;
-                //player.grav=1;
               } else if (player.rst_right) {
                 player.key_b4_corner_is_right=TRUE;
-                //player.grav=1;
               }
               player.in_web_corner=TRUE;
             }
@@ -861,15 +844,15 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
       if (!player.phase_web) {
         if (height_from_player_x<5 || player.is_rebounding) {
           if (player.on_ground_id_u2!=-1 && !player.is_rebounding) {
-            move_x(-cos(player.angle-M_PI_2)*0.5);
-            move_y(-sin(player.angle-M_PI_2)*0.5);
+            if (!player.in_water) {
+              move_x(-cos(player.angle-M_PI_2)*0.5);
+              move_y(-sin(player.angle-M_PI_2)*0.5);
+            }
             if (!player.in_web_corner) {
               if (player.rst_left) {
                 player.key_b4_corner_is_left=TRUE;
-                //player.grav=1;
               } else if (player.rst_right) {
                 player.key_b4_corner_is_right=TRUE;
-                //player.grav=1;
               }
               player.in_web_corner=TRUE;
             }
@@ -921,10 +904,8 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
             if (!player.in_web_corner) {
               if (player.rst_left) {
                 player.key_b4_corner_is_left=TRUE;
-                //player.grav=1;
               } else if (player.rst_right) {
                 player.key_b4_corner_is_right=TRUE;
-                //player.grav=1;
               }
               player.in_web_corner=TRUE;
             }
@@ -943,15 +924,15 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
       if (!player.phase_web2) {
         if (height_from_player_x>-5 || player.is_rebounding) {
           if (player.on_ground_id_u2!=-1 && !player.is_rebounding) { //go inwards to web if corner
-            move_x(-cos(player.angle+M_PI_2)*0.5);
-            move_y(-sin(player.angle+M_PI_2)*0.5);
+            if (!player.in_water) {
+              move_x(-cos(player.angle+M_PI_2)*0.5);
+              move_y(-sin(player.angle+M_PI_2)*0.5);
+            } 
             if (!player.in_web_corner) {
               if (player.rst_left) {
                 player.key_b4_corner_is_left=TRUE;
-                //player.grav=1;
               } else if (player.rst_right) {
                 player.key_b4_corner_is_right=TRUE;
-                //player.grav=1;
               }
             }
             player.in_web_corner=TRUE;
@@ -1034,10 +1015,6 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
 
 
 
-
-
-
-
 void PlayerActFlingWeb(int speed)
 {
   double _a=player.x;
@@ -1076,32 +1053,7 @@ void PlayerActFlingWeb(int speed)
             bm_x2=player_fling_web.x[i];
             bm_y2=player_fling_web.y[i];
           }
-
-          if (player.placed_web_pos<player.max_web_num) { //if pointer to web is less than the no. of webs player has currently     
-            while (player.web_storage[player.placed_web_pos]==-1) { //find player.web_storage that is not empty
-              player.placed_web_pos=LimitValue(player.placed_web_pos+1,0,player.max_web_num); //reset back to 0 if over the max
-            }
-            int web_id=player.web_storage[player.placed_web_pos];
-            if (web_id!=-1) {
-              player.previous_web_placed=web_id;
-              Ground[web_id]->x1=bm_x1;
-              Ground[web_id]->y1=bm_y1;
-              Ground[web_id]->x2=bm_x2;
-              Ground[web_id]->y2=bm_y2;
-              SetGround(web_id);
-              SetNodeGridAttributes(web_id);
-              //player.placed_web[player.placed_web_num]=web_id;
-              PlayerPlaceWeb();            
-              //PlayerBulletLimitAct();
-              Ground[web_id]->health=1500;//-q;
-              /*if (player.knives_per_throw==1) {
-                PlayMemSnd(&channelSoundEffect[9],&channelSoundEffectCache[9],TRUE,5);
-              }*/
-              if (game_audio) {
-                PlayMemSnd(&channelSoundEffect[2],&channelSoundEffectCache[2],TRUE,3);
-              }
-            }
-          }
+          PlayerActPlaceWeb(bm_x1,bm_y1,bm_x2,bm_y2);
         }
         if (player.max_web_num-player.placed_web_num<=1 || !player.low_jump) {
           player.attack_rst=TRUE;
@@ -1398,8 +1350,8 @@ void PlayerActMouseClick()
       player.web_being_shot=-1;
       player.bullet_shot=-1;
     } else if (player.bullet_shot_num<PLAYER_BULLET_NUM && 
-        !player.is_swinging && 
-        (PLAYER_BULLET_NUM-player.bullet_shot_num>=player.knives_per_throw) // a/b whehere a>=b a is bullet in storage, b is bullet consumption
+        (PLAYER_BULLET_NUM-player.bullet_shot_num>=player.knives_per_throw) && // a/b whehere a>=b a is bullet in storage, b is bullet consumption
+      !player.is_swinging
     ) {
 
 
@@ -1438,13 +1390,6 @@ void PlayerActMouseClick()
       grad_x2=mouse_x;
       grad_y2=mouse_y;
       double tmp_angle=0;
-
-      /*if (player.max_web_num-player.placed_web_num<3) {  //0,1,3,5
-        player.knives_per_throw=LimitValue(player.knives_per_throw,1,6);
-      } 
-      if (player.max_web_num-player.placed_web_num<1) {  //0,1,3
-        player.knives_per_throw=LimitValue(player.knives_per_throw,1,4);
-      }*/
       if (player.knives_per_throw>4) {
         if (player.knives_per_throw==5) {
           b_range=160;
@@ -1464,12 +1409,12 @@ void PlayerActMouseClick()
       int kpt=player.knives_per_throw;
       switch (kpt) {
         case 5:
-          if (player.max_web_num-player.placed_web_num<=0) {
+          if (player.bullet_num-1<0) {
             kpt=0;
           }
           break;
         case 15:
-          if (player.max_web_num-player.placed_web_num<=2) {
+          if (player.bullet_num-3<0) {
             kpt=0;
           }
           break;
@@ -1517,26 +1462,15 @@ void PlayerActMouseClick()
 	        grad_y2,
             tmp_angle //angle            
          );
+        if (player.knives_per_throw>4 && q%5==0) {
+          player.bullet_num--;
+        }
         player.bullet_shot_num++;
         current_bullet_id++;
         if (current_bullet_id>=SHOOT_BULLET_NUM-1) {
           current_bullet_id=0;
         }
 
-
-        if ((q+1)%5==0) {
-          PlayerPlaceWeb(); //Web related
-          //PlayerBulletLimitAct();
-          /*if (player.max_web_num-player.placed_web_num==0) {
-            player.knives_per_throw=1;
-          }*/
-        }
-
-
-
-        if (player.max_web_num-player.placed_web_num==0 && q>5) {
-          break;
-        }
       }
     } else {
       if (!player.is_swinging) {
@@ -1688,26 +1622,7 @@ void PlayerActMouseClick()
           }
         }
 
-
-        if (player.placed_web_pos<player.max_web_num) { //if pointer to web is less than the no. of webs player has currently     
-          while (player.web_storage[player.placed_web_pos]==-1) { //find player.web_storage that is not empty
-            player.placed_web_pos=LimitValue(player.placed_web_pos+1,0,player.max_web_num); //reset back to 0 if over the max
-          }
-          int web_id=player.web_storage[player.placed_web_pos];
-          if (web_id!=-1) {
-            player.previous_web_placed=web_id;
-            Ground[web_id]->x1=bm_x1;
-            Ground[web_id]->y1=bm_y1;
-            Ground[web_id]->x2=bm_x2;
-            Ground[web_id]->y2=bm_y2;
-            SetGround(web_id);
-            SetNodeGridAttributes(web_id);
-            //player.placed_web[player.placed_web_num]=web_id;
-            PlayerPlaceWeb();            
-            //PlayerBulletLimitAct();
-            Ground[web_id]->health=1500;//-q;
-          }
-        }
+        PlayerActPlaceWeb(bm_x1,bm_y1,bm_x2,bm_y2);
         }
       }
     }
