@@ -385,7 +385,9 @@ void FrameRateSleep(int max_fps)
 
 DWORD WINAPI AnimateTask01(LPVOID lpArg) {
   while (TRUE) {
-    if (!in_main_menu) { //In Game
+    if (level_loading) {
+      Sleep(1000);
+    } if (!in_main_menu) { //In Game
       if (level_loaded) {
         PlayerAct();
   
@@ -771,22 +773,22 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
               wchar_t lvl_background_bmp[64];
               swprintf(lvl_background_bmp,64,L"saves/%s/images/background.bmp",level_names[level_chosen]);
-              tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, lvl_background_bmp, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+              tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, lvl_background_bmp, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
 
               if (tmp_map_background_sprite==NULL) { //not found :/
                 switch (mb_val) {
                   case 0:
                     if (GR_WIDTH<800 && GR_HEIGHT<600) {
-                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
                     } else {
-                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
                     }
                     break;
                   case 1:
                     if (GR_WIDTH<800 && GR_HEIGHT<600) {
-                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
                     } else {
-                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
                     }
                     break;
                 }
@@ -815,7 +817,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           SelectObject(hdcBackbuff,screen);
           //GrRect(hdcBackbuff,0,0,GR_WIDTH+2,GR_HEIGHT+2,BLACK);    
           DrawBackground(hdcBackbuff);
-          DrawLoading(hdcBackbuff,256);
+          DrawLoading(hdcBackbuff,16);
           DrawCursor(hdcBackbuff);
           if (hide_taskbar) {
             BitBlt(hdc, SCREEN_WIDTH/2-RESOLUTION_X[resolution_choose]/2, 
@@ -1121,7 +1123,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       color_chooser.color_id=0;
       color_chooser.color_id_choosing=0;
 
-      InitMarbles(256);
+      InitMarbles(16);
 
       //Delete tmp in music
       remove("music/tmp/tmp.wav");
@@ -1140,7 +1142,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 ខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\n\
 \
 \
-In memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts by the CIA (1959, 1963-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1446-06-25"), TEXT("អ្នកសម្លាប់សត្វចង្រៃ") ,MB_OK);
+In memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts by the CIA (1959, 1963-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1446-06-28"), TEXT("អ្នកសម្លាប់សត្វចង្រៃ") ,MB_OK);
 //TEXT("អាពីងស៊ីរុយ") ,MB_OK); //ឈ្មោះចាស់
 
       //load levels in save

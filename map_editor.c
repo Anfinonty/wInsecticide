@@ -719,7 +719,7 @@ void InitLevelMapEditor()
   loading_denominator=0;
   swprintf(txt,128,L"saves/%s/level.txt",level_names[level_chosen]);
   level_loading=TRUE;
-  InitMarbles(256);
+  InitMarbles(16);
   LoadSave(txt,FALSE); //load saves
 
   wcsncpy(typing_lvl_name,level_names[level_chosen],16);

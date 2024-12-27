@@ -612,6 +612,9 @@ void DrawGround(HDC hdc)
       if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
           !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
           c=Ground[i]->color;
+          /*if (Ground[i]->color_id==0 || Ground[i]->color_id%16==0) {
+            c=RGB(8,8,8);
+          }*/
           GrLine(hdc,
                 Ground[i]->x1,
                 Ground[i]->y1,
@@ -627,17 +630,21 @@ void DrawGround(HDC hdc)
 
 void DrawGroundText(HDC hdc)
 {
-  int i=0;
+  int i=0,c;
   for (i=0;i<GROUND_NUM;i++) {
     if (Ground[i]->type==2) { 
       if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
           !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
+          c=Ground[i]->color;
+          /*if (Ground[i]->color_id==0 || Ground[i]->color_id%16==0) {
+            c=RGB(8,8,8);
+          }*/
 	    GrPrintW(hdc,
             Ground[i]->x1,
             Ground[i]->y1,
             Ground[i]->text,
             "",
-            Ground[i]->color,
+            c,
             Ground[i]->font_size,
             //16,
             FALSE,
@@ -652,6 +659,9 @@ void DrawWaterTriFill (HDC hdc) {
   for (i=0;i<GROUND_NUM;i++) {
     if (Ground[i]->type==1) { 
       c=Ground[i]->color;
+      /*if (Ground[i]->color_id==0 || Ground[i]->color_id%16==0) {
+        c=RGB(8,8,8);
+      }*/
       if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
           !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
 	      DrawTriFill(hdc,c,
@@ -680,6 +690,9 @@ void DrawGroundTriFill(HDC hdc)
   for (i=0;i<GROUND_NUM;i++) {
     if (Ground[i]->type==3) { 
       c=Ground[i]->color;
+      /*if (Ground[i]->color_id==0 || Ground[i]->color_id%16==0) {
+        c=RGB(8,8,8);
+      }*/
       if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
           !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
 	      DrawTriFill(hdc,c,

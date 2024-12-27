@@ -2645,10 +2645,12 @@ void DrawPlayer(HDC hdc)
       }
     }
     for (int i=0;i<PLATFORM_GRID_NUM;i++) {
-      BitmapPalette(hdc,TileMapPlatform[i]->draw_tile.sprite_paint,rgbColorsDefault);
+//      BitmapPalette(hdc,TileMapPlatform[i]->draw_tile.sprite_paint,rgbColorsDefault);
+      BitmapPalette(hdc,TileMapPlatform[i]->sprite_paint,rgbColorsDefault);
     }
     for (int i=0;i<FOREGROUND_GRID_NUM;i++) {
-      BitmapPalette(hdc,TileMapForeground[i]->draw_tile.sprite_paint,rgbColorsDefault);
+//      BitmapPalette(hdc,TileMapForeground[i]->draw_tile.sprite_paint,rgbColorsDefault);
+      BitmapPalette(hdc,TileMapForeground[i]->sprite_paint,rgbColorsDefault);
     }
 
     player.flag_revert_palette=FALSE;
@@ -2701,10 +2703,12 @@ void DrawPlayer(HDC hdc)
         }
       }
       for (int i=0;i<PLATFORM_GRID_NUM;i++) {
-        BitmapPalette(hdc,TileMapPlatform[i]->draw_tile.sprite_paint,rgbColorsNoir);
+        //BitmapPalette(hdc,TileMapPlatform[i]->draw_tile.sprite_paint,rgbColorsNoir);
+        BitmapPalette(hdc,TileMapPlatform[i]->sprite_paint,rgbColorsNoir);
       }
       for (int i=0;i<FOREGROUND_GRID_NUM;i++) {
-        BitmapPalette(hdc,TileMapForeground[i]->draw_tile.sprite_paint,rgbColorsNoir);
+        //BitmapPalette(hdc,TileMapForeground[i]->draw_tile.sprite_paint,rgbColorsNoir);
+        BitmapPalette(hdc,TileMapForeground[i]->sprite_paint,rgbColorsNoir);
       }
       //BitmapPalette(hdc,map_platforms_sprite,rgbColorsNoir);
       //BitmapPalette(hdc,map_water_platforms_sprite,rgbColorsNoir);

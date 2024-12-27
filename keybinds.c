@@ -1041,6 +1041,7 @@ void ZeroMenuKeypressDown( HWND hwnd,  HDC hdc, WPARAM wParam)
              //level_loading=TRUE;
              //Sleep(1000);
              //InitLevel(hwnd, hdc,FALSE);
+             //InitLevel();
            }
          }
          break;
@@ -1096,6 +1097,7 @@ void ZeroMenuKeypressUp( HWND hwnd,  HDC hdc, WPARAM wParam)
         if (game_audio)
           PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
         flag_load_melevel=TRUE;
+          //InitLevelMapEditor();
         }
         break;
     }

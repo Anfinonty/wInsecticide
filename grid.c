@@ -98,7 +98,7 @@ void InitGridTilesObj()
   if (is_shadows && game_shadow) {
     yes_shadow=TRUE;
   }
-  HBITMAP tmp_bitmap,tmp_bitmap_cache;
+  //HBITMAP tmp_bitmap,tmp_bitmap_cache;
 
     TileMapPlatform = calloc(PLATFORM_GRID_NUM,sizeof(ATileMap*));
     for (int i=0;i<PLATFORM_GRID_NUM;i++) {
@@ -112,16 +112,16 @@ void InitGridTilesObj()
         tmp_id=VGrid[i]->draw_platform_seg_id;
         if (tmp_id!=-1) { //0, 1, 2 , ...
           swprintf(seg_name,72,L"saves/%s/seg_platforms/%d.bmp",level_names[level_chosen],i);
-          TileMapPlatform[tmp_id]->x=VGrid[i]->x1+VGRID_SIZE/2;
-          TileMapPlatform[tmp_id]->y=VGrid[i]->y1+VGRID_SIZE/2;
-          //TileMapPlatform[tmp_id]->sprite_paint=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-          //TileMapPlatform[tmp_id]->sprite_mask=CreateBitmapMask(TileMapPlatform[tmp_id]->sprite_paint,MYCOLOR1,NULL); //create mask
-          tmp_bitmap=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-          tmp_bitmap_cache=RotateSprite(NULL, tmp_bitmap,0,MYCOLOR1,BLACK,BLACK,-1);
-          GenerateDrawSprite(&TileMapPlatform[tmp_id]->draw_tile,tmp_bitmap_cache);
+          TileMapPlatform[tmp_id]->x=VGrid[i]->x1;
+          TileMapPlatform[tmp_id]->y=VGrid[i]->y1;
+          TileMapPlatform[tmp_id]->sprite_paint=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+          TileMapPlatform[tmp_id]->sprite_mask=CreateBitmapMask(TileMapPlatform[tmp_id]->sprite_paint,MYCOLOR1,NULL); //create mask
+          //tmp_bitmap=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+          //tmp_bitmap_cache=RotateSprite(NULL, tmp_bitmap,0,BLACK,BLACK,BLACK,-1);
+          //GenerateDrawSprite(&TileMapPlatform[tmp_id]->draw_tile,tmp_bitmap/*_cache*/);
           loading_numerator++;
-          DeleteObject(tmp_bitmap);
-          DeleteObject(tmp_bitmap_cache);
+          //DeleteObject(tmp_bitmap);
+          //DeleteObject(tmp_bitmap_cache);
         }
       }
   }
@@ -139,16 +139,16 @@ void InitGridTilesObj()
         tmf_id=VGrid[i]->draw_foreground_seg_id;
         if (tmf_id!=-1) { //0, 1, 2 , ...
           swprintf(seg_name,72,L"saves/%s/seg_foreground/%d.bmp",level_names[level_chosen],i);
-          TileMapForeground[tmf_id]->x=VGrid[i]->x1+VGRID_SIZE/2;
-          TileMapForeground[tmf_id]->y=VGrid[i]->y1+VGRID_SIZE/2;
-          //TileMapForeground[tmf_id]->sprite_paint=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-          //TileMapForeground[tmf_id]->sprite_mask=CreateBitmapMask(TileMapForeground[tmf_id]->sprite_paint,MYCOLOR1,NULL); //create mask
-          tmp_bitmap=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-          tmp_bitmap_cache=RotateSprite(NULL, tmp_bitmap,0,MYCOLOR1,BLACK,BLACK,-1);
-          GenerateDrawSprite(&TileMapForeground[tmf_id]->draw_tile,tmp_bitmap_cache);
+          TileMapForeground[tmf_id]->x=VGrid[i]->x1;
+          TileMapForeground[tmf_id]->y=VGrid[i]->y1;
+          TileMapForeground[tmf_id]->sprite_paint=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+          TileMapForeground[tmf_id]->sprite_mask=CreateBitmapMask(TileMapForeground[tmf_id]->sprite_paint,MYCOLOR1,NULL); //create mask
+          //tmp_bitmap=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+          //tmp_bitmap_cache=RotateSprite(NULL, tmp_bitmap,0,BLACK,BLACK,BLACK,-1);
+          //GenerateDrawSprite(&TileMapForeground[tmf_id]->draw_tile,tmp_bitmap/*tmp_bitmap_cache*/);
           loading_numerator++;
-          DeleteObject(tmp_bitmap);
-          DeleteObject(tmp_bitmap_cache);
+          //DeleteObject(tmp_bitmap);
+          //DeleteObject(tmp_bitmap_cache);
         }
       }
     }
@@ -172,10 +172,10 @@ void InitGridTilesObj()
           swprintf(seg_name,72,L"saves/%s/seg_shadow/%d.bmp",level_names[level_chosen],i);
           TileMapShadow[tms_id]->x=VGrid[i]->x1;
           TileMapShadow[tms_id]->y=VGrid[i]->y1;
-          tmp_bitmap=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-          TileMapShadow[tms_id]->sprite_paint=RotateSprite(NULL, tmp_bitmap,0,MYCOLOR1,BLACK,BLACK,-1); //does nothing other than crunch it to 8bit xd
+          //tmp_bitmap=
+          TileMapShadow[tms_id]->sprite_paint=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);//RotateSprite(NULL, tmp_bitmap,0,MYCOLOR1,BLACK,BLACK,-1); //does nothing other than crunch it to 8bit xd
           loading_numerator++;
-          DeleteObject(tmp_bitmap);
+          //DeleteObject(tmp_bitmap);
         }
       }
     }
@@ -244,26 +244,6 @@ void InitRDGrid()
     }
   } 
 }
-
-
-
-/*bool YesInitRDGrid()
-{
-  int _x=GR_WIDTH/2+player.cam_move_x-player.cam_mouse_move_x,
-      _y=GR_HEIGHT/2+player.cam_move_y-player.cam_mouse_move_y;
-  if (GRID_SIZE*2<_x && _x<MAP_WIDTH-GRID_SIZE*2) {
-    if (_x<RDGrid[0].x+GRID_SIZE*2 || _x>RDGrid[RENDER_DIST-1].x-GRID_SIZE*2) {
-      return TRUE;
-    }
-  }
-  if (GRID_SIZE*2<_y && _y<MAP_HEIGHT-GRID_SIZE*2) {
-    if (_y<RDGrid[0].y+GRID_SIZE*2 || _y>RDGrid[RDGRID_NUM-1].y-GRID_SIZE*2) {
-      return TRUE;
-    }
-  }
-  return FALSE;
-}*/
-
 
 
 //void DrawGrid(HDC hdc)

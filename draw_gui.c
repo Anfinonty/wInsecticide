@@ -1611,15 +1611,13 @@ void DrawLoading(HDC hDC,int max_marbles)
 
     for (int j=0;j<max_marbles;j++) {
       if (j!=i) {
-        if (GetDistance(marble[i].x,marble[i].y,marble[j].x,marble[j].y)<5) {
+        if (GetDistance(marble[i].x,marble[i].y,marble[j].x,marble[j].y)<10) {
           marble[i].angle=GetBounceAngle(marble[i].angle,marble[j].angle);
-          /*if (i==0) {
-            printf("angle:%5.4f\n",marble[0].angle);
-          }*/
         }
       }
     }
-    GrCircle(hDC,marble[i].x,marble[i].y,5,rgbPaint[i],rgbPaint[i]);
+    GrCircle(hDC,marble[i].x,marble[i].y,10,rgbPaint[i],rgbPaint[i]);
+  }
   }
 
   /*DrawBitmap(hDC,title_x0,
@@ -1637,7 +1635,7 @@ void DrawLoading(HDC hDC,int max_marbles)
                  352,
                  256,
                 title_sprite,SRCPAINT,FALSE,FALSE);*/
-    }
+    //}
     //DrawTitle(hDC);
     //GrCircle(hDC,mouse_x,mouse_y,(set_fragment%10)*2,LTPURPLE,-1);
     /*DrawSprite(hDC,mouse_x-2,mouse_y-2,&draw_player_cursor_body[0],FALSE); //left ete open
