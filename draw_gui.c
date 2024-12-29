@@ -326,7 +326,7 @@ void DrawPersianClock(HDC hdc)
     lunar_year
   );
 
-  if (main_menu_chosen==-1 || (GR_WIDTH>=800 && GR_HEIGHT>=600)) {
+  if ((main_menu_chosen==-1 || (GR_WIDTH>=800 && GR_HEIGHT>=600)) && show_hijiri) {
     GrPrintW(hdc,mcalendar_x-mcalendar_l*7-24,mcalendar_y-64+4,time_row1,"",WHITE,16,FALSE,yes_unifont);
 
     if (is_khmer) {
@@ -337,7 +337,6 @@ void DrawPersianClock(HDC hdc)
                      119,
                      27,
                     mm0_kh_hijri_mask[0],SRCAND,FALSE,FALSE);
-      //Draw platforms paint
       DrawBitmap(hdc,mcalendar_x-mcalendar_l*7-24,
                      mcalendar_y-36,
                      0,

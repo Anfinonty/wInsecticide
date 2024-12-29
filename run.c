@@ -86,6 +86,7 @@ bool flag_update_background=FALSE;
 bool flag_resolution_change=FALSE;
 bool flag_fullscreen=FALSE;
 bool flag_hide_taskbar=FALSE;
+bool hide_cursor=FALSE;
 
 //game options
 bool yes_unifont=TRUE;//FALSE;
@@ -103,7 +104,7 @@ bool level_loading=FALSE;
 bool game_over=FALSE;
 bool show_fps=FALSE;
 bool in_map_editor=FALSE;
-
+bool show_hijiri=FALSE;
 //bool alloc_enemy_once=TRUE;
 
 //to be used to load a level
@@ -465,14 +466,36 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       if (!IsIconic(hwnd)) //no action when minimized
       {
         POINT point;
+        int true_mouse_x;
+        int true_mouse_y;
         if (GetCursorPos(&point)) {
-          mouse_x=point.x-windowx;
-          mouse_y=point.y-windowy;
+          if (hide_taskbar) {
+            true_mouse_x=mouse_x=point.x-(SCREEN_WIDTH/2-RESOLUTION_X[resolution_choose]/2);
+            true_mouse_y=mouse_y=point.y-(SCREEN_HEIGHT/2-RESOLUTION_Y[resolution_choose]/2);
+          } else {
+            true_mouse_x=mouse_x=point.x-windowx;
+            true_mouse_y=mouse_y=point.y-windowy;
+          }
+        }
+        if (true_mouse_x>5 && true_mouse_x<GR_WIDTH-5 && true_mouse_y>5 && true_mouse_y<GR_HEIGHT-5) { //within game
+          if (!hide_cursor) {
+            hide_cursor=TRUE;
+            ShowCursor(FALSE);
+          }
+        } else {
+          if (hide_cursor) { //outside of game
+            hide_cursor=FALSE;
+            ShowCursor(TRUE);
+          }
         }
         if (mouse_x>GR_WIDTH)
           mouse_x=GR_WIDTH;
+        else if (mouse_x<0)
+          mouse_x=0;
         if (mouse_y>GR_HEIGHT)
           mouse_y=GR_HEIGHT;
+        else if (mouse_y<0)
+          mouse_y=0;
         UpdateWindow(hwnd);
       }
       break;
@@ -1235,7 +1258,7 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
       InitSongBank();
      //
 
-      ShowCursor(FALSE);
+      //ShowCursor(FALSE);
 
       //Load Best Scores :D
       //,,,

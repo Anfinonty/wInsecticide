@@ -158,6 +158,7 @@ struct player
   //int rendered_enemy_num;
 
  // int rendered_ground_num;
+  int bullet_num;
   int play_gun_snd;
   int knives_per_throw;
   int invalid_shoot_timer;
@@ -524,7 +525,7 @@ int GetGridId(int x,int y,int width, int size,int max);
 void SetGridLineArray(int grid_id,int ground_id);
 void UnSetGridLineArray(int grid_id,int ground_id);
 void InitGrid();
-void InitGridTiles(int refresh);
+void InitGridTiles();
 void DrawGrid(HDC hdc);
 void InitNodeGrid();
 bool IsCollideSolid(double x1,double y1,double x2,double y2,double gradient,double c);
@@ -648,7 +649,9 @@ typedef struct enemy
   bool play_death_snd; //:play death sound when killed
   bool is_ground_rebounding; //:is it currently rebounding from a ground it is on
   bool is_in_ground_edge; //:is it currently on the edge of a ground
-
+  bool flag_web_unstuck;
+  bool flag_web_stuck;
+  bool web_stuck;
   //Attacked
   bool knockback_left;
   bool player_knockback;
@@ -733,6 +736,7 @@ typedef struct enemy
   double sprite_x;
   double sprite_y;
   double speed;
+  double ospeed;
   double knockback_angle;
 
   //double x_height_from_ground;
@@ -834,7 +838,9 @@ typedef struct TileMap
 {
   int x;
   int y;
-  DRAWSPRITE draw_tile;
+//  DRAWSPRITE draw_tile;
+  HBITMAP sprite_paint;
+  HBITMAP sprite_mask;
 } ATileMap;
 
 ATileMap *createTileMap()
@@ -935,6 +941,8 @@ void DrawEnemy(HDC hdc);
 //mouse 
 int mouse_x;
 int mouse_y;
+int true_mouse_x;
+int true_mouse_y;
 HBITMAP player_cursor[16]; //4 left and 4 right, open or closed, loaded
 HBITMAP player_cursor_body[16];
 HBITMAP player_cursor_iris[16];

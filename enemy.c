@@ -1079,6 +1079,10 @@ void EnemyAct(int i)
         } else {
           knock_max=player.knockback_speed_multiplier;
         }
+        if (Enemy[i]->web_stuck) {
+          knock_max=0;
+          Enemy[i]->knockback_timer=0;
+        }
         for (j=0;j<knock_max;j++) {
           EnemyKnockbackMove(i);
         }
@@ -1892,9 +1896,17 @@ void DrawEnemy(HDC hdc)
       switch (Enemy[i]->species) {
         case 0:
           if (Enemy[i]->sprite_timer%2==0) {
-            DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyTypeSprite[Enemy[i]->type].draw_fly_sprite_1,Enemy[i]->last_left);
+            if (Enemy[i]->sprite_timer%4==0) {
+              DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y+1,&EnemyTypeSprite[Enemy[i]->type].draw_fly_sprite_1,Enemy[i]->last_left);
+            } else {
+              DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyTypeSprite[Enemy[i]->type].draw_fly_sprite_1,Enemy[i]->last_left);
+            }
           } else {
-            DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyTypeSprite[Enemy[i]->type].draw_fly_sprite_2,Enemy[i]->last_left);
+            if (Enemy[i]->sprite_timer%3==0) {
+              DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y-2,&EnemyTypeSprite[Enemy[i]->type].draw_fly_sprite_2,Enemy[i]->last_left);
+            } else {
+              DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y-1,&EnemyTypeSprite[Enemy[i]->type].draw_fly_sprite_2,Enemy[i]->last_left);
+            }
           }
           break;
         case 1: 
