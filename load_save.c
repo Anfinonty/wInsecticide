@@ -3,6 +3,7 @@
 int GROUND_NUM;
 int ENEMY_NUM;
 int LARGE_ENEMY_TYPE_NUM;
+int LARGER_ENEMY_TYPE_NUM;
 int MAP_WIDTH;
 int MAP_HEIGHT;
 int GRID_NUM;	
@@ -45,6 +46,8 @@ wchar_t **saved_ground_text;
 double saved_enemy_type_speed[ENEMY_TYPE_NUM];
 double saved_enemy_type_bullet_speed[ENEMY_TYPE_NUM];
 int saved_enemy_type_species[ENEMY_TYPE_NUM];
+int saved_large_enemy_type_species[ENEMY_TYPE_NUM];
+int saved_larger_enemy_type_species[ENEMY_TYPE_NUM];
 int saved_enemy_type_follow_range[ENEMY_TYPE_NUM];
 int saved_enemy_type_unchase_range[ENEMY_TYPE_NUM];
 int saved_enemy_type_chase_range[ENEMY_TYPE_NUM];
@@ -65,6 +68,7 @@ int saved_enemy_type_bullet_graphics_type[ENEMY_TYPE_NUM];
 int saved_enemy_type_time_breaker_rare[ENEMY_TYPE_NUM];
 int saved_enemy_type_time_breaker_length[ENEMY_TYPE_NUM];
 int saved_enemy_type_rot_sprite_id[ENEMY_TYPE_NUM];
+int saved_enemy_type_rot_xsprite_id[ENEMY_TYPE_NUM];
 bool saved_enemy_type_time_breaker_immune[ENEMY_TYPE_NUM];
 
 

@@ -660,9 +660,11 @@ typedef struct enemy
   bool force_search;
 
   bool in_water;
+  bool sprite_in_water;
   int in_node_grid_id;
 
   int rotated_sprite_id;
+  int rotated_xsprite_id;
   int current_rot_sprite_angle_id;
   //Bullet
   int bullet_cooldown_max;
@@ -793,8 +795,6 @@ AEnemy **Enemy;
 //inspired while playing angry birds on Ethihide airlines to Abu Dhabi
 struct EnemyTypeSprite
 {
-  HBITMAP fly_sprite_1;
-  HBITMAP fly_sprite_2;
   DRAWSPRITE draw_fly_sprite_1; //right/left-facing-movesprite-1,right left determined by last_left/is_left/flip_sprite
   DRAWSPRITE draw_fly_sprite_2; //right/left-facing-movesprite-2
 } EnemyTypeSprite[ENEMY_TYPE_NUM];
@@ -806,8 +806,6 @@ struct EnemyTypeSprite
 //for large enemies only malloc for large enemy
 typedef struct EnemyRotatedSprite
 {
-  HBITMAP rotated_sprite1[ROTATED_SPRITE_NUM];
-  HBITMAP rotated_sprite2[ROTATED_SPRITE_NUM];
   DRAWSPRITE draw_rotated_sprite1[ROTATED_SPRITE_NUM];
   DRAWSPRITE draw_rotated_sprite2[ROTATED_SPRITE_NUM];
 } AEnemyRotatedSprite;
@@ -818,7 +816,6 @@ AEnemyRotatedSprite *createEnemyRotatedSprite()
   return toReturn;
 }
 
-
 void freeEnemyRotatedSprite(AEnemyRotatedSprite *myEnemyRotatedSprite)
 {
   if (myEnemyRotatedSprite)
@@ -828,7 +825,25 @@ void freeEnemyRotatedSprite(AEnemyRotatedSprite *myEnemyRotatedSprite)
 AEnemyRotatedSprite **EnemyRotatedSprite;
 
 
+typedef struct EnemyRotatedSpriteXtra
+{
+  DRAWSPRITE draw_rotated_sprite[ROTATED_SPRITE_NUM];
+} AXEnemyRotatedSprite;
 
+
+AXEnemyRotatedSprite *createXEnemyRotatedSprite()
+{
+  AXEnemyRotatedSprite *toReturn = malloc(sizeof(AXEnemyRotatedSprite));
+  return toReturn;
+}
+
+void freeXEnemyRotatedSprite(AXEnemyRotatedSprite *myXEnemyRotatedSprite)
+{
+  if (myXEnemyRotatedSprite)
+    free(myXEnemyRotatedSprite);
+}
+
+AXEnemyRotatedSprite **XEnemyRotatedSprite;
 
 
 
@@ -957,10 +972,20 @@ DRAWSPRITE draw_player_cursor_pupil[2];
 //enemy global
 HBITMAP enemy1_sprite_1;
 HBITMAP enemy1_sprite_2;
+
 HBITMAP enemy2_sprite_1;
 HBITMAP enemy2_sprite_2;
 HBITMAP enemy2_sprite_3;
 HBITMAP enemy2_sprite_4;
+
+HBITMAP enemy3_sprite_1;
+HBITMAP enemy3_sprite_2;
+
+HBITMAP enemy4_sprite_1;
+HBITMAP enemy4_sprite_2;
+HBITMAP enemy4_sprite_1_0;
+HBITMAP enemy4_sprite_3;
+HBITMAP enemy4_sprite_4;
 
 
 //map background

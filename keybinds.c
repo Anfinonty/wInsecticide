@@ -186,26 +186,30 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
           if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
              windowx=0;
              windowy=0;
+             //resolution_choose=1;
+             GR_WIDTH=RESOLUTION_X[resolution_choose];
+             GR_HEIGHT=RESOLUTION_Y[resolution_choose];
              if (!hide_taskbar) {
                LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
                lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
                SetWindowLong(hwnd, GWL_STYLE, lStyle);
-               resolution_choose=0;
+               SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,SCREEN_WIDTH,SCREEN_HEIGHT, SWP_FRAMECHANGED);
              } else {
-               resolution_choose=MAX_RESOLUTION_I-1;
                LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
                lStyle |= (WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
                SetWindowLong(hwnd, GWL_STYLE, lStyle);
-    //           SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
+               SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
+               ShowWindow(hwnd, SW_RESTORE);
              }
-             GR_WIDTH=RESOLUTION_X[resolution_choose];
-             GR_HEIGHT=RESOLUTION_Y[resolution_choose];
-             flag_resolution_change=TRUE;
-             SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,SCREEN_WIDTH,SCREEN_HEIGHT, SWP_FRAMECHANGED);
              if (!hide_taskbar) {
                SetForegroundWindow(hwnd); //return back focus
              }
+            // flag_resolution_change=TRUE;
              hide_taskbar=!hide_taskbar;
+             if (!hide_taskbar) {
+               SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
+               ShowWindow(hwnd, SW_RESTORE);
+             }
           }
           break;
 
@@ -598,36 +602,44 @@ void OptionKeyPressRight(HWND hwnd, int option_choose)
            else
              PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
          }
+
+         windowx=0;
+         windowy=0;
+         //resolution_choose=0;
+         GR_WIDTH=RESOLUTION_X[resolution_choose];
+         GR_HEIGHT=RESOLUTION_Y[resolution_choose];
+
          if (!hide_taskbar) { //Hide taskbar
            LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
            lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
            SetWindowLong(hwnd, GWL_STYLE, lStyle);
-           SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose], SWP_FRAMECHANGED);
+           SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,SCREEN_WIDTH,SCREEN_HEIGHT, SWP_FRAMECHANGED);
          } else { //return taskbar
            LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
            lStyle |= (WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
            SetWindowLong(hwnd, GWL_STYLE, lStyle);
-           SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose], SWP_FRAMECHANGED);
+           SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
+           ShowWindow(hwnd, SW_RESTORE);
          }
          if (!hide_taskbar) {
            SetForegroundWindow(hwnd); //return back focus
          }
+         //flag_resolution_change=TRUE;
          hide_taskbar=!hide_taskbar;
+         if (!hide_taskbar) {
+           SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
+           ShowWindow(hwnd, SW_RESTORE);
+         }
          break;
 
        case 10: //toggle resolution, holding right button
          resolution_choose=LimitValue(resolution_choose+1,0,MAX_RESOLUTION_I);
-         //SetWindowPos(hwnd,HWND_TOPMOST,0,0,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],SWP_FRAMECHANGED);
-         //SetForegroundWindow(hwnd); //return back focus
-         //LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
-         //lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU); //borderless mode
-         //SetWindowLong(hwnd, GWL_STYLE, lStyle);
-         //SetWindowPos(hwnd,HWND_NOTOPMOST,0,0,SCREEN_WIDTH,SCREEN_HEIGHT, SWP_FRAMECHANGED);
+         windowx=0;
+         windowy=0;
          if (!hide_taskbar) {
            SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],SWP_FRAMECHANGED);
-         } /*else {
-           SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],SWP_FRAMECHANGED);
-         }*/
+           ShowWindow(hwnd, SW_RESTORE);
+         }
          SetForegroundWindow(hwnd); //return back focus
 
          GR_WIDTH=RESOLUTION_X[resolution_choose];
@@ -739,35 +751,41 @@ void OptionKeyPressLeft(HWND hwnd,int option_choose)
          }
          windowx=0;
          windowy=0;
+         //resolution_choose=1;
+         GR_WIDTH=RESOLUTION_X[resolution_choose];
+         GR_HEIGHT=RESOLUTION_Y[resolution_choose];
          if (!hide_taskbar) {
            LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
            lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
            SetWindowLong(hwnd, GWL_STYLE, lStyle);
-           resolution_choose=0;
+           SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,SCREEN_WIDTH,SCREEN_HEIGHT, SWP_FRAMECHANGED);
          } else {
-           resolution_choose=MAX_RESOLUTION_I-1;
            LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
            lStyle |= (WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
            SetWindowLong(hwnd, GWL_STYLE, lStyle);
-//           SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
+           SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
+           ShowWindow(hwnd, SW_RESTORE);
          }
-         GR_WIDTH=RESOLUTION_X[resolution_choose];
-         GR_HEIGHT=RESOLUTION_Y[resolution_choose];
-         flag_resolution_change=TRUE;
-         SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,SCREEN_WIDTH,SCREEN_HEIGHT, SWP_FRAMECHANGED);
          SetForegroundWindow(hwnd); //return back focus
+         flag_resolution_change=TRUE;
          hide_taskbar=!hide_taskbar;
+
+         if (!hide_taskbar) {
+           SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
+           ShowWindow(hwnd, SW_RESTORE);
+         }
          break;
 
 
        case 10: //toggle resolution, lower
          resolution_choose=LimitValue(resolution_choose-1,0,MAX_RESOLUTION_I);
-         //SetWindowPos(hwnd,HWND_TOPMOST,0,0,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],SWP_FRAMECHANGED);
-         //SetForegroundWindow(hwnd); //return back focus
+         windowx=0;
+         windowy=0;
          GR_WIDTH=RESOLUTION_X[resolution_choose];
          GR_HEIGHT=RESOLUTION_Y[resolution_choose];
          if (!hide_taskbar) {
            SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],SWP_FRAMECHANGED);
+           ShowWindow(hwnd, SW_RESTORE);
          } 
          flag_resolution_change=TRUE;
          if (game_audio) {

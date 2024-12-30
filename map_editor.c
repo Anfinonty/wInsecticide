@@ -164,7 +164,7 @@ int enemy_int_attr_min[ENEMY_TYPE_INT_ATTR_NUM]=
 
 int enemy_int_attr_max[ENEMY_TYPE_INT_ATTR_NUM]=
 {
-2, // species
+4, // species
 MAX_FOLLOW_RANGE+1, //follow range
 MAX_FOLLOW_RANGE+1, //unchase range
 MAX_FOLLOW_RANGE+1, //chase range

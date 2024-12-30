@@ -136,8 +136,14 @@ int GR_HEIGHT=480;
 int OLD_GR_WIDTH=640;
 int OLD_GR_HEIGHT=480;
 int MAX_RESOLUTION_I=1;
-int RESOLUTION_X[9]={640,800,1024,1280,1280,1440,1280,1680,1920};
-int RESOLUTION_Y[9]={480,600, 768, 720, 800, 900,1024,1050,1080};
+//int RESOLUTION_X[9]={640,800,1024,1280,1280,1440,1280,1680,1920};
+//int RESOLUTION_Y[9]={480,600, 768, 720, 800, 900,1024,1050,1080};
+
+#define SCREEN_RESOLUTION_NUM   127
+int RESOLUTION_X[SCREEN_RESOLUTION_NUM];
+int RESOLUTION_Y[SCREEN_RESOLUTION_NUM];
+char* RESOLUTION_NAME[SCREEN_RESOLUTION_NUM];
+
 int level_chosen=0;
 int main_menu_chosen=-1; //options for main menu
 int select_main_menu=0;
@@ -222,8 +228,8 @@ bool is_khmer=TRUE;
 #define MAX_NODE_NUM	 MAX_FOLLOW_RANGE*MAX_FOLLOW_RANGE
 
 //#define RENDER_DIST      12//10//20
-#define RENDER_WIDTH_MAX    13
-#define RENDER_HEIGHT_MAX   8
+#define RENDER_WIDTH_MAX    104//13   -->160 *    16384/160
+#define RENDER_HEIGHT_MAX   54//8    -->160 *   8640/160
 #define RDGRID_NUM       RENDER_WIDTH_MAX*RENDER_HEIGHT_MAX
 
 
@@ -430,6 +436,15 @@ DWORD WINAPI AnimateTask02(LPVOID lpArg) { //FPS counter
     showoff=0;
     Sleep(1000);
   }
+}
+
+
+
+void InitSetRes(int i,int w,int h,char *txt)
+{
+  RESOLUTION_X[i]=w;
+  RESOLUTION_Y[i]=h;
+  RESOLUTION_NAME[i]=txt;
 }
 
 
@@ -1121,7 +1136,167 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //AddFontResource(L"fonts/KhmerUI.ttf");
       //AddFontResource(L"fonts/KhmerOSsys.ttf");
 
-      for (int i=0;i<9;i++) {
+      //Init screen resolution
+        //https://en.wikipedia.org/wiki/List_of_common_display_resolutions
+        //https://en.wikipedia.org/wiki/Display_resolution_standards
+        //https://en.wikipedia.org/wiki/Ultrawide_formats
+        InitSetRes(0,SCREEN_WIDTH,SCREEN_HEIGHT," * ");
+        InitSetRes(1,640,480,"VGA");
+        InitSetRes(2,640,512,"0.33M3");
+        InitSetRes(3,768,480,"WVGA");
+        InitSetRes(4,800,480,"WGA");
+        InitSetRes(5,800,600,"SVGA");
+        InitSetRes(6,832,624,"0.52M3");
+        InitSetRes(7,848,480,"W-PAL");
+        InitSetRes(8,854,480,"FWVGA");
+
+        InitSetRes(9,960,540,"qHD");
+        InitSetRes(10,960,544,"0.52M9");
+        InitSetRes(11,960,640,"DVGA");
+
+        InitSetRes(12,1024,576,"0.59M9");
+        InitSetRes(13,1024,600,"WSVGA");
+        InitSetRes(14,1024,640,"0.66MA");
+        InitSetRes(15,1024,768,"XGA");
+        InitSetRes(16,1024,800,"0.82M3");
+        InitSetRes(17,1024,1024,"1.05M1:1");
+
+        InitSetRes(18,1080,1200,"1.30M0.9");
+
+        InitSetRes(19,1120,832,"0.93M3");
+        InitSetRes(20,1136,640,"0.73M9");
+        InitSetRes(21,1138,640,"0.73M9");
+        InitSetRes(22,1152,768,"0.88M2");
+        InitSetRes(23,1152,864,"XGA+");
+        InitSetRes(24,1152,900,"1.04M32:25");
+
+        InitSetRes(25,1280,720,"WXGA:M");
+        InitSetRes(26,1280,768,"WXGA:A");
+        InitSetRes(27,1280,800,"WXGA");
+        InitSetRes(28,1280,854,"1.09M2");
+        InitSetRes(29,1280,960,"SXGA-");
+        InitSetRes(30,1280,1024,"SXGA");
+
+        InitSetRes(31,1334,750,"1.00M9");
+        InitSetRes(32,1366,768,"WXGA HD");
+
+        InitSetRes(33,1440,900,"WSXGA/WXGA+");
+        InitSetRes(34,1440,960,"1.38M2");
+        InitSetRes(35,1400,1050,"SXGA+");
+        InitSetRes(36,1440,1024,"1.47M5");
+        InitSetRes(37,1440,1080,"1.56M3");
+        InitSetRes(38,1440,1440,"2.07M1");
+
+        InitSetRes(39,1600,768,"1.23M2.083");
+        InitSetRes(40,1600,900,"HD+");
+        InitSetRes(41,1600,1024,"1.64M0");
+        InitSetRes(42,1680,1050,"WSXGA+");
+        InitSetRes(43,1600,1200,"UXGA");
+        InitSetRes(44,1600,1280,"2.05M4");
+
+        InitSetRes(45,1776,1000,"1.78M9");
+        InitSetRes(46,1792,1344,"QWXGA");
+
+        InitSetRes(47,1800,1440,"2.59M4");
+        InitSetRes(48,1856,1392,"2.58M3");
+
+        InitSetRes(49,1920,1080,"FHD");
+        InitSetRes(50,1920,1280,"2.41M3");
+        InitSetRes(51,1920,1400,"TXGA");
+        InitSetRes(52,1920,1440,"2.76M3");
+
+        InitSetRes(53,2048,1080,"DCI2K");
+        InitSetRes(54,2048,1152,"WUXGA");
+        InitSetRes(55,2048,1280,"2.62MA");
+        InitSetRes(56,2048,1536,"QXGA");
+
+        InitSetRes(57,2160,1200,"2.59M9");
+        InitSetRes(58,2160,1440,"3.11M2");
+        InitSetRes(59,2256,1504,"3.39MA");
+        InitSetRes(60,2280,1080,"FHD+/2.46M19:9");
+
+        InitSetRes(61,2304,1440,"3.32MA");
+        InitSetRes(62,2304,1728,"3.98M3");
+        InitSetRes(63,2340,1080,"2.53M19.5∶9");
+        InitSetRes(64,2400,1080,"2.59M09");
+        InitSetRes(65,2436,1125,"2.74M2.165");
+        InitSetRes(66,2520,1080,"2.72M1B");
+        InitSetRes(67,2538,1080,"2.74M1AD");
+        InitSetRes(68,2560,1080,"UW-FHD");
+        InitSetRes(69,2560,1440,"WQHD");
+        InitSetRes(70,2560,1600,"WQXGA");
+        InitSetRes(71,2560,1664,"4.26M1.538");
+        InitSetRes(72,2560,1700,"4.35M2");
+        InitSetRes(73,2560,1800,"4.61M1.422");
+        InitSetRes(74,2560,1920,"4.92M3");
+        InitSetRes(75,2560,2048,"QSXGA");
+
+        InitSetRes(76,2576,1450,"3.74M9");
+
+        InitSetRes(77,2732,2048,"5.60M3");
+        InitSetRes(78,2736,1824,"4.99M2");
+
+        InitSetRes(79,2880,900,"CWSXGA");
+        InitSetRes(80,2880,1200,"WFHD+");
+        InitSetRes(81,2880,1440,"4.15M2∶1");
+        InitSetRes(82,2880,1620,"4.67M9");
+        InitSetRes(83,2880,1800,"5.18MA");
+        InitSetRes(84,2880,1864,"5.37M17∶11");
+        InitSetRes(85,2880,1920,"5.53M2");
+        InitSetRes(86,2800,2100,"QSXGA+");
+
+        InitSetRes(87,2960,1440,"Infinity Display");
+
+        InitSetRes(88,3000,2000,"3K");
+        InitSetRes(89,3000,2120,"3K");
+        InitSetRes(90,3024,1964,"5.94M17∶11");
+        InitSetRes(91,3072,1920,"5.90MA");
+        InitSetRes(92,3200,2048,"WQSXGA");
+        InitSetRes(93,3200,2400,"QUXGA");
+        InitSetRes(94,3200,1800,"WQXGA+");
+        InitSetRes(95,3240,2160,"7.00M2");
+        InitSetRes(96,3440,1440,"Ultra-Wide QHD");
+        InitSetRes(97,3456,2234,"7.72M1.547");
+        InitSetRes(98,3840,1600,"UW4K");
+        InitSetRes(99,3840,2160,"4K UHD-1");
+        InitSetRes(100,3840,2400,"WQUXGA");
+
+        InitSetRes(101,4096,2160,"DCI 4K");
+        InitSetRes(102,4096,2304,"9.44M9");
+        InitSetRes(103,4096,3072,"HXGA");
+        InitSetRes(104,4320,1800,"UW4K");
+        InitSetRes(105,4480,2520,"11.29M9");
+        InitSetRes(106,4500,3000,"13.50M2");
+
+        InitSetRes(107,5120,1440,"DQHD");
+        InitSetRes(108,5120,2400,"UW5K+");
+        InitSetRes(109,5120,2160,"UW5K (WUHD)");
+        InitSetRes(110,5120,2880,"5K");
+        InitSetRes(111,5120,3200,"WHXGA");
+        InitSetRes(112,5120,4096,"HSXGA");
+
+        InitSetRes(113,6016,3384,"6K");
+        InitSetRes(114,6400,4096,"WHSXGA");
+        InitSetRes(115,6400,4800,"HUXGA");
+        InitSetRes(116,6480,3240,"-");
+        InitSetRes(117,6880,2880,"UW6K");
+
+        InitSetRes(118,7680,3200,"UW7K");
+        InitSetRes(119,7680,4320,"8K UHD-2");
+        InitSetRes(120,7680,4800,"WHUXGA");
+
+        InitSetRes(121,8192,4320,"8K Full Format");
+        InitSetRes(122,8192,8192,"8K Fulldome");
+
+        InitSetRes(123,8640,3600,"UW8K");
+
+        InitSetRes(124,10240,4320,"UW10K");
+
+        InitSetRes(125,15360,8640,"16K");
+        InitSetRes(126,16384,8640,"16K Full Format");
+      //...
+
+      for (int i=1;i<SCREEN_RESOLUTION_NUM;i++) {
         if (SCREEN_WIDTH==RESOLUTION_X[i] && SCREEN_HEIGHT==RESOLUTION_Y[i]) {
           MAX_RESOLUTION_I=i+1;
           break;
@@ -1287,6 +1462,15 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
       enemy2_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       enemy2_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       enemy2_sprite_4 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-4.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+      enemy3_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy3-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      enemy3_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy3-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+      enemy4_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy4-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      enemy4_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy4-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      enemy4_sprite_1_0 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy4-1-0.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      enemy4_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy4-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      enemy4_sprite_4 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy4-4.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
 
 

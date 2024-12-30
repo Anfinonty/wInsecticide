@@ -732,8 +732,19 @@ void BulletAct(int bullet_id)
         int on_node_grid_id=GetGridId(Bullet[bullet_id].x,Bullet[bullet_id].y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
         if (on_node_grid_id!=-1) {
           if (NodeGrid[on_node_grid_id]->node_water) {
-            Bullet[bullet_id].speed=Bullet[bullet_id].ospeed/4;
+            if (enemy_id>-1 && enemy_id<ENEMY_NUM) {
+              if (Enemy[enemy_id]->species==3) {
+                Bullet[bullet_id].speed=Bullet[bullet_id].ospeed*2;
+                Bullet[bullet_id].speed_multiplier=Bullet[bullet_id].ospeed_multiplier*2;
+              } else {
+                Bullet[bullet_id].speed=Bullet[bullet_id].ospeed/4;
+              }
+            } else {
+              Bullet[bullet_id].speed=Bullet[bullet_id].ospeed/4;
+            }
+            //Bullet[bullet_id].speed=Bullet[bullet_id].ospeed/4;
           } else {
+            Bullet[bullet_id].speed_multiplier=Bullet[bullet_id].ospeed_multiplier;
             Bullet[bullet_id].speed=Bullet[bullet_id].ospeed;
           }
         }

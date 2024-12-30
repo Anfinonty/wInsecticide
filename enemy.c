@@ -95,9 +95,27 @@ void InitEnemyPathfinding(int enemy_id,double target_x,double target_y)
       if (node_id!=-1) {
         switch (Enemy[enemy_id]->species) {
 	  case 0://standard
+      case 2:
         Enemy[enemy_id]->node_solid[i]=NodeGrid[node_id]->node_solid;
+        if (!Enemy[enemy_id]->node_solid[i])
+          Enemy[enemy_id]->node_solid[i]=NodeGrid[node_id]->node_water;
 	    break;
 	  case 1://inverse
+        if (Enemy[enemy_id]->target_player || Enemy[enemy_id]->on_ground_id==-1 /*|| Enemy[enemy_id]->is_in_ground_edge*/) {
+          Enemy[enemy_id]->node_solid[i]=NodeGrid[node_id]->node_solid;
+          if (!Enemy[enemy_id]->node_solid[i])
+            Enemy[enemy_id]->node_solid[i]=NodeGrid[node_id]->node_water;
+        } else {
+          Enemy[enemy_id]->node_solid[i]=!NodeGrid[node_id]->node_solid;
+          if (!Enemy[enemy_id]->node_solid[i])
+            Enemy[enemy_id]->node_solid[i]=NodeGrid[node_id]->node_water;
+	      if (!Enemy[enemy_id]->node_solid[i]) {
+            Enemy[enemy_id]->enemy_species1_solids[Enemy[enemy_id]->species1_solid_num]=i;
+	        Enemy[enemy_id]->species1_solid_num++;
+          }
+        }
+        break;
+      case 3:
         /*if (!Enemy[enemy_id]->target_player || (Enemy[enemy_id]->on_ground_id!=-1 && !Enemy[enemy_id]->is_in_ground_edge)) {
           Enemy[enemy_id]->node_solid[i]=!NodeGrid[node_id]->node_solid;
 	      if (!Enemy[enemy_id]->node_solid[i]) {
@@ -107,7 +125,6 @@ void InitEnemyPathfinding(int enemy_id,double target_x,double target_y)
         } else{
           Enemy[enemy_id]->node_solid[i]=NodeGrid[node_id]->node_solid;
         }*/
-
         if (Enemy[enemy_id]->target_player || Enemy[enemy_id]->on_ground_id==-1 /*|| Enemy[enemy_id]->is_in_ground_edge*/) {
           Enemy[enemy_id]->node_solid[i]=NodeGrid[node_id]->node_solid;
         } else {
@@ -136,7 +153,7 @@ void InitEnemyPathfinding(int enemy_id,double target_x,double target_y)
       y+=NODE_SIZE;
     }
   }
-  if (Enemy[enemy_id]->species==1) {//species 1
+  if (Enemy[enemy_id]->species==1 || Enemy[enemy_id]->species==3) {//species 1
     for (i=0;i<Enemy[enemy_id]->species1_solid_num;i++) {
       k=Enemy[enemy_id]->enemy_species1_solids[i];
       x=Enemy[enemy_id]->node_x[k]-Enemy[enemy_id]->node_x[0];
@@ -307,42 +324,37 @@ void EnemyReboundFromGround(int enemy_id,int ground_id,bool is_rebound)
     }
     //double ground_entity_angle2=GetLineTargetAngle(Enemy[enemy_id]->saved_ground_id,Enemy[enemy_id]->x,Enemy[enemy_id]->y);
     //double height_from_ground2=GetLineTargetHeight(Enemy[enemy_id]->saved_ground_id,ground_entity_angle2,Enemy[enemy_id]->x,Enemy[enemy_id]->y);
-
+    
     Enemy[enemy_id]->in_air_timer=0;
 
-    if (abs(height_from_ground)<=31 && ground_id!=-1) {
-      if (height_from_ground>0) {    //species 1 above ground (positive)
-        Enemy[enemy_id]->angle=Ground[ground_id]->angle;
-        Enemy[enemy_id]->above_ground=TRUE;
-        Enemy[enemy_id]->below_ground=FALSE;
-        Enemy[enemy_id]->flip_sprite=FALSE;
-      } else {    //species 1 below ground
-        Enemy[enemy_id]->angle=-Ground[ground_id]->angle;//-M_PI;
-        Enemy[enemy_id]->above_ground=FALSE;
-        Enemy[enemy_id]->below_ground=TRUE;
-        if(Enemy[enemy_id]->last_left) {
+    if (!is_rebound) {
+      if (abs(height_from_ground)<=33 && ground_id!=-1) {
+        if (height_from_ground>0) {    //species 1 above ground (positive)
+          Enemy[enemy_id]->angle=Ground[ground_id]->angle;
+          Enemy[enemy_id]->above_ground=TRUE;
+          Enemy[enemy_id]->below_ground=FALSE;
           Enemy[enemy_id]->flip_sprite=FALSE;
-        } else {
-          Enemy[enemy_id]->flip_sprite=TRUE;
+        } else {    //species 1 below ground
+          Enemy[enemy_id]->angle=-Ground[ground_id]->angle;//-M_PI;
+          Enemy[enemy_id]->above_ground=FALSE;
+          Enemy[enemy_id]->below_ground=TRUE;
+          if(Enemy[enemy_id]->last_left) {
+            Enemy[enemy_id]->flip_sprite=FALSE;
+          } else {
+            Enemy[enemy_id]->flip_sprite=TRUE;
+          }
         }
-      //Drop down (Old Feature Depracated)
-      /*if (player.print_current_above && Enemy[enemy_id]->saw_player) {
-      	if (player.y>Enemy[enemy_id]->y-60 && player.y<Enemy[enemy_id]->y-30 && !Enemy[enemy_id]->idling) {//enemy above
-	      if (!Enemy[enemy_id]->ignore_player && RandNum(0,5,Enemy[enemy_id]->seed)==1) {
-            Enemy[enemy_id]->y+=0.25;
-	      }
-        }
-      }*/
+      } 
+      if (ground_id>=GROUND_NUM && !Enemy[enemy_id]->web_stuck) {
+        Enemy[enemy_id]->flag_web_stuck=TRUE;
       }
-    } /*else {
-      Enemy[enemy_id]->on_ground_id=-1;
-    }*/
+    }
 
     //if (Enemy[enemy_id]->species==1) {
       if (edge_1_dist<=31 || edge_2_dist<=31) {
         //Enemy[enemy_id]->above_ground=
         //Enemy[enemy_id]->below_ground=FALSE;
-        if (Enemy[enemy_id]->species==1) {
+        if (Enemy[enemy_id]->species==1 || Enemy[enemy_id]->species==3) {
           Enemy[enemy_id]->in_air_timer=2;
         }
         Enemy[enemy_id]->is_in_ground_edge=TRUE;
@@ -368,9 +380,9 @@ void EnemyReboundFromGround(int enemy_id,int ground_id,bool is_rebound)
 }
 
 
-void EnemySpecies1SpriteTimer(int enemy_id)
+void LargeEnemySpriteTimer(int enemy_id)
 {
-  if (Enemy[enemy_id]->species==1) {
+  if (Enemy[enemy_id]->species==1 || Enemy[enemy_id]->species==3) {
     Enemy[enemy_id]->sprite_timer++;
     if (Enemy[enemy_id]->sprite_timer>16) {
       Enemy[enemy_id]->sprite_timer=0;
@@ -379,7 +391,7 @@ void EnemySpecies1SpriteTimer(int enemy_id)
 }
 
 
-void EnemySpecies1Gravity(int enemy_id)
+void LargeEnemyGravity(int enemy_id)
 {
 //  Enemy[enemy_id]->on_ground_id=GetOnGroundIdE(Enemy[enemy_id]->x,Enemy[enemy_id]->y,30,29,enemy_id);    //Get Ground id //clipping issue
   int tmp_=GetOnGroundId(Enemy[enemy_id]->x,Enemy[enemy_id]->y+2,30,29);
@@ -455,28 +467,28 @@ void EnemyMove(int enemy_id)
       Enemy[enemy_id]->force_search=TRUE;
     } else {
       if (Enemy[enemy_id]->x<path_node_center_x) {
-        if (Enemy[enemy_id]->species==0) {
+        //if (Enemy[enemy_id]->species==0 || Enemy[enemy_id]->species==2) {
           Enemy[enemy_id]->last_left=FALSE;
-        } else {
-          if (Enemy[enemy_id]->sprite_flip_timer>0) {
-            Enemy[enemy_id]->sprite_flip_timer--;
-          } else {
-            Enemy[enemy_id]->last_left=FALSE;
-            Enemy[enemy_id]->sprite_flip_timer=50;
-          }
-        }
+        //} else {
+          //if (Enemy[enemy_id]->sprite_flip_timer>0) {
+            //Enemy[enemy_id]->sprite_flip_timer--;
+          //} else {
+            //Enemy[enemy_id]->last_left=FALSE;
+            //Enemy[enemy_id]->sprite_flip_timer=150;
+          //}
+        //}
         Enemy[enemy_id]->x+=Enemy[enemy_id]->speed;
       } else {
-        if (Enemy[enemy_id]->species==0) {
+        //if (Enemy[enemy_id]->species==0 || Enemy[enemy_id]->species==2) {
           Enemy[enemy_id]->last_left=TRUE;
-        } else {
-          if (Enemy[enemy_id]->sprite_flip_timer>0) {
-            Enemy[enemy_id]->sprite_flip_timer--;
-          } else {
-            Enemy[enemy_id]->last_left=TRUE;
-            Enemy[enemy_id]->sprite_flip_timer=50;
-          }
-        }
+        //} else {
+          //if (Enemy[enemy_id]->sprite_flip_timer>0) {
+            //Enemy[enemy_id]->sprite_flip_timer--;
+          //} else {
+            //Enemy[enemy_id]->last_left=TRUE;
+            //Enemy[enemy_id]->sprite_flip_timer=150;
+          //}
+        //}
         Enemy[enemy_id]->x-=Enemy[enemy_id]->speed;  
       }
       if (Enemy[enemy_id]->y<path_node_center_y) {
@@ -545,7 +557,7 @@ void EnemyTargetPlayer(int i)
                         MAX_FOLLOW_RANGE*NODE_SIZE,
 			NODE_SIZE,
 			Enemy[i]->node_num);
-  if (Enemy[i]->species==1 &&
+  if ((Enemy[i]->species==1 || Enemy[i]->species==3) &&
       Enemy[i]->node_solid[target_node]) {
     target_x=player.above_x2;
     target_y=player.above_y2;
@@ -558,7 +570,7 @@ void EnemyTargetPlayer(int i)
   if (Enemy[i]->node_solid[target_node] ||//Total ignore player (player is hidden)
       Enemy[i]->in_unchase_range //dont chase player if its in unchase range
     ) {
-    if (Enemy[i]->species==0 && Enemy[i]->node_solid[target_node]) {
+    if ((Enemy[i]->species==0 || Enemy[i]->species==2) && Enemy[i]->node_solid[target_node]) {
       Enemy[i]->ignore_player=TRUE; //dont ignore if player is within chase range
     }
     Enemy[i]->target_player=FALSE;
@@ -648,12 +660,14 @@ void EnemyKnockbackMove(int i)
   int tmp_=-1;
   switch (Enemy[i]->species) {
     case 0:
-      tmp_=GetOnGroundId(Enemy[i]->x,Enemy[i]->y,14,13);
+    case 2: 
+     tmp_=GetOnGroundId(Enemy[i]->x,Enemy[i]->y,14,13);
       if (tmp_!=-1) {
   	    allow_act=TRUE;
       }
       break;
     case 1:
+    case 3:
       tmp_=GetOnGroundId(Enemy[i]->x,Enemy[i]->y,24,23);
       if (tmp_!=-1) { //dont knockback enemy  //warning: can cause enemy to clip  through grounds
 	    allow_act=TRUE;
@@ -776,6 +790,7 @@ void EnemyAct(int i)
       if (dist_from_bullet0<=NODE_SIZE*4) {
         switch (Enemy[i]->species) {
       	  case 0://fly
+          case 2:
             if (dist_from_bullet0<=NODE_SIZE*2) {
               Enemy[i]->damage_taken_timer=256;
               Enemy[i]->health-=Bullet[bk].damage;
@@ -798,6 +813,7 @@ void EnemyAct(int i)
             }
 	        break;
          case 1://crawl
+         case 3:
             Enemy[i]->damage_taken_timer=256;
             Enemy[i]->health-=Bullet[bk].damage;
             if (game_audio) {
@@ -840,6 +856,7 @@ void EnemyAct(int i)
     if (dist_from_bullet<=NODE_SIZE*4) {
       switch (Enemy[i]->species) {
 	    case 0://fly
+        case 2:
           if (dist_from_bullet<=NODE_SIZE*2) {
             if (game_audio) {
               PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
@@ -852,6 +869,7 @@ void EnemyAct(int i)
           }
           break;
         case 1://crawl
+        case 3:
           if (game_audio) {
             PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
           }
@@ -875,6 +893,7 @@ void EnemyAct(int i)
     double distance_from_player_claws=GetDistance(Enemy[i]->x,Enemy[i]->y,player.claws_attack_x,player.claws_attack_y);
     switch (Enemy[i]->species) {
       case 0://fly
+      case 2:
 	    if (!(Enemy[i]->time_breaker_length>0)) {
 	      if (distance_from_player_claws<=NODE_SIZE*2) {
 	        allow_act=TRUE;
@@ -886,6 +905,7 @@ void EnemyAct(int i)
 	    }
 	    break;
       case 1://crawl
+      case 3:
 	    if (distance_from_player_claws<=NODE_SIZE*4) {
 	      allow_act=TRUE;
 	    }
@@ -912,11 +932,13 @@ void EnemyAct(int i)
       allow_act=FALSE;
       switch (Enemy[i]->species) {
         case 0:
+        case 2:
           if (player.attack_timer>34) {
             allow_act=TRUE;
           }
 	      break;
 	    case 1:
+        case 3:
 	      /*if (player.attack_timer<=39) {
 		    /*if (player.attack_timer>34) { //more damage to roach at underside when player is upside down
 		      if (Enemy[i]->above_ground) {
@@ -1003,6 +1025,7 @@ void EnemyAct(int i)
         deduct_health=FALSE;
         switch (Enemy[i]->species) {
           case 0:
+          case 2:
             if (player.speed>5) {
               deduct_health=TRUE;
             } else if (game_audio) {
@@ -1010,6 +1033,7 @@ void EnemyAct(int i)
             }
             break;
           case 1:
+          case 3:
             if (player.speed>10) {
               deduct_health=TRUE;
             } else if (game_audio) {
@@ -1037,7 +1061,7 @@ void EnemyAct(int i)
         StopBullet(Enemy[i]->bullet_shot_arr[j],FALSE);
       }
       int rand_bullet_shot_num=8+RandNum(1,10,Enemy[i]->seed);
-      if (Enemy[i]->species==1) {
+      if (Enemy[i]->species==1 || Enemy[i]->species==3) {
         rand_bullet_shot_num=25+RandNum(30,40,Enemy[i]->seed);        
       }
       for (int n=0;n<rand_bullet_shot_num;n++) {
@@ -1069,7 +1093,7 @@ void EnemyAct(int i)
         }
       }
     }
-
+    int tmp_ngid;
     //Knockback 
     if (Enemy[i]->knockback_timer>0) {
       if (!player.time_breaker || Enemy[i]->time_breaker_immune) {
@@ -1100,9 +1124,9 @@ void EnemyAct(int i)
         }
       }
 
-      if (Enemy[i]->species==1) {
+      if (Enemy[i]->species==1 || Enemy[i]->species==3) {
         if (Enemy[i]->knockback_timer>0 || Enemy[i]->on_ground_id==-1) {
-          EnemySpecies1SpriteTimer(i);
+          LargeEnemySpriteTimer(i);
         }
       }
 
@@ -1111,16 +1135,23 @@ void EnemyAct(int i)
 
       //toggle staate in water
       Enemy[i]->in_node_grid_id=GetGridId(Enemy[i]->x,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
-      int tmp_ngid=Enemy[i]->in_node_grid_id;
+
+      
+      tmp_ngid=Enemy[i]->in_node_grid_id;
       if (tmp_ngid!=-1) {
         if (NodeGrid[tmp_ngid]->node_water) {
           if (!Enemy[i]->in_water) {
-            Enemy[i]->speed_multiplier=Enemy[i]->ospeed_multiplier/4;
-            if (Enemy[i]->speed_multiplier<=1) {
-              Enemy[i]->speed_multiplier=1;
+            if (Enemy[i]->species!=3) {
+              Enemy[i]->speed_multiplier=Enemy[i]->ospeed_multiplier/4;
+              if (Enemy[i]->speed_multiplier<=1) {
+                Enemy[i]->speed_multiplier=1;
+              }
+            } else {
+              Enemy[i]->speed_multiplier=Enemy[i]->ospeed_multiplier*2;
             }
           }
-          Enemy[i]->in_water=TRUE;  
+          Enemy[i]->in_water=TRUE;
+          Enemy[i]->sprite_in_water=TRUE;
         } else {
           if (Enemy[i]->in_water) {
             Enemy[i]->speed_multiplier=Enemy[i]->ospeed_multiplier;
@@ -1133,34 +1164,50 @@ void EnemyAct(int i)
         } 
         Enemy[i]->in_water=FALSE;
       }
-
+    
+        if (!Enemy[i]->in_water && Enemy[i]->sprite_in_water) {
+          for (int u=0;u<2;u++) {
+            switch (u) {
+              case 0:tmp_ngid=GetGridId(Enemy[i]->x,Enemy[i]->y+NODE_SIZE,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);break;
+              case 1:tmp_ngid=GetGridId(Enemy[i]->x,Enemy[i]->y+NODE_SIZE*2,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);break;
+            }
+            if (tmp_ngid!=-1) {
+              if (!NodeGrid[tmp_ngid]->node_water) {
+                Enemy[i]->sprite_in_water=FALSE;
+                break;
+              }
+            }
+          }
+        }
 
       //toggle state web_stuck/unstuck
       if (Enemy[i]->flag_web_stuck) {
         Enemy[i]->flag_web_stuck=FALSE;
-        Enemy[i]->web_stuck=TRUE;
-        Enemy[i]->speed_multiplier=Enemy[i]->ospeed_multiplier/5;
-        if (Enemy[i]->speed_multiplier<=1) {
-          Enemy[i]->speed_multiplier=1;
+        if (!Enemy[i]->web_stuck) {
+          Enemy[i]->web_stuck=TRUE;
+          Enemy[i]->speed_multiplier=Enemy[i]->ospeed_multiplier/5;
+          if (Enemy[i]->speed_multiplier<=1) {
+            Enemy[i]->speed_multiplier=1;
+          }
+          Enemy[i]->speed=Enemy[i]->ospeed/10;
         }
-        Enemy[i]->speed=Enemy[i]->ospeed/10;
       }
       if (Enemy[i]->flag_web_unstuck) {
         Enemy[i]->flag_web_unstuck=FALSE;
-        Enemy[i]->web_stuck=FALSE;
-        Enemy[i]->speed_multiplier=Enemy[i]->ospeed_multiplier;
-        Enemy[i]->speed=Enemy[i]->ospeed;
+        if (Enemy[i]->web_stuck) {
+          Enemy[i]->web_stuck=FALSE;
+          Enemy[i]->speed_multiplier=Enemy[i]->ospeed_multiplier;
+          Enemy[i]->speed=Enemy[i]->ospeed;
+        }
       }
 
     
-
-
       //check state web stuck
       if (tmp_ngid!=-1) {
         int nx,ny,sub_tmp_ngid;
-          for (int m=0;m<9;m++) {
+          for (int m=0;m<4;m++) {
             switch (m) {
-              case 0:nx=Enemy[i]->x;ny=Enemy[i]->y;break;
+              /*case 0:nx=Enemy[i]->x;ny=Enemy[i]->y;break;
               case 1:nx=Enemy[i]->x-NODE_SIZE;ny=Enemy[i]->y-NODE_SIZE;break;
               case 2:nx=Enemy[i]->x;ny=Enemy[i]->y-NODE_SIZE;break;
               case 3:nx=Enemy[i]->x+NODE_SIZE;ny=Enemy[i]->y-NODE_SIZE;break;
@@ -1170,12 +1217,16 @@ void EnemyAct(int i)
               case 6:nx=Enemy[i]->x+NODE_SIZE;ny=Enemy[i]->y+NODE_SIZE;break;
 
               case 7:nx=Enemy[i]->x-NODE_SIZE;ny=Enemy[i]->y;break;
-              case 8:nx=Enemy[i]->x+NODE_SIZE;ny=Enemy[i]->y;break;
+              case 8:nx=Enemy[i]->x+NODE_SIZE;ny=Enemy[i]->y;break;*/
+              case 0:nx=Enemy[i]->x-NODE_SIZE;ny=Enemy[i]->y-NODE_SIZE;break;
+              case 1:nx=Enemy[i]->x+NODE_SIZE;ny=Enemy[i]->y+NODE_SIZE;break;
+              case 2:nx=Enemy[i]->x-NODE_SIZE;ny=Enemy[i]->y+NODE_SIZE;break;
+              case 3:nx=Enemy[i]->x+NODE_SIZE;ny=Enemy[i]->y-NODE_SIZE;break;
             }
             sub_tmp_ngid=GetGridId(nx,ny,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
             if (sub_tmp_ngid!=-1) {
                if (!NodeGrid[sub_tmp_ngid]->non_web && NodeGrid[sub_tmp_ngid]->node_solid) { //web_detected
-                 if (!Enemy[i]->web_stuck) {
+                 if (!Enemy[i]->web_stuck && GetDistance(nx,ny,player.x,player.y)<=NODE_SIZE+1) {
                    Enemy[i]->flag_web_stuck=TRUE;
                  }
                  break;
@@ -1190,7 +1241,7 @@ void EnemyAct(int i)
 
 
       for (slash_time_i=0;slash_time_i<slash_time;slash_time_i++) {
-          if (Enemy[i]->species==1) {
+          if (Enemy[i]->species==1 || Enemy[i]->species==3) {
             int tmp_on_ground_id2=GetOnGroundId(Enemy[i]->x,Enemy[i]->y,33,32);//GetOnGroundId(Enemy[i]->x,Enemy[i]->y,30,29);
             //Enemy[enemy_id]->on_ground_id=GetOnGroundId(Enemy[enemy_id]->x,Enemy[enemy_id]->y,31,30);    //Get 
             //Enemy[i]->on_ground_id=tmp_on_ground_id2;
@@ -1221,9 +1272,9 @@ void EnemyAct(int i)
           Enemy[i]->y--;
         }
 
-        if (Enemy[i]->species==1 && !Enemy[i]->move_to_target && !Enemy[i]->target_player) {//Species 1 gravity
+        if ((Enemy[i]->species==1 || Enemy[i]->species==3) && !Enemy[i]->move_to_target && !Enemy[i]->target_player) {//Species 1 gravity
           if (slash_time_i==0) {
-            EnemySpecies1Gravity(i);
+            LargeEnemyGravity(i);
             if (Enemy[i]->in_air_timer>0) {
               Enemy[i]->in_air_timer--;
             }
@@ -1389,7 +1440,7 @@ void EnemyAct(int i)
       }
     } else if (Enemy[i]->move_to_target) {
       for (j=0;j<Enemy[i]->speed_multiplier;j++) {
-        EnemySpecies1SpriteTimer(i);
+        LargeEnemySpriteTimer(i);
         EnemyMove(i);
       }
       if (!Enemy[i]->ignore_player && Enemy[i]->saw_player) { //chasing player
@@ -1437,7 +1488,7 @@ void EnemyAct(int i)
           }
         }//end of slash_time
       //other
-        if (Enemy[i]->species==0) {
+        if (Enemy[i]->species==0 || Enemy[i]->species==2) {
           Enemy[i]->sprite_timer++;
           if (Enemy[i]->sprite_timer>3) {
             Enemy[i]->sprite_timer=0;
@@ -1507,30 +1558,34 @@ void CleanUpRotatedSprites()
 {
   for (int i=0;i<LARGE_ENEMY_TYPE_NUM;i++) {
     for (int j=0;j<ROTATED_SPRITE_NUM;j++) {
-      if (EnemyRotatedSprite[i]->rotated_sprite1[j]!=NULL)
-        DeleteObject(EnemyRotatedSprite[i]->rotated_sprite1[j]);
-      if (EnemyRotatedSprite[i]->rotated_sprite2[j]!=NULL)
-        DeleteObject(EnemyRotatedSprite[i]->rotated_sprite2[j]);
       FreeDrawSprite(&EnemyRotatedSprite[i]->draw_rotated_sprite1[j]);
       FreeDrawSprite(&EnemyRotatedSprite[i]->draw_rotated_sprite2[j]);
     }
     freeEnemyRotatedSprite(EnemyRotatedSprite[i]);
   }
   free(EnemyRotatedSprite);
+
+  for (int i=0;i<LARGER_ENEMY_TYPE_NUM;i++) {
+    for (int j=0;j<ROTATED_SPRITE_NUM;j++) {
+      FreeDrawSprite(&XEnemyRotatedSprite[i]->draw_rotated_sprite[j]);
+    }
+    freeXEnemyRotatedSprite(XEnemyRotatedSprite[i]);
+  }
+  free(XEnemyRotatedSprite);
 }
 
 void CleanUpEnemySprites()
 {
   //manual cleaning because static
   for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-    if (EnemyTypeSprite[i].fly_sprite_1!=NULL) {
+    /*if (EnemyTypeSprite[i].fly_sprite_1!=NULL) {
       DeleteObject(EnemyTypeSprite[i].fly_sprite_1);
       EnemyTypeSprite[i].fly_sprite_1=NULL;
     }
     if (EnemyTypeSprite[i].fly_sprite_2!=NULL) {
       DeleteObject(EnemyTypeSprite[i].fly_sprite_2);
       EnemyTypeSprite[i].fly_sprite_2=NULL;
-    }
+    }*/
     FreeDrawSprite(&EnemyTypeSprite[i].draw_fly_sprite_1);
     FreeDrawSprite(&EnemyTypeSprite[i].draw_fly_sprite_2);
   }
@@ -1542,24 +1597,45 @@ void InitEnemySprites()
 //  CleanUpEnemySprites();
 //  CleanUpRotatedSprites();
   LARGE_ENEMY_TYPE_NUM=0;
+  LARGER_ENEMY_TYPE_NUM=0;
   for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-    if (saved_enemy_type_species[i]==1) {
+    saved_large_enemy_type_species[i]=-1;
+    saved_larger_enemy_type_species[i]=-1;
+  }
+  for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+    if (saved_enemy_type_species[i]==1 || saved_enemy_type_species[i]==3) {
       saved_enemy_type_rot_sprite_id[i]=LARGE_ENEMY_TYPE_NUM;
+      saved_large_enemy_type_species[LARGE_ENEMY_TYPE_NUM]=saved_enemy_type_species[i];
       LARGE_ENEMY_TYPE_NUM++;
+      if (saved_enemy_type_species[i]==3) {
+        saved_enemy_type_rot_xsprite_id[i]=LARGER_ENEMY_TYPE_NUM;
+        saved_larger_enemy_type_species[LARGER_ENEMY_TYPE_NUM]=3;
+        LARGER_ENEMY_TYPE_NUM++;
+      } else {
+        saved_larger_enemy_type_species[i]=-1;
+        saved_enemy_type_rot_xsprite_id[i]=-1;
+      }
     } else {
       saved_enemy_type_rot_sprite_id[i]=-1;
+      saved_enemy_type_rot_xsprite_id[i]=-1;
     }
   }
 
   for (int i=0;i<ENEMY_NUM;i++) {
     Enemy[i]->rotated_sprite_id=saved_enemy_type_rot_sprite_id[Enemy[i]->type];
+    Enemy[i]->rotated_xsprite_id=saved_enemy_type_rot_xsprite_id[Enemy[i]->type];
     //printf("Enemy[i]->rotated_sprite_id:%d\n",Enemy[i]->rotated_sprite_id);
   }
 }
 
 
+
 void InitEnemySpritesObj()
 {
+  int species_i=0;
+  HBITMAP tmp_sprite1,tmp_sprite2;
+
+
   EnemyRotatedSprite = calloc(LARGE_ENEMY_TYPE_NUM,sizeof(AEnemyRotatedSprite*));
 
   for (int i=0;i<LARGE_ENEMY_TYPE_NUM;i++) {
@@ -1568,39 +1644,85 @@ void InitEnemySpritesObj()
   }
 
 
+  XEnemyRotatedSprite = calloc(LARGER_ENEMY_TYPE_NUM,sizeof(AXEnemyRotatedSprite*));
+
+  for (int i=0;i<LARGER_ENEMY_TYPE_NUM;i++) {
+    AXEnemyRotatedSprite *newXERotSprite = createXEnemyRotatedSprite();
+    XEnemyRotatedSprite[i] = newXERotSprite;
+  }
+
+
   for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-    if (saved_enemy_type_species[i]==0) {
-      if (EnemyTypeSprite[i].fly_sprite_1==NULL) {
-        EnemyTypeSprite[i].fly_sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[i]],-1);
-      }
-      if (EnemyTypeSprite[i].fly_sprite_2==NULL) {
-        EnemyTypeSprite[i].fly_sprite_2=RotateSprite(NULL, enemy1_sprite_2,0,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[i]],-1);
-      }      
-    } else {
-      if (EnemyTypeSprite[i].fly_sprite_1==NULL) {
-        EnemyTypeSprite[i].fly_sprite_1=RotateSprite(NULL, enemy2_sprite_3,0,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[i]],-1);
-      }
-      if (EnemyTypeSprite[i].fly_sprite_2==NULL) {
-        EnemyTypeSprite[i].fly_sprite_2=RotateSprite(NULL, enemy2_sprite_4,0,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[i]],-1);
-      }
+    species_i=saved_enemy_type_species[i];
+    switch (species_i) {
+      case 0:
+        tmp_sprite1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[i]],-1);
+        tmp_sprite2=RotateSprite(NULL, enemy1_sprite_2,0,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[i]],-1);
+        break;
+      case 1:
+        tmp_sprite1=RotateSprite(NULL, enemy2_sprite_3,0,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[i]],-1);
+        tmp_sprite2=RotateSprite(NULL, enemy2_sprite_4,0,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[i]],-1);
+        break;
+      case 2:
+        tmp_sprite1=RotateSprite(NULL, enemy3_sprite_1,0,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[i]],-1);
+        tmp_sprite2=RotateSprite(NULL, enemy3_sprite_2,0,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[i]],-1);
+        break;
+      case 3:
+        tmp_sprite1=RotateSprite(NULL, enemy4_sprite_3,0,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[i]],-1);
+        tmp_sprite2=RotateSprite(NULL, enemy4_sprite_4,0,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[i]],-1);
+        break;
     }
-    GenerateDrawSprite(&EnemyTypeSprite[i].draw_fly_sprite_1,EnemyTypeSprite[i].fly_sprite_1);
-    GenerateDrawSprite(&EnemyTypeSprite[i].draw_fly_sprite_2,EnemyTypeSprite[i].fly_sprite_2);
+
+    GenerateDrawSprite(&EnemyTypeSprite[i].draw_fly_sprite_1,tmp_sprite1);
+    GenerateDrawSprite(&EnemyTypeSprite[i].draw_fly_sprite_2,tmp_sprite2);
+    DeleteObject(tmp_sprite2);
+    DeleteObject(tmp_sprite1);
+
     loading_numerator++;
   }
 
   for (int i=0;i<LARGE_ENEMY_TYPE_NUM;i++) {
     double angle_rn=M_PI_2;
+    species_i=saved_large_enemy_type_species[i]; //fix, not quite right
     for (int j=0;j<ROTATED_SPRITE_NUM;j++) {
-      EnemyRotatedSprite[i]->rotated_sprite1[j]=RotateSprite(NULL, enemy2_sprite_1,angle_rn,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[saved_enemy_type_rot_sprite_id[i]]],-1);
-      EnemyRotatedSprite[i]->rotated_sprite2[j]=RotateSprite(NULL, enemy2_sprite_2,angle_rn,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[saved_enemy_type_rot_sprite_id[i]]],-1);
-      GenerateDrawSprite(&EnemyRotatedSprite[i]->draw_rotated_sprite1[j],EnemyRotatedSprite[i]->rotated_sprite1[j]);
-      GenerateDrawSprite(&EnemyRotatedSprite[i]->draw_rotated_sprite2[j],EnemyRotatedSprite[i]->rotated_sprite2[j]);
+      switch (species_i) {
+        case 1:
+          tmp_sprite1=RotateSprite(NULL, enemy2_sprite_1,angle_rn,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[saved_enemy_type_rot_sprite_id[i]]],-1);
+          tmp_sprite2=RotateSprite(NULL, enemy2_sprite_2,angle_rn,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[saved_enemy_type_rot_sprite_id[i]]],-1);
+          break;
+        case 3:
+          tmp_sprite1=RotateSprite(NULL, enemy4_sprite_1,angle_rn,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[saved_enemy_type_rot_sprite_id[i]]],-1);
+          tmp_sprite2=RotateSprite(NULL, enemy4_sprite_2,angle_rn,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[saved_enemy_type_rot_sprite_id[i]]],-1);
+          break;
+      }
+
+      GenerateDrawSprite(&EnemyRotatedSprite[i]->draw_rotated_sprite1[j],tmp_sprite1);
+      GenerateDrawSprite(&EnemyRotatedSprite[i]->draw_rotated_sprite2[j],tmp_sprite2);
+      DeleteObject(tmp_sprite2);
+      DeleteObject(tmp_sprite1);
+
+
       angle_rn-=M_PI_32;
       loading_numerator++;
     }
   }
-  //rotated rotate sprite done while in game, 
+
+
+  for (int i=0;i<LARGER_ENEMY_TYPE_NUM;i++) {
+    double angle_rn=M_PI_2;
+    species_i=saved_larger_enemy_type_species[i];
+    for (int j=0;j<ROTATED_SPRITE_NUM;j++) {
+      switch (species_i) {
+        case 3:
+          tmp_sprite1=RotateSprite(NULL, enemy4_sprite_1_0,angle_rn,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[saved_enemy_type_rot_sprite_id[i]]],-1);
+          GenerateDrawSprite(&XEnemyRotatedSprite[i]->draw_rotated_sprite[j],tmp_sprite1);
+          DeleteObject(tmp_sprite1);
+          break;
+      }
+      angle_rn-=M_PI_32;
+      loading_numerator++;
+    }
+  }
 }
 
 
@@ -1658,6 +1780,7 @@ void InitEnemy()
     Enemy[i]->shoot_target_x=0;
     Enemy[i]->shoot_target_y=0;
     Enemy[i]->in_node_grid_id=FALSE;
+    Enemy[i]->sprite_in_water=FALSE;
     Enemy[i]->in_water=FALSE;
     Enemy[i]->web_stuck=FALSE;
     Enemy[i]->flag_web_unstuck=FALSE;
@@ -1739,7 +1862,7 @@ void DrawEnemy(HDC hdc)
     funny=0;*/
 
   for (i=0;i<ENEMY_NUM;i++) {  
-    if (Enemy[i]->species==1) {//rotate sprite
+    if (Enemy[i]->species==1 || Enemy[i]->species==3) {//rotate sprite
       if (Enemy[i]->on_ground_id!=-1) {
         Enemy[i]->sprite_angle=Enemy[i]->angle;
         if (Enemy[i]->sprite_angle>0) { //Slope ++ \/
@@ -1817,20 +1940,20 @@ void DrawEnemy(HDC hdc)
         c2 = WHITE;//Highlight(IsInvertedBackground(),WHITE,BLACK);
         double percentage = Enemy[i]->health/Enemy[i]->max_health;
         double health_length_max=64;
-        if (Enemy[i]->species==1) {
+        if (Enemy[i]->species==1 || Enemy[i]->species==3) {
           health_length_max=100;
         }
         if (Enemy[i]->max_health>=150) {
           health_length_max=150;
         } else if (Enemy[i]->max_health>64) {
           health_length_max=Enemy[i]->max_health;
-          if (Enemy[i]->species==1) {
+          if (Enemy[i]->species==1 || Enemy[i]->species==3) {
             health_length_max=100;
           }
         }
 
         double health_length = health_length_max*percentage;
-        if (Enemy[i]->species==1) {
+        if (Enemy[i]->species==1 || Enemy[i]->species==3) {
           GrRect(hdc,Enemy[i]->sprite_x-health_length/2,
                     Enemy[i]->sprite_y-58,
                     health_length,
@@ -1853,7 +1976,7 @@ void DrawEnemy(HDC hdc)
                 swprintf(wtxt,16,L"1");
               }
               int sprite_x_health=(int)Enemy[i]->sprite_x-wcslen(wtxt)*12/2-3;
-              if (Enemy[i]->species==1) {
+              if (Enemy[i]->species==1 || Enemy[i]->species==3) {
                 if (!player.time_breaker || Enemy[i]->time_breaker_immune) {
                   GrPrintW(hdc,sprite_x_health,Enemy[i]->sprite_y-64,ReplaceToKhmerNum(wtxt),"",c2,16,FALSE,yes_unifont);
                 } else {
@@ -1874,7 +1997,7 @@ void DrawEnemy(HDC hdc)
             sprintf(txt,"1");
           }
           int sprite_x_health=(int)Enemy[i]->sprite_x-strlen(txt)*8/2;
-          if (Enemy[i]->species==1) {
+          if (Enemy[i]->species==1 || Enemy[i]->species==3) {
             if (!player.time_breaker || Enemy[i]->time_breaker_immune) {
               GrPrint(hdc,sprite_x_health,Enemy[i]->sprite_y-64,txt,c2);
             } else {
@@ -1895,6 +2018,7 @@ void DrawEnemy(HDC hdc)
       if (Enemy[i]->health>0) {
       switch (Enemy[i]->species) {
         case 0:
+        case 2:
           if (Enemy[i]->sprite_timer%2==0) {
             if (Enemy[i]->sprite_timer%4==0) {
               DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y+1,&EnemyTypeSprite[Enemy[i]->type].draw_fly_sprite_1,Enemy[i]->last_left);
@@ -1909,10 +2033,84 @@ void DrawEnemy(HDC hdc)
             }
           }
           break;
+        case 3: 
+        {
+          //DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite1[funny],Enemy[i]->last_left);
+          if (Enemy[i]->sprite_in_water && !Enemy[i]->web_stuck) {
+            //if (frame_tick%2==0) {
+              if (Enemy[i]->sprite_timer%8==0) {
+                DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
+                &EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite1[18],Enemy[i]->last_left);
+              } else {
+                DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
+                &EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite2[18],Enemy[i]->last_left);
+              }
+            //}
+          } else if (Enemy[i]->on_ground_id!=-1 && !Enemy[i]->is_in_ground_edge) {
+            if (Enemy[i]->above_ground) {
+              if (!Enemy[i]->move_to_target) {
+                if (Enemy[i]->idle_timer%16<8) {
+                  DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
+                  &EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id],Enemy[i]->last_left);
+                } else {
+                  DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
+                  &XEnemyRotatedSprite[Enemy[i]->rotated_xsprite_id]->draw_rotated_sprite[Enemy[i]->current_rot_sprite_angle_id],Enemy[i]->last_left);
+                }
+              } else {
+                if (Enemy[i]->sprite_timer%8==0) {
+                  DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
+                  &EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id],Enemy[i]->last_left);
+                } else {
+                  DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
+                  &EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite2[Enemy[i]->current_rot_sprite_angle_id],Enemy[i]->last_left);
+                }
+              }
+            } else if (Enemy[i]->below_ground) {
+              if (!Enemy[i]->move_to_target) {
+                if (Enemy[i]->idle_timer%16<8) {
+                  DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
+                  &EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id],Enemy[i]->flip_sprite);
+                } else {
+                  DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
+                  &XEnemyRotatedSprite[Enemy[i]->rotated_xsprite_id]->draw_rotated_sprite[Enemy[i]->current_rot_sprite_angle_id],Enemy[i]->flip_sprite);
+                }
+              } else {
+                if (Enemy[i]->sprite_timer%8==0) {
+                  DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
+                  &EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id],Enemy[i]->flip_sprite);
+                } else {
+                  DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
+                  &EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite2[Enemy[i]->current_rot_sprite_angle_id],Enemy[i]->flip_sprite);
+                }
+              }
+            } else {
+              if (Enemy[i]->sprite_timer%2==0) {
+                DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyTypeSprite[Enemy[i]->type].draw_fly_sprite_1,Enemy[i]->last_left);
+              } else {
+                DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyTypeSprite[Enemy[i]->type].draw_fly_sprite_2,Enemy[i]->last_left);
+              }
+            }
+          } else {
+            if (Enemy[i]->sprite_timer%2==0) {
+              DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyTypeSprite[Enemy[i]->type].draw_fly_sprite_1,Enemy[i]->last_left);
+            } else {
+              DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyTypeSprite[Enemy[i]->type].draw_fly_sprite_2,Enemy[i]->last_left);
+            }
+          }
+          break;
+        }
         case 1: 
         {
           //DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite1[funny],Enemy[i]->last_left);
-          if (Enemy[i]->on_ground_id!=-1 && !Enemy[i]->is_in_ground_edge) {
+          if (Enemy[i]->sprite_in_water && !Enemy[i]->web_stuck) {
+            if (Enemy[i]->sprite_timer%8==0) {
+              DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
+              &EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite1[14],Enemy[i]->last_left);
+            } else {
+              DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
+              &EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite2[14],Enemy[i]->last_left);
+            }
+          } else if (Enemy[i]->on_ground_id!=-1 && !Enemy[i]->is_in_ground_edge) {
             if (Enemy[i]->above_ground) {
               if (Enemy[i]->sprite_timer%8==0) {
                 DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id],Enemy[i]->last_left);

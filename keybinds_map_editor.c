@@ -8,10 +8,19 @@ void UpdateMEDrawSprite()
     MEEnemySprite[ei]->sprite_1=NULL;
     FreeDrawSprite(&MEEnemySprite[ei]->draw_sprite_1);
     //Create New Sprite
-    if (set_enemy_type_species[ei]==0) {
-      MEEnemySprite[ei]->sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[ei]],-1);
-    } else {
-      MEEnemySprite[ei]->sprite_1=RotateSprite(NULL, enemy2_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[ei]],-1);
+    switch (set_enemy_type_species[ei]) {
+      case 0:
+        MEEnemySprite[ei]->sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[ei]],-1);
+        break;
+      case 1:
+        MEEnemySprite[ei]->sprite_1=RotateSprite(NULL, enemy2_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[ei]],-1);
+        break;
+      case 2:
+        MEEnemySprite[ei]->sprite_1=RotateSprite(NULL, enemy3_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[ei]],-1);
+        break;
+      case 3:
+        MEEnemySprite[ei]->sprite_1=RotateSprite(NULL, enemy4_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[ei]],-1);
+        break;
     }
     GenerateDrawSprite(&MEEnemySprite[ei]->draw_sprite_1,MEEnemySprite[ei]->sprite_1);
 }

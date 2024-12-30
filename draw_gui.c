@@ -800,36 +800,11 @@ void DrawMainMenu(HDC hdc)
 
 
       c=Highlight((option_choose==10),WHITE,LTGREEN);
+      char printres[24];
       GrPrint(hdc,30,10+soptions_y+16*13,"Resolution:",c);
-      switch (resolution_choose) {
-        case 0:
-          GrPrint(hdc,30+20*8,10+soptions_y+16*13,"<640x480>",c);
-          break;
-        case 1:
-          GrPrint(hdc,30+20*8,10+soptions_y+16*13,"<800x600>",c);
-          break;
-        case 2:
-          GrPrint(hdc,30+20*8,10+soptions_y+16*13,"<1024x768>",c);
-          break;
-        case 3:
-          GrPrint(hdc,30+20*8,10+soptions_y+16*13,"<1280x720>",c);
-          break;
-        case 4:
-          GrPrint(hdc,30+20*8,10+soptions_y+16*13,"<1280x800>",c);
-          break;
-        case 5:
-          GrPrint(hdc,30+20*8,10+soptions_y+16*13,"<1440x900>",c);
-          break;
-        case 6:
-          GrPrint(hdc,30+20*8,10+soptions_y+16*13,"<1280x1024>",c);
-          break;
-        case 7:
-          GrPrint(hdc,30+20*8,10+soptions_y+16*13,"<1680x1050>",c);
-          break;
-        case 8:
-          GrPrint(hdc,30+20*8,10+soptions_y+16*13,"<1920x1080> [MAX]",c);
-          break;
-      } 
+      
+      sprintf(printres,"<%dx%d> [%s]",RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],RESOLUTION_NAME[resolution_choose]);
+      GrPrint(hdc,30+20*8,10+soptions_y+16*13,printres,c);
 
       c=Highlight((option_choose==11),WHITE,LTGREEN);
       GrPrint(hdc,30,10+soptions_y+16*14,"Window Align Position:",c);
