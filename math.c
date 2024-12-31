@@ -855,12 +855,24 @@ double GetBounceAngle(double angle1,double angle2)
 {
   double ans;
   ans=2*M_PI-angle1+2*angle2;
-  if (ans>2*M_PI) {
+  //if (ans>2*M_PI || ans<0) {
+  if (ans>0) {
     ans=fmod(ans,(2*M_PI));
+  } else {
+    ans=fmod(ans,(-2*M_PI));
+  }
+  //}
+  /*if (ans<0) {
+    ans=abs(fmod(ans,(2*M_PI)));
+  }*/
+
+  /*if (ans>2*M_PI) {
+    ans-=2*M_PI;
   }
   if (ans<0) {
-    ans=abs(fmod(ans,(2*M_PI)));
-  }
+    ans+=2*M_PI;
+  }*/
+
   return ans;
 }
 

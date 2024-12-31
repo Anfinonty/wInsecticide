@@ -327,6 +327,7 @@ void EnemyReboundFromGround(int enemy_id,int ground_id,bool is_rebound)
         if (Enemy[enemy_id]->species==1 || Enemy[enemy_id]->species==3) {
           Enemy[enemy_id]->in_air_timer=2;
         }
+        Enemy[enemy_id]->saved_ground_id=ground_id;
         Enemy[enemy_id]->is_in_ground_edge=TRUE;
       } else {
         Enemy[enemy_id]->is_in_ground_edge=FALSE;
@@ -334,8 +335,6 @@ void EnemyReboundFromGround(int enemy_id,int ground_id,bool is_rebound)
     } else {
       Enemy[enemy_id]->is_in_ground_edge=FALSE;
     }
-    //double ground_entity_angle2=GetLineTargetAngle(Enemy[enemy_id]->saved_ground_id,Enemy[enemy_id]->x,Enemy[enemy_id]->y);
-    //double height_from_ground2=GetLineTargetHeight(Enemy[enemy_id]->saved_ground_id,ground_entity_angle2,Enemy[enemy_id]->x,Enemy[enemy_id]->y);
     
     Enemy[enemy_id]->in_air_timer=0;
     if (!is_rebound) {
@@ -365,6 +364,9 @@ void EnemyReboundFromGround(int enemy_id,int ground_id,bool is_rebound)
 
     if (/*abs(height_from_ground)<=25 &&*/ is_rebound) {
       int tmp_grnd=ground_id; //rebound enemy froun ground
+      if (Enemy[enemy_id]->is_in_ground_edge) {
+        tmp_grnd=Enemy[enemy_id]->saved_ground_id;
+      }
       if (tmp_grnd!=-1) {
         if (Enemy[enemy_id]->above_ground) {
           Enemy[enemy_id]->x-=cos(Ground[tmp_grnd]->angle+M_PI_2);
@@ -421,7 +423,6 @@ void LargeEnemyGravity(int enemy_id)
   } 
   Enemy[enemy_id]->previous_above_ground=Enemy[enemy_id]->above_ground;
   Enemy[enemy_id]->previous_below_ground=Enemy[enemy_id]->below_ground;
-  Enemy[enemy_id]->saved_ground_id=Enemy[enemy_id]->on_ground_id;
 }
 
 

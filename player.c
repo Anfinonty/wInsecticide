@@ -881,8 +881,10 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
     player.fling_distance=0; //on ground, stop flinging
 
     //angle of incidence and reflection
-    player.angle_of_reflection=GetBounceAngle(player.angle_of_incidence,player.angle);
+    player.angle_of_reflection=
         //2*M_PI-player.angle_of_incidence+2*player.angle; //real
+        GetBounceAngle(player.angle_of_incidence,player.angle);
+
 
     if (!player.is_swinging) {
       player.angle_of_incidence=player.angle_of_reflection;
@@ -961,7 +963,8 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
     player.fling_distance=0; //on ground, stop flinging
 
     //angle of incidence and reflection
-    player.angle_of_reflection=GetBounceAngle(player.angle_of_incidence,player.angle);//2*M_PI-player.angle_of_incidence+2*player.angle; //real
+    player.angle_of_reflection=GetBounceAngle(player.angle_of_incidence,player.angle);
+    //2*M_PI-player.angle_of_incidence+2*player.angle; //real
     if (!player.is_swinging) {
       player.angle_of_incidence=player.angle_of_reflection;
     }
@@ -1855,21 +1858,7 @@ void PlayerAct()
      //speed_limiter=15;
      speed_limiter*=10;//10;//*=5;
   }
-              /*double le_angle=M_PI_2+M_PI;
-              if (player.angle_of_incidence>M_PI) {
-                if (player.angle_of_incidence>M_PI+M_PI_2)
-                  le_angle=2*M_PI-player.angle_of_incidence;
-                else
-                  le_angle=M_PI_2+2*M_PI-player.angle_of_incidence;
-              } else {
-                if (player.angle_of_incidence>M_PI_2)
-                  le_angle=M_PI-player.angle_of_incidence;
-                else
-                  le_angle=M_PI_2+M_PI-player.angle_of_incidence;
-              }
-              player.jump_angle=
-              player.jump_angle2=le_angle+M_PI_2;
-              player.jump_height=200;*///player.fling_distance/2;
+
   if (player.below_ground_edge_timer>0) {
     player.below_ground_edge_timer--;
   }
