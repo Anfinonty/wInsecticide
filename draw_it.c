@@ -60,10 +60,10 @@ void DrawWaterPlatforms(HDC hdc)
     cx2=player.cam_move_x,
     cy2=player.cam_move_y;
   for (int i=0;i<RDGRID_DYN_NUM;i++) {
-    _x=RDGrid[i].x+px-GR_WIDTH/2-cx1-cy2;//+cx1+cx2;//GR_WIDTH/2+RDGrid[i].x-px+cx1+cx2;
+    _x=RDGrid[i].x+px-GR_WIDTH/2-cx1-cx2;//+cx1+cx2;//GR_WIDTH/2+RDGrid[i].x-px+cx1+cx2;
     _y=RDGrid[i].y+py-GR_HEIGHT/2-cy1-cy2;//+cy1+cy2;//GR_HEIGHT/2+RDGrid[i].y-py+cy1+cy2;
     gid=GetGridId(_x,_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
-    if (gid!=-1 && _y>0 && _x>0 && _x<MAP_WIDTH && _y<MAP_HEIGHT) {
+    if (gid!=-1 && _y>=0 && _x>=0 && _x<MAP_WIDTH && _y<MAP_HEIGHT) {
       tmf_id=VGrid[gid]->draw_foreground_seg_id;
       if (tmf_id!=-1) {
         x=GR_WIDTH/2+TileMapForeground[tmf_id]->x-px+cx1+cx2;
@@ -111,10 +111,10 @@ void DrawPlatforms(HDC hdc)
     cx2=player.cam_move_x,
     cy2=player.cam_move_y;
   for (int i=0;i<RDGRID_DYN_NUM;i++) {
-    _x=RDGrid[i].x+px-GR_WIDTH/2-cx1-cy2;//+cx1+cx2;//GR_WIDTH/2+RDGrid[i].x-px+cx1+cx2;
+    _x=RDGrid[i].x+px-GR_WIDTH/2-cx1-cx2;//+cx1+cx2;//GR_WIDTH/2+RDGrid[i].x-px+cx1+cx2;
     _y=RDGrid[i].y+py-GR_HEIGHT/2-cy1-cy2;//+cy1+cy2;//GR_HEIGHT/2+RDGrid[i].y-py+cy1+cy2;
     gid=GetGridId(_x,_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
-    if (gid!=-1 && _y>0 && _x>0 && _x<MAP_WIDTH && _y<MAP_HEIGHT) {
+    if (gid!=-1 && _y>=0 && _x>=0 && _x<MAP_WIDTH && _y<MAP_HEIGHT) {
       tmp_id=VGrid[gid]->draw_platform_seg_id;
       if (tmp_id!=-1) {
         x=GR_WIDTH/2+TileMapPlatform[tmp_id]->x-px+cx1+cx2;
@@ -153,11 +153,11 @@ void DrawShadows(HDC hdc)
 //  for (int i=0;i<RDGRID_NUM;i++) {
   for (int i=0;i<RDGRID_DYN_NUM;i++) {
     //tms_id=i;
-    _x=RDGrid[i].x+px-GR_WIDTH/2-cx1-cy2;//+cx1+cx2;//GR_WIDTH/2+RDGrid[i].x-px+cx1+cx2;
+    _x=RDGrid[i].x+px-GR_WIDTH/2-cx1-cx2;//+cx1+cx2;//GR_WIDTH/2+RDGrid[i].x-px+cx1+cx2;
     _y=RDGrid[i].y+py-GR_HEIGHT/2-cy1-cy2;//+cy1+cy2;//GR_HEIGHT/2+RDGrid[i].y-py+cy1+cy2;
     gid=GetGridId(_x,_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
     //GrCircle(hdc,_x,_y,15,RED,RED);
-    if (gid!=-1 && _y>0 && _x>0 && _x<MAP_WIDTH && _y<MAP_HEIGHT) {
+    if (gid!=-1 && _y>=0 && _x>=0 && _x<MAP_WIDTH && _y<MAP_HEIGHT) {
       tms_id=VGrid[gid]->draw_shadow_seg_id;
       if (tms_id!=-1) {
         x=GR_WIDTH/2+TileMapShadow[tms_id]->x-px+cx1+cx2;

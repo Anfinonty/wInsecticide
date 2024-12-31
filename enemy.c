@@ -321,12 +321,23 @@ void EnemyReboundFromGround(int enemy_id,int ground_id,bool is_rebound)
     if (ground_id!=-1) {
       edge_1_dist=GetDistance(Enemy[enemy_id]->x,Enemy[enemy_id]->y,Ground[ground_id]->x1,Ground[ground_id]->y1);
       edge_2_dist=GetDistance(Enemy[enemy_id]->x,Enemy[enemy_id]->y,Ground[ground_id]->x2,Ground[ground_id]->y2);
+      if (edge_1_dist<=31 || edge_2_dist<=31) {
+        Enemy[enemy_id]->above_ground=
+        Enemy[enemy_id]->below_ground=FALSE;
+        if (Enemy[enemy_id]->species==1 || Enemy[enemy_id]->species==3) {
+          Enemy[enemy_id]->in_air_timer=2;
+        }
+        Enemy[enemy_id]->is_in_ground_edge=TRUE;
+      } else {
+        Enemy[enemy_id]->is_in_ground_edge=FALSE;
+      }
+    } else {
+      Enemy[enemy_id]->is_in_ground_edge=FALSE;
     }
     //double ground_entity_angle2=GetLineTargetAngle(Enemy[enemy_id]->saved_ground_id,Enemy[enemy_id]->x,Enemy[enemy_id]->y);
     //double height_from_ground2=GetLineTargetHeight(Enemy[enemy_id]->saved_ground_id,ground_entity_angle2,Enemy[enemy_id]->x,Enemy[enemy_id]->y);
     
     Enemy[enemy_id]->in_air_timer=0;
-
     if (!is_rebound) {
       if (abs(height_from_ground)<=33 && ground_id!=-1) {
         if (height_from_ground>0) {    //species 1 above ground (positive)
@@ -350,21 +361,9 @@ void EnemyReboundFromGround(int enemy_id,int ground_id,bool is_rebound)
       }
     }
 
-    //if (Enemy[enemy_id]->species==1) {
-      if (edge_1_dist<=31 || edge_2_dist<=31) {
-        //Enemy[enemy_id]->above_ground=
-        //Enemy[enemy_id]->below_ground=FALSE;
-        if (Enemy[enemy_id]->species==1 || Enemy[enemy_id]->species==3) {
-          Enemy[enemy_id]->in_air_timer=2;
-        }
-        Enemy[enemy_id]->is_in_ground_edge=TRUE;
-      } else {
-        Enemy[enemy_id]->is_in_ground_edge=FALSE;
-      }
-    //}
 
 
-    if (abs(height_from_ground)<=25 && is_rebound) {
+    if (/*abs(height_from_ground)<=25 &&*/ is_rebound) {
       int tmp_grnd=ground_id; //rebound enemy froun ground
       if (tmp_grnd!=-1) {
         if (Enemy[enemy_id]->above_ground) {
@@ -393,8 +392,8 @@ void LargeEnemySpriteTimer(int enemy_id)
 
 void LargeEnemyGravity(int enemy_id)
 {
-//  Enemy[enemy_id]->on_ground_id=GetOnGroundIdE(Enemy[enemy_id]->x,Enemy[enemy_id]->y,30,29,enemy_id);    //Get Ground id //clipping issue
   int tmp_=GetOnGroundId(Enemy[enemy_id]->x,Enemy[enemy_id]->y+2,30,29);
+//  int tmp_=Enemy[enemy_id]->on_ground_id;
   int node_grid_id1=Enemy[enemy_id]->in_node_grid_id;//GetGridId(Enemy[enemy_id]->x,Enemy[enemy_id]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
   int node_grid_id2=GetGridId(Enemy[enemy_id]->x,Enemy[enemy_id]->y+NODE_SIZE,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
   bool is_in_solid1=FALSE;//=NodeGrid[node_grid_id1]->node_solid;
@@ -405,6 +404,9 @@ void LargeEnemyGravity(int enemy_id)
   if (node_grid_id2!=-1) {
     is_in_solid2=NodeGrid[node_grid_id2]->node_solid;
   }
+  /*if (tmp_!=-1) {
+    Enemy[enemy_id]->on_ground_id=tmp_;
+  }*/
   if (Enemy[enemy_id]->on_ground_id==-1 && tmp_==-1) {//not on ground
     if (!is_in_solid1 && !is_in_solid2) {
       if (!Enemy[enemy_id]->in_water) {
@@ -416,11 +418,7 @@ void LargeEnemyGravity(int enemy_id)
     Enemy[enemy_id]->in_air_timer=2;
     Enemy[enemy_id]->above_ground=FALSE;
     Enemy[enemy_id]->below_ground=FALSE;
-  } else {//on ground
-    if (Enemy[enemy_id]->on_ground_id!=-1) {
-      EnemyReboundFromGround(enemy_id,Enemy[enemy_id]->on_ground_id,TRUE);
-    }
-  }
+  } 
   Enemy[enemy_id]->previous_above_ground=Enemy[enemy_id]->above_ground;
   Enemy[enemy_id]->previous_below_ground=Enemy[enemy_id]->below_ground;
   Enemy[enemy_id]->saved_ground_id=Enemy[enemy_id]->on_ground_id;
@@ -458,29 +456,19 @@ void EnemyMove(int enemy_id)
   //}
 
   int tmp_on_ground_id=-1;
+  if (!Enemy[enemy_id]->is_ground_rebounding) { //check if should enemy rebound from ground
+    //tmp_on_ground_id=GetOnGroundId(Enemy[enemy_id]->x,Enemy[enemy_id]->y,3,2); //begin rebounding when too close to ground
+    tmp_on_ground_id=GetOnGroundId(Enemy[enemy_id]->x,Enemy[enemy_id]->y,3,2); //begin rebounding when too close to ground
 
-  if (!Enemy[enemy_id]->is_ground_rebounding) {
-//    tmp_on_ground_id=GetOnGroundId(Enemy[enemy_id]->x,Enemy[enemy_id]->y,5,4);    //Get Ground id
-    tmp_on_ground_id=GetOnGroundId(Enemy[enemy_id]->x,Enemy[enemy_id]->y,3,2);    //Get Ground id
     if (tmp_on_ground_id!=-1) {
       Enemy[enemy_id]->is_ground_rebounding=TRUE;
       Enemy[enemy_id]->force_search=TRUE;
     } else {
       if (Enemy[enemy_id]->x<path_node_center_x) {
-        //if (Enemy[enemy_id]->species==0 || Enemy[enemy_id]->species==2) {
-          Enemy[enemy_id]->last_left=FALSE;
-        //} else {
-          //if (Enemy[enemy_id]->sprite_flip_timer>0) {
-            //Enemy[enemy_id]->sprite_flip_timer--;
-          //} else {
-            //Enemy[enemy_id]->last_left=FALSE;
-            //Enemy[enemy_id]->sprite_flip_timer=150;
-          //}
-        //}
+        Enemy[enemy_id]->last_left=FALSE;
         Enemy[enemy_id]->x+=Enemy[enemy_id]->speed;
       } else {
         //if (Enemy[enemy_id]->species==0 || Enemy[enemy_id]->species==2) {
-          Enemy[enemy_id]->last_left=TRUE;
         //} else {
           //if (Enemy[enemy_id]->sprite_flip_timer>0) {
             //Enemy[enemy_id]->sprite_flip_timer--;
@@ -489,6 +477,7 @@ void EnemyMove(int enemy_id)
             //Enemy[enemy_id]->sprite_flip_timer=150;
           //}
         //}
+        Enemy[enemy_id]->last_left=TRUE;
         Enemy[enemy_id]->x-=Enemy[enemy_id]->speed;  
       }
       if (Enemy[enemy_id]->y<path_node_center_y) {
@@ -497,44 +486,26 @@ void EnemyMove(int enemy_id)
         Enemy[enemy_id]->y-=Enemy[enemy_id]->speed;
       }
     }
-  } else {
-    //if (Enemy[enemy_id]->species==1) {
-      //tmp_on_ground_id=GetOnGroundId(Enemy[enemy_id]->x,Enemy[enemy_id]->y,30,29);
-    //} else {
-    tmp_on_ground_id=GetOnGroundId(Enemy[enemy_id]->x,Enemy[enemy_id]->y,30,29);
-    //}
-    if (tmp_on_ground_id==-1) {
+
+    if (path_node_center_y-1<=Enemy[enemy_id]->y && Enemy[enemy_id]->y<=path_node_center_y+1 &&
+        path_node_center_x-1<=Enemy[enemy_id]->x && Enemy[enemy_id]->x<=path_node_center_x+1) {
+      Enemy[enemy_id]->path_nodes_num--;
+      if (path_node_arr_id<=0) { //all nodes followed
+        Enemy[enemy_id]->idling=TRUE;
+        Enemy[enemy_id]->move_to_target=FALSE;
+      }
+    }
+
+
+  } else { //currently rebounding
+    tmp_on_ground_id=GetOnGroundId(Enemy[enemy_id]->x,Enemy[enemy_id]->y,16,15);
+    if (tmp_on_ground_id==-1) { //stop rebounding
       Enemy[enemy_id]->is_ground_rebounding=FALSE;
-    } else {    
+    } else { //keep rebounding when not out from ground yet
       EnemyReboundFromGround(enemy_id,tmp_on_ground_id,TRUE);
     }
-
   }
 
-  /*if (tmp_on_ground_id==-1) {
-    //Enemy[enemy_id]->in_air_timer=2;
-    //Enemy[enemy_id]->above_ground=FALSE;
-    //Enemy[enemy_id]->below_ground=FALSE;
-
-    
-  } else {
-    //Enemy[enemy_id]->idling=TRUE;
-    //Enemy[enemy_id]->move_to_target=FALSE;
-    //EnemyReboundFromGround(enemy_id,tmp_on_ground_id);
-  }*/
-
-
-  if (path_node_center_y-1<=Enemy[enemy_id]->y && Enemy[enemy_id]->y<=path_node_center_y+1 &&
-      path_node_center_x-1<=Enemy[enemy_id]->x && Enemy[enemy_id]->x<=path_node_center_x+1) {
-    Enemy[enemy_id]->path_nodes_num--;
-    if (path_node_arr_id<=0) { //all nodes followed
-      Enemy[enemy_id]->idling=TRUE;
-      Enemy[enemy_id]->move_to_target=FALSE;
-    }
-  }
-  /*Enemy[enemy_id]->previous_above_ground=Enemy[enemy_id]->above_ground;
-  Enemy[enemy_id]->previous_below_ground=Enemy[enemy_id]->below_ground;
-  Enemy[enemy_id]->saved_ground_id=tmp_on_ground_id;*///Enemy[enemy_id]->on_ground_id;
 }
 
 void EnemyTargetPlayer(int i)
@@ -685,16 +656,12 @@ void EnemyKnockbackMove(int i)
       Enemy[i]->knockback_timer=0;
     } else {
       if (allow_act) {
-        EnemyReboundFromGround(i,tmp_,TRUE);
+        EnemyReboundFromGround(i,tmp_,TRUE); //knockback rebound
       } else {
         Enemy[i]->knockback_timer=0;
       }
     }
   } else {
-    Enemy[i]->on_ground_id=-1;
-    Enemy[i]->saved_ground_id=-1;
-    Enemy[i]->angle=0;
-
     double kb_x=cos(Enemy[i]->knockback_angle)*player.knockback_speed;
     double kb_y=sin(Enemy[i]->knockback_angle)*player.knockback_speed;      
     if (Enemy[i]->in_water) {
@@ -1134,9 +1101,7 @@ void EnemyAct(int i)
 
 
       //toggle staate in water
-      Enemy[i]->in_node_grid_id=GetGridId(Enemy[i]->x,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
-
-      
+      Enemy[i]->in_node_grid_id=GetGridId(Enemy[i]->x,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);      
       tmp_ngid=Enemy[i]->in_node_grid_id;
       if (tmp_ngid!=-1) {
         if (NodeGrid[tmp_ngid]->node_water) {
@@ -1226,33 +1191,28 @@ void EnemyAct(int i)
             sub_tmp_ngid=GetGridId(nx,ny,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
             if (sub_tmp_ngid!=-1) {
                if (!NodeGrid[sub_tmp_ngid]->non_web && NodeGrid[sub_tmp_ngid]->node_solid) { //web_detected
-                 if (!Enemy[i]->web_stuck && GetDistance(nx,ny,player.x,player.y)<=NODE_SIZE+1) {
+                 if (!Enemy[i]->web_stuck && GetDistance(nx,ny,Enemy[i]->x,Enemy[i]->y)<=NODE_SIZE+1) {
                    Enemy[i]->flag_web_stuck=TRUE;
                  }
                  break;
                }
             }
-          }
-          if (Enemy[i]->web_stuck && !Enemy[i]->flag_web_stuck) {
-            Enemy[i]->flag_web_unstuck=TRUE;
+            if (m==3) {
+              if (Enemy[i]->web_stuck && !Enemy[i]->flag_web_stuck) {
+                Enemy[i]->flag_web_unstuck=TRUE;
+              }
+            }
           }
       }
 
 
 
       for (slash_time_i=0;slash_time_i<slash_time;slash_time_i++) {
+//          Enemy[i]->on_ground_id=GetOnGroundId(Enemy[i]->x,Enemy[i]->y,30,29); //purely for graphics only
+          Enemy[i]->on_ground_id=GetOnGroundId(Enemy[i]->x,Enemy[i]->y,33,32); //purely for graphics only
           if (Enemy[i]->species==1 || Enemy[i]->species==3) {
-            int tmp_on_ground_id2=GetOnGroundId(Enemy[i]->x,Enemy[i]->y,33,32);//GetOnGroundId(Enemy[i]->x,Enemy[i]->y,30,29);
-            //Enemy[enemy_id]->on_ground_id=GetOnGroundId(Enemy[enemy_id]->x,Enemy[enemy_id]->y,31,30);    //Get 
-            //Enemy[i]->on_ground_id=tmp_on_ground_id2;
-             Enemy[i]->on_ground_id=tmp_on_ground_id2;    //Get 
-             if (tmp_on_ground_id2!=-1) {
-               EnemyReboundFromGround(i,tmp_on_ground_id2,FALSE);
-             } 
+            EnemyReboundFromGround(i,Enemy[i]->on_ground_id,FALSE);
           }
-
-
-
           if (Enemy[i]->on_ground_id==-1) {
             Enemy[i]->is_in_ground_edge=FALSE;
           }
@@ -2046,7 +2006,7 @@ void DrawEnemy(HDC hdc)
                 &EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite2[18],Enemy[i]->last_left);
               }
             //}
-          } else if (Enemy[i]->on_ground_id!=-1 && !Enemy[i]->is_in_ground_edge) {
+          } else if (Enemy[i]->on_ground_id!=-1/* && !Enemy[i]->is_in_ground_edge*/) {
             if (Enemy[i]->above_ground) {
               if (!Enemy[i]->move_to_target) {
                 if (Enemy[i]->idle_timer%16<8) {
@@ -2110,7 +2070,7 @@ void DrawEnemy(HDC hdc)
               DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
               &EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite2[14],Enemy[i]->last_left);
             }
-          } else if (Enemy[i]->on_ground_id!=-1 && !Enemy[i]->is_in_ground_edge) {
+          } else if (Enemy[i]->on_ground_id!=-1/* && !Enemy[i]->is_in_ground_edge*/) {
             if (Enemy[i]->above_ground) {
               if (Enemy[i]->sprite_timer%8==0) {
                 DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id],Enemy[i]->last_left);

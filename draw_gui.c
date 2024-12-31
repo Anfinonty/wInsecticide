@@ -3,11 +3,8 @@
 void DrawWaterShader(HDC hdc) 
 {
   if (player.in_water) {
-    //if (!IsInvertedBackground()) {
-      GrGlassRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,BLUE,128);
-    /*} else {
-      GrGlassRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,LTR2YELLOW,128);
-    }*/
+//      GrGlassRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,BLUE,128);
+      GrGlassRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,BLUE,64);
   }
 }
 
