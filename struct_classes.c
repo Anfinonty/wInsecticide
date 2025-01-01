@@ -444,7 +444,7 @@ void RegainWeb(int web_id);
 void PlayerAct();
 void PlayerPlaceWeb();
 void PlayerCameraShake();
-void DrawPlayer(HDC hdc);
+void DrawPlayer(HDC hdc,HDC hdc2);
 
 
 
@@ -956,7 +956,7 @@ void EnemyTargetPlayer(int i);
 void EnemyAct(int i);
 void SetEnemyByType(int i,int type);
 void InitEnemy();
-void DrawEnemy(HDC hdc);
+void DrawEnemy(HDC hdc,HDC hdc2);
 
 
 
@@ -1002,7 +1002,7 @@ HBITMAP map_background_sprite;
 
 //map platforms
 HBITMAP map_platforms_sprite;
-HBITMAP map_platforms_sprite_mask;
+//HBITMAP map_platforms_sprite_mask;
 
 HBITMAP map_water_platforms_sprite;
 //HBITMAP map_water_platforms_sprite_mask;
@@ -1038,6 +1038,10 @@ HBITMAP mm0_kh_hijri[2];
 HBITMAP mm0_kh_hijri_mask[2];
 
 
+//Shadow Tile
+HBITMAP dkrdkgray_shadow_tile;
+HBITMAP ltgray_shadow_tile;
+
 //Khmer ingame, while playing game
 HBITMAP ga0_kh[5];
 HBITMAP ga0_kh_mask[5];
@@ -1056,4 +1060,9 @@ wavSoundEffect songAudio;
 wavSoundEffectCache spamSoundEffectCache[SPAM_SFX_NUM];
 wavSoundEffectCache keySoundEffectCache[KEY_SFX_NUM];
 wavSoundEffectCache channelSoundEffectCache[CHANNEL_SFX_NUM];
+
+
+
+//Global blend function
+BLENDFUNCTION gblendFunction;
 

@@ -1839,7 +1839,7 @@ void InitEnemy()
 
 //int cenemy=0;
 //int funny=0;
-void DrawEnemy(HDC hdc)
+void DrawEnemy(HDC hdc,HDC hdc2)
 {
   int i=0,k=0,c=0,c2=0;
   int 
@@ -2074,15 +2074,15 @@ void DrawEnemy(HDC hdc)
         case 2:
           if (Enemy[i]->sprite_timer%2==0) {
             if (Enemy[i]->sprite_timer%4==0) {
-              DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y+1,&EnemyTypeSprite[Enemy[i]->type].draw_fly_sprite_1,Enemy[i]->last_left);
+              DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y+1,&EnemyTypeSprite[Enemy[i]->type].draw_fly_sprite_1,Enemy[i]->last_left);
             } else {
-              DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyTypeSprite[Enemy[i]->type].draw_fly_sprite_1,Enemy[i]->last_left);
+              DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyTypeSprite[Enemy[i]->type].draw_fly_sprite_1,Enemy[i]->last_left);
             }
           } else {
             if (Enemy[i]->sprite_timer%3==0) {
-              DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y-2,&EnemyTypeSprite[Enemy[i]->type].draw_fly_sprite_2,Enemy[i]->last_left);
+              DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y-2,&EnemyTypeSprite[Enemy[i]->type].draw_fly_sprite_2,Enemy[i]->last_left);
             } else {
-              DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y-1,&EnemyTypeSprite[Enemy[i]->type].draw_fly_sprite_2,Enemy[i]->last_left);
+              DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y-1,&EnemyTypeSprite[Enemy[i]->type].draw_fly_sprite_2,Enemy[i]->last_left);
             }
           }
           break;
@@ -2100,10 +2100,10 @@ void DrawEnemy(HDC hdc)
               swim_rot_id=18;
             }
             if (Enemy[i]->sprite_timer%8==0) {
-              DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
+              DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
               &EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite1[swim_rot_id],Enemy[i]->last_left);
             } else {
-              DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
+              DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
               &EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite2[swim_rot_id],Enemy[i]->last_left);
             }
           } else if (Enemy[i]->on_ground_id!=-1) { //on a ground
@@ -2117,15 +2117,15 @@ void DrawEnemy(HDC hdc)
                     flip_bool=Enemy[i]->flip_sprite;
                   }
                   if (Enemy[i]->sprite_timer%8==0) {
-                    DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
+                    DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
                   } else {
-                    DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite2[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
+                    DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite2[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
                   }
                 } else {
                   if (Enemy[i]->sprite_timer%2==0) { //fly sprite
-                    DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyTypeSprite[Enemy[i]->type].draw_fly_sprite_1,Enemy[i]->last_left);
+                    DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyTypeSprite[Enemy[i]->type].draw_fly_sprite_1,Enemy[i]->last_left);
                   } else {
-                    DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyTypeSprite[Enemy[i]->type].draw_fly_sprite_2,Enemy[i]->last_left);
+                    DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyTypeSprite[Enemy[i]->type].draw_fly_sprite_2,Enemy[i]->last_left);
                   }
                 }
               } else { //not moving to target && on ground
@@ -2138,14 +2138,14 @@ void DrawEnemy(HDC hdc)
 
                 if (Enemy[i]->species==3) { 
                   if (Enemy[i]->idle_timer%16<8) {
-                    DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
+                    DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
                     &EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
                   } else {
-                    DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
+                    DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
                     &XEnemyRotatedSprite[Enemy[i]->rotated_xsprite_id]->draw_rotated_sprite[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
                   }
                 } else {
-                  DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
+                  DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
                   &EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
                 }
              }
@@ -2161,9 +2161,9 @@ void DrawEnemy(HDC hdc)
               }
 
               if (Enemy[i]->sprite_timer%8==0) {
-                DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
+                DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
               } else {
-                DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite2[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
+                DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite2[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
               }
 
             }
@@ -2172,9 +2172,9 @@ void DrawEnemy(HDC hdc)
 
           } else { //sprite flying
             if (Enemy[i]->sprite_timer%2==0) {
-              DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyTypeSprite[Enemy[i]->type].draw_fly_sprite_1,Enemy[i]->last_left);
+              DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyTypeSprite[Enemy[i]->type].draw_fly_sprite_1,Enemy[i]->last_left);
             } else {
-              DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyTypeSprite[Enemy[i]->type].draw_fly_sprite_2,Enemy[i]->last_left);
+              DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyTypeSprite[Enemy[i]->type].draw_fly_sprite_2,Enemy[i]->last_left);
             }
           }
           break;

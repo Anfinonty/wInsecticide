@@ -543,15 +543,18 @@ void Init8BitRGBPaintDefault(int *rgbPaint_dest,RGBQUAD *rgbColors_src,bool is_a
 }
 
 
-void BitmapPalette(HDC hdc, HBITMAP hBitmap,RGBQUAD *bitmapPalette) {
-  HDC hdc2 = CreateCompatibleDC(hdc);
+void BitmapPalette(HDC hdc, HDC hdc2,HBITMAP hBitmap,RGBQUAD *bitmapPalette) {
+  /*HDC hdc2 = CreateCompatibleDC(hdc);
   HBITMAP hOldBitmap;
   
   hOldBitmap = SelectObject(hdc2, hBitmap);
   SetDIBColorTable(hdc2, 0, 256, bitmapPalette);
   SelectObject(hdc2, hOldBitmap);
   DeleteObject(hOldBitmap);
-  DeleteDC(hdc2);
+  DeleteDC(hdc2);*/
+
+  SelectObject(hdc2, hBitmap);
+  SetDIBColorTable(hdc2, 0, 256, bitmapPalette);
 }
 
 
@@ -805,14 +808,13 @@ void GrRect(HDC hdc, double x,double y,int l, int h,int COLOR) {
 
 //https://stackoverflow.com/questions/10966008/draw-slightly-transparent-blue-rectangle-in-native-win32-gdi
 //https://www.codeproject.com/Articles/286/Using-the-AlphaBlend-function
-void GrGlassRect(HDC hdc, int x, int y, int width, int height, int COLOR, BYTE alpha) {
+void GrGlassRect(HDC hdc, HDC hdcMem, int x, int y, int width, int height, int COLOR, BYTE alpha) {
     BLENDFUNCTION blendFunction;
     blendFunction.BlendOp = AC_SRC_OVER;
     blendFunction.BlendFlags = 0;
     blendFunction.SourceConstantAlpha = alpha; // Transparency level (0-255)
     blendFunction.AlphaFormat = 0;
 
-    HDC hdcMem = CreateCompatibleDC(hdc);
     HBITMAP hBitmap = CreateCompatibleBitmap(hdc, width, height);
     SelectObject(hdcMem, hBitmap);
 
@@ -827,7 +829,6 @@ void GrGlassRect(HDC hdc, int x, int y, int width, int height, int COLOR, BYTE a
     // Clean up
     DeleteObject(hBrush);
     DeleteObject(hBitmap);
-    DeleteDC(hdcMem);
 }
 
 
@@ -983,13 +984,13 @@ void GrPrintA(HDC hdc, double x1, double y1, wchar_t *_txt, int color)
 
 
 
-void DrawBitmap(HDC hDC,double _x1,double _y1, double _x2, double _y2, int width, int height, HBITMAP hSourceBitmap,int _SRCTYPE,bool stretch,bool is_left)
-//void DrawBitmap(HDC hDC, HDC hdcMem,double _x1,double _y1, double _x2, double _y2, int width, int height, HBITMAP hSourceBitmap,int _SRCTYPE,bool stretch,bool is_left)
+//void DrawBitmap(HDC hDC,double _x1,double _y1, double _x2, double _y2, int width, int height, HBITMAP hSourceBitmap,int _SRCTYPE,bool stretch,bool is_left)
+void DrawBitmap(HDC hDC, HDC hdcMem,double _x1,double _y1, double _x2, double _y2, int width, int height, HBITMAP hSourceBitmap,int _SRCTYPE,bool stretch,bool is_left)
 
 {
   if (hSourceBitmap!=NULL) {
     BITMAP bitmap;
-    HDC hdcMem = CreateCompatibleDC(hDC);
+    //HDC hdcMem = CreateCompatibleDC(hDC);
     GetObject(hSourceBitmap,sizeof(bitmap),&bitmap);
     SelectObject(hdcMem,hSourceBitmap);
     int b_width=width;
@@ -1002,7 +1003,7 @@ void DrawBitmap(HDC hDC,double _x1,double _y1, double _x2, double _y2, int width
      //StretchBlt(hDC, _x1+bitmap.bmWidth/2, _y1-bitmap.bmHeight/2, -bitmap.bmWidth-1, bitmap.bmHeight, hdcMemA, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCAND); //Create Mask for
     else
       BitBlt(hDC, _x1, _y1, width, height, hdcMem, _x2, _y2, _SRCTYPE);
-    DeleteDC(hdcMem);
+    //DeleteDC(hdcMem);
   }
 }
 
@@ -1871,12 +1872,12 @@ void FreeDrawSprite(DRAWSPRITE* myDrawSprite)
 
 
 
-void DrawSprite(HDC hdc,int _x1, int _y1, DRAWSPRITE* myDrawSprite,bool is_left)
+void DrawSprite(HDC hdc,HDC hdc2,int _x1, int _y1, DRAWSPRITE* myDrawSprite,bool is_left)
 {
   BITMAP bm;
   GetObject(myDrawSprite->sprite_mask, sizeof(bm), &bm);
 
-  DrawBitmap(hdc,
+  DrawBitmap(hdc,hdc2,
                  _x1-bm.bmWidth/2,
                  _y1-bm.bmHeight/2,
                  0,
@@ -1884,7 +1885,7 @@ void DrawSprite(HDC hdc,int _x1, int _y1, DRAWSPRITE* myDrawSprite,bool is_left)
                  bm.bmWidth,
                  bm.bmHeight,
                  myDrawSprite->sprite_mask,SRCAND,FALSE,is_left);
-  DrawBitmap(hdc,
+  DrawBitmap(hdc,hdc2,
                  _x1-bm.bmWidth/2,
                  _y1-bm.bmHeight/2,
                  0,
@@ -1896,7 +1897,7 @@ void DrawSprite(HDC hdc,int _x1, int _y1, DRAWSPRITE* myDrawSprite,bool is_left)
 }
 
 
-void GrGlassPixel(HDC hdc, int x, int y, COLORREF color, BYTE alpha) {
+/*void GrGlassPixel(HDC hdc, int x, int y, COLORREF color, BYTE alpha) {
     // Create a memory DC and a bitmap
     HDC memDC = CreateCompatibleDC(hdc);
     HBITMAP hBitmap = CreateCompatibleBitmap(hdc, 1, 1);
@@ -1918,7 +1919,7 @@ void GrGlassPixel(HDC hdc, int x, int y, COLORREF color, BYTE alpha) {
     // Clean up
     DeleteObject(hBitmap);
     DeleteDC(memDC);
-}
+}*/
 
 //Sprites must be 32-bit :/
 void DrawGlassBitmap(HDC hdc, HBITMAP hBitmap, int x, int y, int level)
@@ -2450,12 +2451,12 @@ int iFirstFrame;
 PGETFRAME pFrame;
 
 
-void DrawMovingAVI(HDC hdc) 
+void DrawMovingAVI(HDC hdc,HDC hdc2) 
 {
     if (global_frames%2==0) {
-      DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,global_avi_bitmap2,SRCCOPY,TRUE,FALSE);
+      DrawBitmap(hdc,hdc2,0,0,0,0,GR_WIDTH,GR_HEIGHT,global_avi_bitmap2,SRCCOPY,TRUE,FALSE);
     } else {
-      DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,global_avi_bitmap1,SRCCOPY,TRUE,FALSE);
+      DrawBitmap(hdc,hdc2,0,0,0,0,GR_WIDTH,GR_HEIGHT,global_avi_bitmap1,SRCCOPY,TRUE,FALSE);
     }
 }
 

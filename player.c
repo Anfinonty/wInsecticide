@@ -2592,7 +2592,7 @@ void PlayerCameraShake()
 
 
 
-void DrawPlayer(HDC hdc)
+void DrawPlayer(HDC hdc,HDC hdc2)
 {
   /*char mytxt1[6];
   char mytxt2[6];
@@ -2623,23 +2623,30 @@ void DrawPlayer(HDC hdc)
     //BitmapPalette(hdc,map_water_platforms_sprite,rgbColorsDefault);
     //BitmapPalette(hdc,map_background_sprite,rgbColorsDefault);
     for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      BitmapPalette(hdc,EnemyTypeSprite[i].draw_fly_sprite_1.sprite_paint,rgbColorsDefault);
-      BitmapPalette(hdc,EnemyTypeSprite[i].draw_fly_sprite_2.sprite_paint,rgbColorsDefault);
+      BitmapPalette(hdc,hdc2,EnemyTypeSprite[i].draw_fly_sprite_1.sprite_paint,rgbColorsDefault);
+      BitmapPalette(hdc,hdc2,EnemyTypeSprite[i].draw_fly_sprite_2.sprite_paint,rgbColorsDefault);
     }
     
     for (int i=0;i<LARGE_ENEMY_TYPE_NUM;i++) {
       for (int j=0;j<ROTATED_SPRITE_NUM;j++) {
-        BitmapPalette(hdc,EnemyRotatedSprite[i]->draw_rotated_sprite1[j].sprite_paint,rgbColorsDefault);
-        BitmapPalette(hdc,EnemyRotatedSprite[i]->draw_rotated_sprite2[j].sprite_paint,rgbColorsDefault);
+        BitmapPalette(hdc,hdc2,EnemyRotatedSprite[i]->draw_rotated_sprite1[j].sprite_paint,rgbColorsDefault);
+        BitmapPalette(hdc,hdc2,EnemyRotatedSprite[i]->draw_rotated_sprite2[j].sprite_paint,rgbColorsDefault);
       }
     }
+
+    for (int i=0;i<LARGER_ENEMY_TYPE_NUM;i++) {
+      for (int j=0;j<ROTATED_SPRITE_NUM;j++) {
+        BitmapPalette(hdc,hdc2,XEnemyRotatedSprite[i]->draw_rotated_sprite[j].sprite_paint,rgbColorsDefault);
+      }
+    }
+
     for (int i=0;i<PLATFORM_GRID_NUM;i++) {
 //      BitmapPalette(hdc,TileMapPlatform[i]->draw_tile.sprite_paint,rgbColorsDefault);
-      BitmapPalette(hdc,TileMapPlatform[i]->sprite_paint,rgbColorsDefault);
+      BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsDefault);
     }
     for (int i=0;i<FOREGROUND_GRID_NUM;i++) {
 //      BitmapPalette(hdc,TileMapForeground[i]->draw_tile.sprite_paint,rgbColorsDefault);
-      BitmapPalette(hdc,TileMapForeground[i]->sprite_paint,rgbColorsDefault);
+      BitmapPalette(hdc,hdc2,TileMapForeground[i]->sprite_paint,rgbColorsDefault);
     }
 
     player.flag_revert_palette=FALSE;
@@ -2682,22 +2689,27 @@ void DrawPlayer(HDC hdc)
       GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick-1,WHITE,-1);
     } else if (player.flag_noir_palette) {
       for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-        BitmapPalette(hdc,EnemyTypeSprite[i].draw_fly_sprite_1.sprite_paint,rgbColorsNoir);
-        BitmapPalette(hdc,EnemyTypeSprite[i].draw_fly_sprite_2.sprite_paint,rgbColorsNoir);
+        BitmapPalette(hdc,hdc2,EnemyTypeSprite[i].draw_fly_sprite_1.sprite_paint,rgbColorsNoir);
+        BitmapPalette(hdc,hdc2,EnemyTypeSprite[i].draw_fly_sprite_2.sprite_paint,rgbColorsNoir);
       }
       for (int i=0;i<LARGE_ENEMY_TYPE_NUM;i++) {
         for (int j=0;j<ROTATED_SPRITE_NUM;j++) {
-          BitmapPalette(hdc,EnemyRotatedSprite[i]->draw_rotated_sprite1[j].sprite_paint,rgbColorsNoir);
-          BitmapPalette(hdc,EnemyRotatedSprite[i]->draw_rotated_sprite2[j].sprite_paint,rgbColorsNoir);
+          BitmapPalette(hdc,hdc2,EnemyRotatedSprite[i]->draw_rotated_sprite1[j].sprite_paint,rgbColorsNoir);
+          BitmapPalette(hdc,hdc2,EnemyRotatedSprite[i]->draw_rotated_sprite2[j].sprite_paint,rgbColorsNoir);
+        }
+      }
+      for (int i=0;i<LARGER_ENEMY_TYPE_NUM;i++) {
+        for (int j=0;j<ROTATED_SPRITE_NUM;j++) {
+          BitmapPalette(hdc,hdc2,XEnemyRotatedSprite[i]->draw_rotated_sprite[j].sprite_paint,rgbColorsNoir);
         }
       }
       for (int i=0;i<PLATFORM_GRID_NUM;i++) {
         //BitmapPalette(hdc,TileMapPlatform[i]->draw_tile.sprite_paint,rgbColorsNoir);
-        BitmapPalette(hdc,TileMapPlatform[i]->sprite_paint,rgbColorsNoir);
+        BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsNoir);
       }
       for (int i=0;i<FOREGROUND_GRID_NUM;i++) {
         //BitmapPalette(hdc,TileMapForeground[i]->draw_tile.sprite_paint,rgbColorsNoir);
-        BitmapPalette(hdc,TileMapForeground[i]->sprite_paint,rgbColorsNoir);
+        BitmapPalette(hdc,hdc2,TileMapForeground[i]->sprite_paint,rgbColorsNoir);
       }
       //BitmapPalette(hdc,map_platforms_sprite,rgbColorsNoir);
       //BitmapPalette(hdc,map_water_platforms_sprite,rgbColorsNoir);
@@ -2788,65 +2800,65 @@ void DrawPlayer(HDC hdc)
       if (player.block_timer==0) { //not blocking
         if (player.on_ground_timer>0) { // on ground
           if (player.walk_cycle<2) {
-            DrawSprite(hdc,player.sprite_x,player.sprite_y,&player.draw_sprite_1,player.last_left);
+            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&player.draw_sprite_1,player.last_left);
           } else {
-            DrawSprite(hdc,player.sprite_x,player.sprite_y,&player.draw_sprite_2,player.last_left);
+            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&player.draw_sprite_2,player.last_left);
           }
         } else { //in_air
           if (!player.is_on_ground_edge) {
             for (int j=0;j<PLAYER_BLUR_NUM;j++) {
-              DrawSprite(hdc,player.blur_sprite_x[j],player.blur_sprite_y[j],&player.draw_blur_sprite_jump,player.last_left);
+              DrawSprite(hdc,hdc2,player.blur_sprite_x[j],player.blur_sprite_y[j],&player.draw_blur_sprite_jump,player.last_left);
             }
           }
-          DrawSprite(hdc,player.sprite_x,player.sprite_y,&player.draw_sprite_jump,player.last_left);
+          DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&player.draw_sprite_jump,player.last_left);
         }
       } else { //blocking
         if (player.on_ground_id==-1 && player.spin_timer>0) { //not on ground
           if (player.spin_timer<10) {
             for (int j=0;j<PLAYER_BLUR_NUM;j++) {
-              DrawSprite(hdc,player.blur_sprite_x[j],player.blur_sprite_y[j],&player.draw_spin_blur_sprite_1,!player.last_left);
+              DrawSprite(hdc,hdc2,player.blur_sprite_x[j],player.blur_sprite_y[j],&player.draw_spin_blur_sprite_1,!player.last_left);
             }
-            DrawSprite(hdc,player.sprite_x,player.sprite_y,&player.draw_spin_sprite_1,!player.last_left);
+            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&player.draw_spin_sprite_1,!player.last_left);
           } else if (player.spin_timer>10 && player.spin_timer<20) {
             for (int j=0;j<PLAYER_BLUR_NUM;j++) {
-              DrawSprite(hdc,player.blur_sprite_x[j],player.blur_sprite_y[j],&player.draw_spin_blur_sprite_2,!player.last_left);
+              DrawSprite(hdc,hdc2,player.blur_sprite_x[j],player.blur_sprite_y[j],&player.draw_spin_blur_sprite_2,!player.last_left);
             }
-            DrawSprite(hdc,player.sprite_x,player.sprite_y,&player.draw_spin_sprite_2,!player.last_left);
+            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&player.draw_spin_sprite_2,!player.last_left);
           } else if (player.spin_timer>20 && player.spin_timer<30) {
             for (int j=0;j<PLAYER_BLUR_NUM;j++) {
-              DrawSprite(hdc,player.blur_sprite_x[j],player.blur_sprite_y[j],&player.draw_spin_blur_sprite_3,!player.last_left);
+              DrawSprite(hdc,hdc2,player.blur_sprite_x[j],player.blur_sprite_y[j],&player.draw_spin_blur_sprite_3,!player.last_left);
             }
-            DrawSprite(hdc,player.sprite_x,player.sprite_y,&player.draw_spin_sprite_3,!player.last_left);
+            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&player.draw_spin_sprite_3,!player.last_left);
           } else {
             for (int j=0;j<PLAYER_BLUR_NUM;j++) {
-              DrawSprite(hdc,player.blur_sprite_x[j],player.blur_sprite_y[j],&player.draw_spin_blur_sprite_4,!player.last_left);
+              DrawSprite(hdc,hdc2,player.blur_sprite_x[j],player.blur_sprite_y[j],&player.draw_spin_blur_sprite_4,!player.last_left);
             }
-            DrawSprite(hdc,player.sprite_x,player.sprite_y,&player.draw_spin_sprite_4,!player.last_left);
+            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&player.draw_spin_sprite_4,!player.last_left);
           }
         } else { //on ground
           if (0<player.block_timer && player.block_timer<=5) {
-            DrawSprite(hdc,player.sprite_x,player.sprite_y,&player.draw_block_sprite_1,player.last_left);
+            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&player.draw_block_sprite_1,player.last_left);
           } else if (5<player.block_timer && player.block_timer<=10) {
-            DrawSprite(hdc,player.sprite_x,player.sprite_y,&player.draw_block_sprite_2,player.last_left);
+            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&player.draw_block_sprite_2,player.last_left);
           } else {
-            DrawSprite(hdc,player.sprite_x,player.sprite_y,&player.draw_block_sprite_3,player.last_left);
+            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&player.draw_block_sprite_3,player.last_left);
           }
         }
       }
     } else {
       if (!(player.on_ground_timer>0)) {
         for (int j=0;j<PLAYER_BLUR_NUM;j++) {
-          DrawSprite(hdc,player.blur_sprite_x[j],player.blur_sprite_y[j],&player.draw_blur_sprite_jump,player.last_left);
+          DrawSprite(hdc,hdc2,player.blur_sprite_x[j],player.blur_sprite_y[j],&player.draw_blur_sprite_jump,player.last_left);
         }
       }
       if (30<player.attack_timer && player.attack_timer<=40) {//attack sprite
-        DrawSprite(hdc,player.sprite_x,player.sprite_y,&player.draw_attack_sprite_1,player.last_left);
+        DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&player.draw_attack_sprite_1,player.last_left);
       } else if (20<player.attack_timer && player.attack_timer<=30) {
-        DrawSprite(hdc,player.sprite_x,player.sprite_y,&player.draw_attack_sprite_3,player.last_left);
+        DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&player.draw_attack_sprite_3,player.last_left);
       } else if (10<player.attack_timer && player.attack_timer<=20) {
-        DrawSprite(hdc,player.sprite_x,player.sprite_y,&player.draw_attack_sprite_3,player.last_left);
+        DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&player.draw_attack_sprite_3,player.last_left);
       } else if (-1<player.attack_timer && player.attack_timer<=10) {
-        DrawSprite(hdc,player.sprite_x,player.sprite_y,&player.draw_attack_sprite_4,player.last_left);
+        DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&player.draw_attack_sprite_4,player.last_left);
       }
     }
   }

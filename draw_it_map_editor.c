@@ -196,32 +196,32 @@ void DrawMapEditorPlatforms(HDC hdc)
 }
 
 
-void DrawMapEditorBackground(HDC hdc)
+void DrawMapEditorBackground(HDC hdc,HDC hdc2)
 {
   switch (MapEditor.set_lvl_ambient_val[0]) {
     case 0:
-      DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
+      DrawBitmap(hdc,hdc2,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
       break;
     case 1:
-      DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
+      DrawBitmap(hdc,hdc2,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
       break;
     default:
       if (map_background_sprite==NULL) {
         GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,rgbPaint[MapEditor.set_lvl_ambient_val[1]]);
       } else {
-        DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
+        DrawBitmap(hdc,hdc2,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
       }
       break;
   }
 
   if (MapEditor.set_lvl_ambient_val[2]==1) {
-    DrawSprite(hdc, GR_WIDTH-128,128,&draw_moon_sprite,FALSE);
+    DrawSprite(hdc, hdc2,GR_WIDTH-128,128,&draw_moon_sprite,FALSE);
   }
 }
 
 
 
-void DrawMapEditorEnemy(HDC hdc)
+void DrawMapEditorEnemy(HDC hdc,HDC hdc2)
 {
   int c;
   char txt_i[4];
@@ -236,21 +236,21 @@ void DrawMapEditorEnemy(HDC hdc)
 
 
     //GrSprite(hdc,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y+GR_HEIGHT/2,MEEnemySprite[type]->sprite_1,FALSE);
-    DrawSprite(hdc,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y+GR_HEIGHT/2,&MEEnemySprite[type]->draw_sprite_1,FALSE);
+    DrawSprite(hdc,hdc2,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y+GR_HEIGHT/2,&MEEnemySprite[type]->draw_sprite_1,FALSE);
   }
 }
 
 
 
-void DrawMapEditorPlayer(HDC hdc)
+void DrawMapEditorPlayer(HDC hdc,HDC hdc2)
 {
   //GrSprite(hdc,player.x+player.cam_x+GR_WIDTH/2,player.y+player.cam_y+GR_HEIGHT/2,player.sprite_1_cache,FALSE);
-  DrawSprite(hdc,player.x+player.cam_x+GR_WIDTH/2,player.y+player.cam_y+GR_HEIGHT/2,&player.draw_sprite_1,FALSE);
+  DrawSprite(hdc,hdc2,player.x+player.cam_x+GR_WIDTH/2,player.y+player.cam_y+GR_HEIGHT/2,&player.draw_sprite_1,FALSE);
 }
 
 
 
-void DrawMapEditorUI(HDC hdc)
+void DrawMapEditorUI(HDC hdc,HDC hdc2)
 {
   //Print cursor Axis
   char axis_x[16];
@@ -469,7 +469,7 @@ void DrawMapEditorUI(HDC hdc)
         GrCircle(hdc,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey,NODE_SIZE*set_enemy_type_unchase_range[MapEditor.selected_enemy_type_id]/2,LTBLUE,-1);
 
         //Draw 
-        DrawSprite(hdc,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey,&MEEnemySprite[MapEditor.selected_enemy_type_id]->draw_sprite_1,MapEditor.demo_enemy_spriteisleft);
+        DrawSprite(hdc,hdc2,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey,&MEEnemySprite[MapEditor.selected_enemy_type_id]->draw_sprite_1,MapEditor.demo_enemy_spriteisleft);
 
 
         //draw bullet frequency

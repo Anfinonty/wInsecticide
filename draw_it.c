@@ -2,32 +2,32 @@
 
 
 //Background
-void DrawBackground(HDC hdc) 
+void DrawBackground(HDC hdc,HDC hdc2) 
 {
   switch (map_background) {
     case 0:
-      DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
+      DrawBitmap(hdc,hdc2,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
       break;
     case 1:
-      DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
+      DrawBitmap(hdc,hdc2,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
       break;
     default:
       if (map_background_sprite==NULL) {
         GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,custom_map_background_color);
       } else {
-        DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
+        DrawBitmap(hdc,hdc2,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
       }
       break;
   }
 
   if (is_moon) {
-    DrawSprite(hdc, GR_WIDTH-128,128,&draw_moon_sprite,FALSE);
+    DrawSprite(hdc,hdc2, GR_WIDTH-128,128,&draw_moon_sprite,FALSE);
   }
 }
 
 
 
-void DrawWaterPlatforms(HDC hdc) 
+void DrawWaterPlatforms(HDC hdc,HDC hdc2) 
 {
 /*  int extra_h=0;
   if (hide_taskbar) {
@@ -59,7 +59,6 @@ void DrawWaterPlatforms(HDC hdc)
     cy1=player.cam_mouse_move_y,
     cx2=player.cam_move_x,
     cy2=player.cam_move_y;
-  HDC hdc2=CreateCompatibleDC(hdc);
   for (int i=0;i<RDGRID_DYN_NUM;i++) {
     _x=RDGrid[i].x+px-GR_WIDTH/2-cx1-cx2;//+cx1+cx2;//GR_WIDTH/2+RDGrid[i].x-px+cx1+cx2;
     _y=RDGrid[i].y+py-GR_HEIGHT/2-cy1-cy2;//+cy1+cy2;//GR_HEIGHT/2+RDGrid[i].y-py+cy1+cy2;
@@ -82,11 +81,10 @@ void DrawWaterPlatforms(HDC hdc)
       } 
     } 
   }
-  DeleteDC(hdc2);
 }
 
 
-void DrawPlatforms(HDC hdc)
+void DrawPlatforms(HDC hdc,HDC hdc2)
 { //Dynamically scale with window size 
   //Draw platforms bitmap mask
   /*int extra_h=0;
@@ -110,7 +108,6 @@ void DrawPlatforms(HDC hdc)
                  GR_HEIGHT+extra_h,
                  map_platforms_sprite,SRCPAINT,FALSE,FALSE);*/
 
-  HDC hdc2;
   int gid,tmp_id;
   int x,y,_x,_y;
   int 
@@ -120,7 +117,6 @@ void DrawPlatforms(HDC hdc)
     cy1=player.cam_mouse_move_y,
     cx2=player.cam_move_x,
     cy2=player.cam_move_y;
-  hdc2=CreateCompatibleDC(hdc);
   for (int i=0;i<RDGRID_DYN_NUM;i++) {
     _x=RDGrid[i].x+px-GR_WIDTH/2-cx1-cx2;//+cx1+cx2;//GR_WIDTH/2+RDGrid[i].x-px+cx1+cx2;
     _y=RDGrid[i].y+py-GR_HEIGHT/2-cy1-cy2;//+cy1+cy2;//GR_HEIGHT/2+RDGrid[i].y-py+cy1+cy2;
@@ -145,11 +141,10 @@ void DrawPlatforms(HDC hdc)
       } 
     } 
   }
-  DeleteDC(hdc2);
 }
 
 
-void DrawShadows(HDC hdc)
+void DrawShadows(HDC hdc,HDC hdc2)
 {
   /*DrawGlassBitmap(hdc, 
         map_platforms_shadow_shader, 
@@ -172,7 +167,6 @@ void DrawShadows(HDC hdc)
 
 //  for (int i=0;i<SHADOW_GRID_NUM;i++) {
 //  for (int i=0;i<RDGRID_NUM;i++) {
-  HDC hdc2=CreateCompatibleDC(hdc);
   for (int i=0;i<RDGRID_DYN_NUM;i++) {
     //tms_id=i;
     _x=RDGrid[i].x+px-GR_WIDTH/2-cx1-cx2;//+cx1+cx2;//GR_WIDTH/2+RDGrid[i].x-px+cx1+cx2;
@@ -214,11 +208,10 @@ void DrawShadows(HDC hdc)
       }
     }*/
   }
-  DeleteDC(hdc2);
 }
 
 
-void DrawCursor(HDC hDC)
+void DrawCursor(HDC hDC,HDC hDC2)
 {
   //DrawBitmap(hDC,mouse_x,mouse_y,0,0,64,64,mouse_cursor_sprite,SRCAND,FALSE);
   //DrawBitmap(hDC,mouse_x,mouse_y,0,0,64,64,mouse_cursor_sprite_mask,SRCPAINT,FALSE);
@@ -265,28 +258,28 @@ closed
   switch (player.knives_per_throw) {
     case 1: //right->closed
     case 3:
-      DrawSprite(hDC,mouse_x+rand_shake_x+46,mouse_y+rand_shake_y-12,&draw_player_cursor_body[13],FALSE);
-      DrawSprite(hDC,mouse_x+rand_shake_x+46,mouse_y+rand_shake_y-12,&draw_player_cursor_iris[13],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+46,mouse_y+rand_shake_y-12,&draw_player_cursor_body[13],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+46,mouse_y+rand_shake_y-12,&draw_player_cursor_iris[13],FALSE);
 
-      DrawSprite(hDC,mouse_x+rand_shake_x+50,mouse_y+rand_shake_y+10,&draw_player_cursor_body[14],FALSE);
-      DrawSprite(hDC,mouse_x+rand_shake_x+50,mouse_y+rand_shake_y+10,&draw_player_cursor_iris[14],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+50,mouse_y+rand_shake_y+10,&draw_player_cursor_body[14],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+50,mouse_y+rand_shake_y+10,&draw_player_cursor_iris[14],FALSE);
 
 
-      DrawSprite(hDC,mouse_x+rand_shake_x+60,mouse_y+rand_shake_y+6,&draw_player_cursor_body[15],FALSE);
-      DrawSprite(hDC,mouse_x+rand_shake_x+60,mouse_y+rand_shake_y+6,&draw_player_cursor_iris[15],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+60,mouse_y+rand_shake_y+6,&draw_player_cursor_body[15],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+60,mouse_y+rand_shake_y+6,&draw_player_cursor_iris[15],FALSE);
       break;
 
     case 0:
     case 5: //right->opened
     case 15:
-      DrawSprite(hDC,mouse_x+rand_shake_x+46,mouse_y+rand_shake_y-12,&draw_player_cursor_body[5],FALSE);
-      DrawSprite(hDC,mouse_x+rand_shake_x+46,mouse_y+rand_shake_y-12,&draw_player_cursor_iris[5],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+46,mouse_y+rand_shake_y-12,&draw_player_cursor_body[5],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+46,mouse_y+rand_shake_y-12,&draw_player_cursor_iris[5],FALSE);
 
-      DrawSprite(hDC,mouse_x+rand_shake_x+50,mouse_y+rand_shake_y+10,&draw_player_cursor_body[6],FALSE);
-      DrawSprite(hDC,mouse_x+rand_shake_x+50,mouse_y+rand_shake_y+10,&draw_player_cursor_iris[6],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+50,mouse_y+rand_shake_y+10,&draw_player_cursor_body[6],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+50,mouse_y+rand_shake_y+10,&draw_player_cursor_iris[6],FALSE);
 
-      DrawSprite(hDC,mouse_x+rand_shake_x+60,mouse_y+rand_shake_y+6,&draw_player_cursor_body[7],FALSE);
-      DrawSprite(hDC,mouse_x+rand_shake_x+60,mouse_y+rand_shake_y+6,&draw_player_cursor_iris[7],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+60,mouse_y+rand_shake_y+6,&draw_player_cursor_body[7],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+60,mouse_y+rand_shake_y+6,&draw_player_cursor_iris[7],FALSE);
       break;
   }
 
@@ -296,44 +289,44 @@ closed
   switch (player.knives_per_throw) {
     case 1:
     case 5:
-      DrawSprite(hDC,mouse_x+rand_shake_x+16,mouse_y+rand_shake_y-24,&draw_player_cursor_body[9],FALSE);
-      DrawSprite(hDC,mouse_x+rand_shake_x+16,mouse_y+rand_shake_y-24,&draw_player_cursor_iris[9],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+16,mouse_y+rand_shake_y-24,&draw_player_cursor_body[9],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+16,mouse_y+rand_shake_y-24,&draw_player_cursor_iris[9],FALSE);
 
-      DrawSprite(hDC,mouse_x+rand_shake_x-22,mouse_y+rand_shake_y+20,&draw_player_cursor_body[10],FALSE);
-      DrawSprite(hDC,mouse_x+rand_shake_x-22,mouse_y+rand_shake_y+20,&draw_player_cursor_iris[10],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x-22,mouse_y+rand_shake_y+20,&draw_player_cursor_body[10],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x-22,mouse_y+rand_shake_y+20,&draw_player_cursor_iris[10],FALSE);
 
-      DrawSprite(hDC,mouse_x+rand_shake_x+24,mouse_y+rand_shake_y+20,&draw_player_cursor_body[11],FALSE);
-      DrawSprite(hDC,mouse_x+rand_shake_x+24,mouse_y+rand_shake_y+20,&draw_player_cursor_iris[11],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+24,mouse_y+rand_shake_y+20,&draw_player_cursor_body[11],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+24,mouse_y+rand_shake_y+20,&draw_player_cursor_iris[11],FALSE);
       break;
     case 0:
     case 3:
     case 15:
-      DrawSprite(hDC,mouse_x+rand_shake_x+16,mouse_y+rand_shake_y-24,&draw_player_cursor_body[1],FALSE);
-      DrawSprite(hDC,mouse_x+rand_shake_x+16,mouse_y+rand_shake_y-24,&draw_player_cursor_iris[1],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+16,mouse_y+rand_shake_y-24,&draw_player_cursor_body[1],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+16,mouse_y+rand_shake_y-24,&draw_player_cursor_iris[1],FALSE);
 
-      DrawSprite(hDC,mouse_x+rand_shake_x-22,mouse_y+rand_shake_y+20,&draw_player_cursor_body[2],FALSE);
-      DrawSprite(hDC,mouse_x+rand_shake_x-22,mouse_y+rand_shake_y+20,&draw_player_cursor_iris[2],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x-22,mouse_y+rand_shake_y+20,&draw_player_cursor_body[2],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x-22,mouse_y+rand_shake_y+20,&draw_player_cursor_iris[2],FALSE);
 
-      DrawSprite(hDC,mouse_x+rand_shake_x+24,mouse_y+rand_shake_y+20,&draw_player_cursor_body[3],FALSE);
-      DrawSprite(hDC,mouse_x+rand_shake_x+24,mouse_y+rand_shake_y+20,&draw_player_cursor_iris[3],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+24,mouse_y+rand_shake_y+20,&draw_player_cursor_body[3],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+24,mouse_y+rand_shake_y+20,&draw_player_cursor_iris[3],FALSE);
       break;
   }
 
 
   if (player.health>PLAYER_LOW_HEALTH) {
-    DrawSprite(hDC,mouse_x-2,mouse_y-2,&draw_player_cursor_body[0],FALSE); //left ete open
-    DrawSprite(hDC,mouse_x-2,mouse_y-2,&draw_player_cursor_iris[0],FALSE);
-    DrawSprite(hDC,mouse_x-2,mouse_y-2,&draw_player_cursor_pupil[0],FALSE);
+    DrawSprite(hDC,hDC2,mouse_x-2,mouse_y-2,&draw_player_cursor_body[0],FALSE); //left ete open
+    DrawSprite(hDC,hDC2,mouse_x-2,mouse_y-2,&draw_player_cursor_iris[0],FALSE);
+    DrawSprite(hDC,hDC2,mouse_x-2,mouse_y-2,&draw_player_cursor_pupil[0],FALSE);
 
-    DrawSprite(hDC,mouse_x+rand_shake_x+52,mouse_y+rand_shake_y-4,&draw_player_cursor_body[4],FALSE); //right eye open
-    DrawSprite(hDC,mouse_x+rand_shake_x+52,mouse_y+rand_shake_y-4,&draw_player_cursor_iris[4],FALSE);
+    DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+52,mouse_y+rand_shake_y-4,&draw_player_cursor_body[4],FALSE); //right eye open
+    DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+52,mouse_y+rand_shake_y-4,&draw_player_cursor_iris[4],FALSE);
   } else {
-    DrawSprite(hDC,mouse_x-2,mouse_y-2,&draw_player_cursor_body[8],FALSE); //left eye low hp
-    DrawSprite(hDC,mouse_x-2,mouse_y-2,&draw_player_cursor_iris[8],FALSE);
-    DrawSprite(hDC,mouse_x-2,mouse_y-2,&draw_player_cursor_pupil[1],FALSE);
+    DrawSprite(hDC,hDC2,mouse_x-2,mouse_y-2,&draw_player_cursor_body[8],FALSE); //left eye low hp
+    DrawSprite(hDC,hDC2,mouse_x-2,mouse_y-2,&draw_player_cursor_iris[8],FALSE);
+    DrawSprite(hDC,hDC2,mouse_x-2,mouse_y-2,&draw_player_cursor_pupil[1],FALSE);
 
-    DrawSprite(hDC,mouse_x+rand_shake_x+52,mouse_y+rand_shake_y-4,&draw_player_cursor_body[12],FALSE); //right eye low hp
-    DrawSprite(hDC,mouse_x+rand_shake_x+52,mouse_y+rand_shake_y-4,&draw_player_cursor_iris[12],FALSE);
+    DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+52,mouse_y+rand_shake_y-4,&draw_player_cursor_body[12],FALSE); //right eye low hp
+    DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+52,mouse_y+rand_shake_y-4,&draw_player_cursor_iris[12],FALSE);
   }
   }
 }

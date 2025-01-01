@@ -450,8 +450,7 @@ void InitSetRes(int i,int w,int h,char *txt)
 
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-  HDC hdc, hdcBackbuff;
-  //HDC hdcBackbuff2;
+  HDC hdc, hdcBackbuff, hdcBackbuff2;
   switch(msg) {
 
     //Left Click Hold
@@ -852,13 +851,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         if (level_loading) {
           hdc=BeginPaint(hwnd, &ps);
           hdcBackbuff=CreateCompatibleDC(hdc);
-          //hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
+          hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
           screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
           SelectObject(hdcBackbuff,screen);
           //GrRect(hdcBackbuff,0,0,GR_WIDTH+2,GR_HEIGHT+2,BLACK);    
-          DrawBackground(hdcBackbuff);
+          DrawBackground(hdcBackbuff,hdcBackbuff2);
           DrawLoading(hdcBackbuff,16);
-          DrawCursor(hdcBackbuff);
+          DrawCursor(hdcBackbuff,hdcBackbuff2);
           if (hide_taskbar) {
             BitBlt(hdc, SCREEN_WIDTH/2-RESOLUTION_X[resolution_choose]/2, 
                         SCREEN_HEIGHT/2-RESOLUTION_Y[resolution_choose]/2, 
@@ -868,7 +867,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           } else {
             BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
           }
-          //DeleteDC(hdcBackbuff2);
+          DeleteDC(hdcBackbuff2);
           DeleteDC(hdcBackbuff);
           DeleteObject(screen);
         } else {
@@ -926,29 +925,32 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             hdc=BeginPaint(hwnd, &ps);
             hdcBackbuff=CreateCompatibleDC(hdc);
+            hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
             screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
             SelectObject(hdcBackbuff,screen);
-            DrawBackground(hdcBackbuff);
-            DrawPlatforms(hdcBackbuff);
+            DrawBackground(hdcBackbuff,hdcBackbuff2);
+            DrawPlatforms(hdcBackbuff,hdcBackbuff2);
             DrawWebs(hdcBackbuff);
-            DrawEnemy(hdcBackbuff);
-            DrawPlayer(hdcBackbuff);
+            DrawEnemy(hdcBackbuff,hdcBackbuff2);
+            DrawPlayer(hdcBackbuff,hdcBackbuff2);
             if (has_water) {
-              DrawWaterPlatforms(hdcBackbuff);
+              DrawWaterPlatforms(hdcBackbuff,hdcBackbuff2);
             }
 
 
             if (is_shadows && game_shadow) {
-              DrawShadows(hdcBackbuff);
+              DrawShadows(hdcBackbuff,hdcBackbuff2);
             }
 
-            DrawUI(hdcBackbuff);
-            DrawCursor(hdcBackbuff);
+            DrawUI(hdcBackbuff,hdcBackbuff2);
+            DrawCursor(hdcBackbuff,hdcBackbuff2);
             //DrawGrids(hdcBackbuff); //debugging
-            DrawWaterShader(hdcBackbuff);           
+            DrawWaterShader(hdcBackbuff,hdcBackbuff2);
             if (is_raining) {
               DrawRain(hdcBackbuff);
-              DrawRainShader2(hdcBackbuff);
+              if (!player.in_water) {
+                DrawRainShader(hdcBackbuff,hdcBackbuff2);
+              }
             }
 
 
@@ -973,6 +975,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
             }
             
+            DeleteDC(hdcBackbuff2);
             DeleteDC(hdcBackbuff);
             DeleteObject(screen);
 
@@ -992,16 +995,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             hdc=BeginPaint(hwnd, &ps);
             hdcBackbuff=CreateCompatibleDC(hdc);
+            hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
             screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
             SelectObject(hdcBackbuff,screen);
-            DrawMapEditorBackground(hdcBackbuff);
+            DrawMapEditorBackground(hdcBackbuff,hdcBackbuff2);
             DrawMapEditorPlatforms(hdcBackbuff);
-            DrawMapEditorEnemy(hdcBackbuff);
-            DrawMapEditorPlayer(hdcBackbuff);
+            DrawMapEditorEnemy(hdcBackbuff,hdcBackbuff2);
+            DrawMapEditorPlayer(hdcBackbuff,hdcBackbuff2);
             DrawGrids(hdcBackbuff,player.cam_x+GR_WIDTH/2,player.cam_y+GR_HEIGHT/2);
             DrawMapEditorWaterPlatforms(hdcBackbuff);
-            DrawMapEditorUI(hdcBackbuff);
-            DrawCursor(hdcBackbuff);
+            DrawMapEditorUI(hdcBackbuff,hdcBackbuff2);
+            DrawCursor(hdcBackbuff,hdcBackbuff2);
 
             player.seed=rand();
 
@@ -1014,6 +1018,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             } else {
               BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
             }
+            DeleteDC(hdcBackbuff2);
             DeleteDC(hdcBackbuff);
             DeleteObject(screen);
 
@@ -1026,6 +1031,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           showoff++;
           hdc=BeginPaint(hwnd, &ps);
           hdcBackbuff=CreateCompatibleDC(hdc);
+          hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
           if (flag_resolution_change) { //blackout clear screen
             screen=CreateCompatibleBitmap(hdc,SCREEN_WIDTH,SCREEN_HEIGHT);
             SelectObject(hdcBackbuff,screen);
@@ -1036,8 +1042,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
             SelectObject(hdcBackbuff,screen);
       
-            DrawMainMenu(hdcBackbuff);
-            DrawCursor(hdcBackbuff);
+            DrawMainMenu(hdcBackbuff,hdcBackbuff2);
+            DrawCursor(hdcBackbuff,hdcBackbuff2);
             if (hide_taskbar) {
               BitBlt(hdc, SCREEN_WIDTH/2-RESOLUTION_X[resolution_choose]/2, 
                             SCREEN_HEIGHT/2-RESOLUTION_Y[resolution_choose]/2, 
@@ -1049,6 +1055,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
           }
 
+          DeleteDC(hdcBackbuff2);
           DeleteDC(hdcBackbuff);
           DeleteObject(screen);
         }

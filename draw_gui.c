@@ -1,10 +1,9 @@
 
 
-void DrawWaterShader(HDC hdc) 
+void DrawWaterShader(HDC hdc,HDC hdc2) 
 {
   if (player.in_water) {
-//      GrGlassRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,BLUE,128);
-      GrGlassRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,BLUE,64);
+    GrGlassRect(hdc,hdc2,0,0,GR_WIDTH,GR_HEIGHT,BLUE,64 /*128*/);
   }
 }
 
@@ -50,7 +49,7 @@ void ScreenRainDropAct()
 
 
 
-void DrawRainShader(HDC hdc)
+void DrawRainShader(HDC hdc,HDC hdcMem)
 {
   if (player.rain_wet_timer>0) {
     int c=BLACK;//Highlight(IsInvertedBackground(),BLACK,WHITE);
@@ -65,7 +64,6 @@ void DrawRainShader(HDC hdc)
     }
     blendFunction.AlphaFormat = 0;
 
-    HDC hdcMem = CreateCompatibleDC(hdc);
     HBITMAP hBitmap = CreateCompatibleBitmap(hdc, GR_WIDTH, GR_HEIGHT);
     SelectObject(hdcMem, hBitmap);
     GrRect(hdcMem,0,0,GR_WIDTH,GR_HEIGHT,c);
@@ -82,7 +80,6 @@ void DrawRainShader(HDC hdc)
     AlphaBlend(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcMem, 0, 0, GR_WIDTH, GR_HEIGHT, blendFunction);
   // Clean up
     DeleteObject(hBitmap);
-    DeleteDC(hdcMem);
   }
 }
 
@@ -212,7 +209,7 @@ void DrawCrosses(HDC hdc,int x, int y)
 }
 
 
-void DrawPersianClock(HDC hdc)
+void DrawPersianClock(HDC hdc,HDC hdc2)
 {
   //Moon Pos
   int mcalendar_l=64;
@@ -236,7 +233,7 @@ void DrawPersianClock(HDC hdc)
     GrCircle(hdc,mcalendar_x-3,mcalendar_y-5,2,LTGREEN,LTGREEN);
     GrCircle(hdc,mcalendar_x-3,mcalendar_y+5,2,LTGREEN,LTGREEN);
   } else {
-    DrawSprite(hdc, mcalendar_x,mcalendar_y,&draw_moon_sprite,FALSE);
+    DrawSprite(hdc, hdc2,mcalendar_x,mcalendar_y,&draw_moon_sprite,FALSE);
   }
 
   if (lunar_day<27) //0 to 26
@@ -327,14 +324,14 @@ void DrawPersianClock(HDC hdc)
     GrPrintW(hdc,mcalendar_x-mcalendar_l*7-24,mcalendar_y-64+4,time_row1,"",WHITE,16,FALSE,yes_unifont);
 
     if (is_khmer) {
-      DrawBitmap(hdc,mcalendar_x-mcalendar_l*7-24,
+      DrawBitmap(hdc,hdc2,mcalendar_x-mcalendar_l*7-24,
                      mcalendar_y-36,
                      0,
                      0,
                      119,
                      27,
                     mm0_kh_hijri_mask[0],SRCAND,FALSE,FALSE);
-      DrawBitmap(hdc,mcalendar_x-mcalendar_l*7-24,
+      DrawBitmap(hdc,hdc2,mcalendar_x-mcalendar_l*7-24,
                      mcalendar_y-36,
                      0,
                      0,
@@ -349,7 +346,7 @@ void DrawPersianClock(HDC hdc)
     GrPrintW(hdc,mcalendar_x-mcalendar_l*7-24,mcalendar_y-16+4,s_hijri_row2,"",WHITE,16,FALSE,yes_unifont);
 
     if (is_khmer) {
-      DrawBitmap(hdc,mcalendar_x-mcalendar_l*7-24,
+      DrawBitmap(hdc,hdc2,mcalendar_x-mcalendar_l*7-24,
                      mcalendar_y+8,
                      0,
                      0,
@@ -357,7 +354,7 @@ void DrawPersianClock(HDC hdc)
                      27,
                     mm0_kh_hijri_mask[1],SRCAND,FALSE,FALSE);
       //Draw platforms paint
-      DrawBitmap(hdc,mcalendar_x-mcalendar_l*7-24,
+      DrawBitmap(hdc,hdc2,mcalendar_x-mcalendar_l*7-24,
                      mcalendar_y+8,
                      0,
                      0,
@@ -388,7 +385,7 @@ void DrawPersianClock(HDC hdc)
 }
 
 
-void DrawTitle(HDC hdc)
+void DrawTitle(HDC hdc,HDC hdc2)
 {
   int title_x=GR_WIDTH/2-352/2+4;
   int title_y=-32;
@@ -400,7 +397,7 @@ void DrawTitle(HDC hdc)
     title_y=-48;
   }
   if (main_menu_chosen==-1) {
-      DrawBitmap(hdc,title_x,
+      DrawBitmap(hdc,hdc2,title_x,
                      title_y,
                      0,
                      0,
@@ -408,7 +405,7 @@ void DrawTitle(HDC hdc)
                      256,
                     title_sprite_mask,SRCAND,FALSE,FALSE);
       //Draw platforms paint
-      DrawBitmap(hdc,title_x,
+      DrawBitmap(hdc,hdc2,title_x,
                      title_y,
                      0,
                      0,
@@ -416,7 +413,7 @@ void DrawTitle(HDC hdc)
                      256,
                     title_sprite,SRCPAINT,FALSE,FALSE);
   } else {
-      DrawBitmap(hdc,title_x2,
+      DrawBitmap(hdc,hdc2,title_x2,
                      title_y2,
                      0,
                      0,
@@ -424,7 +421,7 @@ void DrawTitle(HDC hdc)
                      256*3/5,
                     title_small_sprite_mask,SRCAND,FALSE,FALSE);
       //Draw platforms paint
-      DrawBitmap(hdc,title_x2,
+      DrawBitmap(hdc,hdc2,title_x2,
                      title_y2,
                      0,
                      0,
@@ -437,27 +434,27 @@ void DrawTitle(HDC hdc)
 }
 
 
-void DrawMainMenu(HDC hdc)
+void DrawMainMenu(HDC hdc,HDC hdc2)
 {
 
   //draw bkgrnd
-  //DrawBitmap(hdc,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
+  //DrawBitmap(hdc,hdc2,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
 
-  DrawMovingAVI(hdc);
+  DrawMovingAVI(hdc,hdc2);
   //Draw Moon Phase
   //GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
   if (GR_WIDTH>=800)
-    DrawSprite(hdc, GR_WIDTH-128,128,&draw_moon_sprite,FALSE);
+    DrawSprite(hdc, hdc2,GR_WIDTH-128,128,&draw_moon_sprite,FALSE);
 
 
-  DrawTitle(hdc);
+  DrawTitle(hdc,hdc2);
 
   int help_y=GR_HEIGHT-128;
   if (!hide_taskbar) { //task bar is shown
     help_y-=8*4; //go up abit
   }
 
-  DrawPersianClock(hdc);
+  DrawPersianClock(hdc,hdc2);
 
   int main_menu_y=0;
   int main_menu_y2=0;
@@ -502,28 +499,28 @@ void DrawMainMenu(HDC hdc)
       if (is_khmer) {
 
         //Level
-        DrawBitmap(hdc,GR_WIDTH/2-121/2,GR_HEIGHT/2-16*4-main_menu_y2-31/2-3,0,0,121,31,mm0_kh_mask[0],SRCAND,FALSE,FALSE);
+        DrawBitmap(hdc,hdc2,GR_WIDTH/2-121/2,GR_HEIGHT/2-16*4-main_menu_y2-31/2-3,0,0,121,31,mm0_kh_mask[0],SRCAND,FALSE,FALSE);
         if (select_main_menu==0) {
-          DrawBitmap(hdc,GR_WIDTH/2-121/2,GR_HEIGHT/2-16*4-main_menu_y2-31/2-3,0,0,121,31,mm0_kh_green[0],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,GR_WIDTH/2-121/2,GR_HEIGHT/2-16*4-main_menu_y2-31/2-3,0,0,121,31,mm0_kh_green[0],SRCPAINT,FALSE,FALSE);
         } else {
-          DrawBitmap(hdc,GR_WIDTH/2-121/2,GR_HEIGHT/2-16*4-main_menu_y2-31/2-3,0,0,121,31,mm0_kh_white[0],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,GR_WIDTH/2-121/2,GR_HEIGHT/2-16*4-main_menu_y2-31/2-3,0,0,121,31,mm0_kh_white[0],SRCPAINT,FALSE,FALSE);
         }
         
         //Options
-        DrawBitmap(hdc,GR_WIDTH/2-114/2,GR_HEIGHT/2-16*2-main_menu_y2-36/2,0,0,145,36,mm0_kh_mask[1],SRCAND,FALSE,FALSE);
+        DrawBitmap(hdc,hdc2,GR_WIDTH/2-114/2,GR_HEIGHT/2-16*2-main_menu_y2-36/2,0,0,145,36,mm0_kh_mask[1],SRCAND,FALSE,FALSE);
         if (select_main_menu==1) {
-          DrawBitmap(hdc,GR_WIDTH/2-114/2,GR_HEIGHT/2-16*2-main_menu_y2-36/2,0,0,145,36,mm0_kh_green[1],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,GR_WIDTH/2-114/2,GR_HEIGHT/2-16*2-main_menu_y2-36/2,0,0,145,36,mm0_kh_green[1],SRCPAINT,FALSE,FALSE);
         } else {
-          DrawBitmap(hdc,GR_WIDTH/2-114/2,GR_HEIGHT/2-16*2-main_menu_y2-36/2,0,0,145,36,mm0_kh_white[1],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,GR_WIDTH/2-114/2,GR_HEIGHT/2-16*2-main_menu_y2-36/2,0,0,145,36,mm0_kh_white[1],SRCPAINT,FALSE,FALSE);
         }
 
 
         //Exit
-        DrawBitmap(hdc,GR_WIDTH/2-82/2-2,GR_HEIGHT/2-main_menu_y2-36/2,0,0,145,36,mm0_kh_mask[2],SRCAND,FALSE,FALSE);
+        DrawBitmap(hdc,hdc2,GR_WIDTH/2-82/2-2,GR_HEIGHT/2-main_menu_y2-36/2,0,0,145,36,mm0_kh_mask[2],SRCAND,FALSE,FALSE);
         if (select_main_menu==2) {
-          DrawBitmap(hdc,GR_WIDTH/2-82/2-2,GR_HEIGHT/2-main_menu_y2-36/2,0,0,145,36,mm0_kh_green[2],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,GR_WIDTH/2-82/2-2,GR_HEIGHT/2-main_menu_y2-36/2,0,0,145,36,mm0_kh_green[2],SRCPAINT,FALSE,FALSE);
         } else {
-          DrawBitmap(hdc,GR_WIDTH/2-82/2-2,GR_HEIGHT/2-main_menu_y2-36/2,0,0,145,36,mm0_kh_white[2],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,GR_WIDTH/2-82/2-2,GR_HEIGHT/2-main_menu_y2-36/2,0,0,145,36,mm0_kh_white[2],SRCPAINT,FALSE,FALSE);
         }
 
         //Language
@@ -542,11 +539,11 @@ void DrawMainMenu(HDC hdc)
         GrPrint(hdc,GR_WIDTH/2-8*4/2+2,GR_HEIGHT/2-12-main_menu_y2,"EXIT",c);
 
 
-        DrawBitmap(hdc,GR_WIDTH/2-71/2,GR_HEIGHT/2-main_menu_y2+24-25/2,0,0,145,36,mm0_kh_mask[3],SRCAND,FALSE,FALSE);
+        DrawBitmap(hdc,hdc2,GR_WIDTH/2-71/2,GR_HEIGHT/2-main_menu_y2+24-25/2,0,0,145,36,mm0_kh_mask[3],SRCAND,FALSE,FALSE);
         if (select_main_menu==3) {
-          DrawBitmap(hdc,GR_WIDTH/2-71/2,GR_HEIGHT/2-main_menu_y2+24-25/2,0,0,145,36,mm0_kh_green[3],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,GR_WIDTH/2-71/2,GR_HEIGHT/2-main_menu_y2+24-25/2,0,0,145,36,mm0_kh_green[3],SRCPAINT,FALSE,FALSE);
         } else {
-          DrawBitmap(hdc,GR_WIDTH/2-71/2,GR_HEIGHT/2-main_menu_y2+24-25/2,0,0,145,36,mm0_kh_white[3],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,GR_WIDTH/2-71/2,GR_HEIGHT/2-main_menu_y2+24-25/2,0,0,145,36,mm0_kh_white[3],SRCPAINT,FALSE,FALSE);
         }
       }
       
@@ -621,11 +618,11 @@ void DrawMainMenu(HDC hdc)
       //Graphics
       c=Highlight((option_choose==0),WHITE,LTGREEN);
       if (is_khmer) {
-        DrawBitmap(hdc,30,mm2y1,0,0,127,21,mm2_kh_mask[0],SRCAND,FALSE,FALSE);
+        DrawBitmap(hdc,hdc2,30,mm2y1,0,0,127,21,mm2_kh_mask[0],SRCAND,FALSE,FALSE);
         if (option_choose==0) {
-          DrawBitmap(hdc,30,mm2y1,0,0,127,21,mm2_kh_green[0],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,30,mm2y1,0,0,127,21,mm2_kh_green[0],SRCPAINT,FALSE,FALSE);
         } else {
-          DrawBitmap(hdc,30,mm2y1,0,0,127,21,mm2_kh_white[0],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,30,mm2y1,0,0,127,21,mm2_kh_white[0],SRCPAINT,FALSE,FALSE);
         }
         mm2y3=mm2y1+4;
       } else {
@@ -650,11 +647,11 @@ void DrawMainMenu(HDC hdc)
       mm2y2=10+soptions_y+16;
       c=Highlight((option_choose==1),WHITE,LTGREEN);
       if (is_khmer) {
-        DrawBitmap(hdc,30,mm2y1,0,0,115,27,mm2_kh_mask[1],SRCAND,FALSE,FALSE);
+        DrawBitmap(hdc,hdc2,30,mm2y1,0,0,115,27,mm2_kh_mask[1],SRCAND,FALSE,FALSE);
         if (option_choose==1) {
-          DrawBitmap(hdc,30,mm2y1,0,0,115,27,mm2_kh_green[1],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,30,mm2y1,0,0,115,27,mm2_kh_green[1],SRCPAINT,FALSE,FALSE);
         } else {
-          DrawBitmap(hdc,30,mm2y1,0,0,115,27,mm2_kh_white[1],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,30,mm2y1,0,0,115,27,mm2_kh_white[1],SRCPAINT,FALSE,FALSE);
         }
         mm2y3=mm2y1+4;
       } else {
@@ -678,11 +675,11 @@ void DrawMainMenu(HDC hdc)
       mm2y2=10+soptions_y+16*2;
       c=Highlight((option_choose==2),WHITE,LTGREEN);
       if (is_khmer) {
-        DrawBitmap(hdc,30,mm2y1,0,0,107,25,mm2_kh_mask[2],SRCAND,FALSE,FALSE);
+        DrawBitmap(hdc,hdc2,30,mm2y1,0,0,107,25,mm2_kh_mask[2],SRCAND,FALSE,FALSE);
         if (option_choose==2) {
-          DrawBitmap(hdc,30,mm2y1,0,0,107,25,mm2_kh_green[2],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,30,mm2y1,0,0,107,25,mm2_kh_green[2],SRCPAINT,FALSE,FALSE);
         } else {
-          DrawBitmap(hdc,30,mm2y1,0,0,107,25,mm2_kh_white[2],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,30,mm2y1,0,0,107,25,mm2_kh_white[2],SRCPAINT,FALSE,FALSE);
         }
         mm2y3=mm2y1+2;
       } else {
@@ -716,11 +713,11 @@ void DrawMainMenu(HDC hdc)
       mm2y2=10+soptions_y+16*3;
       c=Highlight((option_choose==3),WHITE,LTGREEN);
       if (is_khmer) {
-        DrawBitmap(hdc,30,mm2y1,0,0,75,26,mm2_kh_mask[3],SRCAND,FALSE,FALSE);
+        DrawBitmap(hdc,hdc2,30,mm2y1,0,0,75,26,mm2_kh_mask[3],SRCAND,FALSE,FALSE);
         if (option_choose==3) {
-          DrawBitmap(hdc,30,mm2y1,0,0,75,26,mm2_kh_green[3],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,30,mm2y1,0,0,75,26,mm2_kh_green[3],SRCPAINT,FALSE,FALSE);
         } else {
-          DrawBitmap(hdc,30,mm2y1,0,0,75,26,mm2_kh_white[3],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,30,mm2y1,0,0,75,26,mm2_kh_white[3],SRCPAINT,FALSE,FALSE);
         }
         mm2y3=mm2y1+2;
       } else {
@@ -976,7 +973,7 @@ char help_txt_arr2[HELP_TEXT_ARR_NUM2][64]=
 //======== UI =========
 
 bool display_controls=FALSE;
-void DrawUI(HDC hdc) 
+void DrawUI(HDC hdc,HDC hdc2) 
 {
   int c = WHITE;//Highlight(IsInvertedBackground(),WHITE,BLACK);
   int c4 = BLACK;//Highlight(IsInvertedBackground(),BLACK,WHITE);
@@ -1015,8 +1012,8 @@ void DrawUI(HDC hdc)
       int c_kh1=BROWN;//GREEN;
       int c_kh2=YELLOW;//LTGREEN;
     //Draw Best Score
-      DrawBitmap(hdc,16+8,1+8+16+digit_num4,0,0,65,19,ga0_kh_mask[0],SRCAND,FALSE,FALSE);
-      DrawBitmap(hdc,16+8,1+8+16+digit_num4,0,0,65,19,ga0_kh[0],SRCPAINT,FALSE,FALSE);
+      DrawBitmap(hdc,hdc2,16+8,1+8+16+digit_num4,0,0,65,19,ga0_kh_mask[0],SRCAND,FALSE,FALSE);
+      DrawBitmap(hdc,hdc2,16+8,1+8+16+digit_num4,0,0,65,19,ga0_kh[0],SRCPAINT,FALSE,FALSE);
 
 
       swprintf(wgamebesttimetxt,32,L"%5.3f",best_time);
@@ -1030,8 +1027,8 @@ void DrawUI(HDC hdc)
 
     //Draw Current Time/Congrats
       if (!game_over) {
-        DrawBitmap(hdc,GR_WIDTH-69-32,8+16+4+digit_num4,0,0,69,16,ga0_kh_mask[1],SRCAND,FALSE,FALSE);
-        DrawBitmap(hdc,GR_WIDTH-69-32,8+16+4+digit_num4,0,0,69,16,ga0_kh[1],SRCPAINT,FALSE,FALSE);
+        DrawBitmap(hdc,hdc2,GR_WIDTH-69-32,8+16+4+digit_num4,0,0,69,16,ga0_kh_mask[1],SRCAND,FALSE,FALSE);
+        DrawBitmap(hdc,hdc2,GR_WIDTH-69-32,8+16+4+digit_num4,0,0,69,16,ga0_kh[1],SRCPAINT,FALSE,FALSE);
 
         swprintf(wgametimetxt,32,L"%5.3f",print_time_ms);
         digit_num=GR_WIDTH-wcslen(wgametimetxt)*12-16-24;
@@ -1044,8 +1041,8 @@ void DrawUI(HDC hdc)
 
       } else { //game is over
         if (game_timer<int_best_score) { //New Score :D
-          DrawBitmap(hdc,GR_WIDTH-106-32,8+16+digit_num4,0,0,123,37,ga0_kh_mask[2],SRCAND,FALSE,FALSE);
-          DrawBitmap(hdc,GR_WIDTH-106-32,8+16+digit_num4,0,0,123,37,ga0_kh[2],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,GR_WIDTH-106-32,8+16+digit_num4,0,0,123,37,ga0_kh_mask[2],SRCAND,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,GR_WIDTH-106-32,8+16+digit_num4,0,0,123,37,ga0_kh[2],SRCPAINT,FALSE,FALSE);
 
           swprintf(wgametimetxt,32,L"%5.3f",print_time_ms);
           digit_num=GR_WIDTH-wcslen(wgametimetxt)*12-16-24;
@@ -1055,8 +1052,8 @@ void DrawUI(HDC hdc)
           GrPrintW(hdc,digit_num-6,16+24+10+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",PURPLE,16,FALSE,yes_unifont);
           GrPrintW(hdc,digit_num-5,16+24+9+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",LTPURPLE,16,FALSE,yes_unifont);
         } else {
-          DrawBitmap(hdc,GR_WIDTH-69-32,8+16+digit_num4,0,0,69,16,ga0_kh_mask[1],SRCAND,FALSE,FALSE);
-          DrawBitmap(hdc,GR_WIDTH-69-32,8+16+digit_num4,0,0,69,16,ga0_kh[1],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,GR_WIDTH-69-32,8+16+digit_num4,0,0,69,16,ga0_kh_mask[1],SRCAND,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,GR_WIDTH-69-32,8+16+digit_num4,0,0,69,16,ga0_kh[1],SRCPAINT,FALSE,FALSE);
           swprintf(wgametimetxt,32,L"%5.3f",print_time_ms);
           digit_num=GR_WIDTH-wcslen(wgametimetxt)*12-16-24;
           GrPrintW(hdc,digit_num-4,24+8+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh1,16,FALSE,yes_unifont);
@@ -1071,8 +1068,8 @@ void DrawUI(HDC hdc)
     //Draw Enemy Num/game Over
       if (printenemykills>0) {
         digit_num1=GR_WIDTH/2-133/2+4;//-(12*8)/2+4+4;
-        DrawBitmap(hdc,digit_num1,16+10+digit_num4-4,0,0,133,26,ga0_kh_mask[3],SRCAND,FALSE,FALSE);
-        DrawBitmap(hdc,digit_num1,16+10+digit_num4-4,0,0,133,26,ga0_kh[3],SRCPAINT,FALSE,FALSE);
+        DrawBitmap(hdc,hdc2,digit_num1,16+10+digit_num4-4,0,0,133,26,ga0_kh_mask[3],SRCAND,FALSE,FALSE);
+        DrawBitmap(hdc,hdc2,digit_num1,16+10+digit_num4-4,0,0,133,26,ga0_kh[3],SRCPAINT,FALSE,FALSE);
 
         //print enemy kills below
         swprintf(wenemykills,10,L"%d",printenemykills);
@@ -1085,8 +1082,8 @@ void DrawUI(HDC hdc)
       } else { //GAME OVER
         digit_num3=-32;//16;
         if (frame_tick<FPS/2) {
-          DrawBitmap(hdc,GR_WIDTH/2-52/2+4,16+10+32+digit_num3+digit_num4,0,0,52,22,ga0_kh_mask[4],SRCAND,FALSE,FALSE);
-          DrawBitmap(hdc,GR_WIDTH/2-52/2+4,16+10+32+digit_num3+digit_num4,0,0,52,22,ga0_kh[4],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,GR_WIDTH/2-52/2+4,16+10+32+digit_num3+digit_num4,0,0,52,22,ga0_kh_mask[4],SRCAND,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,GR_WIDTH/2-52/2+4,16+10+32+digit_num3+digit_num4,0,0,52,22,ga0_kh[4],SRCPAINT,FALSE,FALSE);
         }
       }
 
@@ -1591,7 +1588,7 @@ void DrawLoading(HDC hDC,int max_marbles)
   }
   }
 
-  /*DrawBitmap(hDC,title_x0,
+  /*DrawBitmap(hdc,hdc2,title_x0,
                  title_y,
                  0,
                  0,
@@ -1599,7 +1596,7 @@ void DrawLoading(HDC hDC,int max_marbles)
                  256,
                 title_sprite_mask,SRCAND,FALSE,FALSE);
   //Draw platforms paint
-  DrawBitmap(hDC,title_x0,
+  DrawBitmap(hdc,hdc2,title_x0,
                  title_y,
                  0,
                  0,
