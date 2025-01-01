@@ -638,8 +638,10 @@ typedef struct enemy
   bool within_render_distance; //:Enemy is within the render distance
   bool above_ground; //:For crawlers: crawler is above the ground
   bool below_ground; //:For crawlers: crawler is upside down on a ground
-  bool previous_above_ground; //:For crawlers: crawler is above the ground
-  bool previous_below_ground; //:For crawlers: crawler is upside down on a ground
+  bool above_ground_edge; //:For crawlers: crawler is above the ground
+  bool below_ground_edge; //:For crawlers: crawler is upside down on a ground
+  //bool previous_above_ground; //:For crawlers: crawler is above the ground
+  //bool previous_below_ground; //:For crawlers: crawler is upside down on a ground
   bool in_chase_range; //:player is within enemy's chase range
   bool in_unchase_range; //:player is within enemy's unchase range
   bool time_breaker_immune; //:Enemy is immune to the player's time breaker effect
@@ -655,6 +657,8 @@ typedef struct enemy
   //Attacked
   bool knockback_left;
   bool player_knockback;
+  bool saved_above_ground;
+  bool saved_below_ground;
 
   //force search
   bool force_search;
@@ -666,6 +670,7 @@ typedef struct enemy
   int rotated_sprite_id;
   int rotated_xsprite_id;
   int current_rot_sprite_angle_id;
+  //int current_rot_sprite_edge_angle_id;
   //Bullet
   int bullet_cooldown_max;
   int bullet_cooldown;
@@ -719,6 +724,9 @@ typedef struct enemy
   int seed;
   int damage_taken_timer;
 
+  int sprite_x;
+  int sprite_y;
+
   double health;
   double max_health;
   double LOS_x;
@@ -732,11 +740,10 @@ typedef struct enemy
   double x;
   double y;
   double angle;
-  double saved_angle;
+  //double edge_angle;
+  //double saved_angle;
   double sprite_angle;
   double dist_from_player;
-  double sprite_x;
-  double sprite_y;
   double speed;
   double ospeed;
   double knockback_angle;
@@ -898,6 +905,7 @@ void freeTileMapPaint(ATileMapPaint *myTileMapPaint)
     free(myTileMapPaint);
 }
 
+
 ATileMapPaint **TileMapShadow;
 
 
@@ -994,7 +1002,7 @@ HBITMAP map_background_sprite;
 
 //map platforms
 HBITMAP map_platforms_sprite;
-//HBITMAP map_platforms_sprite_mask;
+HBITMAP map_platforms_sprite_mask;
 
 HBITMAP map_water_platforms_sprite;
 //HBITMAP map_water_platforms_sprite_mask;

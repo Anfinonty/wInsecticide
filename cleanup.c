@@ -8,7 +8,7 @@ void CleanUpEnemy()
     Enemy[i]->species=-1;
     Enemy[i]->type=0;
     Enemy[i]->angle=0;
-    Enemy[i]->saved_angle=0;
+    //Enemy[i]->saved_angle=0;
     Enemy[i]->sprite_angle=0;
 
   //Enemy[i]->being_drawn=TRUE;
@@ -57,7 +57,7 @@ void CleanUpEnemy()
     Enemy[i]->in_air_timer=0;
     Enemy[i]->angle=0;
     Enemy[i]->sprite_angle=0;
-    Enemy[i]->saved_angle=-9999;
+  //  Enemy[i]->saved_angle=-9999;
   //bullet
     Enemy[i]->bullet_shot_num=0;
     for (j=0;j<BULLET_NUM*1;j++) {
