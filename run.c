@@ -451,6 +451,7 @@ void InitSetRes(int i,int w,int h,char *txt)
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   HDC hdc, hdcBackbuff;
+  //HDC hdcBackbuff2;
   switch(msg) {
 
     //Left Click Hold
@@ -851,6 +852,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         if (level_loading) {
           hdc=BeginPaint(hwnd, &ps);
           hdcBackbuff=CreateCompatibleDC(hdc);
+          //hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
           screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
           SelectObject(hdcBackbuff,screen);
           //GrRect(hdcBackbuff,0,0,GR_WIDTH+2,GR_HEIGHT+2,BLACK);    
@@ -866,6 +868,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           } else {
             BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
           }
+          //DeleteDC(hdcBackbuff2);
           DeleteDC(hdcBackbuff);
           DeleteObject(screen);
         } else {
@@ -1296,12 +1299,20 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         InitSetRes(126,16384,8640,"16K Full Format");
       //...
 
+
+        gblendFunction.BlendOp = AC_SRC_OVER;
+        gblendFunction.BlendFlags = 0;
+        gblendFunction.SourceConstantAlpha = 32; // Transparency level (0-255)
+        gblendFunction.AlphaFormat = 0;
+
+
       for (int i=1;i<SCREEN_RESOLUTION_NUM;i++) {
         if (SCREEN_WIDTH==RESOLUTION_X[i] && SCREEN_HEIGHT==RESOLUTION_Y[i]) {
           MAX_RESOLUTION_I=i+1;
           break;
         }
       }
+
 
       resolution_choose=0;//MAX_RESOLUTION_I-1;
       GR_WIDTH=RESOLUTION_X[resolution_choose];
@@ -1472,7 +1483,8 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
       enemy4_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy4-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       enemy4_sprite_4 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy4-4.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
-
+      dkrdkgray_shadow_tile = (HBITMAP) LoadImageW(NULL, L"sprites/shadow_dkrdkgray.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);;
+      ltgray_shadow_tile = (HBITMAP) LoadImageW(NULL, L"sprites/shadow_ltgray.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);;
 
       //Load mouse cursor sprite
       //player cursor

@@ -984,6 +984,8 @@ void GrPrintA(HDC hdc, double x1, double y1, wchar_t *_txt, int color)
 
 
 void DrawBitmap(HDC hDC,double _x1,double _y1, double _x2, double _y2, int width, int height, HBITMAP hSourceBitmap,int _SRCTYPE,bool stretch,bool is_left)
+//void DrawBitmap(HDC hDC, HDC hdcMem,double _x1,double _y1, double _x2, double _y2, int width, int height, HBITMAP hSourceBitmap,int _SRCTYPE,bool stretch,bool is_left)
+
 {
   if (hSourceBitmap!=NULL) {
     BITMAP bitmap;

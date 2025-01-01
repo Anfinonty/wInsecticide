@@ -5,7 +5,7 @@ int GetGridId(int x,int y,int width, int size,int max)
   row=y/size;
   column=x/size;
   id=row*(width/size)+column;
-  if (-1<id && id<max && 0<x && x<width) {
+  if (-1<id && id<max && 0<=x && x<width) {
     return id;
   }
   return -1;

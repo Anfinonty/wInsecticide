@@ -59,6 +59,7 @@ void DrawWaterPlatforms(HDC hdc)
     cy1=player.cam_mouse_move_y,
     cx2=player.cam_move_x,
     cy2=player.cam_move_y;
+  HDC hdc2=CreateCompatibleDC(hdc);
   for (int i=0;i<RDGRID_DYN_NUM;i++) {
     _x=RDGrid[i].x+px-GR_WIDTH/2-cx1-cx2;//+cx1+cx2;//GR_WIDTH/2+RDGrid[i].x-px+cx1+cx2;
     _y=RDGrid[i].y+py-GR_HEIGHT/2-cy1-cy2;//+cy1+cy2;//GR_HEIGHT/2+RDGrid[i].y-py+cy1+cy2;
@@ -68,12 +69,20 @@ void DrawWaterPlatforms(HDC hdc)
       if (tmf_id!=-1) {
         x=GR_WIDTH/2+TileMapForeground[tmf_id]->x-px+cx1+cx2;
         y=GR_HEIGHT/2+TileMapForeground[tmf_id]->y-py+cy1+cy2;
-        DrawBitmap(hdc,x, y,0, 0,VGRID_SIZE,VGRID_SIZE,TileMapForeground[tmf_id]->sprite_mask,SRCAND,FALSE,FALSE);
-        DrawBitmap(hdc,x,y,0, 0,VGRID_SIZE,VGRID_SIZE,TileMapForeground[tmf_id]->sprite_paint,SRCPAINT,FALSE,FALSE);
+//        DrawBitmap(hdc,x, y,0, 0,VGRID_SIZE,VGRID_SIZE,TileMapForeground[tmf_id]->sprite_mask,SRCAND,FALSE,FALSE);
+//        DrawBitmap(hdc,x,y,0, 0,VGRID_SIZE,VGRID_SIZE,TileMapForeground[tmf_id]->sprite_paint,SRCPAINT,FALSE,FALSE);
         //DrawSprite(hdc,x,y,&TileMapForeground[tmf_id]->draw_tile,FALSE);
+
+        SelectObject(hdc2,TileMapForeground[tmf_id]->sprite_mask);
+        BitBlt(hdc, x, y, VGRID_SIZE, VGRID_SIZE, hdc2, 0, 0, SRCAND);
+
+        SelectObject(hdc2,TileMapForeground[tmf_id]->sprite_paint);
+        BitBlt(hdc, x, y, VGRID_SIZE, VGRID_SIZE, hdc2, 0, 0, SRCPAINT);
+
       } 
     } 
   }
+  DeleteDC(hdc2);
 }
 
 
@@ -101,6 +110,7 @@ void DrawPlatforms(HDC hdc)
                  GR_HEIGHT+extra_h,
                  map_platforms_sprite,SRCPAINT,FALSE,FALSE);*/
 
+  HDC hdc2;
   int gid,tmp_id;
   int x,y,_x,_y;
   int 
@@ -110,6 +120,7 @@ void DrawPlatforms(HDC hdc)
     cy1=player.cam_mouse_move_y,
     cx2=player.cam_move_x,
     cy2=player.cam_move_y;
+  hdc2=CreateCompatibleDC(hdc);
   for (int i=0;i<RDGRID_DYN_NUM;i++) {
     _x=RDGrid[i].x+px-GR_WIDTH/2-cx1-cx2;//+cx1+cx2;//GR_WIDTH/2+RDGrid[i].x-px+cx1+cx2;
     _y=RDGrid[i].y+py-GR_HEIGHT/2-cy1-cy2;//+cy1+cy2;//GR_HEIGHT/2+RDGrid[i].y-py+cy1+cy2;
@@ -119,12 +130,22 @@ void DrawPlatforms(HDC hdc)
       if (tmp_id!=-1) {
         x=GR_WIDTH/2+TileMapPlatform[tmp_id]->x-px+cx1+cx2;
         y=GR_HEIGHT/2+TileMapPlatform[tmp_id]->y-py+cy1+cy2;
-        DrawBitmap(hdc,x, y,0, 0,VGRID_SIZE,VGRID_SIZE,TileMapPlatform[tmp_id]->sprite_mask,SRCAND,FALSE,FALSE);
-        DrawBitmap(hdc,x,y,0, 0,VGRID_SIZE,VGRID_SIZE,TileMapPlatform[tmp_id]->sprite_paint,SRCPAINT,FALSE,FALSE);
+
+
+        SelectObject(hdc2,TileMapPlatform[tmp_id]->sprite_mask);
+        BitBlt(hdc, x, y, VGRID_SIZE, VGRID_SIZE, hdc2, 0, 0, SRCAND);
+
+        SelectObject(hdc2,TileMapPlatform[tmp_id]->sprite_paint);
+        BitBlt(hdc, x, y, VGRID_SIZE, VGRID_SIZE, hdc2, 0, 0, SRCPAINT);
+
+
+//        DrawBitmap(hdc,x, y,0, 0,VGRID_SIZE,VGRID_SIZE,TileMapPlatform[tmp_id]->sprite_mask,SRCAND,FALSE,FALSE);
+//        DrawBitmap(hdc,x,y,0, 0,VGRID_SIZE,VGRID_SIZE,TileMapPlatform[tmp_id]->sprite_paint,SRCPAINT,FALSE,FALSE);
         //DrawSprite(hdc,x,y,&TileMapPlatform[tmp_id]->draw_tile,FALSE);
       } 
     } 
   }
+  DeleteDC(hdc2);
 }
 
 
@@ -151,6 +172,7 @@ void DrawShadows(HDC hdc)
 
 //  for (int i=0;i<SHADOW_GRID_NUM;i++) {
 //  for (int i=0;i<RDGRID_NUM;i++) {
+  HDC hdc2=CreateCompatibleDC(hdc);
   for (int i=0;i<RDGRID_DYN_NUM;i++) {
     //tms_id=i;
     _x=RDGrid[i].x+px-GR_WIDTH/2-cx1-cx2;//+cx1+cx2;//GR_WIDTH/2+RDGrid[i].x-px+cx1+cx2;
@@ -162,18 +184,24 @@ void DrawShadows(HDC hdc)
       if (tms_id!=-1) {
         x=GR_WIDTH/2+TileMapShadow[tms_id]->x-px+cx1+cx2;
         y=GR_HEIGHT/2+TileMapShadow[tms_id]->y-py+cy1+cy2;
-        DrawGlassBitmap(hdc, 
+        /*DrawGlassBitmap(hdc, 
           TileMapShadow[tms_id]->sprite_paint, 
           x,y,
           32//128
-        );
+        );*/
+        SelectObject(hdc2,TileMapShadow[tms_id]->sprite_paint);
+        AlphaBlend(hdc, x, y, VGRID_SIZE, VGRID_SIZE, hdc2, 0, 0, VGRID_SIZE, VGRID_SIZE, gblendFunction);
       } else {
         x=GR_WIDTH/2+VGrid[gid]->x1-px+cx1+cx2;
         y=GR_HEIGHT/2+VGrid[gid]->y1-py+cy1+cy2;
         if (map_background==1 || (map_background==2 && custom_map_background_color_i>127)) {
-          GrGlassRect(hdc,x,y,VGRID_SIZE,VGRID_SIZE,DKRDKGRAY,32);
+          //GrGlassRect(hdc,x,y,VGRID_SIZE,VGRID_SIZE,DKRDKGRAY,32);
+          SelectObject(hdc2,dkrdkgray_shadow_tile);
+          AlphaBlend(hdc, x, y, VGRID_SIZE, VGRID_SIZE, hdc2, 0, 0, VGRID_SIZE, VGRID_SIZE, gblendFunction);
         } else {
-          GrGlassRect(hdc,x,y,VGRID_SIZE,VGRID_SIZE,LTGRAY,32);
+          //GrGlassRect(hdc,x,y,VGRID_SIZE,VGRID_SIZE,LTGRAY,32);
+          SelectObject(hdc2,ltgray_shadow_tile);
+          AlphaBlend(hdc, x, y, VGRID_SIZE, VGRID_SIZE, hdc2, 0, 0, VGRID_SIZE, VGRID_SIZE, gblendFunction);
         }
       }
     } /*else {
@@ -186,6 +214,7 @@ void DrawShadows(HDC hdc)
       }
     }*/
   }
+  DeleteDC(hdc2);
 }
 
 
