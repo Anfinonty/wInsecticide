@@ -1726,7 +1726,6 @@ void InitEnemy()
     Enemy[i]->saved_ground_id=-1;
     Enemy[i]->seed=0;
     Enemy[i]->current_rot_sprite_angle_id=0;//-1;
-    Enemy[i]->current_rot_sprite_angle_id=0;//-1;
     Enemy[i]->dist_from_player=999;
     Enemy[i]->x=saved_enemy_x[i];
     Enemy[i]->y=saved_enemy_y[i];
@@ -1917,39 +1916,46 @@ void DrawEnemy(HDC hdc,HDC hdc2)
 
      //ON GROUND ACTUAL
       } else if (Enemy[i]->on_ground_id!=-1) {
+        int le_angle=16;
         Enemy[i]->sprite_angle=Enemy[i]->angle;
         if (Enemy[i]->sprite_angle>0) { //Slope ++ \/
             if (Enemy[i]->above_ground) {
               if (!Enemy[i]->last_left) {
-                Enemy[i]->current_rot_sprite_angle_id=16+Enemy[i]->sprite_angle/(M_PI_2/16);
+                le_angle=16+Enemy[i]->sprite_angle/(M_PI_2/16);
               } else {
-                Enemy[i]->current_rot_sprite_angle_id=16-Enemy[i]->sprite_angle/(M_PI_2/16);
+                le_angle=16-Enemy[i]->sprite_angle/(M_PI_2/16);
               }
             } else if (Enemy[i]->below_ground) {
               if (!Enemy[i]->last_left) {
-                //Enemy[i]->current_rot_sprite_angle_id=64-(Enemy[i]->sprite_angle)/(M_PI_2/16);
-                Enemy[i]->current_rot_sprite_angle_id=48+(Enemy[i]->sprite_angle)/(M_PI_2/16);
+                le_angle=48+(Enemy[i]->sprite_angle)/(M_PI_2/16);
               } else {
-                Enemy[i]->current_rot_sprite_angle_id=48-(Enemy[i]->sprite_angle)/(M_PI_2/16);
-                //Enemy[i]->current_rot_sprite_angle_id=0;//48;
+                le_angle=48-(Enemy[i]->sprite_angle)/(M_PI_2/16);
               }
-            }
+           }
         } else { //Slope -- /
             if (Enemy[i]->above_ground) {
               if (!Enemy[i]->last_left) {
-                Enemy[i]->current_rot_sprite_angle_id=16+Enemy[i]->sprite_angle/(M_PI_2/16);
+                le_angle=16+Enemy[i]->sprite_angle/(M_PI_2/16);
               } else {
-                Enemy[i]->current_rot_sprite_angle_id=(M_PI_2-Enemy[i]->sprite_angle)/(M_PI_2/16);
+                le_angle=(M_PI_2-Enemy[i]->sprite_angle)/(M_PI_2/16);
               }
             } else if (Enemy[i]->below_ground) {
               if (!Enemy[i]->last_left) {
-                Enemy[i]->current_rot_sprite_angle_id=32+(M_PI_2+Enemy[i]->sprite_angle)/(M_PI_2/16);
+                le_angle=32+(M_PI_2+Enemy[i]->sprite_angle)/(M_PI_2/16);
               } else {
-                Enemy[i]->current_rot_sprite_angle_id=64-(M_PI_2+Enemy[i]->sprite_angle)/(M_PI_2/16);
+                le_angle=64-(M_PI_2+Enemy[i]->sprite_angle)/(M_PI_2/16);
               }
             }
         }
+        if (le_angle>63) {
+          le_angle-=64;
+        } 
+        if (le_angle<0) {
+          le_angle+=64;
+        }
+        Enemy[i]->current_rot_sprite_angle_id=le_angle;
       }
+
     }
 
     Enemy[i]->seed=rand();
