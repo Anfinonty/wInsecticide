@@ -61,7 +61,7 @@ void InitEnemyPathfinding(int enemy_id,double target_x,double target_y)
   Enemy[enemy_id]->path_nodes_num=0;
   Enemy[enemy_id]->open_nodes_num=0;//reset to 0
  //set open path nodes to false
-  for (i=0;i<MAX_NODE_NUM/2;i++) {
+  for (i=0;i<MAX_NODE_NUM;i++) {
     Enemy[enemy_id]->path_nodes[i]=0;
   }
   Enemy[enemy_id]->x=current_x;
@@ -189,7 +189,7 @@ void InitEnemyPathfinding(int enemy_id,double target_x,double target_y)
   x=current_x-Enemy[enemy_id]->node_x[0];
   y=current_y-Enemy[enemy_id]->node_y[0];
   Enemy[enemy_id]->start_node=GetGridId(x,y,MAX_FOLLOW_RANGE*NODE_SIZE,NODE_SIZE,Enemy[enemy_id]->node_num);
-  for (i=0;i<MAX_NODE_NUM/2;i++) {//reset open_nodes array
+  for (i=0;i<MAX_NODE_NUM;i++) {//reset open_nodes array
     Enemy[enemy_id]->open_nodes[i]=Enemy[enemy_id]->start_node;
   }
   //Set Target
@@ -318,7 +318,7 @@ void EnemyReboundFromGround(int enemy_id,int ground_id,bool is_rebound)
     double edge_1_dist;
     double edge_2_dist;
     double edge_angle;
-    int ground_edge_id;
+    int ground_edge_id=-1;
     if (Enemy[enemy_id]->is_in_ground_edge) {
       ground_edge_id=Enemy[enemy_id]->saved_ground_id;
     } else {
@@ -1064,9 +1064,15 @@ void EnemyAct(int i)
       for (j=0;j<Enemy[i]->bullet_shot_num;j++) { //reset bullets
         StopBullet(Enemy[i]->bullet_shot_arr[j],FALSE);
       }
-      int rand_bullet_shot_num=8+RandNum(1,10,Enemy[i]->seed);
+      int rand_bullet_shot_num;/*=8+RandNum(1,10,Enemy[i]->seed);
       if (Enemy[i]->species==1 || Enemy[i]->species==3) {
         rand_bullet_shot_num=25+RandNum(30,40,Enemy[i]->seed);        
+      }*/
+      switch (Enemy[i]->species) {
+        case 0: rand_bullet_shot_num=8+RandNum(10,20,Enemy[i]->seed); break;
+        case 1: rand_bullet_shot_num=25+RandNum(30,40,Enemy[i]->seed); break;
+        case 2: rand_bullet_shot_num=8+RandNum(1,10,Enemy[i]->seed); break;
+        case 3: rand_bullet_shot_num=25+RandNum(50,60,Enemy[i]->seed); break;
       }
       for (int n=0;n<rand_bullet_shot_num;n++) {
          int rand_range=NODE_SIZE*3+NODE_SIZE*RandNum(1,5,Enemy[i]->seed);
@@ -1829,7 +1835,7 @@ void InitEnemy()
     Enemy[i]->start_node=GetGridId(x,y,MAX_FOLLOW_RANGE*NODE_SIZE,NODE_SIZE,Enemy[i]->node_num);
     Enemy[i]->end_node=GetGridId(x,y,MAX_FOLLOW_RANGE*NODE_SIZE,NODE_SIZE,Enemy[i]->node_num);
     Enemy[i]->open_nodes_num=0;
-    for (j=0;j<MAX_NODE_NUM/2;j++) {
+    for (j=0;j<MAX_NODE_NUM;j++) {
       Enemy[i]->open_nodes[j]=Enemy[i]->start_node;
     }
     EnemyAct(i);
@@ -1910,9 +1916,9 @@ void DrawEnemy(HDC hdc,HDC hdc2)
         if (le_angle<0) {
           le_angle+=64;
         }
-
-        Enemy[i]->current_rot_sprite_angle_id=le_angle;
-
+        if (le_angle>-1 && le_angle<64) {
+          Enemy[i]->current_rot_sprite_angle_id=le_angle;
+        }
 
      //ON GROUND ACTUAL
       } else if (Enemy[i]->on_ground_id!=-1) {
@@ -1953,7 +1959,9 @@ void DrawEnemy(HDC hdc,HDC hdc2)
         if (le_angle<0) {
           le_angle+=64;
         }
-        Enemy[i]->current_rot_sprite_angle_id=le_angle;
+        if (le_angle>-1 && le_angle<64) {
+          Enemy[i]->current_rot_sprite_angle_id=le_angle;
+        }
       }
 
     }
