@@ -563,11 +563,21 @@ void InitMapEditorEnemy()
 
   //Generate Sprites for 10 enemy types
   for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-    if (set_enemy_type_species[i]==0) {
-      MEEnemySprite[i]->sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[i]],-1);
-    } else {
-      MEEnemySprite[i]->sprite_1=RotateSprite(NULL, enemy2_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[i]],-1);
+    switch (set_enemy_type_species[i]) {
+      case 0:
+        MEEnemySprite[i]->sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[i]],-1);
+        break;
+      case 1:
+        MEEnemySprite[i]->sprite_1=RotateSprite(NULL, enemy2_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[i]],-1);
+        break;
+      case 2:
+        MEEnemySprite[i]->sprite_1=RotateSprite(NULL, enemy3_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[i]],-1);
+        break;
+      case 3:
+        MEEnemySprite[i]->sprite_1=RotateSprite(NULL, enemy4_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[i]],-1);
+        break;
     }
+
     loading_numerator++;
     GenerateDrawSprite(&MEEnemySprite[i]->draw_sprite_1,MEEnemySprite[i]->sprite_1);
   }

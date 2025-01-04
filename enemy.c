@@ -311,7 +311,7 @@ void EnemyPathFinding(int enemy_id)
   }
 }
 
-void EnemyReboundFromGround(int enemy_id,int ground_id,bool is_rebound)
+void EnemySpriteOnGroundId(int enemy_id,int ground_id)
 {
     double ground_entity_angle=GetLineTargetAngle(ground_id,Enemy[enemy_id]->x,Enemy[enemy_id]->y);
     double height_from_ground=GetLineTargetHeight(ground_id,ground_entity_angle,Enemy[enemy_id]->x,Enemy[enemy_id]->y);
@@ -386,7 +386,7 @@ void EnemyReboundFromGround(int enemy_id,int ground_id,bool is_rebound)
     
 
     //FOR VISUALS
-    if (!Enemy[enemy_id]->is_in_ground_edge && abs(height_from_ground)<=41 && !is_rebound) {
+    if (!Enemy[enemy_id]->is_in_ground_edge && abs(height_from_ground)<=41) {
       if (ground_id!=-1) {
         Enemy[enemy_id]->in_air_timer=0;
         if (height_from_ground>0) {    //species 1 above ground (positive)
@@ -407,21 +407,27 @@ void EnemyReboundFromGround(int enemy_id,int ground_id,bool is_rebound)
       } 
     }
 
+}
+
+
+
+/*void EnemyReboundFromGround(int enemy_id,int ground_id,bool is_rebound)
+{
+
 
 
 
     //rebound movement
     if (is_rebound) {
-      if (Enemy[enemy_id]->in_node_grid_id!=-1 && Enemy[enemy_id]->in_node_grid_id<MAP_NODE_NUM) {
+      /*if (Enemy[enemy_id]->in_node_grid_id!=-1 && Enemy[enemy_id]->in_node_grid_id<MAP_NODE_NUM) {
         if (NodeGrid[Enemy[enemy_id]->in_node_grid_id]->node_solid) {
           Enemy[enemy_id]->knockback_timer=0;
         }
-      }
+      }*/
 
-      if (abs(height_from_ground)<=27/*29*/) { //actual rebounding
+      /*if (abs(height_from_ground)<=27) { //actual rebounding
         int tmp_grnd=ground_id; //rebound enemy froun ground
         if (tmp_grnd!=-1) {
-          Enemy[enemy_id]->knockback_timer=0;
           if (Enemy[enemy_id]->above_ground) {
             Enemy[enemy_id]->x-=cos(Ground[tmp_grnd]->angle+M_PI_2);
             Enemy[enemy_id]->y-=sin(Ground[tmp_grnd]->angle+M_PI_2);
@@ -431,8 +437,8 @@ void EnemyReboundFromGround(int enemy_id,int ground_id,bool is_rebound)
           }
         }
       }
-    }
-}
+    }*/
+//}
 
 
 void LargeEnemySpriteTimer(int enemy_id)
@@ -660,19 +666,22 @@ void EnemyLOSAct(int i)
 }
 
 
-void EnemyKnockbackMove(int i)
+void EnemyKnockbackMove(int i,int ground_id) //now with bouncing
 {
-// ^^ condition
-  if (IsOutOfBounds(Enemy[i]->x,Enemy[i]->y,5,MAP_WIDTH,MAP_HEIGHT) || Enemy[i]->is_in_ground_edge) {
+  if (IsOutOfBounds(Enemy[i]->x,Enemy[i]->y,5,MAP_WIDTH,MAP_HEIGHT)) {
     Enemy[i]->knockback_timer=0;
   } else {
+    if (ground_id!=-1 /*&& ground_id!=Enemy[i]->on_ground_id*/) {
+      Enemy[i]->knockback_angle=GetBounceAngle(Enemy[i]->knockback_angle,Ground[ground_id]->angle);
+      Enemy[i]->player_knockback=FALSE;
+    }
+
     double kb_x=cos(Enemy[i]->knockback_angle)*player.knockback_speed;
     double kb_y=sin(Enemy[i]->knockback_angle)*player.knockback_speed;      
     if (Enemy[i]->in_water) {
       kb_x/=2;
       kb_y/=2;
     }
-
     if (!Enemy[i]->player_knockback) {
       Enemy[i]->x+=kb_x;
       Enemy[i]->y+=kb_y;
@@ -882,22 +891,6 @@ void EnemyAct(int i)
 	    }
 	    break;
     }
-    //^^ condition
-    /*if (allow_act) {
-      //within player claws
-      allow_act=FALSE;
-	  if (!player.time_breaker) {
-	    //if (Enemy[i]->knockback_timer==0) {
-	      allow_act=TRUE;
-	    //}
-	  } else {
-	    //if (!Enemy[i]->time_breaker_immune) {
-	      allow_act=TRUE;
-	    //} else if (Enemy[i]->knockback_timer==0) {
-	      //allow_act=TRUE;
-	    //}
-	  }
-    }*/
     //^^ condition 
     if (allow_act) {
       allow_act=FALSE;
@@ -910,19 +903,6 @@ void EnemyAct(int i)
 	      break;
 	    case 1:
         case 3:
-	      /*if (player.attack_timer<=39) {
-		    /*if (player.attack_timer>34) { //more damage to roach at underside when player is upside down
-		      if (Enemy[i]->above_ground) {
-                if (player.print_current_below && player.y<Enemy[i]->y-6) {
-  		          allow_act=TRUE;
-                }
-		      } else if (Enemy[i]->below_ground) { //more damage to roach at underside when player isnot upside down
-		        if ((player.print_current_above || player.on_ground_id==-1) && player.y>Enemy[i]->y+6) {
-		          allow_act=TRUE;
-		        }
-		      }
-		    }*/
-	      //}
           if (player.attack_timer>38)
             allow_act=TRUE;
 	      break;
@@ -931,10 +911,72 @@ void EnemyAct(int i)
 	// ^^ condition
     if (allow_act) {  //player meelee
       allow_act=FALSE;
-      //mele attack (legacy feature)
       deduct_health=TRUE;
       Enemy[i]->player_knockback=TRUE;
       Enemy[i]->knockback_timer=player.knockback_strength;
+
+/*
+if (player.on_ground_id!=-1) {
+    if (player.print_current_above) {
+      player.sprite_angle=player.angle;
+    } else if (player.print_current_below) {
+      player.sprite_angle=M_PI+player.angle;
+    }
+    if (!player.last_left) {
+      player.sprite_angle*=-1;
+    }
+  }
+*/
+
+
+      /*double le_angle=-1;
+      if (player.on_ground_id==-1) { //in air
+        le_angle=player.angle_of_incidence;
+      } else {
+        if (player.print_current_above) {
+          if (!player.last_left) {
+            le_angle=abs(player.angle);
+            if (player.uppercut) {
+              le_angle-=M_PI_2;
+            }
+          } else {
+            le_angle=M_PI-abs(player.angle);
+            if (player.uppercut) {
+              le_angle+=M_PI_2;
+            }
+          }
+        } else if (player.print_current_below){
+          if (!player.last_left) { //upside down, right
+            le_angle=2*M_PI-abs(player.angle);
+            if (player.uppercut) {
+              le_angle+=M_PI_2;
+            }
+          } else { //upside down, left
+            le_angle=M_PI+abs(player.angle);
+            if (player.uppercut) {
+              le_angle-=M_PI_2;
+            }
+          }
+        }
+      }
+
+      if (le_angle<0) {
+        le_angle+=2*M_PI;
+      }
+      if (le_angle>2*M_PI) {
+        le_angle-=2*M_PI;
+      }
+
+      if (le_angle>=0 && le_angle<=2*M_PI) {
+        Enemy[i]->knockback_angle=le_angle;
+      }*/
+
+
+
+
+
+
+
       if (!player.uppercut /*&& !player.rst_up && !player.rst_down*/) {//normal
         if (player.on_ground_id==-1) {
           Enemy[i]->knockback_angle=0;//player.angle;
@@ -1071,6 +1113,7 @@ void EnemyAct(int i)
       }
     }
     int tmp_ngid;
+    int tmp_gid_;
     //Knockback 
     if (Enemy[i]->knockback_timer>0 && !Enemy[i]->move_to_target) {
       if (!player.time_breaker || Enemy[i]->time_breaker_immune) {
@@ -1086,9 +1129,28 @@ void EnemyAct(int i)
         }
         for (j=0;j<knock_max;j++) {
           Enemy[i]->in_node_grid_id=GetGridId(Enemy[i]->x,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);      
-          int tmp_=GetOnGroundId(Enemy[i]->x,Enemy[i]->y,3,2/*30,29*/); 
-          EnemyReboundFromGround(i,tmp_,TRUE);
-          EnemyKnockbackMove(i);
+          tmp_gid_=GetOnGroundId(Enemy[i]->x,Enemy[i]->y,5,4); 
+          if (tmp_gid_==-1) {
+            for (int w=0;w<8;w++) { //NOTE; resource intensive BUT only do it while being knockedback, prevents clipping through walls
+              switch (w) {
+                case 0:tmp_gid_=GetOnGroundId(Enemy[i]->x+NODE_SIZE,Enemy[i]->y,5,4); break;
+                case 1:tmp_gid_=GetOnGroundId(Enemy[i]->x-NODE_SIZE,Enemy[i]->y,5,4); break;
+
+                case 2:tmp_gid_=GetOnGroundId(Enemy[i]->x+NODE_SIZE,Enemy[i]->y-NODE_SIZE,5,4); break;
+                case 3:tmp_gid_=GetOnGroundId(Enemy[i]->x+NODE_SIZE,Enemy[i]->y+NODE_SIZE,5,4); break;
+
+                case 4:tmp_gid_=GetOnGroundId(Enemy[i]->x-NODE_SIZE,Enemy[i]->y-NODE_SIZE,5,4); break;
+                case 5:tmp_gid_=GetOnGroundId(Enemy[i]->x-NODE_SIZE,Enemy[i]->y+NODE_SIZE,5,4); break;
+
+                case 6:tmp_gid_=GetOnGroundId(Enemy[i]->x,Enemy[i]->y+NODE_SIZE,5,4); break;
+                case 7:tmp_gid_=GetOnGroundId(Enemy[i]->x,Enemy[i]->y-NODE_SIZE,5,4); break;
+              }
+              if (tmp_gid_!=-1) {
+                break;
+              }
+            }
+          }
+          EnemyKnockbackMove(i,tmp_gid_);
         }
       }
     }
@@ -1213,7 +1275,7 @@ void EnemyAct(int i)
           Enemy[i]->in_node_grid_id=GetGridId(Enemy[i]->x,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);      
           Enemy[i]->on_ground_id=GetOnGroundId(Enemy[i]->x,Enemy[i]->y,33,32);
           if (Enemy[i]->species==1 || Enemy[i]->species==3) {
-            EnemyReboundFromGround(i,Enemy[i]->on_ground_id,FALSE);
+            EnemySpriteOnGroundId(i,Enemy[i]->on_ground_id);
           }
           if (Enemy[i]->on_ground_id==-1) {
             Enemy[i]->is_in_ground_edge=FALSE;

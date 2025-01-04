@@ -2664,7 +2664,6 @@ void DrawPlayer(HDC hdc,HDC hdc2)
     }
   }
 
-  //GrRect(hdc,player.x-PLAYER_WIDTH,player.y-PLAYER_HEIGHT,PLAYER_WIDTH,PLAYER_HEIGHT,RGB(34,139,34));
   //Mathematics
   if (player.on_ground_id!=-1) {
     if (player.print_current_above) {
@@ -2720,13 +2719,8 @@ void DrawPlayer(HDC hdc,HDC hdc2)
     if (player.time_breaker_tick>0) {
       player.time_breaker_tick--;
       player.time_breaker_tick-=player.time_breaker_tick/2;
-      //if (!IsInvertedBackground()) {
-        GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick,WHITE,-1);
-        GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick-1,WHITE,-1);
-      /*} else {
-        GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick,BLACK,-1);
-        GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick-1,BLACK,-1);
-      }*/
+      GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick,WHITE,-1);
+      GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick-1,WHITE,-1);
     }
   }
 
@@ -2877,6 +2871,8 @@ void DrawPlayer(HDC hdc,HDC hdc2)
                 DEFAULT_PLAYER_BUILD_RANGE/2*NODE_SIZE,color,-1);
     GrLine(hdc,player.sprite_x,player.sprite_y,player.sprite_x+100*cos(player.angle_of_incidence),player.sprite_y+100*sin(player.angle_of_incidence),LTGREEN);*/
   }
+
+
 
   //Draw the bullet the player shoots
   if (player.bullet_shot!=-1) {

@@ -767,8 +767,8 @@ typedef struct enemy
 
   int bullet_shot_arr[ENEMY_BULLET_NUM];
 
-  int path_nodes[MAX_NODE_NUM/2];
-  int open_nodes[MAX_NODE_NUM/2];
+  int path_nodes[MAX_NODE_NUM];
+  int open_nodes[MAX_NODE_NUM];
   int enemy_species1_solids[MAX_NODE_NUM];
   int node_x[MAX_NODE_NUM];
   int node_y[MAX_NODE_NUM];
