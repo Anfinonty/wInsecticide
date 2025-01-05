@@ -1490,6 +1490,9 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
       enemy4_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy4-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       enemy4_sprite_4 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy4-4.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
+      enemy5_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy5-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      enemy5_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy5-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
       dkrdkgray_shadow_tile = (HBITMAP) LoadImageW(NULL, L"sprites/shadow_dkrdkgray.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);;
       ltgray_shadow_tile = (HBITMAP) LoadImageW(NULL, L"sprites/shadow_ltgray.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);;
 

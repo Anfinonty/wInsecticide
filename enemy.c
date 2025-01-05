@@ -94,48 +94,49 @@ void InitEnemyPathfinding(int enemy_id,double target_x,double target_y)
       node_id=GetGridId(x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM); //all nodes      
       if (node_id!=-1) {
         switch (Enemy[enemy_id]->species) {
-	  case 0://standard
-      case 2:
-        Enemy[enemy_id]->node_solid[i]=NodeGrid[node_id]->node_solid;
-        if (!Enemy[enemy_id]->node_solid[i])
-          Enemy[enemy_id]->node_solid[i]=NodeGrid[node_id]->node_water;
-	    break;
-	  case 1://inverse
-        if (Enemy[enemy_id]->target_player || Enemy[enemy_id]->on_ground_id==-1 /*|| Enemy[enemy_id]->is_in_ground_edge*/) {
-          Enemy[enemy_id]->node_solid[i]=NodeGrid[node_id]->node_solid;
-          if (!Enemy[enemy_id]->node_solid[i]) //cannot dive into water
-            Enemy[enemy_id]->node_solid[i]=NodeGrid[node_id]->node_water;
-        } else {
-          Enemy[enemy_id]->node_solid[i]=!NodeGrid[node_id]->node_solid;
-          if (!Enemy[enemy_id]->node_solid[i])
-            Enemy[enemy_id]->node_solid[i]=NodeGrid[node_id]->node_water;
-	      if (!Enemy[enemy_id]->node_solid[i]) {
-            Enemy[enemy_id]->enemy_species1_solids[Enemy[enemy_id]->species1_solid_num]=i;
-	        Enemy[enemy_id]->species1_solid_num++;
-          }
-        }
-        break;
-      case 3:
-        /*if (!Enemy[enemy_id]->target_player || (Enemy[enemy_id]->on_ground_id!=-1 && !Enemy[enemy_id]->is_in_ground_edge)) {
-          Enemy[enemy_id]->node_solid[i]=!NodeGrid[node_id]->node_solid;
-	      if (!Enemy[enemy_id]->node_solid[i]) {
-            Enemy[enemy_id]->enemy_species1_solids[Enemy[enemy_id]->species1_solid_num]=i;
-	        Enemy[enemy_id]->species1_solid_num++;
-          }
-        } else{
-          Enemy[enemy_id]->node_solid[i]=NodeGrid[node_id]->node_solid;
-        }*/
-        if (Enemy[enemy_id]->target_player || Enemy[enemy_id]->on_ground_id==-1 /*|| Enemy[enemy_id]->is_in_ground_edge*/) {
-          Enemy[enemy_id]->node_solid[i]=NodeGrid[node_id]->node_solid;
-        } else {
-          Enemy[enemy_id]->node_solid[i]=!NodeGrid[node_id]->node_solid;
-	      if (!Enemy[enemy_id]->node_solid[i]) {
-            Enemy[enemy_id]->enemy_species1_solids[Enemy[enemy_id]->species1_solid_num]=i;
-	        Enemy[enemy_id]->species1_solid_num++;
-          }
-        }
-	    break;
-        }
+	      case 0://standard
+          case 2:
+          case 4:
+            Enemy[enemy_id]->node_solid[i]=NodeGrid[node_id]->node_solid;
+            if (!Enemy[enemy_id]->node_solid[i])
+              Enemy[enemy_id]->node_solid[i]=NodeGrid[node_id]->node_water;
+	        break;
+	      case 1://inverse
+            if (Enemy[enemy_id]->target_player || Enemy[enemy_id]->on_ground_id==-1 /*|| Enemy[enemy_id]->is_in_ground_edge*/) {
+              Enemy[enemy_id]->node_solid[i]=NodeGrid[node_id]->node_solid;
+              if (!Enemy[enemy_id]->node_solid[i]) //cannot dive into water
+                Enemy[enemy_id]->node_solid[i]=NodeGrid[node_id]->node_water;
+            } else {
+              Enemy[enemy_id]->node_solid[i]=!NodeGrid[node_id]->node_solid;
+              if (!Enemy[enemy_id]->node_solid[i])
+                Enemy[enemy_id]->node_solid[i]=NodeGrid[node_id]->node_water;
+	          if (!Enemy[enemy_id]->node_solid[i]) {
+                Enemy[enemy_id]->enemy_species1_solids[Enemy[enemy_id]->species1_solid_num]=i;
+	            Enemy[enemy_id]->species1_solid_num++;
+              }
+            }
+            break;
+          case 3:
+            /*if (!Enemy[enemy_id]->target_player || (Enemy[enemy_id]->on_ground_id!=-1 && !Enemy[enemy_id]->is_in_ground_edge)) {
+              Enemy[enemy_id]->node_solid[i]=!NodeGrid[node_id]->node_solid;
+	          if (!Enemy[enemy_id]->node_solid[i]) {
+                Enemy[enemy_id]->enemy_species1_solids[Enemy[enemy_id]->species1_solid_num]=i;
+	            Enemy[enemy_id]->species1_solid_num++;
+              }
+            } else{
+              Enemy[enemy_id]->node_solid[i]=NodeGrid[node_id]->node_solid;
+            }*/
+            if (Enemy[enemy_id]->target_player || Enemy[enemy_id]->on_ground_id==-1 /*|| Enemy[enemy_id]->is_in_ground_edge*/) {
+              Enemy[enemy_id]->node_solid[i]=NodeGrid[node_id]->node_solid;
+            } else {
+              Enemy[enemy_id]->node_solid[i]=!NodeGrid[node_id]->node_solid;
+	          if (!Enemy[enemy_id]->node_solid[i]) {
+                Enemy[enemy_id]->enemy_species1_solids[Enemy[enemy_id]->species1_solid_num]=i;
+	            Enemy[enemy_id]->species1_solid_num++;
+              }
+            }
+	        break;
+            }
       } else {//out of bounds
         Enemy[enemy_id]->node_solid[i]=TRUE;
       }
@@ -224,33 +225,21 @@ void EnemyPathFinding(int enemy_id)
       x=Enemy[enemy_id]->node_x[Enemy[enemy_id]->current_node]-Enemy[enemy_id]->node_x[0];
       y=Enemy[enemy_id]->node_y[Enemy[enemy_id]->current_node]-Enemy[enemy_id]->node_y[0];
       if (i<=2) {
-	x-=NODE_SIZE; //case 1: left
+    	x-=NODE_SIZE; //case 1: left
         switch (i) {
-          case 0:
-	    y-=NODE_SIZE;
-            break;
-          case 2:
-	    y+=NODE_SIZE;
-            break;
+          case 0:y-=NODE_SIZE;break;
+          case 2:y+=NODE_SIZE;break;
         }
       } else if (3<=i && i<=5) {
         x+=NODE_SIZE; // case 4: right
         switch (i) {
-          case 3:
-	    y-=NODE_SIZE;
-            break;
-          case 5:
-	    y+=NODE_SIZE;
-            break;
+          case 3:y-=NODE_SIZE;break;
+          case 5:y+=NODE_SIZE;break;
         }
       } else {
         switch (i) {
-          case 6: //above
-            y-=NODE_SIZE;
-            break;
-          case 7: //below
-            y+=NODE_SIZE;
-            break;
+          case 6:y-=NODE_SIZE;break;//above
+          case 7:y+=NODE_SIZE;break;//below
         }
       }
       if (0<x && x<NODE_SIZE*MAX_FOLLOW_RANGE
@@ -315,9 +304,9 @@ void EnemySpriteOnGroundId(int enemy_id,int ground_id)
 {
     double ground_entity_angle=GetLineTargetAngle(ground_id,Enemy[enemy_id]->x,Enemy[enemy_id]->y);
     double height_from_ground=GetLineTargetHeight(ground_id,ground_entity_angle,Enemy[enemy_id]->x,Enemy[enemy_id]->y);
-    double edge_1_dist;
-    double edge_2_dist;
-    double edge_angle;
+    double edge_1_dist=-1;
+    double edge_2_dist=-1;
+    double edge_angle=-1;
 
     //GROUND EDGE
     int ground_edge_id=-1;
@@ -337,7 +326,7 @@ void EnemySpriteOnGroundId(int enemy_id,int ground_id)
           }
           Enemy[enemy_id]->is_in_ground_edge=TRUE;
         }
-        if (edge_1_dist<=34) {
+        if (edge_1_dist<=34 && edge_1_dist>=0 && ground_edge_id!=-1) {
           edge_angle=GetCosAngle(Enemy[enemy_id]->x-Ground[ground_edge_id]->x1,edge_1_dist);
           ///Enemy[enemy_id]->x+=cos(edge_angle);
           //Enemy[enemy_id]->y+=sin(edge_angle);
@@ -355,7 +344,7 @@ void EnemySpriteOnGroundId(int enemy_id,int ground_id)
             }
 
           }
-        } else if (edge_2_dist<=34) {
+        } else if (edge_2_dist<=34 && edge_2_dist>=0 && ground_edge_id!=-1) {
           edge_angle=GetCosAngle(Enemy[enemy_id]->x-Ground[ground_edge_id]->x2,edge_2_dist);
           //Enemy[enemy_id]->x+=cos(edge_angle);
           //Enemy[enemy_id]->y+=sin(edge_angle);
@@ -455,11 +444,10 @@ void LargeEnemySpriteTimer(int enemy_id)
 void LargeEnemyGravity(int enemy_id)
 {
   int tmp_=GetOnGroundId(Enemy[enemy_id]->x,Enemy[enemy_id]->y+2,30,29);
-//  int tmp_=Enemy[enemy_id]->on_ground_id;
   int node_grid_id1=Enemy[enemy_id]->in_node_grid_id;//GetGridId(Enemy[enemy_id]->x,Enemy[enemy_id]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
   int node_grid_id2=GetGridId(Enemy[enemy_id]->x,Enemy[enemy_id]->y+NODE_SIZE,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
-  bool is_in_solid1=FALSE;//=NodeGrid[node_grid_id1]->node_solid;
-  bool is_in_solid2=FALSE;//=NodeGrid[node_grid_id2]->node_solid;
+  bool is_in_solid1=FALSE;
+  bool is_in_solid2=FALSE;
   if (node_grid_id1!=-1) {
     is_in_solid1=NodeGrid[node_grid_id1]->node_solid;
   }
@@ -487,8 +475,13 @@ void EnemyMove(int enemy_id)
 {
   int path_node_arr_id=Enemy[enemy_id]->path_nodes_num-1,
       path_node_id=Enemy[enemy_id]->path_nodes[path_node_arr_id];
-  double path_node_center_x=Enemy[enemy_id]->node_x[path_node_id]+NODE_SIZE/2,
-      path_node_center_y=Enemy[enemy_id]->node_y[path_node_id]+NODE_SIZE/2;
+  double path_node_center_x=-1;
+  double path_node_center_y=-1;
+  if (path_node_id!=-1) {
+    path_node_center_x=Enemy[enemy_id]->node_x[path_node_id]+NODE_SIZE/2;
+    path_node_center_y=Enemy[enemy_id]->node_y[path_node_id]+NODE_SIZE/2;
+  }
+
 
 
   /*if (raining) { //move ment interruption due to rain
@@ -504,16 +497,6 @@ void EnemyMove(int enemy_id)
       }
     }
   }*/
-
-  //int tmp_on_ground_id=-1;
-
-  //if (!Enemy[enemy_id]->is_ground_rebounding) {
-//    tmp_on_ground_id=GetOnGroundId(Enemy[enemy_id]->x,Enemy[enemy_id]->y,5,4);    //Get Ground id
-    /*tmp_on_ground_id=GetOnGroundId(Enemy[enemy_id]->x,Enemy[enemy_id]->y,3,2);    //Get Ground id
-    if (tmp_on_ground_id!=-1) {
-      Enemy[enemy_id]->is_ground_rebounding=TRUE;
-      Enemy[enemy_id]->force_search=TRUE;
-    } else {*/
       if (Enemy[enemy_id]->x<path_node_center_x) {
         //if (Enemy[enemy_id]->species==0) {
           Enemy[enemy_id]->last_left=FALSE;
@@ -583,7 +566,7 @@ void EnemyTargetPlayer(int i)
   if (Enemy[i]->node_solid[target_node] ||//Total ignore player (player is hidden)
       Enemy[i]->in_unchase_range //dont chase player if its in unchase range
     ) {
-    if ((Enemy[i]->species==0 || Enemy[i]->species==2) && Enemy[i]->node_solid[target_node]) {
+    if ((Enemy[i]->species==0 || Enemy[i]->species==2 ||  Enemy[i]->species==4) && Enemy[i]->node_solid[target_node]) {
       Enemy[i]->ignore_player=TRUE; //dont ignore if player is within chase range
     }
     Enemy[i]->target_player=FALSE;
@@ -767,10 +750,24 @@ void EnemyAct(int i)
       }
     //^^ condition
       //player bullet
+      if (Enemy[i]->species==4) {
+        if (dist_from_bullet0<=NODE_SIZE*3) {
+          slash_time=1000;
+          Enemy[i]->ignore_player=TRUE;
+          Enemy[i]->target_player=FALSE;
+          if (!Enemy[i]->move_to_target) {
+            force_search=TRUE;
+          }
+        }
+      }
+
+
       if (dist_from_bullet0<=NODE_SIZE*4) {
         switch (Enemy[i]->species) {
-      	  case 0://fly
+      	  case 0:
           case 2:
+          case 4: //fly
+          {
             if (dist_from_bullet0<=NODE_SIZE*2) {
               Enemy[i]->damage_taken_timer=256;
               Enemy[i]->health-=Bullet[bk].damage;
@@ -790,6 +787,7 @@ void EnemyAct(int i)
                 Bullet[bk].angle=RandAngle(0,360,player.seed);
               /*if (Bullet[bk].speed_multiplier<6) {
               }*/
+            }
             }
 	        break;
          case 1://crawl
@@ -837,6 +835,7 @@ void EnemyAct(int i)
       switch (Enemy[i]->species) {
 	    case 0://fly
         case 2:
+        case 4:
           if (dist_from_bullet<=NODE_SIZE*2) {
             if (game_audio) {
               PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
@@ -874,6 +873,7 @@ void EnemyAct(int i)
     switch (Enemy[i]->species) {
       case 0://fly
       case 2:
+      case 4:
 	    if (!(Enemy[i]->time_breaker_length>0)) {
 	      if (distance_from_player_claws<=NODE_SIZE*2) {
 	        allow_act=TRUE;
@@ -897,6 +897,7 @@ void EnemyAct(int i)
       switch (Enemy[i]->species) {
         case 0:
         case 2:
+        case 4:
           if (player.attack_timer>34) {
             allow_act=TRUE;
           }
@@ -1039,6 +1040,7 @@ if (player.on_ground_id!=-1) {
         switch (Enemy[i]->species) {
           case 0:
           case 2:
+          case 4:
             if (player.speed>5) {
               deduct_health=TRUE;
             } else if (game_audio) {
@@ -1082,6 +1084,7 @@ if (player.on_ground_id!=-1) {
         case 1: rand_bullet_shot_num=25+RandNum(30,40,Enemy[i]->seed); break;
         case 2: rand_bullet_shot_num=8+RandNum(1,10,Enemy[i]->seed); break;
         case 3: rand_bullet_shot_num=25+RandNum(50,60,Enemy[i]->seed); break;
+        case 4: rand_bullet_shot_num=12+RandNum(1,10,Enemy[i]->seed); break;
       }
       for (int n=0;n<rand_bullet_shot_num;n++) {
          int rand_range=NODE_SIZE*3+NODE_SIZE*RandNum(1,5,Enemy[i]->seed);
@@ -1268,7 +1271,9 @@ if (player.on_ground_id!=-1) {
             }
           }
       }*/
-
+      /*if (Enemy[i]->species==4 && Enemy[i]->idling) {
+        slash_time=20;
+      }*/
 
 
       for (slash_time_i=0;slash_time_i<slash_time;slash_time_i++) {
@@ -1304,6 +1309,22 @@ if (player.on_ground_id!=-1) {
             }
           }
         }
+        if (Enemy[i]->species==4) {
+          if (slash_time>1) {
+            //if (slash_time_i==0) {
+              //Enemy[i]->speed_multiplier=Enemy[i]->ospeed_multiplier;
+              //Enemy[i]->speed=Enemy[i]->ospeed;
+            //} else {
+              Enemy[i]->speed_multiplier=1;
+              Enemy[i]->speed=0.05;
+            //}
+          } else {
+            if (slash_time_i==0) {
+              Enemy[i]->speed_multiplier=Enemy[i]->ospeed_multiplier;
+              Enemy[i]->speed=Enemy[i]->ospeed;
+            }
+          }
+        }
         /*int above_player_node1=GetGridId(
                 player.above_x-Enemy[i]->node_x[0],
                 player.above_y-Enemy[i]->node_y[0],
@@ -1328,7 +1349,6 @@ if (player.on_ground_id!=-1) {
         /*if (Enemy[i]->is_in_ground_edge) {
           force_search=TRUE;
         }*/
-
         if (Enemy[i]->force_search) {
           force_search=TRUE;
           Enemy[i]->force_search=FALSE;
@@ -1410,6 +1430,9 @@ if (player.on_ground_id!=-1) {
 
     //Movement
     if (Enemy[i]->idling) { //idling
+      /*if (Enemy[i]->species==4) {
+        Enemy[i]->idle_timer=29;
+      }*/
       Enemy[i]->idle_timer++;
 	  allow_act=FALSE;
       if (Enemy[i]->saw_player && !Enemy[i]->ignore_player) {//not ignoring
@@ -1512,7 +1535,7 @@ if (player.on_ground_id!=-1) {
           }
         }//end of slash_time
       //other
-        if (Enemy[i]->species==0 || Enemy[i]->species==2) {
+        if (Enemy[i]->species==0 || Enemy[i]->species==2 ||  Enemy[i]->species==4) {
           Enemy[i]->sprite_timer++;
           if (Enemy[i]->sprite_timer>3) {
             Enemy[i]->sprite_timer=0;
@@ -1693,6 +1716,10 @@ void InitEnemySpritesObj()
       case 3:
         tmp_sprite1=RotateSprite(NULL, enemy4_sprite_3,0,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[i]],-1);
         tmp_sprite2=RotateSprite(NULL, enemy4_sprite_4,0,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[i]],-1);
+        break;
+      case 4:
+        tmp_sprite1=RotateSprite(NULL, enemy5_sprite_1,0,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[i]],-1);
+        tmp_sprite2=RotateSprite(NULL, enemy5_sprite_2,0,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[i]],-1);
         break;
     }
 
@@ -2114,6 +2141,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
       switch (Enemy[i]->species) {
         case 0:
         case 2:
+        case 4:
           if (Enemy[i]->sprite_timer%2==0) {
             if (Enemy[i]->sprite_timer%4==0) {
               DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y+1,&EnemyTypeSprite[Enemy[i]->type].draw_fly_sprite_1,Enemy[i]->last_left);
@@ -2136,6 +2164,8 @@ void DrawEnemy(HDC hdc,HDC hdc2)
           //char printfunny[6];
           //sprintf(printfunny,"@%d",funny);
           //GrPrint(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y+48,printfunny,WHITE);
+          int rsid=Enemy[i]->rotated_sprite_id;
+          if (rsid!=-1) {
           if (Enemy[i]->sprite_in_water && !Enemy[i]->web_stuck) {
             int swim_rot_id=14;
             if (Enemy[i]->species==3) {
@@ -2143,10 +2173,10 @@ void DrawEnemy(HDC hdc,HDC hdc2)
             }
             if (Enemy[i]->sprite_timer%8==0) {
               DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
-              &EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite1[swim_rot_id],Enemy[i]->last_left);
+              &EnemyRotatedSprite[rsid]->draw_rotated_sprite1[swim_rot_id],Enemy[i]->last_left);
             } else {
               DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
-              &EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite2[swim_rot_id],Enemy[i]->last_left);
+              &EnemyRotatedSprite[rsid]->draw_rotated_sprite2[swim_rot_id],Enemy[i]->last_left);
             }
           } else if (Enemy[i]->on_ground_id!=-1) { //on a ground
             if (!Enemy[i]->is_in_ground_edge) {
@@ -2159,9 +2189,9 @@ void DrawEnemy(HDC hdc,HDC hdc2)
                     flip_bool=Enemy[i]->flip_sprite;
                   }
                   if (Enemy[i]->sprite_timer%8==0) {
-                    DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
+                    DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[rsid]->draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
                   } else {
-                    DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite2[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
+                    DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[rsid]->draw_rotated_sprite2[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
                   }
                 } else {
                   if (Enemy[i]->sprite_timer%2==0) { //fly sprite
@@ -2181,14 +2211,14 @@ void DrawEnemy(HDC hdc,HDC hdc2)
                 if (Enemy[i]->species==3) { 
                   if (Enemy[i]->idle_timer%16<8) {
                     DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
-                    &EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
-                  } else {
+                    &EnemyRotatedSprite[rsid]->draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
+                  } else if (Enemy[i]->rotated_xsprite_id!=-1){
                     DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
                     &XEnemyRotatedSprite[Enemy[i]->rotated_xsprite_id]->draw_rotated_sprite[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
                   }
                 } else {
                   DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
-                  &EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
+                  &EnemyRotatedSprite[rsid]->draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
                 }
              }
 
@@ -2203,9 +2233,9 @@ void DrawEnemy(HDC hdc,HDC hdc2)
               }
 
               if (Enemy[i]->sprite_timer%8==0) {
-                DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
+                DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[rsid]->draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
               } else {
-                DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite2[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
+                DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[rsid]->draw_rotated_sprite2[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
               }
 
             }
@@ -2218,6 +2248,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
             } else {
               DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyTypeSprite[Enemy[i]->type].draw_fly_sprite_2,Enemy[i]->last_left);
             }
+          }
           }
           break;
         }

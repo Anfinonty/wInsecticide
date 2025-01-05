@@ -63,7 +63,7 @@ void DrawWaterPlatforms(HDC hdc,HDC hdc2)
     _x=RDGrid[i].x+px-GR_WIDTH/2-cx1-cx2;//+cx1+cx2;//GR_WIDTH/2+RDGrid[i].x-px+cx1+cx2;
     _y=RDGrid[i].y+py-GR_HEIGHT/2-cy1-cy2;//+cy1+cy2;//GR_HEIGHT/2+RDGrid[i].y-py+cy1+cy2;
     gid=GetGridId(_x,_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
-    if (gid!=-1 && _y>=0 && _x>=0 && _x<MAP_WIDTH && _y<MAP_HEIGHT) {
+    if (gid>-1 && gid<VGRID_NUM && _x>=0 && _y>=0 && _x<=MAP_WIDTH && _y<=MAP_HEIGHT) {
       tmf_id=VGrid[gid]->draw_foreground_seg_id;
       if (tmf_id!=-1) {
         x=GR_WIDTH/2+TileMapForeground[tmf_id]->x-px+cx1+cx2;
@@ -121,7 +121,7 @@ void DrawPlatforms(HDC hdc,HDC hdc2)
     _x=RDGrid[i].x+px-GR_WIDTH/2-cx1-cx2;//+cx1+cx2;//GR_WIDTH/2+RDGrid[i].x-px+cx1+cx2;
     _y=RDGrid[i].y+py-GR_HEIGHT/2-cy1-cy2;//+cy1+cy2;//GR_HEIGHT/2+RDGrid[i].y-py+cy1+cy2;
     gid=GetGridId(_x,_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
-    if (gid!=-1 && _y>=0 && _x>=0 && _x<MAP_WIDTH && _y<MAP_HEIGHT) {
+    if (gid>-1 && gid<VGRID_NUM && _x>=0 && _y>=0 && _x<=MAP_WIDTH && _y<=MAP_HEIGHT) {
       tmp_id=VGrid[gid]->draw_platform_seg_id;
       if (tmp_id!=-1) {
         x=GR_WIDTH/2+TileMapPlatform[tmp_id]->x-px+cx1+cx2;
@@ -163,26 +163,17 @@ void DrawShadows(HDC hdc,HDC hdc2)
     cy2=player.cam_move_y;
   //2024-12-21 IMPORTANT: floating point in drawing sprite will cause grids to form and cause grid infighting = lag
   //turn it to int to make it appear as one singular bitmap
-  //  GrCircle(hdc,GR_WIDTH/2-cx1+cx2,GR_HEIGHT/2-cy1+cy2,10,BLUE,BLUE);
+  //  GrCircle(hdc,GR_WIDTH/2-cx1+cx2,GR_HEIGHT/2-cy1+cy2,10,BLUE,BLUE); //debug
 
-//  for (int i=0;i<SHADOW_GRID_NUM;i++) {
-//  for (int i=0;i<RDGRID_NUM;i++) {
   for (int i=0;i<RDGRID_DYN_NUM;i++) {
-    //tms_id=i;
     _x=RDGrid[i].x+px-GR_WIDTH/2-cx1-cx2;//+cx1+cx2;//GR_WIDTH/2+RDGrid[i].x-px+cx1+cx2;
     _y=RDGrid[i].y+py-GR_HEIGHT/2-cy1-cy2;//+cy1+cy2;//GR_HEIGHT/2+RDGrid[i].y-py+cy1+cy2;
     gid=GetGridId(_x,_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
-    //GrCircle(hdc,_x,_y,15,RED,RED);
-    if (gid!=-1 && _y>=0 && _x>=0 && _x<MAP_WIDTH && _y<MAP_HEIGHT) {
+    if (gid>-1 && gid<VGRID_NUM && _x>=0 && _y>=0 && _x<=MAP_WIDTH && _y<=MAP_HEIGHT) {
       tms_id=VGrid[gid]->draw_shadow_seg_id;
       if (tms_id!=-1) {
         x=GR_WIDTH/2+TileMapShadow[tms_id]->x-px+cx1+cx2;
         y=GR_HEIGHT/2+TileMapShadow[tms_id]->y-py+cy1+cy2;
-        /*DrawGlassBitmap(hdc, 
-          TileMapShadow[tms_id]->sprite_paint, 
-          x,y,
-          32//128
-        );*/
         SelectObject(hdc2,TileMapShadow[tms_id]->sprite_paint);
         AlphaBlend(hdc, x, y, VGRID_SIZE, VGRID_SIZE, hdc2, 0, 0, VGRID_SIZE, VGRID_SIZE, gblendFunction);
       } else {
@@ -198,15 +189,7 @@ void DrawShadows(HDC hdc,HDC hdc2)
           AlphaBlend(hdc, x, y, VGRID_SIZE, VGRID_SIZE, hdc2, 0, 0, VGRID_SIZE, VGRID_SIZE, gblendFunction);
         }
       }
-    } /*else {
-      x=_x;
-      y=_y;
-      if (map_background==1 || (map_background==2 && custom_map_background_color_i>127)) {
-        GrGlassRect(hdc,x,y,VGRID_SIZE,VGRID_SIZE,DKRDKGRAY,32);
-      } else {
-        GrGlassRect(hdc,x,y,VGRID_SIZE,VGRID_SIZE,LTGRAY,32);
-      }
-    }*/
+    }
   }
 }
 

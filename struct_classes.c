@@ -995,6 +995,9 @@ HBITMAP enemy4_sprite_1_0;
 HBITMAP enemy4_sprite_3;
 HBITMAP enemy4_sprite_4;
 
+HBITMAP enemy5_sprite_1;
+HBITMAP enemy5_sprite_2;
+
 
 //map background
 HBITMAP map_background_sprite;

@@ -21,6 +21,9 @@ void UpdateMEDrawSprite()
       case 3:
         MEEnemySprite[ei]->sprite_1=RotateSprite(NULL, enemy4_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[ei]],-1);
         break;
+      case 4:
+        MEEnemySprite[ei]->sprite_1=RotateSprite(NULL, enemy5_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[ei]],-1);
+        break;
     }
     GenerateDrawSprite(&MEEnemySprite[ei]->draw_sprite_1,MEEnemySprite[ei]->sprite_1);
 }
