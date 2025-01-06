@@ -1358,7 +1358,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 ខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\n\
 \
 \
-In memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts by the CIA (1959, 1963-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v1446-06-28"), TEXT("អ្នកសម្លាប់សត្វចង្រៃ") ,MB_OK);
+In memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts by the CIA (1959, 1963-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v-Prel-02-01"), TEXT("អ្នកសម្លាប់សត្វចង្រៃ") ,MB_OK);
 //TEXT("អាពីងស៊ីរុយ") ,MB_OK); //ឈ្មោះចាស់
 
       //load levels in save

@@ -671,7 +671,26 @@ int stickyTo(int num, int sticky) {
 }
 
 
+int GetXFromId(int id,int width) 
+{
+  if (width>0) {
+    return id%width;
+  } else {
+    return 0;
+  }
+}
 
+int GetYFromId(int id,int width)
+{ 
+ //w=5
+ //id=19
+ //ans: 3 + 1
+  if (width>0) {
+    return id/width;
+  } else {
+    return 0;
+  }
+}
 
 
 //https://www.baeldung.com/cs/check-if-point-is-in-2d-triangle

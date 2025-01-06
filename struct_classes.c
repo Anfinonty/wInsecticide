@@ -666,6 +666,7 @@ typedef struct enemy
   bool in_water;
   bool sprite_in_water;
   int in_node_grid_id;
+  int current_ngid_n;
 
   int rotated_sprite_id;
   int rotated_xsprite_id;
@@ -807,50 +808,21 @@ struct EnemyTypeSprite
 } EnemyTypeSprite[ENEMY_TYPE_NUM];
 
 
-
 #define M_PI_32     M_PI/32
 #define ROTATED_SPRITE_NUM  64 //fear not, 1 variant is very small, 8 bit
-//for large enemies only malloc for large enemy
-typedef struct EnemyRotatedSprite
+
+struct EnemyRotatedSprite0
 {
   DRAWSPRITE draw_rotated_sprite1[ROTATED_SPRITE_NUM];
   DRAWSPRITE draw_rotated_sprite2[ROTATED_SPRITE_NUM];
-} AEnemyRotatedSprite;
-
-AEnemyRotatedSprite *createEnemyRotatedSprite()
-{
-  AEnemyRotatedSprite *toReturn = malloc(sizeof(AEnemyRotatedSprite));
-  return toReturn;
-}
-
-void freeEnemyRotatedSprite(AEnemyRotatedSprite *myEnemyRotatedSprite)
-{
-  if (myEnemyRotatedSprite)
-    free(myEnemyRotatedSprite);
-}
-
-AEnemyRotatedSprite **EnemyRotatedSprite;
+} EnemyRotatedSprite[ENEMY_TYPE_NUM];
 
 
-typedef struct EnemyRotatedSpriteXtra
+struct EnemyRotatedSpriteXtra
 {
   DRAWSPRITE draw_rotated_sprite[ROTATED_SPRITE_NUM];
-} AXEnemyRotatedSprite;
+} XEnemyRotatedSprite[ENEMY_TYPE_NUM];
 
-
-AXEnemyRotatedSprite *createXEnemyRotatedSprite()
-{
-  AXEnemyRotatedSprite *toReturn = malloc(sizeof(AXEnemyRotatedSprite));
-  return toReturn;
-}
-
-void freeXEnemyRotatedSprite(AXEnemyRotatedSprite *myXEnemyRotatedSprite)
-{
-  if (myXEnemyRotatedSprite)
-    free(myXEnemyRotatedSprite);
-}
-
-AXEnemyRotatedSprite **XEnemyRotatedSprite;
 
 
 

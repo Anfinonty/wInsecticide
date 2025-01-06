@@ -931,13 +931,14 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
 
 
 
-#define HELP_TEXT_ARR_NUM1   17
+#define HELP_TEXT_ARR_NUM1   19
 char help_txt_arr1[HELP_TEXT_ARR_NUM1][64]=
 {
   "Controls:",
   "'W' - Jump from Surface",
   "'S'_- Block while on Ground",
-  " |__- Hold while in air for Ricochet-Shuriken Attack",
+  " |__- Hold while in air for Bounce Attack",
+  "[Shift] + 'S' - Switch position on Web",
   "'A' - Move Left (Clockwise)",
   "'D' - Move Right (Anti-Clockwise)",
   "'Q' - Pick Up Web Standing On",
@@ -945,12 +946,13 @@ char help_txt_arr1[HELP_TEXT_ARR_NUM1][64]=
   "'E'_- Hold with Attack for Uppercut or Check HP",
   " |__- Hold with Movement to Break Jump or Flinging",
   " |__- Hold with Jump to Jump Once",
-  "'2' - Change Web-Kunai per Throw [ 1/ 3/ 5(1)/ 15(3)]",
-  "'3' - Toggle Low Jump",
+  "'2' - Change Pellet Shooting Mode",
+  "'3' - Toggle Web Builder Mode",
   "[Space] or 'C' - Increase Reaction Time",
-  "[Left Click] or '1' - Throw Web-Kunai & Stop Web-Sling",
-  "[Right Click] or '4' - Sling Web",
-  "[Enter] - Restart Level"
+  "[Left Click] or '1' - Shoot Pellet & Stop Web-Sling",
+  "[Right Click] or '2' - Sling Web",
+  "[Enter] - Restart Level",
+  "[Shift] + [ESC] - Exit"
 };
 
 
@@ -966,7 +968,7 @@ char help_txt_arr2[HELP_TEXT_ARR_NUM2][64]=
   "'E' - Hold for no flinging after Web Placement",
   " |__- Hold for opposite lower quadrant swing",
   "[Left Click] or '1' - Swing without Web Placement",
-  "[Right Click] or '4' - Swing with Web Placement"
+  "[Right Click] or '2' - Swing with Web Placement"
 };
 
 
@@ -1446,7 +1448,7 @@ void DrawUI(HDC hdc,HDC hdc2)
 
   //===-- Draw Timebreaker Circle ---===
   c5 = //Highlight(IsInvertedBackground(),
-        Highlight(player.time_breaker,PURPLE,LTPURPLE);//,
+        Highlight(player.time_breaker,PURPLE,YELLOW);//,
         //Highlight(player.time_breaker,LTRGREEN,LTGREEN)
   //);
 
@@ -1454,6 +1456,7 @@ void DrawUI(HDC hdc,HDC hdc2)
 
   //draw player time breaker
   const int tb_circle_r=8;
+  if (player.time_breaker_units<player.time_breaker_units_max || (player.time_breaker_units==player.time_breaker_units_max && frame_tick%16<8)) {
   for (i=0;i<player.time_breaker_units;i++) {
     double tb_angle=M_PI_2+2*M_PI_2/player.time_breaker_units_max*i*2;
     /*GrCircle(hdc,
@@ -1464,6 +1467,7 @@ void DrawUI(HDC hdc,HDC hdc2)
       mouse_x-tb_circle_r*cos(tb_angle),
       mouse_y-tb_circle_r*sin(tb_angle),
       3,c5,c5);
+  }
   }
 
   if (player.time_breaker_units==player.time_breaker_units_max && !player.time_breaker) {
@@ -1485,17 +1489,40 @@ void DrawUI(HDC hdc,HDC hdc2)
   //======= Draw controls are on ========
   if (player.uppercut)
     GrPrint(hdc,mouse_x-16,mouse_y+48,"E",LTGREEN);
+  else
+    GrPrint(hdc,mouse_x-16,mouse_y+48,"E",LTRED);
 
   if (player.low_jump)
     GrPrint(hdc,mouse_x-32,mouse_y+48,"3",LTGREEN);
+  else
+    GrPrint(hdc,mouse_x-32,mouse_y+48,"3",LTRED);
 
   if (player.block_timer>0) {
     if (player.block_timer<=23) {
-      GrPrint(hdc,mouse_x+24,mouse_y+48,"{___}",WHITE);
+      GrPrint(hdc,mouse_x+20,mouse_y+48,"{__}",WHITE);
     }
-    GrPrint(hdc,mouse_x+36,mouse_y+48,"S",LTGREEN);
+    GrPrint(hdc,mouse_x+28,mouse_y+48,"S",LTGREEN);
+  } else {
+    GrPrint(hdc,mouse_x+28,mouse_y+48,"S",LTRED);
   }
 
+  if (IsSpeedBreaking())
+    GrPrint(hdc,mouse_x+48,mouse_y+48,"C",LTGREEN);
+  else
+    GrPrint(hdc,mouse_x+48,mouse_y+48,"C",LTRED);
+
+
+  if (player.time_breaker_units==player.time_breaker_units_max && !player.time_breaker) {
+    if (frame_tick%16<8) {
+      GrPrint(hdc,mouse_x+4,mouse_y+48,"Z",LTCYAN);
+    }
+  } else {
+    GrPrint(hdc,mouse_x+4,mouse_y+48,"Z",LTRED);
+  }
+
+  if (player.time_breaker) {
+    GrPrint(hdc,mouse_x+4,mouse_y+48,"Z",YELLOW);
+  }
 
   //debug
   //if (player.on_ground_id==-1) {

@@ -2629,14 +2629,14 @@ void DrawPlayer(HDC hdc,HDC hdc2)
     
     for (int i=0;i<LARGE_ENEMY_TYPE_NUM;i++) {
       for (int j=0;j<ROTATED_SPRITE_NUM;j++) {
-        BitmapPalette(hdc,hdc2,EnemyRotatedSprite[i]->draw_rotated_sprite1[j].sprite_paint,rgbColorsDefault);
-        BitmapPalette(hdc,hdc2,EnemyRotatedSprite[i]->draw_rotated_sprite2[j].sprite_paint,rgbColorsDefault);
+        BitmapPalette(hdc,hdc2,EnemyRotatedSprite[i].draw_rotated_sprite1[j].sprite_paint,rgbColorsDefault);
+        BitmapPalette(hdc,hdc2,EnemyRotatedSprite[i].draw_rotated_sprite2[j].sprite_paint,rgbColorsDefault);
       }
     }
 
     for (int i=0;i<LARGER_ENEMY_TYPE_NUM;i++) {
       for (int j=0;j<ROTATED_SPRITE_NUM;j++) {
-        BitmapPalette(hdc,hdc2,XEnemyRotatedSprite[i]->draw_rotated_sprite[j].sprite_paint,rgbColorsDefault);
+        BitmapPalette(hdc,hdc2,XEnemyRotatedSprite[i].draw_rotated_sprite[j].sprite_paint,rgbColorsDefault);
       }
     }
 
@@ -2688,19 +2688,21 @@ void DrawPlayer(HDC hdc,HDC hdc2)
       GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick-1,WHITE,-1);
     } else if (player.flag_noir_palette) {
       for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-        BitmapPalette(hdc,hdc2,EnemyTypeSprite[i].draw_fly_sprite_1.sprite_paint,rgbColorsNoir);
-        BitmapPalette(hdc,hdc2,EnemyTypeSprite[i].draw_fly_sprite_2.sprite_paint,rgbColorsNoir);
+        if (!saved_enemy_type_time_breaker_immune[i]) {
+          BitmapPalette(hdc,hdc2,EnemyTypeSprite[i].draw_fly_sprite_1.sprite_paint,rgbColorsNoir);
+          BitmapPalette(hdc,hdc2,EnemyTypeSprite[i].draw_fly_sprite_2.sprite_paint,rgbColorsNoir);
+        }
       }
       for (int i=0;i<LARGE_ENEMY_TYPE_NUM;i++) {
-        for (int j=0;j<ROTATED_SPRITE_NUM;j++) {
-          BitmapPalette(hdc,hdc2,EnemyRotatedSprite[i]->draw_rotated_sprite1[j].sprite_paint,rgbColorsNoir);
-          BitmapPalette(hdc,hdc2,EnemyRotatedSprite[i]->draw_rotated_sprite2[j].sprite_paint,rgbColorsNoir);
-        }
+          for (int j=0;j<ROTATED_SPRITE_NUM;j++) {
+            BitmapPalette(hdc,hdc2,EnemyRotatedSprite[i].draw_rotated_sprite1[j].sprite_paint,rgbColorsNoir);
+            BitmapPalette(hdc,hdc2,EnemyRotatedSprite[i].draw_rotated_sprite2[j].sprite_paint,rgbColorsNoir);
+          }
       }
       for (int i=0;i<LARGER_ENEMY_TYPE_NUM;i++) {
-        for (int j=0;j<ROTATED_SPRITE_NUM;j++) {
-          BitmapPalette(hdc,hdc2,XEnemyRotatedSprite[i]->draw_rotated_sprite[j].sprite_paint,rgbColorsNoir);
-        }
+          for (int j=0;j<ROTATED_SPRITE_NUM;j++) {
+            BitmapPalette(hdc,hdc2,XEnemyRotatedSprite[i].draw_rotated_sprite[j].sprite_paint,rgbColorsNoir);
+          }
       }
       for (int i=0;i<PLATFORM_GRID_NUM;i++) {
         //BitmapPalette(hdc,TileMapPlatform[i]->draw_tile.sprite_paint,rgbColorsNoir);
