@@ -931,28 +931,27 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
 
 
 
-#define HELP_TEXT_ARR_NUM1   19
+#define HELP_TEXT_ARR_NUM1   18
 char help_txt_arr1[HELP_TEXT_ARR_NUM1][64]=
 {
   "Controls:",
   "'W' - Jump from Surface",
   "'S'_- Block while on Ground",
   " |__- Hold while in air for Bounce Attack",
-  "[Shift] + 'S' - Switch position on Web",
+  "[Shift] + 'S' or 'W' - Switch position on Web",
   "'A' - Move Left (Clockwise)",
   "'D' - Move Right (Anti-Clockwise)",
   "'Q' - Pick Up Web Standing On",
   "'Z' - Time Breaker Ability",
   "'E'_- Hold with Attack for Uppercut or Check HP",
   " |__- Hold with Movement to Break Jump or Flinging",
-  " |__- Hold with Jump to Jump Once",
+  " |__- Hold with Jump to Jump Once Only",
   "'2' - Change Pellet Shooting Mode",
   "'3' - Toggle Web Builder Mode",
   "[Space] or 'C' - Increase Reaction Time",
   "[Left Click] or '1' - Shoot Pellet & Stop Web-Sling",
-  "[Right Click] or '2' - Sling Web",
+  "[Right Click] or '4' - Sling Web",
   "[Enter] - Restart Level",
-  "[Shift] + [ESC] - Exit"
 };
 
 

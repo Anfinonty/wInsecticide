@@ -728,8 +728,18 @@ void EnemyActWebStuck(int i)
   }
 
 
-    nx=Enemy[i]->x-NODE_SIZE*3+GetXFromId(Enemy[i]->current_ngid_n,7)*NODE_SIZE; //0 1 2 3 4 5 6 
-    ny=Enemy[i]->y-NODE_SIZE*3+GetYFromId(Enemy[i]->current_ngid_n,7)*NODE_SIZE; //7 8 9 A B C D
+    if (Enemy[i]->species==0 || Enemy[i]->species==2 || Enemy[i]->species==4) {
+      if (!Enemy[i]->web_stuck) {
+        nx=Enemy[i]->x-NODE_SIZE+GetXFromId(Enemy[i]->current_ngid_n,3)*NODE_SIZE; //     1 2 3   
+        ny=Enemy[i]->y-NODE_SIZE+GetYFromId(Enemy[i]->current_ngid_n,3)*NODE_SIZE; //     4 5 6  
+      } else {
+        nx=Enemy[i]->x-NODE_SIZE*2+GetXFromId(Enemy[i]->current_ngid_n,5)*NODE_SIZE; //   1 2 3 4 5  
+        ny=Enemy[i]->y-NODE_SIZE*2+GetYFromId(Enemy[i]->current_ngid_n,5)*NODE_SIZE; //   6 7 8 9 A 
+      }
+    } else if (Enemy[i]->species==1 || Enemy[i]->species==3) {
+      nx=Enemy[i]->x-NODE_SIZE*3+GetXFromId(Enemy[i]->current_ngid_n,7)*NODE_SIZE; //0 1 2 3 4 5 6 
+      ny=Enemy[i]->y-NODE_SIZE*3+GetYFromId(Enemy[i]->current_ngid_n,7)*NODE_SIZE; //7 8 9 A B C D
+    }
     sub_tmp_ngid=GetGridId(nx,ny,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
     if (sub_tmp_ngid!=-1) {
        if (!NodeGrid[sub_tmp_ngid]->non_web && NodeGrid[sub_tmp_ngid]->node_solid) { //web_detected
@@ -738,7 +748,23 @@ void EnemyActWebStuck(int i)
        }
     }
     //unstuck process
-    if (Enemy[i]->current_ngid_n==48) {
+    bool allow_act=FALSE;
+    if (Enemy[i]->species==0 || Enemy[i]->species==2 || Enemy[i]->species==4) {
+      if (!Enemy[i]->web_stuck) {
+        if (Enemy[i]->current_ngid_n==8) {
+          allow_act=TRUE;
+        }
+      } else {
+        if (Enemy[i]->current_ngid_n==24) {
+          allow_act=TRUE;
+        }
+      }
+    } else if (Enemy[i]->species==1 || Enemy[i]->species==3) {
+      if (Enemy[i]->current_ngid_n==48) {
+        allow_act=TRUE;
+      }
+    }
+    if (allow_act) {
       if (Enemy[i]->web_stuck && !Enemy[i]->flag_web_stuck) {
         Enemy[i]->flag_web_unstuck=TRUE;
       }
@@ -984,68 +1010,6 @@ void EnemyAct(int i)
       Enemy[i]->player_knockback=TRUE;
       Enemy[i]->knockback_timer=player.knockback_strength;
 
-/*
-if (player.on_ground_id!=-1) {
-    if (player.print_current_above) {
-      player.sprite_angle=player.angle;
-    } else if (player.print_current_below) {
-      player.sprite_angle=M_PI+player.angle;
-    }
-    if (!player.last_left) {
-      player.sprite_angle*=-1;
-    }
-  }
-*/
-
-
-      /*double le_angle=-1;
-      if (player.on_ground_id==-1) { //in air
-        le_angle=player.angle_of_incidence;
-      } else {
-        if (player.print_current_above) {
-          if (!player.last_left) {
-            le_angle=abs(player.angle);
-            if (player.uppercut) {
-              le_angle-=M_PI_2;
-            }
-          } else {
-            le_angle=M_PI-abs(player.angle);
-            if (player.uppercut) {
-              le_angle+=M_PI_2;
-            }
-          }
-        } else if (player.print_current_below){
-          if (!player.last_left) { //upside down, right
-            le_angle=2*M_PI-abs(player.angle);
-            if (player.uppercut) {
-              le_angle+=M_PI_2;
-            }
-          } else { //upside down, left
-            le_angle=M_PI+abs(player.angle);
-            if (player.uppercut) {
-              le_angle-=M_PI_2;
-            }
-          }
-        }
-      }
-
-      if (le_angle<0) {
-        le_angle+=2*M_PI;
-      }
-      if (le_angle>2*M_PI) {
-        le_angle-=2*M_PI;
-      }
-
-      if (le_angle>=0 && le_angle<=2*M_PI) {
-        Enemy[i]->knockback_angle=le_angle;
-      }*/
-
-
-
-
-
-
-
       if (!player.uppercut /*&& !player.rst_up && !player.rst_down*/) {//normal
         if (player.on_ground_id==-1) {
           Enemy[i]->knockback_angle=0;//player.angle;
@@ -1243,7 +1207,9 @@ if (player.on_ground_id!=-1) {
         }
       }
 
-
+      if (Enemy[i]->web_stuck) {
+        slash_time=1;
+      }
 
 
       //toggle staate in water
@@ -1291,7 +1257,6 @@ if (player.on_ground_id!=-1) {
           }
         }
     
-      //check state web stuck
       for (slash_time_i=0;slash_time_i<slash_time;slash_time_i++) {
           Enemy[i]->in_node_grid_id=GetGridId(Enemy[i]->x,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);      
           Enemy[i]->on_ground_id=GetOnGroundId(Enemy[i]->x,Enemy[i]->y,33,32);
@@ -1302,6 +1267,7 @@ if (player.on_ground_id!=-1) {
             Enemy[i]->is_in_ground_edge=FALSE;
           }
 
+      //check state web stuck
         EnemyActWebStuck(i);
 
         //Prevent reaching border
@@ -1326,7 +1292,7 @@ if (player.on_ground_id!=-1) {
             }
           }
         }
-        if (Enemy[i]->species==4) {
+        if (Enemy[i]->species==4 && !Enemy[i]->web_stuck) {
           if (!player.time_breaker) {
             if (slash_time>1) {
               Enemy[i]->speed_multiplier=1;
@@ -1392,6 +1358,16 @@ if (player.on_ground_id!=-1) {
 
             if (Enemy[i]->bullet_cooldown<=0) {
 	          if (Enemy[i]->bullet_shot_num<500) {//shot less than 500 bullets
+                int bspeed_m=Enemy[i]->bullet_speed_multiplier,
+                    bdmg=Enemy[i]->bullet_damage;
+                double bspeed=Enemy[i]->bullet_speed,
+                       brange=Enemy[i]->bullet_range;
+                if (Enemy[i]->web_stuck) {
+                  bspeed/=3;
+                  brange/=3;             
+                  bspeed_m=bspeed_m/3+1;
+                  bdmg/=3;
+                }
 	            for (j=0;j<Enemy[i]->bullet_fire_at_once_max;j++) {//several bullets at once
 		          if (Enemy[i]->saw_player) {
                     if (Enemy[i]->dist_from_player<Enemy[i]->shoot_at_player_range/2*NODE_SIZE) {
@@ -1401,10 +1377,10 @@ if (player.on_ground_id!=-1) {
 		                Enemy[i]->bullet_shot_num,
 		                Enemy[i]->bullet_color,
 		                Enemy[i]->bullet_graphics_type,
-		                Enemy[i]->bullet_range,
-		                Enemy[i]->bullet_speed,
-		                Enemy[i]->bullet_speed_multiplier,
-		                Enemy[i]->bullet_damage,
+		                brange,
+		                bspeed,
+		                bspeed_m,
+		                bdmg,
 		                i,
 		                Enemy[i]->x,
 		                Enemy[i]->y,
@@ -1559,13 +1535,14 @@ if (player.on_ground_id!=-1) {
           }
         }//end of slash_time
       //other
-        if (Enemy[i]->species==0 || Enemy[i]->species==2 || (Enemy[i]->species==4 && (!player.time_breaker || Enemy[i]->time_breaker_immune))) {
-          Enemy[i]->sprite_timer++;
-          if (Enemy[i]->sprite_timer>3) {
-            Enemy[i]->sprite_timer=0;
+        if (!Enemy[i]->web_stuck) {
+          if (Enemy[i]->species==0 || Enemy[i]->species==2 || (Enemy[i]->species==4 && (!player.time_breaker || Enemy[i]->time_breaker_immune))) {
+            Enemy[i]->sprite_timer++;
+            if (Enemy[i]->sprite_timer>3) {
+              Enemy[i]->sprite_timer=0;
+            }
           }
         }
-
 
       }
     }//end of tbt
