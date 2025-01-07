@@ -1640,18 +1640,31 @@ void InitEnemySprites()
     if (saved_enemy_type_species[i]==1 || saved_enemy_type_species[i]==3) {
       saved_enemy_type_rot_sprite_id[i]=LARGE_ENEMY_TYPE_NUM;
       saved_large_enemy_type_species[LARGE_ENEMY_TYPE_NUM]=saved_enemy_type_species[i];
+      if (saved_enemy_type_time_breaker_immune[i]) {
+        saved_large_enemy_type_time_breaker_immune[LARGE_ENEMY_TYPE_NUM]=TRUE;
+      } else {
+        saved_large_enemy_type_time_breaker_immune[LARGE_ENEMY_TYPE_NUM]=FALSE;
+      }
       LARGE_ENEMY_TYPE_NUM++;
       if (saved_enemy_type_species[i]==3) {
         saved_enemy_type_rot_xsprite_id[i]=LARGER_ENEMY_TYPE_NUM;
         saved_larger_enemy_type_species[LARGER_ENEMY_TYPE_NUM]=3;
+        if (saved_enemy_type_time_breaker_immune[i]) {
+          saved_larger_enemy_type_time_breaker_immune[LARGER_ENEMY_TYPE_NUM]=TRUE;
+        } else {
+          saved_larger_enemy_type_time_breaker_immune[LARGER_ENEMY_TYPE_NUM]=FALSE;
+        }
         LARGER_ENEMY_TYPE_NUM++;
       } else {
         saved_larger_enemy_type_species[i]=-1;
         saved_enemy_type_rot_xsprite_id[i]=-1;
+        saved_larger_enemy_type_time_breaker_immune[i]=FALSE;
       }
     } else {
       saved_enemy_type_rot_sprite_id[i]=-1;
       saved_enemy_type_rot_xsprite_id[i]=-1;
+      saved_large_enemy_type_time_breaker_immune[i]=FALSE;
+      saved_larger_enemy_type_time_breaker_immune[i]=FALSE;
     }
   }
 
@@ -1668,24 +1681,6 @@ void InitEnemySpritesObj()
 {
   int species_i=0;
   HBITMAP tmp_sprite1,tmp_sprite2;
-
-  //dynamic sprites will cause crash <---
-  //EnemyRotatedSprite = calloc(LARGE_ENEMY_TYPE_NUM,sizeof(AEnemyRotatedSprite*));
-
-  //for (int i=0;i<LARGE_ENEMY_TYPE_NUM;i++) {
-    //AEnemyRotatedSprite *newERotSprite = createEnemyRotatedSprite();
-    //EnemyRotatedSprite[i] = newERotSprite;
-  //}
-
-
-  //XEnemyRotatedSprite = calloc(LARGER_ENEMY_TYPE_NUM,sizeof(AXEnemyRotatedSprite*));
-
-  //for (int i=0;i<LARGER_ENEMY_TYPE_NUM;i++) {
-    //AXEnemyRotatedSprite *newXERotSprite = createXEnemyRotatedSprite();
-    //XEnemyRotatedSprite[i] = newXERotSprite;
-  //}
-
-
   for (int i=0;i<ENEMY_TYPE_NUM;i++) {
     species_i=saved_enemy_type_species[i];
     switch (species_i) {

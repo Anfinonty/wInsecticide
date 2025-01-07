@@ -2694,15 +2694,19 @@ void DrawPlayer(HDC hdc,HDC hdc2)
         }
       }
       for (int i=0;i<LARGE_ENEMY_TYPE_NUM;i++) {
+        if (!saved_large_enemy_type_time_breaker_immune[i]) {
           for (int j=0;j<ROTATED_SPRITE_NUM;j++) {
             BitmapPalette(hdc,hdc2,EnemyRotatedSprite[i].draw_rotated_sprite1[j].sprite_paint,rgbColorsNoir);
             BitmapPalette(hdc,hdc2,EnemyRotatedSprite[i].draw_rotated_sprite2[j].sprite_paint,rgbColorsNoir);
           }
+        }
       }
       for (int i=0;i<LARGER_ENEMY_TYPE_NUM;i++) {
+        if (!saved_larger_enemy_type_time_breaker_immune[i]) {
           for (int j=0;j<ROTATED_SPRITE_NUM;j++) {
             BitmapPalette(hdc,hdc2,XEnemyRotatedSprite[i].draw_rotated_sprite[j].sprite_paint,rgbColorsNoir);
           }
+        }
       }
       for (int i=0;i<PLATFORM_GRID_NUM;i++) {
         //BitmapPalette(hdc,TileMapPlatform[i]->draw_tile.sprite_paint,rgbColorsNoir);

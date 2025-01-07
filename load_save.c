@@ -70,6 +70,8 @@ int saved_enemy_type_time_breaker_length[ENEMY_TYPE_NUM];
 int saved_enemy_type_rot_sprite_id[ENEMY_TYPE_NUM];
 int saved_enemy_type_rot_xsprite_id[ENEMY_TYPE_NUM];
 bool saved_enemy_type_time_breaker_immune[ENEMY_TYPE_NUM];
+bool saved_large_enemy_type_time_breaker_immune[ENEMY_TYPE_NUM];
+bool saved_larger_enemy_type_time_breaker_immune[ENEMY_TYPE_NUM];
 
 
 
