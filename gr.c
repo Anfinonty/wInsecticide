@@ -1338,7 +1338,7 @@ HBITMAP RotateSpriteSimple(HDC hDC, HBITMAP hSourceBitmap, double radians, int b
 }
 
 
-HBITMAP ColorReplaceSprite(HDC hDC, HBITMAP hSourceBitmap, int sprite_color,int background_color) 
+/*HBITMAP ColorReplaceSprite(HDC hDC, HBITMAP hSourceBitmap, int sprite_color,int background_color) 
 { //if (hSourceBitmap != NULL) { ////https://ftp.zx.net.nz/pub/Patches/ftp.microsoft.com/MISC/KB/en-us/77/127.HTM
   HBITMAP hOldSourceBitmap, hOldDestBitmap, hDestBitmap; ////https://www.codeguru.com/multimedia/rotate-a-bitmap-image/
   HDC hMemSrc,hMemDest;
@@ -1392,7 +1392,57 @@ HBITMAP ColorReplaceSprite(HDC hDC, HBITMAP hSourceBitmap, int sprite_color,int 
   DeleteDC(hMemDest);
   DeleteDC(hMemSrc);
   return (hDestBitmap);
+}*/
+
+/*
+void ReplaceColorSprite(HBITMAP hBitmap,COLORREF old_color,COLORREF new_color)
+{
+  BITMAP bm;
+  HDC hdc;
+  BYTE* pixels;
+  int data_size;
+  GetObject(hBitmap,sizeof(bm),&bm);
+
+  //create buffer to hold the pixel
+  data_size = bm.bmWidth * bm.bmHeight * (bm.bmBitsPixel/8);
+  pixels = (BYTE*) malloc(data_size);
+
+  hdc=GetDC(NULL);
+  GetDIBits(hdc, hBitmap,0,bm.bmHeight,pixels,(BITMAPINFO*)&bm,DIB_RGB_COLORS);
+
+  //iterate thru pixels & replace color
+  for (int i=0;i<data_size;i+=4) {
+    COLORREF color = RGB(pixels[i+2],pixels[i+1],pixels[i]);
+    if (color==old_color) {
+      pixels[i]=GetBValue(new_color);
+      pixels[i+1]=GetGValue(new_color);
+      pixels[i+2]=GetRValue(new_color);
+    }
+  }
+
+  SetDIBits(hdc,hBitmap,0,bm.bmHeight,pixels,(BITMAPINFO*)&bm,DIB_RGB_COLORS);
+  ReleaseDC(NULL,hdc);
+  free(pixels);
+}*/
+
+void ReplaceColorSprite(HBITMAP hBitmap, COLORREF oldColor, COLORREF newColor) 
+{ 
+  BITMAP bitmap; 
+  GetObject(hBitmap, sizeof(BITMAP), &bitmap); 
+  HDC hdc = CreateCompatibleDC(NULL); 
+  SelectObject(hdc, hBitmap); 
+  for (int y = 0; y < bitmap.bmHeight; y++) { 
+    for (int x = 0; x < bitmap.bmWidth; x++) { 
+      COLORREF color = GetPixel(hdc, x, y); 
+      if (color == oldColor) { 
+        SetPixel(hdc, x, y, newColor); 
+      } 
+    } 
+  } 
+  DeleteDC(hdc);
 }
+
+
 
 HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, double radians,int rTransparent, int old_color, int sprite_color, int sprite_color_2) 
 { //if (hSourceBitmap != NULL) { ////https://ftp.zx.net.nz/pub/Patches/ftp.microsoft.com/MISC/KB/en-us/77/127.HTM

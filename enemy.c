@@ -1716,27 +1716,51 @@ void InitEnemySpritesObj()
 
   for (int i=0;i<LARGE_ENEMY_TYPE_NUM;i++) {
     for (int j=0;j<ROTATED_SPRITE_NUM;j++) {
-      angle_rn=M_PI_2-M_PI_16*j;
+      //angle_rn=M_PI_2-M_PI_16*j;
       species_i=saved_large_enemy_type_species[i]; 
       switch (species_i) {
         case 1:
-          tmp_sprite1=RotateSprite(NULL,enemy2_sprite_1,angle_rn,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[saved_enemy_type_rot_sprite_id[i]]],-1);
+          /*tmp_sprite1=RotateSprite(NULL,enemy2_sprite_1,angle_rn,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[saved_enemy_type_rot_sprite_id[i]]],-1);
           loading_numerator++;
           tmp_sprite2=RotateSprite(NULL,enemy2_sprite_2,angle_rn,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[saved_enemy_type_rot_sprite_id[i]]],-1);
+          loading_numerator++;*/
+          EnemyRotatedSprite[i].draw_rotated_sprite1[j].sprite_mask=CopyCrunchyBitmap(LoadEnemyRotatedSprite[0].draw_rotated_sprite1[j].sprite_mask,SRCCOPY);
+          EnemyRotatedSprite[i].draw_rotated_sprite1[j].sprite_paint=CopyCrunchyBitmap(LoadEnemyRotatedSprite[0].draw_rotated_sprite1[j].sprite_paint,SRCCOPY);
+          ReplaceColorSprite(EnemyRotatedSprite[i].draw_rotated_sprite1[j].sprite_paint,
+            LTGREEN,
+            rgbPaint[saved_enemy_type_color[saved_enemy_type_rot_sprite_id[i]]]);
+          loading_numerator++;
+          EnemyRotatedSprite[i].draw_rotated_sprite2[j].sprite_mask=CopyCrunchyBitmap(LoadEnemyRotatedSprite[0].draw_rotated_sprite2[j].sprite_mask,SRCCOPY);
+          EnemyRotatedSprite[i].draw_rotated_sprite2[j].sprite_paint=CopyCrunchyBitmap(LoadEnemyRotatedSprite[0].draw_rotated_sprite2[j].sprite_paint,SRCCOPY);
+          ReplaceColorSprite(EnemyRotatedSprite[i].draw_rotated_sprite2[j].sprite_paint,
+            LTGREEN,
+            rgbPaint[saved_enemy_type_color[saved_enemy_type_rot_sprite_id[i]]]);
           loading_numerator++;
           break;
         case 3:
-          tmp_sprite1=RotateSprite(NULL,enemy4_sprite_1,angle_rn,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[saved_enemy_type_rot_sprite_id[i]]],-1);
+          /*tmp_sprite1=RotateSprite(NULL,enemy4_sprite_1,angle_rn,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[saved_enemy_type_rot_sprite_id[i]]],-1);
           loading_numerator++;
           tmp_sprite2=RotateSprite(NULL,enemy4_sprite_2,angle_rn,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[saved_enemy_type_rot_sprite_id[i]]],-1);
+          loading_numerator++;*/
+          EnemyRotatedSprite[i].draw_rotated_sprite1[j].sprite_mask=CopyCrunchyBitmap(LoadEnemyRotatedSprite[1].draw_rotated_sprite1[j].sprite_mask,SRCCOPY);
+          EnemyRotatedSprite[i].draw_rotated_sprite1[j].sprite_paint=CopyCrunchyBitmap(LoadEnemyRotatedSprite[1].draw_rotated_sprite1[j].sprite_paint,SRCCOPY);
+          ReplaceColorSprite(EnemyRotatedSprite[i].draw_rotated_sprite1[j].sprite_paint,
+            LTGREEN,
+            rgbPaint[saved_enemy_type_color[saved_enemy_type_rot_sprite_id[i]]]);
+          loading_numerator++;
+          EnemyRotatedSprite[i].draw_rotated_sprite2[j].sprite_mask=CopyCrunchyBitmap(LoadEnemyRotatedSprite[1].draw_rotated_sprite2[j].sprite_mask,SRCCOPY);
+          EnemyRotatedSprite[i].draw_rotated_sprite2[j].sprite_paint=CopyCrunchyBitmap(LoadEnemyRotatedSprite[1].draw_rotated_sprite2[j].sprite_paint,SRCCOPY);
+          ReplaceColorSprite(EnemyRotatedSprite[i].draw_rotated_sprite2[j].sprite_paint,
+            LTGREEN,
+            rgbPaint[saved_enemy_type_color[saved_enemy_type_rot_sprite_id[i]]]);
           loading_numerator++;
           break;
       }
 
-      GenerateDrawSprite(&EnemyRotatedSprite[i].draw_rotated_sprite1[j],tmp_sprite1);
-      GenerateDrawSprite(&EnemyRotatedSprite[i].draw_rotated_sprite2[j],tmp_sprite2);
-      DeleteObject(tmp_sprite2);
-      DeleteObject(tmp_sprite1);
+      //GenerateDrawSprite(&EnemyRotatedSprite[i].draw_rotated_sprite1[j],tmp_sprite1);
+      //GenerateDrawSprite(&EnemyRotatedSprite[i].draw_rotated_sprite2[j],tmp_sprite2);
+      //DeleteObject(tmp_sprite2);
+      //DeleteObject(tmp_sprite1);
     }
   }
 
@@ -1746,10 +1770,18 @@ void InitEnemySpritesObj()
       species_i=saved_larger_enemy_type_species[i];
       switch (species_i) {
         case 3:
-          tmp_sprite1=RotateSprite(NULL, enemy4_sprite_1_0,angle_rn,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[saved_enemy_type_rot_sprite_id[i]]],-1);
+          /*tmp_sprite1=RotateSprite(NULL, enemy4_sprite_1_0,angle_rn,LTGREEN,BLACK,rgbPaint[saved_enemy_type_color[saved_enemy_type_rot_sprite_id[i]]],-1);
           loading_numerator++;
           GenerateDrawSprite(&XEnemyRotatedSprite[i].draw_rotated_sprite[j],tmp_sprite1);
-          DeleteObject(tmp_sprite1);
+          DeleteObject(tmp_sprite1);*/
+
+          XEnemyRotatedSprite[i].draw_rotated_sprite[j].sprite_mask=CopyCrunchyBitmap(XLoadEnemyRotatedSprite[0].draw_rotated_sprite[j].sprite_mask,SRCCOPY);
+          XEnemyRotatedSprite[i].draw_rotated_sprite[j].sprite_paint=CopyCrunchyBitmap(XLoadEnemyRotatedSprite[0].draw_rotated_sprite[j].sprite_paint,SRCCOPY);
+          ReplaceColorSprite(XEnemyRotatedSprite[i].draw_rotated_sprite[j].sprite_paint,
+            LTGREEN,
+            rgbPaint[saved_enemy_type_color[saved_enemy_type_rot_sprite_id[i]]]);
+          loading_numerator++;
+          //DeleteObject(tmp_sprite1);
           break;
       }
     }

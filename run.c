@@ -745,9 +745,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
     //Graphics DrawIt()
     case WM_PAINT: //https://cplusplus.com/forum/beginner/269434/
-      if (!level_loading) {
-        FrameRateSleep(FPS); // (Uncapped) //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
-      }        
+      FrameRateSleep(FPS); // (Uncapped) //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
       if (!IsIconic(hwnd)) //no action when minimized, prevents crash https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-isiconic?redirectedfrom=MSDN
       {
         if (flag_hide_taskbar) {
@@ -1543,6 +1541,40 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
       
       GenerateDrawSprite(&draw_moon_sprite,moon_sprite_cache);
 
+      }
+
+
+      //Load Enemy Rotated Sprite
+      HBITMAP tmp_sprite1;
+      HBITMAP tmp_sprite2;
+      double angle_rn;
+      for (int j=0;j<3;j++) {
+        for (int i=0;i<ROTATED_SPRITE_NUM;i++) {
+          angle_rn=M_PI_2-M_PI_16*i;
+          switch (j) {
+            case 0:
+              tmp_sprite1=RotateSprite(NULL,enemy2_sprite_1,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+              tmp_sprite2=RotateSprite(NULL,enemy2_sprite_2,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+              break;
+            case 1:
+              tmp_sprite1=RotateSprite(NULL,enemy4_sprite_1,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+              tmp_sprite2=RotateSprite(NULL,enemy4_sprite_2,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+              break;
+            case 2:
+              tmp_sprite1=RotateSprite(NULL,enemy4_sprite_1_0,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+              break;
+          }
+
+          if (j<=1) {
+            GenerateDrawSprite(&LoadEnemyRotatedSprite[j].draw_rotated_sprite1[i],tmp_sprite1);
+            GenerateDrawSprite(&LoadEnemyRotatedSprite[j].draw_rotated_sprite2[i],tmp_sprite2);
+            DeleteObject(tmp_sprite2);
+            DeleteObject(tmp_sprite1);
+          } else {
+            GenerateDrawSprite(&XLoadEnemyRotatedSprite[0].draw_rotated_sprite[i],tmp_sprite1);
+            DeleteObject(tmp_sprite1);
+          }
+        }
       }
 
 
