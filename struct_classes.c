@@ -812,11 +812,22 @@ struct EnemyTypeSprite
 //#define M_PI_32     M_PI/32
 #define ROTATED_SPRITE_NUM  32//64 //fear not, 1 variant is very small, 8 bit
 
+
+struct LoadEnemyRotatedSprite
+{
+  DRAWSPRITE draw_rotated_sprite1[ROTATED_SPRITE_NUM];
+  DRAWSPRITE draw_rotated_sprite2[ROTATED_SPRITE_NUM];
 struct EnemyRotatedSprite
 {
   DRAWSPRITE draw_rotated_sprite1[ROTATED_SPRITE_NUM];
   DRAWSPRITE draw_rotated_sprite2[ROTATED_SPRITE_NUM];
 } EnemyRotatedSprite[ENEMY_TYPE_NUM];
+
+
+struct LoadEnemyRotatedSpriteXtra
+{
+  DRAWSPRITE draw_rotated_sprite[ROTATED_SPRITE_NUM];
+} XLoadEnemyRotatedSprite[1];
 
 
 struct EnemyRotatedSpriteXtra
