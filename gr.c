@@ -1257,7 +1257,142 @@ HBITMAP RotateSpriteExclude(HDC hDC, HBITMAP hSourceBitmap, double radians, int 
   return (hDestBitmap);
 }
 
+HBITMAP RotateSpriteSimple(HDC hDC, HBITMAP hSourceBitmap, double radians, int background_color)
+{ //if (hSourceBitmap != NULL) { ////https://ftp.zx.net.nz/pub/Patches/ftp.microsoft.com/MISC/KB/en-us/77/127.HTM
+  HBITMAP hOldSourceBitmap, hOldDestBitmap, hDestBitmap; ////https://www.codeguru.com/multimedia/rotate-a-bitmap-image/
+  HDC hMemSrc,hMemDest;
+  BITMAP iSrcBitmap;
 
+  // Step 1: Create a memory DC for the source and destination bitmaps
+  //         compatible with the device used.
+  hMemSrc = CreateCompatibleDC(hDC);
+  hMemDest= CreateCompatibleDC(hDC);
+
+
+  // Step 2: Get the height and width of the source bitmap.
+  GetObject(hSourceBitmap, sizeof(BITMAP), (LPSTR)&iSrcBitmap);
+
+  // Get logical coordinates
+  double cosine = (double)cos(radians);
+  double sine = (double)sin(radians);
+
+  // Compute dimensions of the resulting bitmap
+  // First get the coordinates of the 3 corners other than origin
+  int x1 = (int)(-iSrcBitmap.bmHeight * sine);
+  int y1 = (int)(iSrcBitmap.bmHeight * cosine);
+  int x2 = (int)(iSrcBitmap.bmWidth * cosine - iSrcBitmap.bmHeight * sine);
+  int y2 = (int)(iSrcBitmap.bmHeight * cosine + iSrcBitmap.bmWidth * sine);
+  int x3 = (int)(iSrcBitmap.bmWidth * cosine);
+  int y3 = (int)(iSrcBitmap.bmWidth * sine);
+
+  int minx = min(0,min(x1, min(x2,x3)));
+  int miny = min(0,min(y1, min(y2,y3)));
+  int maxx = max(0,max(x1, max(x2,x3)));
+  int maxy = max(0, max(y1, max(y2,y3)));
+
+  int width = maxx - minx;
+  int height = maxy - miny;
+
+
+  hDestBitmap = CreateCrunchyBitmap(width,height);//CreateLargeBitmap(height, width);
+  hOldSourceBitmap = SelectObject(hMemSrc, hSourceBitmap);
+  hOldDestBitmap = SelectObject(hMemDest, hDestBitmap);
+
+  // Set mapping mode so that +ve y axis is upwords
+  SetMapMode(hMemSrc, MM_ISOTROPIC);
+  SetWindowExtEx(hMemSrc, 1,1,NULL);
+  SetViewportExtEx(hMemSrc, 1,-1,NULL);
+  SetViewportOrgEx(hMemSrc, 0, iSrcBitmap.bmHeight-1,NULL);
+
+  SetMapMode(hMemDest, MM_ISOTROPIC);
+  SetWindowExtEx(hMemDest, 1,1,NULL);
+  SetViewportExtEx(hMemDest, 1,-1,NULL);
+  SetWindowOrgEx(hMemDest, minx, maxy-1,NULL);
+
+   // Step 4: Copy the pixels from the source to the destination.
+  int current_pixel=0;
+  for (int y=miny;y<maxy;y++) { //0 to max height of bitmap
+	for(int x=minx;x<maxx;x++) { //0 to max width of bitmap
+	  int sourcex = (int)(x*cosine+y*sine); //get pixel from sprite, x-axis
+	  int sourcey = (int)(y*cosine-x*sine); //get pixel from sprite, y-axis
+	  if(sourcex>=0 && sourcex<iSrcBitmap.bmWidth && sourcey>=0
+	   	 && sourcey<iSrcBitmap.bmHeight ) {
+         current_pixel=GetPixel(hMemSrc,sourcex,sourcey); //get current pixel color
+         SetPixel(hMemDest, x, y, current_pixel);
+      } else {
+        SetPixel(hMemDest, x, y, background_color);
+      }
+    }
+  }
+
+ // Step 5: Destroy the DCs.
+  //DeleteObject(SelectObject(hMemSrc, hOldSourceBitmap));
+  //DeleteObject(SelectObject(hMemDest, hOldDestBitmap));
+  SelectObject(hMemSrc, hOldSourceBitmap);
+  SelectObject(hMemDest, hOldDestBitmap);
+  DeleteObject(hOldSourceBitmap);
+  DeleteObject(hOldDestBitmap);
+  DeleteDC(hMemDest);
+  DeleteDC(hMemSrc);
+  return (hDestBitmap);
+}
+
+
+HBITMAP ColorReplaceSprite(HDC hDC, HBITMAP hSourceBitmap, int sprite_color,int background_color) 
+{ //if (hSourceBitmap != NULL) { ////https://ftp.zx.net.nz/pub/Patches/ftp.microsoft.com/MISC/KB/en-us/77/127.HTM
+  HBITMAP hOldSourceBitmap, hOldDestBitmap, hDestBitmap; ////https://www.codeguru.com/multimedia/rotate-a-bitmap-image/
+  HDC hMemSrc,hMemDest;
+  BITMAP iSrcBitmap;
+
+  hMemSrc = CreateCompatibleDC(hDC);
+  hMemDest= CreateCompatibleDC(hDC);
+
+  GetObject(hSourceBitmap, sizeof(BITMAP), (LPSTR)&iSrcBitmap);
+
+  int width = iSrcBitmap.bmWidth;
+  int height = iSrcBitmap.bmHeight;
+
+  hDestBitmap = CreateCrunchyBitmap(width,height);//CreateLargeBitmap(height, width);
+  hOldSourceBitmap = SelectObject(hMemSrc, hSourceBitmap);
+  hOldDestBitmap = SelectObject(hMemDest, hDestBitmap);
+
+  // Set mapping mode so that +ve y axis is upwords
+  SetMapMode(hMemSrc, MM_ISOTROPIC);
+  SetWindowExtEx(hMemSrc, 1,1,NULL);
+  SetViewportExtEx(hMemSrc, 1,-1,NULL);
+  SetViewportOrgEx(hMemSrc, 0, iSrcBitmap.bmHeight-1,NULL);
+
+  SetMapMode(hMemDest, MM_ISOTROPIC);
+  SetWindowExtEx(hMemDest, 1,1,NULL);
+  SetViewportExtEx(hMemDest, 1,-1,NULL);
+  SetWindowOrgEx(hMemDest, 0, height-1,NULL);
+
+   // Step 4: Copy the pixels from the source to the destination.
+  int current_pixel=0;
+  for (int y=0;y<height;y++) { //0 to max height of bitmap
+	for(int x=0;x<width;x++) { //0 to max width of bitmap
+       current_pixel=GetPixel(hMemSrc,x,y); //get current pixel color
+        if (current_pixel==BLACK) { //Set Target Transparent color (i.e. LTGREEN) to BLACK
+	      SetPixel(hMemDest, x, y, sprite_color);
+        } else if (current_pixel==background_color){
+	      SetPixel(hMemDest, x, y, BLACK);
+        } else {
+          SetPixel(hMemDest, x, y, current_pixel);
+        }
+    }
+  }
+
+ // Step 5: Destroy the DCs.
+  //DeleteObject(SelectObject(hMemSrc, hOldSourceBitmap));
+  //DeleteObject(SelectObject(hMemDest, hOldDestBitmap));
+  SelectObject(hMemSrc, hOldSourceBitmap);
+  SelectObject(hMemDest, hOldDestBitmap);
+  DeleteObject(hOldSourceBitmap);
+  DeleteObject(hOldDestBitmap);
+  DeleteDC(hMemDest);
+  DeleteDC(hMemSrc);
+  return (hDestBitmap);
+}
 
 HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, double radians,int rTransparent, int old_color, int sprite_color, int sprite_color_2) 
 { //if (hSourceBitmap != NULL) { ////https://ftp.zx.net.nz/pub/Patches/ftp.microsoft.com/MISC/KB/en-us/77/127.HTM
@@ -1365,10 +1500,7 @@ HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, double radians,int rTranspa
             }
           }
         } else {
-          //if (current_pixel==BLACK)    
-            //SetPixel(hMemDest, x, y, DKBLACK);
-          //else
-            SetPixel(hMemDest, x, y, current_pixel);
+          SetPixel(hMemDest, x, y, current_pixel);
         }
       }
     }
@@ -1385,9 +1517,6 @@ HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, double radians,int rTranspa
   DeleteDC(hMemSrc);
   return (hDestBitmap);
 }
-
-
-
 
 
 

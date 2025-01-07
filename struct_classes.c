@@ -808,10 +808,11 @@ struct EnemyTypeSprite
 } EnemyTypeSprite[ENEMY_TYPE_NUM];
 
 
-#define M_PI_32     M_PI/32
-#define ROTATED_SPRITE_NUM  64 //fear not, 1 variant is very small, 8 bit
+#define M_PI_16     M_PI/16
+//#define M_PI_32     M_PI/32
+#define ROTATED_SPRITE_NUM  32//64 //fear not, 1 variant is very small, 8 bit
 
-struct EnemyRotatedSprite0
+struct EnemyRotatedSprite
 {
   DRAWSPRITE draw_rotated_sprite1[ROTATED_SPRITE_NUM];
   DRAWSPRITE draw_rotated_sprite2[ROTATED_SPRITE_NUM];
@@ -822,8 +823,6 @@ struct EnemyRotatedSpriteXtra
 {
   DRAWSPRITE draw_rotated_sprite[ROTATED_SPRITE_NUM];
 } XEnemyRotatedSprite[ENEMY_TYPE_NUM];
-
-
 
 
 
@@ -955,6 +954,8 @@ HBITMAP enemy1_sprite_2;
 
 HBITMAP enemy2_sprite_1;
 HBITMAP enemy2_sprite_2;
+
+
 HBITMAP enemy2_sprite_3;
 HBITMAP enemy2_sprite_4;
 
@@ -963,6 +964,8 @@ HBITMAP enemy3_sprite_2;
 
 HBITMAP enemy4_sprite_1;
 HBITMAP enemy4_sprite_2;
+
+
 HBITMAP enemy4_sprite_1_0;
 HBITMAP enemy4_sprite_3;
 HBITMAP enemy4_sprite_4;

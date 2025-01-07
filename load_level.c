@@ -348,9 +348,9 @@ void InitLevel()
   //Load Enemy cache spritesF
   InitGridTiles();
   InitEnemySprites();
-  loading_denominator=SHADOW_GRID_NUM+PLATFORM_GRID_NUM+FOREGROUND_GRID_NUM+ENEMY_TYPE_NUM+LARGE_ENEMY_TYPE_NUM*ROTATED_SPRITE_NUM+LARGER_ENEMY_TYPE_NUM*ROTATED_SPRITE_NUM;
-  InitGridTilesObj();
+  loading_denominator=SHADOW_GRID_NUM+PLATFORM_GRID_NUM+FOREGROUND_GRID_NUM+ENEMY_TYPE_NUM+(LARGE_ENEMY_TYPE_NUM*ROTATED_SPRITE_NUM*2)+LARGER_ENEMY_TYPE_NUM*ROTATED_SPRITE_NUM;
   InitEnemySpritesObj();
+  InitGridTilesObj();
   //allocate smallest to biggest
   level_loaded=TRUE;
   level_loading=FALSE;

@@ -745,7 +745,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
     //Graphics DrawIt()
     case WM_PAINT: //https://cplusplus.com/forum/beginner/269434/
-      FrameRateSleep(FPS); // (Uncapped) //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
+      if (!level_loading) {
+        FrameRateSleep(FPS); // (Uncapped) //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
+      }        
       if (!IsIconic(hwnd)) //no action when minimized, prevents crash https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-isiconic?redirectedfrom=MSDN
       {
         if (flag_hide_taskbar) {
@@ -1305,8 +1307,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         InitSetRes(125,15360,8640,"16K");
         InitSetRes(126,16384,8640,"16K Full Format");
       //...
-
-
         gblendFunction.BlendOp = AC_SRC_OVER;
         gblendFunction.BlendFlags = 0;
         gblendFunction.SourceConstantAlpha = 32; // Transparency level (0-255)
