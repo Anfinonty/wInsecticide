@@ -97,7 +97,7 @@ bool has_water=FALSE;
 
 
 //game state
-bool hide_taskbar=TRUE;
+bool hide_taskbar=FALSE;
 bool in_main_menu=TRUE;
 bool level_loaded=FALSE;
 bool level_loading=FALSE;
@@ -105,6 +105,9 @@ bool game_over=FALSE;
 bool show_fps=FALSE;
 bool in_map_editor=FALSE;
 bool show_hijiri=FALSE;
+
+bool prelude=TRUE;
+bool flag_prelude=TRUE;
 //bool alloc_enemy_once=TRUE;
 
 //to be used to load a level
@@ -390,9 +393,55 @@ void FrameRateSleep(int max_fps)
 }
 
 
+void Prelude()
+{
+  //Load Enemy Rotated Sprite
+  HBITMAP tmp_sprite1;
+  HBITMAP tmp_sprite2;
+  double angle_rn;
+  for (int j=0;j<3;j++) {
+    for (int i=0;i<ROTATED_SPRITE_NUM;i++) {
+      angle_rn=M_PI_2-M_PI_16*i;
+      switch (j) {
+        case 0:
+          tmp_sprite1=RotateSprite(NULL,enemy2_sprite_1,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+          tmp_sprite2=RotateSprite(NULL,enemy2_sprite_2,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+          break;
+        case 1:
+          tmp_sprite1=RotateSprite(NULL,enemy4_sprite_1,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+          tmp_sprite2=RotateSprite(NULL,enemy4_sprite_2,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+          break;
+        case 2:
+          tmp_sprite1=RotateSprite(NULL,enemy4_sprite_1_0,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+          break;
+      }
+
+      if (j<=1) {
+        GenerateDrawSprite(&LoadEnemyRotatedSprite[j].draw_rotated_sprite1[i],tmp_sprite1);
+        GenerateDrawSprite(&LoadEnemyRotatedSprite[j].draw_rotated_sprite2[i],tmp_sprite2);
+        DeleteObject(tmp_sprite2);
+        DeleteObject(tmp_sprite1);
+      } else {
+        GenerateDrawSprite(&XLoadEnemyRotatedSprite[0].draw_rotated_sprite[i],tmp_sprite1);
+        DeleteObject(tmp_sprite1);
+      }
+    }
+  }
+  prelude=FALSE;
+  flag_fullscreen=TRUE;
+}
+
+
+
 DWORD WINAPI AnimateTask01(LPVOID lpArg) {
   while (TRUE) {
-    if (level_loading) {
+    if (prelude) {
+      if (flag_prelude) {
+        flag_prelude=FALSE;
+        Prelude();
+      }
+      Sleep(1000);
+    } else if (level_loading) {
       Sleep(1000);
     } if (!in_main_menu) { //In Game
       if (level_loaded) {
@@ -446,7 +495,6 @@ void InitSetRes(int i,int w,int h,char *txt)
   RESOLUTION_Y[i]=h;
   RESOLUTION_NAME[i]=txt;
 }
-
 
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -763,6 +811,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         }
         if (flag_fullscreen) {
           flag_fullscreen=FALSE;
+          hide_taskbar=TRUE;
           LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
           lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU); //borderless mode
           SetWindowLong(hwnd, GWL_STYLE, lStyle);
@@ -848,7 +897,20 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         PAINTSTRUCT ps;
         
 
-        if (level_loading) {
+
+        if (prelude) {
+          hdc=BeginPaint(hwnd, &ps);
+          hdcBackbuff=CreateCompatibleDC(hdc);
+          //hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
+          screen=CreateCompatibleBitmap(hdc,320,240);
+          SelectObject(hdcBackbuff,screen);
+          GrRect(hdcBackbuff,0,0,GR_WIDTH+2,GR_HEIGHT+2,GREEN);
+          DrawCursor(hdcBackbuff,hdcBackbuff2);
+          BitBlt(hdc, 0, 0, 320,240, hdcBackbuff, 0, 0,  SRCCOPY);
+          //DeleteDC(hdcBackbuff2);
+          DeleteDC(hdcBackbuff);
+          DeleteObject(screen);
+        } else if (level_loading) {
           hdc=BeginPaint(hwnd, &ps);
           hdcBackbuff=CreateCompatibleDC(hdc);
           hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
@@ -1543,41 +1605,6 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
 
       }
 
-
-      //Load Enemy Rotated Sprite
-      HBITMAP tmp_sprite1;
-      HBITMAP tmp_sprite2;
-      double angle_rn;
-      for (int j=0;j<3;j++) {
-        for (int i=0;i<ROTATED_SPRITE_NUM;i++) {
-          angle_rn=M_PI_2-M_PI_16*i;
-          switch (j) {
-            case 0:
-              tmp_sprite1=RotateSprite(NULL,enemy2_sprite_1,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
-              tmp_sprite2=RotateSprite(NULL,enemy2_sprite_2,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
-              break;
-            case 1:
-              tmp_sprite1=RotateSprite(NULL,enemy4_sprite_1,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
-              tmp_sprite2=RotateSprite(NULL,enemy4_sprite_2,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
-              break;
-            case 2:
-              tmp_sprite1=RotateSprite(NULL,enemy4_sprite_1_0,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
-              break;
-          }
-
-          if (j<=1) {
-            GenerateDrawSprite(&LoadEnemyRotatedSprite[j].draw_rotated_sprite1[i],tmp_sprite1);
-            GenerateDrawSprite(&LoadEnemyRotatedSprite[j].draw_rotated_sprite2[i],tmp_sprite2);
-            DeleteObject(tmp_sprite2);
-            DeleteObject(tmp_sprite1);
-          } else {
-            GenerateDrawSprite(&XLoadEnemyRotatedSprite[0].draw_rotated_sprite[i],tmp_sprite1);
-            DeleteObject(tmp_sprite1);
-          }
-        }
-      }
-
-
       title_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/title.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       title_small_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/title_small.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);//CopyStretchBitmap(title_sprite,SRCCOPY,356*3/5,256*3/5);
       title_sprite_mask=CreateBitmapMask(title_sprite,LTGREEN,NULL);
@@ -1621,6 +1648,8 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
         ga0_kh_mask[i]= CreateBitmapMask(ga0_kh[i],/*LTBLUE*/BLACK,NULL);
       }
 
+      prelude=TRUE;
+      flag_prelude=TRUE;
 
       //fullscreen
       //ShowWindow(hwnd,SW_SHOWMAXIMIZED);
@@ -1847,10 +1876,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
 
   //Sleep(1000);
 
-  LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
-  lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU); //borderless mode
-  SetWindowLong(hwnd, GWL_STYLE, lStyle);
-  SetWindowPos(hwnd,HWND_TOPMOST,0,0,SCREEN_WIDTH,SCREEN_HEIGHT, SWP_FRAMECHANGED);
+  //LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
+  //lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU); //borderless mode
+  //SetWindowLong(hwnd, GWL_STYLE, lStyle);
+  //SetWindowPos(hwnd,HWND_TOPMOST,0,0,SCREEN_WIDTH,SCREEN_HEIGHT, SWP_FRAMECHANGED);
+  SetWindowPos(hwnd,HWND_TOPMOST,SCREEN_WIDTH/2-320/2,SCREEN_HEIGHT/2-240/2,320,240, SWP_FRAMECHANGED);
 
   MSG msg;
   while (true) {
