@@ -1362,7 +1362,7 @@ void PlayerActMouseClick()
       int b_speed_m=5;
       double b_dmg_m=1;
       int b_g_type=5;
-      int b_range=100;
+      int b_range=MAX_WEB_LENGTH*2;
       if (player.speed>10) {
         b_speed_m=9;
       } else if (player.speed>5) {
@@ -1395,7 +1395,7 @@ void PlayerActMouseClick()
       double tmp_angle=0;
       if (player.knives_per_throw>4) {
         if (player.knives_per_throw==5) {
-          b_range=160;
+          //b_range=160;
           b_speed_m=15;
         } else if (player.knives_per_throw==15) {
           b_range=65;

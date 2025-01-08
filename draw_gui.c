@@ -1358,12 +1358,12 @@ void DrawUI(HDC hdc,HDC hdc2)
 
 
   //Knives per throw Bar
-  int knifethrowsx=mouse_x-32;
+  int knifethrowsx=mouse_x-40;
   int knifethrowsy=mouse_y+32;
   int knifethrowstxtx=mouse_x+32;
   int knifethrowstxty=mouse_y-48;
-  GrRect(hdc,knifethrowsx,knifethrowsy+1,48*2,9,c4);
-  GrRect(hdc,knifethrowsx,knifethrowsy,player.knives_per_throw*4,10,c10);
+  GrRect(hdc,knifethrowsx,knifethrowsy+1,PLAYER_BULLET_NUM*3,9,c4);
+  GrRect(hdc,knifethrowsx,knifethrowsy,player.knives_per_throw*3,10,c10);
   c2 = LTGREEN;//Highlight(IsInvertedBackground(),LTGREEN,LTPURPLE);
   int ck=LTCYAN;//Highlight(IsInvertedBackground(),LTCYAN,LTRED);
   for (int k=0;k<PLAYER_BULLET_NUM-player.bullet_shot_num;k++) {
@@ -1372,7 +1372,9 @@ void DrawUI(HDC hdc,HDC hdc2)
     //GrLine(hdc,player.sprite_x-48+k*4-2,player.sprite_y+32,player.sprite_x-24+k*4,player.sprite_y+36,c2);
     //GrCircle(hdc,player.sprite_x-48+k*4,player.sprite_y+34,2,c5,-1);
     int ckpt=Highlight((k<player.knives_per_throw),ck,c2);
-    GrRect(hdc,knifethrowsx+k*4,knifethrowsy+2,4,6,ckpt);
+    //GrRect(hdc,knifethrowsx+k*4,knifethrowsy+2,4,6,ckpt);
+    GrRect(hdc,knifethrowsx+k*3,knifethrowsy+2,2,6,ckpt);
+
   }
 
   //Print Bullets Remaining
@@ -1558,7 +1560,7 @@ void DrawUI(HDC hdc,HDC hdc2)
 }
 
 
-#define MARBLE_NUM 256//256
+/*#define MARBLE_NUM 256//256
 struct marble
 {
   int color_id;
@@ -1572,13 +1574,16 @@ void InitMarbles(int max_marbles)
     marble[i].y=GR_HEIGHT/2;
     marble[i].angle=(2*M_PI/(max_marbles+1)*i);
   }
-}
+}*/
 
-void DrawLoading(HDC hDC,int max_marbles)
+
+int loading_dummy=0;
+
+void DrawLoading(HDC hDC/*,int max_marbles*/)
 {
   //GrRect(hDC,0,0,GR_WIDTH+2,GR_HEIGHT+2,DKRDKGRAY);
   //printf("x:%5.4f\n",marble[0].x);
-  int title_x0=GR_WIDTH/2-352/2+4;
+  /*int title_x0=GR_WIDTH/2-352/2+4;
   //int title_y=-32;
   if (title_x0>0) {
   for (int i=0;i<max_marbles;i++) {
@@ -1602,7 +1607,7 @@ void DrawLoading(HDC hDC,int max_marbles)
       marble[i].angle=GetBounceAngle(marble[i].angle,0);
     }*/
 
-
+/*
     for (int j=0;j<max_marbles;j++) {
       if (j!=i) {
         if (GetDistance(marble[i].x,marble[i].y,marble[j].x,marble[j].y)<10) {
@@ -1612,7 +1617,7 @@ void DrawLoading(HDC hDC,int max_marbles)
     }
     GrCircle(hDC,marble[i].x,marble[i].y,10,rgbPaint[i],rgbPaint[i]);
   }
-  }
+  }*/
 
   /*DrawBitmap(hdc,hdc2,title_x0,
                  title_y,
@@ -1637,14 +1642,19 @@ void DrawLoading(HDC hDC,int max_marbles)
     DrawSprite(hDC,mouse_x-2,mouse_y-2,&draw_player_cursor_pupil[0],FALSE);*/
 
   int extra_y=0;
+  double grectl=(GR_WIDTH-34-34)*loading_percentage;
   if (!hide_taskbar) {
     extra_y=32;
   }
   GrRect(hDC,32,GR_HEIGHT-48-extra_y,GR_WIDTH-64,8*3,WHITE);
   if (loading_denominator>0) {
-    loading_percentage=loading_numerator/loading_denominator;
-    //printf("Loading: %%%3.2f\r",loading_percentage);
-    GrRect(hDC,34,GR_HEIGHT-46-extra_y,((double)(GR_WIDTH-34-34))*loading_percentage,6*3+1,GREEN);
+    loading_percentage=loading_numerator/loading_denominator;   
+    GrRect(hDC,34,GR_HEIGHT-46-extra_y,grectl,6*3+1,GREEN);
+    GrRect(hDC,34+6+loading_dummy,GR_HEIGHT-46-extra_y,6,6*3+1,LTGREEN);
+    loading_dummy+=8;
+    if (loading_dummy>grectl-6) {
+      loading_dummy=0;
+    }
   }
 }
 

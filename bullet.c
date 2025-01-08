@@ -262,20 +262,30 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
 
 
       if (Bullet[bullet_id].graphics_type!=10) {
-        Bullet[bullet_id].angle=RandAngle(0,360,player.seed); //scatter type 6
+        Bullet[bullet_id].angle=GetBounceAngle(Bullet[bullet_id].angle,Bullet[bk].angle);//RandAngle(0,360,player.seed); //scatter type 6
         Bullet[bullet_id].speed=Bullet[bk].speed;
         Bullet[bullet_id].speed_multiplier=Bullet[bk].speed_multiplier;
         Bullet[bullet_id].range-=3;
-      } else {
-        Bullet[bullet_id].angle=Bullet[bk].angle+RandAngle(-65,65,player.seed); //scatter type 6
+      } else { //death bullet
+        Bullet[bullet_id].angle=GetBounceAngle(Bullet[bullet_id].angle,Bullet[bk].angle);//Bullet[bk].angle+RandAngle(-65,65,player.seed); //scatter type 6
       }
 
       /*if (Bullet[bk].speed_multiplier<7) { //if shotgun bullet, pierce through for the first few ranges
       }*/
 
       if (Bullet[bk].graphics_type!=6 && Bullet[bullet_id].graphics_type!=10) { //hit enemy bullet, scatter if NOT type 6
-        Bullet[bk].angle=RandAngle(0,360,player.seed);
-        Bullet[bk].range-=4;
+        Bullet[bk].angle=GetBounceAngle(Bullet[bullet_id].angle,Bullet[bk].angle);//RandAngle(0,360,player.seed);
+        switch (Bullet[bk].graphics_type) {
+          case 5: //kpt 3
+            Bullet[bk].range/=4;
+            break;
+          case 9: //kpt 1
+            Bullet[bk].range-=8;
+            break;
+          default:
+            Bullet[bk].range-=4;
+            break;
+        }
       }
     }
   } //end of for,
@@ -563,7 +573,17 @@ void PlayerBulletAct(int bullet_id,int enemy_id)
               Bullet[bullet_id].damage+=0.2;
             Bullet[bullet_id].start_range=Bullet[bullet_id].range;
           } else {
-            Bullet[bullet_id].range/=4;
+            switch (Bullet[bullet_id].graphics_type) {
+              case 5: //kpt 3, 5
+                Bullet[bullet_id].range/=12;
+                break;
+              case 9: //kpt 1
+                Bullet[bullet_id].range/=2;
+                break;
+              default:
+                Bullet[bullet_id].range/=4;
+                break;
+            }
           }
           /*if (Bullet[bullet_id].angle>2*M_PI) { //hreater
             Bullet[bullet_id].angle-=2*M_PI;

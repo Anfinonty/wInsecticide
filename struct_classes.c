@@ -817,6 +817,9 @@ struct LoadEnemyRotatedSprite
 {
   DRAWSPRITE draw_rotated_sprite1[ROTATED_SPRITE_NUM];
   DRAWSPRITE draw_rotated_sprite2[ROTATED_SPRITE_NUM];
+} LoadEnemyRotatedSprite[3];
+
+
 struct EnemyRotatedSprite
 {
   DRAWSPRITE draw_rotated_sprite1[ROTATED_SPRITE_NUM];

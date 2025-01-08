@@ -591,13 +591,23 @@ void DrawWebs(HDC hdc)
   for (int i=GROUND_NUM;i<GROUND_NUM+player.max_web_num;i++) {
     id=i;
     if (id<GROUND_NUM+MAX_WEB_NUM && Ground[id]->x1>-20) {
-      GrLine(hdc,
-        Ground[id]->x1+cx,
-        Ground[id]->y1+cy,
-        Ground[id]->x2+cx,
-        Ground[id]->y2+cy,
-        c
-      );
+      if (Ground[id]->health>50) {
+        GrLine(hdc,
+          Ground[id]->x1+cx,
+          Ground[id]->y1+cy,
+          Ground[id]->x2+cx,
+          Ground[id]->y2+cy,
+          c
+        );
+      } else {
+        GrDottedLine(hdc,
+          Ground[id]->x1+cx,
+          Ground[id]->y1+cy,
+          Ground[id]->x2+cx,
+          Ground[id]->y2+cy,
+          c
+        );
+      }
     }
   }
 }

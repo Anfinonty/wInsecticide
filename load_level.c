@@ -249,7 +249,7 @@ void InitLevel()
 {
   wchar_t txt[128];
   level_loading=TRUE;
-  InitMarbles(16);
+  //InitMarbles(16);
   loading_numerator=0;
   loading_denominator=0;
 

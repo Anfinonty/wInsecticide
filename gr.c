@@ -544,15 +544,6 @@ void Init8BitRGBPaintDefault(int *rgbPaint_dest,RGBQUAD *rgbColors_src,bool is_a
 
 
 void BitmapPalette(HDC hdc, HDC hdc2,HBITMAP hBitmap,RGBQUAD *bitmapPalette) {
-  /*HDC hdc2 = CreateCompatibleDC(hdc);
-  HBITMAP hOldBitmap;
-  
-  hOldBitmap = SelectObject(hdc2, hBitmap);
-  SetDIBColorTable(hdc2, 0, 256, bitmapPalette);
-  SelectObject(hdc2, hOldBitmap);
-  DeleteObject(hOldBitmap);
-  DeleteDC(hdc2);*/
-
   SelectObject(hdc2, hBitmap);
   SetDIBColorTable(hdc2, 0, 256, bitmapPalette);
 }
@@ -846,6 +837,19 @@ void GrLine(HDC hdc, double x1,double y1,double x2,double y2,int COLOR) {
 }
 
 
+
+void GrDottedLine(HDC hdc, double x1,double y1,double x2,double y2,int COLOR) {
+  DWORD dashPattern[2] = { 10, 5 };
+  //10 pixels solid, 5 pixels gap 
+  LOGBRUSH lb = { BS_SOLID, COLOR, 0 }; // Black color // Create a custom pen with the dash pattern 
+  HPEN hPen = ExtCreatePen(PS_GEOMETRIC | PS_USERSTYLE, 1, &lb, 2, dashPattern); 
+  HPEN hOldPen = (HPEN)SelectObject(hdc, hPen); // Draw the line 
+  MoveToEx(hdc, x1, y1, NULL); 
+  LineTo(hdc, x2, y2); // Restore the original pen 
+  SelectObject(hdc, hOldPen); 
+  DeleteObject(hPen);
+}
+
 void GrCircle(HDC hdc, double x, double y, int size, int COLOR, int COLOR_2) {
 //Shape Coordinates
   double x1=x-size;
@@ -1009,28 +1013,6 @@ void DrawBitmap(HDC hDC, HDC hdcMem,double _x1,double _y1, double _x2, double _y
 
 
 
-/*void DrawGlassBitmap(HDC hDC,double _x1,double _y1, double _x2, double _y2, int width, int height, HBITMAP hSourceBitmap,bool stretch,bool is_left)
-{
-  if (hSourceBitmap!=NULL) {
-    BITMAP bitmap;
-    HDC hdcMem = CreateCompatibleDC(hDC);
-    GetObject(hSourceBitmap,sizeof(bitmap),&bitmap);
-    SelectObject(hdcMem,hSourceBitmap);
-    int b_width=width;
-    if (is_left) {
-      b_width=-bitmap.bmWidth-1;
-      _x1+=width;
-    }
-    if (stretch || is_left)
-      TransparentBlt(hDC, _x1, _y1, b_width, height, hdcMem, 0,0, bitmap.bmWidth, bitmap.bmHeight, BLACK);
-    else
-      TransparentBlt(hDC, _x1, _y1, width, height, hdcMem, 0,0, bitmap.bmWidth, bitmap.bmHeight, BLACK);
-    DeleteDC(hdcMem);
-  }
-}*/
-
-
-
 //Set values to variables
 void SetRotatedSpriteSize(HDC hDC, HBITMAP hSourceBitmap,double radians, int *minx, int *miny, int *maxx, int *maxy, int *width, int *height, double *_cosine, double *_sine)
 {
@@ -1076,93 +1058,9 @@ void SetRotatedSpriteSize(HDC hDC, HBITMAP hSourceBitmap,double radians, int *mi
   DeleteDC(hMemSrc);
 }
 
+////https://ftp.zx.net.nz/pub/Patches/ftp.microsoft.com/MISC/KB/en-us/77/127.HTM
+////https://www.codeguru.com/multimedia/rotate-a-bitmap-image/
 
-
-//After finding the rotated sprite size, begin drawing
-void RotateSpriteII(HDC hDC, HBITMAP hSourceBitmap, HBITMAP hDestBitmap, double cosine,double sine, int rTransparent, int sprite_color, int sprite_color_2, int minx, int miny, int maxx, int maxy, int y)
-{ //if (hSourceBitmap != NULL) { ////https://ftp.zx.net.nz/pub/Patches/ftp.microsoft.com/MISC/KB/en-us/77/127.HTM
-  HBITMAP hOldSourceBitmap, hOldDestBitmap; ////https://www.codeguru.com/multimedia/rotate-a-bitmap-image/
-  HDC hMemSrc,hMemDest;
-  BITMAP iSrcBitmap;
-
-  hMemSrc = CreateCompatibleDC(hDC);
-  hMemDest= CreateCompatibleDC(hDC);
-
-  GetObject(hSourceBitmap, sizeof(BITMAP), (LPSTR)&iSrcBitmap);
-  hOldSourceBitmap = SelectObject(hMemSrc, hSourceBitmap);
-  hOldDestBitmap = SelectObject(hMemDest, hDestBitmap);
-
-  // Set mapping mode so that +ve y axis is upwords
-  SetMapMode(hMemSrc, MM_ISOTROPIC);
-  SetWindowExtEx(hMemSrc, 1,1,NULL);
-  SetViewportExtEx(hMemSrc, 1,-1,NULL);
-  SetViewportOrgEx(hMemSrc, 0, iSrcBitmap.bmHeight-1,NULL);
-
-  SetMapMode(hMemDest, MM_ISOTROPIC);
-  SetWindowExtEx(hMemDest, 1,1,NULL);
-  SetViewportExtEx(hMemDest, 1,-1,NULL);
-  SetWindowOrgEx(hMemDest, minx, maxy-1,NULL);
-
-   // Step 4: Copy the pixels from the source to the destination.
-  int current_pixel=0;
-  //for (int y=miny;y<maxy;y++) { //0 to max height of bitmap
-  for(int x=minx;x<maxx;x++) { //0 to max width of bitmap
-	int sourcex = (int)(x*cosine+y*sine); //get pixel from sprite, x-axis
-	int sourcey = (int)(y*cosine-x*sine); //get pixel from sprite, y-axis
-	if(sourcex>=0 && sourcex<iSrcBitmap.bmWidth && sourcey>=0
-	 	 && sourcey<iSrcBitmap.bmHeight ) {
-      current_pixel=GetPixel(hMemSrc,sourcex,sourcey); //get current pixel color
-
-
-
-      if (current_pixel==rTransparent) { //Set Target Transparent color (i.e. LTGREEN) to BLACK
-	    SetPixel(hMemDest, x, y, BLACK);
-      } else if (current_pixel==BLACK){
-        if (sprite_color_2==-1) { //custom flag to disallow dithreing
-          if (sprite_color!=BLACK) { //Set BLACK to Custom Color
-	        SetPixel(hMemDest, x, y, sprite_color);
-          } else { //change BLACK to DKBLACK 
-	        SetPixel(hMemDest, x, y, DKBLACK);
-          }
-        } else { //dither color of sprite
-          if (sprite_color!=BLACK) { //Set BLACK to Custom Color
-            if (y%2==0) {
-              if (x%2==0) {
-	            SetPixel(hMemDest, x, y, sprite_color_2);
-              } else {
-	            SetPixel(hMemDest, x, y, sprite_color);
-              }
-            } else {
-              if (x%2!=0) {
-	            SetPixel(hMemDest, x, y, sprite_color_2);
-              } else {
-	            SetPixel(hMemDest, x, y, sprite_color);
-              }
-            }
-          } else { //change BLACK to DKBLACK 
-	        SetPixel(hMemDest, x, y, DKBLACK);
-          }
-        }
-      } else { //Set pixel, no change to color
-	    SetPixel(hMemDest, x, y, current_pixel);
-      }
-
-
-
-    }
-  }
-  //}
-
- // Step 5: Destroy the DCs.
-  //DeleteObject(SelectObject(hMemSrc, hOldSourceBitmap));
-  //DeleteObject(SelectObject(hMemDest, hOldDestBitmap));
-  SelectObject(hMemSrc, hOldSourceBitmap);
-  SelectObject(hMemDest, hOldDestBitmap);
-  DeleteObject(hOldSourceBitmap);
-  DeleteObject(hOldDestBitmap);
-  DeleteDC(hMemDest);
-  DeleteDC(hMemSrc);
-}
 
 
 HBITMAP RotateSpriteExclude(HDC hDC, HBITMAP hSourceBitmap, double radians, int old_color, int sprite_color) 
@@ -1338,93 +1236,6 @@ HBITMAP RotateSpriteSimple(HDC hDC, HBITMAP hSourceBitmap, double radians, int b
 }
 
 
-/*HBITMAP ColorReplaceSprite(HDC hDC, HBITMAP hSourceBitmap, int sprite_color,int background_color) 
-{ //if (hSourceBitmap != NULL) { ////https://ftp.zx.net.nz/pub/Patches/ftp.microsoft.com/MISC/KB/en-us/77/127.HTM
-  HBITMAP hOldSourceBitmap, hOldDestBitmap, hDestBitmap; ////https://www.codeguru.com/multimedia/rotate-a-bitmap-image/
-  HDC hMemSrc,hMemDest;
-  BITMAP iSrcBitmap;
-
-  hMemSrc = CreateCompatibleDC(hDC);
-  hMemDest= CreateCompatibleDC(hDC);
-
-  GetObject(hSourceBitmap, sizeof(BITMAP), (LPSTR)&iSrcBitmap);
-
-  int width = iSrcBitmap.bmWidth;
-  int height = iSrcBitmap.bmHeight;
-
-  hDestBitmap = CreateCrunchyBitmap(width,height);//CreateLargeBitmap(height, width);
-  hOldSourceBitmap = SelectObject(hMemSrc, hSourceBitmap);
-  hOldDestBitmap = SelectObject(hMemDest, hDestBitmap);
-
-  // Set mapping mode so that +ve y axis is upwords
-  SetMapMode(hMemSrc, MM_ISOTROPIC);
-  SetWindowExtEx(hMemSrc, 1,1,NULL);
-  SetViewportExtEx(hMemSrc, 1,-1,NULL);
-  SetViewportOrgEx(hMemSrc, 0, iSrcBitmap.bmHeight-1,NULL);
-
-  SetMapMode(hMemDest, MM_ISOTROPIC);
-  SetWindowExtEx(hMemDest, 1,1,NULL);
-  SetViewportExtEx(hMemDest, 1,-1,NULL);
-  SetWindowOrgEx(hMemDest, 0, height-1,NULL);
-
-   // Step 4: Copy the pixels from the source to the destination.
-  int current_pixel=0;
-  for (int y=0;y<height;y++) { //0 to max height of bitmap
-	for(int x=0;x<width;x++) { //0 to max width of bitmap
-       current_pixel=GetPixel(hMemSrc,x,y); //get current pixel color
-        if (current_pixel==BLACK) { //Set Target Transparent color (i.e. LTGREEN) to BLACK
-	      SetPixel(hMemDest, x, y, sprite_color);
-        } else if (current_pixel==background_color){
-	      SetPixel(hMemDest, x, y, BLACK);
-        } else {
-          SetPixel(hMemDest, x, y, current_pixel);
-        }
-    }
-  }
-
- // Step 5: Destroy the DCs.
-  //DeleteObject(SelectObject(hMemSrc, hOldSourceBitmap));
-  //DeleteObject(SelectObject(hMemDest, hOldDestBitmap));
-  SelectObject(hMemSrc, hOldSourceBitmap);
-  SelectObject(hMemDest, hOldDestBitmap);
-  DeleteObject(hOldSourceBitmap);
-  DeleteObject(hOldDestBitmap);
-  DeleteDC(hMemDest);
-  DeleteDC(hMemSrc);
-  return (hDestBitmap);
-}*/
-
-/*
-void ReplaceColorSprite(HBITMAP hBitmap,COLORREF old_color,COLORREF new_color)
-{
-  BITMAP bm;
-  HDC hdc;
-  BYTE* pixels;
-  int data_size;
-  GetObject(hBitmap,sizeof(bm),&bm);
-
-  //create buffer to hold the pixel
-  data_size = bm.bmWidth * bm.bmHeight * (bm.bmBitsPixel/8);
-  pixels = (BYTE*) malloc(data_size);
-
-  hdc=GetDC(NULL);
-  GetDIBits(hdc, hBitmap,0,bm.bmHeight,pixels,(BITMAPINFO*)&bm,DIB_RGB_COLORS);
-
-  //iterate thru pixels & replace color
-  for (int i=0;i<data_size;i+=4) {
-    COLORREF color = RGB(pixels[i+2],pixels[i+1],pixels[i]);
-    if (color==old_color) {
-      pixels[i]=GetBValue(new_color);
-      pixels[i+1]=GetGValue(new_color);
-      pixels[i+2]=GetRValue(new_color);
-    }
-  }
-
-  SetDIBits(hdc,hBitmap,0,bm.bmHeight,pixels,(BITMAPINFO*)&bm,DIB_RGB_COLORS);
-  ReleaseDC(NULL,hdc);
-  free(pixels);
-}*/
-
 void ReplaceColorSprite(HBITMAP hBitmap, COLORREF oldColor, COLORREF newColor) 
 { 
   BITMAP bitmap; 
@@ -1443,9 +1254,9 @@ void ReplaceColorSprite(HBITMAP hBitmap, COLORREF oldColor, COLORREF newColor)
 }
 
 
-
 HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, double radians,int rTransparent, int old_color, int sprite_color, int sprite_color_2) 
 { //if (hSourceBitmap != NULL) { ////https://ftp.zx.net.nz/pub/Patches/ftp.microsoft.com/MISC/KB/en-us/77/127.HTM
+ //https://github.com/StephanBusch/EcoZip/blob/35c215fbc3efc16951182f6127885d22d11a018e/EcoZipFM/ImageUtils.cpp
   HBITMAP hOldSourceBitmap, hOldDestBitmap, hDestBitmap; ////https://www.codeguru.com/multimedia/rotate-a-bitmap-image/
   HDC hMemSrc,hMemDest;
   BITMAP iSrcBitmap;
@@ -1480,18 +1291,8 @@ HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, double radians,int rTranspa
   int width = maxx - minx;
   int height = maxy - miny;
 
-  /*if (iSrcBitmap.bmHeight!=iSrcBitmap.bmWidth) {
-    maxx=minx+iSrcBitmap.bmWidth;
-    printf("w:%d\n",iSrcBitmap.bmWidth);
-    printf("h:%d\n",iSrcBitmap.bmHeight);
-  }*/
-
    // Step 3: Select the source bitmap into the source DC. Create a
    //         destination bitmap, and select it into the destination DC.
-
-   //hDestBitmap = NULL;//CreateCompatibleBitmap(hMemDest, width, height);
-  /*hDestBitmap = CreateBitmap(height, width, iSrcBitmap.bmPlanes,
-                  iSrcBitmap.bmBitsPixel, NULL);*/
 
   hDestBitmap = CreateCrunchyBitmap(width,height);//CreateLargeBitmap(height, width);
   hOldSourceBitmap = SelectObject(hMemSrc, hSourceBitmap);
@@ -1600,104 +1401,10 @@ void DrawTriFill(HDC hdc, int tri_color, double x1,double y1,double x2,double y2
 
 
 //https://learn.microsoft.com/en-us/windows/win32/gdi/drawing-a-shaded-triangle
-/*void DrawGlassTriFill(HDC hdc, int tri_color,double x1,double y1,double x2,double y2,double x3,double y3,BYTE alpha)
-{//https://stackoverflow.com/questions/33447305/c-windows32-gdi-fill-triangle
-    BLENDFUNCTION blendFunction;
-    blendFunction.BlendOp = AC_SRC_OVER;
-    blendFunction.BlendFlags = 0;
-    blendFunction.SourceConstantAlpha = alpha; // Transparency level (0-255)
-    blendFunction.AlphaFormat = 0;
-
-    HDC hdcMem = CreateCompatibleDC(hdc);
-    HBITMAP hBitmap = CreateCompatibleBitmap(hdc, width, height);
-    SelectObject(hdcMem, hBitmap);
-
-    // Fill the rectangle with the desired color
-    HBRUSH hBrush = CreateSolidBrush(COLOR); // Blue color
-    RECT rect = {x, y, width, height};
-    FillRect(hdcMem, &rect, hBrush);
-
-    // Use AlphaBlend to draw the transparent rectangle
-    AlphaBlend(hdc, 0, 0, width, height, hdcMem, 0, 0, width, height, blendFunction);
-
-    // Clean up
-    DeleteObject(hBrush);
-    DeleteObject(hBitmap);
-    DeleteDC(hdcMem);
-*/
-/*    BLENDFUNCTION blendFunction;
-    blendFunction.BlendOp = AC_SRC_OVER;
-    blendFunction.BlendFlags = 0;
-    blendFunction.SourceConstantAlpha = alpha; // Transparency level (0-255)
-    blendFunction.AlphaFormat = 0;
+//https://stackoverflow.com/questions/33447305/c-windows32-gdi-fill-triangl//https://stackoverflow.com/questions/3142349/drawing-on-8bpp-grayscale-bitmap-unmanaged-c
 
 
-    int lowest_x=min(x1,min(x2,x3));
-    int lowest_y=min(y1,min(y2,y3));
-    int highest_x=max(x1,max(x2,x3));
-    int highest_y=max(y1,max(y2,y3));
-    int width=highest_x-lowest_x;
-    int height=highest_y-lowest_y;
 
-    HDC hdcMem = CreateCompatibleDC(hdc);
-    HBITMAP hBitmap = CreateCompatibleBitmap(hdc, width, height);
-    SelectObject(hdcMem, hBitmap);
-
-    /*HPEN hPen = CreatePen(PS_SOLID, 2, tri_color);
-    HPEN hOldPen = SelectObject(hdcMem, hPen);
-
-    HBRUSH hBrush = CreateSolidBrush(tri_color);
-    HBRUSH hOldBrush = SelectObject(hdcMem, hBrush);*/
-
-
-    /*POINT vertices[] = { {x1, y1}, {x2, y2}, {x3, y3} };
-    Polygon(hdc, vertices, sizeof(vertices) / sizeof(vertices[0]));*/
-    /*HBRUSH hBrush = CreateSolidBrush(tri_color);
-    RECT rect = {lowest_x, lowest_y, width, height};
-    FillRect(hdcMem, &rect, hBrush);
-
-    AlphaBlend(hdc, lowest_x, lowest_y, width, height, hdcMem, 0, 0, width, height, blendFunction);
-
-    
-    // Use AlphaBlend to draw the transparent rectangle
-    //AlphaBlend(hdc, lowest_x,lowest_y, width, height, hdcMem, 0, 0, width, height, blendFunction);
-
-
-    /*SelectObject(hdcMem, hOldBrush);
-    DeleteObject(hBrush);
-
-    SelectObject(hdcMem, hOldPen);
-    DeleteObject(hPen);*/
-
-    // Clean up
-/*    DeleteObject(hBrush);
-    //DeleteObject(hBitmap);
-    //DeleteDC(hdcMem);
-}*/
-
-
-/*
-#include <windows.h>
-
-void DrawTransparentTriangle(HDC hdc) {
-    // Define the vertices of the triangle
-    POINT vertices[] = { {100, 50}, {150, 150}, {50, 150} };
-
-    // Create a solid brush with transparency (50% transparent red)
-    HBRUSH hBrush = CreateSolidBrush(RGB(255, 0, 0) | 0x80000000);
-    HBRUSH hOldBrush = (HBRUSH)SelectObject(hdc, hBrush);
-
-    // Draw the triangle
-    Polygon(hdc, vertices, 3);
-
-    // Clean up
-    SelectObject(hdc, hOldBrush);
-    DeleteObject(hBrush);
-}
-
-*/
-
-//https://stackoverflow.com/questions/3142349/drawing-on-8bpp-grayscale-bitmap-unmanaged-c
 HBITMAP CreateGreyscaleBitmap(int cx, int cy)
 {
   BITMAPINFO* pbmi = (BITMAPINFO*)alloca(offsetof(BITMAPINFO, bmiColors[256]));
@@ -1885,144 +1592,6 @@ void DrawPaintSquare(HDC hdc,int move_x,int move_y,int original_index, int targe
 }
 
 
-//GrSprite Deprecated
-/*
-void GrSprite(HDC hDC,double _x1,double _y1, HBITMAP hSourceBitmap,bool is_left) {
-  if (hSourceBitmap != NULL) { ////https://ftp.zx.net.nz/pub/Patches/ftp.microsoft.com/MISC/KB/en-us/77/127.HTM
-    //BITMAP bm;
-    //GetObject(hSourceBitmap, sizeof(bm), &bm);
-
-    static HBITMAP hBitmap;
-    BITMAP bm;
-
-    /*HBITMAP hOldSourceBitmap, hOldDestBitmap; ////https://www.codeguru.com/multimedia/rotate-a-bitmap-image/
-    HDC hMemSrc,hMemDest;
-    hMemSrc = CreateCompatibleDC(hDC);
-    hMemDest = CreateCompatibleDC(hDC);*/
-
-
-    //GetObject(hSourceBitmap, sizeof(bm), &bm);
-
-
-    /*hBitmap = CreateBitmap(bm.bmWidth, bm.bmHeight, 
-                        bm.bmPlanes, bm.bmBitsPixel, //IMPORTANT, these 2 arguements allow color to pass through
-                        NULL); */
-    /*hBitmap = CreateCrunchyBitmap(bm.bmWidth,bm.bmHeight);//CreateLargeBitmap(bm.bmWidth,bm.bmHeight);
-    hOldSourceBitmap = SelectObject(hMemSrc, hSourceBitmap);
-    hOldDestBitmap = SelectObject(hMemDest, hBitmap);
-
-    BitBlt(hMemDest, 0, 0, bm.bmWidth, bm.bmHeight, hMemSrc, 0, 0, SRCCOPY);
-
-    SelectObject(hMemSrc, hOldSourceBitmap);
-    SelectObject(hMemDest, hOldDestBitmap);
-    DeleteDC(hMemDest);
-    DeleteDC(hMemSrc);*/
-    //hBitmap = CopyCrunchyBitmap(hSourceBitmap, IMAGE_BITMAP, 0,0, LR_DEFAULTSIZE); //causes memleak
-
-/*
-    hBitmap=CopyCrunchyBitmap(hSourceBitmap,SRCCOPY);
-    HBITMAP hBitmapMask=CreateBitmapMask(hBitmap,BLACK,NULL);
-
-     
-
-    //====================Begin Bitmapmask Creation
-    /*static HBITMAP hBitmapMask;
-    HDC hdcMem1, hdcMem2;
-
-    // Create monochrome (1 bit) mask bitmap.  
-
-    GetObject(hBitmap, sizeof(bm), &bm);
-    hBitmapMask = CreateBitmap(bm.bmWidth, bm.bmHeight, 1, 1, NULL);
-
-    // Get some HDCs that are compatible with the display driver
-
-    hdcMem1 = CreateCompatibleDC(hDC);
-    hdcMem2 = CreateCompatibleDC(hDC);
-
-    SelectObject(hdcMem1, hBitmap);
-    SelectObject(hdcMem2, hBitmapMask);
-
-    // Set the background colour of the colour image to the colour
-    // you want to be transparent.
-    SetBkColor(hdcMem1, BLACK);
-
-    // Copy the bits from the colour image to the B+W mask... everything
-    // with the background colour ends up white while everythig else ends up
-    // black...Just what we wanted.
-
-    BitBlt(hdcMem2, 0, 0, bm.bmWidth, bm.bmHeight, hdcMem1, 0, 0, SRCCOPY);
-
-    // Take our new mask and use it to turn the transparent colour in our
-    // original colour image to black so the transparency effect will
-    // work right.
-    BitBlt(hdcMem1, 0, 0, bm.bmWidth, bm.bmHeight, hdcMem2, 0, 0, SRCINVERT);
-
-    // Clean up.
-
-    DeleteDC(hdcMem1);
-    DeleteDC(hdcMem2);
-    //==================End of Bitmap Map Creation
-
-
-    /* Causes Memleak
-    HBITMAP hDestBitmapCopy = CopyImage(hDestBitmap, IMAGE_BITMAP, 0,0, LR_DEFAULTSIZE);
-    HDC hdcMem2 = CreateCompatibleDC(hdcMem);
-    static HBITMAP hBitmapMask;
-    hBitmapMask = CreateBitmapMask(hDestBitmapCopy, BLACK, hdcMem);*/
-/*
-    HBITMAP oldbitmap,oldbitmap2;
-    BITMAP bitmap;
-    HDC hdcMemA = CreateCompatibleDC(hDC);
-    HDC hdcMemB = CreateCompatibleDC(hDC);
-    GetObject(hBitmapMask, sizeof(BITMAP), &bitmap);
-
-    oldbitmap = SelectObject(hdcMemA, hBitmapMask);
-    if (is_left) { //Flip Horizontally (X)
-      StretchBlt(hDC, _x1+bitmap.bmWidth/2, _y1-bitmap.bmHeight/2, -bitmap.bmWidth-1, bitmap.bmHeight, hdcMemA, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCAND); //Create Mask for
-    } else { //Regular
-      //StretchBlt(hDC, _x1-bitmap.bmWidth/2, _y1-bitmap.bmHeight/2, bitmap.bmWidth, bitmap.bmHeight, hdcMemA, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCAND); //Create Mask for
-      BitBlt(hDC, _x1-bitmap.bmWidth/2, _y1-bitmap.bmHeight/2, bitmap.bmWidth, bitmap.bmHeight, hdcMemA, 0,0, SRCAND); //no time wasted stretching
-    }
-
-    //GetObject(hBitmap, sizeof(BITMAP), &bitmap);
-    oldbitmap2 = SelectObject(hdcMemB,hBitmap);
-    if (is_left) { //Flip Horizontally (X)
-      StretchBlt(hDC, _x1+bitmap.bmWidth/2, _y1-bitmap.bmHeight/2, -bitmap.bmWidth-1, bitmap.bmHeight, hdcMemB, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCPAINT); //Create Mask for
-    } else { //Regular
-      //StretchBlt(hDC, _x1-bitmap.bmWidth/2, _y1-bitmap.bmHeight/2, bitmap.bmWidth, bitmap.bmHeight, hdcMemB, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCPAINT); //Create Mask for
-      BitBlt(hDC, _x1-bitmap.bmWidth/2, _y1-bitmap.bmHeight/2, bitmap.bmWidth, bitmap.bmHeight, hdcMemB, 0, 0, SRCPAINT); //no timew wasted stretching
-    }
-    //BitBlt(hDC, _x1-bitmap.bmWidth/2, _y1-bitmap.bmHeight, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0, 0, SRCAND); //This works (Demo, no flip transparent background)
-
-    // DeleteObject(SelectObject(hdcMem, hBitmapMask));
-    //https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-createcompatiblebitmap https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-deleteobject
-    DeleteObject(SelectObject(hdcMemB, oldbitmap2));
-    DeleteObject(SelectObject(hdcMemA, oldbitmap)); //https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-createcompatiblebitmap https://learn.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-deleteobject
-    DeleteDC(hdcMemA);
-    DeleteDC(hdcMemB);
-    DeleteObject(hBitmap);
-
-/*  DrawBitmap(hDC,
-                 _x1,
-                 _y1,
-                 0,//-player.cam_mouse_move_x-player.cam_move_x-GR_WIDTH/2,
-                 0,//player.y-player.cam_mouse_move_y-player.cam_move_y-GR_HEIGHT/2,
-                 bm.bmWidth,
-                 bm.bmHeight,
-                 hSourceBitmap,SRCAND,FALSE);
-  DrawBitmap(hDC,
-                 _x1,
-                 _y1,
-                 0,//-player.cam_mouse_move_x-player.cam_move_x-GR_WIDTH/2,
-                 0,//player.y-player.cam_mouse_move_y-player.cam_move_y-GR_HEIGHT/2,
-                 bm.bmWidth,
-                 bm.bmHeight,
-                 hSourceBitmap,SRCPAINT,FALSE);*/
-/*  } else {
-    GrPrint(hDC,_x1,_y1,"(No Sprite)",WHITE); //Print Message if sprite cannot be loaded
-  }
-}*/
-
 
 
 typedef struct DRAWSPRITE
@@ -2074,254 +1643,6 @@ void DrawSprite(HDC hdc,HDC hdc2,int _x1, int _y1, DRAWSPRITE* myDrawSprite,bool
                  myDrawSprite->sprite_paint,SRCPAINT,FALSE,is_left);
 
 }
-
-
-/*void GrGlassPixel(HDC hdc, int x, int y, COLORREF color, BYTE alpha) {
-    // Create a memory DC and a bitmap
-    HDC memDC = CreateCompatibleDC(hdc);
-    HBITMAP hBitmap = CreateCompatibleBitmap(hdc, 1, 1);
-    SelectObject(memDC, hBitmap);
-
-    // Set the pixel color
-    SetPixel(memDC, 0, 0, color);
-
-    // Create a BLENDFUNCTION structure
-    BLENDFUNCTION blendFunc;
-    blendFunc.BlendOp = AC_SRC_OVER;
-    blendFunc.BlendFlags = 0;
-    blendFunc.SourceConstantAlpha = alpha; // 50% transparency
-    blendFunc.AlphaFormat = 0;
-
-    // Use AlphaBlend to draw the pixel with transparency
-    AlphaBlend(hdc, x, y, 1, 1, memDC, 0, 0, 1, 1, blendFunc);
-
-    // Clean up
-    DeleteObject(hBitmap);
-    DeleteDC(memDC);
-}*/
-
-//Sprites must be 32-bit :/
-void DrawGlassBitmap(HDC hdc, HBITMAP hBitmap, int x, int y, int level)
-{
-    // Create a memory device context compatible with the specified device context
-    BITMAP bm;
-    GetObject(hBitmap, sizeof(bm), &bm);
-    int width = bm.bmWidth;
-    int height = bm.bmHeight;
-
-    HDC hdcMem = CreateCompatibleDC(hdc);
-    //if (!hdcMem) return;
-
-    // Select the bitmap into the memory device context
-    HBITMAP hOldBitmap = (HBITMAP)SelectObject(hdcMem, hBitmap);
-
-    // Set up the blend function
-    BLENDFUNCTION blendFunc;
-    blendFunc.BlendOp = AC_SRC_OVER;
-    blendFunc.BlendFlags = 0;
-    blendFunc.SourceConstantAlpha = level; // 50% transparency
-    blendFunc.AlphaFormat = 0;//AC_SRC_ALPHA;//0;
-
-    // Perform the alpha blending
-    AlphaBlend(hdc, x, y, width, height, hdcMem, 0, 0, width, height, blendFunc);
-
-    // Clean up
-    SelectObject(hdcMem, hOldBitmap);
-    DeleteDC(hdcMem);
-}
-
-
-
-/*void DrawTBitmap(HDC hdc,  DRAWSPRITE* myDrawSprite, int x, int y, int level,bool is_left)
-{
-    BITMAP bm;
-    GetObject(myDrawSprite->sprite_mask, sizeof(bm), &bm);
-    int width=bm.bmWidth;
-    int height=bm.bmHeight;
-
-    BLENDFUNCTION blendFunction;
-    blendFunction.BlendOp = AC_SRC_OVER;
-    blendFunction.BlendFlags = 0;
-    blendFunction.SourceConstantAlpha = level;//alpha; // Transparency level (0-255),255 == not transparent
-    blendFunction.AlphaFormat = AC_SRC_ALPHA;//0;
-
-    HDC hdcMem = CreateCompatibleDC(hdc);
-    HBITMAP hBitmap = CreateCompatibleBitmap(hdc, width, height);
-    SelectObject(hdcMem, hBitmap);
-
-    DrawSprite(hdcMem, width/2,height/2, myDrawSprite, is_left);
-
-    // Use AlphaBlend to draw the transparent rectangle
-    AlphaBlend(hdc, x-width/2, y-height/2, width, height, hdcMem, 0, 0, width, height, blendFunction);
-
-    // Clean up
-    DeleteObject(hBitmap);
-    DeleteDC(hdcMem);
-
-}
-
-void DrawGlassSprite(HDC hdc,int _x1, int _y1, DRAWSPRITE* myDrawSprite,bool is_left) 
-{
-  DrawTBitmap(hdc,myDrawSprite,_x1,_y1,127,is_left);
-}*/
-
-
-/*
-void BlendPixel(BYTE* dest, BYTE* src, BYTE alpha) {
-    dest[0] = (src[0] * alpha + dest[0] * (255 - alpha)) / 255; // Blue
-    dest[1] = (src[1] * alpha + dest[1] * (255 - alpha)) / 255; // Green
-    dest[2] = (src[2] * alpha + dest[2] * (255 - alpha)) / 255; // Red
-}
-
-void DrawTransparentSprite(HDC hdc, HBITMAP hSprite, int x, int y, BYTE alpha) {
-    BITMAP bm;
-    GetObject(hSprite, sizeof(BITMAP), &bm);
-
-    HDC hMemDC = CreateCompatibleDC(hdc);
-    SelectObject(hMemDC, hSprite);
-
-    BITMAPINFO bmi = {0};
-    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-    bmi.bmiHeader.biWidth = bm.bmWidth;
-    bmi.bmiHeader.biHeight = -bm.bmHeight; // Top-down
-    bmi.bmiHeader.biPlanes = 1;
-    bmi.bmiHeader.biBitCount = 24;
-    bmi.bmiHeader.biCompression = BI_RGB;
-
-    BYTE* pBits = (BYTE*)malloc(bm.bmWidth * bm.bmHeight * 3);
-    GetDIBits(hMemDC, hSprite, 0, bm.bmHeight, pBits, &bmi, DIB_RGB_COLORS);
-
-    for (int j = 0; j < bm.bmHeight; ++j) {
-        for (int i = 0; i < bm.bmWidth; ++i) {
-            COLORREF bgColor = GetPixel(hdc, x + i, y + j);
-            BYTE bg[3] = { GetBValue(bgColor), GetGValue(bgColor), GetRValue(bgColor) };
-            BYTE* src = &pBits[(j * bm.bmWidth + i) * 3];
-            BlendPixel(bg, src, alpha);
-            SetPixel(hdc, x + i, y + j, RGB(bg[2], bg[1], bg[0]));
-        }
-    }
-
-    free(pBits);
-    DeleteDC(hMemDC);
-}*/
-
-
-
-/*void BlendPixel(BYTE* dest, BYTE* src, BYTE alpha) {
-    dest[0] = (src[0] * alpha + dest[0] * (255 - alpha)) / 255; // Blue
-    dest[1] = (src[1] * alpha + dest[1] * (255 - alpha)) / 255; // Green
-    dest[2] = (src[2] * alpha + dest[2] * (255 - alpha)) / 255; // Red
-}
-
-void DrawTransparentSprite(HDC hdc, HBITMAP hSprite, int x, int y, BYTE alpha) {
-    BITMAP bm;
-    GetObject(hSprite, sizeof(BITMAP), &bm);
-
-    HDC hMemDC = CreateCompatibleDC(hdc);
-    SelectObject(hMemDC, hSprite);
-
-    BITMAPINFO bmi = {0};
-    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-    bmi.bmiHeader.biWidth = bm.bmWidth;
-    bmi.bmiHeader.biHeight = -bm.bmHeight; // Top-down
-    bmi.bmiHeader.biPlanes = 1;
-    bmi.bmiHeader.biBitCount = 24;
-    bmi.bmiHeader.biCompression = BI_RGB;
-
-    BYTE* pSpriteBits = (BYTE*)malloc(bm.bmWidth * bm.bmHeight * 3);
-    GetDIBits(hMemDC, hSprite, 0, bm.bmHeight, pSpriteBits, &bmi, DIB_RGB_COLORS);
-
-    HDC hMemDC2 = CreateCompatibleDC(hdc);
-    HBITMAP hBackground = CreateCompatibleBitmap(hdc, bm.bmWidth, bm.bmHeight);
-    SelectObject(hMemDC2, hBackground);
-    BitBlt(hMemDC2, 0, 0, bm.bmWidth, bm.bmHeight, hdc, x, y, SRCCOPY);
-
-    BYTE* pBackgroundBits = (BYTE*)malloc(bm.bmWidth * bm.bmHeight * 3);
-    GetDIBits(hMemDC2, hBackground, 0, bm.bmHeight, pBackgroundBits, &bmi, DIB_RGB_COLORS);
-
-    for (int j = 0; j < bm.bmHeight; ++j) {
-        for (int i = 0; i < bm.bmWidth; ++i) {
-            BYTE* bg = &pBackgroundBits[(j * bm.bmWidth + i) * 3];
-            BYTE* src = &pSpriteBits[(j * bm.bmWidth + i) * 3];
-            BlendPixel(bg, src, alpha);
-        }
-    }
-
-    SetDIBits(hMemDC2, hBackground, 0, bm.bmHeight, pBackgroundBits, &bmi, DIB_RGB_COLORS);
-    BitBlt(hdc, x, y, bm.bmWidth, bm.bmHeight, hMemDC2, 0, 0, SRCCOPY);
-
-    free(pSpriteBits);
-    free(pBackgroundBits);
-    DeleteObject(hBackground);
-    DeleteDC(hMemDC);
-    DeleteDC(hMemDC2);
-}
-
-/*
-int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow) {
-    // Initialize and create window...
-
-    HBITMAP hSprite = (HBITMAP)LoadImage(NULL, "sprite.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-    if (!hSprite) {
-        MessageBox(NULL, "Failed to load sprite", "Error", MB_OK);
-        return 0;
-    }
-
-    // In your window's paint handler:
-    PAINTSTRUCT ps;
-    HDC hdc = BeginPaint(hWnd, &ps);
-    DrawTransparentSprite(hdc, hSprite, 50, 50, 128); // 50% transparency
-    EndPaint(hWnd, &ps);
-
-    // Cleanup and exit...
-    DeleteObject(hSprite);
-    return 0;
-}*/
-
-
-// Function to draw a transparent sprite
-/*void DrawTransparentSprite(HDC hdcDest, int xDest, int yDest, HBITMAP hBitmap, int width, int height) {
-    HDC hdcMem = CreateCompatibleDC(hdcDest);
-    HBITMAP hOldBitmap = (HBITMAP)SelectObject(hdcMem, hBitmap);
-
-    // Create a temporary bitmap to hold the modified image
-    HBITMAP hTempBitmap = CreateCompatibleBitmap(hdcDest, width, height);
-    HDC hdcTemp = CreateCompatibleDC(hdcDest);
-    HBITMAP hOldTempBitmap = (HBITMAP)SelectObject(hdcTemp, hTempBitmap);
-
-    // Copy the original image to the temporary bitmap
-    BitBlt(hdcTemp, 0, 0, width, height, hdcMem, 0, 0, SRCCOPY);
-
-    // Modify the pixels to achieve 50% transparency
-    BITMAPINFO bmi;
-    ZeroMemory(&bmi, sizeof(BITMAPINFO));
-    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-    bmi.bmiHeader.biWidth = width;
-    bmi.bmiHeader.biHeight = -height; // Negative to indicate top-down DIB
-    bmi.bmiHeader.biPlanes = 1;
-    bmi.bmiHeader.biBitCount = 32;
-    bmi.bmiHeader.biCompression = BI_RGB;
-
-    RGBQUAD* pPixels = (RGBQUAD*)malloc(width * height * sizeof(RGBQUAD));
-    GetDIBits(hdcTemp, hTempBitmap, 0, height, pPixels, &bmi, DIB_RGB_COLORS);
-
-    for (int i = 0; i < width * height; ++i) {
-        pPixels[i].rgbReserved = (BYTE)(pPixels[i].rgbReserved * 0.5); // 50% transparency
-    }
-
-    SetDIBits(hdcTemp, hTempBitmap, 0, height, pPixels, &bmi, DIB_RGB_COLORS);
-    free(pPixels);
-
-    // Draw the modified image to the destination DC
-    BitBlt(hdcDest, xDest, yDest, width, height, hdcTemp, 0, 0, SRCCOPY);
-
-    // Cleanup
-    SelectObject(hdcTemp, hOldTempBitmap);
-    DeleteDC(hdcTemp);
-    DeleteObject(hTempBitmap);
-    SelectObject(hdcMem, hOldBitmap);
-    DeleteDC(hdcMem);
-}*/
 
 
 

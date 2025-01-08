@@ -30,6 +30,7 @@
 #include <direct.h>
 #include <errno.h>
 #include <shlwapi.h>
+#include <omp.h>
 
 //for .avi
 #include <vfw.h>
@@ -285,7 +286,7 @@ bool is_khmer=TRUE;
 
 #define PLAYER_LOW_HEALTH   3
 //#define PLAYER_BULLET_NUM 32
-#define PLAYER_BULLET_NUM 24//16
+#define PLAYER_BULLET_NUM 36//24//16
 #define PLAYER_FLING_WEB_NUM    32
 
 #define GAME_OPTIONS_NUM    13
@@ -396,6 +397,8 @@ void FrameRateSleep(int max_fps)
 void Prelude()
 {
   //Load Enemy Rotated Sprite
+  loading_numerator=0;
+  loading_denominator=ROTATED_SPRITE_NUM*5;
   HBITMAP tmp_sprite1;
   HBITMAP tmp_sprite2;
   double angle_rn;
@@ -405,14 +408,19 @@ void Prelude()
       switch (j) {
         case 0:
           tmp_sprite1=RotateSprite(NULL,enemy2_sprite_1,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+          loading_numerator++;
           tmp_sprite2=RotateSprite(NULL,enemy2_sprite_2,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+          loading_numerator++;
           break;
         case 1:
           tmp_sprite1=RotateSprite(NULL,enemy4_sprite_1,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+          loading_numerator++;
           tmp_sprite2=RotateSprite(NULL,enemy4_sprite_2,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+          loading_numerator++;
           break;
         case 2:
           tmp_sprite1=RotateSprite(NULL,enemy4_sprite_1_0,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+          loading_numerator++;
           break;
       }
 
@@ -633,7 +641,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     {
   //GLOBAL wParam Release Key
   //    printf("%d",wParam);
-      if (!level_loading) {
+      if (!level_loading && !prelude) {
       if (main_menu_chosen!=2) {
         GlobalKeypressUp(hwnd,wParam);
       }
@@ -904,7 +912,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           //hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
           screen=CreateCompatibleBitmap(hdc,320,240);
           SelectObject(hdcBackbuff,screen);
-          GrRect(hdcBackbuff,0,0,GR_WIDTH+2,GR_HEIGHT+2,GREEN);
+          GrRect(hdcBackbuff,0,0,GR_WIDTH+2,GR_HEIGHT+2,BLACK);
+          DrawLoading(hdcBackbuff);
           DrawCursor(hdcBackbuff,hdcBackbuff2);
           BitBlt(hdc, 0, 0, 320,240, hdcBackbuff, 0, 0,  SRCCOPY);
           //DeleteDC(hdcBackbuff2);
@@ -918,7 +927,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           SelectObject(hdcBackbuff,screen);
           //GrRect(hdcBackbuff,0,0,GR_WIDTH+2,GR_HEIGHT+2,BLACK);    
           DrawBackground(hdcBackbuff,hdcBackbuff2);
-          DrawLoading(hdcBackbuff,16);
+          DrawLoading(hdcBackbuff/*,16*/);
           DrawCursor(hdcBackbuff,hdcBackbuff2);
           if (hide_taskbar) {
             BitBlt(hdc, SCREEN_WIDTH/2-RESOLUTION_X[resolution_choose]/2, 
@@ -1399,7 +1408,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       color_chooser.color_id=0;
       color_chooser.color_id_choosing=0;
 
-      InitMarbles(16);
+      //InitMarbles(16);
 
       //Delete tmp in music
       remove("music/tmp/tmp.wav");

@@ -851,8 +851,6 @@ void EnemyAct(int i)
               Enemy[i]->health-=Bullet[bk].damage;
               if (game_audio) {
                 PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
-                //PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
-                //PlaySound(clang_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
               }
               if (!Enemy[i]->in_water) {
                 Enemy[i]->knockback_timer=player.knockback_strength;
@@ -863,8 +861,6 @@ void EnemyAct(int i)
               Enemy[i]->player_knockback=FALSE;
               if (Bullet[bk].graphics_type!=6)
                 Bullet[bk].angle=RandAngle(0,360,player.seed);
-              /*if (Bullet[bk].speed_multiplier<6) {
-              }*/
             }
             }
 	        break;
@@ -874,8 +870,6 @@ void EnemyAct(int i)
             Enemy[i]->health-=Bullet[bk].damage;
             if (game_audio) {
               PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
-              //PlaySound(L"snd/clang.wav", NULL, SND_FILENAME | SND_ASYNC);      
-              //PlaySound(clang_audio_cache, NULL, SND_MEMORY | SND_ASYNC);
             }
             Enemy[i]->knockback_timer=player.knockback_strength;
             Enemy[i]->knockback_angle=Bullet[bk].angle;
