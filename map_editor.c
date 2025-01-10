@@ -980,10 +980,26 @@ void MapEditorAct()
                 for (int t=0;t<set_enemy_type_speed_multiplier[q];t++) {
                   if (MapEditor.demo_enemy_spritex<mouse_x) {
                     MapEditor.demo_enemy_spritex+=set_enemy_type_speed[q];
-                    MapEditor.demo_enemy_spriteisleft=FALSE;
+                    if (set_enemy_type_species[q]!=5 && set_enemy_type_species[q]!=6) {
+                      MapEditor.demo_enemy_spriteisleft=FALSE;
+                    } else {
+                      if (set_enemy_type_species[q]==5) {
+                        MapEditor.demo_enemy_spriteisleft=FALSE;
+                      } else {
+                        MapEditor.demo_enemy_spriteisleft=TRUE;
+                      }
+                    }
                   } else {
                     MapEditor.demo_enemy_spritex-=set_enemy_type_speed[q];
-                    MapEditor.demo_enemy_spriteisleft=TRUE;
+                    if (set_enemy_type_species[q]!=5 && set_enemy_type_species[q]!=6) {
+                      MapEditor.demo_enemy_spriteisleft=TRUE;
+                    } else {
+                      if (set_enemy_type_species[q]==5) {
+                        MapEditor.demo_enemy_spriteisleft=FALSE;
+                      } else {
+                        MapEditor.demo_enemy_spriteisleft=TRUE;
+                      }
+                    }
                   }
 
                   if (MapEditor.demo_enemy_spritey<mouse_y) {
