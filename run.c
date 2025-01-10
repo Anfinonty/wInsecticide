@@ -398,11 +398,11 @@ void Prelude()
 {
   //Load Enemy Rotated Sprite
   loading_numerator=0;
-  loading_denominator=ROTATED_SPRITE_NUM*5;
+  loading_denominator=ROTATED_SPRITE_NUM*7;
   HBITMAP tmp_sprite1;
   HBITMAP tmp_sprite2;
   double angle_rn;
-  for (int j=0;j<3;j++) {
+  for (int j=0;j<4;j++) {
     for (int i=0;i<ROTATED_SPRITE_NUM;i++) {
       angle_rn=M_PI_2-M_PI_16*i;
       switch (j) {
@@ -419,12 +419,18 @@ void Prelude()
           loading_numerator++;
           break;
         case 2:
+          tmp_sprite1=RotateSprite(NULL,enemy6_sprite_1,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+          loading_numerator++;
+          tmp_sprite2=RotateSprite(NULL,enemy6_sprite_2,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+          loading_numerator++;
+          break;
+        case 3:
           tmp_sprite1=RotateSprite(NULL,enemy4_sprite_1_0,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
           loading_numerator++;
           break;
       }
 
-      if (j<=1) {
+      if (j<3) {
         GenerateDrawSprite(&LoadEnemyRotatedSprite[j].draw_rotated_sprite1[i],tmp_sprite1);
         GenerateDrawSprite(&LoadEnemyRotatedSprite[j].draw_rotated_sprite2[i],tmp_sprite2);
         DeleteObject(tmp_sprite2);
@@ -1561,6 +1567,9 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
 
       enemy5_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy5-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       enemy5_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy5-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+      enemy6_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy6-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      enemy6_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy6-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
       dkrdkgray_shadow_tile = (HBITMAP) LoadImageW(NULL, L"sprites/shadow_dkrdkgray.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);;
       ltgray_shadow_tile = (HBITMAP) LoadImageW(NULL, L"sprites/shadow_ltgray.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);;

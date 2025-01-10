@@ -659,6 +659,9 @@ typedef struct enemy
   bool player_knockback;
   bool saved_above_ground;
   bool saved_below_ground;
+  bool is_in_left_ground_edge;
+  bool is_in_right_ground_edge;
+
 
   //force search
   bool force_search;
@@ -720,10 +723,12 @@ typedef struct enemy
   int time_breaker_length;
   int saved_ground_id;
   int on_ground_id;
+  int on_ground_edge_id;
   int knockback_timer;
   int node_num;
   int seed;
   int damage_taken_timer;
+  int on_ground_timer;
 
   int sprite_x;
   int sprite_y;
@@ -741,8 +746,6 @@ typedef struct enemy
   double x;
   double y;
   double angle;
-  //double edge_angle;
-  //double saved_angle;
   double sprite_angle;
   double dist_from_player;
   double speed;
@@ -822,6 +825,7 @@ struct LoadEnemyRotatedSprite
 
 struct EnemyRotatedSprite
 {
+  int type;
   DRAWSPRITE draw_rotated_sprite1[ROTATED_SPRITE_NUM];
   DRAWSPRITE draw_rotated_sprite2[ROTATED_SPRITE_NUM];
 } EnemyRotatedSprite[ENEMY_TYPE_NUM];
@@ -835,6 +839,7 @@ struct LoadEnemyRotatedSpriteXtra
 
 struct EnemyRotatedSpriteXtra
 {
+  int type;
   DRAWSPRITE draw_rotated_sprite[ROTATED_SPRITE_NUM];
 } XEnemyRotatedSprite[ENEMY_TYPE_NUM];
 
@@ -962,30 +967,42 @@ DRAWSPRITE draw_player_cursor_pupil[2];
 
 
 
-//enemy global
+//enemy global sprites
+//mosquito
 HBITMAP enemy1_sprite_1;
 HBITMAP enemy1_sprite_2;
 
+//cockroach flying
 HBITMAP enemy2_sprite_1;
 HBITMAP enemy2_sprite_2;
-
-
+//cockroach walking
 HBITMAP enemy2_sprite_3;
 HBITMAP enemy2_sprite_4;
 
+
+//small moth
 HBITMAP enemy3_sprite_1;
 HBITMAP enemy3_sprite_2;
 
+
+//កន្ទាទូក walking
 HBITMAP enemy4_sprite_1;
 HBITMAP enemy4_sprite_2;
-
-
 HBITMAP enemy4_sprite_1_0;
+//កន្ទាទូក walking flying
 HBITMAP enemy4_sprite_3;
 HBITMAP enemy4_sprite_4;
 
+
+//fly 
 HBITMAP enemy5_sprite_1;
 HBITMAP enemy5_sprite_2;
+
+//Ant Walking
+HBITMAP enemy6_sprite_1;
+HBITMAP enemy6_sprite_2;
+
+
 
 
 //map background

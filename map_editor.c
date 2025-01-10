@@ -164,7 +164,7 @@ int enemy_int_attr_min[ENEMY_TYPE_INT_ATTR_NUM]=
 
 int enemy_int_attr_max[ENEMY_TYPE_INT_ATTR_NUM]=
 {
-5, // species
+7, // species
 MAX_FOLLOW_RANGE+1, //follow range
 MAX_FOLLOW_RANGE+1, //unchase range
 MAX_FOLLOW_RANGE+1, //chase range
@@ -183,7 +183,7 @@ MAX_FOLLOW_RANGE+1, //bullet range
 16, //bullet color
 8, //bullet_graphics_type
 10001, //time breaker rare
-20001 //time breaker immune
+20001 //time breaker length
 };
 
 
@@ -207,8 +207,8 @@ int enemy_int_attr_delta[ENEMY_TYPE_INT_ATTR_NUM]=
 1, //bullet range
 1, //bullet color
 1, //bullet_graphics_type
-25, //time breaker rare
-25 //time breaker immune
+5, //time breaker rare
+5 //time breaker length
 };
 
 int *set_enemy_type_int_attr[ENEMY_TYPE_INT_ATTR_NUM]=
@@ -578,6 +578,10 @@ void InitMapEditorEnemy()
         break;
       case 4:
         MEEnemySprite[i]->sprite_1=RotateSprite(NULL, enemy5_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[i]],-1);
+        break;
+      case 5:
+      case 6:
+        MEEnemySprite[i]->sprite_1=RotateSprite(NULL, enemy6_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[i]],-1);
         break;
     }
 
