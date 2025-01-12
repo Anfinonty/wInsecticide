@@ -4,9 +4,11 @@
 
 int CalculateDistanceCost(int enemy_id,int a, int b)
 {
+  int pfi=Enemy[enemy_id]->pathfinding_id;
+  if (pfi!=-1) {
   int x_dist=0,y_dist=0,picked=0,remaining=0;
-  x_dist=Enemy[enemy_id]->node_x[a]-Enemy[enemy_id]->node_x[b];
-  y_dist=Enemy[enemy_id]->node_y[a]-Enemy[enemy_id]->node_y[b];
+  x_dist=EnemyPathfinding[pfi]->node_x[a]-EnemyPathfinding[pfi]->node_x[b];
+  y_dist=EnemyPathfinding[pfi]->node_y[a]-EnemyPathfinding[pfi]->node_y[b];
   if (x_dist<0) {
     x_dist*=-1;
   }
@@ -20,26 +22,34 @@ int CalculateDistanceCost(int enemy_id,int a, int b)
     picked=y_dist;
   }
   return (DIAGONAL_COST * picked + STRAIGHT_COST * remaining)/100;
+  } else {
+    return 0;
+  }
 }
 
 int smallest_f_cost(int enemy_id)
 {
-  int i=0,saved_i=-1,open_node_id=0,id=Enemy[enemy_id]->start_node,smallest=INT_MAX;
-  for (i=0;i<Enemy[enemy_id]->open_nodes_num;i++) {//open nodes num is the key to the optimization
-    open_node_id=Enemy[enemy_id]->open_nodes[i];
-    if (Enemy[enemy_id]->node_fcost[open_node_id]<smallest && Enemy[enemy_id]->node_open[open_node_id]) {
-      smallest=Enemy[enemy_id]->node_fcost[open_node_id];
+  int pfi=Enemy[enemy_id]->pathfinding_id;
+  if (pfi!=-1) {
+  int i=0,saved_i=-1,open_node_id=0,id=EnemyPathfinding[pfi]->start_node,smallest=INT_MAX;
+  for (i=0;i<EnemyPathfinding[pfi]->open_nodes_num;i++) {//open nodes num is the key to the optimization
+    open_node_id=EnemyPathfinding[pfi]->open_nodes[i];
+    if (EnemyPathfinding[pfi]->node_fcost[open_node_id]<smallest && EnemyPathfinding[pfi]->node_open[open_node_id]) {
+      smallest=EnemyPathfinding[pfi]->node_fcost[open_node_id];
       id=open_node_id;
       saved_i=i;
     }
   }
   if (saved_i!=-1) {
-    for (i=saved_i;i<Enemy[enemy_id]->open_nodes_num;i++) {//shifts array left from open_node's pos
-      Enemy[enemy_id]->open_nodes[i]=Enemy[enemy_id]->open_nodes[i+1];
+    for (i=saved_i;i<EnemyPathfinding[pfi]->open_nodes_num;i++) {//shifts array left from open_node's pos
+      EnemyPathfinding[pfi]->open_nodes[i]=EnemyPathfinding[pfi]->open_nodes[i+1];
     }
-    Enemy[enemy_id]->open_nodes_num--;//dynamically scales: open_node becomes closed
+    EnemyPathfinding[pfi]->open_nodes_num--;//dynamically scales: open_node becomes closed
   }
   return id;
+  } else {
+    return 0;
+  }
 }
 
 void InitEnemyPathfinding(int enemy_id,double target_x,double target_y)
@@ -50,7 +60,6 @@ void InitEnemyPathfinding(int enemy_id,double target_x,double target_y)
       current_x=Enemy[enemy_id]->x,
       current_y=Enemy[enemy_id]->y;
  //Init enemy fixed
-  Enemy[enemy_id]->node_num=MAX_FOLLOW_RANGE*MAX_FOLLOW_RANGE;//Enemy[enemy_id]->follow_range*Enemy[enemy_id]->follow_range;
   Enemy[enemy_id]->sprite_timer=0;
   Enemy[enemy_id]->search_timer=0;
   Enemy[enemy_id]->idle_timer=0;
@@ -58,11 +67,14 @@ void InitEnemyPathfinding(int enemy_id,double target_x,double target_y)
   Enemy[enemy_id]->found_target=FALSE;
   Enemy[enemy_id]->trace_target=FALSE;
   Enemy[enemy_id]->move_to_target=FALSE;
-  Enemy[enemy_id]->path_nodes_num=0;
-  Enemy[enemy_id]->open_nodes_num=0;//reset to 0
+  int pfi=Enemy[enemy_id]->pathfinding_id;
+  if (pfi!=-1) {
+  EnemyPathfinding[pfi]->node_num=MAX_FOLLOW_RANGE*MAX_FOLLOW_RANGE;//Enemy[enemy_id]->follow_range*Enemy[enemy_id]->follow_range;
+  EnemyPathfinding[pfi]->path_nodes_num=0;
+  EnemyPathfinding[pfi]->open_nodes_num=0;//reset to 0
  //set open path nodes to false
   for (i=0;i<MAX_NODE_NUM;i++) {
-    Enemy[enemy_id]->path_nodes[i]=0;
+    EnemyPathfinding[pfi]->path_nodes[i]=0;
   }
   Enemy[enemy_id]->x=current_x;
   Enemy[enemy_id]->y=current_y;
@@ -83,71 +95,71 @@ void InitEnemyPathfinding(int enemy_id,double target_x,double target_y)
    start_node_y++;
    y++;
   }
-  Enemy[enemy_id]->species1_solid_num=0;
-  for (i=0;i<Enemy[enemy_id]->node_num;i++) {//maximum path finding node num
-    Enemy[enemy_id]->node_back[i]=
-      Enemy[enemy_id]->node_open[i]=
-      Enemy[enemy_id]->node_closed[i]=FALSE;
-    if (i<Enemy[enemy_id]->node_num) {
-      Enemy[enemy_id]->node_x[i]=x;
-      Enemy[enemy_id]->node_y[i]=y;
+  EnemyPathfinding[pfi]->species1_solid_num=0;
+  for (i=0;i<EnemyPathfinding[pfi]->node_num;i++) {//maximum path finding node num
+    EnemyPathfinding[pfi]->node_back[i]=
+      EnemyPathfinding[pfi]->node_open[i]=
+      EnemyPathfinding[pfi]->node_closed[i]=FALSE;
+    if (i<EnemyPathfinding[pfi]->node_num) {
+      EnemyPathfinding[pfi]->node_x[i]=x;
+      EnemyPathfinding[pfi]->node_y[i]=y;
       node_id=GetGridId(x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM); //all nodes      
       if (node_id!=-1) {
         switch (Enemy[enemy_id]->species) {
 	      case 0://standard
           case 2:
           case 4:
-            Enemy[enemy_id]->node_solid[i]=NodeGrid[node_id]->node_solid;
-            if (!Enemy[enemy_id]->node_solid[i])
-              Enemy[enemy_id]->node_solid[i]=NodeGrid[node_id]->node_water;
+            EnemyPathfinding[pfi]->node_solid[i]=NodeGrid[node_id]->node_solid;
+            if (!EnemyPathfinding[pfi]->node_solid[i])
+              EnemyPathfinding[pfi]->node_solid[i]=NodeGrid[node_id]->node_water;
 	        break;
 	      case 1://inverse
             if (Enemy[enemy_id]->target_player || Enemy[enemy_id]->on_ground_id==-1 /*|| Enemy[enemy_id]->is_in_ground_edge*/) {
-              Enemy[enemy_id]->node_solid[i]=NodeGrid[node_id]->node_solid;
-              if (!Enemy[enemy_id]->node_solid[i]) //cannot dive into water
-                Enemy[enemy_id]->node_solid[i]=NodeGrid[node_id]->node_water;
+              EnemyPathfinding[pfi]->node_solid[i]=NodeGrid[node_id]->node_solid;
+              if (!EnemyPathfinding[pfi]->node_solid[i]) //cannot dive into water
+                EnemyPathfinding[pfi]->node_solid[i]=NodeGrid[node_id]->node_water;
             } else {
-              Enemy[enemy_id]->node_solid[i]=!NodeGrid[node_id]->node_solid;
-              if (!Enemy[enemy_id]->node_solid[i])
-                Enemy[enemy_id]->node_solid[i]=NodeGrid[node_id]->node_water;
-	          if (!Enemy[enemy_id]->node_solid[i]) {
-                Enemy[enemy_id]->enemy_species1_solids[Enemy[enemy_id]->species1_solid_num]=i;
-	            Enemy[enemy_id]->species1_solid_num++;
+              EnemyPathfinding[pfi]->node_solid[i]=!NodeGrid[node_id]->node_solid;
+              if (!EnemyPathfinding[pfi]->node_solid[i])
+                EnemyPathfinding[pfi]->node_solid[i]=NodeGrid[node_id]->node_water;
+	          if (!EnemyPathfinding[pfi]->node_solid[i]) {
+                EnemyPathfinding[pfi]->enemy_species1_solids[EnemyPathfinding[pfi]->species1_solid_num]=i;
+	            EnemyPathfinding[pfi]->species1_solid_num++;
               }
             }
             break;
           case 3:
             /*if (!Enemy[enemy_id]->target_player || (Enemy[enemy_id]->on_ground_id!=-1 && !Enemy[enemy_id]->is_in_ground_edge)) {
-              Enemy[enemy_id]->node_solid[i]=!NodeGrid[node_id]->node_solid;
-	          if (!Enemy[enemy_id]->node_solid[i]) {
-                Enemy[enemy_id]->enemy_species1_solids[Enemy[enemy_id]->species1_solid_num]=i;
-	            Enemy[enemy_id]->species1_solid_num++;
+              EnemyPathfinding[pfi]->node_solid[i]=!NodeGrid[node_id]->node_solid;
+	          if (!EnemyPathfinding[pfi]->node_solid[i]) {
+                EnemyPathfinding[pfi]->enemy_species1_solids[EnemyPathfinding[pfi]->species1_solid_num]=i;
+	            EnemyPathfinding[pfi]->species1_solid_num++;
               }
             } else{
-              Enemy[enemy_id]->node_solid[i]=NodeGrid[node_id]->node_solid;
+              EnemyPathfinding[pfi]->node_solid[i]=NodeGrid[node_id]->node_solid;
             }*/
             if (Enemy[enemy_id]->target_player || Enemy[enemy_id]->on_ground_id==-1 /*|| Enemy[enemy_id]->is_in_ground_edge*/) {
-              Enemy[enemy_id]->node_solid[i]=NodeGrid[node_id]->node_solid;
+              EnemyPathfinding[pfi]->node_solid[i]=NodeGrid[node_id]->node_solid;
             } else {
-              Enemy[enemy_id]->node_solid[i]=!NodeGrid[node_id]->node_solid;
-	          if (!Enemy[enemy_id]->node_solid[i]) {
-                Enemy[enemy_id]->enemy_species1_solids[Enemy[enemy_id]->species1_solid_num]=i;
-	            Enemy[enemy_id]->species1_solid_num++;
+              EnemyPathfinding[pfi]->node_solid[i]=!NodeGrid[node_id]->node_solid;
+	          if (!EnemyPathfinding[pfi]->node_solid[i]) {
+                EnemyPathfinding[pfi]->enemy_species1_solids[EnemyPathfinding[pfi]->species1_solid_num]=i;
+	            EnemyPathfinding[pfi]->species1_solid_num++;
               }
             }
 	        break;
             }
       } else {//out of bounds
-        Enemy[enemy_id]->node_solid[i]=TRUE;
+        EnemyPathfinding[pfi]->node_solid[i]=TRUE;
       }
     } else {
-      Enemy[enemy_id]->node_x[i]=start_node_x;
-      Enemy[enemy_id]->node_y[i]=start_node_y;
+      EnemyPathfinding[pfi]->node_x[i]=start_node_x;
+      EnemyPathfinding[pfi]->node_y[i]=start_node_y;
     }
-    Enemy[enemy_id]->node_hcost[i]=0;
-    Enemy[enemy_id]->node_gcost[i]=INT_MAX;
-    Enemy[enemy_id]->node_fcost[i]=Enemy[enemy_id]->node_gcost[i]+Enemy[enemy_id]->node_hcost[i];
-    Enemy[enemy_id]->node_parent[i]=-1;
+    EnemyPathfinding[pfi]->node_hcost[i]=0;
+    EnemyPathfinding[pfi]->node_gcost[i]=INT_MAX;
+    EnemyPathfinding[pfi]->node_fcost[i]=EnemyPathfinding[pfi]->node_gcost[i]+EnemyPathfinding[pfi]->node_hcost[i];
+    EnemyPathfinding[pfi]->node_parent[i]=-1;
     x+=NODE_SIZE;
     if (x>start_node_x-NODE_SIZE+MAX_FOLLOW_RANGE*NODE_SIZE) {
       x=start_node_x;
@@ -155,9 +167,9 @@ void InitEnemyPathfinding(int enemy_id,double target_x,double target_y)
     }
   }
   if (Enemy[enemy_id]->species==1 || Enemy[enemy_id]->species==3) {//species 1
-    for (i=0;i<Enemy[enemy_id]->species1_solid_num;i++) {
-      k=Enemy[enemy_id]->enemy_species1_solids[i];
-      x=Enemy[enemy_id]->node_x[k]-Enemy[enemy_id]->node_x[0];
+    for (i=0;i<EnemyPathfinding[pfi]->species1_solid_num;i++) {
+      k=EnemyPathfinding[pfi]->enemy_species1_solids[i];
+      x=EnemyPathfinding[pfi]->node_x[k]-EnemyPathfinding[pfi]->node_x[0];
       for (j2=0;j2<5;j2++) {
         if (j2<3) {
           x+=((j2-2)*NODE_SIZE);
@@ -165,65 +177,68 @@ void InitEnemyPathfinding(int enemy_id,double target_x,double target_y)
           x+=((j2-1)*NODE_SIZE);
     	}
         for (j=0;j<8;j++) {
-          y=Enemy[enemy_id]->node_y[k]-Enemy[enemy_id]->node_y[0];
+          y=EnemyPathfinding[pfi]->node_y[k]-EnemyPathfinding[pfi]->node_y[0];
           y+=((j-3)*NODE_SIZE);
-          node_id=GetGridId(x,y,MAX_FOLLOW_RANGE*NODE_SIZE,NODE_SIZE,Enemy[enemy_id]->node_num);
+          node_id=GetGridId(x,y,MAX_FOLLOW_RANGE*NODE_SIZE,NODE_SIZE,EnemyPathfinding[pfi]->node_num);
           if (node_id!=-1) {
-	        Enemy[enemy_id]->node_solid[node_id]=FALSE;
+	        EnemyPathfinding[pfi]->node_solid[node_id]=FALSE;
 	      }
         }
       }
     }
-    for (i=0;i<Enemy[enemy_id]->species1_solid_num;i++) {
-      k=Enemy[enemy_id]->enemy_species1_solids[i];
+    for (i=0;i<EnemyPathfinding[pfi]->species1_solid_num;i++) {
+      k=EnemyPathfinding[pfi]->enemy_species1_solids[i];
       for (j=0;j<2;j++) {
-        x=Enemy[enemy_id]->node_x[k]-Enemy[enemy_id]->node_x[0];
-        y=Enemy[enemy_id]->node_y[k]-Enemy[enemy_id]->node_y[0]+NODE_SIZE*j;
-        node_id=GetGridId(x,y,MAX_FOLLOW_RANGE*NODE_SIZE,NODE_SIZE,Enemy[enemy_id]->node_num);
+        x=EnemyPathfinding[pfi]->node_x[k]-EnemyPathfinding[pfi]->node_x[0];
+        y=EnemyPathfinding[pfi]->node_y[k]-EnemyPathfinding[pfi]->node_y[0]+NODE_SIZE*j;
+        node_id=GetGridId(x,y,MAX_FOLLOW_RANGE*NODE_SIZE,NODE_SIZE,EnemyPathfinding[pfi]->node_num);
         if (node_id!=-1) {
-          Enemy[enemy_id]->node_solid[node_id]=TRUE;
+          EnemyPathfinding[pfi]->node_solid[node_id]=TRUE;
         }
       }
     } 
   }
   //Set Start Node
-  x=current_x-Enemy[enemy_id]->node_x[0];
-  y=current_y-Enemy[enemy_id]->node_y[0];
-  Enemy[enemy_id]->start_node=GetGridId(x,y,MAX_FOLLOW_RANGE*NODE_SIZE,NODE_SIZE,Enemy[enemy_id]->node_num);
+  x=current_x-EnemyPathfinding[pfi]->node_x[0];
+  y=current_y-EnemyPathfinding[pfi]->node_y[0];
+  EnemyPathfinding[pfi]->start_node=GetGridId(x,y,MAX_FOLLOW_RANGE*NODE_SIZE,NODE_SIZE,EnemyPathfinding[pfi]->node_num);
   for (i=0;i<MAX_NODE_NUM;i++) {//reset open_nodes array
-    Enemy[enemy_id]->open_nodes[i]=Enemy[enemy_id]->start_node;
+    EnemyPathfinding[pfi]->open_nodes[i]=EnemyPathfinding[pfi]->start_node;
   }
   //Set Target
-  x=target_x-Enemy[enemy_id]->node_x[0];
-  y=target_y-Enemy[enemy_id]->node_y[0];
-  Enemy[enemy_id]->end_node=GetGridId(x,y,MAX_FOLLOW_RANGE*NODE_SIZE,NODE_SIZE,Enemy[enemy_id]->node_num);
+  x=target_x-EnemyPathfinding[pfi]->node_x[0];
+  y=target_y-EnemyPathfinding[pfi]->node_y[0];
+  EnemyPathfinding[pfi]->end_node=GetGridId(x,y,MAX_FOLLOW_RANGE*NODE_SIZE,NODE_SIZE,EnemyPathfinding[pfi]->node_num);
   //Initiate start
-  Enemy[enemy_id]->current_node=Enemy[enemy_id]->start_node;
-  Enemy[enemy_id]->node_gcost[Enemy[enemy_id]->start_node]=0;
-  Enemy[enemy_id]->node_hcost[Enemy[enemy_id]->start_node]=CalculateDistanceCost(0,Enemy[enemy_id]->start_node,Enemy[enemy_id]->end_node);
-  Enemy[enemy_id]->node_fcost[Enemy[enemy_id]->start_node]=Enemy[enemy_id]->node_gcost[Enemy[enemy_id]->start_node]+Enemy[enemy_id]->node_hcost[Enemy[enemy_id]->start_node];
-  Enemy[enemy_id]->node_open[Enemy[enemy_id]->start_node]=TRUE;
+  EnemyPathfinding[pfi]->current_node=EnemyPathfinding[pfi]->start_node;
+  EnemyPathfinding[pfi]->node_gcost[EnemyPathfinding[pfi]->start_node]=0;
+  EnemyPathfinding[pfi]->node_hcost[EnemyPathfinding[pfi]->start_node]=CalculateDistanceCost(0,EnemyPathfinding[pfi]->start_node,EnemyPathfinding[pfi]->end_node);
+  EnemyPathfinding[pfi]->node_fcost[EnemyPathfinding[pfi]->start_node]=EnemyPathfinding[pfi]->node_gcost[EnemyPathfinding[pfi]->start_node]+EnemyPathfinding[pfi]->node_hcost[EnemyPathfinding[pfi]->start_node];
+  EnemyPathfinding[pfi]->node_open[EnemyPathfinding[pfi]->start_node]=TRUE;
+  }
 }
 
 void EnemyPathFinding(int enemy_id)
 {
   int x=0,y=0,i=0,neighbour_id=0,TGCost=0;
   bool allow_act=FALSE;
+  int pfi=Enemy[enemy_id]->pathfinding_id;
+  if (pfi!=-1) {
   if (!Enemy[enemy_id]->found_target) {//target not found
-    Enemy[enemy_id]->current_node=smallest_f_cost(enemy_id);
-    if (Enemy[enemy_id]->node_x[Enemy[enemy_id]->current_node]==Enemy[enemy_id]->node_x[Enemy[enemy_id]->end_node] &&
-        Enemy[enemy_id]->node_y[Enemy[enemy_id]->current_node]==Enemy[enemy_id]->node_y[Enemy[enemy_id]->end_node]) {
-      Enemy[enemy_id]->current_node=Enemy[enemy_id]->end_node;
+    EnemyPathfinding[pfi]->current_node=smallest_f_cost(enemy_id);
+    if (EnemyPathfinding[pfi]->node_x[EnemyPathfinding[pfi]->current_node]==EnemyPathfinding[pfi]->node_x[EnemyPathfinding[pfi]->end_node] &&
+        EnemyPathfinding[pfi]->node_y[EnemyPathfinding[pfi]->current_node]==EnemyPathfinding[pfi]->node_y[EnemyPathfinding[pfi]->end_node]) {
+      EnemyPathfinding[pfi]->current_node=EnemyPathfinding[pfi]->end_node;
       Enemy[enemy_id]->found_target=TRUE;
-      Enemy[enemy_id]->path_nodes[0]=Enemy[enemy_id]->current_node;
-      Enemy[enemy_id]->path_nodes_num=1;
+      EnemyPathfinding[pfi]->path_nodes[0]=EnemyPathfinding[pfi]->current_node;
+      EnemyPathfinding[pfi]->path_nodes_num=1;
     }
-    Enemy[enemy_id]->node_open[Enemy[enemy_id]->current_node]=FALSE;
-    Enemy[enemy_id]->node_closed[Enemy[enemy_id]->current_node]=TRUE;
+    EnemyPathfinding[pfi]->node_open[EnemyPathfinding[pfi]->current_node]=FALSE;
+    EnemyPathfinding[pfi]->node_closed[EnemyPathfinding[pfi]->current_node]=TRUE;
    //set neighbours
     for (i=0;i<8;i++) {
-      x=Enemy[enemy_id]->node_x[Enemy[enemy_id]->current_node]-Enemy[enemy_id]->node_x[0];
-      y=Enemy[enemy_id]->node_y[Enemy[enemy_id]->current_node]-Enemy[enemy_id]->node_y[0];
+      x=EnemyPathfinding[pfi]->node_x[EnemyPathfinding[pfi]->current_node]-EnemyPathfinding[pfi]->node_x[0];
+      y=EnemyPathfinding[pfi]->node_y[EnemyPathfinding[pfi]->current_node]-EnemyPathfinding[pfi]->node_y[0];
       if (i<=2) {
     	x-=NODE_SIZE; //case 1: left
         switch (i) {
@@ -244,59 +259,60 @@ void EnemyPathFinding(int enemy_id)
       }
       if (0<x && x<NODE_SIZE*MAX_FOLLOW_RANGE
           && 0<y && y<NODE_SIZE*MAX_FOLLOW_RANGE) {//node is within range
-        Enemy[enemy_id]->node_neighbour[i]=GetGridId(x,y,MAX_FOLLOW_RANGE*NODE_SIZE,NODE_SIZE,Enemy[enemy_id]->node_num);
+        EnemyPathfinding[pfi]->node_neighbour[i]=GetGridId(x,y,MAX_FOLLOW_RANGE*NODE_SIZE,NODE_SIZE,EnemyPathfinding[pfi]->node_num);
       } else { //not within range
-        Enemy[enemy_id]->node_neighbour[i]=Enemy[enemy_id]->start_node;
+        EnemyPathfinding[pfi]->node_neighbour[i]=EnemyPathfinding[pfi]->start_node;
       }
     }
     for (i=0;i<8;i++) {
-      neighbour_id=Enemy[enemy_id]->node_neighbour[i];
+      neighbour_id=EnemyPathfinding[pfi]->node_neighbour[i];
       allow_act=FALSE;
-      if (Enemy[enemy_id]->current_node!=Enemy[enemy_id]->start_node) {//no going through node corners
-	if (Enemy[enemy_id]->node_solid[Enemy[enemy_id]->node_neighbour[1]] || Enemy[enemy_id]->node_solid[Enemy[enemy_id]->node_neighbour[4]]) { 
-          if (Enemy[enemy_id]->node_solid[Enemy[enemy_id]->node_neighbour[6]] || Enemy[enemy_id]->node_solid[Enemy[enemy_id]->node_neighbour[7]]) {
+      if (EnemyPathfinding[pfi]->current_node!=EnemyPathfinding[pfi]->start_node) {//no going through node corners
+	if (EnemyPathfinding[pfi]->node_solid[EnemyPathfinding[pfi]->node_neighbour[1]] || EnemyPathfinding[pfi]->node_solid[EnemyPathfinding[pfi]->node_neighbour[4]]) { 
+          if (EnemyPathfinding[pfi]->node_solid[EnemyPathfinding[pfi]->node_neighbour[6]] || EnemyPathfinding[pfi]->node_solid[EnemyPathfinding[pfi]->node_neighbour[7]]) {
 	    allow_act=TRUE;
 	  }
 	}
       }
-      if (Enemy[enemy_id]->node_solid[neighbour_id] || allow_act) {//corner or solid
-        Enemy[enemy_id]->node_closed[neighbour_id]=TRUE;
+      if (EnemyPathfinding[pfi]->node_solid[neighbour_id] || allow_act) {//corner or solid
+        EnemyPathfinding[pfi]->node_closed[neighbour_id]=TRUE;
       }
-      if (!Enemy[enemy_id]->node_closed[neighbour_id] &&
-	  !Enemy[enemy_id]->node_solid[neighbour_id]) {
-        TGCost=Enemy[enemy_id]->node_gcost[Enemy[enemy_id]->current_node]+CalculateDistanceCost(enemy_id,Enemy[enemy_id]->current_node,neighbour_id);
-        if (TGCost<Enemy[enemy_id]->node_gcost[neighbour_id]) {
-          Enemy[enemy_id]->node_parent[neighbour_id]=Enemy[enemy_id]->current_node;
-          Enemy[enemy_id]->node_gcost[neighbour_id]=TGCost;
-          Enemy[enemy_id]->node_hcost[neighbour_id]=CalculateDistanceCost(enemy_id,neighbour_id,Enemy[enemy_id]->end_node);
-          Enemy[enemy_id]->node_fcost[neighbour_id]=Enemy[enemy_id]->node_gcost[neighbour_id]+Enemy[enemy_id]->node_hcost[neighbour_id];
-          if (!Enemy[enemy_id]->node_open[neighbour_id]) {//not open
-            Enemy[enemy_id]->node_open[neighbour_id]=TRUE; //open it
-            Enemy[enemy_id]->open_nodes[Enemy[enemy_id]->open_nodes_num]=neighbour_id;//enemy_open_nodes[self_open_nodes_num] = neighbor_id
-            Enemy[enemy_id]->open_nodes_num++;//this is the optimization
+      if (!EnemyPathfinding[pfi]->node_closed[neighbour_id] &&
+	  !EnemyPathfinding[pfi]->node_solid[neighbour_id]) {
+        TGCost=EnemyPathfinding[pfi]->node_gcost[EnemyPathfinding[pfi]->current_node]+CalculateDistanceCost(enemy_id,EnemyPathfinding[pfi]->current_node,neighbour_id);
+        if (TGCost<EnemyPathfinding[pfi]->node_gcost[neighbour_id]) {
+          EnemyPathfinding[pfi]->node_parent[neighbour_id]=EnemyPathfinding[pfi]->current_node;
+          EnemyPathfinding[pfi]->node_gcost[neighbour_id]=TGCost;
+          EnemyPathfinding[pfi]->node_hcost[neighbour_id]=CalculateDistanceCost(enemy_id,neighbour_id,EnemyPathfinding[pfi]->end_node);
+          EnemyPathfinding[pfi]->node_fcost[neighbour_id]=EnemyPathfinding[pfi]->node_gcost[neighbour_id]+EnemyPathfinding[pfi]->node_hcost[neighbour_id];
+          if (!EnemyPathfinding[pfi]->node_open[neighbour_id]) {//not open
+            EnemyPathfinding[pfi]->node_open[neighbour_id]=TRUE; //open it
+            EnemyPathfinding[pfi]->open_nodes[EnemyPathfinding[pfi]->open_nodes_num]=neighbour_id;//enemy_open_nodes[self_open_nodes_num] = neighbor_id
+            EnemyPathfinding[pfi]->open_nodes_num++;//this is the optimization
 	  }
         }
       }
     }
   } else if (!Enemy[enemy_id]->trace_target) {//target has been found (Enemy[enemy_id]->found_target),trace back
     Enemy[enemy_id]->search_timer=0;
-    if (Enemy[enemy_id]->start_node==Enemy[enemy_id]->end_node) {
+    if (EnemyPathfinding[pfi]->start_node==EnemyPathfinding[pfi]->end_node) {
       Enemy[enemy_id]->idling=TRUE;
     } else {
-      if (Enemy[enemy_id]->node_x[Enemy[enemy_id]->current_node]==Enemy[enemy_id]->node_x[Enemy[enemy_id]->start_node] &&
-          Enemy[enemy_id]->node_y[Enemy[enemy_id]->current_node]==Enemy[enemy_id]->node_y[Enemy[enemy_id]->start_node]) {
-        Enemy[enemy_id]->path_nodes_num--;
+      if (EnemyPathfinding[pfi]->node_x[EnemyPathfinding[pfi]->current_node]==EnemyPathfinding[pfi]->node_x[EnemyPathfinding[pfi]->start_node] &&
+          EnemyPathfinding[pfi]->node_y[EnemyPathfinding[pfi]->current_node]==EnemyPathfinding[pfi]->node_y[EnemyPathfinding[pfi]->start_node]) {
+        EnemyPathfinding[pfi]->path_nodes_num--;
         Enemy[enemy_id]->search_target=FALSE;
         Enemy[enemy_id]->trace_target=TRUE;
         Enemy[enemy_id]->move_to_target=TRUE;
       } else {
-        Enemy[enemy_id]->node_back[Enemy[enemy_id]->current_node]=TRUE;
-        Enemy[enemy_id]->path_nodes[Enemy[enemy_id]->path_nodes_num]
-         =Enemy[enemy_id]->current_node
-         =Enemy[enemy_id]->node_parent[Enemy[enemy_id]->current_node];
-        Enemy[enemy_id]->path_nodes_num++;
+        EnemyPathfinding[pfi]->node_back[EnemyPathfinding[pfi]->current_node]=TRUE;
+        EnemyPathfinding[pfi]->path_nodes[EnemyPathfinding[pfi]->path_nodes_num]
+         =EnemyPathfinding[pfi]->current_node
+         =EnemyPathfinding[pfi]->node_parent[EnemyPathfinding[pfi]->current_node];
+        EnemyPathfinding[pfi]->path_nodes_num++;
       }
     }
+  }
   }
 }
 
@@ -446,13 +462,15 @@ void EnemyGravity(int enemy_id)
 
 void EnemyMove(int enemy_id)
 {
-  int path_node_arr_id=Enemy[enemy_id]->path_nodes_num-1,
-      path_node_id=Enemy[enemy_id]->path_nodes[path_node_arr_id];
+  int pfi=Enemy[enemy_id]->pathfinding_id;
+  if (pfi!=-1) {
+  int path_node_arr_id=EnemyPathfinding[pfi]->path_nodes_num-1,
+      path_node_id=EnemyPathfinding[pfi]->path_nodes[path_node_arr_id];
   double path_node_center_x=-1;
   double path_node_center_y=-1;
   if (path_node_id!=-1) {
-    path_node_center_x=Enemy[enemy_id]->node_x[path_node_id]+NODE_SIZE/2;
-    path_node_center_y=Enemy[enemy_id]->node_y[path_node_id]+NODE_SIZE/2;
+    path_node_center_x=EnemyPathfinding[pfi]->node_x[path_node_id]+NODE_SIZE/2;
+    path_node_center_y=EnemyPathfinding[pfi]->node_y[path_node_id]+NODE_SIZE/2;
   }
 
 
@@ -498,11 +516,12 @@ void EnemyMove(int enemy_id)
 
   if (path_node_center_y-1<=Enemy[enemy_id]->y && Enemy[enemy_id]->y<=path_node_center_y+1 &&
       path_node_center_x-1<=Enemy[enemy_id]->x && Enemy[enemy_id]->x<=path_node_center_x+1) {
-    Enemy[enemy_id]->path_nodes_num--;
+    EnemyPathfinding[pfi]->path_nodes_num--;
     if (path_node_arr_id<=0) { //all nodes followed
       Enemy[enemy_id]->idling=TRUE;
       Enemy[enemy_id]->move_to_target=FALSE;
     }
+  }
   }
 }
 
@@ -510,6 +529,8 @@ void EnemyTargetPlayer(int i)
 {
   int target_node=0;
   double target_x=0,target_y=0;
+  int pfi=Enemy[i]->pathfinding_id;
+  if (pfi!=-1) {
   Enemy[i]->idling=FALSE;
   Enemy[i]->search_target=TRUE;
   Enemy[i]->idle_timer=0;
@@ -521,25 +542,25 @@ void EnemyTargetPlayer(int i)
     target_x=player.x;
     target_y=player.y;
   }
-  target_node=GetGridId(target_x-Enemy[i]->node_x[0],
-			target_y-Enemy[i]->node_y[0],
+  target_node=GetGridId(target_x-EnemyPathfinding[pfi]->node_x[0],
+			target_y-EnemyPathfinding[pfi]->node_y[0],
                         MAX_FOLLOW_RANGE*NODE_SIZE,
 			NODE_SIZE,
-			Enemy[i]->node_num);
+			EnemyPathfinding[pfi]->node_num);
   if ((Enemy[i]->species==1 || Enemy[i]->species==3) &&
-      Enemy[i]->node_solid[target_node]) {
+      EnemyPathfinding[pfi]->node_solid[target_node]) {
     target_x=player.above_x2;
     target_y=player.above_y2;
-    target_node=GetGridId(target_x-Enemy[i]->node_x[0],
-			  target_y-Enemy[i]->node_y[0],
+    target_node=GetGridId(target_x-EnemyPathfinding[pfi]->node_x[0],
+			  target_y-EnemyPathfinding[pfi]->node_y[0],
                           MAX_FOLLOW_RANGE*NODE_SIZE,
 			  NODE_SIZE,
-			  Enemy[i]->node_num);      
+			  EnemyPathfinding[pfi]->node_num);      
   }
-  if (Enemy[i]->node_solid[target_node] ||//Total ignore player (player is hidden)
+  if (EnemyPathfinding[pfi]->node_solid[target_node] ||//Total ignore player (player is hidden)
       Enemy[i]->in_unchase_range //dont chase player if its in unchase range
     ) {
-    if ((Enemy[i]->species==0 || Enemy[i]->species==2 ||  Enemy[i]->species==4) && Enemy[i]->node_solid[target_node]) {
+    if ((Enemy[i]->species==0 || Enemy[i]->species==2 ||  Enemy[i]->species==4) && EnemyPathfinding[pfi]->node_solid[target_node]) {
       Enemy[i]->ignore_player=TRUE; //dont ignore if player is within chase range
     }
     Enemy[i]->target_player=FALSE;
@@ -548,16 +569,17 @@ void EnemyTargetPlayer(int i)
     Enemy[i]->idle_timer=0;
     target_x=Enemy[i]->x+RandNum(-MAX_FOLLOW_RANGE/4*NODE_SIZE,abs(MAX_FOLLOW_RANGE/4*NODE_SIZE),Enemy[i]->seed);
     target_y=Enemy[i]->y+RandNum(-MAX_FOLLOW_RANGE/4*NODE_SIZE,abs(MAX_FOLLOW_RANGE/4*NODE_SIZE),Enemy[i]->seed);
-    target_node=GetGridId(target_x-Enemy[i]->node_x[0],
-			target_y-Enemy[i]->node_y[0],
+    target_node=GetGridId(target_x-EnemyPathfinding[pfi]->node_x[0],
+			target_y-EnemyPathfinding[pfi]->node_y[0],
                         MAX_FOLLOW_RANGE*NODE_SIZE,
 			NODE_SIZE,
-			Enemy[i]->node_num);
+			EnemyPathfinding[pfi]->node_num);
   } else {
     Enemy[i]->target_player=TRUE;
     Enemy[i]->ignore_player=FALSE;
   }
   InitEnemyPathfinding(i,target_x,target_y);
+  }
 }
 
 void EnemyLOSAct(int i)
@@ -1736,10 +1758,10 @@ void EnemyAct(int i)
         }
 
         /*int above_player_node1=GetGridId(
-                player.above_x-Enemy[i]->node_x[0],
-                player.above_y-Enemy[i]->node_y[0],
+                player.above_x-EnemyPathfinding[pfi]->node_x[0],
+                player.above_y-EnemyPathfinding[pfi]->node_y[0],
                 Enemy[i]->follow_range*NODE_SIZE,
-                NODE_SIZE,Enemy[i]->node_num);*/
+                NODE_SIZE,EnemyPathfinding[pfi]->node_num);*/
 
         //int enemy_on_node_grid_id=GetGridId(Enemy[i]->x,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
 
@@ -1841,8 +1863,9 @@ void EnemyAct(int i)
       }
 
 
-       //pathfinding
-        if (!(Enemy[i]->species>=5 && Enemy[i]->species<=7)) { //not for ants
+    int pfi=Enemy[i]->pathfinding_id;
+   //pathfinding
+    if (!(Enemy[i]->species>=5 && Enemy[i]->species<=7) && pfi!=-1) { //not for ants
  
 
 
@@ -1876,12 +1899,12 @@ void EnemyAct(int i)
             }
             target_x=Enemy[i]->x+RandNum(-MAX_FOLLOW_RANGE/3*NODE_SIZE,abs(MAX_FOLLOW_RANGE/3*NODE_SIZE),Enemy[i]->seed);
             target_y=Enemy[i]->y+RandNum(-MAX_FOLLOW_RANGE/3*NODE_SIZE,abs(MAX_FOLLOW_RANGE/3*NODE_SIZE),Enemy[i]->seed/2);
-            target_node=GetGridId(target_x-Enemy[i]->node_x[0],
-		                        target_y-Enemy[i]->node_y[0],
+            target_node=GetGridId(target_x-EnemyPathfinding[pfi]->node_x[0],
+		                        target_y-EnemyPathfinding[pfi]->node_y[0],
                                 MAX_FOLLOW_RANGE*NODE_SIZE,
 		                        NODE_SIZE,
-    	                        Enemy[i]->node_num);
-            if (!Enemy[i]->node_solid[target_node]/* && (!raining ||
+    	                        EnemyPathfinding[pfi]->node_num);
+            if (!EnemyPathfinding[pfi]->node_solid[target_node]/* && (!raining ||
               (raining && !NodeGrid[enemy_on_node_grid_id]->node_no_shade))*/
              ) {
               Enemy[i]->idling=FALSE;
@@ -2179,11 +2202,67 @@ void InitEnemySpritesObj()
   }
 }
 
+void InitEnemyPathfindingNodes()
+{
+  int x=0,y=0,ei=0;
+  for (int i=0;i<PF_ENEMY_NUM;i++) {
+    EnemyPathfinding[i]->path_nodes_num=0;
+    ei=EnemyPathfinding[i]->enemy_id;
+    for (int j=0;j<MAX_NODE_NUM;j++) {
+      EnemyPathfinding[i]->enemy_species1_solids[j]=-1;
+      EnemyPathfinding[i]->node_solid[j]=
+        EnemyPathfinding[i]->node_back[j]=
+        EnemyPathfinding[i]->node_open[j]=
+        EnemyPathfinding[i]->node_closed[j]=FALSE;
+      EnemyPathfinding[i]->node_x[j]=(Enemy[ei]->x/NODE_SIZE*NODE_SIZE)-NODE_SIZE*(MAX_FOLLOW_RANGE/2);
+      EnemyPathfinding[i]->node_y[j]=(Enemy[ei]->y/NODE_SIZE*NODE_SIZE)-NODE_SIZE*(MAX_FOLLOW_RANGE/2);
+      EnemyPathfinding[i]->node_hcost[j]=0;
+      EnemyPathfinding[i]->node_gcost[j]=INT_MAX;
+      EnemyPathfinding[i]->node_fcost[j]=EnemyPathfinding[i]->node_gcost[j]+EnemyPathfinding[i]->node_hcost[j];
+      EnemyPathfinding[i]->node_parent[j]=-1;
+    }
+    x=Enemy[ei]->x-EnemyPathfinding[i]->node_x[0];
+    y=Enemy[ei]->y-EnemyPathfinding[i]->node_y[0];
+    EnemyPathfinding[i]->start_node=GetGridId(x,y,MAX_FOLLOW_RANGE*NODE_SIZE,NODE_SIZE,EnemyPathfinding[i]->node_num);
+    EnemyPathfinding[i]->end_node=GetGridId(x,y,MAX_FOLLOW_RANGE*NODE_SIZE,NODE_SIZE,EnemyPathfinding[i]->node_num);
+    EnemyPathfinding[i]->open_nodes_num=0;
+    for (int j=0;j<MAX_NODE_NUM;j++) {
+      EnemyPathfinding[i]->open_nodes[j]=EnemyPathfinding[i]->start_node;
+    }
+  }
+}
+
+
+void InitPFEnemyObj()
+{
+  int pfi;
+  PF_ENEMY_NUM=0;
+  for (int i=0;i<ENEMY_NUM;i++) {
+    if (!(Enemy[i]->species>=5 && Enemy[i]->species<=7)) {
+      Enemy[i]->pathfinding_id=PF_ENEMY_NUM;
+      PF_ENEMY_NUM++;
+    } else {
+      Enemy[i]->pathfinding_id=-1;
+    }
+  }
+  EnemyPathfinding = calloc(PF_ENEMY_NUM,sizeof(AEnemy*));
+
+  for (int i=0;i<PF_ENEMY_NUM;i++) {
+    AEnemyPathfinding *newEnemyPathfinding = createEnemyPathfinding();
+    EnemyPathfinding[i] = newEnemyPathfinding;
+  }
+  for (int i=0;i<ENEMY_NUM;i++) {
+    pfi=Enemy[i]->pathfinding_id;
+    if (pfi!=-1) {
+      EnemyPathfinding[pfi]->enemy_id=i;
+    }
+  }
+}
 
 //bool once=TRUE;
 void InitEnemy()
 {
-  int i=0,j=0,x=0,y=0;
+  int i=0,j=0;
   for (i=0;i<ENEMY_NUM;i++) {
     //printf("Enemy: %d\n",i);
     //Enemy[i]->being_drawn=TRUE;
@@ -2275,8 +2354,6 @@ void InitEnemy()
     Enemy[i]->is_clockwize=FALSE;
     Enemy[i]->play_death_snd=FALSE;
   //init default int 
-    //Enemy[i]->snd_dur=0;
-    Enemy[i]->path_nodes_num=0;
     Enemy[i]->sprite_timer=0;
     Enemy[i]->idle_timer=0;
     Enemy[i]->search_timer=0;
@@ -2288,28 +2365,6 @@ void InitEnemy()
     Enemy[i]->in_unchase_range=FALSE;
     Enemy[i]->in_chase_range=FALSE;
   //init once
-    for (j=0;j<MAX_NODE_NUM;j++) {
-      Enemy[i]->enemy_species1_solids[j]=-1;
-      Enemy[i]->node_solid[j]=
-        Enemy[i]->node_back[j]=
-        Enemy[i]->node_open[j]=
-        Enemy[i]->node_closed[j]=FALSE;
-      Enemy[i]->node_x[j]=(Enemy[i]->x/NODE_SIZE*NODE_SIZE)-NODE_SIZE*(MAX_FOLLOW_RANGE/2);
-      Enemy[i]->node_y[j]=(Enemy[i]->y/NODE_SIZE*NODE_SIZE)-NODE_SIZE*(MAX_FOLLOW_RANGE/2);
-      Enemy[i]->node_hcost[j]=0;
-      Enemy[i]->node_gcost[j]=INT_MAX;
-      Enemy[i]->node_fcost[j]=Enemy[i]->node_gcost[j]+Enemy[i]->node_hcost[j];
-      Enemy[i]->node_parent[j]=-1;
-    }
-    x=Enemy[i]->x-Enemy[i]->node_x[0];
-    y=Enemy[i]->y-Enemy[i]->node_y[0];
-    Enemy[i]->start_node=GetGridId(x,y,MAX_FOLLOW_RANGE*NODE_SIZE,NODE_SIZE,Enemy[i]->node_num);
-    Enemy[i]->end_node=GetGridId(x,y,MAX_FOLLOW_RANGE*NODE_SIZE,NODE_SIZE,Enemy[i]->node_num);
-    Enemy[i]->open_nodes_num=0;
-    for (j=0;j<MAX_NODE_NUM;j++) {
-      Enemy[i]->open_nodes[j]=Enemy[i]->start_node;
-    }
-    EnemyAct(i);
   }
 }
 

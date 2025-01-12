@@ -141,6 +141,7 @@ void Init() {
     run_after_once=TRUE;
   } else {
     PlaySound(NULL, NULL, SND_ASYNC);
+    InitEnemyPathfindingNodes();
   }
   time_begin=current_timestamp();
 }
@@ -350,6 +351,8 @@ void InitLevel()
   InitEnemySprites();
   loading_denominator=SHADOW_GRID_NUM+PLATFORM_GRID_NUM+FOREGROUND_GRID_NUM+ENEMY_TYPE_NUM+(LARGE_ENEMY_TYPE_NUM*ROTATED_SPRITE_NUM*2)+LARGER_ENEMY_TYPE_NUM*ROTATED_SPRITE_NUM;
   InitEnemySpritesObj();
+  InitPFEnemyObj();
+  InitEnemyPathfindingNodes();
   InitGridTilesObj();
   //allocate smallest to biggest
   level_loaded=TRUE;

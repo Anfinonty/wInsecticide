@@ -4,6 +4,7 @@ int GROUND_NUM;
 int ENEMY_NUM;
 int LARGE_ENEMY_TYPE_NUM;
 int LARGER_ENEMY_TYPE_NUM;
+int PF_ENEMY_NUM;
 int MAP_WIDTH;
 int MAP_HEIGHT;
 int GRID_NUM;	
@@ -281,7 +282,7 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
             
 
               for (int i=0;i<(GROUND_NUM+MAX_WEB_NUM);i++) {
-                AGround *newGround = createGround(VGRID_NUM);
+                AGround *newGround = createGround();
                 Ground[i] = newGround;
               }
 

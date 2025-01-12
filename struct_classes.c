@@ -692,17 +692,9 @@ typedef struct enemy
   int bullet_shot_num;
   int bullet_graphics_type;
 
-  //Pathfinding attributes
-  int current_node;
-  int start_node;
-  int end_node;
 
-  int species1_solid_num;
-     //array of path nodes after target is found
-  int path_nodes_num;
-     //open nodes
-  int open_nodes_num;
-     //timers
+
+ //timers
   int sprite_flip_timer;
   int sprite_timer;
   int search_timer;
@@ -728,10 +720,10 @@ typedef struct enemy
   int on_ground_id;
   int on_ground_edge_id;
   int knockback_timer;
-  int node_num;
   int seed;
   int damage_taken_timer;
   int on_ground_timer;
+  int pathfinding_id;
 
   int sprite_x;
   int sprite_y;
@@ -755,10 +747,6 @@ typedef struct enemy
   double ospeed;
   double knockback_angle;
 
-  //double x_height_from_ground;
-  //double x_height_from_prev_ground;
-
-  int node_neighbour[8];
 
   //6715632
 
@@ -766,26 +754,11 @@ typedef struct enemy
   int bullet_head_x[MAX_BULLET_PER_FIRE];
 
 
-  bool node_solid[MAX_NODE_NUM];
-  bool node_open[MAX_NODE_NUM];
-  bool node_closed[MAX_NODE_NUM];
-  bool node_back[MAX_NODE_NUM];
 
 
   int bullet_shot_arr[ENEMY_BULLET_NUM];
 
-  int path_nodes[MAX_NODE_NUM];
-  int open_nodes[MAX_NODE_NUM];
-  int enemy_species1_solids[MAX_NODE_NUM];
-  int node_x[MAX_NODE_NUM];
-  int node_y[MAX_NODE_NUM];
-  int node_parent[MAX_NODE_NUM];
-  int node_gcost[MAX_NODE_NUM];
-  int node_hcost[MAX_NODE_NUM];
-  int node_fcost[MAX_NODE_NUM];
 } AEnemy; 
-
-
 
 AEnemy *createEnemy()
 {
@@ -802,6 +775,59 @@ void freeEnemy(AEnemy *myEnemy)
 
 
 AEnemy **Enemy;
+
+typedef struct EnemyPathfinding
+{
+  int enemy_id;
+  //Pathfinding attributes
+  int current_node;
+  int start_node;
+  int end_node;
+
+  int species1_solid_num;
+     //array of path nodes after target is found
+  int path_nodes_num;
+     //open nodes
+  int open_nodes_num;
+  int node_num;
+
+
+  int node_neighbour[8];
+  bool node_solid[MAX_NODE_NUM];
+  bool node_open[MAX_NODE_NUM];
+  bool node_closed[MAX_NODE_NUM];
+  bool node_back[MAX_NODE_NUM];
+  int path_nodes[MAX_NODE_NUM];
+  int open_nodes[MAX_NODE_NUM];
+  int enemy_species1_solids[MAX_NODE_NUM];
+  int node_x[MAX_NODE_NUM];
+  int node_y[MAX_NODE_NUM];
+  int node_parent[MAX_NODE_NUM];
+  int node_gcost[MAX_NODE_NUM];
+  int node_hcost[MAX_NODE_NUM];
+  int node_fcost[MAX_NODE_NUM];
+} AEnemyPathfinding;
+
+
+
+AEnemyPathfinding *createEnemyPathfinding()
+{
+  AEnemyPathfinding *toReturn = malloc(sizeof(AEnemyPathfinding));
+  return toReturn;
+}
+
+
+void freeEnemyPathfinding(AEnemyPathfinding *myEnemyPathfinding)
+{
+  if (myEnemyPathfinding)
+    free(myEnemyPathfinding);
+}
+
+
+AEnemyPathfinding **EnemyPathfinding;
+
+
+
 
 
 

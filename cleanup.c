@@ -1,5 +1,5 @@
 
-
+/*
 void CleanUpEnemy()
 {
   int i=0,j=0;
@@ -127,7 +127,7 @@ void CleanUpEnemy()
       Enemy[i]->open_nodes[j]=Enemy[i]->start_node;
     }
   }
-}
+}*/
 
 
 
@@ -438,6 +438,10 @@ void CleanupAll()
       freeEnemy(Enemy[i]);
     }
 
+    for (int i=0;i<PF_ENEMY_NUM;i++) {
+      freeEnemyPathfinding(EnemyPathfinding[i]);
+    }
+
     /*for (int i=0;i<ENEMY_NUM;i++) {
       freeEnemySprite(EnemySprite[i]);
     }*/
@@ -456,7 +460,9 @@ void CleanupAll()
       free(TileMapForeground);
     }
     free(Enemy);
-
+    if (PF_ENEMY_NUM>0) {
+      free(EnemyPathfinding);
+    }
     //free(EnemySprite);
     //printf("===All pointers freed\n");
 

@@ -1672,32 +1672,31 @@ void PlayerActDecceleration()
   if (player.decceleration_timer==0) {
     if (!player.is_swinging) {
       player.decceleration_timer=100; //idling, goback to 100
-      if (player.speed>=10) {
-        if (IsSpeedBreaking())
-          player.decceleration_timer=320;
-        else
-          player.decceleration_timer=117;
-      }
       if (player.speed>=24) {
         if (IsSpeedBreaking())
-          player.decceleration_timer=335;
+          player.decceleration_timer=1500;//335;
         else
-          player.decceleration_timer=250;
+          player.decceleration_timer=1000;//250;
+      } else if (player.speed>=10) {
+        if (IsSpeedBreaking())
+          player.decceleration_timer=800;//320;
+        else
+          player.decceleration_timer=500;//117;
+      } else {
+        player.decceleration_timer=1000;
       }
     } else {
-      if (player.decceleration_timer==0) {
-        if (player.speed>10) {
-          if (IsSpeedBreaking()) {
-            player.decceleration_timer=300;
-          } else {
-            player.decceleration_timer=320;
-          }
-        } else if (player.speed>5) {
-          if (IsSpeedBreaking()) {
-            player.decceleration_timer=280;
-          } else {
-            player.decceleration_timer=150;
-          }
+      if (player.speed>10) {
+        if (IsSpeedBreaking()) {
+          player.decceleration_timer=1000;//300;
+        } else {
+          player.decceleration_timer=1500;//320;
+        }
+      } else if (player.speed>5) {
+        if (IsSpeedBreaking()) {
+          player.decceleration_timer=800;//280;
+        } else {
+          player.decceleration_timer=500;//150;
         }
       }
     }
@@ -1705,12 +1704,14 @@ void PlayerActDecceleration()
   if (player.decceleration_timer>0) {
     player.decceleration_timer++;
   }
-  if (player.decceleration_timer>350) {
-    if (!player.time_breaker) {
-      if (player.is_swinging || (player.is_on_ground_edge && player.speed>1)) {
-        player.speed--;        
-      } else if (player.speed>1 && player.on_ground_id<GROUND_NUM  && player.on_ground_id>-1) {
-        player.speed--;        
+  if (player.decceleration_timer>3000/*350*/) {
+    if (player.speed>1) {
+      if (!player.time_breaker) {
+        if ((player.is_swinging || player.is_on_ground_edge)) {
+          player.speed--;        
+        } else if (player.speed>1 && player.on_ground_id<GROUND_NUM  && player.on_ground_id>-1) {
+          player.speed--;        
+        }
       }
     }
     player.decceleration_timer=0;
