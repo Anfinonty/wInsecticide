@@ -1373,11 +1373,12 @@ void EnemyAct(int i)
         }
       } 
 
-    
+   bool mosquito_bite=FALSE;
    //mosquito quirk 
-     if (Enemy[i]->species==0 && !Enemy[i]->web_stuck) {
+     if (Enemy[i]->species==0 && !Enemy[i]->web_stuck && (!player.time_breaker || Enemy[i]->time_breaker_immune)) {
         if (Enemy[i]->dist_from_player<=NODE_SIZE*2) {
           MosquitoBites(i,Enemy[i]->bullet_damage); 
+          mosquito_bite=TRUE;
         }
      }
 
@@ -1505,7 +1506,9 @@ void EnemyAct(int i)
             if (player.speed>5) {
               deduct_health=TRUE;
             } else if (game_audio) {
-              PlaySound(spamSoundEffectCache[6].audio,NULL, SND_MEMORY | SND_ASYNC);            
+              if (!mosquito_bite) {
+                PlaySound(spamSoundEffectCache[6].audio,NULL, SND_MEMORY | SND_ASYNC);            
+              }
             }
             break;
           case 1:
@@ -1525,7 +1528,7 @@ void EnemyAct(int i)
       deduct_health=FALSE;
       Enemy[i]->damage_taken_timer=256;
       Enemy[i]->health-=player.attack_strength;
-      if (game_audio) {
+      if (game_audio && !mosquito_bite) {
         PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
       }
     }
