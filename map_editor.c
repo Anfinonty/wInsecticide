@@ -164,7 +164,7 @@ int enemy_int_attr_min[ENEMY_TYPE_INT_ATTR_NUM]=
 
 int enemy_int_attr_max[ENEMY_TYPE_INT_ATTR_NUM]=
 {
-7, // species
+8, // species
 MAX_FOLLOW_RANGE+1, //follow range
 MAX_FOLLOW_RANGE+1, //unchase range
 MAX_FOLLOW_RANGE+1, //chase range
@@ -581,6 +581,7 @@ void InitMapEditorEnemy()
         break;
       case 5:
       case 6:
+      case 7:
         MEEnemySprite[i]->sprite_1=RotateSprite(NULL, enemy6_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[i]],-1);
         break;
     }

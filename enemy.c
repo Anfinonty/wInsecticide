@@ -364,7 +364,7 @@ void EnemySpriteOnGroundId(int enemy_id,int ground_id)
           }
         }
       } else {
-        if (Enemy[enemy_id]->species!=5 && Enemy[enemy_id]->species!=6) { 
+        if (!(Enemy[enemy_id]->species>=5 && Enemy[enemy_id]->species<=7)) { 
           Enemy[enemy_id]->in_air_timer=2;
           Enemy[enemy_id]->saved_ground_id=-1;
           Enemy[enemy_id]->on_ground_edge_id=-1;
@@ -372,7 +372,7 @@ void EnemySpriteOnGroundId(int enemy_id,int ground_id)
         }
       }
     } else {
-      if (Enemy[enemy_id]->species!=5 && Enemy[enemy_id]->species!=6) { 
+      if (!(Enemy[enemy_id]->species>=5 && Enemy[enemy_id]->species<=7)) { 
         Enemy[enemy_id]->in_air_timer=2;
         Enemy[enemy_id]->saved_ground_id=-1;
         Enemy[enemy_id]->on_ground_edge_id=-1;
@@ -705,7 +705,7 @@ void EnemyActWebStuck(int i)
   }
 
 
-    if (Enemy[i]->species==0 || Enemy[i]->species==2 || Enemy[i]->species==4 || Enemy[i]->species==5 ||  Enemy[i]->species==6) {
+    if (Enemy[i]->species==0 || Enemy[i]->species==2 || Enemy[i]->species==4) {
       if (!Enemy[i]->web_stuck) {
         nx=Enemy[i]->x-NODE_SIZE+GetXFromId(Enemy[i]->current_ngid_n,3)*NODE_SIZE; //     1 2 3   
         ny=Enemy[i]->y-NODE_SIZE+GetYFromId(Enemy[i]->current_ngid_n,3)*NODE_SIZE; //     4 5 6  
@@ -713,6 +713,9 @@ void EnemyActWebStuck(int i)
         nx=Enemy[i]->x-NODE_SIZE*2+GetXFromId(Enemy[i]->current_ngid_n,5)*NODE_SIZE; //   1 2 3 4 5  
         ny=Enemy[i]->y-NODE_SIZE*2+GetYFromId(Enemy[i]->current_ngid_n,5)*NODE_SIZE; //   6 7 8 9 A 
       }
+    } else if ((Enemy[i]->species>=5 && Enemy[i]->species<=7)) {
+      nx=Enemy[i]->x;   
+      ny=Enemy[i]->y;
     } else if (Enemy[i]->species==1 || Enemy[i]->species==3) {
       nx=Enemy[i]->x-NODE_SIZE*3+GetXFromId(Enemy[i]->current_ngid_n,7)*NODE_SIZE; //0 1 2 3 4 5 6 
       ny=Enemy[i]->y-NODE_SIZE*3+GetYFromId(Enemy[i]->current_ngid_n,7)*NODE_SIZE; //7 8 9 A B C D
@@ -726,7 +729,7 @@ void EnemyActWebStuck(int i)
     }
     //unstuck process
     bool allow_act=FALSE;
-    if (Enemy[i]->species==0 || Enemy[i]->species==2 || Enemy[i]->species==4 || Enemy[i]->species==5 || Enemy[i]->species==6) {
+    if (Enemy[i]->species==0 || Enemy[i]->species==2 || Enemy[i]->species==4) {
       if (!Enemy[i]->web_stuck) {
         if (Enemy[i]->current_ngid_n==8) {
           allow_act=TRUE;
@@ -738,6 +741,10 @@ void EnemyActWebStuck(int i)
       }
     } else if (Enemy[i]->species==1 || Enemy[i]->species==3) {
       if (Enemy[i]->current_ngid_n==48) {
+        allow_act=TRUE;
+      }
+    } else if (Enemy[i]->species>=5 && Enemy[i]->species<=7) {
+      if (Enemy[i]->current_ngid_n==1) {
         allow_act=TRUE;
       }
     }
@@ -757,6 +764,21 @@ void EnemyAntActOnGround(int i,double height_from_e_x,int ground_id,bool clockwi
 { 
   if (ground_id!=-1) {
     Enemy[i]->angle=Ground[ground_id]->angle;
+    if (-10<height_from_e_x && height_from_e_x<10) {
+       if (ground_id>=GROUND_NUM) {
+         if (Ground[ground_id]->health<=0) {//completely destroy web at 0 health (can be regained after '4')
+              DestroyGround(ground_id); 
+              player.cdwebs[player.cdweb_pos]=ground_id;
+              player.cdweb_pos++;
+              if (player.cdweb_pos>=player.max_web_num) {
+                player.cdweb_pos=0;
+              }
+              player.cdweb_num++;
+         } else {
+           Ground[ground_id]->health-=Enemy[i]->bullet_damage;
+         }
+       }
+    }
     if (0<height_from_e_x && height_from_e_x<10) {
        Enemy[i]->in_air_timer=0;
        Enemy[i]->on_ground_timer=20;
@@ -778,11 +800,11 @@ void EnemyAntActOnGround(int i,double height_from_e_x,int ground_id,bool clockwi
         Enemy[i]->y+=(-sin(Ground[ground_id]->angle+M_PI_2)*2);
       } else {
         if (clockwise) {
-          Enemy[i]->x+=cos(Ground[ground_id]->angle);
-          Enemy[i]->y+=sin(Ground[ground_id]->angle);
+          Enemy[i]->x+=cos(Ground[ground_id]->angle)*Enemy[i]->speed;
+          Enemy[i]->y+=sin(Ground[ground_id]->angle)*Enemy[i]->speed;
         } else {
-          Enemy[i]->x+=-cos(Ground[ground_id]->angle);
-          Enemy[i]->y+=-sin(Ground[ground_id]->angle);
+          Enemy[i]->x+=-cos(Ground[ground_id]->angle)*Enemy[i]->speed;
+          Enemy[i]->y+=-sin(Ground[ground_id]->angle)*Enemy[i]->speed;
         }
       }
     } else if (-10<height_from_e_x && height_from_e_x<=0) {
@@ -807,11 +829,11 @@ void EnemyAntActOnGround(int i,double height_from_e_x,int ground_id,bool clockwi
         Enemy[i]->y+=(-sin(Ground[ground_id]->angle-M_PI_2)*2);
       } else {
         if (clockwise) {
-          Enemy[i]->x+=-cos(Ground[ground_id]->angle);
-          Enemy[i]->y+=-sin(Ground[ground_id]->angle);
+          Enemy[i]->x+=-cos(Ground[ground_id]->angle)*Enemy[i]->speed;
+          Enemy[i]->y+=-sin(Ground[ground_id]->angle)*Enemy[i]->speed;
         } else {
-          Enemy[i]->x+=cos(Ground[ground_id]->angle);
-          Enemy[i]->y+=sin(Ground[ground_id]->angle);
+          Enemy[i]->x+=cos(Ground[ground_id]->angle)*Enemy[i]->speed;
+          Enemy[i]->y+=sin(Ground[ground_id]->angle)*Enemy[i]->speed;
         }
       }
     } else {
@@ -896,6 +918,13 @@ void EnemyAntActOnGroundEdge(int i,bool clockwise)
             Enemy[i]->is_in_ground_edge=FALSE;
             Enemy[i]->is_in_left_ground_edge=FALSE;
             Enemy[i]->is_in_right_ground_edge=FALSE;
+            Enemy[i]->above_ground_edge=FALSE;
+            Enemy[i]->below_ground_edge=FALSE;
+            if (Enemy[i]->species==7) {
+            if (RandNum(0,30,Enemy[i]->seed)==1) {
+              Enemy[i]->is_clockwize=!Enemy[i]->is_clockwize;
+            }
+            }
           }
         } else if (Enemy[i]->is_in_right_ground_edge) {
           edge_dist2=GetDistance(Enemy[i]->x,Enemy[i]->y,Ground[Enemy[i]->on_ground_edge_id]->x2,Ground[Enemy[i]->on_ground_edge_id]->y2); //right edge
@@ -947,6 +976,11 @@ void EnemyAntActOnGroundEdge(int i,bool clockwise)
             Enemy[i]->is_in_right_ground_edge=FALSE;
             Enemy[i]->above_ground_edge=FALSE;
             Enemy[i]->below_ground_edge=FALSE;
+            if (Enemy[i]->species==7) {
+            if (RandNum(0,30,Enemy[i]->seed)==1) {
+              Enemy[i]->is_clockwize=!Enemy[i]->is_clockwize;
+            }
+            }
           }
         }
   }
@@ -959,6 +993,11 @@ void EnemyAntActOnGroundEdge(int i,bool clockwise)
     Enemy[i]->is_in_right_ground_edge=FALSE;
     Enemy[i]->above_ground_edge=FALSE;
     Enemy[i]->below_ground_edge=FALSE;
+    if (Enemy[i]->species==7) {
+    if (RandNum(0,30,Enemy[i]->seed)==1) {
+      Enemy[i]->is_clockwize=!Enemy[i]->is_clockwize;
+    }
+    }
   }
 }
 
@@ -987,7 +1026,9 @@ void EnemyAntActGravity(int i,int slash_time_i)
     if (slash_time_i==0 && Enemy[i]->knockback_timer==0) {
       EnemyAntGravity(i);
       if (!Enemy[i]->in_water) {
-        Enemy[i]->in_air_timer++;
+        if (Enemy[i]->in_air_timer<500) {
+          Enemy[i]->in_air_timer++;
+        }
       }
     }
   } 
@@ -999,14 +1040,22 @@ void EnemyAntAct(int i,int slash_time_i)
 {
 
   int speed=Enemy[i]->speed_multiplier;
-  if (Enemy[i]->is_in_ground_edge) {
-    speed=5*Enemy[i]->speed_multiplier;
+  int grav=1;
+  if (!Enemy[i]->within_render_distance && Enemy[i]->render_distance_timer<=0) {
+    grav=1;
+    speed=1;
+  } else {
+    grav=1+Enemy[i]->in_air_timer/5;
+    if (grav>4) {
+      grav=4;
+    }
+    if (Enemy[i]->is_in_ground_edge) {
+      speed=5*Enemy[i]->speed_multiplier;
+    }
   }
 
-  int grav=1;
-  grav=1+Enemy[i]->in_air_timer/5;
-  if (grav>4) {
-    grav=4;
+  if (Enemy[i]->render_distance_timer>0) {
+    Enemy[i]->render_distance_timer--;
   }
 
   //Ground ACtion
@@ -1018,6 +1067,31 @@ void EnemyAntAct(int i,int slash_time_i)
       EnemyAntActGravity(i,slash_time_i);
     }
     if (Enemy[i]->knockback_timer==0) { 
+        if (Enemy[i]->in_water) {
+          Enemy[i]->on_ground_id=-1;
+        }
+        if (Enemy[i]->in_water && Enemy[i]->on_ground_timer==0 && !Enemy[i]->is_in_ground_edge) {
+            if (Enemy[i]->species==5) {
+              if (Enemy[i]->x<MAP_WIDTH-NODE_SIZE) {
+                Enemy[i]->x+=Enemy[i]->speed;
+              }
+            } else if (Enemy[i]->species==6) {
+              if (Enemy[i]->x>NODE_SIZE) {
+                Enemy[i]->x-=Enemy[i]->speed;
+              }
+            } else {
+              if (Enemy[i]->is_clockwize) {
+                if (Enemy[i]->x<MAP_WIDTH-NODE_SIZE) {
+                  Enemy[i]->x+=Enemy[i]->speed;
+                }
+              } else {
+                if (Enemy[i]->x>NODE_SIZE) {
+                  Enemy[i]->x-=Enemy[i]->speed;
+                }
+              }
+            }
+        }
+
         if (Enemy[i]->on_ground_id!=-1) {
           double ground_entity_E=GetLineTargetAngle(Enemy[i]->on_ground_id,Enemy[i]->x,Enemy[i]->y);
           double height_from_e_x=GetLineTargetHeight(Enemy[i]->on_ground_id,ground_entity_E,Enemy[i]->x,Enemy[i]->y);
@@ -1030,6 +1104,8 @@ void EnemyAntAct(int i,int slash_time_i)
               EnemyAntActOnGround(i,height_from_e_x,Enemy[i]->on_ground_id,TRUE);
             } else if (Enemy[i]->species==6) {
               EnemyAntActOnGround(i,height_from_e_x,Enemy[i]->on_ground_id,FALSE);
+            } else {
+              EnemyAntActOnGround(i,height_from_e_x,Enemy[i]->on_ground_id,Enemy[i]->is_clockwize);
             }
           }
         } else {
@@ -1041,6 +1117,8 @@ void EnemyAntAct(int i,int slash_time_i)
           EnemyAntActOnGroundEdge(i,TRUE);
         } else if (Enemy[i]->species==6) {
           EnemyAntActOnGroundEdge(i,FALSE);
+        } else {
+          EnemyAntActOnGroundEdge(i,Enemy[i]->is_clockwize);
         }
       }
     }
@@ -1048,10 +1126,40 @@ void EnemyAntAct(int i,int slash_time_i)
   if (Enemy[i]->on_ground_timer>0) {
     Enemy[i]->on_ground_timer--;
   } else {
+    if (!Enemy[i]->in_water && Enemy[i]->species==7) {
+      if (RandNum(0,30,Enemy[i]->seed)==0) {
+        Enemy[i]->is_clockwize=!Enemy[i]->is_clockwize;
+      }
+    }
     Enemy[i]->above_ground=FALSE;
     Enemy[i]->below_ground=FALSE;
     Enemy[i]->on_ground_id=-1;
     Enemy[i]->saved_ground_id=-1;
+  }
+}
+
+void MosquitoBites(int i,int dmg)
+{
+  Enemy[i]->bullet_cooldown=Enemy[i]->bullet_cooldown_max;
+  if (Enemy[i]->bullet_fire_cooldown<=0) {
+     Enemy[i]->bullet_fire_cooldown=Enemy[i]->bullet_fire_cooldown_max;
+     player.show_health_timer=HP_SHOW_TIMER_NUM;
+     Enemy[i]->damage_taken_timer=256;
+     if (game_audio) {
+      PlaySound(spamSoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //hurt snd
+     }
+     if (player.health>PLAYER_LOW_HEALTH+1) { //usual response
+       player.health-=dmg;
+       Enemy[i]->health+=dmg;
+     } else { //Player when low health
+       if (player.health<PLAYER_LOW_HEALTH) {
+         player.health-=0.1;
+       } else {
+         player.health-=1;
+       }
+     }  
+  } else {
+    Enemy[i]->bullet_fire_cooldown--;
   }
 }
 
@@ -1079,11 +1187,12 @@ void EnemyAct(int i)
   if (GR_WIDTH<GR_HEIGHT)
     dist_unit=GR_HEIGHT/2+VGRID_SIZE*2;
 
-  if (Enemy[i]->dist_from_player<=dist_unit)
+  if (Enemy[i]->dist_from_player<=dist_unit) {
     Enemy[i]->within_render_distance=TRUE;
-  else
+    Enemy[i]->render_distance_timer=100;
+  } else {
     Enemy[i]->within_render_distance=FALSE;
-
+  }
 
   for (j=0;j<Enemy[i]->bullet_shot_num;j++) {
     BulletAct(Enemy[i]->bullet_shot_arr[j]);
@@ -1130,6 +1239,7 @@ void EnemyAct(int i)
           case 4: //fly
           case 5:
           case 6:
+          case 7:
           {
             if (dist_from_bullet0<=NODE_SIZE*2) {
               Enemy[i]->damage_taken_timer=256;
@@ -1202,6 +1312,7 @@ void EnemyAct(int i)
         case 4:
         case 5:
         case 6:
+        case 7:
           if (dist_from_bullet<=NODE_SIZE*2) {
             if (game_audio) {
               PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
@@ -1239,7 +1350,15 @@ void EnemyAct(int i)
           force_search=TRUE;
         }
       } 
+
     
+   //mosquito quirk 
+     if (Enemy[i]->species==0 && !Enemy[i]->web_stuck) {
+        if (Enemy[i]->dist_from_player<=NODE_SIZE*2) {
+          MosquitoBites(i,Enemy[i]->bullet_damage); 
+        }
+     }
+
    //Enemy knockback & attacked
     allow_act=FALSE;
     double distance_from_player_claws=GetDistance(Enemy[i]->x,Enemy[i]->y,player.claws_attack_x,player.claws_attack_y);
@@ -1249,6 +1368,7 @@ void EnemyAct(int i)
       case 4:
       case 5:
       case 6:
+      case 7:
 	    if (!(Enemy[i]->time_breaker_length>0)) {
 	      if (distance_from_player_claws<=NODE_SIZE*2) {
 	        allow_act=TRUE;
@@ -1275,6 +1395,7 @@ void EnemyAct(int i)
         case 4:
         case 5:
         case 6:
+        case 7:
           if (player.attack_timer>34) {
             allow_act=TRUE;
           }
@@ -1358,6 +1479,7 @@ void EnemyAct(int i)
           case 4:
           case 5:
           case 6:
+          case 7:
             if (player.speed>5) {
               deduct_health=TRUE;
             } else if (game_audio) {
@@ -1404,6 +1526,7 @@ void EnemyAct(int i)
         case 4: rand_bullet_shot_num=12+RandNum(1,10,Enemy[i]->seed); break;
         case 5: rand_bullet_shot_num=5+RandNum(5,10,Enemy[i]->seed); break;
         case 6: rand_bullet_shot_num=5+RandNum(5,10,Enemy[i]->seed); break;
+        case 7: rand_bullet_shot_num=5+RandNum(5,10,Enemy[i]->seed); break;
       }
       for (int n=0;n<rand_bullet_shot_num;n++) {
          int rand_range=NODE_SIZE*3+NODE_SIZE*RandNum(1,5,Enemy[i]->seed);
@@ -1437,7 +1560,7 @@ void EnemyAct(int i)
     int tmp_ngid;
     int tmp_gid_;
     //Knockback 
-    if (Enemy[i]->knockback_timer>0 && (!Enemy[i]->move_to_target || Enemy[i]->species==5 || Enemy[i]->species==6)) {
+    if (Enemy[i]->knockback_timer>0 && (!Enemy[i]->move_to_target || (Enemy[i]->species>=5 && Enemy[i]->species<=7))) {
       if (!player.time_breaker || Enemy[i]->time_breaker_immune) {
         Enemy[i]->knockback_timer--;
         if (Enemy[i]->knockback_timer>20) {
@@ -1478,8 +1601,7 @@ void EnemyAct(int i)
     }
 
     //Pathfinding and movement only act when within render distance
-    if ((!player.time_breaker || Enemy[i]->time_breaker_immune || Enemy[i]->species==4) && (Enemy[i]->within_render_distance || Enemy[i]->species==5 || Enemy[i]->species==6)) {
-
+    if ((!player.time_breaker || Enemy[i]->time_breaker_immune || Enemy[i]->species==4) && (Enemy[i]->within_render_distance || (Enemy[i]->species>=5 && Enemy[i]->species<=7))) {
       //timebreaker enemy
       if (Enemy[i]->time_breaker_length>0 && !player.time_breaker) {
         dice=RandNum(0,Enemy[i]->time_breaker_rare,Enemy[i]->seed);
@@ -1507,6 +1629,7 @@ void EnemyAct(int i)
           if (!Enemy[i]->in_water) {
             if (Enemy[i]->species!=3) {
               Enemy[i]->speed_multiplier=Enemy[i]->ospeed_multiplier/4;
+              Enemy[i]->speed=Enemy[i]->ospeed/4;
               if (Enemy[i]->speed_multiplier<=1) {
                 Enemy[i]->speed_multiplier=1;
               }
@@ -1516,15 +1639,17 @@ void EnemyAct(int i)
           }
           Enemy[i]->in_water=TRUE;
           Enemy[i]->sprite_in_water=TRUE;
-        } else {
+        } else { //leave water
           if (Enemy[i]->in_water) {
             Enemy[i]->speed_multiplier=Enemy[i]->ospeed_multiplier;
+            Enemy[i]->speed=Enemy[i]->ospeed;
           } 
           Enemy[i]->in_water=FALSE;
         }
-      } else {
+      } else { //leave water
         if (Enemy[i]->in_water) {
           Enemy[i]->speed_multiplier=Enemy[i]->ospeed_multiplier;
+          Enemy[i]->speed=Enemy[i]->ospeed;
         } 
         Enemy[i]->in_water=FALSE;
       }
@@ -1547,13 +1672,13 @@ void EnemyAct(int i)
 
       for (slash_time_i=0;slash_time_i<slash_time;slash_time_i++) {
           Enemy[i]->in_node_grid_id=GetGridId(Enemy[i]->x,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);      
-          if (Enemy[i]->species!=5 && Enemy[i]->species!=6) {
+          if (!(Enemy[i]->species>=5 && Enemy[i]->species<=7)) {
             Enemy[i]->on_ground_id=GetOnGroundId(Enemy[i]->x,Enemy[i]->y,33,32);
           }
           if ((Enemy[i]->species==1 || Enemy[i]->species==3) && Enemy[i]->on_ground_id!=-1) {//<------ source of major error
             EnemySpriteOnGroundId(i,Enemy[i]->on_ground_id);
           }
-          if (Enemy[i]->on_ground_id==-1 && Enemy[i]->species!=5 && Enemy[i]->species!=6) {
+          if (Enemy[i]->on_ground_id==-1 && !(Enemy[i]->species>=5 && Enemy[i]->species<=7)) {
             Enemy[i]->is_in_ground_edge=FALSE;
           }
 
@@ -1606,7 +1731,7 @@ void EnemyAct(int i)
           }
         }
 
-        if (Enemy[i]->species==5 || Enemy[i]->species==6) {
+        if (Enemy[i]->species>=5 && Enemy[i]->species<=7) {
           EnemyAntAct(i,slash_time_i);
         }
 
@@ -1717,7 +1842,7 @@ void EnemyAct(int i)
 
 
        //pathfinding
-        if (Enemy[i]->species!=5 && Enemy[i]->species!=6) { //not for ants
+        if (!(Enemy[i]->species>=5 && Enemy[i]->species<=7)) { //not for ants
  
 
 
@@ -1832,7 +1957,7 @@ void EnemyAct(int i)
         }//end of slash_time
       //other
         if (!Enemy[i]->web_stuck) {
-          if (Enemy[i]->species==0 || Enemy[i]->species==2 || (Enemy[i]->species==4 && (!player.time_breaker || Enemy[i]->time_breaker_immune)) || Enemy[i]->species==5 || Enemy[i]->species==6) {
+          if (Enemy[i]->species==0 || Enemy[i]->species==2 || (Enemy[i]->species==4 && (!player.time_breaker || Enemy[i]->time_breaker_immune)) || (Enemy[i]->species>=5 && Enemy[i]->species<=7)) {
             Enemy[i]->sprite_timer++;
             if (Enemy[i]->sprite_timer>3) {
               Enemy[i]->sprite_timer=0;
@@ -1932,7 +2057,7 @@ void InitEnemySprites()
     saved_larger_enemy_type_species[i]=-1;
   }
   for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-    if (saved_enemy_type_species[i]==1 || saved_enemy_type_species[i]==3 || saved_enemy_type_species[i]==5 || saved_enemy_type_species[i]==6) {
+    if (saved_enemy_type_species[i]==1 || saved_enemy_type_species[i]==3 || (saved_enemy_type_species[i]>=5 && saved_enemy_type_species[i]<=7)) {
       saved_enemy_type_rot_sprite_id[i]=LARGE_ENEMY_TYPE_NUM;
       EnemyRotatedSprite[LARGE_ENEMY_TYPE_NUM].type=i;
       saved_large_enemy_type_species[LARGE_ENEMY_TYPE_NUM]=saved_enemy_type_species[i];
@@ -2019,8 +2144,7 @@ void InitEnemySpritesObj()
       switch (species_i) {
         case 1:si=0;break;
         case 3:si=1;break;
-        case 5:si=2;break;
-        case 6:si=2;break;
+        case 5:case 6:case 7:si=2;break;
       }
       EnemyRotatedSprite[i].draw_rotated_sprite1[j].sprite_mask=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_rotated_sprite1[j].sprite_mask,SRCCOPY);
       EnemyRotatedSprite[i].draw_rotated_sprite1[j].sprite_paint=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_rotated_sprite1[j].sprite_paint,SRCCOPY);
@@ -2082,6 +2206,7 @@ void InitEnemy()
     Enemy[i]->below_ground_edge=FALSE;
     Enemy[i]->force_search=FALSE;
     Enemy[i]->sprite_flip_timer=0;
+    Enemy[i]->render_distance_timer=0;
     SetEnemyByType(i,saved_enemy_type[i]);
     if (Enemy[i]->x<5) {
       Enemy[i]->x=25;
@@ -2143,10 +2268,11 @@ void InitEnemy()
     Enemy[i]->trace_target=FALSE;
     Enemy[i]->move_to_target=FALSE;
     Enemy[i]->ignore_player=TRUE;
-    if (Enemy[i]->species==5 || Enemy[i]->species==6) {
+    if (Enemy[i]->species>=5 && Enemy[i]->species<=7) {
       Enemy[i]->move_to_target=TRUE;
       Enemy[i]->ignore_player=FALSE;
     }
+    Enemy[i]->is_clockwize=FALSE;
     Enemy[i]->play_death_snd=FALSE;
   //init default int 
     //Enemy[i]->snd_dur=0;
@@ -2212,7 +2338,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
   for (i=0;i<ENEMY_NUM;i++) {  
     Enemy[i]->sprite_x=(int)Enemy[i]->x+px+cx1+cx2;
     Enemy[i]->sprite_y=(int)Enemy[i]->y+py+cy1+cy2;
-    if (Enemy[i]->species==1 || Enemy[i]->species==3 || Enemy[i]->species==5 || Enemy[i]->species==6) {//rotate sprite
+    if (Enemy[i]->species==1 || Enemy[i]->species==3 || (Enemy[i]->species>=5 && Enemy[i]->species<=7)) {//rotate sprite
 
 
       //sprite_angle_calculation;
@@ -2242,7 +2368,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
       if (Enemy[i]->is_in_ground_edge) {
         int le_angle;
         double le_enemy_angle=Enemy[i]->angle;
-        if (Enemy[i]->species==5 || Enemy[i]->species==6) {
+        if ((Enemy[i]->species>=5 && Enemy[i]->species<=7)) {
           le_enemy_angle=Enemy[i]->sprite_angle;
         }
         if (Enemy[i]->above_ground_edge) {
@@ -2273,7 +2399,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
       } else if (Enemy[i]->on_ground_id!=-1) {
         int le_angle=8;
         double le_enemy_angle=Enemy[i]->angle;
-        if (Enemy[i]->species==5 || Enemy[i]->species==6) {
+        if ((Enemy[i]->species>=5 && Enemy[i]->species<=7)) {
           le_enemy_angle=Enemy[i]->sprite_angle;
         }
         if (Enemy[i]->sprite_angle>0) { //Slope ++ \/
@@ -2465,6 +2591,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
         case 3: //កន្ទាទូក
         case 5: //ant
         case 6:
+        case 7:
         {
           //DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite1[funny],Enemy[i]->last_left);
           //char printfunny[6];
@@ -2501,7 +2628,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
                     DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[rsid].draw_rotated_sprite2[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
                   }
                 } else {
-                  if (Enemy[i]->species!=5 && Enemy[i]->species!=6) {
+                  if (!(Enemy[i]->species>=5 && Enemy[i]->species<=7)) {
                     if (Enemy[i]->sprite_timer%2==0) { //fly sprite
                       DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyTypeSprite[etype].draw_fly_sprite_1,Enemy[i]->last_left);
                     } else {
@@ -2557,7 +2684,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
 
 
           } else { //sprite flying
-            if (Enemy[i]->species!=5 && Enemy[i]->species!=6) {
+            if (!(Enemy[i]->species>=5 && Enemy[i]->species<=7)) {
               if (Enemy[i]->sprite_timer%2==0) {
                 DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyTypeSprite[etype].draw_fly_sprite_1,Enemy[i]->last_left);
               } else {

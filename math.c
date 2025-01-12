@@ -895,3 +895,23 @@ double GetBounceAngle(double angle1,double angle2)
   return ans;
 }
 
+
+
+double GetMarbleAngle(double angle1,double angle2)
+{
+  double x1,y1,x2,y2,rx,ry,ans;
+  x1=cos(angle1);
+  y1=sin(angle1);
+  x2=cos(angle2);
+  y2=sin(angle2);
+  rx=x1+x2;
+  ry=y1+y2;
+  ans=atan2(ry,rx);
+  if (ans>0) {
+    ans=fmod(ans,(2*M_PI));
+  } else {
+    ans=fmod(ans,(-2*M_PI));
+  }
+  return ans;
+}
+

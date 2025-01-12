@@ -561,6 +561,7 @@ struct Bullet
   int saved_pos;
   int saved_ground_id;
   int saved_node_grid_id;
+  int bounce_timer;
   double damage;
   double sprite_x;
   double sprite_y;
@@ -654,6 +655,7 @@ typedef struct enemy
   bool flag_web_unstuck;
   bool flag_web_stuck;
   bool web_stuck;
+  bool is_clockwize;
   //Attacked
   bool knockback_left;
   bool player_knockback;
@@ -706,6 +708,7 @@ typedef struct enemy
   int search_timer;
   int idle_timer;
   int forgor_timer;
+  int render_distance_timer;
 
   int type;
   int in_air_timer;

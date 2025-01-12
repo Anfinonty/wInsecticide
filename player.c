@@ -1311,7 +1311,7 @@ void PlayerActReboundActions(int grav_speed, int speed)
     move_y(sin(player.angle_of_reflection));
     if (player.on_ground_id!=-1 && player.on_ground_id<GROUND_NUM && speed<=1 && !player.time_breaker) {
       if (player.speed>5) {
-        player.speed=player.speed*5/6;
+        player.speed--;//player.speed*5/6;
       }
     }
   }

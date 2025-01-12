@@ -4,6 +4,7 @@ void InitBullet(int max_bullet_num)
   int i=0;
   current_bullet_id=0;
   for (i=0;i<max_bullet_num;i++) {
+    Bullet[i].bounce_timer=0;
     Bullet[i].playsnd=FALSE;
     Bullet[i].shot=FALSE;
     Bullet[i].near_miss=FALSE;
@@ -206,6 +207,7 @@ void StopBullet(int bullet_id,bool is_player)
   Bullet[bullet_id].from_enemy_id=-1;
   Bullet[bullet_id].speed=0;
   Bullet[bullet_id].ospeed=0;
+  Bullet[bullet_id].bounce_timer=0;
   if (Bullet[bullet_id].saved_node_grid_id!=-1) {
     NodeGrid[Bullet[bullet_id].saved_node_grid_id]->tmp_wet=FALSE;
   }
@@ -253,7 +255,9 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
   }
   }
 
+  double saved_angle;
   for (int k=0;k<player.bullet_shot_num;k++) {//playerknives interact with enemy bullet
+    saved_angle=Bullet[bullet_id].angle;
     bk=player.bullet[k];
     if (GetDistance(Bullet[bk].x,Bullet[bk].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
       if (!Bullet[bk].playsnd && game_audio && Bullet[bullet_id].graphics_type!=10) {
@@ -262,19 +266,26 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
 
 
       if (Bullet[bullet_id].graphics_type!=10) {
-        Bullet[bullet_id].angle=GetBounceAngle(Bullet[bullet_id].angle,Bullet[bk].angle);//RandAngle(0,360,player.seed); //scatter type 6
+        if (Bullet[bullet_id].bounce_timer==0) {
+          Bullet[bullet_id].angle=GetMarbleAngle(Bullet[bullet_id].angle,Bullet[bk].angle);//GetBounceAngle(Bullet[bk].angle,Bullet[bullet_id].angle);//RandAngle(0,360,player.seed); //scatter type 6
+          Bullet[bullet_id].bounce_timer=10;
+          Bullet[bk].bounce_timer=0;
+        }
         Bullet[bullet_id].speed=Bullet[bk].speed;
         Bullet[bullet_id].speed_multiplier=Bullet[bk].speed_multiplier;
         Bullet[bullet_id].range-=3;
       } else { //death bullet
-        Bullet[bullet_id].angle=GetBounceAngle(Bullet[bullet_id].angle,Bullet[bk].angle);//Bullet[bk].angle+RandAngle(-65,65,player.seed); //scatter type 6
+        Bullet[bullet_id].angle=Bullet[bk].angle+RandAngle(-65,65,player.seed); //scatter type 6
       }
 
       /*if (Bullet[bk].speed_multiplier<7) { //if shotgun bullet, pierce through for the first few ranges
       }*/
 
       if (Bullet[bk].graphics_type!=6 && Bullet[bullet_id].graphics_type!=10) { //hit enemy bullet, scatter if NOT type 6
-        Bullet[bk].angle=GetBounceAngle(Bullet[bullet_id].angle,Bullet[bk].angle);//RandAngle(0,360,player.seed);
+        if (Bullet[bk].bounce_timer==0) {
+          Bullet[bk].angle=GetMarbleAngle(Bullet[bk].angle,saved_angle);//RandAngle(0,360,player.seed);
+          Bullet[bk].bounce_timer=10;
+        }
         switch (Bullet[bk].graphics_type) {
           case 5: //kpt 3
             Bullet[bk].range/=4;
@@ -494,6 +505,9 @@ void PlayerBulletAct(int bullet_id,int enemy_id)
     int bullet_on_ground_id=-1;
     bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2);
     allow_act=FALSE;
+    if (Bullet[bullet_id].bounce_timer>0) {
+      Bullet[bullet_id].bounce_timer--;
+    }
 	if (bullet_on_ground_id!=-1) {//not hit self but another platform
 	  allow_act=TRUE;
     } else if (IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) {//out of bounds
@@ -763,10 +777,10 @@ void BulletAct(int bullet_id)
               Bullet[bullet_id].speed=Bullet[bullet_id].ospeed/4;
             }
             //Bullet[bullet_id].speed=Bullet[bullet_id].ospeed/4;
-          } else {
-            Bullet[bullet_id].speed_multiplier=Bullet[bullet_id].ospeed_multiplier;
-            Bullet[bullet_id].speed=Bullet[bullet_id].ospeed;
-          }
+          } //else {
+            //Bullet[bullet_id].speed_multiplier=Bullet[bullet_id].ospeed_multiplier;
+            //Bullet[bullet_id].speed=Bullet[bullet_id].ospeed;
+          //}
         }
     }
     for (int i=0;i<Bullet[bullet_id].speed_multiplier;i++) {

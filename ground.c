@@ -458,7 +458,7 @@ int GetOnGroundIdPlayer(double x,double y,double min_range_1,double min_range_2)
 
 
 
-int GetOnGroundIdE(double x,double y,double min_range_1,double min_range_2,int enemy_id)
+/*int GetOnGroundIdE(double x,double y,double min_range_1,double min_range_2,int enemy_id)
 {
   int i=0,j=-1,Ground_id=0,on_grid_id=0;
   double ground_entity_E=0,height_from_ground=0,_x=x,_y=y;
@@ -541,6 +541,49 @@ int GetOnGroundIdE(double x,double y,double min_range_1,double min_range_2,int e
   }
   }
   return j;
+}*/
+
+
+int GetOnGroundIdE(double x,double y,double min_range_1,double min_range_2,int enemy_id)
+{
+  //checks 1 grid only for efficiency but theres a risk of clipping
+  int i=0,j=-1,Ground_id=0;
+  double ground_entity_E=0,height_from_ground=0,_x=x,_y=y;
+
+  int on_grid_id=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
+  if (on_grid_id!=-1) {
+  if (VGrid[on_grid_id]->max_ground_num>0) {
+    if (0<_x && _x<MAP_WIDTH && 0<_y && _y<MAP_HEIGHT) { //within bounderies
+      if (on_grid_id!=-1) {
+      for (i=0;i<VGrid[on_grid_id]->max_ground_num;i++) {
+        Ground_id=VGrid[on_grid_id]->ground_ids[i];
+        if (Ground_id!=-1) {
+        if (Ground[Ground_id]->x1-min_range_1<=x && x<=Ground[Ground_id]->x2+min_range_1) {//within x
+          if ((Ground[Ground_id]->y1-min_range_1<=y && y<=Ground[Ground_id]->y2+min_range_1) ||
+              (Ground[Ground_id]->y2-min_range_1<=y && y<=Ground[Ground_id]->y1+min_range_1)) {//within y
+            ground_entity_E=GetLineTargetAngle(Ground_id,x,y);
+            height_from_ground=GetLineTargetHeight(Ground_id,ground_entity_E,x,y);
+            if (-min_range_2<height_from_ground && height_from_ground<min_range_2) { //change in ground
+	          if (Ground_id!=Enemy[enemy_id]->saved_ground_id && !Ground[Ground_id]->is_ghost && Ground[Ground_id]->type!=1) {
+                j=Ground_id;
+                if (j!=-1) {
+                  return j;
+                }
+                break;
+              }
+            }
+          }
+        }
+        }
+      }
+      } //end of if
+    }
+  }
+  }
+  if (j==-1) {
+    return Enemy[enemy_id]->saved_ground_id;
+  }
+  return j;
 }
 
 
@@ -591,7 +634,7 @@ void DrawWebs(HDC hdc)
   for (int i=GROUND_NUM;i<GROUND_NUM+player.max_web_num;i++) {
     id=i;
     if (id<GROUND_NUM+MAX_WEB_NUM && Ground[id]->x1>-20) {
-      if (Ground[id]->health>50) {
+      if (Ground[id]->health>500) {
         GrLine(hdc,
           Ground[id]->x1+cx,
           Ground[id]->y1+cy,
