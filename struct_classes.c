@@ -1093,14 +1093,12 @@ HBITMAP ga0_kh_mask[5];
 wavSoundEffect spamSoundEffect[SPAM_SFX_NUM];
 wavSoundEffect keySoundEffect[KEY_SFX_NUM];
 wavSoundEffect channelSoundEffect[CHANNEL_SFX_NUM];
-wavSoundEffect songAudio;
 
 wavSoundEffectCache spamSoundEffectCache[SPAM_SFX_NUM];
 wavSoundEffectCache keySoundEffectCache[KEY_SFX_NUM];
 wavSoundEffectCache channelSoundEffectCache[CHANNEL_SFX_NUM];
 
 
-
-//Global blend function
+//Global blend function for transparency
 BLENDFUNCTION gblendFunction;
 

@@ -1173,6 +1173,7 @@ void MosquitoBites(int i,int dmg)
      if (player.health>PLAYER_LOW_HEALTH+1) { //usual response
        player.health-=dmg;
        Enemy[i]->health+=dmg;
+       Enemy[i]->max_health+=dmg;
      } else { //Player when low health
        if (player.health<PLAYER_LOW_HEALTH) {
          player.health-=0.1;
@@ -1544,7 +1545,7 @@ void EnemyAct(int i)
         rand_bullet_shot_num=25+RandNum(30,40,Enemy[i]->seed);        
       }*/
       switch (Enemy[i]->species) {
-        case 0: rand_bullet_shot_num=20+RandNum(10,20,Enemy[i]->seed); break;
+        case 0: rand_bullet_shot_num=Enemy[i]->max_health/2+RandNum(10,20,Enemy[i]->seed); break;
         case 1: rand_bullet_shot_num=25+RandNum(30,40,Enemy[i]->seed); break;
         case 2: rand_bullet_shot_num=8+RandNum(1,10,Enemy[i]->seed); break;
         case 3: rand_bullet_shot_num=25+RandNum(50,60,Enemy[i]->seed); break;
@@ -2598,26 +2599,26 @@ void DrawEnemy(HDC hdc,HDC hdc2)
                 }
               }
           } else {
-          char txt[16];
-          if (print_health>1) {
-            sprintf(txt,"%d",print_health);        
-          } else {
-            sprintf(txt,"1");
-          }
-          int sprite_x_health=(int)Enemy[i]->sprite_x-strlen(txt)*8/2;
-          if (Enemy[i]->species==1 || Enemy[i]->species==3) {
-            if (!player.time_breaker || Enemy[i]->time_breaker_immune) {
-              GrPrint(hdc,sprite_x_health,Enemy[i]->sprite_y-64,txt,c2);
-            } else {
-              GrPrint(hdc,sprite_x_health,Enemy[i]->sprite_y-64,txt,LTGRAY);
-            }
-          } else {
-            if (!player.time_breaker || Enemy[i]->time_breaker_immune) {
-              GrPrint(hdc,sprite_x_health,Enemy[i]->sprite_y-32,txt,c2);
-            } else {
-              GrPrint(hdc,sprite_x_health,Enemy[i]->sprite_y-32,txt,LTGRAY);
-            }
-          }
+              char txt[16];
+              if (print_health>1) {
+                sprintf(txt,"%d",print_health);        
+              } else {
+                sprintf(txt,"1");
+              }
+              int sprite_x_health=(int)Enemy[i]->sprite_x-strlen(txt)*8/2;
+              if (Enemy[i]->species==1 || Enemy[i]->species==3) {
+                if (!player.time_breaker || Enemy[i]->time_breaker_immune) {
+                  GrPrint(hdc,sprite_x_health,Enemy[i]->sprite_y-64,txt,c2);
+                } else {
+                  GrPrint(hdc,sprite_x_health,Enemy[i]->sprite_y-64,txt,LTGRAY);
+                }
+              } else {
+                if (!player.time_breaker || Enemy[i]->time_breaker_immune) {
+                  GrPrint(hdc,sprite_x_health,Enemy[i]->sprite_y-32,txt,c2);
+                } else {
+                  GrPrint(hdc,sprite_x_health,Enemy[i]->sprite_y-32,txt,LTGRAY);
+                }
+              }
           }
         }
       }

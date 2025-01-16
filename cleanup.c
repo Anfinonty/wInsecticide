@@ -483,7 +483,7 @@ void CleanupAll()
 
     back_to_menu=FALSE;
     run_after_once=FALSE;
-    clean_up_sound=TRUE;
     in_main_menu=TRUE;
+    clean_up_sound=TRUE;
     run_once_only=FALSE;
 }

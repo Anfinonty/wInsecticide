@@ -11,6 +11,7 @@ int current_sec;
 int song_num=0;
 int song_mode=0;
 int song_rand_num=-1;
+int song_audio_duration;
 wchar_t song_names[2000][256];
 bool is_flac[2000];
 bool is_wav[2000];
@@ -24,6 +25,9 @@ bool loading_flac=FALSE;
 bool loading_wav=FALSE;
 bool skip_song=FALSE;
 bool skipping_song=FALSE;
+bool clean_up_song=FALSE;
+bool clean_up_sound=FALSE;
+wchar_t wav_song_playing[256];
 
 unsigned long long time_song_start;
 unsigned long long time_song_end;
@@ -191,22 +195,175 @@ void ResetSongBank() {
 void InitSongBank() {
   ResetSongBank();
   song_num=GetSongsInDir(L"music",L"",0);
+  swprintf(src_music_dir,64,L"music"); //set dir of music
+}
+//https://www.codeproject.com/Articles/8396/Using-DirectSound-to-Play-Audio-Stream-Data
+//im not using direct sound just learning its concept
+
+#define AUDIO_STREAM_BUFFER_NUM    2  //2mb
+#define AUDIO_STREAM_BUFFER_SIZE   524288//8192//524288 8192  minimum //int16_t *524288 = 1mb //0.00049mb
+struct AudioStreamBuffer
+{
+  AWavHeader wav_header[44];
+  bool double_buffer;
+//  int duration;
+
+  long current_filesize; //spindle
+  long filesize;
+  long buffer_size;
+
+  int16_t audio[AUDIO_STREAM_BUFFER_NUM][AUDIO_STREAM_BUFFER_SIZE];
+} buffer;
+
+
+
+
+void LoadBufferSFX(const wchar_t* filename)
+{
+  FILE* file = _wfopen(filename, L"rb");
+  int wav_header_size=sizeof(AWavHeader); //44
+  long mb_1_size=AUDIO_STREAM_BUFFER_SIZE*sizeof(int16_t);
+  //printf("@size:%d",mb_1_size);
+  buffer.current_filesize=wav_header_size;
+  for (int i=0;i<AUDIO_STREAM_BUFFER_NUM;i++) {
+    memset(buffer.audio[i], 0, sizeof(buffer.audio[i]));
+  }
+
+  if (file) {
+    fseek(file, 0, SEEK_END);
+    long filesize;
+    filesize = ftell(file) - wav_header_size; 
+
+    //Alloc wav buffer header
+    fseek(file, 0, SEEK_SET);
+    fread(buffer.wav_header,1,wav_header_size,file);
+
+    wfx_wav_music.wFormatTag = WAVE_FORMAT_PCM;
+    wfx_wav_music.nChannels = buffer.wav_header->NumOfChan;
+    wfx_wav_music.nSamplesPerSec = buffer.wav_header->SamplesPerSec;
+    wfx_wav_music.nAvgBytesPerSec = buffer.wav_header->bytesPerSec;
+    wfx_wav_music.nBlockAlign = buffer.wav_header->blockAlign;
+    wfx_wav_music.wBitsPerSample = buffer.wav_header->bitsPerSample;
+    wfx_wav_music.cbSize = 0;
+
+    buffer.buffer_size=mb_1_size;
+    buffer.filesize=filesize;
+    song_audio_duration=(double)filesize / (buffer.wav_header->SamplesPerSec * buffer.wav_header->NumOfChan * buffer.wav_header->bitsPerSample/8) *1000;
+    //buffer.duration=(double)buffer.buffer_size*1000/ (double)(buffer.wav_header->SamplesPerSec * buffer.wav_header->NumOfChan * buffer.wav_header->bitsPerSample/8); //duration per 1mb
+    //printf("duration:%d\n",buffer.duration);
+   //Alloc actual audio int16_t*
+    //fseek(file, buffer.current_filesize, SEEK_SET);
+    for (int i=0;i<AUDIO_STREAM_BUFFER_NUM;i++) {
+      if (buffer.current_filesize>buffer.filesize) {
+        buffer.current_filesize=buffer.filesize;
+      }
+      fread(buffer.audio[i],1,mb_1_size,file);
+      buffer.current_filesize+=mb_1_size;
+    }
+
+    fclose(file);
+
+    waveOutOpen(&hWaveOut[2], WAVE_MAPPER, &wfx_wav_music, 0, 0, CALLBACK_NULL);
+    waveOutPrepareHeader(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));
+    waveOutSetVolume(hWaveOut[2], VolumeValue(wav_out_volume*100,1));
+
+    waveOutOpen(&hWaveOut[6], WAVE_MAPPER, &wfx_wav_music, 0, 0, CALLBACK_NULL);
+    waveOutPrepareHeader(hWaveOut[6], &whdr[6], sizeof(WAVEHDR));
+    waveOutSetVolume(hWaveOut[6], VolumeValue(wav_out_volume*100,1));
+
+
+    whdr[2].lpData = (LPSTR)buffer.audio[0];
+    whdr[2].dwBufferLength = buffer.buffer_size;
+
+    whdr[6].lpData = (LPSTR)buffer.audio[1];
+    whdr[6].dwBufferLength = buffer.buffer_size;
+
+    buffer.double_buffer=FALSE;
+  }
+}
+
+
+void LoadNextBufferSFX(const wchar_t* filename,int i)
+{
+  FILE* file = _wfopen(filename, L"rb");
+  const int mb_1_size=AUDIO_STREAM_BUFFER_SIZE*sizeof(int16_t);
+  if (file) {
+    //Alloc actual audio int16_t*
+    fseek(file, buffer.current_filesize, SEEK_SET);
+    if (buffer.current_filesize>=buffer.filesize) {
+      buffer.current_filesize=buffer.filesize;
+      fclose(file);
+      return;
+    }
+    fread(buffer.audio[i],1,mb_1_size,file);
+    buffer.current_filesize+=mb_1_size;
+    fclose(file);
+  }
 }
 
 
 
 
 
-DWORD WINAPI SongTask(LPVOID lpArg) {
-//void SongAct() {
+void PlayThreadStream()
+{
+  if (!stop_playing_song) {
+  if (playing_wav && !play_new_song && !loading_flac && !loading_mp3 && !loading_wav){
+    if (!buffer.double_buffer) {
+      //printf("@1\n");
+        // Write the audio data
+        waveOutWrite(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));    
+        while (TRUE) {
+          if (whdr[2].dwFlags & WHDR_DONE) {
+            buffer.double_buffer=TRUE;
+            LoadNextBufferSFX(wav_song_playing,0);
+            whdr[2].lpData = (LPSTR)buffer.audio[0];
+            whdr[2].dwBufferLength = buffer.buffer_size;
+            break;
+          } else {
+            Sleep(10);
+          }
+        }
+    } else {
+      //printf("@2\n");
+        // Write the audio data
+        waveOutWrite(hWaveOut[6], &whdr[6], sizeof(WAVEHDR));    
+        while (TRUE) {
+          if (whdr[6].dwFlags & WHDR_DONE) {
+            buffer.double_buffer=FALSE;
+            LoadNextBufferSFX(wav_song_playing,1);
+            whdr[6].lpData = (LPSTR)buffer.audio[1];
+            whdr[6].dwBufferLength = buffer.buffer_size;
+            break;
+          } else {
+            Sleep(10);
+          }
+        }
+      } 
+    } else {
+      Sleep(1000);
+    }
+  } else {
+    Sleep(1000);
+  }
+}
+
+
+
+DWORD WINAPI PlayMemSnd3(LPVOID lpParam)
+{
+  while (TRUE) {
+    PlayThreadStream();
+  }
+}
+
+
+
+
+DWORD WINAPI SoundTask(LPVOID lpArg) {
   srand(time(NULL));
   while (TRUE) {
-    //All Song Tasks
-    if (flag_adjust_wav_out_audio) {
-      long int vol=VolumeValue(wav_out_volume*100,1);
-      waveOutSetVolume(hWaveOut[2],vol);
-      flag_adjust_wav_out_audio=FALSE;
-    }
+    //SONG Tasks
     if (song_num>0) {
       if (!stop_playing_song) {
 
@@ -215,10 +372,10 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
           current_song_time=current_timestamp();
           if (current_song_time>time_song_end || play_new_song) { //stop playing flac when duration is over //second delay
             play_new_song=TRUE;
+            playing_wav=FALSE;
             loading_mp3=FALSE;
             loading_flac=FALSE;
             loading_wav=FALSE;
-            playing_wav=FALSE;
             time_song_start=0;
             time_song_end=-1;
             current_song_time=-1;
@@ -227,67 +384,41 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
 
 
         if (!playing_wav) {//im not playing a wav music
-          if (loading_flac) {//loading flac or wav, flac
-            playing_wav=TRUE;
+          if ((loading_flac || loading_mp3 || loading_wav)) {//loading flac or wav, flac
+            call_help_timer=0;
+            current_song_time=-1;
+            if (loading_wav) {
+              swprintf(wav_song_playing,256,L"%s/%s",src_music_dir,song_names[song_rand_num]);
+            } else {
+              swprintf(wav_song_playing,256,L"music/tmp/tmp.wav");
+            }
+
+            LoadBufferSFX(wav_song_playing);
+            time_song_start=current_timestamp();
+            time_song_end=time_song_start+song_audio_duration;//songAudio->duration;
             loading_flac=FALSE;
             loading_mp3=FALSE;
             loading_wav=FALSE;
             play_new_song=FALSE;
-            current_song_time=-1;
-
-            loadSoundEffect(&songAudio,L"music/tmp/tmp.wav",TRUE);
-            time_song_start=current_timestamp();
-            time_song_end=time_song_start+songAudio.duration;
-            PlayMemSnd(&songAudio,NULL,FALSE,2);
-
-            remove("music/tmp/tmp.wav");
-            rmdir("music/tmp"); //remove tmp, manually because C is like that
-          } else if (loading_mp3) {
             playing_wav=TRUE;
-            loading_flac=FALSE;
-            loading_mp3=FALSE;
-            loading_wav=FALSE;
-            play_new_song=FALSE;
-            current_song_time=-1;
 
-            loadSoundEffect(&songAudio,L"music/tmp/tmp.wav",TRUE);
-            time_song_start=current_timestamp();
-            time_song_end=time_song_start+songAudio.duration;
-            PlayMemSnd(&songAudio,NULL,FALSE,2);
 
-            remove("music/tmp/tmp.wav");
-            rmdir("music/tmp"); //remove tmp, manually because C is like that
+          } else if (!loading_flac && !loading_mp3 && !loading_wav) { //not loading song 
+            if (play_new_song) //song status: stopped
+            {
+              //mem_snd_interrupt[2]=TRUE;
+              //mem_snd_interrupt[6]=TRUE;
+              waveOutReset(hWaveOut[2]);
+              waveOutReset(hWaveOut[6]);
+              waveOutClose(hWaveOut[2]);
+              waveOutUnprepareHeader(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));
+              waveOutClose(hWaveOut[6]);
+              waveOutUnprepareHeader(hWaveOut[6], &whdr[6], sizeof(WAVEHDR));
 
-          } else if (loading_wav) {//loading flac or wav, wav
-            playing_wav=TRUE;
-            loading_flac=FALSE;
-            loading_mp3=FALSE;
-            loading_wav=FALSE;
-            play_new_song=FALSE;
-            current_song_time=-1;
-
-            wchar_t wav_song_playing[256];
-            swprintf(wav_song_playing,256,L"%s/%s",src_music_dir,song_names[song_rand_num]);
-            //song_audio=LoadMusicWavW(wav_song_playing, &song_audio_filesize, &song_duration);
-            loadSoundEffect(&songAudio,wav_song_playing,TRUE);
-            time_song_start=current_timestamp();
-            time_song_end=time_song_start+songAudio.duration;
-            PlayMemSnd(&songAudio,NULL,FALSE,2);
-
-            //attempt to remove left overs
-            remove("music/tmp/tmp.wav");
-            rmdir("music/tmp"); //remove tmp, manually because C is like that
-          } else { //not loading song 
-
-          if (play_new_song) //song status: stopped
-          {
             //play new music
-            if (!loading_wav && !loading_flac && !loading_mp3) {            
               call_help_timer=0;
               remove("music/tmp/tmp.wav");
               rmdir("music/tmp"); //remove tmp, manually because C is like that
-
-
 
               if (!skip_song) {
                 switch (song_mode) {
@@ -313,7 +444,7 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
                 wchar_t my_command[512];
                 loading_flac=TRUE;
                 system("mkdir \"music/tmp\""); //make new tmp
-                swprintf(my_command,512,L"flac.exe --totally-silent -d -f \"%s/%s\" -o music/tmp/tmp.wav",src_music_dir,song_names[song_rand_num]); //correct later
+                swprintf(my_command,512,L"flac.exe --totally-silent -d -f \"%s/%s\" -o music/tmp/tmp.wav",src_music_dir,song_names[song_rand_num]);
                 _wsystem(my_command);
               } else if (is_mp3[song_rand_num]) {
                 wchar_t my_command[512];
@@ -328,20 +459,9 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
               } else if (is_wav[song_rand_num]) {
                 loading_wav=TRUE;
               }
-
-              mem_snd_interrupt[2]=TRUE;
-              waveOutReset(hWaveOut[2]);
-              //CloseHandle(hMemSndArray[2]);
-              //hMemSndArray[2]=NULL;
-              freeSoundEffectWFX(&songAudio); //Free Header
-              freeSoundEffect(&songAudio); // Free audio int16_t*
-              waveOutClose(hWaveOut[2]);
-              waveOutUnprepareHeader(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));
+              play_new_song=FALSE;
             }
-            play_new_song=FALSE;
           } //else { //song status: playing
-
-          }
         }  
       }
     }
@@ -349,30 +469,37 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
 
 
     if (toggle_stop_playing_song) {
-        //stop mp3 player
-      call_help_timer=0;
-      remove("music/tmp/tmp.wav");
-      rmdir("music/tmp"); //remove tmp
-
-        //stop .wav player
-      mem_snd_interrupt[2]=TRUE;
       waveOutReset(hWaveOut[2]);
-      //CloseHandle(hMemSndArray[2]);
-      //hMemSndArray[2]=NULL;
-      freeSoundEffectWFX(&songAudio); //Free Header
-      freeSoundEffect(&songAudio); // Free audio int16_t*
+      waveOutReset(hWaveOut[6]);
       waveOutClose(hWaveOut[2]);
       waveOutUnprepareHeader(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));
+      waveOutClose(hWaveOut[6]);
+      waveOutUnprepareHeader(hWaveOut[6], &whdr[6], sizeof(WAVEHDR));
+
+    //play new music
+      call_help_timer=0;
+      remove("music/tmp/tmp.wav");
+      rmdir("music/tmp"); //remove tmp, manually because C is like that
 
       playing_wav=FALSE;
-      loading_flac=FALSE;
+      loading_wav=
+      loading_flac=
       loading_mp3=FALSE;
-      loading_wav=FALSE;
+      play_new_song=FALSE;
 
-
+      stop_playing_song=TRUE;
       toggle_stop_playing_song=FALSE;
     }
 
+    if (flag_adjust_wav_out_audio) {
+      long int vol=VolumeValue(wav_out_volume*100,1);
+      waveOutSetVolume(hWaveOut[2],vol);
+      waveOutSetVolume(hWaveOut[6],vol);
+      flag_adjust_wav_out_audio=FALSE;
+    }
+
+
+    //SOUND Tasks
     if (!in_main_menu) { //NOT in main menu, gaming
       //Play Game Souond
       if (game_audio && level_loaded) {
@@ -399,57 +526,58 @@ DWORD WINAPI SongTask(LPVOID lpArg) {
         }
       }
 
-      if (call_help_timer<1000/*5000*/) {
+      if (call_help_timer<2000/*5000*/) {
         call_help_timer+=6;
       }
       Sleep(6); //fast loop
     } else { //In Main Menu
       //persian time update if day change
-      get_current_time(&current_hour,&current_min,&current_sec);
+      //get_current_time(&current_hour,&current_min,&current_sec);
+
+        if (clean_up_sound) {
+          for (int i=0;i<MAX_ENEMY_NUM;i++) {
+            PlaySound(NULL, NULL, SND_ASYNC);
+          }
+
+          waveOutReset(hWaveOut[0]);
+          mem_snd_interrupt[0]=TRUE;
+
+          waveOutReset(hWaveOut[1]);
+          mem_snd_interrupt[1]=TRUE;
+
+          waveOutReset(hWaveOut[3]);
+          mem_snd_interrupt[3]=TRUE;
+
+          waveOutReset(hWaveOut[4]);
+          mem_snd_interrupt[4]=TRUE;
+
+          waveOutReset(hWaveOut[5]);
+          mem_snd_interrupt[5]=TRUE;
+
+          if (lvl_has_song) {
+            //play new music
+              call_help_timer=0;
+              remove("music/tmp/tmp.wav");
+              rmdir("music/tmp"); //remove tmp, manually because C is like that
+              lvl_has_song=FALSE;
+              InitSongBank();
+              play_new_song=TRUE;
+          }
+
+
+          for (int i=0;i<SPAM_SFX_NUM;i++) {
+            freeSoundEffectCache(&spamSoundEffectCache[i]);
+          }
+          for (int i=0;i<CHANNEL_SFX_NUM;i++) {
+            freeSoundEffectCache(&channelSoundEffectCache[i]);
+          }
+          clean_up_sound=FALSE;
+        }
+
       if (current_hour==0 && current_min==0 && current_sec<=1) {//next day
         int64_t timenow=int64_current_timestamp();
         PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);
         PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift);
-      }
-
-      if (clean_up_sound) {
-        for (int i=0;i<MAX_ENEMY_NUM;i++) {
-          PlaySound(NULL, NULL, SND_ASYNC);
-        }
-
-
-        waveOutReset(hWaveOut[0]);
-        mem_snd_interrupt[0]=TRUE;
-  
-        waveOutReset(hWaveOut[1]);
-        mem_snd_interrupt[1]=TRUE;
-
-        waveOutReset(hWaveOut[3]);
-        mem_snd_interrupt[3]=TRUE;
-
-        waveOutReset(hWaveOut[4]);
-        mem_snd_interrupt[4]=TRUE;
-
-        waveOutReset(hWaveOut[5]);
-        mem_snd_interrupt[5]=TRUE;
-
-        for (int i=0;i<SPAM_SFX_NUM;i++) {
-          freeSoundEffectCache(&spamSoundEffectCache[i]);
-        }
-        for (int i=0;i<CHANNEL_SFX_NUM;i++) {
-          freeSoundEffectCache(&channelSoundEffectCache[i]);
-        }
-
-        if (lvl_has_song) {
-          ResetSongBank();
-          swprintf(src_music_dir,64,L"music");
-          song_num=GetSongsInDir(L"music",L"",0);
-          play_new_song=TRUE;
-        }
-        lvl_has_song=FALSE;
-
-
-        clean_up_sound=FALSE;
       }
       Sleep(1000); //eepy loop
     }

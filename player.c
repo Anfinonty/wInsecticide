@@ -693,14 +693,14 @@ void PlayerActXMovement(int grav_speed)
       }
     }
   }
-  if (grav_speed==0 && player.is_on_ground_edge && player.speed>5 && player.on_ground_id==-1) {
+  if (grav_speed==0 && player.is_on_ground_edge && player.speed>10 && player.on_ground_id==-1) {
     player.decceleration_timer+=2;
   }
   if (grav_speed==0 && allow_act) { //ground movement
-    if (player.speed>5 && player.on_ground_timer>0) {
+    /*if (player.speed>5 && player.on_ground_timer>0 && !player.is_on_ground_edge) {
       player.decceleration_timer+=2;
-    }
-    if (player.speed>10 && player.on_ground_timer>0) {
+    }*/
+    if (player.speed>10 && player.on_ground_timer>0 && !player.is_on_ground_edge) {
       player.decceleration_timer+=2;
     }
     if (player.rst_left || player.rst_right) {
@@ -977,15 +977,6 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
   if (player.angle_of_reflection<0) {
     player.angle_of_reflection+=2*M_PI;
   }*/
-
-
-  if (player.is_rebounding) {//rebounding
-    if (M_PI_2<player.angle_of_reflection && player.angle_of_reflection<M_PI+M_PI_2) {
-      player.last_left=TRUE;
-    } else {
-      player.last_left=FALSE;
-    }
-  }
 
   if (height_from_player_x>9 || height_from_player_x<-9) {//leave ground when out of circular range
     player.on_a_ground=FALSE;
@@ -1313,6 +1304,14 @@ void PlayerActReboundActions(int grav_speed, int speed)
       if (player.speed>5) {
         player.speed--;//player.speed*5/6;
       }
+    }
+  }
+  if (player.is_rebounding) {//rebounding
+    if ((M_PI_2<player.angle_of_incidence && player.angle_of_incidence<M_PI+M_PI_2) || 
+        (M_PI_2<player.angle_of_reflection && player.angle_of_reflection<M_PI+M_PI_2)) {
+      player.last_left=TRUE;
+    } else {
+      player.last_left=FALSE;
     }
   }
 }
@@ -1694,9 +1693,9 @@ void PlayerActDecceleration()
         }
       } else if (player.speed>5) {
         if (IsSpeedBreaking()) {
-          player.decceleration_timer=800;//280;
+          player.decceleration_timer=0;//280;
         } else {
-          player.decceleration_timer=500;//150;
+          player.decceleration_timer=0;//150;
         }
       }
     }
@@ -1987,7 +1986,6 @@ void PlayerAct()
 
     //==========PLAYER ACT REBOUND ACTIONS==========
       PlayerActReboundActions(grav_speed,speed);
-
 
     //==========Gravity=========
       PlayerActGravityMovement(grav_speed,speed);

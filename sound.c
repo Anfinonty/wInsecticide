@@ -27,13 +27,16 @@ typedef struct WavSoundEffect
   int16_t* audio;
 } wavSoundEffect;
 
-typedef struct WavSoundEffectCache
+typedef struct WavSoundEffectCache //for sound whoese volume that needs to be adjustable
 {
   int16_t* audio;
 } wavSoundEffectCache;
 
 
-#define SND_THREAD_NUM    6
+
+
+
+#define SND_THREAD_NUM    7
 typedef struct threadSFX
 {
   bool is_cache;
@@ -59,7 +62,6 @@ void freeSoundEffect(wavSoundEffect* mySoundEffect)
     free(mySoundEffect->audio);
 }
 
-
 void freeSoundEffectCache(wavSoundEffectCache* mySoundEffectCache) 
 {
   if (mySoundEffectCache->audio!=NULL)
@@ -67,46 +69,10 @@ void freeSoundEffectCache(wavSoundEffectCache* mySoundEffectCache)
 }
 
 
-//void loadSoundEffect(wavSoundEffect* mySoundEffect, const wchar_t* filename,WAVEFORMATEX wfx,bool skip_header)
-void loadSoundEffect(wavSoundEffect* mySoundEffect,const wchar_t* filename,bool skip_header)
-{
-  FILE* file = _wfopen(filename, L"rb");
-  int wav_header_size=0; 
-  //printf("%d\n",sizeof(AWavHeader));
-  if (skip_header) {
-    wav_header_size=sizeof(AWavHeader); //44
-  }
-  if (file) {
-    fseek(file, 0, SEEK_END);
-    long filesize;
-    filesize = ftell(file) - wav_header_size; 
-
-    //Alloc wav header
-    fseek(file, 0, SEEK_SET);
-    mySoundEffect->wav_header = malloc(wav_header_size);
-    fread(mySoundEffect->wav_header,1,wav_header_size,file);
-
-
-    //Alloc actual audio int16_t*
-    fseek(file, wav_header_size, SEEK_SET);
-    mySoundEffect->audio = malloc(filesize);
-    fread(mySoundEffect->audio, 1, filesize, file); //read once filesize
-
-    fclose(file);
-
-    mySoundEffect->filesize = filesize;
-    mySoundEffect->duration = (double)filesize / ( mySoundEffect->wav_header->SamplesPerSec * mySoundEffect->wav_header->NumOfChan * mySoundEffect->wav_header->bitsPerSample/8) *1000;
-  }
-}
-
-
 #define SND_MEM_STACK_SIZE  500000
-int16_t SND_MEM_STACK[SND_MEM_STACK_SIZE]; //for adjusting volume because access via heap is finicky!!, 1 megabyte 100k KB Ram allowed max
-//int mem_snd_play=0;
+int16_t SND_MEM_STACK[SND_MEM_STACK_SIZE]; //for adjusting volume because access via heap is finicky!!, 5 megabyte 500k KB Ram allowed max
 HANDLE hMemSndArray[SND_THREAD_NUM];
-//bool mem_snd_playing[SND_THREAD_NUM]={FALSE,FALSE,FALSE};
-//bool mem_snd_stopped[SND_THREAD_NUM]={FALSE,FALSE,FALSE};
-bool mem_snd_interrupt[SND_THREAD_NUM]={FALSE,FALSE,FALSE,FALSE,FALSE,FALSE};
+bool mem_snd_interrupt[SND_THREAD_NUM]={FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE};
 
 //Custom Audio format
 WAVEFORMATEX wfx_wav_sfx = {
@@ -140,6 +106,39 @@ WAVEHDR whdr[SND_THREAD_NUM];
 //to restore on shutdown (what if crash)?
 double wav_out_volume=0.10;
 DWORD wav_out_original_volume;
+
+
+//void loadSoundEffect(wavSoundEffect* mySoundEffect, const wchar_t* filename,WAVEFORMATEX wfx,bool skip_header)
+void loadSoundEffect(wavSoundEffect* mySoundEffect,const wchar_t* filename,bool skip_header)
+{
+  FILE* file = _wfopen(filename, L"rb");
+  int wav_header_size=0; 
+  //printf("%d\n",sizeof(AWavHeader));
+  if (skip_header) {
+    wav_header_size=sizeof(AWavHeader); //44
+  }
+  if (file) {
+    fseek(file, 0, SEEK_END);
+    long filesize;
+    filesize = ftell(file) - wav_header_size; 
+
+    //Alloc wav header
+    fseek(file, 0, SEEK_SET);
+    mySoundEffect->wav_header = malloc(wav_header_size);
+    fread(mySoundEffect->wav_header,1,wav_header_size,file);
+
+
+    //Alloc actual audio int16_t*
+    fseek(file, wav_header_size, SEEK_SET);
+    mySoundEffect->audio = malloc(filesize);
+    fread(mySoundEffect->audio, 1, filesize, file); //read once filesize
+
+    fclose(file);
+
+    mySoundEffect->filesize = filesize;
+    mySoundEffect->duration = (double)filesize / ( mySoundEffect->wav_header->SamplesPerSec * mySoundEffect->wav_header->NumOfChan * mySoundEffect->wav_header->bitsPerSample/8) *1000;
+  }
+}
 
 
 int16_t* adjustSFXVol(const int16_t* src, long filesize, double volumeFactor,bool skipped_header)
@@ -204,7 +203,6 @@ void PlayThreadSound(AWavChannelSFX* myChannelSFX, int id)
       duration--;
       Sleep(1);
     }
-    //free(whdr[id].lpData);
     mem_snd_interrupt[id]=FALSE;
 }
 
@@ -218,11 +216,6 @@ DWORD WINAPI PlayMemSnd1(LPVOID lpParam)
 DWORD WINAPI PlayMemSnd2(LPVOID lpParam)
 {
   PlayThreadSound(&memSFX[1],1);
-}
-
-DWORD WINAPI PlayMemSnd3(LPVOID lpParam)
-{
-  PlayThreadSound(&memSFX[2],2);
 }
 
 
@@ -242,7 +235,6 @@ DWORD WINAPI PlayMemSnd6(LPVOID lpParam)
 {
   PlayThreadSound(&memSFX[5],5);
 }
-
 
 void PlayMemSnd(wavSoundEffect* mySoundEffect,wavSoundEffectCache* mySoundEffectCache,bool play_cache,int thread_id) //thread 0,1,2
 {
@@ -273,9 +265,9 @@ void PlayMemSnd(wavSoundEffect* mySoundEffect,wavSoundEffectCache* mySoundEffect
         case 1:
           hMemSndArray[1] = CreateThread(NULL,0,PlayMemSnd2,NULL,0,NULL);
           break;
-        case 2:
-          hMemSndArray[2] = CreateThread(NULL,0,PlayMemSnd3,NULL,0,NULL);
-          break;
+       // case 2:
+         // hMemSndArray[2] = CreateThread(NULL,0,PlayMemSnd3,NULL,0,NULL);
+         // break;
         case 3:
           hMemSndArray[3] = CreateThread(NULL,0,PlayMemSnd4,NULL,0,NULL);
           break;

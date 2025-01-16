@@ -137,7 +137,7 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4)
         if (current_song_time!=-1)
           songtimediff=(int)((time_song_end-current_song_time)/1000);
         else
-          songtimediff=(int)((songAudio.duration)/1000);
+          songtimediff=(int)((song_audio_duration)/1000);//(int)((songAudio->duration)/1000);
         int min=songtimediff/60;
         int seconds=songtimediff%60;
         swprintf(txt,32+256,L"%c%d/%d%c: %s  [%d:%02d]",171,song_rand_num+1,song_num,187,song_names[song_rand_num],min,seconds);
@@ -1550,7 +1550,7 @@ void DrawUI(HDC hdc,HDC hdc2)
     GrPrint(hdc,16+5,help_y+1-16,"[SHIFT_ESC] to Quit",c);
     GrPrint(hdc,16+4,help_y+16,"Press '*' for Controls Help",c4);
     GrPrint(hdc,16+5,help_y+17,"Press '*' for Controls Help",c);
-  } else if (call_help_timer<1000/*5000*/) {
+  } else if (call_help_timer<2000/*5000*/) {
     GrPrint(hdc,16+4,help_y+16,"Press '*' for Controls Help",c4);
     GrPrint(hdc,16+5,help_y+17,"Press '*' for Controls Help",c);
   }

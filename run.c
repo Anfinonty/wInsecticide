@@ -30,10 +30,14 @@
 #include <direct.h>
 #include <errno.h>
 #include <shlwapi.h>
-#include <omp.h>
+//#include <omp.h>
 
 //for .avi
 #include <vfw.h>
+
+//for music
+//#include <mmsystem.h>
+//#include <dsound.h>
 
 //#define KHMER_CHARSET   0x6B //107
 
@@ -51,7 +55,6 @@
 //https://learn.microsoft.com/en-us/globalization/fonts-layout/font-support
 //https://learn.microsoft.com/en-us/windows/win32/intl/complex-script-processing
 
-//#include <mmsystem.h>
 //#include <hidsdi.h>
 //#include <hidusage.h>
 
@@ -80,7 +83,6 @@ bool flag_load_level=FALSE;
 bool flag_load_melevel=FALSE;
 bool load_sound=FALSE;
 bool back_to_menu=FALSE;
-bool clean_up_sound=FALSE;
 bool run_after_once=FALSE;
 bool run_once_only=FALSE;
 bool flag_update_background=FALSE;
@@ -441,8 +443,12 @@ void Prelude()
       }
     }
   }
+  InitSongBank(); //load song
+  play_new_song=TRUE;
   prelude=FALSE;
   flag_fullscreen=TRUE;
+
+  //LoadMusicWavFile("music/mechanicalanimals.wav");
 }
 
 
@@ -457,7 +463,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
       Sleep(1000);
     } else if (level_loading) {
       Sleep(1000);
-    } if (!in_main_menu) { //In Game
+    } else if (!in_main_menu) { //In Game
       if (level_loaded) {
         PlayerAct();
   
@@ -581,7 +587,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     case WM_KEYDOWN:
     {
       //Global keydown press
-      if (!level_loading) {
+      if (!level_loading && !prelude) {
       if (main_menu_chosen!=2) {
         GlobalKeypressDown(wParam);
       }
@@ -1216,6 +1222,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     //Tasks to perform on start
     case WM_CREATE:
     {
+      LoadBufferSFX(L"music/helicopter.wav");
       //MessageBox(NULL, TEXT("ភាសាខ្មែរ"), TEXT("ភាសាខ្មែរ") ,MB_OK); //khmer text box
       //printf("boolsize:%d",sizeof(bool));      
       AddFontResource(L"fonts/unifont-8.0.01.ttf");
@@ -1407,7 +1414,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       Init8BitRGBPaintDefault(rgbPaint,rgbColorsDefault,TRUE,8);
       wav_out_original_volume=VolumeValue(50,1); //set volume
       //waveOutGetVolume(hWaveOut[2],&wav_out_original_volume);
-      swprintf(src_music_dir,64,L"music"); //set dir of music
 
 
       color_chooser.is_choosing_color=FALSE;
@@ -1523,7 +1529,6 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
       }
 
      //Load Song
-      InitSongBank();
      //
 
       //ShowCursor(FALSE);
@@ -1706,7 +1711,6 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
        }
 
        loadSoundEffect(&channelSoundEffect[0],L"snd/fast.wav",TRUE);
-//       loadSoundEffect(&channelSoundEffect[1],L"snd/clang_death.wav",TRUE);
        loadSoundEffect(&channelSoundEffect[1],L"snd/flesh_bloody_break.wav",TRUE);
        loadSoundEffect(&channelSoundEffect[2],L"snd/knife_throw.wav",TRUE);
        loadSoundEffect(&channelSoundEffect[3],L"snd/rain2classic.wav",TRUE);
@@ -1833,6 +1837,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   //https://batchloaf.wordpress.com/2012/10/18/simulating-a-ctrl-v-keystroke-in-win32-c-or-c-using-sendinput/
 
 
+
+
+
    //Register Joystick on Start :^)
    RAWINPUTDEVICE rid;
    rid.usUsagePage = 0x01; // Generic desktop controls
@@ -1881,9 +1888,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   SetForegroundWindow(hwnd);
   HANDLE thread1=CreateThread(NULL,0,AnimateTask01,NULL,0,NULL); //Spawm Game Logic Thread
   HANDLE thread2=CreateThread(NULL,0,AnimateTask02,NULL,0,NULL); //Spawm Game Logic Thread
-  HANDLE thread3=CreateThread(NULL,0,SongTask,NULL,0,NULL); //Spawn Song Player Thread
+  HANDLE thread3=CreateThread(NULL,0,SoundTask,NULL,0,NULL); //Spawn Song Player Thread
   HANDLE thread4=CreateThread(NULL,0,AnimateAVI,NULL,0,NULL); //Spawm Game Logic Thread
-
+  //HANDLE thread5=CreateThread(NULL,0,PlayMusic,NULL,0,NULL); //Spawn music buffering1
+  HANDLE thread5=CreateThread(NULL,0,PlayMemSnd3,NULL,0,NULL); //Spawn music buffering1
+  //HANDLE thread6=CreateThread(NULL,0,PlayMemSnd7,NULL,0,NULL); //Spawn music buffering2
 
 
   //SetTimer(hwnd, 1, frameDelays[currentFrame] , NULL);
@@ -1919,6 +1928,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   //In case WM_DESTROY doesnt work
   //HWND hShellWnd = FindWindowA("Shell_TrayWnd", NULL);
   //ShowWindow(hShellWnd, SW_SHOW);
+
+  remove("music/tmp/tmp.wav");
+  rmdir("music/tmp"); //remove tmp, manually because C is like that
   waveOutSetVolume(hWaveOut[2],wav_out_original_volume);
   return (int) msg.wParam;
 }

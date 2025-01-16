@@ -25,12 +25,12 @@ void InitOnce() {
   //adjustSFXVolume(&spamSoundEffectCache[9],&spamSoundEffect[9],game_volume/3,FALSE); //powerup
 
 
-  adjustSFXVolume(&channelSoundEffectCache[0],&channelSoundEffect[0],game_volume/5,TRUE); //speed
+  adjustSFXVolume(&channelSoundEffectCache[0],&channelSoundEffect[0],game_volume/3,TRUE); //speed
   adjustSFXVolume(&channelSoundEffectCache[1],&channelSoundEffect[1],game_volume/2+game_volume/10,TRUE); //death //clang_death
   adjustSFXVolume(&channelSoundEffectCache[2],&channelSoundEffect[2],game_volume,TRUE); //knife throw
   adjustSFXVolume(&channelSoundEffectCache[3],&channelSoundEffect[3],game_volume/10,TRUE); //rain
   adjustSFXVolume(&channelSoundEffectCache[4],&channelSoundEffect[4],game_volume/30,TRUE); //rain softer <-- 2 layers
-  adjustSFXVolume(&channelSoundEffectCache[5],&channelSoundEffect[5],game_volume/2,TRUE); //shotgun
+  adjustSFXVolume(&channelSoundEffectCache[5],&channelSoundEffect[5],game_volume/3,TRUE); //shotgun
   adjustSFXVolume(&channelSoundEffectCache[6],&channelSoundEffect[6],game_volume/2,TRUE); //sniper
   adjustSFXVolume(&channelSoundEffectCache[7],&channelSoundEffect[7],game_volume,TRUE); //reload shotgun
   adjustSFXVolume(&channelSoundEffectCache[8],&channelSoundEffect[8],game_volume,TRUE); //gun shoot
@@ -39,6 +39,11 @@ void InitOnce() {
   adjustSFXVolume(&channelSoundEffectCache[11],&channelSoundEffect[11],game_volume,TRUE); //load gun
   adjustSFXVolume(&channelSoundEffectCache[12],&channelSoundEffect[12],game_volume,TRUE); //gun empty
 
+}
+
+
+void InitLoadLvlSong()
+{
   //Load custom song
   wchar_t dirname[64];
   swprintf(dirname,64,L"saves/%s/music",level_names[level_chosen]);
@@ -58,9 +63,11 @@ void InitOnce() {
       }
       _wclosedir(d);
     }
-  }
+  } //else {
+    //InitSongBank();
+    //play_new_song=TRUE;
+  //}
 }
-
 
 
 void Init() {
@@ -250,7 +257,6 @@ void InitLevel()
 {
   wchar_t txt[128];
   level_loading=TRUE;
-  //InitMarbles(16);
   loading_numerator=0;
   loading_denominator=0;
 
@@ -355,7 +361,12 @@ void InitLevel()
   InitEnemyPathfindingNodes();
   InitGridTilesObj();
   //allocate smallest to biggest
+
   level_loaded=TRUE;
+
+  if (!stop_playing_song) { 
+    InitLoadLvlSong();
+  }
   level_loading=FALSE;
   in_main_menu=FALSE;
   time_begin=current_timestamp();
