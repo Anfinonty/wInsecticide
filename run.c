@@ -1413,7 +1413,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       Init8BitRGBColorsDefault(rgbColorsDefault);
       Init8BitRGBPaintDefault(rgbPaint,rgbColorsDefault,TRUE,8);
       wav_out_original_volume=VolumeValue(50,1); //set volume
-      //waveOutGetVolume(hWaveOut[2],&wav_out_original_volume);
+      waveOutGetVolume(hWaveOut[2],&wav_out_original_volume);
+      //waveOutSetVolume(hWaveOut[6],wav_out_original_volume);
 
 
       color_chooser.is_choosing_color=FALSE;
@@ -1890,9 +1891,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   HANDLE thread2=CreateThread(NULL,0,AnimateTask02,NULL,0,NULL); //Spawm Game Logic Thread
   HANDLE thread3=CreateThread(NULL,0,SoundTask,NULL,0,NULL); //Spawn Song Player Thread
   HANDLE thread4=CreateThread(NULL,0,AnimateAVI,NULL,0,NULL); //Spawm Game Logic Thread
-  //HANDLE thread5=CreateThread(NULL,0,PlayMusic,NULL,0,NULL); //Spawn music buffering1
   HANDLE thread5=CreateThread(NULL,0,PlayMemSnd3,NULL,0,NULL); //Spawn music buffering1
-  //HANDLE thread6=CreateThread(NULL,0,PlayMemSnd7,NULL,0,NULL); //Spawn music buffering2
+  HANDLE thread6=CreateThread(NULL,0,PlayMemSnd7,NULL,0,NULL); //Spawn music buffering2
 
 
   //SetTimer(hwnd, 1, frameDelays[currentFrame] , NULL);
@@ -1932,6 +1932,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   remove("music/tmp/tmp.wav");
   rmdir("music/tmp"); //remove tmp, manually because C is like that
   waveOutSetVolume(hWaveOut[2],wav_out_original_volume);
+  waveOutSetVolume(hWaveOut[6],wav_out_original_volume);
   return (int) msg.wParam;
 }
 

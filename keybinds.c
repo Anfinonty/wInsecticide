@@ -173,11 +173,12 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
         call_help_timer=0;        
         if (song_mode<=2) {
           if (skipping_song) {
-            if (playing_wav) {
-              skip_song=TRUE;
-              play_new_song=TRUE;
-            }
-            skipping_song=FALSE;
+            playing_wav=FALSE;
+            skip_song=FALSE;
+            loading_mp3=FALSE;
+            loading_flac=FALSE;
+            loading_wav=FALSE;
+            play_new_song=TRUE;
           }
         }
         break;
@@ -226,7 +227,7 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
               song_mode=LimitValue(song_mode-1,0,4);
             }
 
-            if (song_mode==3) {
+            if (song_mode==3) { //stop playing song
               if (!stop_playing_song) {
                 stop_playing_song=TRUE;
                 toggle_stop_playing_song=TRUE;
@@ -239,7 +240,7 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
                 song_rand_num=LimitValue(-1,0,song_num);
                 stop_playing_song=FALSE;
                 play_new_song=TRUE;
-              }
+              } 
             }
 
           } else {

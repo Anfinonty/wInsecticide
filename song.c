@@ -1,6 +1,4 @@
 
-
-
 #define SONG_NUM 10
 #define SONG_FOLDER_NUM 23
 
@@ -263,23 +261,22 @@ void LoadBufferSFX(const wchar_t* filename)
 
 
 void LoadNextBufferSFX(const wchar_t* filename, int i) {
-    FILE* file = _wfopen(filename, L"rb");
-    if (file) {
-        fseek(file, buffer.current_filesize, SEEK_SET);
-        
-        // Ensure we do not fread beyond the size of the file
-        if (buffer.current_filesize + mb_1_size <= buffer.filesize) {
-          fread(buffer.audio[i], 1, mb_1_size, file);
-          buffer.current_filesize += mb_1_size;
-        } else {
-          // Adjust the read size if we are at the end of the file
-          size_t remaining_size = buffer.filesize - buffer.current_filesize;
-          memset(buffer.audio[i], 0, sizeof(buffer.audio[i])); //reset buffer so no fragments at ending
-          fread(buffer.audio[i], 1, remaining_size, file);
-          buffer.current_filesize = buffer.filesize;
-        }
-        fclose(file);
+  FILE* file = _wfopen(filename, L"rb");
+  if (file) {
+    fseek(file, buffer.current_filesize, SEEK_SET);   
+    // Ensure we do not fread beyond the size of the file
+    if (buffer.current_filesize + mb_1_size <= buffer.filesize) {
+      fread(buffer.audio[i], 1, mb_1_size, file);
+      buffer.current_filesize += mb_1_size;
+    } else {
+      // Adjust the read size if we are at the end of the file
+      size_t remaining_size = buffer.filesize - buffer.current_filesize;
+      memset(buffer.audio[i], 0, sizeof(buffer.audio[i])); //reset buffer so no fragments at ending
+      fread(buffer.audio[i], 1, remaining_size, file);
+      buffer.current_filesize = buffer.filesize;
     }
+    fclose(file);
+  }
 }
 
 
@@ -423,7 +420,7 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
               remove("music/tmp/tmp.wav");
               rmdir("music/tmp"); //remove tmp, manually because C is like that
 
-              if (!skip_song) {
+              if (!skip_song && !skipping_song) {
                 switch (song_mode) {
                   case 0: //play songs shuffle
                     song_rand_num=RandNum(0,song_num-1,1);
@@ -438,7 +435,11 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
               } else {
                 skip_song=FALSE;
               }
-          
+
+              if (skipping_song) {
+                skipping_song=FALSE;
+              }
+
               //stop .wav player
               current_song_time=-1;
               time_song_end=-1;

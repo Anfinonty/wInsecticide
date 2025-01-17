@@ -963,7 +963,7 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
     player.fling_distance=0; //on ground, stop flinging
 
     //angle of incidence and reflection
-    player.angle_of_reflection=GetBounceAngle(player.angle_of_incidence,player.angle);
+    player.angle_of_reflection=GetBounceAngle(player.angle,player.angle_of_incidence);
     //2*M_PI-player.angle_of_incidence+2*player.angle; //real
     if (!player.is_swinging) {
       player.angle_of_incidence=player.angle_of_reflection;
