@@ -267,7 +267,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
 
       if (Bullet[bullet_id].graphics_type!=10) {
         if (Bullet[bullet_id].bounce_timer==0) {
-          Bullet[bullet_id].angle=GetMarbleAngle(Bullet[bullet_id].angle,Bullet[bk].angle);//GetBounceAngle(Bullet[bk].angle,Bullet[bullet_id].angle);//RandAngle(0,360,player.seed); //scatter type 6
+          Bullet[bullet_id].angle=GetMarbleAngle(Bullet[bullet_id].angle,Bullet[bk].angle)+RandAngle(-12,12,frame_tick);//GetBounceAngle(Bullet[bk].angle,Bullet[bullet_id].angle);//RandAngle(0,360,player.seed); //scatter type 6
           Bullet[bullet_id].bounce_timer=10;
           Bullet[bk].bounce_timer=0;
         }
@@ -283,7 +283,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
 
       if (Bullet[bk].graphics_type!=6 && Bullet[bullet_id].graphics_type!=10) { //hit enemy bullet, scatter if NOT type 6
         if (Bullet[bk].bounce_timer==0) {
-          Bullet[bk].angle=GetMarbleAngle(Bullet[bk].angle,saved_angle);//RandAngle(0,360,player.seed);
+          Bullet[bk].angle=-GetMarbleAngle(Bullet[bk].angle, saved_angle)+RandAngle(-12,12,player.seed);
           Bullet[bk].bounce_timer=10;
         }
         switch (Bullet[bk].graphics_type) {

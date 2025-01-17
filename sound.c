@@ -104,7 +104,7 @@ HWAVEOUT hWaveOut[SND_THREAD_NUM];
 WAVEHDR whdr[SND_THREAD_NUM];
 
 //to restore on shutdown (what if crash)?
-double wav_out_volume=0.10;
+double wav_out_volume=0.50;
 DWORD wav_out_original_volume;
 
 

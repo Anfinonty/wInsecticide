@@ -33,7 +33,6 @@ unsigned long long time_song_start;
 unsigned long long time_song_end;
 unsigned long long current_song_time;
 
-
 //https://github.com/audiojs/sample-rate
 
 //https://riptutorial.com/winapi/example/5736/create-a-file-and-write-to-it
@@ -49,29 +48,6 @@ unsigned long long current_song_time;
 //https://web.archive.org/web/20090827003349/http://ccrma.stanford.edu/courses/422/projects/WaveFormat/
 //https://blog.devgenius.io/how-to-increase-volume-of-an-audio-file-with-c-6d23e04a03a6
 //http://soundfile.sapp.org/doc/WaveFormat/
-
-
-/*char* ReadWavFileIntoMemory(const char* filename, DWORD *fsize)
-{
-  char* sounddata;
-  FILE* file = fopen(filename, "rb");
-  if (file) {
-    fseek(file, 0, SEEK_END);
-    long file_size = ftell(file);
-    fseek(file, 0, SEEK_SET);
-
-    sounddata = (char*)malloc(file_size);
-    *fsize = file_size;
-    fread(sounddata, 1, file_size, file);
-    
-    fclose(file);
-    return sounddata;
-  } else {
-    sounddata=NULL;
-    *fsize=0;
-  }
-  return "";
-}*/
 
 
 
@@ -201,12 +177,15 @@ void InitSongBank() {
 //im not using direct sound just learning its concept
 
 #define AUDIO_STREAM_BUFFER_NUM    2  //2mb
-#define AUDIO_STREAM_BUFFER_SIZE   524288//8192//524288 8192  minimum //int16_t *524288 = 1mb //0.00049mb
+#define AUDIO_STREAM_BUFFER_SIZE   1048576//524288//8192//524288 8192  minimum //int16_t *524288 = 1mb //0.00049mb
+const long mb_1_size=AUDIO_STREAM_BUFFER_SIZE*sizeof(int16_t);
+
+
 struct AudioStreamBuffer
 {
   AWavHeader wav_header[44];
-  bool double_buffer;
-//  int duration;
+  bool double_buffer1;
+  bool double_buffer2;
 
   long current_filesize; //spindle
   long filesize;
@@ -220,9 +199,8 @@ struct AudioStreamBuffer
 
 void LoadBufferSFX(const wchar_t* filename)
 {
-  FILE* file = _wfopen(filename, L"rb");
+  FILE *file = _wfopen(filename, L"rb");
   int wav_header_size=sizeof(AWavHeader); //44
-  long mb_1_size=AUDIO_STREAM_BUFFER_SIZE*sizeof(int16_t);
   //printf("@size:%d",mb_1_size);
   buffer.current_filesize=wav_header_size;
   for (int i=0;i<AUDIO_STREAM_BUFFER_NUM;i++) {
@@ -232,7 +210,7 @@ void LoadBufferSFX(const wchar_t* filename)
   if (file) {
     fseek(file, 0, SEEK_END);
     long filesize;
-    filesize = ftell(file) - wav_header_size; 
+    filesize = ftell(file);// - wav_header_size; 
 
     //Alloc wav buffer header
     fseek(file, 0, SEEK_SET);
@@ -278,44 +256,47 @@ void LoadBufferSFX(const wchar_t* filename)
     whdr[6].lpData = (LPSTR)buffer.audio[1];
     whdr[6].dwBufferLength = buffer.buffer_size;
 
-    buffer.double_buffer=FALSE;
+    buffer.double_buffer1=TRUE;
+    buffer.double_buffer2=FALSE;
   }
 }
 
 
-void LoadNextBufferSFX(const wchar_t* filename,int i)
-{
-  FILE* file = _wfopen(filename, L"rb");
-  const int mb_1_size=AUDIO_STREAM_BUFFER_SIZE*sizeof(int16_t);
-  if (file) {
-    //Alloc actual audio int16_t*
-    fseek(file, buffer.current_filesize, SEEK_SET);
-    if (buffer.current_filesize>=buffer.filesize) {
-      buffer.current_filesize=buffer.filesize;
-      fclose(file);
-      return;
+void LoadNextBufferSFX(const wchar_t* filename, int i) {
+    FILE* file = _wfopen(filename, L"rb");
+    if (file) {
+        fseek(file, buffer.current_filesize, SEEK_SET);
+        
+        // Ensure we do not fread beyond the size of the file
+        if (buffer.current_filesize + mb_1_size <= buffer.filesize) {
+          fread(buffer.audio[i], 1, mb_1_size, file);
+          buffer.current_filesize += mb_1_size;
+        } else {
+          // Adjust the read size if we are at the end of the file
+          size_t remaining_size = buffer.filesize - buffer.current_filesize;
+          memset(buffer.audio[i], 0, sizeof(buffer.audio[i])); //reset buffer so no fragments at ending
+          fread(buffer.audio[i], 1, remaining_size, file);
+          buffer.current_filesize = buffer.filesize;
+        }
+        fclose(file);
     }
-    fread(buffer.audio[i],1,mb_1_size,file);
-    buffer.current_filesize+=mb_1_size;
-    fclose(file);
-  }
 }
 
 
 
 
 
-void PlayThreadStream()
+void PlayThreadStream1()
 {
   if (!stop_playing_song) {
-  if (playing_wav && !play_new_song && !loading_flac && !loading_mp3 && !loading_wav){
-    if (!buffer.double_buffer) {
-      //printf("@1\n");
-        // Write the audio data
-        waveOutWrite(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));    
+    if (playing_wav && !play_new_song && !loading_flac && !loading_mp3 && !loading_wav){
+      if (buffer.double_buffer1) {
+        //printf("@1:%d/%d",buffer.current_filesize,buffer.filesize);
+        waveOutWrite(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));
         while (TRUE) {
-          if (whdr[2].dwFlags & WHDR_DONE) {
-            buffer.double_buffer=TRUE;
+          if ((whdr[2].dwFlags & WHDR_DONE)) {
+            buffer.double_buffer1=FALSE;
+            buffer.double_buffer2=TRUE;
             LoadNextBufferSFX(wav_song_playing,0);
             whdr[2].lpData = (LPSTR)buffer.audio[0];
             whdr[2].dwBufferLength = buffer.buffer_size;
@@ -324,13 +305,28 @@ void PlayThreadStream()
             Sleep(10);
           }
         }
+      } else {
+        Sleep(10);
+      } 
     } else {
-      //printf("@2\n");
-        // Write the audio data
-        waveOutWrite(hWaveOut[6], &whdr[6], sizeof(WAVEHDR));    
+      Sleep(1000);
+    }
+  } else {
+    Sleep(1000);
+  }
+}
+
+void PlayThreadStream2()
+{
+  if (!stop_playing_song) {
+    if (playing_wav && !play_new_song && !loading_flac && !loading_mp3 && !loading_wav){
+      if (buffer.double_buffer2) {
+        //printf("@2:%d/%d",buffer.current_filesize,buffer.filesize);
+        waveOutWrite(hWaveOut[6], &whdr[6], sizeof(WAVEHDR));
         while (TRUE) {
-          if (whdr[6].dwFlags & WHDR_DONE) {
-            buffer.double_buffer=FALSE;
+          if ((whdr[6].dwFlags & WHDR_DONE)) {
+            buffer.double_buffer2=FALSE;
+            buffer.double_buffer1=TRUE;
             LoadNextBufferSFX(wav_song_playing,1);
             whdr[6].lpData = (LPSTR)buffer.audio[1];
             whdr[6].dwBufferLength = buffer.buffer_size;
@@ -339,6 +335,8 @@ void PlayThreadStream()
             Sleep(10);
           }
         }
+      } else {
+        Sleep(10);
       } 
     } else {
       Sleep(1000);
@@ -349,14 +347,19 @@ void PlayThreadStream()
 }
 
 
-
 DWORD WINAPI PlayMemSnd3(LPVOID lpParam)
 {
   while (TRUE) {
-    PlayThreadStream();
+    PlayThreadStream1();
   }
 }
 
+DWORD WINAPI PlayMemSnd7(LPVOID lpParam)
+{
+  while (TRUE) {
+    PlayThreadStream2();
+  }
+}
 
 
 
