@@ -47,6 +47,7 @@ typedef struct threadSFX
 } AWavChannelSFX;
 
 AWavChannelSFX memSFX[SND_THREAD_NUM];
+WAVEFORMATEX wfx_wav_music;
 
 
 
@@ -74,19 +75,6 @@ int16_t SND_MEM_STACK[SND_MEM_STACK_SIZE]; //for adjusting volume because access
 HANDLE hMemSndArray[SND_THREAD_NUM];
 bool mem_snd_interrupt[SND_THREAD_NUM]={FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE};
 
-//Custom Audio format
-WAVEFORMATEX wfx_wav_sfx = {
-    .wFormatTag = WAVE_FORMAT_PCM,
-    .nChannels = 1, // Mono
-    .nSamplesPerSec = 11025L,//22050L,//11025L, // Sample rate
-    .wBitsPerSample = 16, // 16-bit audio
-    .nBlockAlign = (1 *  16) / 8,
-    .cbSize = 0,
-    .nAvgBytesPerSec = 11025L * (1 *  16) / 8
-};
-
-WAVEFORMATEX wfx_wav_music;
-WAVEFORMATEX wfx_wav_sfx_rain;
 //https://learn.microsoft.com/en-us/windows/win32/multimedia/using-the-waveformatex-structure
 /*WAVEFORMATEX wfx_wav_music = {
     .wFormatTag = WAVE_FORMAT_PCM,
