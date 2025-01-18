@@ -150,7 +150,7 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4)
 
       
 
-      char txt2[72];
+      char txt2[128];
       //char txt2_1[2046];
       //char txt2_2[256];
       /*for (int j=0;j<128;j++) {
@@ -160,21 +160,21 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4)
 
       switch (song_mode) {
         case 0:
-          sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /?] [/X :[N%cSHIFT%cM]: /%c]",171,187,177,171,187,187);
+          sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /?] [/X :[N%cSHIFT%cM]: /%c][SHIFT_K: %d] [U:%d] [Y:%d]",171,187,177,171,187,187,buffer_length_arr[casbs_i],wav_mode,hide_mm);
           break;
         case 1:
-          sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /%c] [/? :[N%cSHIFT%cM]: /%c]",171,187,177,187,171,187,171);
+          sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /%c] [/? :[N%cSHIFT%cM]: /%c][SHIFT_K: %d] [U:%d] [Y:%d]",171,187,177,187,171,187,buffer_length_arr[casbs_i],wav_mode,hide_mm);
           break;
         case 2:
-          sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /%c] [/%c :[N%cSHIFT%cM]: /X]",171,187,177,171,187,171,187);
+          sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /%c] [/%c :[N%cSHIFT%cM]: /X][SHIFT_K: %d] [U:%d] [Y:%d]",171,187,177,171,187,171,187,buffer_length_arr[casbs_i],wav_mode,hide_mm);
           break;
       }
       GrPrint(hdc,x,y+16,txt2,c);   
       GrPrint(hdc,x+1,y+1+16,txt2,c4);
     }
   } else {
-    char txt2[72];
-    sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /X] [/%c :[N%cSHIFT%cM]: /?]",171,187,177,171,171,187);
+    char txt2[128];
+    sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /X] [/%c :[N%cSHIFT%cM]: /?][SHIFT_K: %d] [U:%d] [Y:%d]",171,187,177,171,171,187,buffer_length_arr[casbs_i],wav_mode,hide_mm);
     GrPrint(hdc,x,y+16,txt2,c);   
     GrPrint(hdc,x+1,y+1+16,txt2,c4);
   }
@@ -434,13 +434,72 @@ void DrawTitle(HDC hdc,HDC hdc2)
 }
 
 
+
+
+
+void DrawMusicWav(HDC hdc)
+{
+  double c_x1=((double)0/chosen_buffer_length_o)*GR_WIDTH;
+  double c_y1=GR_HEIGHT/2+audioData.buffer1[0]*wav_out_volume*0.01;
+  double c_x2=((double)0/chosen_buffer_length_o)*GR_WIDTH;
+  double c_y2=GR_HEIGHT/2+audioData.buffer2[0]*wav_out_volume*0.01;
+
+  double prev_x1=c_x1;
+  double prev_y1=c_y1;
+  double prev_x2=c_x2;
+  double prev_y2=c_y2;
+
+
+  GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,rgbPaint[player_color]);
+
+    for (int i=0;i<chosen_buffer_length_o;i++) {
+        c_x1=((double)i/chosen_buffer_length_o)*GR_WIDTH;
+        c_y1=GR_HEIGHT/2+audioData.buffer1[i]*wav_out_volume*0.01;
+        c_x2=((double)i/chosen_buffer_length_o)*GR_WIDTH;
+        c_y2=GR_HEIGHT/2+audioData.buffer2[i]*wav_out_volume*0.01;
+
+
+        if (wav_mode==1) {
+            if (audioData.double_buffer) {
+              GrLine(hdc,prev_x1,prev_y1,c_x1,c_y1,rgbPaint[player_iris_color]);
+            } else {
+              GrLine(hdc,prev_x2,prev_y2,c_x2,c_y2,rgbPaint[player_pupil_color]);
+            }
+        } else {
+          GrLine(hdc,prev_x1,prev_y1,c_x1,c_y1,rgbPaint[player_iris_color]);
+          GrLine(hdc,prev_x2,prev_y2,c_x2,c_y2,rgbPaint[player_pupil_color]);
+        }
+        prev_x1=c_x1;
+        prev_y1=c_y1;
+        prev_x2=c_x2;
+        prev_y2=c_y2;
+
+  }
+}
+
+
 void DrawMainMenu(HDC hdc,HDC hdc2)
 {
 
   //draw bkgrnd
   //DrawBitmap(hdc,hdc2,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
 
-  DrawMovingAVI(hdc,hdc2);
+  if (wav_mode==0) {
+    DrawMovingAVI(hdc,hdc2);
+  } else {
+    DrawMusicWav(hdc);
+  }
+
+
+  int main_menu_y=0;
+  int main_menu_y2=0;
+  int help_y=GR_HEIGHT-128;
+  if (!hide_taskbar) { //task bar is shown
+    help_y-=8*4; //go up abit
+  }
+
+
+  if (!hide_mm) {
   //Draw Moon Phase
   //GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
   if (GR_WIDTH>=800)
@@ -449,15 +508,9 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
 
   DrawTitle(hdc,hdc2);
 
-  int help_y=GR_HEIGHT-128;
-  if (!hide_taskbar) { //task bar is shown
-    help_y-=8*4; //go up abit
-  }
 
   DrawPersianClock(hdc,hdc2);
 
-  int main_menu_y=0;
-  int main_menu_y2=0;
   if (hide_taskbar) {
     main_menu_y=15;
 //    main_menu_y2=15;
@@ -911,6 +964,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
 
       GrPrint(hdc,30,main_menu_y+10+16*18,"[SHIFT_ESC]: Back.",WHITE);      
       break;
+  }
   }
   DrawPlayingMusic(hdc,16+4,help_y+48,BLACK,WHITE);
 

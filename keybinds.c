@@ -139,6 +139,15 @@ void GlobalKeypressDown(WPARAM wParam)
 {
   if (!MapEditor.is_ground_txt_typing) {
     switch (wParam) {
+      /*case 'J': //rewind
+        if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+          if (audioData.current_filesize>chosen_buffer_size*1) {
+            audioData.current_filesize-=chosen_buffer_size*1;
+          }
+          fseek(audioData.music_file, audioData.current_filesize, SEEK_SET);
+        }
+        break;*/
+
     //Holding down '9' or '9' Key
       case '9'://skip song, upwnwards (previous)
       case '0'://skip song, downwards (next)
@@ -167,6 +176,51 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
 {
   if (!MapEditor.is_ground_txt_typing) {
     switch (wParam) {
+      case 'V': //speed up
+        LiveWaveClose();
+        if (!song_speed_up) {
+          song_speed_up=TRUE;
+          //chosen_buffer_length=buffer_length_arr[casbs_i]+buffer_length_arr[casbs_i]/2;
+          //chosen_buffer_size=buffer_size_arr[casbs_i]+buffer_size_arr[casbs_i]/2;        
+          wfx_wav_music.nSamplesPerSec = audioData.wav_header->SamplesPerSec+audioData.wav_header->SamplesPerSec;
+//          wfx_wav_music.nAvgBytesPerSec = audioData.wav_header->bytesPerSec*2/*+audioData.wav_header->SamplesPerSec/2*/;
+          LiveWaveReOpen();
+          //LiveWaveReOpen(chosen_buffer_size-chosen_buffer_size/4);
+        } else {
+          song_speed_up=FALSE;
+          //chosen_buffer_length=buffer_length_arr[casbs_i];
+          //chosen_buffer_size=buffer_size_arr[casbs_i];                  
+          wfx_wav_music.nSamplesPerSec = audioData.wav_header->SamplesPerSec;
+          //LiveWaveReOpen(chosen_buffer_size);
+          //wfx_wav_music.nAvgBytesPerSec = audioData.wav_header->bytesPerSec;
+          LiveWaveReOpen();
+        }
+        break;
+      case 'Y':
+        hide_mm=!hide_mm;
+        break;
+
+      case 'U':
+        if (wav_mode==2) {
+          wav_mode=0;
+        } else {
+          wav_mode++;
+        }
+        break;
+
+      case 'K': //adjust sample
+        if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+          int a=casbs_i;a++;if (a==3) {a=0;}
+          casbs_i=a;
+          chosen_buffer_length_o=buffer_length_arr[casbs_i];
+          chosen_buffer_size_o=buffer_size_arr[casbs_i];
+          chosen_buffer_length=buffer_length_arr[casbs_i];
+          chosen_buffer_size=buffer_size_arr[casbs_i];
+
+          LiveWaveClose();
+          LiveWaveReOpen(chosen_buffer_size);          
+        }
+        break;
     //Letting go '0' or '9' Key
       case '9':
       case '0':
