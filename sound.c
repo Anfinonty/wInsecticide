@@ -36,7 +36,7 @@ typedef struct WavSoundEffectCache //for sound whoese volume that needs to be ad
 
 
 
-#define SND_THREAD_NUM    7
+#define SND_THREAD_NUM    6//7
 typedef struct threadSFX
 {
   bool is_cache;
@@ -73,7 +73,7 @@ void freeSoundEffectCache(wavSoundEffectCache* mySoundEffectCache)
 #define SND_MEM_STACK_SIZE  500000
 int16_t SND_MEM_STACK[SND_MEM_STACK_SIZE]; //for adjusting volume because access via heap is finicky!!, 5 megabyte 500k KB Ram allowed max
 HANDLE hMemSndArray[SND_THREAD_NUM];
-bool mem_snd_interrupt[SND_THREAD_NUM]={FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE};
+bool mem_snd_interrupt[SND_THREAD_NUM]={FALSE,FALSE,FALSE,FALSE,FALSE,FALSE};//,FALSE};
 
 //https://learn.microsoft.com/en-us/windows/win32/multimedia/using-the-waveformatex-structure
 /*WAVEFORMATEX wfx_wav_music = {

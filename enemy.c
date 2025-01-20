@@ -1160,32 +1160,45 @@ void EnemyAntAct(int i,int slash_time_i)
   }
 }
 
-void MosquitoBites(int i,int dmg)
+void InsectBites(int i,int dmg,bool is_mosquito)
 {
   Enemy[i]->bullet_cooldown=Enemy[i]->bullet_cooldown_max;
   if (Enemy[i]->bullet_fire_cooldown<=0) {
      Enemy[i]->bullet_fire_cooldown=Enemy[i]->bullet_fire_cooldown_max;
      player.show_health_timer=HP_SHOW_TIMER_NUM;
-     Enemy[i]->damage_taken_timer=256;
+     if (is_mosquito) {
+       Enemy[i]->damage_taken_timer=256;
+     }
      if (game_audio) {
-      PlaySound(spamSoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //hurt snd
+       PlaySound(spamSoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //hurt snd
      }
      if (player.health>PLAYER_LOW_HEALTH+1) { //usual response
        player.health-=dmg;
-       Enemy[i]->health+=dmg;
-       Enemy[i]->max_health+=dmg;
+       if (is_mosquito) {
+         Enemy[i]->health+=dmg;
+         Enemy[i]->max_health+=dmg;
+       }
      } else { //Player when low health
        if (player.health<PLAYER_LOW_HEALTH) {
          player.health-=0.1;
        } else {
          player.health-=1;
        }
-     }  
+     }
+
+    if (player.speed>5) {
+      player.speed--;
+    } else { //penalty only at low speed
+      if (player.time_breaker_units>1) {
+        player.invalid_shoot_timer=9;
+        player.time_breaker_units=1;
+      }
+    }
+
   } else {
     Enemy[i]->bullet_fire_cooldown--;
   }
 }
-
 
 
 
@@ -1374,12 +1387,28 @@ void EnemyAct(int i)
         }
       } 
 
-   bool mosquito_bite=FALSE;
+   bool insect_bite=FALSE;
    //mosquito quirk 
      if (Enemy[i]->species==0 && !Enemy[i]->web_stuck && (!player.time_breaker || Enemy[i]->time_breaker_immune)) {
         if (Enemy[i]->dist_from_player<=NODE_SIZE*2) {
-          MosquitoBites(i,Enemy[i]->bullet_damage); 
-          mosquito_bite=TRUE;
+          InsectBites(i,Enemy[i]->bullet_damage,TRUE); 
+          insect_bite=TRUE;
+        }
+     }
+
+   //ant quirk 
+    if ((Enemy[i]->species>=5 && Enemy[i]->species<=7) && !Enemy[i]->web_stuck && (!player.time_breaker || Enemy[i]->time_breaker_immune)) {
+        if (Enemy[i]->dist_from_player<=NODE_SIZE*2) {
+          InsectBites(i,Enemy[i]->bullet_damage,FALSE); 
+          insect_bite=TRUE;
+        }
+     }
+
+    //toe BITER quit
+    if ((Enemy[i]->species==3) && !Enemy[i]->web_stuck && (!player.time_breaker || Enemy[i]->time_breaker_immune)) {
+        if (Enemy[i]->dist_from_player<=NODE_SIZE*3) {
+          InsectBites(i,Enemy[i]->bullet_damage,FALSE); 
+          insect_bite=TRUE;
         }
      }
 
@@ -1507,7 +1536,7 @@ void EnemyAct(int i)
             if (player.speed>5) {
               deduct_health=TRUE;
             } else if (game_audio) {
-              if (!mosquito_bite) {
+              if (!insect_bite) {
                 PlaySound(spamSoundEffectCache[6].audio,NULL, SND_MEMORY | SND_ASYNC);            
               }
             }
@@ -1529,7 +1558,7 @@ void EnemyAct(int i)
       deduct_health=FALSE;
       Enemy[i]->damage_taken_timer=256;
       Enemy[i]->health-=player.attack_strength;
-      if (game_audio && !mosquito_bite) {
+      if (game_audio && !insect_bite) {
         PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
       }
     }

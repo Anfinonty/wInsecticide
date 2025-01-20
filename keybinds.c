@@ -139,31 +139,100 @@ void GlobalKeypressDown(WPARAM wParam)
 {
   if (!MapEditor.is_ground_txt_typing) {
     switch (wParam) {
-      /*case 'J': //rewind
-        if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
-          if (audioData.current_filesize>chosen_buffer_size*1) {
-            audioData.current_filesize-=chosen_buffer_size*1;
-          }
-          fseek(audioData.music_file, audioData.current_filesize, SEEK_SET);
+      case 'I': //fast forward
+      case 'K': //rewind
+      {
+        if (!stop_playing_song[gct] && playing_wav[gct]) {
+        audioData[gct].song_rewind=TRUE;
+        if (audioData[gct].current_filesize>audioData[gct].read_size*2 && audioData[gct].current_filesize<audioData[gct].filesize-audioData[gct].read_size*2) { //stutters when rewinding, idk why
+            if (wParam=='K') {
+              if (audioData[gct].queue_read_buffer>0) {audioData[gct].queue_read_buffer--;} else {audioData[gct].queue_read_buffer=READ_BUFFER_NUM-1;}
+              if (audioData[gct].queue_play_buffer>0) {audioData[gct].queue_play_buffer--;} else {audioData[gct].queue_play_buffer=READ_BUFFER_NUM-1;} 
+              audioData[gct].current_filesize-=audioData[gct].read_size;
+            } else {
+              if (audioData[gct].queue_read_buffer<=18) {audioData[gct].queue_read_buffer++;} else {audioData[gct].queue_read_buffer=0;}
+              if (audioData[gct].queue_play_buffer<=18) {audioData[gct].queue_play_buffer++;} else {audioData[gct].queue_play_buffer=0;} 
+              audioData[gct].current_filesize+=audioData[gct].read_size;
+            }
+
+            memcpy(audioData[gct].buffer1,audioData[gct].read_buffer[audioData[gct].queue_play_buffer],audioData[gct].read_size);
+            memcpy(audioData[gct].buffer2,audioData[gct].read_buffer[audioData[gct].queue_play_buffer],audioData[gct].read_size);
+            fseek(audioData[gct].music_file, audioData[gct].current_filesize, SEEK_SET);
+            fread(audioData[gct].read_buffer[audioData[gct].queue_read_buffer], sizeof(BYTE), audioData[gct].read_size, audioData[gct].music_file);  //copy then go backwards/forwards
+            fseek(audioData[gct].music_file, audioData[gct].current_filesize, SEEK_SET);
         }
-        break;*/
+        }
+        }
+        break;
+
+
+      case 'J': //jump1
+        if (!stop_playing_song[gct] && playing_wav[gct]) {
+        if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //save jumpto
+          audioData[gct].jump1=audioData[gct].current_filesize; //spindle, not read
+          audioData[gct].saved_play_buffer1=audioData[gct].queue_play_buffer;
+          audioData[gct].saved_read_buffer1=audioData[gct].queue_read_buffer;
+          audioData[gct].saved_double_buffer=audioData[gct].double_buffer;
+        } else { //jump to
+          audioData[gct].current_filesize=audioData[gct].jump1;
+          audioData[gct].queue_play_buffer=audioData[gct].saved_play_buffer1;
+          audioData[gct].queue_read_buffer=audioData[gct].saved_read_buffer1;
+          audioData[gct].double_buffer=audioData[gct].saved_double_buffer;
+          fseek(audioData[gct].music_file, audioData[gct].current_filesize-(audioData[gct].read_size*READ_BUFFER_NUM/2), SEEK_SET);
+          InitAudioBuffer(gct);
+        }
+        }
+        break;
+
+
+
+      case 'H': //jump2
+        if (!stop_playing_song[gct] && playing_wav[gct]) {
+        if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //save jump
+          audioData[gct].jump2=audioData[gct].current_filesize;//spindle, not read
+          audioData[gct].saved_play_buffer2=audioData[gct].queue_play_buffer;
+          audioData[gct].saved_read_buffer2=audioData[gct].queue_read_buffer;
+          audioData[gct].saved_double_buffer=audioData[gct].double_buffer;
+        } else { //jump to
+          audioData[gct].current_filesize=audioData[gct].jump2; //to read filesize
+          audioData[gct].queue_play_buffer=audioData[gct].saved_play_buffer2;
+          audioData[gct].queue_read_buffer=audioData[gct].saved_read_buffer2;
+          audioData[gct].double_buffer=audioData[gct].saved_double_buffer;
+          fseek(audioData[gct].music_file, audioData[gct].current_filesize-(audioData[gct].read_size*READ_BUFFER_NUM/2), SEEK_SET);
+          InitAudioBuffer(gct);
+        }
+        }
+        break;
+
+
+
+      case 'B':
+        if (audioData[gct].tempo<2.0) {
+           audioData[gct].tempo+=0.25;
+        }
+        break;
+      case 'V':
+        if (audioData[gct].tempo>1.0) {
+           audioData[gct].tempo-=0.25;
+        }
+        break;
 
     //Holding down '9' or '9' Key
       case '9'://skip song, upwnwards (previous)
       case '0'://skip song, downwards (next)
         call_help_timer=0;
         if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
-          if (song_mode<=2) {
-            skipping_song=TRUE;
+          if (song_mode[gct]<=2) {
+            skipping_song[gct]=TRUE;
 
             if (wParam=='0')
-              song_rand_num=LimitValue(song_rand_num+1,0,song_num);
+              song_rand_num[gct]=LimitValue(song_rand_num[gct]+1,0,song_num);
             else if (wParam=='9')
-              song_rand_num=LimitValue(song_rand_num-1,0,song_num);
+              song_rand_num[gct]=LimitValue(song_rand_num[gct]-1,0,song_num);
           }
         }
-        if (song_mode>2)
-          skipping_song=FALSE;
+        if (song_mode[gct]>2)
+          skipping_song[gct]=FALSE;
         break;
     }
   }
@@ -176,39 +245,61 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
 {
   if (!MapEditor.is_ground_txt_typing) {
     switch (wParam) {
-      case 'V': //speed up
-        LiveWaveClose();
-        if (!song_speed_up) {
-          song_speed_up=TRUE;
-          //chosen_buffer_length=buffer_length_arr[casbs_i]+buffer_length_arr[casbs_i]/2;
-          //chosen_buffer_size=buffer_size_arr[casbs_i]+buffer_size_arr[casbs_i]/2;        
-          wfx_wav_music.nSamplesPerSec = audioData.wav_header->SamplesPerSec+audioData.wav_header->SamplesPerSec;
-//          wfx_wav_music.nAvgBytesPerSec = audioData.wav_header->bytesPerSec*2/*+audioData.wav_header->SamplesPerSec/2*/;
-          LiveWaveReOpen();
-          //LiveWaveReOpen(chosen_buffer_size-chosen_buffer_size/4);
-        } else {
-          song_speed_up=FALSE;
-          //chosen_buffer_length=buffer_length_arr[casbs_i];
-          //chosen_buffer_size=buffer_size_arr[casbs_i];                  
-          wfx_wav_music.nSamplesPerSec = audioData.wav_header->SamplesPerSec;
-          //LiveWaveReOpen(chosen_buffer_size);
-          //wfx_wav_music.nAvgBytesPerSec = audioData.wav_header->bytesPerSec;
-          LiveWaveReOpen();
+      case 'R':
+        switch (gct) {
+          case 0: gct=1;break;
+          case 1: gct=0;break;
         }
         break;
+      //case 'V': //speed up
+/*        LiveWaveClose();
+        //if (!song_speed_up) {
+          //song_speed_up=TRUE;
+          //chosen_buffer_length=buffer_length_arr[casbs_i]+buffer_length_arr[casbs_i]/2;
+          //chosen_buffer_size=buffer_size_arr[casbs_i]+buffer_size_arr[casbs_i]/2;        
+          wfx_wav_music.nAvgBytesPerSec++;// = audioData1.wav_header->bytesPerSec+audioData1.wav_header->SamplesPerSec/2;
+//          wfx_wav_music.nSamplesPerSec = audioData1.wav_header->SamplesPerSec+audioData1.wav_header->SamplesPerSec/2; //nightcore
+          
+          LiveWaveReOpen();*/
+          //LiveWaveReOpen(chosen_buffer_size-chosen_buffer_size/4);
+        //} else {
+          //song_speed_up=FALSE;
+          //chosen_buffer_length=buffer_length_arr[casbs_i];
+          //chosen_buffer_size=buffer_size_arr[casbs_i];                  
+          //LiveWaveReOpen(chosen_buffer_size);
+          //wfx_wav_music.nAvgBytesPerSec = audioData1.wav_header->bytesPerSec;
+          //wfx_wav_music.nSamplesPerSec = audioData1.wav_header->SamplesPerSec;
+          //LiveWaveReOpen();
+        //}
+        //audioData1.tempo+=0.1;
+        //break;
+      //case 'B':
+        //LiveWaveClose();
+        //wfx_wav_music.nAvgBytesPerSec;//=wfx_wav_music.nAvgBytesPerSec-1;
+        //LiveWaveReOpen();
+        //audioData1.tempo-=0.1;
+        //break;
+
       case 'Y':
         hide_mm=!hide_mm;
         break;
 
       case 'U':
-        if (wav_mode==2) {
+        if (wav_mode==3) {
           wav_mode=0;
         } else {
           wav_mode++;
         }
         break;
 
-      case 'K': //adjust sample
+      case 'I':
+        audioData[gct].song_rewind=FALSE;
+        if (!stop_playing_song[gct] && playing_wav[gct]) {
+          InitAudioBuffer(gct);
+        }
+        break;
+
+      case 'K': //adjust buffer size rate
         if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
           int a=casbs_i;a++;if (a==3) {a=0;}
           casbs_i=a;
@@ -217,22 +308,28 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
           chosen_buffer_length=buffer_length_arr[casbs_i];
           chosen_buffer_size=buffer_size_arr[casbs_i];
 
-          LiveWaveClose();
-          LiveWaveReOpen(chosen_buffer_size);          
+          LiveWaveClose(gct);
+          LiveWaveReOpen(gct);          
+        } else {
+          audioData[gct].song_rewind=FALSE;
+          if (!stop_playing_song[gct] && playing_wav[gct]) {
+            InitAudioBuffer(gct);
+          }
         }
         break;
+
     //Letting go '0' or '9' Key
       case '9':
       case '0':
         call_help_timer=0;        
-        if (song_mode<=2) {
-          if (skipping_song) {
-            playing_wav=FALSE;
-            skip_song=FALSE;
-            loading_mp3=FALSE;
-            loading_flac=FALSE;
-            loading_wav=FALSE;
-            play_new_song=TRUE;
+        if (song_mode[gct]<=2) {
+          if (skipping_song[gct]) {
+            playing_wav[gct]=FALSE;
+            skip_song[gct]=FALSE;
+            loading_mp3[gct]=FALSE;
+            loading_flac[gct]=FALSE;
+            loading_wav[gct]=FALSE;
+            play_new_song[gct]=TRUE;
           }
         }
         break;
@@ -276,36 +373,66 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
           call_help_timer=0;
           if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
             if (wParam=='M') {
-              song_mode=LimitValue(song_mode+1,0,4);
+              song_mode[gct]=LimitValue(song_mode[gct]+1,0,4);
             } else if (wParam=='N'){
-              song_mode=LimitValue(song_mode-1,0,4);
+              song_mode[gct]=LimitValue(song_mode[gct]-1,0,4);
             }
 
-            if (song_mode==3) { //stop playing song
-              if (!stop_playing_song) {
-                stop_playing_song=TRUE;
-                toggle_stop_playing_song=TRUE;
+            if (song_mode[gct]==3) { //stop playing song
+              if (!stop_playing_song[gct]) {
+                stop_playing_song[gct]=TRUE;
+                toggle_stop_playing_song[gct]=TRUE;
               }
             } else {
-              if (stop_playing_song) {//reenable song
-                remove("music/tmp/tmp.wav");
-                rmdir("music/tmp"); //remove tmp
-                InitSongBank();
-                song_rand_num=LimitValue(-1,0,song_num);
-                stop_playing_song=FALSE;
-                play_new_song=TRUE;
+              //[1] cannot be renabled unless [0] is reenabled, idk why but this workaround resolves it
+              //[0] must always bee opened first, [1] cannot be openned first
+              //[0] cannot turn off if  [1] is on
+              bool allow_act=FALSE;
+              switch (gct) {
+                case 0:
+                  /*if (stop_playing_song[1]) {//[0] is playing
+                    allow_act=TRUE;
+                  }*/
+                  
+                  break;
+                case 1:
+                  if (!stop_playing_song[0]) {//[0] is playing
+                    allow_act=TRUE;
+                  }
+                  break;
+              }
+              if (allow_act) {
+                  if (stop_playing_song[gct]) {//reenable song
+                    switch (gct) {
+                      case 0:
+                        remove("music_tmp/tmp/tmp.wav");
+                        rmdir("music_tmp/tmp"); //remove tmp
+                        break;
+                      case 1:
+                        remove("music_tmp/tmp2/tmp.wav");
+                        rmdir("music_tmp/tmp2"); //remove tmp
+                        break;
+                    }
+                    InitSongBank();
+                    song_rand_num[gct]=LimitValue(-1,0,song_num);
+                    stop_playing_song[gct]=FALSE;
+                    play_new_song[gct]=TRUE;
+                  }
               } 
             }
 
           } else {
-            if (!stop_playing_song) {
-              play_new_song=TRUE;
-              loading_mp3=FALSE;
-              loading_flac=FALSE;
-              loading_wav=FALSE;
-              playing_wav=FALSE;
+            if (!stop_playing_song[gct]) {
+              play_new_song[gct]=TRUE;
+              loading_mp3[gct]=FALSE;
+              loading_flac[gct]=FALSE;
+              loading_wav[gct]=FALSE;
+              playing_wav[gct]=FALSE;
             }
-          }
+          }          
+
+
+
           break;//end current song
 
         //Release 'L' Key
