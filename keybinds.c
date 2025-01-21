@@ -137,8 +137,67 @@ void ColorKeypressUp(WPARAM wParam, int *dest_color_id)
 //Keybinds
 void GlobalKeypressDown(WPARAM wParam)
 {
+  /*
+        '6'+SHIFT:  change buffer rate
+
+        hWaveOut[2]: '7'[gct=0], '7'[gct=1];*****
+        hWaveOut[6]: '8'[gct=0], '8'[gct=1];*****
+        '7''8':          Play Sample*****
+        '7''8' + SHIFT:  SAVE SAMPLE*****
+        
+
+                            SHIFT+'9': song--; SHIFT+'0': song++;
+
+        R: switch wav
+
+                                    I: Fast Forwards
+                                        K: Rewind
+
+                            H+SHIFT: jump pos1, save pos1          L: Start Loop position/End Loop position [LET GO] //discards old loops
+                                J+SHIFT: jump pos2, save pos2      L+SHIFT: PLAY LOOP/STOP LOOP [LET GO]
+
+        VB: decrease,increaase tempo
+        VB+SHIFT: decrease,increase sample persec, nightcore
+
+
+                    N+SHIFT: next song, change song mode++  M+SHIFT: next song, change song mode--
+
+
+
+ */
+
+
   if (!MapEditor.is_ground_txt_typing) {
     switch (wParam) {
+      case 'L':
+        if (!(keydown(VK_LSHIFT) || keydown(VK_RSHIFT))) { //play loop no shift
+          if (!audioData[gct].play_loop) {            
+            audioData[gct].play_loop=TRUE;
+          } else {
+            audioData[gct].play_loop=FALSE;
+          }
+        } else {//record loop/stop recording loop
+          if (!audioData[gct].record_loop) {
+            audioData[gct].record_loop=TRUE;
+            audioData[gct].loop_start=audioData[gct].current_filesize;
+            audioData[gct].loop_read=audioData[gct].queue_read_buffer;
+            audioData[gct].loop_play=audioData[gct].queue_play_buffer;
+            audioData[gct].saved_loop_double_buffer=audioData[gct].double_buffer;
+          } else  {
+            audioData[gct].record_loop=FALSE;
+            audioData[gct].loop_end=audioData[gct].current_filesize;
+          }
+        }
+        break;
+      case 'P': //pause
+        if (!song_pause[gct]) {
+          song_pause[gct]=TRUE;
+          LiveWavePause(gct);
+        } else {
+          song_pause[gct]=FALSE;
+          LiveWaveResume(gct);
+        }
+        break;
       case 'I': //fast forward
       case 'K': //rewind
       {
@@ -178,7 +237,8 @@ void GlobalKeypressDown(WPARAM wParam)
           audioData[gct].queue_play_buffer=audioData[gct].saved_play_buffer1;
           audioData[gct].queue_read_buffer=audioData[gct].saved_read_buffer1;
           audioData[gct].double_buffer=audioData[gct].saved_double_buffer;
-          fseek(audioData[gct].music_file, audioData[gct].current_filesize-(audioData[gct].read_size*READ_BUFFER_NUM/2), SEEK_SET);
+          audioData[gct].read_filesize=audioData[gct].current_filesize-(audioData[gct].read_size*READ_BUFFER_NUM/2);
+          fseek(audioData[gct].music_file, audioData[gct].read_filesize, SEEK_SET);
           InitAudioBuffer(gct);
         }
         }
@@ -198,7 +258,8 @@ void GlobalKeypressDown(WPARAM wParam)
           audioData[gct].queue_play_buffer=audioData[gct].saved_play_buffer2;
           audioData[gct].queue_read_buffer=audioData[gct].saved_read_buffer2;
           audioData[gct].double_buffer=audioData[gct].saved_double_buffer;
-          fseek(audioData[gct].music_file, audioData[gct].current_filesize-(audioData[gct].read_size*READ_BUFFER_NUM/2), SEEK_SET);
+          audioData[gct].read_filesize=audioData[gct].current_filesize-(audioData[gct].read_size*READ_BUFFER_NUM/2);
+          fseek(audioData[gct].music_file, audioData[gct].read_filesize, SEEK_SET);
           InitAudioBuffer(gct);
         }
         }
@@ -206,16 +267,37 @@ void GlobalKeypressDown(WPARAM wParam)
 
 
 
-      case 'B':
-        if (audioData[gct].tempo<2.0) {
-           audioData[gct].tempo+=0.25;
-        }
-        break;
       case 'V':
-        if (audioData[gct].tempo>1.0) {
-           audioData[gct].tempo-=0.25;
+        if (!(keydown(VK_LSHIFT) || keydown(VK_RSHIFT))) {
+          if (audioData[gct].sps_offset>-audioData[gct].sps_o) {
+             LiveWaveClose(gct);
+             audioData[gct].sps_offset-=audioData[gct].sps_o/20;
+             audioData[gct].awfx_music.nSamplesPerSec=audioData[gct].sps_o+audioData[gct].sps_offset;
+             LiveWaveReOpen(gct);
+          }
+        } else {
+          if (audioData[gct].tempo>1.0) {
+             audioData[gct].tempo-=0.25;
+          }
         }
         break;
+
+
+      case 'B':
+        if (!(keydown(VK_LSHIFT) || keydown(VK_RSHIFT))) {
+          if (audioData[gct].sps_offset<audioData[gct].sps_o*2) {
+             LiveWaveClose(gct);
+             audioData[gct].sps_offset+=audioData[gct].sps_o/20;
+             audioData[gct].awfx_music.nSamplesPerSec=audioData[gct].sps_o+audioData[gct].sps_offset;
+             LiveWaveReOpen(gct);
+          }
+        } else {
+          if (audioData[gct].tempo<2.0) {
+             audioData[gct].tempo+=0.25;
+          }
+        }
+        break;
+
 
     //Holding down '9' or '9' Key
       case '9'://skip song, upwnwards (previous)
@@ -299,7 +381,7 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
         }
         break;
 
-      case 'K': //adjust buffer size rate
+      case '6': //adjust buffer size rate
         if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
           int a=casbs_i;a++;if (a==3) {a=0;}
           casbs_i=a;
@@ -310,11 +392,14 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
 
           LiveWaveClose(gct);
           LiveWaveReOpen(gct);          
-        } else {
-          audioData[gct].song_rewind=FALSE;
-          if (!stop_playing_song[gct] && playing_wav[gct]) {
-            InitAudioBuffer(gct);
-          }
+        }
+        break;
+
+
+      case 'K':
+        audioData[gct].song_rewind=FALSE;
+        if (!stop_playing_song[gct] && playing_wav[gct]) {
+          InitAudioBuffer(gct);
         }
         break;
 
@@ -324,12 +409,11 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
         call_help_timer=0;        
         if (song_mode[gct]<=2) {
           if (skipping_song[gct]) {
-            playing_wav[gct]=FALSE;
-            skip_song[gct]=FALSE;
-            loading_mp3[gct]=FALSE;
-            loading_flac[gct]=FALSE;
-            loading_wav[gct]=FALSE;
-            play_new_song[gct]=TRUE;
+             play_new_song[gct]=TRUE;
+             loading_mp3[gct]=FALSE;
+             loading_flac[gct]=FALSE;
+             loading_wav[gct]=FALSE;
+             playing_wav[gct]=FALSE;
           }
         }
         break;
@@ -379,23 +463,38 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
             }
 
             if (song_mode[gct]==3) { //stop playing song
-              if (!stop_playing_song[gct]) {
-                stop_playing_song[gct]=TRUE;
-                toggle_stop_playing_song[gct]=TRUE;
-              }
-            } else {
-              //[1] cannot be renabled unless [0] is reenabled, idk why but this workaround resolves it
-              //[0] must always bee opened first, [1] cannot be openned first
-              //[0] cannot turn off if  [1] is on
               bool allow_act=FALSE;
               switch (gct) {
                 case 0:
-                  /*if (stop_playing_song[1]) {//[0] is playing
+                  if (stop_playing_song[1]) {//[0] is not
                     allow_act=TRUE;
-                  }*/
-                  
+                  } else {
+                    if (wParam=='M') {
+                      song_mode[gct]=LimitValue(song_mode[gct]+1,0,4);
+                    } else if (wParam=='N'){
+                      song_mode[gct]=LimitValue(song_mode[gct]-1,0,4);
+                    }
+                  }
                   break;
                 case 1:
+                  allow_act=TRUE;
+                  break;
+              }
+              if (!stop_playing_song[gct] && allow_act) {
+                stop_playing_song[gct]=TRUE;
+                toggle_stop_playing_song[gct]=TRUE;
+              }
+
+
+            } else {
+              //[1] cannot be renabled unless [0] is reenabled, idk why but this workaround resolves it
+              //[0] must always bee opened first, [1] cannot be openned first
+              bool allow_act=FALSE;
+              switch (gct) {
+                case 0:
+                  allow_act=TRUE;
+                  break;
+                case 1: //only opened when 0 is running
                   if (!stop_playing_song[0]) {//[0] is playing
                     allow_act=TRUE;
                   }
@@ -414,14 +513,18 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
                         break;
                     }
                     InitSongBank();
-                    song_rand_num[gct]=LimitValue(-1,0,song_num);
+                    if (gct==0) {
+                      song_rand_num[gct]=LimitValue(-1,0,song_num);
+                    } else {
+                      song_rand_num[gct]=song_num-1;
+                    }
                     stop_playing_song[gct]=FALSE;
                     play_new_song[gct]=TRUE;
                   }
               } 
             }
 
-          } else {
+          } else { //not holding shift
             if (!stop_playing_song[gct]) {
               play_new_song[gct]=TRUE;
               loading_mp3[gct]=FALSE;
@@ -430,13 +533,10 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
               playing_wav[gct]=FALSE;
             }
           }          
-
-
-
           break;//end current song
 
-        //Release 'L' Key
-        case 'L':
+        //Release '5' Key
+        case '5':
           if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
             if (yes_unifont) {
               yes_unifont=FALSE;
@@ -1633,5 +1733,64 @@ void ThreeMenuKeypressUp(WPARAM wParam, HWND hwnd, HDC hdc)
       }
     }
     break;
+  }
+}
+
+
+
+void DJKeys (WPARAM wParam)
+{
+  switch (wParam) {
+    case ',': //decrease volume
+      if (audioData[gct].volume>0.1) {
+        audioData[gct].volume-=0.1;
+      }
+      break;
+    case '.': //increase volume
+      if (audioData[gct].volume<2.0) {
+        audioData[gct].volume+=0.1;
+      }
+      break;
+    case '<': //decrease volume
+      if (audioData[gct].volume>0) {
+        audioData[gct].volume-=0.5;
+      } else {
+        audioData[gct].volume=0;
+      }
+      break;
+    case '>': //increase volume
+      if (audioData[gct].volume<2.0) {
+        audioData[gct].volume+=0.5;
+      } else {
+        audioData[gct].volume=2.0;
+      }
+      break;
+
+    case ';': //shift starting loop to left
+      if (audioData[gct].loop_start>audioData[gct].read_size){
+        audioData[gct].loop_start-=audioData[gct].read_size;
+        audioData[gct].saved_loop_double_buffer=!audioData[gct].saved_loop_double_buffer;
+        if (audioData[gct].loop_read>0) {audioData[gct].loop_read--;} else {audioData[gct].loop_read=READ_BUFFER_NUM-1;}
+        if (audioData[gct].loop_play>0) {audioData[gct].loop_play--;} else {audioData[gct].loop_play=READ_BUFFER_NUM-1;} 
+      }
+      break;
+    case '\'': //shift starting loop to right
+      if (audioData[gct].loop_start<audioData[gct].filesize-audioData[gct].read_size) {
+        audioData[gct].loop_start+=audioData[gct].read_size;
+        audioData[gct].saved_loop_double_buffer=!audioData[gct].saved_loop_double_buffer;
+        if (audioData[gct].loop_read<=18) {audioData[gct].loop_read++;} else {audioData[gct].loop_read=0;}
+        if (audioData[gct].loop_play<=18) {audioData[gct].loop_play++;} else {audioData[gct].loop_play=0;}
+      }
+      break;
+
+    case ':': //shift ending loop to left
+      if (audioData[gct].loop_end>audioData[gct].read_size)
+        audioData[gct].loop_end-=audioData[gct].read_size;
+      break;
+    case '"': //shift ending loop to right
+      if (audioData[gct].loop_end<audioData[gct].filesize-audioData[gct].read_size)
+        audioData[gct].loop_end+=audioData[gct].read_size;
+      break;
+
   }
 }
