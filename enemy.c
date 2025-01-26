@@ -396,6 +396,9 @@ void EnemySpriteOnGroundId(int enemy_id,int ground_id)
       }
     }
     
+    if (ground_id>=GROUND_NUM) { //eating      
+      Ground[ground_id]->health-=(1+Enemy[enemy_id]->bullet_damage/2);
+    }
 
     //FOR VISUALS
     if (!Enemy[enemy_id]->is_in_ground_edge && abs(height_from_ground)<=41) {

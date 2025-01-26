@@ -56,6 +56,38 @@ void KeyChangePlayerColor()
      }
 }
 
+void TaskbarChangeAct(HWND hwnd)
+{
+     windowx=0;
+     windowy=0;
+     //resolution_choose=1;
+     GR_WIDTH=RESOLUTION_X[resolution_choose];
+     GR_HEIGHT=RESOLUTION_Y[resolution_choose];
+     if (!hide_taskbar) {
+       LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
+       lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+       SetWindowLong(hwnd, GWL_STYLE, lStyle);
+       SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,SCREEN_WIDTH,SCREEN_HEIGHT, SWP_FRAMECHANGED);
+     } else {
+       LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
+       lStyle |= (WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+       SetWindowLong(hwnd, GWL_STYLE, lStyle);
+       SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
+       ShowWindow(hwnd, SW_RESTORE);
+     }
+     if (!hide_taskbar) {
+       SetForegroundWindow(hwnd); //return back focus
+     }
+    // flag_resolution_change=TRUE;
+     hide_taskbar=!hide_taskbar;
+     if (!hide_taskbar) {
+       SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
+       ShowWindow(hwnd, SW_RESTORE);
+     }
+}
+
+
+
 
 void ColorKeypressDown(WPARAM wParam, int *dest_color_id)
 {
@@ -437,32 +469,7 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
         //Release 'T' key holding SHIFT
         case 'T': //Hide or Show Taskbar
           if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
-             windowx=0;
-             windowy=0;
-             //resolution_choose=1;
-             GR_WIDTH=RESOLUTION_X[resolution_choose];
-             GR_HEIGHT=RESOLUTION_Y[resolution_choose];
-             if (!hide_taskbar) {
-               LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
-               lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
-               SetWindowLong(hwnd, GWL_STYLE, lStyle);
-               SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,SCREEN_WIDTH,SCREEN_HEIGHT, SWP_FRAMECHANGED);
-             } else {
-               LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
-               lStyle |= (WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
-               SetWindowLong(hwnd, GWL_STYLE, lStyle);
-               SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
-               ShowWindow(hwnd, SW_RESTORE);
-             }
-             if (!hide_taskbar) {
-               SetForegroundWindow(hwnd); //return back focus
-             }
-            // flag_resolution_change=TRUE;
-             hide_taskbar=!hide_taskbar;
-             if (!hide_taskbar) {
-               SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
-               ShowWindow(hwnd, SW_RESTORE);
-             }
+             TaskbarChangeAct(hwnd);
           }
           break;
 
@@ -863,7 +870,7 @@ void OptionKeyPressRight(HWND hwnd, int option_choose)
          break;
 
 
-       case 6:
+       /*case 6:
          wav_out_volume+=0.1;
          if (wav_out_volume>1.0) { //max song volume
             wav_out_volume=0.0;
@@ -871,7 +878,7 @@ void OptionKeyPressRight(HWND hwnd, int option_choose)
          flag_adjust_wav_out_audio=TRUE;
          if (game_audio)
            PlaySound(keySoundEffectCache[2].audio, NULL, SND_MEMORY | SND_ASYNC); //false
-         break;
+         break;*/
 
 
        case 7: //toggle unifont
@@ -970,6 +977,17 @@ void OptionKeyPressRight(HWND hwnd, int option_choose)
          }
          show_fps=!show_fps;             
          break;
+
+
+       case 13: //toggle show hijiri
+         if (game_audio) {
+           if (show_hijiri)
+             PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
+           else
+             PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
+         }
+         show_hijiri=!show_hijiri;
+         break;
     }
 }
 
@@ -1011,7 +1029,7 @@ void OptionKeyPressLeft(HWND hwnd,int option_choose)
          flag_adjust_audio=TRUE;
          break;
 
-       case 6: //Adjust raw wav sfx
+       /*case 6: //Adjust raw wav sfx
          wav_out_volume-=0.1;
          if (wav_out_volume<0.0) {
            wav_out_volume=1.0;
@@ -1019,7 +1037,7 @@ void OptionKeyPressLeft(HWND hwnd,int option_choose)
          if (game_audio)
            PlaySound(keySoundEffectCache[2].audio, NULL, SND_MEMORY | SND_ASYNC); //false
          flag_adjust_wav_out_audio=TRUE;
-         break;
+         break;*/
 
        case 7: //toggle unifont
          if (game_audio) {
@@ -1114,6 +1132,17 @@ void OptionKeyPressLeft(HWND hwnd,int option_choose)
          }
          show_fps=!show_fps;
          break;
+
+
+       case 13: //toggle show hijiri
+         if (game_audio) {
+           if (show_hijiri)
+             PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
+           else
+             PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
+         }
+         show_hijiri=!show_hijiri;
+         break;
     }
 }
 
@@ -1125,7 +1154,7 @@ void OptionKeyPressRelease1()
    main_menu_chosen=-1;
    //LIVE change color of player
    //KeyChangePlayerColor();
-
+   SaveOptions();
 
    //adjust volume
    if (old_game_volume!=game_volume) {
@@ -1179,6 +1208,9 @@ void OptionsKeypressDown(HWND hwnd, WPARAM wParam)
       case 'W':
       case VK_UP:
         option_choose=LimitValue(option_choose-1,0,GAME_OPTIONS_NUM);
+        if (option_choose==6) { //skip sound
+          option_choose=5;
+        }
         if (game_audio)
           PlaySound(keySoundEffectCache[1].audio,NULL,SND_MEMORY | SND_ASYNC); //up down
         break;
@@ -1188,6 +1220,9 @@ void OptionsKeypressDown(HWND hwnd, WPARAM wParam)
        case 'S':
        case VK_DOWN:
          option_choose=LimitValue(option_choose+1,0,GAME_OPTIONS_NUM);
+        if (option_choose==6) {
+          option_choose=7;
+        }
          if (game_audio)
            PlaySound(keySoundEffectCache[1].audio,NULL,SND_MEMORY | SND_ASYNC); //up down
          break;
@@ -1408,12 +1443,12 @@ void ZeroMenuKeypressUp( HWND hwnd,  HDC hdc, WPARAM wParam)
         }
         break;
       case '3': //Build Selected Level
-        if (player_color>-1 && player_color<COLORS_NUM)
+        if (player_color>-1 && player_color<256)
         {
-        main_menu_chosen=4;
-        if (game_audio)
-          PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
-        flag_load_melevel=TRUE;
+          main_menu_chosen=4;
+          if (game_audio)
+            PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
+          flag_load_melevel=TRUE;
           //InitLevelMapEditor();
         }
         break;

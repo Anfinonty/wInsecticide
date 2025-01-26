@@ -188,13 +188,13 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4,int z)
 
       switch (song_mode[z]) {
         case 0:
-          sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /?] [/X :[N%cSHIFT%cM]: /%c] [vb_SHIFT:%2.2f,%2.2f] [<%1.1f>][P:%d] %s",171,187,177, 171,187,187,nc_,audioData[z].tempo,audioData[z].volume,song_pause[z],r_txt);
+          sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /?] [/X :[N%cSHIFT%cM]: /%c] [vb_SHIFT:%2.2f,%2.2f] [,<%1.1f>.][P:%d] %s",171,187,177, 171,187,187,nc_,audioData[z].tempo,audioData[z].volume,song_pause[z],r_txt);
           break;
         case 1:
-          sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /%c] [/? :[N%cSHIFT%cM]: /%c] [vb_SHIFT:%2.2f,%2.2f] [<%1.1f>][P:%d] %s",171,187,177,187,171,187,171,nc_,audioData[z].tempo,audioData[z].volume,song_pause[z],r_txt);
+          sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /%c] [/? :[N%cSHIFT%cM]: /%c] [vb_SHIFT:%2.2f,%2.2f] [,<%1.1f>.][P:%d] %s",171,187,177,187,171,187,171,nc_,audioData[z].tempo,audioData[z].volume,song_pause[z],r_txt);
           break;
         case 2:
-          sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /%c] [/%c :[N%cSHIFT%cM]: /X] [vb_SHIFT:%2.2f,%2.2f] [<%1.1f>][P:%d] %s",171,187,177, 171,187,171,187,nc_,audioData[z].tempo,audioData[z].volume,song_pause[z],r_txt);
+          sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /%c] [/%c :[N%cSHIFT%cM]: /X] [vb_SHIFT:%2.2f,%2.2f] [,<%1.1f>.][P:%d] %s",171,187,177, 171,187,171,187,nc_,audioData[z].tempo,audioData[z].volume,song_pause[z],r_txt);
           break;
       }
       GrPrint(hdc,x,y+16,txt2,c);   
@@ -203,7 +203,7 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4,int z)
   } else {
     char txt2[128];
     //sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /X] [/%c :[N%cSHIFT%cM]: /?][^ %d] [VB_SHIFT:%2.2f,%2.2f] [<%1.1f>]%s",171,187,177,171,171,187,buffer_length_arr[casbs_i],audioData[z].tempo,nc_,audioData[z].volume,r_txt);
-    sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /X] [/%c :[N%cSHIFT%cM]: /?] [vb_SHIFT:%2.2f,%2.2f] [<%1.1f>][P:%d] %s",171,187,177,171,171,187,nc_,audioData[z].tempo,audioData[z].volume,song_pause[z],r_txt);
+    sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /X] [/%c :[N%cSHIFT%cM]: /?] [vb_SHIFT:%2.2f,%2.2f] [,<%1.1f>.][P:%d] %s",171,187,177,171,171,187,nc_,audioData[z].tempo,audioData[z].volume,song_pause[z],r_txt);
     GrPrint(hdc,x,y+16,txt2,c);   
     GrPrint(hdc,x+1,y+1+16,txt2,c4);
   }
@@ -419,7 +419,11 @@ void DrawTitle(HDC hdc,HDC hdc2)
   int title_x=GR_WIDTH/2-352/2+4;
   int title_y=-32;
   int title_x2=GR_WIDTH-352*3/5-24;
-  int title_y2=-48;
+  int title_y2=-24;
+  int ti=0;
+  if (!is_khmer) {
+    ti=1;
+  }
   if (GR_HEIGHT>=600) {
 
   } else {
@@ -432,7 +436,7 @@ void DrawTitle(HDC hdc,HDC hdc2)
                      0,
                      352,
                      256,
-                    title_sprite_mask,SRCAND,FALSE,FALSE);
+                    title_sprite_mask[ti],SRCAND,FALSE,FALSE);
       //Draw platforms paint
       DrawBitmap(hdc,hdc2,title_x,
                      title_y,
@@ -440,7 +444,7 @@ void DrawTitle(HDC hdc,HDC hdc2)
                      0,
                      352,
                      256,
-                    title_sprite,SRCPAINT,FALSE,FALSE);
+                    title_sprite[ti],SRCPAINT,FALSE,FALSE);
   } else {
       DrawBitmap(hdc,hdc2,title_x2,
                      title_y2,
@@ -448,7 +452,7 @@ void DrawTitle(HDC hdc,HDC hdc2)
                      0,
                      352*3/5,
                      256*3/5,
-                    title_small_sprite_mask,SRCAND,FALSE,FALSE);
+                    title_small_sprite_mask[ti],SRCAND,FALSE,FALSE);
       //Draw platforms paint
       DrawBitmap(hdc,hdc2,title_x2,
                      title_y2,
@@ -456,7 +460,7 @@ void DrawTitle(HDC hdc,HDC hdc2)
                      0,
                      352*2/3,
                      256*2/3,
-                    title_small_sprite,SRCPAINT,FALSE,FALSE);
+                    title_small_sprite[ti],SRCPAINT,FALSE,FALSE);
 
   }
 
@@ -567,6 +571,45 @@ void DrawMusicWav(HDC hdc)
   }
 }
 
+void DrawKhBool(HDC hdc,HDC hdc2,int x,int y,bool t,bool sel)
+{
+  if (t) { //on
+    DrawBitmap(hdc,hdc2,x,y,0,0,34,14,kh_bool_mask[1],SRCAND,FALSE,FALSE);
+    if (sel) {
+      DrawBitmap(hdc,hdc2,x,y,0,0,34,14,kh_bool_green[1],SRCPAINT,FALSE,FALSE);
+    } else {
+      DrawBitmap(hdc,hdc2,x,y,0,0,34,14,kh_bool_white[1],SRCPAINT,FALSE,FALSE);
+    }
+  } else { //off
+    DrawBitmap(hdc,hdc2,x,y+1,0,0,30,13,kh_bool_mask[0],SRCAND,FALSE,FALSE);
+    if (sel) {
+      DrawBitmap(hdc,hdc2,x,y+1,0,0,30,13,kh_bool_green[0],SRCPAINT,FALSE,FALSE);
+    } else {
+      DrawBitmap(hdc,hdc2,x,y+1,0,0,30,13,kh_bool_white[0],SRCPAINT,FALSE,FALSE);
+    }
+  }
+}
+
+void DrawKhCornMid(HDC hdc,HDC hdc2,int x,int y,bool sel)
+{
+    DrawBitmap(hdc,hdc2,x,y,0,0,94,19,kh_cornmid_mask,SRCAND,FALSE,FALSE);
+    if (sel) {
+      DrawBitmap(hdc,hdc2,x,y,0,0,94,19,kh_cornmid_green,SRCPAINT,FALSE,FALSE);
+    } else {
+      DrawBitmap(hdc,hdc2,x,y,0,0,94,19,kh_cornmid_white,SRCPAINT,FALSE,FALSE);
+    }
+}
+
+
+void DrawMM2Kh(HDC hdc,HDC hdc2,int x,int y,int l,int w,int t)
+{
+    DrawBitmap(hdc,hdc2,x,y,0,0,l,w,mm2_kh_mask[t],SRCAND,FALSE,FALSE);
+    if (option_choose==t) {
+      DrawBitmap(hdc,hdc2,x,y,0,0,l,w,mm2_kh_green[t],SRCPAINT,FALSE,FALSE);
+    } else {
+      DrawBitmap(hdc,hdc2,x,y,0,0,l,w,mm2_kh_white[t],SRCPAINT,FALSE,FALSE);
+    }
+}
 
 void DrawMainMenu(HDC hdc,HDC hdc2)
 {
@@ -592,9 +635,9 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
   if (!hide_mm) {
   //Draw Moon Phase
   //GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
-  if (GR_WIDTH>=800)
-    DrawSprite(hdc, hdc2,GR_WIDTH-128,128,&draw_moon_sprite,FALSE);
-
+  if (GR_WIDTH>=800) {
+    DrawSprite(hdc, hdc2,GR_WIDTH-128,160,&draw_moon_sprite,FALSE);
+  }
 
   DrawTitle(hdc,hdc2);
 
@@ -749,97 +792,80 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
 
     //Game Options
     case 1:
-      GrPrint(hdc,30,main_menu_y+10+16*2,"Options:",WHITE); 
+      if (is_khmer) {
+        DrawBitmap(hdc,hdc2,30,main_menu_y+10+16*2,0,0,145,36,mm0_kh_mask[1],SRCAND,FALSE,FALSE);
+        DrawBitmap(hdc,hdc2,30,main_menu_y+10+16*2,0,0,145,36,mm0_kh_white[1],SRCPAINT,FALSE,FALSE);
+      } else {
+        GrPrint(hdc,30,main_menu_y+10+16*2,"OPTIONS",WHITE); 
+      }
       int c,soptions_y=16*4;
       if (hide_taskbar)
         soptions_y+=main_menu_y;
 
-      int mm2y1=10+soptions_y-8;
+      int mm2y1=10+soptions_y-2;
       int mm2y2=10+soptions_y;
-      int mm2y3;
+
 
       //Graphics
       c=Highlight((option_choose==0),WHITE,LTGREEN);
       if (is_khmer) {
-        DrawBitmap(hdc,hdc2,30,mm2y1,0,0,127,21,mm2_kh_mask[0],SRCAND,FALSE,FALSE);
-        if (option_choose==0) {
-          DrawBitmap(hdc,hdc2,30,mm2y1,0,0,127,21,mm2_kh_green[0],SRCPAINT,FALSE,FALSE);
-        } else {
-          DrawBitmap(hdc,hdc2,30,mm2y1,0,0,127,21,mm2_kh_white[0],SRCPAINT,FALSE,FALSE);
-        }
-        mm2y3=mm2y1+4;
+        DrawMM2Kh(hdc,hdc2,30,mm2y1,87,14,0);
       } else {
         GrPrint(hdc,30,mm2y2,"Player Color:",c);
-        mm2y3=mm2y2;
       }
 
 
-      GrPrint(hdc,30+20*8,mm2y3,"[      ]",c);
-      GrRect(hdc,30+8*21,mm2y3,16,16,WHITE);
+      GrPrint(hdc,30+20*8,mm2y2,"[      ]",c);
+      GrRect(hdc,30+8*21,mm2y2,16,16,WHITE);
       if (color_chooser.is_choosing_color && option_choose==0) {
         if (color_chooser.color_id_choosing<256 && color_chooser.color_id_choosing>-1)
-          GrRect(hdc,30+8*21+2,mm2y3+2,12,12,rgbPaint[color_chooser.color_id_choosing]);
+          GrRect(hdc,30+8*21+2,mm2y2+2,12,12,rgbPaint[color_chooser.color_id_choosing]);
       } else {
-        GrRect(hdc,30+8*21+2,mm2y3+2,12,12,rgbPaint[player_color]);
+        GrRect(hdc,30+8*21+2,mm2y2+2,12,12,rgbPaint[player_color]);
       }
 
 
 
 
-      mm2y1=10+soptions_y+16-4;
+      mm2y1=10+soptions_y+16-2;
       mm2y2=10+soptions_y+16;
       c=Highlight((option_choose==1),WHITE,LTGREEN);
       if (is_khmer) {
-        DrawBitmap(hdc,hdc2,30,mm2y1,0,0,115,27,mm2_kh_mask[1],SRCAND,FALSE,FALSE);
-        if (option_choose==1) {
-          DrawBitmap(hdc,hdc2,30,mm2y1,0,0,115,27,mm2_kh_green[1],SRCPAINT,FALSE,FALSE);
-        } else {
-          DrawBitmap(hdc,hdc2,30,mm2y1,0,0,115,27,mm2_kh_white[1],SRCPAINT,FALSE,FALSE);
-        }
-        mm2y3=mm2y1+4;
+        DrawMM2Kh(hdc,hdc2,30,mm2y1,79,18,1);
       } else {
         GrPrint(hdc,30,mm2y2,"Iris:",c);
-        mm2y3=mm2y2;
       }
 
 
-      GrPrint(hdc,30+20*8,mm2y3,"[      ]",c);
-      GrRect(hdc,30+8*21,mm2y3,16,16,WHITE);
+      GrPrint(hdc,30+20*8,mm2y2,"[      ]",c);
+      GrRect(hdc,30+8*21,mm2y2,16,16,WHITE);
       if (color_chooser.is_choosing_color && option_choose==1) {
         if (color_chooser.color_id_choosing<256 && color_chooser.color_id_choosing>-1)
-          GrRect(hdc,30+8*21+2,mm2y3+2,12,12,rgbPaint[color_chooser.color_id_choosing]);
+          GrRect(hdc,30+8*21+2,mm2y2+2,12,12,rgbPaint[color_chooser.color_id_choosing]);
       } else {
-        GrRect(hdc,30+8*21+2,mm2y3+2,12,12,rgbPaint[player_iris_color]);
+        GrRect(hdc,30+8*21+2,mm2y2+2,12,12,rgbPaint[player_iris_color]);
       }
 
 
 
-      mm2y1=10+soptions_y+16*2+2;
+      mm2y1=10+soptions_y+16*2-2;
       mm2y2=10+soptions_y+16*2;
       c=Highlight((option_choose==2),WHITE,LTGREEN);
       if (is_khmer) {
-        DrawBitmap(hdc,hdc2,30,mm2y1,0,0,107,25,mm2_kh_mask[2],SRCAND,FALSE,FALSE);
-        if (option_choose==2) {
-          DrawBitmap(hdc,hdc2,30,mm2y1,0,0,107,25,mm2_kh_green[2],SRCPAINT,FALSE,FALSE);
-        } else {
-          DrawBitmap(hdc,hdc2,30,mm2y1,0,0,107,25,mm2_kh_white[2],SRCPAINT,FALSE,FALSE);
-        }
-        mm2y3=mm2y1+2;
+        DrawMM2Kh(hdc,hdc2,30,mm2y1,74,18,2);
       } else {
         GrPrint(hdc,30,mm2y2,"Pupil:",c);
-        mm2y3=mm2y2;
       }
 
 
-      GrPrint(hdc,30+20*8,mm2y3,"[      ]",c);
-      GrRect(hdc,30+8*21,mm2y3,16,16,WHITE);
+      GrPrint(hdc,30+20*8,mm2y2,"[      ]",c);
+      GrRect(hdc,30+8*21,mm2y2,16,16,WHITE);
       if (color_chooser.is_choosing_color && option_choose==2) {
         if (color_chooser.color_id_choosing<256 && color_chooser.color_id_choosing>-1)
-          GrRect(hdc,30+8*21+2,mm2y3+2,12,12,rgbPaint[color_chooser.color_id_choosing]);
+          GrRect(hdc,30+8*21+2,mm2y2+2,12,12,rgbPaint[color_chooser.color_id_choosing]);
       } else {
-        GrRect(hdc,30+8*21+2,mm2y3+2,12,12,rgbPaint[player_pupil_color]);
+        GrRect(hdc,30+8*21+2,mm2y2+2,12,12,rgbPaint[player_pupil_color]);
       }
-
       if (option_choose>=0 && option_choose<=2 && color_chooser.is_choosing_color) {
         DrawPaintSquare(hdc,30+220,mm2y2,color_chooser.color_id,color_chooser.color_id_choosing);
       }
@@ -848,134 +874,255 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
 
 
 
-
-
-
       //Game Options
-      mm2y1=10+soptions_y+16*3+4;
+      mm2y1=10+soptions_y+16*3-2;//+4;
       mm2y2=10+soptions_y+16*3;
       c=Highlight((option_choose==3),WHITE,LTGREEN);
       if (is_khmer) {
-        DrawBitmap(hdc,hdc2,30,mm2y1,0,0,75,26,mm2_kh_mask[3],SRCAND,FALSE,FALSE);
-        if (option_choose==3) {
-          DrawBitmap(hdc,hdc2,30,mm2y1,0,0,75,26,mm2_kh_green[3],SRCPAINT,FALSE,FALSE);
-        } else {
-          DrawBitmap(hdc,hdc2,30,mm2y1,0,0,75,26,mm2_kh_white[3],SRCPAINT,FALSE,FALSE);
-        }
-        mm2y3=mm2y1+2;
+        DrawMM2Kh(hdc,hdc2,30,mm2y1,52,18,3);
       } else {
         GrPrint(hdc,30,mm2y2,"Camera Shake:",c);
-        mm2y3=mm2y2;
       }
 
 
-      if (game_cam_shake) {
-        GrPrint(hdc,30+20*8,mm2y3,"<ON>",c);
+      if (is_khmer) {
+        if (game_cam_shake) {
+          DrawKhBool(hdc,hdc2,30+20*8,mm2y2,1,(option_choose==3));
+        } else {
+          DrawKhBool(hdc,hdc2,30+20*8,mm2y2,0,(option_choose==3));
+        }        
       } else {
-        GrPrint(hdc,30+20*8,mm2y3,"<OFF>",c);
+        if (game_cam_shake) {
+          GrPrint(hdc,30+20*8,mm2y2,"<ON>",c);
+        } else {
+          GrPrint(hdc,30+20*8,mm2y2,"<OFF>",c);
+        }
       }
 
 
 
-
+      mm2y1=10+soptions_y+16*4-2;
+      mm2y2=10+soptions_y+16*4;
       c=Highlight((option_choose==4),WHITE,LTGREEN);
-      GrPrint(hdc,30,10+soptions_y+16*5,"Audio:",c);
-      if (game_audio) {
-        GrPrint(hdc,30+20*8,10+soptions_y+16*5,"<ON>",c);
+      if (is_khmer) {
+        DrawMM2Kh(hdc,hdc2,30,mm2y1,38,18,4);
       } else {
-        GrPrint(hdc,30+20*8,10+soptions_y+16*5,"<OFF>",c);
+        GrPrint(hdc,30,10+soptions_y+16*4,"Audio:",c);
       }
 
+
+      if (is_khmer) {
+        if (game_audio) {
+          DrawKhBool(hdc,hdc2,30+20*8,10+soptions_y+16*4-2,1,(option_choose==4));
+        } else {
+          DrawKhBool(hdc,hdc2,30+20*8,10+soptions_y+16*4-2,0,(option_choose==4));
+        }        
+      } else {
+        if (game_audio) {
+          GrPrint(hdc,30+20*8,10+soptions_y+16*4,"<ON>",c);
+        } else {
+          GrPrint(hdc,30+20*8,10+soptions_y+16*4,"<OFF>",c);
+        }
+      }
 
       //Sound=============
       c=Highlight((option_choose==5),WHITE,LTGREEN);
-      GrPrint(hdc,30,10+soptions_y+16*6,"Sound Effects Volume:",c);
-      char print_volume[8];
-      sprintf(print_volume,"<%1.0f%>",game_volume*100);
-      GrPrint(hdc,30+20*8,10+soptions_y+16*6,print_volume,c);
+      if (is_khmer) {
+        DrawMM2Kh(hdc,hdc2,30,10+soptions_y+16*5-2,101,18,5);
+      } else {
+        GrPrint(hdc,30,10+soptions_y+16*5,"Sound Effects Volume:",c);
+      }
+      if (is_khmer) {
+        wchar_t wprint_volume[8];
+        swprintf(wprint_volume,8,L"<%1.0f%>",game_volume*100);
+        GrPrintW(hdc,30+20*8,10+soptions_y+16*5-4,ReplaceToKhmerNum(wprint_volume),"",c,16,FALSE,yes_unifont);
+      } else {
+        char print_volume[8];
+        sprintf(print_volume,"<%1.0f%>",game_volume*100);
+        GrPrint(hdc,30+20*8,10+soptions_y+16*5,print_volume,c);
+      }
 
 
-
-      c=Highlight((option_choose==6),WHITE,LTGREEN);
-      GrPrint(hdc,30,10+soptions_y+16*7,"Raw Wav Volume:",c);
+      /*c=Highlight((option_choose==6),WHITE,LTGREEN);
+      if (is_khmer) {
+        DrawMM2Kh(hdc,hdc2,30,10+soptions_y+16*6-2,101,18,6);
+      } else {
+        GrPrint(hdc,30,10+soptions_y+16*6,"Raw Wav Volume:",c);
+      }
       char print_wav_out_volume[7];
       sprintf(print_wav_out_volume,"<%1.0f%%>",wav_out_volume*100);
-      GrPrint(hdc,30+20*8,10+soptions_y+16*7,print_wav_out_volume,c);
+      GrPrint(hdc,30+20*8,10+soptions_y+16*6,print_wav_out_volume,c);*/
 
 
 
       //Graphics===============
       c=Highlight((option_choose==7),WHITE,LTGREEN);
-      GrPrint(hdc,30,10+soptions_y+16*9,"Unifont:",c);
-      if (yes_unifont) {
-        GrPrint(hdc,30+20*8,10+soptions_y+16*9,"<ON>",c);
+      if (is_khmer) {
+        DrawMM2Kh(hdc,hdc2,30,10+soptions_y+16*7-2,43,19,7);
       } else {
-        GrPrint(hdc,30+20*8,10+soptions_y+16*9,"<OFF>",c);
+        GrPrint(hdc,30,10+soptions_y+16*7,"Unifont:",c);
       }
-
+      if (is_khmer) {
+        if (yes_unifont) {
+          DrawKhBool(hdc,hdc2,30+20*8,10+soptions_y+16*7-2,1,(option_choose==7));
+        } else {
+          DrawKhBool(hdc,hdc2,30+20*8,10+soptions_y+16*7-2,0,(option_choose==7));
+        }        
+      } else {
+        if (yes_unifont) {
+          GrPrint(hdc,30+20*8,10+soptions_y+16*7,"<ON>",c);
+        } else {
+          GrPrint(hdc,30+20*8,10+soptions_y+16*7,"<OFF>",c);
+        }
+      }
 
       c=Highlight((option_choose==8),WHITE,LTGREEN);
-      GrPrint(hdc,30,10+soptions_y+16*10,"Shadows:",c);
-      if (game_shadow) {
-        GrPrint(hdc,30+20*8,10+soptions_y+16*10,"<ON>",c);
+      if (is_khmer) {
+        DrawMM2Kh(hdc,hdc2,30,10+soptions_y+16*8+1,49,14,8);
       } else {
-        GrPrint(hdc,30+20*8,10+soptions_y+16*10,"<OFF>",c);
+        GrPrint(hdc,30,10+soptions_y+16*8,"Shadows:",c);
       }
-
+      if (is_khmer) {
+        if (game_shadow) {
+          DrawKhBool(hdc,hdc2,30+20*8,10+soptions_y+16*8-2,1,(option_choose==8));
+        } else {
+          DrawKhBool(hdc,hdc2,30+20*8,10+soptions_y+16*8-2,0,(option_choose==8));
+        }        
+      } else {
+        if (game_shadow) {
+          GrPrint(hdc,30+20*8,10+soptions_y+16*8,"<ON>",c);
+        } else {
+          GrPrint(hdc,30+20*8,10+soptions_y+16*8,"<OFF>",c);
+        }
+      }
 
 
 
       //Misc============
       c=Highlight((option_choose==9),WHITE,LTGREEN);
-      GrPrint(hdc,30,10+soptions_y+16*12,"Window Borders:",c);
-      if (!hide_taskbar) {
-        GrPrint(hdc,30+20*8,10+soptions_y+16*12,"<ON>",c);
+      if (is_khmer) {
+        DrawMM2Kh(hdc,hdc2,30,10+soptions_y+16*9-2,48,20,9);
       } else {
-        GrPrint(hdc,30+20*8,10+soptions_y+16*12,"<OFF>",c);
+        GrPrint(hdc,30,10+soptions_y+16*9,"Window Borders:",c);
+      }
+      if (is_khmer) {
+        if (!hide_taskbar) {
+          DrawKhBool(hdc,hdc2,30+20*8,10+soptions_y+16*9-2,1,(option_choose==9));
+        } else {
+          DrawKhBool(hdc,hdc2,30+20*8,10+soptions_y+16*9-2,0,(option_choose==9));
+        }        
+      } else {
+        if (!hide_taskbar) {
+          GrPrint(hdc,30+20*8,10+soptions_y+16*9,"<ON>",c);
+        } else {
+          GrPrint(hdc,30+20*8,10+soptions_y+16*9,"<OFF>",c);
+        }
+      }
+
+
+      c=Highlight((option_choose==10),WHITE,LTGREEN);
+      if (is_khmer) {
+        DrawMM2Kh(hdc,hdc2,30,10+soptions_y+16*10-2,62,22,10);
+      } else {
+        GrPrint(hdc,30,10+soptions_y+16*10,"Resolution:",c);
+      }
+      
+      if (is_khmer) {
+        wchar_t wprintres[32];
+        swprintf(wprintres,32,L"<%dx%d> [%s]",RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],WRESOLUTION_NAME[resolution_choose]);
+        GrPrintW(hdc,30+20*8,10+soptions_y+16*10-4,ReplaceToKhmerNum(wprintres),"",c,16,FALSE,yes_unifont);
+      } else {
+        char printres[32];
+        sprintf(printres,"<%dx%d> [%s]",RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],RESOLUTION_NAME[resolution_choose]);
+        GrPrint(hdc,30+20*8,10+soptions_y+16*10,printres,c);
       }
 
 
 
-      c=Highlight((option_choose==10),WHITE,LTGREEN);
-      char printres[24];
-      GrPrint(hdc,30,10+soptions_y+16*13,"Resolution:",c);
-      
-      sprintf(printres,"<%dx%d> [%s]",RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],RESOLUTION_NAME[resolution_choose]);
-      GrPrint(hdc,30+20*8,10+soptions_y+16*13,printres,c);
-
       c=Highlight((option_choose==11),WHITE,LTGREEN);
-      GrPrint(hdc,30,10+soptions_y+16*14,"Window Align Position:",c);
-      GrPrint(hdc,30+20*8,10+soptions_y+16*14,"<Corner || Middle>",c);
+      if (is_khmer) {
+        DrawMM2Kh(hdc,hdc2,30,10+soptions_y+16*11-2,66,22,11);
+      } else {
+        GrPrint(hdc,30,10+soptions_y+16*11,"Window Align Position:",c);
+      }
+      if (is_khmer) {
+        DrawKhCornMid(hdc,hdc2,30+20*8,10+soptions_y+16*11-2,(option_choose==11));
+      } else {
+        GrPrint(hdc,30+20*8,10+soptions_y+16*11,"<Corner || Middle>",c);
+      }
 
 
 
       c=Highlight((option_choose==12),WHITE,LTGREEN);
-      GrPrint(hdc,30,10+soptions_y+16*15,"Show FPS:",c);
-      if (show_fps) {
-        GrPrint(hdc,30+20*8,10+soptions_y+16*15,"<ON>",c);
+      if (is_khmer) {
+        DrawMM2Kh(hdc,hdc2,30,10+soptions_y+16*12-2,141,22,12);
       } else {
-        GrPrint(hdc,30+20*8,10+soptions_y+16*15,"<OFF>",c);
+        GrPrint(hdc,30,10+soptions_y+16*12,"Show FPS:",c);
+      }
+      if (is_khmer) {
+        if (show_fps) {
+          DrawKhBool(hdc,hdc2,30+20*8,10+soptions_y+16*12-2,1,(option_choose==12));
+        } else {
+          DrawKhBool(hdc,hdc2,30+20*8,10+soptions_y+16*12-2,0,(option_choose==12));
+        }        
+      } else {
+        if (show_fps) {
+          GrPrint(hdc,30+20*8,10+soptions_y+16*12,"<ON>",c);
+        } else {
+          GrPrint(hdc,30+20*8,10+soptions_y+16*12,"<OFF>",c);
+        }
       }
 
 
+      c=Highlight((option_choose==13),WHITE,LTGREEN);
+      if (is_khmer) {
+        DrawMM2Kh(hdc,hdc2,30,10+soptions_y+16*13-2,52,18,13);
+      } else {
+        GrPrint(hdc,30,10+soptions_y+16*13,"Show Hijiri:",c);
+      }
+      if (is_khmer) {
+        if (show_hijiri) {
+          DrawKhBool(hdc,hdc2,30+20*8,10+soptions_y+16*13-2,1,(option_choose==13));
+        } else {
+          DrawKhBool(hdc,hdc2,30+20*8,10+soptions_y+16*13-2,0,(option_choose==13));
+        }        
+      } else {
+        if (show_hijiri) {
+          GrPrint(hdc,30+20*8,10+soptions_y+16*13,"<ON>",c);
+        } else {
+          GrPrint(hdc,30+20*8,10+soptions_y+16*13,"<OFF>",c);
+        }
+      }
 
       //===========================
 
-      int add_option_choose=0;
-      if (option_choose>8) {
-        add_option_choose=16*3;
-      } else if (option_choose>6) {
-        add_option_choose=16*2;
-      } else if (option_choose>3) {
-        add_option_choose=16;
+      //int add_option_choose=0;
+      //if (option_choose>8) {
+        //add_option_choose=16*3;
+      //} else if (option_choose>6) {
+        //add_option_choose=16*2;
+      //} else if (option_choose>3) {
+        //add_option_choose=16;
+      //}
+      GrPrint(hdc,20,10+soptions_y+16*option_choose/*+add_option_choose*/,"*",LTGREEN);
+
+
+      if (is_khmer) {
+        if (hide_taskbar) {
+          GrPrint(hdc,30,main_menu_y+10+16*21,"[SHIFT_ESC]:",WHITE);
+          DrawBitmap(hdc,hdc2,30+8*13,main_menu_y+10+16*21,0,0,47,19,kh_goback_mask,SRCAND,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,30+8*13,main_menu_y+10+16*21,0,0,47,19,kh_goback,SRCPAINT,FALSE,FALSE);
+        } else {
+          GrPrint(hdc,30,main_menu_y+10+16*20,"[SHIFT_ESC]:",WHITE);
+          DrawBitmap(hdc,hdc2,30+8*13,main_menu_y+10+16*20,0,0,47,19,kh_goback_mask,SRCAND,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,30+8*13,main_menu_y+10+16*20,0,0,47,19,kh_goback,SRCPAINT,FALSE,FALSE);
+        }
+      } else {
+        if (hide_taskbar)
+          GrPrint(hdc,30,main_menu_y+10+16*21,"[SHIFT_ESC]: Back.",WHITE);
+        else
+          GrPrint(hdc,30,main_menu_y+10+16*20,"[SHIFT_ESC]: Back.",WHITE);
       }
-      GrPrint(hdc,20,10+soptions_y+16*option_choose+add_option_choose,"*",LTGREEN);
-
-
-      if (hide_taskbar)
-        GrPrint(hdc,30,main_menu_y+10+16*22,"[SHIFT_ESC]: Back.",WHITE);
-      else
-        GrPrint(hdc,30,main_menu_y+10+16*21,"[SHIFT_ESC]: Back.",WHITE);
 
       break;
 
@@ -1375,7 +1522,9 @@ void DrawUI(HDC hdc,HDC hdc2)
 
   if (call_help_timer<1000/*5000*/) {
     DrawPlayingMusic(hdc,16+4,help_y+48,c,c4,0);
-    DrawPlayingMusic(hdc,16+4,help_y+48+34,c,c4,1);
+    if (!stop_playing_song[1] || (stop_playing_song[1] && gct==1)) {
+      DrawPlayingMusic(hdc,16+4,help_y+48+34,c,c4,1);
+    }
   }
 
   if (show_fps) {
