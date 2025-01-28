@@ -499,12 +499,32 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
 
 void LoadOptions()
 {
+  if (!FileExists(L"saves/options.txt")) {
+      player_color=0;
+      player_iris_color=4;
+      player_pupil_color=12;
+      game_cam_shake=1;
+      game_audio=1;
+      game_volume=1.0000;
+      wav_out_volume=0.5000; //scrapped
+      yes_unifont=1;
+      game_shadow=1;
+      hide_taskbar=0;
+      resolution_choose=1;
+      show_fps=0;
+      show_hijiri=0;
+      is_khmer=0;
+      return;
+  }
+
+
   int c,row=0; //each character
   int int_val=0,int_saved_val=0;
   double double_val=0,double_saved_val=0;
   bool deci=FALSE;
   FILE *fptr;
   fptr = _wfopen(L"saves/options.txt",L"r");
+
   while ((c=fgetwc(fptr))!=WEOF) {
     if (c!=';') {
       if (!(row==5 || row==6)) { //other rows are int/bool values
