@@ -235,7 +235,7 @@ void GlobalKeypressDown(WPARAM wParam)
       {
         if (!stop_playing_song[gct] && playing_wav[gct]) {
         audioData[gct].song_rewind=TRUE;
-        if (audioData[gct].current_filesize>audioData[gct].read_size*2 && audioData[gct].current_filesize<audioData[gct].filesize-audioData[gct].read_size*2) { //stutters when rewinding, idk why
+        if (audioData[gct].current_filesize>audioData[gct].read_size*2 && audioData[gct].current_filesize<audioData[gct].filesize-audioData[gct].read_size*2) { //stutters when rewinding, hardware
             if (wParam=='K') {
               if (audioData[gct].queue_read_buffer>0) {audioData[gct].queue_read_buffer--;} else {audioData[gct].queue_read_buffer=READ_BUFFER_NUM-1;}
               if (audioData[gct].queue_play_buffer>0) {audioData[gct].queue_play_buffer--;} else {audioData[gct].queue_play_buffer=READ_BUFFER_NUM-1;} 
@@ -246,8 +246,13 @@ void GlobalKeypressDown(WPARAM wParam)
               audioData[gct].current_filesize+=audioData[gct].read_size;
             }
 
-            memcpy(audioData[gct].buffer1,audioData[gct].read_buffer[audioData[gct].queue_play_buffer],audioData[gct].read_size);
-            memcpy(audioData[gct].buffer2,audioData[gct].read_buffer[audioData[gct].queue_play_buffer],audioData[gct].read_size);
+            //memcpy(audioData[gct].buffer1,audioData[gct].read_buffer[audioData[gct].queue_play_buffer],audioData[gct].read_size);
+            //memcpy(audioData[gct].buffer2,audioData[gct].read_buffer[audioData[gct].queue_play_buffer],audioData[gct].read_size);
+            adjustBufferVol(audioData[gct].buffer1,audioData[gct].read_buffer[audioData[gct].queue_play_buffer],audioData[gct].read_size,audioData[gct].volume);
+            adjustBufferVol(audioData[gct].buffer2,audioData[gct].read_buffer[audioData[gct].queue_play_buffer],audioData[gct].read_size,audioData[gct].volume);
+
+            audioData[gct].read_filesize=audioData[gct].current_filesize-(audioData[gct].read_size*READ_BUFFER_NUM/2);
+
             fseek(audioData[gct].music_file, audioData[gct].current_filesize, SEEK_SET);
             fread(audioData[gct].read_buffer[audioData[gct].queue_read_buffer], sizeof(BYTE), audioData[gct].read_size, audioData[gct].music_file);  //copy then go backwards/forwards
             fseek(audioData[gct].music_file, audioData[gct].current_filesize, SEEK_SET);
@@ -382,6 +387,11 @@ void GlobalKeypressDown(WPARAM wParam)
               song_rand_num[gct]=LimitValue(song_rand_num[gct]+1,0,song_num);
             else if (wParam=='9')
               song_rand_num[gct]=LimitValue(song_rand_num[gct]-1,0,song_num);
+
+            for (int w=0; w<48; w++) {
+              print_song_playing[gct][w] = song_names[song_rand_num[gct]][w]; 
+            }
+
           }
         }
         if (song_mode[gct]>2)
@@ -423,13 +433,6 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
         }
         break;
 
-      case 'I':
-        audioData[gct].song_rewind=FALSE;
-        if (!stop_playing_song[gct] && playing_wav[gct]) {
-          InitAudioBuffer(gct);
-        }
-        break;
-
       case '6': //adjust buffer size rate
         if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
           int a=casbs_i;a++;if (a==3) {a=0;}
@@ -444,7 +447,7 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
         }
         break;
 
-
+      case 'I':
       case 'K':
         audioData[gct].song_rewind=FALSE;
         if (!stop_playing_song[gct] && playing_wav[gct]) {
@@ -988,6 +991,21 @@ void OptionKeyPressRight(HWND hwnd, int option_choose)
          }
          show_hijiri=!show_hijiri;
          break;
+
+
+
+
+       case 14: //toggle difficulty
+         if (game_audio) {
+           if (game_hard)
+             PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
+           else
+             PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
+         }
+         game_hard=!game_hard;
+         break;
+
+
     }
 }
 
@@ -1143,6 +1161,19 @@ void OptionKeyPressLeft(HWND hwnd,int option_choose)
          }
          show_hijiri=!show_hijiri;
          break;
+
+       case 14: //toggle difficulty
+         if (game_audio) {
+           if (game_hard)
+             PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
+           else
+             PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
+         }
+         game_hard=!game_hard;
+         break;
+
+
+
     }
 }
 

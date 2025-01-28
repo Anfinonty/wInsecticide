@@ -186,6 +186,7 @@ struct player
 
   int previous_web_placed;
   int time_breaker_units;
+  int time_breaker_deplete_cooldown;
   int time_breaker_units_max;
   int time_breaker_cooldown;
   int time_breaker_cooldown_max;
@@ -695,6 +696,7 @@ typedef struct enemy
 
 
  //timers
+  int last_seen_timer;
   int sprite_flip_timer;
   int sprite_timer;
   int search_timer;
@@ -1053,6 +1055,13 @@ HBITMAP moon_sprite;
 HBITMAP moon_sprite_cache;
 DRAWSPRITE draw_moon_sprite;
 
+
+//Shadow Tile
+HBITMAP dkrdkgray_shadow_tile;
+HBITMAP ltgray_shadow_tile;
+
+
+
 //main menu title
 HBITMAP title_sprite[2];
 HBITMAP title_sprite_mask[2];
@@ -1065,10 +1074,10 @@ HBITMAP mm0_kh_mask[4];
 HBITMAP mm0_kh_green[4];
 HBITMAP mm0_kh_white[4];
 
-HBITMAP mm2_kh[14];
-HBITMAP mm2_kh_mask[14];
-HBITMAP mm2_kh_green[14];
-HBITMAP mm2_kh_white[14];
+HBITMAP mm2_kh[15];
+HBITMAP mm2_kh_mask[15];
+HBITMAP mm2_kh_green[15];
+HBITMAP mm2_kh_white[15];
 
 HBITMAP mm0_kh_hijri[2];
 HBITMAP mm0_kh_hijri_mask[2];
@@ -1087,15 +1096,18 @@ HBITMAP kh_bool_green[2];
 HBITMAP kh_bool_white[2];
 HBITMAP kh_bool_mask[2];
 
+HBITMAP kh_difficulty[2]; //easy/hard
+HBITMAP kh_difficulty_green[2];
+HBITMAP kh_difficulty_white[2];
+HBITMAP kh_difficulty_mask[2];
 
 
-//Shadow Tile
-HBITMAP dkrdkgray_shadow_tile;
-HBITMAP ltgray_shadow_tile;
 
 //Khmer ingame, while playing game
 HBITMAP ga0_kh[5];
 HBITMAP ga0_kh_mask[5];
+
+
 
 //Sound
 //Sound called in the Stack
