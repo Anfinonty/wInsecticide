@@ -36,7 +36,7 @@ typedef struct WavSoundEffectCache //for sound whoese volume that needs to be ad
 
 
 
-#define SND_THREAD_NUM    7
+#define SND_THREAD_NUM    6//7
 typedef struct threadSFX
 {
   bool is_cache;

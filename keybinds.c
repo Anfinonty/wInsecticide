@@ -299,41 +299,6 @@ void GlobalKeypressDown(WPARAM wParam)
         break;
 
 
-      //take sample
-      case '7':{
-        int iw=audioData[gct].queue_play_buffer;
-        if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
-          for (int w=0;w<4;w++) {
-            iw+=w;
-            if (iw>19) {
-              iw=0;
-            }
-            memcpy(audioData[gct].sample1+
-                (audioData[gct].read_size/2*w),audioData[gct].read_buffer[iw],audioData[gct].read_size);
-          }
-        } else { //play sample
-          waveOutReset(hWaveOut[2]);
-          waveOutWrite(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));
-        }}
-        break;
-
-      case '8':{
-        int iw=audioData[gct].queue_play_buffer;
-        if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
-          for (int w=0;w<4;w++) {
-            iw+=w;
-            if (iw>19) {
-              iw=0;
-            }
-            memcpy(audioData[gct].sample2+
-                (audioData[gct].read_size/2*w),audioData[gct].read_buffer[iw],audioData[gct].read_size);
-          }
-        } else { //play sample
-          waveOutReset(hWaveOut[6]);
-          waveOutWrite(hWaveOut[6], &whdr[6], sizeof(WAVEHDR));
-        }}
-        break;
-
     //Holding down '9' or '9' Key
       case '9'://skip song, upwnwards (previous)
       case '0'://skip song, downwards (next)
@@ -363,17 +328,39 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
   if (!MapEditor.is_ground_txt_typing) {
     switch (wParam) {
       case 'R':
-        switch (gct) { //switch buffer used
-          case 0:   
-            gct=1;
-            break;
-          case 1: 
-            gct=0;
-            break;
+        switch (gct) {
+          case 0: gct=1;break;
+          case 1: gct=0;break;
         }
-        BelieveWaveClose();
-        BelieveWaveReOpen(gct);
         break;
+      //case 'V': //speed up
+/*        LiveWaveClose();
+        //if (!song_speed_up) {
+          //song_speed_up=TRUE;
+          //chosen_buffer_length=buffer_length_arr[casbs_i]+buffer_length_arr[casbs_i]/2;
+          //chosen_buffer_size=buffer_size_arr[casbs_i]+buffer_size_arr[casbs_i]/2;        
+          wfx_wav_music.nAvgBytesPerSec++;// = audioData1.wav_header->bytesPerSec+audioData1.wav_header->SamplesPerSec/2;
+//          wfx_wav_music.nSamplesPerSec = audioData1.wav_header->SamplesPerSec+audioData1.wav_header->SamplesPerSec/2; //nightcore
+          
+          LiveWaveReOpen();*/
+          //LiveWaveReOpen(chosen_buffer_size-chosen_buffer_size/4);
+        //} else {
+          //song_speed_up=FALSE;
+          //chosen_buffer_length=buffer_length_arr[casbs_i];
+          //chosen_buffer_size=buffer_size_arr[casbs_i];                  
+          //LiveWaveReOpen(chosen_buffer_size);
+          //wfx_wav_music.nAvgBytesPerSec = audioData1.wav_header->bytesPerSec;
+          //wfx_wav_music.nSamplesPerSec = audioData1.wav_header->SamplesPerSec;
+          //LiveWaveReOpen();
+        //}
+        //audioData1.tempo+=0.1;
+        //break;
+      //case 'B':
+        //LiveWaveClose();
+        //wfx_wav_music.nAvgBytesPerSec;//=wfx_wav_music.nAvgBytesPerSec-1;
+        //LiveWaveReOpen();
+        //audioData1.tempo-=0.1;
+        //break;
 
       case 'Y':
         hide_mm=!hide_mm;
