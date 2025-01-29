@@ -47,6 +47,7 @@ typedef struct threadSFX
 } AWavChannelSFX;
 
 AWavChannelSFX memSFX[SND_THREAD_NUM];
+WAVEFORMATEX wfx_wav_music;
 
 
 
@@ -168,20 +169,19 @@ void PlayThreadSound(AWavChannelSFX* myChannelSFX, int id)
     long bufferSize=myChannelSFX->filesize;
     int duration=myChannelSFX->duration;
     bool is_cache=myChannelSFX->is_cache;
-    WAVEFORMATEX wfxi;
 
     mem_snd_interrupt[id]=FALSE;
     whdr[id].lpData = (LPSTR)myChannelSFX->audio;//(LPSTR);
     whdr[id].dwBufferLength = bufferSize;
     if (!is_cache) {
-      wfxi.wFormatTag = WAVE_FORMAT_PCM;
-      wfxi.nChannels = myChannelSFX->wav_header->NumOfChan;
-      wfxi.nSamplesPerSec = myChannelSFX->wav_header->SamplesPerSec;
-      wfxi.nAvgBytesPerSec = myChannelSFX->wav_header->bytesPerSec;
-      wfxi.nBlockAlign = myChannelSFX->wav_header->blockAlign;
-      wfxi.wBitsPerSample = myChannelSFX->wav_header->bitsPerSample;
-      wfxi.cbSize = 0;
-      waveOutOpen(&hWaveOut[id], WAVE_MAPPER, &wfxi, 0, 0, CALLBACK_NULL);
+      wfx_wav_music.wFormatTag = WAVE_FORMAT_PCM;
+      wfx_wav_music.nChannels = myChannelSFX->wav_header->NumOfChan;
+      wfx_wav_music.nSamplesPerSec = myChannelSFX->wav_header->SamplesPerSec;
+      wfx_wav_music.nAvgBytesPerSec = myChannelSFX->wav_header->bytesPerSec;
+      wfx_wav_music.nBlockAlign = myChannelSFX->wav_header->blockAlign;
+      wfx_wav_music.wBitsPerSample = myChannelSFX->wav_header->bitsPerSample;
+      wfx_wav_music.cbSize = 0;
+      waveOutOpen(&hWaveOut[id], WAVE_MAPPER, &wfx_wav_music, 0, 0, CALLBACK_NULL);
       waveOutPrepareHeader(hWaveOut[id], &whdr[id], sizeof(WAVEHDR));
       waveOutSetVolume(hWaveOut[id], VolumeValue(wav_out_volume*100,1));
     }
