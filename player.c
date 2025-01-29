@@ -426,7 +426,6 @@ void InitPlayer() {
   player.block_health_max=DEFAULT_PLAYER_BLOCK_HEALTH_MAX;
   player.block_health=DEFAULT_PLAYER_BLOCK_HEALTH_MAX;
 
-  player.time_breaker_deplete_cooldown=0;
   player.time_breaker_units=0;
   player.time_breaker_units_max=DEFAULT_PLAYER_TIME_BREAKER_MAX;
   player.time_breaker_cooldown=0;
@@ -1578,12 +1577,12 @@ void PlayerActMouseClick()
         player.blocking=FALSE; //unblock
 
 
+        //BUG: may be janky at times
         //Ensures willingly placed webs never touch the ground or each other
         if (player.pivot_length>NODE_SIZE*5 && (player.right_click_hold_timer==62)) {
 
     //player place web after swing
         double bm_x1=0,bm_y1=0,bm_x2=0,bm_y2=0;
-        double bm_x1__,bm_y1__,bm_x2__,bm_y2__;
         if (player.x<player.pivot_x) {
           bm_x1=player.x;
           bm_y1=player.y;	
@@ -1600,43 +1599,32 @@ void PlayerActMouseClick()
         if (player.y<player.pivot_y) { //player is above pivot
           //player is left
           if (player.x<player.pivot_x) {
-            bm_x1-=cos(player.pivot_angle)*NODE_SIZE;
-            bm_y1+=sin(player.pivot_angle)*NODE_SIZE;
-            bm_x2+=cos(player.pivot_angle)*NODE_SIZE/2;
-            bm_y2-=sin(player.pivot_angle)*NODE_SIZE/2;
+            bm_x1-=cos(player.pivot_angle)*NODE_SIZE*2;
+            bm_y1+=sin(player.pivot_angle)*NODE_SIZE*2;
+            bm_x2+=cos(player.pivot_angle)*NODE_SIZE*2;
+            bm_y2-=sin(player.pivot_angle)*NODE_SIZE*2;
           } else { //player is right
-            bm_x1+=cos(player.pivot_angle)*NODE_SIZE/2;
-            bm_y1-=sin(player.pivot_angle)*NODE_SIZE/2;
-            bm_x2-=cos(player.pivot_angle)*NODE_SIZE;
-            bm_y2+=sin(player.pivot_angle)*NODE_SIZE;
+            bm_x1+=cos(player.pivot_angle)*NODE_SIZE*2;
+            bm_y1-=sin(player.pivot_angle)*NODE_SIZE*2;
+            bm_x2-=cos(player.pivot_angle)*NODE_SIZE*2;
+            bm_y2+=sin(player.pivot_angle)*NODE_SIZE*2;
           }
         } else { //player is below pivot
           //player is left
           if (player.x<player.pivot_x) {
-            bm_x1-=cos(player.pivot_angle)*NODE_SIZE;
-            bm_y1-=sin(player.pivot_angle)*NODE_SIZE;
-            bm_x2+=cos(player.pivot_angle)*NODE_SIZE/2;
-            bm_y2+=sin(player.pivot_angle)*NODE_SIZE/2;
+            bm_x1-=cos(player.pivot_angle)*NODE_SIZE*2;
+            bm_y1-=sin(player.pivot_angle)*NODE_SIZE*2;
+            bm_x2+=cos(player.pivot_angle)*NODE_SIZE*2;
+            bm_y2+=sin(player.pivot_angle)*NODE_SIZE*2;
           } else { //player is right
-            bm_x1+=cos(player.pivot_angle)*NODE_SIZE/2;
-            bm_y1+=sin(player.pivot_angle)*NODE_SIZE/2;
-            bm_x2-=cos(player.pivot_angle)*NODE_SIZE;
-            bm_y2-=sin(player.pivot_angle)*NODE_SIZE;
+            bm_x1+=cos(player.pivot_angle)*NODE_SIZE*2;
+            bm_y1+=sin(player.pivot_angle)*NODE_SIZE*2;
+            bm_x2-=cos(player.pivot_angle)*NODE_SIZE*2;
+            bm_y2-=sin(player.pivot_angle)*NODE_SIZE*2;
           }
         }
-        if (bm_x1>=bm_x2) {
-          bm_x1__=bm_x2;
-          bm_y1__=bm_y2;
-          bm_x2__=bm_x1+0.00001;
-          bm_y2__=bm_y1;
-        } else {
-          bm_x1__=bm_x1;
-          bm_y1__=bm_y1;
-          bm_x2__=bm_x2;
-          bm_y2__=bm_y2;
-        }
-        
-        PlayerActPlaceWeb(bm_x1__,bm_y1__,bm_x2__,bm_y2__);
+
+        PlayerActPlaceWeb(bm_x1,bm_y1,bm_x2,bm_y2);
         }
       }
     }
@@ -2289,28 +2277,10 @@ void PlayerAct()
   if (!player.time_breaker) {
     if (IsSpeedBreaking()) {
       if (player.time_breaker_units>0) {
-        if (!game_hard) {
-          player.time_breaker_units--;
-          if (player.time_breaker_units%3==0) {
-            player.speed++;
-            player.decceleration_timer=0;
-          }
-        } else {
-          if (player.time_breaker_deplete_cooldown>0) {
-            player.time_breaker_deplete_cooldown--;
-          } else {
-            player.time_breaker_units--;
-            if (player.time_breaker_units%3==0) {
-              player.speed++;
-              player.decceleration_timer=0;
-            }
-            player.time_breaker_deplete_cooldown=25;
-          }
-        }
-      }
-      if (game_hard) {
-        if (player.time_breaker_units<=0) {
-          player.sleep_timer=DEFAULT_SLEEP_TIMER;
+        player.time_breaker_units--;
+        if (player.time_breaker_units%3==0) {
+          player.speed++;
+          player.decceleration_timer=0;
         }
       }
       player.time_breaker_recharge_timer=player.time_breaker_recharge_timer_max;

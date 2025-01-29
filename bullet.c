@@ -992,22 +992,23 @@ void DrawBullet2(HDC hdc,int i,double x,double y,int color)
   int c;
   switch (Bullet[i].graphics_type) {
     case 0:
-      GrCircle(hdc,x,y,4,color,-1);
+      GrCircle(hdc,x,y,2,color,-1);
       break;
     case 1:
-      GrCircle(hdc,x,y,3,color,-1);
+      GrCircle(hdc,x,y,1,color,-1);
       break;
     case 2:
-      GrCircle(hdc,x,y,4,color,color);
+      //GrCircle(hdc,x,y,1,color,-1);
+      GrCircle(hdc,x,y,2,color,color);
       break;
     case 3:
     case 6: //no fill glitery buullet
-      GrCircle(hdc,x,y,3,color,-1);
-      GrCircle(hdc,x,y,RandNum(0,5,frame_tick*player.seed),color,-1);
+      GrCircle(hdc,x,y,1,color,-1);
+      GrCircle(hdc,x,y,RandNum(0,3,frame_tick*player.seed),color,-1);
       break;
     case 4: //fill glitery bullet
-      GrCircle(hdc,x,y,3,color,color);
-      GrCircle(hdc,x,y,RandNum(0,5,frame_tick*player.seed),color,color);
+      GrCircle(hdc,x,y,1,color,color);
+      GrCircle(hdc,x,y,RandNum(0,3,frame_tick*player.seed),color,color);
       break;
     case 5: //long bullet 0
       {

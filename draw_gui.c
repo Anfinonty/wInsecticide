@@ -173,8 +173,8 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4,int z)
       //%c 187
       //wchar_t txt[32+256];
       //swprintf(txt,32+256,L"%c%d/%d%c: %s  []",171,song_rand_num[z]+1,song_num,187,song_names[song_rand_num[z]]);
-      GrPrintW(hdc,x,y,txt,"",c,14,FALSE,yes_unifont);
-      GrPrintW(hdc,x+1,y+1,txt,"",c4,14,FALSE,yes_unifont);
+      GrPrintW(hdc,x,y,txt,"",c,16,FALSE,yes_unifont);
+      GrPrintW(hdc,x+1,y+1,txt,"",c4,16,FALSE,yes_unifont);
 
       
 
@@ -525,6 +525,7 @@ void DrawMusicWav(HDC hdc)
       }
     }
   } else { //dj-ing 2 tracks
+    GrLine(hdc,(GR_WIDTH/2),GR_HEIGHT,(GR_WIDTH/2),0,WHITE);
     for (int z=0;z<2;z++) {
       int _y=GR_HEIGHT/4;
       if (z_m==1) {
@@ -566,15 +567,6 @@ void DrawMusicWav(HDC hdc)
           }   
         }
       }
-      if (z_m==1) {
-         GrLine(hdc,(GR_WIDTH/2),0,(GR_WIDTH/2),GR_HEIGHT,rgbPaint[player_pupil_color]);
-      } else {
-        if (z==0) { //spindle
-          GrLine(hdc,(GR_WIDTH/2),GR_HEIGHT/2,(GR_WIDTH/2),0,rgbPaint[player_pupil_color]);
-        } else {
-          GrLine(hdc,(GR_WIDTH/2),GR_HEIGHT/2,(GR_WIDTH/2),GR_HEIGHT,rgbPaint[player_iris_color]);
-        }
-      }
     }
   }
 }
@@ -597,34 +589,6 @@ void DrawKhBool(HDC hdc,HDC hdc2,int x,int y,bool t,bool sel)
     }
   }
 }
-
-
-void DrawKhDiffic(HDC hdc,HDC hdc2,int x,int y,bool t,bool sel)
-{
-  if (t) { //on
-    DrawBitmap(hdc,hdc2,x,y,0,0,43,14,kh_difficulty_mask[1],SRCAND,FALSE,FALSE);
-    if (sel) {
-      DrawBitmap(hdc,hdc2,x,y,0,0,43,14,kh_difficulty_green[1],SRCPAINT,FALSE,FALSE);
-    } else {
-      DrawBitmap(hdc,hdc2,x,y,0,0,43,14,kh_difficulty_white[1],SRCPAINT,FALSE,FALSE);
-    }
-  } else { //off
-    DrawBitmap(hdc,hdc2,x,y+3,0,0,43,18,kh_difficulty_mask[0],SRCAND,FALSE,FALSE);
-    if (sel) {
-      DrawBitmap(hdc,hdc2,x,y+3,0,0,43,18,kh_difficulty_green[0],SRCPAINT,FALSE,FALSE);
-    } else {
-      DrawBitmap(hdc,hdc2,x,y+3,0,0,43,18,kh_difficulty_white[0],SRCPAINT,FALSE,FALSE);
-    }
-  }
-}
-
-
-
-
-
-
-
-
 
 void DrawKhCornMid(HDC hdc,HDC hdc2,int x,int y,bool sel)
 {
@@ -903,7 +867,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
         GrRect(hdc,30+8*21+2,mm2y2+2,12,12,rgbPaint[player_pupil_color]);
       }
       if (option_choose>=0 && option_choose<=2 && color_chooser.is_choosing_color) {
-        DrawPaintSquare(hdc,30+220+24,10+soptions_y,color_chooser.color_id,color_chooser.color_id_choosing);
+        DrawPaintSquare(hdc,30+220,mm2y2,color_chooser.color_id,color_chooser.color_id_choosing);
       }
 
 
@@ -1127,33 +1091,6 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
           GrPrint(hdc,30+20*8,10+soptions_y+16*13,"<ON>",c);
         } else {
           GrPrint(hdc,30+20*8,10+soptions_y+16*13,"<OFF>",c);
-        }
-      }
-
-
-
-
-
-
-
-      c=Highlight((option_choose==14),WHITE,LTGREEN);
-      if (is_khmer) {
-        DrawMM2Kh(hdc,hdc2,30,10+soptions_y+16*14-2,129,22,14);
-      } else {
-        GrPrint(hdc,30,10+soptions_y+16*14,"Difficulty:",c);
-      }
-
-      if (is_khmer) {
-        if (game_hard) {
-          DrawKhDiffic(hdc,hdc2,30+20*8,10+soptions_y+16*14-2,1,(option_choose==14));
-        } else {
-          DrawKhDiffic(hdc,hdc2,30+20*8,10+soptions_y+16*14-2,0,(option_choose==14));
-        }
-      } else {
-        if (game_hard) {
-          GrPrint(hdc,30+20*8,10+soptions_y+16*14,"<HARD>",c);
-        } else {
-          GrPrint(hdc,30+20*8,10+soptions_y+16*14,"<NORMAL>",c);
         }
       }
 
@@ -1765,8 +1702,8 @@ void DrawUI(HDC hdc,HDC hdc2)
     GrPrintW(hdc,knifethrowstxtx-32-30-8,knifethrowstxty-4,ReplaceToKhmerNum(bulletlefttxt2),"",bc2,16,FALSE,yes_unifont);
     GrPrintW(hdc,knifethrowstxtx-32-30-8,knifethrowstxty-4,ReplaceToKhmerNum(bulletlefttxt),"",bc,16,FALSE,yes_unifont);
   } else {
-    GrPrintW(hdc,knifethrowstxtx-32-8,knifethrowstxty-4,bulletlefttxt2,"",bc2,16,FALSE,yes_unifont);
-    GrPrintW(hdc,knifethrowstxtx-32-8,knifethrowstxty-4,bulletlefttxt,"",bc,16,FALSE,yes_unifont);
+    GrPrintW(hdc,knifethrowstxtx-32-8,knifethrowstxty-4,bulletlefttxt2,"",bc2,16,FALSE,FALSE);
+    GrPrintW(hdc,knifethrowstxtx-32-8,knifethrowstxty-4,bulletlefttxt,"",bc,16,FALSE,FALSE);
   }
 
   if (player.show_exp_timer>0) {
