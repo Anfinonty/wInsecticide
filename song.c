@@ -26,7 +26,6 @@ bool skipping_song=FALSE;
 bool clean_up_song=FALSE;
 bool clean_up_sound=FALSE;
 wchar_t wav_song_playing[256];
-bool song_speed_up=FALSE;
 
 unsigned long long time_song_start;
 unsigned long long time_song_end;
@@ -195,27 +194,8 @@ void InitSongBank() {
 
 #define AUDIO_STREAM_BUFFER_NUM    2  //2mb
 //#define AUDIO_STREAM_BUFFER_SIZE   524288//4096//524288//44100//16384//8192//524288  minimum //int16_t *524288 = 1mb //0.00049mb
-
-//largest buffer reserved for slack only
-#define AUDIO_STREAM_BUFFER_SIZE0    16384 //2048//8192//16384//524288//8192//4096//524288//4096   8192 or 16384
-#define AUDIO_STREAM_BUFFER_SIZE1    8192  //2048//8192//16384//524288//8192//4096//524288//4096   8192 or 16384
-#define AUDIO_STREAM_BUFFER_SIZE2    4096
-#define AUDIO_STREAM_BUFFER_SIZE3    2048
-
-
-const long _buffer_size0=AUDIO_STREAM_BUFFER_SIZE0*sizeof(int16_t);
-const long _buffer_size1=AUDIO_STREAM_BUFFER_SIZE1*sizeof(int16_t);
-const long _buffer_size2=AUDIO_STREAM_BUFFER_SIZE2*sizeof(int16_t);
-const long _buffer_size3=AUDIO_STREAM_BUFFER_SIZE3*sizeof(int16_t);
-
-long buffer_size_arr[3]={_buffer_size1,_buffer_size2,_buffer_size3};
-long buffer_length_arr[3]={AUDIO_STREAM_BUFFER_SIZE1,AUDIO_STREAM_BUFFER_SIZE2,AUDIO_STREAM_BUFFER_SIZE3};
-
-int casbs_i=0;
-int chosen_buffer_length_o;
-long chosen_buffer_size_o;
-int chosen_buffer_length;
-long chosen_buffer_size;
+#define AUDIO_STREAM_BUFFER_SIZE     8192//16384//524288//8192//4096//524288//4096   8192 or 16384
+const long mb_1_size=AUDIO_STREAM_BUFFER_SIZE*sizeof(int16_t);
 
 
 typedef struct AudioData
@@ -223,7 +203,7 @@ typedef struct AudioData
   AWavHeader wav_header[44];
   HWAVEOUT hWaveOut;
   FILE *music_file;
-  bool double_buffer;  
+  //bool double_buffer;  
 
   long current_filesize; //spindle
   long filesize;
@@ -233,275 +213,60 @@ typedef struct AudioData
   WAVEHDR waveHdr2;
 
   //int16_t audio[AUDIO_STREAM_BUFFER_NUM][AUDIO_STREAM_BUFFER_SIZE];
-  //int16_t tmp_buffer1[AUDIO_STREAM_BUFFER_SIZE0];
-  //int16_t tmp_buffer2[AUDIO_STREAM_BUFFER_SIZE0];
-  int16_t buffer1[AUDIO_STREAM_BUFFER_SIZE0];
-  int16_t buffer2[AUDIO_STREAM_BUFFER_SIZE0];
+  int16_t buffer1[AUDIO_STREAM_BUFFER_SIZE];
+  int16_t buffer2[AUDIO_STREAM_BUFFER_SIZE];
 } AudioData;
 AudioData audioData;
 
 
-//#define SAMPLE_RATE 44100
-//#define BUFFER_SIZE 4096
-//#define BUFFER_SIZE  AUDIO_STREAM_BUFFER_SIZE2 //4096
-//#define OVERLAP_SIZE (BUFFER_SIZE / 2)
-//#define STRETCH_RATIO 100  // For 50% faster tempo
-
-
-/*
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-
-#define SAMPLE_RATE 44100
-#define BUFFER_SIZE 4096
-#define OVERLAP_SIZE (BUFFER_SIZE / 2)
-#define STRETCH_RATIO 1.5  // For 50% faster tempo
-
-void applyWindowFunction(float* buffer, int size) {
-    for (int i = 0; i < size; i++) {
-        buffer[i] *= 0.5 * (1 - cos(2 * M_PI * i / (size - 1)));  // Hann window
-    }
-}
-
-void timeStretch(float* input, float* output, int inputSize, int outputSize) {
-    int inputPos = 0;
-    int outputPos = 0;
-    float* buffer1 = (float*)malloc(BUFFER_SIZE * sizeof(float));
-    float* buffer2 = (float*)malloc(BUFFER_SIZE * sizeof(float));
-
-    while (inputPos + BUFFER_SIZE < inputSize && outputPos + BUFFER_SIZE < outputSize) {
-        // Read frames with overlap
-        memcpy(buffer1, &input[inputPos], BUFFER_SIZE * sizeof(float));
-        memcpy(buffer2, &input[inputPos + OVERLAP_SIZE], BUFFER_SIZE * sizeof(float));
-
-        // Apply window function
-        applyWindowFunction(buffer1, BUFFER_SIZE);
-        applyWindowFunction(buffer2, BUFFER_SIZE);
-
-        // Cross-fade and mix frames
-        for (int i = 0; i < BUFFER_SIZE; i++) {
-            output[outputPos + i] = (buffer1[i] * (BUFFER_SIZE - i) + buffer2[i] * i) / BUFFER_SIZE;
-        }
-
-        // Update positions
-        inputPos += BUFFER_SIZE / STRETCH_RATIO;
-        outputPos += BUFFER_SIZE;
-    }
-
-    free(buffer1);
-    free(buffer2);
-}
-
-int main() {
-    FILE* inputFile = fopen("input.wav", "rb");
-    FILE* outputFile = fopen("output.wav", "wb");
-
-    // Read input file and allocate buffers
-    fseek(inputFile, 0, SEEK_END);
-    int inputSize = ftell(inputFile) / sizeof(float);
-    fseek(inputFile, 0, SEEK_SET);
-    float* inputBuffer = (float*)malloc(inputSize * sizeof(float));
-    fread(inputBuffer, sizeof(float), inputSize, inputFile);
-
-    int outputSize = inputSize / STRETCH_RATIO;
-    float* outputBuffer = (float*)malloc(outputSize * sizeof(float));
-
-    // Apply time-stretching
-    timeStretch(inputBuffer, outputBuffer, inputSize, outputSize);
-
-    // Write output file
-    fwrite(outputBuffer, sizeof(float), outputSize, outputFile);
-
-    // Clean up
-    free(inputBuffer);
-    free(outputBuffer);
-    fclose(inputFile);
-    fclose(outputFile);
-
-    return 0;
-*/
-
-
-/*
-void applyWindowFunction(int16_t* buffer, int size) {
-    for (int i = 0; i < size; i++) {
-        buffer[i] *= 0.5 * (1 - cos(2 * M_PI * i / (size - 1)));  // Hann window
-    }
-}
-
-void timeStretch(int16_t* input, int16_t* output,int BUFFER_SIZE) {
-    int OVERLAP_SIZE = BUFFER_SIZE/2;
-    int16_t* buffer1 = (int16_t*)malloc(BUFFER_SIZE * sizeof(int16_t));
-    int16_t* buffer2 = (int16_t*)malloc(BUFFER_SIZE * sizeof(int16_t));
-
-        // Read frames with overlap
-    memcpy(buffer1, &input[0], BUFFER_SIZE * sizeof(int16_t));
-    memcpy(buffer2, &input[OVERLAP_SIZE], BUFFER_SIZE * sizeof(int16_t));
-
-    // Apply window function
-    applyWindowFunction(buffer1, BUFFER_SIZE);
-    applyWindowFunction(buffer2, BUFFER_SIZE);
-    for (int i = 0; i < BUFFER_SIZE; i++) {
-      output[i] = (buffer1[i] * (BUFFER_SIZE - i) + buffer2[i] * i) / BUFFER_SIZE;
-    }
-    free(buffer1);
-    free(buffer2);
-}*/
-
-//memcpy(output, input, BUFFER_SIZE);
-
-/*
-int main() {
-    FILE* inputFile = fopen("input.wav", "rb");
-    FILE* outputFile = fopen("output.wav", "wb");
-
-    // Read input file and allocate buffers
-    fseek(inputFile, 0, SEEK_END);
-    int inputSize = ftell(inputFile) / sizeof(float);
-    fseek(inputFile, 0, SEEK_SET);
-    float* inputBuffer = (float*)malloc(inputSize * sizeof(float));
-    fread(inputBuffer, sizeof(float), inputSize, inputFile);
-
-    int outputSize = inputSize / STRETCH_RATIO;
-    float* outputBuffer = (float*)malloc(outputSize * sizeof(float));
-
-    // Apply time-stretching
-    timeStretch(inputBuffer, outputBuffer, inputSize, outputSize);
-
-    // Write output file
-    fwrite(outputBuffer, sizeof(float), outputSize, outputFile);
-
-    // Clean up
-    free(inputBuffer);
-    free(outputBuffer);
-    fclose(inputFile);
-    fclose(outputFile);
-
-    return 0;
-}
-
-*/
-
-
-void applyWindowFunction(int16_t* buffer, int size) {
-    for (int i = 0; i < size; i++) {
-        buffer[i] *= 0.5 * (1 - cos(2 * M_PI * i / (size - 1)));  // Hann window
-    }
-}
-
-void timeStretch(int16_t* input, int16_t* output, int input_size, float stretch_factor) {
-    int output_size = (int)(input_size * stretch_factor);
-    int overlap_size = input_size / 2; // Overlap size set to half of input size
-    int16_t* buffer1 = (int16_t*)malloc(input_size * sizeof(int16_t));
-    int16_t* buffer2 = (int16_t*)malloc(input_size * sizeof(int16_t));
-
-    for (int i = 0; i < output_size; i += input_size - overlap_size) {
-        int j = i / stretch_factor;
-        if (j + input_size > input_size * 2) break; // Avoid going out of bounds
-
-        memcpy(buffer1, &input[j], input_size * sizeof(int16_t));
-        memcpy(buffer2, &input[j + overlap_size], input_size * sizeof(int16_t));
-
-        // Apply window function
-        applyWindowFunction(buffer1, input_size);
-        applyWindowFunction(buffer2, input_size);
-
-        for (int k = 0; k < input_size; k++) {
-            int index = i + k;
-            if (index >= output_size) break;
-
-            output[index] = (buffer1[k] * (input_size - k) + buffer2[k] * k) / input_size;
-        }
-    }
-
-    free(buffer1);
-    free(buffer2);
-}
-
-/*int main() {
-    // Example usage:
-    int input_size = 1024;
-    float stretch_factor = 1.5; // Increase duration by 1.5 times
-    int output_size = (int)(input_size * stretch_factor);
-    int16_t* input = (int16_t*)malloc(input_size * sizeof(int16_t));
-    int16_t* output = (int16_t*)malloc(output_size * sizeof(int16_t));
-
-    // Initialize input buffer with example data
-    for (int i = 0; i < input_size; i++) {
-        input[i] = (int16_t)(32767 * sin(2 * M_PI * i / input_size));
-    }
-
-    // Perform time-stretching
-    timeStretch(input, output, input_size, stretch_factor);
-
-    // Free allocated memory
-    free(input);
-    free(output);
-
-    return 0;
-}*/
-
 
 void CALLBACK waveOutProc(HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance, DWORD_PTR dwParam1, DWORD_PTR dwParam2) {
     AudioData* audioData = (AudioData *)dwInstance;
+
+    //printf("callback!\n");
     if (playing_wav) {
+      /*printf("<");
+      if (uMsg == WOM_DONE) {
+        //printf("finished!\n");
+        printf(">");
+        if (_audio_data->double_buffer) {
+          //printf("@1:\n");
+          fread(_audio_data->buffer1,1,mb_1_size,_audio_data->music_file);
+          _audio_data->current_filesize+=mb_1_size;
+          _audio_data->waveHdr1.lpData = (LPSTR)_audio_data->buffer1;
+          _audio_data->waveHdr1.dwBufferLength = mb_1_size;
+          _audio_data->waveHdr1.dwFlags = 0;
+          _audio_data->waveHdr1.dwLoops = 0;
+          //waveOutUnprepareHeader(_audio_data->hWaveOut, &_audio_data->waveHdr1, sizeof(WAVEHDR));
+          waveOutPrepareHeader(_audio_data->hWaveOut, &_audio_data->waveHdr1, sizeof(WAVEHDR));
+          //waveOutWrite(_audio_data->hWaveOut, &_audio_data->waveHdr1, sizeof(WAVEHDR));
+          _audio_data->double_buffer=FALSE;
+        } else {
+          //printf("@2:\n");
+          fread(_audio_data->buffer2,1,mb_1_size,_audio_data->music_file);
+          _audio_data->current_filesize+=mb_1_size;
+          _audio_data->waveHdr2.lpData = (LPSTR)_audio_data->buffer2;
+          _audio_data->waveHdr2.dwBufferLength = mb_1_size;
+          _audio_data->waveHdr2.dwFlags = 0;
+          _audio_data->waveHdr2.dwLoops = 0;
+          //waveOutUnprepareHeader(_audio_data->hWaveOut, &_audio_data->waveHdr2, sizeof(WAVEHDR));
+          waveOutPrepareHeader(_audio_data->hWaveOut, &_audio_data->waveHdr2, sizeof(WAVEHDR));
+          //waveOutWrite(_audio_data->hWaveOut, &_audio_data->waveHdr2, sizeof(WAVEHDR));
+          _audio_data->double_buffer=TRUE;
+        }
+      }*/
+
       if (uMsg == WOM_DONE) {
         WAVEHDR *waveHdr = (WAVEHDR *)dwParam1;
         if (waveHdr == &audioData->waveHdr1) {
-            audioData->double_buffer=TRUE;
-            audioData->current_filesize+=chosen_buffer_size;
-            //fread(audioData->tmp_buffer1, sizeof(BYTE), chosen_buffer_size, audioData->music_file);
-            //timeStretch(audioData->tmp_buffer1,audioData->buffer1,chosen_buffer_size,1.5);
-            fread(audioData->buffer1, sizeof(BYTE), chosen_buffer_size, audioData->music_file);
-            //memcpy(audioData->buffer1, audioData->tmp_buffer1, chosen_buffer_size);
+            fread(audioData->buffer1, sizeof(BYTE), mb_1_size, audioData->music_file);
             waveOutWrite(audioData->hWaveOut, &audioData->waveHdr1, sizeof(WAVEHDR));
         } else if (waveHdr == &audioData->waveHdr2) {
-            audioData->double_buffer=FALSE;
-            audioData->current_filesize+=chosen_buffer_size;
-            //fread(audioData->tmp_buffer2, sizeof(BYTE), chosen_buffer_size, audioData->music_file);
-            //timeStretch(audioData->tmp_buffer2,audioData->buffer2,chosen_buffer_size,1.5);
-            fread(audioData->buffer2, sizeof(BYTE), chosen_buffer_size, audioData->music_file);
-            //memcpy(audioData->buffer2, audioData->tmp_buffer2, chosen_buffer_size);
+            fread(audioData->buffer2, sizeof(BYTE), mb_1_size, audioData->music_file);
             waveOutWrite(audioData->hWaveOut, &audioData->waveHdr2, sizeof(WAVEHDR));
         }
       }
     }
-}
-
-
-void LiveWaveClose()
-{
-  waveOutReset(audioData.hWaveOut);
-  waveOutUnprepareHeader(audioData.hWaveOut, &audioData.waveHdr1, sizeof(WAVEHDR));
-  waveOutUnprepareHeader(audioData.hWaveOut, &audioData.waveHdr2, sizeof(WAVEHDR));
-  waveOutClose(audioData.hWaveOut);
-
-}
-
-void LiveWaveReOpen()
-{
-
-     waveOutOpen(&audioData.hWaveOut, WAVE_MAPPER, &wfx_wav_music, (DWORD_PTR)waveOutProc, (DWORD_PTR)&audioData, CALLBACK_FUNCTION);
-
-      long int vol=VolumeValue(wav_out_volume*100,1);
-      waveOutSetVolume(audioData.hWaveOut,vol);
-
-      audioData.waveHdr1.lpData = (LPSTR)audioData.buffer1;
-      audioData.waveHdr1.dwBufferLength = chosen_buffer_size;//AUDIO_STREAM_BUFFER_SIZE;
-      audioData.waveHdr1.dwFlags = 0;
-      audioData.waveHdr1.dwLoops = 0;
-      waveOutPrepareHeader(audioData.hWaveOut, &audioData.waveHdr1, sizeof(WAVEHDR));
-      waveOutWrite(audioData.hWaveOut, &audioData.waveHdr1, sizeof(WAVEHDR));
-
-
-      audioData.waveHdr2.lpData = (LPSTR)audioData.buffer2;
-      audioData.waveHdr2.dwBufferLength = chosen_buffer_size;//AUDIO_STREAM_BUFFER_SIZE;
-      audioData.waveHdr2.dwFlags = 0;
-      audioData.waveHdr2.dwLoops = 0;
-      waveOutPrepareHeader(audioData.hWaveOut, &audioData.waveHdr2, sizeof(WAVEHDR));
-      waveOutWrite(audioData.hWaveOut, &audioData.waveHdr2, sizeof(WAVEHDR));
-
 }
 
 
@@ -537,7 +302,7 @@ void LoadBufferSFX(const wchar_t* filename)
     wfx_wav_music.wBitsPerSample = audioData.wav_header->bitsPerSample;
     wfx_wav_music.cbSize = 0;
 
-    audioData.buffer_size=chosen_buffer_size;
+    audioData.buffer_size=mb_1_size;
     audioData.filesize=filesize;
     song_audio_duration=(double)filesize / (audioData.wav_header->SamplesPerSec * audioData.wav_header->NumOfChan * audioData.wav_header->bitsPerSample/8) *1000;
 
@@ -546,16 +311,13 @@ void LoadBufferSFX(const wchar_t* filename)
     // Initialize AudioData structure
      waveOutOpen(&audioData.hWaveOut, WAVE_MAPPER, &wfx_wav_music, (DWORD_PTR)waveOutProc, (DWORD_PTR)&audioData, CALLBACK_FUNCTION);
 
-    long int vol=VolumeValue(wav_out_volume*100,1);
-    waveOutSetVolume(audioData.hWaveOut,vol);
-
     if (audioData.current_filesize>audioData.filesize) {
       audioData.current_filesize=audioData.filesize;
     }
-    fread(audioData.buffer1,1,chosen_buffer_size,audioData.music_file);
-    audioData.current_filesize+=chosen_buffer_size;
+    fread(audioData.buffer1,1,mb_1_size,audioData.music_file);
+    audioData.current_filesize+=mb_1_size;
     audioData.waveHdr1.lpData = (LPSTR)audioData.buffer1;
-    audioData.waveHdr1.dwBufferLength = chosen_buffer_size;//AUDIO_STREAM_BUFFER_SIZE;
+    audioData.waveHdr1.dwBufferLength = mb_1_size;//AUDIO_STREAM_BUFFER_SIZE;
     audioData.waveHdr1.dwFlags = 0;
     audioData.waveHdr1.dwLoops = 0;
   //  waveOutUnprepareHeader(audioData.hWaveOut, &audioData.waveHdr1, sizeof(WAVEHDR));
@@ -565,21 +327,320 @@ void LoadBufferSFX(const wchar_t* filename)
     if (audioData.current_filesize>audioData.filesize) {
        audioData.current_filesize=audioData.filesize;
     }
-    fread(audioData.buffer2,1,chosen_buffer_size,audioData.music_file);
-    audioData.current_filesize+=chosen_buffer_size;
+    fread(audioData.buffer2,1,mb_1_size,audioData.music_file);
+    audioData.current_filesize+=mb_1_size;
     audioData.waveHdr2.lpData = (LPSTR)audioData.buffer2;
-    audioData.waveHdr2.dwBufferLength = chosen_buffer_size;//AUDIO_STREAM_BUFFER_SIZE;
+    audioData.waveHdr2.dwBufferLength = mb_1_size;//AUDIO_STREAM_BUFFER_SIZE;
     audioData.waveHdr2.dwFlags = 0;
     audioData.waveHdr2.dwLoops = 0;
    // waveOutUnprepareHeader(audioData.hWaveOut, &audioData.waveHdr2, sizeof(WAVEHDR));
     waveOutPrepareHeader(audioData.hWaveOut, &audioData.waveHdr2, sizeof(WAVEHDR));
     waveOutWrite(audioData.hWaveOut, &audioData.waveHdr2, sizeof(WAVEHDR));
-
   }
 }
 
 
 
+
+    //waveOutSetVolume(audioData.hWaveOut, VolumeValue(wav_out_volume*100,1));
+
+
+
+    //audioData.duration=(double)audioData.buffer_size*1000/ (double)(audioData.wav_header->SamplesPerSec * audioData.wav_header->NumOfChan * audioData.wav_header->bitsPerSample/8); //duration per 1mb
+    //printf("duration:%d\n",audioData.duration);
+   //Alloc actual audio int16_t*
+    //fseek(file, audioData.current_filesize, SEEK_SET);
+    //for (int i=0;i<AUDIO_STREAM_BUFFER_NUM;i++) {
+      //if (audioData.current_filesize>audioData.filesize) {
+        //audioData.current_filesize=audioData.filesize;
+      //}
+      //fread(audioData.audio[i],1,mb_1_size,audioData.music_file);
+      //audioData.current_filesize+=mb_1_size;
+    //}
+
+    //fclose(file);
+
+
+
+
+
+
+   //  waveOutOpen(&hWaveOut[2], WAVE_MAPPER, &wfx_wav_music, 0, 0, CALLBACK_NULL);
+   // waveOutOpen(&hWaveOut[6], WAVE_MAPPER, &wfx_wav_music, 0, 0, CALLBACK_NULL);
+   // waveOutPrepareHeader(hWaveOut[6], &whdr[6], sizeof(WAVEHDR));
+   // waveOutSetVolume(hWaveOut[6], VolumeValue(wav_out_volume*100,1));
+
+
+    //whdr[2].lpData = (LPSTR)audioData.audio[0];
+    //whdr[2].dwBufferLength = audioData.buffer_size;
+
+    //whdr[2].lpData = (LPSTR)audioData.audio[1];
+    //whdr[2].dwBufferLength = audioData.buffer_size;
+
+
+    //waveOutPrepareHeader(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));
+    //waveOutPrepareHeader(hWaveOut[2], &whdr[6], sizeof(WAVEHDR));
+    //waveOutSetVolume(hWaveOut[2], VolumeValue(wav_out_volume*100,1));
+    //waveOutSetVolume(hWaveOut[6], VolumeValue(wav_out_volume*100,1));
+    //audioData.double_buffer1=TRUE;
+    //audioData.double_buffer2=FALSE;
+
+
+
+    // Clean up
+    //waveOutUnprepareHeader(hWaveOut_, &audioData.waveHdr1, sizeof(WAVEHDR));
+    //waveOutUnprepareHeader(hWaveOut_, &audioData.waveHdr2, sizeof(WAVEHDR));
+    //waveOutClose(hWaveOut_);
+    //fclose(audioData.music_file);
+
+
+void PlayThreadStream1()
+{
+  if (!stop_playing_song) {
+    if (playing_wav && !play_new_song && !loading_flac && !loading_mp3 && !loading_wav){
+        //Sleep(100);
+        //if (!audioData.double_buffer) {
+          //while (!(audioData.waveHdr1.dwFlags & WHDR_DONE)) {Sleep(10);}
+        //} else {
+          //while (!(audioData.waveHdr2.dwFlags & WHDR_DONE)) {Sleep(10);}
+        //}
+
+        waveOutWrite(audioData.hWaveOut, &audioData.waveHdr1, sizeof(WAVEHDR));
+        waveOutWrite(audioData.hWaveOut, &audioData.waveHdr2, sizeof(WAVEHDR));
+        //Sleep(100);
+        //while ((audioData.waveHdr1.dwFlags & WHDR_DONE) == 0 || (audioData.waveHdr2.dwFlags & WHDR_DONE) == 0) {
+          // Sleep(100); // Wait
+        //}
+
+
+         /*printf("@1:next\n");
+         fread(audioData.buffer1,1,mb_1_size,audioData.music_file);
+         audioData.current_filesize+=mb_1_size;
+         audioData.waveHdr1.lpData = (LPSTR)audioData.buffer1;
+         audioData.waveHdr1.dwBufferLength = mb_1_size;;
+         audioData.waveHdr1.dwFlags = 0;
+         audioData.waveHdr1.dwLoops = 0;
+         waveOutPrepareHeader(audioData.hWaveOut, &audioData.waveHdr1, sizeof(WAVEHDR));*/
+         //waveOutWrite(audioData.hWaveOut, &audioData.waveHdr1, sizeof(WAVEHDR));
+         //waveOutWrite(audioData.hWaveOut, &audioData.waveHdr2, sizeof(WAVEHDR));
+        //Sleep(1000);
+    } else {
+      Sleep(1000);
+    }
+  } else {
+    Sleep(1000);
+  }
+}
+
+
+/*
+void LoadNextBufferSFX(const wchar_t* filename, int i) {
+  //FILE* file = _wfopen(filename, L"rb");
+  if (audioData.music_file) {
+    //fseek(file, audioData.current_filesize, SEEK_SET);   
+    // Ensure we do not fread beyond the size of the file
+    if (audioData.current_filesize + mb_1_size <= audioData.filesize) {
+      fread(audioData.audio[i], 1, mb_1_size, audioData.music_file);
+      audioData.current_filesize += mb_1_size;
+    } else {
+      // Adjust the read size if we are at the end of the file
+      size_t remaining_size = audioData.filesize - audioData.current_filesize;
+      memset(audioData.audio[i], 0, sizeof(audioData.audio[i])); //reset buffer so no fragments at ending
+      fread(audioData.audio[i], 1, remaining_size, audioData.music_file);
+      audioData.current_filesize = audioData.filesize;
+    }
+    //fclose(file);
+  }
+}
+
+
+void PlayThreadStream1()
+{
+  if (!stop_playing_song) {
+    if (playing_wav && !play_new_song && !loading_flac && !loading_mp3 && !loading_wav){
+      if (audioData.double_buffer1) {
+          waveOutWrite(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));
+          while (!(whdr[2].dwFlags & WHDR_DONE)) {Sleep(10);}//{Sleep(100);}
+          audioData.double_buffer2=TRUE;
+          audioData.double_buffer1=FALSE;
+          LoadNextBufferSFX(L"",0);
+          whdr[2].lpData = (LPSTR)audioData.audio[0];
+          whdr[2].dwBufferLength = audioData.buffer_size;
+      } else {
+        Sleep(10);
+      }
+    } else {
+      Sleep(1000);
+    }
+  } else {
+    Sleep(1000);
+  }
+}
+
+void PlayThreadStream2()
+{
+  if (!stop_playing_song) {
+    if (playing_wav && !play_new_song && !loading_flac && !loading_mp3 && !loading_wav){
+      if (audioData.double_buffer2) {
+          waveOutWrite(hWaveOut[6], &whdr[6], sizeof(WAVEHDR));
+          while (!(whdr[6].dwFlags & WHDR_DONE)) {Sleep(10);}//{Sleep(100);}
+          audioData.double_buffer1=TRUE;
+          audioData.double_buffer2=FALSE;
+          LoadNextBufferSFX(L"",1);
+          whdr[6].lpData = (LPSTR)audioData.audio[1];
+          whdr[6].dwBufferLength = audioData.buffer_size;
+      } else {
+        Sleep(10);
+      }
+    } else {
+      Sleep(1000);
+    }
+  } else {
+    Sleep(1000);
+  }
+}
+*/
+
+/*HANDLE bufferReadyEvent;
+
+void PlayThreadStream1()
+{
+  WaitForSingleObject(bufferReadyEvent,INFINITE);
+  if (!stop_playing_song) {
+    if (playing_wav && !play_new_song && !loading_flac && !loading_mp3 && !loading_wav){
+      if (audioData.double_buffer1) {
+        //printf("@1:%d/%d",audioData.current_filesize,audioData.filesize);
+        waveOutPrepareHeader(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));
+        waveOutWrite(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));
+        while (TRUE) {
+          if ((whdr[2].dwFlags & WHDR_DONE)) {
+            waveOutUnprepareHeader(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));
+            audioData.double_buffer1=FALSE;
+            audioData.double_buffer2=TRUE;
+            LoadNextBufferSFX(wav_song_playing,0);
+            whdr[2].lpData = (LPSTR)audioData.audio[0];
+            whdr[2].dwBufferLength = audioData.buffer_size;
+            break;
+          } else {
+            //Sleep(1);
+          }
+        }
+        SetEvent(bufferReadyEvent);
+      } else {
+        //Sleep(1);
+      } 
+    } else {
+      Sleep(1000);
+    }
+  } else {
+    Sleep(1000);
+  }
+}
+
+void PlayThreadStream2()
+{
+  WaitForSingleObject(bufferReadyEvent,INFINITE);
+  if (!stop_playing_song) {
+    if (playing_wav && !play_new_song && !loading_flac && !loading_mp3 && !loading_wav){
+      if (audioData.double_buffer2) {
+        //printf("@2:%d/%d",audioData.current_filesize,audioData.filesize);
+        waveOutPrepareHeader(hWaveOut[2], &whdr[6], sizeof(WAVEHDR));
+        waveOutWrite(hWaveOut[2], &whdr[6], sizeof(WAVEHDR));
+        while (TRUE) {
+          if ((whdr[6].dwFlags & WHDR_DONE)) {
+            waveOutUnprepareHeader(hWaveOut[2], &whdr[6], sizeof(WAVEHDR));
+            audioData.double_buffer2=FALSE;
+            audioData.double_buffer1=TRUE;
+            LoadNextBufferSFX(wav_song_playing,1);
+            whdr[6].lpData = (LPSTR)audioData.audio[1];
+            whdr[6].dwBufferLength = audioData.buffer_size;
+            break;
+          } else {
+            //Sleep(1);
+          }
+        }
+        SetEvent(bufferReadyEvent);
+      } else {
+        //Sleep(1);
+      } 
+    } else {
+      Sleep(1000);
+    }
+  } else {
+    Sleep(1000);
+  }
+}*/
+
+
+DWORD WINAPI PlayMemSnd3(LPVOID lpParam)
+{
+  //SetEvent(bufferReadyEvent); 
+  while (TRUE) {
+      PlayThreadStream1();
+  }
+}
+
+/*
+DWORD WINAPI PlayMemSnd7(LPVOID lpParam)
+{
+  //SetEvent(bufferReadyEvent); 
+  while (TRUE) {
+      PlayThreadStream2();
+  }
+}
+*/
+
+/*DWORD APIENTRY WaveFunc(LPVOID data) 
+{
+    WAVEHDR *whdr;
+    WAVE *wave;
+    intptr_t *sink;
+    long size, phaz = 0;
+
+    wave = (WAVE*)data;
+    whdr = (WAVEHDR*)(sink = (intptr_t*) wave->sink)[1];
+    size = wave->chnl * wave->size * (wave->bits >> 3);
+
+    HWAVEOUT hWaveOut = (HWAVEOUT) sink[0];
+    HANDLE hEvent = (HANDLE)sink[2];
+
+    whdr[0].dwBufferLength = whdr[1].dwBufferLength = size;
+    whdr[0].dwFlags        = whdr[1].dwFlags        = 0;
+    whdr[0].dwLoops        = whdr[1].dwLoops        = 0;
+    whdr[0].lpData = (LPSTR)(wave->data[0] = calloc(1, size));
+    whdr[1].lpData = (LPSTR)(wave->data[1] = calloc(1, size));
+
+    ResetEvent(hEvent);
+
+    assert(wave->swiz == 0);
+    FillBuf(wave, freq, ampl, &phaz);
+    waveOutPrepareHeader(hWaveOut, &whdr[1], sizeof (WAVEHDR));
+    waveOutWrite(hWaveOut, &whdr[1], sizeof (WAVEHDR));
+
+    assert(wave->swiz == 1);
+    FillBuf(wave, freq, ampl, &phaz);
+    waveOutPrepareHeader(hWaveOut, &whdr[0], sizeof (WAVEHDR));
+    waveOutWrite(hWaveOut, &whdr[0], sizeof (WAVEHDR));
+
+    for(; ; )
+    {
+        WaitForSingleObject(hEvent, INFINITE);
+        ResetEvent(hEvent);
+        for(long index = 0; index < 2; index++)
+            if(whdr[index].dwFlags & WHDR_DONE)
+            {
+                wave->swiz = index ^ 1;
+                // NOTE: See comment from Paul Sanders: the headers have to be
+                //       prepared before writing, however there is no need to
+                //       re-prepare to upload new data
+                //waveOutUnprepareHeader(hWaveOut, &whdr[wave->swiz], sizeof (WAVEHDR));
+                FillBuf(wave, freq, ampl, &phaz);
+                //waveOutPrepareHeader(hWaveOut, &whdr[wave->swiz], sizeof (WAVEHDR));
+                waveOutWrite(hWaveOut, &whdr[wave->swiz], sizeof (WAVEHDR));
+            }
+    }
+    return 0;
+}*/
 
 
 DWORD WINAPI SoundTask(LPVOID lpArg) {
@@ -628,7 +689,23 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
           } else if (!loading_flac && !loading_mp3 && !loading_wav) { //not loading song 
             if (play_new_song) //song status: stopped
             {
-              LiveWaveClose();
+              //mem_snd_interrupt[2]=TRUE;
+              //mem_snd_interrupt[6]=TRUE;
+              //waveOutReset(hWaveOut[2]);
+              //waveOutReset(hWaveOut[6]);
+              //waveOutUnprepareHeader(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));
+              //waveOutUnprepareHeader(hWaveOut[6], &whdr[6], sizeof(WAVEHDR));
+              //waveOutClose(hWaveOut[2]);
+              //waveOutClose(hWaveOut[6]);
+              //waveOutUnprepareHeader(hWaveOut[6], &whdr[6], sizeof(WAVEHDR));
+
+
+              waveOutReset(audioData.hWaveOut);
+              waveOutUnprepareHeader(audioData.hWaveOut, &audioData.waveHdr1, sizeof(WAVEHDR));
+              waveOutUnprepareHeader(audioData.hWaveOut, &audioData.waveHdr2, sizeof(WAVEHDR));
+              waveOutClose(audioData.hWaveOut);
+
+
             //play new music
               call_help_timer=0;
               if (audioData.music_file)
@@ -681,11 +758,11 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
               }
               play_new_song=FALSE;
             }
-          } //else { //song status: playing
+          } else { //song status: playing
             //LoadBufferSFX(wav_song_playing);
             //waveOutWrite(audioData.hWaveOut, &audioData.waveHdr1, sizeof(WAVEHDR));
             //waveOutWrite(audioData.hWaveOut, &audioData.waveHdr2, sizeof(WAVEHDR));
-          //}
+          }
         }  
       }
     }
@@ -693,7 +770,19 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
 
 
     if (toggle_stop_playing_song) {
-      LiveWaveClose();
+      //waveOutReset(hWaveOut[2]);
+      //waveOutReset(hWaveOut[6]);
+      //waveOutUnprepareHeader(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));
+      //waveOutUnprepareHeader(hWaveOut[6], &whdr[6], sizeof(WAVEHDR));
+      //waveOutClose(hWaveOut[2]);
+      //waveOutClose(hWaveOut[6]);
+
+
+
+      waveOutReset(audioData.hWaveOut);
+      waveOutUnprepareHeader(audioData.hWaveOut, &audioData.waveHdr1, sizeof(WAVEHDR));
+      waveOutUnprepareHeader(audioData.hWaveOut, &audioData.waveHdr2, sizeof(WAVEHDR));
+      waveOutClose(audioData.hWaveOut);
       if (audioData.music_file)
         fclose(audioData.music_file);
 
@@ -714,6 +803,8 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
 
     if (flag_adjust_wav_out_audio) {
       long int vol=VolumeValue(wav_out_volume*100,1);
+      //waveOutSetVolume(hWaveOut[2],vol);
+      //waveOutSetVolume(hWaveOut[6],vol);
       waveOutSetVolume(audioData.hWaveOut,vol);
       flag_adjust_wav_out_audio=FALSE;
     }
