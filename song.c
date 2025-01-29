@@ -301,8 +301,8 @@ typedef struct AudioData
   double tempo;
   double volume;
 
-  int sample1[AUDIO_STREAM_BUFFER_SIZE0];
-  int sample2[AUDIO_STREAM_BUFFER_SIZE0];
+  int16_t sample1[AUDIO_STREAM_BUFFER_SIZE0*5];
+  int16_t sample2[AUDIO_STREAM_BUFFER_SIZE0*5];
   int16_t buffer1[AUDIO_STREAM_BUFFER_SIZE0];
   int16_t buffer2[AUDIO_STREAM_BUFFER_SIZE0];
   int16_t read_buffer[READ_BUFFER_NUM][AUDIO_STREAM_BUFFER_SIZE0];
@@ -440,32 +440,29 @@ void BelieveWaveClose()
 
 
 
-void BelieveWaveReOpen()
+void BelieveWaveReOpen(int z)
 {
-   /*waveOutOpen(&hWaveOut[2], WAVE_MAPPER, &wfx_wav_music, 0, 0, CALLBACK_FUNCTION);
+   waveOutOpen(&hWaveOut[2], WAVE_MAPPER, &audioData[z].awfx_music, 0, 0, CALLBACK_FUNCTION);
    long int vol=VolumeValue(wav_out_volume*100,1);
    waveOutSetVolume(hWaveOut[2],vol);
 
-   whdr[2].lpData = (LPSTR)audioData.sample1;
-   whdr[2].dwBufferLength = buffer_length;//AUDIO_STREAM_BUFFER_SIZE;
+   whdr[2].lpData = (LPSTR)audioData[z].sample1;
+   whdr[2].dwBufferLength = chosen_buffer_size*10;//AUDIO_STREAM_BUFFER_SIZE;
    whdr[2].dwFlags = 0;
    whdr[2].dwLoops = 0;
 
    waveOutPrepareHeader(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));
 
 
-   waveOutOpen(&hWaveOut[6], WAVE_MAPPER, &wfx_wav_music, 0, 0, CALLBACK_FUNCTION);
-   long int vol=VolumeValue(wav_out_volume*100,1);
+   waveOutOpen(&hWaveOut[6], WAVE_MAPPER, &audioData[z].awfx_music, 0, 0, CALLBACK_FUNCTION);
    waveOutSetVolume(hWaveOut[6],vol);
 
-   whdr[6].lpData = (LPSTR)audioData.sample1;
-   whdr[6].dwBufferLength = buffer_length;//AUDIO_STREAM_BUFFER_SIZE;
+   whdr[6].lpData = (LPSTR)audioData[z].sample2;
+   whdr[6].dwBufferLength = chosen_buffer_size*10;//AUDIO_STREAM_BUFFER_SIZE;
    whdr[6].dwFlags = 0;
    whdr[6].dwLoops = 0;
 
-   waveOutPrepareHeader(hWaveOut[6], &whdr[6], sizeof(WAVEHDR));*/
-
-
+   waveOutPrepareHeader(hWaveOut[6], &whdr[6], sizeof(WAVEHDR));
    //waveOutWrite(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));
 }
 
