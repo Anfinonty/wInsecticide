@@ -1,70 +1,5 @@
 
 
-void DrawKhBool(HDC hdc,HDC hdc2,int x,int y,bool t,bool sel)
-{
-  if (t) { //on
-    DrawBitmap(hdc,hdc2,x,y,0,0,34,14,kh_bool_mask[1],SRCAND,FALSE,FALSE);
-    if (sel) {
-      DrawBitmap(hdc,hdc2,x,y,0,0,34,14,kh_bool_green[1],SRCPAINT,FALSE,FALSE);
-    } else {
-      DrawBitmap(hdc,hdc2,x,y,0,0,34,14,kh_bool_white[1],SRCPAINT,FALSE,FALSE);
-    }
-  } else { //off
-    DrawBitmap(hdc,hdc2,x,y+1,0,0,30,13,kh_bool_mask[0],SRCAND,FALSE,FALSE);
-    if (sel) {
-      DrawBitmap(hdc,hdc2,x,y+1,0,0,30,13,kh_bool_green[0],SRCPAINT,FALSE,FALSE);
-    } else {
-      DrawBitmap(hdc,hdc2,x,y+1,0,0,30,13,kh_bool_white[0],SRCPAINT,FALSE,FALSE);
-    }
-  }
-}
-
-
-void DrawKhDiffic(HDC hdc,HDC hdc2,int x,int y,bool t,bool sel)
-{
-  if (t) { //on
-    DrawBitmap(hdc,hdc2,x,y,0,0,43,14,kh_difficulty_mask[1],SRCAND,FALSE,FALSE);
-    if (sel) {
-      DrawBitmap(hdc,hdc2,x,y,0,0,43,14,kh_difficulty_green[1],SRCPAINT,FALSE,FALSE);
-    } else {
-      DrawBitmap(hdc,hdc2,x,y,0,0,43,14,kh_difficulty_white[1],SRCPAINT,FALSE,FALSE);
-    }
-  } else { //off
-    DrawBitmap(hdc,hdc2,x,y+3,0,0,43,18,kh_difficulty_mask[0],SRCAND,FALSE,FALSE);
-    if (sel) {
-      DrawBitmap(hdc,hdc2,x,y+3,0,0,43,18,kh_difficulty_green[0],SRCPAINT,FALSE,FALSE);
-    } else {
-      DrawBitmap(hdc,hdc2,x,y+3,0,0,43,18,kh_difficulty_white[0],SRCPAINT,FALSE,FALSE);
-    }
-  }
-}
-
-
-
-void DrawKhCornMid(HDC hdc,HDC hdc2,int x,int y,bool sel)
-{
-    DrawBitmap(hdc,hdc2,x,y,0,0,94,19,kh_cornmid_mask,SRCAND,FALSE,FALSE);
-    if (sel) {
-      DrawBitmap(hdc,hdc2,x,y,0,0,94,19,kh_cornmid_green,SRCPAINT,FALSE,FALSE);
-    } else {
-      DrawBitmap(hdc,hdc2,x,y,0,0,94,19,kh_cornmid_white,SRCPAINT,FALSE,FALSE);
-    }
-}
-
-
-void DrawMM2Kh(HDC hdc,HDC hdc2,int x,int y,int l,int w,int t)
-{
-    DrawBitmap(hdc,hdc2,x,y,0,0,l,w,mm2_kh_mask[t],SRCAND,FALSE,FALSE);
-    if (option_choose==t) {
-      DrawBitmap(hdc,hdc2,x,y,0,0,l,w,mm2_kh_green[t],SRCPAINT,FALSE,FALSE);
-    } else {
-      DrawBitmap(hdc,hdc2,x,y,0,0,l,w,mm2_kh_white[t],SRCPAINT,FALSE,FALSE);
-    }
-}
-
-
-
-
 void DrawWaterShader(HDC hdc,HDC hdc2) 
 {
   if (player.in_water) {
@@ -181,41 +116,69 @@ void DrawRainShader2(HDC hdc)
 
 
 
-void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4)
+void DrawMMExtraKeys (HDC hdc)
 {
-  if (!stop_playing_song) {
+  //draw extra keys on cursor
+  if (mouse_y>GR_HEIGHT-144) {
+    char printtxt[128];
+    sprintf(printtxt,"[^: %d] [U:%d] [Y:%d] [l_SHIFT:%d,%d/%d,%d]",buffer_length_arr[casbs_i],wav_mode,hide_mm,audioData[0].play_loop,audioData[0].record_loop,audioData[1].play_loop,audioData[1].record_loop);
+    GrPrint(hdc,mouse_x+64,mouse_y,printtxt,WHITE);
 
+    sprintf(printtxt,"[h_SHIFT] [j_SHIFT] [7/&] [8/*] [; '][: \"]");
+    GrPrint(hdc,mouse_x+64,mouse_y-16,printtxt,WHITE);
+  }
+}
+
+
+void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4,int z)
+{
+    char r_txt[5];
+    if (z==gct) {
+      sprintf(r_txt,"[R]");
+    } else {
+      sprintf(r_txt,"");
+    }
+   double nc_=0;
+   if (!stop_playing_song[z]) {
+     double _d=audioData[z].sps_o*2;
+     if (_d!=0) {
+       nc_=audioData[z].sps_offset/_d;
+     }
+   }
+  if (!stop_playing_song[z]) {
     if (song_num>0) {
       wchar_t txt[32+256];
-      if (time_song_end==-1 && current_song_time==-1) {
+      if (time_song_end[z]==-1 && current_song_time[z]==-1) {
         call_help_timer=0;
+        //print song name. songname cutoff at 72 chars, longer = scroll mode
+
         if (showoff%30<5 || showoff%30>25) {
-          swprintf(txt,32+256,L"%c%d/%d%c: %s  [.  ]",171,song_rand_num+1,song_num,187,song_names[song_rand_num]);
+          swprintf(txt,32+256,L"%c%d/%d%c: %s  [.  ]",171,song_rand_num[z]+1,song_num,187,/*song_names[song_rand_num[z]]*/print_song_playing[z]);
         } else if ((showoff%30>4 && showoff%30<10) || showoff%30>19){
-          swprintf(txt,32+256,L"%c%d/%d%c: %s  [.. ]",171,song_rand_num+1,song_num,187,song_names[song_rand_num]);
+          swprintf(txt,32+256,L"%c%d/%d%c: %s  [.. ]",171,song_rand_num[z]+1,song_num,187,/*song_names[song_rand_num[z]]*/print_song_playing[z]);
         } else {
-          swprintf(txt,32+256,L"%c%d/%d%c: %s  [...]",171,song_rand_num+1,song_num,187,song_names[song_rand_num]);
+          swprintf(txt,32+256,L"%c%d/%d%c: %s  [...]",171,song_rand_num[z]+1,song_num,187,/*song_names[song_rand_num[z]]*/print_song_playing[z]);
         }
 
       } else {
         int songtimediff;
-        if (current_song_time!=-1)
-          songtimediff=(int)((time_song_end-current_song_time)/1000);
+        if (current_song_time[z]!=-1)
+          songtimediff=(int)((time_song_end[z]-current_song_time[z])/1000);
         else
-          songtimediff=(int)((song_audio_duration)/1000);//(int)((songAudio->duration)/1000);
+          songtimediff=(int)((song_audio_duration[z])/1000);//(int)((songAudio->duration)/1000);
         int min=songtimediff/60;
         int seconds=songtimediff%60;
-        swprintf(txt,32+256,L"%c%d/%d%c: %s  [%d:%02d]",171,song_rand_num+1,song_num,187,song_names[song_rand_num],min,seconds);
+        swprintf(txt,32+256,L"%c%d/%d%c: %s  [K%c%d:%02d%cI]",171,song_rand_num[z]+1,song_num,187,print_song_playing[z]/*song_names[song_rand_num[z]]*/,171,min,seconds,187);
       }
       //%c 187
       //wchar_t txt[32+256];
-      //swprintf(txt,32+256,L"%c%d/%d%c: %s  []",171,song_rand_num+1,song_num,187,song_names[song_rand_num]);
-      GrPrintW(hdc,x,y,txt,"",c,16,FALSE,yes_unifont);
-      GrPrintW(hdc,x+1,y+1,txt,"",c4,16,FALSE,yes_unifont);
+      //swprintf(txt,32+256,L"%c%d/%d%c: %s  []",171,song_rand_num[z]+1,song_num,187,song_names[song_rand_num[z]]);
+      GrPrintW(hdc,x,y,txt,"",c,14,FALSE,yes_unifont);
+      GrPrintW(hdc,x+1,y+1,txt,"",c4,14,FALSE,yes_unifont);
 
       
 
-      char txt2[72];
+      char txt2[128];
       //char txt2_1[2046];
       //char txt2_2[256];
       /*for (int j=0;j<128;j++) {
@@ -223,23 +186,24 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4)
       }*/ //max 256
       //note %c 134 is a cross
 
-      switch (song_mode) {
+      switch (song_mode[z]) {
         case 0:
-          sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /?] [/X :[N%cSHIFT%cM]: /%c]",171,187,177,171,187,187);
+          sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /?] [/X :[N%cSHIFT%cM]: /%c] [vb_SHIFT:%2.2f,%2.2f] [,<%1.1f>.][P:%d] %s",171,187,177, 171,187,187,nc_,audioData[z].tempo,audioData[z].volume,song_pause[z],r_txt);
           break;
         case 1:
-          sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /%c] [/? :[N%cSHIFT%cM]: /%c]",171,187,177,187,171,187,171);
+          sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /%c] [/? :[N%cSHIFT%cM]: /%c] [vb_SHIFT:%2.2f,%2.2f] [,<%1.1f>.][P:%d] %s",171,187,177,187,171,187,171,nc_,audioData[z].tempo,audioData[z].volume,song_pause[z],r_txt);
           break;
         case 2:
-          sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /%c] [/%c :[N%cSHIFT%cM]: /X]",171,187,177,171,187,171,187);
+          sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /%c] [/%c :[N%cSHIFT%cM]: /X] [vb_SHIFT:%2.2f,%2.2f] [,<%1.1f>.][P:%d] %s",171,187,177, 171,187,171,187,nc_,audioData[z].tempo,audioData[z].volume,song_pause[z],r_txt);
           break;
       }
       GrPrint(hdc,x,y+16,txt2,c);   
       GrPrint(hdc,x+1,y+1+16,txt2,c4);
     }
   } else {
-    char txt2[72];
-    sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /X] [/%c :[N%cSHIFT%cM]: /?]",171,187,177,171,171,187);
+    char txt2[128];
+    //sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /X] [/%c :[N%cSHIFT%cM]: /?][^ %d] [VB_SHIFT:%2.2f,%2.2f] [<%1.1f>]%s",171,187,177,171,171,187,buffer_length_arr[casbs_i],audioData[z].tempo,nc_,audioData[z].volume,r_txt);
+    sprintf(txt2,"[9%cSHIFT%c0]: %c] [M: /X] [/%c :[N%cSHIFT%cM]: /?] [vb_SHIFT:%2.2f,%2.2f] [,<%1.1f>.][P:%d] %s",171,187,177,171,171,187,nc_,audioData[z].tempo,audioData[z].volume,song_pause[z],r_txt);
     GrPrint(hdc,x,y+16,txt2,c);   
     GrPrint(hdc,x+1,y+1+16,txt2,c4);
   }
@@ -449,6 +413,7 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
   GrLine(hdc,GR_WIDTH-8*17-4,8*25+10,GR_WIDTH-8*17-4+8*8,8*25+12,WHITE);)*/
 }
 
+
 void DrawTitle(HDC hdc,HDC hdc2)
 {
   int title_x=GR_WIDTH/2-352/2+4;
@@ -502,6 +467,186 @@ void DrawTitle(HDC hdc,HDC hdc2)
 }
 
 
+
+
+
+void DrawMusicWav(HDC hdc)
+{
+  double c_x1,c_x2,c_y1,c_y2,prev_x1,prev_x2,prev_y1,prev_y2;
+  GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,rgbPaint[player_color]);
+
+  int z_m=2;
+  if (stop_playing_song[1]) { //wav 2 not playing
+    z_m=1;    
+  }
+  if (wav_mode<=2) {
+    for (int z=0;z<z_m;z++) {
+      int _y=GR_HEIGHT/4;
+      if (z_m==1) {
+        _y=GR_HEIGHT/2;
+      } else {
+        if (z==1) {
+          _y=GR_HEIGHT/4*3;
+        }
+      }
+      c_x1=0;
+      c_x2=0;
+      c_y1=_y+audioData[z].buffer1[z]*audioData[z].volume*0.006;
+      c_y2=_y+audioData[z].buffer2[z]*audioData[z].volume*0.006;
+
+      prev_x1=c_x1;
+      prev_y1=c_y1;
+      prev_x2=c_x2;
+      prev_y2=c_y2;
+
+      if (!stop_playing_song[z]) {
+        for (int i=0;i<chosen_buffer_length_o;i++) {
+            c_x1=((double)i/chosen_buffer_length_o)*GR_WIDTH;
+            c_y1=_y+audioData[z].buffer1[i]*audioData[z].volume*0.006;
+            c_x2=((double)i/chosen_buffer_length_o)*GR_WIDTH;
+            c_y2=_y+audioData[z].buffer2[i]*audioData[z].volume*0.006;
+
+
+            if (wav_mode==1) {
+                if (audioData[z].double_buffer) {
+                  GrLine(hdc,prev_x1,prev_y1,c_x1,c_y1,rgbPaint[player_iris_color]);
+                } else {
+                  GrLine(hdc,prev_x2,prev_y2,c_x2,c_y2,rgbPaint[player_pupil_color]);
+                }
+            } else {
+              GrLine(hdc,prev_x1,prev_y1,c_x1,c_y1,rgbPaint[player_iris_color]);
+              GrLine(hdc,prev_x2,prev_y2,c_x2,c_y2,rgbPaint[player_pupil_color]);
+            }
+            prev_x1=c_x1;
+            prev_y1=c_y1;
+            prev_x2=c_x2;
+            prev_y2=c_y2;
+        }
+      }
+    }
+  } else { //dj-ing 2 tracks
+    for (int z=0;z<2;z++) {
+      int _y=GR_HEIGHT/4;
+      if (z_m==1) {
+        _y=GR_HEIGHT/2;
+      } else {
+        if (z==1) {
+          _y=GR_HEIGHT/4*3;
+        }
+      }
+      if (!stop_playing_song[z]) {
+        int audio_index=0;
+        if (z==0) {
+          GrLine(hdc,0,_y,GR_WIDTH,_y,rgbPaint[player_iris_color]);
+        } else {
+          GrLine(hdc,0,_y,GR_WIDTH,_y,rgbPaint[player_pupil_color]);
+        }           
+        for (int i=0;i<READ_BUFFER_NUM;i++) {
+          audio_index=(i+audioData[z].queue_read_buffer)%READ_BUFFER_NUM;
+          c_x1=(GR_WIDTH/READ_BUFFER_NUM)*i;
+          c_y1=_y+audioData[z].read_buffer[audio_index][z]*audioData[z].volume*0.006;
+          prev_x1=c_x1;
+          prev_y1=c_y1;
+          
+          //draw loop line
+          /*if (audioData[z]->play_loop) {
+            GrLine(hdc,audioBufferRect[z].x1,0,audioBufferRect[z].x1,GR_HEGIHT,LTBLUE);
+            GrLine(hdc,audioBufferRect[z].x2,0,audioBufferRect[z].x2,GR_HEGIHT,YELLOW);
+          }*/
+          for (int j=0;j<audioData[z].read_size;j+=128) {
+            c_x1=((GR_WIDTH/READ_BUFFER_NUM)*i) + ((double)j/audioData[z].read_size)*(GR_WIDTH/5);
+            c_y1=_y+audioData[z].read_buffer[audio_index][j]*audioData[z].volume*0.006;
+            if (z==0) {
+              GrLine(hdc,prev_x1,prev_y1,c_x1,c_y1,rgbPaint[player_iris_color]);
+            } else {
+              GrLine(hdc,prev_x1,prev_y1,c_x1,c_y1,rgbPaint[player_pupil_color]);
+            }
+            prev_x1=c_x1;
+            prev_y1=c_y1;
+          }   
+        }
+      }
+      if (z_m==1) {
+         GrLine(hdc,(GR_WIDTH/2),0,(GR_WIDTH/2),GR_HEIGHT,rgbPaint[player_pupil_color]);
+      } else {
+        if (z==0) { //spindle
+          GrLine(hdc,(GR_WIDTH/2),GR_HEIGHT/2,(GR_WIDTH/2),0,rgbPaint[player_pupil_color]);
+        } else {
+          GrLine(hdc,(GR_WIDTH/2),GR_HEIGHT/2,(GR_WIDTH/2),GR_HEIGHT,rgbPaint[player_iris_color]);
+        }
+      }
+    }
+  }
+}
+
+void DrawKhBool(HDC hdc,HDC hdc2,int x,int y,bool t,bool sel)
+{
+  if (t) { //on
+    DrawBitmap(hdc,hdc2,x,y,0,0,34,14,kh_bool_mask[1],SRCAND,FALSE,FALSE);
+    if (sel) {
+      DrawBitmap(hdc,hdc2,x,y,0,0,34,14,kh_bool_green[1],SRCPAINT,FALSE,FALSE);
+    } else {
+      DrawBitmap(hdc,hdc2,x,y,0,0,34,14,kh_bool_white[1],SRCPAINT,FALSE,FALSE);
+    }
+  } else { //off
+    DrawBitmap(hdc,hdc2,x,y+1,0,0,30,13,kh_bool_mask[0],SRCAND,FALSE,FALSE);
+    if (sel) {
+      DrawBitmap(hdc,hdc2,x,y+1,0,0,30,13,kh_bool_green[0],SRCPAINT,FALSE,FALSE);
+    } else {
+      DrawBitmap(hdc,hdc2,x,y+1,0,0,30,13,kh_bool_white[0],SRCPAINT,FALSE,FALSE);
+    }
+  }
+}
+
+
+void DrawKhDiffic(HDC hdc,HDC hdc2,int x,int y,bool t,bool sel)
+{
+  if (t) { //on
+    DrawBitmap(hdc,hdc2,x,y,0,0,43,14,kh_difficulty_mask[1],SRCAND,FALSE,FALSE);
+    if (sel) {
+      DrawBitmap(hdc,hdc2,x,y,0,0,43,14,kh_difficulty_green[1],SRCPAINT,FALSE,FALSE);
+    } else {
+      DrawBitmap(hdc,hdc2,x,y,0,0,43,14,kh_difficulty_white[1],SRCPAINT,FALSE,FALSE);
+    }
+  } else { //off
+    DrawBitmap(hdc,hdc2,x,y+3,0,0,43,18,kh_difficulty_mask[0],SRCAND,FALSE,FALSE);
+    if (sel) {
+      DrawBitmap(hdc,hdc2,x,y+3,0,0,43,18,kh_difficulty_green[0],SRCPAINT,FALSE,FALSE);
+    } else {
+      DrawBitmap(hdc,hdc2,x,y+3,0,0,43,18,kh_difficulty_white[0],SRCPAINT,FALSE,FALSE);
+    }
+  }
+}
+
+
+
+
+
+
+
+
+
+void DrawKhCornMid(HDC hdc,HDC hdc2,int x,int y,bool sel)
+{
+    DrawBitmap(hdc,hdc2,x,y,0,0,94,19,kh_cornmid_mask,SRCAND,FALSE,FALSE);
+    if (sel) {
+      DrawBitmap(hdc,hdc2,x,y,0,0,94,19,kh_cornmid_green,SRCPAINT,FALSE,FALSE);
+    } else {
+      DrawBitmap(hdc,hdc2,x,y,0,0,94,19,kh_cornmid_white,SRCPAINT,FALSE,FALSE);
+    }
+}
+
+
+void DrawMM2Kh(HDC hdc,HDC hdc2,int x,int y,int l,int w,int t)
+{
+    DrawBitmap(hdc,hdc2,x,y,0,0,l,w,mm2_kh_mask[t],SRCAND,FALSE,FALSE);
+    if (option_choose==t) {
+      DrawBitmap(hdc,hdc2,x,y,0,0,l,w,mm2_kh_green[t],SRCPAINT,FALSE,FALSE);
+    } else {
+      DrawBitmap(hdc,hdc2,x,y,0,0,l,w,mm2_kh_white[t],SRCPAINT,FALSE,FALSE);
+    }
+}
+
 void DrawMainMenu(HDC hdc,HDC hdc2)
 {
 
@@ -511,7 +656,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
   if (wav_mode==0) {
     DrawMovingAVI(hdc,hdc2);
   } else {
-    //DrawMusicWav(hdc);
+    DrawMusicWav(hdc);
   }
 
 
@@ -1121,10 +1266,10 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
       break;
   }
   }
-  DrawPlayingMusic(hdc,16+4,help_y+48,BLACK,WHITE);//,0);
-  /*if (!stop_playing_song[1] || (stop_playing_song[1] && gct==1)) {
+  DrawPlayingMusic(hdc,16+4,help_y+48,BLACK,WHITE,0);
+  if (!stop_playing_song[1] || (stop_playing_song[1] && gct==1)) {
     DrawPlayingMusic(hdc,16+4,help_y+48+34,BLACK,WHITE,1);
-  }*/
+  }
 
   if (show_fps) {
     char fpstxt[10];
@@ -1439,10 +1584,10 @@ void DrawUI(HDC hdc,HDC hdc2)
 //========================
 
   if (call_help_timer<1000/*5000*/) {
-    DrawPlayingMusic(hdc,16+4,help_y+48,c,c4);//,0);
-    /*if (!stop_playing_song[1] || (stop_playing_song[1] && gct==1)) {
+    DrawPlayingMusic(hdc,16+4,help_y+48,c,c4,0);
+    if (!stop_playing_song[1] || (stop_playing_song[1] && gct==1)) {
       DrawPlayingMusic(hdc,16+4,help_y+48+34,c,c4,1);
-    }*/
+    }
   }
 
   if (show_fps) {
@@ -1872,6 +2017,5 @@ void DrawLoading(HDC hDC/*,int max_marbles*/)
     }
   }
 }
-
 
 

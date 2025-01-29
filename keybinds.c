@@ -201,63 +201,61 @@ void GlobalKeypressDown(WPARAM wParam)
 
   if (!MapEditor.is_ground_txt_typing) {
     switch (wParam) {
-      /*case 'L':
+      case 'L':
         if (!(keydown(VK_LSHIFT) || keydown(VK_RSHIFT))) { //play loop no shift
-          if (!audioData.play_loop) {            
-            audioData.play_loop=TRUE;
+          if (!audioData[gct].play_loop) {            
+            audioData[gct].play_loop=TRUE;
           } else {
-            audioData.play_loop=FALSE;
+            audioData[gct].play_loop=FALSE;
           }
         } else {//record loop/stop recording loop
-          if (!audioData.record_loop) {
-            audioData.record_loop=TRUE;
-            audioData.loop_start=audioData.current_filesize;
-            audioData.loop_read=audioData.queue_read_buffer;
-            audioData.loop_play=audioData.queue_play_buffer;
-            audioData.saved_loop_double_buffer=audioData.double_buffer;
+          if (!audioData[gct].record_loop) {
+            audioData[gct].record_loop=TRUE;
+            audioData[gct].loop_start=audioData[gct].current_filesize;
+            audioData[gct].loop_read=audioData[gct].queue_read_buffer;
+            audioData[gct].loop_play=audioData[gct].queue_play_buffer;
+            audioData[gct].saved_loop_double_buffer=audioData[gct].double_buffer;
           } else  {
-            audioData.record_loop=FALSE;
-            audioData.loop_end=audioData.current_filesize;
+            audioData[gct].record_loop=FALSE;
+            audioData[gct].loop_end=audioData[gct].current_filesize;
           }
         }
-        break;*/
-      /*case 'P': //pause
-        if (!stop_playing_song && playing_wav) {
-        if (!song_pause) {
-          song_pause=TRUE;
-          //LiveWavePause(gct);
+        break;
+      case 'P': //pause
+        if (!song_pause[gct]) {
+          song_pause[gct]=TRUE;
+          LiveWavePause(gct);
         } else {
-          song_pause=FALSE;
-          //LiveWaveResume(gct);
-        }
+          song_pause[gct]=FALSE;
+          LiveWaveResume(gct);
         }
         break;
       case 'I': //fast forward
       case 'K': //rewind
       {
-        if (!stop_playing_song && playing_wav) {
-        audioData.song_rewind=TRUE;
-        if (audioData.current_filesize>audioData.read_size*2 && audioData.current_filesize<audioData.filesize-audioData.read_size*2) { //stutters when rewinding, hardware
+        if (!stop_playing_song[gct] && audioData[gct].playing_wav) {
+        audioData[gct].song_rewind=TRUE;
+        if (audioData[gct].current_filesize>audioData[gct].read_size*2 && audioData[gct].current_filesize<audioData[gct].filesize-audioData[gct].read_size*2) { //stutters when rewinding, hardware
             if (wParam=='K') {
-              if (audioData.queue_read_buffer>0) {audioData.queue_read_buffer--;} else {audioData.queue_read_buffer=READ_BUFFER_NUM-1;}
-              if (audioData.queue_play_buffer>0) {audioData.queue_play_buffer--;} else {audioData.queue_play_buffer=READ_BUFFER_NUM-1;} 
-              audioData.current_filesize-=audioData.read_size;
+              if (audioData[gct].queue_read_buffer>0) {audioData[gct].queue_read_buffer--;} else {audioData[gct].queue_read_buffer=READ_BUFFER_NUM-1;}
+              if (audioData[gct].queue_play_buffer>0) {audioData[gct].queue_play_buffer--;} else {audioData[gct].queue_play_buffer=READ_BUFFER_NUM-1;} 
+              audioData[gct].current_filesize-=audioData[gct].read_size;
             } else {
-              if (audioData.queue_read_buffer<=18) {audioData.queue_read_buffer++;} else {audioData.queue_read_buffer=0;}
-              if (audioData.queue_play_buffer<=18) {audioData.queue_play_buffer++;} else {audioData.queue_play_buffer=0;} 
-              audioData.current_filesize+=audioData.read_size;
+              if (audioData[gct].queue_read_buffer<=18) {audioData[gct].queue_read_buffer++;} else {audioData[gct].queue_read_buffer=0;}
+              if (audioData[gct].queue_play_buffer<=18) {audioData[gct].queue_play_buffer++;} else {audioData[gct].queue_play_buffer=0;} 
+              audioData[gct].current_filesize+=audioData[gct].read_size;
             }
 
-            //memcpy(audioData.buffer1,audioData.read_buffer[audioData.queue_play_buffer],audioData.read_size);
-            //memcpy(audioData.buffer2,audioData.read_buffer[audioData.queue_play_buffer],audioData.read_size);
-            adjustBufferVol(audioData.buffer1,audioData.read_buffer[audioData.queue_play_buffer],audioData.read_size,audioData.volume);
-            adjustBufferVol(audioData.buffer2,audioData.read_buffer[audioData.queue_play_buffer],audioData.read_size,audioData.volume);
+            //memcpy(audioData[gct].buffer1,audioData[gct].read_buffer[audioData[gct].queue_play_buffer],audioData[gct].read_size);
+            //memcpy(audioData[gct].buffer2,audioData[gct].read_buffer[audioData[gct].queue_play_buffer],audioData[gct].read_size);
+            adjustBufferVol(audioData[gct].buffer1,audioData[gct].read_buffer[audioData[gct].queue_play_buffer],audioData[gct].read_size,audioData[gct].volume);
+            adjustBufferVol(audioData[gct].buffer2,audioData[gct].read_buffer[audioData[gct].queue_play_buffer],audioData[gct].read_size,audioData[gct].volume);
 
-            audioData.read_filesize=audioData.current_filesize-(audioData.read_size*READ_BUFFER_NUM/2);
+            audioData[gct].read_filesize=audioData[gct].current_filesize-(audioData[gct].read_size*READ_BUFFER_NUM/2);
 
-            fseek(audioData.music_file, audioData.current_filesize, SEEK_SET);
-            fread(audioData.read_buffer[audioData.queue_read_buffer], sizeof(BYTE), audioData.read_size, audioData.music_file);  //copy then go backwards/forwards
-            fseek(audioData.music_file, audioData.current_filesize, SEEK_SET);
+            fseek(audioData[gct].music_file, audioData[gct].current_filesize, SEEK_SET);
+            fread(audioData[gct].read_buffer[audioData[gct].queue_read_buffer], sizeof(BYTE), audioData[gct].read_size, audioData[gct].music_file);  //copy then go backwards/forwards
+            fseek(audioData[gct].music_file, audioData[gct].current_filesize, SEEK_SET);
         }
         }
         }
@@ -265,20 +263,20 @@ void GlobalKeypressDown(WPARAM wParam)
 
 
       case 'J': //jump1
-        if (!stop_playing_song && playing_wav) {
+        if (!stop_playing_song[gct] && audioData[gct].playing_wav) {
         if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //save jumpto
-          audioData.jump1=audioData.current_filesize; //spindle, not read
-          audioData.saved_play_buffer1=audioData.queue_play_buffer;
-          audioData.saved_read_buffer1=audioData.queue_read_buffer;
-          audioData.saved_double_buffer=audioData.double_buffer;
+          audioData[gct].jump1=audioData[gct].current_filesize; //spindle, not read
+          audioData[gct].saved_play_buffer1=audioData[gct].queue_play_buffer;
+          audioData[gct].saved_read_buffer1=audioData[gct].queue_read_buffer;
+          audioData[gct].saved_double_buffer=audioData[gct].double_buffer;
         } else { //jump to
-          audioData.current_filesize=audioData.jump1;
-          audioData.queue_play_buffer=audioData.saved_play_buffer1;
-          audioData.queue_read_buffer=audioData.saved_read_buffer1;
-          audioData.double_buffer=audioData.saved_double_buffer;
-          audioData.read_filesize=audioData.current_filesize-(audioData.read_size*READ_BUFFER_NUM/2);
-          fseek(audioData.music_file, audioData.read_filesize, SEEK_SET);
-          //InitAudioBuffer(gct);
+          audioData[gct].current_filesize=audioData[gct].jump1;
+          audioData[gct].queue_play_buffer=audioData[gct].saved_play_buffer1;
+          audioData[gct].queue_read_buffer=audioData[gct].saved_read_buffer1;
+          audioData[gct].double_buffer=audioData[gct].saved_double_buffer;
+          audioData[gct].read_filesize=audioData[gct].current_filesize-(audioData[gct].read_size*READ_BUFFER_NUM/2);
+          fseek(audioData[gct].music_file, audioData[gct].read_filesize, SEEK_SET);
+          InitAudioBuffer(gct);
         }
         }
         break;
@@ -286,20 +284,20 @@ void GlobalKeypressDown(WPARAM wParam)
 
 
       case 'H': //jump2
-        if (!stop_playing_song && playing_wav) {
+        if (!stop_playing_song[gct] && audioData[gct].playing_wav) {
         if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //save jump
-          audioData.jump2=audioData.current_filesize;//spindle, not read
-          audioData.saved_play_buffer2=audioData.queue_play_buffer;
-          audioData.saved_read_buffer2=audioData.queue_read_buffer;
-          audioData.saved_double_buffer=audioData.double_buffer;
+          audioData[gct].jump2=audioData[gct].current_filesize;//spindle, not read
+          audioData[gct].saved_play_buffer2=audioData[gct].queue_play_buffer;
+          audioData[gct].saved_read_buffer2=audioData[gct].queue_read_buffer;
+          audioData[gct].saved_double_buffer=audioData[gct].double_buffer;
         } else { //jump to
-          audioData.current_filesize=audioData.jump2; //to read filesize
-          audioData.queue_play_buffer=audioData.saved_play_buffer2;
-          audioData.queue_read_buffer=audioData.saved_read_buffer2;
-          audioData.double_buffer=audioData.saved_double_buffer;
-          audioData.read_filesize=audioData.current_filesize-(audioData.read_size*READ_BUFFER_NUM/2);
-          fseek(audioData.music_file, audioData.read_filesize, SEEK_SET);
-          //InitAudioBuffer(gct);
+          audioData[gct].current_filesize=audioData[gct].jump2; //to read filesize
+          audioData[gct].queue_play_buffer=audioData[gct].saved_play_buffer2;
+          audioData[gct].queue_read_buffer=audioData[gct].saved_read_buffer2;
+          audioData[gct].double_buffer=audioData[gct].saved_double_buffer;
+          audioData[gct].read_filesize=audioData[gct].current_filesize-(audioData[gct].read_size*READ_BUFFER_NUM/2);
+          fseek(audioData[gct].music_file, audioData[gct].read_filesize, SEEK_SET);
+          InitAudioBuffer(gct);
         }
         }
         break;
@@ -308,17 +306,17 @@ void GlobalKeypressDown(WPARAM wParam)
 
       case 'V':
         if (!(keydown(VK_LSHIFT) || keydown(VK_RSHIFT))) {
-          if (audioData.sps_offset>-audioData.sps_o) {
-             //LiveWaveClose(gct);
-             audioData.sps_offset-=audioData.sps_o/20;
-             audioData.awfx_music.nSamplesPerSec=audioData.sps_o+audioData.sps_offset;
-             //LiveWaveReOpen(gct);
-             //BelieveWaveClose();
-             //BelieveWaveReOpen(gct);
+          if (audioData[gct].sps_offset>-audioData[gct].sps_o) {
+             LiveWaveClose(gct);
+             audioData[gct].sps_offset-=audioData[gct].sps_o/20;
+             audioData[gct].awfx_music.nSamplesPerSec=audioData[gct].sps_o+audioData[gct].sps_offset;
+             LiveWaveReOpen(gct);
+             BelieveWaveClose();
+             BelieveWaveReOpen(gct);
           }
         } else {
-          if (audioData.tempo>1.0) {
-             audioData.tempo-=0.25;
+          if (audioData[gct].tempo>1.0) {
+             audioData[gct].tempo-=0.25;
           }
         }
         break;
@@ -326,17 +324,17 @@ void GlobalKeypressDown(WPARAM wParam)
 
       case 'B':
         if (!(keydown(VK_LSHIFT) || keydown(VK_RSHIFT))) {
-          if (audioData.sps_offset<audioData.sps_o*2) {
-             //LiveWaveClose(gct);
-             audioData.sps_offset+=audioData.sps_o/20;
-             audioData.awfx_music.nSamplesPerSec=audioData.sps_o+audioData.sps_offset;
-             //LiveWaveReOpen(gct);
-             //BelieveWaveClose();
-             //BelieveWaveReOpen(gct);
+          if (audioData[gct].sps_offset<audioData[gct].sps_o*2) {
+             LiveWaveClose(gct);
+             audioData[gct].sps_offset+=audioData[gct].sps_o/20;
+             audioData[gct].awfx_music.nSamplesPerSec=audioData[gct].sps_o+audioData[gct].sps_offset;
+             LiveWaveReOpen(gct);
+             BelieveWaveClose();
+             BelieveWaveReOpen(gct);
           }
         } else {
-          if (audioData.tempo<2.0) {
-             audioData.tempo+=0.25;
+          if (audioData[gct].tempo<2.0) {
+             audioData[gct].tempo+=0.25;
           }
         }
         break;
@@ -344,15 +342,15 @@ void GlobalKeypressDown(WPARAM wParam)
 
       //take sample
       case '7':{
-        int iw=audioData.queue_play_buffer;
+        int iw=audioData[gct].queue_play_buffer;
         if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
           for (int w=0;w<4;w++) {
             iw+=w;
             if (iw>19) {
               iw=0;
             }
-            memcpy(audioData.sample1+
-                (audioData.read_size/2*w),audioData.read_buffer[iw],audioData.read_size);
+            memcpy(audioData[gct].sample1+
+                (audioData[gct].read_size/2*w),audioData[gct].read_buffer[iw],audioData[gct].read_size);
           }
         } else { //play sample
           waveOutReset(hWaveOut[2]);
@@ -361,43 +359,43 @@ void GlobalKeypressDown(WPARAM wParam)
         break;
 
       case '8':{
-        int iw=audioData.queue_play_buffer;
+        int iw=audioData[gct].queue_play_buffer;
         if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
           for (int w=0;w<4;w++) {
             iw+=w;
             if (iw>19) {
               iw=0;
             }
-            memcpy(audioData.sample2+
-                (audioData.read_size/2*w),audioData.read_buffer[iw],audioData.read_size);
+            memcpy(audioData[gct].sample2+
+                (audioData[gct].read_size/2*w),audioData[gct].read_buffer[iw],audioData[gct].read_size);
           }
         } else { //play sample
           waveOutReset(hWaveOut[6]);
           waveOutWrite(hWaveOut[6], &whdr[6], sizeof(WAVEHDR));
         }}
-        break;*/
+        break;
 
     //Holding down '9' or '9' Key
       case '9'://skip song, upwnwards (previous)
       case '0'://skip song, downwards (next)
         call_help_timer=0;
         if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
-          if (song_mode<=2) {
-            skipping_song=TRUE;
+          if (song_mode[gct]<=2) {
+            skipping_song[gct]=TRUE;
 
             if (wParam=='0')
-              song_rand_num=LimitValue(song_rand_num+1,0,song_num);
+              song_rand_num[gct]=LimitValue(song_rand_num[gct]+1,0,song_num);
             else if (wParam=='9')
-              song_rand_num=LimitValue(song_rand_num-1,0,song_num);
+              song_rand_num[gct]=LimitValue(song_rand_num[gct]-1,0,song_num);
 
-            /*for (int w=0; w<48; w++) {
-              print_song_playing[w] = song_names[song_rand_num][w]; 
-            }*/
+            for (int w=0; w<48; w++) {
+              print_song_playing[gct][w] = song_names[song_rand_num[gct]][w]; 
+            }
 
           }
         }
-        if (song_mode>2)
-          skipping_song=FALSE;
+        if (song_mode[gct]>2)
+          skipping_song[gct]=FALSE;
         break;
     }
   }
@@ -410,8 +408,8 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
 {
   if (!MapEditor.is_ground_txt_typing) {
     switch (wParam) {
-      /*case 'R':
-        /*switch (gct) { //switch buffer used
+      case 'R':
+        switch (gct) { //switch buffer used
           case 0:   
             gct=1;
             break;
@@ -419,22 +417,14 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
             gct=0;
             break;
         }
-        //BelieveWaveClose();
-        //BelieveWaveReOpen(gct);
+        BelieveWaveClose();
+        BelieveWaveReOpen(gct);
         break;
 
       case 'Y':
         hide_mm=!hide_mm;
         break;
 
-
-      /*case 'V':
-      case 'B':
-        if (!(keydown(VK_LSHIFT) || keydown(VK_RSHIFT))) {
-          flag_tempo_change=TRUE;
-        }
-        break;
-      
       case 'U':
         if (wav_mode==3) {
           wav_mode=0;
@@ -452,30 +442,30 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
           chosen_buffer_length=buffer_length_arr[casbs_i];
           chosen_buffer_size=buffer_size_arr[casbs_i];
 
-          //LiveWaveClose(gct);
-          //LiveWaveReOpen(gct);          
+          LiveWaveClose(gct);
+          LiveWaveReOpen(gct);          
         }
         break;
 
       case 'I':
       case 'K':
-        audioData.song_rewind=FALSE;
-        if (!stop_playing_song && playing_wav) {
-          //InitAudioBuffer(gct);
+        audioData[gct].song_rewind=FALSE;
+        if (!stop_playing_song[gct] && audioData[gct].playing_wav) {
+          InitAudioBuffer(gct);
         }
-        break;*/
+        break;
 
     //Letting go '0' or '9' Key
       case '9':
       case '0':
         call_help_timer=0;        
-        if (song_mode<=2) {
-          if (skipping_song) {
-             play_new_song=TRUE;
-             loading_mp3=FALSE;
-             loading_flac=FALSE;
-             loading_wav=FALSE;
-             playing_wav=FALSE;
+        if (song_mode[gct]<=2) {
+          if (skipping_song[gct]) {
+             play_new_song[gct]=TRUE;
+             loading_mp3[gct]=FALSE;
+             loading_flac[gct]=FALSE;
+             loading_wav[gct]=FALSE;
+             audioData[gct].playing_wav=FALSE;
           }
         }
         break;
@@ -494,32 +484,32 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
           call_help_timer=0;
           if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
             if (wParam=='M') {
-              song_mode=LimitValue(song_mode+1,0,4);
+              song_mode[gct]=LimitValue(song_mode[gct]+1,0,4);
             } else if (wParam=='N'){
-              song_mode=LimitValue(song_mode-1,0,4);
+              song_mode[gct]=LimitValue(song_mode[gct]-1,0,4);
             }
 
-            if (song_mode==3) { //stop playing song
-              /*bool allow_act=FALSE;
+            if (song_mode[gct]==3) { //stop playing song
+              bool allow_act=FALSE;
               switch (gct) {
                 case 0:
                   if (stop_playing_song[1]) {//[0] is not
                     allow_act=TRUE;
                   } else {
                     if (wParam=='M') {
-                      song_mode=LimitValue(song_mode+1,0,4);
+                      song_mode[gct]=LimitValue(song_mode[gct]+1,0,4);
                     } else if (wParam=='N'){
-                      song_mode=LimitValue(song_mode-1,0,4);
+                      song_mode[gct]=LimitValue(song_mode[gct]-1,0,4);
                     }
                   }
                   break;
                 case 1:
                   allow_act=TRUE;
                   break;
-              }*/
-              if (!stop_playing_song /*&& allow_act*/) {
-                stop_playing_song=TRUE;
-                toggle_stop_playing_song=TRUE;
+              }
+              if (!stop_playing_song[gct] && allow_act) {
+                stop_playing_song[gct]=TRUE;
+                toggle_stop_playing_song[gct]=TRUE;
               }
 
 
@@ -527,7 +517,7 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
               //[1] cannot be renabled unless [0] is reenabled, idk why but this workaround resolves it
               //[0] must always bee opened first, [1] cannot be openned first
               bool allow_act=FALSE;
-              /*switch (gct) {
+              switch (gct) {
                 case 0:
                   allow_act=TRUE;
                   break;
@@ -538,36 +528,36 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
                   break;
               }
               if (allow_act) {
-                  if (stop_playing_song) {//reenable song
-                    switch (gct) {*/
-                      //case 0:
+                  if (stop_playing_song[gct]) {//reenable song
+                    switch (gct) {
+                      case 0:
                         remove("music_tmp/tmp/tmp.wav");
                         rmdir("music_tmp/tmp"); //remove tmp
-                        //break;
-                      //case 1:
-                        //remove("music_tmp/tmp2/tmp.wav");
-                        //rmdir("music_tmp/tmp2"); //remove tmp
-                        //break;
-                    //}
+                        break;
+                      case 1:
+                        remove("music_tmp/tmp2/tmp.wav");
+                        rmdir("music_tmp/tmp2"); //remove tmp
+                        break;
+                    }
                     InitSongBank();
-                    //if (gct==0) {
-                      song_rand_num=LimitValue(-1,0,song_num);
-                    //} else {
-                      //song_rand_num=song_num-1;
-                    //}
-                    stop_playing_song=FALSE;
-                    play_new_song=TRUE;
-                  //}
-              //} 
+                    if (gct==0) {
+                      song_rand_num[gct]=LimitValue(-1,0,song_num);
+                    } else {
+                      song_rand_num[gct]=song_num-1;
+                    }
+                    stop_playing_song[gct]=FALSE;
+                    play_new_song[gct]=TRUE;
+                  }
+              } 
             }
 
           } else { //not holding shift
-            if (!stop_playing_song) {
-              play_new_song=TRUE;
-              loading_mp3=FALSE;
-              loading_flac=FALSE;
-              loading_wav=FALSE;
-              playing_wav=FALSE;
+            if (!stop_playing_song[gct]) {
+              play_new_song[gct]=TRUE;
+              loading_mp3[gct]=FALSE;
+              loading_flac[gct]=FALSE;
+              loading_wav[gct]=FALSE;
+              audioData[gct].playing_wav=FALSE;
             }
           }          
           break;//end current song
@@ -1833,58 +1823,57 @@ void ThreeMenuKeypressUp(WPARAM wParam, HWND hwnd, HDC hdc)
 
 void DJKeys (WPARAM wParam)
 {
-  /*
   switch (wParam) {
     case ',': //decrease volume
-      if (audioData.volume>0.1) {
-        audioData.volume-=0.1;
+      if (audioData[gct].volume>0.1) {
+        audioData[gct].volume-=0.1;
       }
       break;
     case '.': //increase volume
-      if (audioData.volume<2.0) {
-        audioData.volume+=0.1;
+      if (audioData[gct].volume<2.0) {
+        audioData[gct].volume+=0.1;
       }
       break;
     case '<': //decrease volume
-      if (audioData.volume>0) {
-        audioData.volume-=0.5;
+      if (audioData[gct].volume>0) {
+        audioData[gct].volume-=0.5;
       } else {
-        audioData.volume=0;
+        audioData[gct].volume=0;
       }
       break;
     case '>': //increase volume
-      if (audioData.volume<2.0) {
-        audioData.volume+=0.5;
+      if (audioData[gct].volume<2.0) {
+        audioData[gct].volume+=0.5;
       } else {
-        audioData.volume=2.0;
+        audioData[gct].volume=2.0;
       }
       break;
 
     case ';': //shift starting loop to left
-      if (audioData.loop_start>audioData.read_size){
-        audioData.loop_start-=audioData.read_size;
-        audioData.saved_loop_double_buffer=!audioData.saved_loop_double_buffer;
-        if (audioData.loop_read>0) {audioData.loop_read--;} else {audioData.loop_read=READ_BUFFER_NUM-1;}
-        if (audioData.loop_play>0) {audioData.loop_play--;} else {audioData.loop_play=READ_BUFFER_NUM-1;} 
+      if (audioData[gct].loop_start>audioData[gct].read_size){
+        audioData[gct].loop_start-=audioData[gct].read_size;
+        audioData[gct].saved_loop_double_buffer=!audioData[gct].saved_loop_double_buffer;
+        if (audioData[gct].loop_read>0) {audioData[gct].loop_read--;} else {audioData[gct].loop_read=READ_BUFFER_NUM-1;}
+        if (audioData[gct].loop_play>0) {audioData[gct].loop_play--;} else {audioData[gct].loop_play=READ_BUFFER_NUM-1;} 
       }
       break;
     case '\'': //shift starting loop to right
-      if (audioData.loop_start<audioData.filesize-audioData.read_size) {
-        audioData.loop_start+=audioData.read_size;
-        audioData.saved_loop_double_buffer=!audioData.saved_loop_double_buffer;
-        if (audioData.loop_read<=18) {audioData.loop_read++;} else {audioData.loop_read=0;}
-        if (audioData.loop_play<=18) {audioData.loop_play++;} else {audioData.loop_play=0;}
+      if (audioData[gct].loop_start<audioData[gct].filesize-audioData[gct].read_size) {
+        audioData[gct].loop_start+=audioData[gct].read_size;
+        audioData[gct].saved_loop_double_buffer=!audioData[gct].saved_loop_double_buffer;
+        if (audioData[gct].loop_read<=18) {audioData[gct].loop_read++;} else {audioData[gct].loop_read=0;}
+        if (audioData[gct].loop_play<=18) {audioData[gct].loop_play++;} else {audioData[gct].loop_play=0;}
       }
       break;
 
     case ':': //shift ending loop to left
-      if (audioData.loop_end>audioData.read_size)
-        audioData.loop_end-=audioData.read_size;
+      if (audioData[gct].loop_end>audioData[gct].read_size)
+        audioData[gct].loop_end-=audioData[gct].read_size;
       break;
     case '"': //shift ending loop to right
-      if (audioData.loop_end<audioData.filesize-audioData.read_size)
-        audioData.loop_end+=audioData.read_size;
+      if (audioData[gct].loop_end<audioData[gct].filesize-audioData[gct].read_size)
+        audioData[gct].loop_end+=audioData[gct].read_size;
       break;
 
-  }*/
+  }
 }

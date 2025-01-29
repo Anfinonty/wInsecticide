@@ -1,61 +1,44 @@
 
 #define SONG_NUM 10
 #define SONG_FOLDER_NUM 23
+#define SONG_CHANNEL_NUM 2
 
 int current_hour;
 int current_min;
 int current_sec;
 
+
+int gct=0;//global choose track
 int song_num=0;
-int song_mode=0;
-int song_rand_num=-1;
-int song_audio_duration;
+int song_mode[SONG_CHANNEL_NUM]={0,0};
+int song_rand_num[SONG_CHANNEL_NUM]={-1,-1};
+int song_audio_duration[SONG_CHANNEL_NUM];
 wchar_t song_names[2000][256];
 bool is_flac[2000];
 bool is_wav[2000];
 bool is_mp3[2000];
-bool play_new_song=TRUE;
-bool stop_playing_song=FALSE;
-bool toggle_stop_playing_song=FALSE;
-bool playing_wav=FALSE;
-bool loading_mp3=FALSE;
-bool loading_flac=FALSE;
-bool loading_wav=FALSE;
-bool skip_song=FALSE;
-bool skipping_song=FALSE;
-bool clean_up_song=FALSE;
+bool play_new_song[SONG_CHANNEL_NUM]={TRUE,TRUE};
+bool stop_playing_song[SONG_CHANNEL_NUM]={FALSE,FALSE};
+bool toggle_stop_playing_song[SONG_CHANNEL_NUM]={FALSE,FALSE};
+//bool playing_wav[SONG_CHANNEL_NUM]={FALSE,FALSE};
+bool loading_mp3[SONG_CHANNEL_NUM]={FALSE,FALSE};
+bool loading_flac[SONG_CHANNEL_NUM]={FALSE,FALSE};
+bool loading_wav[SONG_CHANNEL_NUM]={FALSE,FALSE};
+bool skip_song[SONG_CHANNEL_NUM]={FALSE,FALSE};
+bool skipping_song[SONG_CHANNEL_NUM]={FALSE,FALSE};
+bool clean_up_song[SONG_CHANNEL_NUM]={FALSE,FALSE};
+bool song_pause[SONG_CHANNEL_NUM]={FALSE,FALSE};
 bool clean_up_sound=FALSE;
+
+int wspc_start[SONG_CHANNEL_NUM]={0,0};
+wchar_t print_song_playing[SONG_CHANNEL_NUM][256];
 wchar_t wav_song_playing[256];
-
-unsigned long long time_song_start;
-unsigned long long time_song_end;
-unsigned long long current_song_time;
+wchar_t wav_song_playing2[256];
 
 
-#define AUDIO_STREAM_BUFFER_NUM    2  //2mb
-//#define AUDIO_STREAM_BUFFER_SIZE   524288//4096//524288//44100//16384//8192//524288  minimum //int16_t *524288 = 1mb //0.00049mb
-
-//largest buffer reserved for slack only
-#define AUDIO_STREAM_BUFFER_SIZE0    16384 //2048//8192//16384//524288//8192//4096//524288//4096   8192 or 16384
-#define AUDIO_STREAM_BUFFER_SIZE1    8192  //2048//8192//16384//524288//8192//4096//524288//4096   8192 or 16384
-#define AUDIO_STREAM_BUFFER_SIZE2    4096
-#define AUDIO_STREAM_BUFFER_SIZE3    2048
-
-
-const long _buffer_size0=AUDIO_STREAM_BUFFER_SIZE0*sizeof(int16_t);
-const long _buffer_size1=AUDIO_STREAM_BUFFER_SIZE1*sizeof(int16_t);
-const long _buffer_size2=AUDIO_STREAM_BUFFER_SIZE2*sizeof(int16_t);
-const long _buffer_size3=AUDIO_STREAM_BUFFER_SIZE3*sizeof(int16_t);
-
-long buffer_size_arr[3]={_buffer_size1,_buffer_size2,_buffer_size3};
-long buffer_length_arr[3]={AUDIO_STREAM_BUFFER_SIZE1,AUDIO_STREAM_BUFFER_SIZE2,AUDIO_STREAM_BUFFER_SIZE3};
-
-int casbs_i=0;
-int chosen_buffer_length_o;
-long chosen_buffer_size_o;
-int chosen_buffer_length;
-long chosen_buffer_size;
-
+//unsigned long long time_song_start[SONG_CHANNEL_NUM];
+unsigned long long time_song_end[SONG_CHANNEL_NUM];
+unsigned long long current_song_time[SONG_CHANNEL_NUM];
 
 
 //Custom Audio format
@@ -70,6 +53,7 @@ WAVEFORMATEX wfx_wav_sfx = {
 };
 
 WAVEFORMATEX wfx_wav_sfx_rain;
+//WAVEFORMATEX wfx_wav_music;
 
 //https://github.com/audiojs/sample-rate
 
@@ -211,6 +195,22 @@ void InitSongBank() {
   song_num=GetSongsInDir(L"music",L"",0);
   swprintf(src_music_dir,64,L"music"); //set dir of music
 }
+
+
+void adjustBufferVol(int16_t* dest,const int16_t* src,long buffer_size, double volumeFactor)
+{
+  for (long i=0; i<buffer_size; i++) {
+    double scaled_value=(double)src[i]*volumeFactor;
+    if (scaled_value >= INT16_MAX) {
+      dest[i] = INT16_MAX;
+    } else if (scaled_value <= INT16_MIN) {
+      dest[i] = INT16_MIN;
+    } else {
+      dest[i] = (int16_t)scaled_value;
+    }
+  }
+}
+
 //https://www.codeproject.com/Articles/8396/Using-DirectSound-to-Play-Audio-Stream-Data
 //im not using direct sound just learning its concept
 
@@ -218,134 +218,431 @@ void InitSongBank() {
 //https://www.vbforums.com/showthread.php?742723-RESOLVED-waveout-API-Tutorial-Example
 //https://stackoverflow.com/questions/49605552/double-buffered-waveoutwrite-stuttering-like-hell
 
-#define AUDIO_STREAM_BUFFER_NUM    2  //2mb
+//#define AUDIO_STREAM_BUFFER_NUM    2  //2mb
 //#define AUDIO_STREAM_BUFFER_SIZE   524288//4096//524288//44100//16384//8192//524288  minimum //int16_t *524288 = 1mb //0.00049mb
-#define AUDIO_STREAM_BUFFER_SIZE     8192//16384//524288//8192//4096//524288//4096   8192 or 16384
-const long mb_1_size=AUDIO_STREAM_BUFFER_SIZE*sizeof(int16_t);
+
+
+
+//largest buffer reserved for slack only
+//#define AUDIO_STREAM_BUFFER_SIZE     32768
+#define AUDIO_STREAM_BUFFER_SIZE0    16384*2 //2048//8192//16384//524288//8192//4096//524288//4096   8192 or 16384
+#define AUDIO_STREAM_BUFFER_SIZE1    8192  //2048//8192//16384//524288//8192//4096//524288//4096   8192 or 16384
+#define AUDIO_STREAM_BUFFER_SIZE2    4096
+#define AUDIO_STREAM_BUFFER_SIZE3    2048
+#define READ_BUFFER_NUM    20
+
+const long _buffer_size0=AUDIO_STREAM_BUFFER_SIZE0*sizeof(int16_t);
+const long _buffer_size1=AUDIO_STREAM_BUFFER_SIZE1*sizeof(int16_t);
+const long _buffer_size2=AUDIO_STREAM_BUFFER_SIZE2*sizeof(int16_t);
+const long _buffer_size3=AUDIO_STREAM_BUFFER_SIZE3*sizeof(int16_t);
+
+long buffer_size_arr[3]={_buffer_size1,_buffer_size2,_buffer_size3};
+long buffer_length_arr[3]={AUDIO_STREAM_BUFFER_SIZE1,AUDIO_STREAM_BUFFER_SIZE2,AUDIO_STREAM_BUFFER_SIZE3};
+
+int casbs_i=0;
+int chosen_buffer_length_o;
+long chosen_buffer_size_o;
+int chosen_buffer_length;
+long chosen_buffer_size;
+
+
+
 
 
 typedef struct AudioData
 {
-  AWavHeader wav_header[44];
+  AWavHeader wav_header[1];
+  WAVEFORMATEX awfx_music;
   HWAVEOUT hWaveOut;
+  WAVEHDR waveHdr1;
+  WAVEHDR waveHdr2;
   FILE *music_file;
-  //bool double_buffer;  
 
-  long current_filesize; //spindle
+  bool playing_wav;
+
+  bool double_buffer;
+  bool song_rewind;
+
+  bool saved_double_buffer;
+  bool saved_loop_double_buffer;
+
+  bool record_loop;
+  bool play_loop;
+
+  int jump1;
+  int saved_read_buffer1;
+  int saved_play_buffer1;
+
+
+  int jump2;
+  int saved_read_buffer2;
+  int saved_play_buffer2;
+
+
+
+  int loop_start;
+  int loop_end;
+  int loop_read;
+  int loop_play;
+
+
+  int sps_offset;
+  int sps_o;//original samples per second
+
+  int read_size;
+
+
+  long current_filesize; //spindle plays audio
+  long read_filesize; //read filesize, ahead
   long filesize;
   long buffer_size;
 
-  WAVEHDR waveHdr1;
-  WAVEHDR waveHdr2;
+  int queue_play_buffer;
+  int queue_read_buffer;
+  
+  double tempo;
+  double volume;
 
-  //int16_t audio[AUDIO_STREAM_BUFFER_NUM][AUDIO_STREAM_BUFFER_SIZE];
-  int16_t buffer1[AUDIO_STREAM_BUFFER_SIZE];
-  int16_t buffer2[AUDIO_STREAM_BUFFER_SIZE];
+  int16_t buffer1[AUDIO_STREAM_BUFFER_SIZE0];
+  int16_t buffer2[AUDIO_STREAM_BUFFER_SIZE0];
+  int16_t read_buffer[READ_BUFFER_NUM][AUDIO_STREAM_BUFFER_SIZE0];
+  int16_t sample1[AUDIO_STREAM_BUFFER_SIZE0*5];
+  int16_t sample2[AUDIO_STREAM_BUFFER_SIZE0*5];
 } AudioData;
-AudioData audioData;
+
+//AudioData audioData[SONG_CHANNEL_NUM];
+AudioData audioData[2];
+
+
+//0 1 2 3 [4] 
+//[5] 6 7 8 9 
+
+
+void JumpToBufferLoop(AudioData *audioData)
+{
+  audioData->current_filesize=audioData->loop_start;
+  audioData->queue_play_buffer=audioData->loop_play;
+  audioData->queue_read_buffer=audioData->loop_read;
+  audioData->double_buffer=audioData->saved_loop_double_buffer;
+  audioData->read_filesize=audioData->current_filesize-(audioData->read_size*READ_BUFFER_NUM/2);
+  fseek(audioData->music_file, audioData->read_filesize, SEEK_SET);
+
+  //reset buffers
+  memset(audioData->buffer1, 0, sizeof(audioData->buffer1));
+  memset(audioData->buffer2, 0, sizeof(audioData->buffer2));
+  for (int i=0;i<READ_BUFFER_NUM;i++) {
+    memset(audioData->read_buffer[i], 0, sizeof(audioData->buffer1));
+  }
+
+  audioData->queue_read_buffer=audioData->queue_play_buffer-READ_BUFFER_NUM/2;
+
+  if (audioData->queue_read_buffer<0) {
+    audioData->queue_read_buffer+=READ_BUFFER_NUM;
+  }
+
+  for (int i=0;i<READ_BUFFER_NUM;i++) {    
+    fread(audioData->read_buffer[audioData->queue_read_buffer], sizeof(BYTE), audioData->read_size, audioData->music_file);  
+    audioData->read_filesize+=audioData->read_size;
+    audioData->queue_read_buffer++;
+    if (audioData->queue_read_buffer==READ_BUFFER_NUM) {
+      audioData->queue_read_buffer=0;
+    }
+  }
+}
 
 
 
-void CALLBACK waveOutProc(HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance, DWORD_PTR dwParam1, DWORD_PTR dwParam2) {
+
+void CALLBACK waveOutProc1(HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance, DWORD_PTR dwParam1, DWORD_PTR dwParam2) {
     AudioData* audioData = (AudioData *)dwInstance;
-    if (playing_wav) {
+    if (audioData->playing_wav) {
       if (uMsg == WOM_DONE) {
         WAVEHDR *waveHdr = (WAVEHDR *)dwParam1;
         if (waveHdr == &audioData->waveHdr1) {
-            fread(audioData->buffer1, sizeof(BYTE), mb_1_size, audioData->music_file);
-            waveOutWrite(audioData->hWaveOut, &audioData->waveHdr1, sizeof(WAVEHDR));
+            //frad(audioData->buffer1, sizeof(BYTE), audioData->read_size, audioData->music_file);
+            audioData->double_buffer=TRUE;
+            audioData->read_size=(double)chosen_buffer_size*audioData->tempo;
+            if (!audioData->song_rewind) {
+                audioData->current_filesize+=audioData->read_size;
+                if (audioData->play_loop && !audioData->record_loop && audioData->current_filesize>audioData->loop_end) {
+                  JumpToBufferLoop(audioData);
+                }
+                audioData->read_filesize+=audioData->read_size;
+                if (audioData->read_filesize<audioData->filesize) {
+                  fread(audioData->read_buffer[audioData->queue_read_buffer], sizeof(BYTE), audioData->read_size, audioData->music_file);  
+                } else {
+                  memset(audioData->read_buffer[audioData->queue_read_buffer],0,sizeof(audioData->read_buffer[audioData->queue_read_buffer]));
+                }
+                //audioData->read_filesize+=audioData->read_size;
+                if (audioData->queue_read_buffer<=18) {audioData->queue_read_buffer++;} else {audioData->queue_read_buffer=0;}
+                //if (audioData->queue_play_buffer>-1 && audioData->queue_play_buffer<READ_BUFFER_NUM) {memcpy(audioData->buffer1,audioData->read_buffer[audioData->queue_play_buffer],audioData->read_size);}
+                if (audioData->queue_play_buffer>-1 && audioData->queue_play_buffer<READ_BUFFER_NUM) {adjustBufferVol(audioData->buffer1,audioData->read_buffer[audioData->queue_play_buffer],audioData->read_size,audioData->volume);}
+                if (audioData->queue_play_buffer<=18) {audioData->queue_play_buffer++;} else {audioData->queue_play_buffer=0;}
+                waveOutWrite(audioData->hWaveOut, &audioData->waveHdr1, sizeof(WAVEHDR));
+            }
         } else if (waveHdr == &audioData->waveHdr2) {
-            fread(audioData->buffer2, sizeof(BYTE), mb_1_size, audioData->music_file);
-            waveOutWrite(audioData->hWaveOut, &audioData->waveHdr2, sizeof(WAVEHDR));
+            //fread(audioData->buffer2, sizeof(BYTE), audioData->read_size, audioData->music_file);
+            audioData->double_buffer=FALSE;
+            audioData->read_size=(double)chosen_buffer_size*audioData->tempo;
+            if (!audioData->song_rewind) {
+                audioData->current_filesize+=audioData->read_size;
+                if (audioData->play_loop && !audioData->record_loop && audioData->current_filesize>audioData->loop_end) {
+                  JumpToBufferLoop(audioData);
+                }
+                audioData->read_filesize+=audioData->read_size;
+                if (audioData->read_filesize<audioData->filesize) {
+                  fread(audioData->read_buffer[audioData->queue_read_buffer], sizeof(BYTE), audioData->read_size, audioData->music_file);  
+                } else {
+                  memset(audioData->read_buffer[audioData->queue_read_buffer],0,sizeof(audioData->read_buffer[audioData->queue_read_buffer]));
+                }
+                if (audioData->queue_read_buffer<=18) {audioData->queue_read_buffer++;} else {audioData->queue_read_buffer=0;}                
+                if (audioData->queue_play_buffer>-1 && audioData->queue_play_buffer<READ_BUFFER_NUM) {adjustBufferVol(audioData->buffer2,audioData->read_buffer[audioData->queue_play_buffer],audioData->read_size,audioData->volume);}
+                if (audioData->queue_play_buffer<=18) {audioData->queue_play_buffer++;} else {audioData->queue_play_buffer=0;}
+                waveOutWrite(audioData->hWaveOut, &audioData->waveHdr2, sizeof(WAVEHDR));
+            } 
         }
       }
     }
 }
 
 
-void LoadBufferSFX(const wchar_t* filename)
-{
-  //audioData.double_buffer=FALSE;
-  if (audioData.music_file)
-    fclose(audioData.music_file);
 
-  audioData.music_file = _wfopen(filename, L"rb");
+
+
+  //int16_t audio[AUDIO_STREAM_BUFFER_NUM][AUDIO_STREAM_BUFFER_SIZE];
+  /*int16_t _tmp_buffer1[AUDIO_STREAM_BUFFER_SIZE0];
+  int16_t _tmp_buffer2[AUDIO_STREAM_BUFFER_SIZE0];
+  int16_t tmp_buffer1[AUDIO_STREAM_BUFFER_SIZE0];
+  int16_t tmp_buffer2[AUDIO_STREAM_BUFFER_SIZE0];*/
+
+
+//audioData->current_filesize+=chosen_buffer_size;
+//fread(audioData->tmp_buffer1, sizeof(BYTE), chosen_buffer_size, audioData->music_file);
+//timeStretch(audioData->tmp_buffer1,audioData->buffer1,AUDIO_STREAM_BUFFER_SIZE1,0.1);
+//memcpy(audioData->buffer1, audioData->tmp_buffer1, chosen_buffer_size);
+
+
+//audioData->current_filesize+=chosen_buffer_size;
+//fread(audioData->tmp_buffer2, sizeof(BYTE), chosen_buffer_size, audioData->music_file);
+//timeStretch(audioData->tmp_buffer2,audioData->buffer2,AUDIO_STREAM_BUFFER_SIZE1,0.1);
+//memcpy(audioData->buffer2, audioData->tmp_buffer2, chosen_buffer_size);
+
+
+void BelieveWaveClose()
+{
+  waveOutReset(hWaveOut[2]);
+  waveOutUnprepareHeader(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));
+  waveOutClose(hWaveOut[2]);
+
+
+  waveOutReset(hWaveOut[6]);
+  waveOutUnprepareHeader(hWaveOut[6], &whdr[6], sizeof(WAVEHDR));
+  waveOutClose(hWaveOut[6]);
+}
+
+
+
+void BelieveWaveReOpen(int z)
+{
+   waveOutOpen(&hWaveOut[2], WAVE_MAPPER, &audioData[z].awfx_music, 0, 0, CALLBACK_FUNCTION);
+   long int vol=VolumeValue(wav_out_volume*100,1);
+   waveOutSetVolume(hWaveOut[2],vol);
+
+   whdr[2].lpData = (LPSTR)audioData[z].sample1;
+   whdr[2].dwBufferLength = chosen_buffer_size*4;//AUDIO_STREAM_BUFFER_SIZE;
+   whdr[2].dwFlags = 0;
+   whdr[2].dwLoops = 0;
+
+   waveOutPrepareHeader(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));
+
+
+   waveOutOpen(&hWaveOut[6], WAVE_MAPPER, &audioData[z].awfx_music, 0, 0, CALLBACK_FUNCTION);
+   waveOutSetVolume(hWaveOut[6],vol);
+
+   whdr[6].lpData = (LPSTR)audioData[z].sample2;
+   whdr[6].dwBufferLength = chosen_buffer_size*4;//AUDIO_STREAM_BUFFER_SIZE;
+   whdr[6].dwFlags = 0;
+   whdr[6].dwLoops = 0;
+
+   waveOutPrepareHeader(hWaveOut[6], &whdr[6], sizeof(WAVEHDR));
+   //waveOutWrite(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));
+}
+
+
+
+void LiveWavePause(int z)
+{
+  waveOutPause(audioData[z].hWaveOut);
+}
+
+
+void LiveWaveResume(int z)
+{
+  waveOutRestart(audioData[z].hWaveOut);  
+  waveOutWrite(audioData[z].hWaveOut, &audioData[z].waveHdr1, sizeof(WAVEHDR));
+  waveOutWrite(audioData[z].hWaveOut, &audioData[z].waveHdr2, sizeof(WAVEHDR));
+}
+
+void LiveWaveClose(int z)
+{
+  audioData[z].playing_wav=FALSE;
+  waveOutReset(audioData[z].hWaveOut);
+  memset(audioData[z].buffer1, 0, sizeof(audioData[z].buffer1));
+  memset(audioData[z].buffer2, 0, sizeof(audioData[z].buffer2));
+  waveOutUnprepareHeader(audioData[z].hWaveOut, &audioData[z].waveHdr1, sizeof(WAVEHDR));
+  waveOutUnprepareHeader(audioData[z].hWaveOut, &audioData[z].waveHdr2, sizeof(WAVEHDR));
+  waveOutClose(audioData[z].hWaveOut);
+}
+
+
+void LiveWaveReOpen(int z)
+{
+      waveOutOpen(&audioData[z].hWaveOut, WAVE_MAPPER, &audioData[z].awfx_music, (DWORD_PTR)waveOutProc1, (DWORD_PTR)&audioData[z], CALLBACK_FUNCTION);
+      long int vol=VolumeValue(wav_out_volume*100,1);
+      waveOutSetVolume(audioData[z].hWaveOut,vol);
+
+      audioData[z].waveHdr1.lpData = (LPSTR)audioData[z].buffer1;
+      audioData[z].waveHdr1.dwBufferLength = chosen_buffer_size;//AUDIO_STREAM_BUFFER_SIZE;
+      audioData[z].waveHdr1.dwFlags = 0;
+      audioData[z].waveHdr1.dwLoops = 0;
+      waveOutPrepareHeader(audioData[z].hWaveOut, &audioData[z].waveHdr1, sizeof(WAVEHDR));
+      audioData[z].playing_wav=TRUE;
+      waveOutWrite(audioData[z].hWaveOut, &audioData[z].waveHdr1, sizeof(WAVEHDR));
+
+
+      audioData[z].waveHdr2.lpData = (LPSTR)audioData[z].buffer2;
+      audioData[z].waveHdr2.dwBufferLength = chosen_buffer_size;//AUDIO_STREAM_BUFFER_SIZE;
+      audioData[z].waveHdr2.dwFlags = 0;
+      audioData[z].waveHdr2.dwLoops = 0;
+      waveOutPrepareHeader(audioData[z].hWaveOut, &audioData[z].waveHdr2, sizeof(WAVEHDR));
+      waveOutWrite(audioData[z].hWaveOut, &audioData[z].waveHdr2, sizeof(WAVEHDR));
+
+}
+
+
+
+void ResetAudioBuffer(int z)
+{
+  memset(audioData[z].buffer1, 0, sizeof(audioData[z].buffer1));
+  memset(audioData[z].buffer2, 0, sizeof(audioData[z].buffer2));
+  for (int i=0;i<READ_BUFFER_NUM;i++) {
+    memset(audioData[z].read_buffer[i], 0, sizeof(audioData[z].buffer1));
+  }
+}
+
+
+void InitAudioBuffer(int z)
+{
+  //reset buffers
+  ResetAudioBuffer(z);
+  audioData[z].queue_read_buffer=audioData[z].queue_play_buffer-READ_BUFFER_NUM/2;
+
+  if (audioData[z].queue_read_buffer<0) {
+    audioData[z].queue_read_buffer+=READ_BUFFER_NUM;
+  }
+
+  for (int i=0;i<READ_BUFFER_NUM;i++) {    
+    fread(audioData[z].read_buffer[audioData[z].queue_read_buffer], sizeof(BYTE), audioData[z].read_size, audioData[z].music_file);  
+    audioData[z].read_filesize+=audioData[z].read_size;
+    audioData[z].queue_read_buffer++;
+    if (audioData[z].queue_read_buffer==READ_BUFFER_NUM) {
+      audioData[z].queue_read_buffer=0;
+    }
+  }
+  waveOutWrite(audioData[z].hWaveOut, &audioData[z].waveHdr1, sizeof(WAVEHDR));
+  waveOutWrite(audioData[z].hWaveOut, &audioData[z].waveHdr2, sizeof(WAVEHDR));
+}
+
+
+void LoadBufferSFX(const wchar_t* filename, int z)
+{
+  audioData[z].play_loop=FALSE;
+  audioData[z].record_loop=FALSE;
+  audioData[z].loop_start=0;
+  audioData[z].loop_end=audioData[z].filesize;
+  audioData[z].loop_read=11;
+  audioData[z].loop_play=2;
+  audioData[z].saved_loop_double_buffer=FALSE;
+
+  audioData[z].double_buffer=FALSE;
+  audioData[z].queue_read_buffer=0;
+  audioData[z].queue_play_buffer=0;
+  audioData[z].sps_offset=0;
+  if (audioData[z].music_file)
+    fclose(audioData[z].music_file);
+
+  audioData[z].jump1=44;
+  audioData[z].jump2=44;
+
+  audioData[z].music_file = _wfopen(filename, L"rb");
   int wav_header_size=sizeof(AWavHeader); //44
-  audioData.current_filesize=wav_header_size;
+  audioData[z].current_filesize=wav_header_size;
+  audioData[z].read_filesize=wav_header_size;
 
 
   //reset buffers
-  memset(audioData.buffer1, 0, sizeof(audioData.buffer1));
-  memset(audioData.buffer2, 0, sizeof(audioData.buffer2));
+  memset(audioData[z].buffer1, 0, sizeof(audioData[z].buffer1));
+  memset(audioData[z].buffer2, 0, sizeof(audioData[z].buffer2));
+  for (int i=0;i<READ_BUFFER_NUM;i++) {
+    memset(audioData[z].read_buffer[i], 0, sizeof(audioData[z].buffer1));
+  }
 
-  if (audioData.music_file) {
-    fseek(audioData.music_file, 0, SEEK_END);
+  if (audioData[z].music_file) {
+    fseek(audioData[z].music_file, 0, SEEK_END);
     long filesize;
-    filesize = ftell(audioData.music_file);// - wav_header_size; 
+    filesize = ftell(audioData[z].music_file);// - wav_header_size; 
 
     //Alloc wav buffer header
-    fseek(audioData.music_file, 0, SEEK_SET);
-    fread(audioData.wav_header,1,wav_header_size,audioData.music_file);
+    fseek(audioData[z].music_file, 0, SEEK_SET);
+    fread(audioData[z].wav_header,1,wav_header_size,audioData[z].music_file);
 
-    wfx_wav_music.wFormatTag = WAVE_FORMAT_PCM;
-    wfx_wav_music.nChannels = audioData.wav_header->NumOfChan;
-    wfx_wav_music.nSamplesPerSec = audioData.wav_header->SamplesPerSec;
-    wfx_wav_music.nAvgBytesPerSec = audioData.wav_header->bytesPerSec;
-    wfx_wav_music.nBlockAlign = audioData.wav_header->blockAlign;
-    wfx_wav_music.wBitsPerSample = audioData.wav_header->bitsPerSample;
-    wfx_wav_music.cbSize = 0;
+    audioData[z].awfx_music.wFormatTag = WAVE_FORMAT_PCM;
+    audioData[z].awfx_music.nChannels = audioData[z].wav_header->NumOfChan;
+    audioData[z].sps_o=audioData[z].awfx_music.nSamplesPerSec = audioData[z].wav_header->SamplesPerSec;
+    audioData[z].awfx_music.nAvgBytesPerSec = audioData[z].wav_header->bytesPerSec;
+    audioData[z].awfx_music.nBlockAlign = audioData[z].wav_header->blockAlign;
+    audioData[z].awfx_music.wBitsPerSample = audioData[z].wav_header->bitsPerSample;
+    audioData[z].awfx_music.cbSize = 0;
 
-    audioData.buffer_size=mb_1_size;
-    audioData.filesize=filesize;
-    song_audio_duration=(double)filesize / (audioData.wav_header->SamplesPerSec * audioData.wav_header->NumOfChan * audioData.wav_header->bitsPerSample/8) *1000;
+    audioData[z].buffer_size=chosen_buffer_size;
+    audioData[z].filesize=filesize;
+    song_audio_duration[z]=(double)filesize / (audioData[z].wav_header->SamplesPerSec * audioData[z].wav_header->NumOfChan * audioData[z].wav_header->bitsPerSample/8) *1000;
 
 
 
-    // Initialize AudioData structure
-     waveOutOpen(&audioData.hWaveOut, WAVE_MAPPER, &wfx_wav_music, (DWORD_PTR)waveOutProc, (DWORD_PTR)&audioData, CALLBACK_FUNCTION);
-
-    if (audioData.current_filesize>audioData.filesize) {
-      audioData.current_filesize=audioData.filesize;
+    // Initialize audioData[z] structure
+    /*fread(audioData[z].buffer1,1,chosen_buffer_size,audioData[z].music_file);
+    audioData[z].current_filesize+=chosen_buffer_size;
+    if (audioData[z].current_filesize>audioData[z].filesize) {
+      audioData[z].current_filesize=audioData[z].filesize;
     }
-    fread(audioData.buffer1,1,mb_1_size,audioData.music_file);
-    audioData.current_filesize+=mb_1_size;
-    audioData.waveHdr1.lpData = (LPSTR)audioData.buffer1;
-    audioData.waveHdr1.dwBufferLength = mb_1_size;//AUDIO_STREAM_BUFFER_SIZE;
-    audioData.waveHdr1.dwFlags = 0;
-    audioData.waveHdr1.dwLoops = 0;
-  //  waveOutUnprepareHeader(audioData.hWaveOut, &audioData.waveHdr1, sizeof(WAVEHDR));
-    waveOutPrepareHeader(audioData.hWaveOut, &audioData.waveHdr1, sizeof(WAVEHDR));
-    waveOutWrite(audioData.hWaveOut, &audioData.waveHdr1, sizeof(WAVEHDR));
+    fread(audioData[z].buffer2,1,chosen_buffer_size,audioData[z].music_file);
+    audioData[z].current_filesize+=chosen_buffer_size;
+    if (audioData[z].current_filesize>audioData[z].filesize) {
+      audioData[z].current_filesize=audioData[z].filesize;
+    }*/
 
-    if (audioData.current_filesize>audioData.filesize) {
-       audioData.current_filesize=audioData.filesize;
+
+    //fill buffers on start
+    audioData[z].read_size=(double)chosen_buffer_size*audioData[z].tempo;
+    for (int i=0;i<11;i++) {
+      fread(audioData[z].read_buffer[i], sizeof(BYTE), audioData[z].read_size, audioData[z].music_file);  
+      audioData[z].queue_read_buffer++;
+      audioData[z].read_filesize+=audioData[z].read_size;
     }
-    fread(audioData.buffer2,1,mb_1_size,audioData.music_file);
-    audioData.current_filesize+=mb_1_size;
-    audioData.waveHdr2.lpData = (LPSTR)audioData.buffer2;
-    audioData.waveHdr2.dwBufferLength = mb_1_size;//AUDIO_STREAM_BUFFER_SIZE;
-    audioData.waveHdr2.dwFlags = 0;
-    audioData.waveHdr2.dwLoops = 0;
-   // waveOutUnprepareHeader(audioData.hWaveOut, &audioData.waveHdr2, sizeof(WAVEHDR));
-    waveOutPrepareHeader(audioData.hWaveOut, &audioData.waveHdr2, sizeof(WAVEHDR));
-    waveOutWrite(audioData.hWaveOut, &audioData.waveHdr2, sizeof(WAVEHDR));
+    //memcpy(audioData[z].buffer1,audioData[z].read_buffer[0],audioData[z].read_size);
+    adjustBufferVol(audioData->buffer1,audioData->read_buffer[0],audioData->read_size,audioData->volume);
+    audioData[z].current_filesize+=audioData[z].read_size;
+    //memcpy(audioData[z].buffer2,audioData[z].read_buffer[1],audioData[z].read_size);
+    adjustBufferVol(audioData->buffer2,audioData->read_buffer[1],audioData->read_size,audioData->volume);
+    audioData[z].current_filesize+=audioData[z].read_size;
+    audioData[z].queue_play_buffer=2;
   }
 }
 
 
 
-void LiveWavePause()
-{
-  waveOutPause(audioData.hWaveOut);
-}
 
-
-void LiveWaveResume()
-{
-  waveOutRestart(audioData.hWaveOut);  
-  waveOutWrite(audioData.hWaveOut, &audioData.waveHdr1, sizeof(WAVEHDR));
-  waveOutWrite(audioData.hWaveOut, &audioData.waveHdr2, sizeof(WAVEHDR));
-}
 
 
 DWORD WINAPI SoundTask(LPVOID lpArg) {
@@ -353,153 +650,187 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
   while (TRUE) {
     //SONG Tasks
     if (song_num>0) {
-      if (!stop_playing_song) {
+      for (int z=0;z<SONG_CHANNEL_NUM;z++) {
+          if (!stop_playing_song[z]) {
 
-        if (playing_wav) { //hi im currently playing a flac/wav
-          
-          current_song_time=current_timestamp();
-          if (current_song_time>time_song_end ||  play_new_song) { //stop playing flac when duration is over //second delay
-            play_new_song=TRUE;
-            playing_wav=FALSE;
-            loading_mp3=FALSE;
-            loading_flac=FALSE;
-            loading_wav=FALSE;
-            time_song_start=0;
-            time_song_end=-1;
-            current_song_time=-1;
-          }
-        }
-
-
-        if (!playing_wav) {//im not playing a wav music
-          if ((loading_flac || loading_mp3 || loading_wav)) {//loading flac or wav, flac
-            call_help_timer=0;
-            current_song_time=-1;
-            if (loading_wav) {
-              swprintf(wav_song_playing,256,L"%s/%s",src_music_dir,song_names[song_rand_num]);
-            } else {
-              swprintf(wav_song_playing,256,L"music_tmp/tmp/tmp.wav");
+            if (audioData[z].playing_wav) { //hi im currently playing a flac/wav
+              
+              //current_song_time=current_timestamp();
+              current_song_time[z]=(double)audioData[z].current_filesize / (audioData[z].wav_header->SamplesPerSec * audioData[z].wav_header->NumOfChan * audioData[z].wav_header->bitsPerSample/8) *1000;
+              if (current_song_time[z]>time_song_end[z] ||  play_new_song[z]) { //stop playing flac when duration is over //second delay
+                play_new_song[z]=TRUE;
+                audioData[z].playing_wav=FALSE;
+                loading_mp3[z]=FALSE;
+                loading_flac[z]=FALSE;
+                loading_wav[z]=FALSE;
+                time_song_end[z]=-1;
+                current_song_time[z]=-1;
+              }
             }
 
-            LoadBufferSFX(wav_song_playing);
-            time_song_start=current_timestamp();
-            time_song_end=time_song_start+song_audio_duration;//songAudio->duration;
-            loading_flac=FALSE;
-            loading_mp3=FALSE;
-            loading_wav=FALSE;
-            play_new_song=FALSE;
-            playing_wav=TRUE;
 
-
-          } else if (!loading_flac && !loading_mp3 && !loading_wav) { //not loading song 
-            if (play_new_song) //song status: stopped
-            {
-              //mem_snd_interrupt[2]=TRUE;
-              //mem_snd_interrupt[6]=TRUE;
-              //waveOutReset(hWaveOut[2]);
-              //waveOutReset(hWaveOut[6]);
-              //waveOutUnprepareHeader(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));
-              //waveOutUnprepareHeader(hWaveOut[6], &whdr[6], sizeof(WAVEHDR));
-              //waveOutClose(hWaveOut[2]);
-              //waveOutClose(hWaveOut[6]);
-              //waveOutUnprepareHeader(hWaveOut[6], &whdr[6], sizeof(WAVEHDR));
-
-
-              waveOutReset(audioData.hWaveOut);
-              waveOutUnprepareHeader(audioData.hWaveOut, &audioData.waveHdr1, sizeof(WAVEHDR));
-              waveOutUnprepareHeader(audioData.hWaveOut, &audioData.waveHdr2, sizeof(WAVEHDR));
-              waveOutClose(audioData.hWaveOut);
-
-
-            //play new music
-              call_help_timer=0;
-              if (audioData.music_file)
-                fclose(audioData.music_file);
-              remove("music_tmp/tmp/tmp.wav");
-              rmdir("music_tmp/tmp"); //remove tmp, manually because C is like that
-
-              if (!skip_song && !skipping_song) {
-                switch (song_mode) {
-                  case 0: //play songs shuffle
-                    song_rand_num=RandNum(0,song_num-1,1);
-                    break;
-                  case 1: //Play Songs acending
-                    song_rand_num=LimitValue(song_rand_num+1,0,song_num);
-                    break;
-                  case 2: //Play songs decending
-                    song_rand_num=LimitValue(song_rand_num-1,0,song_num);
-                    break;
+            if (!audioData[z].playing_wav) {//im not playing a wav music
+              if ((loading_flac[z] || loading_mp3[z] || loading_wav[z])) {//loading flac or wav, flac
+                call_help_timer=0;
+                current_song_time[z]=-1;
+                
+                if (loading_wav[z]) {
+                  switch (z) {
+                    case 0:swprintf(wav_song_playing,256,L"%s/%s",src_music_dir,song_names[song_rand_num[0]]);break;
+                    case 1:swprintf(wav_song_playing2,256,L"%s/%s",src_music_dir,song_names[song_rand_num[1]]);break;
+                  }
+                } else {
+                  switch (z) {
+                    case 0:swprintf(wav_song_playing,256,L"music_tmp/tmp/tmp.wav");break;
+                    case 1:swprintf(wav_song_playing2,256,L"music_tmp/tmp2/tmp.wav");break;
+                  }
                 }
-              } else {
-                skip_song=FALSE;
-              }
 
-              if (skipping_song) {
-                skipping_song=FALSE;
-              }
+                switch (z) {
+                  case 0:LoadBufferSFX(wav_song_playing,0);break;
+                  case 1:LoadBufferSFX(wav_song_playing2,1);break;                
+                }
+                time_song_end[z]=song_audio_duration[z];//time_song_start+song_audio_duration[z];//songAudio->duration;
+                loading_flac[z]=FALSE;
+                loading_mp3[z]=FALSE;
+                loading_wav[z]=FALSE;
+                play_new_song[z]=FALSE;
+                audioData[z].playing_wav=TRUE;
+                LiveWaveReOpen(z);
 
-              //stop .wav player
-              current_song_time=-1;
-              time_song_end=-1;
+              } else if (!loading_flac[z] && !loading_mp3[z] && !loading_wav[z]) { //not loading song 
+                if (play_new_song[z]) //song status: stopped
+                {
+                  LiveWaveClose(z);
+                //play new music
+                  call_help_timer=0;
+                  if (audioData[z].music_file) {
+                    fclose(audioData[z].music_file);
+                  }
+                  switch (z) {
+                    case 0:
+                       remove("music_tmp/tmp/tmp.wav");
+                       rmdir("music_tmp/tmp"); //remove tmp, manually because C is like that
+                       break;
+                    case 1:
+                      remove("music_tmp/tmp2/tmp.wav");
+                      rmdir("music_tmp/tmp2"); //remove tmp, manually because C is like that
+                      break;
+                  }
 
-              if (is_flac[song_rand_num]) { //loaded song is a flac
-                wchar_t my_command[512];
-                loading_flac=TRUE;
-                system("mkdir \"music_tmp/tmp\""); //make new tmp
-                swprintf(my_command,512,L"flac.exe --totally-silent -d -f \"%s/%s\" -o music/tmp/tmp.wav",src_music_dir,song_names[song_rand_num]);
-                _wsystem(my_command);
-              } else if (is_mp3[song_rand_num]) {
-                wchar_t my_command[512];
-                loading_mp3=TRUE;
-                system("mkdir \"music_tmp/tmp\""); //make new tmp
-                //http://mpg123.de/download/win32/mpg123-1.10.1-static-x86.zip //currently used to decode mp3
-                //swprintf(my_command,512,L"madplay.exe -b 16 -Q -R 44100  \"music/%s\" -o music/tmp/tmp.wav",song_names[song_rand_num]); //not compatible with unicode/utf16
-                //swprintf(my_command,512,L"lame.exe --decode  \"music/%s\" -o music/tmp/tmp.wav",song_names[song_rand_num]); //unable to decode to a specific desired sample rate
+                  if (!skip_song[z] && !skipping_song[z]) {
+                    switch (song_mode[z]) {
+                      case 0: //play songs shuffle
+                        song_rand_num[z]=RandNum(0,song_num-1,1);
+                        break;
+                      case 1: //Play Songs acending
+                        song_rand_num[z]=LimitValue(song_rand_num[z]+1,0,song_num);
+                        break;
+                      case 2: //Play songs decending
+                        song_rand_num[z]=LimitValue(song_rand_num[z]-1,0,song_num);
+                        break;
+                    }
+                  } else {
+                    skip_song[z]=FALSE;
+                  }
 
-                swprintf(my_command,512,L"mpg123.exe -q -w \"music_tmp/tmp/tmp.wav\"  \"%s/%s\"",src_music_dir,song_names[song_rand_num]);
-                _wsystem(my_command);
-              } else if (is_wav[song_rand_num]) {
-                loading_wav=TRUE;
-              }
-              play_new_song=FALSE;
-            }
-          } /*else { //song status: playing
-            //LoadBufferSFX(wav_song_playing);
-            //waveOutWrite(audioData.hWaveOut, &audioData.waveHdr1, sizeof(WAVEHDR));
-            //waveOutWrite(audioData.hWaveOut, &audioData.waveHdr2, sizeof(WAVEHDR));
-          }*/
-        }  
-      }
-    }
-    //End of song Task
+                  if (skipping_song[z]) {
+                    skipping_song[z]=FALSE;
+                  }
+
+                  //stop .wav player
+                  current_song_time[z]=-1;
+                  time_song_end[z]=-1;                
+                  wcsncpy(print_song_playing[z],song_names[song_rand_num[z]],48);
+
+                  if (is_flac[song_rand_num[z]]) { //loaded song is a flac
+                    wchar_t my_command[512];
+                    loading_flac[z]=TRUE;
+                    switch (z) {
+                      case 0:
+                        system("mkdir \"music_tmp/tmp\""); //make new tmp
+                        swprintf(my_command,512,L"flac.exe --totally-silent -d -f \"%s/%s\" -o music_tmp/tmp/tmp.wav",src_music_dir,song_names[song_rand_num[z]]);
+                        _wsystem(my_command);
+                        break;
+                      case 1:
+                        system("mkdir \"music_tmp/tmp2\""); //make new tmp
+                        swprintf(my_command,512,L"flac.exe --totally-silent -d -f \"%s/%s\" -o music_tmp/tmp2/tmp.wav",src_music_dir,song_names[song_rand_num[z]]);
+                        _wsystem(my_command);
+                        break;
+                    }
+
+                  } else if (is_mp3[song_rand_num[z]]) {
+                    wchar_t my_command[512];
+                    loading_mp3[z]=TRUE;
+                    //http://mpg123.de/download/win32/mpg123-1.10.1-static-x86.zip //currently used to decode mp3
+                    //swprintf(my_command,512,L"madplay.exe -b 16 -Q -R 44100  \"music/%s\" -o music/tmp/tmp.wav",song_names[song_rand_num[z]]); //not compatible with unicode/utf16
+                    //swprintf(my_command,512,L"lame.exe --decode  \"music/%s\" -o music/tmp/tmp.wav",song_names[song_rand_num[z]]); //unable to decode to a specific desired sample rate
+                    switch (z) {
+                      case 0:
+                        system("mkdir \"music_tmp/tmp\""); //make new tmp
+                        swprintf(my_command,512,L"mpg123.exe -q -w \"music_tmp/tmp/tmp.wav\"  \"%s/%s\"",src_music_dir,song_names[song_rand_num[z]]);
+                        _wsystem(my_command);
+                        break;
+                      case 1:
+                        system("mkdir \"music_tmp/tmp2\""); //make new tmp
+                        swprintf(my_command,512,L"mpg123.exe -q -w \"music_tmp/tmp2/tmp.wav\"  \"%s/%s\"",src_music_dir,song_names[song_rand_num[z]]);
+                        _wsystem(my_command);
+                        break;
+                    }
+                  } else if (is_wav[song_rand_num[z]]) {
+                    loading_wav[z]=TRUE;
+                  }
+                  play_new_song[z]=FALSE;
+                }
+              } //else { //song status: playing
+                
+              //}
+            }  
+          }
+        //End of song Task
+         if (toggle_stop_playing_song[z]) {
+           /*LiveWaveClose(z);
+           if (audioData[z].music_file) {
+             fclose(audioData[z].music_file);
+           }
+        //play new music
+           call_help_timer=0;
+           switch (z) {
+             case 0:
+               remove("music_tmp/tmp/tmp.wav");
+               rmdir("music_tmp/tmp"); //remove tmp, manually because C is like that
+               break;
+             case 1:
+               remove("music_tmp/tmp2/tmp.wav");
+               rmdir("music_tmp/tmp2"); //remove tmp, manually because C is like that
+               break;
+           }*/
+           LiveWavePause(z);
+           audioData[z].playing_wav=FALSE;
+           loading_wav[z]=
+           loading_flac[z]=
+           loading_mp3[z]=FALSE;
+           play_new_song[z]=FALSE;
+           stop_playing_song[z]=TRUE;
+           toggle_stop_playing_song[z]=FALSE;
+         }
+       } // end of for loop
 
 
-    if (toggle_stop_playing_song) {
-      LiveWavePause();
-
-    //play new music
-      call_help_timer=0;
-      playing_wav=FALSE;
-      loading_wav=
-      loading_flac=
-      loading_mp3=FALSE;
-      play_new_song=FALSE;
-
-      stop_playing_song=TRUE;
-      toggle_stop_playing_song=FALSE;
-    }
-
-    /*if (flag_adjust_wav_out_audio) {
-      long int vol=VolumeValue(wav_out_volume*100,1);
-      //waveOutSetVolume(hWaveOut[2],vol);
-      //waveOutSetVolume(hWaveOut[6],vol);
-      waveOutSetVolume(audioData.hWaveOut,vol);
-      flag_adjust_wav_out_audio=FALSE;
-    }*/
+         if (flag_adjust_wav_out_audio) {
+           long int vol=VolumeValue(wav_out_volume*100,1);
+           waveOutSetVolume(audioData[0].hWaveOut,vol);
+           waveOutSetVolume(audioData[1].hWaveOut,vol);
+           flag_adjust_wav_out_audio=FALSE;
+         }
+     } //end of if song>0
 
 
-    //SOUND Tasks
-    if (!in_main_menu) { //NOT in main menu, gaming
+
+
+
+    //Game sound tasks
+  if (!in_main_menu) {
       //Play Game Souond
       if (game_audio && level_loaded) {
         if (!player.time_breaker) { //player sounds made by player bullets
@@ -528,11 +859,9 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
       if (call_help_timer<2000/*5000*/) {
         call_help_timer+=6;
       }
-      Sleep(6); //fast loop
-    } else { //In Main Menu
-      //persian time update if day change
-      //get_current_time(&current_hour,&current_min,&current_sec);
+      Sleep(6);
 
+  } else { //in main menu
         if (clean_up_sound) {
           for (int i=0;i<MAX_ENEMY_NUM;i++) {
             PlaySound(NULL, NULL, SND_ASYNC);
@@ -556,10 +885,14 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
           if (lvl_has_song) {
             //play new music
               call_help_timer=0;
-              LiveWavePause();
+              //if (audioData[z].music_file)
+                //fclose(audioData.music_file);
+              //remove("music/tmp/tmp.wav");
+              //rmdir("music/tmp"); //remove tmp, manually because C is like that
               lvl_has_song=FALSE;
               InitSongBank();
-              play_new_song=TRUE;
+              play_new_song[0]=TRUE;
+              play_new_song[1]=TRUE;
           }
 
 
@@ -572,14 +905,20 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
           clean_up_sound=FALSE;
         }
 
-      if (current_hour==0 && current_min==0 && current_sec<=1) {//next day
-        int64_t timenow=int64_current_timestamp();
-        PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);
-        PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift);
+
+      //persian time update if day change
+      if (show_hijiri) {
+      get_current_time(&current_hour,&current_min,&current_sec);
+        if (current_hour==0 && current_min==0 && current_sec<=1) {//next day
+          int64_t timenow=int64_current_timestamp();
+          PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);
+          PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift);
+        }
       }
-      Sleep(1000); //eepy loop
+
+      Sleep(1000);
     }
-  }
+  } //end of while loop
 }
 
 
