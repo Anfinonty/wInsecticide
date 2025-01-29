@@ -447,7 +447,7 @@ void BelieveWaveReOpen(int z)
    waveOutSetVolume(hWaveOut[2],vol);
 
    whdr[2].lpData = (LPSTR)audioData[z].sample1;
-   whdr[2].dwBufferLength = chosen_buffer_size*10;//AUDIO_STREAM_BUFFER_SIZE;
+   whdr[2].dwBufferLength = chosen_buffer_size*4;//AUDIO_STREAM_BUFFER_SIZE;
    whdr[2].dwFlags = 0;
    whdr[2].dwLoops = 0;
 
@@ -458,7 +458,7 @@ void BelieveWaveReOpen(int z)
    waveOutSetVolume(hWaveOut[6],vol);
 
    whdr[6].lpData = (LPSTR)audioData[z].sample2;
-   whdr[6].dwBufferLength = chosen_buffer_size*10;//AUDIO_STREAM_BUFFER_SIZE;
+   whdr[6].dwBufferLength = chosen_buffer_size*4;//AUDIO_STREAM_BUFFER_SIZE;
    whdr[6].dwFlags = 0;
    whdr[6].dwLoops = 0;
 
