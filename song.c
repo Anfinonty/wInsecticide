@@ -376,8 +376,8 @@ void CALLBACK waveOutProc1(HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance, DWORD_
                 //if (audioData->queue_play_buffer>-1 && audioData->queue_play_buffer<READ_BUFFER_NUM) {memcpy(audioData->buffer1,audioData->read_buffer[audioData->queue_play_buffer],audioData->read_size);}
                 if (audioData->queue_play_buffer>-1 && audioData->queue_play_buffer<READ_BUFFER_NUM) {adjustBufferVol(audioData->buffer1,audioData->read_buffer[audioData->queue_play_buffer],audioData->read_size,audioData->volume);}
                 if (audioData->queue_play_buffer<=18) {audioData->queue_play_buffer++;} else {audioData->queue_play_buffer=0;}
-                waveOutWrite(audioData->hWaveOut, &audioData->waveHdr1, sizeof(WAVEHDR));
             }
+            waveOutWrite(audioData->hWaveOut, &audioData->waveHdr1, sizeof(WAVEHDR));
         } else if (waveHdr == &audioData->waveHdr2) {
             //fread(audioData->buffer2, sizeof(BYTE), audioData->read_size, audioData->music_file);
             audioData->double_buffer=FALSE;
@@ -393,11 +393,13 @@ void CALLBACK waveOutProc1(HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance, DWORD_
                 } else {
                   memset(audioData->read_buffer[audioData->queue_read_buffer],0,sizeof(audioData->read_buffer[audioData->queue_read_buffer]));
                 }
+                //audioData->read_filesize+=audioData->read_size;
                 if (audioData->queue_read_buffer<=18) {audioData->queue_read_buffer++;} else {audioData->queue_read_buffer=0;}                
+                //if (audioData->queue_play_buffer>-1 && audioData->queue_play_buffer<READ_BUFFER_NUM) {memcpy(audioData->buffer2,audioData->read_buffer[audioData->queue_play_buffer],audioData->read_size);}
                 if (audioData->queue_play_buffer>-1 && audioData->queue_play_buffer<READ_BUFFER_NUM) {adjustBufferVol(audioData->buffer2,audioData->read_buffer[audioData->queue_play_buffer],audioData->read_size,audioData->volume);}
                 if (audioData->queue_play_buffer<=18) {audioData->queue_play_buffer++;} else {audioData->queue_play_buffer=0;}
-                waveOutWrite(audioData->hWaveOut, &audioData->waveHdr2, sizeof(WAVEHDR));
             } 
+            waveOutWrite(audioData->hWaveOut, &audioData->waveHdr2, sizeof(WAVEHDR));
         }
       //}
     }
@@ -495,6 +497,12 @@ void LiveWaveClose(int z)
 void LiveWaveReOpen(int z)
 {
       waveOutOpen(&audioData[z].hWaveOut, WAVE_MAPPER, &audioData[z].awfx_music, (DWORD_PTR)waveOutProc1, (DWORD_PTR)&audioData[z], CALLBACK_FUNCTION);
+
+      //waveOutOpen(&audioData[z].hWaveOut, WAVE_MAPPER, &audioData[z].awfx_music, (DWORD_PTR)waveOutProc1, (DWORD_PTR)&audioData[z], CALLBACK_FUNCTION);
+
+     //waveOutOpen(&audioData[0].hWaveOut, WAVE_MAPPER, &audioData[0].awfx_music, (DWORD_PTR)waveOutProc1, (DWORD_PTR)&audioData[0], CALLBACK_FUNCTION);
+
+      waveOutRestart(audioData[z].hWaveOut);
       long int vol=VolumeValue(wav_out_volume*100,1);
       waveOutSetVolume(audioData[z].hWaveOut,vol);
 
@@ -545,8 +553,6 @@ void InitAudioBuffer(int z)
       audioData[z].queue_read_buffer=0;
     }
   }
-  waveOutWrite(audioData[z].hWaveOut, &audioData[z].waveHdr1, sizeof(WAVEHDR));
-  waveOutWrite(audioData[z].hWaveOut, &audioData[z].waveHdr2, sizeof(WAVEHDR));
 }
 
 
@@ -626,11 +632,9 @@ void LoadBufferSFX(const wchar_t* filename, int z)
       audioData[z].queue_read_buffer++;
       audioData[z].read_filesize+=audioData[z].read_size;
     }
-    //memcpy(audioData[z].buffer1,audioData[z].read_buffer[0],audioData[z].read_size);
-    adjustBufferVol(audioData->buffer1,audioData->read_buffer[0],audioData->read_size,audioData->volume);
+    memcpy(audioData[z].buffer1,audioData[z].read_buffer[0],audioData[z].read_size);
     audioData[z].current_filesize+=audioData[z].read_size;
-    //memcpy(audioData[z].buffer2,audioData[z].read_buffer[1],audioData[z].read_size);
-    adjustBufferVol(audioData->buffer2,audioData->read_buffer[1],audioData->read_size,audioData->volume);
+    memcpy(audioData[z].buffer2,audioData[z].read_buffer[1],audioData[z].read_size);
     audioData[z].current_filesize+=audioData[z].read_size;
     audioData[z].queue_play_buffer=2;
   }
