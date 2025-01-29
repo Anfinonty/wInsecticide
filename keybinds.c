@@ -56,6 +56,38 @@ void KeyChangePlayerColor()
      }
 }
 
+void TaskbarChangeAct(HWND hwnd)
+{
+     windowx=0;
+     windowy=0;
+     //resolution_choose=1;
+     GR_WIDTH=RESOLUTION_X[resolution_choose];
+     GR_HEIGHT=RESOLUTION_Y[resolution_choose];
+     if (!hide_taskbar) {
+       LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
+       lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+       SetWindowLong(hwnd, GWL_STYLE, lStyle);
+       SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,SCREEN_WIDTH,SCREEN_HEIGHT, SWP_FRAMECHANGED);
+     } else {
+       LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
+       lStyle |= (WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+       SetWindowLong(hwnd, GWL_STYLE, lStyle);
+       SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
+       ShowWindow(hwnd, SW_RESTORE);
+     }
+     if (!hide_taskbar) {
+       SetForegroundWindow(hwnd); //return back focus
+     }
+    // flag_resolution_change=TRUE;
+     hide_taskbar=!hide_taskbar;
+     if (!hide_taskbar) {
+       SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
+       ShowWindow(hwnd, SW_RESTORE);
+     }
+}
+
+
+
 
 void ColorKeypressDown(WPARAM wParam, int *dest_color_id)
 {
@@ -137,8 +169,214 @@ void ColorKeypressUp(WPARAM wParam, int *dest_color_id)
 //Keybinds
 void GlobalKeypressDown(WPARAM wParam)
 {
+  /*
+        '6'+SHIFT:  change buffer rate
+
+        hWaveOut[2]: '7'[gct=0], '7'[gct=1];*****
+        hWaveOut[6]: '8'[gct=0], '8'[gct=1];*****
+        '7''8':          Play Sample*****
+        '7''8' + SHIFT:  SAVE SAMPLE*****
+        
+
+                            SHIFT+'9': song--; SHIFT+'0': song++;
+
+        R: switch wav
+
+                                    I: Fast Forwards
+                                        K: Rewind
+
+                            H+SHIFT: jump pos1, save pos1          L: Start Loop position/End Loop position [LET GO] //discards old loops
+                                J+SHIFT: jump pos2, save pos2      L+SHIFT: PLAY LOOP/STOP LOOP [LET GO]
+
+        VB: decrease,increaase tempo
+        VB+SHIFT: decrease,increase sample persec, nightcore
+
+
+                    N+SHIFT: next song, change song mode++  M+SHIFT: next song, change song mode--
+
+
+
+ */
+
+
   if (!MapEditor.is_ground_txt_typing) {
     switch (wParam) {
+      /*case 'L':
+        if (!(keydown(VK_LSHIFT) || keydown(VK_RSHIFT))) { //play loop no shift
+          if (!audioData.play_loop) {            
+            audioData.play_loop=TRUE;
+          } else {
+            audioData.play_loop=FALSE;
+          }
+        } else {//record loop/stop recording loop
+          if (!audioData.record_loop) {
+            audioData.record_loop=TRUE;
+            audioData.loop_start=audioData.current_filesize;
+            audioData.loop_read=audioData.queue_read_buffer;
+            audioData.loop_play=audioData.queue_play_buffer;
+            audioData.saved_loop_double_buffer=audioData.double_buffer;
+          } else  {
+            audioData.record_loop=FALSE;
+            audioData.loop_end=audioData.current_filesize;
+          }
+        }
+        break;*/
+      /*case 'P': //pause
+        if (!stop_playing_song && playing_wav) {
+        if (!song_pause) {
+          song_pause=TRUE;
+          //LiveWavePause(gct);
+        } else {
+          song_pause=FALSE;
+          //LiveWaveResume(gct);
+        }
+        }
+        break;
+      case 'I': //fast forward
+      case 'K': //rewind
+      {
+        if (!stop_playing_song && playing_wav) {
+        audioData.song_rewind=TRUE;
+        if (audioData.current_filesize>audioData.read_size*2 && audioData.current_filesize<audioData.filesize-audioData.read_size*2) { //stutters when rewinding, hardware
+            if (wParam=='K') {
+              if (audioData.queue_read_buffer>0) {audioData.queue_read_buffer--;} else {audioData.queue_read_buffer=READ_BUFFER_NUM-1;}
+              if (audioData.queue_play_buffer>0) {audioData.queue_play_buffer--;} else {audioData.queue_play_buffer=READ_BUFFER_NUM-1;} 
+              audioData.current_filesize-=audioData.read_size;
+            } else {
+              if (audioData.queue_read_buffer<=18) {audioData.queue_read_buffer++;} else {audioData.queue_read_buffer=0;}
+              if (audioData.queue_play_buffer<=18) {audioData.queue_play_buffer++;} else {audioData.queue_play_buffer=0;} 
+              audioData.current_filesize+=audioData.read_size;
+            }
+
+            //memcpy(audioData.buffer1,audioData.read_buffer[audioData.queue_play_buffer],audioData.read_size);
+            //memcpy(audioData.buffer2,audioData.read_buffer[audioData.queue_play_buffer],audioData.read_size);
+            adjustBufferVol(audioData.buffer1,audioData.read_buffer[audioData.queue_play_buffer],audioData.read_size,audioData.volume);
+            adjustBufferVol(audioData.buffer2,audioData.read_buffer[audioData.queue_play_buffer],audioData.read_size,audioData.volume);
+
+            audioData.read_filesize=audioData.current_filesize-(audioData.read_size*READ_BUFFER_NUM/2);
+
+            fseek(audioData.music_file, audioData.current_filesize, SEEK_SET);
+            fread(audioData.read_buffer[audioData.queue_read_buffer], sizeof(BYTE), audioData.read_size, audioData.music_file);  //copy then go backwards/forwards
+            fseek(audioData.music_file, audioData.current_filesize, SEEK_SET);
+        }
+        }
+        }
+        break;
+
+
+      case 'J': //jump1
+        if (!stop_playing_song && playing_wav) {
+        if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //save jumpto
+          audioData.jump1=audioData.current_filesize; //spindle, not read
+          audioData.saved_play_buffer1=audioData.queue_play_buffer;
+          audioData.saved_read_buffer1=audioData.queue_read_buffer;
+          audioData.saved_double_buffer=audioData.double_buffer;
+        } else { //jump to
+          audioData.current_filesize=audioData.jump1;
+          audioData.queue_play_buffer=audioData.saved_play_buffer1;
+          audioData.queue_read_buffer=audioData.saved_read_buffer1;
+          audioData.double_buffer=audioData.saved_double_buffer;
+          audioData.read_filesize=audioData.current_filesize-(audioData.read_size*READ_BUFFER_NUM/2);
+          fseek(audioData.music_file, audioData.read_filesize, SEEK_SET);
+          //InitAudioBuffer(gct);
+        }
+        }
+        break;
+
+
+
+      case 'H': //jump2
+        if (!stop_playing_song && playing_wav) {
+        if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //save jump
+          audioData.jump2=audioData.current_filesize;//spindle, not read
+          audioData.saved_play_buffer2=audioData.queue_play_buffer;
+          audioData.saved_read_buffer2=audioData.queue_read_buffer;
+          audioData.saved_double_buffer=audioData.double_buffer;
+        } else { //jump to
+          audioData.current_filesize=audioData.jump2; //to read filesize
+          audioData.queue_play_buffer=audioData.saved_play_buffer2;
+          audioData.queue_read_buffer=audioData.saved_read_buffer2;
+          audioData.double_buffer=audioData.saved_double_buffer;
+          audioData.read_filesize=audioData.current_filesize-(audioData.read_size*READ_BUFFER_NUM/2);
+          fseek(audioData.music_file, audioData.read_filesize, SEEK_SET);
+          //InitAudioBuffer(gct);
+        }
+        }
+        break;
+
+
+
+      case 'V':
+        if (!(keydown(VK_LSHIFT) || keydown(VK_RSHIFT))) {
+          if (audioData.sps_offset>-audioData.sps_o) {
+             //LiveWaveClose(gct);
+             audioData.sps_offset-=audioData.sps_o/20;
+             audioData.awfx_music.nSamplesPerSec=audioData.sps_o+audioData.sps_offset;
+             //LiveWaveReOpen(gct);
+             //BelieveWaveClose();
+             //BelieveWaveReOpen(gct);
+          }
+        } else {
+          if (audioData.tempo>1.0) {
+             audioData.tempo-=0.25;
+          }
+        }
+        break;
+
+
+      case 'B':
+        if (!(keydown(VK_LSHIFT) || keydown(VK_RSHIFT))) {
+          if (audioData.sps_offset<audioData.sps_o*2) {
+             //LiveWaveClose(gct);
+             audioData.sps_offset+=audioData.sps_o/20;
+             audioData.awfx_music.nSamplesPerSec=audioData.sps_o+audioData.sps_offset;
+             //LiveWaveReOpen(gct);
+             //BelieveWaveClose();
+             //BelieveWaveReOpen(gct);
+          }
+        } else {
+          if (audioData.tempo<2.0) {
+             audioData.tempo+=0.25;
+          }
+        }
+        break;
+
+
+      //take sample
+      case '7':{
+        int iw=audioData.queue_play_buffer;
+        if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+          for (int w=0;w<4;w++) {
+            iw+=w;
+            if (iw>19) {
+              iw=0;
+            }
+            memcpy(audioData.sample1+
+                (audioData.read_size/2*w),audioData.read_buffer[iw],audioData.read_size);
+          }
+        } else { //play sample
+          waveOutReset(hWaveOut[2]);
+          waveOutWrite(hWaveOut[2], &whdr[2], sizeof(WAVEHDR));
+        }}
+        break;
+
+      case '8':{
+        int iw=audioData.queue_play_buffer;
+        if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+          for (int w=0;w<4;w++) {
+            iw+=w;
+            if (iw>19) {
+              iw=0;
+            }
+            memcpy(audioData.sample2+
+                (audioData.read_size/2*w),audioData.read_buffer[iw],audioData.read_size);
+          }
+        } else { //play sample
+          waveOutReset(hWaveOut[6]);
+          waveOutWrite(hWaveOut[6], &whdr[6], sizeof(WAVEHDR));
+        }}
+        break;*/
+
     //Holding down '9' or '9' Key
       case '9'://skip song, upwnwards (previous)
       case '0'://skip song, downwards (next)
@@ -151,6 +389,11 @@ void GlobalKeypressDown(WPARAM wParam)
               song_rand_num=LimitValue(song_rand_num+1,0,song_num);
             else if (wParam=='9')
               song_rand_num=LimitValue(song_rand_num-1,0,song_num);
+
+            /*for (int w=0; w<48; w++) {
+              print_song_playing[w] = song_names[song_rand_num][w]; 
+            }*/
+
           }
         }
         if (song_mode>2)
@@ -167,50 +410,79 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
 {
   if (!MapEditor.is_ground_txt_typing) {
     switch (wParam) {
+      /*case 'R':
+        /*switch (gct) { //switch buffer used
+          case 0:   
+            gct=1;
+            break;
+          case 1: 
+            gct=0;
+            break;
+        }
+        //BelieveWaveClose();
+        //BelieveWaveReOpen(gct);
+        break;
+
+      case 'Y':
+        hide_mm=!hide_mm;
+        break;
+
+
+      /*case 'V':
+      case 'B':
+        if (!(keydown(VK_LSHIFT) || keydown(VK_RSHIFT))) {
+          flag_tempo_change=TRUE;
+        }
+        break;
+      
+      case 'U':
+        if (wav_mode==3) {
+          wav_mode=0;
+        } else {
+          wav_mode++;
+        }
+        break;
+
+      case '6': //adjust buffer size rate
+        if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+          int a=casbs_i;a++;if (a==3) {a=0;}
+          casbs_i=a;
+          chosen_buffer_length_o=buffer_length_arr[casbs_i];
+          chosen_buffer_size_o=buffer_size_arr[casbs_i];
+          chosen_buffer_length=buffer_length_arr[casbs_i];
+          chosen_buffer_size=buffer_size_arr[casbs_i];
+
+          //LiveWaveClose(gct);
+          //LiveWaveReOpen(gct);          
+        }
+        break;
+
+      case 'I':
+      case 'K':
+        audioData.song_rewind=FALSE;
+        if (!stop_playing_song && playing_wav) {
+          //InitAudioBuffer(gct);
+        }
+        break;*/
+
     //Letting go '0' or '9' Key
       case '9':
       case '0':
         call_help_timer=0;        
         if (song_mode<=2) {
           if (skipping_song) {
-            playing_wav=FALSE;
-            skip_song=FALSE;
-            loading_mp3=FALSE;
-            loading_flac=FALSE;
-            loading_wav=FALSE;
-            play_new_song=TRUE;
+             play_new_song=TRUE;
+             loading_mp3=FALSE;
+             loading_flac=FALSE;
+             loading_wav=FALSE;
+             playing_wav=FALSE;
           }
         }
         break;
         //Release 'T' key holding SHIFT
         case 'T': //Hide or Show Taskbar
           if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
-             windowx=0;
-             windowy=0;
-             //resolution_choose=1;
-             GR_WIDTH=RESOLUTION_X[resolution_choose];
-             GR_HEIGHT=RESOLUTION_Y[resolution_choose];
-             if (!hide_taskbar) {
-               LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
-               lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
-               SetWindowLong(hwnd, GWL_STYLE, lStyle);
-               SetWindowPos(hwnd,HWND_TOPMOST,windowx,windowy,SCREEN_WIDTH,SCREEN_HEIGHT, SWP_FRAMECHANGED);
-             } else {
-               LONG lStyle = GetWindowLong(hwnd, GWL_STYLE);
-               lStyle |= (WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
-               SetWindowLong(hwnd, GWL_STYLE, lStyle);
-               SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
-               ShowWindow(hwnd, SW_RESTORE);
-             }
-             if (!hide_taskbar) {
-               SetForegroundWindow(hwnd); //return back focus
-             }
-            // flag_resolution_change=TRUE;
-             hide_taskbar=!hide_taskbar;
-             if (!hide_taskbar) {
-               SetWindowPos(hwnd,HWND_NOTOPMOST,windowx,windowy,GR_WIDTH,GR_HEIGHT, SWP_FRAMECHANGED);
-               ShowWindow(hwnd, SW_RESTORE);
-             }
+             TaskbarChangeAct(hwnd);
           }
           break;
 
@@ -228,22 +500,68 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
             }
 
             if (song_mode==3) { //stop playing song
-              if (!stop_playing_song) {
+              /*bool allow_act=FALSE;
+              switch (gct) {
+                case 0:
+                  if (stop_playing_song[1]) {//[0] is not
+                    allow_act=TRUE;
+                  } else {
+                    if (wParam=='M') {
+                      song_mode=LimitValue(song_mode+1,0,4);
+                    } else if (wParam=='N'){
+                      song_mode=LimitValue(song_mode-1,0,4);
+                    }
+                  }
+                  break;
+                case 1:
+                  allow_act=TRUE;
+                  break;
+              }*/
+              if (!stop_playing_song /*&& allow_act*/) {
                 stop_playing_song=TRUE;
                 toggle_stop_playing_song=TRUE;
               }
+
+
             } else {
-              if (stop_playing_song) {//reenable song
-                remove("music/tmp/tmp.wav");
-                rmdir("music/tmp"); //remove tmp
-                InitSongBank();
-                song_rand_num=LimitValue(-1,0,song_num);
-                stop_playing_song=FALSE;
-                play_new_song=TRUE;
-              } 
+              //[1] cannot be renabled unless [0] is reenabled, idk why but this workaround resolves it
+              //[0] must always bee opened first, [1] cannot be openned first
+              bool allow_act=FALSE;
+              /*switch (gct) {
+                case 0:
+                  allow_act=TRUE;
+                  break;
+                case 1: //only opened when 0 is running
+                  if (!stop_playing_song[0]) {//[0] is playing
+                    allow_act=TRUE;
+                  }
+                  break;
+              }
+              if (allow_act) {
+                  if (stop_playing_song) {//reenable song
+                    switch (gct) {*/
+                      //case 0:
+                        remove("music_tmp/tmp/tmp.wav");
+                        rmdir("music_tmp/tmp"); //remove tmp
+                        //break;
+                      //case 1:
+                        //remove("music_tmp/tmp2/tmp.wav");
+                        //rmdir("music_tmp/tmp2"); //remove tmp
+                        //break;
+                    //}
+                    InitSongBank();
+                    //if (gct==0) {
+                      song_rand_num=LimitValue(-1,0,song_num);
+                    //} else {
+                      //song_rand_num=song_num-1;
+                    //}
+                    stop_playing_song=FALSE;
+                    play_new_song=TRUE;
+                  //}
+              //} 
             }
 
-          } else {
+          } else { //not holding shift
             if (!stop_playing_song) {
               play_new_song=TRUE;
               loading_mp3=FALSE;
@@ -251,11 +569,11 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
               loading_wav=FALSE;
               playing_wav=FALSE;
             }
-          }
+          }          
           break;//end current song
 
-        //Release 'L' Key
-        case 'L':
+        //Release '5' Key
+        case '5':
           if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
             if (yes_unifont) {
               yes_unifont=FALSE;
@@ -565,7 +883,7 @@ void OptionKeyPressRight(HWND hwnd, int option_choose)
          break;
 
 
-       case 6:
+       /*case 6:
          wav_out_volume+=0.1;
          if (wav_out_volume>1.0) { //max song volume
             wav_out_volume=0.0;
@@ -573,7 +891,7 @@ void OptionKeyPressRight(HWND hwnd, int option_choose)
          flag_adjust_wav_out_audio=TRUE;
          if (game_audio)
            PlaySound(keySoundEffectCache[2].audio, NULL, SND_MEMORY | SND_ASYNC); //false
-         break;
+         break;*/
 
 
        case 7: //toggle unifont
@@ -672,6 +990,32 @@ void OptionKeyPressRight(HWND hwnd, int option_choose)
          }
          show_fps=!show_fps;             
          break;
+
+
+       case 13: //toggle show hijiri
+         if (game_audio) {
+           if (show_hijiri)
+             PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
+           else
+             PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
+         }
+         show_hijiri=!show_hijiri;
+         break;
+
+
+
+
+       case 14: //toggle difficulty
+         if (game_audio) {
+           if (game_hard)
+             PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
+           else
+             PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
+         }
+         game_hard=!game_hard;
+         break;
+
+
     }
 }
 
@@ -713,7 +1057,7 @@ void OptionKeyPressLeft(HWND hwnd,int option_choose)
          flag_adjust_audio=TRUE;
          break;
 
-       case 6: //Adjust raw wav sfx
+       /*case 6: //Adjust raw wav sfx
          wav_out_volume-=0.1;
          if (wav_out_volume<0.0) {
            wav_out_volume=1.0;
@@ -721,7 +1065,7 @@ void OptionKeyPressLeft(HWND hwnd,int option_choose)
          if (game_audio)
            PlaySound(keySoundEffectCache[2].audio, NULL, SND_MEMORY | SND_ASYNC); //false
          flag_adjust_wav_out_audio=TRUE;
-         break;
+         break;*/
 
        case 7: //toggle unifont
          if (game_audio) {
@@ -816,6 +1160,30 @@ void OptionKeyPressLeft(HWND hwnd,int option_choose)
          }
          show_fps=!show_fps;
          break;
+
+
+       case 13: //toggle show hijiri
+         if (game_audio) {
+           if (show_hijiri)
+             PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
+           else
+             PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
+         }
+         show_hijiri=!show_hijiri;
+         break;
+
+       case 14: //toggle difficulty
+         if (game_audio) {
+           if (game_hard)
+             PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
+           else
+             PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
+         }
+         game_hard=!game_hard;
+         break;
+
+
+
     }
 }
 
@@ -827,7 +1195,7 @@ void OptionKeyPressRelease1()
    main_menu_chosen=-1;
    //LIVE change color of player
    //KeyChangePlayerColor();
-
+   SaveOptions();
 
    //adjust volume
    if (old_game_volume!=game_volume) {
@@ -881,6 +1249,9 @@ void OptionsKeypressDown(HWND hwnd, WPARAM wParam)
       case 'W':
       case VK_UP:
         option_choose=LimitValue(option_choose-1,0,GAME_OPTIONS_NUM);
+        if (option_choose==6) { //skip sound
+          option_choose=5;
+        }
         if (game_audio)
           PlaySound(keySoundEffectCache[1].audio,NULL,SND_MEMORY | SND_ASYNC); //up down
         break;
@@ -890,6 +1261,9 @@ void OptionsKeypressDown(HWND hwnd, WPARAM wParam)
        case 'S':
        case VK_DOWN:
          option_choose=LimitValue(option_choose+1,0,GAME_OPTIONS_NUM);
+        if (option_choose==6) {
+          option_choose=7;
+        }
          if (game_audio)
            PlaySound(keySoundEffectCache[1].audio,NULL,SND_MEMORY | SND_ASYNC); //up down
          break;
@@ -1110,12 +1484,12 @@ void ZeroMenuKeypressUp( HWND hwnd,  HDC hdc, WPARAM wParam)
         }
         break;
       case '3': //Build Selected Level
-        if (player_color>-1 && player_color<COLORS_NUM)
+        if (player_color>-1 && player_color<256)
         {
-        main_menu_chosen=4;
-        if (game_audio)
-          PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
-        flag_load_melevel=TRUE;
+          main_menu_chosen=4;
+          if (game_audio)
+            PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
+          flag_load_melevel=TRUE;
           //InitLevelMapEditor();
         }
         break;
@@ -1453,4 +1827,64 @@ void ThreeMenuKeypressUp(WPARAM wParam, HWND hwnd, HDC hdc)
     }
     break;
   }
+}
+
+
+
+void DJKeys (WPARAM wParam)
+{
+  /*
+  switch (wParam) {
+    case ',': //decrease volume
+      if (audioData.volume>0.1) {
+        audioData.volume-=0.1;
+      }
+      break;
+    case '.': //increase volume
+      if (audioData.volume<2.0) {
+        audioData.volume+=0.1;
+      }
+      break;
+    case '<': //decrease volume
+      if (audioData.volume>0) {
+        audioData.volume-=0.5;
+      } else {
+        audioData.volume=0;
+      }
+      break;
+    case '>': //increase volume
+      if (audioData.volume<2.0) {
+        audioData.volume+=0.5;
+      } else {
+        audioData.volume=2.0;
+      }
+      break;
+
+    case ';': //shift starting loop to left
+      if (audioData.loop_start>audioData.read_size){
+        audioData.loop_start-=audioData.read_size;
+        audioData.saved_loop_double_buffer=!audioData.saved_loop_double_buffer;
+        if (audioData.loop_read>0) {audioData.loop_read--;} else {audioData.loop_read=READ_BUFFER_NUM-1;}
+        if (audioData.loop_play>0) {audioData.loop_play--;} else {audioData.loop_play=READ_BUFFER_NUM-1;} 
+      }
+      break;
+    case '\'': //shift starting loop to right
+      if (audioData.loop_start<audioData.filesize-audioData.read_size) {
+        audioData.loop_start+=audioData.read_size;
+        audioData.saved_loop_double_buffer=!audioData.saved_loop_double_buffer;
+        if (audioData.loop_read<=18) {audioData.loop_read++;} else {audioData.loop_read=0;}
+        if (audioData.loop_play<=18) {audioData.loop_play++;} else {audioData.loop_play=0;}
+      }
+      break;
+
+    case ':': //shift ending loop to left
+      if (audioData.loop_end>audioData.read_size)
+        audioData.loop_end-=audioData.read_size;
+      break;
+    case '"': //shift ending loop to right
+      if (audioData.loop_end<audioData.filesize-audioData.read_size)
+        audioData.loop_end+=audioData.read_size;
+      break;
+
+  }*/
 }

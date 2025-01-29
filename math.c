@@ -528,7 +528,11 @@ double RandAngle(int min, int max, int seed) {
 double GetGradient(double x1,double y1,double x2,double y2) 
 {
   // gradient = rise/run, m = (y1-y2)/(x1-x2)
-  return (y2-y1)/(x2-x1);
+  double denominator=(x2-x1);
+  if (denominator==0) {
+    return DBL_MAX;
+  }
+  return (y2-y1)/denominator;
 }
 
 double GetGroundC(double x,double y,double gradient)
@@ -746,6 +750,26 @@ void RemoveFolderRecursive(const wchar_t* dirname)
 }
 
 
+bool DirExists(const wchar_t* filename)
+{
+    _WDIR *d = _wopendir(filename);
+
+    if (d) {
+        // Directory exists
+        //printf("Directory exists.\n");
+        _wclosedir(d);
+        return TRUE;
+    } /*else if (ENOENT == errno) {
+        // Directory does not exist
+        printf("Directory does not exist.\n");
+    } else {
+        // opendir() failed for some other reason.
+        printf("Failed to open directory.\n");
+    }*/
+    return FALSE;      
+}
+
+
 
 bool FileExists(const wchar_t* filename)
 {
@@ -876,9 +900,11 @@ double GetBounceAngle(double angle1,double angle2)
   ans=2*M_PI-angle1+2*angle2;
   //if (ans>2*M_PI || ans<0) {
   if (ans>0) {
-    ans=fmod(ans,(2*M_PI));
-  } else {
-    ans=fmod(ans,(-2*M_PI));
+    ans=fmod(ans,(4*M_PI));
+  } 
+
+  if (ans<0) {
+    ans=fmod(ans,(-4*M_PI));
   }
   //}
   /*if (ans<0) {

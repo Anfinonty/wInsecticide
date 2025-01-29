@@ -396,6 +396,9 @@ void EnemySpriteOnGroundId(int enemy_id,int ground_id)
       }
     }
     
+    if (ground_id>=GROUND_NUM) { //eating      
+      Ground[ground_id]->health-=(1+Enemy[enemy_id]->bullet_damage/2);
+    }
 
     //FOR VISUALS
     if (!Enemy[enemy_id]->is_in_ground_edge && abs(height_from_ground)<=41) {
@@ -600,6 +603,7 @@ void EnemyLOSAct(int i)
       if (Enemy[i]->LOS_target_x-1<=Enemy[i]->LOS_x && Enemy[i]->LOS_x<=Enemy[i]->LOS_target_x+1 &&
           Enemy[i]->LOS_target_y-1<=Enemy[i]->LOS_y && Enemy[i]->LOS_y<=Enemy[i]->LOS_target_y+1) {
         Enemy[i]->saw_player=TRUE;
+        Enemy[i]->last_seen_timer=200;
         Enemy[i]->LOS_shot=FALSE;
       } else {
 	    allow_act=FALSE;
@@ -698,8 +702,8 @@ int EnemyActDazzle(int i, int slash_t)
   Enemy[i]->saw_player=FALSE;
   Enemy[i]->ignore_player=TRUE;
   Enemy[i]->target_player=FALSE;
-  if (!Enemy[i]->move_to_target) {
-  }
+  /*if (!Enemy[i]->move_to_target) {
+  }*/
   return slash_t;
 }
 
@@ -1160,32 +1164,56 @@ void EnemyAntAct(int i,int slash_time_i)
   }
 }
 
-void MosquitoBites(int i,int dmg)
+bool InsectBites(int i,int dmg,bool is_mosquito)
 {
-  Enemy[i]->bullet_cooldown=Enemy[i]->bullet_cooldown_max;
-  if (Enemy[i]->bullet_fire_cooldown<=0) {
-     Enemy[i]->bullet_fire_cooldown=Enemy[i]->bullet_fire_cooldown_max;
-     player.show_health_timer=HP_SHOW_TIMER_NUM;
-     Enemy[i]->damage_taken_timer=256;
-     if (game_audio) {
-      PlaySound(spamSoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //hurt snd
-     }
-     if (player.health>PLAYER_LOW_HEALTH+1) { //usual response
-       player.health-=dmg;
-       Enemy[i]->health+=dmg;
-       Enemy[i]->max_health+=dmg;
-     } else { //Player when low health
-       if (player.health<PLAYER_LOW_HEALTH) {
-         player.health-=0.1;
-       } else {
-         player.health-=1;
-       }
-     }  
-  } else {
-    Enemy[i]->bullet_fire_cooldown--;
+
+  if (player.block_timer>23 || player.block_timer==0) {
+      Enemy[i]->bullet_cooldown=Enemy[i]->bullet_cooldown_max;
+      if (Enemy[i]->bullet_fire_cooldown<=0) {
+         Enemy[i]->bullet_fire_cooldown=Enemy[i]->bullet_fire_cooldown_max;
+         player.show_health_timer=HP_SHOW_TIMER_NUM;
+         if (is_mosquito) {
+           Enemy[i]->damage_taken_timer=256;
+         }
+         if (game_audio) {
+           PlaySound(spamSoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //hurt snd
+         }
+         if (player.health>PLAYER_LOW_HEALTH+1) { //usual response
+           player.health-=dmg;
+           if (is_mosquito) {
+             Enemy[i]->health+=dmg;
+             if (Enemy[i]->health>=Enemy[i]->max_health) {
+               Enemy[i]->max_health+=dmg;
+             }
+           }
+         } else { //Player when low health
+           if (player.health<PLAYER_LOW_HEALTH) {
+             player.health-=0.1;
+           } else {
+             player.health-=1;
+           }
+         }
+
+        if (player.speed>5) {
+          player.speed--;
+        } else { //penalty only at low speed
+          if (player.time_breaker_units>1) {
+            player.invalid_shoot_timer=9;
+            player.time_breaker_units=1;
+          }
+        }
+
+      } else {
+        Enemy[i]->bullet_fire_cooldown--;
+      }
+    return TRUE;
+  } else {//perfect block , 23 or less than
+    if (game_audio) {
+      PlaySound(spamSoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //block perfect
+    }
+    return FALSE;    
   }
 }
-
 
 
 
@@ -1256,6 +1284,7 @@ void EnemyAct(int i)
 
 
       if (dist_from_bullet0<=NODE_SIZE*4) {
+        Enemy[i]->last_seen_timer=200;
         switch (Enemy[i]->species) {
       	  case 0:
           case 2:
@@ -1329,6 +1358,7 @@ void EnemyAct(int i)
 
 
     if (dist_from_bullet<=NODE_SIZE*4) {
+      Enemy[i]->last_seen_timer=200;
       switch (Enemy[i]->species) {
 	    case 0://fly
         case 2:
@@ -1374,14 +1404,31 @@ void EnemyAct(int i)
         }
       } 
 
-   bool mosquito_bite=FALSE;
+   bool insect_bite=FALSE;
    //mosquito quirk 
      if (Enemy[i]->species==0 && !Enemy[i]->web_stuck && (!player.time_breaker || Enemy[i]->time_breaker_immune)) {
         if (Enemy[i]->dist_from_player<=NODE_SIZE*2) {
-          MosquitoBites(i,Enemy[i]->bullet_damage); 
-          mosquito_bite=TRUE;
+          insect_bite=InsectBites(i,Enemy[i]->bullet_damage,TRUE);
         }
      }
+
+   //ant quirk 
+    if ((Enemy[i]->species>=5 && Enemy[i]->species<=7) && !Enemy[i]->web_stuck && (!player.time_breaker || Enemy[i]->time_breaker_immune)) {
+        if (Enemy[i]->dist_from_player<=NODE_SIZE*2) {
+          insect_bite=InsectBites(i,Enemy[i]->bullet_damage,FALSE); 
+        }
+     }
+
+    //toe BITER quirk
+    if ((Enemy[i]->species==3) && !Enemy[i]->web_stuck && (!player.time_breaker || Enemy[i]->time_breaker_immune)) {
+        if (Enemy[i]->dist_from_player<=NODE_SIZE*3) {          
+          insect_bite=InsectBites(i,Enemy[i]->bullet_damage,FALSE); 
+        }
+     }
+
+    if (Enemy[i]->last_seen_timer>0  && (!player.time_breaker || Enemy[i]->time_breaker_immune)) {
+      Enemy[i]->last_seen_timer--;
+    }
 
    //Enemy knockback & attacked
     allow_act=FALSE;
@@ -1507,7 +1554,7 @@ void EnemyAct(int i)
             if (player.speed>5) {
               deduct_health=TRUE;
             } else if (game_audio) {
-              if (!mosquito_bite) {
+              if (!insect_bite) {
                 PlaySound(spamSoundEffectCache[6].audio,NULL, SND_MEMORY | SND_ASYNC);            
               }
             }
@@ -1529,7 +1576,7 @@ void EnemyAct(int i)
       deduct_health=FALSE;
       Enemy[i]->damage_taken_timer=256;
       Enemy[i]->health-=player.attack_strength;
-      if (game_audio && !mosquito_bite) {
+      if (game_audio && !insect_bite) {
         PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
       }
     }
@@ -1545,7 +1592,7 @@ void EnemyAct(int i)
         rand_bullet_shot_num=25+RandNum(30,40,Enemy[i]->seed);        
       }*/
       switch (Enemy[i]->species) {
-        case 0: rand_bullet_shot_num=Enemy[i]->max_health/2+RandNum(10,20,Enemy[i]->seed); break;
+        case 0: rand_bullet_shot_num=Enemy[i]->max_health+RandNum(10,20,Enemy[i]->seed); break;
         case 1: rand_bullet_shot_num=25+RandNum(30,40,Enemy[i]->seed); break;
         case 2: rand_bullet_shot_num=8+RandNum(1,10,Enemy[i]->seed); break;
         case 3: rand_bullet_shot_num=25+RandNum(50,60,Enemy[i]->seed); break;
@@ -1785,7 +1832,7 @@ void EnemyAct(int i)
         /*if (Enemy[i]->is_in_ground_edge) {
           force_search=TRUE;
         }*/
-        if (Enemy[i]->force_search) {
+        if (Enemy[i]->force_search || game_hard) {
           force_search=TRUE;
           Enemy[i]->force_search=FALSE;
         }
@@ -1859,10 +1906,18 @@ void EnemyAct(int i)
 	          Enemy[i]->bullet_length=0;
 	        }
 	      } else {
-            Enemy[i]->bullet_cooldown--;
+            if (!game_hard) {
+              Enemy[i]->bullet_cooldown--;
+            } else {
+	          Enemy[i]->bullet_cooldown-=10;
+            }
           }
         } else {
-	      Enemy[i]->bullet_fire_cooldown--;
+          if (!game_hard) {
+	        Enemy[i]->bullet_fire_cooldown--;
+          } else {
+	        Enemy[i]->bullet_fire_cooldown-=10;
+          }
         }
       }
 
@@ -2358,6 +2413,7 @@ void InitEnemy()
     Enemy[i]->is_clockwize=FALSE;
     Enemy[i]->play_death_snd=FALSE;
   //init default int 
+    Enemy[i]->last_seen_timer=0;
     Enemy[i]->sprite_timer=0;
     Enemy[i]->idle_timer=0;
     Enemy[i]->search_timer=0;
@@ -2542,7 +2598,14 @@ void DrawEnemy(HDC hdc,HDC hdc2)
 //    sprintf(debug_txt,"%d,%d,[%5.4f| || -%d",Enemy[i]->on_ground_id,Enemy[i]->saved_ground_id/*,print_me,Enemy[i]->angle*/,Enemy[i]->max_edge_angle,Enemy[i]->is_in_ground_edge);
 //    GrPrint(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y-64,debug_txt,WHITE);
 
-    if (/*Enemy[i]->saw_player &&*/ Enemy[i]->within_render_distance) {
+    bool allow_act=FALSE;
+    if (!game_hard) {
+      allow_act=Enemy[i]->within_render_distance;
+    } else {
+      allow_act=(Enemy[i]->within_render_distance && (Enemy[i]->web_stuck || Enemy[i]->last_seen_timer>0));
+    }
+
+    if (allow_act) {
       if (Enemy[i]->health>0 && Enemy[i]->damage_taken_timer>0) {
         //percentage 
         c = LTRED;//Highlight(IsInvertedBackground(),LTRED,LTCYAN);

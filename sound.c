@@ -27,16 +27,13 @@ typedef struct WavSoundEffect
   int16_t* audio;
 } wavSoundEffect;
 
-typedef struct WavSoundEffectCache //for sound whoese volume that needs to be adjustable
+typedef struct WavSoundEffectCache
 {
   int16_t* audio;
 } wavSoundEffectCache;
 
 
-
-
-
-#define SND_THREAD_NUM    7
+#define SND_THREAD_NUM    6
 typedef struct threadSFX
 {
   bool is_cache;
@@ -47,7 +44,6 @@ typedef struct threadSFX
 } AWavChannelSFX;
 
 AWavChannelSFX memSFX[SND_THREAD_NUM];
-WAVEFORMATEX wfx_wav_music;
 
 
 
@@ -63,37 +59,12 @@ void freeSoundEffect(wavSoundEffect* mySoundEffect)
     free(mySoundEffect->audio);
 }
 
+
 void freeSoundEffectCache(wavSoundEffectCache* mySoundEffectCache) 
 {
   if (mySoundEffectCache->audio!=NULL)
     free(mySoundEffectCache->audio);
 }
-
-
-#define SND_MEM_STACK_SIZE  500000
-int16_t SND_MEM_STACK[SND_MEM_STACK_SIZE]; //for adjusting volume because access via heap is finicky!!, 5 megabyte 500k KB Ram allowed max
-HANDLE hMemSndArray[SND_THREAD_NUM];
-bool mem_snd_interrupt[SND_THREAD_NUM]={FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE};
-
-//https://learn.microsoft.com/en-us/windows/win32/multimedia/using-the-waveformatex-structure
-/*WAVEFORMATEX wfx_wav_music = {
-    .wFormatTag = WAVE_FORMAT_PCM,
-    .nChannels = 2, // Stereo
-    .nSamplesPerSec = 44100L, // Sample rate
-    .nAvgBytesPerSec = 176400L, // Sample rate
-    .nBlockAlign = 4,//(wfx1.nChannels * wfx1.wBitsPerSample) / 8,
-    .wBitsPerSample = 16, // 16-bit audio
-    .cbSize = 0
-};*/
-
-
-//Responsible for handling audio async in different threads
-HWAVEOUT hWaveOut[SND_THREAD_NUM];
-WAVEHDR whdr[SND_THREAD_NUM];
-
-//to restore on shutdown (what if crash)?
-double wav_out_volume=0.50;
-DWORD wav_out_original_volume;
 
 
 //void loadSoundEffect(wavSoundEffect* mySoundEffect, const wchar_t* filename,WAVEFORMATEX wfx,bool skip_header)
@@ -127,6 +98,48 @@ void loadSoundEffect(wavSoundEffect* mySoundEffect,const wchar_t* filename,bool 
     mySoundEffect->duration = (double)filesize / ( mySoundEffect->wav_header->SamplesPerSec * mySoundEffect->wav_header->NumOfChan * mySoundEffect->wav_header->bitsPerSample/8) *1000;
   }
 }
+
+
+#define SND_MEM_STACK_SIZE  500000
+int16_t SND_MEM_STACK[SND_MEM_STACK_SIZE]; //for adjusting volume because access via heap is finicky!!, 1 megabyte 100k KB Ram allowed max
+//int mem_snd_play=0;
+HANDLE hMemSndArray[SND_THREAD_NUM];
+//bool mem_snd_playing[SND_THREAD_NUM]={FALSE,FALSE,FALSE};
+//bool mem_snd_stopped[SND_THREAD_NUM]={FALSE,FALSE,FALSE};
+bool mem_snd_interrupt[SND_THREAD_NUM]={FALSE,FALSE,FALSE,FALSE,FALSE,FALSE};
+
+//Custom Audio format
+/*WAVEFORMATEX wfx_wav_sfx = {
+    .wFormatTag = WAVE_FORMAT_PCM,
+    .nChannels = 1, // Mono
+    .nSamplesPerSec = 11025L,//22050L,//11025L, // Sample rate
+    .wBitsPerSample = 16, // 16-bit audio
+    .nBlockAlign = (1 *  16) / 8,
+    .cbSize = 0,
+    .nAvgBytesPerSec = 11025L * (1 *  16) / 8
+};*/
+
+WAVEFORMATEX wfx_wav_music;
+WAVEFORMATEX wfx_wav_sfx_rain;
+//https://learn.microsoft.com/en-us/windows/win32/multimedia/using-the-waveformatex-structure
+/*WAVEFORMATEX wfx_wav_music = {
+    .wFormatTag = WAVE_FORMAT_PCM,
+    .nChannels = 2, // Stereo
+    .nSamplesPerSec = 44100L, // Sample rate
+    .nAvgBytesPerSec = 176400L, // Sample rate
+    .nBlockAlign = 4,//(wfx1.nChannels * wfx1.wBitsPerSample) / 8,
+    .wBitsPerSample = 16, // 16-bit audio
+    .cbSize = 0
+};*/
+
+
+//Responsible for handling audio async in different threads
+HWAVEOUT hWaveOut[SND_THREAD_NUM];
+WAVEHDR whdr[SND_THREAD_NUM];
+
+//to restore on shutdown (what if crash)?
+double wav_out_volume=0.10;
+DWORD wav_out_original_volume;
 
 
 int16_t* adjustSFXVol(const int16_t* src, long filesize, double volumeFactor,bool skipped_header)
@@ -191,6 +204,7 @@ void PlayThreadSound(AWavChannelSFX* myChannelSFX, int id)
       duration--;
       Sleep(1);
     }
+    //free(whdr[id].lpData);
     mem_snd_interrupt[id]=FALSE;
 }
 
@@ -204,6 +218,11 @@ DWORD WINAPI PlayMemSnd1(LPVOID lpParam)
 DWORD WINAPI PlayMemSnd2(LPVOID lpParam)
 {
   PlayThreadSound(&memSFX[1],1);
+}
+
+DWORD WINAPI PlayMemSnd3(LPVOID lpParam)
+{
+  PlayThreadSound(&memSFX[2],2);
 }
 
 
@@ -223,6 +242,7 @@ DWORD WINAPI PlayMemSnd6(LPVOID lpParam)
 {
   PlayThreadSound(&memSFX[5],5);
 }
+
 
 void PlayMemSnd(wavSoundEffect* mySoundEffect,wavSoundEffectCache* mySoundEffectCache,bool play_cache,int thread_id) //thread 0,1,2
 {
@@ -253,9 +273,9 @@ void PlayMemSnd(wavSoundEffect* mySoundEffect,wavSoundEffectCache* mySoundEffect
         case 1:
           hMemSndArray[1] = CreateThread(NULL,0,PlayMemSnd2,NULL,0,NULL);
           break;
-       // case 2:
-         // hMemSndArray[2] = CreateThread(NULL,0,PlayMemSnd3,NULL,0,NULL);
-         // break;
+        case 2:
+          hMemSndArray[2] = CreateThread(NULL,0,PlayMemSnd3,NULL,0,NULL);
+          break;
         case 3:
           hMemSndArray[3] = CreateThread(NULL,0,PlayMemSnd4,NULL,0,NULL);
           break;

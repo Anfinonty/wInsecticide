@@ -59,7 +59,7 @@ void InitLoadLvlSong()
         ResetSongBank();
         song_num=GetSongsInDir(dirname,L"",0);
         swprintf(src_music_dir,64,L"saves/%s/music",level_names[level_chosen]);
-        play_new_song=TRUE;
+        play_new_song/*[0]*/=TRUE;
       }
       _wclosedir(d);
     }
