@@ -274,8 +274,6 @@ void GlobalKeypressDown(WPARAM wParam)
              audioData[gct].sps_offset-=audioData[gct].sps_o/20;
              audioData[gct].awfx_music.nSamplesPerSec=audioData[gct].sps_o+audioData[gct].sps_offset;
              LiveWaveReOpen(gct);
-             BelieveWaveClose();
-             BelieveWaveReOpen(gct);
           }
         } else {
           if (audioData[gct].tempo>1.0) {
@@ -292,8 +290,6 @@ void GlobalKeypressDown(WPARAM wParam)
              audioData[gct].sps_offset+=audioData[gct].sps_o/20;
              audioData[gct].awfx_music.nSamplesPerSec=audioData[gct].sps_o+audioData[gct].sps_offset;
              LiveWaveReOpen(gct);
-             BelieveWaveClose();
-             BelieveWaveReOpen(gct);
           }
         } else {
           if (audioData[gct].tempo<2.0) {
