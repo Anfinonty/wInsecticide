@@ -528,11 +528,7 @@ double RandAngle(int min, int max, int seed) {
 double GetGradient(double x1,double y1,double x2,double y2) 
 {
   // gradient = rise/run, m = (y1-y2)/(x1-x2)
-  double denominator=(x2-x1);
-  if (denominator==0) {
-    return DBL_MAX;
-  }
-  return (y2-y1)/denominator;
+  return (y2-y1)/(x2-x1);
 }
 
 double GetGroundC(double x,double y,double gradient)

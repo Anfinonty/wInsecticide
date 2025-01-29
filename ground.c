@@ -71,7 +71,7 @@ double GetLineTargetHeight(int Ground_id,double E,double x,double y)
 }
 
 
-/*
+
 double GetLineTargetAngleII(int Ground_id,double x,double y)
 {
 
@@ -127,7 +127,7 @@ double GetLineTargetAngleII(int Ground_id,double x,double y)
     }
   }
   return E;
-}*/
+}
 
 
 
@@ -167,11 +167,6 @@ double GetLineTargetHeightII(int Ground_id,double E,double x,double y)
 
 void SetGround(int i)
 {
-  double tmp=Ground[i]->x2;
-  if (Ground[i]->x1>=Ground[i]->x2) {
-    Ground[i]->x2=Ground[i]->x1+0.0001;
-    Ground[i]->x1=tmp;
-  }
   //Set Ground's gradient
   Ground[i]->gradient=GetGradient(
     Ground[i]->x1,
