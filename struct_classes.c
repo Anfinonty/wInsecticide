@@ -1054,10 +1054,12 @@ HBITMAP moon_sprite_cache;
 DRAWSPRITE draw_moon_sprite;
 
 //main menu title
-HBITMAP title_sprite[2];
-HBITMAP title_sprite_mask[2];
-HBITMAP title_small_sprite[2];
-HBITMAP title_small_sprite_mask[2];
+HBITMAP title_sprite;
+HBITMAP title_sprite_mask;
+
+
+HBITMAP title_small_sprite;
+HBITMAP title_small_sprite_mask;
 
 //Khmer main menu
 HBITMAP mm0_kh[4];
@@ -1065,28 +1067,13 @@ HBITMAP mm0_kh_mask[4];
 HBITMAP mm0_kh_green[4];
 HBITMAP mm0_kh_white[4];
 
-HBITMAP mm2_kh[14];
-HBITMAP mm2_kh_mask[14];
-HBITMAP mm2_kh_green[14];
-HBITMAP mm2_kh_white[14];
+HBITMAP mm2_kh[7];
+HBITMAP mm2_kh_mask[7];
+HBITMAP mm2_kh_green[7];
+HBITMAP mm2_kh_white[7];
 
 HBITMAP mm0_kh_hijri[2];
 HBITMAP mm0_kh_hijri_mask[2];
-
-HBITMAP kh_goback;
-HBITMAP kh_goback_mask;
-
-HBITMAP kh_cornmid;
-HBITMAP kh_cornmid_mask;
-HBITMAP kh_cornmid_green;
-HBITMAP kh_cornmid_white;
-
-
-HBITMAP kh_bool[2]; //on/off
-HBITMAP kh_bool_green[2];
-HBITMAP kh_bool_white[2];
-HBITMAP kh_bool_mask[2];
-
 
 
 //Shadow Tile

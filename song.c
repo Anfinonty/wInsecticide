@@ -301,11 +301,11 @@ typedef struct AudioData
   double tempo;
   double volume;
 
+  int16_t sample1[AUDIO_STREAM_BUFFER_SIZE0*5];
+  int16_t sample2[AUDIO_STREAM_BUFFER_SIZE0*5];
   int16_t buffer1[AUDIO_STREAM_BUFFER_SIZE0];
   int16_t buffer2[AUDIO_STREAM_BUFFER_SIZE0];
   int16_t read_buffer[READ_BUFFER_NUM][AUDIO_STREAM_BUFFER_SIZE0];
-  int16_t sample1[AUDIO_STREAM_BUFFER_SIZE0*5];
-  int16_t sample2[AUDIO_STREAM_BUFFER_SIZE0*5];
 } AudioData;
 
 //AudioData audioData[SONG_CHANNEL_NUM];
@@ -365,13 +365,12 @@ void CALLBACK waveOutProc1(HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance, DWORD_
                 if (audioData->play_loop && !audioData->record_loop && audioData->current_filesize>audioData->loop_end) {
                   JumpToBufferLoop(audioData);
                 }
-                audioData->read_filesize+=audioData->read_size;
                 if (audioData->read_filesize<audioData->filesize) {
                   fread(audioData->read_buffer[audioData->queue_read_buffer], sizeof(BYTE), audioData->read_size, audioData->music_file);  
+                  audioData->read_filesize+=audioData->read_size;
                 } else {
                   memset(audioData->read_buffer[audioData->queue_read_buffer],0,sizeof(audioData->read_buffer[audioData->queue_read_buffer]));
                 }
-                //audioData->read_filesize+=audioData->read_size;
                 if (audioData->queue_read_buffer<=18) {audioData->queue_read_buffer++;} else {audioData->queue_read_buffer=0;}
                 //if (audioData->queue_play_buffer>-1 && audioData->queue_play_buffer<READ_BUFFER_NUM) {memcpy(audioData->buffer1,audioData->read_buffer[audioData->queue_play_buffer],audioData->read_size);}
                 if (audioData->queue_play_buffer>-1 && audioData->queue_play_buffer<READ_BUFFER_NUM) {adjustBufferVol(audioData->buffer1,audioData->read_buffer[audioData->queue_play_buffer],audioData->read_size,audioData->volume);}
@@ -387,13 +386,12 @@ void CALLBACK waveOutProc1(HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance, DWORD_
                 if (audioData->play_loop && !audioData->record_loop && audioData->current_filesize>audioData->loop_end) {
                   JumpToBufferLoop(audioData);
                 }
-                audioData->read_filesize+=audioData->read_size;
                 if (audioData->read_filesize<audioData->filesize) {
                   fread(audioData->read_buffer[audioData->queue_read_buffer], sizeof(BYTE), audioData->read_size, audioData->music_file);  
+                  audioData->read_filesize+=audioData->read_size;
                 } else {
                   memset(audioData->read_buffer[audioData->queue_read_buffer],0,sizeof(audioData->read_buffer[audioData->queue_read_buffer]));
                 }
-                //audioData->read_filesize+=audioData->read_size;
                 if (audioData->queue_read_buffer<=18) {audioData->queue_read_buffer++;} else {audioData->queue_read_buffer=0;}                
                 //if (audioData->queue_play_buffer>-1 && audioData->queue_play_buffer<READ_BUFFER_NUM) {memcpy(audioData->buffer2,audioData->read_buffer[audioData->queue_play_buffer],audioData->read_size);}
                 if (audioData->queue_play_buffer>-1 && audioData->queue_play_buffer<READ_BUFFER_NUM) {adjustBufferVol(audioData->buffer2,audioData->read_buffer[audioData->queue_play_buffer],audioData->read_size,audioData->volume);}
@@ -689,6 +687,7 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
                 switch (z) {
                   case 0:LoadBufferSFX(wav_song_playing,0);break;
                   case 1:LoadBufferSFX(wav_song_playing2,1);break;                
+                  break;
                 }
                 time_song_end[z]=song_audio_duration[z];//time_song_start+song_audio_duration[z];//songAudio->duration;
                 loading_flac[z]=FALSE;
@@ -861,6 +860,9 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
       Sleep(6);
 
   } else { //in main menu
+      //persian time update if day change
+      //get_current_time(&current_hour,&current_min,&current_sec);
+
         if (clean_up_sound) {
           for (int i=0;i<MAX_ENEMY_NUM;i++) {
             PlaySound(NULL, NULL, SND_ASYNC);
@@ -904,15 +906,10 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
           clean_up_sound=FALSE;
         }
 
-
-      //persian time update if day change
-      if (show_hijiri) {
-      get_current_time(&current_hour,&current_min,&current_sec);
-        if (current_hour==0 && current_min==0 && current_sec<=1) {//next day
-          int64_t timenow=int64_current_timestamp();
-          PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);
-          PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift);
-        }
+      if (current_hour==0 && current_min==0 && current_sec<=1) {//next day
+        int64_t timenow=int64_current_timestamp();
+        PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);
+        PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift);
       }
 
       Sleep(1000);

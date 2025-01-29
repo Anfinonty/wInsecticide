@@ -750,26 +750,6 @@ void RemoveFolderRecursive(const wchar_t* dirname)
 }
 
 
-bool DirExists(const wchar_t* filename)
-{
-    _WDIR *d = _wopendir(filename);
-
-    if (d) {
-        // Directory exists
-        //printf("Directory exists.\n");
-        _wclosedir(d);
-        return TRUE;
-    } /*else if (ENOENT == errno) {
-        // Directory does not exist
-        printf("Directory does not exist.\n");
-    } else {
-        // opendir() failed for some other reason.
-        printf("Failed to open directory.\n");
-    }*/
-    return FALSE;      
-}
-
-
 
 bool FileExists(const wchar_t* filename)
 {
@@ -900,11 +880,9 @@ double GetBounceAngle(double angle1,double angle2)
   ans=2*M_PI-angle1+2*angle2;
   //if (ans>2*M_PI || ans<0) {
   if (ans>0) {
-    ans=fmod(ans,(4*M_PI));
-  } 
-
-  if (ans<0) {
-    ans=fmod(ans,(-4*M_PI));
+    ans=fmod(ans,(2*M_PI));
+  } else {
+    ans=fmod(ans,(-2*M_PI));
   }
   //}
   /*if (ans<0) {
