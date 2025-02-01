@@ -1101,7 +1101,11 @@ HBITMAP kh_difficulty_green[2];
 HBITMAP kh_difficulty_white[2];
 HBITMAP kh_difficulty_mask[2];
 
+HBITMAP intro_msg[2];
+HBITMAP intro_msg_mask[2];
 
+HBITMAP kh_pressanykey;
+HBITMAP kh_pressanykey_mask;
 
 //Khmer ingame, while playing game
 HBITMAP ga0_kh[5];

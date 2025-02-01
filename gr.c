@@ -217,6 +217,24 @@ int Highlight(bool predicate,int color1, int color2)
   return color1;
 }
 
+RGBQUAD rgbColorsInvert[256];
+void Init8BitRGBColorsInvert(RGBQUAD *rgbColors,RGBQUAD *rgbColorsSrc)
+{
+  int calc;
+  int index_range;
+  for (int i = 0; i < 256; i++) {
+    if (i%15!=0 && i%16!=0) {
+      rgbColors[i].rgbRed = rgbColorsSrc[255-i].rgbRed;
+      rgbColors[i].rgbGreen = rgbColorsSrc[255-i].rgbGreen;
+      rgbColors[i].rgbBlue = rgbColorsSrc[255-i].rgbBlue;
+    } else {
+      rgbColors[i].rgbRed = rgbColorsSrc[i].rgbRed;
+      rgbColors[i].rgbGreen = rgbColorsSrc[i].rgbGreen;
+      rgbColors[i].rgbBlue = rgbColorsSrc[i].rgbBlue;
+    }
+  }
+}
+
 
 
 RGBQUAD rgbColorsNoir[256];
@@ -2025,7 +2043,7 @@ bool InitExtractAVIFrames(const wchar_t* szFileName,int index)
 }
 
 
-DWORD WINAPI AnimateAVI(LPVOID lpArg) {
+/*DWORD WINAPI AnimateAVI(LPVOID lpArg) {
   while (TRUE) {
     //https://www.vbforums.com/showthread.php?604246-AVIStreamGetFrameOpen-AVIStreamGetFrameClose-memory-leak
     //https://forum.doom9.org/showthread.php?t=100297
@@ -2042,24 +2060,10 @@ DWORD WINAPI AnimateAVI(LPVOID lpArg) {
 
     //30 frames = 1000ms
     //1frame = 1000/30 = 33.33333333333
-      if (in_main_menu) {
-        BYTE* pDIB = (BYTE*) AVIStreamGetFrame(pFrame, global_frames);
-        if (global_frames%2!=0) {
-          DeleteObject(global_avi_bitmap2);
-          global_avi_bitmap2=CreateFromPackedDIBPointer2(pDIB); //set up and draw even
-        } else {
-          DeleteObject(global_avi_bitmap1);
-          global_avi_bitmap1=CreateFromPackedDIBPointer2(pDIB); //set up and draw odd
-        }
-
-        global_frames++;
-        if (global_frames>=iNumFrames)
-          global_frames=0;
-
-        Sleep(33);
+      if (prelude) {
       } else {
         Sleep(1000); //standby
       }
   }
-}
+}*/
 

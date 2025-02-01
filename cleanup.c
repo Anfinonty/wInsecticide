@@ -480,6 +480,7 @@ void CleanupAll()
 
     DeleteObject(map_background_sprite);
     //LoadMainMenuBackground();
+    flag_update_background=TRUE;
 
     back_to_menu=FALSE;
     run_after_once=FALSE;

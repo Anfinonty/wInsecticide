@@ -1837,7 +1837,7 @@ void EnemyAct(int i)
           Enemy[i]->force_search=FALSE;
         }
 
-        if ((!Enemy[i]->ignore_player /*&&  //not ignore & within range
+        if ((!Enemy[i]->ignore_player && !Enemy[i]->web_stuck/*&&  //not ignore & within range
              Enemy[i]->dist_from_player<Enemy[i]->follow_range/2*NODE_SIZE*/
             )
            ) {

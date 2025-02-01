@@ -8,9 +8,6 @@ void DrawBackground(HDC hdc,HDC hdc2)
     case 0:
       DrawBitmap(hdc,hdc2,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
       break;
-    case 1:
-      DrawBitmap(hdc,hdc2,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
-      break;
     default:
       if (map_background_sprite==NULL) {
         GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,custom_map_background_color);
