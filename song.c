@@ -642,7 +642,27 @@ void LoadBufferSFX(const wchar_t* filename, int z)
 
 
 
+void InterruptAllSnd()
+{
+  for (int i=0;i<MAX_ENEMY_NUM;i++) {
+    PlaySound(NULL, NULL, SND_ASYNC);
+  }
 
+  waveOutReset(hWaveOut[0]);
+  mem_snd_interrupt[0]=TRUE;
+
+  waveOutReset(hWaveOut[1]);
+  mem_snd_interrupt[1]=TRUE;
+
+  waveOutReset(hWaveOut[3]);
+  mem_snd_interrupt[3]=TRUE;
+
+  waveOutReset(hWaveOut[4]);
+  mem_snd_interrupt[4]=TRUE;
+
+  waveOutReset(hWaveOut[5]);
+  mem_snd_interrupt[5]=TRUE;
+}
 
 
 DWORD WINAPI SoundTask(LPVOID lpArg) {
@@ -863,25 +883,13 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
 
   } else { //in main menu
         if (clean_up_sound) {
-          for (int i=0;i<MAX_ENEMY_NUM;i++) {
-            PlaySound(NULL, NULL, SND_ASYNC);
+          /*for (int i=0;i<SPAM_SFX_NUM;i++) {
+            freeSoundEffectCache(&spamSoundEffectCache[i]);
           }
-
-          waveOutReset(hWaveOut[0]);
-          mem_snd_interrupt[0]=TRUE;
-
-          waveOutReset(hWaveOut[1]);
-          mem_snd_interrupt[1]=TRUE;
-
-          waveOutReset(hWaveOut[3]);
-          mem_snd_interrupt[3]=TRUE;
-
-          waveOutReset(hWaveOut[4]);
-          mem_snd_interrupt[4]=TRUE;
-
-          waveOutReset(hWaveOut[5]);
-          mem_snd_interrupt[5]=TRUE;
-
+          for (int i=0;i<CHANNEL_SFX_NUM;i++) {
+            freeSoundEffectCache(&channelSoundEffectCache[i]);
+          }*/
+          InterruptAllSnd();
           if (lvl_has_song) {
             //play new music
               call_help_timer=0;
@@ -894,16 +902,9 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
               play_new_song[0]=TRUE;
               play_new_song[1]=TRUE;
           }
-
-
-          for (int i=0;i<SPAM_SFX_NUM;i++) {
-            freeSoundEffectCache(&spamSoundEffectCache[i]);
-          }
-          for (int i=0;i<CHANNEL_SFX_NUM;i++) {
-            freeSoundEffectCache(&channelSoundEffectCache[i]);
-          }
           clean_up_sound=FALSE;
-        }
+        } /*else {
+        }*/
 
 
       //persian time update if day change
@@ -915,7 +916,6 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
           PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift);
         }
       }
-
       Sleep(1000);
     }
   } //end of while loop

@@ -1087,10 +1087,10 @@ void CleanupMapEditorAll()
     free(render_grounds);
 
     //CleanUpPlayer(); //clean up all sprites
-    if (player.sprite_1_cache!=NULL) { //clean up 1 sprite
+    /*if (player.sprite_1_cache!=NULL) { //clean up 1 sprite
       DeleteObject(player.sprite_1_cache);
       FreeDrawSprite(&player.draw_sprite_1);
-    }
+    }*/
 
     CleanUpMEEnemySprites();
     CleanupPlayerAttributes();

@@ -163,7 +163,7 @@ void CleanUpGrid()
     VGrid[i]->y2=-20;
   }*/
   bool yes_shadow=FALSE;
-  if (is_shadows && game_shadow) {
+  if (is_shadows /*&& game_shadow*/) {
     yes_shadow=TRUE;
   }
   if (PLATFORM_GRID_NUM>0) {
@@ -362,11 +362,11 @@ void CleanupPlayerAttributes()
 
 
 
-void CleanupAll()
+void CleanupAll(bool btm)
 {
     level_loaded=FALSE;
     //InitBullet(BULLET_NUM);
-    CleanUpPlayer(); //clean up all sprites
+    CleanUpPlayerSprites(); //clean up all sprites
     CleanUpEnemySprites();
     CleanUpRotatedSprites();
     CleanUpGrid();
@@ -374,7 +374,7 @@ void CleanupAll()
     //CleanUpEnemy();
     //CleanUpGround();
     CleanupPlayerAttributes();
-    save_level[0]='\0';
+    //save_level[0]='\0';
     call_help_timer=0;
 
 
@@ -480,11 +480,13 @@ void CleanupAll()
 
     DeleteObject(map_background_sprite);
     //LoadMainMenuBackground();
-    flag_update_background=TRUE;
 
     back_to_menu=FALSE;
     run_after_once=FALSE;
-    in_main_menu=TRUE;
-    clean_up_sound=TRUE;
+    if (btm) {
+      flag_update_background=TRUE;
+      in_main_menu=TRUE;
+      clean_up_sound=TRUE;
+    }
     run_once_only=FALSE;
 }

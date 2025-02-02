@@ -18,6 +18,7 @@ bool keydownalt()
 
 void KeyChangePlayerColor() 
 {
+     bool c=FALSE;
      //LIVE change color of player
      if (old_player_color!=player_color) { //change when not same
        for (int i=0;i<16;i++) {
@@ -27,6 +28,7 @@ void KeyChangePlayerColor()
          GenerateDrawSprite(&draw_player_cursor_body[i],player_cursor_body[i]);
        }
        old_player_color=player_color;
+       c=TRUE;
      }
 
 
@@ -38,6 +40,7 @@ void KeyChangePlayerColor()
          GenerateDrawSprite(&draw_player_cursor_iris[i],player_cursor_iris[i]);
        }
        old_player_iris_color=player_iris_color;
+       c=TRUE;
      }
 
      if (old_player_pupil_color!=player_pupil_color) {
@@ -54,6 +57,16 @@ void KeyChangePlayerColor()
 
        old_player_pupil_color=player_pupil_color;
      }
+
+     if (c) {
+       CleanUpPlayerSprites();
+       player.saved_sprite_angle=player.sprite_angle+0.001;
+       //player.sprite_angle=0;
+       player_load_iris_color=player_iris_color;
+       player_load_color=
+       player.load_color=player_color;
+       InitPlayerSprites();
+    }
 }
 
 void TaskbarChangeAct(HWND hwnd)
@@ -577,7 +590,131 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
 }
 
 
+void MMKeypressDown(WPARAM wParam)
+{
+    switch (wParam) {
+    //Holding Down Down Arrow or 'S'
+      case 'S':
+        if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+          if (player.print_current_above && !player.phase_web2) {
+            player.phase_web=TRUE;
+          }
+          if (player.print_current_below && !player.phase_web) {
+            player.phase_web2=TRUE;
+          }
+        } else {
+          player.rst_down=TRUE;
+        }
+        player.rst_up=FALSE;
+        break;
 
+
+      /*case VK_DOWN:
+        player.rst_arrow_down=TRUE;
+        break;*/
+
+
+    //Holding Down Right Arrow or 'D'
+      case 'D':
+        player.rst_left=FALSE;
+        player.phase_web=FALSE;
+        player.phase_web2=FALSE;
+        player.rst_right=TRUE;        
+        break;
+
+      /*case VK_RIGHT:
+        player.rst_arrow_right=TRUE;
+        break;*/
+
+
+    //Holding Down Left Arrow or 'A'
+      case 'A':
+        player.rst_right=FALSE;
+        player.phase_web=FALSE;
+        player.phase_web2=FALSE;
+        player.rst_left=TRUE;
+        break;
+
+
+      /*case VK_LEFT:
+        player.rst_arrow_left=TRUE;
+        break;*/
+
+
+    //Holding Down Up Arrow or 'W''
+      case 'W':
+        if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+          if (player.print_current_below && !player.phase_web) {
+            player.phase_web2=TRUE;
+          }
+          if (player.print_current_above && !player.phase_web2) {
+            player.phase_web=TRUE;
+          }
+        } else {
+          player.rst_up=TRUE;
+        }
+        player.rst_down=FALSE;
+        break;
+
+      /*case VK_UP:
+        player.rst_arrow_up=TRUE;
+        break;*/
+  }
+}
+
+
+
+void MMKeypressUp(WPARAM wParam)
+{
+    switch (wParam) {
+
+
+      //Release Q key
+      case 'Q':
+        player.destroy_ground=TRUE;
+        break;
+
+    //Release S or Down key
+      case 'S':
+        player.rst_down=FALSE;
+        player.phase_web=FALSE;
+        player.phase_web2=FALSE;
+        break;
+
+      /*case VK_DOWN:
+        player.rst_arrow_down=FALSE;
+        break;*/
+
+    //Release D or Right key
+      case 'D':
+        player.rst_right=FALSE;
+        break;
+
+      /*case VK_RIGHT:
+        player.rst_arrow_right=FALSE;
+        break;*/
+
+
+    //Release A or Left key
+      case 'A':
+        player.rst_left=FALSE;
+        break;
+      /*case VK_LEFT:
+        player.rst_arrow_left=FALSE;
+        break;*/
+
+    //Release W or Up key
+      case 'W':
+        player.rst_up=FALSE;
+        player.phase_web=FALSE;
+        player.phase_web2=FALSE;
+        break;
+
+      /*case VK_UP:
+        player.rst_arrow_up=FALSE;
+        break;*/
+    }
+}
 
 
 void GameKeypressDown(WPARAM wParam)
@@ -1189,11 +1326,12 @@ void OptionKeyPressRelease1()
 
    //adjust volume
    if (old_game_volume!=game_volume) {
+      CleanupGameAudio();
+      AdjustGameAudio();
       for (int i=0;i<KEY_SFX_NUM;i++) {
         freeSoundEffectCache(&keySoundEffectCache[i]);
       }
       for (int i=0;i<KEY_SFX_NUM;i++) {
-        //keySoundEffectCache[i].audio=adjustVolumeA(keySoundEffect[i].audio,keySoundEffect[i].filesize,game_volume);
         adjustSFXVolume(&keySoundEffectCache[i],&keySoundEffect[i],game_volume,FALSE);
       }
 
@@ -1214,11 +1352,12 @@ void OptionKeyPressRelease2()
 {
      //LIVE adjust volume
      if (old_game_volume!=game_volume) { //change when not the same
+        CleanupGameAudio();
+        AdjustGameAudio();
          for (int i=0;i<KEY_SFX_NUM;i++) {
            freeSoundEffectCache(&keySoundEffectCache[i]);
          }
         for (int i=0;i<KEY_SFX_NUM;i++) {
-          //keySoundEffectCache[i].audio=adjustVolumeA(keySoundEffect[i].audio,keySoundEffect[i].filesize,game_volume);
          adjustSFXVolume(&keySoundEffectCache[i],&keySoundEffect[i],game_volume,FALSE);
         }
 
@@ -1236,7 +1375,7 @@ void OptionsKeypressDown(HWND hwnd, WPARAM wParam)
 {
     switch (wParam) {
     //Holding Down Up Arrow or 'W''
-      case 'W':
+      //case 'W':
       case VK_UP:
         option_choose=LimitValue(option_choose-1,0,GAME_OPTIONS_NUM);
         if (option_choose==6) { //skip sound
@@ -1248,7 +1387,7 @@ void OptionsKeypressDown(HWND hwnd, WPARAM wParam)
 
 
     //Holding Down Down Arrow or 'S'
-       case 'S':
+       //case 'S':
        case VK_DOWN:
          option_choose=LimitValue(option_choose+1,0,GAME_OPTIONS_NUM);
         if (option_choose==6) {
@@ -1260,14 +1399,14 @@ void OptionsKeypressDown(HWND hwnd, WPARAM wParam)
 
 
     //Holding Down Right Arrow or 'D'
-       case 'D':
+       //case 'D':
        case VK_RIGHT:
           OptionKeyPressRight(hwnd,option_choose);
           break;
 
 
     //Holding Down Left Arrow or 'A'
-      case 'A':
+      //case 'A':
       case VK_LEFT:
         OptionKeyPressLeft(hwnd,option_choose);
         break;
@@ -1309,9 +1448,9 @@ void OptionsKeypressUp(WPARAM wParam)
            OptionKeyPressRelease1();
          }
          break;
-       case 'A':    //Release LEFT key
+       //case 'A':    //Release LEFT key
        case VK_LEFT:
-       case 'D':    //Release RIGHT key
+       //case 'D':    //Release RIGHT key
        case VK_RIGHT:
          OptionKeyPressRelease2();
          break;
@@ -1332,7 +1471,7 @@ void MinusOneMenuKeypressDown(WPARAM wParam)
   //Holding Down Shift && Escape
   switch (wParam) {
   //Holding Down Down Arrow or 'S'
-   case 'S':
+   //case 'S':
    case VK_DOWN:
      select_main_menu=LimitValue(select_main_menu+1,0,4);
      if (game_audio)
@@ -1340,7 +1479,7 @@ void MinusOneMenuKeypressDown(WPARAM wParam)
      break;
 
   //Holding Down Up Arrow or 'W''
-   case 'W':
+   //case 'W':
    case VK_UP:
      //level_chosen=LimitValue(level_chosen-1,0,level_num);
      select_main_menu=LimitValue(select_main_menu-1,0,4);
@@ -1397,7 +1536,7 @@ void ZeroMenuKeypressDown( HWND hwnd,  HDC hdc, WPARAM wParam)
 {
      switch (wParam) {
       //Holding Down Down Arrow or 'S'
-       case 'S':
+       //case 'S':
        case VK_DOWN:
          level_chosen=LimitValue(level_chosen+1,0,level_num);
          if (game_audio)
@@ -1406,7 +1545,7 @@ void ZeroMenuKeypressDown( HWND hwnd,  HDC hdc, WPARAM wParam)
          break;
 
       //Holding Down Up Arrow or 'W''
-       case 'W':
+       //case 'W':
        case VK_UP:
          level_chosen=LimitValue(level_chosen-1,0,level_num);
          if (game_audio)
@@ -1416,15 +1555,12 @@ void ZeroMenuKeypressDown( HWND hwnd,  HDC hdc, WPARAM wParam)
 
       //Holding down ENTER key
        case VK_RETURN:
-         if (player_color>-1 && player_color<256) {         
+         if (player_color>-1 && player_color<256 && level_loaded) {         
            if (game_audio)
              PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
            if (level_chosen>=0 && level_chosen<level_num && main_menu_chosen==0) {
+             CleanupAll(FALSE);
              flag_load_level=TRUE;
-             //level_loading=TRUE;
-             //Sleep(1000);
-             //InitLevel(hwnd, hdc,FALSE);
-             //InitLevel();
            }
          }
          break;
@@ -1458,6 +1594,7 @@ void ZeroMenuKeypressUp( HWND hwnd,  HDC hdc, WPARAM wParam)
         main_menu_chosen=3;
         /*LOAD selected level details to adjust limits*/
         wchar_t txt[128];
+        CleanupAll(FALSE);
         swprintf(txt,128,L"saves/%s/level.txt",level_names[level_chosen]);
         LoadSave(txt,FALSE); //load saves
 
@@ -1473,14 +1610,16 @@ void ZeroMenuKeypressUp( HWND hwnd,  HDC hdc, WPARAM wParam)
           PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
         }
         break;
+
+
       case '3': //Build Selected Level
         if (player_color>-1 && player_color<256)
         {
           main_menu_chosen=4;
           if (game_audio)
             PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
+          CleanupAll(FALSE);
           flag_load_melevel=TRUE;
-          //InitLevelMapEditor();
         }
         break;
     }
@@ -1493,7 +1632,7 @@ void TwoMenuKeypressDown(WPARAM wParam)
 {
   switch (wParam) {
   //Holding Down Down Arrow or 'S'
-    case 'S':
+    //case 'S':
     case VK_DOWN:
        if ((wParam=='S' && create_lvl_option_choose>0) || wParam==VK_DOWN) {
          create_lvl_option_choose=LimitValue(create_lvl_option_choose+1,0,5);
@@ -1503,7 +1642,7 @@ void TwoMenuKeypressDown(WPARAM wParam)
        break;
 
   //Holding Down Up Arrow or 'W''
-    case 'W':
+    //case 'W':
     case VK_UP:
      //level_chosen=LimitValue(level_chosen-1,0,level_num);
       if ((wParam=='W' && create_lvl_option_choose>0) || wParam==VK_UP) {
@@ -1513,9 +1652,9 @@ void TwoMenuKeypressDown(WPARAM wParam)
       }
       break;
 
-    case 'A':
+    //case 'A':
     case VK_LEFT:
-      if ((wParam=='A' && create_lvl_option_choose>0) || wParam==VK_LEFT) {
+      //if ((wParam=='A' && create_lvl_option_choose>0) || wParam==VK_LEFT) {
         switch (create_lvl_option_choose) {
           case 1: //Max Ground Num Decrease --
             set_ground_amount=LimitValue(set_ground_amount-10,10,MAX_GROUND_NUM+1);
@@ -1534,13 +1673,13 @@ void TwoMenuKeypressDown(WPARAM wParam)
           if (game_audio)
             PlaySound(keySoundEffectCache[2].audio, NULL, SND_MEMORY | SND_ASYNC); //false
         }
-      }
+      //}
       break;
 
 
-    case 'D':
+    //case 'D':
     case VK_RIGHT:
-      if ((wParam=='D' && create_lvl_option_choose>0) || wParam==VK_RIGHT) {
+      //if ((wParam=='D' && create_lvl_option_choose>0) || wParam==VK_RIGHT) {
         switch (create_lvl_option_choose) {
           case 1: //Max Ground Num Increase ++
             set_ground_amount=LimitValue(set_ground_amount+10,10,MAX_GROUND_NUM+1);
@@ -1559,7 +1698,7 @@ void TwoMenuKeypressDown(WPARAM wParam)
           if (game_audio)
             PlaySound(keySoundEffectCache[2].audio, NULL, SND_MEMORY | SND_ASYNC); //false
         }
-      }
+      //}
       break;
   }
 }
@@ -1669,8 +1808,8 @@ void TwoMenuKeypressUp(WPARAM wParam)
         main_menu_chosen=0;
         if (game_audio)
           PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
-        }
-        break;
+      }
+      break;
 
     case VK_RETURN: //Create New Levels
     {
@@ -1728,46 +1867,45 @@ void ThreeMenuKeypressUp(WPARAM wParam, HWND hwnd, HDC hdc)
   switch (wParam) {
     case VK_ESCAPE:
       if ((keydown(VK_LSHIFT) || keydown(VK_RSHIFT))) { //ESC + L/RSHIFT = QUIT
-        if (game_audio)
-          PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
+            if (game_audio)
+              PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
 
-        main_menu_chosen=0;
-
-
-        //free saved grounds pointer & Ground
-        free(saved_ground_is_ghost);
-        free(saved_ground_color);
-        free(saved_ground_type);
-
-        //free enemy
-        free(saved_enemy_type);
-        free(saved_enemy_x);
-        free(saved_enemy_y);
+            main_menu_chosen=0;
 
 
-        free(saved_ground_x1);
-        free(saved_ground_y1);
-        free(saved_ground_x2);
-        free(saved_ground_y2);
-        free(saved_ground_x3);
-        free(saved_ground_y3);
-        for (int i=0;i<GROUND_NUM;i++) {
-          free(saved_ground_text[i]);
-        }
-        free(saved_ground_text);
+            //free saved grounds pointer & Ground
+            free(saved_ground_is_ghost);
+            free(saved_ground_color);
+            free(saved_ground_type);
+
+            //free enemy
+            free(saved_enemy_type);
+            free(saved_enemy_x);
+            free(saved_enemy_y);
 
 
+            free(saved_ground_x1);
+            free(saved_ground_y1);
+            free(saved_ground_x2);
+            free(saved_ground_y2);
+            free(saved_ground_x3);
+            free(saved_ground_y3);
+            for (int i=0;i<GROUND_NUM;i++) {
+              free(saved_ground_text[i]);
+            }
+            free(saved_ground_text);
 
+            typing_lvl_name_pos=0;
+            for (int i=0;i<16;i++)
+              typing_lvl_name[i]=0;
 
-        typing_lvl_name_pos=0;
-        for (int i=0;i<16;i++)
-          typing_lvl_name[i]=0;
+            set_ground_amount=10;
+            set_enemy_amount=1;
+            set_map_width_amount=640;
+            set_map_height_amount=480;
 
-        set_ground_amount=10;
-        set_enemy_amount=1;
-        set_map_width_amount=640;
-        set_map_height_amount=480;
-
+            flag_update_background=TRUE;
+            InitLevel(FALSE);
         }
         break;
 
@@ -1813,6 +1951,9 @@ void ThreeMenuKeypressUp(WPARAM wParam, HWND hwnd, HDC hdc)
         set_map_height_amount=480;
         
         main_menu_chosen=0;
+
+        flag_update_background=TRUE;
+        InitLevel(FALSE);
       }
     }
     break;

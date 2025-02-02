@@ -656,6 +656,31 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
   if (wav_mode==0) {
     //DrawMovingAVI(hdc,hdc2);
     DrawBitmap(hdc,hdc2,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
+    //if (!hide_mm) {
+      if (GR_WIDTH>=800) {
+        DrawSprite(hdc, hdc2,GR_WIDTH-128,160,&draw_moon_sprite,FALSE);
+      }
+    //}
+    if (level_loaded) {
+      DrawPlatforms(hdc,hdc2);
+      DrawWebs(hdc);
+      DrawEnemy(hdc,hdc2);
+      DrawPlayer(hdc,hdc2);
+      if (has_water) {
+        DrawWaterPlatforms(hdc,hdc2);
+      }
+      if (is_shadows && game_shadow) {
+        DrawShadows(hdc,hdc2);
+      }
+
+      DrawWaterShader(hdc,hdc2);
+      if (is_raining) {
+        DrawRain(hdc);
+        if (!player.in_water) {
+          DrawRainShader(hdc,hdc2);
+        }
+      }
+    }
   } else {
     DrawMusicWav(hdc);
   }
@@ -672,9 +697,6 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
   if (!hide_mm) {
   //Draw Moon Phase
   //GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
-  if (GR_WIDTH>=800) {
-    DrawSprite(hdc, hdc2,GR_WIDTH-128,160,&draw_moon_sprite,FALSE);
-  }
 
   DrawTitle(hdc,hdc2);
 

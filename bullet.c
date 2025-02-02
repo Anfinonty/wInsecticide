@@ -376,7 +376,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
 //^^ condition
     if (allow_act) {
       if (hit_player) {
-        if (Enemy[enemy_id]->health>0) {
+        if (Enemy[enemy_id]->health>0 && !in_main_menu) {
           BulletDamagePlayerAct(bullet_id);
         }
       //End of Hit Player======

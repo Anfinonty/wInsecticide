@@ -688,14 +688,12 @@ void EnemyKnockbackMove(int i,int ground_id) //now with bouncing
 void EnemySndAct(int i)
 {
   if (Enemy[i]->play_death_snd && !back_to_menu) {
-    /*wchar_t sndid[16];
-    swprintf(sndid,16,L"bk_%d",i);
-    PlaySnd(L"snd/clang_death.wav",sndid);*/
-    //PlayMemSnd(cdeath_mem_audio_cache,cdeath_mem_audio_filesize,cdeath_mem_audio_duration,0);
     PlayMemSnd(&channelSoundEffect[1],&channelSoundEffectCache[1],TRUE,0); 
     Enemy[i]->play_death_snd=FALSE;
   }
 }
+
+
 
 int EnemyActDazzle(int i, int slash_t) 
 {
@@ -2585,6 +2583,9 @@ void DrawEnemy(HDC hdc,HDC hdc2)
 
       Enemy[i]->play_death_snd=TRUE;
       Enemy[i]->health=-99999;
+      if (in_main_menu) {
+        PlayMemSnd(&channelSoundEffect[1],&channelSoundEffectCache[1],TRUE,0); 
+      }
     }
 
 

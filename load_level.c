@@ -1,17 +1,38 @@
 
 
-void InitOnce() {
-  GR_WIDTH=SCREEN_WIDTH;
-  GR_HEIGHT=SCREEN_HEIGHT;
 
-  player.cam_move_x=0;
-  player.cam_move_y=0;
+void CleanupGameAudio()
+{
+  for (int i=0;i<MAX_ENEMY_NUM;i++) {
+    PlaySound(NULL, NULL, SND_ASYNC);
+  }
 
-  player_load_color=player_color;
-  player_load_iris_color=player_iris_color;
-  player_load_pupil_color=player_pupil_color;
-  player_bullet_color=WHITE;
+  waveOutReset(hWaveOut[0]);
+  mem_snd_interrupt[0]=TRUE;
 
+  waveOutReset(hWaveOut[1]);
+  mem_snd_interrupt[1]=TRUE;
+
+  waveOutReset(hWaveOut[3]);
+  mem_snd_interrupt[3]=TRUE;
+
+  waveOutReset(hWaveOut[4]);
+  mem_snd_interrupt[4]=TRUE;
+
+  waveOutReset(hWaveOut[5]);
+  mem_snd_interrupt[5]=TRUE;
+
+  for (int i=0;i<SPAM_SFX_NUM;i++) {
+    freeSoundEffectCache(&spamSoundEffectCache[i]);
+  }
+  for (int i=0;i<CHANNEL_SFX_NUM;i++) {
+    freeSoundEffectCache(&channelSoundEffectCache[i]);
+  }
+}
+
+
+void AdjustGameAudio()
+{
   adjustSFXVolume(&spamSoundEffectCache[0],&spamSoundEffect[0],game_volume/4,FALSE); //start
   adjustSFXVolume(&spamSoundEffectCache[1],&spamSoundEffect[1],game_volume/4,FALSE); //stop
   adjustSFXVolume(&spamSoundEffectCache[2],&spamSoundEffect[2],game_volume/4,FALSE); //enemy hurt
@@ -22,8 +43,6 @@ void InitOnce() {
   adjustSFXVolume(&spamSoundEffectCache[6],&spamSoundEffect[6],game_volume/30,FALSE);//enemy block
   adjustSFXVolume(&spamSoundEffectCache[7],&spamSoundEffect[7],game_volume,FALSE); //clang
   adjustSFXVolume(&spamSoundEffectCache[8],&spamSoundEffect[8],game_volume/3,FALSE); //powerup
-  //adjustSFXVolume(&spamSoundEffectCache[9],&spamSoundEffect[9],game_volume/3,FALSE); //powerup
-
 
   adjustSFXVolume(&channelSoundEffectCache[0],&channelSoundEffect[0],game_volume/3,TRUE); //speed
   adjustSFXVolume(&channelSoundEffectCache[1],&channelSoundEffect[1],game_volume/2+game_volume/10,TRUE); //death //clang_death
@@ -38,7 +57,21 @@ void InitOnce() {
   adjustSFXVolume(&channelSoundEffectCache[10],&channelSoundEffect[10],game_volume,TRUE); //load 3 knife
   adjustSFXVolume(&channelSoundEffectCache[11],&channelSoundEffect[11],game_volume,TRUE); //load gun
   adjustSFXVolume(&channelSoundEffectCache[12],&channelSoundEffect[12],game_volume,TRUE); //gun empty
+}
 
+
+
+void InitOnce(bool load_audio) {
+  GR_WIDTH=SCREEN_WIDTH;
+  GR_HEIGHT=SCREEN_HEIGHT;
+
+  player.cam_move_x=0;
+  player.cam_move_y=0;
+
+  player_load_color=player_color;
+  player_load_iris_color=player_iris_color;
+  player_load_pupil_color=player_pupil_color;
+  player_bullet_color=WHITE;
 }
 
 
@@ -253,15 +286,23 @@ void Init() {
 
 
 
-void InitLevel()
+void InitLevel(bool load_lvl)
 {
   wchar_t txt[128];
+  wchar_t lvl_name[128];
   level_loading=TRUE;
   loading_numerator=0;
   loading_denominator=0;
 
-  swprintf(txt,128,L"saves/%s/level.txt",level_names[level_chosen]);
-  swprintf(save_level,128,L"saves/%s/scores.txt",level_names[level_chosen]);
+  if (load_lvl) {
+    swprintf(lvl_name,128,L"%s",level_names[level_chosen]);    
+    swprintf(txt,128,L"saves/%s/level.txt",level_names[level_chosen]);
+    swprintf(save_level,128,L"saves/%s/scores.txt",level_names[level_chosen]);
+  } else {
+    swprintf(lvl_name,128,L"mm_demo2");    
+    swprintf(txt,128,L"saves/mm_demo2/level.txt");
+    swprintf(save_level,128,L"saves/mm_demo2/scores.txt");
+  }
   LoadSave(txt,TRUE);
   OLD_GR_WIDTH=0;
   OLD_GR_HEIGHT=0;
@@ -271,104 +312,42 @@ void InitLevel()
   timeBeginPeriod(1);
 
 
-  InitOnce();//cannot be repeatedly run
+  InitOnce(load_lvl);//cannot be repeatedly run
   Init();
 
 
 
   //Load Player Cosmetics
-  CleanUpPlayer();
-
-
-  player.sprite_1 = RotateSprite(NULL, player.osprite_1,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
-  player.sprite_2 = RotateSprite(NULL, player.osprite_2,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
-  player.sprite_jump = RotateSprite(NULL, player.osprite_jump,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
-
-  player.attack_sprite_1 = RotateSprite(NULL, player.oattack_sprite_1,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
-  player.attack_sprite_2 = RotateSprite(NULL, player.oattack_sprite_2,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
-  player.attack_sprite_3 = RotateSprite(NULL, player.oattack_sprite_3,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
-  player.attack_sprite_4 = RotateSprite(NULL, player.oattack_sprite_4,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
-
-  player.block_sprite_1 = RotateSprite(NULL, player.oblock_sprite_1,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
-  player.block_sprite_2 = RotateSprite(NULL, player.oblock_sprite_2,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
-  player.block_sprite_3 = RotateSprite(NULL, player.oblock_sprite_3,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
-
-  player.spin_sprite = RotateSprite(NULL, player.ospin_sprite,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
-
-
-  //Load Player Sprites
-  player.sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
-  player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
-  player.sprite_2_cache = RotateSprite(NULL, player.sprite_2,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
-
-  player.attack_sprite_1_cache = RotateSprite(NULL, player.attack_sprite_1,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
-  player.attack_sprite_2_cache = RotateSprite(NULL, player.attack_sprite_2,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
-  player.attack_sprite_3_cache = RotateSprite(NULL, player.attack_sprite_3,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
-  player.attack_sprite_4_cache = RotateSprite(NULL, player.attack_sprite_4,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
-
-  player.block_sprite_1_cache = RotateSprite(NULL, player.block_sprite_1,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
-  player.block_sprite_2_cache = RotateSprite(NULL, player.block_sprite_2,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
-  player.block_sprite_3_cache = RotateSprite(NULL, player.block_sprite_3,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
-
-  player.spin_sprite_1_cache = RotateSprite(NULL, player.spin_sprite,0.1,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
-  player.spin_sprite_2_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI_2,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
-  player.spin_sprite_3_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
-  player.spin_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
-
-
-
-
-  player.blur_sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],TRANSPARENT);
-
-  player.spin_blur_sprite_1_cache = RotateSprite(NULL, player.spin_sprite,0.1,LTGREEN,BLACK,rgbPaint[player_load_color],TRANSPARENT);
-  player.spin_blur_sprite_2_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI_2,LTGREEN,BLACK,rgbPaint[player_load_color],TRANSPARENT);
-  player.spin_blur_sprite_3_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI,LTGREEN,BLACK,rgbPaint[player_load_color],TRANSPARENT);
-  player.spin_blur_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,BLACK,rgbPaint[player_load_color],TRANSPARENT);
-
-
-  GenerateDrawSprite(&player.draw_sprite_jump,player.sprite_jump_cache);
-
-  GenerateDrawSprite(&player.draw_sprite_1,player.sprite_1_cache);
-  GenerateDrawSprite(&player.draw_sprite_2,player.sprite_2_cache);
-
-  GenerateDrawSprite(&player.draw_attack_sprite_1,player.attack_sprite_1_cache);
-  GenerateDrawSprite(&player.draw_attack_sprite_2,player.attack_sprite_2_cache);
-  GenerateDrawSprite(&player.draw_attack_sprite_3,player.attack_sprite_3_cache); 
-  GenerateDrawSprite(&player.draw_attack_sprite_4,player.attack_sprite_4_cache);
-
-  GenerateDrawSprite(&player.draw_block_sprite_1,player.block_sprite_1_cache);
-  GenerateDrawSprite(&player.draw_block_sprite_2,player.block_sprite_2_cache);
-  GenerateDrawSprite(&player.draw_block_sprite_3,player.block_sprite_3_cache);
-
-  GenerateDrawSprite(&player.draw_spin_sprite_1,player.spin_sprite_1_cache);
-  GenerateDrawSprite(&player.draw_spin_sprite_2,player.spin_sprite_2_cache);
-  GenerateDrawSprite(&player.draw_spin_sprite_3,player.spin_sprite_3_cache);
-  GenerateDrawSprite(&player.draw_spin_sprite_4,player.spin_sprite_4_cache);
-
-
-  GenerateDrawSprite(&player.draw_blur_sprite_jump,player.blur_sprite_jump_cache);
-  GenerateDrawSprite(&player.draw_spin_blur_sprite_1,player.spin_blur_sprite_1_cache);
-  GenerateDrawSprite(&player.draw_spin_blur_sprite_2,player.spin_blur_sprite_2_cache);
-  GenerateDrawSprite(&player.draw_spin_blur_sprite_3,player.spin_blur_sprite_3_cache);
-  GenerateDrawSprite(&player.draw_spin_blur_sprite_4,player.spin_blur_sprite_4_cache);
+  CleanUpPlayerSprites();
+  InitPlayerSprites();
 
   //Load Enemy cache spritesF
-  InitGridTiles();
+  InitGridTiles(lvl_name);
   InitEnemySprites();
   loading_denominator=SHADOW_GRID_NUM+PLATFORM_GRID_NUM+FOREGROUND_GRID_NUM+ENEMY_TYPE_NUM+(LARGE_ENEMY_TYPE_NUM*ROTATED_SPRITE_NUM*2)+LARGER_ENEMY_TYPE_NUM*ROTATED_SPRITE_NUM;
   InitEnemySpritesObj();
   InitPFEnemyObj();
   InitEnemyPathfindingNodes();
-  InitGridTilesObj();
+  InitGridTilesObj(lvl_name);
   //allocate smallest to biggest
 
   level_loaded=TRUE;
 
-  if (!stop_playing_song) { 
+  if (!stop_playing_song && load_lvl) { 
     InitLoadLvlSong();
   }
   level_loading=FALSE;
-  in_main_menu=FALSE;
+  if (load_lvl) {
+    in_main_menu=FALSE;
+  } else {
+    int dice=RandNum(0,100,rand());
+    //printf("dice,%d",dice);
+    if (dice<10) {
+      is_raining=TRUE;
+    } else {
+      is_raining=FALSE;
+    }
+  }
   time_begin=current_timestamp();
   OLD_GR_WIDTH=0;
   OLD_GR_HEIGHT=0;
