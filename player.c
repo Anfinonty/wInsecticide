@@ -145,7 +145,83 @@ void PlayerActPlaceWeb(int bm_x1,int bm_y1,int bm_x2,int bm_y2)
 }
 
 
-void CleanUpPlayer()
+void InitPlayerSprites()
+{
+  player.sprite_1 = RotateSprite(NULL, player.osprite_1,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
+  player.sprite_2 = RotateSprite(NULL, player.osprite_2,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
+  player.sprite_jump = RotateSprite(NULL, player.osprite_jump,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
+
+  player.attack_sprite_1 = RotateSprite(NULL, player.oattack_sprite_1,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
+  player.attack_sprite_2 = RotateSprite(NULL, player.oattack_sprite_2,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
+  player.attack_sprite_3 = RotateSprite(NULL, player.oattack_sprite_3,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
+  player.attack_sprite_4 = RotateSprite(NULL, player.oattack_sprite_4,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
+
+  player.block_sprite_1 = RotateSprite(NULL, player.oblock_sprite_1,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
+  player.block_sprite_2 = RotateSprite(NULL, player.oblock_sprite_2,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
+  player.block_sprite_3 = RotateSprite(NULL, player.oblock_sprite_3,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
+
+  player.spin_sprite = RotateSprite(NULL, player.ospin_sprite,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
+
+
+  //Load Player Sprites
+  player.sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,0,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
+  player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
+  player.sprite_2_cache = RotateSprite(NULL, player.sprite_2,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
+
+  player.attack_sprite_1_cache = RotateSprite(NULL, player.attack_sprite_1,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
+  player.attack_sprite_2_cache = RotateSprite(NULL, player.attack_sprite_2,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
+  player.attack_sprite_3_cache = RotateSprite(NULL, player.attack_sprite_3,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
+  player.attack_sprite_4_cache = RotateSprite(NULL, player.attack_sprite_4,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
+
+  player.block_sprite_1_cache = RotateSprite(NULL, player.block_sprite_1,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
+  player.block_sprite_2_cache = RotateSprite(NULL, player.block_sprite_2,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
+  player.block_sprite_3_cache = RotateSprite(NULL, player.block_sprite_3,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
+
+  player.spin_sprite_1_cache = RotateSprite(NULL, player.spin_sprite,0.1,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
+  player.spin_sprite_2_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI_2,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
+  player.spin_sprite_3_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
+  player.spin_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
+
+
+
+
+  player.blur_sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,0,LTGREEN,BLACK,rgbPaint[player_load_color],TRANSPARENT);
+
+  player.spin_blur_sprite_1_cache = RotateSprite(NULL, player.spin_sprite,0.1,LTGREEN,BLACK,rgbPaint[player_load_color],TRANSPARENT);
+  player.spin_blur_sprite_2_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI_2,LTGREEN,BLACK,rgbPaint[player_load_color],TRANSPARENT);
+  player.spin_blur_sprite_3_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI,LTGREEN,BLACK,rgbPaint[player_load_color],TRANSPARENT);
+  player.spin_blur_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,BLACK,rgbPaint[player_load_color],TRANSPARENT);
+
+
+  GenerateDrawSprite(&player.draw_sprite_jump,player.sprite_jump_cache);
+
+  GenerateDrawSprite(&player.draw_sprite_1,player.sprite_1_cache);
+  GenerateDrawSprite(&player.draw_sprite_2,player.sprite_2_cache);
+
+  GenerateDrawSprite(&player.draw_attack_sprite_1,player.attack_sprite_1_cache);
+  GenerateDrawSprite(&player.draw_attack_sprite_2,player.attack_sprite_2_cache);
+  GenerateDrawSprite(&player.draw_attack_sprite_3,player.attack_sprite_3_cache); 
+  GenerateDrawSprite(&player.draw_attack_sprite_4,player.attack_sprite_4_cache);
+
+  GenerateDrawSprite(&player.draw_block_sprite_1,player.block_sprite_1_cache);
+  GenerateDrawSprite(&player.draw_block_sprite_2,player.block_sprite_2_cache);
+  GenerateDrawSprite(&player.draw_block_sprite_3,player.block_sprite_3_cache);
+
+  GenerateDrawSprite(&player.draw_spin_sprite_1,player.spin_sprite_1_cache);
+  GenerateDrawSprite(&player.draw_spin_sprite_2,player.spin_sprite_2_cache);
+  GenerateDrawSprite(&player.draw_spin_sprite_3,player.spin_sprite_3_cache);
+  GenerateDrawSprite(&player.draw_spin_sprite_4,player.spin_sprite_4_cache);
+
+
+  GenerateDrawSprite(&player.draw_blur_sprite_jump,player.blur_sprite_jump_cache);
+  GenerateDrawSprite(&player.draw_spin_blur_sprite_1,player.spin_blur_sprite_1_cache);
+  GenerateDrawSprite(&player.draw_spin_blur_sprite_2,player.spin_blur_sprite_2_cache);
+  GenerateDrawSprite(&player.draw_spin_blur_sprite_3,player.spin_blur_sprite_3_cache);
+  GenerateDrawSprite(&player.draw_spin_blur_sprite_4,player.spin_blur_sprite_4_cache);
+
+}
+
+void CleanUpPlayerSprites()
 {
   player.speed=DEFAULT_PLAYER_SPEED;
 
@@ -426,6 +502,7 @@ void InitPlayer() {
   player.block_health_max=DEFAULT_PLAYER_BLOCK_HEALTH_MAX;
   player.block_health=DEFAULT_PLAYER_BLOCK_HEALTH_MAX;
 
+  player.time_breaker_deplete_cooldown=0;
   player.time_breaker_units=0;
   player.time_breaker_units_max=DEFAULT_PLAYER_TIME_BREAKER_MAX;
   player.time_breaker_cooldown=0;
@@ -1193,14 +1270,14 @@ void PlayerActGravityMovement(int grav_speed,int speed)
       }
       if (player.jump_height==0 && player.in_water_timer==0) {
         if (player.in_air_timer<1100) { //note: 1001 is post fling or rebounding
-          if (player.in_air_timer%20==0 && player.grav<=100) {
+          if (player.in_air_timer%5/*20*/==0 && player.grav<=100) {
             player.grav++;
           /*if (player.is_rebounding && player.speed<4) {
             player.speed++;
           }*/
           }
         } else {
-          if (player.in_air_timer%12==0 && player.grav<=100 && player.in_water_timer==0) {
+          if (player.in_air_timer%3/*12*/==0 && player.grav<=100 && player.in_water_timer==0) {
             player.grav++;
           }
         }
@@ -1209,7 +1286,7 @@ void PlayerActGravityMovement(int grav_speed,int speed)
   }
 
 
-  if ((speed==0 && player.speed<5) || (player.speed>=5 && grav_speed==0)) {
+  if ((player.speed<5) || (player.speed>=5 && grav_speed==0)) {
 
     if (player.jump_height>0) { //Jumping action
       player.jump_height-=player.player_grav;
@@ -1577,12 +1654,12 @@ void PlayerActMouseClick()
         player.blocking=FALSE; //unblock
 
 
-        //BUG: may be janky at times
         //Ensures willingly placed webs never touch the ground or each other
         if (player.pivot_length>NODE_SIZE*5 && (player.right_click_hold_timer==62)) {
 
     //player place web after swing
         double bm_x1=0,bm_y1=0,bm_x2=0,bm_y2=0;
+        double bm_x1__,bm_y1__,bm_x2__,bm_y2__;
         if (player.x<player.pivot_x) {
           bm_x1=player.x;
           bm_y1=player.y;	
@@ -1599,32 +1676,43 @@ void PlayerActMouseClick()
         if (player.y<player.pivot_y) { //player is above pivot
           //player is left
           if (player.x<player.pivot_x) {
-            bm_x1-=cos(player.pivot_angle)*NODE_SIZE*2;
-            bm_y1+=sin(player.pivot_angle)*NODE_SIZE*2;
-            bm_x2+=cos(player.pivot_angle)*NODE_SIZE*2;
-            bm_y2-=sin(player.pivot_angle)*NODE_SIZE*2;
+            bm_x1-=cos(player.pivot_angle)*NODE_SIZE;
+            bm_y1+=sin(player.pivot_angle)*NODE_SIZE;
+            bm_x2+=cos(player.pivot_angle)*NODE_SIZE/2;
+            bm_y2-=sin(player.pivot_angle)*NODE_SIZE/2;
           } else { //player is right
-            bm_x1+=cos(player.pivot_angle)*NODE_SIZE*2;
-            bm_y1-=sin(player.pivot_angle)*NODE_SIZE*2;
-            bm_x2-=cos(player.pivot_angle)*NODE_SIZE*2;
-            bm_y2+=sin(player.pivot_angle)*NODE_SIZE*2;
+            bm_x1+=cos(player.pivot_angle)*NODE_SIZE/2;
+            bm_y1-=sin(player.pivot_angle)*NODE_SIZE/2;
+            bm_x2-=cos(player.pivot_angle)*NODE_SIZE;
+            bm_y2+=sin(player.pivot_angle)*NODE_SIZE;
           }
         } else { //player is below pivot
           //player is left
           if (player.x<player.pivot_x) {
-            bm_x1-=cos(player.pivot_angle)*NODE_SIZE*2;
-            bm_y1-=sin(player.pivot_angle)*NODE_SIZE*2;
-            bm_x2+=cos(player.pivot_angle)*NODE_SIZE*2;
-            bm_y2+=sin(player.pivot_angle)*NODE_SIZE*2;
+            bm_x1-=cos(player.pivot_angle)*NODE_SIZE;
+            bm_y1-=sin(player.pivot_angle)*NODE_SIZE;
+            bm_x2+=cos(player.pivot_angle)*NODE_SIZE/2;
+            bm_y2+=sin(player.pivot_angle)*NODE_SIZE/2;
           } else { //player is right
-            bm_x1+=cos(player.pivot_angle)*NODE_SIZE*2;
-            bm_y1+=sin(player.pivot_angle)*NODE_SIZE*2;
-            bm_x2-=cos(player.pivot_angle)*NODE_SIZE*2;
-            bm_y2-=sin(player.pivot_angle)*NODE_SIZE*2;
+            bm_x1+=cos(player.pivot_angle)*NODE_SIZE/2;
+            bm_y1+=sin(player.pivot_angle)*NODE_SIZE/2;
+            bm_x2-=cos(player.pivot_angle)*NODE_SIZE;
+            bm_y2-=sin(player.pivot_angle)*NODE_SIZE;
           }
         }
-
-        PlayerActPlaceWeb(bm_x1,bm_y1,bm_x2,bm_y2);
+        if (bm_x1>=bm_x2) {
+          bm_x1__=bm_x2;
+          bm_y1__=bm_y2;
+          bm_x2__=bm_x1+0.00001;
+          bm_y2__=bm_y1;
+        } else {
+          bm_x1__=bm_x1;
+          bm_y1__=bm_y1;
+          bm_x2__=bm_x2;
+          bm_y2__=bm_y2;
+        }
+        
+        PlayerActPlaceWeb(bm_x1__,bm_y1__,bm_x2__,bm_y2__);
         }
       }
     }
@@ -1822,12 +1910,15 @@ void PlayerAct()
 
   //PLAYER TRUE SPEED LIMITER
   double speed_limiter=player.speed;
-  if (player.speed>24) {
+  /*if (player.speed>24) {
     speed_limiter=player.speed;//17+(player.speed-24)/8;
   } else if (player.speed>10) {
     speed_limiter=10+(player.speed-10)/4;
   } else if (player.speed>5) {
     speed_limiter=5+(player.speed-5)/2;
+  }*/
+  if (player.speed<5 && player.jump) {
+    speed_limiter=4;
   }
 
   if (player.is_swinging) {
@@ -1846,7 +1937,7 @@ void PlayerAct()
     speed_limiter=speed_limiter/2+1;
   } else  {
     if (player.in_water_timer>0) {
-      if (player.in_water_timer%20==0 && player.grav<=100) {
+      if (player.in_water_timer%5/*20*/==0 && player.grav<=100) {
         player.grav++;
       }
       player.in_water_timer--;
@@ -2277,10 +2368,28 @@ void PlayerAct()
   if (!player.time_breaker) {
     if (IsSpeedBreaking()) {
       if (player.time_breaker_units>0) {
-        player.time_breaker_units--;
-        if (player.time_breaker_units%3==0) {
-          player.speed++;
-          player.decceleration_timer=0;
+        if (!game_hard) {
+          player.time_breaker_units--;
+          if (player.time_breaker_units%3==0) {
+            player.speed++;
+            player.decceleration_timer=0;
+          }
+        } else {
+          if (player.time_breaker_deplete_cooldown>0) {
+            player.time_breaker_deplete_cooldown--;
+          } else {
+            player.time_breaker_units--;
+            if (player.time_breaker_units%3==0) {
+              player.speed++;
+              player.decceleration_timer=0;
+            }
+            player.time_breaker_deplete_cooldown=25;
+          }
+        }
+      }
+      if (game_hard) {
+        if (player.time_breaker_units<=0) {
+          player.sleep_timer=DEFAULT_SLEEP_TIMER;
         }
       }
       player.time_breaker_recharge_timer=player.time_breaker_recharge_timer_max;
@@ -2420,7 +2529,7 @@ void PlayerSndAct()
       mem_snd_interrupt[4]=TRUE;
       waveOutReset(hWaveOut[4]);
     }
-    rain_sound_duration+=6;
+    rain_sound_duration+=10;//6;
 
   //soft rain snd act
   } else {
@@ -2445,7 +2554,7 @@ void PlayerSndAct()
       mem_snd_interrupt[4]=TRUE;
       waveOutReset(hWaveOut[4]);
     }
-    rain_sound_duration+=6;
+    rain_sound_duration+=10;//6;
   }
 
 
@@ -2489,7 +2598,7 @@ void PlayerSndAct()
   //sound timers limiter
   //player shooting knife sound limiter
   if (player.shoot_knife_duration>0)
-    player.shoot_knife_duration+=6;
+    player.shoot_knife_duration+=10;//6;
   if (player.shoot_knife_duration>330/*341*/) {//special case, old audio has popping noise at the end
     //mem_snd_interrupt[3]=TRUE;
     //waveOutReset(hWaveOut[3]);
@@ -2499,7 +2608,7 @@ void PlayerSndAct()
 
   //player running fast sound limiter
   if (player.speed>10) {
-    player.fast_duration+=6;
+    player.fast_duration+=10;//6;
   } else {
     player.fast_duration=0;
   }
@@ -2640,11 +2749,9 @@ void DrawPlayer(HDC hdc,HDC hdc2)
     }
 
     for (int i=0;i<PLATFORM_GRID_NUM;i++) {
-//      BitmapPalette(hdc,TileMapPlatform[i]->draw_tile.sprite_paint,rgbColorsDefault);
       BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsDefault);
     }
     for (int i=0;i<FOREGROUND_GRID_NUM;i++) {
-//      BitmapPalette(hdc,TileMapForeground[i]->draw_tile.sprite_paint,rgbColorsDefault);
       BitmapPalette(hdc,hdc2,TileMapForeground[i]->sprite_paint,rgbColorsDefault);
     }
 
@@ -2708,16 +2815,45 @@ void DrawPlayer(HDC hdc,HDC hdc2)
         }
       }
       for (int i=0;i<PLATFORM_GRID_NUM;i++) {
-        //BitmapPalette(hdc,TileMapPlatform[i]->draw_tile.sprite_paint,rgbColorsNoir);
         BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsNoir);
       }
       for (int i=0;i<FOREGROUND_GRID_NUM;i++) {
-        //BitmapPalette(hdc,TileMapForeground[i]->draw_tile.sprite_paint,rgbColorsNoir);
         BitmapPalette(hdc,hdc2,TileMapForeground[i]->sprite_paint,rgbColorsNoir);
       }
       //BitmapPalette(hdc,map_platforms_sprite,rgbColorsNoir);
       //BitmapPalette(hdc,map_water_platforms_sprite,rgbColorsNoir);
       //BitmapPalette(hdc,map_background_sprite,rgbColorsNoir);
+
+
+      /*BitmapPalette(hdc,hdc2,map_background_sprite,rgbColorsInvert);
+      for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+        if (!saved_enemy_type_time_breaker_immune[i]) {
+          BitmapPalette(hdc,hdc2,EnemyTypeSprite[i].draw_fly_sprite_1.sprite_paint,rgbColorsInvert);
+          BitmapPalette(hdc,hdc2,EnemyTypeSprite[i].draw_fly_sprite_2.sprite_paint,rgbColorsInvert);
+        }
+      }
+      for (int i=0;i<LARGE_ENEMY_TYPE_NUM;i++) {
+        if (!saved_large_enemy_type_time_breaker_immune[i]) {
+          for (int j=0;j<ROTATED_SPRITE_NUM;j++) {
+            BitmapPalette(hdc,hdc2,EnemyRotatedSprite[i].draw_rotated_sprite1[j].sprite_paint,rgbColorsInvert);
+            BitmapPalette(hdc,hdc2,EnemyRotatedSprite[i].draw_rotated_sprite2[j].sprite_paint,rgbColorsInvert);
+          }
+        }
+      }
+      for (int i=0;i<LARGER_ENEMY_TYPE_NUM;i++) {
+        if (!saved_larger_enemy_type_time_breaker_immune[i]) {
+          for (int j=0;j<ROTATED_SPRITE_NUM;j++) {
+            BitmapPalette(hdc,hdc2,XEnemyRotatedSprite[i].draw_rotated_sprite[j].sprite_paint,rgbColorsInvert);
+          }
+        }
+      }
+      for (int i=0;i<PLATFORM_GRID_NUM;i++) {
+        BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsInvert);
+      }
+      for (int i=0;i<FOREGROUND_GRID_NUM;i++) {
+        BitmapPalette(hdc,hdc2,TileMapForeground[i]->sprite_paint,rgbColorsInvert);
+      }*/
+
       player.flag_noir_palette=FALSE;
     }
   } else {

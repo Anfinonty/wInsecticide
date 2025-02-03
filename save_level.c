@@ -1120,3 +1120,32 @@ void SaveNewLimitAdjustedLvl(HWND hwnd, HDC hdc)
     fclose(fptr);
 
 }
+
+
+
+
+void SaveOptions()
+{
+  FILE *fptr;
+  wchar_t create_save_name[64];
+  swprintf(create_save_name,64,L"saves/options.txt");
+  fptr = _wfopen(create_save_name,L"w+");
+  //write options here
+  fprintf(fptr,"%d;\n",player_color);//player color
+  fprintf(fptr,"%d;\n",player_iris_color);//play iris color
+  fprintf(fptr,"%d;\n",player_pupil_color);  //pupil color
+  fprintf(fptr,"%d;\n",game_cam_shake);  //camera shake
+  fprintf(fptr,"%d;\n",game_audio);    //audio
+  fprintf(fptr,"%5.4f;\n",game_volume);  //sfx
+  fprintf(fptr,"%5.4f;\n",wav_out_volume); //raw wav out volume
+  fprintf(fptr,"%d;\n",yes_unifont);      //unifont
+  fprintf(fptr,"%d;\n",game_shadow);        //shadows
+  fprintf(fptr,"%d;\n",hide_taskbar);        //window borders
+  fprintf(fptr,"%d;\n",resolution_choose);  //saved resolution
+  fprintf(fptr,"%d;\n",show_fps);  //show fps
+  fprintf(fptr,"%d;\n",show_hijiri);  //show hijri
+  fprintf(fptr,"%d;\n",is_khmer);  //is_khmer
+  
+  //close file
+  fclose(fptr);
+}

@@ -30,6 +30,9 @@
 #include <direct.h>
 #include <errno.h>
 #include <shlwapi.h>
+#include <float.h>
+//#include <mmsystem.h>
+//#include <commctrl.h>
 //#include <omp.h>
 
 //for .avi
@@ -89,8 +92,10 @@ bool flag_update_background=FALSE;
 bool flag_resolution_change=FALSE;
 bool flag_fullscreen=FALSE;
 bool flag_hide_taskbar=FALSE;
+bool flag_taskbar_change_act=FALSE;
+bool flag_borderless_resolution_change=FALSE;
 bool hide_cursor=FALSE;
-
+bool hide_mm=FALSE;
 //game options
 bool yes_unifont=TRUE;//FALSE;
 bool game_cam_shake=TRUE;
@@ -108,6 +113,7 @@ bool game_over=FALSE;
 bool show_fps=FALSE;
 bool in_map_editor=FALSE;
 bool show_hijiri=FALSE;
+bool game_hard=FALSE;
 
 bool prelude=TRUE;
 bool flag_prelude=TRUE;
@@ -121,6 +127,7 @@ wchar_t save_level[128];
 //Create Level Menu
 //Typing level name attributes
 wchar_t typing_lvl_name[16];//=//{' ',L'H',L'I'};
+int wav_mode=0;
 int typing_lvl_name_pos=0;
 int set_ground_amount=10;
 int set_enemy_amount=1;
@@ -142,6 +149,12 @@ int GR_HEIGHT=480;
 int OLD_GR_WIDTH=640;
 int OLD_GR_HEIGHT=480;
 int MAX_RESOLUTION_I=1;
+
+//bool rst_mbutton=FALSE;
+int mouse_wheel_timer=0;
+bool rst_shift=FALSE;
+
+
 //int RESOLUTION_X[9]={640,800,1024,1280,1280,1440,1280,1680,1920};
 //int RESOLUTION_Y[9]={480,600, 768, 720, 800, 900,1024,1050,1080};
 
@@ -149,6 +162,7 @@ int MAX_RESOLUTION_I=1;
 int RESOLUTION_X[SCREEN_RESOLUTION_NUM];
 int RESOLUTION_Y[SCREEN_RESOLUTION_NUM];
 char* RESOLUTION_NAME[SCREEN_RESOLUTION_NUM];
+wchar_t* WRESOLUTION_NAME[SCREEN_RESOLUTION_NUM];
 
 int level_chosen=0;
 int main_menu_chosen=-1; //options for main menu
@@ -164,6 +178,7 @@ double loading_percentage=0;
 
 bool lvl_has_song=FALSE;
 wchar_t src_music_dir[64];
+//wchar_t src_music_dir2[64];
 
 
 int enemy_kills=0;
@@ -207,7 +222,7 @@ double old_game_volume=1.0;
 
 bool is_khmer=TRUE;
 
-#define DEFAULT_PLAYER_SPEED			1
+#define DEFAULT_PLAYER_SPEED			4//1
 
 #define ENEMY_TYPE_NUM                         10
 
@@ -260,7 +275,7 @@ bool is_khmer=TRUE;
 
 
 
-#define DEFAULT_SLEEP_TIMER			6
+#define DEFAULT_SLEEP_TIMER			10//6
 #define SLOWDOWN_SLEEP_TIMER			30
 
 #define DEFAULT_PLAYER_HEALTH			20
@@ -277,8 +292,6 @@ bool is_khmer=TRUE;
 #define DEFAULT_PLAYER_WEB_NUM      20//20
 #define MAX_WEB_NUM     200//100
 
-#define DEFAULT_PLAYER_SPEED			1
-
 #define DEFAULT_PLAYER_TIME_BREAKER_MAX	20 //10 seconds to charge
 #define DEFAULT_PLAYER_TIME_BREAKER_COOLDOWN_MAX   700 //5 seconds after usage
 #define DEFAULT_PLAYER_TIME_BREAKER_RECHARGE_MAX	200 //1 seconds
@@ -291,7 +304,7 @@ bool is_khmer=TRUE;
 #define PLAYER_BULLET_NUM 36//24//16
 #define PLAYER_FLING_WEB_NUM    32
 
-#define GAME_OPTIONS_NUM    13
+#define GAME_OPTIONS_NUM    15
 #define PLAYER_BLUR_NUM     2
 
 #include "gr.c"
@@ -442,13 +455,7 @@ void Prelude()
         DeleteObject(tmp_sprite1);
       }
     }
-  }
-  InitSongBank(); //load song
-  play_new_song=TRUE;
-  prelude=FALSE;
-  flag_fullscreen=TRUE;
-
-  //LoadMusicWavFile("music/mechanicalanimals.wav");
+  } 
 }
 
 
@@ -482,18 +489,50 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
       }
     } else if (in_map_editor) {
       MapEditorAct();
-      Sleep(6);
+      Sleep(10);
     } else {
+      if (main_menu_chosen!=3) {
+      if (level_loaded) {
+        PlayerAct();
+  
+        for (int i=0;i<ENEMY_NUM;i++) {
+          EnemyAct(i);
+        }
+        if (is_raining) {
+          RainAct();
+          if (!player.time_breaker) {
+            ScreenRainDropAct();
+          }
+        }
+      }
+
+
+      if (game_audio && !flag_load_melevel) {
+          for (int i=0;i<player.bullet_shot_num;i++) {
+            BulletSndAct(player.bullet[i]);
+          }
+          if (player.bullet_shot!=-1) { //player sounds made by sniper player bullets
+            BulletSndAct(player.bullet_shot);
+          }
+          /*for (int i=0;i<ENEMY_NUM;i++) {
+            EnemySndAct(i);
+          }*/
+          PlayerSndAct();       
+      }
+
       if (flag_load_level) {
         flag_load_level=FALSE;
         if (main_menu_chosen==0) {
-          InitLevel();
+          InitLevel(TRUE);
         }
       } else if (flag_load_melevel) {
-        flag_load_melevel=FALSE;
-        InitLevelMapEditor();
+          InterruptAllSnd();
+          flag_load_melevel=FALSE;
+          InitLevelMapEditor();
       }
-      Sleep(1000);
+      //Sleep(6);
+      Sleep(20);
+    }
     }
   }
 }
@@ -501,19 +540,68 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
 
 DWORD WINAPI AnimateTask02(LPVOID lpArg) { //FPS counter
   while (TRUE) {
-    saved_showoff=showoff;
-    showoff=0;
-    Sleep(1000);
+    if (!prelude) {
+        saved_showoff=showoff;
+        showoff=0;
+
+        //music name scrolling
+        for (int z=0;z<2;z++) {
+          if (audioData[z].playing_wav && !stop_playing_song[z]) {
+             //scrolling effect
+             int padding_length=5;
+             int le_song_len=wcslen(song_names[song_rand_num[z]]);
+             int total_length = le_song_len+padding_length;
+             if (le_song_len>47) { //more than song length
+               if (wspc_start[z]<le_song_len) {
+                 wspc_start[z]+=2;           
+               } else {
+                 wspc_start[z]=0;
+               }
+              for (int w = 0; w < 48; w++) {
+                int src_index = (wspc_start[z] + w) % total_length; // Source index with wrap-around 
+                if (src_index < le_song_len) { 
+                  print_song_playing[z][w] = song_names[song_rand_num[z]][src_index]; 
+                } else {
+                  print_song_playing[z][w] = L' '; // Add padding with blank spaces
+                } 
+              }
+             } else {
+               wspc_start[z]=0;
+             }
+           }
+        }
+        Sleep(1000);
+
+
+    } else { //intro prelude
+        BYTE* pDIB = (BYTE*) AVIStreamGetFrame(pFrame, global_frames);
+        if (global_frames%2!=0) {
+          DeleteObject(global_avi_bitmap2);
+          global_avi_bitmap2=CreateFromPackedDIBPointer2(pDIB); //set up and draw even
+        } else {
+          DeleteObject(global_avi_bitmap1);
+          global_avi_bitmap1=CreateFromPackedDIBPointer2(pDIB); //set up and draw odd
+        }
+
+        global_frames++;
+        if (global_frames>=iNumFrames)
+          global_frames=0;
+
+
+        Sleep(100);
+
+    }
   }
 }
 
 
 
-void InitSetRes(int i,int w,int h,char *txt)
+void InitSetRes(int i,int w,int h,char *txt,wchar_t* wtxt)
 {
   RESOLUTION_X[i]=w;
   RESOLUTION_Y[i]=h;
   RESOLUTION_NAME[i]=txt;
+  WRESOLUTION_NAME[i]=wtxt;
 }
 
 
@@ -543,6 +631,57 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       player.rst_right_click=FALSE;
       break;
 
+
+    /*case WM_MBUTTONUP:
+      rst_mbutton=FALSE;
+      break;
+
+
+    case WM_MBUTTONDOWN:
+      rst_mbutton=TRUE;
+      break;*/
+
+    //Mouse Scroller movement like disc scratching
+    case WM_MOUSEWHEEL: {
+        int e=1;
+        if (keydown(VK_LSHIFT)) {
+          e=3;
+        } else if (keydown(VK_RSHIFT)) {
+          e=5;
+        }
+        for (int f=0;f<e;f++) {
+        mouse_wheel_timer=6;
+        int wheelData = GET_WHEEL_DELTA_WPARAM(wParam);
+        if (!stop_playing_song[gct] && audioData[gct].playing_wav && wheelData!=0) {
+          audioData[gct].song_rewind=TRUE;
+          if (audioData[gct].current_filesize>audioData[gct].read_size*2 && audioData[gct].current_filesize<audioData[gct].filesize-audioData[gct].read_size*2) {
+              if (wheelData>0) { //scroll up
+                if (audioData[gct].queue_read_buffer>0) {audioData[gct].queue_read_buffer--;} else {audioData[gct].queue_read_buffer=READ_BUFFER_NUM-1;}
+                if (audioData[gct].queue_play_buffer>0) {audioData[gct].queue_play_buffer--;} else {audioData[gct].queue_play_buffer=READ_BUFFER_NUM-1;} 
+                audioData[gct].current_filesize-=audioData[gct].read_size;
+              } else if (wheelData<0){ //scroll down
+                if (audioData[gct].queue_read_buffer<=18) {audioData[gct].queue_read_buffer++;} else {audioData[gct].queue_read_buffer=0;}
+                if (audioData[gct].queue_play_buffer<=18) {audioData[gct].queue_play_buffer++;} else {audioData[gct].queue_play_buffer=0;} 
+                audioData[gct].current_filesize+=audioData[gct].read_size;
+              }
+              adjustBufferVol(audioData[gct].buffer1,audioData[gct].read_buffer[audioData[gct].queue_play_buffer],audioData[gct].read_size,audioData[gct].volume);
+              adjustBufferVol(audioData[gct].buffer2,audioData[gct].read_buffer[audioData[gct].queue_play_buffer],audioData[gct].read_size,audioData[gct].volume);
+
+              audioData[gct].read_filesize=audioData[gct].current_filesize-(audioData[gct].read_size*READ_BUFFER_NUM/2);
+
+              fseek(audioData[gct].music_file, audioData[gct].current_filesize, SEEK_SET);
+              fread(audioData[gct].read_buffer[audioData[gct].queue_read_buffer], sizeof(BYTE), audioData[gct].read_size, audioData[gct].music_file);  //copy then go backwards/forwards
+              fseek(audioData[gct].music_file, audioData[gct].current_filesize, SEEK_SET);
+
+              waveOutWrite(audioData[gct].hWaveOut, &audioData[gct].waveHdr1, sizeof(WAVEHDR));
+              waveOutWrite(audioData[gct].hWaveOut, &audioData[gct].waveHdr2, sizeof(WAVEHDR));
+
+          }
+        }
+        }
+      }    
+      break;
+        
 
     //Mouse Movement
     case  WM_MOUSEMOVE: //https://stackoverflow.com/questions/22039413/moving-the-mouse-blocks-wm-timer-and-wm-paint
@@ -587,6 +726,42 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     case WM_KEYDOWN:
     {
       //Global keydown press
+      if (prelude) {
+        if (loading_numerator>=loading_denominator) {
+          prelude=FALSE;
+          InitSongBank(); //load song
+          play_new_song[0]=TRUE;
+
+          //Load options after prelude
+          LoadOptions();
+          if (hide_taskbar) { //task bar hidden yes fullscreen
+            flag_fullscreen=TRUE;
+          } else {
+            flag_borderless_resolution_change=TRUE;
+          }
+
+          for (int i=0;i<KEY_SFX_NUM;i++) {
+            adjustSFXVolume(&keySoundEffectCache[i],&keySoundEffect[i],game_volume,FALSE);
+          }
+          AdjustGameAudio();
+
+          //flag_adjust_wav_out_audio=TRUE;
+          KeyChangePlayerColor();
+          flag_adjust_audio=TRUE;
+          flag_update_background=TRUE;
+          InitLevel(FALSE);
+
+
+          //Init avi playing
+          //if (solar_hour>6 && solar_hour<18) { //day
+            //InitExtractAVIFrames(L"avi/mainmenu_gameplay_day.avi",0);
+          //} else {
+            //InitExtractAVIFrames(L"avi/mainmenu_gameplay_night.avi",0);
+          //}
+        }
+      }
+
+
       if (!level_loading && !prelude) {
       if (main_menu_chosen!=2) {
         GlobalKeypressDown(wParam);
@@ -596,6 +771,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       if (!in_main_menu) {
         GameKeypressDown(wParam);
       } else { //Main menu
+        if (!in_map_editor && main_menu_chosen<2 && !color_chooser.is_choosing_color) {
+          MMKeypressDown(wParam);
+        }
         switch (main_menu_chosen) {
            case -1:
              MinusOneMenuKeypressDown(wParam);
@@ -661,6 +839,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       if (!in_main_menu) { //Gaming
         GameKeypressUp(wParam);
       } else { 
+        if (!in_map_editor && main_menu_chosen<2 && !color_chooser.is_choosing_color) {
+          MMKeypressUp(wParam);
+        }
         switch (main_menu_chosen) {
           case -1:
             MinusOneMenuKeypressUp(wParam);
@@ -755,6 +936,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       }
       //https://learn.microsoft.com/en-us/windows/win32/learnwin32/keyboard-input
       //https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/getch-getwch?view=msvc-170
+      if (main_menu_chosen==-1 || main_menu_chosen==0 || main_menu_chosen==1 || !in_main_menu) {
+        //extended keys for dj
+        DJKeys(wParam);
+      }
       if (in_main_menu) {
         if (main_menu_chosen==2 && create_lvl_option_choose==0) {
           if (typing_lvl_name_pos<17) {
@@ -816,6 +1001,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       FrameRateSleep(FPS); // (Uncapped) //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
       if (!IsIconic(hwnd)) //no action when minimized, prevents crash https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-isiconic?redirectedfrom=MSDN
       {
+        if (mouse_wheel_timer>0) {
+          mouse_wheel_timer--;
+          if (mouse_wheel_timer==1) {
+            mouse_wheel_timer=0;
+            audioData[gct].song_rewind=FALSE;
+            if (!stop_playing_song[gct] && audioData[gct].playing_wav) {
+              InitAudioBuffer(gct);
+            }
+          }
+        }
+
         if (flag_hide_taskbar) {
           flag_hide_taskbar=FALSE;
           hide_taskbar=FALSE;
@@ -866,6 +1062,43 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
           OLD_GR_WIDTH = GR_WIDTH;
           OLD_GR_HEIGHT = GR_HEIGHT;
+          //In main menu
+          if (in_main_menu) {
+            if (map_background_sprite!=NULL) {
+              DeleteObject(map_background_sprite);
+            }
+              HBITMAP tmp_map_background_sprite;
+
+                int mb_val=1;
+                if (solar_hour>6 && solar_hour<18) { //day
+                  mb_val=0;//InitExtractAVIFrames(L"avi/mainmenu_gameplay_day.avi",0);
+                } /*else {
+                  //InitExtractAVIFrames(L"avi/mainmenu_gameplay_night.avi",0);
+                }*/
+                switch (mb_val) {
+                  case 0:
+                    if (GR_WIDTH<800 && GR_HEIGHT<600) {
+                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+                    } else {
+                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+                    }
+                    break;
+                  case 1:
+                    if (GR_WIDTH<800 && GR_HEIGHT<600) {
+                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+                    } else {
+                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+                    }
+                    break;
+                }
+                if (tmp_map_background_sprite!=NULL) {
+                  map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH,GR_HEIGHT); //note runs once only
+                } else {
+                  map_background_sprite=NULL;
+                }
+                DeleteObject(tmp_map_background_sprite);
+          }
+
           //Load Map Background sprites
           if (!in_main_menu || level_loading || in_map_editor) {
              int mb_val;
@@ -919,16 +1152,38 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
         if (prelude) {
+          /*frame_tick++;
+          if (frame_tick>FPS) {
+            frame_tick=0;
+          }*/
           hdc=BeginPaint(hwnd, &ps);
           hdcBackbuff=CreateCompatibleDC(hdc);
-          //hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
-          screen=CreateCompatibleBitmap(hdc,320,240);
+          hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
+          screen=CreateCompatibleBitmap(hdc,640,440);
           SelectObject(hdcBackbuff,screen);
-          GrRect(hdcBackbuff,0,0,GR_WIDTH+2,GR_HEIGHT+2,BLACK);
-          DrawLoading(hdcBackbuff);
+          //GrRect(hdcBackbuff,0,0,GR_WIDTH+2,GR_HEIGHT+2,LTBLUE);
+          DrawMovingAVI(hdcBackbuff,hdcBackbuff2);
+
+          DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-322/2,GR_HEIGHT/2-241/2-92+12,0,0,322,241,intro_msg_mask[0],SRCAND,FALSE,FALSE);
+          DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-322/2,GR_HEIGHT/2-241/2-92+12,0,0,322,241,intro_msg[0],SRCPAINT,FALSE,FALSE);
+
+          DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-367/2,GR_HEIGHT-182+12,0,0,367,56,intro_msg_mask[1],SRCAND,FALSE,FALSE);
+          DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-367/2,GR_HEIGHT-182+12,0,0,367,56,intro_msg[1],SRCPAINT,FALSE,FALSE);
+
+
+          if (loading_numerator<loading_denominator) {
+            DrawLoading(hdcBackbuff);
+          } else {
+            //if (frame_tick%FPS<FPS/2) {
+              //khmer text
+              DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-324/2,GR_HEIGHT-96-8,0,0,324,47,kh_pressanykey_mask,SRCAND,FALSE,FALSE);
+              DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-324/2,GR_HEIGHT-96-8,0,0,324,47,kh_pressanykey,SRCPAINT,FALSE,FALSE);
+              //GrPrint(hdcBackbuff,GR_WIDTH/2-25*4,GR_HEIGHT-72,"Press Any Key to Continue",WHITE);
+            //}
+          }
           DrawCursor(hdcBackbuff,hdcBackbuff2);
-          BitBlt(hdc, 0, 0, 320,240, hdcBackbuff, 0, 0,  SRCCOPY);
-          //DeleteDC(hdcBackbuff2);
+          BitBlt(hdc, 0, 0, 640,440, hdcBackbuff, 0, 0,  SRCCOPY);
+          DeleteDC(hdcBackbuff2);
           DeleteDC(hdcBackbuff);
           DeleteObject(screen);
         } else if (level_loading) {
@@ -1065,7 +1320,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             //Trigger go back to main menu
             if (back_to_menu) {
-              CleanupAll();
+              CleanupAll(TRUE);
+              flag_update_background=TRUE;
+              InitLevel(FALSE);
             }
           }
         } else if (in_map_editor) {
@@ -1108,25 +1365,30 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               //Trigger go back to main menu
             if (back_to_menu) {
               CleanupMapEditorAll();
+              flag_update_background=TRUE;
+              InitLevel(FALSE);
             }
           }
         } else { //In Main Menu
           showoff++;
+          frame_tick++;
+          if (frame_tick>FPS) {
+            frame_tick=0;
+          }
           hdc=BeginPaint(hwnd, &ps);
           hdcBackbuff=CreateCompatibleDC(hdc);
           hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
-          if (flag_resolution_change) { //blackout clear screen
-            screen=CreateCompatibleBitmap(hdc,SCREEN_WIDTH,SCREEN_HEIGHT);
-            SelectObject(hdcBackbuff,screen);
-            GrRect(hdcBackbuff,0,0,SCREEN_WIDTH,SCREEN_HEIGHT,BLACK);
-            BitBlt(hdc, 0,0, SCREEN_WIDTH,SCREEN_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
-            flag_resolution_change=FALSE;
-          } else {
+          if (!flag_taskbar_change_act && !flag_resolution_change && !flag_borderless_resolution_change) {
             screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
             SelectObject(hdcBackbuff,screen);
       
             DrawMainMenu(hdcBackbuff,hdcBackbuff2);
+            //DrawNodeGrids(hdcBackbuff); //debugging
+
             DrawCursor(hdcBackbuff,hdcBackbuff2);
+            DrawMMExtraKeys(hdcBackbuff);
+
+            player.seed=rand();
             if (hide_taskbar) {
               BitBlt(hdc, SCREEN_WIDTH/2-RESOLUTION_X[resolution_choose]/2, 
                             SCREEN_HEIGHT/2-RESOLUTION_Y[resolution_choose]/2, 
@@ -1135,6 +1397,24 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                             hdcBackbuff, 0, 0,  SRCCOPY);
             } else {
               BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
+            }
+          } else {
+            if (flag_resolution_change) { //blackout clear screen
+              screen=CreateCompatibleBitmap(hdc,SCREEN_WIDTH,SCREEN_HEIGHT);
+              SelectObject(hdcBackbuff,screen);
+              GrRect(hdcBackbuff,0,0,SCREEN_WIDTH,SCREEN_HEIGHT,BLACK);
+              BitBlt(hdc, 0,0, SCREEN_WIDTH,SCREEN_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
+              flag_resolution_change=FALSE;
+            } else if (flag_taskbar_change_act) {
+              TaskbarChangeAct(hwnd);
+              flag_taskbar_change_act=FALSE;
+            } else if (flag_borderless_resolution_change) {
+              SetWindowPos(hwnd,HWND_NOTOPMOST,0,0,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],SWP_FRAMECHANGED);
+              ShowWindow(hwnd, SW_RESTORE);
+              SetForegroundWindow(hwnd); //return back focus
+              GR_WIDTH=RESOLUTION_X[resolution_choose];
+              GR_HEIGHT=RESOLUTION_Y[resolution_choose];
+              flag_borderless_resolution_change=FALSE;
             }
           }
 
@@ -1222,11 +1502,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     //Tasks to perform on start
     case WM_CREATE:
     {
-      LoadBufferSFX(L"music/helicopter.wav");
+      //LoadBufferSFX(L"music/helicopter.wav");
       //MessageBox(NULL, TEXT("ភាសាខ្មែរ"), TEXT("ភាសាខ្មែរ") ,MB_OK); //khmer text box
       //printf("boolsize:%d",sizeof(bool));      
       AddFontResource(L"fonts/unifont-8.0.01.ttf");
       AddFontResource(L"fonts/KhmerOS.ttf");
+      if (!DirExists(L"music_tmp")) {
+        system("mkdir \"music_tmp/\""); //make new music tmp
+      }
+
       //AddFontResource(L"fonts/KhmerUI.ttf");
       //AddFontResource(L"fonts/KhmerOSsys.ttf");
 
@@ -1234,165 +1518,173 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         //https://en.wikipedia.org/wiki/List_of_common_display_resolutions
         //https://en.wikipedia.org/wiki/Display_resolution_standards
         //https://en.wikipedia.org/wiki/Ultrawide_formats
-        InitSetRes(0,SCREEN_WIDTH,SCREEN_HEIGHT," * ");
-        InitSetRes(1,640,480,"VGA");
-        InitSetRes(2,640,512,"0.33M3");
-        InitSetRes(3,768,480,"WVGA");
-        InitSetRes(4,800,480,"WGA");
-        InitSetRes(5,800,600,"SVGA");
-        InitSetRes(6,832,624,"0.52M3");
-        InitSetRes(7,848,480,"W-PAL");
-        InitSetRes(8,854,480,"FWVGA");
+        InitSetRes(0,SCREEN_WIDTH,SCREEN_HEIGHT," * ",L" * ");
+        InitSetRes(1,640,480,"VGA",L"VGA");
+        InitSetRes(2,640,512,"0.33M3",L"0.33M3");
+        InitSetRes(3,768,480,"WVGA",L"WVGA");
+        InitSetRes(4,800,480,"WGA",L"WGA");
+        InitSetRes(5,800,600,"SVGA",L"SVGA");
+        InitSetRes(6,832,624,"0.52M3",L"0.52M3");
+        InitSetRes(7,848,480,"W-PAL",L"W-PAL");
+        InitSetRes(8,854,480,"FWVGA",L"FWVGA");
 
-        InitSetRes(9,960,540,"qHD");
-        InitSetRes(10,960,544,"0.52M9");
-        InitSetRes(11,960,640,"DVGA");
+        InitSetRes(9,960,540,"qHD",L"qHD");
+        InitSetRes(10,960,544,"0.52M9",L"0.52M9");
+        InitSetRes(11,960,640,"DVGA",L"DVGA");
 
-        InitSetRes(12,1024,576,"0.59M9");
-        InitSetRes(13,1024,600,"WSVGA");
-        InitSetRes(14,1024,640,"0.66MA");
-        InitSetRes(15,1024,768,"XGA");
-        InitSetRes(16,1024,800,"0.82M3");
-        InitSetRes(17,1024,1024,"1.05M1:1");
+        InitSetRes(12,1024,576,"0.59M9",L"0.59M9");
+        InitSetRes(13,1024,600,"WSVGA",L"WSVGA");
+        InitSetRes(14,1024,640,"0.66MA",L"0.66MA");
+        InitSetRes(15,1024,768,"XGA",L"XGA");
+        InitSetRes(16,1024,800,"0.82M3",L"0.82M3");
+        InitSetRes(17,1024,1024,"1.05M1:1",L"1.05M1:1");
 
-        InitSetRes(18,1080,1200,"1.30M0.9");
+        InitSetRes(18,1080,1200,"1.30M0.9",L"1.30M0.9");
 
-        InitSetRes(19,1120,832,"0.93M3");
-        InitSetRes(20,1136,640,"0.73M9");
-        InitSetRes(21,1138,640,"0.73M9");
-        InitSetRes(22,1152,768,"0.88M2");
-        InitSetRes(23,1152,864,"XGA+");
-        InitSetRes(24,1152,900,"1.04M32:25");
+        InitSetRes(19,1120,832,"0.93M3",L"0.93M3");
+        InitSetRes(20,1136,640,"0.73M9",L"0.73M9");
+        InitSetRes(21,1138,640,"0.73M9",L"0.73M9");
+        InitSetRes(22,1152,768,"0.88M2",L"0.88M2");
+        InitSetRes(23,1152,864,"XGA+",L"XGA+");
+        InitSetRes(24,1152,900,"1.04M32:25",L"1.04M32:25");
 
-        InitSetRes(25,1280,720,"WXGA:M");
-        InitSetRes(26,1280,768,"WXGA:A");
-        InitSetRes(27,1280,800,"WXGA");
-        InitSetRes(28,1280,854,"1.09M2");
-        InitSetRes(29,1280,960,"SXGA-");
-        InitSetRes(30,1280,1024,"SXGA");
+        InitSetRes(25,1280,720,"WXGA:M",L"WXGA:M");
+        InitSetRes(26,1280,768,"WXGA:A",L"WXGA:A");
+        InitSetRes(27,1280,800,"WXGA",L"WXGA");
+        InitSetRes(28,1280,854,"1.09M2",L"1.09M2");
+        InitSetRes(29,1280,960,"SXGA-",L"SXGA-");
+        InitSetRes(30,1280,1024,"SXGA",L"SXGA");
 
-        InitSetRes(31,1334,750,"1.00M9");
-        InitSetRes(32,1366,768,"WXGA HD");
+        InitSetRes(31,1334,750,"1.00M9",L"1.00M9");
+        InitSetRes(32,1366,768,"WXGA HD",L"WXGA HD");
 
-        InitSetRes(33,1440,900,"WSXGA/WXGA+");
-        InitSetRes(34,1440,960,"1.38M2");
-        InitSetRes(35,1400,1050,"SXGA+");
-        InitSetRes(36,1440,1024,"1.47M5");
-        InitSetRes(37,1440,1080,"1.56M3");
-        InitSetRes(38,1440,1440,"2.07M1");
+        InitSetRes(33,1440,900,"WSXGA/WXGA+",L"WSXGA/WXGA+");
+        InitSetRes(34,1440,960,"1.38M2",L"1.38M2");
+        InitSetRes(35,1400,1050,"SXGA+",L"SXGA+");
+        InitSetRes(36,1440,1024,"1.47M5",L"1.47M5");
+        InitSetRes(37,1440,1080,"1.56M3",L"1.56M3");
+        InitSetRes(38,1440,1440,"2.07M1",L"2.07M1");
 
-        InitSetRes(39,1600,768,"1.23M2.083");
-        InitSetRes(40,1600,900,"HD+");
-        InitSetRes(41,1600,1024,"1.64M0");
-        InitSetRes(42,1680,1050,"WSXGA+");
-        InitSetRes(43,1600,1200,"UXGA");
-        InitSetRes(44,1600,1280,"2.05M4");
+        InitSetRes(39,1600,768,"1.23M2.083",L"1.23M2.083");
+        InitSetRes(40,1600,900,"HD+",L"HD+");
+        InitSetRes(41,1600,1024,"1.64M0",L"1.64M0");
+        InitSetRes(42,1680,1050,"WSXGA+",L"WSXGA+");
+        InitSetRes(43,1600,1200,"UXGA",L"UXGA");
+        InitSetRes(44,1600,1280,"2.05M4",L"2.05M4");
 
-        InitSetRes(45,1776,1000,"1.78M9");
-        InitSetRes(46,1792,1344,"QWXGA");
+        InitSetRes(45,1776,1000,"1.78M9",L"1.78M9");
+        InitSetRes(46,1792,1344,"QWXGA",L"QWXGA");
 
-        InitSetRes(47,1800,1440,"2.59M4");
-        InitSetRes(48,1856,1392,"2.58M3");
+        InitSetRes(47,1800,1440,"2.59M4",L"2.59M4");
+        InitSetRes(48,1856,1392,"2.58M3",L"2.58M3");
 
-        InitSetRes(49,1920,1080,"FHD");
-        InitSetRes(50,1920,1280,"2.41M3");
-        InitSetRes(51,1920,1400,"TXGA");
-        InitSetRes(52,1920,1440,"2.76M3");
+        InitSetRes(49,1920,1080,"FHD",L"FHD");
+        InitSetRes(50,1920,1280,"2.41M3",L"2.41M3");
+        InitSetRes(51,1920,1400,"TXGA",L"TXGA");
+        InitSetRes(52,1920,1440,"2.76M3",L"2.76M3");
 
-        InitSetRes(53,2048,1080,"DCI2K");
-        InitSetRes(54,2048,1152,"WUXGA");
-        InitSetRes(55,2048,1280,"2.62MA");
-        InitSetRes(56,2048,1536,"QXGA");
+        InitSetRes(53,2048,1080,"DCI2K",L"DCI2K");
+        InitSetRes(54,2048,1152,"WUXGA",L"WUXGA");
+        InitSetRes(55,2048,1280,"2.62MA",L"2.62MA");
+        InitSetRes(56,2048,1536,"QXGA",L"QXGA");
 
-        InitSetRes(57,2160,1200,"2.59M9");
-        InitSetRes(58,2160,1440,"3.11M2");
-        InitSetRes(59,2256,1504,"3.39MA");
-        InitSetRes(60,2280,1080,"FHD+/2.46M19:9");
+        InitSetRes(57,2160,1200,"2.59M9",L"2.59M9");
+        InitSetRes(58,2160,1440,"3.11M2",L"3.11M2");
+        InitSetRes(59,2256,1504,"3.39MA",L"3.39MA");
+        InitSetRes(60,2280,1080,"FHD+/2.46M19:9",L"FHD+/2.46M19:9");
 
-        InitSetRes(61,2304,1440,"3.32MA");
-        InitSetRes(62,2304,1728,"3.98M3");
-        InitSetRes(63,2340,1080,"2.53M19.5∶9");
-        InitSetRes(64,2400,1080,"2.59M09");
-        InitSetRes(65,2436,1125,"2.74M2.165");
-        InitSetRes(66,2520,1080,"2.72M1B");
-        InitSetRes(67,2538,1080,"2.74M1AD");
-        InitSetRes(68,2560,1080,"UW-FHD");
-        InitSetRes(69,2560,1440,"WQHD");
-        InitSetRes(70,2560,1600,"WQXGA");
-        InitSetRes(71,2560,1664,"4.26M1.538");
-        InitSetRes(72,2560,1700,"4.35M2");
-        InitSetRes(73,2560,1800,"4.61M1.422");
-        InitSetRes(74,2560,1920,"4.92M3");
-        InitSetRes(75,2560,2048,"QSXGA");
+        InitSetRes(61,2304,1440,"3.32MA",L"3.32MA");
+        InitSetRes(62,2304,1728,"3.98M3",L"3.98M3");
+        InitSetRes(63,2340,1080,"2.53M19.5∶9",L"2.53M19.5∶9");
+        InitSetRes(64,2400,1080,"2.59M09",L"2.59M09");
+        InitSetRes(65,2436,1125,"2.74M2.165",L"2.74M2.165");
+        InitSetRes(66,2520,1080,"2.72M1B",L"2.72M1B");
+        InitSetRes(67,2538,1080,"2.74M1AD",L"2.74M1AD");
+        InitSetRes(68,2560,1080,"UW-FHD",L"UW-FHD");
+        InitSetRes(69,2560,1440,"WQHD",L"WQHD");
+        InitSetRes(70,2560,1600,"WQXGA",L"WQXGA");
+        InitSetRes(71,2560,1664,"4.26M1.538",L"4.26M1.538");
+        InitSetRes(72,2560,1700,"4.35M2",L"4.35M2");
+        InitSetRes(73,2560,1800,"4.61M1.422",L"4.61M1.422");
+        InitSetRes(74,2560,1920,"4.92M3",L"4.92M3");
+        InitSetRes(75,2560,2048,"QSXGA",L"QSXGA");
 
-        InitSetRes(76,2576,1450,"3.74M9");
+        InitSetRes(76,2576,1450,"3.74M9",L"3.74M9");
 
-        InitSetRes(77,2732,2048,"5.60M3");
-        InitSetRes(78,2736,1824,"4.99M2");
+        InitSetRes(77,2732,2048,"5.60M3",L"5.60M3");
+        InitSetRes(78,2736,1824,"4.99M2",L"4.99M2");
 
-        InitSetRes(79,2880,900,"CWSXGA");
-        InitSetRes(80,2880,1200,"WFHD+");
-        InitSetRes(81,2880,1440,"4.15M2∶1");
-        InitSetRes(82,2880,1620,"4.67M9");
-        InitSetRes(83,2880,1800,"5.18MA");
-        InitSetRes(84,2880,1864,"5.37M17∶11");
-        InitSetRes(85,2880,1920,"5.53M2");
-        InitSetRes(86,2800,2100,"QSXGA+");
+        InitSetRes(79,2880,900,"CWSXGA",L"CWSXGA");
+        InitSetRes(80,2880,1200,"WFHD+",L"WFHD+");
+        InitSetRes(81,2880,1440,"4.15M2∶1",L"4.15M2∶1");
+        InitSetRes(82,2880,1620,"4.67M9",L"4.67M9");
+        InitSetRes(83,2880,1800,"5.18MA",L"5.18MA");
+        InitSetRes(84,2880,1864,"5.37M17∶11",L"5.37M17");
+        InitSetRes(85,2880,1920,"5.53M2",L"5.53M2");
+        InitSetRes(86,2800,2100,"QSXGA+",L"QSXGA+");
 
-        InitSetRes(87,2960,1440,"Infinity Display");
+        InitSetRes(87,2960,1440,"Infinity Display",L"Infinity Display");
 
-        InitSetRes(88,3000,2000,"3K");
-        InitSetRes(89,3000,2120,"3K");
-        InitSetRes(90,3024,1964,"5.94M17∶11");
-        InitSetRes(91,3072,1920,"5.90MA");
-        InitSetRes(92,3200,2048,"WQSXGA");
-        InitSetRes(93,3200,2400,"QUXGA");
-        InitSetRes(94,3200,1800,"WQXGA+");
-        InitSetRes(95,3240,2160,"7.00M2");
-        InitSetRes(96,3440,1440,"Ultra-Wide QHD");
-        InitSetRes(97,3456,2234,"7.72M1.547");
-        InitSetRes(98,3840,1600,"UW4K");
-        InitSetRes(99,3840,2160,"4K UHD-1");
-        InitSetRes(100,3840,2400,"WQUXGA");
+        InitSetRes(88,3000,2000,"3K",L"3K");
+        InitSetRes(89,3000,2120,"3K",L"3K");
+        InitSetRes(90,3024,1964,"5.94M17∶11",L"5.94M17∶11");
+        InitSetRes(91,3072,1920,"5.90MA",L"5.90MA");
+        InitSetRes(92,3200,2048,"WQSXGA",L"WQSXGA");
+        InitSetRes(93,3200,2400,"QUXGA",L"QUXGA");
+        InitSetRes(94,3200,1800,"WQXGA+",L"WQXGA+");
+        InitSetRes(95,3240,2160,"7.00M2",L"7.00M2");
+        InitSetRes(96,3440,1440,"Ultra-Wide QHD",L"Ultra-Wide QHD");
+        InitSetRes(97,3456,2234,"7.72M1.547",L"7.72M1.547");
+        InitSetRes(98,3840,1600,"UW4K",L"UW4K");
+        InitSetRes(99,3840,2160,"4K UHD-1",L"4K UHD-1");
+        InitSetRes(100,3840,2400,"WQUXGA",L"WQUXGA");
 
-        InitSetRes(101,4096,2160,"DCI 4K");
-        InitSetRes(102,4096,2304,"9.44M9");
-        InitSetRes(103,4096,3072,"HXGA");
-        InitSetRes(104,4320,1800,"UW4K");
-        InitSetRes(105,4480,2520,"11.29M9");
-        InitSetRes(106,4500,3000,"13.50M2");
+        InitSetRes(101,4096,2160,"DCI 4K",L"DCI 4K");
+        InitSetRes(102,4096,2304,"9.44M9",L"9.44M9");
+        InitSetRes(103,4096,3072,"HXGA",L"HXGA");
+        InitSetRes(104,4320,1800,"UW4K",L"UW4K");
+        InitSetRes(105,4480,2520,"11.29M9",L"11.29M9");
+        InitSetRes(106,4500,3000,"13.50M2",L"13.50M2");
 
-        InitSetRes(107,5120,1440,"DQHD");
-        InitSetRes(108,5120,2400,"UW5K+");
-        InitSetRes(109,5120,2160,"UW5K (WUHD)");
-        InitSetRes(110,5120,2880,"5K");
-        InitSetRes(111,5120,3200,"WHXGA");
-        InitSetRes(112,5120,4096,"HSXGA");
+        InitSetRes(107,5120,1440,"DQHD",L"DQHD");
+        InitSetRes(108,5120,2400,"UW5K+",L"UW5K+");
+        InitSetRes(109,5120,2160,"UW5K (WUHD)",L"UW5K (WUHD)");
+        InitSetRes(110,5120,2880,"5K",L"5K");
+        InitSetRes(111,5120,3200,"WHXGA",L"WHXGA");
+        InitSetRes(112,5120,4096,"HSXGA",L"HSXGA");
 
-        InitSetRes(113,6016,3384,"6K");
-        InitSetRes(114,6400,4096,"WHSXGA");
-        InitSetRes(115,6400,4800,"HUXGA");
-        InitSetRes(116,6480,3240,"-");
-        InitSetRes(117,6880,2880,"UW6K");
+        InitSetRes(113,6016,3384,"6K",L"6K");
+        InitSetRes(114,6400,4096,"WHSXGA",L"WHSXGA");
+        InitSetRes(115,6400,4800,"HUXGA",L"HUXGA");
+        InitSetRes(116,6480,3240,"-",L"-");
+        InitSetRes(117,6880,2880,"UW6K",L"UW6K");
 
-        InitSetRes(118,7680,3200,"UW7K");
-        InitSetRes(119,7680,4320,"8K UHD-2");
-        InitSetRes(120,7680,4800,"WHUXGA");
+        InitSetRes(118,7680,3200,"UW7K",L"UW7K");
+        InitSetRes(119,7680,4320,"8K UHD-2",L"8K UHD-2");
+        InitSetRes(120,7680,4800,"WHUXGA",L"WHUXGA");
 
-        InitSetRes(121,8192,4320,"8K Full Format");
-        InitSetRes(122,8192,8192,"8K Fulldome");
+        InitSetRes(121,8192,4320,"8K Full Format",L"8K Full Format");
+        InitSetRes(122,8192,8192,"8K Fulldome",L"8K Fulldome");
 
-        InitSetRes(123,8640,3600,"UW8K");
+        InitSetRes(123,8640,3600,"UW8K",L"UW8K");
 
-        InitSetRes(124,10240,4320,"UW10K");
+        InitSetRes(124,10240,4320,"UW10K",L"UW10K");
 
-        InitSetRes(125,15360,8640,"16K");
-        InitSetRes(126,16384,8640,"16K Full Format");
+        InitSetRes(125,15360,8640,"16K",L"16K");
+        InitSetRes(126,16384,8640,"16K Full Format",L"16K Full Format");
       //...
         gblendFunction.BlendOp = AC_SRC_OVER;
         gblendFunction.BlendFlags = 0;
         gblendFunction.SourceConstantAlpha = 32; // Transparency level (0-255)
         gblendFunction.AlphaFormat = 0;
+
+
+
+       casbs_i=0;
+       chosen_buffer_length_o=buffer_length_arr[casbs_i];
+       chosen_buffer_size_o=buffer_size_arr[casbs_i];
+       chosen_buffer_length=buffer_length_arr[casbs_i];
+       chosen_buffer_size=buffer_size_arr[casbs_i];
 
 
       for (int i=1;i<SCREEN_RESOLUTION_NUM;i++) {
@@ -1411,11 +1703,34 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       Init8BitRGBColorsNoir(rgbColorsNoir);
       Init8BitRGBColorsDefault(rgbColorsDefault);
+      Init8BitRGBColorsInvert(rgbColorsInvert,rgbColorsDefault);
       Init8BitRGBPaintDefault(rgbPaint,rgbColorsDefault,TRUE,8);
       wav_out_original_volume=VolumeValue(50,1); //set volume
-      waveOutGetVolume(hWaveOut[2],&wav_out_original_volume);
+      //waveOutGetVolume(hWaveOut[2],&wav_out_original_volume);
       //waveOutSetVolume(hWaveOut[6],wav_out_original_volume);
+     // waveOutOpen(&audioData[0].hWaveOut, WAVE_MAPPER, &audioData[0].awfx_music, (DWORD_PTR)waveOutProc1, (DWORD_PTR)&audioData[0], CALLBACK_FUNCTION);
+     // waveOutOpen(&audioData[1].hWaveOut, WAVE_MAPPER, &audioData[1].awfx_music, (DWORD_PTR)waveOutProc1, (DWORD_PTR)&audioData[1], CALLBACK_FUNCTION);
 
+      InitExtractAVIFrames(L"avi/intro_.avi",0);
+
+
+      //waveOutGetVolume(audioData[0].hWaveOut,&wav_out_original_volume);
+      //waveOutSetVolume(audioData[0].hWaveOut,wav_out_original_volume);
+      audioData[0].tempo=1.0;
+      audioData[0].sps_o=0;
+      audioData[0].sps_offset=0;
+      audioData[0].volume=0.2;
+
+      //waveOutSetVolume(audioData[1].hWaveOut,wav_out_original_volume);
+      audioData[1].tempo=1.0;
+      audioData[1].sps_o=0;
+      audioData[1].sps_offset=0;
+      audioData[1].volume=0.2;
+
+      audioData[0].playing_wav=FALSE;
+      audioData[1].playing_wav=FALSE;
+
+      BelieveWaveReOpen(0);
 
       color_chooser.is_choosing_color=FALSE;
       color_chooser.color_id=0;
@@ -1424,10 +1739,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //InitMarbles(16);
 
       //Delete tmp in music
-      remove("music/tmp/tmp.wav");
-      rmdir("music/tmp"); //remove tmp
+      remove("music_tmp/tmp/tmp.wav");
+      rmdir("music_tmp/tmp"); //remove tmp
+      remove("music_tmp/tmp2/tmp.wav");
+      rmdir("music_tmp/tmp2"); //remove tmp
 
-      MessageBox(NULL, TEXT(
+      /*MessageBox(NULL, TEXT(
 "\
 ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែល\n\
 អ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយក\n\
@@ -1441,7 +1758,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 \
 \
 In memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts by the CIA (1959, 1963-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v-Prel-02-01"), TEXT("អ្នកសម្លាប់សត្វចង្រៃ") ,MB_OK);
-//TEXT("អាពីងស៊ីរុយ") ,MB_OK); //ឈ្មោះចាស់
+//TEXT("អាពីងស៊ីរុយ") ,MB_OK);*/ //ឈ្មោះចាស់
 
       //load levels in save
       GetSavesInDir(L"saves");
@@ -1519,15 +1836,8 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
       back_to_menu=FALSE;
       in_main_menu=TRUE;
       level_chosen=0;
-      stop_playing_song=FALSE;
-
-
-      //Init avi playing
-      if (solar_hour>6 && solar_hour<18) { //day
-        InitExtractAVIFrames(L"avi/mainmenu_gameplay_day.avi",0);
-      } else {
-        InitExtractAVIFrames(L"avi/mainmenu_gameplay_night.avi",0);
-      }
+      stop_playing_song[0]=FALSE;
+      stop_playing_song[1]=TRUE;
 
      //Load Song
      //
@@ -1629,11 +1939,25 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
 
       }
 
-      title_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/title.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      title_small_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/title_small.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);//CopyStretchBitmap(title_sprite,SRCCOPY,356*3/5,256*3/5);
-      title_sprite_mask=CreateBitmapMask(title_sprite,LTGREEN,NULL);
-      title_small_sprite_mask=CreateBitmapMask(title_small_sprite,LTGREEN,NULL);
+      for (int i=0;i<2;i++) { //main menu
+        wchar_t introkhtxt[32];
+        swprintf(introkhtxt,32,L"sprites/intro_msg%d.bmp",i);
+        intro_msg[i] = (HBITMAP) LoadImageW(NULL, introkhtxt, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        intro_msg_mask[i] = CreateBitmapMask(intro_msg[i],BLACK,NULL);
+      }
 
+      kh_pressanykey = (HBITMAP) LoadImageW(NULL, L"sprites/kh_pressanykey.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      kh_pressanykey_mask = CreateBitmapMask(kh_pressanykey,LTGREEN,NULL);
+
+      title_sprite[0] = (HBITMAP) LoadImageW(NULL, L"sprites/title.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      title_small_sprite[0] = (HBITMAP) LoadImageW(NULL, L"sprites/title_small.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      title_sprite_mask[0]=CreateBitmapMask(title_sprite[0],LTGREEN,NULL);
+      title_small_sprite_mask[0]=CreateBitmapMask(title_small_sprite[0],LTGREEN,NULL);
+
+      title_sprite[1] = (HBITMAP) LoadImageW(NULL, L"sprites/title_english.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      title_small_sprite[1] = (HBITMAP) LoadImageW(NULL, L"sprites/title_english_small.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      title_sprite_mask[1]=CreateBitmapMask(title_sprite[1],LTGREEN,NULL);
+      title_small_sprite_mask[1]=CreateBitmapMask(title_small_sprite[1],LTGREEN,NULL);
 
 
       //KHMER
@@ -1654,7 +1978,7 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
       }
 
 
-      for (int i=0;i<7;i++) { //options
+      for (int i=0;i<15;i++) { //options
         wchar_t mm2khtxt[32];
         swprintf(mm2khtxt,32,L"sprites/khmai/mm2kh_%d.bmp",i);
         mm2_kh[i]=(HBITMAP) LoadImageW(NULL, mm2khtxt, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
@@ -1665,12 +1989,40 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
 
 
 
-      for (int i=0;i<5;i++) { //options
+      for (int i=0;i<5;i++) { //ingame
         wchar_t ga0khtxt[32];
         swprintf(ga0khtxt,32,L"sprites/khmai/kmaigametxt%d.bmp",i);
         ga0_kh[i]=(HBITMAP) LoadImageW(NULL, ga0khtxt, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
         ga0_kh_mask[i]= CreateBitmapMask(ga0_kh[i],/*LTBLUE*/BLACK,NULL);
       }
+
+      for (int i=0;i<2;i++) {//khmer bool
+        wchar_t khbooltxt[32];
+        swprintf(khbooltxt,32,L"sprites/khmai/kh_bool%d.bmp",i);
+        kh_bool[i]=(HBITMAP) LoadImageW(NULL, khbooltxt, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        kh_bool_white[i]=RotateSprite(NULL, kh_bool[i],0,LTGREEN,BLACK,WHITE,-1);
+        kh_bool_green[i]=RotateSprite(NULL, kh_bool[i],0,LTGREEN,BLACK,LLTGREEN,-1);
+        kh_bool_mask[i]= CreateBitmapMask(kh_bool[i],LTGREEN,NULL);
+      }
+
+
+      for (int i=0;i<2;i++) {//khmer difficulty
+        wchar_t khdiffictxt[32];
+        swprintf(khdiffictxt,32,L"sprites/khmai/kh_difficult%d.bmp",i);
+        kh_difficulty[i]=(HBITMAP) LoadImageW(NULL, khdiffictxt, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        kh_difficulty_white[i]=RotateSprite(NULL, kh_difficulty[i],0,LTGREEN,BLACK,WHITE,-1);
+        kh_difficulty_green[i]=RotateSprite(NULL, kh_difficulty[i],0,LTGREEN,BLACK,LLTGREEN,-1);
+        kh_difficulty_mask[i]= CreateBitmapMask(kh_difficulty[i],LTGREEN,NULL);
+      }
+
+      kh_cornmid= LoadImageW(NULL, L"sprites/khmai/kh_cornmid.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      kh_cornmid_white=RotateSprite(NULL, kh_cornmid,0,LTGREEN,BLACK,WHITE,-1);
+      kh_cornmid_green=RotateSprite(NULL, kh_cornmid,0,LTGREEN,BLACK,LLTGREEN,-1);
+      kh_cornmid_mask=CreateBitmapMask(kh_cornmid,LTGREEN,NULL);
+
+
+      kh_goback= LoadImageW(NULL, L"sprites/khmai/kh_back.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      kh_goback_mask=CreateBitmapMask(kh_goback,LTGREEN,NULL);
 
       prelude=TRUE;
       flag_prelude=TRUE;
@@ -1705,11 +2057,6 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
        loadSoundEffect(&keySoundEffect[5],L"snd/FE_MB_18.wav",FALSE); //Paint Sound Effect --> [5]
 //       loadSoundEffect(&keySoundEffect[6],L"snd/FE_MB_16.wav",FALSE); //Paint Confirm Sound Effect --> [6]
        loadSoundEffect(&keySoundEffect[6],L"snd/player_paint_confirm.wav",FALSE); //Paint Confirm Sound Effect --> [6]
-
-
-       for (int i=0;i<KEY_SFX_NUM;i++) {
-         adjustSFXVolume(&keySoundEffectCache[i],&keySoundEffect[i],game_volume,FALSE);
-       }
 
        loadSoundEffect(&channelSoundEffect[0],L"snd/fast.wav",TRUE);
        loadSoundEffect(&channelSoundEffect[1],L"snd/flesh_bloody_break.wav",TRUE);
@@ -1777,13 +2124,16 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
        //reload
        waveOutOpen(&hWaveOut[5], WAVE_MAPPER, &wfx_wav_sfx, 0, 0, CALLBACK_NULL);
        waveOutPrepareHeader(hWaveOut[5], &whdr[5], sizeof(WAVEHDR));
+
        return 0;
        break;
     //Tasks to perform on exit
     case WM_DESTROY:
 
-      remove("music/tmp/tmp.wav");
-      rmdir("music/tmp"); //remove tmp
+      remove("music_tmp/tmp/tmp.wav");
+      rmdir("music_tmp/tmp"); //remove tmp
+      remove("music_tmp/tmp2/tmp.wav");
+      rmdir("music_tmp/tmp2"); //remove tmp
       PostQuitMessage(0);
       return 0;
       break;
@@ -1855,7 +2205,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
    }
    InitCController();
 
-  Sleep(100);
+  /*Sleep(100);
   INPUT ip;
   ip.type = INPUT_KEYBOARD;
   ip.ki.wScan = 0;
@@ -1884,16 +2234,15 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
     SendInput(1, &ip, sizeof(INPUT));
 
     Sleep(100);
-  }
+  }*/
 
   SetForegroundWindow(hwnd);
   HANDLE thread1=CreateThread(NULL,0,AnimateTask01,NULL,0,NULL); //Spawm Game Logic Thread
   HANDLE thread2=CreateThread(NULL,0,AnimateTask02,NULL,0,NULL); //Spawm Game Logic Thread
   HANDLE thread3=CreateThread(NULL,0,SoundTask,NULL,0,NULL); //Spawn Song Player Thread
-  HANDLE thread4=CreateThread(NULL,0,AnimateAVI,NULL,0,NULL); //Spawm Game Logic Thread
-  HANDLE thread5=CreateThread(NULL,0,PlayMemSnd3,NULL,0,NULL); //Spawn music buffering1
-  HANDLE thread6=CreateThread(NULL,0,PlayMemSnd7,NULL,0,NULL); //Spawn music buffering2
-
+  //HANDLE thread4=CreateThread(NULL,0,AnimateAVI,NULL,0,NULL); //Spawm Game Logic Thread
+  //HANDLE thread5=CreateThread(NULL,0,PlayMemSnd3,NULL,0,NULL); //Spawn music buffering1
+  //HANDLE thread6=CreateThread(NULL,0,PlayMemSnd7,NULL,0,NULL); //Spawn music buffering2
 
   //SetTimer(hwnd, 1, frameDelays[currentFrame] , NULL);
   /*LONG lStyle0 = GetWindowLong(hwnd, GWL_STYLE);
@@ -1907,7 +2256,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   //lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU); //borderless mode
   //SetWindowLong(hwnd, GWL_STYLE, lStyle);
   //SetWindowPos(hwnd,HWND_TOPMOST,0,0,SCREEN_WIDTH,SCREEN_HEIGHT, SWP_FRAMECHANGED);
-  SetWindowPos(hwnd,HWND_TOPMOST,SCREEN_WIDTH/2-320/2,SCREEN_HEIGHT/2-240/2,320,240, SWP_FRAMECHANGED);
+  SetWindowPos(hwnd,HWND_TOPMOST,SCREEN_WIDTH/2-640/2,SCREEN_HEIGHT/2-440/2,640,440, SWP_FRAMECHANGED);
 
   MSG msg;
   while (true) {
@@ -1929,10 +2278,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   //HWND hShellWnd = FindWindowA("Shell_TrayWnd", NULL);
   //ShowWindow(hShellWnd, SW_SHOW);
 
-  remove("music/tmp/tmp.wav");
-  rmdir("music/tmp"); //remove tmp, manually because C is like that
+  remove("music_tmp/tmp/tmp.wav");
+  remove("music_tmp/tmp2/tmp.wav");
+  rmdir("music_tmp/tmp"); //remove tmp, manually because C is like that
   waveOutSetVolume(hWaveOut[2],wav_out_original_volume);
   waveOutSetVolume(hWaveOut[6],wav_out_original_volume);
+  SaveOptions();
   return (int) msg.wParam;
 }
 

@@ -877,9 +877,10 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
       }
 
       if (call_help_timer<2000/*5000*/) {
-        call_help_timer+=6;
+        call_help_timer+=10;
       }
-      Sleep(6);
+//      Sleep(6);
+      Sleep(10);
 
   } else { //in main menu
         if (clean_up_sound) {
