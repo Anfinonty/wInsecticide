@@ -362,7 +362,7 @@ void SaveLvlBmp(HWND hwnd,HDC hdc)
   if (MapEditor.set_lvl_ambient_val[6]==1 && 
         (MapEditor.set_lvl_ambient_val[7]!=shadow_grad_rise || MapEditor.set_lvl_ambient_val[8]!=shadow_grad_run)) {
     if (MapEditor.set_lvl_ambient_val[0]==1 || (MapEditor.set_lvl_ambient_val[0]==2 && MapEditor.set_lvl_ambient_val[1]>127)) {
-      shadowc=DKRDKGRAY;
+      shadowc=RGB(8,8,8);//DKRDKGRAY;
     }
     CreatePlatformShadowBitmap(hdc2, MapEditor.set_lvl_ambient_val[7],
                                     MapEditor.set_lvl_ambient_val[8],

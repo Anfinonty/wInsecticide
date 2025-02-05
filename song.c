@@ -630,6 +630,14 @@ void LoadBufferSFX(const wchar_t* filename, int z)
       audioData[z].queue_read_buffer++;
       audioData[z].read_filesize+=audioData[z].read_size;
     }
+
+    //memcpy(audioData[z].buffer1,audioData[z].read_buffer[0],audioData[z].read_size);
+    //adjustBufferVol(audioData->buffer1,audioData->read_buffer[0],audioData->read_size,audioData->volume);
+    //audioData[z].current_filesize+=audioData[z].read_size;
+    //memcpy(audioData[z].buffer2,audioData[z].read_buffer[1],audioData[z].read_size);
+    //adjustBufferVol(audioData->buffer2,audioData->read_buffer[1],audioData->read_size,audioData->volume);
+    //audioData[z].current_filesize+=audioData[z].read_size;
+
     //memcpy(audioData[z].buffer1,audioData[z].read_buffer[0],audioData[z].read_size);
     adjustBufferVol(audioData[z].buffer1,audioData[z].read_buffer[0],audioData[z].read_size,audioData[z].volume);
     audioData[z].current_filesize+=audioData[z].read_size;
@@ -881,8 +889,7 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
       if (call_help_timer<2000/*5000*/) {
         call_help_timer+=10;
       }
-//      Sleep(6);
-      Sleep(10);
+      Sleep(6);
 
   } else { //in main menu
         if (clean_up_sound) {

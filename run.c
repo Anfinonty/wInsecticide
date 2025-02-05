@@ -275,8 +275,8 @@ bool is_khmer=TRUE;
 
 
 
-#define DEFAULT_SLEEP_TIMER			10//6
-#define SLOWDOWN_SLEEP_TIMER			30
+#define DEFAULT_SLEEP_TIMER			6
+#define SLOWDOWN_SLEEP_TIMER			35//30
 
 #define DEFAULT_PLAYER_HEALTH			20
 #define DEFAULT_PLAYER_BLOCK_HEALTH_MAX 100//20
@@ -489,50 +489,56 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
       }
     } else if (in_map_editor) {
       MapEditorAct();
-      Sleep(10);
+      Sleep(6);
     } else {
-      if (main_menu_chosen!=3) {
-      if (level_loaded) {
-        PlayerAct();
-  
-        for (int i=0;i<ENEMY_NUM;i++) {
-          EnemyAct(i);
-        }
-        if (is_raining) {
-          RainAct();
-          if (!player.time_breaker) {
-            ScreenRainDropAct();
+      if (main_menu_chosen==3) {
+        Sleep(1000);
+      } else {
+        if (wav_mode!=0) {
+          Sleep(1000);
+        } else {
+          if (level_loaded) {
+            PlayerAct();
+      
+            for (int i=0;i<ENEMY_NUM;i++) {
+              EnemyAct(i);
+            }
+            if (is_raining) {
+              RainAct();
+              if (!player.time_breaker) {
+                ScreenRainDropAct();
+              }
+            }
           }
-        }
-      }
 
 
-      if (game_audio && !flag_load_melevel) {
-          for (int i=0;i<player.bullet_shot_num;i++) {
-            BulletSndAct(player.bullet[i]);
+          if (game_audio && !flag_load_melevel) {
+              for (int i=0;i<player.bullet_shot_num;i++) {
+                BulletSndAct(player.bullet[i]);
+              }
+              if (player.bullet_shot!=-1) { //player sounds made by sniper player bullets
+                BulletSndAct(player.bullet_shot);
+              }
+              /*for (int i=0;i<ENEMY_NUM;i++) {
+                EnemySndAct(i);
+              }*/
+              PlayerSndAct();       
           }
-          if (player.bullet_shot!=-1) { //player sounds made by sniper player bullets
-            BulletSndAct(player.bullet_shot);
-          }
-          /*for (int i=0;i<ENEMY_NUM;i++) {
-            EnemySndAct(i);
-          }*/
-          PlayerSndAct();       
-      }
-
-      if (flag_load_level) {
-        flag_load_level=FALSE;
-        if (main_menu_chosen==0) {
-          InitLevel(TRUE);
+          Sleep(6);
+          //Sleep(1000);
         }
-      } else if (flag_load_melevel) {
+
+        if (flag_load_level) {
+          flag_load_level=FALSE;
+          if (main_menu_chosen==0) {
+            InitLevel(TRUE);
+          }
+        } else if (flag_load_melevel) {
           InterruptAllSnd();
           flag_load_melevel=FALSE;
           InitLevelMapEditor();
+        }
       }
-      //Sleep(6);
-      Sleep(20);
-    }
     }
   }
 }
@@ -574,22 +580,25 @@ DWORD WINAPI AnimateTask02(LPVOID lpArg) { //FPS counter
 
 
     } else { //intro prelude
-        BYTE* pDIB = (BYTE*) AVIStreamGetFrame(pFrame, global_frames);
-        if (global_frames%2!=0) {
-          DeleteObject(global_avi_bitmap2);
-          global_avi_bitmap2=CreateFromPackedDIBPointer2(pDIB); //set up and draw even
+        if (loading_numerator>=loading_denominator) {
+            BYTE* pDIB = (BYTE*) AVIStreamGetFrame(pFrame, global_frames);
+            if (global_frames%2!=0) {
+              DeleteObject(global_avi_bitmap2);
+              global_avi_bitmap2=CreateFromPackedDIBPointer2(pDIB); //set up and draw even
+            } else {
+              DeleteObject(global_avi_bitmap1);
+              global_avi_bitmap1=CreateFromPackedDIBPointer2(pDIB); //set up and draw odd
+            }
+
+            global_frames++;
+            if (global_frames>=iNumFrames)
+              global_frames=0;
+
+
+            Sleep(70);
         } else {
-          DeleteObject(global_avi_bitmap1);
-          global_avi_bitmap1=CreateFromPackedDIBPointer2(pDIB); //set up and draw odd
+          Sleep(1000);
         }
-
-        global_frames++;
-        if (global_frames>=iNumFrames)
-          global_frames=0;
-
-
-        Sleep(100);
-
     }
   }
 }
@@ -1887,8 +1896,8 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
       enemy6_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy6-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       enemy6_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy6-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
-      dkrdkgray_shadow_tile = (HBITMAP) LoadImageW(NULL, L"sprites/shadow_dkrdkgray.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);;
-      ltgray_shadow_tile = (HBITMAP) LoadImageW(NULL, L"sprites/shadow_ltgray.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);;
+      dkrdkgray_shadow_tile = (HBITMAP) LoadImageW(NULL, L"sprites/shadow_dkrdkgray.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      ltgray_shadow_tile = (HBITMAP) LoadImageW(NULL, L"sprites/shadow_ltgray.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
       //Load mouse cursor sprite
       //player cursor
@@ -1988,6 +1997,12 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
       }
 
 
+      for (int i=0;i<4;i++) { //ingame
+        wchar_t ga0khhardtxt[32];
+        swprintf(ga0khhardtxt,32,L"sprites/khmai/kmaigametxth%d.bmp",i);
+        ga0_khhard[i]=(HBITMAP) LoadImageW(NULL, ga0khhardtxt, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        ga0_khhard_mask[i]= CreateBitmapMask(ga0_khhard[i],BLACK,NULL);
+      }
 
       for (int i=0;i<5;i++) { //ingame
         wchar_t ga0khtxt[32];
@@ -2129,7 +2144,12 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
        break;
     //Tasks to perform on exit
     case WM_DESTROY:
-
+      if (audioData[0].music_file) {
+        fclose(audioData[0].music_file);
+      }
+      if (audioData[1].music_file) {
+        fclose(audioData[1].music_file);
+      }
       remove("music_tmp/tmp/tmp.wav");
       rmdir("music_tmp/tmp"); //remove tmp
       remove("music_tmp/tmp2/tmp.wav");
@@ -2205,7 +2225,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
    }
    InitCController();
 
-  /*Sleep(100);
+  Sleep(100);
   INPUT ip;
   ip.type = INPUT_KEYBOARD;
   ip.ki.wScan = 0;
@@ -2233,8 +2253,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
     ip.ki.dwFlags = KEYEVENTF_KEYUP;
     SendInput(1, &ip, sizeof(INPUT));
 
-    Sleep(100);
-  }*/
+    Sleep(200);
+  }
 
   SetForegroundWindow(hwnd);
   HANDLE thread1=CreateThread(NULL,0,AnimateTask01,NULL,0,NULL); //Spawm Game Logic Thread
@@ -2267,12 +2287,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
       DispatchMessage(&msg);
     }
   }
-  /*MSG msg;
-  while (GetMessage(&msg, NULL, 0, 0)) {
-    TranslateMessage(&msg);
-    DispatchMessage(&msg);
-  }
-  timeEndPeriod(1);*/
 
   //In case WM_DESTROY doesnt work
   //HWND hShellWnd = FindWindowA("Shell_TrayWnd", NULL);

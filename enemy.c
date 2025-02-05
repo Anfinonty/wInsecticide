@@ -2592,7 +2592,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
 
       Enemy[i]->play_death_snd=TRUE;
       Enemy[i]->health=-99999;
-      if (in_main_menu) {
+      if (in_main_menu && game_audio) {
         PlayMemSnd(&channelSoundEffect[1],&channelSoundEffectCache[1],TRUE,0); 
       }
     }

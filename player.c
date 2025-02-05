@@ -1270,15 +1270,15 @@ void PlayerActGravityMovement(int grav_speed,int speed)
       }
       if (player.jump_height==0 && player.in_water_timer==0) {
         if (player.in_air_timer<1100) { //note: 1001 is post fling or rebounding
-          if (player.in_air_timer%5/*20*/==0 && player.grav<=100) {
-            player.grav++;
+          if (player.in_air_timer%20==0 && player.grav<=100) {
+            player.grav+=2;
           /*if (player.is_rebounding && player.speed<4) {
             player.speed++;
           }*/
           }
         } else {
-          if (player.in_air_timer%3/*12*/==0 && player.grav<=100 && player.in_water_timer==0) {
-            player.grav++;
+          if (player.in_air_timer%12==0 && player.grav<=100 && player.in_water_timer==0) {
+            player.grav+=2;
           }
         }
       }
@@ -1435,15 +1435,15 @@ void PlayerActMouseClick()
 
 
 
-      int b_speed_m=5;
+      int b_speed_m=9;
       double b_dmg_m=1;
       int b_g_type=5;
       int b_range=MAX_WEB_LENGTH*2;
-      if (player.speed>10) {
+      /*if (player.speed>10) {
         b_speed_m=9;
       } else if (player.speed>5) {
         b_speed_m=7;      
-      }
+      }*/
 
       if (player.speed>24)
         b_dmg_m=4;
@@ -1631,7 +1631,9 @@ void PlayerActMouseClick()
         player.in_air_timer=1000;
         player.decceleration_timer=0;
         if (player.on_ground_timer==0 && !player.is_on_ground_edge && !player.rst_up && !player.rst_down) {
-          if (player.speed<10)
+          if (player.speed<5)
+            player.speed+=3;
+          else if (player.speed<10)
             player.speed+=2;
           else
             player.speed++;
@@ -1921,7 +1923,7 @@ void PlayerAct()
     speed_limiter=4;
   }
 
-  if (player.is_swinging) {
+  if (player.is_swinging || (player.fling_distance!=0) || (player.is_rebounding && !player.is_swinging && grav_speed==0)) {
     speed_limiter=speed_limiter+speed_limiter/4+1;
   }
 
@@ -1937,7 +1939,7 @@ void PlayerAct()
     speed_limiter=speed_limiter/2+1;
   } else  {
     if (player.in_water_timer>0) {
-      if (player.in_water_timer%5/*20*/==0 && player.grav<=100) {
+      if (player.in_water_timer%7/*5*//*20*/==0 && player.grav<=100) {
         player.grav++;
       }
       player.in_water_timer--;
