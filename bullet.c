@@ -163,12 +163,14 @@ void BulletDamagePlayerAct(int bullet_id)
     
     if (blocked_bullet_dmg>0) {
       if (!player.time_breaker) { //penalty for hitting a bullet
-        if (player.speed>5) {
-          player.speed--;
-        } else { //penalty only at low speed
-          if (player.time_breaker_units>1) {
-            player.invalid_shoot_timer=9;
-            player.time_breaker_units=1;
+        if (player.block_health<=0 || player.block_timer==0) {
+          if (player.speed>5) {
+            player.speed--;
+          } else { //penalty only at low speed
+            if (player.time_breaker_units>1) {
+              player.invalid_shoot_timer=9;
+              player.time_breaker_units=1;
+            }
           }
         }
       }
@@ -330,7 +332,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
     //bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,0.5,0.5);
   //} else {
   bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2);
-  if (bullet_on_ground_id==-1 && Enemy[enemy_id]->health<=0 && Enemy[enemy_id]->death_timer>220) {
+  if (bullet_on_ground_id==-1 && Enemy[enemy_id]->health<=0 && (Enemy[enemy_id]->death_timer>100 && !game_hard)) {
     double pbdist=GetDistance(player.x,player.y,Bullet[bullet_id].x,Bullet[bullet_id].y);
     double pbt=0.2;
     if (pbdist<250) {

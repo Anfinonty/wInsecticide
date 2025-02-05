@@ -318,6 +318,7 @@ void GlobalKeypressDown(WPARAM wParam)
 
 
       case 'V':
+        if (!in_map_editor) {
         if (!(keydown(VK_LSHIFT) || keydown(VK_RSHIFT))) {
           if (audioData[gct].sps_offset>-audioData[gct].sps_o) {
              LiveWaveClose(gct);
@@ -332,10 +333,12 @@ void GlobalKeypressDown(WPARAM wParam)
              audioData[gct].tempo-=0.25;
           }
         }
+        }
         break;
 
 
       case 'B':
+        if (!in_map_editor) {
         if (!(keydown(VK_LSHIFT) || keydown(VK_RSHIFT))) {
           if (audioData[gct].sps_offset<audioData[gct].sps_o*2) {
              LiveWaveClose(gct);
@@ -350,6 +353,7 @@ void GlobalKeypressDown(WPARAM wParam)
              audioData[gct].tempo+=0.25;
           }
         }
+        }
         break;
 
 
@@ -362,8 +366,11 @@ void GlobalKeypressDown(WPARAM wParam)
             if (iw>19) {
               iw=0;
             }
-            memcpy(audioData[gct].sample1+
-                (audioData[gct].read_size/2*w),audioData[gct].read_buffer[iw],audioData[gct].read_size);
+            //memcpy(audioData[gct].sample1+
+              //  (audioData[gct].read_size/2*w),audioData[gct].read_buffer[iw],audioData[gct].read_size);
+            adjustBufferVol(audioData[gct].sample1+
+                (audioData[gct].read_size/2*w),audioData[gct].read_buffer[iw],audioData[gct].read_size,audioData[gct].volume);
+
           }
         } else { //play sample
           waveOutReset(hWaveOut[2]);
@@ -379,8 +386,10 @@ void GlobalKeypressDown(WPARAM wParam)
             if (iw>19) {
               iw=0;
             }
-            memcpy(audioData[gct].sample2+
-                (audioData[gct].read_size/2*w),audioData[gct].read_buffer[iw],audioData[gct].read_size);
+            //memcpy(audioData[gct].sample2+
+              //  (audioData[gct].read_size/2*w),audioData[gct].read_buffer[iw],audioData[gct].read_size);
+            adjustBufferVol(audioData[gct].sample2+
+                (audioData[gct].read_size/2*w),audioData[gct].read_buffer[iw],audioData[gct].read_size,audioData[gct].volume);
           }
         } else { //play sample
           waveOutReset(hWaveOut[6]);
@@ -447,6 +456,7 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
         break;
 
       case '6': //adjust buffer size rate
+        if (audioData[0].playing_wav || audioData[1].playing_wav) {
         if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
           int a=casbs_i;a++;if (a==3) {a=0;}
           casbs_i=a;
@@ -457,6 +467,7 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
 
           LiveWaveClose(gct);
           LiveWaveReOpen(gct);          
+        }
         }
         break;
 

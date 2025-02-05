@@ -297,7 +297,11 @@ void InitLevel(bool load_lvl)
   if (load_lvl) {
     swprintf(lvl_name,128,L"%s",level_names[level_chosen]);    
     swprintf(txt,128,L"saves/%s/level.txt",level_names[level_chosen]);
-    swprintf(save_level,128,L"saves/%s/scores.txt",level_names[level_chosen]);
+    if (!game_hard) {
+      swprintf(save_level,128,L"saves/%s/scores.txt",level_names[level_chosen]);
+    } else {
+      swprintf(save_level,128,L"saves/%s/scores_hard.txt",level_names[level_chosen]);
+    }
   } else {
     swprintf(lvl_name,128,L"mm_demo2");    
     swprintf(txt,128,L"saves/mm_demo2/level.txt");

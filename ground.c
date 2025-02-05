@@ -633,11 +633,12 @@ void DestroyGround(int i)
 
 void DrawWebs(HDC hdc)
 { int id;
-  int c=LTCYAN;//Highlight(IsInvertedBackground(),LTCYAN,LTRED);
+  int c;
   int cx=(int)player.cam_x+(int)player.cam_move_x+(int)player.cam_mouse_move_x;
   int cy=(int)player.cam_y+(int)player.cam_move_y+(int)player.cam_mouse_move_y;
   for (int i=GROUND_NUM;i<GROUND_NUM+player.max_web_num;i++) {
     id=i;
+    c=Highlight(Ground[id]->health%10<5,CYAN,LTCYAN);
     if (id<GROUND_NUM+MAX_WEB_NUM && Ground[id]->x1>-20) {
       if (Ground[id]->health>500) {
         GrLine(hdc,

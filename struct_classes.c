@@ -1108,6 +1108,8 @@ HBITMAP kh_pressanykey;
 HBITMAP kh_pressanykey_mask;
 
 //Khmer ingame, while playing game
+HBITMAP ga0_khhard[4];
+HBITMAP ga0_khhard_mask[4];
 HBITMAP ga0_kh[5];
 HBITMAP ga0_kh_mask[5];
 

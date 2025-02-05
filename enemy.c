@@ -381,7 +381,9 @@ void EnemySpriteOnGroundId(int enemy_id,int ground_id)
         }
       } else {
         if (!(Enemy[enemy_id]->species>=5 && Enemy[enemy_id]->species<=7)) { 
-          Enemy[enemy_id]->in_air_timer=2;
+          if (Enemy[enemy_id]->in_air_timer<500) {
+            Enemy[enemy_id]->in_air_timer+=2;//=2;
+          }
           Enemy[enemy_id]->saved_ground_id=-1;
           Enemy[enemy_id]->on_ground_edge_id=-1;
           Enemy[enemy_id]->is_in_ground_edge=FALSE;
@@ -389,7 +391,9 @@ void EnemySpriteOnGroundId(int enemy_id,int ground_id)
       }
     } else {
       if (!(Enemy[enemy_id]->species>=5 && Enemy[enemy_id]->species<=7)) { 
-        Enemy[enemy_id]->in_air_timer=2;
+        if (Enemy[enemy_id]->in_air_timer<500) {
+          Enemy[enemy_id]->in_air_timer+=2;//=2;
+        }
         Enemy[enemy_id]->saved_ground_id=-1;
         Enemy[enemy_id]->on_ground_edge_id=-1;
         Enemy[enemy_id]->is_in_ground_edge=FALSE;
@@ -458,7 +462,9 @@ void EnemyGravity(int enemy_id)
         Enemy[enemy_id]->y-=1; //floating up
       }
     }
-    Enemy[enemy_id]->in_air_timer=2;
+    if (Enemy[enemy_id]->in_air_timer<50) {
+      Enemy[enemy_id]->in_air_timer+=2;//2;
+    }
   } 
 }
 
@@ -590,7 +596,7 @@ void EnemyLOSAct(int i)
   int los_on_ground_id=0,j=0;
   double x1=0,x2=0,y1=0,y2=0,bullet_gradient=0;
   bool allow_act=FALSE;
-  for (j=0;j<10;j++) {//LOS Speed
+  for (j=0;j</*10*/15;j++) {//LOS Speed
     if (Enemy[i]->LOS_shot) {
       if (Enemy[i]->LOS_left) {
         Enemy[i]->LOS_x-=cos(Enemy[i]->LOS_angle);
@@ -1070,8 +1076,8 @@ void EnemyAntAct(int i,int slash_time_i)
     speed=1;
   } else {
     grav=1+Enemy[i]->in_air_timer/5;
-    if (grav>4) {
-      grav=4;
+    if (grav>10) {
+      grav=10;
     }
     if (Enemy[i]->is_in_ground_edge) {
       speed=5*Enemy[i]->speed_multiplier;
@@ -1165,7 +1171,7 @@ void EnemyAntAct(int i,int slash_time_i)
 bool InsectBites(int i,int dmg,bool is_mosquito)
 {
 
-  if (player.block_timer>23 || player.block_timer==0) {
+  if (player.block_timer>23 || player.block_timer==0 || player.block_health<=0) {
       Enemy[i]->bullet_cooldown=Enemy[i]->bullet_cooldown_max;
       if (Enemy[i]->bullet_fire_cooldown<=0) {
          Enemy[i]->bullet_fire_cooldown=Enemy[i]->bullet_fire_cooldown_max;
@@ -1192,6 +1198,7 @@ bool InsectBites(int i,int dmg,bool is_mosquito)
            }
          }
 
+        
         if (player.speed>5) {
           player.speed--;
         } else { //penalty only at low speed
@@ -1770,9 +1777,11 @@ void EnemyAct(int i)
           Enemy[i]->y--;
         }
 
-        if ((Enemy[i]->species==1 || Enemy[i]->species==3) && !Enemy[i]->move_to_target && !Enemy[i]->target_player) {//Species 1 gravity
+        if ((Enemy[i]->species==1 || Enemy[i]->species==3) && !Enemy[i]->move_to_target /*&& !Enemy[i]->target_player*/) {//Species 1 gravity
           if (slash_time_i==0) {
-            EnemyGravity(i);
+            for (int gr=0;gr<1+Enemy[i]->in_air_timer/5;gr++) {
+              EnemyGravity(i);
+            }
             if (Enemy[i]->in_air_timer>0) {
               Enemy[i]->in_air_timer--;
             }
@@ -1907,14 +1916,14 @@ void EnemyAct(int i)
             if (!game_hard) {
               Enemy[i]->bullet_cooldown--;
             } else {
-	          Enemy[i]->bullet_cooldown-=10;
+	          Enemy[i]->bullet_cooldown-=6;
             }
           }
         } else {
           if (!game_hard) {
 	        Enemy[i]->bullet_fire_cooldown--;
           } else {
-	        Enemy[i]->bullet_fire_cooldown-=10;
+	        Enemy[i]->bullet_fire_cooldown-=6;
           }
         }
       }
@@ -2722,7 +2731,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
           //GrPrint(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y+48,printfunny,WHITE);
           int rsid=Enemy[i]->rotated_sprite_id;
           if (rsid!=-1 && etype>-1 && etype<ENEMY_TYPE_NUM) {
-          if (Enemy[i]->sprite_in_water && !Enemy[i]->web_stuck) {
+          if ((Enemy[i]->sprite_in_water && !Enemy[i]->web_stuck) || (Enemy[i]->in_air_timer>0 && !Enemy[i]->move_to_target)) {
             int swim_rot_id=7;
             if (Enemy[i]->species==3) {
               swim_rot_id=9;

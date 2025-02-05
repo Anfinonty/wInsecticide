@@ -631,10 +631,10 @@ void LoadBufferSFX(const wchar_t* filename, int z)
       audioData[z].read_filesize+=audioData[z].read_size;
     }
     //memcpy(audioData[z].buffer1,audioData[z].read_buffer[0],audioData[z].read_size);
-    adjustBufferVol(audioData->buffer1,audioData->read_buffer[0],audioData->read_size,audioData->volume);
+    adjustBufferVol(audioData[z].buffer1,audioData[z].read_buffer[0],audioData[z].read_size,audioData[z].volume);
     audioData[z].current_filesize+=audioData[z].read_size;
     //memcpy(audioData[z].buffer2,audioData[z].read_buffer[1],audioData[z].read_size);
-    adjustBufferVol(audioData->buffer2,audioData->read_buffer[1],audioData->read_size,audioData->volume);
+    adjustBufferVol(audioData[z].buffer2,audioData[z].read_buffer[1],audioData[z].read_size,audioData[z].volume);
     audioData[z].current_filesize+=audioData[z].read_size;
     audioData[z].queue_play_buffer=2;
   }
@@ -710,6 +710,8 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
                   case 0:LoadBufferSFX(wav_song_playing,0);break;
                   case 1:LoadBufferSFX(wav_song_playing2,1);break;                
                 }
+                BelieveWaveClose();
+                BelieveWaveReOpen(z);
                 time_song_end[z]=song_audio_duration[z];//time_song_start+song_audio_duration[z];//songAudio->duration;
                 loading_flac[z]=FALSE;
                 loading_mp3[z]=FALSE;

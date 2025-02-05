@@ -1392,10 +1392,18 @@ void DrawUI(HDC hdc,HDC hdc2)
   if (is_khmer) {
       int c_kh1=BROWN;//GREEN;
       int c_kh2=YELLOW;//LTGREEN;
+      if (game_hard) {
+        c_kh1=LTCYAN;
+        c_kh2=LTBLUE;
+      }
     //Draw Best Score
-      DrawBitmap(hdc,hdc2,16+8,1+8+16+digit_num4,0,0,65,19,ga0_kh_mask[0],SRCAND,FALSE,FALSE);
-      DrawBitmap(hdc,hdc2,16+8,1+8+16+digit_num4,0,0,65,19,ga0_kh[0],SRCPAINT,FALSE,FALSE);
-
+      if (!game_hard) {
+        DrawBitmap(hdc,hdc2,16+8,1+8+16+digit_num4,0,0,65,19,ga0_kh_mask[0],SRCAND,FALSE,FALSE);
+        DrawBitmap(hdc,hdc2,16+8,1+8+16+digit_num4,0,0,65,19,ga0_kh[0],SRCPAINT,FALSE,FALSE);
+      } else {
+        DrawBitmap(hdc,hdc2,16+8,1+8+16+digit_num4,0,0,65,19,ga0_khhard_mask[0],SRCAND,FALSE,FALSE);
+        DrawBitmap(hdc,hdc2,16+8,1+8+16+digit_num4,0,0,65,19,ga0_khhard[0],SRCPAINT,FALSE,FALSE);
+      }
 
       swprintf(wgamebesttimetxt,32,L"%5.3f",best_time);
       GrPrintW(hdc,16+4,24+8+16+digit_num4,ReplaceToKhmerNum(wgamebesttimetxt),"",c_kh1,16,FALSE,yes_unifont);
@@ -1408,8 +1416,13 @@ void DrawUI(HDC hdc,HDC hdc2)
 
     //Draw Current Time/Congrats
       if (!game_over) {
-        DrawBitmap(hdc,hdc2,GR_WIDTH-69-32,8+16+4+digit_num4,0,0,69,16,ga0_kh_mask[1],SRCAND,FALSE,FALSE);
-        DrawBitmap(hdc,hdc2,GR_WIDTH-69-32,8+16+4+digit_num4,0,0,69,16,ga0_kh[1],SRCPAINT,FALSE,FALSE);
+        if (!game_hard) {
+          DrawBitmap(hdc,hdc2,GR_WIDTH-69-32,8+16+4+digit_num4,0,0,69,16,ga0_kh_mask[1],SRCAND,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,GR_WIDTH-69-32,8+16+4+digit_num4,0,0,69,16,ga0_kh[1],SRCPAINT,FALSE,FALSE);
+        } else {
+          DrawBitmap(hdc,hdc2,GR_WIDTH-69-32,8+16+4+digit_num4,0,0,69,16,ga0_khhard_mask[1],SRCAND,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,GR_WIDTH-69-32,8+16+4+digit_num4,0,0,69,16,ga0_khhard[1],SRCPAINT,FALSE,FALSE);
+        }
 
         swprintf(wgametimetxt,32,L"%5.3f",print_time_ms);
         digit_num=GR_WIDTH-wcslen(wgametimetxt)*12-16-24;
@@ -1425,6 +1438,7 @@ void DrawUI(HDC hdc,HDC hdc2)
           DrawBitmap(hdc,hdc2,GR_WIDTH-106-32,8+16+digit_num4,0,0,123,37,ga0_kh_mask[2],SRCAND,FALSE,FALSE);
           DrawBitmap(hdc,hdc2,GR_WIDTH-106-32,8+16+digit_num4,0,0,123,37,ga0_kh[2],SRCPAINT,FALSE,FALSE);
 
+
           swprintf(wgametimetxt,32,L"%5.3f",print_time_ms);
           digit_num=GR_WIDTH-wcslen(wgametimetxt)*12-16-24;
           GrPrintW(hdc,digit_num-4,16+24+8+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",PURPLE,16,FALSE,yes_unifont);
@@ -1433,8 +1447,14 @@ void DrawUI(HDC hdc,HDC hdc2)
           GrPrintW(hdc,digit_num-6,16+24+10+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",PURPLE,16,FALSE,yes_unifont);
           GrPrintW(hdc,digit_num-5,16+24+9+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",LTPURPLE,16,FALSE,yes_unifont);
         } else {
-          DrawBitmap(hdc,hdc2,GR_WIDTH-69-32,8+16+digit_num4,0,0,69,16,ga0_kh_mask[1],SRCAND,FALSE,FALSE);
-          DrawBitmap(hdc,hdc2,GR_WIDTH-69-32,8+16+digit_num4,0,0,69,16,ga0_kh[1],SRCPAINT,FALSE,FALSE);
+          if (!game_hard) {
+            DrawBitmap(hdc,hdc2,GR_WIDTH-69-32,8+16+4+digit_num4,0,0,69,16,ga0_kh_mask[1],SRCAND,FALSE,FALSE);
+            DrawBitmap(hdc,hdc2,GR_WIDTH-69-32,8+16+4+digit_num4,0,0,69,16,ga0_kh[1],SRCPAINT,FALSE,FALSE);
+          } else {
+            DrawBitmap(hdc,hdc2,GR_WIDTH-69-32,8+16+4+digit_num4,0,0,69,16,ga0_khhard_mask[1],SRCAND,FALSE,FALSE);
+            DrawBitmap(hdc,hdc2,GR_WIDTH-69-32,8+16+4+digit_num4,0,0,69,16,ga0_khhard[1],SRCPAINT,FALSE,FALSE);
+          }
+
           swprintf(wgametimetxt,32,L"%5.3f",print_time_ms);
           digit_num=GR_WIDTH-wcslen(wgametimetxt)*12-16-24;
           GrPrintW(hdc,digit_num-4,24+8+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh1,16,FALSE,yes_unifont);
@@ -1449,9 +1469,13 @@ void DrawUI(HDC hdc,HDC hdc2)
     //Draw Enemy Num/game Over
       if (printenemykills>0) {
         digit_num1=GR_WIDTH/2-133/2+4;//-(12*8)/2+4+4;
-        DrawBitmap(hdc,hdc2,digit_num1,16+10+digit_num4-4,0,0,133,26,ga0_kh_mask[3],SRCAND,FALSE,FALSE);
-        DrawBitmap(hdc,hdc2,digit_num1,16+10+digit_num4-4,0,0,133,26,ga0_kh[3],SRCPAINT,FALSE,FALSE);
-
+        if (!game_hard) {
+          DrawBitmap(hdc,hdc2,digit_num1,16+10+digit_num4-4,0,0,133,26,ga0_kh_mask[3],SRCAND,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,digit_num1,16+10+digit_num4-4,0,0,133,26,ga0_kh[3],SRCPAINT,FALSE,FALSE);
+        } else {
+          DrawBitmap(hdc,hdc2,digit_num1,16+10+digit_num4-4,0,0,133,26,ga0_khhard_mask[2],SRCAND,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,digit_num1,16+10+digit_num4-4,0,0,133,26,ga0_khhard[2],SRCPAINT,FALSE,FALSE);
+        }
         //print enemy kills below
         swprintf(wenemykills,10,L"%d",printenemykills);
         digit_num2=GR_WIDTH/2-(wcslen(wenemykills)*12)/2+4;
@@ -1463,75 +1487,16 @@ void DrawUI(HDC hdc,HDC hdc2)
       } else { //GAME OVER
         digit_num3=-32;//16;
         if (frame_tick<FPS/2) {
-          DrawBitmap(hdc,hdc2,GR_WIDTH/2-52/2+4,16+10+32+digit_num3+digit_num4,0,0,52,22,ga0_kh_mask[4],SRCAND,FALSE,FALSE);
-          DrawBitmap(hdc,hdc2,GR_WIDTH/2-52/2+4,16+10+32+digit_num3+digit_num4,0,0,52,22,ga0_kh[4],SRCPAINT,FALSE,FALSE);
+          if (!game_hard) {
+            DrawBitmap(hdc,hdc2,GR_WIDTH/2-52/2+4,16+10+32+digit_num3+digit_num4,0,0,52,22,ga0_kh_mask[4],SRCAND,FALSE,FALSE);
+            DrawBitmap(hdc,hdc2,GR_WIDTH/2-52/2+4,16+10+32+digit_num3+digit_num4,0,0,52,22,ga0_kh[4],SRCPAINT,FALSE,FALSE);
+          } else {
+            DrawBitmap(hdc,hdc2,GR_WIDTH/2-52/2+4,16+10+32+digit_num3+digit_num4,0,0,52,22,ga0_khhard_mask[3],SRCAND,FALSE,FALSE);
+            DrawBitmap(hdc,hdc2,GR_WIDTH/2-52/2+4,16+10+32+digit_num3+digit_num4,0,0,52,22,ga0_khhard[3],SRCPAINT,FALSE,FALSE);
+          }
         }
       }
 
-    
-
-
-
-
-/*
-      int c_kh1=GREEN;//Highlight(IsInvertedBackground(),GREEN,YELLOW);
-      int c_kh2=LTGREEN;//Highlight(IsInvertedBackground(),LTGREEN,BROWN);
-      if (!game_over) {
-        swprintf(wgametimetxt,32,L"Time: %5.3f",print_time_ms);
-        digit_num=GR_WIDTH-wcslen(wgametimetxt)*12-16;
-        GrPrintW(hdc,digit_num-4,8+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh1,16,FALSE,yes_unifont);
-        GrPrintW(hdc,digit_num-6,8+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh1,16,FALSE,yes_unifont);
-        GrPrintW(hdc,digit_num-4,10+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh1,16,FALSE,yes_unifont);
-        GrPrintW(hdc,digit_num-6,10+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh1,16,FALSE,yes_unifont);
-        GrPrintW(hdc,digit_num-5,9+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh2,16,FALSE,yes_unifont);
-      } else { //game is over
-        if (game_timer<int_best_score) { //New Score :D
-          swprintf(wgametimetxt,32,L"New Best! :D %5.3f",print_time_ms);
-          digit_num=GR_WIDTH-wcslen(wgametimetxt)*12-16;
-          GrPrintW(hdc,digit_num+5,9+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",LTPURPLE,16,FALSE,yes_unifont);
-        } else {
-          swprintf(wgametimetxt,32,L"Time: %5.3f",print_time_ms);
-          digit_num=GR_WIDTH-wcslen(wgametimetxt)*12-16;
-          GrPrintW(hdc,digit_num-4,8+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh1,16,FALSE,yes_unifont);
-          GrPrintW(hdc,digit_num-6,8+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh1,16,FALSE,yes_unifont);
-          GrPrintW(hdc,digit_num-4,10+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh1,16,FALSE,yes_unifont);
-          GrPrintW(hdc,digit_num-6,10+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh1,16,FALSE,yes_unifont);
-          GrPrintW(hdc,digit_num-5,9+16+digit_num4,ReplaceToKhmerNum(wgametimetxt),"",c_kh2,16,FALSE,yes_unifont);
-        }
-      }
-
-      swprintf(wgamebesttimetxt,32,L"Best: %5.3f",best_time);
-      GrPrintW(hdc,16+4,8+16+digit_num4,ReplaceToKhmerNum(wgamebesttimetxt),"",c_kh1,16,FALSE,yes_unifont);
-      GrPrintW(hdc,16+6,8+16+digit_num4,ReplaceToKhmerNum(wgamebesttimetxt),"",c_kh1,16,FALSE,yes_unifont);
-      GrPrintW(hdc,16+4,10+16+digit_num4,ReplaceToKhmerNum(wgamebesttimetxt),"",c_kh1,16,FALSE,yes_unifont);
-      GrPrintW(hdc,16+6,10+16+digit_num4,ReplaceToKhmerNum(wgamebesttimetxt),"",c_kh1,16,FALSE,yes_unifont);
-      GrPrintW(hdc,16+5,9+16+digit_num4,ReplaceToKhmerNum(wgamebesttimetxt),"",c_kh2,16,FALSE,yes_unifont);
-
-      if (printenemykills>0) {
-        digit_num1=GR_WIDTH/2-(12*8)/2+4+4;
-        GrPrintW(hdc,digit_num1-4,8+16+digit_num4,L"Enemies Left:","",c_kh1,16,FALSE,yes_unifont);
-        GrPrintW(hdc,digit_num1-6,8+16+digit_num4,L"Enemies Left:","",c_kh1,16,FALSE,yes_unifont);
-        GrPrintW(hdc,digit_num1-4,10+16+digit_num4,L"Enemies Left:","",c_kh1,16,FALSE,yes_unifont);
-        GrPrintW(hdc,digit_num1-6,10+16+digit_num4,L"Enemies Left:","",c_kh1,16,FALSE,yes_unifont);
-        GrPrintW(hdc,digit_num1-5,9+16+digit_num4,L"Enemies Left:","",c_kh2,16,FALSE,yes_unifont);
-        swprintf(wenemykills,10,L"%d",printenemykills);
-      } else {
-        digit_num3=-16;
-        if (frame_tick<FPS/2)
-          swprintf(wenemykills,10,L"GAME OVER");
-        else
-          swprintf(wenemykills,10,L" ");
-      }
-
-      digit_num2=GR_WIDTH/2-(wcslen(wenemykills)*8)/2+4;
-      if (printenemykills<=0)
-        digit_num2-=4;
-      GrPrintW(hdc,digit_num2-4,8+32+digit_num3+digit_num4,ReplaceToKhmerNum(wenemykills),"",c_kh1,16,FALSE,yes_unifont);
-      GrPrintW(hdc,digit_num2-6,8+32+digit_num3+digit_num4,ReplaceToKhmerNum(wenemykills),"",c_kh1,16,FALSE,yes_unifont);
-      GrPrintW(hdc,digit_num2-4,10+32+digit_num3+digit_num4,ReplaceToKhmerNum(wenemykills),"",c_kh1,16,FALSE,yes_unifont);
-      GrPrintW(hdc,digit_num2-6,10+32+digit_num3+digit_num4,ReplaceToKhmerNum(wenemykills),"",c_kh1,16,FALSE,yes_unifont);
-      GrPrintW(hdc,digit_num2-5,9+32+digit_num3+digit_num4,ReplaceToKhmerNum(wenemykills),"",c_kh2,16,FALSE,yes_unifont);
-*/
   } else { //not-khmer
       if (!game_over) {
         sprintf(gametimetxt,"Time: %5.3f",print_time_ms);
@@ -1563,16 +1528,6 @@ void DrawUI(HDC hdc,HDC hdc2)
       GrPrint(hdc,16+4,10+16+digit_num4,gamebesttimetxt,YELLOW);
       GrPrint(hdc,16+6,10+16+digit_num4,gamebesttimetxt,YELLOW);
       GrPrint(hdc,16+5,9+16+digit_num4,gamebesttimetxt,BROWN);
-
-      /*int printenemykills=ENEMY_NUM-enemy_kills;
-      int printenemynum=ENEMY_NUM;
-      sprintf(enemykills,"Enemies Left: %d/%d",printenemykills,printenemynum);
-      int digit_num=GR_WIDTH/2-(strlen(enemykills)*8)/2-4;
-      GrPrint(hdc,digit_num-4,8+16,enemykills,YELLOW);
-      GrPrint(hdc,digit_num-6,8+16,enemykills,YELLOW);
-      GrPrint(hdc,digit_num-4,10+16,enemykills,YELLOW);
-      GrPrint(hdc,digit_num-6,10+16,enemykills,YELLOW);
-      GrPrint(hdc,digit_num-5,9+16,enemykills,BROWN);*/
 
       digit_num3=0;
       if (printenemykills>0) {
@@ -1837,7 +1792,7 @@ void DrawUI(HDC hdc,HDC hdc2)
         //Highlight(player.time_breaker,LTRGREEN,LTGREEN)
   } else {
     c5 = //Highlight(IsInvertedBackground(),
-          Highlight(player.time_breaker,LTBLUE,YELLOW);//,
+          Highlight(player.time_breaker,LTCYAN,YELLOW);//,
   }
   //);
 

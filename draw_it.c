@@ -138,6 +138,25 @@ void DrawPlatforms(HDC hdc,HDC hdc2)
       } 
     } 
   }
+
+
+
+  //Draw Black Borders
+  //RDGrid[i].x+px-GR_WIDTH/2-cx1-cx2;
+  int w,l;
+  x=GR_WIDTH/2+0-px+cx1+cx2;
+  GrRect(hdc,0,0,x+4,GR_HEIGHT+4,BLACK);
+  x=GR_WIDTH/2+MAP_WIDTH-px+cx1+cx2-4;
+  w=GR_WIDTH-(MAP_WIDTH-player.x);
+  if (w>0) {
+    GrRect(hdc,x,0,w,GR_HEIGHT+4,BLACK);
+  }
+
+  y=GR_HEIGHT/2+MAP_HEIGHT-py+cy1+cy2-4;
+  l=GR_HEIGHT-(MAP_HEIGHT-player.y);
+  if (l>0) {
+    GrRect(hdc,-4,y,GR_WIDTH+8,l,BLACK);
+  }
 }
 
 
