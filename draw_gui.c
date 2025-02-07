@@ -1648,15 +1648,9 @@ void DrawUI(HDC hdc,HDC hdc2)
       speed_dist=64+8*speed_times;
       c2 = LTCYAN;//Highlight(IsInvertedBackground(),LTCYAN,RED);
     } else {
-      //if (!IsInvertedBackground()) {
         if (i<5) c2=GREEN;
         else if (i<10) c2=LTGREEN;
         else c2=RED;
-      /*} else {
-        if (i<5) c2=DKGRAY;
-        else if (i<10) c2=LTPURPLE;
-        else c2=LTCYAN;
-      }*/
     }
     GrCircle(hdc,
       //player.sprite_x-speed_dist*cos(speed_angle), //player centric
@@ -1702,8 +1696,8 @@ void DrawUI(HDC hdc,HDC hdc2)
   int knifethrowstxty=mouse_y-48;
   GrRect(hdc,knifethrowsx,knifethrowsy+1,PLAYER_BULLET_NUM*3,9,c4);
   GrRect(hdc,knifethrowsx,knifethrowsy,player.knives_per_throw*3,10,c10);
-  c2 = LTGREEN;//Highlight(IsInvertedBackground(),LTGREEN,LTPURPLE);
-  int ck=LTCYAN;//Highlight(IsInvertedBackground(),LTCYAN,LTRED);
+  c2 = LTGREEN;
+  int ck=LTCYAN;
   for (int k=0;k<PLAYER_BULLET_NUM-player.bullet_shot_num;k++) {
     //GrLine(hdc,player.sprite_x-48+k*4-2,player.sprite_y+32,player.sprite_x-48+k*4+2,player.sprite_y+36,c5);
     //GrLine(hdc,player.sprite_x-48+k*4+2,player.sprite_y+32,player.sprite_x-48+k*4-2,player.sprite_y+36,c5);
@@ -1787,16 +1781,12 @@ void DrawUI(HDC hdc,HDC hdc2)
 
   //===-- Draw Timebreaker Circle ---===
   if (!game_hard) {
-  c5 = //Highlight(IsInvertedBackground(),
-        Highlight(player.time_breaker,PURPLE,YELLOW);//,
-        //Highlight(player.time_breaker,LTRGREEN,LTGREEN)
+    c5 = Highlight(player.time_breaker,PURPLE,YELLOW);
   } else {
-    c5 = //Highlight(IsInvertedBackground(),
-          Highlight(player.time_breaker,LTCYAN,YELLOW);//,
+    c5 = Highlight(player.time_breaker,LTCYAN,YELLOW);
   }
-  //);
 
-  int c6 = LTPURPLE;//Highlight(IsInvertedBackground(),LTPURPLE,LTRLTGREEN);
+  int c6 = Highlight(game_hard,LTPURPLE,LTBLUE);
 
   //draw player time breaker
   const int tb_circle_r=8;

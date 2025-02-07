@@ -237,11 +237,58 @@ void Init8BitRGBColorsInvert(RGBQUAD *rgbColors,RGBQUAD *rgbColorsSrc)
 
 
 
+void CopyReplaceColorPalette(RGBQUAD *paletteDest, RGBQUAD *paletteSrc,int old_color_id,int new_color)
+{
+  for (int i=0;i<256;i++) {
+    if (i==old_color_id) {
+      paletteDest[i].rgbRed = GetRValue(new_color);
+      paletteDest[i].rgbGreen = GetGValue(new_color);
+      paletteDest[i].rgbBlue = GetBValue(new_color);
+    } else {
+      paletteDest[i].rgbRed = paletteSrc[i].rgbRed;
+      paletteDest[i].rgbGreen = paletteSrc[i].rgbGreen;
+      paletteDest[i].rgbBlue = paletteSrc[i].rgbBlue;
+    }
+  }
+}
+
+
+
+void CopyReplaceColorPaletteNoir(RGBQUAD *paletteDest, RGBQUAD *paletteSrc,int old_color_id,int new_color)
+{
+  int calc;
+  for (int i = 0; i < 256; i++) {
+    if (i==old_color_id) {
+      calc = new_color/16;
+      if (calc==0 || calc==15) {
+        paletteDest[i].rgbRed = new_color;
+        paletteDest[i].rgbGreen =new_color;
+        paletteDest[i].rgbBlue =new_color;
+      } else {
+        paletteDest[i].rgbRed = 255-new_color;
+        paletteDest[i].rgbGreen = 255-new_color;
+        paletteDest[i].rgbBlue = 255-new_color;
+      }
+    } else {
+      calc = i/16;
+      if (calc==0 || calc==15) {
+        paletteDest[i].rgbRed = i;
+        paletteDest[i].rgbGreen = i;
+        paletteDest[i].rgbBlue = i;
+      } else {
+        paletteDest[i].rgbRed = 255-i;
+        paletteDest[i].rgbGreen = 255-i;
+        paletteDest[i].rgbBlue = 255-i;
+      }
+    }
+  }
+}
+
+
 RGBQUAD rgbColorsNoir[256];
 void Init8BitRGBColorsNoir(RGBQUAD *rgbColors)
 {
   int calc;
-  int index_range;
   for (int i = 0; i < 256; i++) {
     calc = i/16;
     //green->ltpurple
@@ -526,7 +573,8 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
 }
 
 int rgbPaint[256];
-void Init8BitRGBPaintDefault(int *rgbPaint_dest,RGBQUAD *rgbColors_src,bool is_ascending,int start_paint_index)
+int rgbPaint_i[256];
+void Init8BitRGBPaintDefault(int *rgbPaint_dest,int *rgbPaint_i_dest,RGBQUAD *rgbColors_src,bool is_ascending,int start_paint_index)
 {
   int index=0;
   //int start_paint_index=8;
@@ -542,6 +590,7 @@ void Init8BitRGBPaintDefault(int *rgbPaint_dest,RGBQUAD *rgbColors_src,bool is_a
   for (int x=0;x<16;x++) { //left to right
     for (int y=0;y<16;y++) { //up to down 
       rgbPaint_dest[index]=RGB(rgbColors_src[paint_index].rgbRed,rgbColors_src[paint_index].rgbGreen,rgbColors_src[paint_index].rgbBlue);
+      rgbPaint_i_dest[index]=paint_index;
       index++;
       paint_index+=16;
     }

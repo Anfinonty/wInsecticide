@@ -346,7 +346,7 @@ void InitLevel(bool load_lvl)
   } else {
     int dice=RandNum(0,100,rand());
     //printf("dice,%d",dice);
-    if (dice<10) {
+    if (dice<30) {
       is_raining=TRUE;
     } else {
       is_raining=FALSE;

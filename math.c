@@ -686,9 +686,6 @@ int GetXFromId(int id,int width)
 
 int GetYFromId(int id,int width)
 { 
- //w=5
- //id=19
- //ans: 3 + 1
   if (width>0) {
     return id/width;
   } else {

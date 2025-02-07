@@ -290,7 +290,8 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
         }
         switch (Bullet[bk].graphics_type) {
           case 5: //kpt 3
-            Bullet[bk].range/=4;
+            //Bullet[bk].range/=4;
+            Bullet[bk].range-=16;
             break;
           case 9: //kpt 1
             Bullet[bk].range-=8;

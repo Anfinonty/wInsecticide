@@ -837,6 +837,8 @@ AEnemyPathfinding **EnemyPathfinding;
 //inspired while playing angry birds on Ethihide airlines to Abu Dhabi
 struct EnemyTypeSprite
 {
+  RGBQUAD enemyPalette[256];
+  RGBQUAD enemyPaletteNoir[256];
   DRAWSPRITE draw_fly_sprite_1; //right/left-facing-movesprite-1,right left determined by last_left/is_left/flip_sprite
   DRAWSPRITE draw_fly_sprite_2; //right/left-facing-movesprite-2
 } EnemyTypeSprite[ENEMY_TYPE_NUM];
@@ -851,7 +853,7 @@ struct LoadEnemyRotatedSprite
 {
   DRAWSPRITE draw_rotated_sprite1[ROTATED_SPRITE_NUM];
   DRAWSPRITE draw_rotated_sprite2[ROTATED_SPRITE_NUM];
-} LoadEnemyRotatedSprite[3];
+} LoadEnemyRotatedSprite[3]; //cockroach, toe biter and ant
 
 
 struct EnemyRotatedSprite
@@ -865,7 +867,7 @@ struct EnemyRotatedSprite
 struct LoadEnemyRotatedSpriteXtra
 {
   DRAWSPRITE draw_rotated_sprite[ROTATED_SPRITE_NUM];
-} XLoadEnemyRotatedSprite[1];
+} XLoadEnemyRotatedSprite[1]; //toe biter
 
 
 struct EnemyRotatedSpriteXtra
@@ -978,6 +980,8 @@ void EnemyAct(int i);
 void SetEnemyByType(int i,int type);
 void InitEnemy();
 void DrawEnemy(HDC hdc,HDC hdc2);
+void InitEnemySpritesObjColor(HDC hdc,HDC hdc2);
+void InitEnemySpritesObjColorNoir(HDC hdc,HDC hdc2);
 
 
 
