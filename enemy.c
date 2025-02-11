@@ -116,7 +116,7 @@ void InitEnemyPathfinding(int enemy_id,double target_x,double target_y)
 
 	      case 1:
           case 3:
-            if (Enemy[enemy_id]->target_player || Enemy[enemy_id]->on_ground_id==-1) {
+            if ((Enemy[enemy_id]->force_fall || Enemy[enemy_id]->flying_timer>0) || Enemy[enemy_id]->target_player || Enemy[enemy_id]->on_ground_id==-1) {
               EnemyPathfinding[pfi]->node_solid[i]=NodeGrid[node_id]->node_solid;
               if (!EnemyPathfinding[pfi]->node_solid[i] && Enemy[enemy_id]->species==1) //cannot dive into water
                 EnemyPathfinding[pfi]->node_solid[i]=NodeGrid[node_id]->node_water;
@@ -391,6 +391,8 @@ void EnemySpriteOnGroundId(int enemy_id,int ground_id)
     if (!Enemy[enemy_id]->is_in_ground_edge && abs(height_from_ground)<=41) {
       if (ground_id!=-1) {
         Enemy[enemy_id]->in_air_timer=0;
+        Enemy[enemy_id]->flying_timer=0;
+        Enemy[enemy_id]->force_fall=FALSE;
         if (height_from_ground>0) {    //species 1 above ground (positive)
           Enemy[enemy_id]->angle=Ground[ground_id]->angle;
           Enemy[enemy_id]->above_ground=TRUE;
@@ -441,7 +443,19 @@ void EnemyGravity(int enemy_id,int gr)
     if (!is_in_solid1 && !is_in_solid2) {
       if (!Enemy[enemy_id]->in_water) {
         Enemy[enemy_id]->y+=1; //falling down
+        if (Enemy[enemy_id]->flying_timer==0) { 
+          if (abs(RandNum(0,100,Enemy[enemy_id]->seed))<40/*90*/) {
+            if (Enemy[enemy_id]->species==1)
+              Enemy[enemy_id]->flying_timer=1;
+            else if (Enemy[enemy_id]->species==3)
+              Enemy[enemy_id]->flying_timer=100;
+          } else {
+            Enemy[enemy_id]->force_fall=TRUE;
+          }
+        }
       } else if (gr==0 && Enemy[enemy_id]->species!=3) {
+        Enemy[enemy_id]->flying_timer=0;
+        Enemy[enemy_id]->force_fall=FALSE;
         Enemy[enemy_id]->y-=1; //floating up
       }
     }
@@ -803,6 +817,8 @@ void EnemyAntActOnGround(int i,double height_from_e_x,int ground_id,bool clockwi
     }
     if (0<height_from_e_x && height_from_e_x<10) {
        Enemy[i]->in_air_timer=0;
+       Enemy[i]->flying_timer=0;
+       Enemy[i]->force_fall=FALSE;
        Enemy[i]->on_ground_timer=20;
        Enemy[i]->sprite_angle=Ground[ground_id]->angle;
        if (clockwise) {
@@ -831,6 +847,8 @@ void EnemyAntActOnGround(int i,double height_from_e_x,int ground_id,bool clockwi
       }
     } else if (-10<height_from_e_x && height_from_e_x<=0) {
        Enemy[i]->in_air_timer=0;
+       Enemy[i]->flying_timer=0;
+       Enemy[i]->force_fall=FALSE;
        Enemy[i]->on_ground_timer=20;
        Enemy[i]->sprite_angle=-Ground[ground_id]->angle;
        if (clockwise) {
@@ -1173,7 +1191,7 @@ bool InsectBites(int i,int dmg,bool is_mosquito)
              if (is_mosquito) {
                Enemy[i]->damage_taken_timer=256;
              }
-             if (game_audio) {
+             if (game_audio && player.health>0) {
                PlaySound(spamSoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //hurt snd
              }
              if (player.health>PLAYER_LOW_HEALTH+1) { //usual response
@@ -1192,7 +1210,7 @@ bool InsectBites(int i,int dmg,bool is_mosquito)
                }
              }
          } else {
-           if (game_audio) {
+           if (game_audio && player.health>0) {
              PlaySound(spamSoundEffectCache[3].audio, NULL, SND_MEMORY | SND_ASYNC); //hurt snd
            }
            player.block_health-=dmg;
@@ -1213,7 +1231,7 @@ bool InsectBites(int i,int dmg,bool is_mosquito)
       }
     return TRUE;
   } else {//perfect block , 23 or less than
-    if (game_audio) {
+    if (game_audio && player.health>0) {
       PlaySound(spamSoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //block perfect
     }
     return FALSE;    
@@ -1288,19 +1306,25 @@ void EnemyAct(int i)
       }
 
 
-      if (dist_from_bullet0<=NODE_SIZE*4) {
+      if (dist_from_bullet0<=NODE_SIZE*4 /*&& player.health>0*/) {
         Enemy[i]->last_seen_timer=200;
         switch (Enemy[i]->species) {
-      	  case 0:
-          case 2:
-          case 4: //fly
-          case 5:
-          case 6:
-          case 7:
+      	  case 0:case 2:case 4:case 5:case 6:case 7:
           {
             if (dist_from_bullet0<=NODE_SIZE*2) {
               Enemy[i]->damage_taken_timer=256;
               Enemy[i]->health-=Bullet[bk].damage;
+              if (player.health<=0) {
+                if (Enemy[i]->health<=0 && !Enemy[i]->try_revive_player) {
+                  Enemy[i]->try_revive_player=TRUE;
+                  int revdice=abs(RandNum(0,100,player.seed*frame_tick));
+                  if (revdice<8) {
+                    player.x=Enemy[i]->x;
+                    player.y=Enemy[i]->y;
+                    PlayerRevive();
+                  }
+                }
+              }
               if (game_audio) {
                 PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
               }
@@ -1320,10 +1344,24 @@ void EnemyAct(int i)
          case 3:
             Enemy[i]->damage_taken_timer=256;
             Enemy[i]->health-=Bullet[bk].damage;
+              if (player.health<=0) {
+                if (Enemy[i]->health<=0 && !Enemy[i]->try_revive_player) {
+                  Enemy[i]->try_revive_player=TRUE;
+                  int revdice=abs(RandNum(0,100,player.seed*frame_tick));
+                  if (revdice<8) {
+                    player.x=Enemy[i]->x;
+                    player.y=Enemy[i]->y;
+                    PlayerRevive();
+                  }
+                }
+              }
+
             if (game_audio) {
               PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
             }
-            Enemy[i]->knockback_timer=player.knockback_strength;
+            if ((Enemy[i]->on_ground_id==-1 && RandNum(0,100,Enemy[i]->seed)<20) || Enemy[i]->on_ground_id!=-1) {
+              Enemy[i]->knockback_timer=player.knockback_strength;
+            }
             Enemy[i]->knockback_angle=Bullet[bk].angle;
             Enemy[i]->player_knockback=FALSE;
             StopBullet(bk,FALSE); //Stop the web
@@ -1340,7 +1378,7 @@ void EnemyAct(int i)
     } //end of enemy-playerbullet interactions
 
     //web swinging affects enemies
-    if (player.is_swinging) {
+    if (player.is_swinging && player.health>0) {
       for (int k=0;k<PLAYER_FLING_WEB_NUM;k++) {
         //knockback
         double dist_from_web_string=GetDistance(player_fling_web.x[k],player_fling_web.y[k],Enemy[i]->x,Enemy[i]->y);
@@ -1362,7 +1400,7 @@ void EnemyAct(int i)
     }
 
 
-    if (dist_from_bullet<=NODE_SIZE*4) {
+    if (dist_from_bullet<=NODE_SIZE*4 && player.health>0) {
       Enemy[i]->last_seen_timer=200;
       switch (Enemy[i]->species) {
 	    case 0:case 2:case 4:case 5:case 6:case 7:
@@ -1397,6 +1435,10 @@ void EnemyAct(int i)
 
    //dazzle if fly close to player
       if (Enemy[i]->species==4 && !Enemy[i]->web_stuck) {
+        if (game_hard && Enemy[i]->dist_from_player<=NODE_SIZE*5) {
+          Enemy[i]->speed_multiplier=Enemy[i]->ospeed_multiplier;
+          Enemy[i]->speed=Enemy[i]->ospeed;
+        }
         if (Enemy[i]->dist_from_player<=NODE_SIZE*3) {
           slash_time=EnemyActDazzle(i,1000);
           force_search=TRUE;
@@ -1606,7 +1648,7 @@ void EnemyAct(int i)
             10, //graphics type
             rand_range, // range
             0.1, //speed
-            1+RandNum(1,10,Enemy[i]->seed*player.speed), //speed multiuplier
+            1+RandNum(1,10,Enemy[i]->seed*player.seed), //speed multiuplier
             0, //damage
             i, //enemy id
             Enemy[i]->x,
@@ -1708,6 +1750,8 @@ void EnemyAct(int i)
             }
           }
           Enemy[i]->in_water=TRUE;
+          Enemy[i]->flying_timer=0;
+          Enemy[i]->force_fall=FALSE;
           Enemy[i]->sprite_in_water=TRUE;
         } else { //leave water
           if (Enemy[i]->in_water) {
@@ -1769,10 +1813,15 @@ void EnemyAct(int i)
           Enemy[i]->y--;
         }
 
-        if ((Enemy[i]->species==1 || Enemy[i]->species==3) && !Enemy[i]->move_to_target /*&& !Enemy[i]->target_player*/) {//Species 1 gravity
+        if (((Enemy[i]->species==1) || Enemy[i]->species==3) && !Enemy[i]->move_to_target && !Enemy[i]->target_player) {//Species 1 gravity
           if (slash_time_i==0) {
-            for (int gr=0;gr<1+Enemy[i]->in_air_timer/5;gr++) {
-              EnemyGravity(i,gr);
+            if (Enemy[i]->flying_timer==0 || Enemy[i]->force_fall) {//not flying, fall
+              for (int gr=0;gr<1+Enemy[i]->in_air_timer/5;gr++) {
+                EnemyGravity(i,gr);
+              }
+            }
+            if (Enemy[i]->flying_timer>0) {
+              Enemy[i]->flying_timer--;
             }
             if (Enemy[i]->in_air_timer>0) {
               Enemy[i]->in_air_timer--;
@@ -1781,7 +1830,7 @@ void EnemyAct(int i)
         }
         if (Enemy[i]->species==4 && !Enemy[i]->web_stuck) {
           if (!player.time_breaker) {
-            if (slash_time>1) {
+            if (slash_time>1) { //dazzle movement
               Enemy[i]->speed_multiplier=1;
               Enemy[i]->speed=0.05;
             } else {
@@ -1791,13 +1840,18 @@ void EnemyAct(int i)
               }
             }
           } else {
-            if (slash_time>1) {
+            if (slash_time>1) { //dazzle movement
               Enemy[i]->speed_multiplier=1;
               Enemy[i]->speed=0.025;
             } else {
               if (slash_time_i==0) {
-                Enemy[i]->speed_multiplier=1;
-                Enemy[i]->speed=0.05;
+                if (!game_hard) {
+                  Enemy[i]->speed_multiplier=1;
+                  Enemy[i]->speed=0.05;
+                } else {
+                  Enemy[i]->speed_multiplier=Enemy[i]->ospeed_multiplier;
+                  Enemy[i]->speed=Enemy[i]->ospeed;
+                }
               }
             }
           }
@@ -1831,12 +1885,12 @@ void EnemyAct(int i)
         /*if (Enemy[i]->is_in_ground_edge) {
           force_search=TRUE;
         }*/
-        if (Enemy[i]->force_search || game_hard) {
+        if (Enemy[i]->force_search/* || game_hard*/) {
           force_search=TRUE;
           Enemy[i]->force_search=FALSE;
         }
 
-        if ((!Enemy[i]->ignore_player && !Enemy[i]->web_stuck/*&&  //not ignore & within range
+        if (player.health>0 && (!Enemy[i]->ignore_player && !Enemy[i]->web_stuck/*&&  //not ignore & within range
              Enemy[i]->dist_from_player<Enemy[i]->follow_range/2*NODE_SIZE*/
             )
            ) {
@@ -1936,8 +1990,11 @@ void EnemyAct(int i)
     //Movement
       if (Enemy[i]->idling) { //idling
         Enemy[i]->idle_timer++;
+        if (game_hard) {
+          Enemy[i]->idle_timer+=30;
+        }
 	    allow_act=FALSE;
-        if (Enemy[i]->saw_player && !Enemy[i]->ignore_player) {//not ignoring
+        if (Enemy[i]->saw_player && !Enemy[i]->ignore_player && player.health>0) {//not ignoring
           if (!Enemy[i]->target_player && //not targetting
              Enemy[i]->dist_from_player/NODE_SIZE<Enemy[i]->follow_range/2-2) {
             allow_act=TRUE;
@@ -1948,7 +2005,11 @@ void EnemyAct(int i)
           EnemyTargetPlayer(i); //target player
         } else if (Enemy[i]->idle_timer>30 || force_search) {//idling over
           Enemy[i]->target_player=FALSE;
-          dice=RandNum(0,5,Enemy[i]->seed);
+          if (game_hard) {
+            dice=1;
+          } else {
+            dice=RandNum(0,5,Enemy[i]->seed);
+          }
           Enemy[i]->idle_timer=0;
           if (dice==1 || force_search) { //Start searching
 	      //total ignore player (still hostile)
@@ -2078,8 +2139,12 @@ void SetEnemyByType(int i,int type)
   Enemy[i]->color=rgbPaint[saved_enemy_type_color[type]];
   Enemy[i]->ospeed=saved_enemy_type_speed[type];
   Enemy[i]->speed=saved_enemy_type_speed[type];
-  Enemy[i]->ospeed_multiplier=saved_enemy_type_speed_multiplier[type];
-  Enemy[i]->speed_multiplier=saved_enemy_type_speed_multiplier[type];
+  if (!game_hard) {
+    Enemy[i]->ospeed_multiplier=saved_enemy_type_speed_multiplier[type];
+  } else {
+    Enemy[i]->ospeed_multiplier=saved_enemy_type_speed_multiplier[type]+saved_enemy_type_speed_multiplier[type]/2;
+  }
+  Enemy[i]->speed_multiplier=Enemy[i]->ospeed_multiplier;
 //bool
   Enemy[i]->time_breaker_immune=saved_enemy_type_time_breaker_immune[type];
 //shoot
@@ -2410,6 +2475,8 @@ void InitEnemy()
     Enemy[i]->seed=0;
     Enemy[i]->current_rot_sprite_angle_id=0;//-1;
     Enemy[i]->dist_from_player=999;
+    Enemy[i]->flying_timer=0;
+    Enemy[i]->force_fall=FALSE;
     Enemy[i]->x=saved_enemy_x[i];
     Enemy[i]->y=saved_enemy_y[i];
     Enemy[i]->sprite_x=
@@ -2423,6 +2490,7 @@ void InitEnemy()
     Enemy[i]->force_search=FALSE;
     Enemy[i]->sprite_flip_timer=0;
     Enemy[i]->render_distance_timer=0;
+    Enemy[i]->try_revive_player=FALSE;
     SetEnemyByType(i,saved_enemy_type[i]);
     if (Enemy[i]->x<5) {
       Enemy[i]->x=25;
@@ -2682,7 +2750,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
     if (!game_hard) {
       allow_act=Enemy[i]->within_render_distance;
     } else {
-      allow_act=(Enemy[i]->within_render_distance && (Enemy[i]->web_stuck || Enemy[i]->last_seen_timer>0));
+      allow_act=(player.health<=0 || (Enemy[i]->within_render_distance && (Enemy[i]->web_stuck || Enemy[i]->last_seen_timer>0)));
     }
 
     if (allow_act) {
@@ -2801,7 +2869,9 @@ void DrawEnemy(HDC hdc,HDC hdc2)
           //GrPrint(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y+48,printfunny,WHITE);
           int rsid=Enemy[i]->rotated_sprite_id;
           if (rsid!=-1 && etype>-1 && etype<ENEMY_TYPE_NUM) {
-          if ((Enemy[i]->sprite_in_water && !Enemy[i]->web_stuck) || (Enemy[i]->in_air_timer>0 && !Enemy[i]->move_to_target)) {
+          if ((Enemy[i]->force_fall || Enemy[i]->flying_timer==0) && 
+                ((Enemy[i]->sprite_in_water && !Enemy[i]->web_stuck) /*|| (Enemy[i]->in_air_timer>0 && !Enemy[i]->move_to_target)*/)
+            ) {
             int swim_rot_id=7;
             if (Enemy[i]->species==3) {
               swim_rot_id=9;

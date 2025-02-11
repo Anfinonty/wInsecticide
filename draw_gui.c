@@ -1389,6 +1389,8 @@ void DrawUI(HDC hdc,HDC hdc2)
   int digit_num2;
   int digit_num3=0;
 
+
+  if (player.health>0) {
   if (is_khmer) {
       int c_kh1=BROWN;//GREEN;
       int c_kh2=YELLOW;//LTGREEN;
@@ -1555,7 +1557,7 @@ void DrawUI(HDC hdc,HDC hdc2)
       GrPrint(hdc,digit_num2-6,10+32+digit_num3+digit_num4,enemykills,YELLOW);
       GrPrint(hdc,digit_num2-5,9+32+digit_num3+digit_num4,enemykills,BROWN);
   }
-
+  }
 
 
 
@@ -1583,6 +1585,7 @@ void DrawUI(HDC hdc,HDC hdc2)
   ca = RED;//Highlight(IsInvertedBackground(),RED,CYAN);
   c3 = LTGRAY;//Highlight(IsInvertedBackground(),LTGRAY,DKGRAY);
 
+  if (player.health>0) {
   double percentage=player.health/DEFAULT_PLAYER_HEALTH;
   double health_length=64*percentage;
 
@@ -1856,6 +1859,7 @@ void DrawUI(HDC hdc,HDC hdc2)
 
   if (player.time_breaker) {
     GrPrint(hdc,mouse_x+4,mouse_y+48,"Z",YELLOW);
+  }
   }
 
   //debug

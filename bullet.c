@@ -111,7 +111,7 @@ void BulletDamagePlayerAct(int bullet_id)
 {
     double blocked_bullet_dmg=Bullet[bullet_id].damage;
     if (player.block_timer<=0 || player.block_health<=0) {
-      if (game_audio) {
+      if (game_audio && player.health>0) {
         PlaySound(spamSoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //hurt snd
       }
       player.show_health_timer=HP_SHOW_TIMER_NUM;
@@ -133,7 +133,7 @@ void BulletDamagePlayerAct(int bullet_id)
       blocked_bullet_dmg=Bullet[bullet_id].damage;
       if (player.block_timer>23) {//non-perfect block
         player.show_block_health_timer=HP_SHOW_TIMER_NUM;
-        if (game_audio) {
+        if (game_audio && player.health>0) {
           PlaySound(spamSoundEffectCache[3].audio, NULL, SND_MEMORY | SND_ASYNC); //block normal
         }
         if (player.on_ground_id!=-1) {//on ground
@@ -151,7 +151,7 @@ void BulletDamagePlayerAct(int bullet_id)
         }
         //blocked_bullet_dmg=0;
       } else {//perfect block , 23 or less than
-        if (game_audio) {
+        if (game_audio && player.health>0) {
           PlaySound(spamSoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //block perfect
         }
         blocked_bullet_dmg=0;
@@ -250,7 +250,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
     Bullet[bullet_id].angle=RandAngle(0,360,Enemy[enemy_id]->seed);//RandNum(-M_PI_2*100,M_PI_2*100,Enemy[enemy_id]->seed)/100;
     Bullet[bullet_id].speed=Bullet[player.bullet_shot].speed;
     Bullet[bullet_id].speed_multiplier=Bullet[player.bullet_shot].speed_multiplier;
-    if (game_audio) {
+    if (game_audio && player.health>0) {
       Bullet[player.bullet_shot].playsnd=TRUE;
     }
   //Bullet[player.bullet_shot].range-=2;
@@ -262,7 +262,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
     saved_angle=Bullet[bullet_id].angle;
     bk=player.bullet[k];
     if (GetDistance(Bullet[bk].x,Bullet[bk].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
-      if (!Bullet[bk].playsnd && game_audio && Bullet[bullet_id].graphics_type!=10) {
+      if (!Bullet[bk].playsnd && game_audio && Bullet[bullet_id].graphics_type!=10 && player.health>0) {
         Bullet[bk].playsnd=TRUE;
       }
 
@@ -328,12 +328,12 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
   }
 
 
-
+   
   //if (Bullet[bullet_id].graphics_type==10) {
     //bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,0.5,0.5);
   //} else {
   bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2);
-  if (bullet_on_ground_id==-1 && Enemy[enemy_id]->health<=0 && (Enemy[enemy_id]->death_timer>100 && !game_hard)) {
+  if (bullet_on_ground_id==-1 && Enemy[enemy_id]->health<=0 && (Enemy[enemy_id]->death_timer>100 && !game_hard) && player.health>0) {
     double pbdist=GetDistance(player.x,player.y,Bullet[bullet_id].x,Bullet[bullet_id].y);
     double pbt=0.2;
     if (pbdist<250) {
@@ -354,6 +354,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
     }
 
   }
+
 
   //}
   allow_act=FALSE;
@@ -418,7 +419,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
 
 
       bool predicate=FALSE;
-      if (Bullet[bullet_id].graphics_type==10) {
+      if (Bullet[bullet_id].graphics_type==10 || Bullet[bullet_id].graphics_type==11) {
         if (hit_player) {
           if (Enemy[enemy_id]->health<=0 && Enemy[enemy_id]->damage_taken_timer<250) {
             predicate=TRUE;
@@ -438,7 +439,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
           StopBullet(bullet_id,FALSE); 
 
 
-          if (predicate && Bullet[bullet_id].graphics_type==10) { //heal player
+          if (predicate && (Bullet[bullet_id].graphics_type==10 || Bullet[bullet_id].graphics_type==11) && player.health>0) { //heal player
             if (game_audio) {
               PlaySound(spamSoundEffectCache[8].audio, NULL, SND_MEMORY | SND_ASYNC); //gain snd
             }
@@ -504,6 +505,7 @@ void MapEditorBulletAct(int bullet_id)
 
 void PlayerBulletAct(int bullet_id,int enemy_id)
 {      
+  
     bool allow_act;
     int bullet_on_ground_id=-1;
     bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2);
@@ -822,7 +824,7 @@ void BulletAct(int bullet_id)
             player.bullet[player.bullet_shot_num-1]=-1; //remove bullet from arr
             player.bullet_shot_num--;        
 
-            if (PLAYER_BULLET_NUM-player.bullet_shot_num==15 && player.knives_per_throw>=15 && game_audio) { //reload
+            if (PLAYER_BULLET_NUM-player.bullet_shot_num==15 && player.knives_per_throw>=15 && game_audio && player.health>0) { //reload
               PlayMemSnd(&channelSoundEffect[7],&channelSoundEffectCache[7],TRUE,5); 
             }
 
@@ -1040,6 +1042,19 @@ void DrawBullet2(HDC hdc,int i,double x,double y,int color)
         GrCircle(hdc,x,y,RandNum(1,5,frame_tick*player.seed),c,-1);
       }
       break;
+
+    case 11: //death player
+      {
+        //GrCircle(hdc,x,y,Bullet[i]->size,color,color);
+        GrCircle(hdc,x,y,4,color,color);
+        c=rgbPaint[player_pupil_color];
+        GrCircle(hdc,x,y,RandNum(1,10,frame_tick*player.seed),c,-1);
+        c=rgbPaint[player_iris_color];
+        GrCircle(hdc,x,y,RandNum(1,10,(player.seed+10)*(frame_tick+4)),c,-1);
+      }
+      break;
+
+
   }
 }
 

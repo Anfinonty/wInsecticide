@@ -344,7 +344,7 @@ void InitLevel(bool load_lvl)
   if (load_lvl) {
     in_main_menu=FALSE;
   } else {
-    int dice=RandNum(0,100,rand());
+    int dice=abs(RandNum(0,100,frame_tick));
     //printf("dice,%d",dice);
     if (dice<30) {
       is_raining=TRUE;

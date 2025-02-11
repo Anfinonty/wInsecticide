@@ -11,27 +11,20 @@ typedef struct GroundLine
   int type; //Regular, Text ground or TriFill 
   int font_size;
 
+  //int fire_ground_id;
+
   double x1;
   double y1;
   double x2;
   double y2;
   double x3;
   double y3; //3 Axes of ground
-  //double sprite_x1,sprite_y1,sprite_x2,sprite_y2,sprite_x3,sprite_y3,//graphics 3 Axes of ground
   double length; // = sqrt(x^2 + y^2)) // Babylonian Trigonometry Theorem for Calculating the Hypothenuse
   double gradient;// y of ground / x of ground
   double c; //The C in y-mx_c
   //double height_from_player_x;//= gradient * player_x + c
   double angle; // = ACos of (x/length)
-
   wchar_t text[512]; //for type 1 which is Text_ground
-
-//  int already_in_grid_id[MAX_GRID_IN_GROUND];
-//  bool already_in_grid[MAX_GRID_IN_GROUND]; //MAX VGRID NUM
-//  int saved_pos_in_grid_id[MAX_GRID_IN_GROUND];
-//  int saved_pos_in_grid[MAX_GRID_IN_GROUND]; //MAX VGRID NUM
-  //bool* already_in_grid; //MAX VGRID NUM
-  //int* saved_pos_in_grid; //MAX VGRID NUM
   bool already_in_grid[MAX_VGRID_NUM];
   int saved_pos_in_grid[MAX_VGRID_NUM];
 } AGround;
@@ -66,6 +59,35 @@ void freeGround(AGround *myGround)
 AGround **Ground;
 
 
+
+
+/*typedef struct GroundLineFire
+{
+  int ground_id;
+} AGroundFire;
+
+
+//AGroundFire *createGround()
+{
+  AGroundFire *toReturn = malloc(sizeof(AGroundFire));
+  return toReturn;
+}
+
+
+void freeGround(AGround *myGround)
+{
+  if (myGround)
+    free(myGround);
+}
+
+
+void InitGroundFire();
+void FireGroundAct();
+
+
+int *AGroundFire;
+
+*/
 
 void InitGround(bool is_max);
 void InitGround2();
@@ -119,7 +141,8 @@ struct player
 
   bool rst_right_click_snd;
 
-  //bool rst_key_sprint;
+  bool flag_death;
+
   bool last_left;
   bool jump;
   bool current_above;
@@ -272,6 +295,8 @@ struct player
   double saved_y;
   double x;
   double y;
+  //double death_x;
+  //double death_y;
   double below_x1;
   double below_y1;
   double below_x2;
@@ -435,7 +460,7 @@ void move_y(double y);
 void InitRDGrid();
 void InitVRDGrid();
 void CameraInit(double x,double y);
-void InitPlayerCamera();
+void InitPlayerCamera(int target_x,int target_y);
 //void PlayerBulletLimitAct();
 //bool NearCrawler();
 void CleanUpPlayer();
@@ -657,6 +682,7 @@ typedef struct enemy
   bool flag_web_stuck;
   bool web_stuck;
   bool is_clockwize;
+  bool true_dead;
   //Attacked
   bool knockback_left;
   bool player_knockback;
@@ -664,7 +690,9 @@ typedef struct enemy
   bool saved_below_ground;
   bool is_in_left_ground_edge;
   bool is_in_right_ground_edge;
-
+  bool force_fall;
+  bool try_revive_player;
+  //movement
 
   //force search
   bool force_search;
@@ -673,6 +701,7 @@ typedef struct enemy
   bool sprite_in_water;
   int in_node_grid_id;
   int current_ngid_n;
+  int flying_timer;
 
   int rotated_sprite_id;
   int rotated_xsprite_id;

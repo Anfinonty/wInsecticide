@@ -300,9 +300,8 @@ bool is_khmer=TRUE;
 #define HP_SHOW_TIMER_NUM   450
 
 #define PLAYER_LOW_HEALTH   3
-//#define PLAYER_BULLET_NUM 32
 #define PLAYER_BULLET_NUM 36//24//16
-#define PLAYER_FLING_WEB_NUM    32
+#define PLAYER_FLING_WEB_NUM    64//32
 
 #define GAME_OPTIONS_NUM    15
 #define PLAYER_BLUR_NUM     2
@@ -471,6 +470,9 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
     } else if (level_loading) {
       Sleep(1000);
     } else if (!in_main_menu) { //In Game
+      if (flag_restart) {
+        Sleep(100);
+      } else {
       if (level_loaded) {
         PlayerAct();
   
@@ -487,6 +489,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
       } else {
         Sleep(1000);
       }
+      }
     } else if (in_map_editor) {
       MapEditorAct();
       Sleep(6);
@@ -497,7 +500,10 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
         if (wav_mode!=0) {
           Sleep(1000);
         } else {
-          if (level_loaded) {
+          if (flag_restart) {
+            Sleep(100);
+          }
+          if (level_loaded && !flag_restart) {
             PlayerAct();
       
             for (int i=0;i<ENEMY_NUM;i++) {
@@ -759,6 +765,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           flag_adjust_audio=TRUE;
           flag_update_background=TRUE;
           InitLevel(FALSE);
+          frame_tick=-FPS;
+          player.flag_revert_palette=TRUE;
+          player.time_breaker_tick=-1;
 
 
           //Init avi playing
@@ -1057,7 +1066,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         if (GR_WIDTH!=OLD_GR_WIDTH || GR_HEIGHT!=OLD_GR_HEIGHT || flag_update_background) {
           if (!in_map_editor) {
-            InitPlayerCamera();
+            InitPlayerCamera(player.saved_x,player.saved_y);
             player.cam_x=0;
             player.cam_y=0;
             CameraInit(player.x,player.y); //idk scaling is weird for sprite
@@ -1161,10 +1170,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
         if (prelude) {
-          /*frame_tick++;
-          if (frame_tick>FPS) {
-            frame_tick=0;
-          }*/
           hdc=BeginPaint(hwnd, &ps);
           hdcBackbuff=CreateCompatibleDC(hdc);
           hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
@@ -1223,6 +1228,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         if (!in_main_menu) //### In game
         { //https://stackoverflow.com/questions/752593/win32-app-suspends-on-minimize-window-animation
+
           frame_tick++;
           showoff++;
           if (frame_tick>FPS) {
@@ -1234,7 +1240,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               game_timer= current_timestamp() - time_begin;
             } else {
               if (!game_over) {
-                if (game_timer<int_best_score) { //New high score
+                if (game_timer<int_best_score && player.health>0) { //New high score
                 /*DIR* dir;
                 dir=opendir("score_saves");
                 if (ENOENT==errno) {
@@ -1254,7 +1260,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
             if (!(player.time_breaker || player.is_swinging || player.is_rebounding)) {
-              if (game_cam_shake) {
+              if (game_cam_shake && player.health>0) {
                 PlayerCameraShake();
               }
             } else {
@@ -1264,7 +1270,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             player.seed=rand();
 
-            if (level_loaded && (player.health<=0 || flag_restart)) { // restart level when player health hits 0 or VK_RETURN
+            if (level_loaded && flag_restart) { // restart level when player health hits 0 or VK_RETURN
               flag_restart_audio=TRUE;
               Init();
               flag_restart=FALSE;
@@ -1290,8 +1296,25 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
 
             DrawUI(hdcBackbuff,hdcBackbuff2);
-            DrawCursor(hdcBackbuff,hdcBackbuff2);
-            //DrawGrids(hdcBackbuff); //debugging
+            if (player.health>0) {
+              DrawCursor(hdcBackbuff,hdcBackbuff2);
+            } else {
+              int pc=rgbPaint[player_color];
+              GrCircle(hdcBackbuff,mouse_x,mouse_y,10,pc,pc);
+              pc=rgbPaint[player_pupil_color];
+              GrCircle(hdcBackbuff,mouse_x,mouse_y,5,pc,pc);
+              pc=rgbPaint[player_iris_color];
+              if (player.bullet_shot_num>0) {
+                if (!player.rst_left_click) {
+                  GrCircle(hdcBackbuff,mouse_x,mouse_y,RandNum(1,5,(player.seed+10)*(frame_tick+4)),pc,pc);
+                } else {
+                  GrCircle(hdcBackbuff,mouse_x,mouse_y,5,pc,pc);
+                }
+              } else {
+                call_help_timer=0;
+              }
+            }
+          //DrawGrids(hdcBackbuff); //debugging
             DrawWaterShader(hdcBackbuff,hdcBackbuff2);
             if (is_raining) {
               DrawRain(hdcBackbuff);
@@ -1713,7 +1736,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       Init8BitRGBColorsNoir(rgbColorsNoir);
       Init8BitRGBColorsDefault(rgbColorsDefault);
       Init8BitRGBColorsInvert(rgbColorsInvert,rgbColorsDefault);
-      Init8BitRGBPaintDefault(rgbPaint,rgbColorsDefault,TRUE,8);
+      Init8BitRGBPaintDefault(rgbPaint,rgbPaint_i,rgbColorsDefault,TRUE,8);
       wav_out_original_volume=VolumeValue(50,1); //set volume
       //waveOutGetVolume(hWaveOut[2],&wav_out_original_volume);
       //waveOutSetVolume(hWaveOut[6],wav_out_original_volume);
