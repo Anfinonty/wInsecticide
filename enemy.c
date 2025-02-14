@@ -307,6 +307,15 @@ void EnemySpriteOnGroundId(int enemy_id,int ground_id)
     double edge_2_dist=-1;
     double edge_angle=-1;
     double distl=34;
+
+    if (Enemy[enemy_id]->species==1 && Enemy[enemy_id]->health<=0) {
+      if  (height_from_ground<0) {
+        Enemy[enemy_id]->force_fall=TRUE;
+      }
+      height_from_ground=-abs(height_from_ground);
+    }
+
+
     //GROUND EDGE
     int ground_edge_id=-1;
     if (Enemy[enemy_id]->is_in_ground_edge) {
@@ -314,6 +323,7 @@ void EnemySpriteOnGroundId(int enemy_id,int ground_id)
     } else {
       ground_edge_id=ground_id;
     }
+    //EnemyAntActOnGroundEdge(enemy_id,TRUE);
     if (ground_edge_id!=-1) {
       edge_1_dist=GetDistance(Enemy[enemy_id]->x,Enemy[enemy_id]->y,Ground[ground_edge_id]->x1,Ground[ground_edge_id]->y1);
       edge_2_dist=GetDistance(Enemy[enemy_id]->x,Enemy[enemy_id]->y,Ground[ground_edge_id]->x2,Ground[ground_edge_id]->y2);
@@ -329,8 +339,11 @@ void EnemySpriteOnGroundId(int enemy_id,int ground_id)
         if (edge_1_dist<=distl && edge_1_dist>=0 && ground_edge_id!=-1) {
           ///Enemy[enemy_id]->x+=cos(edge_angle);
           //Enemy[enemy_id]->y+=sin(edge_angle);
+          Enemy[enemy_id]->draw_falling=FALSE;
           edge_angle=GetCosAngle(Enemy[enemy_id]->x-Ground[ground_edge_id]->x1,edge_1_dist);
-          Enemy[enemy_id]->angle=edge_angle;
+          if (Enemy[enemy_id]->health>0) {
+            Enemy[enemy_id]->angle=edge_angle;
+          }
           if (Enemy[enemy_id]->y<Ground[ground_edge_id]->y1) {
             Enemy[enemy_id]->above_ground_edge=TRUE;
             Enemy[enemy_id]->below_ground_edge=FALSE;
@@ -347,8 +360,11 @@ void EnemySpriteOnGroundId(int enemy_id,int ground_id)
         } else if (edge_2_dist<=distl && edge_2_dist>=0 && ground_edge_id!=-1) {
           //Enemy[enemy_id]->x+=cos(edge_angle);
           //Enemy[enemy_id]->y+=sin(edge_angle);
+          Enemy[enemy_id]->draw_falling=FALSE;
           edge_angle=GetCosAngle(Enemy[enemy_id]->x-Ground[ground_edge_id]->x2,edge_2_dist);
-          Enemy[enemy_id]->angle=edge_angle;
+          if (Enemy[enemy_id]->health>0) {
+            Enemy[enemy_id]->angle=edge_angle;
+          }
           if (Enemy[enemy_id]->y<Ground[ground_edge_id]->y2) {
             Enemy[enemy_id]->above_ground_edge=TRUE;
             Enemy[enemy_id]->below_ground_edge=FALSE;
@@ -383,7 +399,7 @@ void EnemySpriteOnGroundId(int enemy_id,int ground_id)
       }
     }
     
-    if (ground_id>=GROUND_NUM) { //eating      
+    if (ground_id>=GROUND_NUM && Enemy[enemy_id]->health>0) { //eating      
       Ground[ground_id]->health-=(1+Enemy[enemy_id]->bullet_damage/2);
     }
 
@@ -439,11 +455,19 @@ void EnemyGravity(int enemy_id,int gr)
   if (node_grid_id2!=-1) {
     is_in_solid2=NodeGrid[node_grid_id2]->node_solid;
   }
-  if (Enemy[enemy_id]->on_ground_id==-1 && tmp_==-1) {//not on ground
+  if ((Enemy[enemy_id]->on_ground_id==-1 && tmp_==-1) || Enemy[enemy_id]->force_fall) {//not on ground
     if (!is_in_solid1 && !is_in_solid2) {
       if (!Enemy[enemy_id]->in_water) {
         Enemy[enemy_id]->y+=1; //falling down
-        if (Enemy[enemy_id]->flying_timer==0) { 
+        if (Enemy[enemy_id]->y>=MAP_HEIGHT-4) {
+          Enemy[enemy_id]->true_dead=TRUE;
+          Enemy[enemy_id]->health--;
+        }
+        if (Enemy[enemy_id]->health>0) {
+          Enemy[enemy_id]->draw_falling=TRUE;
+        }
+
+        if (Enemy[enemy_id]->flying_timer==0 && Enemy[enemy_id]->health>0) { 
           if (abs(RandNum(0,100,Enemy[enemy_id]->seed))<40/*90*/) {
             if (Enemy[enemy_id]->species==1)
               Enemy[enemy_id]->flying_timer=1;
@@ -451,8 +475,11 @@ void EnemyGravity(int enemy_id,int gr)
               Enemy[enemy_id]->flying_timer=100;
           } else {
             Enemy[enemy_id]->force_fall=TRUE;
+            Enemy[enemy_id]->draw_falling=FALSE;
           }
         }
+
+
       } else if (gr==0 && Enemy[enemy_id]->species!=3) {
         Enemy[enemy_id]->flying_timer=0;
         Enemy[enemy_id]->force_fall=FALSE;
@@ -479,6 +506,7 @@ void EnemyMove(int enemy_id)
     path_node_center_y=EnemyPathfinding[pfi]->node_y[path_node_id]+NODE_SIZE/2;
   }
 
+  int gid=GetOnGroundId(Enemy[enemy_id]->x,Enemy[enemy_id]->y,2,2);
 
 
   /*if (raining) { //move ment interruption due to rain
@@ -515,6 +543,7 @@ void EnemyMove(int enemy_id)
     if (Enemy[enemy_id]->y<path_node_center_y) {
       Enemy[enemy_id]->y+=Enemy[enemy_id]->speed;
     } else {
+      Enemy[enemy_id]->draw_falling=FALSE;
       Enemy[enemy_id]->y-=Enemy[enemy_id]->speed;
     }
 
@@ -523,7 +552,7 @@ void EnemyMove(int enemy_id)
   if (path_node_center_y-1<=Enemy[enemy_id]->y && Enemy[enemy_id]->y<=path_node_center_y+1 &&
       path_node_center_x-1<=Enemy[enemy_id]->x && Enemy[enemy_id]->x<=path_node_center_x+1) {
     EnemyPathfinding[pfi]->path_nodes_num--;
-    if (path_node_arr_id<=0) { //all nodes followed
+    if (path_node_arr_id<=0 || gid!=-1) { //all nodes followed
       Enemy[enemy_id]->idling=TRUE;
       Enemy[enemy_id]->move_to_target=FALSE;
     }
@@ -653,7 +682,7 @@ void EnemyLOSAct(int i)
 
 void EnemyKnockbackMove(int i,int ground_id) //now with bouncing
 {
-  if (IsOutOfBounds(Enemy[i]->x,Enemy[i]->y,5,MAP_WIDTH,MAP_HEIGHT)) {
+  if (IsOutOfBounds(Enemy[i]->x,Enemy[i]->y,5,MAP_WIDTH,MAP_HEIGHT) /*|| Enemy[i]->is_in_ground_edge*/) {
     Enemy[i]->knockback_timer=0;
   } else {
     if (ground_id!=-1 /*&& ground_id!=Enemy[i]->on_ground_id*/) {
@@ -819,6 +848,7 @@ void EnemyAntActOnGround(int i,double height_from_e_x,int ground_id,bool clockwi
        Enemy[i]->in_air_timer=0;
        Enemy[i]->flying_timer=0;
        Enemy[i]->force_fall=FALSE;
+       Enemy[i]->draw_falling=FALSE;
        Enemy[i]->on_ground_timer=20;
        Enemy[i]->sprite_angle=Ground[ground_id]->angle;
        if (clockwise) {
@@ -849,6 +879,7 @@ void EnemyAntActOnGround(int i,double height_from_e_x,int ground_id,bool clockwi
        Enemy[i]->in_air_timer=0;
        Enemy[i]->flying_timer=0;
        Enemy[i]->force_fall=FALSE;
+       Enemy[i]->draw_falling=FALSE;
        Enemy[i]->on_ground_timer=20;
        Enemy[i]->sprite_angle=-Ground[ground_id]->angle;
        if (clockwise) {
@@ -1049,6 +1080,9 @@ void EnemyAntGravity(int enemy_id)
     if (!Enemy[enemy_id]->in_water) {
       if (Enemy[enemy_id]->y<MAP_HEIGHT-3) {
         Enemy[enemy_id]->y+=1; //falling down
+      } else {
+        Enemy[enemy_id]->true_dead=TRUE;
+        Enemy[enemy_id]->health--;
       }
     } else {
       if (Enemy[enemy_id]->y>3) {
@@ -1238,6 +1272,21 @@ bool InsectBites(int i,int dmg,bool is_mosquito)
   }
 }
 
+void EnemyDeductMaxHealth(int i)
+{
+
+  if (Enemy[i]->health<=0) {
+    if (game_hard) {
+      Enemy[i]->max_health/=3;
+      if (Enemy[i]->max_health<=1) {
+        Enemy[i]->true_dead=TRUE;
+      }
+    } else {
+      Enemy[i]->true_dead=TRUE;
+    }
+  }
+}
+
 
 
 void EnemyAct(int i)
@@ -1272,7 +1321,13 @@ void EnemyAct(int i)
     BulletAct(Enemy[i]->bullet_shot_arr[j]);
   }
 
-  if (Enemy[i]->health>0) {
+  //cockroach quirk, small chance to revive after presume dead
+  /*if (Enemy[i]->species==1 && Enemy[i]->health<=0 && !Enemy[i]->true_dead) {
+  }*/
+
+
+
+  if (Enemy[i]->health>0 || !Enemy[i]->true_dead) {
 
 
     //Enemy bullet
@@ -1306,6 +1361,16 @@ void EnemyAct(int i)
       }
 
 
+      /*if (Enemy[i]->species==1 && Enemy[i]->health<=0 && !Enemy[i]->true_dead && dist_from_bullet0<=NODE_SIZE*7 && Enemy[i]->saw_player/*&& !game_hard) {
+        int crevdice=RandNum(0,1000,Enemy[i]->seed);
+        if (crevdice<10) {
+          slash_time=EnemyActDazzle(i,1800);
+          force_search=TRUE;
+          Enemy[i]->health=Enemy[i]->max_health;
+        }
+      }*/
+
+
       if (dist_from_bullet0<=NODE_SIZE*4 /*&& player.health>0*/) {
         Enemy[i]->last_seen_timer=200;
         switch (Enemy[i]->species) {
@@ -1317,6 +1382,7 @@ void EnemyAct(int i)
               if (player.health<=0) {
                 if (Enemy[i]->health<=0 && !Enemy[i]->try_revive_player) {
                   Enemy[i]->try_revive_player=TRUE;
+                  Enemy[i]->true_dead=TRUE;
                   int revdice=abs(RandNum(0,100,player.seed*frame_tick));
                   if (revdice<8) {
                     player.x=Enemy[i]->x;
@@ -1343,9 +1409,13 @@ void EnemyAct(int i)
          case 1://crawl
          case 3:
             Enemy[i]->damage_taken_timer=256;
-            Enemy[i]->health-=Bullet[bk].damage;
+            if (Enemy[i]->health>0) {
+              Enemy[i]->health-=Bullet[bk].damage;
+              EnemyDeductMaxHealth(i);
+            }
               if (player.health<=0) {
                 if (Enemy[i]->health<=0 && !Enemy[i]->try_revive_player) {
+                  Enemy[i]->true_dead=TRUE;
                   Enemy[i]->try_revive_player=TRUE;
                   int revdice=abs(RandNum(0,100,player.seed*frame_tick));
                   if (revdice<8) {
@@ -1359,7 +1429,7 @@ void EnemyAct(int i)
             if (game_audio) {
               PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
             }
-            if ((Enemy[i]->on_ground_id==-1 && RandNum(0,100,Enemy[i]->seed)<20) || Enemy[i]->on_ground_id!=-1) {
+            if ((Enemy[i]->on_ground_id==-1 && (Enemy[i]->health<=0 || RandNum(0,100,Enemy[i]->seed)<20)) || Enemy[i]->on_ground_id!=-1) {
               Enemy[i]->knockback_timer=player.knockback_strength;
             }
             Enemy[i]->knockback_angle=Bullet[bk].angle;
@@ -1420,7 +1490,10 @@ void EnemyAct(int i)
             PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
           }
           Enemy[i]->damage_taken_timer=256;
-          Enemy[i]->health-=Bullet[player.bullet_shot].damage;
+          if (Enemy[i]->health>0) {
+            Enemy[i]->health-=Bullet[player.bullet_shot].damage;
+            EnemyDeductMaxHealth(i);
+          }
           Enemy[i]->knockback_timer=player.knockback_strength;
           Enemy[i]->knockback_angle=Bullet[player.bullet_shot].angle;
           Enemy[i]->player_knockback=FALSE;
@@ -1444,6 +1517,31 @@ void EnemyAct(int i)
           force_search=TRUE;
         }
       } 
+
+  //cockroach play dead and instant attack surprise when close
+  if (Enemy[i]->species==1 && Enemy[i]->health<=0 && !Enemy[i]->true_dead /*&& !game_hard*/) {
+        if (!Enemy[i]->saw_player && Enemy[i]->last_seen_timer==0) { //not seen by player
+          int crevdice=RandNum(0,10000,Enemy[i]->seed);
+          if (crevdice<10) {
+            slash_time=EnemyActDazzle(i,2000);
+            force_search=TRUE;
+            Enemy[i]->health=Enemy[i]->max_health;
+          }
+        } else { //seeing player
+          int crevdice;
+          if (Enemy[i]->dist_from_player<=NODE_SIZE*5) {
+            crevdice=RandNum(0,100,Enemy[i]->seed);
+          } else if (Enemy[i]->dist_from_player<=NODE_SIZE*8) {
+            crevdice=RandNum(0,10000,Enemy[i]->seed);
+          }
+          if (crevdice<5) {
+            slash_time=EnemyActDazzle(i,17);
+            force_search=TRUE;
+            Enemy[i]->health=Enemy[i]->max_health;
+          }
+       }
+  }
+
 
    bool insect_bite=FALSE;
    //mosquito quirk 
@@ -1486,8 +1584,7 @@ void EnemyAct(int i)
 	      }
 	    }
 	    break;
-      case 1://crawl
-      case 3:
+      case 1:case 3:
 	    if (distance_from_player_claws<=NODE_SIZE*4) {
 	      allow_act=TRUE;
 	    }
@@ -1512,9 +1609,14 @@ void EnemyAct(int i)
     if (allow_act) {  //player meelee
       allow_act=FALSE;
       deduct_health=TRUE;
-      Enemy[i]->player_knockback=TRUE;
-      Enemy[i]->knockback_timer=player.knockback_strength;
+      if (Enemy[i]->species==1 && Enemy[i]->health<=0) {
+        Enemy[i]->true_dead=TRUE;
+      }
 
+      if (Enemy[i]->health>0) {
+        Enemy[i]->player_knockback=TRUE;
+        Enemy[i]->knockback_timer=player.knockback_strength;
+      }
       if (!player.uppercut /*&& !player.rst_up && !player.rst_down*/) {//normal
         if (player.on_ground_id==-1) {
           Enemy[i]->knockback_angle=0;//player.angle;
@@ -1566,7 +1668,7 @@ void EnemyAct(int i)
 
 
     //Player Spinning Attack
-    if (player.block_timer>1 && !player.on_a_ground) {
+    if (player.block_timer>1 && !player.on_a_ground && player.health>0) {
     //knockback from rebounding
       if (Enemy[i]->dist_from_player<=NODE_SIZE*2){
       
@@ -1585,6 +1687,11 @@ void EnemyAct(int i)
             }
             break;
           case 1:case 3:
+            if (Enemy[i]->species==1 && Enemy[i]->health<=0) {
+              if (player.speed>5) {
+                Enemy[i]->true_dead=TRUE;                
+              }
+            }
             if (player.speed>10) {
               deduct_health=TRUE;
             } else if (game_audio) {
@@ -1614,7 +1721,12 @@ void EnemyAct(int i)
     if (deduct_health) {
       deduct_health=FALSE;
       Enemy[i]->damage_taken_timer=256;
-      Enemy[i]->health-=player.attack_strength;
+      if (Enemy[i]->health>0) {
+        Enemy[i]->health-=player.attack_strength;
+        if (Enemy[i]->species==1) {
+          EnemyDeductMaxHealth(i);
+        }
+      }
       if (game_audio && !insect_bite) {
         PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
       }
@@ -1623,51 +1735,57 @@ void EnemyAct(int i)
 
     //Enemy Immediate Death Action
     if (Enemy[i]->health<=0) {
-      for (j=0;j<Enemy[i]->bullet_shot_num;j++) { //reset bullets
-        StopBullet(Enemy[i]->bullet_shot_arr[j],FALSE);
-      }
-      int rand_bullet_shot_num;/*=8+RandNum(1,10,Enemy[i]->seed);
-      if (Enemy[i]->species==1 || Enemy[i]->species==3) {
-        rand_bullet_shot_num=25+RandNum(30,40,Enemy[i]->seed);        
-      }*/
-      switch (Enemy[i]->species) {
-        case 0: rand_bullet_shot_num=Enemy[i]->max_health+RandNum(10,20,Enemy[i]->seed); break;
-        case 1: rand_bullet_shot_num=25+RandNum(30,40,Enemy[i]->seed); break;
-        case 2: rand_bullet_shot_num=8+RandNum(1,10,Enemy[i]->seed); break;
-        case 3: rand_bullet_shot_num=25+RandNum(50,60,Enemy[i]->seed); break;
-        case 4: rand_bullet_shot_num=12+RandNum(1,10,Enemy[i]->seed); break;
-        case 5: rand_bullet_shot_num=5+RandNum(5,10,Enemy[i]->seed); break;
-        case 6: rand_bullet_shot_num=5+RandNum(5,10,Enemy[i]->seed); break;
-        case 7: rand_bullet_shot_num=5+RandNum(5,10,Enemy[i]->seed); break;
-      }
-      for (int n=0;n<rand_bullet_shot_num;n++) {
-         int rand_range=NODE_SIZE*3+NODE_SIZE*RandNum(1,5,Enemy[i]->seed);
-        ShootBullet(current_bullet_id,
-            Enemy[i]->bullet_shot_num,
-            Enemy[i]->color,
-            10, //graphics type
-            rand_range, // range
-            0.1, //speed
-            1+RandNum(1,10,Enemy[i]->seed*player.seed), //speed multiuplier
-            0, //damage
-            i, //enemy id
-            Enemy[i]->x,
-            Enemy[i]->y,
-            Enemy[i]->x,
-            Enemy[i]->y,
-            Enemy[i]->x+RandNum(-50,50,Enemy[i]->seed),
-            Enemy[i]->y+RandNum(-30,30,Enemy[i]->seed),
-            0 //off angle
-        );
-        Enemy[i]->bullet_shot_arr[Enemy[i]->bullet_shot_num]=current_bullet_id;
-        Enemy[i]->bullet_shot_num++;
-        
-      //after shooting
-        current_bullet_id++;
-        if (current_bullet_id>=SHOOT_BULLET_NUM-1) {
-          current_bullet_id=0;
+      if (Enemy[i]->species!=1 || (Enemy[i]->species==1 && Enemy[i]->true_dead)) {
+          Enemy[i]->true_dead=TRUE;
+          for (j=0;j<Enemy[i]->bullet_shot_num;j++) { //reset bullets
+            StopBullet(Enemy[i]->bullet_shot_arr[j],FALSE);
+          }
+          int rand_bullet_shot_num;/*=8+RandNum(1,10,Enemy[i]->seed);
+          if (Enemy[i]->species==1 || Enemy[i]->species==3) {
+            rand_bullet_shot_num=25+RandNum(30,40,Enemy[i]->seed);        
+          }*/
+          switch (Enemy[i]->species) {
+            case 0: rand_bullet_shot_num=Enemy[i]->max_health+RandNum(10,20,Enemy[i]->seed); break;
+            case 1: rand_bullet_shot_num=25+RandNum(30,40,Enemy[i]->seed); break;
+            case 2: rand_bullet_shot_num=8+RandNum(1,10,Enemy[i]->seed); break;
+            case 3: rand_bullet_shot_num=25+RandNum(50,60,Enemy[i]->seed); break;
+            case 4: rand_bullet_shot_num=12+RandNum(1,10,Enemy[i]->seed); break;
+            case 5: rand_bullet_shot_num=5+RandNum(5,10,Enemy[i]->seed); break;
+            case 6: rand_bullet_shot_num=5+RandNum(5,10,Enemy[i]->seed); break;
+            case 7: rand_bullet_shot_num=5+RandNum(5,10,Enemy[i]->seed); break;
+          }
+          for (int n=0;n<rand_bullet_shot_num;n++) {
+             int rand_range=NODE_SIZE*3+NODE_SIZE*RandNum(1,5,Enemy[i]->seed);
+            ShootBullet(current_bullet_id,
+                Enemy[i]->bullet_shot_num,
+                Enemy[i]->color,
+                10, //graphics type
+                rand_range, // range
+                0.1, //speed
+                1+RandNum(1,10,Enemy[i]->seed*player.seed), //speed multiuplier
+                0, //damage
+                i, //enemy id
+                Enemy[i]->x,
+                Enemy[i]->y,
+                Enemy[i]->x,
+                Enemy[i]->y,
+                Enemy[i]->x+RandNum(-50,50,Enemy[i]->seed),
+                Enemy[i]->y+RandNum(-30,30,Enemy[i]->seed),
+                0 //off angle
+            );
+            Enemy[i]->bullet_shot_arr[Enemy[i]->bullet_shot_num]=current_bullet_id;
+            Enemy[i]->bullet_shot_num++;
+            
+          //after shooting
+            current_bullet_id++;
+            if (current_bullet_id>=SHOOT_BULLET_NUM-1) {
+              current_bullet_id=0;
+            }
         }
       }
+      /*} else {
+        //
+      }*/
     }
     int tmp_ngid;
     int tmp_gid_;
@@ -1686,8 +1804,9 @@ void EnemyAct(int i)
         }
         for (j=0;j<knock_max;j++) {
           Enemy[i]->in_node_grid_id=GetGridId(Enemy[i]->x,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);      
-          tmp_gid_=GetOnGroundId(Enemy[i]->x,Enemy[i]->y,5,4); 
-          if (tmp_gid_==-1) {
+          tmp_gid_=GetOnGroundId(Enemy[i]->x,Enemy[i]->y,2,2);//5,4); 
+          //scrapped, enemies are now more squishy around grounds
+          /*if (tmp_gid_==-1) {
             for (int w=0;w<8;w++) { //NOTE; resource intensive BUT only do it while being knockedback, prevents clipping through walls
               switch (w) {
                 case 0:tmp_gid_=GetOnGroundId(Enemy[i]->x+NODE_SIZE,Enemy[i]->y,5,4); break;
@@ -1706,7 +1825,7 @@ void EnemyAct(int i)
                 break;
               }
             }
-          }
+          }*/
           EnemyKnockbackMove(i,tmp_gid_);
         }
       }
@@ -1723,9 +1842,15 @@ void EnemyAct(int i)
       }
 
       if (Enemy[i]->species==1 || Enemy[i]->species==3) {
-        if (Enemy[i]->knockback_timer>0 || Enemy[i]->on_ground_id==-1 || Enemy[i]->in_water) {
-          LargeEnemySpriteTimer(i);
-        }
+        if (Enemy[i]->health>0) {
+          if (Enemy[i]->knockback_timer>0 || Enemy[i]->on_ground_id==-1 || Enemy[i]->in_water) {
+            LargeEnemySpriteTimer(i);
+          }
+        } /*else {
+          if (Enemy[i]->sprite_timer!=0) {
+            LargeEnemySpriteTimer(i);
+          }
+        }*/
       }
 
       if (Enemy[i]->web_stuck) {
@@ -1752,6 +1877,7 @@ void EnemyAct(int i)
           Enemy[i]->in_water=TRUE;
           Enemy[i]->flying_timer=0;
           Enemy[i]->force_fall=FALSE;
+          Enemy[i]->draw_falling=FALSE;
           Enemy[i]->sprite_in_water=TRUE;
         } else { //leave water
           if (Enemy[i]->in_water) {
@@ -1813,8 +1939,15 @@ void EnemyAct(int i)
           Enemy[i]->y--;
         }
 
-        if (((Enemy[i]->species==1) || Enemy[i]->species==3) && !Enemy[i]->move_to_target && !Enemy[i]->target_player) {//Species 1 gravity
+        if (((Enemy[i]->species==1) || Enemy[i]->species==3) && (Enemy[i]->health<=0 || (!Enemy[i]->move_to_target && !Enemy[i]->target_player))) {//Species 1 gravity
           if (slash_time_i==0) {
+            if (Enemy[i]->health<0) {
+              Enemy[i]->force_fall=TRUE;
+              Enemy[i]->flying_timer=0;
+              /*if (Enemy[i]->in_air_timer==0) {
+                Enemy[i]->in_air_timer+=100;    
+              } */  
+            }
             if (Enemy[i]->flying_timer==0 || Enemy[i]->force_fall) {//not flying, fall
               for (int gr=0;gr<1+Enemy[i]->in_air_timer/5;gr++) {
                 EnemyGravity(i,gr);
@@ -1823,11 +1956,17 @@ void EnemyAct(int i)
             if (Enemy[i]->flying_timer>0) {
               Enemy[i]->flying_timer--;
             }
+          }
+        }
+        if (Enemy[i]->species==1 || Enemy[i]->species==3) {
             if (Enemy[i]->in_air_timer>0) {
               Enemy[i]->in_air_timer--;
             }
-          }
+            if (Enemy[i]->in_air_timer==0) {
+              Enemy[i]->draw_falling=FALSE;
+            }
         }
+
         if (Enemy[i]->species==4 && !Enemy[i]->web_stuck) {
           if (!player.time_breaker) {
             if (slash_time>1) { //dazzle movement
@@ -1885,12 +2024,25 @@ void EnemyAct(int i)
         /*if (Enemy[i]->is_in_ground_edge) {
           force_search=TRUE;
         }*/
+
+
+        //ensure doesnt get too close to ground, absolute;
+        int tbgid=GetOnGroundId(Enemy[i]->x,Enemy[i]->y,5,4);
+        if (tbgid!=-1) {
+          Enemy[i]->knockback_angle=GetBounceAngle(Enemy[i]->knockback_angle,Ground[tbgid]->angle);
+          Enemy[i]->player_knockback=FALSE;
+          double kb_x=cos(Enemy[i]->knockback_angle)*1;
+          double kb_y=sin(Enemy[i]->knockback_angle)*1;      
+          Enemy[i]->x+=kb_x;
+          Enemy[i]->y+=kb_y;
+        }
+
         if (Enemy[i]->force_search/* || game_hard*/) {
           force_search=TRUE;
           Enemy[i]->force_search=FALSE;
         }
 
-        if (player.health>0 && (!Enemy[i]->ignore_player && !Enemy[i]->web_stuck/*&&  //not ignore & within range
+        if (Enemy[i]->health>0 && player.health>0 && (!Enemy[i]->ignore_player && !Enemy[i]->web_stuck/*&&  //not ignore & within range
              Enemy[i]->dist_from_player<Enemy[i]->follow_range/2*NODE_SIZE*/
             )
            ) {
@@ -2048,7 +2200,7 @@ void EnemyAct(int i)
           Enemy[i]->search_timer=0;
         }
       } else if (Enemy[i]->move_to_target) {
-        if (Enemy[i]->knockback_timer==0) {
+        if (Enemy[i]->knockback_timer==0 && Enemy[i]->health>0) {
           for (j=0;j<Enemy[i]->speed_multiplier;j++) {
             LargeEnemySpriteTimer(i);
             EnemyMove(i);
@@ -2481,6 +2633,7 @@ void InitEnemy()
     Enemy[i]->y=saved_enemy_y[i];
     Enemy[i]->sprite_x=
     Enemy[i]->sprite_y=-20;
+    Enemy[i]->true_dead=FALSE;
     Enemy[i]->is_ground_rebounding=FALSE;
     Enemy[i]->is_in_ground_edge=FALSE;
     Enemy[i]->is_in_left_ground_edge=FALSE;
@@ -2525,6 +2678,7 @@ void InitEnemy()
     Enemy[i]->knockback_timer=0;
     Enemy[i]->shoot_target_x=0;
     Enemy[i]->shoot_target_y=0;
+    Enemy[i]->draw_falling=FALSE;
     Enemy[i]->in_node_grid_id=FALSE;
     Enemy[i]->sprite_in_water=FALSE;
     Enemy[i]->in_water=FALSE;
@@ -2625,7 +2779,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
    currently anticlockwise
 */        
      //WHILE ON GROUND EDGE
-      if (Enemy[i]->is_in_ground_edge) {
+      if (Enemy[i]->is_in_ground_edge && Enemy[i]->health>0) {
         int le_angle;
         double le_enemy_angle=Enemy[i]->angle;
         if ((Enemy[i]->species>=5 && Enemy[i]->species<=7)) {
@@ -2710,7 +2864,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
     }
 
     //Drawing operations, enemy is living
-    if (Enemy[i]->health>0) { //enemy is alive
+    if (Enemy[i]->health>0 || !Enemy[i]->true_dead) { //enemy is alive
 
 
     //Enemy has died
@@ -2835,11 +2989,9 @@ void DrawEnemy(HDC hdc,HDC hdc2)
       }
     
       int etype=Enemy[i]->type;
-      if (Enemy[i]->health>0) {
+      if (Enemy[i]->health>0 || !Enemy[i]->true_dead) {
       switch (Enemy[i]->species) {
-        case 0:
-        case 2:
-        case 4:
+        case 0:case 2:case 4:
           if (etype>-1 && etype<ENEMY_TYPE_NUM) {
           if (Enemy[i]->sprite_timer%2==0) {
             if (Enemy[i]->sprite_timer%4==0) {
@@ -2869,12 +3021,17 @@ void DrawEnemy(HDC hdc,HDC hdc2)
           //GrPrint(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y+48,printfunny,WHITE);
           int rsid=Enemy[i]->rotated_sprite_id;
           if (rsid!=-1 && etype>-1 && etype<ENEMY_TYPE_NUM) {
-          if ((Enemy[i]->force_fall || Enemy[i]->flying_timer==0) && 
-                ((Enemy[i]->sprite_in_water && !Enemy[i]->web_stuck) /*|| (Enemy[i]->in_air_timer>0 && !Enemy[i]->move_to_target)*/)
+          if (/*Enemy[i]->health>0 && (*/
+                ((Enemy[i]->draw_falling) ||
+                (Enemy[i]->sprite_in_water && !Enemy[i]->web_stuck)
+              )
             ) {
             int swim_rot_id=7;
             if (Enemy[i]->species==3) {
               swim_rot_id=9;
+            }
+            if (Enemy[i]->health<=0) {
+              swim_rot_id=27;
             }
             if (Enemy[i]->sprite_timer%8==0) {
               DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
@@ -2883,7 +3040,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
               DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
               &EnemyRotatedSprite[rsid].draw_rotated_sprite2[swim_rot_id],Enemy[i]->last_left);
             }
-          } else if (Enemy[i]->on_ground_id!=-1) { //on a ground
+          } else if (Enemy[i]->on_ground_id!=-1 || Enemy[i]->health<0) { //on a ground
 
             if (!Enemy[i]->is_in_ground_edge) {
               if (Enemy[i]->move_to_target || Enemy[i]->knockback_timer>0) { //moving to target and on ground

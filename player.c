@@ -2543,8 +2543,10 @@ void PlayerAct()
         player.flag_death=TRUE;
         player.flag_revert_palette=TRUE;
         player.time_breaker_tick=0;
+        player.time_breaker=FALSE;
+        player.time_breaker_units=0;
         player.is_swinging=FALSE; //stop swinging
-    InitPlayerFlingWeb();
+        InitPlayerFlingWeb();
         //player.death_x=player.x;
         //player.death_y=player.y;
         if (player.bullet_shot!=-1) {

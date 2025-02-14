@@ -683,6 +683,7 @@ typedef struct enemy
   bool web_stuck;
   bool is_clockwize;
   bool true_dead;
+  bool draw_falling;
   //Attacked
   bool knockback_left;
   bool player_knockback;
@@ -1011,6 +1012,7 @@ void InitEnemy();
 void DrawEnemy(HDC hdc,HDC hdc2);
 void InitEnemySpritesObjColor(HDC hdc,HDC hdc2);
 void InitEnemySpritesObjColorNoir(HDC hdc,HDC hdc2);
+void EnemyAntActOnGroundEdge(int i,bool clockwise);
 
 
 
