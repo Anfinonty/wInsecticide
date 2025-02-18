@@ -337,7 +337,7 @@ void InitLevel(bool load_lvl)
 
   level_loaded=TRUE;
 
-  if (!stop_playing_song && load_lvl) { 
+  if (!stop_playing_song[0] && stop_playing_song[1] && load_lvl) {//main turntable open only please
     InitLoadLvlSong();
   }
   level_loading=FALSE;

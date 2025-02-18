@@ -445,6 +445,14 @@ void DrawTitle(HDC hdc,HDC hdc2)
                      352,
                      256,
                     title_sprite[ti],SRCPAINT,FALSE,FALSE);
+
+        //SelectObject(hdc2,title_sprite_mask[ti]);
+        //BitBlt(hdc,title_x, title_y, 352, 256, hdc2, 0, 0, SRCAND);
+
+        //SelectObject(hdc2,title_sprite[ti]);
+        //BitBlt(hdc, title_x, title_y, 352, 256, hdc2, 0, 0, SRCPAINT);
+
+
   } else {
       DrawBitmap(hdc,hdc2,title_x2,
                      title_y2,
@@ -653,9 +661,14 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
   //draw bkgrnd
   //DrawBitmap(hdc,hdc2,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
 
+
   if (wav_mode==0) {
     //DrawMovingAVI(hdc,hdc2);
     DrawBitmap(hdc,hdc2,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
+
+    if (!hide_mm) {
+      DrawPersianClock(hdc,hdc2);
+    }
     //if (!hide_mm) {
       if (GR_WIDTH>=800) {
         DrawSprite(hdc, hdc2,GR_WIDTH-128,160,&draw_moon_sprite,FALSE);
@@ -699,10 +712,6 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
   //GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
 
   DrawTitle(hdc,hdc2);
-
-
-  DrawPersianClock(hdc,hdc2);
-
   if (hide_taskbar) {
     main_menu_y=15;
 //    main_menu_y2=15;
@@ -1649,7 +1658,7 @@ void DrawUI(HDC hdc,HDC hdc2)
       int speed_times=speed_angle/angle_limit;
       speed_angle-=angle_limit*speed_times;
       speed_dist=64+8*speed_times;
-      c2 = LTCYAN;//Highlight(IsInvertedBackground(),LTCYAN,RED);
+      c2 = LTCYAN;
     } else {
         if (i<5) c2=GREEN;
         else if (i<10) c2=LTGREEN;
@@ -1674,10 +1683,18 @@ void DrawUI(HDC hdc,HDC hdc2)
   int player_web_remaining=player.max_web_num-player.placed_web_num;
 
   //EXP Bar
-  if (player.show_exp_timer>0) {
-    GrRect(hdc,player.sprite_x-50,player.sprite_y+23,100,5,c4);
+  //if (player.show_exp_timer>0) {
+    int exp_l=18;
+    int lk=20;
+    //GrRect(hdc,player.sprite_x-50,player.sprite_y+23,100,5,c4);
+    GrRect(hdc,mouse_x-50+14,mouse_y+23+6,100,4,c4);
+    if (game_hard) {
+      exp_l=31;
+      lk=33;
+    }
     for (int k=0;k<player.exp;k++) {
-      GrRect(hdc,1+player.sprite_x-50+k*20,player.sprite_y+24,18,3,c5);
+      //GrRect(hdc,1+player.sprite_x-50+k*lk,player.sprite_y+24,exp_l,3,c5);
+      GrRect(hdc,1+mouse_x-50+k*lk+14,mouse_y+24+6,exp_l,2,c5);      
     }
 
     /*if (is_khmer) {
@@ -1689,7 +1706,7 @@ void DrawUI(HDC hdc,HDC hdc2)
       sprintf(bullettxt,"%d",player_web_remaining);
       GrPrint(hdc,player.sprite_x+58,player.sprite_y+16,bullettxt,c);
     }*/
-  }
+  //}
 
 
   //Knives per throw Bar
@@ -1744,7 +1761,7 @@ void DrawUI(HDC hdc,HDC hdc2)
     GrPrintW(hdc,knifethrowstxtx-32-8,knifethrowstxty-4,bulletlefttxt,"",bc,16,FALSE,yes_unifont);
   }
 
-  if (player.show_exp_timer>0) {
+  /*if (player.show_exp_timer>0) {
     if (is_khmer) {
       GrPrintW(hdc,player.sprite_x+58,player.sprite_y+16,ReplaceToKhmerNum(bulletlefttxt2),"",bc2,16,FALSE,yes_unifont);
       GrPrintW(hdc,player.sprite_x+58,player.sprite_y+16,ReplaceToKhmerNum(bulletlefttxt),"",bc,16,FALSE,yes_unifont);
@@ -1752,7 +1769,7 @@ void DrawUI(HDC hdc,HDC hdc2)
       GrPrintW(hdc,player.sprite_x+58,player.sprite_y+16,bulletlefttxt2,"",bc2,16,FALSE,FALSE);
       GrPrintW(hdc,player.sprite_x+58,player.sprite_y+16,bulletlefttxt,"",bc,16,FALSE,FALSE);
     }
-  }
+  }*/
 
     //draw perfect block
     /*if (player.block_timer<=11) {
@@ -1834,14 +1851,14 @@ void DrawUI(HDC hdc,HDC hdc2)
   else
     GrPrint(hdc,mouse_x-32,mouse_y+48,"3",LTRED);
 
-  if (player.block_timer>0) {
+  /*if (player.block_timer>0) {
     if (player.block_timer<=23) {
       GrPrint(hdc,mouse_x+20,mouse_y+48,"{__}",WHITE);
     }
     GrPrint(hdc,mouse_x+28,mouse_y+48,"S",LTGREEN);
   } else {
     GrPrint(hdc,mouse_x+28,mouse_y+48,"S",LTRED);
-  }
+  }*/
 
   if (IsSpeedBreaking())
     GrPrint(hdc,mouse_x+48,mouse_y+48,"C",LTGREEN);

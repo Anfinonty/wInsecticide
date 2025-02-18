@@ -218,6 +218,8 @@ int Highlight(bool predicate,int color1, int color2)
 }
 
 RGBQUAD rgbColorsInvert[256];
+RGBQUAD rgbColorsRedToBlue[256];
+
 void Init8BitRGBColorsInvert(RGBQUAD *rgbColors,RGBQUAD *rgbColorsSrc)
 {
   int calc;
@@ -234,7 +236,6 @@ void Init8BitRGBColorsInvert(RGBQUAD *rgbColors,RGBQUAD *rgbColorsSrc)
     }
   }
 }
-
 
 
 void CopyReplaceColorPalette(RGBQUAD *paletteDest, RGBQUAD *paletteSrc,int old_color_id,int new_color)
@@ -482,7 +483,7 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
         }
         rgbColors[i].rgbReserved = 0;
         break;
-      case 10: //LTGREEN 160->175
+      case 10: //LTGREEN 160->175 , 167
         if (index_range<=8) { //1->7 Darker values, 8 is true value
           rgbColors[i].rgbRed = 0;
           rgbColors[i].rgbBlue = 0;
@@ -509,7 +510,7 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
         }
         rgbColors[i].rgbReserved = 0;
         break;
-      case 12: //LTRED
+      case 12: //LTRED 16*12 =192   192 -> ,,,, 192+7=199
         if (index_range<=8) { //1->7 Darker values, 8 is true value
           rgbColors[i].rgbRed = ceil(index_range*255/8);
           rgbColors[i].rgbGreen = 0;

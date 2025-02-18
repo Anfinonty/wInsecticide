@@ -703,6 +703,35 @@ void SetNodeGridAttributes(int i)
           NodeGrid[node_grid_id]->non_web=TRUE;
         }
       }
+      //for (int n=0;n<8;n++) {
+      for (int n=0;n<4;n++) {
+        double llg_x,llg_y;
+        switch (n) {
+          case 0:llg_x=x-NODE_SIZE;llg_y=lg_y-NODE_SIZE;break;
+          //case 1:llg_x=x;llg_y=lg_y-NODE_SIZE;break;
+          case 1:llg_x=x+NODE_SIZE;llg_y=lg_y-NODE_SIZE;break;
+          case 2:llg_x=x-NODE_SIZE;llg_y=lg_y+NODE_SIZE;break;
+          //case 4:llg_x=x;llg_y=lg_y+NODE_SIZE;break;
+          case 3:llg_x=x+NODE_SIZE;llg_y=lg_y+NODE_SIZE;break;
+          //case 6:llg_x=x-NODE_SIZE;llg_y=lg_y;break;
+          //case 7:llg_x=x+NODE_SIZE;llg_y=lg_y;break;
+        }
+          lg_grid_id=GetGridId(llg_x,llg_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
+          if (lg_grid_id!=-1) {
+            SetGridLineArray(lg_grid_id,i);
+          }
+          if (!Ground[i]->is_ghost) { //Not a ghost
+            node_grid_id=GetGridId(llg_x,llg_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
+            if (node_grid_id!=-1) {
+              NodeGrid[node_grid_id]->node_solid=TRUE;
+              if (i<GROUND_NUM) {
+                NodeGrid[node_grid_id]->non_web=TRUE;
+              }
+            }
+          }
+        }
+
+
     }
   } else { // x=(y-c)/m
     if (Ground[i]->y1<Ground[i]->y2) {
@@ -712,6 +741,11 @@ void SetNodeGridAttributes(int i)
       min=Ground[i]->y2;
       max=Ground[i]->y1;
     }
+    /*for (int _=0;_<2;_++) {
+      for (int n=0;i<8;n++) {
+
+      }
+    }*/
     for (y=min;y<max;y++) {
       lg_x=(y-Ground[i]->c)/Ground[i]->gradient;
       lg_grid_id=GetGridId(lg_x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
@@ -722,6 +756,32 @@ void SetNodeGridAttributes(int i)
         if (i<GROUND_NUM) {
           NodeGrid[node_grid_id]->non_web=TRUE;
         }
+      }
+      for (int n=0;n<4;n++) {
+          double llg_x,llg_y;
+          switch (n) {
+            case 0:llg_x=lg_x-NODE_SIZE;llg_y=y-NODE_SIZE;break;
+            //case 1:llg_x=lg_x;llg_y=y-NODE_SIZE;break;
+            case 1:llg_x=lg_x+NODE_SIZE;llg_y=y-NODE_SIZE;break;
+            case 2:llg_x=lg_x-NODE_SIZE;llg_y=y+NODE_SIZE;break;
+            //case 4:llg_x=lg_x;llg_y=y+NODE_SIZE;break;
+            case 3:llg_x=lg_x+NODE_SIZE;llg_y=y+NODE_SIZE;break;
+            //case 6:llg_x=lg_x-NODE_SIZE;llg_y=y;break;
+            //case 7:llg_x=lg_x+NODE_SIZE;llg_y=y;break;
+          }
+          lg_grid_id=GetGridId(llg_x,llg_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
+          if (lg_grid_id!=-1) {
+            SetGridLineArray(lg_grid_id,i);
+          }
+          if (!Ground[i]->is_ghost) {
+            node_grid_id=GetGridId(llg_x,llg_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
+            if (node_grid_id!=-1) {
+              NodeGrid[node_grid_id]->node_solid=TRUE;
+              if (i<GROUND_NUM) {
+                NodeGrid[node_grid_id]->non_web=TRUE;
+              }
+            }
+          }
       }
     }
   }
@@ -763,18 +823,22 @@ void DrawNodeGrids(HDC hdc)
 {
   int x,y;
   double dist;
+  if (level_loaded) {
   for (int i=0;i<MAP_NODE_NUM;i++) {
-    x=NodeGrid[i]->x1+player.cam_x;
-    y=NodeGrid[i]->y1+player.cam_y;
+    x=NodeGrid[i]->x1+player.cam_x+player.cam_move_x;
+    y=NodeGrid[i]->y1+player.cam_y+player.cam_move_y;
     //dist=GetDistance(player.x,player.y,x,y);
     //if (dist<GR_WIDTH) {
-      if (NodeGrid[i]->node_no_rain) //solid trifill
-        GrCircle(hdc,x,y,3,YELLOW,-1);
-      if (NodeGrid[i]->node_no_shade)
-        GrCircle(hdc,x,y,3,BLUE,-1);
+      //if (NodeGrid[i]->node_no_rain) //solid trifill
+        //GrCircle(hdc,x,y,3,YELLOW,-1);
+      //if (NodeGrid[i]->node_no_shade)
+        //GrCircle(hdc,x,y,3,BLUE,-1);
+      if (NodeGrid[i]->node_solid)
+        GrCircle(hdc,x,y,3,LTRED,-1);
     //}
     /*if (NodeGrid[i]->tmp_wet)
       GrCircle(hdc,NodeGrid[i]->x1+player.cam_x,NodeGrid[i]->y1+player.cam_y,3,BLUE,-1);*/
+  }
   }
 }
 

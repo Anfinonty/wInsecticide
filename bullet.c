@@ -333,12 +333,19 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
     //bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,0.5,0.5);
   //} else {
   bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2);
-  if (bullet_on_ground_id==-1 && Enemy[enemy_id]->health<=0 && (Enemy[enemy_id]->death_timer>100 && !game_hard) && player.health>0) {
+  if (bullet_on_ground_id==-1 && Enemy[enemy_id]->health<=0 && (Enemy[enemy_id]->death_timer>100) && player.health>0) {
     double pbdist=GetDistance(player.x,player.y,Bullet[bullet_id].x,Bullet[bullet_id].y);
-    double pbt=0.2;
+    double pbt=0.2;    
     if (pbdist<250) {
+      if (game_hard) {
+        pbt=0.1;
+      }
       if (pbdist<150) {
-        pbt=0.5;
+        if (!game_hard) {
+          pbt=0.5;
+        } else {
+          pbt=0.1;
+        }
       }
       if (Bullet[bullet_id].x<player.x) {
         Bullet[bullet_id].x+=pbt;
@@ -421,12 +428,12 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
       bool predicate=FALSE;
       if (Bullet[bullet_id].graphics_type==10 || Bullet[bullet_id].graphics_type==11) {
         if (hit_player) {
-          if (Enemy[enemy_id]->health<=0 && Enemy[enemy_id]->damage_taken_timer<250) {
+          if (Enemy[enemy_id]->health<=0 && Enemy[enemy_id]->damage_taken_timer<250 && Enemy[enemy_id]->death_timer>10) {
             predicate=TRUE;
           }
         }
       } else {
-        if (hit_player) {
+        if (HitPlayer(bullet_id,35,35)) {
           predicate=TRUE;
         }
       }
@@ -452,7 +459,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
             }
             player.exp++;
 
-            if (player.exp>MAX_EXP_NUM) {
+            if ((!game_hard && player.exp>MAX_EXP_NUM_NORMAL) || (game_hard && player.exp>MAX_EXP_NUM_HARD)) {
               player.exp=0;
               player.bullet_num++;
               if (player.max_web_num<MAX_WEB_NUM) {
@@ -790,8 +797,8 @@ void BulletAct(int bullet_id)
     }
     for (int i=0;i<Bullet[bullet_id].speed_multiplier;i++) {
       allow_act=FALSE;
-      Bullet[bullet_id].sprite_x=Bullet[bullet_id].x+player.cam_x+player.cam_move_x+player.cam_mouse_move_x;
-      Bullet[bullet_id].sprite_y=Bullet[bullet_id].y+player.cam_y+player.cam_move_y+player.cam_mouse_move_y;
+      Bullet[bullet_id].sprite_x=(int)Bullet[bullet_id].x+(int)player.cam_x+(int)player.cam_move_x+(int)player.cam_mouse_move_x;
+      Bullet[bullet_id].sprite_y=(int)Bullet[bullet_id].y+(int)player.cam_y+(int)player.cam_move_y+(int)player.cam_mouse_move_y;
   //----------------
       if (enemy_id<0) {//player bullet movement
         if (enemy_id==-1) { //web-snipe
@@ -935,14 +942,14 @@ void BulletAct(int bullet_id)
           }
           allow_act=TRUE;
         }
-      } else if (!player.time_breaker || Enemy[enemy_id]->time_breaker_immune) {//enemy
+      } else if (!player.time_breaker || Enemy[enemy_id]->time_breaker_immune || Enemy[enemy_id]->health<=0) {//enemy bullet movement
         if (Bullet[bullet_id].graphics_type==6 && Bullet[bullet_id].range<=Bullet[bullet_id].start_range-120) {
           //Bullet[bullet_id].graphics_type=1;
           Bullet[bullet_id].graphics_type=5;
         }
         if (!player.time_breaker) {
           allow_act=TRUE;
-        } else if (Bullet[bullet_id].start_range-Bullet[bullet_id].range<50) {
+        } else if (Bullet[bullet_id].start_range-Bullet[bullet_id].range<50) { //timebreaker enabled
           allow_act=TRUE;
         }
       } //End of stopping bullet

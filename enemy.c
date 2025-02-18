@@ -153,11 +153,11 @@ void InitEnemyPathfinding(int enemy_id,double target_x,double target_y)
       k=EnemyPathfinding[pfi]->enemy_species1_solids[i];
       x=EnemyPathfinding[pfi]->node_x[k]-EnemyPathfinding[pfi]->node_x[0];
       for (j2=0;j2<5;j2++) {
-        /*if (j2<3) { //0:-2, 1:-1 ,2:0
+        if (j2<3) { //0:-2, 1:-1 ,2:0
           x+=((j2-2)*NODE_SIZE);
     	} else {//3:2, 4:3, 
           x+=((j2-1)*NODE_SIZE);
-    	}*/
+    	}
         x+=((j2-2)*NODE_SIZE);
         for (j=0;j<8;j++) { //adjacent solid nodes, turn into non-solids
           y=EnemyPathfinding[pfi]->node_y[k]-EnemyPathfinding[pfi]->node_y[0];
@@ -173,7 +173,7 @@ void InitEnemyPathfinding(int enemy_id,double target_x,double target_y)
       k=EnemyPathfinding[pfi]->enemy_species1_solids[i];
       for (j=0;j<2;j++) {
         x=EnemyPathfinding[pfi]->node_x[k]-EnemyPathfinding[pfi]->node_x[0];
-        y=EnemyPathfinding[pfi]->node_y[k]-EnemyPathfinding[pfi]->node_y[0]/*+NODE_SIZE*j*/;
+        y=EnemyPathfinding[pfi]->node_y[k]-EnemyPathfinding[pfi]->node_y[0]+NODE_SIZE*j;
         node_id=GetGridId(x,y,MAX_FOLLOW_RANGE*NODE_SIZE,NODE_SIZE,EnemyPathfinding[pfi]->node_num);
         if (node_id!=-1) {
           EnemyPathfinding[pfi]->node_solid[node_id]=TRUE;
@@ -613,6 +613,12 @@ void EnemyTargetPlayer(int i)
     Enemy[i]->target_player=TRUE;
     Enemy[i]->ignore_player=FALSE;
   }
+  /*if (Enemy[i]->species==1 || Enemy[i]->species==3) {
+    int rand_dice=RandNum(0,100,Enemy[i]->seed);
+    if (rand_dice<40) {
+      Enemy[i]->flying_timer=100;
+    }
+  }*/
   InitEnemyPathfinding(i,target_x,target_y);
   }
 }
@@ -1371,7 +1377,7 @@ void EnemyAct(int i)
       }*/
 
 
-      if (dist_from_bullet0<=NODE_SIZE*4 /*&& player.health>0*/) {
+      if (dist_from_bullet0<=NODE_SIZE*4 && (player.health>0 || player.death_timer>198)) {
         Enemy[i]->last_seen_timer=200;
         switch (Enemy[i]->species) {
       	  case 0:case 2:case 4:case 5:case 6:case 7:
@@ -1411,7 +1417,12 @@ void EnemyAct(int i)
             Enemy[i]->damage_taken_timer=256;
             if (Enemy[i]->health>0) {
               Enemy[i]->health-=Bullet[bk].damage;
-              EnemyDeductMaxHealth(i);
+              EnemyDeductMaxHealth(i);                
+            }
+            if (Enemy[i]->health<=0 && !Enemy[i]->true_dead) {
+              if (Bullet[bk].graphics_type==6) {
+                Enemy[i]->true_dead=TRUE;
+              }
             }
               if (player.health<=0) {
                 if (Enemy[i]->health<=0 && !Enemy[i]->try_revive_player) {
@@ -1521,23 +1532,25 @@ void EnemyAct(int i)
   //cockroach play dead and instant attack surprise when close
   if (Enemy[i]->species==1 && Enemy[i]->health<=0 && !Enemy[i]->true_dead /*&& !game_hard*/) {
         if (!Enemy[i]->saw_player && Enemy[i]->last_seen_timer==0) { //not seen by player
-          int crevdice=RandNum(0,10000,Enemy[i]->seed);
+          int crevdice=RandNum(0,1000,Enemy[i]->seed);
           if (crevdice<10) {
             slash_time=EnemyActDazzle(i,2000);
             force_search=TRUE;
             Enemy[i]->health=Enemy[i]->max_health;
+            Enemy[i]->flying_timer=100;
           }
         } else { //seeing player
           int crevdice;
           if (Enemy[i]->dist_from_player<=NODE_SIZE*5) {
             crevdice=RandNum(0,100,Enemy[i]->seed);
-          } else if (Enemy[i]->dist_from_player<=NODE_SIZE*8) {
-            crevdice=RandNum(0,10000,Enemy[i]->seed);
+          } else if (Enemy[i]->dist_from_player<=NODE_SIZE*15) {
+            crevdice=RandNum(0,5000,Enemy[i]->seed);
           }
           if (crevdice<5) {
             slash_time=EnemyActDazzle(i,17);
             force_search=TRUE;
             Enemy[i]->health=Enemy[i]->max_health;
+            Enemy[i]->flying_timer=100;
           }
        }
   }
@@ -1677,8 +1690,9 @@ void EnemyAct(int i)
         Enemy[i]->knockback_timer=player.knockback_strength*2;
         deduct_health=FALSE;
         switch (Enemy[i]->species) {
-          case 0:case 2:case 4:case 5:case 6:case 7:
-            if (player.speed>5) {
+          case 0:case 2:case 4:
+          case 5:case 6:case 7:
+            if ((player.speed>0 && Enemy[i]->species>=5) || player.speed>5) {
               deduct_health=TRUE;
             } else if (game_audio) {
               if (!insect_bite) {
@@ -1688,7 +1702,7 @@ void EnemyAct(int i)
             break;
           case 1:case 3:
             if (Enemy[i]->species==1 && Enemy[i]->health<=0) {
-              if (player.speed>5) {
+              if (player.speed>0) {
                 Enemy[i]->true_dead=TRUE;                
               }
             }
@@ -2027,14 +2041,15 @@ void EnemyAct(int i)
 
 
         //ensure doesnt get too close to ground, absolute;
-        int tbgid=GetOnGroundId(Enemy[i]->x,Enemy[i]->y,5,4);
+        int tbgid=GetOnGroundId(Enemy[i]->x,Enemy[i]->y,2,2);
         if (tbgid!=-1) {
-          Enemy[i]->knockback_angle=GetBounceAngle(Enemy[i]->knockback_angle,Ground[tbgid]->angle);
-          Enemy[i]->player_knockback=FALSE;
-          double kb_x=cos(Enemy[i]->knockback_angle)*1;
-          double kb_y=sin(Enemy[i]->knockback_angle)*1;      
-          Enemy[i]->x+=kb_x;
-          Enemy[i]->y+=kb_y;
+            double ground_entity_E=GetLineTargetAngle(tbgid,Enemy[i]->x,Enemy[i]->y);
+            double height_from_e_x=GetLineTargetHeight(tbgid,ground_entity_E,Enemy[i]->x,Enemy[i]->y);
+            EnemyAntActOnGround(i,height_from_e_x,tbgid,Enemy[i]->last_left);
+            Enemy[i]->player_knockback=FALSE;          
+            Enemy[i]->idling=TRUE;
+            Enemy[i]->move_to_target=FALSE;
+            Enemy[i]->knockback_timer=0;
         }
 
         if (Enemy[i]->force_search/* || game_hard*/) {
@@ -2180,6 +2195,12 @@ void EnemyAct(int i)
              ) {
               Enemy[i]->idling=FALSE;
               Enemy[i]->search_target=TRUE;
+              /*if (Enemy[i]->species==1 || Enemy[i]->species==3) {
+                int rand_dice=RandNum(0,100,Enemy[i]->seed);
+                if (rand_dice<40) {
+                  Enemy[i]->flying_timer=100;
+                }
+              }*/
               InitEnemyPathfinding(i,target_x,target_y);
             } else {
               Enemy[i]->idling=TRUE;

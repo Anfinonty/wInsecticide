@@ -138,7 +138,7 @@ struct player
   bool rst_arrow_left;
   bool rst_arrow_right;
   bool rst_arrow_up;
-
+  bool rst_key_1;
   bool rst_right_click_snd;
 
   bool flag_death;
@@ -176,11 +176,7 @@ struct player
   bool in_web_corner;
   bool key_b4_corner_is_left;
   bool key_b4_corner_is_right;
-  //Render
-  //int rendered_vgrid_num;
-  //int rendered_enemy_num;
 
- // int rendered_ground_num;
   int bullet_num;
   int play_gun_snd;
   int knives_per_throw;
@@ -197,6 +193,7 @@ struct player
   int sleep_timer;
   int hit_cooldown_timer;
   int block_timer;
+  int death_timer;
   int cdweb_pos;
   int cdweb_player_pos;
   int cdweb_num;

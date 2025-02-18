@@ -765,6 +765,11 @@ void GameKeypressDown(WPARAM wParam)
         break;
 
 
+    //Holding down '1' key
+      case '1':
+        player.rst_key_1=TRUE;
+        break;
+
     //Holding down ENTER key
       case VK_RETURN:
         flag_restart=TRUE;
@@ -899,6 +904,7 @@ void GameKeypressUp(WPARAM wParam)
 
     //Release '1' Key
       case '1':
+        player.rst_key_1=FALSE;
         player.attack_rst=TRUE;
         break;
 
@@ -1116,7 +1122,7 @@ void OptionKeyPressRight(HWND hwnd, int option_choose)
            else
              PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
          }
-         game_hard=!game_hard;
+         flag_difficulty_change=TRUE;
          break;
 
 
@@ -1283,7 +1289,7 @@ void OptionKeyPressLeft(HWND hwnd,int option_choose)
            else
              PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
          }
-         game_hard=!game_hard;
+         flag_difficulty_change=TRUE;
          break;
 
 
