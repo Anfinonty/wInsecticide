@@ -514,6 +514,7 @@ void LoadOptions()
       show_fps=0;
       show_hijiri=0;
       is_khmer=0;
+      game_hard=0;
       return;
   }
 
@@ -591,6 +592,9 @@ void LoadOptions()
         case 13:
           is_khmer=int_saved_val;
           break;
+        case 14:
+          game_hard=int_saved_val;
+          break;
       }
       //printf("row:%d,option:%d,%5.4f\n",row,int_saved_val,double_saved_val);
       deci=FALSE;
@@ -599,6 +603,7 @@ void LoadOptions()
       row++;
     }
   }
+  flag_difficulty_change=TRUE;
   fclose(fptr);
 }
 

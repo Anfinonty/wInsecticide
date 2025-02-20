@@ -318,8 +318,13 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
 
 
   if (Enemy[enemy_id]->health>0) {
-    hit_player=HitPlayer(bullet_id,10,22);
-  } else {
+    if ((player.block_timer>0 && player.block_timer<=23)){
+      hit_player=HitPlayer(bullet_id,player.block_timer*2,player.block_timer*2);
+    } else {
+      hit_player=HitPlayer(bullet_id,10,22);
+    }
+    
+  } else { //death bullet
     if (Enemy[enemy_id]->damage_taken_timer<256) {
       hit_player=HitPlayer(bullet_id,22,22);
     } else {
@@ -678,11 +683,13 @@ void RainBulletAct(int bullet_id)
              Bullet[bullet_id].y>player.y+GR_HEIGHT/2-player.cam_mouse_move_y) {//out of player view
     allow_act=1;
   } else if (bullet_on_node_grid_id!=-1) {
-    if (NodeGrid[bullet_on_node_grid_id]->node_no_rain || !NodeGrid[bullet_on_node_grid_id]->node_no_shade) {
+    if (NodeGrid[bullet_on_node_grid_id]->node_water) {
       allow_act=1;
+      bullet_on_ground_id=-1;
+    } else if ((NodeGrid[bullet_on_node_grid_id]->node_no_rain || !NodeGrid[bullet_on_node_grid_id]->node_no_shade)) {
       bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,NODE_SIZE,NODE_SIZE);
     }
-  } 
+  }
 
 
   /*if (GetDistance(Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
@@ -851,6 +858,8 @@ void BulletAct(int bullet_id)
               rand_x=RandNum(10,player.x+GR_WIDTH/2-6-player.cam_mouse_move_x,frame_tick);
             else if (rand_x>MAP_WIDTH)
               rand_x=RandNum(player.x-GR_WIDTH/2-player.cam_mouse_move_x,MAP_WIDTH-10,frame_tick);
+            
+            rand_x=stickyTo(rand_x,NODE_SIZE*2);
 
 
             int rand_y=RandNum(player.y-GR_HEIGHT/2+6-player.cam_mouse_move_y,player.y+GR_HEIGHT/2-6-player.cam_mouse_move_y,frame_tick); //so it doest get stuck to ground
@@ -858,6 +867,9 @@ void BulletAct(int bullet_id)
               rand_y=RandNum(10,player.y+GR_HEIGHT/2-6-player.cam_mouse_move_y,frame_tick);
             else if (rand_y>MAP_HEIGHT)
               rand_y=RandNum(player.y-GR_HEIGHT/2-player.cam_mouse_move_y,MAP_HEIGHT-10,frame_tick);
+
+            rand_y=stickyTo(rand_y,NODE_SIZE*2);
+
 
             bool allow_spawn=TRUE;
             //check if below spawned web
@@ -1033,7 +1045,7 @@ void DrawBullet2(HDC hdc,int i,double x,double y,int color)
       break;
     case 8: //rain
       {
-      GrLine(hdc,x,y,x-32*cos(Bullet[i].angle),y-32*sin(Bullet[i].angle),color);
+      GrLine(hdc,x,y,x-64*cos(Bullet[i].angle),y-64*sin(Bullet[i].angle),color);
       }
       break;
     case 9: //long bullet 2

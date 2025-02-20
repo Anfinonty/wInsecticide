@@ -61,7 +61,7 @@ void AdjustGameAudio()
 
 
 
-void InitOnce(bool load_audio) {
+void InitOnce() {
   GR_WIDTH=SCREEN_WIDTH;
   GR_HEIGHT=SCREEN_HEIGHT;
 
@@ -316,7 +316,7 @@ void InitLevel(bool load_lvl)
   timeBeginPeriod(1);
 
 
-  InitOnce(load_lvl);//cannot be repeatedly run
+  InitOnce();//cannot be repeatedly run
   Init();
 
 
@@ -345,7 +345,7 @@ void InitLevel(bool load_lvl)
     in_main_menu=FALSE;
   } else {
     int dice=abs(RandNum(0,100,frame_tick));
-    //printf("dice,%d",dice);
+    //printf("in demo:dice,%d",dice);
     if (dice<30) {
       is_raining=TRUE;
     } else {

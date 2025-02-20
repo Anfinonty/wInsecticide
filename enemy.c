@@ -1619,7 +1619,7 @@ void EnemyAct(int i)
 	  }
     }
 	// ^^ condition
-    if (allow_act) {  //player meelee
+    if (allow_act && (Enemy[i]->saw_player || Enemy[i]->last_seen_timer>0)) {  //player meelee
       allow_act=FALSE;
       deduct_health=TRUE;
       if (Enemy[i]->species==1 && Enemy[i]->health<=0) {
@@ -1681,9 +1681,10 @@ void EnemyAct(int i)
 
 
     //Player Spinning Attack
-    if (player.block_timer>1 && !player.on_a_ground && player.health>0) {
+    if (player.block_timer>1 && (/*(Enemy[i]->species>=5 && Enemy[i]->species<=7) ||*/ !player.on_a_ground) && player.health>0 && (Enemy[i]->saw_player || Enemy[i]->last_seen_timer>0)) {
     //knockback from rebounding
-      if (Enemy[i]->dist_from_player<=NODE_SIZE*2){
+      if (Enemy[i]->dist_from_player<=NODE_SIZE*2 || 
+            (player.block_timer>0 && player.block_timer<=23 && Enemy[i]->dist_from_player<=player.block_timer*2)){
       
         Enemy[i]->player_knockback=FALSE;
         Enemy[i]->knockback_angle=player.angle_of_incidence;

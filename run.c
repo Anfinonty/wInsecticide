@@ -94,6 +94,7 @@ bool flag_fullscreen=FALSE;
 bool flag_hide_taskbar=FALSE;
 bool flag_taskbar_change_act=FALSE;
 bool flag_borderless_resolution_change=FALSE;
+bool flag_difficulty_change=FALSE;
 bool hide_cursor=FALSE;
 bool hide_mm=FALSE;
 //game options
@@ -261,7 +262,8 @@ bool is_khmer=TRUE;
 #define ENEMY_BULLET_NUM            1000
 #define MAX_BULLET_PER_FIRE         10
 
-#define MAX_EXP_NUM                 5
+#define MAX_EXP_NUM_NORMAL                 5
+#define MAX_EXP_NUM_HARD                   3
 
 
 #define MAX_MAP_NODE_NUM (640*20)/NODE_SIZE * (480*20)/NODE_SIZE //MAX_WIDTH/NODE_SIZE * MAX_HEIGHT/NODE_SIZE
@@ -280,7 +282,7 @@ bool is_khmer=TRUE;
 
 #define DEFAULT_PLAYER_HEALTH			20
 #define DEFAULT_PLAYER_BLOCK_HEALTH_MAX 100//20
-#define DEFAULT_PLAYER_JUMP_HEIGHT 		85//100
+#define DEFAULT_PLAYER_JUMP_HEIGHT 		150//85//100
 #define DEFAULT_PLAYER_ATTACK_STRENGTH  	1
 #define DEFAULT_PLAYER_KNOCKBACK_STRENGTH	50
 
@@ -744,11 +746,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       if (prelude) {
         if (loading_numerator>=loading_denominator) {
           prelude=FALSE;
+          LoadOptions();
           InitSongBank(); //load song
           play_new_song[0]=TRUE;
 
           //Load options after prelude
-          LoadOptions();
           if (hide_taskbar) { //task bar hidden yes fullscreen
             flag_fullscreen=TRUE;
           } else {
@@ -1283,12 +1285,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             SelectObject(hdcBackbuff,screen);
             DrawBackground(hdcBackbuff,hdcBackbuff2);
             DrawPlatforms(hdcBackbuff,hdcBackbuff2);
+            DrawBlackBorders(hdcBackbuff);
             DrawWebs(hdcBackbuff);
             DrawEnemy(hdcBackbuff,hdcBackbuff2);
             DrawPlayer(hdcBackbuff,hdcBackbuff2);
             if (has_water) {
               DrawWaterPlatforms(hdcBackbuff,hdcBackbuff2);
             }
+            //DrawNodeGrids(hdcBackbuff); //debugging
 
 
             if (is_shadows && game_shadow) {
@@ -1298,7 +1302,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DrawUI(hdcBackbuff,hdcBackbuff2);
             if (player.health>0) {
               DrawCursor(hdcBackbuff,hdcBackbuff2);
-            } else {
+            } else if (player.death_timer>150) {
               int pc=rgbPaint[player_color];
               GrCircle(hdcBackbuff,mouse_x,mouse_y,10,pc,pc);
               pc=rgbPaint[player_pupil_color];
@@ -1410,6 +1414,24 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           hdc=BeginPaint(hwnd, &ps);
           hdcBackbuff=CreateCompatibleDC(hdc);
           hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
+
+          if (flag_difficulty_change) {
+            flag_difficulty_change=FALSE;
+            if (game_hard) {
+              //is_raining=TRUE;
+              BitmapPalette(hdcBackbuff,hdcBackbuff2,title_sprite[0],rgbColorsRedToBlue);
+              BitmapPalette(hdcBackbuff,hdcBackbuff2,title_small_sprite[0],rgbColorsRedToBlue);
+              BitmapPalette(hdcBackbuff,hdcBackbuff2,title_sprite[1],rgbColorsRedToBlue);
+              BitmapPalette(hdcBackbuff,hdcBackbuff2,title_small_sprite[1],rgbColorsRedToBlue);
+            } else {
+              //is_raining=FALSE;
+              BitmapPalette(hdcBackbuff,hdcBackbuff2,title_sprite[0],rgbColorsNoir);
+              BitmapPalette(hdcBackbuff,hdcBackbuff2,title_small_sprite[0],rgbColorsNoir);
+              BitmapPalette(hdcBackbuff,hdcBackbuff2,title_sprite[1],rgbColorsNoir);
+              BitmapPalette(hdcBackbuff,hdcBackbuff2,title_small_sprite[1],rgbColorsNoir);
+            }
+          }
+
           if (!flag_taskbar_change_act && !flag_resolution_change && !flag_borderless_resolution_change) {
             screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
             SelectObject(hdcBackbuff,screen);
@@ -1737,6 +1759,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       Init8BitRGBColorsDefault(rgbColorsDefault);
       Init8BitRGBColorsInvert(rgbColorsInvert,rgbColorsDefault);
       Init8BitRGBPaintDefault(rgbPaint,rgbPaint_i,rgbColorsDefault,TRUE,8);
+
+      CopyReplaceColorPalette(rgbColorsRedToBlue,rgbColorsDefault,199,LTBLUE);
+
       wav_out_original_volume=VolumeValue(50,1); //set volume
       //waveOutGetVolume(hWaveOut[2],&wav_out_original_volume);
       //waveOutSetVolume(hWaveOut[6],wav_out_original_volume);
@@ -1981,15 +2006,24 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
       kh_pressanykey = (HBITMAP) LoadImageW(NULL, L"sprites/kh_pressanykey.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       kh_pressanykey_mask = CreateBitmapMask(kh_pressanykey,LTGREEN,NULL);
 
-      title_sprite[0] = (HBITMAP) LoadImageW(NULL, L"sprites/title.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      title_small_sprite[0] = (HBITMAP) LoadImageW(NULL, L"sprites/title_small.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      title_sprite_mask[0]=CreateBitmapMask(title_sprite[0],LTGREEN,NULL);
-      title_small_sprite_mask[0]=CreateBitmapMask(title_small_sprite[0],LTGREEN,NULL);
+      HBITMAP tmp_title_sprite= (HBITMAP) LoadImageW(NULL, L"sprites/title.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+      HBITMAP tmp_small_title_sprite= (HBITMAP) LoadImageW(NULL, L"sprites/title_small.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
 
-      title_sprite[1] = (HBITMAP) LoadImageW(NULL, L"sprites/title_english.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      title_small_sprite[1] = (HBITMAP) LoadImageW(NULL, L"sprites/title_english_small.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      title_sprite[0] = CopyCrunchyBitmap(tmp_title_sprite,SRCCOPY);
+      title_small_sprite[0] = CopyCrunchyBitmap(tmp_small_title_sprite,SRCCOPY);
+      title_sprite_mask[0]= CreateBitmapMask(title_sprite[0],LTGREEN,NULL);
+      title_small_sprite_mask[0]=CreateBitmapMask(title_small_sprite[0],LTGREEN,NULL);
+      DeleteObject(tmp_title_sprite);
+      DeleteObject(tmp_small_title_sprite);
+
+      tmp_title_sprite= (HBITMAP) LoadImageW(NULL, L"sprites/title_english.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+      tmp_small_title_sprite= (HBITMAP) LoadImageW(NULL, L"sprites/title_english_small.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+      title_sprite[1] = CopyCrunchyBitmap(tmp_title_sprite,SRCCOPY);
+      title_small_sprite[1] = CopyCrunchyBitmap(tmp_small_title_sprite,SRCCOPY);
       title_sprite_mask[1]=CreateBitmapMask(title_sprite[1],LTGREEN,NULL);
       title_small_sprite_mask[1]=CreateBitmapMask(title_small_sprite[1],LTGREEN,NULL);
+      DeleteObject(tmp_title_sprite);
+      DeleteObject(tmp_small_title_sprite);
 
 
       //KHMER
@@ -2320,7 +2354,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   rmdir("music_tmp/tmp"); //remove tmp, manually because C is like that
   waveOutSetVolume(hWaveOut[2],wav_out_original_volume);
   waveOutSetVolume(hWaveOut[6],wav_out_original_volume);
-  SaveOptions();
+  if (level_loaded) {
+    SaveOptions();
+  }
   return (int) msg.wParam;
 }
 

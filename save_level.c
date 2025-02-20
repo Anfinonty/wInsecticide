@@ -1145,6 +1145,7 @@ void SaveOptions()
   fprintf(fptr,"%d;\n",show_fps);  //show fps
   fprintf(fptr,"%d;\n",show_hijiri);  //show hijri
   fprintf(fptr,"%d;\n",is_khmer);  //is_khmer
+  fprintf(fptr,"%d;\n",game_hard);  //game difficulty
   
   //close file
   fclose(fptr);

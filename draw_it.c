@@ -138,13 +138,24 @@ void DrawPlatforms(HDC hdc,HDC hdc2)
       } 
     } 
   }
+}
 
 
 
+void DrawBlackBorders(HDC hdc)
+{
   //Draw Black Borders
   //RDGrid[i].x+px-GR_WIDTH/2-cx1-cx2;
   int w,l;
-  x=GR_WIDTH/2+0-px+cx1+cx2;
+  int 
+    px=player.x,
+    py=player.y,
+    cx1=player.cam_mouse_move_x,
+    cy1=player.cam_mouse_move_y,
+    cx2=player.cam_move_x,
+    cy2=player.cam_move_y;
+  int x=GR_WIDTH/2+0-px+cx1+cx2;
+
   GrRect(hdc,0,0,x+4,GR_HEIGHT+4,BLACK);
   x=GR_WIDTH/2+MAP_WIDTH-px+cx1+cx2-4;
   w=GR_WIDTH-(MAP_WIDTH-player.x);
@@ -152,7 +163,7 @@ void DrawPlatforms(HDC hdc,HDC hdc2)
     GrRect(hdc,x,0,w,GR_HEIGHT+4,BLACK);
   }
 
-  y=GR_HEIGHT/2+MAP_HEIGHT-py+cy1+cy2-4;
+  int y=GR_HEIGHT/2+MAP_HEIGHT-py+cy1+cy2-4;
   l=GR_HEIGHT-(MAP_HEIGHT-player.y);
   if (l>0) {
     GrRect(hdc,-4,y,GR_WIDTH+8,l,BLACK);
@@ -214,6 +225,13 @@ void DrawCursor(HDC hDC,HDC hDC2)
 {
   //DrawBitmap(hDC,mouse_x,mouse_y,0,0,64,64,mouse_cursor_sprite,SRCAND,FALSE);
   //DrawBitmap(hDC,mouse_x,mouse_y,0,0,64,64,mouse_cursor_sprite_mask,SRCPAINT,FALSE);
+  /*if (show_fps && saved_showoff>0) {
+    char fpstxt[32];
+    sprintf(fpstxt,"FPS: %d / %d",saved_showoff,FPS);
+    int FPS_x=mouse_x-(strlen(fpstxt)*8-14)/2;
+    GrPrintThick(hDC,FPS_x,mouse_y+64,fpstxt,WHITE,BLACK);
+  }*/
+
 
   if (player.invalid_shoot_timer>0) {
     if (player.invalid_shoot_timer==10) {

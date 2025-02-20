@@ -956,7 +956,7 @@ void GrCircle(HDC hdc, double x, double y, int size, int COLOR, int COLOR_2) {
 }
 
 
-void GrPrintW(HDC hdc, double x1, double y1, wchar_t *_txt, char *_atxt, int color, int _height, bool A,bool is_unifont) 
+void GrPrintW(HDC hdc, int x1, int y1, wchar_t *_txt, char *_atxt, int color, int _height, bool A,bool is_unifont) 
 {
   LPCWSTR txt=_txt;
   LPCSTR atxt=_atxt;
@@ -1018,8 +1018,18 @@ void GrPrintW(HDC hdc, double x1, double y1, wchar_t *_txt, char *_atxt, int col
   SetTextColor(hdc, TRANSPARENT);
 }
 
+void GrPrintWThick(HDC hdc, int x, int y, wchar_t *_txt, char *_atxt, int color1, int color2,int _height, bool A,bool is_unifont) 
+{
+  GrPrintW(hdc,x   ,y  ,_txt,"",color2,_height,A,is_unifont);
+  GrPrintW(hdc,x+2 ,y  ,_txt,"",color2,_height,A,is_unifont);
+  GrPrintW(hdc,x   ,y+2,_txt,"",color2,_height,A,is_unifont);
+  GrPrintW(hdc,x+2 ,y+2,_txt,"",color2,_height,A,is_unifont);
+  GrPrintW(hdc,x+1 ,y+1,_txt,"",color1,_height,A,is_unifont);
+}
 
-void GrPrint(HDC hdc, double x1, double y1, char *_txt, int color) 
+
+
+void GrPrint(HDC hdc, int x1, int y1, char *_txt, int color) 
 {//https://forums.codeguru.com/showthread.php?329037-Drawtext-with-japanese-character
   //DWORD color;
   //HFONT hFont, holdFont;
@@ -1035,7 +1045,14 @@ void GrPrint(HDC hdc, double x1, double y1, char *_txt, int color)
 }
 
 
-
+void GrPrintThick(HDC hdc,int x, int y, char *_txt,int color1,int color2)
+{
+  GrPrint(hdc,x,  y,  _txt,color2);
+  GrPrint(hdc,x+2,y,  _txt,color2);
+  GrPrint(hdc,x,  y+2,_txt,color2);
+  GrPrint(hdc,x+2,y+2,_txt,color2);
+  GrPrint(hdc,x+1,y+1,_txt,color1); //main topmost
+}
 
 
 void GrPrintA(HDC hdc, double x1, double y1, wchar_t *_txt, int color) 

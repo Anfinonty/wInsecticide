@@ -379,7 +379,7 @@ void InitPlayer() {
   player.rst_right_click_snd=FALSE;
   player.play_gun_snd=0;
 
-  player.low_jump=FALSE;
+  player.low_jump=TRUE;
   //player.rst_key_sprint=TRUE;
   player.last_left=FALSE;
   player.jump=FALSE;
@@ -477,6 +477,7 @@ void InitPlayer() {
   player.sprite_x=GR_WIDTH/2;
   player.sprite_y=GR_HEIGHT/2;
 
+  player.death_timer=0;
   player.left_click_hold_timer=0;
   player.right_click_hold_timer=0;
   player.attack_timer=1;
@@ -536,23 +537,11 @@ void InitPlayer() {
   player.key_b4_corner_is_left=FALSE;
   player.key_b4_corner_is_right=FALSE;
 
-  /*player_fling_web.length=0;
-  for (i=0;i<64;i++) {
-    player_fling_web.on_ground_id[i]=-1;
-    player_fling_web.angle[i]=-1;
-    player_fling_web.x[i]=-1;
-    player_fling_web.y[i]=-1;
-  }*/
-
 
   player.web_being_shot=-1;
   for (i=0;i<MAX_WEB_NUM;i++) {
     player.web_storage[i]=GROUND_NUM+i;
   }
-
-  /*for (i=0;i<MAX_WEB_NUM;i++) {
-    player.placed_web[i]=-1;
-  }*/
 
   player.cdweb_player_pos=0;
   player.cdweb_pos=0;
@@ -579,7 +568,6 @@ void InitPlayer() {
 
   player.is_rebounding=FALSE;
 
-  //player.dist_angle=0;
   player.angle_of_incidence=0;
   player.angle_of_reflection=0;
   player.spin_timer=0;
@@ -617,8 +605,13 @@ void PlayerRevive()
   player.flag_death=FALSE;
   player.block_health=0;
   player.time_breaker_units=0;
-  player.health=5;
+  if (!game_hard) {
+    player.health=player.bullet_shot_num;
+  } else {
+    player.health=1+player.bullet_shot_num/2;
+  }
   player.speed=30;
+  player.death_timer=0;
   for (int f=0;f<player.bullet_shot_num;f++) { //reset bullets
     StopBullet(player.bullet[f],TRUE);
   }
@@ -1755,7 +1748,7 @@ void PlayerActDecceleration()
           player.decceleration_timer=1500;//335;
         else
           player.decceleration_timer=1000;//250;
-      } else if (player.speed>=10) {
+      } else if (player.speed>10) {
         if (IsSpeedBreaking())
           player.decceleration_timer=800;//320;
         else
@@ -1851,7 +1844,7 @@ void PlayerAct()
     else if (player.rst_down)
       move_y(5);
   }
-  if (player.health<=0 && player.rst_left_click) {
+  if (player.health<=0 && (player.rst_left_click || player.rst_key_1) && player.death_timer>150) {
     int 
         px=player.cam_x,
         py=player.cam_y,
@@ -2081,14 +2074,14 @@ void PlayerAct()
 
 
             //player speed when on ground
-            if (player.speed<10)
+            //if (player.speed<10)
               player.player_jump_height=DEFAULT_PLAYER_JUMP_HEIGHT;
-            else 
+            /*else 
               player.player_jump_height=150;
             if (!player.low_jump || player.speed<10)
               player.player_jump_height+=player.speed*NODE_SIZE;
             else
-              player.player_jump_height+=9*NODE_SIZE;
+              player.player_jump_height+=9*NODE_SIZE;*/
 
 
 
@@ -2538,6 +2531,9 @@ void PlayerAct()
       }
 
   } else { //player.health<=0
+    if (player.death_timer<200) {
+      player.death_timer++;
+    }
     //immediate death action
       if (!player.flag_death) {
         player.flag_death=TRUE;
@@ -2798,6 +2794,8 @@ void DrawPlayer(HDC hdc,HDC hdc2)
   GrPrint(hdc,100,116,mytxt2,LTGREEN);*/
   //Platform bitmap palette conversion
 
+
+  //Keys to controll cursor
   if (player.rst_arrow_left) {
     if (mouse_x>20)
       mouse_x-=20;
@@ -2814,6 +2812,10 @@ void DrawPlayer(HDC hdc,HDC hdc2)
     if (mouse_y<GR_HEIGHT-20)
       mouse_y+=20;
   }
+
+
+
+
 
   if (player.flag_revert_palette && player.time_breaker_tick<=0) {    
     for (int i=0;i<PLATFORM_GRID_NUM;i++) {
@@ -2935,6 +2937,53 @@ void DrawPlayer(HDC hdc,HDC hdc2)
   if (player.health>0) {
 
 
+  //Draw player is blocking
+  if (player.block_timer>0 && player.block_health>0) {
+    double ang=2*M_PI*((double)frame_tick/FPS)*10;//player.block_timer;
+    if (player.last_left) {
+      ang=-abs(ang);
+    }
+    double tx=player.sprite_x+cos(ang)*player.block_timer;
+    double ty=player.sprite_y+sin(ang)*player.block_timer;
+    if (player.block_timer>23) {
+      tx=player.sprite_x+cos(ang)*(23-(player.block_timer-23)*2);
+      ty=player.sprite_y+sin(ang)*(23-(player.block_timer-23)*2);
+    }
+    if (player.block_timer<30) {
+      if (player.block_timer<=23) {
+        int maxh=1;
+        if (player.speed>10) {
+          if (is_khmer)
+            maxh=4;
+          else
+            maxh=2;
+        }
+        for (int h=0;h<maxh;h++) {
+          GrLine(hdc,tx,ty,player.sprite_x,player.sprite_y,LTCYAN);//rgbPaint[player_pupil_color]);//LTCYAN);
+          if (is_khmer) {
+            int lc=LTCYAN;
+            /*if (h>0)
+              lc=CYAN;*/
+            if (player.last_left) {
+              GrLine(hdc,tx,ty,tx-cos(ang-M_PI_2)*10,ty-sin(ang-M_PI_2)*10,lc);//rgbPaint[player_pupil_color]);//,LTCYAN);
+            } else {
+              GrLine(hdc,tx,ty,tx+cos(ang-M_PI_2)*10,ty+sin(ang-M_PI_2)*10,lc);//rgbPaint[player_pupil_color]);//,LTCYAN);
+            }
+          }
+          ang+=M_PI_2;
+          GrCircle(hdc,tx,ty,3,LTCYAN,LTCYAN);//rgbPaint[player_pupil_color]);//LTCYAN,LTCYAN);
+          tx=player.sprite_x+cos(ang)*player.block_timer;
+          ty=player.sprite_y+sin(ang)*player.block_timer;
+        }
+
+      } else {
+        GrLine(hdc,tx,ty,player.sprite_x,player.sprite_y,LTGRAY);
+        GrCircle(hdc,tx,ty,3,LTGRAY,-1);
+      }
+    }
+  }
+
+  //Draw player when on ground edge
   if (player.is_on_ground_edge) {
     int tmp_ground_id=player.on_ground_edge_id;
     if (tmp_ground_id==-1)

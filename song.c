@@ -727,6 +727,9 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
                 play_new_song[z]=FALSE;
                 audioData[z].playing_wav=TRUE;
                 LiveWaveReOpen(z);
+                if (song_pause[z]) {
+                  LiveWavePause(z);
+                }
 
               } else if (!loading_flac[z] && !loading_mp3[z] && !loading_wav[z]) { //not loading song 
                 if (play_new_song[z]) //song status: stopped

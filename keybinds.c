@@ -1122,6 +1122,7 @@ void OptionKeyPressRight(HWND hwnd, int option_choose)
            else
              PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
          }
+         game_hard=!game_hard;
          flag_difficulty_change=TRUE;
          break;
 
@@ -1289,6 +1290,7 @@ void OptionKeyPressLeft(HWND hwnd,int option_choose)
            else
              PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
          }
+         game_hard=!game_hard;
          flag_difficulty_change=TRUE;
          break;
 
