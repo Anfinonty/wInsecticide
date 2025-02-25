@@ -82,6 +82,7 @@ const wchar_t *get_filename_ext(const wchar_t *filename)
 }
 
 
+
 int CountSongsInDir(const wchar_t *dirname,const wchar_t *indirname, int song_num)
 {
   _WDIR *d;
@@ -211,6 +212,9 @@ void adjustBufferVol(int16_t* dest,const int16_t* src,long buffer_size, double v
   }
 }
 
+
+
+
 //https://www.codeproject.com/Articles/8396/Using-DirectSound-to-Play-Audio-Stream-Data
 //im not using direct sound just learning its concept
 
@@ -225,7 +229,7 @@ void adjustBufferVol(int16_t* dest,const int16_t* src,long buffer_size, double v
 
 //largest buffer reserved for slack only
 //#define AUDIO_STREAM_BUFFER_SIZE     32768
-#define AUDIO_STREAM_BUFFER_SIZE0    16384*2 //2048//8192//16384//524288//8192//4096//524288//4096   8192 or 16384
+#define AUDIO_STREAM_BUFFER_SIZE0    16384 //2048//8192//16384//524288//8192//4096//524288//4096   8192 or 16384
 #define AUDIO_STREAM_BUFFER_SIZE1    8192  //2048//8192//16384//524288//8192//4096//524288//4096   8192 or 16384
 #define AUDIO_STREAM_BUFFER_SIZE2    4096
 #define AUDIO_STREAM_BUFFER_SIZE3    2048
@@ -291,18 +295,23 @@ typedef struct AudioData
 
   int read_size;
 
+  int queue_play_buffer;
+  int queue_read_buffer;
+
+  int played_units;
+
 
   long current_filesize; //spindle plays audio
   long read_filesize; //read filesize, ahead
   long filesize;
   long buffer_size;
 
-  int queue_play_buffer;
-  int queue_read_buffer;
-  
+
   double tempo;
   double volume;
 
+  int16_t max_amp;
+  int16_t max_amp2;
   int16_t buffer1[AUDIO_STREAM_BUFFER_SIZE0];
   int16_t buffer2[AUDIO_STREAM_BUFFER_SIZE0];
   int16_t read_buffer[READ_BUFFER_NUM][AUDIO_STREAM_BUFFER_SIZE0];
@@ -350,7 +359,16 @@ void JumpToBufferLoop(AudioData *audioData)
   }
 }
 
-
+void SetMaxAmp(const int16_t* readAudioData,AudioData *audioData)
+{
+  for (int i=0;i<audioData->read_size;i+=128) {
+    if (abs(readAudioData[i])>audioData->max_amp) {
+      audioData->max_amp2=audioData->max_amp;
+      audioData->max_amp=abs(readAudioData[i]);
+      audioData->played_units=0;    
+    } 
+  }
+}
 
 
 void CALLBACK waveOutProc1(HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance, DWORD_PTR dwParam1, DWORD_PTR dwParam2) {
@@ -359,7 +377,6 @@ void CALLBACK waveOutProc1(HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance, DWORD_
       if (uMsg == WOM_DONE) {
         WAVEHDR *waveHdr = (WAVEHDR *)dwParam1;
         if (waveHdr == &audioData->waveHdr1) {
-            //frad(audioData->buffer1, sizeof(BYTE), audioData->read_size, audioData->music_file);
             audioData->double_buffer=TRUE;
             audioData->read_size=(double)chosen_buffer_size*audioData->tempo;
             if (!audioData->song_rewind) {
@@ -370,13 +387,18 @@ void CALLBACK waveOutProc1(HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance, DWORD_
                 audioData->read_filesize+=audioData->read_size;
                 if (audioData->read_filesize<audioData->filesize) {
                   fread(audioData->read_buffer[audioData->queue_read_buffer], sizeof(BYTE), audioData->read_size, audioData->music_file);  
+                  //SetMaxAmp(audioData->read_buffer[audioData->queue_read_buffer],audioData);
                 } else {
                   memset(audioData->read_buffer[audioData->queue_read_buffer],0,sizeof(audioData->read_buffer[audioData->queue_read_buffer]));
                 }
-                //audioData->read_filesize+=audioData->read_size;
                 if (audioData->queue_read_buffer<=18) {audioData->queue_read_buffer++;} else {audioData->queue_read_buffer=0;}
-                //if (audioData->queue_play_buffer>-1 && audioData->queue_play_buffer<READ_BUFFER_NUM) {memcpy(audioData->buffer1,audioData->read_buffer[audioData->queue_play_buffer],audioData->read_size);}
-                if (audioData->queue_play_buffer>-1 && audioData->queue_play_buffer<READ_BUFFER_NUM) {adjustBufferVol(audioData->buffer1,audioData->read_buffer[audioData->queue_play_buffer],audioData->read_size,audioData->volume);}
+                if (audioData->queue_play_buffer>-1 && audioData->queue_play_buffer<READ_BUFFER_NUM) {
+                  SetMaxAmp(audioData->read_buffer[audioData->queue_play_buffer],audioData);
+                  adjustBufferVol(audioData->buffer1,audioData->read_buffer[audioData->queue_play_buffer],audioData->read_size,audioData->volume);
+                  if (audioData->max_amp>200*audioData->tempo)    audioData->max_amp-=200*audioData->tempo+audioData->played_units/3*200;
+                  if (audioData->max_amp2>200*audioData->tempo)    audioData->max_amp2-=200*audioData->tempo;
+                  audioData->played_units++;
+                }
                 if (audioData->queue_play_buffer<=18) {audioData->queue_play_buffer++;} else {audioData->queue_play_buffer=0;}
                 waveOutWrite(audioData->hWaveOut, &audioData->waveHdr1, sizeof(WAVEHDR));
             }
@@ -392,11 +414,18 @@ void CALLBACK waveOutProc1(HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance, DWORD_
                 audioData->read_filesize+=audioData->read_size;
                 if (audioData->read_filesize<audioData->filesize) {
                   fread(audioData->read_buffer[audioData->queue_read_buffer], sizeof(BYTE), audioData->read_size, audioData->music_file);  
+                  //SetMaxAmp(audioData->read_buffer[audioData->queue_read_buffer],audioData);
                 } else {
                   memset(audioData->read_buffer[audioData->queue_read_buffer],0,sizeof(audioData->read_buffer[audioData->queue_read_buffer]));
                 }
                 if (audioData->queue_read_buffer<=18) {audioData->queue_read_buffer++;} else {audioData->queue_read_buffer=0;}                
-                if (audioData->queue_play_buffer>-1 && audioData->queue_play_buffer<READ_BUFFER_NUM) {adjustBufferVol(audioData->buffer2,audioData->read_buffer[audioData->queue_play_buffer],audioData->read_size,audioData->volume);}
+                if (audioData->queue_play_buffer>-1 && audioData->queue_play_buffer<READ_BUFFER_NUM) {
+                  SetMaxAmp(audioData->read_buffer[audioData->queue_play_buffer],audioData);
+                  adjustBufferVol(audioData->buffer2,audioData->read_buffer[audioData->queue_play_buffer],audioData->read_size,audioData->volume);
+                  if (audioData->max_amp>200*audioData->tempo)    audioData->max_amp-=200*audioData->tempo+audioData->played_units/3*200;
+                  if (audioData->max_amp2>200*audioData->tempo)    audioData->max_amp2-=200*audioData->tempo;
+                  audioData->played_units++;
+                }
                 if (audioData->queue_play_buffer<=18) {audioData->queue_play_buffer++;} else {audioData->queue_play_buffer=0;}
                 waveOutWrite(audioData->hWaveOut, &audioData->waveHdr2, sizeof(WAVEHDR));
             } 
@@ -573,6 +602,9 @@ void LoadBufferSFX(const wchar_t* filename, int z)
 
   audioData[z].jump1=44;
   audioData[z].jump2=44;
+  audioData[z].max_amp=0;
+  audioData[z].max_amp2=0;
+  audioData[z].played_units=0;
 
   audioData[z].music_file = _wfopen(filename, L"rb");
   int wav_header_size=sizeof(AWavHeader); //44

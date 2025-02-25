@@ -606,6 +606,27 @@ void DestroyGround(int i)
       if (!NodeGrid[node_grid_id]->non_web) { //only unsolid web nodegrids
         NodeGrid[node_grid_id]->node_solid=FALSE;
       }
+
+      for (int n=0;n<4;n++) {
+        double llg_x,llg_y;
+        switch (n) {
+          case 0:llg_x=x-NODE_SIZE;llg_y=lg_y-NODE_SIZE;break;
+          case 1:llg_x=x+NODE_SIZE;llg_y=lg_y-NODE_SIZE;break;
+          case 2:llg_x=x-NODE_SIZE;llg_y=lg_y+NODE_SIZE;break;
+          case 3:llg_x=x+NODE_SIZE;llg_y=lg_y+NODE_SIZE;break;
+        }
+          lg_grid_id=GetGridId(llg_x,llg_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
+          if (lg_grid_id!=-1) {
+            UnSetGridLineArray(lg_grid_id,i);
+          }
+          if (!Ground[i]->is_ghost) { //Not a ghost
+            node_grid_id=GetGridId(llg_x,llg_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
+            if (!NodeGrid[node_grid_id]->non_web) { //only unsolid web nodegrids
+              NodeGrid[node_grid_id]->node_solid=FALSE;
+            }
+          }
+        }
+
     }
   } else { // x=(y-c)/m
     if (Ground[i]->y1>Ground[i]->y2) {
@@ -622,6 +643,25 @@ void DestroyGround(int i)
       node_grid_id=GetGridId(lg_x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
       if (!NodeGrid[node_grid_id]->non_web) { //only unsolid web nodegrids
         NodeGrid[node_grid_id]->node_solid=FALSE;
+      }
+      for (int n=0;n<4;n++) {
+          double llg_x,llg_y;
+          switch (n) {
+            case 0:llg_x=lg_x-NODE_SIZE;llg_y=y-NODE_SIZE;break;
+            case 1:llg_x=lg_x+NODE_SIZE;llg_y=y-NODE_SIZE;break;
+            case 2:llg_x=lg_x-NODE_SIZE;llg_y=y+NODE_SIZE;break;
+            case 3:llg_x=lg_x+NODE_SIZE;llg_y=y+NODE_SIZE;break;
+          }
+          lg_grid_id=GetGridId(llg_x,llg_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
+          if (lg_grid_id!=-1) {
+            UnSetGridLineArray(lg_grid_id,i);
+          }
+          if (!Ground[i]->is_ghost) {
+            node_grid_id=GetGridId(llg_x,llg_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
+            if (!NodeGrid[node_grid_id]->non_web) { //only unsolid web nodegrids
+              NodeGrid[node_grid_id]->node_solid=FALSE;
+            }
+         }
       }
     }
   }

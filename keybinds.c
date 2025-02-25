@@ -1961,14 +1961,14 @@ void DJKeys(WPARAM wParam)
       }
       break;
     case '<': //decrease volume
-      if (audioData[gct].volume>0) {
+      if (audioData[gct].volume>0.5) {
         audioData[gct].volume-=0.5;
       } else {
         audioData[gct].volume=0;
       }
       break;
     case '>': //increase volume
-      if (audioData[gct].volume<2.0) {
+      if (audioData[gct].volume<1.5) {
         audioData[gct].volume+=0.5;
       } else {
         audioData[gct].volume=2.0;

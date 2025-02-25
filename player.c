@@ -1156,7 +1156,7 @@ void PlayerActSwinging(int grav_speed)
     player.is_rebounding=FALSE;
     player.pivot_length=GetDistance(player.pivot_x,player.pivot_y,player.x,player.y);
     player.pivot_angle=GetCosAngle(player.x-player.pivot_x,player.pivot_length);
-
+    bool yes_rubberband=TRUE;
 
     //>>>Calculate the Angle of incidence of player when swung from pivot
     if (player.y>player.pivot_y) { //lower quad
@@ -1182,6 +1182,11 @@ void PlayerActSwinging(int grav_speed)
         player.phase_web2=FALSE;
       }
     }
+
+    if (player.pivot_x-60<player.x && player.x<player.pivot_x+60 && player.y>player.pivot_y) {
+      yes_rubberband=FALSE;
+    }
+
 
     if (grav_speed==3 && !player.is_on_ground_edge) {
       if (player.y>player.pivot_y) { //below pivot
@@ -1209,14 +1214,15 @@ void PlayerActSwinging(int grav_speed)
         } else if (player.rst_up){ //Retract Web
           move_x(-cos(-player.pivot_angle));
           move_y(sin(-player.pivot_angle));
-        } else if (player.rst_down && player.pivot_length<NODE_SIZE*DEFAULT_PLAYER_BUILD_RANGE/2) {
+        } else if (player.rst_down && (!yes_rubberband || player.pivot_length<NODE_SIZE*DEFAULT_PLAYER_BUILD_RANGE/2)) {
           if (player.on_ground_id==-1) {
             move_x(cos(-player.pivot_angle)); //extend web
             move_y(-sin(-player.pivot_angle));
-          } else {
-          }
+          } /*else {
+          }*/
         }
       } else { //above pivot
+        //yes_rubberband=TRUE;
         if (player.rst_right && player.on_ground_id==-1) { //Clockwize
           move_x(cos(-player.pivot_angle+M_PI_2));
           move_y(sin(-player.pivot_angle+M_PI_2));
@@ -1233,14 +1239,14 @@ void PlayerActSwinging(int grav_speed)
           if (player.on_ground_id==-1) {
             move_x(cos(-player.pivot_angle)); //extend web
             move_y(sin(-player.pivot_angle));
-          } else {
-          }
+          } /*else {
+          }*/
         }
       }
     }
 
 
-    if (grav_speed==4) {//only occurs right after grav_speed==3
+    if (grav_speed==4 && yes_rubberband) {//only occurs right after grav_speed==3
       if (player.pivot_length>NODE_SIZE*DEFAULT_PLAYER_BUILD_RANGE/2) { //rubber band back if pivot length too long
         if (player.y>player.pivot_y) {
           move_x(-cos(-player.pivot_angle));

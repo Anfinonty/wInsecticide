@@ -509,11 +509,14 @@ void DrawMusicWav(HDC hdc)
 
       if (!stop_playing_song[z]) {
         for (int i=0;i<chosen_buffer_length_o;i++) {
-            c_x1=((double)i/chosen_buffer_length_o)*GR_WIDTH;
-            c_y1=_y+audioData[z].buffer1[i]*0.01;//*audioData[z].volume*0.006;
-            c_x2=((double)i/chosen_buffer_length_o)*GR_WIDTH;
-            c_y2=_y+audioData[z].buffer2[i]*0.01;//*audioData[z].volume*0.006;
-
+            //if (audioData[z].buffer1[i]>20000) {
+              c_x1=((double)i/chosen_buffer_length_o)*GR_WIDTH;
+              c_y1=_y+audioData[z].buffer1[i]*0.01;//*audioData[z].volume*0.006;
+            //}
+            //if (audioData[z].buffer2[i]>20000)
+              c_x2=((double)i/chosen_buffer_length_o)*GR_WIDTH;
+              c_y2=_y+audioData[z].buffer2[i]*0.01;//*audioData[z].volume*0.006;
+            //}
 
             if (wav_mode==1) {
                 if (audioData[z].double_buffer) {
@@ -561,19 +564,125 @@ void DrawMusicWav(HDC hdc)
             GrLine(hdc,audioBufferRect[z].x1,0,audioBufferRect[z].x1,GR_HEGIHT,LTBLUE);
             GrLine(hdc,audioBufferRect[z].x2,0,audioBufferRect[z].x2,GR_HEGIHT,YELLOW);
           }*/
+          int beat_c=0;
+          int beat_max=12;
+          bool beat_line=FALSE;
+          int16_t amp[AUDIO_STREAM_BUFFER_SIZE0];
+
+          int cy2=_y+(audioData[z].max_amp2-4000)*0.0012*(1+GR_HEIGHT/480);
+          GrLine(hdc,0,cy2,GR_WIDTH,cy2,rgbPaint[player_pupil_color]);
+          cy2=_y-(audioData[z].max_amp2-4000)*0.0012*(1+GR_HEIGHT/480);
+          GrLine(hdc,0,cy2,GR_WIDTH,cy2,rgbPaint[player_pupil_color]);
+
           for (int j=0;j<audioData[z].read_size;j+=128) {
-            c_x1=((GR_WIDTH/READ_BUFFER_NUM)*i) + ((double)j/audioData[z].read_size)*(GR_WIDTH/5);
-            c_y1=_y+audioData[z].read_buffer[audio_index][j]*0.0012*(1+GR_HEIGHT/480);//audioData[z].volume*0.006;
-            if (z==0) {
-              GrLine(hdc,prev_x1,prev_y1,c_x1,c_y1,rgbPaint[player_iris_color]);
+              c_x1=((GR_WIDTH/READ_BUFFER_NUM)*i) + ((double)j/audioData[z].read_size)*(GR_WIDTH/5);
+              c_y1=_y+audioData[z].read_buffer[audio_index][j]*0.0012*(1+GR_HEIGHT/480);//audioData[z].volume*0.006;
+            if (!beat_line) {
+              memcpy(amp,audioData[z].read_buffer[audio_index],audioData[z].read_size);
+              //lowPassFilter(amp,audioData[z].read_size);
+              if (abs(amp[j])>=audioData[z].max_amp2-4000 && abs(amp[j])>6000)
+                beat_line=TRUE;
             } else {
-              GrLine(hdc,prev_x1,prev_y1,c_x1,c_y1,rgbPaint[player_pupil_color]);
+              if (abs(amp[j])>=audioData[z].max_amp2-4000) {
+                beat_c=0;
+              } else {
+                beat_c++;
+                if (beat_c>=beat_max-1) {
+                  beat_c=0;
+                  beat_line=FALSE;
+                }
+              }
+            }
+
+            if (z==0) {
+              if (!beat_line) {
+                GrLine(hdc,prev_x1,prev_y1,c_x1,c_y1,rgbPaint[player_iris_color]);
+              } else {
+                if (prev_x1>GR_WIDTH/2) {
+                  GrLine(hdc,prev_x1,prev_y1,c_x1,c_y1,rgbPaint[player_pupil_color]);
+                } else {
+                  GrDottedLine(hdc,prev_x1,prev_y1,c_x1,c_y1,rgbPaint[player_pupil_color]);
+                }
+              }
+
+            } else {
+              if (!beat_line) {
+                GrLine(hdc,prev_x1,prev_y1,c_x1,c_y1,rgbPaint[player_pupil_color]);
+              } else {
+                if (prev_x1>GR_WIDTH/2) {
+                  GrLine(hdc,prev_x1,prev_y1,c_x1,c_y1,rgbPaint[player_iris_color]);
+                } else {
+                  GrDottedLine(hdc,prev_x1,prev_y1,c_x1,c_y1,rgbPaint[player_iris_color]);
+                }
+              }
             }
             prev_x1=c_x1;
             prev_y1=c_y1;
           }   
         }
       }
+/*
+for (int i = 0; i < READ_BUFFER_NUM; i++) {
+    audio_index = (i + audioData[z].queue_read_buffer) % READ_BUFFER_NUM;
+    c_x1 = (GR_WIDTH / READ_BUFFER_NUM) * i;
+    c_y1 = _y + audioData[z].read_buffer[audio_index][z] * 0.0012 * (1 + GR_HEIGHT / 480);
+    prev_x1 = c_x1;
+    prev_y1 = c_y1;
+
+    int beat_c = 0;
+    int beat_max = 12;
+    bool beat_line = FALSE;
+
+    for (int j = 0; j < audioData[z].read_size; j += 128) {
+        c_x1 = ((GR_WIDTH / READ_BUFFER_NUM) * i) + ((double)j / audioData[z].read_size) * (GR_WIDTH / 5);
+        c_y1 = _y + audioData[z].read_buffer[audio_index][j] * 0.0012 * (1 + GR_HEIGHT / 480);
+
+        // Amplitude threshold range
+        int amplitude = audioData[z].read_buffer[audio_index][j];
+        bool isBeat = amplitude >= 19000 || amplitude <= -19000;
+
+        // Zero-crossing rate
+        if (j > 0) {
+            int prev_amplitude = audioData[z].read_buffer[audio_index][j - 128];
+            if ((prev_amplitude < 0 && amplitude >= 0) || (prev_amplitude >= 0 && amplitude < 0)) {
+                isBeat = true;
+            }
+        }
+
+        if (!beat_line) {
+            if (isBeat) {
+                beat_line = TRUE;
+            }
+        } else {
+            if (isBeat) {
+                beat_c = 0;
+            } else {
+                beat_c++;
+                if (beat_c >= beat_max - 1) {
+                    beat_c = 0;
+                    beat_line = FALSE;
+                }
+            }
+        }
+
+        if (z == 0) {
+            if (!beat_line)
+                GrLine(hdc, prev_x1, prev_y1, c_x1, c_y1, rgbPaint[player_iris_color]);
+            else
+                GrLine(hdc, prev_x1, prev_y1, c_x1, c_y1, rgbPaint[player_pupil_color]);
+
+        } else {
+            if (!beat_line)
+                GrLine(hdc, prev_x1, prev_y1, c_x1, c_y1, rgbPaint[player_pupil_color]);
+            else
+                GrLine(hdc, prev_x1, prev_y1, c_x1, c_y1, rgbPaint[player_iris_color]);
+        }
+        prev_x1 = c_x1;
+        prev_y1 = c_y1;
+    }
+}
+
+*/
       if (z_m==1) {
          GrLine(hdc,(GR_WIDTH/2),0,(GR_WIDTH/2),GR_HEIGHT,rgbPaint[player_pupil_color]);
       } else {

@@ -622,6 +622,11 @@ void InitSetRes(int i,int w,int h,char *txt,wchar_t* wtxt)
 }
 
 
+
+
+
+
+
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   HDC hdc, hdcBackbuff, hdcBackbuff2;
   switch(msg) {
@@ -1564,6 +1569,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       if (!DirExists(L"music_tmp")) {
         system("mkdir \"music_tmp/\""); //make new music tmp
       }
+
 
       //AddFontResource(L"fonts/KhmerUI.ttf");
       //AddFontResource(L"fonts/KhmerOSsys.ttf");

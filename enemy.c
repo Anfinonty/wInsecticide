@@ -315,6 +315,7 @@ void EnemySpriteOnGroundId(int enemy_id,int ground_id)
       height_from_ground=-abs(height_from_ground);
     }
 
+    Enemy[enemy_id]->draw_falling=FALSE;
 
     //GROUND EDGE
     int ground_edge_id=-1;
@@ -339,7 +340,7 @@ void EnemySpriteOnGroundId(int enemy_id,int ground_id)
         if (edge_1_dist<=distl && edge_1_dist>=0 && ground_edge_id!=-1) {
           ///Enemy[enemy_id]->x+=cos(edge_angle);
           //Enemy[enemy_id]->y+=sin(edge_angle);
-          Enemy[enemy_id]->draw_falling=FALSE;
+          //Enemy[enemy_id]->draw_falling=FALSE;
           edge_angle=GetCosAngle(Enemy[enemy_id]->x-Ground[ground_edge_id]->x1,edge_1_dist);
           if (Enemy[enemy_id]->health>0) {
             Enemy[enemy_id]->angle=edge_angle;
@@ -360,7 +361,7 @@ void EnemySpriteOnGroundId(int enemy_id,int ground_id)
         } else if (edge_2_dist<=distl && edge_2_dist>=0 && ground_edge_id!=-1) {
           //Enemy[enemy_id]->x+=cos(edge_angle);
           //Enemy[enemy_id]->y+=sin(edge_angle);
-          Enemy[enemy_id]->draw_falling=FALSE;
+          //Enemy[enemy_id]->draw_falling=FALSE;
           edge_angle=GetCosAngle(Enemy[enemy_id]->x-Ground[ground_edge_id]->x2,edge_2_dist);
           if (Enemy[enemy_id]->health>0) {
             Enemy[enemy_id]->angle=edge_angle;
@@ -468,14 +469,22 @@ void EnemyGravity(int enemy_id,int gr)
         }
 
         if (Enemy[enemy_id]->flying_timer==0 && Enemy[enemy_id]->health>0) { 
-          if (abs(RandNum(0,100,Enemy[enemy_id]->seed))<40/*90*/) {
-            if (Enemy[enemy_id]->species==1)
-              Enemy[enemy_id]->flying_timer=1;
-            else if (Enemy[enemy_id]->species==3)
-              Enemy[enemy_id]->flying_timer=100;
-          } else {
-            Enemy[enemy_id]->force_fall=TRUE;
-            Enemy[enemy_id]->draw_falling=FALSE;
+          if (Enemy[enemy_id]->species==1) {
+              if (abs(RandNum(0,100,Enemy[enemy_id]->seed))<40/*90*/) {
+                Enemy[enemy_id]->flying_timer=5;
+                Enemy[enemy_id]->draw_falling=FALSE;
+              } else {
+                Enemy[enemy_id]->force_fall=TRUE;
+                Enemy[enemy_id]->draw_falling=FALSE;
+              }
+          } else if (Enemy[enemy_id]->species==3) {
+              if (abs(RandNum(0,100,Enemy[enemy_id]->seed))==5) {
+                Enemy[enemy_id]->flying_timer=300;
+                Enemy[enemy_id]->draw_falling=FALSE;
+              } /*else {
+                Enemy[enemy_id]->force_fall=TRUE;
+                Enemy[enemy_id]->draw_falling=FALSE;
+              }*/
           }
         }
 
@@ -1440,9 +1449,9 @@ void EnemyAct(int i)
             if (game_audio) {
               PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
             }
-            if ((Enemy[i]->on_ground_id==-1 && (Enemy[i]->health<=0 || RandNum(0,100,Enemy[i]->seed)<20)) || Enemy[i]->on_ground_id!=-1) {
+            //if ((Enemy[i]->on_ground_id==-1 && (Enemy[i]->health<=0 || RandNum(0,100,Enemy[i]->seed)<20)) || Enemy[i]->on_ground_id!=-1) {
               Enemy[i]->knockback_timer=player.knockback_strength;
-            }
+            //}
             Enemy[i]->knockback_angle=Bullet[bk].angle;
             Enemy[i]->player_knockback=FALSE;
             StopBullet(bk,FALSE); //Stop the web
@@ -1543,8 +1552,8 @@ void EnemyAct(int i)
           int crevdice;
           if (Enemy[i]->dist_from_player<=NODE_SIZE*5) {
             crevdice=RandNum(0,100,Enemy[i]->seed);
-          } else if (Enemy[i]->dist_from_player<=NODE_SIZE*15) {
-            crevdice=RandNum(0,5000,Enemy[i]->seed);
+          } else if (Enemy[i]->dist_from_player<=NODE_SIZE*15 || Enemy[i]->saw_player) {
+            crevdice=RandNum(0,4000,Enemy[i]->seed);
           }
           if (crevdice<5) {
             slash_time=EnemyActDazzle(i,17);
@@ -1930,6 +1939,9 @@ void EnemyAct(int i)
           if (!(Enemy[i]->species>=5 && Enemy[i]->species<=7)) {
             Enemy[i]->on_ground_id=GetOnGroundId(Enemy[i]->x,Enemy[i]->y,33,32);
           }
+          if (Enemy[i]->is_in_ground_edge) {
+            Enemy[i]->draw_falling=FALSE;
+          }
           if ((Enemy[i]->species==1 || Enemy[i]->species==3) && Enemy[i]->on_ground_id!=-1) {//<------ source of major error
             EnemySpriteOnGroundId(i,Enemy[i]->on_ground_id);
           }
@@ -1954,7 +1966,9 @@ void EnemyAct(int i)
           Enemy[i]->y--;
         }
 
-        if (((Enemy[i]->species==1) || Enemy[i]->species==3) && (Enemy[i]->health<=0 || (!Enemy[i]->move_to_target && !Enemy[i]->target_player))) {//Species 1 gravity
+
+        if ((Enemy[i]->species==1 || Enemy[i]->species==3)) {
+        if ((Enemy[i]->health<=0 || (!Enemy[i]->move_to_target && !Enemy[i]->target_player))) {//Species 1 gravity
           if (slash_time_i==0) {
             if (Enemy[i]->health<0) {
               Enemy[i]->force_fall=TRUE;
@@ -1970,9 +1984,19 @@ void EnemyAct(int i)
             }
             if (Enemy[i]->flying_timer>0) {
               Enemy[i]->flying_timer--;
+              if (Enemy[i]->flying_timer==1 && Enemy[i]->species==3)
+                Enemy[i]->flying_timer=300;
             }
           }
+        } else if (Enemy[i]->health>0 && Enemy[i]->move_to_target) {
+          Enemy[i]->draw_falling=FALSE;
+          Enemy[i]->flying_timer=0;
         }
+        }
+
+
+
+
         if (Enemy[i]->species==1 || Enemy[i]->species==3) {
             if (Enemy[i]->in_air_timer>0) {
               Enemy[i]->in_air_timer--;
@@ -3043,17 +3067,15 @@ void DrawEnemy(HDC hdc,HDC hdc2)
           //GrPrint(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y+48,printfunny,WHITE);
           int rsid=Enemy[i]->rotated_sprite_id;
           if (rsid!=-1 && etype>-1 && etype<ENEMY_TYPE_NUM) {
-          if (/*Enemy[i]->health>0 && (*/
-                ((Enemy[i]->draw_falling) ||
-                (Enemy[i]->sprite_in_water && !Enemy[i]->web_stuck)
-              )
-            ) {
+          if (((!Enemy[i]->is_in_ground_edge && Enemy[i]->draw_falling && Enemy[i]->health>0) ||
+               (Enemy[i]->sprite_in_water && !Enemy[i]->web_stuck)
+              )) {
             int swim_rot_id=7;
             if (Enemy[i]->species==3) {
               swim_rot_id=9;
             }
             if (Enemy[i]->health<=0) {
-              swim_rot_id=27;
+              swim_rot_id=24;
             }
             if (Enemy[i]->sprite_timer%8==0) {
               DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
