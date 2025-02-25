@@ -676,7 +676,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         int wheelData = GET_WHEEL_DELTA_WPARAM(wParam);
         if (!stop_playing_song[gct] && audioData[gct].playing_wav && wheelData!=0) {
           audioData[gct].song_rewind=TRUE;
+
           if (audioData[gct].current_filesize>audioData[gct].read_size*2 && audioData[gct].current_filesize<audioData[gct].filesize-audioData[gct].read_size*2) {
+
+
               if (wheelData>0) { //scroll up
                 if (audioData[gct].queue_read_buffer>0) {audioData[gct].queue_read_buffer--;} else {audioData[gct].queue_read_buffer=READ_BUFFER_NUM-1;}
                 if (audioData[gct].queue_play_buffer>0) {audioData[gct].queue_play_buffer--;} else {audioData[gct].queue_play_buffer=READ_BUFFER_NUM-1;} 
@@ -686,6 +689,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                 if (audioData[gct].queue_play_buffer<=18) {audioData[gct].queue_play_buffer++;} else {audioData[gct].queue_play_buffer=0;} 
                 audioData[gct].current_filesize+=audioData[gct].read_size;
               }
+
+
               adjustBufferVol(audioData[gct].buffer1,audioData[gct].read_buffer[audioData[gct].queue_play_buffer],audioData[gct].read_size,audioData[gct].volume);
               adjustBufferVol(audioData[gct].buffer2,audioData[gct].read_buffer[audioData[gct].queue_play_buffer],audioData[gct].read_size,audioData[gct].volume);
 
@@ -693,6 +698,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
               fseek(audioData[gct].music_file, audioData[gct].current_filesize, SEEK_SET);
               fread(audioData[gct].read_buffer[audioData[gct].queue_read_buffer], sizeof(BYTE), audioData[gct].read_size, audioData[gct].music_file);  //copy then go backwards/forwards
+              if (audioData[gct].queue_read_buffer>0) {
+                PassFilter(audioData[gct].read_buffer[audioData[gct].queue_read_buffer],audioData[gct].read_buffer[audioData[gct].queue_read_buffer-1],chosen_buffer_length,
+                    audioData[gct].HIGH_CUTOFF_FREQUENCY,audioData[gct].LOW_CUTOFF_FREQUENCY,
+                    audioData[gct].wav_header->SamplesPerSec,
+                    audioData[gct].hpf_on,audioData[gct].lpf_on);
+              } else {
+                PassFilter(audioData[gct].read_buffer[0],audioData[gct].read_buffer[19],chosen_buffer_length,
+                    audioData[gct].HIGH_CUTOFF_FREQUENCY,audioData[gct].LOW_CUTOFF_FREQUENCY,
+                    audioData[gct].wav_header->SamplesPerSec,
+                    audioData[gct].hpf_on,audioData[gct].lpf_on);
+              }
+
               fseek(audioData[gct].music_file, audioData[gct].current_filesize, SEEK_SET);
 
               waveOutWrite(audioData[gct].hWaveOut, &audioData[gct].waveHdr1, sizeof(WAVEHDR));
@@ -1792,6 +1809,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       audioData[0].playing_wav=FALSE;
       audioData[1].playing_wav=FALSE;
+
+      //audioData[0].CUTOFF_FREQUENCY=240;
+      //audioData[1].CUTOFF_FREQUENCY=240;
+
+
+      audioData[0].LOW_CUTOFF_FREQUENCY=240;
+      audioData[1].LOW_CUTOFF_FREQUENCY=240;
+
+      audioData[0].HIGH_CUTOFF_FREQUENCY=120;
+      audioData[1].HIGH_CUTOFF_FREQUENCY=120;
+
+      audioData[0].lpf_on=FALSE;
+      audioData[1].hpf_on=FALSE;
 
       BelieveWaveReOpen(0);
 

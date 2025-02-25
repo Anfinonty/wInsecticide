@@ -268,6 +268,19 @@ void GlobalKeypressDown(WPARAM wParam)
 
             fseek(audioData[gct].music_file, audioData[gct].current_filesize, SEEK_SET);
             fread(audioData[gct].read_buffer[audioData[gct].queue_read_buffer], sizeof(BYTE), audioData[gct].read_size, audioData[gct].music_file);  //copy then go backwards/forwards
+            if (audioData[gct].queue_read_buffer>0) {
+              PassFilter(audioData[gct].read_buffer[audioData[gct].queue_read_buffer],audioData[gct].read_buffer[audioData[gct].queue_read_buffer-1],chosen_buffer_length,
+                    audioData[gct].HIGH_CUTOFF_FREQUENCY,audioData[gct].LOW_CUTOFF_FREQUENCY,
+                    audioData[gct].wav_header->SamplesPerSec,
+                    audioData[gct].hpf_on,audioData[gct].lpf_on);
+            } else {
+              PassFilter(audioData[gct].read_buffer[0],audioData[gct].read_buffer[19],chosen_buffer_length,
+                    audioData[gct].HIGH_CUTOFF_FREQUENCY,audioData[gct].LOW_CUTOFF_FREQUENCY,
+                    audioData[gct].wav_header->SamplesPerSec,
+                    audioData[gct].hpf_on,audioData[gct].lpf_on);
+            }
+
+
             fseek(audioData[gct].music_file, audioData[gct].current_filesize, SEEK_SET);
         }
         }
@@ -1955,8 +1968,8 @@ void DJKeys(WPARAM wParam)
         audioData[gct].volume-=0.1;
       }
       break;
-    case '.': //increase volume
-      if (audioData[gct].volume<2.0) {
+    case '.': //increase volum
+      if (audioData[gct].volume<9.9) {
         audioData[gct].volume+=0.1;
       }
       break;
@@ -1967,12 +1980,73 @@ void DJKeys(WPARAM wParam)
         audioData[gct].volume=0;
       }
       break;
+
     case '>': //increase volume
-      if (audioData[gct].volume<1.5) {
+      if (audioData[gct].volume<9.5) {
         audioData[gct].volume+=0.5;
       } else {
-        audioData[gct].volume=2.0;
+        audioData[gct].volume=10.0;
       }
+      break;
+
+
+
+
+    case '{':
+      if (audioData[gct].HIGH_CUTOFF_FREQUENCY>2500.0) {
+        audioData[gct].HIGH_CUTOFF_FREQUENCY-=500.0;
+      } else {
+        if (audioData[gct].HIGH_CUTOFF_FREQUENCY>20.0) {
+          audioData[gct].HIGH_CUTOFF_FREQUENCY-=20.0;
+        } else {
+          audioData[gct].HIGH_CUTOFF_FREQUENCY=19500.0;
+        }
+      }
+      break;
+
+    case '}':
+      if (audioData[gct].HIGH_CUTOFF_FREQUENCY>1980.0) {
+        if (audioData[gct].HIGH_CUTOFF_FREQUENCY<19500.0) {
+          audioData[gct].HIGH_CUTOFF_FREQUENCY+=500.0;
+        } else {
+          audioData[gct].HIGH_CUTOFF_FREQUENCY=20;
+        }
+      } else {
+          audioData[gct].HIGH_CUTOFF_FREQUENCY+=20.0;
+      }
+      break;
+
+
+    case '[':
+      if (audioData[gct].LOW_CUTOFF_FREQUENCY>2500.0) {
+          audioData[gct].LOW_CUTOFF_FREQUENCY-=500.0;
+      } else {
+        if (audioData[gct].LOW_CUTOFF_FREQUENCY>20.0)
+          audioData[gct].LOW_CUTOFF_FREQUENCY-=20.0;
+        else
+          audioData[gct].LOW_CUTOFF_FREQUENCY=19500.0;
+      }
+      break;
+    case ']':
+      if (audioData[gct].LOW_CUTOFF_FREQUENCY>1980.0) {
+        if (audioData[gct].LOW_CUTOFF_FREQUENCY<19500.0) {
+          audioData[gct].LOW_CUTOFF_FREQUENCY+=500.0;
+        } else {
+          audioData[gct].LOW_CUTOFF_FREQUENCY=20.0;
+        }
+      } else {
+        audioData[gct].LOW_CUTOFF_FREQUENCY+=20.0;
+      }
+      break;
+
+
+
+    case '|':
+      audioData[gct].hpf_on=!audioData[gct].hpf_on;
+      break;
+
+    case '\\':
+      audioData[gct].lpf_on=!audioData[gct].lpf_on;
       break;
 
     case ';': //shift starting loop to left

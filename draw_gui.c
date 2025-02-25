@@ -121,8 +121,16 @@ void DrawMMExtraKeys (HDC hdc)
   //draw extra keys on cursor
   if (mouse_y>GR_HEIGHT-144) {
     char printtxt[128];
-    sprintf(printtxt,"[^: %d] [U:%d] [Y:%d] [l_SHIFT:%d,%d/%d,%d]",buffer_length_arr[casbs_i],wav_mode,hide_mm,audioData[0].play_loop,audioData[0].record_loop,audioData[1].play_loop,audioData[1].record_loop);
+    sprintf(printtxt,"[^: %d] [U:%d] [Y:%d] [l_SHIFT:%d,%d/%d,%d][%1.0f/%1.0f]",buffer_length_arr[casbs_i],wav_mode,hide_mm,audioData[0].play_loop,audioData[0].record_loop,audioData[1].play_loop,audioData[1].record_loop);
     GrPrint(hdc,mouse_x+64,mouse_y,printtxt,WHITE);
+
+
+    sprintf(printtxt,"HPF: [{%1.0f / %1.0f}]Hz [|: %d / %d]",audioData[0].HIGH_CUTOFF_FREQUENCY,audioData[1].HIGH_CUTOFF_FREQUENCY,audioData[0].hpf_on,audioData[1].hpf_on);
+    GrPrint(hdc,mouse_x+64,mouse_y-48,printtxt,WHITE);
+
+    sprintf(printtxt,"LPF: [[%1.0f / %1.0f]]Hz [\\: %d / %d]",audioData[0].LOW_CUTOFF_FREQUENCY,audioData[1].LOW_CUTOFF_FREQUENCY,audioData[0].lpf_on,audioData[1].lpf_on);
+    GrPrint(hdc,mouse_x+64,mouse_y-32,printtxt,WHITE);
+
 
     sprintf(printtxt,"[h_SHIFT] [j_SHIFT] [7/&] [8/*] [; '][: \"]");
     GrPrint(hdc,mouse_x+64,mouse_y-16,printtxt,WHITE);
@@ -481,7 +489,31 @@ void DrawTitle(HDC hdc,HDC hdc2)
 void DrawMusicWav(HDC hdc)
 {
   double c_x1,c_x2,c_y1,c_y2,prev_x1,prev_x2,prev_y1,prev_y2;
-  GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,rgbPaint[player_color]);
+  int djbgcolor=player_color;
+  /*djbgcolor=player_color+(audioData[gct].played_units/4)*16;  
+  if (djbgcolor>255) {
+    djbgcolor-=256;
+  }*/
+  //if (player_color>127) {
+    /*djbgcolor=player_color+(audioData[gct].played_units)*16;  
+    if (djbgcolor<0) {
+      djbgcolor=0;
+    }*/
+  /*} else {
+    djbgcolor=player_color+(audioData[gct].played_units)*16;  
+    if (djbgcolor>254) {
+      djbgcolor=254;
+    }
+  }*/
+    if (audioData[gct].played_units>0 && audioData[gct].played_units<3) {
+      djbgcolor=player_color+(3-(audioData[gct].played_units))*16;
+      if (djbgcolor>255) {
+        djbgcolor-=256;
+      }
+    }
+
+
+  GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,rgbPaint[djbgcolor]);
 
   int z_m=2;
   if (stop_playing_song[1]) { //wav 2 not playing
@@ -499,8 +531,8 @@ void DrawMusicWav(HDC hdc)
       }
       c_x1=0;
       c_x2=0;
-      c_y1=_y+audioData[z].buffer1[z]*0.01;//*audioData[z].volume*0.006;
-      c_y2=_y+audioData[z].buffer2[z]*0.01;//*audioData[z].volume*0.006;
+      c_y1=_y+audioData[z].buffer1[z]*0.002;//*audioData[z].volume*0.006;
+      c_y2=_y+audioData[z].buffer2[z]*0.002;//*audioData[z].volume*0.006;
 
       prev_x1=c_x1;
       prev_y1=c_y1;
@@ -511,11 +543,11 @@ void DrawMusicWav(HDC hdc)
         for (int i=0;i<chosen_buffer_length_o;i++) {
             //if (audioData[z].buffer1[i]>20000) {
               c_x1=((double)i/chosen_buffer_length_o)*GR_WIDTH;
-              c_y1=_y+audioData[z].buffer1[i]*0.01;//*audioData[z].volume*0.006;
+              c_y1=_y+audioData[z].buffer1[i]*0.002;//*audioData[z].volume*0.006;
             //}
             //if (audioData[z].buffer2[i]>20000)
               c_x2=((double)i/chosen_buffer_length_o)*GR_WIDTH;
-              c_y2=_y+audioData[z].buffer2[i]*0.01;//*audioData[z].volume*0.006;
+              c_y2=_y+audioData[z].buffer2[i]*0.002;//*audioData[z].volume*0.006;
             //}
 
             if (wav_mode==1) {
