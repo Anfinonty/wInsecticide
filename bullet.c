@@ -265,12 +265,12 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
     saved_angle=Bullet[bullet_id].angle;
     bk=player.bullet[k];
     if (GetDistance(Bullet[bk].x,Bullet[bk].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
-      if (!Bullet[bk].playsnd && game_audio && Bullet[bullet_id].graphics_type!=10 && player.health>0) {
+      if (!Bullet[bk].playsnd && game_audio && Bullet[bullet_id].graphics_type!=10 && Bullet[bullet_id].graphics_type!=-1 && player.health>0) {
         Bullet[bk].playsnd=TRUE;
       }
 
 
-      if (Bullet[bullet_id].graphics_type!=10) {
+      if (Bullet[bullet_id].graphics_type!=10 && Bullet[bullet_id].graphics_type!=-1) {
         if (Bullet[bullet_id].bounce_timer==0) {
           Bullet[bullet_id].angle=GetMarbleAngle(Bullet[bullet_id].angle,Bullet[bk].angle)+RandAngle(-12,12,frame_tick);//GetBounceAngle(Bullet[bk].angle,Bullet[bullet_id].angle);//RandAngle(0,360,player.seed); //scatter type 6
           Bullet[bullet_id].bounce_timer=10;
@@ -286,7 +286,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
       /*if (Bullet[bk].speed_multiplier<7) { //if shotgun bullet, pierce through for the first few ranges
       }*/
 
-      if (Bullet[bk].graphics_type!=6 && Bullet[bullet_id].graphics_type!=10) { //hit enemy bullet, scatter if NOT type 6
+      if (Bullet[bk].graphics_type!=6 && Bullet[bullet_id].graphics_type!=10 && Bullet[bullet_id].graphics_type!=-1) { //hit enemy bullet, scatter if NOT type 6
         if (Bullet[bk].bounce_timer==0) {
           Bullet[bk].angle=-GetMarbleAngle(Bullet[bk].angle, saved_angle)+RandAngle(-12,12,player.seed);
           Bullet[bk].bounce_timer=10;
@@ -337,9 +337,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
 
 
    
-  //if (Bullet[bullet_id].graphics_type==10) {
-    //bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,0.5,0.5);
-  //} else {
+  //enemy gib movement after its death
   bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2);
   if (bullet_on_ground_id==-1 && Enemy[enemy_id]->health<=0 && (Enemy[enemy_id]->death_timer>100) && player.health>0) {
     double pbdist=GetDistance(player.x,player.y,Bullet[bullet_id].x,Bullet[bullet_id].y);
@@ -395,7 +393,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
 //^^ condition
     if (allow_act) {
       if (hit_player) {
-        if (Enemy[enemy_id]->health>0 && !in_main_menu) {
+        if (Enemy[enemy_id]->health>0 && !in_main_menu && Bullet[bullet_id].graphics_type!=-1) {
           BulletDamagePlayerAct(bullet_id);
         }
       //End of Hit Player======
@@ -441,7 +439,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
           }
         }
       } else {
-        if (HitPlayer(bullet_id,35,35)) {
+        if (HitPlayer(bullet_id,35,35)) { //enemy gib to be absorbed
           predicate=TRUE;
         }
       }
@@ -732,6 +730,7 @@ void RainBulletAct(int bullet_id)
       rain_sound_duration=0;
     }
     player.rain_wet_timer=260;//60;
+    allow_act=2;
     //BulletDamagePlayerAct(bullet_id);
   }
 
@@ -755,9 +754,13 @@ void RainBulletAct(int bullet_id)
   if (allow_act!=-1) { //perform action
     if (allow_act==1) { //out of range
       Bullet[bullet_id].range=-1;
-    } else if (allow_act==0){ //Ricochet off ground
-      Bullet[bullet_id].angle=GetBounceAngle(Bullet[bullet_id].angle,Ground[bullet_on_ground_id]->angle)
+    } else if (allow_act==0 || allow_act==2){ //Ricochet off ground
+      if (allow_act==0) {
+        Bullet[bullet_id].angle=GetBounceAngle(Bullet[bullet_id].angle,Ground[bullet_on_ground_id]->angle)
 /*2*M_PI-Bullet[bullet_id].angle+2*Ground[bullet_on_ground_id]->angle*/+RandAngle(-15,15,frame_tick); //slight random when hit
+      } else if (allow_act==2) {
+        Bullet[bullet_id].angle=RandAngle(-360,360,frame_tick); //slight random when hit
+      }
       Bullet[bullet_id].speed_multiplier=1;
       Bullet[bullet_id].speed=0.4;
       Bullet[bullet_id].range=13;
@@ -1022,6 +1025,9 @@ void DrawBullet2(HDC hdc,int i,double x,double y,int color)
 {
   int c;
   switch (Bullet[i].graphics_type) {
+    case -1: //type breakout of web
+      GrCircle(hdc,x,y,2,color,LTRED);
+      break;
     case 0:
       GrCircle(hdc,x,y,4,color,-1);
       break;
@@ -1031,7 +1037,7 @@ void DrawBullet2(HDC hdc,int i,double x,double y,int color)
     case 2:
       GrCircle(hdc,x,y,4,color,color);
       break;
-    case 3:
+    case 3: //no fill gliterry bullet, RAIN
     case 6: //no fill glitery buullet
       GrCircle(hdc,x,y,3,color,-1);
       GrCircle(hdc,x,y,RandNum(0,5,frame_tick*player.seed),color,-1);

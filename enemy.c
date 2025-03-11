@@ -2085,7 +2085,7 @@ void EnemyAct(int i)
           Enemy[i]->force_search=FALSE;
         }
 
-        if (Enemy[i]->health>0 && player.health>0 && (!Enemy[i]->ignore_player && !Enemy[i]->web_stuck/*&&  //not ignore & within range
+        if (Enemy[i]->health>0 && player.health>0 && (!Enemy[i]->ignore_player || Enemy[i]->web_stuck/*&& !Enemy[i]->web_stuck*//*&&  //not ignore & within range
              Enemy[i]->dist_from_player<Enemy[i]->follow_range/2*NODE_SIZE*/
             )
            ) {
@@ -2093,31 +2093,38 @@ void EnemyAct(int i)
 	        if (Enemy[i]->bullet_length==0) {
 	          for (j=0;j<Enemy[i]->bullet_fire_at_once_max;j++) {//shoot several bullets at once
 	            Enemy[i]->bullet_head_x[j]=player.x+RandNum(-Enemy[i]->aim_rand,Enemy[i]->aim_rand,Enemy[i]->seed);
-	            Enemy[i]->bullet_head_y[j]=player.y+RandNum(-Enemy[i]->aim_rand,Enemy[i]->aim_rand,Enemy[i]->seed);
+	            Enemy[i]->bullet_head_y[j]=player.y+RandNum(-Enemy[i]->aim_rand,Enemy[i]->aim_rand,Enemy[i]->seed/2);
 	          }
 	        }
 
             if (Enemy[i]->bullet_cooldown<=0) {
 	          if (Enemy[i]->bullet_shot_num<500) {//shot less than 500 bullets
                 int bspeed_m=Enemy[i]->bullet_speed_multiplier,
-                    bdmg=Enemy[i]->bullet_damage;
+                    bdmg=Enemy[i]->bullet_damage,btype=Enemy[i]->bullet_graphics_type;
                 double bspeed=Enemy[i]->bullet_speed,
                        brange=Enemy[i]->bullet_range;
-                if (Enemy[i]->web_stuck) {
+                if (Enemy[i]->web_stuck) { //shoot webstuck bullets
                   bspeed/=3;
-                  brange/=3;             
+                  brange=NODE_SIZE+NODE_SIZE/2;
                   bspeed_m=bspeed_m/3+1;
-                  bdmg/=3;
+                  
+                  //bdmg/=3;
+                  btype=-1; //specific type only damages webs, doesnt react to bullets nor player
+	              for (j=0;j<Enemy[i]->bullet_fire_at_once_max;j++) {//shoot several bullets at once
+	                Enemy[i]->bullet_head_x[j]=Enemy[i]->x+RandNum(-1000,1000,Enemy[i]->seed);
+	                Enemy[i]->bullet_head_y[j]=Enemy[i]->y+RandNum(-1000,1000,Enemy[i]->seed/2);
+                  }
                 }
 	            for (j=0;j<Enemy[i]->bullet_fire_at_once_max;j++) {//several bullets at once
-		          if (Enemy[i]->saw_player) {
-                    if (Enemy[i]->dist_from_player<Enemy[i]->shoot_at_player_range/2*NODE_SIZE) {
+		          if (Enemy[i]->saw_player || Enemy[i]->web_stuck) {
+                    if (Enemy[i]->dist_from_player<Enemy[i]->shoot_at_player_range/2*NODE_SIZE || Enemy[i]->web_stuck) {
     		          Enemy[i]->shoot_target_x=Enemy[i]->bullet_head_x[j];
         		      Enemy[i]->shoot_target_y=Enemy[i]->bullet_head_y[j];
                       ShootBullet(current_bullet_id,
 		                Enemy[i]->bullet_shot_num,
 		                Enemy[i]->bullet_color,
-		                Enemy[i]->bullet_graphics_type,
+                        btype,
+		                //Enemy[i]->bullet_graphics_type,
 		                brange,
 		                bspeed,
 		                bspeed_m,
