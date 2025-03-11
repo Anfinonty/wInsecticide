@@ -699,15 +699,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               fseek(audioData[gct].music_file, audioData[gct].current_filesize, SEEK_SET);
               fread(audioData[gct].read_buffer[audioData[gct].queue_read_buffer], sizeof(BYTE), audioData[gct].read_size, audioData[gct].music_file);  //copy then go backwards/forwards
               if (audioData[gct].queue_read_buffer>0) {
-                PassFilter(audioData[gct].read_buffer[audioData[gct].queue_read_buffer],audioData[gct].read_buffer[audioData[gct].queue_read_buffer-1],chosen_buffer_length,
-                    audioData[gct].HIGH_CUTOFF_FREQUENCY,audioData[gct].LOW_CUTOFF_FREQUENCY,
-                    audioData[gct].wav_header->SamplesPerSec,
-                    audioData[gct].hpf_on,audioData[gct].lpf_on);
+                PassFilter(audioData[gct].read_buffer[audioData[gct].queue_read_buffer],audioData[gct].read_buffer[audioData[gct].queue_read_buffer-1],&audioData[gct],chosen_buffer_length);
               } else {
-                PassFilter(audioData[gct].read_buffer[0],audioData[gct].read_buffer[19],chosen_buffer_length,
-                    audioData[gct].HIGH_CUTOFF_FREQUENCY,audioData[gct].LOW_CUTOFF_FREQUENCY,
-                    audioData[gct].wav_header->SamplesPerSec,
-                    audioData[gct].hpf_on,audioData[gct].lpf_on);
+                PassFilter(audioData[gct].read_buffer[0],audioData[gct].read_buffer[19],&audioData[gct],chosen_buffer_length);
               }
 
               fseek(audioData[gct].music_file, audioData[gct].current_filesize, SEEK_SET);
@@ -866,6 +860,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       }
       break; //Break WM_KEYDOWN;
     } 
+
 
 
     //Key Release
@@ -1176,7 +1171,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                 }
               }
               if (tmp_map_background_sprite!=NULL) {
-                map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH,GR_HEIGHT); //note runs once only
+                map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH+GR_WIDTH/8,GR_HEIGHT+GR_HEIGHT/8); //note runs once only
               } else {
                 map_background_sprite=NULL;
               }
@@ -1810,18 +1805,28 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       audioData[0].playing_wav=FALSE;
       audioData[1].playing_wav=FALSE;
 
-      //audioData[0].CUTOFF_FREQUENCY=240;
-      //audioData[1].CUTOFF_FREQUENCY=240;
-
-
       audioData[0].LOW_CUTOFF_FREQUENCY=240;
       audioData[1].LOW_CUTOFF_FREQUENCY=240;
 
-      audioData[0].HIGH_CUTOFF_FREQUENCY=120;
-      audioData[1].HIGH_CUTOFF_FREQUENCY=120;
+      audioData[0].HIGH_CUTOFF_FREQUENCY=1240;//120;
+      audioData[1].HIGH_CUTOFF_FREQUENCY=1240;//120;
 
       audioData[0].lpf_on=FALSE;
       audioData[1].hpf_on=FALSE;
+
+      audioData[0].high_gain_db=0;
+      //audioData[0].mid_gain_db=0;
+      audioData[0].low_gain_db=0;
+
+      audioData[1].high_gain_db=0;
+      //audioData[1].mid_gain_db=0;
+      audioData[1].low_gain_db=0;
+
+      audioData[0].low_eq_on=FALSE;
+      audioData[0].high_eq_on=FALSE;
+
+      audioData[1].low_eq_on=FALSE;
+      audioData[1].high_eq_on=FALSE;
 
       BelieveWaveReOpen(0);
 

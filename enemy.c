@@ -1968,30 +1968,33 @@ void EnemyAct(int i)
 
 
         if ((Enemy[i]->species==1 || Enemy[i]->species==3)) {
-        if ((Enemy[i]->health<=0 || (!Enemy[i]->move_to_target && !Enemy[i]->target_player))) {//Species 1 gravity
-          if (slash_time_i==0) {
-            if (Enemy[i]->health<0) {
-              Enemy[i]->force_fall=TRUE;
-              Enemy[i]->flying_timer=0;
-              /*if (Enemy[i]->in_air_timer==0) {
-                Enemy[i]->in_air_timer+=100;    
-              } */  
-            }
-            if (Enemy[i]->flying_timer==0 || Enemy[i]->force_fall) {//not flying, fall
-              for (int gr=0;gr<1+Enemy[i]->in_air_timer/5;gr++) {
-                EnemyGravity(i,gr);
+            if ((Enemy[i]->health<=0 || (!Enemy[i]->move_to_target && !Enemy[i]->target_player))) {//Species 1 gravity
+              if (slash_time_i==0) {
+                if (Enemy[i]->health<=0) { //dead roach
+                  Enemy[i]->force_fall=TRUE;
+                  Enemy[i]->flying_timer=0;
+                }
+                if (Enemy[i]->flying_timer==0 || Enemy[i]->force_fall) {//not flying, fall
+                  for (int gr=0;gr<1+Enemy[i]->in_air_timer/5;gr++) {
+                    EnemyGravity(i,gr);
+                  }
+                }
               }
             }
+
             if (Enemy[i]->flying_timer>0) {
               Enemy[i]->flying_timer--;
-              if (Enemy[i]->flying_timer==1 && Enemy[i]->species==3)
+              if (Enemy[i]->flying_timer>=2 && Enemy[i]->flying_timer<=4 && Enemy[i]->species==3) {
                 Enemy[i]->flying_timer=300;
+                Enemy[i]->draw_falling=FALSE;
+              }
+            } else {
+              if (Enemy[i]->health>0 /*&& Enemy[i]->move_to_target*/) {
+                Enemy[i]->draw_falling=FALSE;
+                Enemy[i]->flying_timer=0;
+              }
             }
-          }
-        } else if (Enemy[i]->health>0 && Enemy[i]->move_to_target) {
-          Enemy[i]->draw_falling=FALSE;
-          Enemy[i]->flying_timer=0;
-        }
+
         }
 
 
@@ -2954,85 +2957,6 @@ void DrawEnemy(HDC hdc,HDC hdc2)
     }
 
     if (allow_act) {
-      if (Enemy[i]->health>0 && Enemy[i]->damage_taken_timer>0) {
-        //percentage 
-        c = LTRED;//Highlight(IsInvertedBackground(),LTRED,LTCYAN);
-        c2 = WHITE;//Highlight(IsInvertedBackground(),WHITE,BLACK);
-        double percentage = Enemy[i]->health/Enemy[i]->max_health;
-        double health_length_max=64;
-        if (Enemy[i]->species==1 || Enemy[i]->species==3) {
-          health_length_max=100;
-        }
-        if (Enemy[i]->max_health>=150) {
-          health_length_max=150;
-        } else if (Enemy[i]->max_health>64) {
-          health_length_max=Enemy[i]->max_health;
-          if (Enemy[i]->species==1 || Enemy[i]->species==3) {
-            health_length_max=100;
-          }
-        }
-
-        double health_length = health_length_max*percentage;
-        if (Enemy[i]->species==1 || Enemy[i]->species==3) {
-          GrRect(hdc,Enemy[i]->sprite_x-health_length/2,
-                    Enemy[i]->sprite_y-58,
-                    health_length,
-                    4,c);
-        } else {
-          GrRect(hdc,Enemy[i]->sprite_x-health_length/2,
-                    Enemy[i]->sprite_y-26,
-                    health_length,
-                    4,c);
-        }
-
-
-        if (health_length>32) {
-          int print_health=Enemy[i]->health;
-          if (is_khmer) {
-              wchar_t wtxt[16];
-              if (print_health>1) {
-                swprintf(wtxt,16,L"%d",print_health);        
-              } else {
-                swprintf(wtxt,16,L"1");
-              }
-              int sprite_x_health=(int)Enemy[i]->sprite_x-wcslen(wtxt)*12/2-3;
-              if (Enemy[i]->species==1 || Enemy[i]->species==3) {
-                if (!player.time_breaker || Enemy[i]->time_breaker_immune) {
-                  GrPrintW(hdc,sprite_x_health,Enemy[i]->sprite_y-64,ReplaceToKhmerNum(wtxt),"",c2,16,FALSE,yes_unifont);
-                } else {
-                  GrPrintW(hdc,sprite_x_health,Enemy[i]->sprite_y-64,ReplaceToKhmerNum(wtxt),"",LTGRAY,16,FALSE,yes_unifont);
-                }
-              } else {
-                if (!player.time_breaker || Enemy[i]->time_breaker_immune) {
-                  GrPrintW(hdc,sprite_x_health,Enemy[i]->sprite_y-32,ReplaceToKhmerNum(wtxt),"",c2,16,FALSE,yes_unifont);
-                } else {
-                  GrPrintW(hdc,sprite_x_health,Enemy[i]->sprite_y-32,ReplaceToKhmerNum(wtxt),"",LTGRAY,16,FALSE,yes_unifont);
-                }
-              }
-          } else {
-              char txt[16];
-              if (print_health>1) {
-                sprintf(txt,"%d",print_health);        
-              } else {
-                sprintf(txt,"1");
-              }
-              int sprite_x_health=(int)Enemy[i]->sprite_x-strlen(txt)*8/2;
-              if (Enemy[i]->species==1 || Enemy[i]->species==3) {
-                if (!player.time_breaker || Enemy[i]->time_breaker_immune) {
-                  GrPrint(hdc,sprite_x_health,Enemy[i]->sprite_y-64,txt,c2);
-                } else {
-                  GrPrint(hdc,sprite_x_health,Enemy[i]->sprite_y-64,txt,LTGRAY);
-                }
-              } else {
-                if (!player.time_breaker || Enemy[i]->time_breaker_immune) {
-                  GrPrint(hdc,sprite_x_health,Enemy[i]->sprite_y-32,txt,c2);
-                } else {
-                  GrPrint(hdc,sprite_x_health,Enemy[i]->sprite_y-32,txt,LTGRAY);
-                }
-              }
-          }
-        }
-      }
     
       int etype=Enemy[i]->type;
       if (Enemy[i]->health>0 || !Enemy[i]->true_dead) {
@@ -3173,6 +3097,95 @@ void DrawEnemy(HDC hdc,HDC hdc2)
           }
           }
           break;
+        }
+      }
+
+
+      if (Enemy[i]->health>0 && Enemy[i]->damage_taken_timer>0) {
+        //percentage 
+        c = LTRED;//Highlight(IsInvertedBackground(),LTRED,LTCYAN);
+        c2 = WHITE;//Highlight(IsInvertedBackground(),WHITE,BLACK);
+        double percentage = Enemy[i]->health/Enemy[i]->max_health;
+        double health_length_max=64;
+        if (Enemy[i]->species==1 || Enemy[i]->species==3) {
+          health_length_max=100;
+        }
+        if (Enemy[i]->max_health>=150) {
+          health_length_max=150;
+        } else if (Enemy[i]->max_health>64) {
+          health_length_max=Enemy[i]->max_health;
+          if (Enemy[i]->species==1 || Enemy[i]->species==3) {
+            health_length_max=100;
+          }
+        }
+
+        double health_length = health_length_max*percentage;
+        if (Enemy[i]->species==1 || Enemy[i]->species==3) {
+          /*GrRect(hdc,Enemy[i]->sprite_x-health_length/2-2,
+                    Enemy[i]->sprite_y-58-1,
+                    health_length+4,
+                    6,BLACK);*/
+          GrRect(hdc,Enemy[i]->sprite_x-health_length/2,
+                    Enemy[i]->sprite_y-58,
+                    health_length,
+                    4,c);
+        } else {
+          /*GrRect(hdc,Enemy[i]->sprite_x-health_length/2-2,
+                    Enemy[i]->sprite_y-26-1,
+                    health_length+4,
+                    6,BLACK);*/
+          GrRect(hdc,Enemy[i]->sprite_x-health_length/2,
+                    Enemy[i]->sprite_y-26,
+                    health_length,
+                    4,c);
+        }
+
+
+        if (health_length>32) {
+          int print_health=Enemy[i]->health;
+          if (is_khmer) {
+              wchar_t wtxt[16];
+              if (print_health>1) {
+                swprintf(wtxt,16,L"%d",print_health);        
+              } else {
+                swprintf(wtxt,16,L"1");
+              }
+              int sprite_x_health=(int)Enemy[i]->sprite_x-wcslen(wtxt)*12/2-3;
+              if (Enemy[i]->species==1 || Enemy[i]->species==3) {
+                if (!player.time_breaker || Enemy[i]->time_breaker_immune) {
+                  GrPrintW(hdc,sprite_x_health,Enemy[i]->sprite_y-64,ReplaceToKhmerNum(wtxt),"",c2,16,FALSE,yes_unifont);
+                } else {
+                  GrPrintW(hdc,sprite_x_health,Enemy[i]->sprite_y-64,ReplaceToKhmerNum(wtxt),"",LTGRAY,16,FALSE,yes_unifont);
+                }
+              } else {
+                if (!player.time_breaker || Enemy[i]->time_breaker_immune) {
+                  GrPrintW(hdc,sprite_x_health,Enemy[i]->sprite_y-32,ReplaceToKhmerNum(wtxt),"",c2,16,FALSE,yes_unifont);
+                } else {
+                  GrPrintW(hdc,sprite_x_health,Enemy[i]->sprite_y-32,ReplaceToKhmerNum(wtxt),"",LTGRAY,16,FALSE,yes_unifont);
+                }
+              }
+          } else {
+              char txt[16];
+              if (print_health>1) {
+                sprintf(txt,"%d",print_health);        
+              } else {
+                sprintf(txt,"1");
+              }
+              int sprite_x_health=(int)Enemy[i]->sprite_x-strlen(txt)*8/2;
+              if (Enemy[i]->species==1 || Enemy[i]->species==3) {
+                if (!player.time_breaker || Enemy[i]->time_breaker_immune) {
+                  GrPrint(hdc,sprite_x_health,Enemy[i]->sprite_y-64,txt,c2);
+                } else {
+                  GrPrint(hdc,sprite_x_health,Enemy[i]->sprite_y-64,txt,LTGRAY);
+                }
+              } else {
+                if (!player.time_breaker || Enemy[i]->time_breaker_immune) {
+                  GrPrint(hdc,sprite_x_health,Enemy[i]->sprite_y-32,txt,c2);
+                } else {
+                  GrPrint(hdc,sprite_x_health,Enemy[i]->sprite_y-32,txt,LTGRAY);
+                }
+              }
+          }
         }
       }
       }

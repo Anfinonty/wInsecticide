@@ -4,21 +4,35 @@
 //Background
 void DrawBackground(HDC hdc,HDC hdc2) 
 {
+  double parralax_x=0;
+  double parralax_y=0;
+  double _ppx=(player.x/MAP_WIDTH);
+  double _ppy=(player.y/MAP_HEIGHT);
+  double ppx=(MAP_WIDTH-player.x)/MAP_WIDTH;
+  double ppy=(MAP_HEIGHT-player.y)/MAP_HEIGHT;
+  parralax_x=(-GR_WIDTH/16*2)+GR_WIDTH/16*ppx;
+  parralax_y=(-GR_HEIGHT/16*2)+GR_HEIGHT/16*ppy;
+  int draw_p_px=(int)parralax_x;
+  int draw_p_py=(int)parralax_y;
+
+
   switch (map_background) {
     case 0:
-      DrawBitmap(hdc,hdc2,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
+      DrawBitmap(hdc,hdc2,draw_p_px,draw_p_py,0,0,GR_WIDTH*2,GR_HEIGHT*2,map_background_sprite,SRCCOPY,FALSE,FALSE);
       break;
     default:
       if (map_background_sprite==NULL) {
         GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,custom_map_background_color);
       } else {
-        DrawBitmap(hdc,hdc2,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
+        DrawBitmap(hdc,hdc2,draw_p_px,draw_p_py,0,0,GR_WIDTH*2,GR_HEIGHT*2,map_background_sprite,SRCCOPY,FALSE,FALSE);
       }
       break;
   }
 
   if (is_moon) {
-    DrawSprite(hdc,hdc2, GR_WIDTH-128,128,&draw_moon_sprite,FALSE);
+    int dmx=GR_WIDTH-128-GR_WIDTH/16*_ppx;
+    int dmy=128-GR_HEIGHT/16*_ppy;
+    DrawSprite(hdc,hdc2,dmx,dmy,&draw_moon_sprite,FALSE);
   }
 }
 

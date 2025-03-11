@@ -125,14 +125,30 @@ void DrawMMExtraKeys (HDC hdc)
     GrPrint(hdc,mouse_x+64,mouse_y,printtxt,WHITE);
 
 
-    sprintf(printtxt,"HPF: [{%1.0f / %1.0f}]Hz [|: %d / %d]",audioData[0].HIGH_CUTOFF_FREQUENCY,audioData[1].HIGH_CUTOFF_FREQUENCY,audioData[0].hpf_on,audioData[1].hpf_on);
+    //sprintf(printtxt,"Mid:[-%2.1f / %2.1f=]dB",audioData[0].mid_gain_db,audioData[1].mid_gain_db);
+    //GrPrint(hdc,mouse_x+64,mouse_y-48-16*3,printtxt,WHITE);
+
+    //sprintf(printtxt,"Hi: [:%2.1f / %2.1f\"]dB [SPACE + |:%d / %d]",audioData[0].high_gain_db,audioData[1].high_gain_db,audioData[0].high_eq_on,audioData[1].high_eq_on);
+    //GrPrint(hdc,mouse_x+64,mouse_y-48-16*3,printtxt,WHITE);
+
+    //sprintf(printtxt,"Low:[;%2.1f / %2.1f']dB [SPACE + \\:%d / %d]",audioData[0].low_gain_db,audioData[1].low_gain_db,audioData[0].low_eq_on,audioData[1].low_eq_on);
+    //GrPrint(hdc,mouse_x+64,mouse_y-48-16*2,printtxt,WHITE);
+
+
+    sprintf(printtxt,"HPF: [{%1.0f / %1.0f}]Hz [|: %d / %d]    Hi: [:%2.1f / %2.1f\"]dB [SPACE + |:%d / %d]",audioData[0].HIGH_CUTOFF_FREQUENCY,audioData[1].HIGH_CUTOFF_FREQUENCY,
+        audioData[0].hpf_on,audioData[1].hpf_on,
+        audioData[0].high_gain_db,audioData[1].high_gain_db,audioData[0].high_eq_on,audioData[1].high_eq_on
+    );
     GrPrint(hdc,mouse_x+64,mouse_y-48,printtxt,WHITE);
 
-    sprintf(printtxt,"LPF: [[%1.0f / %1.0f]]Hz [\\: %d / %d]",audioData[0].LOW_CUTOFF_FREQUENCY,audioData[1].LOW_CUTOFF_FREQUENCY,audioData[0].lpf_on,audioData[1].lpf_on);
+    sprintf(printtxt,"LPF: [[%1.0f / %1.0f]]Hz [\\: %d / %d]  Low: [;%2.1f / %2.1f']dB [SPACE + \\:%d / %d]",audioData[0].LOW_CUTOFF_FREQUENCY,audioData[1].LOW_CUTOFF_FREQUENCY,
+        audioData[0].lpf_on,audioData[1].lpf_on,
+        audioData[0].low_gain_db,audioData[1].low_gain_db,audioData[0].low_eq_on,audioData[1].low_eq_on
+    );
     GrPrint(hdc,mouse_x+64,mouse_y-32,printtxt,WHITE);
 
 
-    sprintf(printtxt,"[h_SHIFT] [j_SHIFT] [7/&] [8/*] [; '][: \"]");
+    sprintf(printtxt,"[h_SHIFT] [j_SHIFT] [7/&] [8/*] [- =][_ +]");
     GrPrint(hdc,mouse_x+64,mouse_y-16,printtxt,WHITE);
   }
 }
@@ -1737,9 +1753,11 @@ void DrawUI(HDC hdc,HDC hdc2)
     }
 
     if (player.health>PLAYER_LOW_HEALTH+1) {
+      //GrRect(hdc,player.sprite_x-health_length/2-2,player.sprite_y-42-1,health_length+4,6,BLACK);
       GrRect(hdc,player.sprite_x-health_length/2,player.sprite_y-42,health_length,4,c2);
     } else {
       health_length*=4;
+      //GrRect(hdc,player.sprite_x-health_length/2-2,player.sprite_y-42-1,health_length+4,6,BLACK);
       if (frame_tick%15<7) {
         GrRect(hdc,player.sprite_x-health_length/2,player.sprite_y-42,health_length,4,ca);
       } else {

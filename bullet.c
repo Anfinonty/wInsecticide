@@ -8,6 +8,7 @@ void InitBullet(int max_bullet_num)
     Bullet[i].playsnd=FALSE;
     Bullet[i].shot=FALSE;
     Bullet[i].near_miss=FALSE;
+    Bullet[i].in_water=FALSE;
     Bullet[i].range=0;
     Bullet[i].start_range=0;
     Bullet[i].ospeed=-1;
@@ -52,6 +53,7 @@ void ShootBullet(
 {
   double x1,x2,y1,y2;
   Bullet[bullet_id].shot=TRUE;
+  Bullet[bullet_id].in_water=FALSE;
   Bullet[bullet_id].graphics_type=graphics_type;
   Bullet[bullet_id].saved_pos=saved_pos;
   Bullet[bullet_id].color=color;
@@ -204,6 +206,7 @@ void StopBullet(int bullet_id,bool is_player)
 {
   Bullet[bullet_id].shot=FALSE;
   Bullet[bullet_id].near_miss=FALSE;
+  Bullet[bullet_id].in_water=FALSE;
   Bullet[bullet_id].start_range=0;
   Bullet[bullet_id].range=0;
   Bullet[bullet_id].from_enemy_id=-1;
@@ -784,7 +787,8 @@ void BulletAct(int bullet_id)
     if (!in_map_editor) {
         int on_node_grid_id=GetGridId(Bullet[bullet_id].x,Bullet[bullet_id].y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
         if (on_node_grid_id!=-1) {
-          if (NodeGrid[on_node_grid_id]->node_water) {
+          if (NodeGrid[on_node_grid_id]->node_water && !Bullet[bullet_id].in_water) {
+            Bullet[bullet_id].in_water=TRUE;
             if (enemy_id>-1 && enemy_id<ENEMY_NUM) {
               if (Enemy[enemy_id]->species==3) {
                 Bullet[bullet_id].speed=Bullet[bullet_id].ospeed*2;
@@ -796,10 +800,12 @@ void BulletAct(int bullet_id)
               Bullet[bullet_id].speed=Bullet[bullet_id].ospeed/4;
             }
             //Bullet[bullet_id].speed=Bullet[bullet_id].ospeed/4;
-          } //else {
-            //Bullet[bullet_id].speed_multiplier=Bullet[bullet_id].ospeed_multiplier;
-            //Bullet[bullet_id].speed=Bullet[bullet_id].ospeed;
-          //}
+          } else if (!NodeGrid[on_node_grid_id]->node_water && Bullet[bullet_id].in_water){
+            Bullet[bullet_id].in_water=FALSE;
+            Bullet[bullet_id].speed_multiplier=Bullet[bullet_id].ospeed_multiplier;
+            Bullet[bullet_id].speed=Bullet[bullet_id].ospeed;
+            Bullet[bullet_id].range/=8;
+          }
         }
     }
     for (int i=0;i<Bullet[bullet_id].speed_multiplier;i++) {
@@ -818,6 +824,7 @@ void BulletAct(int bullet_id)
             player.web_being_shot=-1;
             player.bullet_shot=-1;
           }
+          //allow_act=TRUE;
         } else if (enemy_id==-2) { //knives throw
           if (Bullet[bullet_id].graphics_type==6 && Bullet[bullet_id].range<=Bullet[bullet_id].start_range-120) {
             Bullet[bullet_id].graphics_type=5;

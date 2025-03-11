@@ -958,7 +958,7 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
         GetBounceAngle(player.angle_of_incidence,player.angle);
 
 
-    if (!player.is_swinging) {
+    if (!player.is_swinging && player.bullet_shot==-1) {
       player.angle_of_incidence=player.angle_of_reflection;
     }
 
@@ -1037,7 +1037,7 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
     //angle of incidence and reflection
     player.angle_of_reflection=GetBounceAngle(player.angle,player.angle_of_incidence);
     //2*M_PI-player.angle_of_incidence+2*player.angle; //real
-    if (!player.is_swinging) {
+    if (!player.is_swinging && player.bullet_shot==-1) {
       player.angle_of_incidence=player.angle_of_reflection;
     }
   }
@@ -1428,9 +1428,12 @@ void PlayerActMouseClick()
       if (game_audio) {
         PlayMemSnd(&channelSoundEffect[2],&channelSoundEffectCache[2],TRUE,3);
       }
-      StopBullet(player.bullet_shot,TRUE); //stop all web bullets from acting
+      StopBullet(player.bullet_shot,TRUE); //Stop the web
+      PlayerPlaceWeb(); //Web related
       player.web_being_shot=-1;
       player.bullet_shot=-1;
+      //StopBullet(player.bullet_shot,TRUE); //stop all web bullets from acting
+      //player.web_being_shot=-1;
     } else if (player.bullet_shot_num<PLAYER_BULLET_NUM && 
         (PLAYER_BULLET_NUM-player.bullet_shot_num>=player.knives_per_throw) && // a/b whehere a>=b a is bullet in storage, b is bullet consumption
       !player.is_swinging
@@ -1551,7 +1554,8 @@ void PlayerActMouseClick()
 
   if (player.right_click_hold_timer==62) {//Right click to Shoot Again
     if (player.bullet_shot!=-1 && !player.is_swinging) {
-      StopBullet(player.bullet_shot,TRUE);
+      StopBullet(player.bullet_shot,TRUE); //Stop the web
+      PlayerPlaceWeb(); //Web related
       player.web_being_shot=-1;
       player.bullet_shot=-1;
       if (game_audio) {
@@ -1569,7 +1573,7 @@ void PlayerActMouseClick()
         player.rst_right_click_snd=TRUE;
         allow_act=TRUE;
       } else {
-       player.invalid_shoot_timer=10;
+        player.invalid_shoot_timer=10;
       }
     }
     InitPlayerFlingWeb();
@@ -1581,22 +1585,27 @@ void PlayerActMouseClick()
 
       player.attack=TRUE; 
 	  player.bullet_shot=current_bullet_id;
+      int sb_range=DEFAULT_PLAYER_BUILD_RANGE*2;
+      if (player.speed>=24)
+        sb_range=DEFAULT_PLAYER_BUILD_RANGE*5;
       ShootBullet(current_bullet_id,
-	-1,
-	CYAN,
-    5, //graphics type
-	MAX_WEB_LENGTH, //range
-    1, //speed
-	30, //speed multiplier
-	10+player.attack_strength*2, //damage
-	-1,
-	player.x,//player.above_x2, //so it doest get stuck to ground
-	player.y,//player.above_y2,
-	grad_x1,
-	grad_y1,
-	grad_x2,
-	grad_y2,
-    0
+	        -1,
+	        CYAN,
+            5, //graphics type
+            //999999,
+            sb_range,//*4,
+	        //MAX_WEB_LENGTH, //range
+            1, //speed
+	        30, //speed multiplier
+	        10+player.attack_strength*2, //damage
+	        -1,
+	        player.x,//player.above_x2, //so it doest get stuck to ground
+	        player.y,//player.above_y2,
+	        grad_x1,
+	        grad_y1,
+	        grad_x2,
+	        grad_y2,
+            0
       );
       current_bullet_id++; //public
       if (current_bullet_id>=SHOOT_BULLET_NUM-1) {
@@ -1840,14 +1849,14 @@ void PlayerAct()
   }
 
   if (player.health<=0) {
-    if (player.rst_left)
+    if (player.rst_left && player.x>10)
       move_x(-5);
-    else if (player.rst_right)
+    else if (player.rst_right && player.x<MAP_WIDTH-10)
       move_x(5);
 
-    if (player.rst_up)
+    if (player.rst_up && player.y>10)
       move_y(-5);
-    else if (player.rst_down)
+    else if (player.rst_down && player.y<MAP_HEIGHT-10)
       move_y(5);
   }
   if (player.health<=0 && (player.rst_left_click || player.rst_key_1) && player.death_timer>150) {
@@ -1987,7 +1996,14 @@ void PlayerAct()
 
       if (player.is_on_ground_edge) {
          //speed_limiter=15;
-         speed_limiter*=10;//10;//*=5;
+         //if (player.speed<24)
+           //speed_limiter*=5;
+         //else if (player.speed<10)
+           speed_limiter*=10;
+
+
+      }  else if (player.bullet_shot!=-1 && player.speed<10) {
+         speed_limiter=10;
       }
 
       if (player.below_ground_edge_timer>0) {
@@ -2115,11 +2131,7 @@ void PlayerAct()
           }
 
 
-        //==========PLAYER ACT REBOUND ACTIONS==========
-          PlayerActReboundActions(grav_speed,speed);
 
-        //==========Gravity=========
-          PlayerActGravityMovement(grav_speed,speed);
 
           if (player.y<0) { //Y axis cap
             move_y(1);
@@ -2130,14 +2142,86 @@ void PlayerAct()
           }
        //===========================
 
-         //X movement
-          PlayerActXMovement(grav_speed);
+
+
+         //x-axis cap
+          if (player.x-PLAYER_WIDTH/2<0) {
+            move_x(1);
+          } else if (player.x+PLAYER_WIDTH/2>MAP_WIDTH) {
+            move_x(-1);
+          }
+
+
+
+            //parachuting spider action
+            if (player.bullet_shot!=-1 && !player.in_water) {
+              double pdist_from_bullet=GetDistance(player.x,player.y,Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y);
+              double pangle=GetCosAngle(player.x-Bullet[player.bullet_shot].x,player.pivot_length);
+              if (pdist_from_bullet>DEFAULT_PLAYER_BUILD_RANGE*3 /*&& player.on_ground_id==-1*/) {
+                if (player.speed<6) {
+                  player.speed=6;
+                }
+                if (player.speed<24) {
+                  Bullet[player.bullet_shot].speed_multiplier=10;
+                }
+                player.fling_distance=0;
+                player.grav=2;
+                player.in_air_timer=2;
+                player.is_rebounding=FALSE;
+                player.on_ground_edge_id=-1;
+                player.is_on_ground_edge=FALSE;
+                player.jump=FALSE;
+                player.jump_height=0;
+                player.is_swinging=FALSE;
+
+                //>>>Calculate the Angle of incidence of player
+                if (player.y>Bullet[player.bullet_shot].y) { //lower quad
+                  if(player.x<Bullet[player.bullet_shot].x) {
+                    player.angle_of_incidence=pangle+M_PI_2;
+                  } else {
+                    player.angle_of_incidence=pangle-M_PI_2;
+                  }
+                } else {//upper quad
+                  if(player.x<Bullet[player.bullet_shot].x) {
+                    player.angle_of_incidence=2*M_PI-pangle-M_PI_2;
+                  } else {
+                    player.angle_of_incidence=2*M_PI-pangle+M_PI_2;
+                  }
+                }
+                player.angle_of_reflection=player.angle_of_incidence;
+
+
+                if (grav_speed==1) {
+                  if (player.y>Bullet[player.bullet_shot].y) {
+                    move_x(-cos(-pangle));
+                    move_y(sin(-pangle));
+                  } else {
+                    move_x(-cos(-pangle));
+                    move_y(-sin(-pangle));
+                  }
+                  if (player.rst_left) {
+                    player.last_left=TRUE;
+                  } else if (player.rst_right) {
+                    player.last_left=FALSE;
+                  }
+                }
+              }
+            } else {
+          //==========PLAYER ACT REBOUND ACTIONS==========
+          PlayerActReboundActions(grav_speed,speed);
 
 
           //====PLAYER GROUND EDGE MOVEMENT==== //player edge interaction, mini web rotation
           if (grav_speed==1) {
             PlayerActGroundEdgeMovement();
           }
+
+          //==========Gravity=========
+          PlayerActGravityMovement(grav_speed,speed);
+
+
+          //X movement
+          PlayerActXMovement(grav_speed);
 
           //====PLAYER CIRCULAR WEB SWINGING MOVEMENT======
           if (player.is_swinging) {
@@ -2153,15 +2237,7 @@ void PlayerAct()
 
           //======PLAYER ACT FLING MOVEMENT======
           PlayerActFlingMovement(grav_speed);
-
-
-         //x-axis cap
-          if (player.x-PLAYER_WIDTH/2<0) {
-            move_x(1);
-          } else if (player.x+PLAYER_WIDTH/2>MAP_WIDTH) {
-            move_x(-1);
-          }
-
+            }
 
          //misc
           player.print_current_above=player.current_above;
@@ -2284,7 +2360,7 @@ void PlayerAct()
 
       
       //Calculating new angle of incidence
-      if (!player.is_swinging) {
+      if (!player.is_swinging && player.bullet_shot==-1) {
         if (player.jump_height>0) { //jumping and not swinging
           if (player.rst_left || player.rst_right) { // jump + holding left/right
             double t_speed1=player.speed*cos(player.jump_angle2);
@@ -2311,7 +2387,7 @@ void PlayerAct()
                 player.angle_of_incidence=M_PI-player.angle_of_incidence;
               }
             } else { //not holding left or right but still in air
-              if (player.is_rebounding || player.fling_distance!=0) {//flinging or rebounding
+              if ((player.is_rebounding || player.fling_distance!=0) && player.bullet_shot==-1) {//flinging or rebounding
                 double t_speed=player.speed*cos(player.angle_of_reflection); //rate of change in x . player travel to refleciton angle
                 double t_grav1=player.speed*sin(player.angle_of_reflection); //rate of change in y . player travel to reflection angle
                 double t_grav2=player.grav*player.player_grav; //rate of change in y . Gravity

@@ -244,34 +244,105 @@ void highPassFilter(int16_t* audioBufferOutput, int16_t* audioBufferInput, int b
 }
 */
 
-void PassFilter(int16_t *audioBuffer, const int16_t* previousBuffer, int bufferLength, double HIGH_CUTOFF_FREQ,double LOW_CUTOFF_FREQ, double sample_rate,bool hpf_on,bool lpf_on)
-{
-    if (hpf_on || lpf_on) {
-        // Calculate the RC (resistance-capacitance) constant HIGH PASS
-        double RC = 1.0 / (HIGH_CUTOFF_FREQ * 2 * M_PI);
-        double dt = 1.0 / sample_rate;
-        double alpha = dt / (RC + dt);
 
-        audioBuffer[0]=previousBuffer[bufferLength-1];
 
-        //HIGH PASS FILTER
-        if (hpf_on) {
-          for (int i = 1; i < bufferLength; i++) {
-            //audioBuffer[i] = alpha * (audioBuffer[i-1] + audioBuffer[i] - audioBuffer[i-1]);
-            audioBuffer[i] = alpha * (audioBuffer[i] - audioBuffer[i-1]) + audioBuffer[i-1];
-          } 
-        }
+// Convert linear gain to dB
+double linearToDb(double linearGain) {
+    return 20.0f * log10(linearGain);
+}
 
-        //LOW PASS FILTER
-        if (lpf_on) {
-          RC = 1.0 / (LOW_CUTOFF_FREQ * 2 * M_PI);
-          alpha = dt / (RC + dt);
-          for (int i = 1; i < bufferLength; i++) {
-            audioBuffer[i] = audioBuffer[i-1] + alpha*(audioBuffer[i]-audioBuffer[i-1]);
-          }
-        }
+
+// Convert dB to linear gain
+double dbToLinear(double dbGain) {
+    return pow(10.0f, dbGain / 20.0f);
+}
+
+
+
+// Function to apply high EQ gain to audio buffer
+void applyHighEQGain(int16_t* buffer, int bufferSize, double gain, double cutoffFrequency,double sample_rate) {
+    double a0, a1, a2, b0, b1, b2;
+    double omega = 2.0f * M_PI * cutoffFrequency / sample_rate;
+    double cosw = cos(omega);
+    double alpha = sin(omega) / 2.0f * sqrt((gain + 1.0f / gain) * (1.0f / (1.0f / 2.0f)));
+
+    // Coefficients for high-shelf filter
+    b0 = gain * ((gain + 1.0f) + (gain - 1.0f) * cosw + 2.0f * sqrt(gain) * alpha);
+    b1 = -2.0f * gain * ((gain - 1.0f) + (gain + 1.0f) * cosw);
+    b2 = gain * ((gain + 1.0f) + (gain - 1.0f) * cosw - 2.0f * sqrt(gain) * alpha);
+    a0 = (gain + 1.0f) - (gain - 1.0f) * cosw + 2.0f * sqrt(gain) * alpha;
+    a1 = 2.0f * ((gain - 1.0f) - (gain + 1.0f) * cosw);
+    a2 = (gain + 1.0f) - (gain - 1.0f) * cosw - 2.0f * sqrt(gain) * alpha;
+
+    // Normalize coefficients
+    b0 /= a0;
+    b1 /= a0;
+    b2 /= a0;
+    a1 /= a0;
+    a2 /= a0;
+
+    // Apply filter to buffer
+    for (int i = 2; i < bufferSize; i++) {
+        buffer[i] = b0 * buffer[i] + b1 * buffer[i - 1] + b2 * buffer[i - 2] - a1 * buffer[i - 1] - a2 * buffer[i - 2];
     }
 }
+
+// Function to apply low EQ gain to audio buffer
+void applyLowEQGain(int16_t* buffer, int bufferSize, double gain, double cutoffFrequency,double sample_rate) {
+    double a0, a1, a2, b0, b1, b2;
+    double omega = 2.0f * M_PI * cutoffFrequency / sample_rate;
+    double cosw = cos(omega);
+    double alpha = sin(omega) / 2.0f * sqrt((gain + 1.0f / gain) * (1.0f / (1.0f / 2.0f)));
+
+    // Coefficients for low-shelf filter
+    b0 = gain * ((gain + 1.0f) - (gain - 1.0f) * cosw + 2.0f * sqrt(gain) * alpha);
+    b1 = 2.0f * gain * ((gain - 1.0f) - (gain + 1.0f) * cosw);
+    b2 = gain * ((gain + 1.0f) - (gain - 1.0f) * cosw - 2.0f * sqrt(gain) * alpha);
+    a0 = (gain + 1.0f) + (gain - 1.0f) * cosw + 2.0f * sqrt(gain) * alpha;
+    a1 = -2.0f * ((gain - 1.0f) + (gain + 1.0f) * cosw);
+    a2 = (gain + 1.0f) + (gain - 1.0f) * cosw - 2.0f * sqrt(gain) * alpha;
+
+    // Normalize coefficients
+    b0 /= a0;
+    b1 /= a0;
+    b2 /= a0;
+    a1 /= a0;
+    a2 /= a0;
+
+    // Apply filter to buffer
+    for (int i = 2; i < bufferSize; i++) {
+        buffer[i] = b0 * buffer[i] + b1 * buffer[i - 1] + b2 * buffer[i - 2] - a1 * buffer[i - 1] - a2 * buffer[i - 2];
+    }
+}
+
+
+/*
+void applyMidEQGain(int16_t* buffer, int bufferSize, double gain, double centerFrequency, double Q, double sample_rate) {
+    double a0, a1, a2, b0, b1, b2;
+    double omega = 2.0 * M_PI * centerFrequency / sample_rate;
+    double alpha = sin(omega) / (2.0 * Q);
+    double cosw = cos(omega);
+
+    // Coefficients for band-pass filter
+    b0 = alpha * gain;
+    b1 = 0.0;
+    b2 = -alpha * gain;
+    a0 = 1.0 + alpha / gain;
+    a1 = -2.0 * cosw;
+    a2 = 1.0 - alpha / gain;
+
+    // Normalize coefficients
+    b0 /= a0;
+    b1 /= a0;
+    b2 /= a0;
+    a1 /= a0;
+    a2 /= a0;
+
+    // Apply filter to buffer
+    for (int i = 2; i < bufferSize; i++) {
+        buffer[i] = b0 * buffer[i] + b1 * buffer[i - 1] + b2 * buffer[i - 2] - a1 * buffer[i - 1] - a2 * buffer[i - 2];
+    }
+}*/
 
 
 //https://www.codeproject.com/Articles/8396/Using-DirectSound-to-Play-Audio-Stream-Data
@@ -283,6 +354,7 @@ void PassFilter(int16_t *audioBuffer, const int16_t* previousBuffer, int bufferL
 
 //#define AUDIO_STREAM_BUFFER_NUM    2  //2mb
 //#define AUDIO_STREAM_BUFFER_SIZE   524288//4096//524288//44100//16384//8192//524288  minimum //int16_t *524288 = 1mb //0.00049mb
+
 
 
 
@@ -336,6 +408,9 @@ typedef struct AudioData
   bool lpf_on;
   bool hpf_on;
 
+  bool low_eq_on;
+  bool high_eq_on;
+
   int jump1;
   int saved_read_buffer1;
   int saved_play_buffer1;
@@ -364,6 +439,8 @@ typedef struct AudioData
   int played_units;
 
 
+
+
   long current_filesize; //spindle plays audio
   long read_filesize; //read filesize, ahead
   long filesize;
@@ -375,6 +452,10 @@ typedef struct AudioData
   //double CUTOFF_FREQUENCY;
   double HIGH_CUTOFF_FREQUENCY;
   double LOW_CUTOFF_FREQUENCY;
+
+  double high_gain_db;
+  //double mid_gain_db;
+  double low_gain_db;
 
   int16_t max_amp;
   int16_t max_amp2;
@@ -391,6 +472,77 @@ AudioData audioData[2];
 
 //0 1 2 3 [4] 
 //[5] 6 7 8 9 
+
+
+
+
+
+
+//void PassFilter(int16_t *audioBuffer, const int16_t* previousBuffer, int bufferLength, double HIGH_CUTOFF_FREQ,double LOW_CUTOFF_FREQ,double high_gain_db, double low_gain_db,double sample_rate,bool hpf_on,bool lpf_on)
+void PassFilter(int16_t *audioBuffer, const int16_t* previousBuffer,AudioData *_audioData,int bufferLength)
+{
+    double low_gain_db=_audioData->low_gain_db;
+    //double mid_gain_db=_audioData->mid_gain_db;
+    double high_gain_db=_audioData->high_gain_db;
+    double sample_rate=audioData->wav_header->SamplesPerSec;
+    /*BiQuad lowEQ, midEQ, highEQ;
+
+    // Initialize filters
+    biquad_init(&lowEQ, 100.0 / sample_rate, 0.707, dbToLinear(low_gain_db), sample_rate, 0);  // Low EQ at 100 Hz with +X dB gain
+    biquad_init(&midEQ, 1000.0 / sample_rate, 0.707, dbToLinear(mid_gain_db), sample_rate, 1); // Mid EQ at 1 kHz with +X dB gain
+    biquad_init(&highEQ, 10000.0 / sample_rate, 0.707, dbToLinear(high_gain_db), sample_rate, 2); // High EQ at 10 kHz with +X dB gain
+    process_audio(audioBuffer, bufferLength, &lowEQ, &midEQ, &highEQ);*/
+
+    //applyMidEQGain(audioBuffer,bufferLength,dbToLinear(mid_gain_db),1000,1.0,sample_rate);
+    
+    double LOW_CUTOFF_FREQ = _audioData->LOW_CUTOFF_FREQUENCY;
+    double HIGH_CUTOFF_FREQ = _audioData->HIGH_CUTOFF_FREQUENCY;
+    bool hpf_on=_audioData->hpf_on;
+    bool lpf_on=_audioData->lpf_on;
+
+    // Process the audio buffer
+    if ((_audioData->high_eq_on || _audioData->low_eq_on)/* && (hpf_on || lpf_on)*/) {
+      audioBuffer[0]=previousBuffer[bufferLength-2]; //to be eq gained
+      audioBuffer[1]=previousBuffer[bufferLength-1]; //to be eq gained
+    }
+
+    if (_audioData->high_eq_on)
+      applyHighEQGain(audioBuffer,bufferLength,dbToLinear(high_gain_db),HIGH_CUTOFF_FREQ,sample_rate);
+
+    if (_audioData->low_eq_on)
+      applyLowEQGain(audioBuffer,bufferLength,dbToLinear(low_gain_db),LOW_CUTOFF_FREQ,sample_rate);
+
+    if (hpf_on || lpf_on) {
+        // Calculate the RC (resistance-capacitance) constant HIGH PASS
+        double RC = 1.0 / (HIGH_CUTOFF_FREQ * 2 * M_PI);
+        double dt = 1.0 / sample_rate;
+        double alpha = dt / (RC + dt);
+
+
+        if (!(_audioData->high_eq_on || _audioData->low_eq_on))
+          audioBuffer[0]=previousBuffer[bufferLength-1];
+
+
+        //HIGH PASS FILTER
+        if (hpf_on) {
+          for (int i = 1; i < bufferLength; i++) {
+            //audioBuffer[i] = alpha * (audioBuffer[i-1] + audioBuffer[i] - audioBuffer[i-1]);
+            audioBuffer[i] = alpha * (audioBuffer[i] - audioBuffer[i-1]) + audioBuffer[i-1];
+          } 
+        }
+
+        //LOW PASS FILTER
+        if (lpf_on) {
+          RC = 1.0 / (LOW_CUTOFF_FREQ * 2 * M_PI);
+          alpha = dt / (RC + dt);
+          for (int i = 1; i < bufferLength; i++) {
+            audioBuffer[i] = (audioBuffer[i-1] + alpha*(audioBuffer[i]-audioBuffer[i-1]));
+          }
+        }
+
+    }
+}
+
 
 
 void JumpToBufferLoop(AudioData *audioData)
@@ -419,17 +571,9 @@ void JumpToBufferLoop(AudioData *audioData)
     fread(audioData->read_buffer[audioData->queue_read_buffer], sizeof(BYTE), audioData->read_size, audioData->music_file);  
 
     if (audioData->queue_read_buffer>0) {
-      //lowPassFilter(audioData->read_buffer[audioData->queue_read_buffer],audioData->read_buffer[audioData->queue_read_buffer-1],(int)chosen_buffer_length,audioData->CUTOFF_FREQUENCY,audioData->wav_header->SamplesPerSec);
-      PassFilter(audioData->read_buffer[audioData->queue_read_buffer],audioData->read_buffer[audioData->queue_read_buffer-1],chosen_buffer_length,
-            audioData->HIGH_CUTOFF_FREQUENCY,audioData->LOW_CUTOFF_FREQUENCY,
-            audioData->wav_header->SamplesPerSec,
-            audioData->hpf_on,audioData->lpf_on);
+      PassFilter(audioData->read_buffer[audioData->queue_read_buffer],audioData->read_buffer[audioData->queue_read_buffer-1],audioData,chosen_buffer_length);
     } else {
-      //lowPassFilter(audioData->read_buffer[0],audioData->read_buffer[19],(int)chosen_buffer_length,audioData->CUTOFF_FREQUENCY,audioData->wav_header->SamplesPerSec);
-      PassFilter(audioData->read_buffer[0],audioData->read_buffer[19],chosen_buffer_length,
-            audioData->HIGH_CUTOFF_FREQUENCY,audioData->LOW_CUTOFF_FREQUENCY,
-            audioData->wav_header->SamplesPerSec,
-            audioData->hpf_on,audioData->lpf_on);
+      PassFilter(audioData->read_buffer[0],audioData->read_buffer[19],audioData,chosen_buffer_length);
     }
 
 
@@ -481,15 +625,9 @@ void CALLBACK waveOutProc1(HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance, DWORD_
                   memset(audioData->read_buffer[audioData->queue_read_buffer],0,sizeof(audioData->read_buffer[audioData->queue_read_buffer]));
                 }
                 if (audioData->queue_read_buffer>0) {
-                  PassFilter(audioData->read_buffer[audioData->queue_read_buffer],audioData->read_buffer[audioData->queue_read_buffer-1],chosen_buffer_length,
-                            audioData->HIGH_CUTOFF_FREQUENCY,audioData->LOW_CUTOFF_FREQUENCY,
-                            audioData->wav_header->SamplesPerSec,
-                            audioData->hpf_on,audioData->lpf_on);
+                  PassFilter(audioData->read_buffer[audioData->queue_read_buffer],audioData->read_buffer[audioData->queue_read_buffer-1],audioData,chosen_buffer_length);
                 } else {
-                  PassFilter(audioData->read_buffer[0],audioData->read_buffer[19],
-                            chosen_buffer_length,audioData->HIGH_CUTOFF_FREQUENCY,audioData->LOW_CUTOFF_FREQUENCY,
-                            audioData->wav_header->SamplesPerSec,
-                            audioData->hpf_on,audioData->lpf_on);
+                  PassFilter(audioData->read_buffer[0],audioData->read_buffer[19],audioData,chosen_buffer_length);
                 }
                 if (audioData->queue_read_buffer<=18) {
                     audioData->queue_read_buffer++;
@@ -521,15 +659,9 @@ void CALLBACK waveOutProc1(HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance, DWORD_
                   memset(audioData->read_buffer[audioData->queue_read_buffer],0,sizeof(audioData->read_buffer[audioData->queue_read_buffer]));
                 }
                 if (audioData->queue_read_buffer>0) {
-                  PassFilter(audioData->read_buffer[audioData->queue_read_buffer],audioData->read_buffer[audioData->queue_read_buffer-1],chosen_buffer_length,
-                        audioData->HIGH_CUTOFF_FREQUENCY,audioData->LOW_CUTOFF_FREQUENCY,
-                        audioData->wav_header->SamplesPerSec,
-                        audioData->hpf_on,audioData->lpf_on);
+                  PassFilter(audioData->read_buffer[audioData->queue_read_buffer],audioData->read_buffer[audioData->queue_read_buffer-1],audioData,chosen_buffer_length);
                 } else {
-                  PassFilter(audioData->read_buffer[0],audioData->read_buffer[19],chosen_buffer_length,
-                        audioData->HIGH_CUTOFF_FREQUENCY,audioData->LOW_CUTOFF_FREQUENCY,
-                        audioData->wav_header->SamplesPerSec,
-                        audioData->hpf_on,audioData->lpf_on);
+                  PassFilter(audioData->read_buffer[0],audioData->read_buffer[19],audioData,chosen_buffer_length);
                 }
                 if (audioData->queue_read_buffer<=18) {
                     audioData->queue_read_buffer++;
@@ -689,17 +821,11 @@ void InitAudioBuffer(int z)
 
   for (int i=0;i<READ_BUFFER_NUM;i++) {    
     fread(audioData[z].read_buffer[audioData[z].queue_read_buffer], sizeof(BYTE), audioData[z].read_size, audioData[z].music_file);  
-      if (audioData[z].queue_read_buffer>0) {
-        PassFilter(audioData[z].read_buffer[audioData[z].queue_read_buffer],audioData[z].read_buffer[audioData[z].queue_read_buffer-1],chosen_buffer_length,
-            audioData[z].HIGH_CUTOFF_FREQUENCY,audioData[z].LOW_CUTOFF_FREQUENCY,
-            audioData[z].wav_header->SamplesPerSec,
-            audioData[z].hpf_on,audioData[z].lpf_on);
-      } else {
-        PassFilter(audioData[z].read_buffer[0],audioData[z].read_buffer[19],chosen_buffer_length,
-            audioData[z].HIGH_CUTOFF_FREQUENCY,audioData[z].LOW_CUTOFF_FREQUENCY,
-            audioData[z].wav_header->SamplesPerSec,
-            audioData[z].hpf_on,audioData[z].lpf_on);
-      }
+    if (audioData[z].queue_read_buffer>0) {
+      PassFilter(audioData[z].read_buffer[audioData[z].queue_read_buffer],audioData[z].read_buffer[audioData[z].queue_read_buffer-1],&audioData[z],chosen_buffer_length);
+    } else {
+      PassFilter(audioData[z].read_buffer[0],audioData[z].read_buffer[19],&audioData[z],chosen_buffer_length);
+    }
     audioData[z].read_filesize+=audioData[z].read_size;
     audioData[z].queue_read_buffer++;
     if (audioData[z].queue_read_buffer==READ_BUFFER_NUM) {
@@ -788,16 +914,10 @@ void LoadBufferSFX(const wchar_t* filename, int z)
     for (int i=0;i<11;i++) {
       fread(audioData[z].read_buffer[i], sizeof(BYTE), audioData[z].read_size, audioData[z].music_file);  
 
-        if (audioData->queue_read_buffer>0) {
-          PassFilter(audioData->read_buffer[audioData->queue_read_buffer],audioData->read_buffer[audioData->queue_read_buffer-1],chosen_buffer_length,
-                audioData->HIGH_CUTOFF_FREQUENCY,audioData->LOW_CUTOFF_FREQUENCY,
-                audioData->wav_header->SamplesPerSec,
-                audioData->hpf_on,audioData->lpf_on);
+        if (audioData[z].queue_read_buffer>0) {
+          PassFilter(audioData[z].read_buffer[audioData[z].queue_read_buffer],audioData[z].read_buffer[audioData[z].queue_read_buffer-1],&audioData[z],chosen_buffer_length);
         } else {
-          PassFilter(audioData->read_buffer[0],audioData->read_buffer[19],chosen_buffer_length,
-                audioData->HIGH_CUTOFF_FREQUENCY,audioData->LOW_CUTOFF_FREQUENCY,
-                audioData->wav_header->SamplesPerSec,
-                audioData->hpf_on,audioData->lpf_on);
+          PassFilter(audioData[z].read_buffer[0],audioData[z].read_buffer[19],&audioData[z],chosen_buffer_length);
         }
 
 
@@ -876,17 +996,17 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
                 call_help_timer=0;
                 current_song_time[z]=-1;
                 
-                if (loading_wav[z]) {
+                /*if (loading_wav[z]) {
                   switch (z) {
                     case 0:swprintf(wav_song_playing,256,L"%s/%s",src_music_dir,song_names[song_rand_num[0]]);break;
                     case 1:swprintf(wav_song_playing2,256,L"%s/%s",src_music_dir,song_names[song_rand_num[1]]);break;
                   }
-                } else {
+                } else {*/
                   switch (z) {
                     case 0:swprintf(wav_song_playing,256,L"music_tmp/tmp/tmp.wav");break;
                     case 1:swprintf(wav_song_playing2,256,L"music_tmp/tmp2/tmp.wav");break;
                   }
-                }
+                //}
 
                 switch (z) {
                   case 0:LoadBufferSFX(wav_song_playing,0);break;
@@ -985,7 +1105,23 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
                         break;
                     }
                   } else if (is_wav[song_rand_num[z]]) {
+                    wchar_t my_command[512];
                     loading_wav[z]=TRUE;
+                    switch (z) {
+                      case 0:
+                        system("mkdir \"music_tmp/tmp\""); //make new tmp
+                        swprintf(my_command,512,L"copy \"music_tmp/tmp/tmp.wav\" \"%s/%s\"",src_music_dir,song_names[song_rand_num[z]]);
+                        _wsystem(my_command);
+                        break;
+                      case 1:
+                        system("mkdir \"music_tmp/tmp2\""); //make new tmp
+                        swprintf(my_command,512,L"copy \"music_tmp/tmp2/tmp.wav\" \"%s/%s\"",src_music_dir,song_names[song_rand_num[z]]);
+                        _wsystem(my_command);
+                        break;
+                    }
+
+
+
                   }
                   play_new_song[z]=FALSE;
                 }

@@ -1,7 +1,7 @@
 
 
 
-
+bool rst_space=FALSE;
 
 bool keydown(int key) //https://stackoverflow.com/questions/47667367/is-there-a-way-to-check-for-shift-held-down-then-control-held-down-for-each-inpu
 {
@@ -14,6 +14,11 @@ bool keydownalt()
 {
     return (GetAsyncKeyState(VK_RMENU) & 0x8000)!= 0;
 }
+
+/*bool keydownlalt()
+{
+    return (GetAsyncKeyState(VK_LMENU) & 0x8000)!= 0;
+}*/
 
 
 void KeyChangePlayerColor() 
@@ -214,6 +219,9 @@ void GlobalKeypressDown(WPARAM wParam)
 
   if (!MapEditor.is_ground_txt_typing) {
     switch (wParam) {
+      case ' ':
+        rst_space=TRUE;
+        break;
       case 'L':
         if (!(keydown(VK_LSHIFT) || keydown(VK_RSHIFT))) { //play loop no shift
           if (!audioData[gct].play_loop) {            
@@ -269,15 +277,9 @@ void GlobalKeypressDown(WPARAM wParam)
             fseek(audioData[gct].music_file, audioData[gct].current_filesize, SEEK_SET);
             fread(audioData[gct].read_buffer[audioData[gct].queue_read_buffer], sizeof(BYTE), audioData[gct].read_size, audioData[gct].music_file);  //copy then go backwards/forwards
             if (audioData[gct].queue_read_buffer>0) {
-              PassFilter(audioData[gct].read_buffer[audioData[gct].queue_read_buffer],audioData[gct].read_buffer[audioData[gct].queue_read_buffer-1],chosen_buffer_length,
-                    audioData[gct].HIGH_CUTOFF_FREQUENCY,audioData[gct].LOW_CUTOFF_FREQUENCY,
-                    audioData[gct].wav_header->SamplesPerSec,
-                    audioData[gct].hpf_on,audioData[gct].lpf_on);
+              PassFilter(audioData[gct].read_buffer[audioData[gct].queue_read_buffer],audioData[gct].read_buffer[audioData[gct].queue_read_buffer-1],&audioData[gct],chosen_buffer_length);
             } else {
-              PassFilter(audioData[gct].read_buffer[0],audioData[gct].read_buffer[19],chosen_buffer_length,
-                    audioData[gct].HIGH_CUTOFF_FREQUENCY,audioData[gct].LOW_CUTOFF_FREQUENCY,
-                    audioData[gct].wav_header->SamplesPerSec,
-                    audioData[gct].hpf_on,audioData[gct].lpf_on);
+              PassFilter(audioData[gct].read_buffer[0],audioData[gct].read_buffer[19],&audioData[gct],chosen_buffer_length);
             }
 
 
@@ -443,6 +445,9 @@ void GlobalKeypressUp (HWND hwnd,WPARAM wParam)
 {
   if (!MapEditor.is_ground_txt_typing) {
     switch (wParam) {
+      case ' ':
+        rst_space=FALSE;
+        break;
       case 'R':
         switch (gct) { //switch buffer used
           case 0:   
@@ -2042,14 +2047,62 @@ void DJKeys(WPARAM wParam)
 
 
     case '|':
-      audioData[gct].hpf_on=!audioData[gct].hpf_on;
+      if (!rst_space)
+        audioData[gct].hpf_on=!audioData[gct].hpf_on;
+      else
+        audioData[gct].high_eq_on=!audioData[gct].high_eq_on;
       break;
 
     case '\\':
-      audioData[gct].lpf_on=!audioData[gct].lpf_on;
+      if (!rst_space)
+        audioData[gct].lpf_on=!audioData[gct].lpf_on;
+      else
+        audioData[gct].low_eq_on=!audioData[gct].low_eq_on;
       break;
 
-    case ';': //shift starting loop to left
+
+    case ':': //high eq gain decrease
+      if (audioData[gct].high_gain_db>-60.0) {
+        if (audioData[gct].high_gain_db>0.1)
+          audioData[gct].high_gain_db-=0.1;
+        else
+          audioData[gct].high_gain_db-=1;
+      } else {
+        audioData[gct].high_gain_db=20.0;
+      }
+      break;
+
+    case '"': //high eq gain increase
+      if (audioData[gct].high_gain_db<20.0) {
+        if (audioData[gct].high_gain_db>-1)
+          audioData[gct].high_gain_db+=0.1;
+        else
+          audioData[gct].high_gain_db+=1;
+      } else {
+        audioData[gct].high_gain_db=-60.0;
+      }
+      break;
+
+    case ';': //low eq gain decrease
+      if (audioData[gct].low_gain_db>-60.0) {
+        audioData[gct].low_gain_db-=1.0;
+      } else {
+        audioData[gct].low_gain_db=20.0;
+      }
+      break;
+
+    case '\'': //low eq gain increase
+      if (audioData[gct].low_gain_db<20.0) {
+        audioData[gct].low_gain_db+=1.0;
+      } else {
+        audioData[gct].low_gain_db=-60.0;
+      }
+      break;
+
+
+
+
+    case '-': //shift starting loop to left
       if (audioData[gct].loop_start>audioData[gct].read_size){
         audioData[gct].loop_start-=audioData[gct].read_size;
         audioData[gct].saved_loop_double_buffer=!audioData[gct].saved_loop_double_buffer;
@@ -2057,7 +2110,7 @@ void DJKeys(WPARAM wParam)
         if (audioData[gct].loop_play>0) {audioData[gct].loop_play--;} else {audioData[gct].loop_play=READ_BUFFER_NUM-1;} 
       }
       break;
-    case '\'': //shift starting loop to right
+    case '=': //shift starting loop to right
       if (audioData[gct].loop_start<audioData[gct].filesize-audioData[gct].read_size) {
         audioData[gct].loop_start+=audioData[gct].read_size;
         audioData[gct].saved_loop_double_buffer=!audioData[gct].saved_loop_double_buffer;
@@ -2066,11 +2119,11 @@ void DJKeys(WPARAM wParam)
       }
       break;
 
-    case ':': //shift ending loop to left
+    case '_': //shift ending loop to left
       if (audioData[gct].loop_end>audioData[gct].read_size)
         audioData[gct].loop_end-=audioData[gct].read_size;
       break;
-    case '"': //shift ending loop to right
+    case '+': //shift ending loop to right
       if (audioData[gct].loop_end<audioData[gct].filesize-audioData[gct].read_size)
         audioData[gct].loop_end+=audioData[gct].read_size;
       break;

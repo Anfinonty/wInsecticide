@@ -575,6 +575,7 @@ struct Bullet
 {
   bool shot;
   bool near_miss;
+  bool in_water; 
   bool playsnd;
   int color;
   int speed_multiplier;
