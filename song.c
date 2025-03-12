@@ -996,17 +996,17 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
                 call_help_timer=0;
                 current_song_time[z]=-1;
                 
-                /*if (loading_wav[z]) {
+                if (loading_wav[z]) {
                   switch (z) {
                     case 0:swprintf(wav_song_playing,256,L"%s/%s",src_music_dir,song_names[song_rand_num[0]]);break;
                     case 1:swprintf(wav_song_playing2,256,L"%s/%s",src_music_dir,song_names[song_rand_num[1]]);break;
                   }
-                } else {*/
+                } else {
                   switch (z) {
                     case 0:swprintf(wav_song_playing,256,L"music_tmp/tmp/tmp.wav");break;
                     case 1:swprintf(wav_song_playing2,256,L"music_tmp/tmp2/tmp.wav");break;
                   }
-                //}
+                }
 
                 switch (z) {
                   case 0:LoadBufferSFX(wav_song_playing,0);break;
@@ -1105,23 +1105,7 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
                         break;
                     }
                   } else if (is_wav[song_rand_num[z]]) {
-                    wchar_t my_command[512];
                     loading_wav[z]=TRUE;
-                    switch (z) {
-                      case 0:
-                        system("mkdir \"music_tmp/tmp\""); //make new tmp
-                        swprintf(my_command,512,L"copy \"music_tmp/tmp/tmp.wav\" \"%s/%s\"",src_music_dir,song_names[song_rand_num[z]]);
-                        _wsystem(my_command);
-                        break;
-                      case 1:
-                        system("mkdir \"music_tmp/tmp2\""); //make new tmp
-                        swprintf(my_command,512,L"copy \"music_tmp/tmp2/tmp.wav\" \"%s/%s\"",src_music_dir,song_names[song_rand_num[z]]);
-                        _wsystem(my_command);
-                        break;
-                    }
-
-
-
                   }
                   play_new_song[z]=FALSE;
                 }
