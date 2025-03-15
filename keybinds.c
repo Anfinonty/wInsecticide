@@ -801,7 +801,6 @@ void GameKeypressDown(WPARAM wParam)
 
     //Holding down 'E' key
       case 'E':
-        player.uppercut=TRUE;
         break;
 
     //Holding down 'C' Key
@@ -965,6 +964,8 @@ void GameKeypressUp(WPARAM wParam)
         player.show_block_health_timer=HP_SHOW_TIMER_NUM;
         if (player.uppercut) {
           player.uppercut=FALSE;        
+        } else {
+          player.uppercut=TRUE;
         }
         break;
     }

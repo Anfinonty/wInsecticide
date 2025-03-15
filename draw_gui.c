@@ -1476,21 +1476,20 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
 
 
 
-#define HELP_TEXT_ARR_NUM1   18
+#define HELP_TEXT_ARR_NUM1   17
 char help_txt_arr1[HELP_TEXT_ARR_NUM1][64]=
 {
   "Controls:",
   "'W' - Jump from Surface",
   "'S'_- Block while on Ground",
   " |__- Hold while in air for Bounce Attack",
+  " |__- Let Go and Jump after for High Jump",
   "[Shift] + 'S' or 'W' - Switch position on Web",
   "'A' - Move Left (Clockwise)",
   "'D' - Move Right (Anti-Clockwise)",
   "'Q' - Pick Up Web Standing On",
   "'Z' - Time Breaker Ability",
-  "'E'_- Hold with Attack for Uppercut or Check HP",
-  " |__- Hold with Movement to Break Jump or Flinging",
-  " |__- Hold with Jump to Jump Once Only",
+  "'E' - Creep (Slower) Mode",
   "'2' - Change Pellet Shooting Mode",
   "'3' - Toggle Web Builder Mode",
   "[Space] or 'C' - Increase Reaction Time",
@@ -1501,7 +1500,7 @@ char help_txt_arr1[HELP_TEXT_ARR_NUM1][64]=
 
 
 
-#define HELP_TEXT_ARR_NUM2   9
+#define HELP_TEXT_ARR_NUM2   7
 char help_txt_arr2[HELP_TEXT_ARR_NUM2][64]=
 {
   "Controls While Swinging:",
@@ -1509,8 +1508,6 @@ char help_txt_arr2[HELP_TEXT_ARR_NUM2][64]=
   "'S' - Increase Web Length - Move Away from Pivot",
   "'A' - Swing Clockwise",
   "'D' - Swing Anti-Clockwise",
-  "'E' - Hold for no flinging after Web Placement",
-  " |__- Hold for opposite lower quadrant swing",
   "[Left Click] or '1' - Swing without Web Placement",
   "[Right Click] or '2' - Swing with Web Placement"
 };

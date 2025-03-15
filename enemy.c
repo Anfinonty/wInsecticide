@@ -2193,7 +2193,8 @@ void EnemyAct(int i)
       if (Enemy[i]->idling) { //idling
         Enemy[i]->idle_timer++;
         if (game_hard) {
-          Enemy[i]->idle_timer+=30;
+          //Enemy[i]->idle_timer+=30;
+          Enemy[i]->idle_timer+=3;
         }
 	    allow_act=FALSE;
         if (Enemy[i]->saw_player && !Enemy[i]->ignore_player && player.health>0) {//not ignoring
@@ -2998,7 +2999,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
           //GrPrint(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y+48,printfunny,WHITE);
           int rsid=Enemy[i]->rotated_sprite_id;
           if (rsid!=-1 && etype>-1 && etype<ENEMY_TYPE_NUM) {
-          if (((!Enemy[i]->is_in_ground_edge && Enemy[i]->draw_falling && Enemy[i]->health>0) ||
+          if (((!Enemy[i]->is_in_ground_edge && Enemy[i]->draw_falling && Enemy[i]->health>0 && Enemy[i]->species==1) ||
                (Enemy[i]->sprite_in_water && !Enemy[i]->web_stuck)
               )) {
             int swim_rot_id=7;
