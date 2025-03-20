@@ -935,7 +935,6 @@ ATileMap **TileMapForeground;
 
 
 
-
 typedef struct TileMapPaint
 {
   int x;
@@ -962,7 +961,8 @@ ATileMapPaint **TileMapShadow;
 
 
 
-
+int WATER_GROUND_NUM=0;
+int rendered_water_ground[MAX_GROUND_NUM];
 
 
 
@@ -1146,6 +1146,10 @@ HBITMAP ga0_khhard_mask[4];
 HBITMAP ga0_kh[5];
 HBITMAP ga0_kh_mask[5];
 
+
+int global_water_texture_timer=0;
+int global_water_texture_id=0;
+HBITMAP texture_water[9];
 
 
 //Sound

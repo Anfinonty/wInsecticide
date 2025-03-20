@@ -2085,9 +2085,8 @@ void EnemyAct(int i)
           Enemy[i]->force_search=FALSE;
         }
 
-        if (Enemy[i]->health>0 && player.health>0 && (!Enemy[i]->ignore_player || Enemy[i]->web_stuck/*&& !Enemy[i]->web_stuck*//*&&  //not ignore & within range
-             Enemy[i]->dist_from_player<Enemy[i]->follow_range/2*NODE_SIZE*/
-            )
+        if (Enemy[i]->health>0 && ((player.health>0 && !Enemy[i]->ignore_player) || Enemy[i]->web_stuck)  //not ignore & within range
+             /*Enemy[i]->dist_from_player<Enemy[i]->follow_range/2*NODE_SIZE*/
            ) {
           if (Enemy[i]->bullet_fire_cooldown<=0) {
 	        if (Enemy[i]->bullet_length==0) {

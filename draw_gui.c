@@ -822,7 +822,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
   if (wav_mode==0) {
     //DrawMovingAVI(hdc,hdc2);
     DrawBitmap(hdc,hdc2,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
-
+    //DrawBitmap(hdc,hdc2,0,0,0,0,160,160,texture_water,SRCCOPY,FALSE,FALSE);
 
 
     if (level_loaded) {

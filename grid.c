@@ -790,6 +790,11 @@ void SetNodeGridAttributes(int i)
   }
   if (Ground[i]->type==3 || Ground[i]->type==1) { //water trifill
     TriFillNodeGridType(i);
+
+    if (Ground[i]->type==1) {
+      rendered_water_ground[WATER_GROUND_NUM]=i;
+      WATER_GROUND_NUM++;
+    }
   }
 }
 

@@ -1301,6 +1301,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
             SelectObject(hdcBackbuff,screen);
             DrawBackground(hdcBackbuff,hdcBackbuff2);
+            DrawWaterPlatformsTexture(hdcBackbuff,hdcBackbuff2);
             DrawPlatforms(hdcBackbuff,hdcBackbuff2);
             DrawBlackBorders(hdcBackbuff);
             DrawWebs(hdcBackbuff);
@@ -1396,7 +1397,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DrawMapEditorEnemy(hdcBackbuff,hdcBackbuff2);
             DrawMapEditorPlayer(hdcBackbuff,hdcBackbuff2);
             DrawGrids(hdcBackbuff,player.cam_x+GR_WIDTH/2,player.cam_y+GR_HEIGHT/2);
-            DrawMapEditorWaterPlatforms(hdcBackbuff);
+            DrawMapEditorWaterPlatforms(hdcBackbuff,hdcBackbuff2);
             DrawMapEditorUI(hdcBackbuff,hdcBackbuff2);
             DrawCursor(hdcBackbuff,hdcBackbuff2);
 
@@ -1454,7 +1455,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             SelectObject(hdcBackbuff,screen);
       
             DrawMainMenu(hdcBackbuff,hdcBackbuff2);
-            //DrawNodeGrids(hdcBackbuff); //debugging
+          //DrawNodeGrids(hdcBackbuff); //debugging
 
             DrawCursor(hdcBackbuff,hdcBackbuff2);
             DrawMMExtraKeys(hdcBackbuff);
@@ -1767,6 +1768,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       }
 
 
+      WATER_GROUND_NUM=0;
+      for (int i=0;i<MAX_GROUND_NUM;i++) {
+        rendered_water_ground[i]=-1;
+      }
+
+
       resolution_choose=0;//MAX_RESOLUTION_I-1;
       GR_WIDTH=RESOLUTION_X[resolution_choose];
       GR_HEIGHT=RESOLUTION_Y[resolution_choose];
@@ -1984,6 +1991,15 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
 
       enemy6_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy6-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       enemy6_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy6-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+
+      //water textures 0 to 7
+      for (int i=0;i<9;i++) {
+        wchar_t fname[48];
+        swprintf(fname,48,L"sprites/textures/water_texture%d.bmp",i);        
+        texture_water[i] = (HBITMAP) LoadImageW(NULL, fname,IMAGE_BITMAP,0,0,LR_LOADFROMFILE);
+      }
+
 
       dkrdkgray_shadow_tile = (HBITMAP) LoadImageW(NULL, L"sprites/shadow_dkrdkgray.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       ltgray_shadow_tile = (HBITMAP) LoadImageW(NULL, L"sprites/shadow_ltgray.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);

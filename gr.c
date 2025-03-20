@@ -894,7 +894,6 @@ void GrGlassRect(HDC hdc, HDC hdcMem, int x, int y, int width, int height, int C
 
 
 
-
 void GrLine(HDC hdc, double x1,double y1,double x2,double y2,int COLOR) {
   HPEN hPen = CreatePen(PS_SOLID, 1, COLOR);
   HPEN hOldPen = SelectObject(hdc, hPen);
@@ -2134,3 +2133,72 @@ bool InitExtractAVIFrames(const wchar_t* szFileName,int index)
   }
 }*/
 
+
+//void DrawTexturedTriangle(HDC hdc, HBITMAP hBitmap) {
+/*void DrawTexturedTriangle(HDC hdc, int x1, int y1, int x2, int y2, int x3, int y3, HBITMAP hBitmap) {
+    // Select the BMP into a memory DC
+    HDC memDC = CreateCompatibleDC(hdc);
+    HBITMAP oldBitmap = (HBITMAP)SelectObject(memDC, hBitmap);
+
+    // Define the triangle vertices
+//    POINT triangle[3] = {{100, 100}, {150, 50}, {200, 100}};
+    POINT triangle[3] = {{x1,y1}, {x2,y2}, {x3,y3}};
+
+    // Create a brush from the texture
+    HBRUSH brush = CreatePatternBrush(hBitmap);
+
+    // Select the brush and draw the triangle
+    HBRUSH oldBrush = (HBRUSH)SelectObject(hdc, brush);
+    Polygon(hdc, triangle, 3);
+
+    // Cleanup
+    SelectObject(memDC, oldBitmap);
+    SelectObject(hdc, oldBrush);
+    DeleteObject(brush);
+    DeleteDC(memDC);
+}*/
+
+/*
+void DrawTexturedTriangle(HDC hdc, HDC hdc2,int x1, int y1, int x2, int y2, int x3, int y3, HBITMAP hBitmap) {
+    // Select the BMP into a memory DC
+    //HDC memDC = CreateCompatibleDC(hdc);
+    HBITMAP oldBitmap = (HBITMAP)SelectObject(hdc2, hBitmap);
+
+    // Define the triangle vertices
+    POINT triangle[3] = {{x1,y1}, {x2,y2}, {x3,y3}};
+
+    // Create a brush from the texture
+    HBRUSH brush = CreatePatternBrush(hBitmap);
+
+    // Select the brush and draw the triangle
+    HBRUSH oldBrush = (HBRUSH)SelectObject(hdc, brush);
+    Polygon(hdc, triangle, 3);
+
+    // Cleanup
+    SelectObject(hdc2, oldBitmap);
+    SelectObject(hdc, oldBrush);
+    DeleteObject(brush);
+}*/
+
+
+
+
+void DrawTexturedTriangle(HDC hdc, HDC hdc2, int x1, int y1, int x2, int y2, int x3, int y3, HBITMAP hBitmap) {
+    // Select the BMP into a memory DC
+    HBITMAP oldBitmap = (HBITMAP)SelectObject(hdc2, hBitmap);
+
+    // Define the triangle vertices
+    POINT triangle[3] = {{x1,y1}, {x2,y2}, {x3,y3}};
+
+    // Create a brush from the texture
+    HBRUSH brush = CreatePatternBrush(hBitmap);
+
+    // Select the brush and draw the triangle
+    HBRUSH oldBrush = (HBRUSH)SelectObject(hdc, brush);
+    Polygon(hdc, triangle, 3);
+
+    // Cleanup
+    SelectObject(hdc2, oldBitmap);
+    SelectObject(hdc, oldBrush);
+    DeleteObject(brush);
+}

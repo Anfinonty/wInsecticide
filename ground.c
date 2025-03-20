@@ -761,7 +761,7 @@ void DrawGroundText(HDC hdc)
   }
 }
 
-void DrawWaterTriFill (HDC hdc) {
+void DrawWaterTriFill(HDC hdc) {
   int i=0,c=0;
   for (i=0;i<GROUND_NUM;i++) {
     if (Ground[i]->type==1) { 
