@@ -39,6 +39,7 @@ void DrawBackground(HDC hdc,HDC hdc2)
 
 void DrawWaterPlatformsTexture(HDC hdc,HDC hdc2)
 {
+  if (WATER_GROUND_NUM>0) {
   int 
     px=player.x,
     py=player.y,
@@ -67,16 +68,17 @@ void DrawWaterPlatformsTexture(HDC hdc,HDC hdc2)
         //c=rgbPaint[Ground[i]->color_id];
         if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
             !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
-            x1=GR_WIDTH/2+Ground[i]->x1-px+cx1+cx2;
-            y1=GR_HEIGHT/2+Ground[i]->y1-py+cy1+cy2;
-            x2=GR_WIDTH/2+Ground[i]->x2-px+cx1+cx2;
-            y2=GR_HEIGHT/2+Ground[i]->y2-py+cy1+cy2;
-            x3=GR_WIDTH/2+Ground[i]->x3-px+cx1+cx2;
-            y3=GR_HEIGHT/2+Ground[i]->y3-py+cy1+cy2;
+            x1=GR_WIDTH/2+(int)Ground[i]->x1-px+cx1+cx2;
+            y1=GR_HEIGHT/2+(int)Ground[i]->y1-py+cy1+cy2;
+            x2=GR_WIDTH/2+(int)Ground[i]->x2-px+cx1+cx2;
+            y2=GR_HEIGHT/2+(int)Ground[i]->y2-py+cy1+cy2;
+            x3=GR_WIDTH/2+(int)Ground[i]->x3-px+cx1+cx2;
+            y3=GR_HEIGHT/2+(int)Ground[i]->y3-py+cy1+cy2;
             DrawTexturedTriangle(hdc,hdc2,x1,y1,x2,y2,x3,y3,texture_water[global_water_texture_id]);
         }
       }
     }
+  }
   }
 }
 

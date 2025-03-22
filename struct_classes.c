@@ -960,8 +960,6 @@ ATileMapPaint **TileMapShadow;
 
 
 
-
-int WATER_GROUND_NUM=0;
 int *rendered_water_ground;
 
 
