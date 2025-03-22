@@ -428,9 +428,10 @@ void CleanupAll(bool btm)
       for (int i=0;i<FOREGROUND_GRID_NUM;i++) {
         freeTileMap(TileMapForeground[i]);
       }
-      for (int i=0;i<WATER_GROUND_NUM;i++) {
-        rendered_water_ground[i]=-1;
-      }
+      //for (int i=0;i<WATER_GROUND_NUM;i++) {
+        //rendered_water_ground[i]=-1;
+      //}
+      free(rendered_water_ground);
       WATER_GROUND_NUM=0;
 
       for (int i=0;i<SHADOW_GRID_NUM;i++) {

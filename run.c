@@ -1393,11 +1393,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
             SelectObject(hdcBackbuff,screen);
             DrawMapEditorBackground(hdcBackbuff,hdcBackbuff2);
+            DrawMapEditorWaterTexturePlatforms(hdcBackbuff,hdcBackbuff2);
             DrawMapEditorPlatforms(hdcBackbuff);
             DrawMapEditorEnemy(hdcBackbuff,hdcBackbuff2);
             DrawMapEditorPlayer(hdcBackbuff,hdcBackbuff2);
             DrawGrids(hdcBackbuff,player.cam_x+GR_WIDTH/2,player.cam_y+GR_HEIGHT/2);
-            DrawMapEditorWaterPlatforms(hdcBackbuff,hdcBackbuff2);
+            DrawMapEditorWaterPlatforms(hdcBackbuff);
             DrawMapEditorUI(hdcBackbuff,hdcBackbuff2);
             DrawCursor(hdcBackbuff,hdcBackbuff2);
 
@@ -1768,10 +1769,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       }
 
 
-      WATER_GROUND_NUM=0;
+      /*WATER_GROUND_NUM=0;
       for (int i=0;i<MAX_GROUND_NUM;i++) {
         rendered_water_ground[i]=-1;
-      }
+      }*/
 
 
       resolution_choose=0;//MAX_RESOLUTION_I-1;
@@ -1994,10 +1995,23 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
 
 
       //water textures 0 to 7
+      //SetTexturePalette(24,waterPalette); //24 is dkblue
+      //SetTexturePalette(166,waterPalette); //lt green water
+      //SetTexturePalette(16*2+4,waterPalette); //dkgreen water
+      //SetTexturePalette(166,waterPalette);
+      SetTexturePalette(16*9+8,waterPalette); //ltblue water (default perfered)
+
       for (int i=0;i<9;i++) {
         wchar_t fname[48];
         swprintf(fname,48,L"sprites/textures/water_texture%d.bmp",i);        
-        texture_water[i] = (HBITMAP) LoadImageW(NULL, fname,IMAGE_BITMAP,0,0,LR_LOADFROMFILE);
+        texture_water[i] =  LoadImageW(NULL, fname,IMAGE_BITMAP,0,0,LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+
+
+        //HBITMAP tmp_water_bitmap =  LoadImageW(NULL, fname,IMAGE_BITMAP,0,0,LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+        //HBITMAP tmp_bitmap_mask=    CreateBitmapMask(tmp_water_bitmap,0,NULL); 
+        //texture_water[i] = CopyCrunchyBitmap(tmp_water_bitmap,SRCCOPY);
+        //DeleteObject(tmp_bitmap_mask);
+        //DeleteObject(tmp_water_bitmap);
       }
 
 

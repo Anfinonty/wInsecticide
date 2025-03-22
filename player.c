@@ -2910,6 +2910,9 @@ void DrawPlayer(HDC hdc,HDC hdc2)
 
 
   if (player.flag_revert_palette && player.time_breaker_tick<=0) {    
+    for (int i=0;i<9;i++) {
+      BitmapPalette(hdc,hdc2,texture_water[i],waterPalette);
+    }
     for (int i=0;i<PLATFORM_GRID_NUM;i++) {
       BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsDefault);
     }

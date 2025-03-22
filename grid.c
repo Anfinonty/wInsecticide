@@ -792,7 +792,6 @@ void SetNodeGridAttributes(int i)
     TriFillNodeGridType(i);
 
     if (Ground[i]->type==1) {
-      rendered_water_ground[WATER_GROUND_NUM]=i;
       WATER_GROUND_NUM++;
     }
   }
@@ -805,6 +804,19 @@ void InitNodeGridAttributes()
   for (int i=0;i<GROUND_NUM;i++) {
     SetNodeGridAttributes(i);
   }
+
+  //for water
+  rendered_water_ground=calloc(WATER_GROUND_NUM,sizeof(int));
+  int ci=0;
+  for (int i=0;i<GROUND_NUM;i++) {
+    if (Ground[i]->type==1) {
+      rendered_water_ground[ci]=i;
+      ci++;
+    }
+  }
+
+
+  //render shade
   InitNodeShade();
 }
 

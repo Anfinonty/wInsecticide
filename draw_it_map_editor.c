@@ -48,7 +48,30 @@ char *enemy_type_bool_attr_names[ENEMY_TYPE_BOOL_ATTR_NUM]=
 };
 
 
-void DrawMapEditorWaterPlatforms(HDC hdc,HDC hdc2)
+void DrawMapEditorWaterTexturePlatforms(HDC hdc, HDC hdc2)
+{
+  //Draw type 1 == Water
+  int i;
+  for (int k=0;k<rendered_ground_num;k++) {
+    i=render_grounds[k];
+    if (i!=-1) {
+      if (Ground[i]->type==1) {
+        if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
+            !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
+              DrawTexturedTriangle(hdc,hdc2,
+                Ground[i]->x1+player.cam_x+GR_WIDTH/2,
+				Ground[i]->y1+player.cam_y+GR_HEIGHT/2,
+				Ground[i]->x2+player.cam_x+GR_WIDTH/2,
+				Ground[i]->y2+player.cam_y+GR_HEIGHT/2,
+				Ground[i]->x3+player.cam_x+GR_WIDTH/2,
+				Ground[i]->y3+player.cam_y+GR_HEIGHT/2,texture_water[0]);
+        }
+      }
+    }
+  }
+}
+
+void DrawMapEditorWaterPlatforms(HDC hdc)
 {
   //Draw type 1 == Water
   int i,c;
@@ -59,13 +82,6 @@ void DrawMapEditorWaterPlatforms(HDC hdc,HDC hdc2)
         c=rgbPaint[Ground[i]->color_id];
         if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
             !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
-              DrawTexturedTriangle(hdc,hdc2,
-                Ground[i]->x1+player.cam_x+GR_WIDTH/2,
-				Ground[i]->y1+player.cam_y+GR_HEIGHT/2,
-				Ground[i]->x2+player.cam_x+GR_WIDTH/2,
-				Ground[i]->y2+player.cam_y+GR_HEIGHT/2,
-				Ground[i]->x3+player.cam_x+GR_WIDTH/2,
-				Ground[i]->y3+player.cam_y+GR_HEIGHT/2,texture_water[0]);
 	      DrawTriFill(hdc,c,
                 Ground[i]->x1+player.cam_x+GR_WIDTH/2,
 				Ground[i]->y1+player.cam_y+GR_HEIGHT/2,
@@ -85,7 +101,6 @@ void DrawMapEditorWaterPlatforms(HDC hdc,HDC hdc2)
       }
     }
   }
-
 }
 
 

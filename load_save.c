@@ -1,6 +1,7 @@
 
 //Game Values
 int GROUND_NUM;
+int WATER_GROUND_NUM;
 int ENEMY_NUM;
 int LARGE_ENEMY_TYPE_NUM;
 int LARGER_ENEMY_TYPE_NUM;
@@ -235,6 +236,7 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
         switch (row) {//save value
           case 0:
             GROUND_NUM=int_saved_val;
+            WATER_GROUND_NUM=0;
             break;
           case 1:
             ENEMY_NUM=int_saved_val;
