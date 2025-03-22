@@ -2934,7 +2934,9 @@ void DrawEnemy(HDC hdc,HDC hdc2)
             player.time_breaker_units+=2;
           }
         } else {
-          player.speed+=2;
+          if (!player.time_breaker) {
+            player.speed+=2;
+          }
         }
       }
 

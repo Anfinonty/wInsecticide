@@ -1935,10 +1935,16 @@ void DrawUI(HDC hdc,HDC hdc2)
   if (player.time_breaker_units<player.time_breaker_units_max || (player.time_breaker_units==player.time_breaker_units_max && frame_tick%16<8)) {
   for (i=0;i<player.time_breaker_units;i++) {
     double tb_angle=M_PI_2+2*M_PI_2/player.time_breaker_units_max*i*2;
-    /*GrCircle(hdc,
-      player.sprite_x-32*cos(tb_angle),
-      player.sprite_y-32*sin(tb_angle),
-      2,c5,c5);*/ //player centric
+    if (player.time_breaker || (IsSpeedBreaking() && game_hard)) {
+      if ((player.time_breaker_units<=4 && frame_tick%10<5) || player.time_breaker_units>4) {
+        GrCircle(hdc,
+          player.sprite_x-32*cos(tb_angle),
+          player.sprite_y-32*sin(tb_angle),
+          3,c5,BLACK); //player centric
+      }
+    }
+
+    //on cursor
     if (!player.time_breaker) {
         GrCircle(hdc,
           mouse_x-tb_circle_r*cos(tb_angle),
