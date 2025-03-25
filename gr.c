@@ -1462,15 +1462,15 @@ HBITMAP GetRotated8BitBitmap(HBITMAP hBitmap,double radians,COLORREF clrBack)
 //###https://www.codeguru.com/multimedia/rotate-a-bitmap-at-any-angle-without-getpixel-setpixel/###
 //https://web.archive.org/web/20150519150259/http://www.codeguru.com/cpp/g-m/bitmap/specialeffects/article.php/c1743/Rotate-a-bitmap-image.htm
 
-  //Convert to 8Bit
-  //HBITMAP tmp_h8BitBitmap = CopyCrunchyBitmap(hBitmap,SRCCOPY);
+  //Convert to 8Bit, play it safe
+  HBITMAP tmp_h8BitBitmap = CopyCrunchyBitmap(hBitmap,SRCCOPY);
 
   //Retrieve Bitmap Info
   BITMAP bmp;
-  //if (!GetObject(tmp_h8BitBitmap,sizeof(BITMAP),&bmp)) //assign 8bit bitmap to bmp
-    //return NULL;
-  if (!GetObject(hBitmap,sizeof(BITMAP),&bmp)) //assign 8bit bitmap to bmp
+  if (!GetObject(tmp_h8BitBitmap,sizeof(BITMAP),&bmp)) //assign 8bit bitmap to bmp
     return NULL;
+  //if (!GetObject(hBitmap,sizeof(BITMAP),&bmp)) //assign 8bit bitmap to bmp
+    //return NULL;
 
 
   int width = bmp.bmWidth;
@@ -1510,6 +1510,7 @@ HBITMAP GetRotated8BitBitmap(HBITMAP hBitmap,double radians,COLORREF clrBack)
   if (!hSourceDIB) {
     free(bmInfo);
     DeleteObject(hSourceDIB);
+    DeleteObject(tmp_h8BitBitmap);
     ReleaseDC(NULL,hdc);
     return NULL;
   }
@@ -1518,7 +1519,8 @@ HBITMAP GetRotated8BitBitmap(HBITMAP hBitmap,double radians,COLORREF clrBack)
   HDC hMemDC = CreateCompatibleDC(hdc);
   SelectObject(hMemDC,hSourceDIB);
   HDC hSrcDC = CreateCompatibleDC(hdc);
-  SelectObject(hSrcDC,hBitmap);
+//  SelectObject(hSrcDC,hBitmap);
+  SelectObject(hSrcDC,tmp_h8BitBitmap);
   BitBlt(hMemDC,0,0,width,height,hSrcDC,0,0,SRCCOPY);
   DeleteDC(hSrcDC);
 
@@ -1542,6 +1544,7 @@ HBITMAP GetRotated8BitBitmap(HBITMAP hBitmap,double radians,COLORREF clrBack)
   if (!hRotatedDIB) {
     free(bmInfo);
     DeleteObject(hSourceDIB);
+    DeleteObject(tmp_h8BitBitmap);
     DeleteDC(hMemDC);
     ReleaseDC(NULL,hdc);
     return(NULL);
@@ -1571,6 +1574,7 @@ HBITMAP GetRotated8BitBitmap(HBITMAP hBitmap,double radians,COLORREF clrBack)
   //Cleanup
   free(bmInfo);
   DeleteObject(hSourceDIB);
+  DeleteObject(tmp_h8BitBitmap);
   DeleteDC(hMemDC);
   ReleaseDC(NULL,hdc);
   return hRotatedDIB;
