@@ -2238,7 +2238,7 @@ void PlayerAct()
             player.below_ground_edge_timer=0;
             PlayerActSwinging(grav_speed);
             //set axes of player fling web
-            if (grav_speed==3) {//only occurs right after grav_speed==0
+            if (grav_speed==3 && speed==3) {//only occurs right after grav_speed==0
               PlayerActFlingWeb(speed);
             }
           } //End of player swinging movement

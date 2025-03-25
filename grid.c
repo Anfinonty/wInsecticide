@@ -98,7 +98,7 @@ void InitGridTilesObj(const wchar_t *lvl_name)
   if (is_shadows /*&& game_shadow*/) {
     yes_shadow=TRUE;
   }
-  //HBITMAP tmp_bitmap,tmp_bitmap_cache;
+  HBITMAP tmp_bitmap;
 
     TileMapPlatform = calloc(PLATFORM_GRID_NUM,sizeof(ATileMap*));
     for (int i=0;i<PLATFORM_GRID_NUM;i++) {
@@ -114,13 +114,14 @@ void InitGridTilesObj(const wchar_t *lvl_name)
           swprintf(seg_name,72,L"saves/%s/seg_platforms/%d.bmp", lvl_name,i);
           TileMapPlatform[tmp_id]->x=VGrid[i]->x1;
           TileMapPlatform[tmp_id]->y=VGrid[i]->y1;
-          TileMapPlatform[tmp_id]->sprite_paint=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+          tmp_bitmap=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE /*| LR_CREATEDIBSECTION*/);
+          TileMapPlatform[tmp_id]->sprite_paint=CopyCrunchyBitmap(tmp_bitmap,SRCCOPY);
           TileMapPlatform[tmp_id]->sprite_mask=CreateBitmapMask(TileMapPlatform[tmp_id]->sprite_paint,MYCOLOR1,NULL); //create mask
           //tmp_bitmap=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
           //tmp_bitmap_cache=RotateSprite(NULL, tmp_bitmap,0,BLACK,BLACK,BLACK,-1);
           //GenerateDrawSprite(&TileMapPlatform[tmp_id]->draw_tile,tmp_bitmap/*_cache*/);
           loading_numerator++;
-          //DeleteObject(tmp_bitmap);
+          DeleteObject(tmp_bitmap);
           //DeleteObject(tmp_bitmap_cache);
         }
       }
@@ -141,12 +142,14 @@ void InitGridTilesObj(const wchar_t *lvl_name)
           swprintf(seg_name,72,L"saves/%s/seg_foreground/%d.bmp", lvl_name,i);
           TileMapForeground[tmf_id]->x=VGrid[i]->x1;
           TileMapForeground[tmf_id]->y=VGrid[i]->y1;
-          TileMapForeground[tmf_id]->sprite_paint=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+          tmp_bitmap=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE /*| LR_CREATEDIBSECTION*/);
+          TileMapForeground[tmf_id]->sprite_paint=CopyCrunchyBitmap(tmp_bitmap,SRCCOPY);
           TileMapForeground[tmf_id]->sprite_mask=CreateBitmapMask(TileMapForeground[tmf_id]->sprite_paint,MYCOLOR1,NULL); //create mask
           //tmp_bitmap=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
           //tmp_bitmap_cache=RotateSprite(NULL, tmp_bitmap,0,BLACK,BLACK,BLACK,-1);
           //GenerateDrawSprite(&TileMapForeground[tmf_id]->draw_tile,tmp_bitmap/*tmp_bitmap_cache*/);
           loading_numerator++;
+          DeleteObject(tmp_bitmap);
           //DeleteObject(tmp_bitmap);
           //DeleteObject(tmp_bitmap_cache);
         }
@@ -173,7 +176,7 @@ void InitGridTilesObj(const wchar_t *lvl_name)
           TileMapShadow[tms_id]->x=VGrid[i]->x1;
           TileMapShadow[tms_id]->y=VGrid[i]->y1;
           //tmp_bitmap=
-          TileMapShadow[tms_id]->sprite_paint=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);//RotateSprite(NULL, tmp_bitmap,0,MYCOLOR1,BLACK,BLACK,-1); //does nothing other than crunch it to 8bit xd
+          TileMapShadow[tms_id]->sprite_paint=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE /*| LR_CREATEDIBSECTION*/);//RotateSprite(NULL, tmp_bitmap,0,MYCOLOR1,BLACK,BLACK,-1); //does nothing other than crunch it to 8bit xd
           loading_numerator++;
           //DeleteObject(tmp_bitmap);
         }

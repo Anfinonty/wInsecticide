@@ -1,4 +1,6 @@
 
+HBITMAP CopyBitmap(HBITMAP srcBitmap,int SRCOPERATION);
+HBITMAP CopyCrunchyBitmap(HBITMAP srcBitmap,int SRCOPERATION);
 
 #define COLORS_NUM  16
 
@@ -678,9 +680,6 @@ HBITMAP CreateCrunchyBitmap(int cx, int cy)
 
   pbmi->bmiHeader.biXPelsPerMeter = 14173;
   pbmi->bmiHeader.biYPelsPerMeter = 14173;
-  pbmi->bmiHeader.biClrUsed = 0;
-  pbmi->bmiHeader.biClrImportant = 0;
-
   Init8BitRGBColorsDefault(pbmi->bmiColors);
 
   pbmi->bmiHeader.biClrUsed = 0;
@@ -1320,7 +1319,7 @@ HBITMAP RotateSpriteSimple(HDC hDC, HBITMAP hSourceBitmap, double radians, int b
 }
 
 
-void ReplaceColorSprite(HBITMAP hBitmap, COLORREF oldColor, COLORREF newColor) 
+/*void ReplaceColorSprite(HBITMAP hBitmap, COLORREF oldColor, COLORREF newColor) 
 { 
   BITMAP bitmap; 
   GetObject(hBitmap, sizeof(BITMAP), &bitmap); 
@@ -1335,7 +1334,7 @@ void ReplaceColorSprite(HBITMAP hBitmap, COLORREF oldColor, COLORREF newColor)
     } 
   } 
   DeleteDC(hdc);
-}
+}*/
 
 
 HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, double radians,int rTransparent, int old_color, int sprite_color, int sprite_color_2) 
@@ -1354,6 +1353,8 @@ HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, double radians,int rTranspa
   // Step 2: Get the height and width of the source bitmap.
   GetObject(hSourceBitmap, sizeof(BITMAP), (LPSTR)&iSrcBitmap);
 
+
+  //printf("bits:%d",iSrcBitmap.bmBitsPixel)
   // Get logical coordinates
   double cosine = (double)cos(radians);
   double sine = (double)sin(radians);
@@ -1451,6 +1452,279 @@ HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, double radians,int rTranspa
   DeleteDC(hMemDest);
   DeleteDC(hMemSrc);
   return (hDestBitmap);
+}
+
+
+
+HBITMAP GetRotated8BitBitmap(HBITMAP hBitmap,double radians,COLORREF clrBack)
+{
+//***https://forums.codeguru.com/showthread.php?111988-rotating-a-HBITMAP***
+//###https://www.codeguru.com/multimedia/rotate-a-bitmap-at-any-angle-without-getpixel-setpixel/###
+//https://web.archive.org/web/20150519150259/http://www.codeguru.com/cpp/g-m/bitmap/specialeffects/article.php/c1743/Rotate-a-bitmap-image.htm
+
+  //Convert to 8Bit
+  //HBITMAP tmp_h8BitBitmap = CopyCrunchyBitmap(hBitmap,SRCCOPY);
+
+  //Retrieve Bitmap Info
+  BITMAP bmp;
+  //if (!GetObject(tmp_h8BitBitmap,sizeof(BITMAP),&bmp)) //assign 8bit bitmap to bmp
+    //return NULL;
+  if (!GetObject(hBitmap,sizeof(BITMAP),&bmp)) //assign 8bit bitmap to bmp
+    return NULL;
+
+
+  int width = bmp.bmWidth;
+  int height = bmp.bmHeight;
+  int bpp = 1;//8/8;
+  int stride = ((width*bpp+3) & ~3); //row size aligned to 4 bytes
+
+
+  //Create DIB Section for Source Bitmap
+  BITMAPINFO* bmInfo = (BITMAPINFO*)alloca(offsetof(BITMAPINFO, bmiColors[256]));
+  bmInfo->bmiHeader.biSize = sizeof (bmInfo->bmiHeader);
+  bmInfo->bmiHeader.biWidth = width;
+  bmInfo->bmiHeader.biHeight = height; // Top-down DIB
+  bmInfo->bmiHeader.biPlanes = 1;
+  bmInfo->bmiHeader.biBitCount = 8;
+  bmInfo->bmiHeader.biCompression = BI_RGB;
+  bmInfo->bmiHeader.biSizeImage = 0;
+  bmInfo->bmiHeader.biXPelsPerMeter = 14173;
+  bmInfo->bmiHeader.biYPelsPerMeter = 14173;
+
+  Init8BitRGBColorsDefault(bmInfo->bmiColors);
+  bmInfo->bmiHeader.biClrUsed = 0;
+  bmInfo->bmiHeader.biClrImportant = 0;
+
+  // Find palette index for clrBack
+  BYTE backgroundIndex = 0xFF; // Invalid index initially
+  for (int i = 0; i < 256; i++) {
+     if (RGB(bmInfo->bmiColors[i].rgbRed, bmInfo->bmiColors[i].rgbGreen, bmInfo->bmiColors[i].rgbBlue) == clrBack) {
+         backgroundIndex = (BYTE)i;
+         break;
+     }
+  }
+
+  HDC hdc = GetDC(NULL);
+  void *sourcePixels=NULL;
+  HBITMAP hSourceDIB = CreateDIBSection(hdc,bmInfo,DIB_RGB_COLORS,&sourcePixels,NULL,0);
+  if (!hSourceDIB) {
+    free(bmInfo);
+    DeleteObject(hSourceDIB);
+    ReleaseDC(NULL,hdc);
+    return NULL;
+  }
+
+  //Copy pixels from bitmap to hSourceDIB
+  HDC hMemDC = CreateCompatibleDC(hdc);
+  SelectObject(hMemDC,hSourceDIB);
+  HDC hSrcDC = CreateCompatibleDC(hdc);
+  SelectObject(hSrcDC,hBitmap);
+  BitBlt(hMemDC,0,0,width,height,hSrcDC,0,0,SRCCOPY);
+  DeleteDC(hSrcDC);
+
+
+
+  //Get Dimensions of rotated bitmap
+  double cosine = cos(radians);
+  double sine = sin(radians);
+  int newWidth = (int)(abs(width*cosine) + abs(height*sine));
+  int newHeight = (int)(abs(width*sine) + abs(height*cosine));
+
+  //Create DIB section for rotated bitmap 8bit
+  bmInfo->bmiHeader.biWidth = newWidth;
+  bmInfo->bmiHeader.biHeight = newHeight; //top-down db
+
+
+  void *rotatedPixels=NULL;
+
+  HBITMAP hRotatedDIB = CreateDIBSection(hdc,bmInfo,DIB_RGB_COLORS,&rotatedPixels,NULL,0);
+
+  if (!hRotatedDIB) {
+    free(bmInfo);
+    DeleteObject(hSourceDIB);
+    DeleteDC(hMemDC);
+    ReleaseDC(NULL,hdc);
+    return(NULL);
+  }
+
+  //Initialize rotated bitmap with background color
+  memset(rotatedPixels, backgroundIndex,newHeight*((newWidth *bpp+3) & ~3));
+
+
+  //Perform Rotation
+  for (int y=0;y<newHeight;y++) {
+    for (int x=0;x<newWidth;x++) {
+      //Reverse-transform destination pixel to source pixel
+      int srcX=(int)((x-newWidth/2)*cosine+(y-newHeight/2)*sine+width/2);
+      int srcY=(int)((y-newHeight/2)*cosine-(x-newWidth/2)*sine+height/2);
+      if (srcX >=0 && srcX<width && srcY>=0 && srcY<height) {
+        //copy pixel from src to dest
+         int srcIndex = srcY * stride + srcX; // Source pixel index
+         int destIndex = y * ((newWidth * bpp + 3) & ~3) + x; // Destination pixel index
+
+         // Copy pixel from source to destination
+         ((BYTE*)rotatedPixels)[destIndex] = ((BYTE*)sourcePixels)[srcIndex];
+      }
+    }
+  }
+
+  //Cleanup
+  free(bmInfo);
+  DeleteObject(hSourceDIB);
+  DeleteDC(hMemDC);
+  ReleaseDC(NULL,hdc);
+  return hRotatedDIB;
+}
+
+
+
+void ReplaceBitmapColor(HBITMAP hBitmap, COLORREF oldColor, COLORREF newColor)//, RGBQUAD *palette) 
+{
+    BITMAP bitmap;
+    GetObject(hBitmap, sizeof(BITMAP), &bitmap);
+
+    // Ensure it's an 8-bit bitmap
+    if (bitmap.bmBitsPixel != 8) {
+        return; // Not an 8-bit bitmap
+    }
+
+    // Access the pixel data
+    BYTE *pixels = (BYTE *)bitmap.bmBits;
+
+    // Retrieve the palette
+    HDC hdc = CreateCompatibleDC(NULL);
+    SelectObject(hdc, hBitmap);
+    RGBQUAD palette[256];
+    GetDIBColorTable(hdc, 0, 256, palette); // Get the palette
+    DeleteDC(hdc);
+
+    // Find indices for oldColor and newColor
+    BYTE oldColorIndex = 0xFF, newColorIndex = 0xFF; // Invalid initially
+    for (int i = 0; i < 256; i++) {
+        if (RGB(palette[i].rgbRed, palette[i].rgbGreen, palette[i].rgbBlue) == oldColor) {
+            oldColorIndex = (BYTE)i;
+        }
+        if (RGB(palette[i].rgbRed, palette[i].rgbGreen, palette[i].rgbBlue) == newColor) {
+            newColorIndex = (BYTE)i;
+        }
+    }
+
+    for (int cf=0;cf<16;cf++) {
+      if (oldColor==cf) {
+        oldColorIndex=cf;
+        break;
+      }
+    }
+    for (int cf=0;cf<16;cf++) {
+      if (newColor==cf) {
+        newColorIndex=cf;
+        break;
+      }
+    }
+
+    // Check if both colors are in the palette
+    if (oldColorIndex == 0xFF || newColorIndex == 0xFF) {
+        return; // Color not found
+    }
+
+    // Traverse and replace pixel data
+    for (int y = 0; y < bitmap.bmHeight; y++) {
+        BYTE *row = pixels + (y * bitmap.bmWidthBytes); // Calculate row pointer
+
+        for (int x = 0; x < bitmap.bmWidth; x++) {
+            if (row[x] == oldColorIndex) {
+                row[x] = newColorIndex; // Replace the color index
+            }
+        }
+    }
+}
+
+
+
+
+void ReplaceBitmapColor2(HBITMAP hBitmap, 
+    COLORREF oldColor1, COLORREF newColor1, //R
+    COLORREF oldColor2, COLORREF newColor2)
+{
+    BITMAP bitmap;
+    GetObject(hBitmap, sizeof(BITMAP), &bitmap);
+
+    // Ensure it's an 8-bit bitmap
+    if (bitmap.bmBitsPixel != 8) {
+        return; // Not an 8-bit bitmap
+    }
+
+    // Access the pixel data
+    BYTE *pixels = (BYTE *)bitmap.bmBits;
+
+    // Retrieve the palette
+    HDC hdc = CreateCompatibleDC(NULL);
+    SelectObject(hdc, hBitmap);
+    RGBQUAD palette[256];
+    GetDIBColorTable(hdc, 0, 256, palette); // Get the palette
+    DeleteDC(hdc);
+
+    // Find indices for oldColor and newColor
+    BYTE oldColorIndex1 = 0xFF, newColorIndex1 = 0xFF; // Invalid initially
+    BYTE oldColorIndex2 = 0xFF, newColorIndex2 = 0xFF; // Invalid initially
+    for (int i = 0; i < 256; i++) {
+        if (RGB(palette[i].rgbRed, palette[i].rgbGreen, palette[i].rgbBlue) == oldColor1) {
+            oldColorIndex1 = (BYTE)i;
+        }
+        if (RGB(palette[i].rgbRed, palette[i].rgbGreen, palette[i].rgbBlue) == newColor1) {
+            newColorIndex1 = (BYTE)i;
+        }
+        if (RGB(palette[i].rgbRed, palette[i].rgbGreen, palette[i].rgbBlue) == oldColor2) {
+            oldColorIndex2 = (BYTE)i;
+        }
+        if (RGB(palette[i].rgbRed, palette[i].rgbGreen, palette[i].rgbBlue) == newColor2) {
+            newColorIndex2 = (BYTE)i;
+        }
+    }
+
+    for (int cf=0;cf<16;cf++) {
+      if (oldColor1==cf) {
+        oldColorIndex1=cf;
+        break;
+      }
+    }
+    for (int cf=0;cf<16;cf++) {
+      if (newColor1==cf) {
+        newColorIndex1=cf;
+        break;
+      }
+    }
+    for (int cf=0;cf<16;cf++) {
+      if (oldColor2==cf) {
+        oldColorIndex2=cf;
+        break;
+      }
+    }
+    for (int cf=0;cf<16;cf++) {
+      if (newColor2==cf) {
+        newColorIndex2=cf;
+        break;
+      }
+    }
+
+    // Check if both colors are in the palette
+    if (oldColorIndex1 == 0xFF || newColorIndex1 == 0xFF || oldColorIndex2 == 0xFF || newColorIndex2 == 0xFF) {
+        return; // Color not found
+    }
+
+    // Traverse and replace pixel data
+    for (int y = 0; y < bitmap.bmHeight; y++) {
+        BYTE *row = pixels + (y * bitmap.bmWidthBytes); // Calculate row pointer
+
+        for (int x = 0; x < bitmap.bmWidth; x++) {
+            //printf("cindex:%d",row[x]);
+            if (row[x] == oldColorIndex1)
+                row[x] = newColorIndex1; // Replace the color index
+            else if (row[x] == oldColorIndex2)
+                row[x] = newColorIndex2; // Replace the color index
+
+        }
+    }
 }
 
 
@@ -2091,8 +2365,8 @@ bool InitExtractAVIFrames(const wchar_t* szFileName,int index)
     bih.biCompression = BI_RGB;
     bih.biPlanes = 1;
     bih.biSize = 40;
-    bih.biXPelsPerMeter = 0;
-    bih.biYPelsPerMeter = 0;
+    bih.biXPelsPerMeter = 14173;
+    bih.biYPelsPerMeter = 14173;
     //calculate total size of RGBQUAD scanlines (DWORD aligned)
     bih.biSizeImage = (((bih.biWidth * 3) + 3) & 0xFFFC) * bih.biHeight ;
 

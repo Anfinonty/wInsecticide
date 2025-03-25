@@ -117,7 +117,7 @@ bool show_hijiri=FALSE;
 bool game_hard=FALSE;
 
 bool prelude=TRUE;
-bool flag_prelude=TRUE;
+//bool flag_prelude=TRUE;
 //bool alloc_enemy_once=TRUE;
 
 //to be used to load a level
@@ -154,10 +154,8 @@ int MAX_RESOLUTION_I=1;
 //bool rst_mbutton=FALSE;
 int mouse_wheel_timer=0;
 bool rst_shift=FALSE;
+//HBITMAP myTmpEnemyDrawSprite;
 
-
-//int RESOLUTION_X[9]={640,800,1024,1280,1280,1440,1280,1680,1920};
-//int RESOLUTION_Y[9]={480,600, 768, 720, 800, 900,1024,1050,1080};
 
 #define SCREEN_RESOLUTION_NUM   127
 int RESOLUTION_X[SCREEN_RESOLUTION_NUM];
@@ -410,53 +408,84 @@ void FrameRateSleep(int max_fps)
 }
 
 
+int prelude_sprite_jid=0;
+int prelude_sprite_id=0;
 void Prelude()
 {
   //Load Enemy Rotated Sprite
-  loading_numerator=0;
-  loading_denominator=ROTATED_SPRITE_NUM*7;
   HBITMAP tmp_sprite1;
   HBITMAP tmp_sprite2;
   double angle_rn;
-  for (int j=0;j<4;j++) {
-    for (int i=0;i<ROTATED_SPRITE_NUM;i++) {
+  int j=prelude_sprite_jid;
+  int i=prelude_sprite_id;
+  //for (int j=0;j<4;j++) {
+    //for (int i=0;i<ROTATED_SPRITE_NUM;i++) {
+  if (j<4) {
       angle_rn=M_PI_2-M_PI_16*i;
       switch (j) {
         case 0:
-          tmp_sprite1=RotateSprite(NULL,enemy2_sprite_1,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+          tmp_sprite1=
+            //RotateSprite(NULL,enemy2_sprite_1,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+            GetRotated8BitBitmap(enemy2_sprite_1,angle_rn,LTGREEN);
           loading_numerator++;
-          tmp_sprite2=RotateSprite(NULL,enemy2_sprite_2,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+
+          tmp_sprite2=
+            //RotateSprite(NULL,enemy2_sprite_2,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+            GetRotated8BitBitmap(enemy2_sprite_2,angle_rn,LTGREEN);
           loading_numerator++;
           break;
         case 1:
-          tmp_sprite1=RotateSprite(NULL,enemy4_sprite_1,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+          tmp_sprite1=//RotateSprite(NULL,enemy4_sprite_1,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+            GetRotated8BitBitmap(enemy4_sprite_1,angle_rn,LTGREEN);
           loading_numerator++;
-          tmp_sprite2=RotateSprite(NULL,enemy4_sprite_2,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+
+          tmp_sprite2=//RotateSprite(NULL,enemy4_sprite_2,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+            GetRotated8BitBitmap(enemy4_sprite_2,angle_rn,LTGREEN);
           loading_numerator++;
           break;
         case 2:
-          tmp_sprite1=RotateSprite(NULL,enemy6_sprite_1,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+          tmp_sprite1=//RotateSprite(NULL,enemy6_sprite_1,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+            GetRotated8BitBitmap(enemy6_sprite_1,angle_rn,LTGREEN);
           loading_numerator++;
-          tmp_sprite2=RotateSprite(NULL,enemy6_sprite_2,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+
+          tmp_sprite2=//RotateSprite(NULL,enemy6_sprite_2,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+            GetRotated8BitBitmap(enemy6_sprite_2,angle_rn,LTGREEN);
           loading_numerator++;
           break;
         case 3:
-          tmp_sprite1=RotateSprite(NULL,enemy4_sprite_1_0,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+          tmp_sprite1=//RotateSprite(NULL,enemy4_sprite_1_0,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+            GetRotated8BitBitmap(enemy4_sprite_1_0,angle_rn,LTGREEN);
           loading_numerator++;
           break;
       }
 
+
       if (j<3) {
+        ReplaceBitmapColor2(tmp_sprite1,LTGREEN,BLACK,8,LTGREEN); //8 due to pureblack reserved for mask
+        ReplaceBitmapColor2(tmp_sprite2,LTGREEN,BLACK,8,LTGREEN);
+
+
+        //if (j==0 && i==11) {
+          //myTmpEnemyDrawSprite=CopyCrunchyBitmap(tmp_sprite1,SRCCOPY);
+        //}
+
         GenerateDrawSprite(&LoadEnemyRotatedSprite[j].draw_rotated_sprite1[i],tmp_sprite1);
         GenerateDrawSprite(&LoadEnemyRotatedSprite[j].draw_rotated_sprite2[i],tmp_sprite2);
         DeleteObject(tmp_sprite2);
         DeleteObject(tmp_sprite1);
       } else {
+        ReplaceBitmapColor2(tmp_sprite1,LTGREEN,BLACK,8,LTGREEN);
         GenerateDrawSprite(&XLoadEnemyRotatedSprite[0].draw_rotated_sprite[i],tmp_sprite1);
         DeleteObject(tmp_sprite1);
       }
-    }
-  } 
+    //}
+  //} 
+  prelude_sprite_id++;
+  if (i>=ROTATED_SPRITE_NUM) {
+    prelude_sprite_id=0;
+    prelude_sprite_jid++;
+  }
+  }
 }
 
 
@@ -464,10 +493,6 @@ void Prelude()
 DWORD WINAPI AnimateTask01(LPVOID lpArg) {
   while (TRUE) {
     if (prelude) {
-      if (flag_prelude) {
-        flag_prelude=FALSE;
-        Prelude();
-      }
       Sleep(1000);
     } else if (level_loading) {
       Sleep(1000);
@@ -1115,16 +1140,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                 switch (mb_val) {
                   case 0:
                     if (GR_WIDTH<800 && GR_HEIGHT<600) {
-                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
                     } else {
-                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
                     }
                     break;
                   case 1:
                     if (GR_WIDTH<800 && GR_HEIGHT<600) {
-                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
                     } else {
-                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
                     }
                     break;
                 }
@@ -1150,22 +1175,22 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
               wchar_t lvl_background_bmp[64];
               swprintf(lvl_background_bmp,64,L"saves/%s/images/background.bmp",level_names[level_chosen]);
-              tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, lvl_background_bmp, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+              tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, lvl_background_bmp, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
               if (tmp_map_background_sprite==NULL) { //not found :/
                 switch (mb_val) {
                   case 0:
                     if (GR_WIDTH<800 && GR_HEIGHT<600) {
-                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
                     } else {
-                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
                     }
                     break;
                   case 1:
                     if (GR_WIDTH<800 && GR_HEIGHT<600) {
-                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
                     } else {
-                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
                     }
                     break;
                 }
@@ -1192,9 +1217,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           hdc=BeginPaint(hwnd, &ps);
           hdcBackbuff=CreateCompatibleDC(hdc);
           hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
+
+
           screen=CreateCompatibleBitmap(hdc,640,440);
           SelectObject(hdcBackbuff,screen);
           //GrRect(hdcBackbuff,0,0,GR_WIDTH+2,GR_HEIGHT+2,LTBLUE);
+
           DrawMovingAVI(hdcBackbuff,hdcBackbuff2);
 
           DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-322/2,GR_HEIGHT/2-241/2-92+12,0,0,322,241,intro_msg_mask[0],SRCAND,FALSE,FALSE);
@@ -1206,6 +1234,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
           if (loading_numerator<loading_denominator) {
             DrawLoading(hdcBackbuff);
+
+            if (loading_numerator<loading_denominator) {
+              Prelude();
+            }
           } else {
             //if (frame_tick%FPS<FPS/2) {
               //khmer text
@@ -1215,6 +1247,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             //}
           }
           DrawCursor(hdcBackbuff,hdcBackbuff2);
+
           BitBlt(hdc, 0, 0, 640,440, hdcBackbuff, 0, 0,  SRCCOPY);
           DeleteDC(hdcBackbuff2);
           DeleteDC(hdcBackbuff);
@@ -1578,6 +1611,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //LoadBufferSFX(L"music/helicopter.wav");
       //MessageBox(NULL, TEXT("ភាសាខ្មែរ"), TEXT("ភាសាខ្មែរ") ,MB_OK); //khmer text box
       //printf("boolsize:%d",sizeof(bool));      
+      loading_numerator=0;
+      loading_denominator=ROTATED_SPRITE_NUM*7;
+
+
       AddFontResource(L"fonts/unifont-8.0.01.ttf");
       AddFontResource(L"fonts/KhmerOS.ttf");
       if (!DirExists(L"music_tmp")) {
@@ -1970,6 +2007,30 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
       player.ospin_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/player-spin.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
       //Load Enemy Sprites
+/*      enemy1_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy1-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
+      enemy1_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy1-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
+
+      enemy2_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
+      enemy2_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
+      enemy2_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
+      enemy2_sprite_4 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-4.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
+
+      enemy3_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy3-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
+      enemy3_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy3-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
+
+      enemy4_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy4-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
+      enemy4_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy4-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
+      enemy4_sprite_1_0 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy4-1-0.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
+      enemy4_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy4-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
+      enemy4_sprite_4 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy4-4.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
+
+      enemy5_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy5-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
+      enemy5_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy5-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
+
+      enemy6_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy6-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
+      enemy6_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy6-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
+*/
+
       enemy1_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy1-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       enemy1_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy1-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
@@ -1992,7 +2053,6 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
 
       enemy6_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy6-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       enemy6_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy6-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-
 
       //water textures 0 to 7
       //SetTexturePalette(24,waterPalette); //24 is dkblue
@@ -2077,8 +2137,8 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
       kh_pressanykey = (HBITMAP) LoadImageW(NULL, L"sprites/kh_pressanykey.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       kh_pressanykey_mask = CreateBitmapMask(kh_pressanykey,LTGREEN,NULL);
 
-      HBITMAP tmp_title_sprite= (HBITMAP) LoadImageW(NULL, L"sprites/title.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
-      HBITMAP tmp_small_title_sprite= (HBITMAP) LoadImageW(NULL, L"sprites/title_small.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+      HBITMAP tmp_title_sprite= (HBITMAP) LoadImageW(NULL, L"sprites/title.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      HBITMAP tmp_small_title_sprite= (HBITMAP) LoadImageW(NULL, L"sprites/title_small.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
       title_sprite[0] = CopyCrunchyBitmap(tmp_title_sprite,SRCCOPY);
       title_small_sprite[0] = CopyCrunchyBitmap(tmp_small_title_sprite,SRCCOPY);
@@ -2087,8 +2147,8 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
       DeleteObject(tmp_title_sprite);
       DeleteObject(tmp_small_title_sprite);
 
-      tmp_title_sprite= (HBITMAP) LoadImageW(NULL, L"sprites/title_english.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
-      tmp_small_title_sprite= (HBITMAP) LoadImageW(NULL, L"sprites/title_english_small.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+      tmp_title_sprite= (HBITMAP) LoadImageW(NULL, L"sprites/title_english.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      tmp_small_title_sprite= (HBITMAP) LoadImageW(NULL, L"sprites/title_english_small.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       title_sprite[1] = CopyCrunchyBitmap(tmp_title_sprite,SRCCOPY);
       title_small_sprite[1] = CopyCrunchyBitmap(tmp_small_title_sprite,SRCCOPY);
       title_sprite_mask[1]=CreateBitmapMask(title_sprite[1],LTGREEN,NULL);
@@ -2168,7 +2228,7 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
       kh_goback_mask=CreateBitmapMask(kh_goback,LTGREEN,NULL);
 
       prelude=TRUE;
-      flag_prelude=TRUE;
+      //flag_prelude=TRUE;
 
       //fullscreen
       //ShowWindow(hwnd,SW_SHOWMAXIMIZED);
@@ -2353,6 +2413,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
    }
    InitCController();
 
+
+  //this looks unneccessary but for some reason its required for high fps :/
   Sleep(100);
   INPUT ip;
   ip.type = INPUT_KEYBOARD;

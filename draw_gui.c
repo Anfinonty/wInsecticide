@@ -823,6 +823,8 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
     //DrawMovingAVI(hdc,hdc2);
     DrawBitmap(hdc,hdc2,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
     //DrawBitmap(hdc,hdc2,0,0,0,0,160,160,texture_water,SRCCOPY,FALSE,FALSE);
+    //GrRect(hdc,90,90,210,210,YELLOW);
+    //DrawBitmap(hdc,hdc2,100,100,0,0,200,200,myTmpEnemyDrawSprite,SRCCOPY,FALSE,FALSE);
 
 
     if (level_loaded) {
