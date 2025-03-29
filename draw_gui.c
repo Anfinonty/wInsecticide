@@ -825,6 +825,8 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
     //DrawBitmap(hdc,hdc2,0,0,0,0,160,160,texture_water,SRCCOPY,FALSE,FALSE);
     //GrRect(hdc,90,90,210,210,YELLOW);
     //DrawBitmap(hdc,hdc2,100,100,0,0,200,200,myTmpEnemyDrawSprite,SRCCOPY,FALSE,FALSE);
+    // DrawBitmap(hdc,hdc2,100,100,0,0,200,200,enemy2_sprite_1,SRCCOPY,FALSE,FALSE);
+    // DrawPaletteSquare(hdc,60+220+24,240);
 
 
     if (level_loaded) {

@@ -2007,52 +2007,28 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
       player.ospin_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/player-spin.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
       //Load Enemy Sprites
-/*      enemy1_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy1-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
-      enemy1_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy1-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
+      enemy1_sprite_1 = LoadRLE8CompressedBitmap(L"sprites/enemy1-1.bmp");
+      enemy1_sprite_2 = LoadRLE8CompressedBitmap(L"sprites/enemy1-2.bmp");
 
-      enemy2_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
-      enemy2_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
-      enemy2_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
-      enemy2_sprite_4 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-4.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
+      enemy2_sprite_1 = LoadRLE8CompressedBitmap(L"sprites/enemy2-1.bmp");
+      enemy2_sprite_2 = LoadRLE8CompressedBitmap(L"sprites/enemy2-2.bmp");
+      enemy2_sprite_3 = LoadRLE8CompressedBitmap(L"sprites/enemy2-3.bmp");
+      enemy2_sprite_4 = LoadRLE8CompressedBitmap(L"sprites/enemy2-4.bmp");
 
-      enemy3_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy3-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
-      enemy3_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy3-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
+      enemy3_sprite_1 = LoadRLE8CompressedBitmap(L"sprites/enemy3-1.bmp");
+      enemy3_sprite_2 = LoadRLE8CompressedBitmap(L"sprites/enemy3-2.bmp");
 
-      enemy4_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy4-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
-      enemy4_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy4-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
-      enemy4_sprite_1_0 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy4-1-0.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
-      enemy4_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy4-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
-      enemy4_sprite_4 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy4-4.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
+      enemy4_sprite_1 = LoadRLE8CompressedBitmap(L"sprites/enemy4-1.bmp");
+      enemy4_sprite_2 = LoadRLE8CompressedBitmap(L"sprites/enemy4-2.bmp");
+      enemy4_sprite_1_0 = LoadRLE8CompressedBitmap(L"sprites/enemy4-1-0.bmp");
+      enemy4_sprite_3 = LoadRLE8CompressedBitmap(L"sprites/enemy4-3.bmp");
+      enemy4_sprite_4 = LoadRLE8CompressedBitmap(L"sprites/enemy4-4.bmp");
 
-      enemy5_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy5-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
-      enemy5_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy5-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
+      enemy5_sprite_1 = LoadRLE8CompressedBitmap(L"sprites/enemy5-1.bmp");
+      enemy5_sprite_2 = LoadRLE8CompressedBitmap(L"sprites/enemy5-2.bmp");
 
-      enemy6_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy6-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
-      enemy6_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy6-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE| LR_CREATEDIBSECTION);
-*/
-
-      enemy1_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy1-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      enemy1_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy1-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-
-      enemy2_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      enemy2_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      enemy2_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      enemy2_sprite_4 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy2-4.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-
-      enemy3_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy3-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      enemy3_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy3-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-
-      enemy4_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy4-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      enemy4_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy4-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      enemy4_sprite_1_0 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy4-1-0.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      enemy4_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy4-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      enemy4_sprite_4 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy4-4.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-
-      enemy5_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy5-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      enemy5_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy5-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-
-      enemy6_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy6-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      enemy6_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/enemy6-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      enemy6_sprite_1 = LoadRLE8CompressedBitmap(L"sprites/enemy6-1.bmp");
+      enemy6_sprite_2 = LoadRLE8CompressedBitmap(L"sprites/enemy6-2.bmp");
 
       //water textures 0 to 7
       //SetTexturePalette(24,waterPalette); //24 is dkblue

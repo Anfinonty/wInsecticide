@@ -1,7 +1,4 @@
 
-HBITMAP CopyBitmap(HBITMAP srcBitmap,int SRCOPERATION);
-HBITMAP CopyCrunchyBitmap(HBITMAP srcBitmap,int SRCOPERATION);
-
 #define COLORS_NUM  16
 
 //REGULAR COLORS
@@ -621,20 +618,40 @@ void BitmapPalette(HDC hdc, HDC hdc2,HBITMAP hBitmap,RGBQUAD *bitmapPalette) {
 
 
 
-HBITMAP CreateLargeBitmap(int cx, int cy)
-{
-//https://forums.codeguru.com/showthread.php?526563-Accessing-Pixels-with-CreateDIBSection
- unsigned char* lpBitmapBits; 
 
-  BITMAPINFO bi; 
-  ZeroMemory(&bi, sizeof(BITMAPINFO));
-  bi.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
-  bi.bmiHeader.biWidth=cx;
-  bi.bmiHeader.biHeight=-cy;
-  bi.bmiHeader.biPlanes=1;
-  bi.bmiHeader.biBitCount=32;
-  return CreateDIBSection(NULL, &bi,DIB_RGB_COLORS, (VOID**)&lpBitmapBits,NULL,0);
+//https://learn.microsoft.com/en-us/windows/win32/gdi/drawing-a-shaded-triangle
+//https://stackoverflow.com/questions/33447305/c-windows32-gdi-fill-triangl//https://stackoverflow.com/questions/3142349/drawing-on-8bpp-grayscale-bitmap-unmanaged-c
+
+
+
+HBITMAP CreateGreyscaleBitmap(int cx, int cy)
+{
+  BITMAPINFO* pbmi = (BITMAPINFO*)alloca(offsetof(BITMAPINFO, bmiColors[256]));
+  pbmi->bmiHeader.biSize = sizeof (pbmi->bmiHeader);
+  pbmi->bmiHeader.biWidth = cx;
+  pbmi->bmiHeader.biHeight = cy;
+  pbmi->bmiHeader.biPlanes = 1;
+  pbmi->bmiHeader.biBitCount = 8;
+  pbmi->bmiHeader.biCompression = BI_RGB;
+  pbmi->bmiHeader.biSizeImage = 0;
+  pbmi->bmiHeader.biXPelsPerMeter = 14173;
+  pbmi->bmiHeader.biYPelsPerMeter = 14173;
+  pbmi->bmiHeader.biClrUsed = 0;
+  pbmi->bmiHeader.biClrImportant = 0;
+
+  for(int i=0; i<256; i++)
+  {
+    pbmi->bmiColors[i].rgbRed = i;
+    pbmi->bmiColors[i].rgbGreen = i;
+    pbmi->bmiColors[i].rgbBlue = i;
+    pbmi->bmiColors[i].rgbReserved = 0;
+  }
+
+  PVOID pv;
+  return CreateDIBSection(NULL,pbmi,DIB_RGB_COLORS,&pv,NULL,0);
 }
+
+
 
 
 
@@ -686,6 +703,204 @@ HBITMAP CreateCrunchyBitmap(int cx, int cy)
   pbmi->bmiHeader.biClrImportant = 0;
   PVOID pv;
   return CreateDIBSection(NULL,pbmi,DIB_RGB_COLORS,&pv,NULL,0);
+}
+
+
+
+HBITMAP CreateLargeBitmap(int cx, int cy)
+{
+//https://forums.codeguru.com/showthread.php?526563-Accessing-Pixels-with-CreateDIBSection
+ unsigned char* lpBitmapBits; 
+
+  BITMAPINFO bi; 
+  ZeroMemory(&bi, sizeof(BITMAPINFO));
+  bi.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
+  bi.bmiHeader.biWidth=cx;
+  bi.bmiHeader.biHeight=-cy;
+  bi.bmiHeader.biPlanes=1;
+  bi.bmiHeader.biBitCount=32;
+  return CreateDIBSection(NULL, &bi,DIB_RGB_COLORS, (VOID**)&lpBitmapBits,NULL,0);
+}
+
+
+
+
+void CopyPartialGreyscaleBitmap(HBITMAP dBitmap, HBITMAP sBitmap,int x,int SRCOPERATION)
+{
+
+  BITMAP bm;
+  GetObject(sBitmap, sizeof(bm), &bm);
+
+  HDC hdc1=CreateCompatibleDC(NULL);
+  HDC hdc2=CreateCompatibleDC(NULL);
+  SelectObject(hdc2,sBitmap);
+  SelectObject(hdc1,dBitmap);
+  BitBlt(hdc1, 0, 0, x, bm.bmHeight, hdc2, 0, 0, SRCOPERATION);
+  DeleteDC(hdc2);
+  DeleteDC(hdc1);
+}
+
+
+HBITMAP CopyGreyscaleBitmap(HBITMAP sBitmap, int SRCOPERATION)
+{
+  BITMAP bm;
+  GetObject(sBitmap, sizeof(bm), &bm);
+
+  BITMAPINFO* pbmi = (BITMAPINFO*)alloca(offsetof(BITMAPINFO, bmiColors[256]));
+  pbmi->bmiHeader.biSize = sizeof (pbmi->bmiHeader);
+  pbmi->bmiHeader.biWidth = bm.bmWidth;
+  pbmi->bmiHeader.biHeight = bm.bmHeight;
+  pbmi->bmiHeader.biPlanes = 1;
+  pbmi->bmiHeader.biBitCount = 8;
+  pbmi->bmiHeader.biCompression = BI_RGB;
+  pbmi->bmiHeader.biSizeImage = 0;
+  pbmi->bmiHeader.biXPelsPerMeter = 14173;
+  pbmi->bmiHeader.biYPelsPerMeter = 14173;
+  pbmi->bmiHeader.biClrUsed = 0;
+  pbmi->bmiHeader.biClrImportant = 0;
+
+  for(int i=0; i<256; i++)
+  {
+    pbmi->bmiColors[i].rgbRed = i;
+    pbmi->bmiColors[i].rgbGreen = i;
+    pbmi->bmiColors[i].rgbBlue = i;
+    pbmi->bmiColors[i].rgbReserved = 0;
+  }
+
+  PVOID pv;
+  HDC hdc=CreateCompatibleDC(NULL);
+  HDC hdc2=CreateCompatibleDC(NULL);
+  HBITMAP dBitmap=CreateDIBSection(NULL,pbmi,DIB_RGB_COLORS,&pv,NULL,0);
+  SelectObject(hdc2,sBitmap);
+  SelectObject(hdc,dBitmap);
+  BitBlt(hdc, 0, 0, bm.bmWidth, bm.bmHeight, hdc2, 0, 0, SRCOPERATION);
+  DeleteDC(hdc2);
+  DeleteDC(hdc);
+  return dBitmap;
+}
+
+
+HBITMAP CopyBitmap(HBITMAP srcBitmap,int SRCOPERATION)
+{
+  BITMAP bm;
+  GetObject(srcBitmap, sizeof(bm), &bm);
+  HBITMAP destBitmap=CreateLargeBitmap(bm.bmWidth,bm.bmHeight);
+
+  HDC hdcMem = CreateCompatibleDC(NULL);
+  HDC hdcMem2 = CreateCompatibleDC(NULL);
+
+  SelectObject(hdcMem2, srcBitmap);
+  SelectObject(hdcMem, destBitmap);
+
+  BitBlt(hdcMem, 0, 0, bm.bmWidth, bm.bmHeight, hdcMem2, 0, 0, SRCOPERATION);
+
+  DeleteDC(hdcMem);
+  DeleteDC(hdcMem2);
+
+  return destBitmap;
+}
+
+
+
+HBITMAP CopyCrunchyBitmap(HBITMAP srcBitmap,int SRCOPERATION)
+{
+  BITMAP bm;
+  GetObject(srcBitmap, sizeof(bm), &bm);
+  HBITMAP destBitmap=CreateCrunchyBitmap(bm.bmWidth,bm.bmHeight);
+
+  HDC hdcMem = CreateCompatibleDC(NULL);
+  HDC hdcMem2 = CreateCompatibleDC(NULL);
+
+  SelectObject(hdcMem2, srcBitmap);
+  SelectObject(hdcMem, destBitmap);
+
+  BitBlt(hdcMem, 0, 0, bm.bmWidth, bm.bmHeight, hdcMem2, 0, 0, SRCOPERATION);
+
+  DeleteDC(hdcMem);
+  DeleteDC(hdcMem2);
+
+  return destBitmap;
+}
+
+
+
+/*HBITMAP CopyCrunchyBitmapFast(HBITMAP srcBitmap) {
+    // Get bitmap information
+    BITMAP bm;
+    GetObject(srcBitmap, sizeof(bm), &bm);
+
+    // Prepare BITMAPINFO structure
+    BITMAPINFO* pbmi = (BITMAPINFO*)alloca(offsetof(BITMAPINFO, bmiColors[256]));
+    pbmi->bmiHeader.biSize = sizeof(pbmi->bmiHeader);
+    pbmi->bmiHeader.biWidth = bm.bmWidth;
+    pbmi->bmiHeader.biHeight = bm.bmHeight;
+    pbmi->bmiHeader.biPlanes = 1;
+    pbmi->bmiHeader.biBitCount = 8;
+    pbmi->bmiHeader.biCompression = BI_RGB;
+    pbmi->bmiHeader.biSizeImage = 0;
+
+    Init8BitRGBColorsDefault(pbmi->bmiColors);
+
+    // Allocate memory for pixel data
+    int imageSize = bm.bmWidth * bm.bmHeight;
+    BYTE* pixelData = (BYTE*)malloc(imageSize);
+
+    if (!pixelData) {
+        wprintf(L"Memory allocation failed.\n");
+        return NULL;
+    }
+
+    // Retrieve the pixel data from source bitmap
+    HDC hdcMem = CreateCompatibleDC(NULL);
+    SelectObject(hdcMem, srcBitmap);
+
+    if (!GetDIBits(hdcMem, srcBitmap, 0, bm.bmHeight, pixelData, pbmi, DIB_RGB_COLORS)) {
+        wprintf(L"Failed to retrieve bitmap data.\n");
+        free(pixelData);
+        DeleteDC(hdcMem);
+        return NULL;
+    }
+
+    // Create destination bitmap
+    HBITMAP destBitmap = CreateCrunchyBitmap(bm.bmWidth, bm.bmHeight);
+
+    // Copy pixel data to destination bitmap
+    SelectObject(hdcMem, destBitmap);
+    if (!SetDIBits(hdcMem, destBitmap, 0, bm.bmHeight, pixelData, pbmi, DIB_RGB_COLORS)) {
+        wprintf(L"Failed to set bitmap data.\n");
+        free(pixelData);
+        DeleteDC(hdcMem);
+        return NULL;
+    }
+
+    // Cleanup
+    free(pixelData);
+    DeleteDC(hdcMem);
+
+    return destBitmap;
+}*/
+
+
+
+HBITMAP CopyStretchBitmap(HBITMAP srcBitmap,int SRCOPERATION, int nWidth, int nHeight)
+{
+  BITMAP bm;
+  GetObject(srcBitmap, sizeof(bm), &bm);
+
+  HBITMAP destBitmap=CreateLargeBitmap(nWidth,nHeight);
+
+  HDC hdcMem = CreateCompatibleDC(NULL);
+  HDC hdcMem2 = CreateCompatibleDC(NULL);
+
+  SelectObject(hdcMem2, srcBitmap);
+  SelectObject(hdcMem, destBitmap);
+
+  StretchBlt(hdcMem, 0, 0, nWidth, nHeight, hdcMem2, 0,0, bm.bmWidth, bm.bmHeight, SRCOPERATION); //draw to 
+
+  DeleteDC(hdcMem);
+  DeleteDC(hdcMem2);
+
+  return destBitmap;
 }
 
 
@@ -890,6 +1105,181 @@ void GrGlassRect(HDC hdc, HDC hdcMem, int x, int y, int width, int height, int C
 }
 
 
+// Function to decompress BI_RLE8-compressed data while retaining color mapping
+int DecompressRLE8WithPalette(const BYTE *compressedData, int width, int height, BYTE *decompressedData, const RGBQUAD *colorTable) {
+    int x = 0, y = 0;
+    const BYTE *src = compressedData;
+    BYTE *dest = decompressedData;
+
+    while (y < height) {
+        BYTE command = *src++;
+        if (command == 0) { // Escape code
+            BYTE escape = *src++;
+            if (escape == 0) { // End of line
+                x = 0;
+                y++;
+            } else if (escape == 1) { // End of bitmap
+                break;
+            } else if (escape == 2) { // Delta
+                BYTE dx = *src++;
+                BYTE dy = *src++;
+                x += dx;
+                y += dy;
+            } else { // Absolute mode
+                for (int i = 0; i < escape; i++) {
+                    if (x >= width || y >= height) {
+                        return -1; // Error: Out of bounds
+                    }
+                    dest[y * width + x] = *src++;
+                    x++;
+                }
+                if (escape & 1) {
+                    src++; // Skip padding byte
+                }
+            }
+        } else { // Encoded mode
+            BYTE colorIndex = *src++;
+            for (int i = 0; i < command; i++) {
+                if (x >= width || y >= height) {
+                    return -1; // Error: Out of bounds
+                }
+                dest[y * width + x] = colorIndex;
+                x++;
+            }
+        }
+    }
+    return 0; // Success
+}
+
+// Function to load a BI_RLE8-compressed bitmap as a DIBSection with retained colors
+HBITMAP LoadRLE8CompressedBitmap(const wchar_t *filePath) {
+    FILE *file = _wfopen(filePath, L"rb");
+    if (file == NULL) {
+        wprintf(L"Failed to open file: %s\n", filePath);
+        return NULL;
+    }
+
+    // Read the BITMAPFILEHEADER
+    BITMAPFILEHEADER fileHeader;
+    fread(&fileHeader, sizeof(BITMAPFILEHEADER), 1, file);
+
+    if (fileHeader.bfType != 0x4D42) { // 'BM'
+        wprintf(L"Invalid bitmap file: %s\n", filePath);
+        fclose(file);
+        return NULL;
+    }
+
+    // Read the BITMAPINFOHEADER
+    BITMAPINFOHEADER infoHeader;
+    fread(&infoHeader, sizeof(BITMAPINFOHEADER), 1, file);
+
+    if (infoHeader.biCompression != BI_RLE8) {
+        wprintf(L"Bitmap is not BI_RLE8 compressed: %s\n", filePath);
+        fclose(file);
+        return NULL;
+    }
+
+    // Allocate memory for the color table (palette)
+    int colorTableSize = infoHeader.biClrUsed ? infoHeader.biClrUsed : 256;
+    RGBQUAD *colorTable = malloc(colorTableSize * sizeof(RGBQUAD));
+    fread(colorTable, sizeof(RGBQUAD), colorTableSize, file);
+
+    // Calculate dimensions and allocate memory for decompressed data
+    int width = infoHeader.biWidth;
+    int height = abs(infoHeader.biHeight);
+    int imageSize = width * height;
+    BYTE *compressedData = malloc(infoHeader.biSizeImage);
+    BYTE *decompressedData = malloc(imageSize);
+
+    if (!compressedData || !decompressedData || !colorTable) {
+        wprintf(L"Failed to allocate memory.\n");
+        fclose(file);
+        free(compressedData);
+        free(decompressedData);
+        free(colorTable);
+        return NULL;
+    }
+
+    // Read the compressed pixel data
+    fseek(file, fileHeader.bfOffBits, SEEK_SET);
+    fread(compressedData, 1, infoHeader.biSizeImage, file);
+    fclose(file);
+
+
+    // Decompress the RLE8 data
+    if (DecompressRLE8WithPalette(compressedData, width, height, decompressedData, colorTable) != 0) {
+        wprintf(L"Failed to decompress RLE8 data.\n");
+        free(compressedData);
+        free(decompressedData);
+        free(colorTable);
+        return NULL;
+    }
+
+
+    // Set up the BITMAPINFO structure
+    BITMAPINFO* bmInfo = (BITMAPINFO*)alloca(offsetof(BITMAPINFO, bmiColors[256]));
+    bmInfo->bmiHeader.biSize = sizeof (bmInfo->bmiHeader);
+    bmInfo->bmiHeader.biWidth = width;
+    bmInfo->bmiHeader.biHeight = height; // Top-down DIB
+    bmInfo->bmiHeader.biPlanes = 1;
+    bmInfo->bmiHeader.biBitCount = 8;
+    bmInfo->bmiHeader.biCompression = BI_RGB;
+    bmInfo->bmiHeader.biSizeImage = infoHeader.biSizeImage;
+    bmInfo->bmiHeader.biXPelsPerMeter = infoHeader.biXPelsPerMeter;
+    bmInfo->bmiHeader.biYPelsPerMeter = infoHeader.biYPelsPerMeter;
+
+    Init8BitRGBColorsDefault(bmInfo->bmiColors);
+    
+    bmInfo->bmiHeader.biClrUsed = infoHeader.biClrUsed;
+    bmInfo->bmiHeader.biClrImportant = infoHeader.biClrImportant;
+    bmInfo->bmiHeader.biSizeImage = imageSize;
+
+    /*BITMAPINFO *bitmapInfo = malloc(sizeof(BITMAPINFO) + sizeof(RGBQUAD) * colorTableSize);
+    if (!bitmapInfo) {
+        perror("Error allocating bitmap info memory");
+        free(compressedData);
+        free(decompressedData);
+        free(colorTable);
+        return NULL;
+    }*/
+    // Create a compatible device context (DC)
+    HDC hdc = GetDC(NULL);
+
+    // Create the DIBSection
+    void *dibPixels = NULL;
+    HBITMAP hBitmap = //CreateDIBSection(hdc,bmInfo,DIB_RGB_COLORS,&dibPixels,NULL,0);
+            CreateDIBitmap(
+                hdc,
+                &bmInfo->bmiHeader,       // Pointer to BITMAPINFOHEADER
+                CBM_INIT,                 // Initialization flag
+                decompressedData,         // Pointer to the decompressed pixel data
+                //bitmapInfo,                   // Pointer to BITMAPINFO structure with color information
+                bmInfo,
+                DIB_RGB_COLORS            // Color usage
+            );
+    // Release the DC
+    ReleaseDC(NULL, hdc);
+
+    if (hBitmap == NULL) {
+        wprintf(L"Failed to create DIBSection.\n");
+        free(bmInfo);
+        //free(bitmapInfo);
+        free(compressedData);
+        free(decompressedData);
+        free(colorTable);
+        return NULL;
+    }
+
+    // Copy the decompressed data into the DIBSection
+    //memcpy(dibPixels, decompressedData, imageSize);
+    free(bmInfo);
+    //free(bitmapInfo);
+    free(compressedData);
+    free(decompressedData);
+    free(colorTable);
+
+    return hBitmap;
+}
 
 
 
@@ -1467,10 +1857,8 @@ HBITMAP GetRotated8BitBitmap(HBITMAP hBitmap,double radians,COLORREF clrBack)
 
   //Retrieve Bitmap Info
   BITMAP bmp;
-  if (!GetObject(tmp_h8BitBitmap,sizeof(BITMAP),&bmp)) //assign 8bit bitmap to bmp
+  if (!GetObject(hBitmap,sizeof(BITMAP),&bmp)) //assign 8bit bitmap to bmp
     return NULL;
-  //if (!GetObject(hBitmap,sizeof(BITMAP),&bmp)) //assign 8bit bitmap to bmp
-    //return NULL;
 
 
   int width = bmp.bmWidth;
@@ -1519,7 +1907,6 @@ HBITMAP GetRotated8BitBitmap(HBITMAP hBitmap,double radians,COLORREF clrBack)
   HDC hMemDC = CreateCompatibleDC(hdc);
   SelectObject(hMemDC,hSourceDIB);
   HDC hSrcDC = CreateCompatibleDC(hdc);
-//  SelectObject(hSrcDC,hBitmap);
   SelectObject(hSrcDC,tmp_h8BitBitmap);
   BitBlt(hMemDC,0,0,width,height,hSrcDC,0,0,SRCCOPY);
   DeleteDC(hSrcDC);
@@ -1636,6 +2023,7 @@ void ReplaceBitmapColor(HBITMAP hBitmap, COLORREF oldColor, COLORREF newColor)//
         BYTE *row = pixels + (y * bitmap.bmWidthBytes); // Calculate row pointer
 
         for (int x = 0; x < bitmap.bmWidth; x++) {
+            printf("x:%d,y:%d: cindex:%d\n",x,y,row[x]);
             if (row[x] == oldColorIndex) {
                 row[x] = newColorIndex; // Replace the color index
             }
@@ -1761,160 +2149,6 @@ void DrawTriFill(HDC hdc, int tri_color, double x1,double y1,double x2,double y2
   DeleteObject(hPen);
 }
 
-
-//https://learn.microsoft.com/en-us/windows/win32/gdi/drawing-a-shaded-triangle
-//https://stackoverflow.com/questions/33447305/c-windows32-gdi-fill-triangl//https://stackoverflow.com/questions/3142349/drawing-on-8bpp-grayscale-bitmap-unmanaged-c
-
-
-
-HBITMAP CreateGreyscaleBitmap(int cx, int cy)
-{
-  BITMAPINFO* pbmi = (BITMAPINFO*)alloca(offsetof(BITMAPINFO, bmiColors[256]));
-  pbmi->bmiHeader.biSize = sizeof (pbmi->bmiHeader);
-  pbmi->bmiHeader.biWidth = cx;
-  pbmi->bmiHeader.biHeight = cy;
-  pbmi->bmiHeader.biPlanes = 1;
-  pbmi->bmiHeader.biBitCount = 8;
-  pbmi->bmiHeader.biCompression = BI_RGB;
-  pbmi->bmiHeader.biSizeImage = 0;
-  pbmi->bmiHeader.biXPelsPerMeter = 14173;
-  pbmi->bmiHeader.biYPelsPerMeter = 14173;
-  pbmi->bmiHeader.biClrUsed = 0;
-  pbmi->bmiHeader.biClrImportant = 0;
-
-  for(int i=0; i<256; i++)
-  {
-    pbmi->bmiColors[i].rgbRed = i;
-    pbmi->bmiColors[i].rgbGreen = i;
-    pbmi->bmiColors[i].rgbBlue = i;
-    pbmi->bmiColors[i].rgbReserved = 0;
-  }
-
-  PVOID pv;
-  return CreateDIBSection(NULL,pbmi,DIB_RGB_COLORS,&pv,NULL,0);
-}
-
-
-void CopyPartialGreyscaleBitmap(HBITMAP dBitmap, HBITMAP sBitmap,int x,int SRCOPERATION)
-{
-
-  BITMAP bm;
-  GetObject(sBitmap, sizeof(bm), &bm);
-
-  HDC hdc1=CreateCompatibleDC(NULL);
-  HDC hdc2=CreateCompatibleDC(NULL);
-  SelectObject(hdc2,sBitmap);
-  SelectObject(hdc1,dBitmap);
-  BitBlt(hdc1, 0, 0, x, bm.bmHeight, hdc2, 0, 0, SRCOPERATION);
-  DeleteDC(hdc2);
-  DeleteDC(hdc1);
-}
-
-
-HBITMAP CopyGreyscaleBitmap(HBITMAP sBitmap, int SRCOPERATION)
-{
-  BITMAP bm;
-  GetObject(sBitmap, sizeof(bm), &bm);
-
-  BITMAPINFO* pbmi = (BITMAPINFO*)alloca(offsetof(BITMAPINFO, bmiColors[256]));
-  pbmi->bmiHeader.biSize = sizeof (pbmi->bmiHeader);
-  pbmi->bmiHeader.biWidth = bm.bmWidth;
-  pbmi->bmiHeader.biHeight = bm.bmHeight;
-  pbmi->bmiHeader.biPlanes = 1;
-  pbmi->bmiHeader.biBitCount = 8;
-  pbmi->bmiHeader.biCompression = BI_RGB;
-  pbmi->bmiHeader.biSizeImage = 0;
-  pbmi->bmiHeader.biXPelsPerMeter = 14173;
-  pbmi->bmiHeader.biYPelsPerMeter = 14173;
-  pbmi->bmiHeader.biClrUsed = 0;
-  pbmi->bmiHeader.biClrImportant = 0;
-
-  for(int i=0; i<256; i++)
-  {
-    pbmi->bmiColors[i].rgbRed = i;
-    pbmi->bmiColors[i].rgbGreen = i;
-    pbmi->bmiColors[i].rgbBlue = i;
-    pbmi->bmiColors[i].rgbReserved = 0;
-  }
-
-  PVOID pv;
-  HDC hdc=CreateCompatibleDC(NULL);
-  HDC hdc2=CreateCompatibleDC(NULL);
-  HBITMAP dBitmap=CreateDIBSection(NULL,pbmi,DIB_RGB_COLORS,&pv,NULL,0);
-  SelectObject(hdc2,sBitmap);
-  SelectObject(hdc,dBitmap);
-  BitBlt(hdc, 0, 0, bm.bmWidth, bm.bmHeight, hdc2, 0, 0, SRCOPERATION);
-  DeleteDC(hdc2);
-  DeleteDC(hdc);
-  return dBitmap;
-}
-
-
-HBITMAP CopyBitmap(HBITMAP srcBitmap,int SRCOPERATION)
-{
-  BITMAP bm;
-  GetObject(srcBitmap, sizeof(bm), &bm);
-  HBITMAP destBitmap=CreateLargeBitmap(bm.bmWidth,bm.bmHeight);
-
-  HDC hdcMem = CreateCompatibleDC(NULL);
-  HDC hdcMem2 = CreateCompatibleDC(NULL);
-
-  SelectObject(hdcMem2, srcBitmap);
-  SelectObject(hdcMem, destBitmap);
-
-  BitBlt(hdcMem, 0, 0, bm.bmWidth, bm.bmHeight, hdcMem2, 0, 0, SRCOPERATION);
-
-  DeleteDC(hdcMem);
-  DeleteDC(hdcMem2);
-
-  return destBitmap;
-}
-
-
-
-HBITMAP CopyCrunchyBitmap(HBITMAP srcBitmap,int SRCOPERATION)
-{
-  BITMAP bm;
-  GetObject(srcBitmap, sizeof(bm), &bm);
-  HBITMAP destBitmap=CreateCrunchyBitmap(bm.bmWidth,bm.bmHeight);
-
-  HDC hdcMem = CreateCompatibleDC(NULL);
-  HDC hdcMem2 = CreateCompatibleDC(NULL);
-
-  SelectObject(hdcMem2, srcBitmap);
-  SelectObject(hdcMem, destBitmap);
-
-  BitBlt(hdcMem, 0, 0, bm.bmWidth, bm.bmHeight, hdcMem2, 0, 0, SRCOPERATION);
-
-  DeleteDC(hdcMem);
-  DeleteDC(hdcMem2);
-
-  return destBitmap;
-}
-
-
-
-
-HBITMAP CopyStretchBitmap(HBITMAP srcBitmap,int SRCOPERATION, int nWidth, int nHeight)
-{
-  BITMAP bm;
-  GetObject(srcBitmap, sizeof(bm), &bm);
-
-  HBITMAP destBitmap=CreateLargeBitmap(nWidth,nHeight);
-
-  HDC hdcMem = CreateCompatibleDC(NULL);
-  HDC hdcMem2 = CreateCompatibleDC(NULL);
-
-  SelectObject(hdcMem2, srcBitmap);
-  SelectObject(hdcMem, destBitmap);
-
-  StretchBlt(hdcMem, 0, 0, nWidth, nHeight, hdcMem2, 0,0, bm.bmWidth, bm.bmHeight, SRCOPERATION); //draw to 
-
-  DeleteDC(hdcMem);
-  DeleteDC(hdcMem2);
-
-  return destBitmap;
-}
 
 
 
