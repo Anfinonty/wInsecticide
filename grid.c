@@ -46,33 +46,49 @@ void UnSetGridLineArray(int grid_id,int ground_id)
 
 void InitGridTiles(const wchar_t* lvl_name)
 {
+  bool has_ground=FALSE;
+  bool has_water=FALSE;
+  int j,k;
   bool yes_shadow=FALSE;
   wchar_t seg_name[72];
-  if (is_shadows /*&& game_shadow*/) {
+  if (is_shadows) {
     yes_shadow=TRUE;
   }
   FOREGROUND_GRID_NUM=0;
   PLATFORM_GRID_NUM=0;
   SHADOW_GRID_NUM=0;
 
-  for (int i=0;i<VGRID_NUM;i++) {
-      swprintf(seg_name,72,L"saves/%s/seg_platforms/%d.bmp",lvl_name,i);
-
-      if (FileExists(seg_name)) {
-        VGrid[i]->draw_platform_seg_id=PLATFORM_GRID_NUM;
-        PLATFORM_GRID_NUM++;
+  for (int i=0;i<VGRID_NUM;i++) {      
+    for (int j=0;j<VGrid[i]->max_ground_num;j++) {
+      k=VGrid[i]->ground_ids[j];
+      if (Ground[k]->type==1) {
+        has_water=TRUE;
       } else {
-        VGrid[i]->draw_platform_seg_id=-1;
+        has_ground=TRUE;
       }
+      if (has_water && has_ground) {
+        break;
+      }
+    }
 
 
-      swprintf(seg_name,72,L"saves/%s/seg_foreground/%d.bmp", lvl_name,i);
-      if (FileExists(seg_name)) {
-        VGrid[i]->draw_foreground_seg_id=FOREGROUND_GRID_NUM;
-        FOREGROUND_GRID_NUM++;
-      } else {
-        VGrid[i]->draw_foreground_seg_id=-1;
-      }
+    if (has_ground) {
+      VGrid[i]->draw_platform_seg_id=PLATFORM_GRID_NUM;
+      PLATFORM_GRID_NUM++;
+    } else {
+      VGrid[i]->draw_platform_seg_id=-1;
+    }
+    has_ground=FALSE;
+
+
+    if (has_water) {
+      VGrid[i]->draw_foreground_seg_id=FOREGROUND_GRID_NUM;
+      FOREGROUND_GRID_NUM++;
+    } else {
+      VGrid[i]->draw_foreground_seg_id=-1;
+    }
+    has_water=FALSE;
+
 
 
     if (yes_shadow) {
@@ -89,109 +105,146 @@ void InitGridTiles(const wchar_t* lvl_name)
 }
 
 
-
-bool igto1=FALSE;
-void InitGridTilesObj(const wchar_t *lvl_name) 
+int loading_tile_grid_prog=0;
+void DrawCreateTiles(HDC hdc)
 {
+  HBITMAP oldbitmap;
+  oldbitmap=CreateBitmap(0,0, 1, 1, NULL);
   bool yes_shadow=FALSE;
-  wchar_t seg_name[72];
-  if (is_shadows /*&& game_shadow*/) {
-    yes_shadow=TRUE;
-  }
-  HBITMAP tmp_bitmap;
+  wchar_t seg_name[72];  
+  int tmp_id;
 
+  if (loading_tile_grid_prog==1) {
     TileMapPlatform = calloc(PLATFORM_GRID_NUM,sizeof(ATileMap*));
     for (int i=0;i<PLATFORM_GRID_NUM;i++) {
       ATileMap *newTileMap = createTileMap();
       TileMapPlatform[i] = newTileMap;
     }
-
-    int tmp_id=-1;
     for (int i=0;i<VGRID_NUM;i++) {
       if (VGrid[i]->draw_platform_seg_id!=-1) {
-        tmp_id=VGrid[i]->draw_platform_seg_id;
-        if (tmp_id!=-1) { //0, 1, 2 , ...
-          swprintf(seg_name,72,L"saves/%s/seg_platforms/%d.bmp", lvl_name,i);
-          TileMapPlatform[tmp_id]->x=VGrid[i]->x1;
-          TileMapPlatform[tmp_id]->y=VGrid[i]->y1;
-          tmp_bitmap=LoadRLE8CompressedBitmap(seg_name);//(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE /*| LR_CREATEDIBSECTION*/);
-          TileMapPlatform[tmp_id]->sprite_paint=CopyCrunchyBitmap(tmp_bitmap,SRCCOPY);
-            //CopyCrunchyBitmap(tmp_bitmap,SRCCOPY);
-          //if (!igto1) {
-            //igto1=TRUE;
-            //ReplaceBitmapColor(TileMapPlatform[tmp_id]->sprite_paint,MYCOLOR1,WHITE);
-          //}
-          TileMapPlatform[tmp_id]->sprite_mask=CreateBitmapMask(TileMapPlatform[tmp_id]->sprite_paint,MYCOLOR1,NULL); //create mask
-          //tmp_bitmap=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-          //tmp_bitmap_cache=RotateSprite(NULL, tmp_bitmap,0,BLACK,BLACK,BLACK,-1);
-          //GenerateDrawSprite(&TileMapPlatform[tmp_id]->draw_tile,tmp_bitmap/*_cache*/);
-          loading_numerator++;
-          DeleteObject(tmp_bitmap);
-          //DeleteObject(tmp_bitmap_cache);
-        }
-      }
-  }
+          tmp_id=VGrid[i]->draw_platform_seg_id;
+          if (tmp_id!=-1) { //0, 1, 2 , ...
+            TileMapPlatform[tmp_id]->x=VGrid[i]->x1;
+            TileMapPlatform[tmp_id]->y=VGrid[i]->y1;
 
-  if (FOREGROUND_GRID_NUM>0) {
-    TileMapForeground = calloc(FOREGROUND_GRID_NUM,sizeof(ATileMap*));
-    for (int i=0;i<FOREGROUND_GRID_NUM;i++) {
-      ATileMap *newTileMap = createTileMap();
-      TileMapForeground[i] = newTileMap;
-    }
+            TileMapPlatform[tmp_id]->sprite_paint=CreateCrunchyBitmap(VGRID_SIZE,VGRID_SIZE);
+            SelectObject(hdc,TileMapPlatform[tmp_id]->sprite_paint);
+            GrRect(hdc,0,0,VGRID_SIZE+1,VGRID_SIZE+1,MYCOLOR1);
 
-    int tmf_id=-1;
-    for (int i=0;i<VGRID_NUM;i++) {
-      if (VGrid[i]->draw_foreground_seg_id!=-1) {
-        tmf_id=VGrid[i]->draw_foreground_seg_id;
-        if (tmf_id!=-1) { //0, 1, 2 , ...
-          swprintf(seg_name,72,L"saves/%s/seg_foreground/%d.bmp", lvl_name,i);
-          TileMapForeground[tmf_id]->x=VGrid[i]->x1;
-          TileMapForeground[tmf_id]->y=VGrid[i]->y1;
-          tmp_bitmap=LoadRLE8CompressedBitmap(seg_name);//(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE /*| LR_CREATEDIBSECTION*/);
-          TileMapForeground[tmf_id]->sprite_paint=CopyCrunchyBitmap(tmp_bitmap,SRCCOPY);
-          TileMapForeground[tmf_id]->sprite_mask=CreateBitmapMask(TileMapForeground[tmf_id]->sprite_paint,MYCOLOR1,NULL); //create mask
-          //tmp_bitmap=(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-          //tmp_bitmap_cache=RotateSprite(NULL, tmp_bitmap,0,BLACK,BLACK,BLACK,-1);
-          //GenerateDrawSprite(&TileMapForeground[tmf_id]->draw_tile,tmp_bitmap/*tmp_bitmap_cache*/);
-          loading_numerator++;
-          DeleteObject(tmp_bitmap);
-          //DeleteObject(tmp_bitmap);
-          //DeleteObject(tmp_bitmap_cache);
-        }
+            for (int s=0;s<3;s++) {
+              for (int k=0;k<VGrid[i]->max_ground_num;k++) {
+                int l = VGrid[i]->ground_ids[k];
+                switch (s) {
+                  case 0: //draw ground trifill
+                    Draw1GroundTriFill(hdc,l,VGrid[i]->x1,VGrid[i]->y1);
+                    break;
+                  case 1: //draw ground line
+                    Draw1Ground(hdc,l,VGrid[i]->x1,VGrid[i]->y1);
+                    break;
+                  case 2: //draw text
+                    Draw1GroundText(hdc,l,VGrid[i]->x1,VGrid[i]->y1);
+                    break;
+                }
+              }
+            }
+            SelectObject(hdc,oldbitmap);
+            TileMapPlatform[tmp_id]->sprite_mask=CreateBitmapMask(TileMapPlatform[tmp_id]->sprite_paint,MYCOLOR1,NULL); //create mask
+            loading_numerator++;
+          }
       }
     }
-  }
+    loading_tile_grid_prog=2;
 
+  } else if (loading_tile_grid_prog==2) {
+    if (FOREGROUND_GRID_NUM>0) {
 
+      TileMapForeground = calloc(FOREGROUND_GRID_NUM,sizeof(ATileMap*));
+      for (int i=0;i<FOREGROUND_GRID_NUM;i++) {
+        ATileMap *newTileMap = createTileMap();
+        TileMapForeground[i] = newTileMap;
+      }
 
+      for (int i=0;i<VGRID_NUM;i++) {
+        if (VGrid[i]->draw_foreground_seg_id!=-1) {
+          tmp_id=VGrid[i]->draw_foreground_seg_id;
+          if (tmp_id!=-1) { //0, 1, 2 , ...
+            TileMapForeground[tmp_id]->x=VGrid[i]->x1;
+            TileMapForeground[tmp_id]->y=VGrid[i]->y1;
 
-  if (yes_shadow) {
-    TileMapShadow = calloc(SHADOW_GRID_NUM,sizeof(ATileMapPaint*));
-    for (int i=0;i<SHADOW_GRID_NUM;i++) {
-      ATileMapPaint *newTileMapPaint = createTileMapPaint();
-      TileMapShadow[i] = newTileMapPaint;
+            TileMapForeground[tmp_id]->sprite_paint=CreateCrunchyBitmap(VGRID_SIZE,VGRID_SIZE);
+            SelectObject(hdc,TileMapForeground[tmp_id]->sprite_paint);
+
+            GrRect(hdc,0,0,VGRID_SIZE+1,VGRID_SIZE+1,MYCOLOR1);
+            for (int k=0;k<VGrid[i]->max_ground_num;k++) {
+              int l = VGrid[i]->ground_ids[k];
+              Draw1WaterTriFill(hdc,l,VGrid[i]->x1,VGrid[i]->y1);
+            }
+            SelectObject(hdc,oldbitmap);
+            TileMapForeground[tmp_id]->sprite_mask=CreateBitmapMask(TileMapForeground[tmp_id]->sprite_paint,MYCOLOR1,NULL); //create mask
+            loading_numerator++;
+          }
+        }
+      }
+      loading_tile_grid_prog=3;
+    } else {
+      loading_tile_grid_prog=3;
     }
+  } else if (loading_tile_grid_prog==3) {
+    if (is_shadows) {
+      yes_shadow=TRUE;
+    }
+    if (yes_shadow) {
+      TileMapShadow = calloc(SHADOW_GRID_NUM,sizeof(ATileMapPaint*));
+      for (int i=0;i<SHADOW_GRID_NUM;i++) {
+        ATileMapPaint *newTileMapPaint = createTileMapPaint();
+        TileMapShadow[i] = newTileMapPaint;
+      }
 
-    int tms_id=-1;
-    for (int i=0;i<VGRID_NUM;i++) {
-      if (VGrid[i]->has_shadow) {
-        tms_id=VGrid[i]->draw_shadow_seg_id;
-        if (tms_id!=-1) { //0, 1, 2 , ...
-          swprintf(seg_name,72,L"saves/%s/seg_shadow/%d.bmp", lvl_name,i);
-          TileMapShadow[tms_id]->x=VGrid[i]->x1;
-          TileMapShadow[tms_id]->y=VGrid[i]->y1;
-          //tmp_bitmap=
-          TileMapShadow[tms_id]->sprite_paint=LoadRLE8CompressedBitmap(seg_name);//(HBITMAP) LoadImageW(NULL, seg_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE /*| LR_CREATEDIBSECTION*/);//RotateSprite(NULL, tmp_bitmap,0,MYCOLOR1,BLACK,BLACK,-1); //does nothing other than crunch it to 8bit xd
-          loading_numerator++;
-          //DeleteObject(tmp_bitmap);
+      wchar_t lvl_name[128];
+      if (!back_to_menu)
+        swprintf(lvl_name,128,L"%s",level_names[level_chosen]);    
+      else
+        swprintf(lvl_name,128,L"mm_demo2");    
+
+
+      //HBITMAP tmp_bitmap;
+      wchar_t seg_name[72];
+      int tms_id=-1;
+      for (int i=0;i<VGRID_NUM;i++) {
+        if (VGrid[i]->has_shadow) {
+          tms_id=VGrid[i]->draw_shadow_seg_id;
+          if (tms_id!=-1) { //0, 1, 2 , ...
+            swprintf(seg_name,72,L"saves/%s/seg_shadow/%d.bmp", lvl_name,i);
+            TileMapShadow[tms_id]->x=VGrid[i]->x1;
+            TileMapShadow[tms_id]->y=VGrid[i]->y1;
+            TileMapShadow[tms_id]->sprite_paint=//CopyCrunchyBitmap(tmp_bitmap,SRCCOPY);
+                LoadRLE8CompressedBitmap(seg_name);
+            loading_numerator++;
+          }
         }
       }
     }
-  }
 
+    flag_begin_drawing_tiles=FALSE;
+    time_begin=current_timestamp();
+    OLD_GR_WIDTH=0;
+    OLD_GR_HEIGHT=0;
+
+
+    loading_tile_grid_prog=0;
+    level_loading=FALSE;
+    level_loaded=TRUE;
+    if (back_to_menu) {
+      back_to_menu=FALSE;
+    }
+  }
+  SelectObject(hdc,oldbitmap);
+  DeleteObject(oldbitmap);
 }
 
 
+
+//bool igto1=FALSE;
 void InitGrid() 
 {
   int i=0,j=0,x=0,y=0;
@@ -475,7 +528,7 @@ void SetNodeGridAttributes2(int i)
   }
 }
 
-
+//for saving level
 void TriFillGridType(int gid, int part)
 {
   if (Ground[gid]->type==1 || Ground[gid]->type==3) {
@@ -593,6 +646,8 @@ void TriFillGridType(int gid, int part)
 
 
 
+
+//trifill for level loading
 void TriFillNodeGridType(int gid)
 {
 /*
@@ -653,6 +708,7 @@ void TriFillNodeGridType(int gid)
   int largest_y=stickyTo(largest,NODE_SIZE);
 
   int x1,x2;
+  int grid_id;
   for (y=smallest_y;y<middle_y;y+=NODE_SIZE) {//small to middle
     x_1=GetX(y,gradient_middle1,c_middle1);
     x_2=GetX(y,gradient_largest,c_largest);
@@ -661,6 +717,10 @@ void TriFillNodeGridType(int gid)
     x1=min(x_1,x_2);
     x2=max(x_1,x_2);
     for (x=x1;x<x2;x+=NODE_SIZE) {
+      //Add to existing ground_ids in grid
+      grid_id=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
+      SetGridLineArray(grid_id,gid);
+
       k=GetGridId(x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
       if (k!=-1) {
         if (Ground[gid]->type==1) {
@@ -680,6 +740,10 @@ void TriFillNodeGridType(int gid)
     x1=min(x_1,x_2);
     x2=max(x_1,x_2);
     for (x=x1;x<x2;x+=NODE_SIZE) {
+      //Add to existing ground_ids in grid
+      grid_id=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
+      SetGridLineArray(grid_id,gid);
+
       k=GetGridId(x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
       if (k!=-1) {
         if (Ground[gid]->type==1) {

@@ -36,6 +36,52 @@ typedef struct WavSoundEffectCache //for sound whoese volume that needs to be ad
 
 
 
+/*
+typedef struct SFXData
+{
+  AWavHeader wav_header[1];
+  WAVEFORMATEX awfx_sfx
+  HWAVEOUT hWaveOut;
+  WAVEHDR waveHdr1;
+  WAVEHDR waveHdr2;
+
+  /*int read_size;
+  int queue_play_buffer;
+  int queue_read_buffer;
+  int played_units;*/
+
+  //long current_filesize; //spindle plays audio
+  //long read_filesize; //read filesize, ahead
+  //long filesize;
+  //long buffer_size;
+/*
+  double volume;
+  int16_t buffer1[AUDIO_STREAM_BUFFER_SIZE0];
+  int16_t buffer2[AUDIO_STREAM_BUFFER_SIZE0];
+  /*int16_t read_buffer[READ_BUFFER_NUM][AUDIO_STREAM_BUFFER_SIZE0];
+  int16_t sample1[AUDIO_STREAM_BUFFER_SIZE0*5];
+  int16_t sample2[AUDIO_STREAM_BUFFER_SIZE0*5];*/
+/*
+} SFXData;
+
+
+
+
+void CALLBACK waveOutProcSFX(HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance, DWORD_PTR dwParam1, DWORD_PTR dwParam2) {
+    AudioData* audioData = (AudioData *)dwInstance;
+    if (uMsg == WOM_DONE) {
+      WAVEHDR *waveHdr = (WAVEHDR *)dwParam1;
+      if (waveHdr == &audioData->waveHdr1) {
+        adjustBufferVol(audioData->buffer1,audioData->read_buffer[audioData->queue_play_buffer],chosen_buffer_length,audioData->volume);
+        waveOutWrite(audioData->hWaveOut, &audioData->waveHdr1, sizeof(WAVEHDR));
+      } else if (waveHdr == &audioData->waveHdr2) {
+        adjustBufferVol(audioData->buffer2,audioData->read_buffer[audioData->queue_play_buffer],audioData->read_size,audioData->volume);
+        waveOutWrite(audioData->hWaveOut, &audioData->waveHdr2, sizeof(WAVEHDR));
+      }
+    }
+}*/
+
+
 #define SND_THREAD_NUM    7
 typedef struct threadSFX
 {

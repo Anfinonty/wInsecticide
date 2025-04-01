@@ -101,7 +101,11 @@ void DrawWebs(HDC hdc);
 void DrawGround(HDC hdc);
 void DrawGroundText(HDC hdc);
 void DrawGroundTriFill(HDC hdc);
-
+void DrawWaterTriFill(HDC hdc);
+void Draw1Ground(HDC hdc,int i,int x, int y);
+void Draw1GroundText(HDC hdc,int i,int x, int y);
+void Draw1GroundTriFill(HDC hdc,int i,int x, int y);
+void Draw1WaterTriFill(HDC hdc, int i,int x,int y);
 
 
 //For map editor
@@ -922,9 +926,24 @@ ATileMap *createTileMap()
   return toReturn;
 }
 
+/*void freeTileMapSpritePaint(ATileMap *myTileMap)
+{
+  if (myTileMap->sprite_paint!=NULL)
+    DeleteObject(myTileMap->sprite_paint);
+}
+
+void freeTileMapSpriteMask(ATileMap *myTileMap)
+{
+  if (myTileMap->sprite_mask!=NULL)
+    DeleteObject(myTileMap->sprite_mask);
+}*/
 
 void freeTileMap(ATileMap *myTileMap)
 {
+  if (myTileMap->sprite_paint!=NULL)
+    DeleteObject(myTileMap->sprite_paint);
+  if (myTileMap->sprite_mask!=NULL)
+    DeleteObject(myTileMap->sprite_mask);
   if (myTileMap)
     free(myTileMap);
 }
@@ -949,8 +968,16 @@ ATileMapPaint *createTileMapPaint()
 }
 
 
+/*void freeTileMapPaintSpritePaint(ATileMapPaint *myTileMapPaint)
+{
+  if (myTileMapPaint->sprite_paint!=NULL)
+    DeleteObject(myTileMapPaint->sprite_paint);
+}*/
+
 void freeTileMapPaint(ATileMapPaint *myTileMapPaint)
 {
+  if (myTileMapPaint->sprite_paint!=NULL)
+    DeleteObject(myTileMapPaint->sprite_paint);
   if (myTileMapPaint)
     free(myTileMapPaint);
 }

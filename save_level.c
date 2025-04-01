@@ -177,7 +177,7 @@ void SaveNewCreatedLvl(const wchar_t* create_lvl_name_)
 }
 
 
-void SaveLvlBmpSegmentation2(HWND hwnd,HDC hdc)
+/*void SaveLvlBmpSegmentation2(HWND hwnd,HDC hdc)
 {
   wchar_t water_bmp_seg_save[64];
   swprintf(water_bmp_seg_save,64,L"saves/%s/seg_foreground",level_names[level_chosen]);
@@ -216,19 +216,19 @@ void SaveLvlBmpSegmentation2(HWND hwnd,HDC hdc)
       DeleteObject(map_water_platforms_sprite);
   }
   EndPaint(hwnd, &ps);
-}
+}*/
 
 
 void SaveLvlBmpSegmentation1(HWND hwnd,HDC hdc)
 {
-  wchar_t bmp_seg_save[64];
-  swprintf(bmp_seg_save,64,L"saves/%s/seg_platforms",level_names[level_chosen]);
+  //wchar_t bmp_seg_save[64];
+  //swprintf(bmp_seg_save,64,L"saves/%s/seg_platforms",level_names[level_chosen]);
   wchar_t shadow_bmp_seg_save[64];
   swprintf(shadow_bmp_seg_save,64,L"saves/%s/seg_shadow",level_names[level_chosen]);
 
 
-  RemoveFolderRecursive(bmp_seg_save);
-  _wmkdir(bmp_seg_save);
+  //RemoveFolderRecursive(bmp_seg_save);
+  //_wmkdir(bmp_seg_save);
   wchar_t seg_save_seg[72];
 
 
@@ -240,7 +240,7 @@ void SaveLvlBmpSegmentation1(HWND hwnd,HDC hdc)
 
 
   //normal platforms
-  hdc1=CreateCompatibleDC(hdc);
+  /*hdc1=CreateCompatibleDC(hdc);
   SelectObject(hdc1,map_platforms_sprite);
   for (int i=0;i<VGRID_NUM;i++) {
     if (VGrid[i]->max_ground_num>0 && (!VGrid[i]->has_water || VGrid[i]->not_just_water)) {
@@ -259,7 +259,7 @@ void SaveLvlBmpSegmentation1(HWND hwnd,HDC hdc)
     }
   }
   DeleteDC(hdc1);
-  DeleteObject(map_platforms_sprite);
+  DeleteObject(map_platforms_sprite);*/
 
 
 
@@ -376,14 +376,14 @@ void SaveLvlBmp(HWND hwnd,HDC hdc)
   SaveLvlBmpSegmentation1(hwnd,hdc);
 
 
-  hdc2=CreateCompatibleDC(hdc);
+  /*hdc2=CreateCompatibleDC(hdc);
   map_water_platforms_sprite=CreateCrunchyBitmap(MAP_WIDTH,MAP_HEIGHT);
   SelectObject(hdc2,map_water_platforms_sprite);
   GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,MYCOLOR1); //Create Background with set  color over platforms
   DrawWaterTriFill(hdc2);
   DeleteDC(hdc2);
 
-  SaveLvlBmpSegmentation2(hwnd,hdc);
+  SaveLvlBmpSegmentation2(hwnd,hdc);*/
 
   //water platforms
 

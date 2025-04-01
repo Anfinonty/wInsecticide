@@ -85,7 +85,7 @@ bool flag_adjust_wav_out_audio=FALSE;
 bool flag_load_level=FALSE;
 bool flag_load_melevel=FALSE;
 bool load_sound=FALSE;
-bool back_to_menu=FALSE;
+bool back_to_menu=TRUE;
 bool run_after_once=FALSE;
 bool run_once_only=FALSE;
 bool flag_update_background=FALSE;
@@ -95,6 +95,7 @@ bool flag_hide_taskbar=FALSE;
 bool flag_taskbar_change_act=FALSE;
 bool flag_borderless_resolution_change=FALSE;
 bool flag_difficulty_change=FALSE;
+bool flag_begin_drawing_tiles=FALSE;
 bool hide_cursor=FALSE;
 bool hide_mm=FALSE;
 //game options
@@ -1131,10 +1132,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
               HBITMAP tmp_map_background_sprite;
 
-                int mb_val=1;
+                int mb_val=-1;
                 if (solar_hour>6 && solar_hour<18) { //day
                   mb_val=0;//InitExtractAVIFrames(L"avi/mainmenu_gameplay_day.avi",0);
-                } /*else {
+                } else {
+                  mb_val=1;
+                }
+                //printf("solar_hour:%d,,%d\n",solar_hour,mb_val);
+
+                /*else {
                   //InitExtractAVIFrames(L"avi/mainmenu_gameplay_night.avi",0);
                 }*/
                 switch (mb_val) {
@@ -1182,15 +1188,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                   case 0:
                     if (GR_WIDTH<800 && GR_HEIGHT<600) {
                       tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-                    } else {
+                    } else {//if (GR_WIDTH<1280 && GR_HEIGHT<720) {
                       tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-                    }
+                    }// else {
+                      //tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky_hd_ultra.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+                    //}
                     break;
                   case 1:
                     if (GR_WIDTH<800 && GR_HEIGHT<600) {
                       tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-                    } else {
+                    } else {//}if (GR_WIDTH<1280 && GR_HEIGHT<720) {
                       tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+                    //} else {
+                      //tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars_hd_ultra.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
                     }
                     break;
                 }
@@ -1231,7 +1241,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-367/2,GR_HEIGHT-182+12,0,0,367,56,intro_msg_mask[1],SRCAND,FALSE,FALSE);
           DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-367/2,GR_HEIGHT-182+12,0,0,367,56,intro_msg[1],SRCPAINT,FALSE,FALSE);
 
-
           if (loading_numerator<loading_denominator) {
             DrawLoading(hdcBackbuff);
 
@@ -1256,6 +1265,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           hdc=BeginPaint(hwnd, &ps);
           hdcBackbuff=CreateCompatibleDC(hdc);
           hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
+
+          if (flag_begin_drawing_tiles) {
+            DrawCreateTiles(hdcBackbuff);
+          }
+
           screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
           SelectObject(hdcBackbuff,screen);
           //GrRect(hdcBackbuff,0,0,GR_WIDTH+2,GR_HEIGHT+2,BLACK);    
@@ -1914,7 +1928,7 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
 
 
     //hijri related (*
-      int64_t timenow=int64_current_timestamp(); //local timestamp is returned
+      int64_t timenow= int64_current_timestamp(); //local timestamp is returned
 
       printf("\nSeconds Passed Since Jan-1-1970: %d",timenow);
       PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);
@@ -1976,7 +1990,7 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
 
 
       //init for sound
-      back_to_menu=FALSE;
+      back_to_menu=TRUE;
       in_main_menu=TRUE;
       level_chosen=0;
       stop_playing_song[0]=FALSE;
@@ -2040,19 +2054,17 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
       for (int i=0;i<9;i++) {
         wchar_t fname[48];
         swprintf(fname,48,L"sprites/textures/water_texture%d.bmp",i);        
-        texture_water[i] =  LoadImageW(NULL, fname,IMAGE_BITMAP,0,0,LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+        //HBITMAP tmp_bitmap = (HBITMAP) LoadImageW(NULL, fname, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);//LoadRLE8CompressedBitmap(fname);
+        //texture_water[i] =  CopyCrunchyBitmap(tmp_bitmap,SRCCOPY);
+        //DeleteObject(tmp_bitmap);
 
-
-        //HBITMAP tmp_water_bitmap =  LoadImageW(NULL, fname,IMAGE_BITMAP,0,0,LR_LOADFROMFILE | LR_CREATEDIBSECTION);
-        //HBITMAP tmp_bitmap_mask=    CreateBitmapMask(tmp_water_bitmap,0,NULL); 
-        //texture_water[i] = CopyCrunchyBitmap(tmp_water_bitmap,SRCCOPY);
-        //DeleteObject(tmp_bitmap_mask);
-        //DeleteObject(tmp_water_bitmap);
+        //tricky working with 32-bit like sprites, expection'
+        texture_water[i] =(HBITMAP) LoadImageW(NULL, fname, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
       }
 
 
-      dkrdkgray_shadow_tile = (HBITMAP) LoadImageW(NULL, L"sprites/shadow_dkrdkgray.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      ltgray_shadow_tile = (HBITMAP) LoadImageW(NULL, L"sprites/shadow_ltgray.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      dkrdkgray_shadow_tile = LoadRLE8CompressedBitmap(L"sprites/shadow_dkrdkgray.bmp");//(HBITMAP) LoadImageW(NULL, L"sprites/shadow_dkrdkgray.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      ltgray_shadow_tile = LoadRLE8CompressedBitmap(L"sprites/shadow_ltgray.bmp");//(HBITMAP) LoadImageW(NULL, L"sprites/shadow_ltgray.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
       //Load mouse cursor sprite
       //player cursor
@@ -2076,28 +2088,38 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
         }
       }
 
-
+      wchar_t moon_sprite_name[48];
       //Load moon sprite based on lunar day
+      //lunar_day=1; //moon debug
+      double lunar_angle=0;
       if (lunar_day>=1 && lunar_day<=5) { //1, 2, 3, 4, 5
-        moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        swprintf(moon_sprite_name,48,L"sprites/moon-1.bmp");
+        lunar_angle=-M_PI_4-M_PI_4/2;
       } else if (lunar_day>=6 && lunar_day<=9) {// 6, 7, 8, 9
-        moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-8.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        swprintf(moon_sprite_name,48,L"sprites/moon-8.bmp");
+        lunar_angle=-M_PI_4;
       } else if (lunar_day>=10 && lunar_day<=12) {// 10, 11, 12,
-        moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-11.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        swprintf(moon_sprite_name,48,L"sprites/moon-11.bmp");
+        lunar_angle=-M_PI_4+M_PI_4/2;
       } else if (lunar_day>=13 && lunar_day<=15) {//13, 14, 15 //fullmoon
-        moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-14.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        swprintf(moon_sprite_name,48,L"sprites/moon-14.bmp");
+        lunar_angle=0;
       } else if (lunar_day>=16 && lunar_day<=18) {//16, 17, 18
-        moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-16.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        swprintf(moon_sprite_name,48,L"sprites/moon-16.bmp");
+        lunar_angle=M_PI_4-M_PI_4/2;
       } else if (lunar_day>=19 && lunar_day<=22) {//19, 20, 21, 22
-        moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-21.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        swprintf(moon_sprite_name,48,L"sprites/moon-21.bmp");
+        lunar_angle=M_PI_4;
       } else if (lunar_day>=23 && lunar_day<=26) {//23, 24, 25,26
-        moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-26.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        swprintf(moon_sprite_name,48,L"sprites/moon-26.bmp");
+        lunar_angle=M_PI_4+M_PI_4/2;
       } else {
-        moon_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/moon-28.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        swprintf(moon_sprite_name,48,L"sprites/moon-28.bmp");
       }
-      //moon_sprite_cache=CreteLargeBitmap(NULL, 128, 128);
-      moon_sprite_cache=RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,BLACK,-1);
-
+      moon_sprite=//(HBITMAP) LoadImageW(NULL, moon_sprite_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        LoadRLE8CompressedBitmap(moon_sprite_name);
+      moon_sprite_cache=GetRotated8BitBitmap(moon_sprite,lunar_angle,LTGREEN);//CopyCrunchyBitmap(moon_sprite,SRCCOPY);//RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,BLACK,-1);
+      ReplaceBitmapColor(moon_sprite_cache,LTGREEN,BLACK);
       
       GenerateDrawSprite(&draw_moon_sprite,moon_sprite_cache);
 
@@ -2218,7 +2240,6 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
 
        loadSoundEffect(&spamSoundEffect[0],L"snd/timebreaker__start.wav",FALSE);
        loadSoundEffect(&spamSoundEffect[1],L"snd/timebreaker__stop.wav",FALSE);
-//       loadSoundEffect(&spamSoundEffect[2],L"snd/clang.wav",FALSE);
        loadSoundEffect(&spamSoundEffect[2],L"snd/flesh_impact_bullet2.wav",FALSE);
        loadSoundEffect(&spamSoundEffect[3],L"snd/player_block.wav",FALSE);
        loadSoundEffect(&spamSoundEffect[4],L"snd/player_block_perfect.wav",FALSE);

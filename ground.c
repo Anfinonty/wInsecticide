@@ -814,3 +814,100 @@ void DrawGroundTriFill(HDC hdc)
   }
 }
 
+
+
+
+void Draw1Ground(HDC hdc,int i,int x, int y)
+{
+  int c;
+    if (Ground[i]->type==0) {
+      if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
+          !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
+          c=Ground[i]->color;
+          /*if (Ground[i]->color_id==0 || Ground[i]->color_id%16==0) {
+            c=RGB(8,8,8);
+          }*/
+          GrLine(hdc,
+                Ground[i]->x1-x,
+                Ground[i]->y1-y,
+                Ground[i]->x2-x,
+                Ground[i]->y2-y,
+                c);
+      }
+    }
+}
+
+void Draw1GroundTriFill(HDC hdc,int i,int x, int y)
+{
+  int c=0;
+    if (Ground[i]->type==3) { 
+      c=Ground[i]->color;
+      /*if (Ground[i]->color_id==0 || Ground[i]->color_id%16==0) {
+        c=RGB(8,8,8);
+      }*/
+      if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
+          !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
+	      DrawTriFill(hdc,c,
+                Ground[i]->x1-x,
+				Ground[i]->y1-y,
+				Ground[i]->x2-x,
+				Ground[i]->y2-y,
+				Ground[i]->x3-x,
+				Ground[i]->y3-y,FALSE,0);
+      }
+    }
+}
+
+
+
+void Draw1GroundText(HDC hdc,int i,int x, int y)
+{
+  int c;
+    if (Ground[i]->type==2) { 
+      if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
+          !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
+          c=Ground[i]->color;
+          /*if (Ground[i]->color_id==0 || Ground[i]->color_id%16==0) {
+            c=RGB(8,8,8);
+          }*/
+	    GrPrintW(hdc,
+            Ground[i]->x1-x,
+            Ground[i]->y1-y,
+            Ground[i]->text,
+            "",
+            c,
+            Ground[i]->font_size,
+            //16,
+            FALSE,
+            yes_unifont);
+      }
+    }
+}
+
+
+
+void Draw1WaterTriFill(HDC hdc,int i,int x,int y) {
+  int c=0;
+    if (Ground[i]->type==1) { 
+      c=Ground[i]->color;
+      if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
+          !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
+	      DrawTriFill(hdc,c,
+                Ground[i]->x1-x,
+				Ground[i]->y1-y,
+				Ground[i]->x2-x,
+				Ground[i]->y2-y,
+				Ground[i]->x3-x,
+				Ground[i]->y3-y,TRUE,HS_HORIZONTAL);
+	      DrawTriFill(hdc,c,
+                Ground[i]->x1-x,
+				Ground[i]->y1-y,
+				Ground[i]->x2-x,
+				Ground[i]->y2-y,
+				Ground[i]->x3-x,
+				Ground[i]->y3-y,TRUE,HS_BDIAGONAL);
+      }
+    }
+}
+
+

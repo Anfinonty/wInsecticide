@@ -274,7 +274,7 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
   double moon_angle=0; 
   //Space Clock
   //Draw blue marbel
-  if (GR_WIDTH>=800) {
+  if (GR_WIDTH>=800 && lunar_day<=26) {
     GrCircle(hdc,mcalendar_x,mcalendar_y,10,LTBLUE,LTBLUE);
     GrRect(hdc,mcalendar_x,mcalendar_y,3,4,LTGREEN);
     GrRect(hdc,mcalendar_x-3,mcalendar_y,9,4,LTGREEN);
@@ -830,12 +830,44 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
 
 
     if (level_loaded) {
-      DrawBlackBorders(hdc);
+      //DrawBlackBorders(hdc);
+      if (GR_WIDTH>=800) {
+          int dmx,dmy;
+          if (lunar_day>=1 && lunar_day<=5) { //1, 2, 3, 4, 5
+            dmx=GR_WIDTH-GR_WIDTH/8;
+            dmy=160+160;
+            DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite,FALSE);
+          } else if (lunar_day>=6 && lunar_day<=9) {// 6, 7, 8, 9
+            dmx=GR_WIDTH/2+GR_WIDTH/4;
+            dmy=160+85;
+            DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite,FALSE);
+          } else if (lunar_day>=10 && lunar_day<=12) {// 10, 11, 12,
+            dmx=GR_WIDTH/2+GR_WIDTH/4-GR_WIDTH/8;
+            dmy=160+25;
+            DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite,FALSE);
+          } else if (lunar_day>=13 && lunar_day<=15) {//13, 14, 15 //fullmoon
+            dmx=GR_WIDTH/2;
+            dmy=160;
+            DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite,FALSE);
+          } else if (lunar_day>=16 && lunar_day<=18) {//16, 17, 18
+            dmx=GR_WIDTH/4+GR_WIDTH/8;
+            dmy=160+25;
+            DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite,FALSE);
+          } else if (lunar_day>=19 && lunar_day<=22) {//19, 20, 21, 22
+            dmx=GR_WIDTH/4;
+            dmy=160+85;
+            DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite,FALSE);
+          } else if (lunar_day>=23 && lunar_day<=26) {//23, 24, 25,26
+            dmx=GR_WIDTH/8;
+            dmy=160+160;
+            DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite,FALSE);
+          //} else {
+          }
+
+      }
+
       if (!hide_mm) {
         DrawPersianClock(hdc,hdc2);
-      }
-      if (GR_WIDTH>=800) {
-        DrawSprite(hdc, hdc2,GR_WIDTH-128,160,&draw_moon_sprite,FALSE);
       }
       DrawPlatforms(hdc,hdc2);
 

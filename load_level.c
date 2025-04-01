@@ -307,6 +307,7 @@ void InitLevel(bool load_lvl)
     swprintf(txt,128,L"saves/mm_demo2/level.txt");
     swprintf(save_level,128,L"saves/mm_demo2/scores.txt");
   }
+  //printf("lvl_chosen_is:%d\n",level_chosen);
   LoadSave(txt,TRUE);
   OLD_GR_WIDTH=0;
   OLD_GR_HEIGHT=0;
@@ -332,29 +333,28 @@ void InitLevel(bool load_lvl)
   InitEnemySpritesObj();
   InitPFEnemyObj();
   InitEnemyPathfindingNodes();
-  InitGridTilesObj(lvl_name);
+    if (load_lvl) {
+      in_main_menu=FALSE;
+//      flag_not_in_main_menu=TRUE;
+    } else {
+      int dice=abs(RandNum(0,100,frame_tick));
+    //printf("in demo:dice,%d",dice);
+      if (dice<30) {
+        is_raining=TRUE;
+      } else {
+        is_raining=FALSE;
+      }
+    }
+
+
+  flag_begin_drawing_tiles=TRUE;  
+  loading_tile_grid_prog=1;
   //allocate smallest to biggest
 
-  level_loaded=TRUE;
-
-  if (!stop_playing_song[0] && stop_playing_song[1] && load_lvl) {//main turntable open only please
-    InitLoadLvlSong();
-  }
-  level_loading=FALSE;
-  if (load_lvl) {
-    in_main_menu=FALSE;
-  } else {
-    int dice=abs(RandNum(0,100,frame_tick));
-    //printf("in demo:dice,%d",dice);
-    if (dice<30) {
-      is_raining=TRUE;
-    } else {
-      is_raining=FALSE;
+  //level_loaded=TRUE;
+    if (!stop_playing_song[0] && stop_playing_song[1] && load_lvl) {//main turntable open only please
+      InitLoadLvlSong();
     }
-  }
-  time_begin=current_timestamp();
-  OLD_GR_WIDTH=0;
-  OLD_GR_HEIGHT=0;
 }
 
 

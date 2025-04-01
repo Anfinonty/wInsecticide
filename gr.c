@@ -2023,7 +2023,7 @@ void ReplaceBitmapColor(HBITMAP hBitmap, COLORREF oldColor, COLORREF newColor)//
         BYTE *row = pixels + (y * bitmap.bmWidthBytes); // Calculate row pointer
 
         for (int x = 0; x < bitmap.bmWidth; x++) {
-            printf("x:%d,y:%d: cindex:%d\n",x,y,row[x]);
+            //printf("x:%d,y:%d: cindex:%d\n",x,y,row[x]);
             if (row[x] == oldColorIndex) {
                 row[x] = newColorIndex; // Replace the color index
             }
@@ -2597,14 +2597,16 @@ bool InitExtractAVIFrames(const wchar_t* szFileName,int index)
     //getting bitmap from frame
     ZeroMemory(&bih, sizeof(BITMAPINFOHEADER));
 
-    bih.biBitCount=8;    //24 bit per pixel
+
+    bih.biBitCount=24;    //24 bit per pixel
+
     bih.biClrImportant=0;
     bih.biClrUsed = 0;
     bih.biCompression = BI_RGB;
     bih.biPlanes = 1;
     bih.biSize = 40;
-    bih.biXPelsPerMeter = 14173;
-    bih.biYPelsPerMeter = 14173;
+    bih.biXPelsPerMeter = 0;
+    bih.biYPelsPerMeter = 0;
     //calculate total size of RGBQUAD scanlines (DWORD aligned)
     bih.biSizeImage = (((bih.biWidth * 3) + 3) & 0xFFFC) * bih.biHeight ;
 
