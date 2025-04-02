@@ -288,19 +288,22 @@ void CopyReplaceColorPaletteNoir(RGBQUAD *paletteDest, RGBQUAD *paletteSrc,int o
 RGBQUAD rgbColorsNoir[256];
 void Init8BitRGBColorsNoir(RGBQUAD *rgbColors)
 {
-  int calc;
+  //int calc;
   for (int i = 0; i < 256; i++) {
-    calc = i/16;
+    //calc = i/16;
     //green->ltpurple
-    if (calc==0 || calc==15) {
+    /*if (calc==0 || calc==15) {
       rgbColors[i].rgbRed = i;
       rgbColors[i].rgbGreen = i;
       rgbColors[i].rgbBlue = i;
     } else {
-      rgbColors[i].rgbRed = 255-i;
-      rgbColors[i].rgbGreen = 255-i;
-      rgbColors[i].rgbBlue = 255-i;
-    }
+      rgbColors[i].rgbRed = i;//255-i;
+      rgbColors[i].rgbGreen = i;//255-i;
+      rgbColors[i].rgbBlue = i;//255-i;
+    }*/
+    rgbColors[i].rgbRed = i;
+    rgbColors[i].rgbGreen = i;
+    rgbColors[i].rgbBlue = i;
   }
 }
 
@@ -2723,9 +2726,9 @@ void SetTexturePalette(int target_color_id,RGBQUAD *myTexturePalette) {
   double grey_val_g;
   double grey_val_b;
   for (int i=0;i<256;i++) {
-    grey_val_r=((double)(rgbColorsNoir[255-i].rgbRed))/255*rgbColorsDefault[target_color_id].rgbRed;
-    grey_val_g=((double)(rgbColorsNoir[255-i].rgbGreen))/255*rgbColorsDefault[target_color_id].rgbGreen;
-    grey_val_b=((double)(rgbColorsNoir[255-i].rgbBlue))/255*rgbColorsDefault[target_color_id].rgbBlue;
+    grey_val_r=((double)(rgbColorsNoir[i/*255-i*/].rgbRed))/255*rgbColorsDefault[target_color_id].rgbRed;
+    grey_val_g=((double)(rgbColorsNoir[i/*255-i*/].rgbGreen))/255*rgbColorsDefault[target_color_id].rgbGreen;
+    grey_val_b=((double)(rgbColorsNoir[i/*255-i*/].rgbBlue))/255*rgbColorsDefault[target_color_id].rgbBlue;
     myTexturePalette[i].rgbRed=grey_val_r;
     myTexturePalette[i].rgbGreen=grey_val_g;
     myTexturePalette[i].rgbBlue=grey_val_b;

@@ -372,6 +372,10 @@ void InitPlayer() {
   player.rst_up=FALSE;
   player.flag_death=FALSE;
 
+  player.above_ground_edge=FALSE;
+  player.below_ground_edge=FALSE;
+
+
   player.rst_arrow_down=FALSE;
   player.rst_arrow_left=FALSE;
   player.rst_arrow_right=FALSE;
@@ -426,6 +430,10 @@ void InitPlayer() {
 //  player.on_ground_id_d1=-1;
 //  player.on_ground_id_d2=-1;
 
+  player.edge_angle=0;
+
+  player.above_head_x=0;
+  player.above_head_y=0;
 
   player.on_a_ground=FALSE;
   player.saved_ground_id=-1;
@@ -626,7 +634,7 @@ void PlayerActGroundEdgeMovement()
 
   double edge_dist1;
   double edge_dist2;
-  double edge_angle;
+  //double player.edge_angle;
   double distl=20;
 //  double distl=12;
 
@@ -652,26 +660,30 @@ void PlayerActGroundEdgeMovement()
         //player.in_air_timer=0;
         if (player.is_on_left_ground_edge) {
           edge_dist1=GetDistance(player.x,player.y,Ground[player.on_ground_edge_id]->x1,Ground[player.on_ground_edge_id]->y1); //left edge
-          edge_angle=GetCosAngle(player.x-Ground[player.on_ground_edge_id]->x1,edge_dist1);
+          player.edge_angle=GetCosAngle(player.x-Ground[player.on_ground_edge_id]->x1,edge_dist1);
           if (player.y<Ground[player.on_ground_edge_id]->y1) { //above pivot
+              player.above_ground_edge=TRUE;
+              player.below_ground_edge=FALSE;
               if (player.rst_right) { //clockwize
-                move_x(cos(-edge_angle+M_PI_2)*0.1);
-                move_y(sin(-edge_angle+M_PI_2)*0.1);
+                move_x(cos(-player.edge_angle+M_PI_2)*0.1);
+                move_y(sin(-player.edge_angle+M_PI_2)*0.1);
                 player.last_left=FALSE;
               } else if (player.rst_left) { //anticlockwize
-                move_x(-cos(-edge_angle+M_PI_2)*0.1);
-                move_y(-sin(-edge_angle+M_PI_2)*0.1);
+                move_x(-cos(-player.edge_angle+M_PI_2)*0.1);
+                move_y(-sin(-player.edge_angle+M_PI_2)*0.1);
                 player.last_left=TRUE;
               }
           } else { //below pivot
+              player.above_ground_edge=FALSE;
+              player.below_ground_edge=TRUE;
               player.below_ground_edge_timer=5;
               if (player.rst_right) { //clockwize
-                move_x(-cos(-edge_angle+M_PI_2)*0.1);
-                move_y(sin(-edge_angle+M_PI_2)*0.1);
+                move_x(-cos(-player.edge_angle+M_PI_2)*0.1);
+                move_y(sin(-player.edge_angle+M_PI_2)*0.1);
                 player.last_left=TRUE;
               } else if (player.rst_left) { //anticlockwize
-                move_x(cos(-edge_angle+M_PI_2)*0.1);
-                move_y(-sin(-edge_angle+M_PI_2)*0.1);
+                move_x(cos(-player.edge_angle+M_PI_2)*0.1);
+                move_y(-sin(-player.edge_angle+M_PI_2)*0.1);
                 player.last_left=FALSE;
               }
           }
@@ -684,26 +696,30 @@ void PlayerActGroundEdgeMovement()
           }
         } else if (player.is_on_right_ground_edge) {
           edge_dist2=GetDistance(player.x,player.y,Ground[player.on_ground_edge_id]->x2,Ground[player.on_ground_edge_id]->y2); //right edge
-          edge_angle=GetCosAngle(player.x-Ground[player.on_ground_edge_id]->x2,edge_dist2);
+          player.edge_angle=GetCosAngle(player.x-Ground[player.on_ground_edge_id]->x2,edge_dist2);
           if (player.y<Ground[player.on_ground_edge_id]->y2) { //above pivot
+              player.above_ground_edge=TRUE;
+              player.below_ground_edge=FALSE;
               if (player.rst_right) { //clockwize
-                move_x(cos(-edge_angle+M_PI_2)*0.1);
-                move_y(sin(-edge_angle+M_PI_2)*0.1);
+                move_x(cos(-player.edge_angle+M_PI_2)*0.1);
+                move_y(sin(-player.edge_angle+M_PI_2)*0.1);
                 player.last_left=FALSE;
               } else if (player.rst_left) { //anticlockwize
-                move_x(-cos(-edge_angle+M_PI_2)*0.1);
-                move_y(-sin(-edge_angle+M_PI_2)*0.1);
+                move_x(-cos(-player.edge_angle+M_PI_2)*0.1);
+                move_y(-sin(-player.edge_angle+M_PI_2)*0.1);
                 player.last_left=TRUE;
               }
           } else { //below pivot
+              player.above_ground_edge=FALSE;
+              player.below_ground_edge=TRUE;
               player.below_ground_edge_timer=5;
               if (player.rst_right) { //clockwize
-                move_x(-cos(-edge_angle+M_PI_2)*0.1);
-                move_y(sin(-edge_angle+M_PI_2)*0.1);
+                move_x(-cos(-player.edge_angle+M_PI_2)*0.1);
+                move_y(sin(-player.edge_angle+M_PI_2)*0.1);
                 player.last_left=TRUE;
               } else if (player.rst_left) { //anticlockwize
-                move_x(cos(-edge_angle+M_PI_2)*0.1);
-                move_y(-sin(-edge_angle+M_PI_2)*0.1);
+                move_x(cos(-player.edge_angle+M_PI_2)*0.1);
+                move_y(-sin(-player.edge_angle+M_PI_2)*0.1);
                 player.last_left=FALSE;
               }
           }
@@ -2299,6 +2315,9 @@ void PlayerAct()
             player.above_y2=player.claws_y+(claws_l)*sin(player.angle-M_PI/2);
 
 
+            player.above_head_x=player.x+cos(player.angle-M_PI/2)*NODE_SIZE*2;
+            player.above_head_y=player.y+sin(player.angle-M_PI/2)*NODE_SIZE*2;
+
           } else if (player.current_below) {        
             player.above_x=player.x+(claws_l)*cos(player.angle+M_PI/2);
             player.above_y=player.y+(claws_l)*sin(player.angle+M_PI/2);
@@ -2329,6 +2348,9 @@ void PlayerAct()
 
             player.above_x2=player.claws_x+(claws_l)*cos(player.angle+M_PI/2);
             player.above_y2=player.claws_y+(claws_l)*sin(player.angle+M_PI/2);
+
+            player.above_head_x=player.x+cos(player.angle+M_PI/2)*NODE_SIZE*2;
+            player.above_head_y=player.y+sin(player.angle+M_PI/2)*NODE_SIZE*2;
 
           } else {
             player.above_x=player.x;
@@ -2361,6 +2383,19 @@ void PlayerAct()
 
             player.above_x2=player.claws_x; //up right
             player.above_y2=player.claws_y-(claws_l);
+
+            if (player.is_on_ground_edge) {
+              if (player.above_ground_edge) {
+                player.above_head_x=player.x+cos(player.edge_angle-M_PI/2)*NODE_SIZE*2;
+                player.above_head_y=player.y+sin(player.edge_angle-M_PI/2)*NODE_SIZE*2;
+              } else if (player.below_ground_edge) {
+                player.above_head_x=player.x+cos(player.edge_angle+M_PI/2)*NODE_SIZE*2;
+                player.above_head_y=player.y+sin(player.edge_angle+M_PI/2)*NODE_SIZE*2;
+              }
+            } else {
+              player.above_head_x=player.x;//;+sin(player.angle+M_PI/2)*NODE_SIZE*2;
+              player.above_head_y=player.y;//+cos(player.angle+M_PI/2)*NODE_SIZE*2;
+            }
           }
         }
 

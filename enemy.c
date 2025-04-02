@@ -579,9 +579,9 @@ void EnemyTargetPlayer(int i)
   Enemy[i]->search_target=TRUE;
   Enemy[i]->idle_timer=0;
   Enemy[i]->search_timer=0;
-  if (player.print_current_above || player.print_current_below) {
-    target_x=player.above_x;
-    target_y=player.above_y;
+  if (player.print_current_above || player.print_current_below || player.above_ground_edge || player.below_ground_edge) {
+    target_x=player.above_head_x;
+    target_y=player.above_head_y;
   } else {
     target_x=player.x;
     target_y=player.y;
@@ -593,8 +593,10 @@ void EnemyTargetPlayer(int i)
 			EnemyPathfinding[pfi]->node_num);
   if ((Enemy[i]->species==1 || Enemy[i]->species==3) &&
       EnemyPathfinding[pfi]->node_solid[target_node]) {
-    target_x=player.above_x2;
-    target_y=player.above_y2;
+    //target_x=player.above_x2;
+    //target_y=player.above_y2;
+    target_x=player.above_head_x;
+    target_y=player.above_head_y;
     target_node=GetGridId(target_x-EnemyPathfinding[pfi]->node_x[0],
 			  target_y-EnemyPathfinding[pfi]->node_y[0],
                           MAX_FOLLOW_RANGE*NODE_SIZE,
