@@ -155,6 +155,8 @@ struct player
   bool previous_below;
   bool print_current_above;
   bool print_current_below;
+  bool above_ground_edge;
+  bool below_ground_edge;
   bool time_breaker;
   bool attack;
   bool blocking;
@@ -304,12 +306,15 @@ struct player
   double below_y2;
   double above_x;
   double above_y;
+  double above_head_x;
+  double above_head_y;
   double above_x1;
   double above_y1;
   double above_x2;
   double above_y2;
   double sprite_angle;
   double angle;
+  double edge_angle;
   double saved_angle;
   double saved_sprite_angle;
   double saved_block_sprite_angle;
@@ -926,17 +931,6 @@ ATileMap *createTileMap()
   return toReturn;
 }
 
-/*void freeTileMapSpritePaint(ATileMap *myTileMap)
-{
-  if (myTileMap->sprite_paint!=NULL)
-    DeleteObject(myTileMap->sprite_paint);
-}
-
-void freeTileMapSpriteMask(ATileMap *myTileMap)
-{
-  if (myTileMap->sprite_mask!=NULL)
-    DeleteObject(myTileMap->sprite_mask);
-}*/
 
 void freeTileMap(ATileMap *myTileMap)
 {
@@ -968,11 +962,6 @@ ATileMapPaint *createTileMapPaint()
 }
 
 
-/*void freeTileMapPaintSpritePaint(ATileMapPaint *myTileMapPaint)
-{
-  if (myTileMapPaint->sprite_paint!=NULL)
-    DeleteObject(myTileMapPaint->sprite_paint);
-}*/
 
 void freeTileMapPaint(ATileMapPaint *myTileMapPaint)
 {
