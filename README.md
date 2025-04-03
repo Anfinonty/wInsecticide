@@ -15,7 +15,7 @@ Useful Resources:
 - (Mingw32-w64) https://onboardcloud.dl.sourceforge.net/project/mingw-w64/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/8.1.0/threads-win32/dwarf/i686-8.1.0-release-win32-dwarf-rt_v6-rev0.7z
 
 To Clone:
-git clone --depth==1 https://github.com/Anfinonty/wInsecticide
+git clone --depth=1 https://github.com/Anfinonty/wInsecticide
 
 To Update when in cloned repo:
 git pull
