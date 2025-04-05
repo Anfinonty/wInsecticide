@@ -2149,9 +2149,8 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
       } else {
         swprintf(moon_sprite_name,48,L"sprites/moon-28.bmp");
       }
-      moon_sprite=//(HBITMAP) LoadImageW(NULL, moon_sprite_name, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-        LoadRLE8CompressedBitmap(moon_sprite_name);
-      moon_sprite_cache=GetRotated8BitBitmap(moon_sprite,lunar_angle,LTGREEN);//CopyCrunchyBitmap(moon_sprite,SRCCOPY);//RotateSprite(NULL, moon_sprite,0,LTGREEN,BLACK,BLACK,-1);
+      moon_sprite=LoadRLE8CompressedBitmap(moon_sprite_name);
+      moon_sprite_cache=GetRotated8BitBitmap(moon_sprite,lunar_angle,LTGREEN);
       ReplaceBitmapColor(moon_sprite_cache,LTGREEN,BLACK);
       
       GenerateDrawSprite(&draw_moon_sprite,moon_sprite_cache);
