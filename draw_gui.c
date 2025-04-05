@@ -2040,11 +2040,15 @@ void DrawUI(HDC hdc,HDC hdc2)
     GrPrint(hdc,mouse_x+17,mouse_y-48,"S",LTRED);
   }
 
-  if (IsSpeedBreaking())
-    GrPrint(hdc,mouse_x+48,mouse_y-48,"C",LTGREEN);
-  else
-    GrPrint(hdc,mouse_x+48,mouse_y-48,"C",LTRED);
-
+  if ((!game_hard) ||
+      (game_hard && !player.time_breaker && player.time_breaker_units>0)
+    )
+  {
+    if (IsSpeedBreaking())
+      GrPrint(hdc,mouse_x+48,mouse_y-48,"C",LTGREEN);
+    else
+      GrPrint(hdc,mouse_x+48,mouse_y-48,"C",LTRED);
+  }
 
   if (player.time_breaker_units==player.time_breaker_units_max && !player.time_breaker) {
     if (frame_tick%16<8) {
@@ -2179,6 +2183,9 @@ void DrawLoading(HDC hDC/*,int max_marbles*/)
   double grectl=(GR_WIDTH-34-34)*loading_percentage;
   if (!hide_taskbar) {
     extra_y=32;
+  }
+  if (flag_display_long_loading) {
+    GrPrintThick(hDC,34,GR_HEIGHT-46-extra_y-32,"Loading shadows, this will take a while...",WHITE,BLACK);
   }
   GrRect(hDC,32,GR_HEIGHT-48-extra_y,GR_WIDTH-64,8*3,WHITE);
   if (loading_denominator>0) {

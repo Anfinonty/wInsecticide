@@ -1987,6 +1987,10 @@ void PlayerAct()
           }
 
 
+        //timebreaker slowdown disabled on hardmode
+         if (game_hard && player.time_breaker && IsSpeedBreaking()) {
+            player.sleep_timer = DEFAULT_SLEEP_TIMER;
+          }
 
 
        //Destroy Ground (regainable)

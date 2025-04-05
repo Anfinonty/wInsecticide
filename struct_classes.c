@@ -460,7 +460,7 @@ ANode **NodeGrid;
 int GetGridId(int x,int y,int width, int size,int max);
 void SetGridLineArray(int grid_id,int ground_id);
 void UnSetGridLineArray(int grid_id,int ground_id);
-void InitGridTiles(const wchar_t *lvl_name);
+//void InitGridTiles(const wchar_t *lvl_name);
 void DrawCreateTiles(HDC hdc);
 void InitGrid();
 void InitRDGrid();
@@ -1174,4 +1174,6 @@ wavSoundEffectCache channelSoundEffectCache[CHANNEL_SFX_NUM];
 
 //Global blend function for transparency
 BLENDFUNCTION gblendFunction;
+
+void SaveLvlBmp(HWND hwnd,HDC hdc,const wchar_t *lvl_name);
 

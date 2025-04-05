@@ -115,6 +115,50 @@ void DrawCreateTiles(HDC hdc)
   int tmp_id;
 
   if (loading_tile_grid_prog==1) {
+    if (is_shadows) {
+      yes_shadow=TRUE;
+    }
+    if (yes_shadow) {
+      wchar_t lvl_shadow_name[72];
+      if (!back_to_menu)
+        swprintf(lvl_shadow_name,72,L"%s",level_names[level_chosen]);    
+      else
+        swprintf(lvl_shadow_name,72,L"mm_demo2");
+
+      wchar_t lvl_shadow_folder_name[128];
+      swprintf(lvl_shadow_folder_name,128,L"saves/%s/seg_shadow",lvl_shadow_name);
+
+      if (!DirExists(lvl_shadow_folder_name)) {
+        flag_display_long_loading=TRUE;
+      }
+    }
+    loading_tile_grid_prog=2;
+    //Draw "Loading shadows. This will take a while..."
+  } else if (loading_tile_grid_prog==2) {
+    if (is_shadows) {
+      yes_shadow=TRUE;
+    }
+    if (yes_shadow) {
+      wchar_t lvl_shadow_name[72];
+      if (!back_to_menu)
+        swprintf(lvl_shadow_name,72,L"%s",level_names[level_chosen]);    
+      else
+        swprintf(lvl_shadow_name,72,L"mm_demo2");
+
+      wchar_t lvl_shadow_folder_name[128];
+      swprintf(lvl_shadow_folder_name,128,L"saves/%s/seg_shadow",lvl_shadow_name);
+
+      if (!DirExists(lvl_shadow_folder_name)) {
+        SaveLvlBmp(NULL,hdc,lvl_shadow_name);
+        InitGridTiles(lvl_shadow_name);
+        loading_numerator=0;
+        loading_denominator=SHADOW_GRID_NUM+PLATFORM_GRID_NUM+FOREGROUND_GRID_NUM;
+        flag_display_long_loading=FALSE;
+      }
+    }
+
+    loading_tile_grid_prog=3;
+  } else if (loading_tile_grid_prog==3) {
     TileMapPlatform = calloc(PLATFORM_GRID_NUM,sizeof(ATileMap*));
     for (int i=0;i<PLATFORM_GRID_NUM;i++) {
       ATileMap *newTileMap = createTileMap();
@@ -153,9 +197,9 @@ void DrawCreateTiles(HDC hdc)
           }
       }
     }
-    loading_tile_grid_prog=2;
+    loading_tile_grid_prog=4;
 
-  } else if (loading_tile_grid_prog==2) {
+  } else if (loading_tile_grid_prog==4) {
     if (FOREGROUND_GRID_NUM>0) {
 
       TileMapForeground = calloc(FOREGROUND_GRID_NUM,sizeof(ATileMap*));
@@ -185,11 +229,11 @@ void DrawCreateTiles(HDC hdc)
           }
         }
       }
-      loading_tile_grid_prog=3;
+      loading_tile_grid_prog=5;
     } else {
-      loading_tile_grid_prog=3;
+      loading_tile_grid_prog=5;
     }
-  } else if (loading_tile_grid_prog==3) {
+  } else if (loading_tile_grid_prog==5) {
     if (is_shadows) {
       yes_shadow=TRUE;
     }

@@ -219,13 +219,13 @@ void SaveNewCreatedLvl(const wchar_t* create_lvl_name_)
 }*/
 
 
-void SaveLvlBmpSegmentation1(HWND hwnd,HDC hdc)
+void SaveLvlBmpSegmentation1(HWND hwnd,HDC hdc,const wchar_t* lvl_name)
 {
   //wchar_t bmp_seg_save[64];
   //swprintf(bmp_seg_save,64,L"saves/%s/seg_platforms",level_names[level_chosen]);
   wchar_t shadow_bmp_seg_save[64];
-  swprintf(shadow_bmp_seg_save,64,L"saves/%s/seg_shadow",level_names[level_chosen]);
-
+  // swprintf(shadow_bmp_seg_save,64,L"saves/%s/seg_shadow",level_names[level_chosen]);
+  swprintf(shadow_bmp_seg_save,64,L"saves/%s/seg_shadow",lvl_name);
 
   //RemoveFolderRecursive(bmp_seg_save);
   //_wmkdir(bmp_seg_save);
@@ -233,7 +233,9 @@ void SaveLvlBmpSegmentation1(HWND hwnd,HDC hdc)
 
 
   PAINTSTRUCT ps; //Suggestion Credit: https://git.xslendi.xyz
-  hdc=BeginPaint(hwnd, &ps);
+  if (hwnd!=NULL) {
+    hdc=BeginPaint(hwnd, &ps);
+  }
   HDC hdc1;
   HDC hdc2;
   HBITMAP tmp_bitmap;
@@ -264,8 +266,9 @@ void SaveLvlBmpSegmentation1(HWND hwnd,HDC hdc)
 
 
   //shadow platforms, water excluded from shadow
-  if (MapEditor.set_lvl_ambient_val[6]==1 && 
-        (MapEditor.set_lvl_ambient_val[7]!=shadow_grad_rise || MapEditor.set_lvl_ambient_val[8]!=shadow_grad_run)) {
+  if ((hwnd==NULL) || 
+        (MapEditor.set_lvl_ambient_val[6]==1 && 
+        (MapEditor.set_lvl_ambient_val[7]!=shadow_grad_rise || MapEditor.set_lvl_ambient_val[8]!=shadow_grad_run))) {
       hdc1=CreateCompatibleDC(hdc);
       RemoveFolderRecursive(shadow_bmp_seg_save);
       _wmkdir(shadow_bmp_seg_save);
@@ -281,18 +284,22 @@ void SaveLvlBmpSegmentation1(HWND hwnd,HDC hdc)
           SaveBitmapToFile2(tmp_bitmap,rgbColorsDefault, seg_save_seg);
           DeleteDC(hdc2);
           DeleteObject(tmp_bitmap);
-          loading_numerator++;
-          loading_percentage=(loading_numerator+1)/(loading_denominator+1)*100;
-          printf("=== %1.0f%% - [%1.0f/%1.0f]\r",loading_percentage,loading_numerator,loading_denominator);
+          if (hwnd!=NULL) {
+            loading_numerator++;
+            loading_percentage=(loading_numerator+1)/(loading_denominator+1)*100;
+            printf("=== %1.0f%% - [%1.0f/%1.0f]\r",loading_percentage,loading_numerator,loading_denominator);
+          }
         }
       }
       DeleteDC(hdc1);
       DeleteObject(map_platforms_shadow_shader);
   }
-  EndPaint(hwnd, &ps);
+  if (hwnd!=NULL) {
+    EndPaint(hwnd, &ps);
+  }
 }
 
-void SaveLvlBmp(HWND hwnd,HDC hdc)
+void SaveLvlBmp(HWND hwnd,HDC hdc,const wchar_t* lvl_name)
 {  
   //tri fill all triangles to be segmented
   for (int i=0;i<GROUND_NUM;i++) {
@@ -308,8 +315,10 @@ void SaveLvlBmp(HWND hwnd,HDC hdc)
     FOREGROUND_GRID_NUM=0;
     PLATFORM_GRID_NUM=0;
     SHADOW_GRID_NUM=0;
-    loading_numerator=0;
-    loading_denominator=0;
+    if (hwnd!=NULL) {
+      loading_numerator=0;
+      loading_denominator=0;
+    }
 
     for (int i=0;i<VGRID_NUM;i++) {
       if (VGrid[i]->has_water) {
@@ -329,21 +338,24 @@ void SaveLvlBmp(HWND hwnd,HDC hdc)
       }
     }
 
-    loading_denominator=PLATFORM_GRID_NUM+FOREGROUND_GRID_NUM+SHADOW_GRID_NUM;
+    if (hwnd!=NULL) {
+      loading_denominator=PLATFORM_GRID_NUM+FOREGROUND_GRID_NUM+SHADOW_GRID_NUM;
+    }
 
 
 
-
-  wchar_t bmp_save[64];
-  swprintf(bmp_save,64,L"saves/%s/map.bmp",level_names[level_chosen]);
-  wchar_t water_bmp_save[64];
+ // wchar_t bmp_save[64];
+ // swprintf(bmp_save,64,L"saves/%s/map.bmp",level_names[level_chosen]);
+ // wchar_t water_bmp_save[64];
 //  swprintf(water_bmp_save,64,L"saves/%s/map_water.bmp",level_names[level_chosen]);
-  swprintf(water_bmp_save,64,L"saves/%s/map_foreground.bmp",level_names[level_chosen]);
-  wchar_t bmp_save_shadow[64];
-  swprintf(bmp_save_shadow,64,L"saves/%s/map_shadow.bmp",level_names[level_chosen]);
+//  swprintf(water_bmp_save,64,L"saves/%s/map_foreground.bmp",level_names[level_chosen]);
+//  wchar_t bmp_save_shadow[64];
+//  swprintf(bmp_save_shadow,64,L"saves/%s/map_shadow.bmp",level_names[level_chosen]);
 
   PAINTSTRUCT ps; //Suggestion Credit: https://git.xslendi.xyz
-  hdc=BeginPaint(hwnd, &ps);
+  if (hwnd!=NULL) {
+    hdc=BeginPaint(hwnd, &ps);
+  }
   HDC hdc2=CreateCompatibleDC(hdc);
   HDC hdc3=CreateCompatibleDC(hdc);
 
@@ -359,6 +371,7 @@ void SaveLvlBmp(HWND hwnd,HDC hdc)
 
   //shadow platforms, water excluded from shadow
   int shadowc=LTGRAY;
+  if (hwnd!=NULL) {
   if (MapEditor.set_lvl_ambient_val[6]==1 && 
         (MapEditor.set_lvl_ambient_val[7]!=shadow_grad_rise || MapEditor.set_lvl_ambient_val[8]!=shadow_grad_run)) {
     if (MapEditor.set_lvl_ambient_val[0]==1 || (MapEditor.set_lvl_ambient_val[0]==2 && MapEditor.set_lvl_ambient_val[1]>127)) {
@@ -369,11 +382,18 @@ void SaveLvlBmp(HWND hwnd,HDC hdc)
                                     shadowc); //Create Shadow Map
     //SaveBitmapToFile2(map_platforms_shadow_shader,rgbColorsDefault, bmp_save_shadow);
   }
-
+  } else {
+    if (map_background==1 || (map_background==2 && custom_map_background_color_i>127)) {
+      shadowc=RGB(8,8,8);//DKRDKGRAY;
+    }
+    CreatePlatformShadowBitmap(hdc2, shadow_grad_rise,
+                                    shadow_grad_run,
+                                    shadowc); //Create Shadow Map
+  }
 
   DeleteDC(hdc3);
   DeleteDC(hdc2);
-  SaveLvlBmpSegmentation1(hwnd,hdc);
+  SaveLvlBmpSegmentation1(hwnd,hdc,lvl_name);
 
 
   /*hdc2=CreateCompatibleDC(hdc);
@@ -387,7 +407,9 @@ void SaveLvlBmp(HWND hwnd,HDC hdc)
 
   //water platforms
 
-  EndPaint(hwnd, &ps);
+  if (hwnd!=NULL) {
+    EndPaint(hwnd, &ps);
+  }
   //SaveBitmapToFile2(map_platforms_sprite,rgbColorsDefault, bmp_save);
   //SaveBitmapToFile2(map_water_platforms_sprite,rgbColorsDefault, water_bmp_save);
 
@@ -665,7 +687,7 @@ void SaveMELvl(HWND hwnd,HDC hdc)
 
    printf("\n=== Saving Map Id: %d ===\n\n",level_chosen);
 
-   SaveLvlBmp(hwnd,hdc);
+   SaveLvlBmp(hwnd,hdc,level_names[level_chosen]);
    level_loading=FALSE;
    printf("\n\n=== Save Complete ===\n",level_chosen);
 

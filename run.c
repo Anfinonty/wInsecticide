@@ -96,6 +96,7 @@ bool flag_taskbar_change_act=FALSE;
 bool flag_borderless_resolution_change=FALSE;
 bool flag_difficulty_change=FALSE;
 bool flag_begin_drawing_tiles=FALSE;
+bool flag_display_long_loading=FALSE;
 bool hide_cursor=FALSE;
 bool hide_mm=FALSE;
 //game options
@@ -1649,7 +1650,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //Init screen resolution
         //https://en.wikipedia.org/wiki/List_of_common_display_resolutions
         //https://en.wikipedia.org/wiki/Display_resolution_standards
-        //https://en.wikipedia.org/wiki/Ultrawide_formats
+        //https://en.wikipedia.org/wiki/Ultrawide_formats 
         InitSetRes(0,SCREEN_WIDTH,SCREEN_HEIGHT," * ",L" * ");
         InitSetRes(1,640,480,"VGA",L"VGA");
         InitSetRes(2,640,512,"0.33M3",L"0.33M3");
