@@ -759,14 +759,14 @@ void InitLevelMapEditor()
   InitMapEditor();
 
   //Load Player Cosmetics
-  DeleteObject(player.sprite_1);
-  FreeDrawSprite(&player.draw_sprite_1);
+    //DeleteObject(player.sprite_1);
+    //FreeDrawSprite(&player.draw_sprite_1);
 
-  player.sprite_1 = RotateSprite(NULL, player.osprite_1,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
+    //player.sprite_1 = RotateSprite(NULL, player.osprite_1,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
 
   //Load Player Sprites
-  player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
-  GenerateDrawSprite(&player.draw_sprite_1,player.sprite_1_cache);
+    //player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
+    //GenerateDrawSprite(&player.draw_sprite_1,player.sprite_1_cache);
 
 
 
@@ -1154,7 +1154,7 @@ void CleanupMapEditorAll()
     DeleteObject(map_background_sprite);
     //LoadMainMenuBackground();
     main_menu_chosen=0;
-    back_to_menu=FALSE;
+    //back_to_menu=FALSE;
     run_after_once=FALSE;
     //clean_up_sound=TRUE;
     in_map_editor=FALSE;

@@ -1,4 +1,5 @@
 //classes for game
+//==================GROUND LINE==================
 typedef struct GroundLine
 {
   bool is_ghost; //Can be colided or not collided
@@ -28,30 +29,18 @@ typedef struct GroundLine
   bool already_in_grid[MAX_VGRID_NUM];
   int saved_pos_in_grid[MAX_VGRID_NUM];
 } AGround;
-//} Ground[GROUND_NUM+MAX_WEB_NUM];
-//struct GroundLine Ground[MAX_GROUND_NUM+MAX_WEB_NUM];
 
 //https://stackoverflow.com/questions/48222554/c-creating-a-struct-array-beyond-certain-size-causes-a-crash
-//AGround *createGround(int vgrid_num)
 
 AGround *createGround()
 {
   AGround *toReturn = malloc(sizeof(AGround));
-  /*if (vgrid_num>MAX_VGRID_NUM) {
-    vgrid_num=MAX_VGRID_NUM;
-  }
-  toReturn->already_in_grid = malloc(vgrid_num*sizeof(bool));
-  toReturn->saved_pos_in_grid = malloc(vgrid_num*sizeof(int));*/
   return toReturn;
 }
 
 
 void freeGround(AGround *myGround)
 {
-  /*if (myGround->already_in_grid != NULL)
-    free(myGround->already_in_grid);    
-  if (myGround->saved_pos_in_grid != NULL)
-    free(myGround->saved_pos_in_grid);*/
   if (myGround)
     free(myGround);
 }
@@ -89,13 +78,19 @@ int *AGroundFire;
 
 */
 
-void InitGround(bool is_max);
-void InitGround2();
+
+
 double GetLineTargetAngle(int Ground_id,double x,double y);
 double GetLineTargetHeight(int Ground_id,double E,double x,double y);
+double GetLineTargetHeightII(int Ground_id,double E,double x,double y);
 void SetGround(int i);
+void InitGround(bool is_max);
+void InitGround2();
 int GetOnGroundId(double x,double y,double min_range_1,double min_range_2);
+int GetOnGroundIdPlayer(double x,double y,double min_range_1,double min_range_2);
+int GetOnGroundIdE(double x,double y,double min_range_1,double min_range_2,int enemy_id);
 void DestroyGround(int i);
+
 
 void DrawWebs(HDC hdc);
 void DrawGround(HDC hdc);
@@ -106,6 +101,13 @@ void Draw1Ground(HDC hdc,int i,int x, int y);
 void Draw1GroundText(HDC hdc,int i,int x, int y);
 void Draw1GroundTriFill(HDC hdc,int i,int x, int y);
 void Draw1WaterTriFill(HDC hdc, int i,int x,int y);
+
+//gameplay only
+int *rendered_water_ground;
+
+
+
+
 
 
 //For map editor
@@ -122,7 +124,7 @@ int *render_grounds;
 
 
 
-
+//==================PLAYER==================
 struct player 
 {
   bool is_rebounding;
@@ -235,14 +237,10 @@ struct player
   int speed;
   int on_ground_timer;
   int on_ground_id;
-  //int on_ground_id_u1;
   int on_ground_id_u2;
-  //int on_ground_id_d1;
-  //int on_ground_id_d2;
   int saved_ground_id;
   int walk_cycle;
   int player_jump_height;
-  //int key_jump_timer;
   int knockback_speed_multiplier;
   int knockback_strength;
   int time_breaker_tick;
@@ -264,42 +262,20 @@ struct player
   int visible_rain_wet_timer;
   int exp;
 
+  int sprite_angle;
+
   int blur_timer[PLAYER_BLUR_NUM];
   int blur_x[PLAYER_BLUR_NUM];
   int blur_y[PLAYER_BLUR_NUM];
   int blur_sprite_x[PLAYER_BLUR_NUM];
   int blur_sprite_y[PLAYER_BLUR_NUM];
 
-  //=== JUST A DEMO===
-  /*int sprite_width;
-  int sprite_height;
-  int sprite_minx;
-  int sprite_miny;
-  int sprite_maxx;
-  int sprite_maxy;
-  int current_draw_row;*/
-
-//1
-//Find size of rotated bitmap from rotating SpriteA
-//2
-//Create Empty bitmap (cache_rot) SpriteB
-//3 
-//place each line of rotation from SpriteA to SpriteB
-//4
-//SpriteC = SpriteB
-
-  //int render_enemies[21];
-  //int render_grounds[342];
-  //int *render_enemies;
-  //int *render_grounds;
   double knockback_speed;
   double attack_strength;
   double saved_x;
   double saved_y;
   double x;
   double y;
-  //double death_x;
-  //double death_y;
   double below_x1;
   double below_y1;
   double below_x2;
@@ -312,13 +288,13 @@ struct player
   double above_y1;
   double above_x2;
   double above_y2;
-  double sprite_angle;
+//  double sprite_angle;
   double angle;
   double edge_angle;
   double saved_angle;
-  double saved_sprite_angle;
-  double saved_block_sprite_angle;
-  double saved_attack_sprite_angle;
+//  double saved_sprite_angle;
+//  double saved_block_sprite_angle;
+//  double saved_attack_sprite_angle;
   double player_grav;
 
   double cam_x;
@@ -333,8 +309,6 @@ struct player
   double claws_y;
   double claws_attack_x;
   double claws_attack_y;
-  //double cam_edge_move_x;
-  //double cam_edge_move_y;
 
   double block_health_max;
   double block_health;
@@ -357,90 +331,7 @@ struct player
 
   int web_storage[MAX_WEB_NUM];
   int cdwebs[MAX_WEB_NUM];
-  //int render_vgrids[VRDGRID_NUM];
   int bullet[PLAYER_BULLET_NUM];
-
-
-//
-  HBITMAP osprite_1;
-  HBITMAP osprite_2;
-  HBITMAP osprite_jump;
-  HBITMAP oattack_sprite_1;
-  HBITMAP oattack_sprite_2;
-  HBITMAP oattack_sprite_3;
-  HBITMAP oattack_sprite_4;
-  HBITMAP oblock_sprite_1;
-  HBITMAP oblock_sprite_2;
-  HBITMAP oblock_sprite_3;
-  HBITMAP ospin_sprite;
-
-
-
-//sprites
-  HBITMAP sprite_1;
-  HBITMAP sprite_2;
-  HBITMAP sprite_jump;
-  HBITMAP attack_sprite_1;
-  HBITMAP attack_sprite_2;
-  HBITMAP attack_sprite_3;
-  HBITMAP attack_sprite_4;
-  HBITMAP block_sprite_1;
-  HBITMAP block_sprite_2;
-  HBITMAP block_sprite_3;
-  HBITMAP spin_sprite;
-
-
-//sprite cache to be displayed
-  HBITMAP sprite_1_cache;
-  HBITMAP sprite_2_cache;
-  HBITMAP sprite_jump_cache;
-  HBITMAP attack_sprite_1_cache;
-  HBITMAP attack_sprite_2_cache;
-  HBITMAP attack_sprite_3_cache;
-  HBITMAP attack_sprite_4_cache;
-  HBITMAP block_sprite_1_cache;
-  HBITMAP block_sprite_2_cache;
-  HBITMAP block_sprite_3_cache;
-  HBITMAP spin_sprite_1_cache;
-  HBITMAP spin_sprite_2_cache;
-  HBITMAP spin_sprite_3_cache;
-  HBITMAP spin_sprite_4_cache;
-
-  //blur sprite caches
-  HBITMAP blur_sprite_jump_cache;
-  HBITMAP spin_blur_sprite_1_cache;
-  HBITMAP spin_blur_sprite_2_cache;
-  HBITMAP spin_blur_sprite_3_cache;
-  HBITMAP spin_blur_sprite_4_cache;
-
-
-//sprite to be drawn
-  DRAWSPRITE draw_sprite_1;
-  DRAWSPRITE draw_sprite_2;
-
-  DRAWSPRITE draw_sprite_jump;
-
-  DRAWSPRITE draw_attack_sprite_1;
-  DRAWSPRITE draw_attack_sprite_2;
-  DRAWSPRITE draw_attack_sprite_3;
-  DRAWSPRITE draw_attack_sprite_4;
-
-  DRAWSPRITE draw_block_sprite_1;
-  DRAWSPRITE draw_block_sprite_2;
-  DRAWSPRITE draw_block_sprite_3;
-
-  DRAWSPRITE draw_spin_sprite_1;
-  DRAWSPRITE draw_spin_sprite_2;
-  DRAWSPRITE draw_spin_sprite_3;
-  DRAWSPRITE draw_spin_sprite_4;
-
-
-  //blur sprites
-  DRAWSPRITE draw_blur_sprite_jump;
-  DRAWSPRITE draw_spin_blur_sprite_1;
-  DRAWSPRITE draw_spin_blur_sprite_2;
-  DRAWSPRITE draw_spin_blur_sprite_3;
-  DRAWSPRITE draw_spin_blur_sprite_4;
 } player;
 
 
@@ -452,34 +343,47 @@ struct PlayerFlingWeb {
   double sprite_y[PLAYER_FLING_WEB_NUM];
 } player_fling_web;
 
-void InitPlayerFlingWeb();
-
-//int player_render_enemies[MAX_ENEMY_NUM];
 
 
-void InitPlayer();
+
 bool IsSpeedBreaking();
-bool IsCollideCrawler(double x1,double y1,double x2,double y2,double gradient,double c);
 void Click();
 void move_x(double x);
 void move_y(double y);
-void InitRDGrid();
-void InitVRDGrid();
 void CameraInit(double x,double y);
 void InitPlayerCamera(int target_x,int target_y);
-//void PlayerBulletLimitAct();
-//bool NearCrawler();
-void CleanUpPlayer();
-bool YesInitRDGrid();
-bool YesInitVRDGrid();
-void RegainWeb(int web_id);
-void PlayerAct();
 void PlayerPlaceWeb();
+void PlayerActPlaceWeb(int bm_x1,int bm_y1,int bm_x2,int bm_y2);
+void InitPlayerSpritesAll();
+void InitPlayerFlingWeb();
+void InitPlayer();
+void RegainWeb(int web_id);
+void PlayerRevive();
+void PlayerActGroundEdgeMovement();
+void PlayerActXMovement(int grav_speed);
+void PlayerOnGroundAction(int speed, int grav, int height_from_player_x);
+void PlayerActFlingWeb(int speed);
+void PlayerActSwinging(int grav_speed);
+void PlayerActGravityMovement(int grav_speed,int speed);
+void PlayerActFlingMovement(int grav_speed);
+void PlayerActLoadWeaponSnd();
+void PlayerActReboundActions(int grav_speed,int speed);
+void PlayerActMouseMovement();
+void PlayerActMouseClick();
+void PlayerActDestroyGround();
+void PlayerActDecceleration();
+void PlayerAct();
+void PlayerSndAct();
 void PlayerCameraShake();
 void DrawPlayer(HDC hdc,HDC hdc2);
 
 
 
+
+
+
+
+//==================VISUAL GRID==================
 typedef struct vgrid
 {
   bool within_render_distance;
@@ -556,15 +460,22 @@ ANode **NodeGrid;
 int GetGridId(int x,int y,int width, int size,int max);
 void SetGridLineArray(int grid_id,int ground_id);
 void UnSetGridLineArray(int grid_id,int ground_id);
+void InitGridTiles(const wchar_t *lvl_name);
+void DrawCreateTiles(HDC hdc);
 void InitGrid();
-void InitGridTiles();
-void DrawGrid(HDC hdc);
+void InitRDGrid();
 void InitNodeGrid();
-bool IsCollideSolid(double x1,double y1,double x2,double y2,double gradient,double c);
+void InitNodeShade();
 bool IsHasNeighbours(int nx,int ny);
 void SetNodeGridAttributes2(int i);
 void SetNodeGridAttributes(int i);
+void TriFillNodeGridType(int gid);
 void InitNodeGridAttributes();
+void DrawNodeGrids(HDC hdc);
+void DrawShadows2(HDC hdcSrc,HDC hdcDest,int x,int y,bool t);
+void CreatePlatformShadowBitmap(HDC hdc,double rise,double run,int color);
+//void DrawGrid(HDC hdc);
+//bool IsCollideSolid(double x1,double y1,double x2,double y2,double gradient,double c);
 
 
 
@@ -628,13 +539,26 @@ void ShootBullet(
   double target_x,
   double target_y,
   double off_angle);
+void BulletDamagePlayerAct(int bullet_id);
 
 bool HitPlayer(int bullet_id,int r1,int r2);
 void StopBullet(int bullet_id,bool is_player);
+void RainBulletTransitNodeGrid(int bullet_id);
+void EnemyBulletAct(int bullet_id,int enemy_id);
+void MapEditorBulletAct(int bullet_id);
+void PlayerBulletAct(int bullet_id,int enemy_id);
+void ResetBulletRain();
+void InitBulletRain();
+void RainBulletAct(int bullet_id);
+
 void BulletAct(int bullet_id);
+void BulletSndAct(int i);
+void RainAct();
+
 void DrawBullet2(HDC hdc,int i,double x,double y,int color);
 void DrawBullet(HDC hdc,int i);
 
+void DrawRain(HDC hdc);
 
 
 
@@ -646,7 +570,7 @@ void DrawBullet(HDC hdc,int i);
 
 
 
-
+//==================ENEMY==================
 typedef struct enemy
 {
   //Line Of Sight bullet
@@ -866,10 +790,83 @@ void freeEnemyPathfinding(AEnemyPathfinding *myEnemyPathfinding)
 AEnemyPathfinding **EnemyPathfinding;
 
 
+int CalculateDistanceCost(int enemy_id,int a, int b);
+int smallest_f_cost(int enemy_id);
+void InitEnemyPathfinding(int enemy_id,double target_x,double target_y);
+void EnemyPathFinding(int enemy_id);
+void EnemySpriteOnGroundId(int enemy_id,int ground_id);
+void LargeEnemySpriteTimer(int enemy_id);
+void EnemyGravity(int enemy_id,int gr);
+void EnemyMove(int enemy_id);
+void EnemyTargetPlayer(int i);
+void EnemyLOSAct(int i);
+void EnemyKnockbackMove(int i,int ground_id);
+void EnemySndAct(int i);
+int EnemyActDazzle(int i, int slash_t);
+void EnemyActWebStuck(int i);
+void EnemyAntActOnGround(int i,double height_from_e_x,int ground_id,bool clockwise);
+void EnemyAntActOnGroundEdge(int i,bool clockwise);
+void EnemyAntGravity(int enemy_id);
+void EnemyAntActGravity(int i,int slash_time_i);
+void EnemyAntAct(int i,int slash_time_i);
+bool InsectBites(int i,int dmg,bool is_mosquito);
+void EnemyDeductMaxHealth(int i);
+void EnemyAct(int i);
+void SetEnemyByType(int i,int type);
+void InitEnemySpritesObjColor(HDC hdc,HDC hdc2);
+void InitEnemySpritesObjColorNoir(HDC hdc,HDC hdc2);
+void InitEnemySpritesObj();
+void InitPFEnemyObj();
+void InitEnemy();
+void DrawEnemy(HDC hdc,HDC hdc2);
+
+//==============PLAYER SPRITES======================
+#define M_PI_16     M_PI/16
+#define ROTATED_SPRITE_NUM  32 //fear not, 1 variant is very small, 8 bit
+
+#define M_PI_32     M_PI/32
+#define PLAYER_ROTATED_SPRITE_NUM  64
+
+struct LoadPlayerSprite
+{
+  HBITMAP sprite_1;
+  HBITMAP sprite_2;
+  HBITMAP sprite_jump;
+  HBITMAP attack_sprite_1;
+  HBITMAP attack_sprite_2;
+  HBITMAP attack_sprite_3;
+  HBITMAP attack_sprite_4;
+  HBITMAP block_sprite_1;
+  HBITMAP block_sprite_2;
+  HBITMAP block_sprite_3;
+  HBITMAP spin_sprite;  
+} LoadPlayerSprite;
+
+
+struct PlayerSprite //used in
+{
+  RGBQUAD PlayerPalette[256]; //2 colors are changed, LTGREEN and LTREED 
+  DRAWSPRITE sprite_jump;
+  DRAWSPRITE blur_sprite_jump;
+  DRAWSPRITE spin_sprite[4];
+  DRAWSPRITE blur_spin_sprite[4];
+  DRAWSPRITE sprite_1[PLAYER_ROTATED_SPRITE_NUM];
+  DRAWSPRITE sprite_2[PLAYER_ROTATED_SPRITE_NUM];
+  DRAWSPRITE attack_sprite_1[PLAYER_ROTATED_SPRITE_NUM];
+  DRAWSPRITE attack_sprite_2[PLAYER_ROTATED_SPRITE_NUM];
+  DRAWSPRITE attack_sprite_3[PLAYER_ROTATED_SPRITE_NUM];
+  DRAWSPRITE attack_sprite_4[PLAYER_ROTATED_SPRITE_NUM];
+  DRAWSPRITE block_sprite_1[PLAYER_ROTATED_SPRITE_NUM];
+  DRAWSPRITE block_sprite_2[PLAYER_ROTATED_SPRITE_NUM];
+  DRAWSPRITE block_sprite_3[PLAYER_ROTATED_SPRITE_NUM];
+} PlayerSprite[1];
 
 
 
 
+
+
+//==================ENEMY SPRITES==================
 //static, saves memory
 //inspired while playing angry birds on Ethihide airlines to Abu Dhabi
 struct EnemyTypeSprite
@@ -881,9 +878,6 @@ struct EnemyTypeSprite
 } EnemyTypeSprite[ENEMY_TYPE_NUM];
 
 
-#define M_PI_16     M_PI/16
-//#define M_PI_32     M_PI/32
-#define ROTATED_SPRITE_NUM  32//64 //fear not, 1 variant is very small, 8 bit
 
 
 struct LoadEnemyRotatedSprite
@@ -916,11 +910,14 @@ struct EnemyRotatedSpriteXtra
 
 
 
+
+
+//============================TILE MAPS=========================
+
 typedef struct TileMap
 {
   int x;
   int y;
-//  DRAWSPRITE draw_tile;
   HBITMAP sprite_paint;
   HBITMAP sprite_mask;
 } ATileMap;
@@ -975,15 +972,14 @@ void freeTileMapPaint(ATileMapPaint *myTileMapPaint)
 ATileMapPaint **TileMapShadow;
 
 
-
-int *rendered_water_ground;
-
-
-
-
-
-
-
+//$#$#$#$#$#$#$#$#$CLEAN UP#$#$#$#$#$#$
+void CleanUpGround();
+//void CleanUpPlayerSprites(); //clean up all sprites
+void CleanupPlayerAttributes();
+void CleanUpEnemySprites();
+void CleanUpRotatedSprites();
+void CleanUpGrid();
+void CleanupAll(bool btm);
 
 
 
@@ -1010,21 +1006,19 @@ struct color_chooser
 
 
 
+//===========OTHER GROUNDS TEXTURE=============
 
-int CalculateDistanceCost(int enemy_id,int a, int b);
-int smallest_f_cost(int enemy_id);
-void InitEnemyPathfinding(int enemy_id,double target_x,double target_y);
-void EnemyPathFinding(int enemy_id);
-void EnemySpecies1Gravity(int enemy_id);
-void EnemyMove(int enemy_id);
-void EnemyTargetPlayer(int i);
-void EnemyAct(int i);
-void SetEnemyByType(int i,int type);
-void InitEnemy();
-void DrawEnemy(HDC hdc,HDC hdc2);
-void InitEnemySpritesObjColor(HDC hdc,HDC hdc2);
-void InitEnemySpritesObjColorNoir(HDC hdc,HDC hdc2);
-void EnemyAntActOnGroundEdge(int i,bool clockwise);
+//================================
+
+
+//===========WATER TEXTURE=============
+int global_water_texture_timer=0;
+int global_water_texture_id=0;
+HBITMAP texture_water[9];
+
+
+
+//================================
 
 
 
@@ -1161,9 +1155,6 @@ HBITMAP ga0_kh[5];
 HBITMAP ga0_kh_mask[5];
 
 
-int global_water_texture_timer=0;
-int global_water_texture_id=0;
-HBITMAP texture_water[9];
 
 
 //Sound

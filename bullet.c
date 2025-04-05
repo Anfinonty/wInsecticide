@@ -636,12 +636,46 @@ void PlayerBulletAct(int bullet_id,int enemy_id)
 }
 
 
-
+void ResetBulletRain()
+{
+  for (int i=SHOOT_BULLET_NUM;i<BULLET_NUM;i++) {
+    Bullet[i].bounce_timer=0;
+    Bullet[i].playsnd=FALSE;
+    Bullet[i].shot=FALSE;
+    Bullet[i].near_miss=FALSE;
+    Bullet[i].in_water=FALSE;
+    Bullet[i].range=0;
+    Bullet[i].start_range=0;
+    Bullet[i].ospeed=-1;
+    Bullet[i].speed=-1;
+    Bullet[i].ospeed_multiplier=0;
+    Bullet[i].speed_multiplier=0;
+    Bullet[i].damage=0;
+    Bullet[i].saved_pos=-1;
+    Bullet[i].color=TRANSPARENT;
+    Bullet[i].from_enemy_id=-1;
+    Bullet[i].start_x=Bullet[i].x=-20;
+    Bullet[i].start_y=Bullet[i].y=-20;
+    Bullet[i].sprite_x=-20;//Bullet[i].x+player.cam_x+player.cam_move_x;
+    Bullet[i].sprite_y=-20;//Bullet[i].y+player.cam_y+player.cam_move_y;
+    Bullet[i].graphics_type=0;
+    Bullet[i].angle=0;
+    Bullet[i].saved_ground_id=-1;
+    Bullet[i].saved_node_grid_id=-1;
+  }
+}
 
 
 void InitBulletRain()
 {
-  for (int i=SHOOT_BULLET_NUM;i<BULLET_NUM;i++) {
+  int max_bullet_num;
+  if (GR_WIDTH>800) {
+    max_bullet_num=BULLET_NUM;
+  } else {
+    max_bullet_num=SHOOT_BULLET_NUM+(RAIN_NUM/5);
+  }
+  for (int i=SHOOT_BULLET_NUM;i<max_bullet_num;i++) {
+  //for (int i=SHOOT_BULLET_NUM;i<BULLET_NUM;i++) {
     int rand_x=RandNum(player.x-GR_WIDTH/2,player.x+GR_WIDTH/2,frame_tick); //so it doest get stuck to ground
     if (rand_x<10)
       rand_x=RandNum(10,player.x+GR_WIDTH/2-6,frame_tick);
@@ -762,9 +796,9 @@ void RainBulletAct(int bullet_id)
         Bullet[bullet_id].angle=RandAngle(-360,360,frame_tick); //slight random when hit
       }
       Bullet[bullet_id].speed_multiplier=1;
-      Bullet[bullet_id].speed=0.4;
-      Bullet[bullet_id].range=13;
-      Bullet[bullet_id].graphics_type=3;
+      Bullet[bullet_id].speed=1;//0.4;
+      Bullet[bullet_id].range=26;//13;
+      Bullet[bullet_id].graphics_type=12; //rain type
     }
 
     if (Bullet[bullet_id].angle>2*M_PI) { //hreater
@@ -869,8 +903,10 @@ void BulletAct(int bullet_id)
             else if (rand_x>MAP_WIDTH)
               rand_x=RandNum(player.x-GR_WIDTH/2-player.cam_mouse_move_x,MAP_WIDTH-10,frame_tick);
             
-            rand_x=stickyTo(rand_x,NODE_SIZE*2);
-
+            //if (frame_tick%2==0)
+              //rand_x=stickyTo(rand_x,VGRID_SIZE*2);
+            //else
+              //rand_x=stickyTo(rand_x,VGRID_SIZE);
 
             int rand_y=RandNum(player.y-GR_HEIGHT/2+6-player.cam_mouse_move_y,player.y+GR_HEIGHT/2-6-player.cam_mouse_move_y,frame_tick); //so it doest get stuck to ground
             if (rand_y<10)
@@ -878,8 +914,10 @@ void BulletAct(int bullet_id)
             else if (rand_y>MAP_HEIGHT)
               rand_y=RandNum(player.y-GR_HEIGHT/2-player.cam_mouse_move_y,MAP_HEIGHT-10,frame_tick);
 
-            rand_y=stickyTo(rand_y,NODE_SIZE*2);
-
+            //if (frame_tick%2==0)
+              //rand_y=stickyTo(rand_y,VGRID_SIZE*2);
+            //else
+              //rand_y=stickyTo(rand_y,VGRID_SIZE);
 
             bool allow_spawn=TRUE;
             //check if below spawned web
@@ -1014,9 +1052,15 @@ void BulletSndAct(int i)
 
 void RainAct()
 {
-  for (int i=SHOOT_BULLET_NUM;i<BULLET_NUM;i++) {
-    BulletAct(i);
-  }  
+  if (GR_WIDTH>800) {
+    for (int i=SHOOT_BULLET_NUM;i<BULLET_NUM;i++) {
+      BulletAct(i);
+    }
+  } else {
+    for (int i=SHOOT_BULLET_NUM;i<SHOOT_BULLET_NUM+(RAIN_NUM/5);i++) {
+      BulletAct(i);
+    }
+  }
 }
 
 
@@ -1037,7 +1081,7 @@ void DrawBullet2(HDC hdc,int i,double x,double y,int color)
     case 2:
       GrCircle(hdc,x,y,4,color,color);
       break;
-    case 3: //no fill gliterry bullet, RAIN
+    case 3:
     case 6: //no fill glitery buullet
       GrCircle(hdc,x,y,3,color,-1);
       GrCircle(hdc,x,y,RandNum(0,5,frame_tick*player.seed),color,-1);
@@ -1058,7 +1102,7 @@ void DrawBullet2(HDC hdc,int i,double x,double y,int color)
       break;
     case 8: //rain
       {
-      GrLine(hdc,x,y,x-64*cos(Bullet[i].angle),y-64*sin(Bullet[i].angle),color);
+      GrLine(hdc,x,y,x-128*cos(Bullet[i].angle),y-128*sin(Bullet[i].angle),color);
       }
       break;
     case 9: //long bullet 2
@@ -1085,8 +1129,10 @@ void DrawBullet2(HDC hdc,int i,double x,double y,int color)
         GrCircle(hdc,x,y,RandNum(1,10,(player.seed+10)*(frame_tick+4)),c,-1);
       }
       break;
-
-
+    case 12: //no fill gliterry bullet, RAIN
+      GrCircle(hdc,x,y,13,color,-1);
+      GrCircle(hdc,x,y,RandNum(0,13,frame_tick*player.seed),color,-1);
+      break;
   }
 }
 

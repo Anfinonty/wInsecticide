@@ -1462,6 +1462,22 @@ void GrPrintA(HDC hdc, double x1, double y1, wchar_t *_txt, int color)
   SetTextColor(hdc, TRANSPARENT);
 }
 
+/*HPALETTE rgbPaletteColorsNoir;
+void CreateNoirPalette()
+{
+  LOGPALETTE *pLogPal = (LOGPALETTE*)malloc(sizeof(LOGPALETTE)+255*sizeof(PALETTEENTRY));
+  pLogPal->palVersion = 0x300;
+  pLogPal->palNumEntries=256;
+  for (int i=0;i<256;i++) {
+    pLogPal->palPalEntry[i].peRed=i;
+    pLogPal->palPalEntry[i].peGreen=i;
+    pLogPal->palPalEntry[i].peBlue=i;
+    pLogPal->palPalEntry[i].peFlags=0;
+  }
+  rgbPaletteColorsNoir=CreatePalette(pLogPal);
+  free(pLogPal);
+}*/
+
 
 
 //void DrawBitmap(HDC hDC,double _x1,double _y1, double _x2, double _y2, int width, int height, HBITMAP hSourceBitmap,int _SRCTYPE,bool stretch,bool is_left)
@@ -1470,7 +1486,6 @@ void DrawBitmap(HDC hDC, HDC hdcMem,double _x1,double _y1, double _x2, double _y
 {
   if (hSourceBitmap!=NULL) {
     BITMAP bitmap;
-    //HDC hdcMem = CreateCompatibleDC(hDC);
     GetObject(hSourceBitmap,sizeof(bitmap),&bitmap);
     SelectObject(hdcMem,hSourceBitmap);
     int b_width=width;
@@ -1478,6 +1493,9 @@ void DrawBitmap(HDC hDC, HDC hdcMem,double _x1,double _y1, double _x2, double _y
       b_width=-bitmap.bmWidth-1;
       _x1+=width;
     }
+
+    //SelectPalette(hdcMem,rgbPaletteColorsNoir,FALSE);
+    //RealizePalette(hdcMem);
     if (stretch || is_left)
       StretchBlt(hDC, _x1, _y1, b_width, height, hdcMem, 0,0, bitmap.bmWidth, bitmap.bmHeight, _SRCTYPE); //draw to 
      //StretchBlt(hDC, _x1+bitmap.bmWidth/2, _y1-bitmap.bmHeight/2, -bitmap.bmWidth-1, bitmap.bmHeight, hdcMemA, 0,0, bitmap.bmWidth, bitmap.bmHeight, SRCAND); //Create Mask for

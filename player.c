@@ -129,222 +129,148 @@ void PlayerActPlaceWeb(int bm_x1,int bm_y1,int bm_x2,int bm_y2)
   }
 }
 
-
-void InitPlayerSprites()
+void InitPlayerSpritesAll()
 {
-  player.sprite_1 = RotateSprite(NULL, player.osprite_1,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
-  player.sprite_2 = RotateSprite(NULL, player.osprite_2,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
-  player.sprite_jump = RotateSprite(NULL, player.osprite_jump,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
+  HBITMAP tmp_bitmap;
 
-  player.attack_sprite_1 = RotateSprite(NULL, player.oattack_sprite_1,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
-  player.attack_sprite_2 = RotateSprite(NULL, player.oattack_sprite_2,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
-  player.attack_sprite_3 = RotateSprite(NULL, player.oattack_sprite_3,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
-  player.attack_sprite_4 = RotateSprite(NULL, player.oattack_sprite_4,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
-
-  player.block_sprite_1 = RotateSprite(NULL, player.oblock_sprite_1,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
-  player.block_sprite_2 = RotateSprite(NULL, player.oblock_sprite_2,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
-  player.block_sprite_3 = RotateSprite(NULL, player.oblock_sprite_3,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
-
-  player.spin_sprite = RotateSprite(NULL, player.ospin_sprite,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
+  tmp_bitmap=CopyCrunchyBitmap(LoadPlayerSprite.sprite_jump,SRCCOPY);
+  ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+  GenerateDrawSprite(&PlayerSprite[0].sprite_jump,tmp_bitmap);
+  DeleteObject(tmp_bitmap);
 
 
-  //Load Player Sprites
-  player.sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,0,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
-  player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
-  player.sprite_2_cache = RotateSprite(NULL, player.sprite_2,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
-
-  player.attack_sprite_1_cache = RotateSprite(NULL, player.attack_sprite_1,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
-  player.attack_sprite_2_cache = RotateSprite(NULL, player.attack_sprite_2,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
-  player.attack_sprite_3_cache = RotateSprite(NULL, player.attack_sprite_3,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
-  player.attack_sprite_4_cache = RotateSprite(NULL, player.attack_sprite_4,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
-
-  player.block_sprite_1_cache = RotateSprite(NULL, player.block_sprite_1,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
-  player.block_sprite_2_cache = RotateSprite(NULL, player.block_sprite_2,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
-  player.block_sprite_3_cache = RotateSprite(NULL, player.block_sprite_3,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
-
-  player.spin_sprite_1_cache = RotateSprite(NULL, player.spin_sprite,0.1,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
-  player.spin_sprite_2_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI_2,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
-  player.spin_sprite_3_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
-  player.spin_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
+  tmp_bitmap=CopyCrunchyBitmap(LoadPlayerSprite.sprite_jump,SRCCOPY);
+  ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+  GenerateDrawSprite(&PlayerSprite[0].blur_sprite_jump,tmp_bitmap);
+  DeleteObject(tmp_bitmap);
 
 
+  tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.spin_sprite,0.1,BLACK);
+  ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+  GenerateDrawSprite(&PlayerSprite[0].spin_sprite[0],tmp_bitmap);
+  DeleteObject(tmp_bitmap);
 
 
-  player.blur_sprite_jump_cache = RotateSprite(NULL, player.sprite_jump,0,LTGREEN,BLACK,rgbPaint[player_load_color],TRANSPARENT);
+  tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.spin_sprite,0.1+M_PI_2,BLACK);
+  ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+  GenerateDrawSprite(&PlayerSprite[0].spin_sprite[1],tmp_bitmap);
+  DeleteObject(tmp_bitmap);
 
-  player.spin_blur_sprite_1_cache = RotateSprite(NULL, player.spin_sprite,0.1,LTGREEN,BLACK,rgbPaint[player_load_color],TRANSPARENT);
-  player.spin_blur_sprite_2_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI_2,LTGREEN,BLACK,rgbPaint[player_load_color],TRANSPARENT);
-  player.spin_blur_sprite_3_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI,LTGREEN,BLACK,rgbPaint[player_load_color],TRANSPARENT);
-  player.spin_blur_sprite_4_cache = RotateSprite(NULL, player.spin_sprite,0.1+M_PI+M_PI_2,LTGREEN,BLACK,rgbPaint[player_load_color],TRANSPARENT);
-
-
-  GenerateDrawSprite(&player.draw_sprite_jump,player.sprite_jump_cache);
-
-  GenerateDrawSprite(&player.draw_sprite_1,player.sprite_1_cache);
-  GenerateDrawSprite(&player.draw_sprite_2,player.sprite_2_cache);
-
-  GenerateDrawSprite(&player.draw_attack_sprite_1,player.attack_sprite_1_cache);
-  GenerateDrawSprite(&player.draw_attack_sprite_2,player.attack_sprite_2_cache);
-  GenerateDrawSprite(&player.draw_attack_sprite_3,player.attack_sprite_3_cache); 
-  GenerateDrawSprite(&player.draw_attack_sprite_4,player.attack_sprite_4_cache);
-
-  GenerateDrawSprite(&player.draw_block_sprite_1,player.block_sprite_1_cache);
-  GenerateDrawSprite(&player.draw_block_sprite_2,player.block_sprite_2_cache);
-  GenerateDrawSprite(&player.draw_block_sprite_3,player.block_sprite_3_cache);
-
-  GenerateDrawSprite(&player.draw_spin_sprite_1,player.spin_sprite_1_cache);
-  GenerateDrawSprite(&player.draw_spin_sprite_2,player.spin_sprite_2_cache);
-  GenerateDrawSprite(&player.draw_spin_sprite_3,player.spin_sprite_3_cache);
-  GenerateDrawSprite(&player.draw_spin_sprite_4,player.spin_sprite_4_cache);
+  tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.spin_sprite,0.1+M_PI,BLACK);
+  ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+  GenerateDrawSprite(&PlayerSprite[0].spin_sprite[2],tmp_bitmap);
+  DeleteObject(tmp_bitmap);
 
 
-  GenerateDrawSprite(&player.draw_blur_sprite_jump,player.blur_sprite_jump_cache);
-  GenerateDrawSprite(&player.draw_spin_blur_sprite_1,player.spin_blur_sprite_1_cache);
-  GenerateDrawSprite(&player.draw_spin_blur_sprite_2,player.spin_blur_sprite_2_cache);
-  GenerateDrawSprite(&player.draw_spin_blur_sprite_3,player.spin_blur_sprite_3_cache);
-  GenerateDrawSprite(&player.draw_spin_blur_sprite_4,player.spin_blur_sprite_4_cache);
+  tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.spin_sprite,0.1+M_PI+M_PI_2,BLACK);
+  ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+  GenerateDrawSprite(&PlayerSprite[0].spin_sprite[3],tmp_bitmap);
+  DeleteObject(tmp_bitmap);
 
+
+
+  tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.spin_sprite,0.1,BLACK);
+  ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+  GenerateDrawSprite(&PlayerSprite[0].blur_spin_sprite[0],tmp_bitmap);
+  DeleteObject(tmp_bitmap);
+
+
+  tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.spin_sprite,0.1+M_PI_2,BLACK);
+  ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+  GenerateDrawSprite(&PlayerSprite[0].blur_spin_sprite[1],tmp_bitmap);
+  DeleteObject(tmp_bitmap);
+
+  tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.spin_sprite,0.1+M_PI,BLACK);
+  ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+  GenerateDrawSprite(&PlayerSprite[0].blur_spin_sprite[2],tmp_bitmap);
+  DeleteObject(tmp_bitmap);
+
+
+  tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.spin_sprite,0.1+M_PI+M_PI_2,BLACK);
+  ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+  GenerateDrawSprite(&PlayerSprite[0].blur_spin_sprite[3],tmp_bitmap);
+  DeleteObject(tmp_bitmap);
+
+
+
+
+  double angle_rn;
+  for (int i=0;i<PLAYER_ROTATED_SPRITE_NUM;i++) {
+    angle_rn=M_PI_2-M_PI_32*i;
+    tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.sprite_1,angle_rn,LTGREEN);
+    ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+    GenerateDrawSprite(&PlayerSprite[0].sprite_1[i],tmp_bitmap);
+    DeleteObject(tmp_bitmap);
+  }
+
+  for (int i=0;i<PLAYER_ROTATED_SPRITE_NUM;i++) {
+    angle_rn=M_PI_2-M_PI_32*i;
+    tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.sprite_2,angle_rn,BLACK);
+    ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+    GenerateDrawSprite(&PlayerSprite[0].sprite_2[i],tmp_bitmap);
+    DeleteObject(tmp_bitmap);
+  }
+
+  for (int i=0;i<PLAYER_ROTATED_SPRITE_NUM;i++) {
+    angle_rn=M_PI_2-M_PI_32*i;
+    tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.attack_sprite_1,angle_rn,BLACK);
+    ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+    GenerateDrawSprite(&PlayerSprite[0].attack_sprite_1[i],tmp_bitmap);
+    DeleteObject(tmp_bitmap);
+  }
+
+  for (int i=0;i<PLAYER_ROTATED_SPRITE_NUM;i++) {
+    angle_rn=M_PI_2-M_PI_32*i;
+    tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.attack_sprite_2,angle_rn,BLACK);
+    ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+    GenerateDrawSprite(&PlayerSprite[0].attack_sprite_2[i],tmp_bitmap);
+    DeleteObject(tmp_bitmap);
+  }
+
+  for (int i=0;i<PLAYER_ROTATED_SPRITE_NUM;i++) {
+    angle_rn=M_PI_2-M_PI_32*i;
+    tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.attack_sprite_3,angle_rn,BLACK);
+    ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+    GenerateDrawSprite(&PlayerSprite[0].attack_sprite_3[i],tmp_bitmap);
+    DeleteObject(tmp_bitmap);
+  }
+
+  for (int i=0;i<PLAYER_ROTATED_SPRITE_NUM;i++) {
+    angle_rn=M_PI_2-M_PI_32*i;
+    tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.attack_sprite_4,angle_rn,BLACK);
+    ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+    GenerateDrawSprite(&PlayerSprite[0].attack_sprite_4[i],tmp_bitmap);
+    DeleteObject(tmp_bitmap);
+  }
+
+  for (int i=0;i<PLAYER_ROTATED_SPRITE_NUM;i++) {
+    angle_rn=M_PI_2-M_PI_32*i;
+    tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.block_sprite_1,angle_rn,BLACK);
+    ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+    GenerateDrawSprite(&PlayerSprite[0].block_sprite_1[i],tmp_bitmap);
+    DeleteObject(tmp_bitmap);
+  }
+
+  for (int i=0;i<PLAYER_ROTATED_SPRITE_NUM;i++) {
+    angle_rn=M_PI_2-M_PI_32*i;
+    tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.block_sprite_2,angle_rn,BLACK);
+    ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+    GenerateDrawSprite(&PlayerSprite[0].block_sprite_2[i],tmp_bitmap);
+    DeleteObject(tmp_bitmap);
+  }
+
+  for (int i=0;i<PLAYER_ROTATED_SPRITE_NUM;i++) {
+    angle_rn=M_PI_2-M_PI_32*i;
+    tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.block_sprite_3,angle_rn,BLACK);
+    ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+    GenerateDrawSprite(&PlayerSprite[0].block_sprite_3[i],tmp_bitmap);
+    DeleteObject(tmp_bitmap);
+  }
+
+  CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,rgbColorsDefault,167,rgbPaint[player_color]);
+  CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,PlayerSprite[0].PlayerPalette,199,rgbPaint[player_iris_color]);
+  //CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,PlayerSprite[0].PlayerPalette,202,rgbPaint[player_iris_color]);
 }
-
-void CleanUpPlayerSprites()
-{
-  player.speed=DEFAULT_PLAYER_SPEED;
-
-  if (player.sprite_1!=NULL) {
-    DeleteObject(player.sprite_1);
-  }
-
-  if (player.sprite_2!=NULL) {
-    DeleteObject(player.sprite_2);
-  }
-
-  if (player.sprite_jump!=NULL) {
-    DeleteObject(player.sprite_jump);
-  }
-
-  if (player.attack_sprite_1!=NULL) {
-    DeleteObject(player.attack_sprite_1);
-  }
-
-  if (player.attack_sprite_2!=NULL) {
-    DeleteObject(player.attack_sprite_2);
-  }
-
-  if (player.attack_sprite_3!=NULL) {
-    DeleteObject(player.attack_sprite_3);
-  }
-
-  if (player.attack_sprite_4!=NULL) {
-    DeleteObject(player.attack_sprite_4);
-  }
-
-  if (player.block_sprite_1!=NULL) {
-    DeleteObject(player.block_sprite_1);
-  }
-
-  if (player.block_sprite_2!=NULL) {
-    DeleteObject(player.block_sprite_2);
-  }
-
-  if (player.block_sprite_3!=NULL) {
-    DeleteObject(player.block_sprite_3);
-  }
-
-  if (player.spin_sprite!=NULL) {
-    DeleteObject(player.spin_sprite);
-  }
-
-  //Walk sprites
-  if (player.sprite_1_cache!=NULL) {
-    DeleteObject(player.sprite_1_cache);
-  }
-  if (player.sprite_2_cache!=NULL) { 
-    DeleteObject(player.sprite_2_cache);
-  }
-  if (player.sprite_jump_cache!=NULL) { 
-    DeleteObject(player.sprite_jump_cache);
-  }
-
-  //Attack sprites
-  if (player.attack_sprite_1_cache!=NULL) { 
-    DeleteObject(player.attack_sprite_1_cache);
-  }
-  if (player.attack_sprite_2_cache!=NULL) { 
-    DeleteObject(player.attack_sprite_2_cache);
-  }
-  if (player.attack_sprite_3_cache!=NULL) { 
-    DeleteObject(player.attack_sprite_3_cache);
-  }
-  if (player.attack_sprite_4_cache!=NULL) { 
-    DeleteObject(player.attack_sprite_4_cache);
-  }
-
-  //Block sprites
-  if (player.block_sprite_1_cache!=NULL) {
-    DeleteObject(player.block_sprite_1_cache);
-  }
-  if (player.block_sprite_2_cache!=NULL) {
-    DeleteObject(player.block_sprite_2_cache);
-  }
-  if (player.block_sprite_3_cache!=NULL) {
-    DeleteObject(player.block_sprite_3_cache);
-  }
-
-  //spin sprites
-  if (player.spin_sprite_1_cache!=NULL) {
-    DeleteObject(player.spin_sprite_1_cache);
-  }
-  if (player.spin_sprite_2_cache!=NULL) {
-    DeleteObject(player.spin_sprite_2_cache);
-  }
-  if (player.spin_sprite_3_cache!=NULL) {
-    DeleteObject(player.spin_sprite_3_cache);
-  }
-  if (player.spin_sprite_4_cache!=NULL) {
-    DeleteObject(player.spin_sprite_4_cache);
-  }
-
-  //blur sprites
-  if (player.blur_sprite_jump_cache!=NULL) { 
-    DeleteObject(player.blur_sprite_jump_cache);
-  }
-  if (player.spin_blur_sprite_1_cache!=NULL) {
-    DeleteObject(player.spin_blur_sprite_1_cache);
-  }
-  if (player.spin_blur_sprite_2_cache!=NULL) {
-    DeleteObject(player.spin_blur_sprite_2_cache);
-  }
-  if (player.spin_blur_sprite_3_cache!=NULL) {
-    DeleteObject(player.spin_blur_sprite_3_cache);
-  }
-  if (player.spin_blur_sprite_4_cache!=NULL) {
-    DeleteObject(player.spin_blur_sprite_4_cache);
-  }
-
-
-  FreeDrawSprite(&player.draw_sprite_1);
-  FreeDrawSprite(&player.draw_sprite_2);
-  FreeDrawSprite(&player.draw_sprite_jump);
-  FreeDrawSprite(&player.draw_attack_sprite_1);
-  FreeDrawSprite(&player.draw_attack_sprite_2);
-  FreeDrawSprite(&player.draw_attack_sprite_3);
-  FreeDrawSprite(&player.draw_attack_sprite_4);
-  FreeDrawSprite(&player.draw_block_sprite_1);
-  FreeDrawSprite(&player.draw_block_sprite_2);
-  FreeDrawSprite(&player.draw_block_sprite_3);
-  FreeDrawSprite(&player.draw_spin_sprite_1);
-  FreeDrawSprite(&player.draw_spin_sprite_2);
-  FreeDrawSprite(&player.draw_spin_sprite_3);
-  FreeDrawSprite(&player.draw_spin_sprite_4);
-
-  FreeDrawSprite(&player.draw_blur_sprite_jump);
-  FreeDrawSprite(&player.draw_spin_blur_sprite_1);
-  FreeDrawSprite(&player.draw_spin_blur_sprite_2);
-  FreeDrawSprite(&player.draw_spin_blur_sprite_3);
-  FreeDrawSprite(&player.draw_spin_blur_sprite_4);
-}
-
-
 
 
 void InitPlayerFlingWeb()
@@ -467,9 +393,9 @@ void InitPlayer() {
   player.above_x2=player.x;
   player.above_y2=player.y;
 
-  player.saved_sprite_angle=0;
-  player.saved_attack_sprite_angle=0;
-  player.saved_block_sprite_angle=0;
+  //player.saved_sprite_angle=0;
+  //player.saved_attack_sprite_angle=0;
+  //player.saved_block_sprite_angle=0;
   player.sprite_angle=0;
   player.angle=0;
   player.saved_angle=0;
@@ -624,8 +550,6 @@ void PlayerRevive()
     StopBullet(player.bullet[f],TRUE);
   }
   player.bullet_shot_num=0;
-  //player.x=player.death_x;
-  //player.y=player.death_y;
   InitPlayerCamera(player.x,player.y);
 }
 
@@ -634,9 +558,7 @@ void PlayerActGroundEdgeMovement()
 
   double edge_dist1;
   double edge_dist2;
-  //double player.edge_angle;
   double distl=20;
-//  double distl=12;
 
   if (!player.blocking && !player.rst_up) {
       if (!player.is_on_ground_edge) {
@@ -785,9 +707,6 @@ void PlayerActXMovement(int grav_speed)
     player.decceleration_timer+=2;
   }
   if (grav_speed==0 && allow_act) { //ground movement
-    /*if (player.speed>5 && player.on_ground_timer>0 && !player.is_on_ground_edge) {
-      player.decceleration_timer+=2;
-    }*/
     if (player.speed>10 && player.on_ground_timer>0 && !player.is_on_ground_edge) {
       player.decceleration_timer+=2;
     }
@@ -876,22 +795,6 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
     }
     player.in_air_timer--;
   }
-  /*int tmp_ground_id_=-1;
-  tmp_ground_id_=player.on_ground_id;
-  if (tmp_ground_id_==-1) {
-    tmp_ground_id_=player.saved_ground_id;
-  }
-  if (tmp_ground_id_!=-1) {
-    double edge_dist1_=GetDistance(player.x,player.y,Ground[tmp_ground_id_]->x1,Ground[tmp_ground_id_]->y1); //left edge
-    double edge_dist2_=GetDistance(player.x,player.y,Ground[tmp_ground_id_]->x2,Ground[tmp_ground_id_]->y2);
-    if (edge_dist1_<20 || edge_dist2_<20) {  
-      player.is_on_ground_edge2=TRUE;
-    } else {
-      player.is_on_ground_edge2=FALSE;
-    }
-  } else {
-    player.is_on_ground_edge2=FALSE;
-  }*/
 
 
   
@@ -1608,9 +1511,7 @@ void PlayerActMouseClick()
 	        -1,
 	        CYAN,
             5, //graphics type
-            //999999,
             sb_range,//*4,
-	        //MAX_WEB_LENGTH, //range
             1, //speed
 	        30, //speed multiplier
 	        10+player.attack_strength*2, //damage
@@ -1631,15 +1532,11 @@ void PlayerActMouseClick()
   } else { //meelee attack only
     if (player.is_swinging) {
       if (player.left_click_hold_timer==62 || player.attack_rst || player.right_click_hold_timer==62) { //swing but no web is placed
-        /*if (game_audio) {
-          player.shoot_knife_duration=1;
-        }*/
-        if (/*player.uppercut || player.hiding ||*/ player.on_ground_id!=-1) { 
+        if (player.on_ground_id!=-1) { 
           player.fling_distance=0;
         } else { //begin flinging!!
           player.fling_distance=player.pivot_length;
         }
-        //player.key_jump_timer=player.player_jump_height;
         player.grav=3; //grav when swing let go
         player.in_air_timer=1000;
         player.decceleration_timer=0;
@@ -1973,18 +1870,11 @@ void PlayerAct()
 
       //PLAYER TRUE SPEED LIMITER
       double speed_limiter=player.speed;
-      /*if (player.speed>24) {
-        speed_limiter=player.speed;//17+(player.speed-24)/8;
-      } else if (player.speed>10) {
-        speed_limiter=10+(player.speed-10)/4;
-      } else if (player.speed>5) {
-        speed_limiter=5+(player.speed-5)/2;
-      }*/
       if (player.speed<5 && player.jump) {
         speed_limiter=4;
       }
 
-      if (player.is_swinging || (player.fling_distance>0) /*|| (player.is_rebounding && !player.is_swinging && grav_speed==0)*/) {
+      if (player.is_swinging || (player.fling_distance>0)) {
         speed_limiter=speed_limiter+speed_limiter/4+1;
       }
 
@@ -2017,13 +1907,7 @@ void PlayerAct()
 
 
       if (player.is_on_ground_edge) {
-         //speed_limiter=15;
-         //if (player.speed<24)
-           //speed_limiter*=5;
-         //else if (player.speed<10)
-           speed_limiter*=10;
-
-
+         speed_limiter*=10;
       }  else if (player.bullet_shot!=-1 && player.speed<10) {
          speed_limiter=10;
       }
@@ -2118,14 +2002,6 @@ void PlayerAct()
 
 
             //player speed when on ground
-            //if (player.speed<10)
-              //player.player_jump_height=DEFAULT_PLAYER_JUMP_HEIGHT;
-            /*else 
-              player.player_jump_height=150;
-            if (!player.low_jump || player.speed<10)
-              player.player_jump_height+=player.speed*NODE_SIZE;
-            else
-              player.player_jump_height+=9*NODE_SIZE;*/
             if (player.block_timer>0) {
               player.player_jump_height=DEFAULT_PLAYER_JUMP_HEIGHT*2;
             } else {
@@ -2474,11 +2350,6 @@ void PlayerAct()
       } else {
         player.on_ground_id=-1;
         player.saved_ground_id=-1;
-    //    player.below_ground_edge_timer=0;
-        /*player.in_web_corner=FALSE;
-        player.key_b4_corner_is_left=FALSE;
-        player.key_b4_corner_is_right=FALSE;*/
-
       }
 
 
@@ -2621,9 +2492,6 @@ void PlayerAct()
       }
       if (player.spin_timer>40) {
         player.spin_timer=0;
-      }
-      if (player.sprite_angle<-M_PI*2) {
-        player.sprite_angle=0;
       }
 
 
@@ -2811,8 +2679,6 @@ void PlayerSndAct()
   if (player.shoot_knife_duration>0)
     player.shoot_knife_duration+=10;//6;
   if (player.shoot_knife_duration>330/*341*/) {//special case, old audio has popping noise at the end
-    //mem_snd_interrupt[3]=TRUE;
-    //waveOutReset(hWaveOut[3]);
     player.shoot_knife_duration=0;
   }
 
@@ -2911,16 +2777,35 @@ void PlayerCameraShake()
 
 
 
+void InitPlayerSpritesObjColor(HDC hdc,HDC hdc2)
+{
+  for (int i=0;i<PLAYER_ROTATED_SPRITE_NUM;i++) {
+    BitmapPalette(hdc,hdc2,PlayerSprite[0].sprite_1[i].sprite_paint,PlayerSprite[0].PlayerPalette);
+    BitmapPalette(hdc,hdc2,PlayerSprite[0].sprite_2[i].sprite_paint,PlayerSprite[0].PlayerPalette);
+    BitmapPalette(hdc,hdc2,PlayerSprite[0].attack_sprite_1[i].sprite_paint,PlayerSprite[0].PlayerPalette);
+    BitmapPalette(hdc,hdc2,PlayerSprite[0].attack_sprite_2[i].sprite_paint,PlayerSprite[0].PlayerPalette);
+    BitmapPalette(hdc,hdc2,PlayerSprite[0].attack_sprite_3[i].sprite_paint,PlayerSprite[0].PlayerPalette);
+    BitmapPalette(hdc,hdc2,PlayerSprite[0].attack_sprite_4[i].sprite_paint,PlayerSprite[0].PlayerPalette);
+    BitmapPalette(hdc,hdc2,PlayerSprite[0].block_sprite_1[i].sprite_paint,PlayerSprite[0].PlayerPalette);
+    BitmapPalette(hdc,hdc2,PlayerSprite[0].block_sprite_2[i].sprite_paint,PlayerSprite[0].PlayerPalette);
+    BitmapPalette(hdc,hdc2,PlayerSprite[0].block_sprite_3[i].sprite_paint,PlayerSprite[0].PlayerPalette);
+  }
+
+
+  BitmapPalette(hdc,hdc2,PlayerSprite[0].sprite_jump.sprite_paint,PlayerSprite[0].PlayerPalette);
+  BitmapPalette(hdc,hdc2,PlayerSprite[0].blur_sprite_jump.sprite_paint,PlayerSprite[0].PlayerPalette);
+  BitmapPalette(hdc,hdc2,PlayerSprite[0].spin_sprite[0].sprite_paint,PlayerSprite[0].PlayerPalette);
+  BitmapPalette(hdc,hdc2,PlayerSprite[0].spin_sprite[1].sprite_paint,PlayerSprite[0].PlayerPalette);
+  BitmapPalette(hdc,hdc2,PlayerSprite[0].spin_sprite[2].sprite_paint,PlayerSprite[0].PlayerPalette);
+  BitmapPalette(hdc,hdc2,PlayerSprite[0].spin_sprite[3].sprite_paint,PlayerSprite[0].PlayerPalette);
+  BitmapPalette(hdc,hdc2,PlayerSprite[0].blur_spin_sprite[0].sprite_paint,PlayerSprite[0].PlayerPalette);
+  BitmapPalette(hdc,hdc2,PlayerSprite[0].blur_spin_sprite[1].sprite_paint,PlayerSprite[0].PlayerPalette);
+  BitmapPalette(hdc,hdc2,PlayerSprite[0].blur_spin_sprite[2].sprite_paint,PlayerSprite[0].PlayerPalette);
+  BitmapPalette(hdc,hdc2,PlayerSprite[0].blur_spin_sprite[3].sprite_paint,PlayerSprite[0].PlayerPalette);
+}
+
 void DrawPlayer(HDC hdc,HDC hdc2)
 {
-  /*char mytxt1[6];
-  char mytxt2[6];
-  sprintf(mytxt1,"%d",player.in_water_timer);
-  sprintf(mytxt2,"%d",player.grav);//player.in_air_timer);
-  GrPrint(hdc,100,100,mytxt1,LTGREEN);
-  GrPrint(hdc,100,116,mytxt2,LTGREEN);*/
-  //Platform bitmap palette conversion
-
 
   //Keys to controll cursor
   if (player.rst_arrow_left) {
@@ -2943,8 +2828,9 @@ void DrawPlayer(HDC hdc,HDC hdc2)
 
 
 
-
+  //revert palette back to normal
   if (player.flag_revert_palette && player.time_breaker_tick<=0) {    
+    InitPlayerSpritesObjColor(hdc,hdc2);
     for (int i=0;i<9;i++) {
       BitmapPalette(hdc,hdc2,texture_water[i],waterPalette);
     }
@@ -2960,22 +2846,9 @@ void DrawPlayer(HDC hdc,HDC hdc2)
     player.time_breaker_tick=0;
   }
 
-  //Mathematics
-  if (player.on_ground_id!=-1) {
-    if (player.print_current_above) {
-      player.sprite_angle=player.angle;
-    } else if (player.print_current_below) {
-      player.sprite_angle=M_PI+player.angle;
-    }
-    if (!player.last_left) {
-      player.sprite_angle*=-1;
-    }
-  } else {
-    if (player.attack_timer>=0) {
-      player.sprite_angle=0;
-    }
-  }
 
+
+  //turn palette to noir when timebreaking
   if (player.time_breaker) {
     if (player.time_breaker_tick<GR_WIDTH || player.time_breaker_tick<GR_HEIGHT) {
       player.time_breaker_tick+=1;
@@ -2994,7 +2867,7 @@ void DrawPlayer(HDC hdc,HDC hdc2)
       player.flag_noir_palette=FALSE;
     }
   } else {
-    if (player.time_breaker_tick>0) {
+    if (player.time_breaker_tick>0) { //draw speed breaker around player
       player.time_breaker_tick--;
       player.time_breaker_tick-=player.time_breaker_tick/2;
       GrCircle(hdc,player.sprite_x,player.sprite_y,player.time_breaker_tick,WHITE,-1);
@@ -3003,67 +2876,11 @@ void DrawPlayer(HDC hdc,HDC hdc2)
   }
 
 
-  if (player.saved_sprite_angle!=player.sprite_angle && player.on_ground_id!=-1) { //detect chnage in walk sprite angle
-    DeleteObject(player.sprite_1_cache);
-    DeleteObject(player.sprite_2_cache);
-    FreeDrawSprite(&player.draw_sprite_1);
-    FreeDrawSprite(&player.draw_sprite_2);
-
-    player.sprite_1_cache = RotateSprite(hdc, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player.load_color],-1);
-    player.sprite_2_cache = RotateSprite(hdc, player.sprite_2,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player.load_color],-1);
-
-    GenerateDrawSprite(&player.draw_sprite_1,player.sprite_1_cache);
-    GenerateDrawSprite(&player.draw_sprite_2,player.sprite_2_cache);
-
-    player.saved_sprite_angle=player.sprite_angle;
-  }
 
 
-  if (player.block_timer>0 && player.saved_block_sprite_angle!=player.sprite_angle) { //detect change in block sprite angle
-    DeleteObject(player.block_sprite_1_cache);
-    DeleteObject(player.block_sprite_2_cache);
-    DeleteObject(player.block_sprite_3_cache);
-
-    FreeDrawSprite(&player.draw_block_sprite_1);
-    FreeDrawSprite(&player.draw_block_sprite_2);
-    FreeDrawSprite(&player.draw_block_sprite_3);
-
-    player.block_sprite_1_cache = RotateSprite(hdc, player.block_sprite_1,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player.load_color],-1);
-    player.block_sprite_2_cache = RotateSprite(hdc, player.block_sprite_2,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player.load_color],-1);
-    player.block_sprite_3_cache = RotateSprite(hdc, player.block_sprite_3,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player.load_color],-1);
 
 
-    GenerateDrawSprite(&player.draw_block_sprite_1,player.block_sprite_1_cache);
-    GenerateDrawSprite(&player.draw_block_sprite_2,player.block_sprite_2_cache);
-    GenerateDrawSprite(&player.draw_block_sprite_3,player.block_sprite_3_cache);
 
-
-    player.saved_block_sprite_angle=player.sprite_angle;
-  }
-  if (player.attack_timer>=0 && player.saved_attack_sprite_angle!=player.sprite_angle) {//detect change in attack sprite angle
-    DeleteObject(player.attack_sprite_1_cache);
-    DeleteObject(player.attack_sprite_2_cache);
-    DeleteObject(player.attack_sprite_3_cache);
-    DeleteObject(player.attack_sprite_4_cache);
-
-    FreeDrawSprite(&player.draw_attack_sprite_1);
-    FreeDrawSprite(&player.draw_attack_sprite_2);
-    FreeDrawSprite(&player.draw_attack_sprite_3);
-    FreeDrawSprite(&player.draw_attack_sprite_4);
-
-
-    player.attack_sprite_1_cache = RotateSprite(hdc, player.attack_sprite_1,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player.load_color],-1);
-    player.attack_sprite_2_cache = RotateSprite(hdc, player.attack_sprite_2,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player.load_color],-1);
-    player.attack_sprite_3_cache = RotateSprite(hdc, player.attack_sprite_3,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player.load_color],-1);
-    player.attack_sprite_4_cache = RotateSprite(hdc, player.attack_sprite_4,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player.load_color],-1);
-
-    GenerateDrawSprite(&player.draw_attack_sprite_1,player.attack_sprite_1_cache);
-    GenerateDrawSprite(&player.draw_attack_sprite_2,player.attack_sprite_2_cache);
-    GenerateDrawSprite(&player.draw_attack_sprite_3,player.attack_sprite_3_cache); 
-    GenerateDrawSprite(&player.draw_attack_sprite_4,player.attack_sprite_4_cache);
-
-    player.saved_attack_sprite_angle=player.sprite_angle;
-  }
   if (player.health>0) {
 
 
@@ -3089,19 +2906,17 @@ void DrawPlayer(HDC hdc,HDC hdc2)
             maxh=2;
         }
         for (int h=0;h<maxh;h++) {
-          GrLine(hdc,tx,ty,player.sprite_x,player.sprite_y,LTCYAN);//rgbPaint[player_pupil_color]);//LTCYAN);
+          GrLine(hdc,tx,ty,player.sprite_x,player.sprite_y,LTCYAN);
           if (is_khmer) {
-            int lc=LTCYAN;
-            /*if (h>0)
-              lc=CYAN;*/
+            int lc=CYAN;
             if (player.last_left) {
-              GrLine(hdc,tx,ty,tx-cos(ang-M_PI_2)*10,ty-sin(ang-M_PI_2)*10,lc);//rgbPaint[player_pupil_color]);//,LTCYAN);
+              GrLine(hdc,tx,ty,tx-cos(ang-M_PI_2)*10,ty-sin(ang-M_PI_2)*10,lc);
             } else {
-              GrLine(hdc,tx,ty,tx+cos(ang-M_PI_2)*10,ty+sin(ang-M_PI_2)*10,lc);//rgbPaint[player_pupil_color]);//,LTCYAN);
+              GrLine(hdc,tx,ty,tx+cos(ang-M_PI_2)*10,ty+sin(ang-M_PI_2)*10,lc);
             }
           }
           ang+=M_PI_2;
-          GrCircle(hdc,tx,ty,3,LTCYAN,LTCYAN);//rgbPaint[player_pupil_color]);//LTCYAN,LTCYAN);
+          GrCircle(hdc,tx,ty,3,LTCYAN,LTCYAN);
           tx=player.sprite_x+cos(ang)*player.block_timer;
           ty=player.sprite_y+sin(ang)*player.block_timer;
         }
@@ -3113,7 +2928,57 @@ void DrawPlayer(HDC hdc,HDC hdc2)
     }
   }
 
-  //Draw player when on ground edge
+  //Player on ground standing angle maths
+  //Mathematics
+  //sprite angle
+  //ON GROUND ACTUAL
+  if (player.on_ground_id!=-1) {
+    int le_angle=16;
+    double le_player_angle=player.angle;
+    if (player.angle>0) { //Slope ++ \/
+        if (player.print_current_above) {
+          if (!player.last_left) {
+            le_angle=16+le_player_angle/(M_PI_32);
+          } else {
+            le_angle=16-le_player_angle/(M_PI_32);
+          }
+        } else if (player.print_current_below) {
+          if (!player.last_left) {
+            le_angle=48+(le_player_angle)/(M_PI_32);
+          } else {
+            le_angle=48-(le_player_angle)/(M_PI_32);
+          }
+       }
+    } else { //Slope -- /
+        if (player.print_current_above) {
+          if (!player.last_left) {
+            le_angle=16+le_player_angle/(M_PI_32);
+          } else {
+            le_angle=(M_PI_2-le_player_angle)/(M_PI_32);
+          }
+        } else if (player.print_current_below) {
+          if (!player.last_left) {
+            le_angle=32+(M_PI_2+le_player_angle)/(M_PI_32);
+          } else {
+            le_angle=64-(M_PI_2+le_player_angle)/(M_PI_32);
+          }
+        }
+    }
+    if (le_angle>63) {
+      le_angle-=64;
+    } 
+    if (le_angle<0) {
+      le_angle+=64;
+    }
+    if (le_angle>-1 && le_angle<64) {
+      player.sprite_angle=le_angle;
+    }
+  } else {
+    player.sprite_angle=16;
+  }
+
+
+  //Draw playe line when on ground edge
   if (player.is_on_ground_edge) {
     int tmp_ground_id=player.on_ground_edge_id;
     if (tmp_ground_id==-1)
@@ -3134,65 +2999,65 @@ void DrawPlayer(HDC hdc,HDC hdc2)
       if (player.block_timer==0) { //not blocking
         if (player.on_ground_timer>0) { // on ground
           if (player.walk_cycle<2) {
-            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&player.draw_sprite_1,player.last_left);
+            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].sprite_1[player.sprite_angle],player.last_left);
           } else {
-            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&player.draw_sprite_2,player.last_left);
+            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].sprite_2[player.sprite_angle],player.last_left);
           }
         } else { //in_air
           if (!player.is_on_ground_edge) {
             for (int j=0;j<PLAYER_BLUR_NUM;j++) {
-              DrawSprite(hdc,hdc2,player.blur_sprite_x[j],player.blur_sprite_y[j],&player.draw_blur_sprite_jump,player.last_left);
+              DrawSprite(hdc,hdc2,player.blur_sprite_x[j],player.blur_sprite_y[j],&PlayerSprite[0].blur_sprite_jump,player.last_left);
             }
           }
-          DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&player.draw_sprite_jump,player.last_left);
+          DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].sprite_jump,player.last_left);
         }
       } else { //blocking
         if (player.on_ground_id==-1 && player.spin_timer>0) { //not on ground
           if (player.spin_timer<10) {
             for (int j=0;j<PLAYER_BLUR_NUM;j++) {
-              DrawSprite(hdc,hdc2,player.blur_sprite_x[j],player.blur_sprite_y[j],&player.draw_spin_blur_sprite_1,!player.last_left);
+              DrawSprite(hdc,hdc2,player.blur_sprite_x[j],player.blur_sprite_y[j],&PlayerSprite[0].blur_spin_sprite[0],!player.last_left);
             }
-            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&player.draw_spin_sprite_1,!player.last_left);
+            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].spin_sprite[0],!player.last_left);
           } else if (player.spin_timer>10 && player.spin_timer<20) {
             for (int j=0;j<PLAYER_BLUR_NUM;j++) {
-              DrawSprite(hdc,hdc2,player.blur_sprite_x[j],player.blur_sprite_y[j],&player.draw_spin_blur_sprite_2,!player.last_left);
+              DrawSprite(hdc,hdc2,player.blur_sprite_x[j],player.blur_sprite_y[j],&PlayerSprite[0].blur_spin_sprite[1],!player.last_left);
             }
-            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&player.draw_spin_sprite_2,!player.last_left);
+            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].spin_sprite[1],!player.last_left);
           } else if (player.spin_timer>20 && player.spin_timer<30) {
             for (int j=0;j<PLAYER_BLUR_NUM;j++) {
-              DrawSprite(hdc,hdc2,player.blur_sprite_x[j],player.blur_sprite_y[j],&player.draw_spin_blur_sprite_3,!player.last_left);
+              DrawSprite(hdc,hdc2,player.blur_sprite_x[j],player.blur_sprite_y[j],&PlayerSprite[0].blur_spin_sprite[2],!player.last_left);
             }
-            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&player.draw_spin_sprite_3,!player.last_left);
+            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].spin_sprite[2],!player.last_left);
           } else {
             for (int j=0;j<PLAYER_BLUR_NUM;j++) {
-              DrawSprite(hdc,hdc2,player.blur_sprite_x[j],player.blur_sprite_y[j],&player.draw_spin_blur_sprite_4,!player.last_left);
+              DrawSprite(hdc,hdc2,player.blur_sprite_x[j],player.blur_sprite_y[j],&PlayerSprite[0].blur_spin_sprite[3],!player.last_left);
             }
-            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&player.draw_spin_sprite_4,!player.last_left);
+            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].spin_sprite[3],!player.last_left);
           }
         } else { //on ground
           if (0<player.block_timer && player.block_timer<=5) {
-            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&player.draw_block_sprite_1,player.last_left);
+            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].block_sprite_1[player.sprite_angle],player.last_left);
           } else if (5<player.block_timer && player.block_timer<=10) {
-            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&player.draw_block_sprite_2,player.last_left);
+            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].block_sprite_2[player.sprite_angle],player.last_left);
           } else {
-            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&player.draw_block_sprite_3,player.last_left);
+            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].block_sprite_3[player.sprite_angle],player.last_left);
           }
         }
       }
     } else {
       if (!(player.on_ground_timer>0)) {
         for (int j=0;j<PLAYER_BLUR_NUM;j++) {
-          DrawSprite(hdc,hdc2,player.blur_sprite_x[j],player.blur_sprite_y[j],&player.draw_blur_sprite_jump,player.last_left);
+          DrawSprite(hdc,hdc2,player.blur_sprite_x[j],player.blur_sprite_y[j],&PlayerSprite[0].blur_sprite_jump,player.last_left);
         }
       }
       if (30<player.attack_timer && player.attack_timer<=40) {//attack sprite
-        DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&player.draw_attack_sprite_1,player.last_left);
+        DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].attack_sprite_1[player.sprite_angle],player.last_left);
       } else if (20<player.attack_timer && player.attack_timer<=30) {
-        DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&player.draw_attack_sprite_3,player.last_left);
+        DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].attack_sprite_2[player.sprite_angle],player.last_left);
       } else if (10<player.attack_timer && player.attack_timer<=20) {
-        DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&player.draw_attack_sprite_3,player.last_left);
+        DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].attack_sprite_3[player.sprite_angle],player.last_left);
       } else if (-1<player.attack_timer && player.attack_timer<=10) {
-        DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&player.draw_attack_sprite_4,player.last_left);
+        DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].attack_sprite_4[player.sprite_angle],player.last_left);
       }
     }
   }
@@ -3214,15 +3079,16 @@ void DrawPlayer(HDC hdc,HDC hdc2)
 
 
 
-  //Draw the bullet the player shoots
-  if (player.bullet_shot!=-1) {
-    if (player.right_click_hold_timer<62) {
-      DrawBullet(hdc,player.bullet_shot);
-      GrLine(hdc,player.sprite_x,player.sprite_y,Bullet[player.bullet_shot].sprite_x,Bullet[player.bullet_shot].sprite_y,color);    
+    //Draw sniper bullet of player
+    if (player.bullet_shot!=-1) {
+      if (player.right_click_hold_timer<62) {
+        DrawBullet(hdc,player.bullet_shot);
+        GrLine(hdc,player.sprite_x,player.sprite_y,Bullet[player.bullet_shot].sprite_x,Bullet[player.bullet_shot].sprite_y,color);    
+      }
     }
   }
-  }
   
+  //player draw self bullets even after death
   for (int i=0;i<player.bullet_shot_num;i++) {
     DrawBullet(hdc,player.bullet[i]);
   }

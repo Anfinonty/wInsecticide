@@ -64,13 +64,18 @@ void KeyChangePlayerColor()
      }
 
      if (c) {
-       CleanUpPlayerSprites();
-       player.saved_sprite_angle=player.sprite_angle+0.001;
+       //CleanUpPlayerSprites();
+       //player.saved_sprite_angle=player.sprite_angle+0.001;
        //player.sprite_angle=0;
        player_load_iris_color=player_iris_color;
        player_load_color=
        player.load_color=player_color;
-       InitPlayerSprites();
+       //InitPlayerSprites();
+       player.flag_revert_palette=TRUE;
+       player.time_breaker_tick=0;
+       CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,rgbColorsDefault,167,rgbPaint[player_color]);
+       CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,PlayerSprite[0].PlayerPalette,199,rgbPaint[player_iris_color]);
+       //CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,rgbColorsDefault,201,rgbPaint[player_iris_color]);
     }
 }
 

@@ -330,9 +330,9 @@ void CleanupPlayerAttributes()
   player.sprite_angle=
   player.angle=
   player.saved_angle=
-  player.saved_sprite_angle=
-  player.saved_block_sprite_angle=
-  player.saved_attack_sprite_angle=
+  //player.saved_sprite_angle=
+  //player.saved_block_sprite_angle=
+  //player.saved_attack_sprite_angle=
   player.player_grav=
 
   player.cam_x=
@@ -365,7 +365,7 @@ void CleanupPlayerAttributes()
 void CleanupAll(bool btm)
 {
     level_loaded=FALSE;
-    CleanUpPlayerSprites(); //clean up all sprites
+    //CleanUpPlayerSprites(); //clean up all sprites
     CleanUpEnemySprites();
     CleanUpRotatedSprites();
     CleanUpGrid();

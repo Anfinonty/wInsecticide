@@ -1,3 +1,3 @@
-i686-w64-mingw32-gcc-win32 run.c -o rungame.exe -lgdi32 -municode -lwinmm
+i686-w64-mingw32-gcc-win32 run.c -o "WINSECTICIDE.EXE" my.o -lusp10 -lgdi32 -lgdiplus -lmsimg32 -municode -lwinmm -lshlwapi -lvfw32
 
-./mingw32/bin/i686-w64-mingw32-gcc.exe ../../run.c -o ../../rungame.exe -lgdi32 -municode -lwinmm
+./mingw32/bin/i686-w64-mingw32-gcc.exe ../../run.c -o ../../rungame.exe -lusp10 -lgdi32 -lgdiplus -lmsimg32 -municode -lwinmm -lshlwapi -lvfw32

@@ -254,7 +254,7 @@ bool is_khmer=TRUE;
 #define RDGRID_NUM       RENDER_WIDTH_MAX*RENDER_HEIGHT_MAX
 
 
-#define RAIN_NUM    50
+#define RAIN_NUM    20//50
 #define SHOOT_BULLET_NUM    25000//100000// More bullets, otherwise memleak, idk why haha 2024-12-21 //5000
 #define BULLET_NUM	SHOOT_BULLET_NUM+RAIN_NUM
 
@@ -421,6 +421,9 @@ void Prelude()
   int i=prelude_sprite_id;
   //for (int j=0;j<4;j++) {
     //for (int i=0;i<ROTATED_SPRITE_NUM;i++) {
+  if (i==0 && j==0) {
+    InitPlayerSpritesAll();
+  }
   if (j<4) {
       angle_rn=M_PI_2-M_PI_16*i;
       switch (j) {
@@ -1117,6 +1120,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             CameraInit(player.x,player.y); //idk scaling is weird for sprite
           }
           InitRDGrid();
+          ResetBulletRain();
+          if (is_raining) {
+            InitBulletRain();
+          }
           if (in_map_editor) {
             InitMERDGrid();
           }
@@ -1464,7 +1471,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DeleteDC(hdcBackbuff);
             DeleteObject(screen);
 
-              //Trigger go back to main menu
+              //Map Editor, Trigger go back to main menu
             if (back_to_menu) {
               CleanupMapEditorAll();
               flag_update_background=TRUE;
@@ -2005,20 +2012,46 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
       //,,,
 
       //Load Player Sprites
-      player.osprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/player1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      player.osprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/player2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      player.osprite_jump = (HBITMAP) LoadImageW(NULL, L"sprites/player3-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      LoadPlayerSprite.sprite_1 =  LoadRLE8CompressedBitmap(L"sprites/player1.bmp");
+      LoadPlayerSprite.sprite_2 = LoadRLE8CompressedBitmap(L"sprites/player2.bmp");
+      LoadPlayerSprite.sprite_jump = LoadRLE8CompressedBitmap(L"sprites/player3-1.bmp");
+      LoadPlayerSprite.attack_sprite_1 = LoadRLE8CompressedBitmap(L"sprites/player-attack-1.bmp");
+      LoadPlayerSprite.attack_sprite_2 = LoadRLE8CompressedBitmap(L"sprites/player-attack-2.bmp");
+      LoadPlayerSprite.attack_sprite_3 = LoadRLE8CompressedBitmap(L"sprites/player-attack-3.bmp");
+      LoadPlayerSprite.attack_sprite_4 = LoadRLE8CompressedBitmap(L"sprites/player-attack-4.bmp");
+      LoadPlayerSprite.block_sprite_1 = LoadRLE8CompressedBitmap(L"sprites/player-block-1.bmp");
+      LoadPlayerSprite.block_sprite_2 = LoadRLE8CompressedBitmap(L"sprites/player-block-2.bmp");
+      LoadPlayerSprite.block_sprite_3 = LoadRLE8CompressedBitmap(L"sprites/player-block-3.bmp");
+      LoadPlayerSprite.spin_sprite = LoadRLE8CompressedBitmap(L"sprites/player-spin.bmp");
+/*
+      LoadPlayerSprite.sprite_1 =  LoadRLE8CompressedBitmap(L"sprites/enemy2-1.bmp");//LoadRLE8CompressedBitmap(L"sprites/player1.bmp");
+      LoadPlayerSprite.sprite_2 = LoadRLE8CompressedBitmap(L"sprites/enemy2-2.bmp");//LoadRLE8CompressedBitmap(L"sprites/player2.bmp");
+      LoadPlayerSprite.sprite_jump = LoadRLE8CompressedBitmap(L"sprites/enemy2-3.bmp");//LoadRLE8CompressedBitmap(L"sprites/player3-1.bmp");
+      LoadPlayerSprite.attack_sprite_1 = LoadRLE8CompressedBitmap(L"sprites/enemy2-3.bmp");//LoadRLE8CompressedBitmap(L"sprites/player-attack-1.bmp");
+      LoadPlayerSprite.attack_sprite_2 = LoadRLE8CompressedBitmap(L"sprites/enemy2-4.bmp");//LoadRLE8CompressedBitmap(L"sprites/player-attack-2.bmp");
+      LoadPlayerSprite.attack_sprite_3 = LoadRLE8CompressedBitmap(L"sprites/enemy2-3.bmp");//LoadRLE8CompressedBitmap(L"sprites/player-attack-3.bmp");
+      LoadPlayerSprite.attack_sprite_4 = LoadRLE8CompressedBitmap(L"sprites/enemy2-4.bmp");//LoadRLE8CompressedBitmap(L"sprites/player-attack-4.bmp");
+      LoadPlayerSprite.block_sprite_1 = LoadRLE8CompressedBitmap(L"sprites/enemy2-1.bmp");//LoadRLE8CompressedBitmap(L"sprites/player-block-1.bmp");
+      LoadPlayerSprite.block_sprite_2 = LoadRLE8CompressedBitmap(L"sprites/enemy2-2.bmp");//LoadRLE8CompressedBitmap(L"sprites/player-block-2.bmp");
+      LoadPlayerSprite.block_sprite_3 = LoadRLE8CompressedBitmap(L"sprites/enemy2-1.bmp");//LoadRLE8CompressedBitmap(L"sprites/player-block-3.bmp");
+      LoadPlayerSprite.spin_sprite = LoadRLE8CompressedBitmap(L"sprites/enemy2-4.bmp");//LoadRLE8CompressedBitmap(L"sprites/player-spin.bmp");
 
-      player.oattack_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/player-attack-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      player.oattack_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/player-attack-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      player.oattack_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/player-attack-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      player.oattack_sprite_4 = (HBITMAP) LoadImageW(NULL, L"sprites/player-attack-4.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+*/
+      /*ReplaceBitmapColor2(LoadPlayerSprite.sprite_1,LTGREEN,BLACK,8,LTGREEN);
+      ReplaceBitmapColor2(LoadPlayerSprite.sprite_2,LTGREEN,BLACK,8,LTGREEN);
+      ReplaceBitmapColor2(LoadPlayerSprite.sprite_jump,LTGREEN,BLACK,8,LTGREEN);
+      ReplaceBitmapColor2(LoadPlayerSprite.attack_sprite_1,LTGREEN,BLACK,8,LTGREEN);
+      ReplaceBitmapColor2(LoadPlayerSprite.attack_sprite_2,LTGREEN,BLACK,8,LTGREEN);
+      ReplaceBitmapColor2(LoadPlayerSprite.attack_sprite_3,LTGREEN,BLACK,8,LTGREEN);
+      ReplaceBitmapColor2(LoadPlayerSprite.attack_sprite_4,LTGREEN,BLACK,8,LTGREEN);
+      ReplaceBitmapColor2(LoadPlayerSprite.block_sprite_1,LTGREEN,BLACK,8,LTGREEN);
+      ReplaceBitmapColor2(LoadPlayerSprite.block_sprite_2,LTGREEN,BLACK,8,LTGREEN);
+      ReplaceBitmapColor2(LoadPlayerSprite.block_sprite_3,LTGREEN,BLACK,8,LTGREEN);
+      ReplaceBitmapColor2(LoadPlayerSprite.spin_sprite,LTGREEN,BLACK,8,LTGREEN);*/
 
-      player.oblock_sprite_1 = (HBITMAP) LoadImageW(NULL, L"sprites/player-block-1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      player.oblock_sprite_2 = (HBITMAP) LoadImageW(NULL, L"sprites/player-block-2.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      player.oblock_sprite_3 = (HBITMAP) LoadImageW(NULL, L"sprites/player-block-3.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
-      player.ospin_sprite = (HBITMAP) LoadImageW(NULL, L"sprites/player-spin.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+
+
 
       //Load Enemy Sprites
       enemy1_sprite_1 = LoadRLE8CompressedBitmap(L"sprites/enemy1-1.bmp");

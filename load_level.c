@@ -323,8 +323,8 @@ void InitLevel(bool load_lvl)
 
 
   //Load Player Cosmetics
-  CleanUpPlayerSprites();
-  InitPlayerSprites();
+  //CleanUpPlayerSprites();
+  //InitPlayerSprites();
 
   //Load Enemy cache spritesF
   InitGridTiles(lvl_name);
