@@ -26,56 +26,33 @@ void KeyChangePlayerColor()
      bool c=FALSE;
      //LIVE change color of player
      if (old_player_color!=player_color) { //change when not same
-       for (int i=0;i<16;i++) {
-         FreeDrawSprite(&draw_player_cursor_body[i]);
-         DeleteObject(player_cursor_body[i]);
-         player_cursor_body[i]=RotateSprite(NULL, player_cursor[i],0,LTGREEN,BLACK,rgbPaint[player_color]/*draw_color_arr[player_color]*/,-1);
-         GenerateDrawSprite(&draw_player_cursor_body[i],player_cursor_body[i]);
-       }
        old_player_color=player_color;
        c=TRUE;
      }
 
-
      if (old_player_iris_color!=player_iris_color) {
-       for (int i=0;i<16;i++) {
-         FreeDrawSprite(&draw_player_cursor_iris[i]);
-         DeleteObject(player_cursor_iris[i]);
-         player_cursor_iris[i]=RotateSpriteExclude(NULL, player_cursor[i],0,LTBLUE,rgbPaint[player_iris_color]/*draw_color_arr[player_iris_color]*/);
-         GenerateDrawSprite(&draw_player_cursor_iris[i],player_cursor_iris[i]);
-       }
        old_player_iris_color=player_iris_color;
        c=TRUE;
      }
 
      if (old_player_pupil_color!=player_pupil_color) {
-       for (int i=0;i<2;i++) {
-         FreeDrawSprite(&draw_player_cursor_pupil[i]);
-         DeleteObject(player_cursor_pupil[i]);
-         if (i==0) {
-           player_cursor_pupil[i]=RotateSpriteExclude(NULL, player_cursor[0],0,LTRED,rgbPaint[player_pupil_color]/*draw_color_arr[player_pupil_color]*/);
-         } else {
-           player_cursor_pupil[i]=RotateSpriteExclude(NULL, player_cursor[8],0,LTRED,rgbPaint[player_pupil_color]/*draw_color_arr[player_pupil_color]*/);
-         }
-         GenerateDrawSprite(&draw_player_cursor_pupil[i],player_cursor_pupil[i]);
-       }
-
        old_player_pupil_color=player_pupil_color;
+       c=TRUE;
      }
 
      if (c) {
-       //CleanUpPlayerSprites();
-       //player.saved_sprite_angle=player.sprite_angle+0.001;
-       //player.sprite_angle=0;
        player_load_iris_color=player_iris_color;
        player_load_color=
        player.load_color=player_color;
-       //InitPlayerSprites();
        player.flag_revert_palette=TRUE;
        player.time_breaker_tick=0;
        CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,rgbColorsDefault,167,rgbPaint[player_color]);
        CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,PlayerSprite[0].PlayerPalette,199,rgbPaint[player_iris_color]);
-       //CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,rgbColorsDefault,201,rgbPaint[player_iris_color]);
+
+
+       CopyReplaceColorPalette(player_cursor_palette,rgbColorsDefault,167,rgbPaint[player_color]); //LTGREEN
+       CopyReplaceColorPalette(player_cursor_palette,player_cursor_palette,151,rgbPaint[player_iris_color]); //LTBLUE
+       CopyReplaceColorPalette(player_cursor_palette,player_cursor_palette,199,rgbPaint[player_pupil_color]);//LTRED
     }
 }
 

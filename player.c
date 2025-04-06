@@ -2808,6 +2808,14 @@ void InitPlayerSpritesObjColor(HDC hdc,HDC hdc2)
   BitmapPalette(hdc,hdc2,PlayerSprite[0].blur_spin_sprite[3].sprite_paint,PlayerSprite[0].PlayerPalette);
 }
 
+
+void InitPlayerCursorColor(HDC hdc,HDC hdc2) {
+  for (int i=0;i<16;i++) {
+    BitmapPalette(hdc,hdc2,draw_player_cursor[i].sprite_paint,player_cursor_palette);
+  }
+}
+
+
 void DrawPlayer(HDC hdc,HDC hdc2)
 {
 
@@ -2835,6 +2843,8 @@ void DrawPlayer(HDC hdc,HDC hdc2)
   //revert palette back to normal
   if (player.flag_revert_palette && player.time_breaker_tick<=0) {    
     InitPlayerSpritesObjColor(hdc,hdc2);
+    InitPlayerCursorColor(hdc,hdc2);
+
     for (int i=0;i<9;i++) {
       BitmapPalette(hdc,hdc2,texture_water[i],waterPalette);
     }

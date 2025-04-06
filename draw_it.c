@@ -372,33 +372,22 @@ closed
  10   11       14   15
 */
 
-
+  //DrawBitmap(hDC,hDC2,mouse_x,mouse_y,0,0,64,64,player_cursor[0],SRCCOPY,FALSE,FALSE);
   //right side eyes
   switch (player.knives_per_throw) {
     case 1: //right->closed
     case 3:
-      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+46,mouse_y+rand_shake_y-12,&draw_player_cursor_body[13],FALSE);
-      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+46,mouse_y+rand_shake_y-12,&draw_player_cursor_iris[13],FALSE);
-
-      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+50,mouse_y+rand_shake_y+10,&draw_player_cursor_body[14],FALSE);
-      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+50,mouse_y+rand_shake_y+10,&draw_player_cursor_iris[14],FALSE);
-
-
-      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+60,mouse_y+rand_shake_y+6,&draw_player_cursor_body[15],FALSE);
-      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+60,mouse_y+rand_shake_y+6,&draw_player_cursor_iris[15],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+46,mouse_y+rand_shake_y-12,&draw_player_cursor[13],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+50,mouse_y+rand_shake_y+10,&draw_player_cursor[14],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+60,mouse_y+rand_shake_y+6,&draw_player_cursor[15],FALSE);
       break;
 
     case 0:
     case 5: //right->opened
     case 15:
-      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+46,mouse_y+rand_shake_y-12,&draw_player_cursor_body[5],FALSE);
-      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+46,mouse_y+rand_shake_y-12,&draw_player_cursor_iris[5],FALSE);
-
-      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+50,mouse_y+rand_shake_y+10,&draw_player_cursor_body[6],FALSE);
-      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+50,mouse_y+rand_shake_y+10,&draw_player_cursor_iris[6],FALSE);
-
-      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+60,mouse_y+rand_shake_y+6,&draw_player_cursor_body[7],FALSE);
-      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+60,mouse_y+rand_shake_y+6,&draw_player_cursor_iris[7],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+46,mouse_y+rand_shake_y-12,&draw_player_cursor[5],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+50,mouse_y+rand_shake_y+10,&draw_player_cursor[6],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+60,mouse_y+rand_shake_y+6,&draw_player_cursor[7],FALSE);
       break;
   }
 
@@ -408,44 +397,26 @@ closed
   switch (player.knives_per_throw) {
     case 1:
     case 5:
-      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+16,mouse_y+rand_shake_y-24,&draw_player_cursor_body[9],FALSE);
-      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+16,mouse_y+rand_shake_y-24,&draw_player_cursor_iris[9],FALSE);
-
-      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x-22,mouse_y+rand_shake_y+20,&draw_player_cursor_body[10],FALSE);
-      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x-22,mouse_y+rand_shake_y+20,&draw_player_cursor_iris[10],FALSE);
-
-      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+24,mouse_y+rand_shake_y+20,&draw_player_cursor_body[11],FALSE);
-      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+24,mouse_y+rand_shake_y+20,&draw_player_cursor_iris[11],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+16,mouse_y+rand_shake_y-24,&draw_player_cursor[9],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x-22,mouse_y+rand_shake_y+20,&draw_player_cursor[10],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+24,mouse_y+rand_shake_y+20,&draw_player_cursor[11],FALSE);
       break;
     case 0:
     case 3:
     case 15:
-      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+16,mouse_y+rand_shake_y-24,&draw_player_cursor_body[1],FALSE);
-      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+16,mouse_y+rand_shake_y-24,&draw_player_cursor_iris[1],FALSE);
-
-      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x-22,mouse_y+rand_shake_y+20,&draw_player_cursor_body[2],FALSE);
-      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x-22,mouse_y+rand_shake_y+20,&draw_player_cursor_iris[2],FALSE);
-
-      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+24,mouse_y+rand_shake_y+20,&draw_player_cursor_body[3],FALSE);
-      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+24,mouse_y+rand_shake_y+20,&draw_player_cursor_iris[3],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+16,mouse_y+rand_shake_y-24,&draw_player_cursor[1],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x-22,mouse_y+rand_shake_y+20,&draw_player_cursor[2],FALSE);
+      DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+24,mouse_y+rand_shake_y+20,&draw_player_cursor[3],FALSE);
       break;
   }
 
 
   if (player.health>PLAYER_LOW_HEALTH) {
-    DrawSprite(hDC,hDC2,mouse_x-2,mouse_y-2,&draw_player_cursor_body[0],FALSE); //left ete open
-    DrawSprite(hDC,hDC2,mouse_x-2,mouse_y-2,&draw_player_cursor_iris[0],FALSE);
-    DrawSprite(hDC,hDC2,mouse_x-2,mouse_y-2,&draw_player_cursor_pupil[0],FALSE);
-
-    DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+52,mouse_y+rand_shake_y-4,&draw_player_cursor_body[4],FALSE); //right eye open
-    DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+52,mouse_y+rand_shake_y-4,&draw_player_cursor_iris[4],FALSE);
+    DrawSprite(hDC,hDC2,mouse_x-2,mouse_y-2,&draw_player_cursor[0],FALSE); //left ete open
+    DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+52,mouse_y+rand_shake_y-4,&draw_player_cursor[4],FALSE); //right eye open
   } else {
-    DrawSprite(hDC,hDC2,mouse_x-2,mouse_y-2,&draw_player_cursor_body[8],FALSE); //left eye low hp
-    DrawSprite(hDC,hDC2,mouse_x-2,mouse_y-2,&draw_player_cursor_iris[8],FALSE);
-    DrawSprite(hDC,hDC2,mouse_x-2,mouse_y-2,&draw_player_cursor_pupil[1],FALSE);
-
-    DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+52,mouse_y+rand_shake_y-4,&draw_player_cursor_body[12],FALSE); //right eye low hp
-    DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+52,mouse_y+rand_shake_y-4,&draw_player_cursor_iris[12],FALSE);
+    DrawSprite(hDC,hDC2,mouse_x-2,mouse_y-2,&draw_player_cursor[8],FALSE); //left eye low hp
+    DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+52,mouse_y+rand_shake_y-4,&draw_player_cursor[12],FALSE); //right eye low hp
   }
   }
 }

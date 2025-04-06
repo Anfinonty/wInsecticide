@@ -1109,7 +1109,7 @@ void GrGlassRect(HDC hdc, HDC hdcMem, int x, int y, int width, int height, int C
 
 
 // Function to decompress BI_RLE8-compressed data while retaining color mapping
-int DecompressRLE8WithPalette(const BYTE *compressedData, int width, int height, BYTE *decompressedData, const RGBQUAD *colorTable) {
+int DecompressRLE8(const BYTE *compressedData, int width, int height, BYTE *decompressedData) {
     int x = 0, y = 0;
     const BYTE *src = compressedData;
     BYTE *dest = decompressedData;
@@ -1210,7 +1210,7 @@ HBITMAP LoadRLE8CompressedBitmap(const wchar_t *filePath) {
 
 
     // Decompress the RLE8 data
-    if (DecompressRLE8WithPalette(compressedData, width, height, decompressedData, colorTable) != 0) {
+    if (DecompressRLE8(compressedData, width, height, decompressedData) != 0) {
         wprintf(L"Failed to decompress RLE8 data.\n");
         free(compressedData);
         free(decompressedData);
@@ -1237,14 +1237,6 @@ HBITMAP LoadRLE8CompressedBitmap(const wchar_t *filePath) {
     bmInfo->bmiHeader.biClrImportant = infoHeader.biClrImportant;
     bmInfo->bmiHeader.biSizeImage = imageSize;
 
-    /*BITMAPINFO *bitmapInfo = malloc(sizeof(BITMAPINFO) + sizeof(RGBQUAD) * colorTableSize);
-    if (!bitmapInfo) {
-        perror("Error allocating bitmap info memory");
-        free(compressedData);
-        free(decompressedData);
-        free(colorTable);
-        return NULL;
-    }*/
     // Create a compatible device context (DC)
     HDC hdc = GetDC(NULL);
 
@@ -1256,8 +1248,7 @@ HBITMAP LoadRLE8CompressedBitmap(const wchar_t *filePath) {
                 &bmInfo->bmiHeader,       // Pointer to BITMAPINFOHEADER
                 CBM_INIT,                 // Initialization flag
                 decompressedData,         // Pointer to the decompressed pixel data
-                //bitmapInfo,                   // Pointer to BITMAPINFO structure with color information
-                bmInfo,
+                bmInfo,                   // Pointer to BITMAPINFO structure with color information
                 DIB_RGB_COLORS            // Color usage
             );
     // Release the DC
@@ -1274,9 +1265,7 @@ HBITMAP LoadRLE8CompressedBitmap(const wchar_t *filePath) {
     }
 
     // Copy the decompressed data into the DIBSection
-    //memcpy(dibPixels, decompressedData, imageSize);
     free(bmInfo);
-    //free(bitmapInfo);
     free(compressedData);
     free(decompressedData);
     free(colorTable);

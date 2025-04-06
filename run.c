@@ -2038,21 +2038,6 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
       LoadPlayerSprite.spin_sprite = LoadRLE8CompressedBitmap(L"sprites/enemy2-4.bmp");//LoadRLE8CompressedBitmap(L"sprites/player-spin.bmp");
 
 */
-      /*ReplaceBitmapColor2(LoadPlayerSprite.sprite_1,LTGREEN,BLACK,8,LTGREEN);
-      ReplaceBitmapColor2(LoadPlayerSprite.sprite_2,LTGREEN,BLACK,8,LTGREEN);
-      ReplaceBitmapColor2(LoadPlayerSprite.sprite_jump,LTGREEN,BLACK,8,LTGREEN);
-      ReplaceBitmapColor2(LoadPlayerSprite.attack_sprite_1,LTGREEN,BLACK,8,LTGREEN);
-      ReplaceBitmapColor2(LoadPlayerSprite.attack_sprite_2,LTGREEN,BLACK,8,LTGREEN);
-      ReplaceBitmapColor2(LoadPlayerSprite.attack_sprite_3,LTGREEN,BLACK,8,LTGREEN);
-      ReplaceBitmapColor2(LoadPlayerSprite.attack_sprite_4,LTGREEN,BLACK,8,LTGREEN);
-      ReplaceBitmapColor2(LoadPlayerSprite.block_sprite_1,LTGREEN,BLACK,8,LTGREEN);
-      ReplaceBitmapColor2(LoadPlayerSprite.block_sprite_2,LTGREEN,BLACK,8,LTGREEN);
-      ReplaceBitmapColor2(LoadPlayerSprite.block_sprite_3,LTGREEN,BLACK,8,LTGREEN);
-      ReplaceBitmapColor2(LoadPlayerSprite.spin_sprite,LTGREEN,BLACK,8,LTGREEN);*/
-
-
-
-
 
       //Load Enemy Sprites
       enemy1_sprite_1 = LoadRLE8CompressedBitmap(L"sprites/enemy1-1.bmp");
@@ -2102,50 +2087,49 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
 
       //Load mouse cursor sprite
       //player cursor
+      
       for (int i=0;i<16;i++) { //open: 0,,3; 4..7;   closed:  8..11; 12..15
         wchar_t fname[32];
         swprintf(fname,32,L"sprites/player_cursor%d.bmp",i);
-        player_cursor[i]=(HBITMAP) LoadImageW(NULL, fname, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-        player_cursor_body[i]=RotateSprite(NULL, player_cursor[i],0,LTGREEN,BLACK,rgbPaint[player_color],-1);
-        player_cursor_iris[i]=RotateSpriteExclude(NULL, player_cursor[i],0,LTBLUE,RED);
-        GenerateDrawSprite(&draw_player_cursor_body[i],player_cursor_body[i]);
-        GenerateDrawSprite(&draw_player_cursor_iris[i],player_cursor_iris[i]);
-
-        if (i==0 || i==8) {
-          if (i==8) {
-            player_cursor_pupil[1]=RotateSpriteExclude(NULL, player_cursor[8],0,LTRED,LTRED);
-            GenerateDrawSprite(&draw_player_cursor_pupil[1],player_cursor_pupil[1]);
-          } else {
-            player_cursor_pupil[0]=RotateSpriteExclude(NULL, player_cursor[0],0,LTRED,LTRED);
-            GenerateDrawSprite(&draw_player_cursor_pupil[0],player_cursor_pupil[0]);
-          }
-        }
+        player_cursor[i]=LoadRLE8CompressedBitmap(fname);
+            //LoadImageW(NULL,fname,IMAGE_BITMAP,0,0,LR_LOADFROMFILE);
+        player_cursor_cache[i]=CopyCrunchyBitmap(player_cursor[i],SRCCOPY);
+        ReplaceBitmapColor2(player_cursor_cache[i],LTGREEN,BLACK,8,LTGREEN);
+        GenerateDrawSprite(&draw_player_cursor[i],player_cursor_cache[i]);
       }
 
       wchar_t moon_sprite_name[48];
+      wchar_t moon_cartoony_sprite_name[48];
       //Load moon sprite based on lunar day
       //lunar_day=1; //moon debug
       double lunar_angle=0;
       if (lunar_day>=1 && lunar_day<=5) { //1, 2, 3, 4, 5
         swprintf(moon_sprite_name,48,L"sprites/moon-1.bmp");
+        swprintf(moon_cartoony_sprite_name,48,L"sprites/moon-cartoon-1.bmp");
         lunar_angle=-M_PI_4-M_PI_4/2;
       } else if (lunar_day>=6 && lunar_day<=9) {// 6, 7, 8, 9
         swprintf(moon_sprite_name,48,L"sprites/moon-8.bmp");
+        swprintf(moon_cartoony_sprite_name,48,L"sprites/moon-cartoon-8.bmp");
         lunar_angle=-M_PI_4;
       } else if (lunar_day>=10 && lunar_day<=12) {// 10, 11, 12,
         swprintf(moon_sprite_name,48,L"sprites/moon-11.bmp");
+        swprintf(moon_cartoony_sprite_name,48,L"sprites/moon-cartoon-11.bmp");
         lunar_angle=-M_PI_4+M_PI_4/2;
       } else if (lunar_day>=13 && lunar_day<=15) {//13, 14, 15 //fullmoon
         swprintf(moon_sprite_name,48,L"sprites/moon-14.bmp");
+        swprintf(moon_cartoony_sprite_name,48,L"sprites/moon-cartoon-14.bmp");
         lunar_angle=0;
       } else if (lunar_day>=16 && lunar_day<=18) {//16, 17, 18
         swprintf(moon_sprite_name,48,L"sprites/moon-16.bmp");
+        swprintf(moon_cartoony_sprite_name,48,L"sprites/moon-cartoon-16.bmp");
         lunar_angle=M_PI_4-M_PI_4/2;
       } else if (lunar_day>=19 && lunar_day<=22) {//19, 20, 21, 22
         swprintf(moon_sprite_name,48,L"sprites/moon-21.bmp");
+        swprintf(moon_cartoony_sprite_name,48,L"sprites/moon-cartoon-21.bmp");
         lunar_angle=M_PI_4;
       } else if (lunar_day>=23 && lunar_day<=26) {//23, 24, 25,26
         swprintf(moon_sprite_name,48,L"sprites/moon-26.bmp");
+        swprintf(moon_cartoony_sprite_name,48,L"sprites/moon-cartoon-26.bmp");
         lunar_angle=M_PI_4+M_PI_4/2;
       } else {
         swprintf(moon_sprite_name,48,L"sprites/moon-28.bmp");
@@ -2155,6 +2139,12 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
       ReplaceBitmapColor(moon_sprite_cache,LTGREEN,BLACK);
       
       GenerateDrawSprite(&draw_moon_sprite,moon_sprite_cache);
+
+
+      moon_cartoon_sprite=LoadRLE8CompressedBitmap(moon_cartoony_sprite_name);
+      moon_cartoon_sprite_cache=LoadRLE8CompressedBitmap(moon_cartoony_sprite_name);
+      ReplaceBitmapColor(moon_cartoon_sprite_cache,LTGREEN,BLACK);
+      GenerateDrawSprite(&draw_moon_cartoon_sprite,moon_cartoon_sprite_cache);
 
       }
 

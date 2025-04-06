@@ -375,6 +375,9 @@ void PlayerActDecceleration();
 void PlayerAct();
 void PlayerSndAct();
 void PlayerCameraShake();
+
+void InitPlayerSpritesObjColor(HDC hdc,HDC hdc2);
+void InitPlayerCursorColor(HDC hdc,HDC hdc2);
 void DrawPlayer(HDC hdc,HDC hdc2);
 
 
@@ -1028,14 +1031,10 @@ int mouse_x;
 int mouse_y;
 int true_mouse_x;
 int true_mouse_y;
+RGBQUAD player_cursor_palette[256];
 HBITMAP player_cursor[16]; //4 left and 4 right, open or closed, loaded
-HBITMAP player_cursor_body[16];
-HBITMAP player_cursor_iris[16];
-HBITMAP player_cursor_pupil[2];// 1 left  open or closed
-
-DRAWSPRITE draw_player_cursor_body[16];
-DRAWSPRITE draw_player_cursor_iris[16];
-DRAWSPRITE draw_player_cursor_pupil[2];
+HBITMAP player_cursor_cache[16];
+DRAWSPRITE draw_player_cursor[16];
 
 
 
@@ -1095,6 +1094,11 @@ HBITMAP map_platforms_shadow_shader;
 HBITMAP moon_sprite;
 HBITMAP moon_sprite_cache;
 DRAWSPRITE draw_moon_sprite;
+
+HBITMAP moon_cartoon_sprite;
+HBITMAP moon_cartoon_sprite_cache;
+DRAWSPRITE draw_moon_cartoon_sprite;
+
 
 
 //Shadow Tile
