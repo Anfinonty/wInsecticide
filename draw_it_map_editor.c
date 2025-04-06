@@ -272,7 +272,7 @@ void DrawMapEditorEnemy(HDC hdc,HDC hdc2)
 void DrawMapEditorPlayer(HDC hdc,HDC hdc2)
 {
   //GrSprite(hdc,player.x+player.cam_x+GR_WIDTH/2,player.y+player.cam_y+GR_HEIGHT/2,player.sprite_1_cache,FALSE);
-  //DrawSprite(hdc,hdc2,player.x+player.cam_x+GR_WIDTH/2,player.y+player.cam_y+GR_HEIGHT/2,&player.draw_sprite_1,FALSE);
+  DrawSprite(hdc,hdc2,player.x+player.cam_x+GR_WIDTH/2,player.y+player.cam_y+GR_HEIGHT/2,&PlayerSprite[0].sprite_1[16],FALSE);
 }
 
 

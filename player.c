@@ -141,56 +141,31 @@ void InitPlayerSpritesAll()
 
   tmp_bitmap=CopyCrunchyBitmap(LoadPlayerSprite.sprite_jump,SRCCOPY);
   ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+  DitherBitmapColor(tmp_bitmap,LTGREEN,BLACK);
   GenerateDrawSprite(&PlayerSprite[0].blur_sprite_jump,tmp_bitmap);
   DeleteObject(tmp_bitmap);
 
 
-  tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.spin_sprite,0.1,BLACK);
-  ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
-  GenerateDrawSprite(&PlayerSprite[0].spin_sprite[0],tmp_bitmap);
-  DeleteObject(tmp_bitmap);
+  for (int i=0;i<4;i++) {
+    double t_angle;
+    switch (i) {
+      case 0:t_angle=0.1;break;
+      case 1:t_angle=0.1+M_PI_2;break;
+      case 2:t_angle=0.1+M_PI;break;
+      case 3:t_angle=0.1+M_PI+M_PI_2;break;
+    }
+    tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.spin_sprite,t_angle,BLACK);
+    ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+    GenerateDrawSprite(&PlayerSprite[0].spin_sprite[i],tmp_bitmap);
+    DeleteObject(tmp_bitmap);
 
 
-  tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.spin_sprite,0.1+M_PI_2,BLACK);
-  ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
-  GenerateDrawSprite(&PlayerSprite[0].spin_sprite[1],tmp_bitmap);
-  DeleteObject(tmp_bitmap);
-
-  tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.spin_sprite,0.1+M_PI,BLACK);
-  ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
-  GenerateDrawSprite(&PlayerSprite[0].spin_sprite[2],tmp_bitmap);
-  DeleteObject(tmp_bitmap);
-
-
-  tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.spin_sprite,0.1+M_PI+M_PI_2,BLACK);
-  ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
-  GenerateDrawSprite(&PlayerSprite[0].spin_sprite[3],tmp_bitmap);
-  DeleteObject(tmp_bitmap);
-
-
-
-  tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.spin_sprite,0.1,BLACK);
-  ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
-  GenerateDrawSprite(&PlayerSprite[0].blur_spin_sprite[0],tmp_bitmap);
-  DeleteObject(tmp_bitmap);
-
-
-  tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.spin_sprite,0.1+M_PI_2,BLACK);
-  ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
-  GenerateDrawSprite(&PlayerSprite[0].blur_spin_sprite[1],tmp_bitmap);
-  DeleteObject(tmp_bitmap);
-
-  tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.spin_sprite,0.1+M_PI,BLACK);
-  ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
-  GenerateDrawSprite(&PlayerSprite[0].blur_spin_sprite[2],tmp_bitmap);
-  DeleteObject(tmp_bitmap);
-
-
-  tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.spin_sprite,0.1+M_PI+M_PI_2,BLACK);
-  ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
-  GenerateDrawSprite(&PlayerSprite[0].blur_spin_sprite[3],tmp_bitmap);
-  DeleteObject(tmp_bitmap);
-
+    tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.spin_sprite,t_angle,BLACK);
+    ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+    DitherBitmapColor(tmp_bitmap,LTGREEN,BLACK);
+    GenerateDrawSprite(&PlayerSprite[0].blur_spin_sprite[i],tmp_bitmap);
+    DeleteObject(tmp_bitmap);
+  }
 
 
 

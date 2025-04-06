@@ -857,11 +857,6 @@ void SetNodeGridAttributes(int i)
       min=Ground[i]->y2;
       max=Ground[i]->y1;
     }
-    /*for (int _=0;_<2;_++) {
-      for (int n=0;i<8;n++) {
-
-      }
-    }*/
     for (y=min;y<max;y++) {
       lg_x=(y-Ground[i]->c)/Ground[i]->gradient;
       lg_grid_id=GetGridId(lg_x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);

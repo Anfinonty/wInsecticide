@@ -827,63 +827,6 @@ HBITMAP CopyCrunchyBitmap(HBITMAP srcBitmap,int SRCOPERATION)
 
 
 
-/*HBITMAP CopyCrunchyBitmapFast(HBITMAP srcBitmap) {
-    // Get bitmap information
-    BITMAP bm;
-    GetObject(srcBitmap, sizeof(bm), &bm);
-
-    // Prepare BITMAPINFO structure
-    BITMAPINFO* pbmi = (BITMAPINFO*)alloca(offsetof(BITMAPINFO, bmiColors[256]));
-    pbmi->bmiHeader.biSize = sizeof(pbmi->bmiHeader);
-    pbmi->bmiHeader.biWidth = bm.bmWidth;
-    pbmi->bmiHeader.biHeight = bm.bmHeight;
-    pbmi->bmiHeader.biPlanes = 1;
-    pbmi->bmiHeader.biBitCount = 8;
-    pbmi->bmiHeader.biCompression = BI_RGB;
-    pbmi->bmiHeader.biSizeImage = 0;
-
-    Init8BitRGBColorsDefault(pbmi->bmiColors);
-
-    // Allocate memory for pixel data
-    int imageSize = bm.bmWidth * bm.bmHeight;
-    BYTE* pixelData = (BYTE*)malloc(imageSize);
-
-    if (!pixelData) {
-        wprintf(L"Memory allocation failed.\n");
-        return NULL;
-    }
-
-    // Retrieve the pixel data from source bitmap
-    HDC hdcMem = CreateCompatibleDC(NULL);
-    SelectObject(hdcMem, srcBitmap);
-
-    if (!GetDIBits(hdcMem, srcBitmap, 0, bm.bmHeight, pixelData, pbmi, DIB_RGB_COLORS)) {
-        wprintf(L"Failed to retrieve bitmap data.\n");
-        free(pixelData);
-        DeleteDC(hdcMem);
-        return NULL;
-    }
-
-    // Create destination bitmap
-    HBITMAP destBitmap = CreateCrunchyBitmap(bm.bmWidth, bm.bmHeight);
-
-    // Copy pixel data to destination bitmap
-    SelectObject(hdcMem, destBitmap);
-    if (!SetDIBits(hdcMem, destBitmap, 0, bm.bmHeight, pixelData, pbmi, DIB_RGB_COLORS)) {
-        wprintf(L"Failed to set bitmap data.\n");
-        free(pixelData);
-        DeleteDC(hdcMem);
-        return NULL;
-    }
-
-    // Cleanup
-    free(pixelData);
-    DeleteDC(hdcMem);
-
-    return destBitmap;
-}*/
-
-
 
 HBITMAP CopyStretchBitmap(HBITMAP srcBitmap,int SRCOPERATION, int nWidth, int nHeight)
 {
@@ -908,114 +851,6 @@ HBITMAP CopyStretchBitmap(HBITMAP srcBitmap,int SRCOPERATION, int nWidth, int nH
 
 
 
-#define COLORREF2RGB(Color) (Color & 0xff00) | ((Color >> 16) & 0xff) \
-                                 | ((Color << 16) & 0xff0000)
-//-------------------------------------------------------------------------------
-// ReplaceColor
-//
-// Author    : Dimitri Rochette drochette@coldcat.fr
-// Specials Thanks to Joe Woodbury for his comments and code corrections
-//
-// Includes  : Only <windows.h>
-
-//
-// hBmp         : Source Bitmap
-// cOldColor : Color to replace in hBmp
-// cNewColor : Color used for replacement
-// hBmpDC    : DC of hBmp ( default NULL ) could be NULL if hBmp is not selected
-//
-// Retcode   : HBITMAP of the modified bitmap or NULL for errors
-//
-//-------------------------------------------------------------------------------
-HBITMAP ReplaceColor(HBITMAP hBmp,COLORREF cOldColor,COLORREF cNewColor,HDC hBmpDC)
-{//https://www.codeproject.com/Articles/2841/How-to-replace-a-color-in-a-HBITMAP
-    HBITMAP RetBmp=NULL;
-    if (hBmp)
-    {
-        HDC BufferDC=CreateCompatibleDC(NULL);    // DC for Source Bitmap
-        if (BufferDC)
-        {
-            HBITMAP hTmpBitmap = (HBITMAP) NULL;
-            if (hBmpDC)
-                if (hBmp == (HBITMAP)GetCurrentObject(hBmpDC, OBJ_BITMAP))
-            {
-                hTmpBitmap = CreateLargeBitmap(1,1);//CreateBitmap(1, 1, 1, 1, NULL);
-                SelectObject(hBmpDC, hTmpBitmap);
-            }
-
-            HGDIOBJ PreviousBufferObject=SelectObject(BufferDC,hBmp);
-            // here BufferDC contains the bitmap
-            
-            HDC DirectDC=CreateCompatibleDC(NULL); // DC for working
-            if (DirectDC)
-            {
-                // Get bitmap size
-                BITMAP bm;
-                GetObject(hBmp, sizeof(bm), &bm);
-
-                // create a BITMAPINFO with minimal initilisation 
-                // for the CreateDIBSection
-                BITMAPINFO RGB32BitsBITMAPINFO; 
-                ZeroMemory(&RGB32BitsBITMAPINFO,sizeof(BITMAPINFO));
-                RGB32BitsBITMAPINFO.bmiHeader.biSize=sizeof(BITMAPINFOHEADER);
-                RGB32BitsBITMAPINFO.bmiHeader.biWidth=bm.bmWidth;
-                RGB32BitsBITMAPINFO.bmiHeader.biHeight=bm.bmHeight;
-                RGB32BitsBITMAPINFO.bmiHeader.biPlanes=1;
-                RGB32BitsBITMAPINFO.bmiHeader.biBitCount=32;
-
-                // pointer used for direct Bitmap pixels access
-                UINT * ptPixels;    
-
-                HBITMAP DirectBitmap = CreateDIBSection(DirectDC, 
-                                       (BITMAPINFO *)&RGB32BitsBITMAPINFO, 
-                                       DIB_RGB_COLORS,
-                                       (void **)&ptPixels, 
-                                       NULL, 0);
-                if (DirectBitmap)
-                {
-                    // here DirectBitmap!=NULL so ptPixels!=NULL no need to test
-                    HGDIOBJ PreviousObject=SelectObject(DirectDC, DirectBitmap);
-                    BitBlt(DirectDC,0,0,
-                                   bm.bmWidth,bm.bmHeight,
-                                   BufferDC,0,0,SRCCOPY);
-
-                       // here the DirectDC contains the bitmap
-
-                    // Convert COLORREF to RGB (Invert RED and BLUE)
-                    //cOldColor=COLORREF2RGB(cOldColor);
-                    //cNewColor=COLORREF2RGB(cNewColor);
-
-                    // After all the inits we can do the job : Replace Color
-                    for (int i=((bm.bmWidth*bm.bmHeight)-1);i>=0;i--)
-                    {
-                        if (ptPixels[i]==BLACK) 
-                          ptPixels[i]=DKBLACK;                    
-                        else if (ptPixels[i]==cOldColor) 
-                          ptPixels[i]=cNewColor;
-                    }
-                    // little clean up
-                    // Don't delete the result of SelectObject because it's 
-                    // our modified bitmap (DirectBitmap)
-                       SelectObject(DirectDC,PreviousObject);
-
-                    // finish
-                    RetBmp=DirectBitmap;
-                }
-                // clean up
-                DeleteDC(DirectDC);
-            }            
-            if (hTmpBitmap)
-            {
-                SelectObject(hBmpDC, hBmp);
-                DeleteObject(hTmpBitmap);
-            }
-            SelectObject(BufferDC,PreviousBufferObject);
-            // BufferDC is now useless
-            DeleteDC(BufferDC);
-        }
-    }
-    return RetBmp;
-}
 
 
 
@@ -1977,6 +1812,71 @@ HBITMAP GetRotated8BitBitmap(HBITMAP hBitmap,double radians,COLORREF clrBack)
   return hRotatedDIB;
 }
 
+
+void DitherBitmapColor(HBITMAP hBitmap, COLORREF oldColor, COLORREF newColor)
+{
+    BITMAP bitmap;
+    GetObject(hBitmap, sizeof(BITMAP), &bitmap);
+
+    // Ensure it's an 8-bit bitmap
+    if (bitmap.bmBitsPixel != 8) {
+        return; // Not an 8-bit bitmap
+    }
+
+    // Access the pixel data
+    BYTE *pixels = (BYTE *)bitmap.bmBits;
+
+    // Retrieve the palette
+    HDC hdc = CreateCompatibleDC(NULL);
+    SelectObject(hdc, hBitmap);
+    RGBQUAD palette[256];
+    GetDIBColorTable(hdc, 0, 256, palette); // Get the palette
+    DeleteDC(hdc);
+
+    // Find indices for oldColor and newColor
+    BYTE oldColorIndex = 0xFF, newColorIndex = 0xFF; // Invalid initially
+    for (int i = 0; i < 256; i++) {
+        if (RGB(palette[i].rgbRed, palette[i].rgbGreen, palette[i].rgbBlue) == oldColor) {
+            oldColorIndex = (BYTE)i;
+        }
+        if (RGB(palette[i].rgbRed, palette[i].rgbGreen, palette[i].rgbBlue) == newColor) {
+            newColorIndex = (BYTE)i;
+        }
+    }
+
+    for (int cf=0;cf<16;cf++) {
+      if (oldColor==cf) {
+        oldColorIndex=cf;
+        break;
+      }
+    }
+    for (int cf=0;cf<16;cf++) {
+      if (newColor==cf) {
+        newColorIndex=cf;
+        break;
+      }
+    }
+
+    // Check if both colors are in the palette
+    if (oldColorIndex == 0xFF || newColorIndex == 0xFF) {
+        return; // Color not found
+    }
+
+    // Traverse and replace pixel data
+    for (int y = 0; y < bitmap.bmHeight; y++) {
+        BYTE *row = pixels + (y * bitmap.bmWidthBytes); // Calculate row pointer
+
+        for (int x = 0; x < bitmap.bmWidth; x++) {
+            if (y%2==0 && x%2==0 ||
+               (y%2!=0 && x%2!=0)) {
+              if (row[x] == oldColorIndex) {
+                row[x] = newColorIndex; // Replace the color index
+              }
+            }
+        }
+    }
+
+}
 
 
 void ReplaceBitmapColor(HBITMAP hBitmap, COLORREF oldColor, COLORREF newColor)//, RGBQUAD *palette) 
