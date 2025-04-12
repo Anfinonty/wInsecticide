@@ -1849,8 +1849,10 @@ void PlayerAct()
         speed_limiter=4;
       }
 
-      if (player.is_swinging || (player.fling_distance>0)) {
+      if ((player.fling_distance>0)) {
         speed_limiter=speed_limiter+speed_limiter/4+1;
+      } else if (player.is_swinging) {
+        speed_limiter=10;
       }
 
       if (player.uppercut && player.speed>4 && player.bullet_shot==-1) {

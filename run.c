@@ -101,7 +101,7 @@ bool hide_cursor=FALSE;
 bool hide_mm=FALSE;
 //game options
 bool yes_unifont=TRUE;//FALSE;
-bool game_cam_shake=TRUE;
+bool game_cam_shake=FALSE;
 bool game_audio=TRUE;
 bool game_shadow=TRUE;
 bool has_water=FALSE;
