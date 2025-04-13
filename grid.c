@@ -984,27 +984,39 @@ struct photon
 
 
 
-void DrawShadows2(HDC hdcSrc, HDC hdcDest, int x,int y,bool t)
+void DrawShadows3(HBITMAP destBitmap, HBITMAP sourceBitmap, BITMAPINFO* bmInfo,int x,int y,bool t)
 {
-    int c=BLACK;//Highlight(IsInvertedBackground(),BLACK,WHITE);
-    int color = GetPixel(hdcSrc, x, y);
+    BITMAP sbitmap;
+    GetObject(sourceBitmap, sizeof(BITMAP), &sbitmap);
+    BITMAP dbitmap;
+    GetObject(destBitmap, sizeof(BITMAP), &dbitmap);
+
+
+    int adjustedSourceY = sbitmap.bmHeight - 1 - y;
+    BYTE *sourcePixels = (BYTE *)sbitmap.bmBits;
+    BYTE *rowSource = sourcePixels + (adjustedSourceY*sbitmap.bmWidthBytes);
+
+
+    int adjustedDestY = dbitmap.bmHeight - 1 - y;
+    BYTE *destPixels = (BYTE *)dbitmap.bmBits;
+    BYTE *rowDest = destPixels + (adjustedDestY*dbitmap.bmWidthBytes);
+
+
+    BYTE colorIndex = rowSource[x];
+    COLORREF color = RGB(bmInfo->bmiColors[colorIndex].rgbRed,
+                     bmInfo->bmiColors[colorIndex].rgbGreen,
+                     bmInfo->bmiColors[colorIndex].rgbBlue);
+
+    //GetAdjacent Dest X
     int vgid=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
-    /*if (color == CLR_INVALID) {
-        printf("Failed to get pixel color\n");
-    } else {
-        //printf("Pixel color at (%d, %d): R=%d, G=%d, B=%d\n", x, y, GetRValue(color), GetGValue(color), GetBValue(color));
-        printf("Pixel color at (%d, %d): %d\n", x, y, color);
-    }*/
-    //printf("Pixel color at (%d, %d): %d\n", x, y, color);
     if (color!=MYCOLOR1) { //<------ color that shows that it is NOT in non-solid, it is a solid
-      //GrCircle(hdc,x,y,1,LTGRAY,-1);
       photon.in_solid=TRUE;
     }
     if (photon.in_solid && color!=MYCOLOR1) {
       photon.dist_travelled++;
     }
 
-    if (photon.in_solid && color==MYCOLOR1) { //RGB(121,121,121)
+    if (photon.in_solid && color==MYCOLOR1) {
       photon.in_solid=FALSE;
       photon.passed_solid=TRUE;
       photon.dist_travelled=0;
@@ -1017,7 +1029,11 @@ void DrawShadows2(HDC hdcSrc, HDC hdcDest, int x,int y,bool t)
       if (photon.in_solid) {
         if (x%4==0) { //even
           if (y%4==0) {
-              GrCircle(hdcDest,x,y,1,c,-1);
+              rowDest[x]=0x00;
+              if (x > 0) {rowDest[x - 1] = 0x00;}  // Set the left pixel (if within bounds)
+              if (x < dbitmap.bmWidth - 1) {rowDest[x + 1] = 0x00;} // Set the right pixel (if within bounds)
+              if (adjustedDestY > 0) {BYTE *rowAbove = destPixels + ((adjustedDestY - 1) * dbitmap.bmWidthBytes);rowAbove[x] = 0x00;}   // Set the above pixel (if within bounds)
+              if (adjustedDestY < dbitmap.bmHeight - 1) {BYTE *rowBelow = destPixels + ((adjustedDestY + 1) * dbitmap.bmWidthBytes);rowBelow[x] = 0x00;} // Set the below pixel (if within bounds)
               if (vgid!=1) {
                 VGrid[vgid]->has_shadow=TRUE;
               }
@@ -1025,7 +1041,11 @@ void DrawShadows2(HDC hdcSrc, HDC hdcDest, int x,int y,bool t)
         } else { //odd
           if (x%2==0) {
             if (y%4!=0 && y%2==0) {
-                GrCircle(hdcDest,x,y,1,c,-1);
+                rowDest[x]=0x00;
+                if (x > 0) {rowDest[x - 1] = 0x00;}  // Set the left pixel (if within bounds)
+                if (x < dbitmap.bmWidth - 1) {rowDest[x + 1] = 0x00;} // Set the right pixel (if within bounds)
+                if (adjustedDestY > 0) {BYTE *rowAbove = destPixels + ((adjustedDestY - 1) * dbitmap.bmWidthBytes);rowAbove[x] = 0x00;}   // Set the above pixel (if within bounds)
+                if (adjustedDestY < dbitmap.bmHeight - 1) {BYTE *rowBelow = destPixels + ((adjustedDestY + 1) * dbitmap.bmWidthBytes);rowBelow[x] = 0x00;} // Set the below pixel (if within bounds)
                 if (vgid!=1) {
                   VGrid[vgid]->has_shadow=TRUE;
                 }
@@ -1033,7 +1053,11 @@ void DrawShadows2(HDC hdcSrc, HDC hdcDest, int x,int y,bool t)
           }
         }
       } else {
-          GrCircle(hdcDest,x,y,1,c,-1);
+          rowDest[x]=0x00;
+          if (x > 0) {rowDest[x - 1] = 0x00;}  // Set the left pixel (if within bounds)
+          if (x < dbitmap.bmWidth - 1) {rowDest[x + 1] = 0x00;} // Set the right pixel (if within bounds)
+          if (adjustedDestY > 0) {BYTE *rowAbove = destPixels + ((adjustedDestY - 1) * dbitmap.bmWidthBytes);rowAbove[x] = 0x00;}   // Set the above pixel (if within bounds)
+          if (adjustedDestY < dbitmap.bmHeight - 1) {BYTE *rowBelow = destPixels + ((adjustedDestY + 1) * dbitmap.bmWidthBytes);rowBelow[x] = 0x00;} // Set the below pixel (if within bounds)
           if (vgid!=1) {
             VGrid[vgid]->has_shadow=TRUE;
           }
@@ -1046,11 +1070,8 @@ void DrawShadows2(HDC hdcSrc, HDC hdcDest, int x,int y,bool t)
 }
 
 
-
-
-void CreatePlatformShadowBitmap(HDC hdc, double rise, double run, int color)
+void CreatePlatformShadowBitmap2(HDC hdc,HBITMAP hBitmap, double rise, double run, COLORREF clrBack)
 {
-   //pass through first surface, hit second surface
 /*
 
 struct photon
@@ -1077,6 +1098,39 @@ are         -----------------------
 non-solids
 
 */
+
+  //Retrieve Bitmap Info
+  BITMAP bmp;
+  if (!GetObject(hBitmap,sizeof(BITMAP),&bmp)) { //assign 8bit bitmap to bmp
+    return;
+  }
+
+  //HBITMAP tmp_8bitbitmap=CopyCrunchyBitmap(hBitmap,SRCCOPY);
+
+  int width = bmp.bmWidth;
+  int height = bmp.bmHeight;
+  int bpp = 1;
+
+  //Create DIB Section for Source Bitmap
+  BITMAPINFO* bmInfo = (BITMAPINFO*)alloca(offsetof(BITMAPINFO, bmiColors[256]));
+  bmInfo->bmiHeader.biSize = sizeof (bmInfo->bmiHeader);
+  bmInfo->bmiHeader.biWidth = width;
+  bmInfo->bmiHeader.biHeight = height;
+  bmInfo->bmiHeader.biPlanes = 1;
+  bmInfo->bmiHeader.biBitCount = 8;
+  bmInfo->bmiHeader.biCompression = BI_RGB;
+  bmInfo->bmiHeader.biSizeImage = 0;
+  bmInfo->bmiHeader.biXPelsPerMeter = 14173;
+  bmInfo->bmiHeader.biYPelsPerMeter = 14173;
+
+  Init8BitRGBColorsDefault(bmInfo->bmiColors);
+  bmInfo->bmiHeader.biClrUsed = 0;
+  bmInfo->bmiHeader.biClrImportant = 0;
+
+
+  //
+  //
+  //draw shadow over bitmap
     photon.rise = rise;
     photon.run = run;
 
@@ -1084,86 +1138,83 @@ non-solids
     HDC hMemDest = CreateCompatibleDC(hdc);
 
     // Create a compatible bitmap for the shadow shader
-    map_platforms_shadow_shader = CreateCrunchyBitmap(MAP_WIDTH, MAP_HEIGHT);
+    //int max_size=max(MAP_WIDTH,MAP_HEIGHT);
+    map_platforms_shadow_shader = CreateCrunchyBitmap(MAP_WIDTH,MAP_HEIGHT);
 
     // Select the bitmaps into the device contexts
     SelectObject(hMemDest, map_platforms_shadow_shader);
-
-    int c=color;//Highlight(IsInvertedBackground(),LTGRAY,LTR2LTGRAY/*LTRYELLOW*///);
-    //GrRect(hMemDest,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,c);
-    GrRect(hMemDest,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,c);
+    GrRect(hMemDest,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,clrBack);
+    DeleteDC(hMemDest);
 
 
     double gradient=photon.rise / photon.run;
     double start_x=0, x=0, y=0, _start_x=0;
 
 
+    photon.dist_travelled=0;
+    photon.passed_solid=FALSE;
+    photon.in_solid=FALSE;
 
-  photon.dist_travelled=0;
-  photon.passed_solid=FALSE;
-  photon.in_solid=FALSE;
 
+    int lim=0;
+    int delta=0;
 
-  int lim=0;
-  int delta=0;
-
-  if (gradient>0) {
-    _start_x=-MAP_HEIGHT;
-    delta=1;
-  } else { //negative gradient
-    _start_x=MAP_WIDTH+MAP_HEIGHT;
-    delta=-1;
-  }
-
-  start_x=_start_x;
-  x=start_x;
-  while (lim<MAP_WIDTH+MAP_HEIGHT) {
-    if (y>=MAP_HEIGHT) { //solid detected, move to next start_x nodegrid
-      start_x+=delta;
-      x=start_x;
-      y=0;
-      photon.dist_travelled=0;
-      photon.passed_solid=FALSE;
-      photon.in_solid=FALSE;
-      lim++;
-    } else { //keep going down.
-      if (x>=0 && y>=0 && x<MAP_WIDTH && y<MAP_HEIGHT) {
-        DrawShadows2(hdc,hMemDest,x,y,TRUE);
-      }
-      y++;
-      x=start_x+GetX(y,gradient,0);
+    if (gradient>0) {
+      _start_x=-MAP_HEIGHT;
+      delta=1;
+    } else { //negative gradient
+      _start_x=MAP_WIDTH+MAP_HEIGHT;
+      delta=-1;
     }
-  }
-  photon.dist_travelled=0;
-  photon.passed_solid=FALSE;
-  photon.in_solid=FALSE;
-  lim=0;
-  start_x=_start_x;
-  x=_start_x,y=MAP_HEIGHT;
-  while (lim<MAP_WIDTH+MAP_HEIGHT) {
-    if (y<=0) { //solid detected, move to next start_x nodegrid
-      start_x+=delta;
-      x=start_x;
-      y=MAP_HEIGHT;
-      photon.dist_travelled=0;
-      photon.passed_solid=FALSE;
-      photon.in_solid=FALSE;
-      lim++;
-    } else { //keep going up.
-      if (x>=0 && y>=0 && x<MAP_WIDTH && y<MAP_HEIGHT) {
-        DrawShadows2(hdc,hMemDest,x,y,FALSE);
+
+    start_x=_start_x;
+    x=start_x;
+    while (lim<MAP_WIDTH+MAP_HEIGHT) {
+      if (y>=MAP_HEIGHT) { //solid detected, move to next start_x nodegrid
+        start_x+=delta;
+        x=start_x;
+        y=0;
+        photon.dist_travelled=0;
+        photon.passed_solid=FALSE;
+        photon.in_solid=FALSE;
+        lim++;
+      } else { //keep going down.
+        if (x>=0 && y>=0 && x<MAP_WIDTH && y<MAP_HEIGHT) {
+          DrawShadows3(map_platforms_shadow_shader,map_platforms_sprite,bmInfo,x,y,TRUE);
+        }
+        y++;
+        x=start_x+GetX(y,gradient,0);
       }
-      y--;
-      x=start_x+GetX(y,gradient,0);
     }
-  }
-  photon.dist_travelled=0;
-  photon.passed_solid=FALSE;
-  photon.in_solid=FALSE;
+    photon.dist_travelled=0;
+    photon.passed_solid=FALSE;
+    photon.in_solid=FALSE;
+    lim=0;
+    start_x=_start_x;
+    x=_start_x,y=MAP_HEIGHT;
+    while (lim<MAP_WIDTH+MAP_HEIGHT) {
+      if (y<=0) { //solid detected, move to next start_x nodegrid
+        start_x+=delta;
+        x=start_x;
+        y=MAP_HEIGHT;
+        photon.dist_travelled=0;
+        photon.passed_solid=FALSE;
+        photon.in_solid=FALSE;
+        lim++;
+      } else { //keep going up.
+        if (x>=0 && y>=0 && x<MAP_WIDTH && y<MAP_HEIGHT) {
+          DrawShadows3(map_platforms_shadow_shader,map_platforms_sprite,bmInfo,x,y,FALSE);
+        }
+        y--;
+        x=start_x+GetX(y,gradient,0);
+      }
+    }
+    photon.dist_travelled=0;
+    photon.passed_solid=FALSE;
+    photon.in_solid=FALSE;
 
-
-
-  DeleteDC(hMemDest);
+    //cleanup
+    free(bmInfo);
 }
 
 

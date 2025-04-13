@@ -357,9 +357,10 @@ void SaveLvlBmp(HWND hwnd,HDC hdc,const wchar_t* lvl_name)
     hdc=BeginPaint(hwnd, &ps);
   }
   HDC hdc2=CreateCompatibleDC(hdc);
-  HDC hdc3=CreateCompatibleDC(hdc);
+  //HDC hdc3=CreateCompatibleDC(hdc);
 
   //normal platforms
+  //int max_size=max(MAP_WIDTH,MAP_HEIGHT);
   map_platforms_sprite=CreateCrunchyBitmap(MAP_WIDTH,MAP_HEIGHT);
   SelectObject(hdc2,map_platforms_sprite);
   GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,MYCOLOR1); //Create Background with set color over platforms
@@ -370,28 +371,31 @@ void SaveLvlBmp(HWND hwnd,HDC hdc,const wchar_t* lvl_name)
 
 
   //shadow platforms, water excluded from shadow
-  int shadowc=LTGRAY;
+  COLORREF shadowc=LTGRAY;
   if (hwnd!=NULL) {
   if (MapEditor.set_lvl_ambient_val[6]==1 && 
         (MapEditor.set_lvl_ambient_val[7]!=shadow_grad_rise || MapEditor.set_lvl_ambient_val[8]!=shadow_grad_run)) {
     if (MapEditor.set_lvl_ambient_val[0]==1 || (MapEditor.set_lvl_ambient_val[0]==2 && MapEditor.set_lvl_ambient_val[1]>127)) {
       shadowc=RGB(8,8,8);//DKRDKGRAY;
     }
-    CreatePlatformShadowBitmap(hdc2, MapEditor.set_lvl_ambient_val[7],
-                                    MapEditor.set_lvl_ambient_val[8],
-                                    shadowc); //Create Shadow Map
     //SaveBitmapToFile2(map_platforms_shadow_shader,rgbColorsDefault, bmp_save_shadow);
+
+    CreatePlatformShadowBitmap2(hdc2, map_platforms_sprite, MapEditor.set_lvl_ambient_val[7],
+                                    MapEditor.set_lvl_ambient_val[8],
+                                    shadowc);
+
   }
   } else {
     if (map_background==1 || (map_background==2 && custom_map_background_color_i>127)) {
       shadowc=RGB(8,8,8);//DKRDKGRAY;
     }
-    CreatePlatformShadowBitmap(hdc2, shadow_grad_rise,
+
+    CreatePlatformShadowBitmap2(hdc2, map_platforms_sprite, shadow_grad_rise,
                                     shadow_grad_run,
-                                    shadowc); //Create Shadow Map
+                                    shadowc);
   }
 
-  DeleteDC(hdc3);
+  //DeleteDC(hdc3);
   DeleteDC(hdc2);
   SaveLvlBmpSegmentation1(hwnd,hdc,lvl_name);
 
@@ -413,9 +417,7 @@ void SaveLvlBmp(HWND hwnd,HDC hdc,const wchar_t* lvl_name)
   //SaveBitmapToFile2(map_platforms_sprite,rgbColorsDefault, bmp_save);
   //SaveBitmapToFile2(map_water_platforms_sprite,rgbColorsDefault, water_bmp_save);
 
-
-
-
+  DeleteObject(map_platforms_sprite);
   //DeleteObject(map_water_platforms_sprite);
 }
 
