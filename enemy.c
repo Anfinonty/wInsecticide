@@ -2546,26 +2546,28 @@ void InitEnemySpritesObj()
     species_i=saved_enemy_type_species[i];
     switch (species_i) {
       case 0:
-        tmp_sprite1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,BLACK,LTGREEN/*rgbPaint[saved_enemy_type_color[i]]*/,-1);
-        tmp_sprite2=RotateSprite(NULL, enemy1_sprite_2,0,LTGREEN,BLACK,LTGREEN/*rgbPaint[saved_enemy_type_color[i]]*/,-1);
+        tmp_sprite1=CopyCrunchyBitmap(enemy1_sprite_1,SRCCOPY);
+        tmp_sprite2=CopyCrunchyBitmap(enemy1_sprite_2,SRCCOPY);
         break;
       case 1:
-        tmp_sprite1=RotateSprite(NULL, enemy2_sprite_3,0,LTGREEN,BLACK,LTGREEN/*rgbPaint[saved_enemy_type_color[i]]*/,-1);
-        tmp_sprite2=RotateSprite(NULL, enemy2_sprite_4,0,LTGREEN,BLACK,LTGREEN/*rgbPaint[saved_enemy_type_color[i]]*/,-1);
+        tmp_sprite1=CopyCrunchyBitmap(enemy2_sprite_3,SRCCOPY);
+        tmp_sprite2=CopyCrunchyBitmap(enemy2_sprite_4,SRCCOPY);
         break;
       case 2:
-        tmp_sprite1=RotateSprite(NULL, enemy3_sprite_1,0,LTGREEN,BLACK,LTGREEN/*rgbPaint[saved_enemy_type_color[i]]*/,-1);
-        tmp_sprite2=RotateSprite(NULL, enemy3_sprite_2,0,LTGREEN,BLACK,LTGREEN/*rgbPaint[saved_enemy_type_color[i]]*/,-1);
+        tmp_sprite1=CopyCrunchyBitmap(enemy3_sprite_1,SRCCOPY);
+        tmp_sprite2=CopyCrunchyBitmap(enemy3_sprite_2,SRCCOPY);
         break;
       case 3:
-        tmp_sprite1=RotateSprite(NULL, enemy4_sprite_3,0,LTGREEN,BLACK,LTGREEN/*rgbPaint[saved_enemy_type_color[i]]*/,-1);
-        tmp_sprite2=RotateSprite(NULL, enemy4_sprite_4,0,LTGREEN,BLACK,LTGREEN/*rgbPaint[saved_enemy_type_color[i]]*/,-1);
+        tmp_sprite1=CopyCrunchyBitmap(enemy4_sprite_3,SRCCOPY);
+        tmp_sprite2=CopyCrunchyBitmap(enemy4_sprite_4,SRCCOPY);
         break;
       case 4:
-        tmp_sprite1=RotateSprite(NULL, enemy5_sprite_1,0,LTGREEN,BLACK,LTGREEN/*rgbPaint[saved_enemy_type_color[i]]*/,-1);
-        tmp_sprite2=RotateSprite(NULL, enemy5_sprite_2,0,LTGREEN,BLACK,LTGREEN/*rgbPaint[saved_enemy_type_color[i]]*/,-1);
+        tmp_sprite1=CopyCrunchyBitmap(enemy5_sprite_1,SRCCOPY);
+        tmp_sprite2=CopyCrunchyBitmap(enemy5_sprite_2,SRCCOPY);
         break;
     }
+    ReplaceBitmapColor2(tmp_sprite1,LTGREEN,BLACK,8,LTGREEN); //8 due to pureblack reserved for mask
+    ReplaceBitmapColor2(tmp_sprite2,LTGREEN,BLACK,8,LTGREEN);
 
     GenerateDrawSprite(&EnemyTypeSprite[i].draw_fly_sprite_1,tmp_sprite1);
     GenerateDrawSprite(&EnemyTypeSprite[i].draw_fly_sprite_2,tmp_sprite2);

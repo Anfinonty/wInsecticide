@@ -430,35 +430,33 @@ void Prelude()
       switch (j) {
         case 0:
           tmp_sprite1=
-            //RotateSprite(NULL,enemy2_sprite_1,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
             GetRotated8BitBitmap(enemy2_sprite_1,angle_rn,LTGREEN);
           loading_numerator++;
 
           tmp_sprite2=
-            //RotateSprite(NULL,enemy2_sprite_2,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
             GetRotated8BitBitmap(enemy2_sprite_2,angle_rn,LTGREEN);
           loading_numerator++;
           break;
         case 1:
-          tmp_sprite1=//RotateSprite(NULL,enemy4_sprite_1,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+          tmp_sprite1=
             GetRotated8BitBitmap(enemy4_sprite_1,angle_rn,LTGREEN);
           loading_numerator++;
 
-          tmp_sprite2=//RotateSprite(NULL,enemy4_sprite_2,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+          tmp_sprite2=
             GetRotated8BitBitmap(enemy4_sprite_2,angle_rn,LTGREEN);
           loading_numerator++;
           break;
         case 2:
-          tmp_sprite1=//RotateSprite(NULL,enemy6_sprite_1,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+          tmp_sprite1=
             GetRotated8BitBitmap(enemy6_sprite_1,angle_rn,LTGREEN);
           loading_numerator++;
 
-          tmp_sprite2=//RotateSprite(NULL,enemy6_sprite_2,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+          tmp_sprite2=
             GetRotated8BitBitmap(enemy6_sprite_2,angle_rn,LTGREEN);
           loading_numerator++;
           break;
         case 3:
-          tmp_sprite1=//RotateSprite(NULL,enemy4_sprite_1_0,angle_rn,LTGREEN,BLACK,LTGREEN,-1);
+          tmp_sprite1=
             GetRotated8BitBitmap(enemy4_sprite_1_0,angle_rn,LTGREEN);
           loading_numerator++;
           break;

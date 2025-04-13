@@ -273,6 +273,18 @@ void DrawMapEditorPlayer(HDC hdc,HDC hdc2)
 {
   //GrSprite(hdc,player.x+player.cam_x+GR_WIDTH/2,player.y+player.cam_y+GR_HEIGHT/2,player.sprite_1_cache,FALSE);
   DrawSprite(hdc,hdc2,player.x+player.cam_x+GR_WIDTH/2,player.y+player.cam_y+GR_HEIGHT/2,&PlayerSprite[0].sprite_1[16],FALSE);
+
+  if (MapEditor.flag_enemy_palette_i!=-1) {
+    BitmapPalette(hdc,hdc2,MEEnemySprite[MapEditor.flag_enemy_palette_i]->draw_sprite_1.sprite_paint,MEEnemySprite[MapEditor.flag_enemy_palette_i]->enemyPalette);
+    MapEditor.flag_enemy_palette_i=-1;
+  }
+
+  if (!MapEditor.init_palettes) {
+    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+      BitmapPalette(hdc,hdc2,MEEnemySprite[i]->draw_sprite_1.sprite_paint,MEEnemySprite[i]->enemyPalette);
+    }
+    MapEditor.init_palettes=TRUE;
+  }
 }
 
 

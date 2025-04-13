@@ -2,6 +2,8 @@
 //Map Editor global variables -- in struct now :)
 struct MapEditor
 {
+  bool init_palettes;
+
   int rd_min_x;
   int rd_max_x;
   int rd_min_y;
@@ -19,6 +21,9 @@ struct MapEditor
   bool is_typing_search;
   int typing_search_txt_pos;
   int typing_search_id;
+
+  //enemy palette change
+  int flag_enemy_palette_i;
 
   //===== Ground ===== 
   int selected_ground_option; //0:ground_id, 1:type, 2:color, 3:is_ghost
@@ -101,6 +106,7 @@ AMEEnemy **MEEnemy;
 
 typedef struct MEEnemySprite
 {
+  RGBQUAD enemyPalette[256];
   HBITMAP sprite_1;
   DRAWSPRITE draw_sprite_1;
 } AMEEnemySprite;
@@ -565,29 +571,33 @@ void InitMapEditorEnemy()
   for (int i=0;i<ENEMY_TYPE_NUM;i++) {
     switch (set_enemy_type_species[i]) {
       case 0:
-        MEEnemySprite[i]->sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[i]],-1);
+        MEEnemySprite[i]->sprite_1=CopyCrunchyBitmap(enemy1_sprite_1,SRCCOPY);
         break;
       case 1:
-        MEEnemySprite[i]->sprite_1=RotateSprite(NULL, enemy2_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[i]],-1);
+        MEEnemySprite[i]->sprite_1=CopyCrunchyBitmap(enemy2_sprite_1,SRCCOPY);
         break;
       case 2:
-        MEEnemySprite[i]->sprite_1=RotateSprite(NULL, enemy3_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[i]],-1);
+        MEEnemySprite[i]->sprite_1=CopyCrunchyBitmap(enemy3_sprite_1,SRCCOPY);
         break;
       case 3:
-        MEEnemySprite[i]->sprite_1=RotateSprite(NULL, enemy4_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[i]],-1);
+        MEEnemySprite[i]->sprite_1=CopyCrunchyBitmap(enemy4_sprite_1,SRCCOPY);
         break;
       case 4:
-        MEEnemySprite[i]->sprite_1=RotateSprite(NULL, enemy5_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[i]],-1);
+        MEEnemySprite[i]->sprite_1=CopyCrunchyBitmap(enemy5_sprite_1,LTGREEN);
         break;
       case 5:
       case 6:
       case 7:
-        MEEnemySprite[i]->sprite_1=RotateSprite(NULL, enemy6_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[i]],-1);
+        MEEnemySprite[i]->sprite_1=CopyCrunchyBitmap(enemy6_sprite_1,LTGREEN);
         break;
     }
 
+    ReplaceBitmapColor2(MEEnemySprite[i]->sprite_1,LTGREEN,BLACK,8,LTGREEN);
     loading_numerator++;
     GenerateDrawSprite(&MEEnemySprite[i]->draw_sprite_1,MEEnemySprite[i]->sprite_1);
+
+    CopyReplaceColorPalette(MEEnemySprite[i]->enemyPalette,rgbColorsDefault,167,rgbPaint[set_enemy_type_color[i]]); //set normal palette
+    //BitmapPalette(hdc,hdc2,MEEnemySprite[i]->draw_sprite_1.sprite_paint,MEEnemySprite[i]->enemyPalette);
   }
 }
 
@@ -780,6 +790,9 @@ void InitLevelMapEditor()
 
   OLD_GR_WIDTH=0;
   OLD_GR_HEIGHT=0;
+
+  MapEditor.flag_enemy_palette_i=-1;
+  MapEditor.init_palettes=FALSE;
 
   MapEditor.demo_enemy_spriteisleft=FALSE;
   MapEditor.demo_enemy_spritecooldown=300;

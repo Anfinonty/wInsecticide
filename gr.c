@@ -86,128 +86,6 @@
 
 
 
-//#define IDI_MYICON  1000
-
-/*int color_arr[COLORS_NUM]={
-BLACK, //0
-BLUE, //1
-GREEN, //2
-CYAN, //3
-RED, //4
-PURPLE, //5
-BROWN, //6
-LTGRAY, //7
-DKGRAY, //8
-LTBLUE, //9
-LTGREEN, //10
-LTCYAN, //11
-LTRED, //12
-LTPURPLE, //13
-YELLOW, //14
-WHITE //15
-};*/
-
-/*int draw_color_arr[COLORS_NUM]={
-DKBLACK, //0
-BLUE, //1
-GREEN, //2
-CYAN, //3
-RED, //4
-PURPLE, //5
-BROWN, //6
-LTGRAY, //7
-DKGRAY, //8
-LTBLUE, //9
-LLTGREEN, //10
-LTCYAN, //11
-LTRED, //12
-LTPURPLE, //13
-YELLOW, //14
-WHITE //15
-};*/
-
-
-/*
-int draw_darker_color_arr[COLORS_NUM]={
-DKRBLACK, //0
-DKRBLUE, //1
-DKRGREEN, //2
-DKRCYAN, //3
-DKRRED, //4
-DKRPURPLE, //5
-DKRBROWN, //6
-DKRLTGRAY, //7
-DKRDKGRAY, //8
-DKRLTBLUE, //9
-DKRLTGREEN, //10
-DKRLTCYAN, //11
-DKRLTRED, //12
-DKRLTPURPLE, //13
-DKRYELLOW, //14
-DKRWHITE //15
-};
-
-
-
-int draw_lighter_color_arr[COLORS_NUM]={
-LTRBLACK, //0
-LTRBLUE, //1
-LTRGREEN, //2
-LTRCYAN, //3
-LTRRED, //4
-LTRPURPLE, //5
-LTRBROWN, //6
-LTRLTGRAY, //7
-LTRDKGRAY, //8
-LTRLTBLUE, //9
-LTRLTGREEN, //10
-LTRLTCYAN, //11
-LTRLTRED, //12
-LTRLTPURPLE, //13
-LTRYELLOW, //14
-LTRWHITE //15
-};
-
-int draw_lighter_color_arr2[COLORS_NUM]={
-LTR2BLACK, //0
-LTR2BLUE, //1
-LTR2GREEN, //2
-LTR2CYAN, //3
-LTR2RED, //4
-LTR2PURPLE, //5
-LTR2BROWN, //6
-LTR2LTGRAY, //7
-LTR2DKGRAY, //8
-LTR2LTBLUE, //9
-LTR2LTGREEN, //10
-LTR2LTCYAN, //11
-LTR2LTRED, //12
-LTR2LTPURPLE, //13
-LTR2YELLOW, //14
-LTR2WHITE //15
-};
-
-
-
-int draw_lighter_color_arr3[COLORS_NUM]={
-LTR2WHITE, //0
-LTR2LTBLUE, //9
-LTR2LTGREEN, //10
-LTR2LTCYAN, //11
-LTR2LTRED, //12
-LTR2LTPURPLE, //13
-LTR2YELLOW, //14
-LTR2LTGRAY, //7
-LTR2DKGRAY, //8
-LTR2LTBLUE, //9
-LTR2LTGREEN, //10
-LTR2LTCYAN, //11
-LTR2LTRED, //12
-LTR2LTPURPLE, //13
-LTR2YELLOW, //14
-LTR2WHITE //15
-};*/
-
 
 int Highlight(bool predicate,int color1, int color2)
 {
@@ -307,14 +185,7 @@ void Init8BitRGBColorsNoir(RGBQUAD *rgbColors)
   }
 }
 
-/*typedef struct SPRITE
-{
-  int width,height;
-  HBITMAP sprite_mask;
-  HBITMAP sprite_paint;
-} ASPRITE;*/
 
-//HBITMAP ReplaceColor(int num, COLOR* oldColor, COLOR* newColor, HBITMAP hBitmap)
 //https://gamedev.net/forums/topic/267754-win32-replacing-color-in-a-bitmap/267754/
 
 RGBQUAD rgbColorsDefault[256];
@@ -427,15 +298,6 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
         rgbColors[i].rgbReserved = 0;
         break;
       case 7: //DKGRAY
-        /*if (index_range==11) {
-          rgbColors[i].rgbRed = 86;
-          rgbColors[i].rgbGreen = 85;
-          rgbColors[i].rgbBlue = 85;
-        } else {
-          rgbColors[i].rgbRed = 8*index_range+1;    //.. .. .. .. 85 .. .. .. .. 97
-          rgbColors[i].rgbGreen = 8*index_range+1;
-          rgbColors[i].rgbBlue = 8*index_range+1;
-        }*/
         if (index_range<=8) { //1->7 Darker values, 8 is true value
           rgbColors[i].rgbRed = ceil(index_range*86/8);
           rgbColors[i].rgbGreen = ceil(index_range*85/8);
@@ -448,16 +310,6 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
         rgbColors[i].rgbReserved = 0;
         break;
       case 8: //LTGRAY
-        /*if (index_range==6) {
-          rgbColors[i].rgbRed = 171;
-          rgbColors[i].rgbGreen = 170; // 98 .. .. .. .. 170 .. .. .. .. 242
-          rgbColors[i].rgbBlue = 170;
-        } else {
-          rgbColors[i].rgbRed = 120+8*index_range;
-          rgbColors[i].rgbGreen = 120+8*index_range;
-          rgbColors[i].rgbBlue = 120+8*index_range;
-        }*/
-
         if (index_range<=8) { //1->7 Darker values, 8 is true value
           rgbColors[i].rgbRed = ceil(index_range*171/8);
           rgbColors[i].rgbGreen = ceil(index_range*170/8);
@@ -550,27 +402,11 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
         rgbColors[i].rgbReserved = 0;
         break;
       case 15: //WHITE
-         /* if (index_range<8) {
-            rgbColors[i].rgbRed = ceil(index_range*255/8);//ceil((double)(i-16*calc+1)*255/16);
-            rgbColors[i].rgbGreen = ceil(index_range*255/8);//ceil((double)(i-16*calc+1)*255/16);
-            rgbColors[i].rgbBlue = ceil(index_range*255/8);//ceil((double)(i-16*calc+1)*255/16);
-          } else if (index_range>=9){
-            rgbColors[i].rgbRed = 255-ceil(index_range*255/8);//ceil((double)(i-16*calc+1)*255/16);
-            rgbColors[i].rgbGreen = 255-ceil(index_range*255/8);//ceil((double)(i-16*calc+1)*255/16);
-            rgbColors[i].rgbBlue = 255-ceil(index_range*255/8);//ceil((double)(i-16*calc+1)*255/16);
-          }
-        }*/
         rgbColors[i].rgbRed =  255;//ceil((double)(i-16*calc+1)*255/16);
         rgbColors[i].rgbGreen = 255;//ceil((double)(i-16*calc+1)*255/16);
         rgbColors[i].rgbBlue = 255;//ceil((double)(i-16*calc+1)*255/16);
         rgbColors[i].rgbReserved = 0;
         break;
-      /*default:
-        rgbColors[i].rgbRed = 255;
-        rgbColors[i].rgbGreen = 255;
-        rgbColors[i].rgbBlue = 255;
-        rgbColors[i].rgbReserved = 0;
-        break;*/
     }
   }
 }
@@ -1304,7 +1140,6 @@ void CreateNoirPalette()
 
 
 
-//void DrawBitmap(HDC hDC,double _x1,double _y1, double _x2, double _y2, int width, int height, HBITMAP hSourceBitmap,int _SRCTYPE,bool stretch,bool is_left)
 void DrawBitmap(HDC hDC, HDC hdcMem,double _x1,double _y1, double _x2, double _y2, int width, int height, HBITMAP hSourceBitmap,int _SRCTYPE,bool stretch,bool is_left)
 
 {
@@ -1331,246 +1166,9 @@ void DrawBitmap(HDC hDC, HDC hdcMem,double _x1,double _y1, double _x2, double _y
 
 
 
-//Set values to variables
-void SetRotatedSpriteSize(HDC hDC, HBITMAP hSourceBitmap,double radians, int *minx, int *miny, int *maxx, int *maxy, int *width, int *height, double *_cosine, double *_sine)
-{
-  HBITMAP hOldSourceBitmap; ////https://www.codeguru.com/multimedia/rotate-a-bitmap-image/
-  HDC hMemSrc;
-  BITMAP iSrcBitmap;
-
-  hMemSrc = CreateCompatibleDC(hDC);
-  GetObject(hSourceBitmap, sizeof(BITMAP), (LPSTR)&iSrcBitmap);
-
-  // Get logical coordinates
-  double cosine = (double)cos(radians);
-  double sine = (double)sin(radians);
-
-  // Compute dimensions of the resulting bitmap
-  // First get the coordinates of the 3 corners other than origin
-  int x1 = (int)(-iSrcBitmap.bmHeight * sine);
-  int y1 = (int)(iSrcBitmap.bmHeight * cosine);
-  int x2 = (int)(iSrcBitmap.bmWidth * cosine - iSrcBitmap.bmHeight * sine);
-  int y2 = (int)(iSrcBitmap.bmHeight * cosine + iSrcBitmap.bmWidth * sine);
-  int x3 = (int)(iSrcBitmap.bmWidth * cosine);
-  int y3 = (int)(iSrcBitmap.bmWidth * sine);
-
-  int _minx = min(0,min(x1, min(x2,x3)));
-  int _miny = min(0,min(y1, min(y2,y3)));
-  int _maxx = max(0,max(x1, max(x2,x3)));
-  int _maxy = max(0, max(y1, max(y2,y3)));
-
-  *minx=_minx;
-  *miny=_miny;
-  *maxx=_maxx;
-  *maxy=_maxy;
-
-  *width = (_maxx - _minx);
-  *height = (_maxy - _miny);
-
-  *_cosine = cosine;
-  *_sine = sine;
-
-  hOldSourceBitmap = SelectObject(hMemSrc, hSourceBitmap);
-  SelectObject(hMemSrc, hOldSourceBitmap);
-  DeleteObject(hOldSourceBitmap);
-  DeleteDC(hMemSrc);
-}
-
 ////https://ftp.zx.net.nz/pub/Patches/ftp.microsoft.com/MISC/KB/en-us/77/127.HTM
 ////https://www.codeguru.com/multimedia/rotate-a-bitmap-image/
-
-
-
-HBITMAP RotateSpriteExclude(HDC hDC, HBITMAP hSourceBitmap, double radians, int old_color, int sprite_color) 
-{ //if (hSourceBitmap != NULL) { ////https://ftp.zx.net.nz/pub/Patches/ftp.microsoft.com/MISC/KB/en-us/77/127.HTM
-  HBITMAP hOldSourceBitmap, hOldDestBitmap, hDestBitmap; ////https://www.codeguru.com/multimedia/rotate-a-bitmap-image/
-  HDC hMemSrc,hMemDest;
-  BITMAP iSrcBitmap;
-
-  // Step 1: Create a memory DC for the source and destination bitmaps
-  //         compatible with the device used.
-  hMemSrc = CreateCompatibleDC(hDC);
-  hMemDest= CreateCompatibleDC(hDC);
-
-
-  // Step 2: Get the height and width of the source bitmap.
-  GetObject(hSourceBitmap, sizeof(BITMAP), (LPSTR)&iSrcBitmap);
-
-  // Get logical coordinates
-  double cosine = (double)cos(radians);
-  double sine = (double)sin(radians);
-
-  // Compute dimensions of the resulting bitmap
-  // First get the coordinates of the 3 corners other than origin
-  int x1 = (int)(-iSrcBitmap.bmHeight * sine);
-  int y1 = (int)(iSrcBitmap.bmHeight * cosine);
-  int x2 = (int)(iSrcBitmap.bmWidth * cosine - iSrcBitmap.bmHeight * sine);
-  int y2 = (int)(iSrcBitmap.bmHeight * cosine + iSrcBitmap.bmWidth * sine);
-  int x3 = (int)(iSrcBitmap.bmWidth * cosine);
-  int y3 = (int)(iSrcBitmap.bmWidth * sine);
-
-  int minx = min(0,min(x1, min(x2,x3)));
-  int miny = min(0,min(y1, min(y2,y3)));
-  int maxx = max(0,max(x1, max(x2,x3)));
-  int maxy = max(0, max(y1, max(y2,y3)));
-
-  int width = maxx - minx;
-  int height = maxy - miny;
-
-   // Step 3: Select the source bitmap into the source DC. Create a
-   //         destination bitmap, and select it into the destination DC.
-
-   //hDestBitmap = NULL;//CreateCompatibleBitmap(hMemDest, width, height);
-  /*hDestBitmap = CreateBitmap(height, width, iSrcBitmap.bmPlanes,
-                  iSrcBitmap.bmBitsPixel, NULL);*/
-
-  hDestBitmap = CreateCrunchyBitmap(width,height);//CreateLargeBitmap(height, width);
-  hOldSourceBitmap = SelectObject(hMemSrc, hSourceBitmap);
-  hOldDestBitmap = SelectObject(hMemDest, hDestBitmap);
-
-  // Set mapping mode so that +ve y axis is upwords
-  SetMapMode(hMemSrc, MM_ISOTROPIC);
-  SetWindowExtEx(hMemSrc, 1,1,NULL);
-  SetViewportExtEx(hMemSrc, 1,-1,NULL);
-  SetViewportOrgEx(hMemSrc, 0, iSrcBitmap.bmHeight-1,NULL);
-
-  SetMapMode(hMemDest, MM_ISOTROPIC);
-  SetWindowExtEx(hMemDest, 1,1,NULL);
-  SetViewportExtEx(hMemDest, 1,-1,NULL);
-  SetWindowOrgEx(hMemDest, minx, maxy-1,NULL);
-
-   // Step 4: Copy the pixels from the source to the destination.
-  int current_pixel=0;
-  for (int y=miny;y<maxy;y++) { //0 to max height of bitmap
-	for(int x=minx;x<maxx;x++) { //0 to max width of bitmap
-	  int sourcex = (int)(x*cosine+y*sine); //get pixel from sprite, x-axis
-	  int sourcey = (int)(y*cosine-x*sine); //get pixel from sprite, y-axis
-	  if(sourcex>=0 && sourcex<iSrcBitmap.bmWidth && sourcey>=0
-	   	 && sourcey<iSrcBitmap.bmHeight ) {
-         current_pixel=GetPixel(hMemSrc,sourcex,sourcey); //get current pixel color
-        if (current_pixel==old_color){
-          if (sprite_color!=BLACK) { //Set BLACK to Custom Color
-            SetPixel(hMemDest, x, y, sprite_color);
-          } else { //change BLACK to DKBLACK 
-            SetPixel(hMemDest, x, y, DKBLACK);
-          }
-        } else {
-          SetPixel(hMemDest, x, y, BLACK);
-        }
-      }
-    }
-  }
-
- // Step 5: Destroy the DCs.
-  //DeleteObject(SelectObject(hMemSrc, hOldSourceBitmap));
-  //DeleteObject(SelectObject(hMemDest, hOldDestBitmap));
-  SelectObject(hMemSrc, hOldSourceBitmap);
-  SelectObject(hMemDest, hOldDestBitmap);
-  DeleteObject(hOldSourceBitmap);
-  DeleteObject(hOldDestBitmap);
-  DeleteDC(hMemDest);
-  DeleteDC(hMemSrc);
-  return (hDestBitmap);
-}
-
-HBITMAP RotateSpriteSimple(HDC hDC, HBITMAP hSourceBitmap, double radians, int background_color)
-{ //if (hSourceBitmap != NULL) { ////https://ftp.zx.net.nz/pub/Patches/ftp.microsoft.com/MISC/KB/en-us/77/127.HTM
-  HBITMAP hOldSourceBitmap, hOldDestBitmap, hDestBitmap; ////https://www.codeguru.com/multimedia/rotate-a-bitmap-image/
-  HDC hMemSrc,hMemDest;
-  BITMAP iSrcBitmap;
-
-  // Step 1: Create a memory DC for the source and destination bitmaps
-  //         compatible with the device used.
-  hMemSrc = CreateCompatibleDC(hDC);
-  hMemDest= CreateCompatibleDC(hDC);
-
-
-  // Step 2: Get the height and width of the source bitmap.
-  GetObject(hSourceBitmap, sizeof(BITMAP), (LPSTR)&iSrcBitmap);
-
-  // Get logical coordinates
-  double cosine = (double)cos(radians);
-  double sine = (double)sin(radians);
-
-  // Compute dimensions of the resulting bitmap
-  // First get the coordinates of the 3 corners other than origin
-  int x1 = (int)(-iSrcBitmap.bmHeight * sine);
-  int y1 = (int)(iSrcBitmap.bmHeight * cosine);
-  int x2 = (int)(iSrcBitmap.bmWidth * cosine - iSrcBitmap.bmHeight * sine);
-  int y2 = (int)(iSrcBitmap.bmHeight * cosine + iSrcBitmap.bmWidth * sine);
-  int x3 = (int)(iSrcBitmap.bmWidth * cosine);
-  int y3 = (int)(iSrcBitmap.bmWidth * sine);
-
-  int minx = min(0,min(x1, min(x2,x3)));
-  int miny = min(0,min(y1, min(y2,y3)));
-  int maxx = max(0,max(x1, max(x2,x3)));
-  int maxy = max(0, max(y1, max(y2,y3)));
-
-  int width = maxx - minx;
-  int height = maxy - miny;
-
-
-  hDestBitmap = CreateCrunchyBitmap(width,height);//CreateLargeBitmap(height, width);
-  hOldSourceBitmap = SelectObject(hMemSrc, hSourceBitmap);
-  hOldDestBitmap = SelectObject(hMemDest, hDestBitmap);
-
-  // Set mapping mode so that +ve y axis is upwords
-  SetMapMode(hMemSrc, MM_ISOTROPIC);
-  SetWindowExtEx(hMemSrc, 1,1,NULL);
-  SetViewportExtEx(hMemSrc, 1,-1,NULL);
-  SetViewportOrgEx(hMemSrc, 0, iSrcBitmap.bmHeight-1,NULL);
-
-  SetMapMode(hMemDest, MM_ISOTROPIC);
-  SetWindowExtEx(hMemDest, 1,1,NULL);
-  SetViewportExtEx(hMemDest, 1,-1,NULL);
-  SetWindowOrgEx(hMemDest, minx, maxy-1,NULL);
-
-   // Step 4: Copy the pixels from the source to the destination.
-  int current_pixel=0;
-  for (int y=miny;y<maxy;y++) { //0 to max height of bitmap
-	for(int x=minx;x<maxx;x++) { //0 to max width of bitmap
-	  int sourcex = (int)(x*cosine+y*sine); //get pixel from sprite, x-axis
-	  int sourcey = (int)(y*cosine-x*sine); //get pixel from sprite, y-axis
-	  if(sourcex>=0 && sourcex<iSrcBitmap.bmWidth && sourcey>=0
-	   	 && sourcey<iSrcBitmap.bmHeight ) {
-         current_pixel=GetPixel(hMemSrc,sourcex,sourcey); //get current pixel color
-         SetPixel(hMemDest, x, y, current_pixel);
-      } else {
-        SetPixel(hMemDest, x, y, background_color);
-      }
-    }
-  }
-
- // Step 5: Destroy the DCs.
-  //DeleteObject(SelectObject(hMemSrc, hOldSourceBitmap));
-  //DeleteObject(SelectObject(hMemDest, hOldDestBitmap));
-  SelectObject(hMemSrc, hOldSourceBitmap);
-  SelectObject(hMemDest, hOldDestBitmap);
-  DeleteObject(hOldSourceBitmap);
-  DeleteObject(hOldDestBitmap);
-  DeleteDC(hMemDest);
-  DeleteDC(hMemSrc);
-  return (hDestBitmap);
-}
-
-
-/*void ReplaceColorSprite(HBITMAP hBitmap, COLORREF oldColor, COLORREF newColor) 
-{ 
-  BITMAP bitmap; 
-  GetObject(hBitmap, sizeof(BITMAP), &bitmap); 
-  HDC hdc = CreateCompatibleDC(NULL); 
-  SelectObject(hdc, hBitmap); 
-  for (int y = 0; y < bitmap.bmHeight; y++) { 
-    for (int x = 0; x < bitmap.bmWidth; x++) { 
-      COLORREF color = GetPixel(hdc, x, y); 
-      if (color == oldColor) { 
-        SetPixel(hdc, x, y, newColor); 
-      } 
-    } 
-  } 
-  DeleteDC(hdc);
-}*/
-
+////https://github.com/StephanBusch/EcoZip/blob/35c215fbc3efc16951182f6127885d22d11a018e/EcoZipFM/ImageUtils.cpp
 
 HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, double radians,int rTransparent, int old_color, int sprite_color, int sprite_color_2) 
 { //if (hSourceBitmap != NULL) { ////https://ftp.zx.net.nz/pub/Patches/ftp.microsoft.com/MISC/KB/en-us/77/127.HTM
@@ -1688,8 +1286,6 @@ HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, double radians,int rTranspa
   DeleteDC(hMemSrc);
   return (hDestBitmap);
 }
-
-
 
 HBITMAP GetRotated8BitBitmap(HBITMAP hBitmap,double radians,COLORREF clrBack)
 {

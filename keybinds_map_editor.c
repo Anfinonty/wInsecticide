@@ -4,33 +4,42 @@
 void UpdateMEDrawSprite()
 {
     int ei=MapEditor.selected_enemy_type_id;
+    //creating new sprite :o
     DeleteObject(MEEnemySprite[ei]->sprite_1); //delete old sprite
     MEEnemySprite[ei]->sprite_1=NULL;
     FreeDrawSprite(&MEEnemySprite[ei]->draw_sprite_1);
     //Create New Sprite
     switch (set_enemy_type_species[ei]) {
       case 0:
-        MEEnemySprite[ei]->sprite_1=RotateSprite(NULL, enemy1_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[ei]],-1);
+        MEEnemySprite[ei]->sprite_1=CopyCrunchyBitmap(enemy1_sprite_1,SRCCOPY);
         break;
       case 1:
-        MEEnemySprite[ei]->sprite_1=RotateSprite(NULL, enemy2_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[ei]],-1);
+        MEEnemySprite[ei]->sprite_1=CopyCrunchyBitmap(enemy2_sprite_1,SRCCOPY);
         break;
       case 2:
-        MEEnemySprite[ei]->sprite_1=RotateSprite(NULL, enemy3_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[ei]],-1);
+        MEEnemySprite[ei]->sprite_1=CopyCrunchyBitmap(enemy3_sprite_1,SRCCOPY);
         break;
       case 3:
-        MEEnemySprite[ei]->sprite_1=RotateSprite(NULL, enemy4_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[ei]],-1);
+        MEEnemySprite[ei]->sprite_1=CopyCrunchyBitmap(enemy4_sprite_1,SRCCOPY);
         break;
       case 4:
-        MEEnemySprite[ei]->sprite_1=RotateSprite(NULL, enemy5_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[ei]],-1);
+        MEEnemySprite[ei]->sprite_1=CopyCrunchyBitmap(enemy5_sprite_1,LTGREEN);
         break;
       case 5:
       case 6:
       case 7:
-        MEEnemySprite[ei]->sprite_1=RotateSprite(NULL, enemy6_sprite_1,0,LTGREEN,BLACK,rgbPaint[set_enemy_type_color[ei]],-1);
+        MEEnemySprite[ei]->sprite_1=CopyCrunchyBitmap(enemy6_sprite_1,LTGREEN);
         break;
     }
+
+    ReplaceBitmapColor2(MEEnemySprite[ei]->sprite_1,LTGREEN,BLACK,8,LTGREEN);
+    loading_numerator++;
     GenerateDrawSprite(&MEEnemySprite[ei]->draw_sprite_1,MEEnemySprite[ei]->sprite_1);
+
+    //Update Palette!!
+    CopyReplaceColorPalette(MEEnemySprite[ei]->enemyPalette,rgbColorsDefault,167,rgbPaint[set_enemy_type_color[ei]]); //set normal palette
+
+    MapEditor.flag_enemy_palette_i=ei;
 }
 
 
