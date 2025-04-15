@@ -1818,7 +1818,9 @@ void EnemyAct(int i)
     //Knockback 
     if (Enemy[i]->knockback_timer>0 /*&& (!Enemy[i]->move_to_target || (Enemy[i]->species>=5 && Enemy[i]->species<=7))*/) {
       if (!player.time_breaker || Enemy[i]->time_breaker_immune) {
-        Enemy[i]->knockback_timer--;
+        //if (Enemy[i]->on_ground_id==-1) {
+          Enemy[i]->knockback_timer--;
+        //}
         if (Enemy[i]->knockback_timer>20) {
           knock_max=player.knockback_speed_multiplier*2;
         } else {
@@ -1830,28 +1832,8 @@ void EnemyAct(int i)
         }
         for (j=0;j<knock_max;j++) {
           Enemy[i]->in_node_grid_id=GetGridId(Enemy[i]->x,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);      
-          tmp_gid_=GetOnGroundId(Enemy[i]->x,Enemy[i]->y,2,2);//5,4); 
-          //scrapped, enemies are now more squishy around grounds
-          /*if (tmp_gid_==-1) {
-            for (int w=0;w<8;w++) { //NOTE; resource intensive BUT only do it while being knockedback, prevents clipping through walls
-              switch (w) {
-                case 0:tmp_gid_=GetOnGroundId(Enemy[i]->x+NODE_SIZE,Enemy[i]->y,5,4); break;
-                case 1:tmp_gid_=GetOnGroundId(Enemy[i]->x-NODE_SIZE,Enemy[i]->y,5,4); break;
-
-                case 2:tmp_gid_=GetOnGroundId(Enemy[i]->x+NODE_SIZE,Enemy[i]->y-NODE_SIZE,5,4); break;
-                case 3:tmp_gid_=GetOnGroundId(Enemy[i]->x+NODE_SIZE,Enemy[i]->y+NODE_SIZE,5,4); break;
-
-                case 4:tmp_gid_=GetOnGroundId(Enemy[i]->x-NODE_SIZE,Enemy[i]->y-NODE_SIZE,5,4); break;
-                case 5:tmp_gid_=GetOnGroundId(Enemy[i]->x-NODE_SIZE,Enemy[i]->y+NODE_SIZE,5,4); break;
-
-                case 6:tmp_gid_=GetOnGroundId(Enemy[i]->x,Enemy[i]->y+NODE_SIZE,5,4); break;
-                case 7:tmp_gid_=GetOnGroundId(Enemy[i]->x,Enemy[i]->y-NODE_SIZE,5,4); break;
-              }
-              if (tmp_gid_!=-1) {
-                break;
-              }
-            }
-          }*/
+          tmp_gid_=Enemy[i]->on_ground_id;//GetOnGroundId(Enemy[i]->x,Enemy[i]->y,2,2);//5,4); 
+          Enemy[i]->on_ground_id=GetOnGroundIdE(Enemy[i]->x,Enemy[i]->y,5,5,i);
           EnemyKnockbackMove(i,tmp_gid_);
         }
       }
@@ -1976,7 +1958,7 @@ void EnemyAct(int i)
                   Enemy[i]->force_fall=TRUE;
                   Enemy[i]->flying_timer=0;
                 }
-                if (Enemy[i]->flying_timer==0 || Enemy[i]->force_fall) {//not flying, fall
+                if (Enemy[i]->knockback_timer==0 && (Enemy[i]->flying_timer==0 || Enemy[i]->force_fall)) {//not flying, fall
                   for (int gr=0;gr<1+Enemy[i]->in_air_timer/5;gr++) {
                     EnemyGravity(i,gr);
                   }

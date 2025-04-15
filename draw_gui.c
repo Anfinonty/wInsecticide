@@ -265,7 +265,8 @@ void DrawCrosses(HDC hdc,int x, int y)
 void DrawPersianClock(HDC hdc,HDC hdc2)
 {
   //Moon Pos
-  int mcalendar_l=64;
+  int mcalendar_l=70;//64;
+  int mcalendartxt_l=64;
   int mcalendar_x=GR_WIDTH-mcalendar_l*2;
   int mcalendar_y=GR_HEIGHT-mcalendar_l*2-40+8;//56;
   if (!hide_taskbar) { //task bar is shown
@@ -274,8 +275,8 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
   double moon_angle=0; 
   //Space Clock
   //Draw blue marbel
-  if (GR_WIDTH>=800 && lunar_day<=26) {
-    GrCircle(hdc,mcalendar_x,mcalendar_y,10,LTBLUE,LTBLUE);
+  //if (GR_WIDTH>=800 && lunar_day<=26) {
+    /*GrCircle(hdc,mcalendar_x,mcalendar_y,10,LTBLUE,LTBLUE);
     GrRect(hdc,mcalendar_x,mcalendar_y,3,4,LTGREEN);
     GrRect(hdc,mcalendar_x-3,mcalendar_y,9,4,LTGREEN);
     GrRect(hdc,mcalendar_x+4,mcalendar_y,5,2,LTGREEN);
@@ -284,10 +285,10 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
     GrCircle(hdc,mcalendar_x+2,mcalendar_y+5,3,LTGREEN,LTGREEN);
     GrCircle(hdc,mcalendar_x-2,mcalendar_y-3,3,LTGREEN,LTGREEN);
     GrCircle(hdc,mcalendar_x-3,mcalendar_y-5,2,LTGREEN,LTGREEN);
-    GrCircle(hdc,mcalendar_x-3,mcalendar_y+5,2,LTGREEN,LTGREEN);
-  } else {
-    DrawSprite(hdc, hdc2,mcalendar_x,mcalendar_y,&draw_moon_sprite,FALSE);
-  }
+    GrCircle(hdc,mcalendar_x-3,mcalendar_y+5,2,LTGREEN,LTGREEN);*/
+  //} else {
+    DrawSprite(hdc, hdc2,mcalendar_x,mcalendar_y,&draw_moon_cartoon_sprite,FALSE);
+  //}
 
   if (lunar_day<27) //0 to 26
     moon_angle=(-2*M_PI/27 * lunar_day ) - moon_angle_shift;
@@ -374,32 +375,32 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
   );
 
   if ((main_menu_chosen==-1 || (GR_WIDTH>=800 && GR_HEIGHT>=600)) && show_hijiri) {
-    GrPrintW(hdc,mcalendar_x-mcalendar_l*7-24,mcalendar_y-64+4,time_row1,"",WHITE,16,FALSE,yes_unifont);
+    GrPrintW(hdc,mcalendar_x-mcalendartxt_l*7-24,mcalendar_y-64+4,time_row1,"",WHITE,16,FALSE,yes_unifont);
 
     if (is_khmer) {
-      DrawBitmap(hdc,hdc2,mcalendar_x-mcalendar_l*7-24,
+      DrawBitmap(hdc,hdc2,mcalendar_x-mcalendartxt_l*7-24,
                      mcalendar_y-36,
                      0,
                      0,
                      119,
                      27,
                     mm0_kh_hijri_mask[0],SRCAND,FALSE,FALSE);
-      DrawBitmap(hdc,hdc2,mcalendar_x-mcalendar_l*7-24,
+      DrawBitmap(hdc,hdc2,mcalendar_x-mcalendartxt_l*7-24,
                      mcalendar_y-36,
                      0,
                      0,
                      119,
                      27,
                     mm0_kh_hijri[0],SRCPAINT,FALSE,FALSE);
-      GrPrintW(hdc,mcalendar_x-mcalendar_l*7-24+8*16,mcalendar_y-32+4,L"","*",WHITE,16,TRUE,yes_unifont);
+      GrPrintW(hdc,mcalendar_x-mcalendartxt_l*7-24+8*16,mcalendar_y-32+4,L"","*",WHITE,16,TRUE,yes_unifont);
     } else {
-      GrPrintW(hdc,mcalendar_x-mcalendar_l*7-24,mcalendar_y-32+4,L"",s_hijri_row1,WHITE,16,TRUE,yes_unifont);
+      GrPrintW(hdc,mcalendar_x-mcalendartxt_l*7-24,mcalendar_y-32+4,L"",s_hijri_row1,WHITE,16,TRUE,yes_unifont);
     }
 
-    GrPrintW(hdc,mcalendar_x-mcalendar_l*7-24,mcalendar_y-16+4,s_hijri_row2,"",WHITE,16,FALSE,yes_unifont);
+    GrPrintW(hdc,mcalendar_x-mcalendartxt_l*7-24,mcalendar_y-16+4,s_hijri_row2,"",WHITE,16,FALSE,yes_unifont);
 
     if (is_khmer) {
-      DrawBitmap(hdc,hdc2,mcalendar_x-mcalendar_l*7-24,
+      DrawBitmap(hdc,hdc2,mcalendar_x-mcalendartxt_l*7-24,
                      mcalendar_y+8,
                      0,
                      0,
@@ -407,19 +408,19 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
                      27,
                     mm0_kh_hijri_mask[1],SRCAND,FALSE,FALSE);
       //Draw platforms paint
-      DrawBitmap(hdc,hdc2,mcalendar_x-mcalendar_l*7-24,
+      DrawBitmap(hdc,hdc2,mcalendar_x-mcalendartxt_l*7-24,
                      mcalendar_y+8,
                      0,
                      0,
                      90,
                      27,
                     mm0_kh_hijri[1],SRCPAINT,FALSE,FALSE);
-      GrPrintW(hdc,mcalendar_x-mcalendar_l*7-24+8*12,mcalendar_y+13,L"",l_hijri_row1,WHITE,16,TRUE,yes_unifont);
+      GrPrintW(hdc,mcalendar_x-mcalendartxt_l*7-24+8*12,mcalendar_y+13,L"",l_hijri_row1,WHITE,16,TRUE,yes_unifont);
     } else {
-      GrPrintW(hdc,mcalendar_x-mcalendar_l*7-24,mcalendar_y+16,L"",l_hijri_row1,WHITE,16,TRUE,yes_unifont);
+      GrPrintW(hdc,mcalendar_x-mcalendartxt_l*7-24,mcalendar_y+16,L"",l_hijri_row1,WHITE,16,TRUE,yes_unifont);
     }
 
-    GrPrintW(hdc,mcalendar_x-mcalendar_l*7-24,mcalendar_y+32,l_hijri_row2,"",WHITE,16,FALSE,yes_unifont);
+    GrPrintW(hdc,mcalendar_x-mcalendartxt_l*7-24,mcalendar_y+32,l_hijri_row2,"",WHITE,16,FALSE,yes_unifont);
   }
 
   //x=GR_WIDTH-8*18
@@ -669,68 +670,7 @@ void DrawMusicWav(HDC hdc)
           }   
         }
       }
-/*
-for (int i = 0; i < READ_BUFFER_NUM; i++) {
-    audio_index = (i + audioData[z].queue_read_buffer) % READ_BUFFER_NUM;
-    c_x1 = (GR_WIDTH / READ_BUFFER_NUM) * i;
-    c_y1 = _y + audioData[z].read_buffer[audio_index][z] * 0.0012 * (1 + GR_HEIGHT / 480);
-    prev_x1 = c_x1;
-    prev_y1 = c_y1;
 
-    int beat_c = 0;
-    int beat_max = 12;
-    bool beat_line = FALSE;
-
-    for (int j = 0; j < audioData[z].read_size; j += 128) {
-        c_x1 = ((GR_WIDTH / READ_BUFFER_NUM) * i) + ((double)j / audioData[z].read_size) * (GR_WIDTH / 5);
-        c_y1 = _y + audioData[z].read_buffer[audio_index][j] * 0.0012 * (1 + GR_HEIGHT / 480);
-
-        // Amplitude threshold range
-        int amplitude = audioData[z].read_buffer[audio_index][j];
-        bool isBeat = amplitude >= 19000 || amplitude <= -19000;
-
-        // Zero-crossing rate
-        if (j > 0) {
-            int prev_amplitude = audioData[z].read_buffer[audio_index][j - 128];
-            if ((prev_amplitude < 0 && amplitude >= 0) || (prev_amplitude >= 0 && amplitude < 0)) {
-                isBeat = true;
-            }
-        }
-
-        if (!beat_line) {
-            if (isBeat) {
-                beat_line = TRUE;
-            }
-        } else {
-            if (isBeat) {
-                beat_c = 0;
-            } else {
-                beat_c++;
-                if (beat_c >= beat_max - 1) {
-                    beat_c = 0;
-                    beat_line = FALSE;
-                }
-            }
-        }
-
-        if (z == 0) {
-            if (!beat_line)
-                GrLine(hdc, prev_x1, prev_y1, c_x1, c_y1, rgbPaint[player_iris_color]);
-            else
-                GrLine(hdc, prev_x1, prev_y1, c_x1, c_y1, rgbPaint[player_pupil_color]);
-
-        } else {
-            if (!beat_line)
-                GrLine(hdc, prev_x1, prev_y1, c_x1, c_y1, rgbPaint[player_pupil_color]);
-            else
-                GrLine(hdc, prev_x1, prev_y1, c_x1, c_y1, rgbPaint[player_iris_color]);
-        }
-        prev_x1 = c_x1;
-        prev_y1 = c_y1;
-    }
-}
-
-*/
       if (z_m==1) {
          GrLine(hdc,(GR_WIDTH/2),0,(GR_WIDTH/2),GR_HEIGHT,rgbPaint[player_pupil_color]);
       } else {
@@ -821,54 +761,45 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
 
   if (wav_mode==0) {
     //DrawMovingAVI(hdc,hdc2);
-    DrawBitmap(hdc,hdc2,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
     //DrawBitmap(hdc,hdc2,0,0,0,0,160,160,texture_water,SRCCOPY,FALSE,FALSE);
     //GrRect(hdc,90,90,210,210,YELLOW);
     //DrawBitmap(hdc,hdc2,100,100,0,0,200,200,myTmpEnemyDrawSprite,SRCCOPY,FALSE,FALSE);
     // DrawBitmap(hdc,hdc2,100,100,0,0,200,200,enemy2_sprite_1,SRCCOPY,FALSE,FALSE);
     // DrawPaletteSquare(hdc,60+220+24,240);
-
-
+    DrawBitmap(hdc,hdc2,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
     if (level_loaded) {
       //DrawBlackBorders(hdc);
-      if (GR_WIDTH>=800) {
+
+      if (!(solar_hour>6 && solar_hour<18)) {
           int dmx,dmy;
           if (lunar_day>=1 && lunar_day<=5) { //1, 2, 3, 4, 5
             dmx=GR_WIDTH-GR_WIDTH/8;
             dmy=GR_HEIGHT-GR_HEIGHT/3;//GR_HEIGHT-GR_HEIGHT/6;
-            //dmy=160+160;
             DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite,FALSE);
           } else if (lunar_day>=6 && lunar_day<=9) {// 6, 7, 8, 9
             dmx=GR_WIDTH/2+GR_WIDTH/4;
             dmy=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3;
-            //dmy=160+85;
             DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite,FALSE);
           } else if (lunar_day>=10 && lunar_day<=12) {// 10, 11, 12,
             dmx=GR_WIDTH/2+GR_WIDTH/4-GR_WIDTH/8;
             dmy=GR_HEIGHT/4+GR_HEIGHT/12;
-            //dmy=160+25;
             DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite,FALSE);
           } else if (lunar_day>=13 && lunar_day<=15) {//13, 14, 15 //fullmoon
             dmx=GR_WIDTH/2;
             dmy=GR_HEIGHT/4;
-            //dmy=160;
             DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite,FALSE);
           } else if (lunar_day>=16 && lunar_day<=18) {//16, 17, 18
             dmx=GR_WIDTH/4+GR_WIDTH/8;
             dmy=GR_HEIGHT/4+GR_HEIGHT/12;
-            //dmy=160+25;
             DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite,FALSE);
           } else if (lunar_day>=19 && lunar_day<=22) {//19, 20, 21, 22
             dmx=GR_WIDTH/4;
             dmy=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3;
-            //dmy=160+85;
             DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite,FALSE);
           } else if (lunar_day>=23 && lunar_day<=26) {//23, 24, 25,26
             dmx=GR_WIDTH/8;
             dmy=GR_HEIGHT-GR_HEIGHT/3;//GR_HEIGHT-GR_HEIGHT/6;
-            //dmy=160+160;
             DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite,FALSE);
-          //} else {
           }
 
       }
@@ -888,12 +819,12 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
         DrawShadows(hdc,hdc2);
       }
 
-      DrawWaterShader(hdc,hdc2);
+      //DrawWaterShader(hdc,hdc2);
       if (is_raining) {
         DrawRain(hdc);
-        if (!player.in_water) {
+        /*if (!player.in_water) {
           DrawRainShader(hdc,hdc2);
-        }
+        }*/
       }
     }
   } else {

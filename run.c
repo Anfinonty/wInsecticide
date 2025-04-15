@@ -1167,6 +1167,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                 }
                 if (tmp_map_background_sprite!=NULL) {
                   map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH,GR_HEIGHT); //note runs once only
+                  if (mb_val!=1) {
+                    PlaceDayMoon();
+                  }
                 } else {
                   map_background_sprite=NULL;
                 }
@@ -1213,6 +1216,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               }
               if (tmp_map_background_sprite!=NULL) {
                 map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH+GR_WIDTH/8,GR_HEIGHT+GR_HEIGHT/8); //note runs once only
+                if (mb_val!=1) {
+                  PlaceDayMoon();
+                }
               } else {
                 map_background_sprite=NULL;
               }
@@ -1390,12 +1396,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               }
             }
           //DrawGrids(hdcBackbuff); //debugging
-            DrawWaterShader(hdcBackbuff,hdcBackbuff2);
+            //DrawWaterShader(hdcBackbuff,hdcBackbuff2);
             if (is_raining) {
               DrawRain(hdcBackbuff);
-              if (!player.in_water) {
+              /*if (!player.in_water) {
                 DrawRainShader(hdcBackbuff,hdcBackbuff2);
-              }
+              }*/
             }
 
 
@@ -2101,46 +2107,58 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
       //Load moon sprite based on lunar day
       //lunar_day=1; //moon debug
       double lunar_angle=0;
+      double mirror_lunar_angle=0;
       if (lunar_day>=1 && lunar_day<=5) { //1, 2, 3, 4, 5
         swprintf(moon_sprite_name,48,L"sprites/moon-1.bmp");
         swprintf(moon_cartoony_sprite_name,48,L"sprites/moon-cartoon-1.bmp");
         lunar_angle=-M_PI_4-M_PI_4/2;
+        mirror_lunar_angle=M_PI_4+M_PI_4/2;
       } else if (lunar_day>=6 && lunar_day<=9) {// 6, 7, 8, 9
         swprintf(moon_sprite_name,48,L"sprites/moon-8.bmp");
         swprintf(moon_cartoony_sprite_name,48,L"sprites/moon-cartoon-8.bmp");
         lunar_angle=-M_PI_4;
+        mirror_lunar_angle=M_PI_4;
       } else if (lunar_day>=10 && lunar_day<=12) {// 10, 11, 12,
         swprintf(moon_sprite_name,48,L"sprites/moon-11.bmp");
         swprintf(moon_cartoony_sprite_name,48,L"sprites/moon-cartoon-11.bmp");
         lunar_angle=-M_PI_4+M_PI_4/2;
+        mirror_lunar_angle=M_PI_4-M_PI_4/2;
       } else if (lunar_day>=13 && lunar_day<=15) {//13, 14, 15 //fullmoon
         swprintf(moon_sprite_name,48,L"sprites/moon-14.bmp");
         swprintf(moon_cartoony_sprite_name,48,L"sprites/moon-cartoon-14.bmp");
         lunar_angle=0;
+        mirror_lunar_angle=0;
       } else if (lunar_day>=16 && lunar_day<=18) {//16, 17, 18
         swprintf(moon_sprite_name,48,L"sprites/moon-16.bmp");
         swprintf(moon_cartoony_sprite_name,48,L"sprites/moon-cartoon-16.bmp");
         lunar_angle=M_PI_4-M_PI_4/2;
+        mirror_lunar_angle=-M_PI_4+M_PI_4/2;
       } else if (lunar_day>=19 && lunar_day<=22) {//19, 20, 21, 22
         swprintf(moon_sprite_name,48,L"sprites/moon-21.bmp");
         swprintf(moon_cartoony_sprite_name,48,L"sprites/moon-cartoon-21.bmp");
         lunar_angle=M_PI_4;
+        mirror_lunar_angle=-M_PI_4;
       } else if (lunar_day>=23 && lunar_day<=26) {//23, 24, 25,26
         swprintf(moon_sprite_name,48,L"sprites/moon-26.bmp");
         swprintf(moon_cartoony_sprite_name,48,L"sprites/moon-cartoon-26.bmp");
         lunar_angle=M_PI_4+M_PI_4/2;
+        mirror_lunar_angle=-M_PI_4-M_PI_4/2;
       } else {
         swprintf(moon_sprite_name,48,L"sprites/moon-28.bmp");
       }
+
       moon_sprite=LoadRLE8CompressedBitmap(moon_sprite_name);
       moon_sprite_cache=GetRotated8BitBitmap(moon_sprite,lunar_angle,LTGREEN);
+      mirror_moon_sprite_cache=GetRotated8BitBitmap(moon_sprite,mirror_lunar_angle,LTGREEN);
       ReplaceBitmapColor(moon_sprite_cache,LTGREEN,BLACK);
+      ReplaceBitmapColor(mirror_moon_sprite_cache,LTGREEN,BLACK);
       
       GenerateDrawSprite(&draw_moon_sprite,moon_sprite_cache);
+      GenerateDrawSprite(&draw_mirror_moon_sprite,mirror_moon_sprite_cache);
 
 
       moon_cartoon_sprite=LoadRLE8CompressedBitmap(moon_cartoony_sprite_name);
-      moon_cartoon_sprite_cache=LoadRLE8CompressedBitmap(moon_cartoony_sprite_name);
+      moon_cartoon_sprite_cache=GetRotated8BitBitmap(moon_cartoon_sprite,lunar_angle,LTGREEN);
       ReplaceBitmapColor(moon_cartoon_sprite_cache,LTGREEN,BLACK);
       GenerateDrawSprite(&draw_moon_cartoon_sprite,moon_cartoon_sprite_cache);
 

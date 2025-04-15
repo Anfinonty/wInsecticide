@@ -1,5 +1,87 @@
 
 
+void PlaceDayMoon()
+{
+  if (!is_moon) { //cancel operation if is_moon not enabled
+    return;
+  }
+
+  int dmx=-300,dmy=-300;
+  if (lunar_day>=1 && lunar_day<=5) { //1, 2, 3, 4, 5
+    dmx=GR_WIDTH/8-GR_WIDTH/16;
+    dmy=GR_HEIGHT-GR_HEIGHT/3-GR_HEIGHT/16;//GR_HEIGHT-GR_HEIGHT/6;
+  } else if (lunar_day>=6 && lunar_day<=9) {// 6, 7, 8, 9
+    dmx=GR_WIDTH/4-GR_WIDTH/16;
+    dmy=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3-GR_HEIGHT/16;
+  } else if (lunar_day>=10 && lunar_day<=12) {// 10, 11, 12,
+    dmx=GR_WIDTH/4+GR_WIDTH/8-GR_WIDTH/16;
+    dmy=GR_HEIGHT/4+GR_HEIGHT/12-GR_HEIGHT/16;
+  } else if (lunar_day>=13 && lunar_day<=15) {//13, 14, 15 //fullmoon
+    //dmx=GR_WIDTH/2-GR_WIDTH/16;
+    //dmy=GR_HEIGHT/4-GR_HEIGHT/16;
+    return;
+  } else if (lunar_day>=16 && lunar_day<=18) {//16, 17, 18
+    dmx=GR_WIDTH/2+GR_WIDTH/4-GR_WIDTH/8-GR_WIDTH/16;
+    dmy=GR_HEIGHT/4+GR_HEIGHT/12-GR_HEIGHT/16;
+  } else if (lunar_day>=19 && lunar_day<=22) {//19, 20, 21, 22
+    dmx=GR_WIDTH/2+GR_WIDTH/4-GR_WIDTH/16;
+    dmy=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3-GR_HEIGHT/16;
+  } else if (lunar_day>=23 && lunar_day<=26) {//23, 24, 25,26
+    dmx=GR_WIDTH-GR_WIDTH/8-GR_WIDTH/16;
+    dmy=GR_HEIGHT-GR_HEIGHT/3-GR_HEIGHT/16;//GR_HEIGHT-GR_HEIGHT/6;
+  }
+
+
+  //bitmap stuff
+  BITMAP backgroundbitmap;
+  GetObject(map_background_sprite,sizeof(BITMAP),&backgroundbitmap);
+
+  BITMAP moonbitmap;
+  GetObject(draw_mirror_moon_sprite.sprite_paint,sizeof(BITMAP),&moonbitmap);
+
+  HDC hdc=GetDC(NULL);
+  HDC hdcSrc=CreateCompatibleDC(hdc);
+  HDC hdcDest=CreateCompatibleDC(hdc);
+
+
+  HBITMAP tmp_bitmap=CreateLargeBitmap(backgroundbitmap.bmWidth,backgroundbitmap.bmHeight);
+  SelectObject(hdcDest,tmp_bitmap);
+  SelectObject(hdcSrc,draw_mirror_moon_sprite.sprite_paint);
+
+
+  int background_width=backgroundbitmap.bmWidth;
+  int background_height=backgroundbitmap.bmHeight;
+
+  int moon_width=moonbitmap.bmWidth;
+  int moon_height=moonbitmap.bmHeight;
+
+  //draw moon to back background
+  BitBlt(hdcDest,dmx,dmy,background_width,background_height,hdcSrc,0,0,SRCCOPY);
+  //BitBlt(hdcDest,dmx,dmy, GR_WIDTH+GR_WIDTH/8,GR_HEIGHT+GR_HEIGHT/8,hdcSrc,0,0,SRCCOPY);
+
+  SelectObject(hdcSrc,map_background_sprite);
+
+  BLENDFUNCTION blendFunction;
+  blendFunction.BlendOp = AC_SRC_OVER;
+  blendFunction.BlendFlags = 0;
+  blendFunction.SourceConstantAlpha = 240;// Transparency level (0-255)
+  blendFunction.AlphaFormat = 0;
+
+  //draw background over black background + moon
+  AlphaBlend(hdcDest, 0, 0, background_width, background_height,
+               hdcSrc, 0, 0, background_width, background_height,
+               blendFunction);
+
+  DeleteDC(hdcSrc);
+  DeleteDC(hdcDest);
+  ReleaseDC(NULL,hdc);
+
+  DeleteObject(map_background_sprite);
+  map_background_sprite=CopyBitmap(tmp_bitmap,SRCCOPY);
+  DeleteObject(tmp_bitmap);
+}
+
+
 
 //Background
 void DrawBackground(HDC hdc,HDC hdc2) 
@@ -17,8 +99,9 @@ void DrawBackground(HDC hdc,HDC hdc2)
 
 
   switch (map_background) {
-    case 0:
+    case 0: {
       DrawBitmap(hdc,hdc2,draw_p_px,draw_p_py,0,0,GR_WIDTH*2,GR_HEIGHT*2,map_background_sprite,SRCCOPY,FALSE,FALSE);
+      }
       break;
     default:
       if (map_background_sprite==NULL) {
@@ -29,12 +112,7 @@ void DrawBackground(HDC hdc,HDC hdc2)
       break;
   }
 
-  if (is_moon) {
-    /*if (lunar_day<=15) {
-      DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite,FALSE);
-    } else {
-    }*/
-
+  if ((is_moon && custom_map_background_color_i>127) || map_background==1) {
       int dmx=-1000;
       int dmy=-1000;
       if (lunar_day>=1 && lunar_day<=5) { //1, 2, 3, 4, 5

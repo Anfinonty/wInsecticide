@@ -1095,6 +1095,10 @@ HBITMAP moon_sprite;
 HBITMAP moon_sprite_cache;
 DRAWSPRITE draw_moon_sprite;
 
+HBITMAP mirror_moon_sprite_cache;
+DRAWSPRITE draw_mirror_moon_sprite;
+
+
 HBITMAP moon_cartoon_sprite;
 HBITMAP moon_cartoon_sprite_cache;
 DRAWSPRITE draw_moon_cartoon_sprite;
