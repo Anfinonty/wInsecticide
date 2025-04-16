@@ -238,7 +238,7 @@ void DrawMapEditorBackground(HDC hdc,HDC hdc2)
   }
 
   if (MapEditor.set_lvl_ambient_val[2]==1) {
-    DrawSprite(hdc, hdc2,GR_WIDTH-128,128,&draw_moon_sprite,FALSE);
+    DrawSprite(hdc, hdc2,GR_WIDTH-128,128,&draw_moon_sprite[current_moon_phase_id],FALSE);
   }
 }
 
@@ -517,7 +517,7 @@ void DrawMapEditorUI(HDC hdc,HDC hdc2)
         GrCircle(hdc,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey,NODE_SIZE*set_enemy_type_shoot_at_player_range[MapEditor.selected_enemy_type_id]/2,LTPURPLE,-1);
         for (int i=0;i<ENEMY_BULLET_NUM;i++) {
           if (Bullet[i].shot) {
-            DrawBullet2(hdc,i,Bullet[i].x,Bullet[i].y,Bullet[i].color);
+            DrawBullet2(hdc,hdc2,i,Bullet[i].x,Bullet[i].y,Bullet[i].color);
           }
         }
         break;

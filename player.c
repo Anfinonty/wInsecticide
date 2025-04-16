@@ -3073,7 +3073,7 @@ void DrawPlayer(HDC hdc,HDC hdc2)
     //Draw sniper bullet of player
     if (player.bullet_shot!=-1) {
       if (player.right_click_hold_timer<62) {
-        DrawBullet(hdc,player.bullet_shot);
+        DrawBullet(hdc,hdc2,player.bullet_shot);
         GrLine(hdc,player.sprite_x,player.sprite_y,Bullet[player.bullet_shot].sprite_x,Bullet[player.bullet_shot].sprite_y,color);    
       }
     }
@@ -3081,7 +3081,7 @@ void DrawPlayer(HDC hdc,HDC hdc2)
   
   //player draw self bullets even after death
   for (int i=0;i<player.bullet_shot_num;i++) {
-    DrawBullet(hdc,player.bullet[i]);
+    DrawBullet(hdc,hdc2,player.bullet[i]);
   }
 }
 

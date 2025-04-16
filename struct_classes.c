@@ -558,10 +558,9 @@ void BulletAct(int bullet_id);
 void BulletSndAct(int i);
 void RainAct();
 
-void DrawBullet2(HDC hdc,int i,double x,double y,int color);
-void DrawBullet(HDC hdc,int i);
-
-void DrawRain(HDC hdc);
+void DrawBullet2(HDC hdc,HDC hdc2,int i,double x,double y,int color);
+void DrawBullet(HDC hdc,HDC hdc2,int i);
+void DrawRain(HDC hdc,HDC hdc2);
 
 
 
@@ -1051,7 +1050,7 @@ HBITMAP enemy2_sprite_3;
 HBITMAP enemy2_sprite_4;
 
 
-//small moth
+//small termite
 HBITMAP enemy3_sprite_1;
 HBITMAP enemy3_sprite_2;
 
@@ -1060,7 +1059,7 @@ HBITMAP enemy3_sprite_2;
 HBITMAP enemy4_sprite_1;
 HBITMAP enemy4_sprite_2;
 HBITMAP enemy4_sprite_1_0;
-//កន្ទាទូក walking flying
+//កន្ទាទូក flying
 HBITMAP enemy4_sprite_3;
 HBITMAP enemy4_sprite_4;
 
@@ -1076,33 +1075,37 @@ HBITMAP enemy6_sprite_2;
 
 
 
-//map background
-HBITMAP map_background_sprite;
 
 
-//map platforms
+//map platforms for loading in
 HBITMAP map_platforms_sprite;
-//HBITMAP map_platforms_sprite_mask;
-
 HBITMAP map_water_platforms_sprite;
-//HBITMAP map_water_platforms_sprite_mask;
-
 HBITMAP map_platforms_shadow_shader;
 
 
-//moon
-HBITMAP moon_sprite;
-HBITMAP moon_sprite_cache;
-DRAWSPRITE draw_moon_sprite;
 
-HBITMAP mirror_moon_sprite_cache;
-DRAWSPRITE draw_mirror_moon_sprite;
+//map background drawn
+HBITMAP map_background_sprite;
 
 
+//moon, for calendar only
 HBITMAP moon_cartoon_sprite;
 HBITMAP moon_cartoon_sprite_cache;
 DRAWSPRITE draw_moon_cartoon_sprite;
 
+
+//background moon
+int current_moon_phase_id;
+HBITMAP moon_sprite[8];
+HBITMAP moon_sprite_cache[8];
+DRAWSPRITE draw_moon_sprite[8];
+
+HBITMAP mirror_moon_sprite_cache[8];
+DRAWSPRITE draw_mirror_moon_sprite[8];
+
+HBITMAP snowflake_sprite;
+HBITMAP snowflake_sprite_cache;
+DRAWSPRITE draw_snowflake_sprite;
 
 
 //Shadow Tile
@@ -1118,6 +1121,10 @@ HBITMAP title_small_sprite[2];
 HBITMAP title_small_sprite_mask[2];
 
 //Khmer main menu
+HBITMAP intro_msg;
+HBITMAP intro_msg_mask;
+
+
 HBITMAP mm0_kh[4];
 HBITMAP mm0_kh_mask[4];
 HBITMAP mm0_kh_green[4];
@@ -1150,8 +1157,6 @@ HBITMAP kh_difficulty_green[2];
 HBITMAP kh_difficulty_white[2];
 HBITMAP kh_difficulty_mask[2];
 
-HBITMAP intro_msg[2];
-HBITMAP intro_msg_mask[2];
 
 HBITMAP kh_pressanykey;
 HBITMAP kh_pressanykey_mask;

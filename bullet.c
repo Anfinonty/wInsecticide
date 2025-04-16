@@ -964,6 +964,7 @@ void BulletAct(int bullet_id)
                 8, //graphics type
                 MAP_HEIGHT, //range ==>
                 1, //speed
+                //0.1,//speed for snow
                 10, //speed multiplier
                 0, //damage
                 -3,
@@ -982,7 +983,8 @@ void BulletAct(int bullet_id)
                 c,
                 8, //graphics type
                 -1, //range ==>
-                1, //speed
+                1, //speed for rain
+                //0.1,//speed for snow
                 1, //speed multiplier
                 0, //damage
                 -3,
@@ -1065,7 +1067,7 @@ void RainAct()
 
 
 
-void DrawBullet2(HDC hdc,int i,double x,double y,int color)
+void DrawBullet2(HDC hdc,HDC hdc2,int i,double x,double y,int color)
 {
   int c;
   switch (Bullet[i].graphics_type) {
@@ -1081,8 +1083,8 @@ void DrawBullet2(HDC hdc,int i,double x,double y,int color)
     case 2:
       GrCircle(hdc,x,y,4,color,color);
       break;
-    case 3:
-    case 6: //no fill glitery buullet
+    case 3://no fill glitery buullet
+    case 6:
       GrCircle(hdc,x,y,3,color,-1);
       GrCircle(hdc,x,y,RandNum(0,5,frame_tick*player.seed),color,-1);
       break;
@@ -1103,6 +1105,8 @@ void DrawBullet2(HDC hdc,int i,double x,double y,int color)
     case 8: //rain
       {
       GrLine(hdc,x,y,x-128*cos(Bullet[i].angle),y-128*sin(Bullet[i].angle),color);
+      //DrawSprite(hdc, hdc2,x,y,&draw_snowflake_sprite,FALSE);    
+      //GrCircle(hdc,x,y,3,WHITE,WHITE);
       }
       break;
     case 9: //long bullet 2
@@ -1132,22 +1136,24 @@ void DrawBullet2(HDC hdc,int i,double x,double y,int color)
     case 12: //no fill gliterry bullet, RAIN
       GrCircle(hdc,x,y,13,color,-1);
       GrCircle(hdc,x,y,RandNum(0,13,frame_tick*player.seed),color,-1);
+      //GrCircle(hdc,x,y,3,WHITE,WHITE);
+      //DrawSprite(hdc, hdc2,x,y,&draw_snowflake_sprite,FALSE);    
       break;
   }
 }
 
 
-void DrawBullet(HDC hdc,int i)
+void DrawBullet(HDC hdc,HDC hdc2,int i)
 {
-  DrawBullet2(hdc,i,Bullet[i].sprite_x,Bullet[i].sprite_y,Bullet[i].color);
+  DrawBullet2(hdc,hdc2,i,Bullet[i].sprite_x,Bullet[i].sprite_y,Bullet[i].color);
 }
 
 
 
 
-void DrawRain(HDC hdc)
+void DrawRain(HDC hdc,HDC hdc2)
 {
   for (int i=SHOOT_BULLET_NUM;i<BULLET_NUM;i++) {
-    DrawBullet(hdc,i);
+    DrawBullet(hdc,hdc2,i);
   }
 }

@@ -2902,7 +2902,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
 
     Enemy[i]->seed=rand();
     for (k=0;k<Enemy[i]->bullet_shot_num;k++) {
-      DrawBullet(hdc,Enemy[i]->bullet_shot_arr[k]);
+      DrawBullet(hdc,hdc2,Enemy[i]->bullet_shot_arr[k]);
     }
 
     //Drawing operations, enemy is living

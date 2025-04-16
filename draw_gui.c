@@ -775,31 +775,31 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
           if (lunar_day>=1 && lunar_day<=5) { //1, 2, 3, 4, 5
             dmx=GR_WIDTH-GR_WIDTH/8;
             dmy=GR_HEIGHT-GR_HEIGHT/3;//GR_HEIGHT-GR_HEIGHT/6;
-            DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite,FALSE);
+            DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
           } else if (lunar_day>=6 && lunar_day<=9) {// 6, 7, 8, 9
             dmx=GR_WIDTH/2+GR_WIDTH/4;
             dmy=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3;
-            DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite,FALSE);
+            DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
           } else if (lunar_day>=10 && lunar_day<=12) {// 10, 11, 12,
             dmx=GR_WIDTH/2+GR_WIDTH/4-GR_WIDTH/8;
             dmy=GR_HEIGHT/4+GR_HEIGHT/12;
-            DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite,FALSE);
+            DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
           } else if (lunar_day>=13 && lunar_day<=15) {//13, 14, 15 //fullmoon
             dmx=GR_WIDTH/2;
             dmy=GR_HEIGHT/4;
-            DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite,FALSE);
+            DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
           } else if (lunar_day>=16 && lunar_day<=18) {//16, 17, 18
             dmx=GR_WIDTH/4+GR_WIDTH/8;
             dmy=GR_HEIGHT/4+GR_HEIGHT/12;
-            DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite,FALSE);
+            DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
           } else if (lunar_day>=19 && lunar_day<=22) {//19, 20, 21, 22
             dmx=GR_WIDTH/4;
             dmy=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3;
-            DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite,FALSE);
+            DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
           } else if (lunar_day>=23 && lunar_day<=26) {//23, 24, 25,26
             dmx=GR_WIDTH/8;
             dmy=GR_HEIGHT-GR_HEIGHT/3;//GR_HEIGHT-GR_HEIGHT/6;
-            DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite,FALSE);
+            DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
           }
 
       }
@@ -821,7 +821,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
 
       //DrawWaterShader(hdc,hdc2);
       if (is_raining) {
-        DrawRain(hdc);
+        DrawRain(hdc,hdc2);
         /*if (!player.in_water) {
           DrawRainShader(hdc,hdc2);
         }*/
