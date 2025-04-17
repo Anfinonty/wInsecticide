@@ -340,9 +340,13 @@ void InitLevel(bool load_lvl)
       int dice=abs(RandNum(0,100,frame_tick));
     //printf("in demo:dice,%d",dice);
       if (dice<30) {
-        is_raining=TRUE;
+        if (dice>15) {
+          map_weather=1;
+        } else {
+          map_weather=2;
+        }
       } else {
-        is_raining=FALSE;
+        map_weather=0;
       }
     }
 

@@ -820,7 +820,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
       }
 
       //DrawWaterShader(hdc,hdc2);
-      if (is_raining) {
+      if (map_weather>0) {
         DrawRain(hdc,hdc2);
         /*if (!player.in_water) {
           DrawRainShader(hdc,hdc2);

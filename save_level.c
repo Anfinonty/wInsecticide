@@ -1135,7 +1135,7 @@ void SaveNewLimitAdjustedLvl(HWND hwnd, HDC hdc)
     fprintf(fptr,"%d;\n",custom_map_background_color_i); // 
     fprintf(fptr,"%d;\n",is_moon); //
 
-    fprintf(fptr,"%d;\n",is_raining); //
+    fprintf(fptr,"%d;\n",map_weather); //
     fprintf(fptr,"%d,%d;\n",rain_grad_rise,rain_grad_run); // 
 
     fprintf(fptr,"%d;\n",is_shadows); //

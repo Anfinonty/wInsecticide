@@ -500,6 +500,7 @@ struct Bullet
   bool near_miss;
   bool in_water; 
   bool playsnd;
+
   int color;
   int speed_multiplier;
   int ospeed_multiplier;
@@ -509,6 +510,12 @@ struct Bullet
   int saved_ground_id;
   int saved_node_grid_id;
   int bounce_timer;
+
+  double oangle;
+  double oscilating_angle;
+  double oscilating_angle_max;
+  double oscilating_angle_delta;
+
   double damage;
   double sprite_x;
   double sprite_y;

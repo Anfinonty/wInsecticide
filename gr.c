@@ -955,6 +955,14 @@ void GrLine(HDC hdc, double x1,double y1,double x2,double y2,int COLOR) {
   DeleteObject(hPen);
 }
 
+void GrLineThick(HDC hdc, double x1,double y1,double x2,double y2,int size,int COLOR) {
+  HPEN hPen = CreatePen(PS_SOLID, size, COLOR);
+  HPEN hOldPen = SelectObject(hdc, hPen);
+  MoveToEx(hdc,x1,y1,NULL);
+  LineTo(hdc,x2,y2);
+  SelectObject(hdc, hOldPen);
+  DeleteObject(hPen);
+}
 
 
 void GrDottedLine(HDC hdc, double x1,double y1,double x2,double y2,int COLOR) {

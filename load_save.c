@@ -142,7 +142,9 @@ int custom_map_background_color_i;
 bool is_moon;
 
 bool is_shadows=FALSE;
-bool is_raining=FALSE;
+//bool is_raining=FALSE;
+int map_weather=0;
+
 int rain_sound_duration=0;
 double shadow_grad_rise=2;
 double shadow_grad_run=1;
@@ -328,7 +330,7 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
             is_moon=(bool)int_saved_val;
             break;
           case 45: //is_raining
-            is_raining=(bool)int_saved_val;
+            map_weather=(int)int_saved_val;
             break;
           case 47: //is_shadow
             is_shadows=(bool)int_saved_val;

@@ -261,7 +261,7 @@ int melvlambience_min[9]={
 };
 
 int melvlambience_max[9]={
-3,0,2,2,101,101,2,101,101
+3,0,2,3,101,101,2,101,101
 };
 
 
@@ -662,7 +662,7 @@ void InitMapEditor()
   MapEditor.set_lvl_ambient_val[0]=map_background;
   MapEditor.set_lvl_ambient_val[1]=custom_map_background_color_i;
   MapEditor.set_lvl_ambient_val[2]=is_moon;
-  MapEditor.set_lvl_ambient_val[3]=is_raining;
+  MapEditor.set_lvl_ambient_val[3]=map_weather;
   MapEditor.set_lvl_ambient_val[4]=rain_grad_rise;
   MapEditor.set_lvl_ambient_val[5]=rain_grad_run;
   MapEditor.set_lvl_ambient_val[6]=is_shadows;

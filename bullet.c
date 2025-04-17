@@ -27,6 +27,13 @@ void InitBullet(int max_bullet_num)
     Bullet[i].angle=0;
     Bullet[i].saved_ground_id=-1;
     Bullet[i].saved_node_grid_id=-1;
+
+
+    Bullet[i].oangle=0;
+    Bullet[i].oscilating_angle_max=0;
+    Bullet[i].oscilating_angle=0;
+    Bullet[i].oscilating_angle_delta=0;
+
   }
 }
 
@@ -97,7 +104,6 @@ void ShootBullet(
       Bullet[bullet_id].angle=GetCosAngle(x2-x1,GetDistance(x1,y1,x2,y2));
     }
   }
-
   Bullet[bullet_id].angle+=off_angle;
   if (Bullet[bullet_id].angle>2*M_PI) {
     Bullet[bullet_id].angle-=2*M_PI;
@@ -106,6 +112,8 @@ void ShootBullet(
     Bullet[bullet_id].angle+=2*M_PI;
   }
 
+  //original angle
+  Bullet[bullet_id].oangle=Bullet[bullet_id].angle;
 }
 
 
@@ -669,11 +677,20 @@ void ResetBulletRain()
 void InitBulletRain()
 {
   int max_bullet_num;
-  if (GR_WIDTH>800) {
-    max_bullet_num=BULLET_NUM;
-  } else {
-    max_bullet_num=SHOOT_BULLET_NUM+(RAIN_NUM/5);
+  if (map_weather==1) {
+    if (GR_WIDTH>800) {
+      max_bullet_num=SHOOT_BULLET_NUM+(RAIN_NUM/6);
+    } else {
+      max_bullet_num=SHOOT_BULLET_NUM+(RAIN_NUM/16);
+    }
+  } else if (map_weather==2) {
+    if (GR_WIDTH>800) {
+      max_bullet_num=BULLET_NUM;
+    } else {
+      max_bullet_num=SHOOT_BULLET_NUM+(RAIN_NUM/2);
+    }
   }
+
   for (int i=SHOOT_BULLET_NUM;i<max_bullet_num;i++) {
   //for (int i=SHOOT_BULLET_NUM;i<BULLET_NUM;i++) {
     int rand_x=RandNum(player.x-GR_WIDTH/2,player.x+GR_WIDTH/2,frame_tick); //so it doest get stuck to ground
@@ -685,8 +702,8 @@ void InitBulletRain()
         i,
         -1,
         BLUE,
-        8, //graphics type
-        MAP_HEIGHT, //range ==>
+        -2, //graphics type
+        MAP_HEIGHT*2, //range ==>
         1, //speed
         10, //speed multiplier
         0, //damage
@@ -710,19 +727,32 @@ void RainBulletAct(int bullet_id)
   bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2);
   bullet_on_node_grid_id=GetGridId(Bullet[bullet_id].x,Bullet[bullet_id].y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
   
+  //snow bullet oscillation.
+  if (Bullet[bullet_id].graphics_type==13 || Bullet[bullet_id].graphics_type==14) {
+    //function to do sine wave movement.
+    Bullet[bullet_id].angle=Bullet[bullet_id].oangle+Bullet[bullet_id].oscilating_angle;
+    Bullet[bullet_id].oscilating_angle+=Bullet[bullet_id].oscilating_angle_delta;
+    if (abs(Bullet[bullet_id].oscilating_angle)>Bullet[bullet_id].oscilating_angle_max) {
+      Bullet[bullet_id].oscilating_angle_delta*=-1;
+    }
+  }
 
   if (IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) { //out of bounds
     allow_act=1;
-  } else if (Bullet[bullet_id].x<player.x-GR_WIDTH/2-player.cam_mouse_move_x || 
-             Bullet[bullet_id].x>player.x+GR_WIDTH/2-player.cam_mouse_move_x || 
-             Bullet[bullet_id].y>player.y+GR_HEIGHT/2-player.cam_mouse_move_y) {//out of player view
+  } else if (Bullet[bullet_id].x<player.x-GR_WIDTH/2-GR_WIDTH/4-player.cam_mouse_move_x || 
+             Bullet[bullet_id].x>player.x+GR_WIDTH/2+GR_WIDTH/4-player.cam_mouse_move_x || 
+             Bullet[bullet_id].y>player.y+GR_HEIGHT/2+GR_HEIGHT/4-player.cam_mouse_move_y) {//out of player view
     allow_act=1;
   } else if (bullet_on_node_grid_id!=-1) {
     if (NodeGrid[bullet_on_node_grid_id]->node_water) {
       allow_act=1;
       bullet_on_ground_id=-1;
-    } else if ((NodeGrid[bullet_on_node_grid_id]->node_no_rain || !NodeGrid[bullet_on_node_grid_id]->node_no_shade)) {
-      bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,NODE_SIZE,NODE_SIZE);
+    } else if ((NodeGrid[bullet_on_node_grid_id]->node_no_rain || !NodeGrid[bullet_on_node_grid_id]->node_no_shade) && !(Bullet[bullet_id].graphics_type==16 || Bullet[bullet_id].graphics_type==15)) {
+      if (Bullet[bullet_id].graphics_type!=13) { //snowdrop
+        bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,NODE_SIZE,NODE_SIZE);
+      } else {
+        bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,4,4);
+      }
     }
   }
 
@@ -795,10 +825,25 @@ void RainBulletAct(int bullet_id)
       } else if (allow_act==2) {
         Bullet[bullet_id].angle=RandAngle(-360,360,frame_tick); //slight random when hit
       }
-      Bullet[bullet_id].speed_multiplier=1;
-      Bullet[bullet_id].speed=1;//0.4;
-      Bullet[bullet_id].range=26;//13;
-      Bullet[bullet_id].graphics_type=12; //rain type
+      if (Bullet[bullet_id].graphics_type==13 || Bullet[bullet_id].graphics_type==14) {
+        if (Bullet[bullet_id].graphics_type==14) {
+          Bullet[bullet_id].speed=0.2;            
+          Bullet[bullet_id].range=20;
+        } else {
+          if (GR_WIDTH>800)
+            Bullet[bullet_id].speed=0.002;            
+          else
+            Bullet[bullet_id].speed=0.004;
+          Bullet[bullet_id].range=1;
+        }
+        Bullet[bullet_id].speed_multiplier=1;
+        Bullet[bullet_id].graphics_type+=2; //snow type change, weird but im 2 tired to know why
+      } else if (Bullet[bullet_id].graphics_type==8) {
+        Bullet[bullet_id].speed_multiplier=1;
+        Bullet[bullet_id].speed=1;//0.4;
+        Bullet[bullet_id].range=26;//13;
+        Bullet[bullet_id].graphics_type=12; //rain type
+      }
     }
 
     if (Bullet[bullet_id].angle>2*M_PI) { //hreater
@@ -887,7 +932,7 @@ void BulletAct(int bullet_id)
             }
 
           }
-        } else if (enemy_id==-3) { //rain
+        } else if (enemy_id==-3) { //rain/snow
           if (Bullet[bullet_id].range>0) {
 
             if (!player.time_breaker) {
@@ -897,28 +942,37 @@ void BulletAct(int bullet_id)
             }
           } else { //out of range rain, reset 
             StopBullet(bullet_id,FALSE);
-            int rand_x=RandNum(player.x-GR_WIDTH/2+6-player.cam_mouse_move_x,player.x+GR_WIDTH/2-6-player.cam_mouse_move_x,frame_tick); //so it doest get stuck to ground
-            if (rand_x<10)
-              rand_x=RandNum(10,player.x+GR_WIDTH/2-6-player.cam_mouse_move_x,frame_tick);
-            else if (rand_x>MAP_WIDTH)
-              rand_x=RandNum(player.x-GR_WIDTH/2-player.cam_mouse_move_x,MAP_WIDTH-10,frame_tick);
+            int snow_seed=rand();
+            int rand_x,rand_y;
+            if (GR_WIDTH>800) {
+              rand_x=player.x-GR_WIDTH/2-GR_WIDTH/4+ RandNum(0,GR_WIDTH+GR_WIDTH/2,snow_seed) -player.cam_mouse_move_x;
+                //RandNum(player.x-GR_WIDTH/2+6-player.cam_mouse_move_x,player.x+GR_WIDTH/2-6-player.cam_mouse_move_x,snow_seed); //so it doest get stuck to ground
+            //if (rand_x<10)
+              //rand_x=RandNum(10,player.x+GR_WIDTH/2-6-player.cam_mouse_move_x,snow_seed);
+            //else if (rand_x>MAP_WIDTH)
+              //rand_x=RandNum(player.x-GR_WIDTH/2-player.cam_mouse_move_x,MAP_WIDTH-10,snow_seed);
             
             //if (frame_tick%2==0)
               //rand_x=stickyTo(rand_x,VGRID_SIZE*2);
             //else
               //rand_x=stickyTo(rand_x,VGRID_SIZE);
 
-            int rand_y=RandNum(player.y-GR_HEIGHT/2+6-player.cam_mouse_move_y,player.y+GR_HEIGHT/2-6-player.cam_mouse_move_y,frame_tick); //so it doest get stuck to ground
-            if (rand_y<10)
-              rand_y=RandNum(10,player.y+GR_HEIGHT/2-6-player.cam_mouse_move_y,frame_tick);
-            else if (rand_y>MAP_HEIGHT)
-              rand_y=RandNum(player.y-GR_HEIGHT/2-player.cam_mouse_move_y,MAP_HEIGHT-10,frame_tick);
+              rand_y=player.y-GR_HEIGHT/2-GR_HEIGHT/4+RandNum(0,GR_HEIGHT+GR_HEIGHT/2,snow_seed)  -player.cam_mouse_move_y;//
+                //RandNum(player.y-10,player.y+10,snow_seed);
+                //RandNum(player.y-GR_HEIGHT/2+6-player.cam_mouse_move_y,player.y+GR_HEIGHT/2-6-player.cam_mouse_move_y,snow_seed); //so it doest get stuck to ground
+            //if (rand_y<10)
+              //rand_y=RandNum(10,player.y+GR_HEIGHT/2-6-player.cam_mouse_move_y,snow_seed);
+            //else if (rand_y>MAP_HEIGHT)
+              //rand_y=RandNum(player.y-GR_HEIGHT/2-player.cam_mouse_move_y,MAP_HEIGHT-10,snow_seed);
 
             //if (frame_tick%2==0)
               //rand_y=stickyTo(rand_y,VGRID_SIZE*2);
             //else
               //rand_y=stickyTo(rand_y,VGRID_SIZE);
-
+            } else {
+              rand_x=player.x-GR_WIDTH/2-GR_WIDTH/2+ RandNum(0,GR_WIDTH+GR_WIDTH,snow_seed) -player.cam_mouse_move_x;
+              rand_y=player.y-GR_HEIGHT/2-GR_HEIGHT/4+RandNum(0,GR_HEIGHT+GR_HEIGHT/2,snow_seed)  -player.cam_mouse_move_y;//
+            }
             bool allow_spawn=TRUE;
             //check if below spawned web
             double check_x1,check_x2,c1,c2;
@@ -935,7 +989,7 @@ void BulletAct(int bullet_id)
 
 
             if (allow_spawn) {
-              for (int q=GROUND_NUM;q<GROUND_NUM+MAX_WEB_NUM;q++) {                
+              for (int q=GROUND_NUM;q<GROUND_NUM+MAX_WEB_NUM;q++) {//check if below web
                 if (Ground[q]->x1>-1 && Ground[q]->y1>-1) {
                   c1=GetGroundC(Ground[q]->x1-NODE_SIZE,Ground[q]->y1,rain_gradient);
                   c2=GetGroundC(Ground[q]->x2+NODE_SIZE,Ground[q]->y2,rain_gradient);
@@ -955,21 +1009,79 @@ void BulletAct(int bullet_id)
 
 
             int c=BLUE;//Highlight(IsInvertedBackground(),BLUE,YELLOW);
+            int weather_bullet_type_graphics=0;
+            int weather_bullet_type_speedm=0;
+            double weather_bullet_type_speed=0.0;
+            switch (map_weather) {
+              case 1: //rain;
+                {int d;
+                weather_bullet_type_graphics=8;
+                weather_bullet_type_speedm=10;
+                //rand_x=stickyTo(rand_x,NODE_SIZE*4);
+                //rand_y=stickyTo(rand_y,NODE_SIZE*4);
+                weather_bullet_type_speed=1.0;
+
+                d=RandNum(0,20,snow_seed);
+                switch (d) {
+                  case 0:
+                    weather_bullet_type_speedm=4;
+                    break;
+                  case 1:
+                    weather_bullet_type_speedm=5;
+                    break;
+                  default:
+                    weather_bullet_type_speedm=10;
+                    break;
+                }
+                }
+                break;
+              case 2: //snow;
+                {
+                int d=RandNum(0,10,frame_tick*snow_seed);
+                if (d==1) {
+                  weather_bullet_type_graphics=14;
+                } else {
+                  weather_bullet_type_graphics=13;
+                }
+                Bullet[bullet_id].oscilating_angle=0;
+                Bullet[bullet_id].oscilating_angle_delta=0.0005*((double)(RandNum(0,200,snow_seed)/200.0));
+                            //0.0005*((double)(RandNum(0,1000,snow_seed*frame_tick*bullet_id)/1000.0));//RandNum(0,1000,player.seed*frame_tick)*0.0001;
+                Bullet[bullet_id].oscilating_angle_max=  0.01 * RandNum(1,10,snow_seed);
+                    //Bullet[bullet_id].oscilating_angle_delta*RandNum(0,30,player.seed*frame_tick/3*bullet_id);//Bullet[bullet_id].oscilating_angle_delta*RandNum(0,5,player.seed*frame_tick/2);
+                d=RandNum(0,1,snow_seed);
+                if (d==0) {
+                  Bullet[bullet_id].oscilating_angle_delta*=-1; 
+                }
+                weather_bullet_type_speed=1.0;
+                d=RandNum(0,3,snow_seed);
+                switch (d) {
+                  case 0:
+                    weather_bullet_type_speedm=1;
+                    break;
+                  case 1:
+                    weather_bullet_type_speedm=2;
+                    break;
+                  default:
+                    weather_bullet_type_speedm=4;
+                    break;
+                }
+                }
+                break;
+            }
 
             if (allow_spawn) {
               ShootBullet(
                 bullet_id,
                 -1,
                 c,
-                8, //graphics type
-                MAP_HEIGHT, //range ==>
-                1, //speed
-                //0.1,//speed for snow
-                10, //speed multiplier
+                weather_bullet_type_graphics, //graphics type
+                MAP_HEIGHT*2, //range ==>
+                weather_bullet_type_speed, //speed
+                weather_bullet_type_speedm, //speed multiplier
                 0, //damage
                 -3,
-                stickyTo(rand_x,NODE_SIZE*4),
-                stickyTo(rand_y,NODE_SIZE*4),
+                rand_x,
+                rand_y,
                 0,
                 0,
                 rain_grad_run,
@@ -981,10 +1093,9 @@ void BulletAct(int bullet_id)
                 bullet_id,
                 -1,
                 c,
-                8, //graphics type
+                weather_bullet_type_graphics, //graphics type
                 -1, //range ==>
                 1, //speed for rain
-                //0.1,//speed for snow
                 1, //speed multiplier
                 0, //damage
                 -3,
@@ -1054,14 +1165,27 @@ void BulletSndAct(int i)
 
 void RainAct()
 {
-  if (GR_WIDTH>800) {
-    for (int i=SHOOT_BULLET_NUM;i<BULLET_NUM;i++) {
-      BulletAct(i);
-    }
-  } else {
-    for (int i=SHOOT_BULLET_NUM;i<SHOOT_BULLET_NUM+(RAIN_NUM/5);i++) {
-      BulletAct(i);
-    }
+  if (map_weather==1) { //rain
+      if (GR_WIDTH>800) {
+        for (int i=SHOOT_BULLET_NUM;i<SHOOT_BULLET_NUM+(RAIN_NUM/6);i++) {
+          BulletAct(i);
+        }
+      } else {
+        for (int i=SHOOT_BULLET_NUM;i<SHOOT_BULLET_NUM+(RAIN_NUM/16);i++) {
+          BulletAct(i);
+        }
+      }
+  } else if (map_weather==2) { //snow
+      if (GR_WIDTH>800) {
+        for (int i=SHOOT_BULLET_NUM;i<BULLET_NUM;i++) {
+          BulletAct(i);
+        }
+      } else {
+        for (int i=SHOOT_BULLET_NUM;i<SHOOT_BULLET_NUM+(RAIN_NUM/2);i++) {
+          BulletAct(i);
+        }
+      }
+
   }
 }
 
@@ -1105,8 +1229,6 @@ void DrawBullet2(HDC hdc,HDC hdc2,int i,double x,double y,int color)
     case 8: //rain
       {
       GrLine(hdc,x,y,x-128*cos(Bullet[i].angle),y-128*sin(Bullet[i].angle),color);
-      //DrawSprite(hdc, hdc2,x,y,&draw_snowflake_sprite,FALSE);    
-      //GrCircle(hdc,x,y,3,WHITE,WHITE);
       }
       break;
     case 9: //long bullet 2
@@ -1136,9 +1258,25 @@ void DrawBullet2(HDC hdc,HDC hdc2,int i,double x,double y,int color)
     case 12: //no fill gliterry bullet, RAIN
       GrCircle(hdc,x,y,13,color,-1);
       GrCircle(hdc,x,y,RandNum(0,13,frame_tick*player.seed),color,-1);
-      //GrCircle(hdc,x,y,3,WHITE,WHITE);
       //DrawSprite(hdc, hdc2,x,y,&draw_snowflake_sprite,FALSE);    
       break;
+    case 13: //snow
+      GrCircle(hdc,x,y,5,WHITE,WHITE);
+      break;
+    case 15: //snow but hit ground
+      {
+        int e=Bullet[i].saved_ground_id;
+        if (e!=-1) {
+          GrLineThick(hdc,x-cos(Ground[e]->angle)*20,y-sin(Ground[e]->angle)*20,x+cos(Ground[e]->angle)*20,y+sin(Ground[e]->angle)*20,10,WHITE);
+        }
+      }
+      break;
+    case 14: //snowflake
+    case 16: //snowflake
+      DrawSprite(hdc, hdc2,x,y,&draw_snowflake_sprite,FALSE);    
+      break;
+
+      
   }
 }
 

@@ -255,7 +255,7 @@ bool is_khmer=TRUE;
 #define RDGRID_NUM       RENDER_WIDTH_MAX*RENDER_HEIGHT_MAX
 
 
-#define RAIN_NUM    20//50
+#define RAIN_NUM    60//20//50
 #define SHOOT_BULLET_NUM    25000//100000// More bullets, otherwise memleak, idk why haha 2024-12-21 //5000
 #define BULLET_NUM	SHOOT_BULLET_NUM+RAIN_NUM
 
@@ -509,7 +509,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
         for (int i=0;i<ENEMY_NUM;i++) {
           EnemyAct(i);
         }
-        if (is_raining) {
+        if (map_weather>0) {
           RainAct();
           if (!player.time_breaker) {
             ScreenRainDropAct();
@@ -539,7 +539,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
             for (int i=0;i<ENEMY_NUM;i++) {
               EnemyAct(i);
             }
-            if (is_raining) {
+            if (map_weather>0) {
               RainAct();
               if (!player.time_breaker) {
                 ScreenRainDropAct();
@@ -1120,7 +1120,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
           InitRDGrid();
           ResetBulletRain();
-          if (is_raining) {
+          if (map_weather>0) {
             InitBulletRain();
           }
           if (in_map_editor) {
@@ -1394,7 +1394,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
           //DrawGrids(hdcBackbuff); //debugging
             //DrawWaterShader(hdcBackbuff,hdcBackbuff2);
-            if (is_raining) {
+            if (map_weather>0) {
               DrawRain(hdcBackbuff,hdcBackbuff2);
               /*if (!player.in_water) {
                 DrawRainShader(hdcBackbuff,hdcBackbuff2);
@@ -1493,13 +1493,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           if (flag_difficulty_change) {
             flag_difficulty_change=FALSE;
             if (game_hard) {
-              //is_raining=TRUE;
               BitmapPalette(hdcBackbuff,hdcBackbuff2,title_sprite[0],rgbColorsRedToBlue);
               BitmapPalette(hdcBackbuff,hdcBackbuff2,title_small_sprite[0],rgbColorsRedToBlue);
               BitmapPalette(hdcBackbuff,hdcBackbuff2,title_sprite[1],rgbColorsRedToBlue);
               BitmapPalette(hdcBackbuff,hdcBackbuff2,title_small_sprite[1],rgbColorsRedToBlue);
             } else {
-              //is_raining=FALSE;
               BitmapPalette(hdcBackbuff,hdcBackbuff2,title_sprite[0],rgbColorsNoir);
               BitmapPalette(hdcBackbuff,hdcBackbuff2,title_small_sprite[0],rgbColorsNoir);
               BitmapPalette(hdcBackbuff,hdcBackbuff2,title_sprite[1],rgbColorsNoir);
