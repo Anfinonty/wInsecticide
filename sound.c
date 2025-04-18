@@ -115,7 +115,7 @@ void freeSoundEffectCache(wavSoundEffectCache* mySoundEffectCache)
 }
 
 
-#define SND_MEM_STACK_SIZE  500000
+#define SND_MEM_STACK_SIZE  500000  // to be new fixed size for each allowed audio
 int16_t SND_MEM_STACK[SND_MEM_STACK_SIZE]; //for adjusting volume because access via heap is finicky!!, 5 megabyte 500k KB Ram allowed max
 HANDLE hMemSndArray[SND_THREAD_NUM];
 bool mem_snd_interrupt[SND_THREAD_NUM]={FALSE,FALSE,FALSE,FALSE,FALSE,FALSE};//,FALSE};

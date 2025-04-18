@@ -2571,23 +2571,23 @@ void PlayerSndAct()
     if (player.visible_rain_wet_timer>0) {
       player.visible_rain_wet_timer=0;
       rain_sound_duration=0;
-      mem_snd_interrupt[4]=TRUE; 
-      waveOutReset(hWaveOut[4]);
+      //mem_snd_interrupt[4]=TRUE; 
+      //waveOutReset(hWaveOut[4]);
     }
 
     if (rain_sound_duration>=channelSoundEffect[3].duration/2) {
       rain_sound_duration=0;
     }
     if (rain_sound_duration==0 && player.rain_wet_timer>0) { //sound effect fast sound effect
-      if (game_audio) {
+      /*if (game_audio) {
         PlayMemSnd(&channelSoundEffect[3],&channelSoundEffectCache[3],TRUE,4); 
-      }
+      }*/
     }
 
     if (rain_sound_duration>0 && player.rain_wet_timer==0) {
       rain_sound_duration=0;
-      mem_snd_interrupt[4]=TRUE;
-      waveOutReset(hWaveOut[4]);
+      //mem_snd_interrupt[4]=TRUE;
+      //waveOutReset(hWaveOut[4]);
     }
     rain_sound_duration+=10;//6;
 
@@ -2596,23 +2596,23 @@ void PlayerSndAct()
     if (player.rain_wet_timer==60) {
       player.visible_rain_wet_timer=160;
       rain_sound_duration=0;
-      mem_snd_interrupt[4]=TRUE; 
-      waveOutReset(hWaveOut[4]);
+      //mem_snd_interrupt[4]=TRUE; 
+      //waveOutReset(hWaveOut[4]);
     }
 
     if (rain_sound_duration>=channelSoundEffect[4].duration/2) {
       rain_sound_duration=0;
     }
     if (rain_sound_duration==0 && player.visible_rain_wet_timer>0) { //sound effect fast sound effect
-      if (game_audio) {
+      /*if (game_audio) {
         PlayMemSnd(&channelSoundEffect[4],&channelSoundEffectCache[4],TRUE,4); 
-      }
+      }*/
     }
 
     if (rain_sound_duration>0 && player.visible_rain_wet_timer==0) {
       rain_sound_duration=0;
-      mem_snd_interrupt[4]=TRUE;
-      waveOutReset(hWaveOut[4]);
+      //mem_snd_interrupt[4]=TRUE;
+      //waveOutReset(hWaveOut[4]);
     }
     rain_sound_duration+=10;//6;
   }
@@ -2624,14 +2624,14 @@ void PlayerSndAct()
     player.fast_duration=0;
   }
   if (player.fast_duration==0 && player.speed>10) { //sound effect fast sound effect
-    if (game_audio) {
+    /*if (game_audio) {
       PlayMemSnd(&channelSoundEffect[0],&channelSoundEffectCache[0],TRUE,1); 
-    }
+    }*/
   }
   if (player.fast_duration>0 && player.speed<=10) {
     player.fast_duration=0;
-    mem_snd_interrupt[1]=TRUE;
-    waveOutReset(hWaveOut[1]);
+    //mem_snd_interrupt[1]=TRUE;
+    //waveOutReset(hWaveOut[1]);
   }
 
 

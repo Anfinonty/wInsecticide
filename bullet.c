@@ -1,3 +1,23 @@
+bool flag_play_bullet_reflect_snd=FALSE;
+bool flag_play_bullet_heal_snd=FALSE;
+
+DWORD WINAPI SoundBulletTask(LPVOID lpArg)
+{
+  while (TRUE) {
+    if (flag_play_bullet_reflect_snd || flag_play_bullet_heal_snd) {
+      if (flag_play_bullet_reflect_snd) {
+        PlaySound(spamSoundEffectCache[7].audio,NULL, SND_MEMORY); //clang
+      } else {
+        PlaySound(spamSoundEffectCache[8].audio,NULL, SND_MEMORY); //heal
+      }
+      flag_play_bullet_reflect_snd=FALSE;
+      flag_play_bullet_heal_snd=FALSE;
+    }
+    Sleep(6);
+  }
+}
+
+
 
 void InitBullet(int max_bullet_num)
 {
@@ -462,7 +482,8 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
 
           if (predicate && (Bullet[bullet_id].graphics_type==10 || Bullet[bullet_id].graphics_type==11) && player.health>0) { //heal player
             if (game_audio) {
-              PlaySound(spamSoundEffectCache[8].audio, NULL, SND_MEMORY | SND_ASYNC); //gain snd
+              //PlaySound(spamSoundEffectCache[8].audio, NULL, SND_MEMORY | SND_ASYNC); //gain snd
+              flag_play_bullet_heal_snd=TRUE;
             }
 
             player.health+=0.2;
@@ -719,6 +740,8 @@ void InitBulletRain()
   }
 }
 
+
+
 void RainBulletAct(int bullet_id)
 {
   bool hit_player=FALSE;
@@ -928,7 +951,7 @@ void BulletAct(int bullet_id)
             player.bullet_shot_num--;        
 
             if (PLAYER_BULLET_NUM-player.bullet_shot_num==15 && player.knives_per_throw>=15 && game_audio && player.health>0) { //reload
-              PlayMemSnd(&channelSoundEffect[7],&channelSoundEffectCache[7],TRUE,5); 
+              //PlayMemSnd(&channelSoundEffect[7],&channelSoundEffectCache[7],TRUE,5); 
             }
 
           }
@@ -1155,7 +1178,8 @@ void BulletSndAct(int i)
   if (Bullet[i].playsnd) {
     if (Bullet[i].shot) {
       //https://stackoverflow.com/questions/1382051/what-is-the-c-equivalent-for-reinterpret-cast
-      PlaySound(spamSoundEffectCache[7].audio,NULL, SND_MEMORY | SND_ASYNC); //clang
+      //PlaySound(spamSoundEffectCache[7].audio,NULL, SND_MEMORY | SND_ASYNC); //clang
+      flag_play_bullet_reflect_snd=TRUE;
     }
     Bullet[i].playsnd=FALSE;
   }
