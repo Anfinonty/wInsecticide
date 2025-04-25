@@ -1,18 +1,43 @@
 bool flag_play_bullet_reflect_snd=FALSE;
 bool flag_play_bullet_heal_snd=FALSE;
+bool flag_play_block_bullet_snd=FALSE;
+bool flag_play_block_player_snd=FALSE;
+bool flag_play_perfect_block_player_snd=FALSE;
+bool flag_play_player_hurt_snd=FALSE;
 
-DWORD WINAPI SoundBulletTask(LPVOID lpArg)
+DWORD WINAPI SpamSoundTask(LPVOID lpArg)
 {
   while (TRUE) {
-    if (flag_play_bullet_reflect_snd || flag_play_bullet_heal_snd) {
-      if (flag_play_bullet_reflect_snd) {
-        PlaySound(spamSoundEffectCache[7].audio,NULL, SND_MEMORY); //clang
+    if (flag_play_player_hurt_snd || flag_play_block_bullet_snd || flag_play_perfect_block_player_snd) { //player blocking high priority
+      if (flag_play_player_hurt_snd) {
+        PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
+      } else if (flag_play_perfect_block_player_snd) {
+        PlaySound(spamSoundEffectCache[4].audio,NULL, SND_MEMORY | SND_ASYNC);
       } else {
-        PlaySound(spamSoundEffectCache[8].audio,NULL, SND_MEMORY); //heal
+        PlaySound(spamSoundEffectCache[3].audio,NULL, SND_MEMORY | SND_ASYNC);
       }
+      flag_play_player_hurt_snd=FALSE;
+      flag_play_perfect_block_player_snd=FALSE;
+      flag_play_block_bullet_snd=FALSE;
+      flag_play_block_player_snd=FALSE;
       flag_play_bullet_reflect_snd=FALSE;
       flag_play_bullet_heal_snd=FALSE;
+    } else {
+      if (flag_play_block_player_snd) {
+        PlaySound(spamSoundEffectCache[6].audio,NULL, SND_MEMORY | SND_ASYNC);
+        flag_play_block_player_snd=FALSE;
+      }
+      if (flag_play_bullet_reflect_snd) {
+        PlaySound(spamSoundEffectCache[7].audio,NULL, SND_MEMORY | SND_ASYNC); //clang
+        flag_play_bullet_reflect_snd=FALSE;
+      }
+      if (flag_play_bullet_heal_snd) {
+        PlaySound(spamSoundEffectCache[8].audio,NULL, SND_MEMORY | SND_ASYNC); //heal
+        flag_play_bullet_heal_snd=FALSE;
+      }
     }
+
+
     Sleep(6);
   }
 }
@@ -24,6 +49,7 @@ void InitBullet(int max_bullet_num)
   int i=0;
   current_bullet_id=0;
   for (i=0;i<max_bullet_num;i++) {
+    Bullet[i].rng_i=0;
     Bullet[i].bounce_timer=0;
     Bullet[i].playsnd=FALSE;
     Bullet[i].shot=FALSE;
@@ -274,11 +300,13 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
 {
   int bullet_on_ground_id=-1,bk;
   bool hit_player=FALSE,allow_act=FALSE;
+  int seed=player.seed*bullet_id;
+  if (!free_will) seed=-1;
 
   //sniper bullet act with enemy bullet
   if (Bullet[bullet_id].graphics_type!=10) {
   if (GetDistance(Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
-    Bullet[bullet_id].angle=RandAngle(0,360,Enemy[enemy_id]->seed);//RandNum(-M_PI_2*100,M_PI_2*100,Enemy[enemy_id]->seed)/100;
+    Bullet[bullet_id].angle=RandAngle(0,360,&player.sniper_bullet_rng_i,seed);//RandNum(-M_PI_2*100,M_PI_2*100,Enemy[enemy_id]->seed)/100;
     Bullet[bullet_id].speed=Bullet[player.bullet_shot].speed;
     Bullet[bullet_id].speed_multiplier=Bullet[player.bullet_shot].speed_multiplier;
     if (game_audio && player.health>0) {
@@ -300,7 +328,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
 
       if (Bullet[bullet_id].graphics_type!=10 && Bullet[bullet_id].graphics_type!=-1) {
         if (Bullet[bullet_id].bounce_timer==0) {
-          Bullet[bullet_id].angle=GetMarbleAngle(Bullet[bullet_id].angle,Bullet[bk].angle)+RandAngle(-12,12,frame_tick);//GetBounceAngle(Bullet[bk].angle,Bullet[bullet_id].angle);//RandAngle(0,360,player.seed); //scatter type 6
+          Bullet[bullet_id].angle=GetMarbleAngle(Bullet[bullet_id].angle,Bullet[bk].angle)+RandAngle(-12,12,&Bullet[bullet_id].rng_i,seed);//GetBounceAngle(Bullet[bk].angle,Bullet[bullet_id].angle);//RandAngle(0,360,player.seed); //scatter type 6
           Bullet[bullet_id].bounce_timer=10;
           Bullet[bk].bounce_timer=0;
         }
@@ -308,7 +336,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
         Bullet[bullet_id].speed_multiplier=Bullet[bk].speed_multiplier;
         Bullet[bullet_id].range-=3;
       } else { //death bullet
-        Bullet[bullet_id].angle=Bullet[bk].angle+RandAngle(-65,65,player.seed); //scatter type 6
+        Bullet[bullet_id].angle=Bullet[bk].angle+RandAngle(-65,65,&player.bullet_rng_i,seed); //scatter type 6
       }
 
       /*if (Bullet[bk].speed_multiplier<7) { //if shotgun bullet, pierce through for the first few ranges
@@ -316,7 +344,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
 
       if (Bullet[bk].graphics_type!=6 && Bullet[bullet_id].graphics_type!=10 && Bullet[bullet_id].graphics_type!=-1) { //hit enemy bullet, scatter if NOT type 6
         if (Bullet[bk].bounce_timer==0) {
-          Bullet[bk].angle=-GetMarbleAngle(Bullet[bk].angle, saved_angle)+RandAngle(-12,12,player.seed);
+          Bullet[bk].angle=-GetMarbleAngle(Bullet[bk].angle, saved_angle)+RandAngle(-12,12,&Bullet[bullet_id].rng_i,seed);
           Bullet[bk].bounce_timer=10;
         }
         switch (Bullet[bk].graphics_type) {
@@ -698,6 +726,7 @@ void ResetBulletRain()
 void InitBulletRain()
 {
   int max_bullet_num;
+  weather_rng_i=0;
   if (map_weather==1) {
     if (GR_WIDTH>800) {
       max_bullet_num=SHOOT_BULLET_NUM+(RAIN_NUM/6);
@@ -708,17 +737,20 @@ void InitBulletRain()
     if (GR_WIDTH>800) {
       max_bullet_num=BULLET_NUM;
     } else {
-      max_bullet_num=SHOOT_BULLET_NUM+(RAIN_NUM/2);
+      max_bullet_num=SHOOT_BULLET_NUM+(RAIN_NUM/2+RAIN_NUM/12);
     }
   }
 
   for (int i=SHOOT_BULLET_NUM;i<max_bullet_num;i++) {
   //for (int i=SHOOT_BULLET_NUM;i<BULLET_NUM;i++) {
-    int rand_x=RandNum(player.x-GR_WIDTH/2,player.x+GR_WIDTH/2,frame_tick); //so it doest get stuck to ground
+    int seed=player.seed*i;
+    //int seed=-1;
+    if (!free_will) seed=-1;
+    int rand_x=RandNum(player.x-GR_WIDTH/2,player.x+GR_WIDTH/2,&weather_rng_i,seed); //so it doest get stuck to ground
     if (rand_x<10)
-      rand_x=RandNum(10,player.x+GR_WIDTH/2-6,frame_tick);
+      rand_x=RandNum(10,player.x+GR_WIDTH/2-6,&weather_rng_i,seed);
     else if (rand_x>MAP_WIDTH)
-      rand_x=RandNum(player.x-GR_WIDTH/2,MAP_WIDTH-10,frame_tick);
+      rand_x=RandNum(player.x-GR_WIDTH/2,MAP_WIDTH-10,&weather_rng_i,seed);
     ShootBullet(
         i,
         -1,
@@ -837,6 +869,9 @@ void RainBulletAct(int bullet_id)
   if (bullet_on_ground_id!=-1) {//hit platform
     allow_act=0;
   }
+  int seed=player.seed*bullet_id;
+  //int seed=-1;
+  if (!free_will) seed=-1;
 
   if (allow_act!=-1) { //perform action
     if (allow_act==1) { //out of range
@@ -844,9 +879,9 @@ void RainBulletAct(int bullet_id)
     } else if (allow_act==0 || allow_act==2){ //Ricochet off ground
       if (allow_act==0) {
         Bullet[bullet_id].angle=GetBounceAngle(Bullet[bullet_id].angle,Ground[bullet_on_ground_id]->angle)
-/*2*M_PI-Bullet[bullet_id].angle+2*Ground[bullet_on_ground_id]->angle*/+RandAngle(-15,15,frame_tick); //slight random when hit
+/*2*M_PI-Bullet[bullet_id].angle+2*Ground[bullet_on_ground_id]->angle*/+RandAngle(-15,15,&Bullet[bullet_id].rng_i,seed); //slight random when hit
       } else if (allow_act==2) {
-        Bullet[bullet_id].angle=RandAngle(-360,360,frame_tick); //slight random when hit
+        Bullet[bullet_id].angle=RandAngle(-360,360,&misc_rng_i,seed); //slight random when weather hit player
       }
       if (Bullet[bullet_id].graphics_type==13 || Bullet[bullet_id].graphics_type==14) {
         if (Bullet[bullet_id].graphics_type==14) {
@@ -875,9 +910,9 @@ void RainBulletAct(int bullet_id)
     if (Bullet[bullet_id].angle<0) {
       Bullet[bullet_id].angle+=2*M_PI;
     }
-    if (Bullet[bullet_id].saved_ground_id==bullet_on_ground_id) { //prevents riding of wall
+    /*if (Bullet[bullet_id].saved_ground_id==bullet_on_ground_id) { //prevents riding of wall
       Bullet[bullet_id].range=-1;
-    }
+    }*/
     Bullet[bullet_id].saved_ground_id=bullet_on_ground_id;
   }
 }
@@ -964,37 +999,39 @@ void BulletAct(int bullet_id)
               allow_act=TRUE;
             }
           } else { //out of range rain, reset 
+            int seed=player.seed*bullet_id;
+            //int seed=-1;
+            if (!free_will) seed=-1;
             StopBullet(bullet_id,FALSE);
-            int snow_seed=rand();
             int rand_x,rand_y;
             if (GR_WIDTH>800) {
-              rand_x=player.x-GR_WIDTH/2-GR_WIDTH/4+ RandNum(0,GR_WIDTH+GR_WIDTH/2,snow_seed) -player.cam_mouse_move_x;
-                //RandNum(player.x-GR_WIDTH/2+6-player.cam_mouse_move_x,player.x+GR_WIDTH/2-6-player.cam_mouse_move_x,snow_seed); //so it doest get stuck to ground
+              rand_x=player.x-GR_WIDTH/2-GR_WIDTH/4+ RandNum(0,GR_WIDTH+GR_WIDTH/2,&weather_rng_i,seed) -player.cam_mouse_move_x;
+                //RandNum(player.x-GR_WIDTH/2+6-player.cam_mouse_move_x,player.x+GR_WIDTH/2-6-player.cam_mouse_move_x,&weather_rng_i); //so it doest get stuck to ground
             //if (rand_x<10)
-              //rand_x=RandNum(10,player.x+GR_WIDTH/2-6-player.cam_mouse_move_x,snow_seed);
+              //rand_x=RandNum(10,player.x+GR_WIDTH/2-6-player.cam_mouse_move_x,&weather_rng_i);
             //else if (rand_x>MAP_WIDTH)
-              //rand_x=RandNum(player.x-GR_WIDTH/2-player.cam_mouse_move_x,MAP_WIDTH-10,snow_seed);
+              //rand_x=RandNum(player.x-GR_WIDTH/2-player.cam_mouse_move_x,MAP_WIDTH-10,&weather_rng_i);
             
             //if (frame_tick%2==0)
               //rand_x=stickyTo(rand_x,VGRID_SIZE*2);
             //else
               //rand_x=stickyTo(rand_x,VGRID_SIZE);
 
-              rand_y=player.y-GR_HEIGHT/2-GR_HEIGHT/4+RandNum(0,GR_HEIGHT+GR_HEIGHT/2,snow_seed)  -player.cam_mouse_move_y;//
-                //RandNum(player.y-10,player.y+10,snow_seed);
-                //RandNum(player.y-GR_HEIGHT/2+6-player.cam_mouse_move_y,player.y+GR_HEIGHT/2-6-player.cam_mouse_move_y,snow_seed); //so it doest get stuck to ground
+              rand_y=player.y-GR_HEIGHT/2-GR_HEIGHT/4+RandNum(0,GR_HEIGHT+GR_HEIGHT/2,&weather_rng_i,seed)  -player.cam_mouse_move_y;//
+                //RandNum(player.y-10,player.y+10,&weather_rng_i);
+                //RandNum(player.y-GR_HEIGHT/2+6-player.cam_mouse_move_y,player.y+GR_HEIGHT/2-6-player.cam_mouse_move_y,&weather_rng_i); //so it doest get stuck to ground
             //if (rand_y<10)
-              //rand_y=RandNum(10,player.y+GR_HEIGHT/2-6-player.cam_mouse_move_y,snow_seed);
+              //rand_y=RandNum(10,player.y+GR_HEIGHT/2-6-player.cam_mouse_move_y,&weather_rng_i);
             //else if (rand_y>MAP_HEIGHT)
-              //rand_y=RandNum(player.y-GR_HEIGHT/2-player.cam_mouse_move_y,MAP_HEIGHT-10,snow_seed);
+              //rand_y=RandNum(player.y-GR_HEIGHT/2-player.cam_mouse_move_y,MAP_HEIGHT-10,&weather_rng_i);
 
             //if (frame_tick%2==0)
               //rand_y=stickyTo(rand_y,VGRID_SIZE*2);
             //else
               //rand_y=stickyTo(rand_y,VGRID_SIZE);
             } else {
-              rand_x=player.x-GR_WIDTH/2-GR_WIDTH/2+ RandNum(0,GR_WIDTH+GR_WIDTH,snow_seed) -player.cam_mouse_move_x;
-              rand_y=player.y-GR_HEIGHT/2-GR_HEIGHT/4+RandNum(0,GR_HEIGHT+GR_HEIGHT/2,snow_seed)  -player.cam_mouse_move_y;//
+              rand_x=player.x-GR_WIDTH/2-GR_WIDTH/2+ RandNum(0,GR_WIDTH+GR_WIDTH,&weather_rng_i,seed) -player.cam_mouse_move_x;
+              rand_y=player.y-GR_HEIGHT/2-GR_HEIGHT/4+RandNum(0,GR_HEIGHT+GR_HEIGHT/2,&weather_rng_i,seed)  -player.cam_mouse_move_y;//
             }
             bool allow_spawn=TRUE;
             //check if below spawned web
@@ -1044,7 +1081,7 @@ void BulletAct(int bullet_id)
                 //rand_y=stickyTo(rand_y,NODE_SIZE*4);
                 weather_bullet_type_speed=1.0;
 
-                d=RandNum(0,20,snow_seed);
+                d=RandNum(0,20,&weather_rng_i,seed);
                 switch (d) {
                   case 0:
                     weather_bullet_type_speedm=4;
@@ -1060,23 +1097,23 @@ void BulletAct(int bullet_id)
                 break;
               case 2: //snow;
                 {
-                int d=RandNum(0,10,frame_tick*snow_seed);
+                int d=RandNum(0,10,&weather_rng_i,seed);
                 if (d==1) {
                   weather_bullet_type_graphics=14;
                 } else {
                   weather_bullet_type_graphics=13;
                 }
                 Bullet[bullet_id].oscilating_angle=0;
-                Bullet[bullet_id].oscilating_angle_delta=0.0005*((double)(RandNum(0,200,snow_seed)/200.0));
-                            //0.0005*((double)(RandNum(0,1000,snow_seed*frame_tick*bullet_id)/1000.0));//RandNum(0,1000,player.seed*frame_tick)*0.0001;
-                Bullet[bullet_id].oscilating_angle_max=  0.01 * RandNum(1,10,snow_seed);
-                    //Bullet[bullet_id].oscilating_angle_delta*RandNum(0,30,player.seed*frame_tick/3*bullet_id);//Bullet[bullet_id].oscilating_angle_delta*RandNum(0,5,player.seed*frame_tick/2);
-                d=RandNum(0,1,snow_seed);
+                Bullet[bullet_id].oscilating_angle_delta=0.0005*((double)(RandNum(0,200,&weather_rng_i,seed)/200.0));
+                            //0.0005*((double)(RandNum(0,1000,&weather_rng_i*frame_tick*bullet_id)/1000.0));//RandNum(0,1000,Bullet[bullet_id].seed*frame_tick)*0.0001;
+                Bullet[bullet_id].oscilating_angle_max=  0.01 * RandNum(1,10,&weather_rng_i,seed);
+                    //Bullet[bullet_id].oscilating_angle_delta*RandNum(0,30,Bullet[bullet_id].seed*frame_tick/3*bullet_id);//Bullet[bullet_id].oscilating_angle_delta*RandNum(0,5,Bullet[bullet_id].seed*frame_tick/2);
+                d=RandNum(0,1,&weather_rng_i,seed);
                 if (d==0) {
                   Bullet[bullet_id].oscilating_angle_delta*=-1; 
                 }
                 weather_bullet_type_speed=1.0;
-                d=RandNum(0,3,snow_seed);
+                d=RandNum(0,3,&weather_rng_i,seed);
                 switch (d) {
                   case 0:
                     weather_bullet_type_speedm=1;
@@ -1205,7 +1242,7 @@ void RainAct()
           BulletAct(i);
         }
       } else {
-        for (int i=SHOOT_BULLET_NUM;i<SHOOT_BULLET_NUM+(RAIN_NUM/2);i++) {
+        for (int i=SHOOT_BULLET_NUM;i<SHOOT_BULLET_NUM+(RAIN_NUM/2+RAIN_NUM/12);i++) {
           BulletAct(i);
         }
       }
@@ -1218,6 +1255,8 @@ void RainAct()
 void DrawBullet2(HDC hdc,HDC hdc2,int i,double x,double y,int color)
 {
   int c;
+  int seed=player.seed*i;
+  if (!free_will) seed=-1;
   switch (Bullet[i].graphics_type) {
     case -1: //type breakout of web
       GrCircle(hdc,x,y,2,color,LTRED);
@@ -1231,14 +1270,17 @@ void DrawBullet2(HDC hdc,HDC hdc2,int i,double x,double y,int color)
     case 2:
       GrCircle(hdc,x,y,4,color,color);
       break;
-    case 3://no fill glitery buullet
-    case 6:
+    case 3://no fill glitery bullet
       GrCircle(hdc,x,y,3,color,-1);
-      GrCircle(hdc,x,y,RandNum(0,5,frame_tick*player.seed),color,-1);
+      GrCircle(hdc,x,y,RandNum(0,5,&misc_rng_i,seed),color,-1);
       break;
     case 4: //fill glitery bullet
       GrCircle(hdc,x,y,3,color,color);
-      GrCircle(hdc,x,y,RandNum(0,5,frame_tick*player.seed),color,color);
+      GrCircle(hdc,x,y,RandNum(0,5,&misc_rng_i,seed),color,color);
+      break;
+    case 6: //spinning pellet
+      GrCircle(hdc,x,y,3,color,-1);
+      GrCircle(hdc,x,y,RandNum(0,5,&misc_rng_i,seed),color,-1);
       break;
     case 5: //long bullet 0
       {
@@ -1265,7 +1307,7 @@ void DrawBullet2(HDC hdc,HDC hdc2,int i,double x,double y,int color)
         //GrCircle(hdc,x,y,Bullet[i]->size,color,color);
         GrCircle(hdc,x,y,2,color,color);
         c=WHITE;//Highlight(IsInvertedBackground(),WHITE,BLACK);
-        GrCircle(hdc,x,y,RandNum(1,5,frame_tick*player.seed),c,-1);
+        GrCircle(hdc,x,y,RandNum(1,5,&misc_rng_i,seed),c,-1);
       }
       break;
 
@@ -1274,15 +1316,14 @@ void DrawBullet2(HDC hdc,HDC hdc2,int i,double x,double y,int color)
         //GrCircle(hdc,x,y,Bullet[i]->size,color,color);
         GrCircle(hdc,x,y,4,color,color);
         c=rgbPaint[player_pupil_color];
-        GrCircle(hdc,x,y,RandNum(1,10,frame_tick*player.seed),c,-1);
+        GrCircle(hdc,x,y,RandNum(1,10,&misc_rng_i,seed),c,-1);
         c=rgbPaint[player_iris_color];
-        GrCircle(hdc,x,y,RandNum(1,10,(player.seed+10)*(frame_tick+4)),c,-1);
+        GrCircle(hdc,x,y,RandNum(1,10,&misc_rng_i,seed),c,-1);
       }
       break;
     case 12: //no fill gliterry bullet, RAIN
       GrCircle(hdc,x,y,13,color,-1);
-      GrCircle(hdc,x,y,RandNum(0,13,frame_tick*player.seed),color,-1);
-      //DrawSprite(hdc, hdc2,x,y,&draw_snowflake_sprite,FALSE);    
+      GrCircle(hdc,x,y,RandNum(0,13,&misc_rng_i,seed),color,-1);
       break;
     case 13: //snow
       GrCircle(hdc,x,y,5,WHITE,WHITE);

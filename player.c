@@ -141,6 +141,7 @@ void InitPlayerSpritesAll()
 
   tmp_bitmap=CopyCrunchyBitmap(LoadPlayerSprite.sprite_jump,SRCCOPY);
   ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+  ReplaceBitmapColor(tmp_bitmap,LTBLUE,BLACK);
   DitherBitmapColor(tmp_bitmap,LTGREEN,BLACK);
   GenerateDrawSprite(&PlayerSprite[0].blur_sprite_jump,tmp_bitmap);
   DeleteObject(tmp_bitmap);
@@ -162,6 +163,7 @@ void InitPlayerSpritesAll()
 
     tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.spin_sprite,t_angle,BLACK);
     ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+    ReplaceBitmapColor(tmp_bitmap,LTBLUE,BLACK);
     DitherBitmapColor(tmp_bitmap,LTGREEN,BLACK);
     GenerateDrawSprite(&PlayerSprite[0].blur_spin_sprite[i],tmp_bitmap);
     DeleteObject(tmp_bitmap);
@@ -243,8 +245,8 @@ void InitPlayerSpritesAll()
   }
 
   CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,rgbColorsDefault,167,rgbPaint[player_color]);
+  CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,PlayerSprite[0].PlayerPalette,151,LTGRAY); //border
   CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,PlayerSprite[0].PlayerPalette,199,rgbPaint[player_iris_color]);
-  //CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,PlayerSprite[0].PlayerPalette,202,rgbPaint[player_iris_color]);
 }
 
 
@@ -263,6 +265,11 @@ void InitPlayerFlingWeb()
 void InitPlayer() {
   int i;
   //player.hiding=FALSE;
+  player.rng_i=0;
+  player.death_bullet_rng_i=0;
+  player.bullet_rng_i=0;
+  player.sniper_bullet_rng_i=0;
+
   player.rst_left_click=FALSE;
   player.rst_right_click=FALSE;
   player.left_click=FALSE;
@@ -378,7 +385,6 @@ void InitPlayer() {
   player.exp=0;
   player.invalid_shoot_timer=0;
 
-  player.seed=0;
   player.cam_x=0;
   player.cam_y=0;
   player.cam_move_x=0;
@@ -2533,7 +2539,9 @@ void PlayerAct()
         player.bullet_shot_num=0;
 
         for (int n=0;n<PLAYER_BULLET_NUM;n++) {
-          int rand_range=NODE_SIZE*50+NODE_SIZE*RandNum(1,5,player.seed);
+          int seed=player.seed*n;
+          if (!free_will) seed=-1;
+          int rand_range=NODE_SIZE*50+NODE_SIZE*RandNum(1,5,&player.death_bullet_rng_i,seed);
 	        player.bullet[player.bullet_shot_num]=current_bullet_id;
 
             ShootBullet(current_bullet_id,
@@ -2542,15 +2550,15 @@ void PlayerAct()
                 11, //graphics type
                 rand_range, // range
                 0.1, //speed
-	            4+RandNum(1,10,player.seed), //speed multiplier
+	            4+RandNum(1,10,&player.death_bullet_rng_i,seed), //speed multiplier
 	            10, //damage
 	            -2,
 	            player.x, //so it doest get stuck to ground
 	            player.y,
 	            player.x,
 	            player.y,
-	            player.x+RandNum(-50,50,player.seed),
-	            player.y+RandNum(-30,30,player.seed),
+	            player.x+RandNum(-50,50,&player.death_bullet_rng_i,seed),
+	            player.y+RandNum(-30,30,&player.death_bullet_rng_i,seed),
                 0         
             );
             player.bullet_shot_num++;
@@ -2686,8 +2694,8 @@ void PlayerCameraShake()
 	        if (player.speed>=5) {
               x_bob=2.5;
 	          //if (bg_cam_fall_cooldown==0) {
-	            player.cam_move_x+=0.75*RandNum(-1,1,1);//shaky cam
-	            player.cam_move_y+=0.75*RandNum(-1,1,1);
+	            player.cam_move_x+=0.75*RandNum(-1,1,&misc_rng_i,player.seed);//shaky cam
+	            player.cam_move_y+=0.75*RandNum(-1,1,&misc_rng_i,player.seed);
 	          //}
 	        } else {
               x_bob=1.5;
@@ -2713,10 +2721,10 @@ void PlayerCameraShake()
       switch (player.speed) {
          case 1:
     	 case 2:
-           x_bob=RandNum(1,2,1)*0.5;//move x	
+           x_bob=RandNum(1,2,&misc_rng_i,player.seed)*0.5;//move x	
     	   break;
     	 case 3:
-           x_bob=RandNum(1,2,1);//move x		
+           x_bob=RandNum(1,2,&misc_rng_i,player.seed);//move x		
     	   break;
       }
       if (player.rst_left) {
@@ -2727,8 +2735,8 @@ void PlayerCameraShake()
       }
       player.cam_move_y-=y_bob;//increase y
       if (player.grav>5 || (player.speed>=5 && (player.rst_left || player.rst_right))) {
-        player.cam_move_x+=RandNum(-1,1,1);//shaky x
-        player.cam_move_y+=RandNum(-1,1,1);//shaky y
+        player.cam_move_x+=RandNum(-1,1,&misc_rng_i,player.seed);//shaky x
+        player.cam_move_y+=RandNum(-1,1,&misc_rng_i,player.seed);//shaky y
       }
     }
     x_bob=0;
@@ -2795,6 +2803,10 @@ void InitPlayerCursorColor(HDC hdc,HDC hdc2) {
 
 void DrawPlayer(HDC hdc,HDC hdc2)
 {
+  if (free_will)
+    player.seed=rand();
+  else
+    player.seed=-1;
 
   //Keys to controll cursor
   if (player.rst_arrow_left) {

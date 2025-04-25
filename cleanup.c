@@ -314,8 +314,7 @@ void CleanupPlayerAttributes()
 //  player.key_jump_timer=
   player.knockback_speed_multiplier=
   player.knockback_strength=
-  player.time_breaker_tick=
-  player.seed=0;
+  player.time_breaker_tick=0;
 
   player.knockback_speed=
   player.attack_strength=

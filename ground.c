@@ -777,14 +777,14 @@ void DrawWaterTriFill(HDC hdc) {
 				Ground[i]->x2,
 				Ground[i]->y2,
 				Ground[i]->x3,
-				Ground[i]->y3,TRUE,HS_HORIZONTAL);
+				Ground[i]->y3,TRUE,HS_FDIAGONAL);
 	      DrawTriFill(hdc,c,
                 Ground[i]->x1,
 				Ground[i]->y1,
 				Ground[i]->x2,
 				Ground[i]->y2,
 				Ground[i]->x3,
-				Ground[i]->y3,TRUE,HS_BDIAGONAL);
+				Ground[i]->y3,TRUE,HS_DIAGCROSS);
       }
     }
   }
@@ -898,14 +898,14 @@ void Draw1WaterTriFill(HDC hdc,int i,int x,int y) {
 				Ground[i]->x2-x,
 				Ground[i]->y2-y,
 				Ground[i]->x3-x,
-				Ground[i]->y3-y,TRUE,HS_HORIZONTAL);
+				Ground[i]->y3-y,TRUE,HS_CROSS);
 	      DrawTriFill(hdc,c,
                 Ground[i]->x1-x,
 				Ground[i]->y1-y,
 				Ground[i]->x2-x,
 				Ground[i]->y2-y,
 				Ground[i]->x3-x,
-				Ground[i]->y3-y,TRUE,HS_BDIAGONAL);
+				Ground[i]->y3-y,TRUE,HS_DIAGCROSS);
       }
     }
 }

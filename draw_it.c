@@ -333,19 +333,27 @@ void DrawBlackBorders(HDC hdc)
     cx2=player.cam_move_x,
     cy2=player.cam_move_y;
   int x=GR_WIDTH/2+0-px+cx1+cx2;
+  GrRect(hdc,0,0,x+14,GR_HEIGHT+14,BLACK); //left rect
 
-  GrRect(hdc,0,0,x+4,GR_HEIGHT+4,BLACK);
-  x=GR_WIDTH/2+MAP_WIDTH-px+cx1+cx2-4;
+
+  x=GR_WIDTH/2+MAP_WIDTH-px+cx1+cx2-14;
   w=GR_WIDTH-(MAP_WIDTH-player.x);
   if (w>0) {
-    GrRect(hdc,x,0,w,GR_HEIGHT+4,BLACK);
+    GrRect(hdc,x,0,w,GR_HEIGHT+14,BLACK); //right rect
   }
 
-  int y=GR_HEIGHT/2+MAP_HEIGHT-py+cy1+cy2-4;
+  int //y=GR_HEIGHT/2+0-py+cy1+cy2;
+  //GrRect(hdc,0,0,GR_WIDTH+14,y+8,BLACK); //upper rect
+   
+
+  y=GR_HEIGHT/2+MAP_HEIGHT-py+cy1+cy2-14;
   l=GR_HEIGHT-(MAP_HEIGHT-player.y);
   if (l>0) {
-    GrRect(hdc,-4,y,GR_WIDTH+8,l,BLACK);
+    GrRect(hdc,-14,y,GR_WIDTH+18,l,BLACK); //lowerrect
   }
+
+
+  
 }
 
 
@@ -425,11 +433,11 @@ void DrawCursor(HDC hDC,HDC hDC2)
   int rand_shake_y=0;
   if (player.invalid_shoot_timer>0) {
     if (player.invalid_shoot_timer>7) {
-      rand_shake_x=RandNum(-10,10,player.seed);
-      rand_shake_y=RandNum(-10,10,player.seed);
+      rand_shake_x=RandNum(-10,10,&misc_rng_i,-1);
+      rand_shake_y=RandNum(-10,10,&misc_rng_i,-1);
     } else  {
-      rand_shake_x=RandNum(-5,5,player.seed);
-      rand_shake_y=RandNum(-5,5,player.seed);
+      rand_shake_x=RandNum(-5,5,&misc_rng_i,-1);
+      rand_shake_y=RandNum(-5,5,&misc_rng_i,-1);
     }
   }
 

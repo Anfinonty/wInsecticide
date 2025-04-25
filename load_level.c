@@ -44,7 +44,7 @@ void AdjustGameAudio()
   adjustSFXVolume(&spamSoundEffectCache[7],&spamSoundEffect[7],game_volume,FALSE); //clang
   adjustSFXVolume(&spamSoundEffectCache[8],&spamSoundEffect[8],game_volume/3,FALSE); //powerup
 
-  adjustSFXVolume(&channelSoundEffectCache[0],&channelSoundEffect[0],game_volume/3,TRUE); //speed
+  adjustSFXVolume(&channelSoundEffectCache[0],&channelSoundEffect[0],game_volume,TRUE); //player death
   adjustSFXVolume(&channelSoundEffectCache[1],&channelSoundEffect[1],game_volume/2+game_volume/10,TRUE); //death //clang_death
   adjustSFXVolume(&channelSoundEffectCache[2],&channelSoundEffect[2],game_volume,TRUE); //knife throw
   adjustSFXVolume(&channelSoundEffectCache[3],&channelSoundEffect[3],game_volume/10,TRUE); //rain
@@ -337,7 +337,7 @@ void InitLevel(bool load_lvl)
       in_main_menu=FALSE;
 //      flag_not_in_main_menu=TRUE;
     } else {
-      int dice=abs(RandNum(0,100,frame_tick));
+      int dice=abs(RandNum(0,100,&misc_rng_i,-1));
     //printf("in demo:dice,%d",dice);
       if (dice<30) {
         if (dice>15) {

@@ -1663,9 +1663,6 @@ void DrawTriFill(HDC hdc, int tri_color, double x1,double y1,double x2,double y2
   DeleteObject(hPen);
 }
 
-
-
-
 void DrawPaletteSquare(HDC hdc,int move_x,int move_y)
 {
   int size=8;

@@ -245,7 +245,6 @@ struct player
   int knockback_strength;
   int time_breaker_tick;
   int decceleration_timer;
-  int seed;
   int fast_duration;
   int shoot_knife_duration;
 
@@ -263,6 +262,14 @@ struct player
   int exp;
 
   int sprite_angle;
+
+
+  int rng_i;
+  int death_bullet_rng_i;
+  int bullet_rng_i;
+  int sniper_bullet_rng_i;
+
+  int seed;
 
   int blur_timer[PLAYER_BLUR_NUM];
   int blur_x[PLAYER_BLUR_NUM];
@@ -463,7 +470,6 @@ ANode **NodeGrid;
 int GetGridId(int x,int y,int width, int size,int max);
 void SetGridLineArray(int grid_id,int ground_id);
 void UnSetGridLineArray(int grid_id,int ground_id);
-//void InitGridTiles(const wchar_t *lvl_name);
 void DrawCreateTiles(HDC hdc);
 void InitGrid();
 void InitRDGrid();
@@ -478,7 +484,6 @@ void DrawNodeGrids(HDC hdc);
 void DrawShadows2(HDC hdcSrc,HDC hdcDest,int x,int y,bool t);
 void CreatePlatformShadowBitmap(HDC hdc,double rise,double run,int color);
 //void DrawGrid(HDC hdc);
-//bool IsCollideSolid(double x1,double y1,double x2,double y2,double gradient,double c);
 
 
 
@@ -510,6 +515,8 @@ struct Bullet
   int saved_ground_id;
   int saved_node_grid_id;
   int bounce_timer;
+
+  int rng_i;
 
   double oangle;
   double oscilating_angle;
@@ -692,10 +699,22 @@ typedef struct enemy
   int on_ground_id;
   int on_ground_edge_id;
   int knockback_timer;
-  int seed;
   int damage_taken_timer;
   int on_ground_timer;
   int pathfinding_id;
+
+  int rng_i; //rng index doesnt interfere others
+  int flying_rng_i;
+  int target_rng_i;
+  int target_player_rng_i;
+  int bullet_rng_i;
+  int dazzle_rng_i;
+  int timebreaker_rng_i;
+  int bullet_aim_rand_rng_i;
+  int bullet_stuck_rng_i;
+  int idle_rng_i;
+
+  int seed;
 
   int sprite_x;
   int sprite_y;
@@ -1137,10 +1156,10 @@ HBITMAP mm0_kh_mask[4];
 HBITMAP mm0_kh_green[4];
 HBITMAP mm0_kh_white[4];
 
-HBITMAP mm2_kh[15];
-HBITMAP mm2_kh_mask[15];
-HBITMAP mm2_kh_green[15];
-HBITMAP mm2_kh_white[15];
+HBITMAP mm2_kh[16];
+HBITMAP mm2_kh_mask[16];
+HBITMAP mm2_kh_green[16];
+HBITMAP mm2_kh_white[16];
 
 HBITMAP mm0_kh_hijri[2];
 HBITMAP mm0_kh_hijri_mask[2];
@@ -1194,6 +1213,10 @@ wavSoundEffectCache channelSoundEffectCache[CHANNEL_SFX_NUM];
 
 //Global blend function for transparency
 BLENDFUNCTION gblendFunction;
-
 void SaveLvlBmp(HWND hwnd,HDC hdc,const wchar_t *lvl_name);
 
+
+
+//rng values
+int weather_rng_i=0;
+int misc_rng_i=0;

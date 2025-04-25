@@ -47,6 +47,7 @@ void KeyChangePlayerColor()
        player.flag_revert_palette=TRUE;
        player.time_breaker_tick=0;
        CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,rgbColorsDefault,167,rgbPaint[player_color]);
+       CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,PlayerSprite[0].PlayerPalette,151,LTGRAY); //border
        CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,PlayerSprite[0].PlayerPalette,199,rgbPaint[player_iris_color]);
 
 
@@ -1127,6 +1128,26 @@ void OptionKeyPressRight(HWND hwnd, int option_choose)
          flag_difficulty_change=TRUE;
          break;
 
+       case 15: //toggle free will
+         if (game_audio) {
+           if (free_will)
+             PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
+           else
+             PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
+         }
+         free_will=!free_will;
+         if (!free_will) {
+          for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+            CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,199,LTRED); 
+          }
+         } else {
+          for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+            CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,199,LTCYAN); 
+          }
+         }
+         player.time_breaker_tick=0;
+         player.flag_revert_palette=TRUE;
+         break;
 
     }
 }
@@ -1295,6 +1316,27 @@ void OptionKeyPressLeft(HWND hwnd,int option_choose)
          flag_difficulty_change=TRUE;
          break;
 
+
+       case 15: //toggle free will
+         if (game_audio) {
+           if (free_will)
+             PlaySound(keySoundEffectCache[2].audio,NULL,SND_MEMORY | SND_ASYNC); //false
+           else
+             PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
+         }
+         free_will=!free_will;
+         if (!free_will) {
+          for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+            CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,199,LTRED); 
+          }
+         } else {
+          for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+            CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,199,LTCYAN); 
+          }
+         }
+         player.time_breaker_tick=0;
+         player.flag_revert_palette=TRUE;
+         break;
 
 
     }

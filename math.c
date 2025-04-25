@@ -1,4 +1,6 @@
 
+#include "math_randnum.c"
+
 //Solar Hijri Time for Drawing
 int solar_sec=0,solar_min=0,solar_hour=0,solar_day=0,solar_month=0,solar_year=0,solar_day_of_week=0;
 double solar_angle_day=0;
@@ -508,20 +510,32 @@ void PersiaLunarTime(int64_t _seconds,
 
 //Maths
 //public_seed = rand() in WM_PAINT
-int RandNum(int min, int max,int seed) {
-  //srand(int_current_timestamp());
+int RandNum(int min, int max, int *global_rand_i,int seed) {
   int m=0;
   if (min<0) {
     m=min-1;
   }
-  return (rand()*seed)%(max-m + 1) + m;
+  if (seed!=-1) {
+    return (rand()+seed)%(max-m + 1) + m;
+  }
+  return (myrand(global_rand_i))%(max-m + 1) + m;
 }
 
 
 
-double RandAngle(int min, int max, int seed) {
-  return RandNum(min,max,seed)*M_PI/180;
+double RandAngle(int min, int max, int *global_rand_i,int seed) {
+  return RandNum(min,max,global_rand_i,seed)*M_PI/180;
 }
+
+
+/*int FreeWillRandNum(int min,int max,int seed)
+{
+  int m=0;
+  if (min<0) {
+    m=min-1;
+  }
+  return (seed)%(max-m + 1) + m;
+}*/
 
 
 //----------------------------------------

@@ -277,7 +277,7 @@ void DrawCreateTiles(HDC hdc)
 
     loading_tile_grid_prog=0;
     level_loading=FALSE;
-    level_loaded=TRUE;
+    level_loaded=TRUE; //start game
     if (back_to_menu) {
       back_to_menu=FALSE;
     }
@@ -957,12 +957,12 @@ void DrawNodeGrids(HDC hdc)
     y=NodeGrid[i]->y1+player.cam_y+player.cam_move_y;
     //dist=GetDistance(player.x,player.y,x,y);
     //if (dist<GR_WIDTH) {
-      //if (NodeGrid[i]->node_no_rain) //solid trifill
-        //GrCircle(hdc,x,y,3,YELLOW,-1);
-      //if (NodeGrid[i]->node_no_shade)
-        //GrCircle(hdc,x,y,3,BLUE,-1);
-      if (NodeGrid[i]->node_solid)
-        GrCircle(hdc,x,y,3,LTRED,-1);
+      if (NodeGrid[i]->node_no_rain) //solid trifill
+        GrCircle(hdc,x,y,3,YELLOW,-1);
+      if (NodeGrid[i]->node_no_shade)
+        GrCircle(hdc,x,y,3,BLUE,-1);
+      //if (NodeGrid[i]->node_solid)
+        //GrCircle(hdc,x,y,3,LTRED,-1);
     //}
     /*if (NodeGrid[i]->tmp_wet)
       GrCircle(hdc,NodeGrid[i]->x1+player.cam_x,NodeGrid[i]->y1+player.cam_y,3,BLUE,-1);*/

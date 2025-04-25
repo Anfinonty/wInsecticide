@@ -509,7 +509,7 @@ void LoadOptions()
       player_pupil_color=12;
       game_cam_shake=0;
       game_audio=1;
-      game_volume=1.0000;
+      game_volume=0.2000;
       wav_out_volume=0.5000; //scrapped
       yes_unifont=1;
       game_shadow=1;
@@ -519,6 +519,7 @@ void LoadOptions()
       show_hijiri=0;
       is_khmer=0;
       game_hard=0;
+      free_will=0;
       return;
   }
 
@@ -598,6 +599,9 @@ void LoadOptions()
           break;
         case 14:
           game_hard=int_saved_val;
+          break;
+        case 15:
+          free_will=int_saved_val;
           break;
       }
       //printf("row:%d,option:%d,%5.4f\n",row,int_saved_val,double_saved_val);

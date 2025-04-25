@@ -358,13 +358,10 @@ void applyMidEQGain(int16_t* buffer, int bufferSize, double gain, double centerF
 
 
 
-//largest buffer reserved for slack only
-//#define AUDIO_STREAM_BUFFER_SIZE     32768
-#define AUDIO_STREAM_BUFFER_SIZE0    16384 //2048//8192//16384//524288//8192//4096//524288//4096   8192 or 16384
+#define READ_BUFFER_NUM    20
 #define AUDIO_STREAM_BUFFER_SIZE1    8192  //2048//8192//16384//524288//8192//4096//524288//4096   8192 or 16384
 #define AUDIO_STREAM_BUFFER_SIZE2    4096
 #define AUDIO_STREAM_BUFFER_SIZE3    2048
-#define READ_BUFFER_NUM    20
 
 
 const long _buffer_size0=AUDIO_STREAM_BUFFER_SIZE0*sizeof(int16_t);
@@ -1048,7 +1045,7 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
                   if (!skip_song[z] && !skipping_song[z]) {
                     switch (song_mode[z]) {
                       case 0: //play songs shuffle
-                        song_rand_num[z]=RandNum(0,song_num-1,1);
+                        song_rand_num[z]=RandNum(0,song_num-1,&misc_rng_i,-1);
                         break;
                       case 1: //Play Songs acending
                         song_rand_num[z]=LimitValue(song_rand_num[z]+1,0,song_num);
@@ -1227,6 +1224,5 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
     }
   } //end of while loop
 }
-
 
 

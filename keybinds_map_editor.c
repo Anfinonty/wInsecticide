@@ -23,12 +23,12 @@ void UpdateMEDrawSprite()
         MEEnemySprite[ei]->sprite_1=CopyCrunchyBitmap(enemy4_sprite_1,SRCCOPY);
         break;
       case 4:
-        MEEnemySprite[ei]->sprite_1=CopyCrunchyBitmap(enemy5_sprite_1,LTGREEN);
+        MEEnemySprite[ei]->sprite_1=CopyCrunchyBitmap(enemy5_sprite_1,SRCCOPY);
         break;
       case 5:
       case 6:
       case 7:
-        MEEnemySprite[ei]->sprite_1=CopyCrunchyBitmap(enemy6_sprite_1,LTGREEN);
+        MEEnemySprite[ei]->sprite_1=CopyCrunchyBitmap(enemy6_sprite_1,SRCCOPY);
         break;
     }
 

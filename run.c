@@ -105,7 +105,7 @@ bool game_cam_shake=FALSE;
 bool game_audio=TRUE;
 bool game_shadow=TRUE;
 bool has_water=FALSE;
-
+bool free_will=TRUE;
 
 //game state
 bool hide_taskbar=FALSE;
@@ -305,7 +305,7 @@ bool is_khmer=TRUE;
 #define PLAYER_BULLET_NUM 36//24//16
 #define PLAYER_FLING_WEB_NUM    64//32
 
-#define GAME_OPTIONS_NUM    15
+#define GAME_OPTIONS_NUM    16
 #define PLAYER_BLUR_NUM     2
 
 #include "gr.c"
@@ -1066,6 +1066,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       FrameRateSleep(FPS); // (Uncapped) //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
       if (!IsIconic(hwnd)) //no action when minimized, prevents crash https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-isiconic?redirectedfrom=MSDN
       {
+        //RandIndexIncrement();
         if (mouse_wheel_timer>0) {
           mouse_wheel_timer--;
           if (mouse_wheel_timer==1) {
@@ -1264,7 +1265,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               //GrPrint(hdcBackbuff,GR_WIDTH/2-25*4,GR_HEIGHT-72,"Press Any Key to Continue",WHITE);
             //}
           }
-          DrawCursor(hdcBackbuff,hdcBackbuff2);
+          //DrawCursor(hdcBackbuff,hdcBackbuff2);
 
           BitBlt(hdc, 0, 0, 640,440, hdcBackbuff, 0, 0,  SRCCOPY);
           DeleteDC(hdcBackbuff2);
@@ -1343,8 +1344,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               player.cam_move_y=0;
             }
 
-            player.seed=rand();
-
+ 
             if (level_loaded && flag_restart) { // restart level when player health hits 0 or VK_RETURN
               flag_restart_audio=TRUE;
               Init();
@@ -1359,19 +1359,29 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DrawBackground(hdcBackbuff,hdcBackbuff2);
             DrawWaterPlatformsTexture(hdcBackbuff,hdcBackbuff2);
             DrawPlatforms(hdcBackbuff,hdcBackbuff2);
-            DrawBlackBorders(hdcBackbuff);
             DrawWebs(hdcBackbuff);
             DrawEnemy(hdcBackbuff,hdcBackbuff2);
             DrawPlayer(hdcBackbuff,hdcBackbuff2);
             if (has_water) {
               DrawWaterPlatforms(hdcBackbuff,hdcBackbuff2);
             }
+            //Draw Bullets;
             //DrawNodeGrids(hdcBackbuff); //debugging
 
 
             if (is_shadows && game_shadow) {
               DrawShadows(hdcBackbuff,hdcBackbuff2);
             }
+
+          //DrawGrids(hdcBackbuff); //debugging
+            //DrawWaterShader(hdcBackbuff,hdcBackbuff2);
+            if (map_weather>0) {
+              DrawRain(hdcBackbuff,hdcBackbuff2);
+              /*if (!player.in_water) {
+                DrawRainShader(hdcBackbuff,hdcBackbuff2);
+              }*/
+            }
+            DrawBlackBorders(hdcBackbuff);
 
             DrawUI(hdcBackbuff,hdcBackbuff2);
             if (player.health>0) {
@@ -1384,7 +1394,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               pc=rgbPaint[player_iris_color];
               if (player.bullet_shot_num>0) {
                 if (!player.rst_left_click) {
-                  GrCircle(hdcBackbuff,mouse_x,mouse_y,RandNum(1,5,(player.seed+10)*(frame_tick+4)),pc,pc);
+                  GrCircle(hdcBackbuff,mouse_x,mouse_y,RandNum(1,5,&misc_rng_i,-1),pc,pc);
                 } else {
                   GrCircle(hdcBackbuff,mouse_x,mouse_y,5,pc,pc);
                 }
@@ -1392,14 +1402,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                 call_help_timer=0;
               }
             }
-          //DrawGrids(hdcBackbuff); //debugging
-            //DrawWaterShader(hdcBackbuff,hdcBackbuff2);
-            if (map_weather>0) {
-              DrawRain(hdcBackbuff,hdcBackbuff2);
-              /*if (!player.in_water) {
-                DrawRainShader(hdcBackbuff,hdcBackbuff2);
-              }*/
-            }
+
 
 
             int c=BLACK;
@@ -1458,8 +1461,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DrawMapEditorUI(hdcBackbuff,hdcBackbuff2);
             DrawCursor(hdcBackbuff,hdcBackbuff2);
 
-            player.seed=rand();
-
             if (hide_taskbar) {
               BitBlt(hdc, SCREEN_WIDTH/2-RESOLUTION_X[resolution_choose]/2, 
                             SCREEN_HEIGHT/2-RESOLUTION_Y[resolution_choose]/2, 
@@ -1514,8 +1515,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             DrawCursor(hdcBackbuff,hdcBackbuff2);
             DrawMMExtraKeys(hdcBackbuff);
-
-            player.seed=rand();
             if (hide_taskbar) {
               BitBlt(hdc, SCREEN_WIDTH/2-RESOLUTION_X[resolution_choose]/2, 
                             SCREEN_HEIGHT/2-RESOLUTION_Y[resolution_choose]/2, 
@@ -2233,7 +2232,7 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
       }
 
 
-      for (int i=0;i<15;i++) { //options
+      for (int i=0;i<16;i++) { //options
         wchar_t mm2khtxt[32];
         swprintf(mm2khtxt,32,L"sprites/khmai/mm2kh_%d.bmp",i);
         mm2_kh[i]=(HBITMAP) LoadImageW(NULL, mm2khtxt, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
@@ -2318,11 +2317,11 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
 //       loadSoundEffect(&keySoundEffect[6],L"snd/FE_MB_16.wav",FALSE); //Paint Confirm Sound Effect --> [6]
        loadSoundEffect(&keySoundEffect[6],L"snd/player_paint_confirm.wav",FALSE); //Paint Confirm Sound Effect --> [6]
 
-       loadSoundEffect(&channelSoundEffect[0],L"snd/fast.wav",TRUE);
+       loadSoundEffect(&channelSoundEffect[0],L"snd/player_death_.wav",TRUE);
        loadSoundEffect(&channelSoundEffect[1],L"snd/flesh_bloody_break.wav",TRUE);
        loadSoundEffect(&channelSoundEffect[2],L"snd/knife_throw.wav",TRUE);
-       loadSoundEffect(&channelSoundEffect[3],L"snd/rain2classic.wav",TRUE);
-       loadSoundEffect(&channelSoundEffect[4],L"snd/rain2classic.wav",TRUE);
+       loadSoundEffect(&channelSoundEffect[3],L"snd/rain2classic.wav",TRUE); //deprecated
+       loadSoundEffect(&channelSoundEffect[4],L"snd/rain2classic.wav",TRUE); //deprecated
        loadSoundEffect(&channelSoundEffect[5],L"snd/shotgun.wav",TRUE);
        loadSoundEffect(&channelSoundEffect[6],L"snd/sniper.wav",TRUE);
        loadSoundEffect(&channelSoundEffect[7],L"snd/shtgnreload.wav",TRUE);
@@ -2355,12 +2354,9 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
        waveOutOpen(&hWaveOut[0], WAVE_MAPPER, &wfx_wav_sfx, 0, 0, CALLBACK_NULL);
        waveOutPrepareHeader(hWaveOut[0], &whdr[0], sizeof(WAVEHDR));
 
-       //player fast audio
+       //player death audio
        waveOutOpen(&hWaveOut[1], WAVE_MAPPER, &wfx_wav_sfx, 0, 0, CALLBACK_NULL);
        waveOutPrepareHeader(hWaveOut[1], &whdr[1], sizeof(WAVEHDR));
-
-      //[2] is reserved for song
-      //
 
        //knife throw ,shotgun , sniper 11052hz
        waveOutOpen(&hWaveOut[3], WAVE_MAPPER, &wfx_wav_sfx, 0, 0, CALLBACK_NULL);
@@ -2507,10 +2503,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   HANDLE thread1=CreateThread(NULL,0,AnimateTask01,NULL,0,NULL); //Spawm Game Logic Thread
   HANDLE thread2=CreateThread(NULL,0,AnimateTask02,NULL,0,NULL); //Spawm Game Logic Thread
   HANDLE thread3=CreateThread(NULL,0,SoundTask,NULL,0,NULL); //Spawn Song Player Thread
-
-
-  //bruh, sound engine is INEVITABLE
-  HANDLE thread4=CreateThread(NULL,0,SoundBulletTask,NULL,0,NULL);
+  HANDLE thread4=CreateThread(NULL,0,SpamSoundTask,NULL,0,NULL);
 
 
   //HANDLE thread4=CreateThread(NULL,0,AnimateAVI,NULL,0,NULL); //Spawm Game Logic Thread

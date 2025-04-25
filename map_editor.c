@@ -583,12 +583,12 @@ void InitMapEditorEnemy()
         MEEnemySprite[i]->sprite_1=CopyCrunchyBitmap(enemy4_sprite_1,SRCCOPY);
         break;
       case 4:
-        MEEnemySprite[i]->sprite_1=CopyCrunchyBitmap(enemy5_sprite_1,LTGREEN);
+        MEEnemySprite[i]->sprite_1=CopyCrunchyBitmap(enemy5_sprite_1,SRCCOPY);
         break;
       case 5:
       case 6:
       case 7:
-        MEEnemySprite[i]->sprite_1=CopyCrunchyBitmap(enemy6_sprite_1,LTGREEN);
+        MEEnemySprite[i]->sprite_1=CopyCrunchyBitmap(enemy6_sprite_1,SRCCOPY);
         break;
     }
 
@@ -971,7 +971,7 @@ void MapEditorAct()
 
         if (q>-1 && q<ENEMY_TYPE_NUM) {
           if (set_enemy_type_time_breaker_length[q]>0) {
-            dice=RandNum(0,set_enemy_type_time_breaker_rare[q],player.seed);
+            dice=RandNum(0,set_enemy_type_time_breaker_rare[q],&misc_rng_i,-1);
             if (dice==1) {
               slash_time=set_enemy_type_time_breaker_length[q];
             }
@@ -1033,8 +1033,8 @@ void MapEditorAct()
                   for (int j=0;j<set_enemy_type_bullet_fire_at_once[q];j++) {//shoot several bullets at once
 	                    //MapEditor.bullet_head_x[j]=8+RandNum(-set_enemy_type_aim_rand[q],set_enemy_type_aim_rand[q],player.seed);
 	                    //MapEditor.bullet_head_y[j]=32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM)+16*3+RandNum(-set_enemy_type_aim_rand[q],set_enemy_type_aim_rand[q],player.seed);
-	                  MapEditor.bullet_head_x[j]=mouse_x+RandNum(-set_enemy_type_aim_rand[q],set_enemy_type_aim_rand[q],player.seed);
-	                  MapEditor.bullet_head_y[j]=mouse_y+RandNum(-set_enemy_type_aim_rand[q],set_enemy_type_aim_rand[q],player.seed);
+	                  MapEditor.bullet_head_x[j]=mouse_x+RandNum(-set_enemy_type_aim_rand[q],set_enemy_type_aim_rand[q],&misc_rng_i,-1);
+	                  MapEditor.bullet_head_y[j]=mouse_y+RandNum(-set_enemy_type_aim_rand[q],set_enemy_type_aim_rand[q],&misc_rng_i,-1);
                   }
 	            }
 

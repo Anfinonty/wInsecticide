@@ -18,33 +18,33 @@ struct screenraindrop
 
 void InitScreenRainDrop()
 {
-  for (int i=0;i<SC_RAINDROP_NUM;i++) {
-    sc_raindrop[i].x=RandNum(-20,GR_WIDTH+20,player.seed);
-    sc_raindrop[i].oy=RandNum(-20,GR_HEIGHT+20,player.seed);
+  /*for (int i=0;i<SC_RAINDROP_NUM;i++) {
+    sc_raindrop[i].x=RandNum(-20,GR_WIDTH+20,&misc_rng_i);
+    sc_raindrop[i].oy=RandNum(-20,GR_HEIGHT+20,&misc_rng_i);
     sc_raindrop[i].y=sc_raindrop[i].oy;
-    sc_raindrop[i].speed=RandNum(2,10,player.seed)*0.1;
-    sc_raindrop[i].olifetime=RandNum(50,200,player.seed);
+    sc_raindrop[i].speed=RandNum(2,10,&misc_rng_i)*0.1;
+    sc_raindrop[i].olifetime=RandNum(50,200,&misc_rng_i);
     sc_raindrop[i].lifetime=sc_raindrop[i].olifetime;
-  }
+  }*/
 }
 
 
 void ScreenRainDropAct()
 {
-  for (int i=0;i<SC_RAINDROP_NUM;i++) {
+  /*for (int i=0;i<SC_RAINDROP_NUM;i++) {
     if (sc_raindrop[i].lifetime>0) {
       sc_raindrop[i].lifetime--;
       sc_raindrop[i].y+=sc_raindrop[i].speed;
       sc_raindrop[i].oy+=sc_raindrop[i].speed/3;
     } else {
-      sc_raindrop[i].x=RandNum(-20,GR_WIDTH+20,player.seed);
-      sc_raindrop[i].oy=RandNum(-20,GR_HEIGHT+20,player.seed);
+      sc_raindrop[i].x=RandNum(-20,GR_WIDTH+20,&misc_rng_i);
+      sc_raindrop[i].oy=RandNum(-20,GR_HEIGHT+20,&misc_rng_i);
       sc_raindrop[i].y=sc_raindrop[i].oy;
-      sc_raindrop[i].speed=RandNum(2,10,player.seed)*0.1;
-      sc_raindrop[i].olifetime=RandNum(50,200,player.seed);
+      sc_raindrop[i].speed=RandNum(2,10,&misc_rng_i)*0.1;
+      sc_raindrop[i].olifetime=RandNum(50,200,&misc_rng_i);
       sc_raindrop[i].lifetime=sc_raindrop[i].olifetime;
     }
-  } 
+  } */
 }
 
 
@@ -1322,6 +1322,30 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
         }
       }
 
+
+
+
+      c=Highlight((option_choose==15),WHITE,LTGREEN);
+      if (is_khmer) {
+        DrawMM2Kh(hdc,hdc2,30,10+soptions_y+16*15,34,11,15);
+      } else {
+        GrPrint(hdc,30,10+soptions_y+16*15,"Free Will:",c);
+      }
+
+      if (is_khmer) {
+        if (free_will) { //វាសនា
+          DrawKhBool(hdc,hdc2,30+20*8,10+soptions_y+16*15-4,0,(option_choose==15));
+        } else {
+          DrawKhBool(hdc,hdc2,30+20*8,10+soptions_y+16*15-4,1,(option_choose==15));
+        }        
+      } else {
+        if (free_will) {
+          GrPrint(hdc,30+20*8,10+soptions_y+16*15,"<ON>",c);
+        } else {
+          GrPrint(hdc,30+20*8,10+soptions_y+16*15,"<OFF>",c);
+        }
+      }
+
       //===========================
 
       //int add_option_choose=0;
@@ -1337,19 +1361,19 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
 
       if (is_khmer) {
         if (hide_taskbar) {
-          GrPrint(hdc,30,main_menu_y+10+16*21,"[SHIFT_ESC]:",WHITE);
-          DrawBitmap(hdc,hdc2,30+8*13,main_menu_y+10+16*21,0,0,47,19,kh_goback_mask,SRCAND,FALSE,FALSE);
-          DrawBitmap(hdc,hdc2,30+8*13,main_menu_y+10+16*21,0,0,47,19,kh_goback,SRCPAINT,FALSE,FALSE);
+          GrPrint(hdc,30,main_menu_y+10+16*21+8,"[SHIFT_ESC]:",WHITE);
+          DrawBitmap(hdc,hdc2,30+8*13,main_menu_y+10+16*21+8,0,0,47,19,kh_goback_mask,SRCAND,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,30+8*13,main_menu_y+10+16*21+8,0,0,47,19,kh_goback,SRCPAINT,FALSE,FALSE);
         } else {
-          GrPrint(hdc,30,main_menu_y+10+16*20,"[SHIFT_ESC]:",WHITE);
-          DrawBitmap(hdc,hdc2,30+8*13,main_menu_y+10+16*20,0,0,47,19,kh_goback_mask,SRCAND,FALSE,FALSE);
-          DrawBitmap(hdc,hdc2,30+8*13,main_menu_y+10+16*20,0,0,47,19,kh_goback,SRCPAINT,FALSE,FALSE);
+          GrPrint(hdc,30,main_menu_y+10+16*20+8,"[SHIFT_ESC]:",WHITE);
+          DrawBitmap(hdc,hdc2,30+8*13,main_menu_y+10+16*20+8,0,0,47,19,kh_goback_mask,SRCAND,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,30+8*13,main_menu_y+10+16*20+8,0,0,47,19,kh_goback,SRCPAINT,FALSE,FALSE);
         }
       } else {
         if (hide_taskbar)
-          GrPrint(hdc,30,main_menu_y+10+16*21,"[SHIFT_ESC]: Back.",WHITE);
+          GrPrint(hdc,30,main_menu_y+10+16*21+8,"[SHIFT_ESC]: Back.",WHITE);
         else
-          GrPrint(hdc,30,main_menu_y+10+16*20,"[SHIFT_ESC]: Back.",WHITE);
+          GrPrint(hdc,30,main_menu_y+10+16*20+8,"[SHIFT_ESC]: Back.",WHITE);
       }
 
       break;
