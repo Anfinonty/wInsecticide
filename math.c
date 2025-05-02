@@ -952,3 +952,34 @@ double GetMarbleAngle(double angle1,double angle2)
   return ans;
 }
 
+
+void LoadRngTable(wchar_t *rng_table_name)
+{
+  if (!FileExists(rng_table_name)) {
+    for (int i=0;i<RAND_NUM;i++) {
+      rng_table[i]=0;
+    }
+  } else {
+    int c,row=0; //each character
+    int int_val=0,int_saved_val=0;
+    FILE *fptr;
+    fptr = _wfopen(rng_table_name,L"r");
+
+    while ((c=fgetwc(fptr))!=WEOF) {
+      if (c!=',') {
+        if (c>='0' && c<='9') {
+          int_val=c-'0';
+          int_saved_val*=10;
+          int_saved_val+=int_val;
+        }
+      } else {
+        rng_table[row]=int_saved_val;
+        int_saved_val=0;
+        row++;
+      }
+    } 
+    fclose(fptr);
+  }
+}
+
+

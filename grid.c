@@ -382,6 +382,7 @@ void InitNodeGrid()
     NodeGrid[i]->non_web=FALSE;
     NodeGrid[i]->node_water=FALSE;
     NodeGrid[i]->node_no_rain=FALSE;
+    NodeGrid[i]->node_fire=FALSE;
     NodeGrid[i]->node_no_shade=FALSE;
     NodeGrid[i]->tmp_wet=FALSE;
     NodeGrid[i]->x1=x;
@@ -575,7 +576,7 @@ void SetNodeGridAttributes2(int i)
 //for saving level
 void TriFillGridType(int gid, int part)
 {
-  if (Ground[gid]->type==1 || Ground[gid]->type==3) {
+  if (Ground[gid]->type==1 || (Ground[gid]->type>=3 && Ground[gid]->type<=7)) {
     double
         gradient_middle1,gradient_middle2,gradient_largest,
         c_middle1,c_middle2,c_largest,
@@ -706,7 +707,7 @@ void TriFillNodeGridType(int gid)
 */
 
 
-  if (Ground[gid]->type==1 || Ground[gid]->type==3) {
+  if (Ground[gid]->type==1 || (Ground[gid]->type>=3 && Ground[gid]->type<=7)) {
   double
       gradient_middle1,gradient_middle2,gradient_largest,
       c_middle1,c_middle2,c_largest,
@@ -767,10 +768,15 @@ void TriFillNodeGridType(int gid)
 
       k=GetGridId(x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
       if (k!=-1) {
-        if (Ground[gid]->type==1) {
+        if (Ground[gid]->type==1) { //trifill water
           NodeGrid[k]->node_water=TRUE;
           NodeGrid[k]->node_no_rain=TRUE;
-        } else if (Ground[gid]->type==3) {
+        } else if (Ground[gid]->type==3 || Ground[gid]->type==5) { //trifill solid
+          NodeGrid[k]->node_solid=TRUE;
+          NodeGrid[k]->node_no_rain=TRUE;
+          NodeGrid[k]->non_web=TRUE; //toggle node_solid to false
+        } else if (Ground[gid]->type==7) { //fire
+          NodeGrid[k]->node_fire=TRUE;
           NodeGrid[k]->node_no_rain=TRUE;
         }
       }
@@ -790,10 +796,15 @@ void TriFillNodeGridType(int gid)
 
       k=GetGridId(x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
       if (k!=-1) {
-        if (Ground[gid]->type==1) {
+        if (Ground[gid]->type==1) { //water trifill
           NodeGrid[k]->node_water=TRUE;
           NodeGrid[k]->node_no_rain=TRUE;
-        } else if (Ground[gid]->type==3) {
+        } else if (Ground[gid]->type==3 || Ground[gid]->type==5) {//solid trifill
+          NodeGrid[k]->node_solid=TRUE;
+          NodeGrid[k]->node_no_rain=TRUE;
+          NodeGrid[k]->non_web=TRUE;
+        } else if (Ground[gid]->type==7) { //fire trifill
+          NodeGrid[k]->node_fire=TRUE;
           NodeGrid[k]->node_no_rain=TRUE;
         }
       }
@@ -819,8 +830,7 @@ void SetNodeGridAttributes(int i)
           NodeGrid[node_grid_id]->non_web=TRUE;
         }
       }
-      //for (int n=0;n<8;n++) {
-      for (int n=0;n<4;n++) {
+      /*for (int n=0;n<4;n++) {
         double llg_x,llg_y;
         switch (n) {
           case 0:llg_x=x-NODE_SIZE;llg_y=lg_y-NODE_SIZE;break;
@@ -845,7 +855,7 @@ void SetNodeGridAttributes(int i)
               }
             }
           }
-        }
+        }*/
 
 
     }
@@ -896,15 +906,11 @@ void SetNodeGridAttributes(int i)
       }
     }
   }
-  if (Ground[i]->type==3 || Ground[i]->type==1) {//triangle
+  if ((Ground[i]->type>=3 && Ground[i]->type<=7) || Ground[i]->type==1) {//triangle
     SetNodeGridAttributes2(i);
   }
-  if (Ground[i]->type==3 || Ground[i]->type==1) { //water trifill
+  if ((Ground[i]->type>=3 && Ground[i]->type<=7) || Ground[i]->type==1) { //water and fire, etc trifill
     TriFillNodeGridType(i);
-
-    if (Ground[i]->type==1) {
-      WATER_GROUND_NUM++;
-    }
   }
 }
 
@@ -915,18 +921,6 @@ void InitNodeGridAttributes()
   for (int i=0;i<GROUND_NUM;i++) {
     SetNodeGridAttributes(i);
   }
-
-  //for water
-  rendered_water_ground=calloc(WATER_GROUND_NUM,sizeof(int));
-  int ci=0;
-  for (int i=0;i<GROUND_NUM;i++) {
-    if (Ground[i]->type==1) {
-      rendered_water_ground[ci]=i;
-      ci++;
-    }
-  }
-
-
   //render shade
   InitNodeShade();
 }

@@ -38,7 +38,6 @@ typedef struct WavSoundEffectCache //for sound whoese volume that needs to be ad
 
 //largest buffer reserved for slack only
 //#define AUDIO_STREAM_BUFFER_SIZE     32768
-#define AUDIO_STREAM_BUFFER_SIZE0    16384 //2048//8192//16384//524288//8192//4096//524288//4096   8192 or 16384
 
 /*typedef struct SFXData
 {

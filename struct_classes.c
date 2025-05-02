@@ -50,33 +50,34 @@ AGround **Ground;
 
 
 
-/*typedef struct GroundLineFire
+typedef struct GroundLineFire
 {
   int ground_id;
+  int rng_i;
+  int rand_tip_x;
+  int rand_tip_y;
+  int tick;
 } AGroundFire;
 
 
-//AGroundFire *createGround()
+AGroundFire *createGroundFire()
 {
   AGroundFire *toReturn = malloc(sizeof(AGroundFire));
   return toReturn;
 }
 
 
-void freeGround(AGround *myGround)
+void freeGroundFire(AGroundFire *myGroundFire)
 {
-  if (myGround)
-    free(myGround);
+  if (myGroundFire)
+    free(myGroundFire);
 }
 
 
 void InitGroundFire();
 void FireGroundAct();
 
-
-int *AGroundFire;
-
-*/
+AGroundFire** GroundFire;
 
 
 
@@ -104,7 +105,7 @@ void Draw1WaterTriFill(HDC hdc, int i,int x,int y);
 
 //gameplay only
 int *rendered_water_ground;
-
+//int *rendered_fire_ground;
 
 
 
@@ -184,6 +185,8 @@ struct player
   bool in_web_corner;
   bool key_b4_corner_is_left;
   bool key_b4_corner_is_right;
+
+  bool web_burned;
 
   int bullet_num;
   int play_gun_snd;
@@ -437,6 +440,7 @@ typedef struct node
 {
   bool node_solid;
   bool node_water;
+  bool node_fire;
   bool tmp_wet;
   bool node_no_rain;
   bool node_no_shade;
@@ -1220,3 +1224,4 @@ void SaveLvlBmp(HWND hwnd,HDC hdc,const wchar_t *lvl_name);
 //rng values
 int weather_rng_i=0;
 int misc_rng_i=0;
+//int fire_rng_i=0;

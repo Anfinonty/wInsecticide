@@ -255,7 +255,7 @@ bool is_khmer=TRUE;
 #define RDGRID_NUM       RENDER_WIDTH_MAX*RENDER_HEIGHT_MAX
 
 
-#define RAIN_NUM    60//20//50
+#define RAIN_NUM    80//20//50
 #define SHOOT_BULLET_NUM    25000//100000// More bullets, otherwise memleak, idk why haha 2024-12-21 //5000
 #define BULLET_NUM	SHOOT_BULLET_NUM+RAIN_NUM
 
@@ -511,9 +511,12 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
         }
         if (map_weather>0) {
           RainAct();
-          if (!player.time_breaker) {
-            ScreenRainDropAct();
-          }
+          //if (!player.time_breaker) {
+            //ScreenRainDropAct();
+          //}
+        }
+        if (FIRE_GROUND_NUM>0) {
+          GroundFireAct();
         }
         Sleep(player.sleep_timer);
       } else {
@@ -541,13 +544,16 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
             }
             if (map_weather>0) {
               RainAct();
-              if (!player.time_breaker) {
+              /*if (!player.time_breaker) {
                 ScreenRainDropAct();
-              }
+              }*/
+            }
+            if (FIRE_GROUND_NUM>0) {
+              GroundFireAct();
             }
           }
 
-
+          //demo main menu sound act
           if (game_audio && !flag_load_melevel) {
               for (int i=0;i<player.bullet_shot_num;i++) {
                 BulletSndAct(player.bullet[i]);
@@ -1365,6 +1371,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             if (has_water) {
               DrawWaterPlatforms(hdcBackbuff,hdcBackbuff2);
             }
+            DrawFirePlatforms(hdcBackbuff);
             //Draw Bullets;
             //DrawNodeGrids(hdcBackbuff); //debugging
 
@@ -1837,6 +1844,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       GR_HEIGHT=RESOLUTION_Y[resolution_choose];
       flag_resolution_change=TRUE;
 
+      LoadRngTable(L"saves/rngtable.txt");
 
       Init8BitRGBColorsNoir(rgbColorsNoir);
       Init8BitRGBColorsDefault(rgbColorsDefault);

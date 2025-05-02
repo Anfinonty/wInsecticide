@@ -2,6 +2,8 @@
 //Game Values
 int GROUND_NUM;
 int WATER_GROUND_NUM=0;
+int FIRE_GROUND_NUM=0;
+
 int ENEMY_NUM;
 int LARGE_ENEMY_TYPE_NUM;
 int LARGER_ENEMY_TYPE_NUM;
@@ -142,7 +144,6 @@ int custom_map_background_color_i;
 bool is_moon;
 
 bool is_shadows=FALSE;
-//bool is_raining=FALSE;
 int map_weather=0;
 
 int rain_sound_duration=0;
@@ -239,6 +240,7 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
           case 0:
             GROUND_NUM=int_saved_val;
             WATER_GROUND_NUM=0;
+            FIRE_GROUND_NUM=0;
             break;
           case 1:
             ENEMY_NUM=int_saved_val;
@@ -447,10 +449,10 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
             } else {//end of string
               writing_txt=FALSE;
               wcsncpy(saved_ground_text[column],txt,512);
-              if (set_txt_size!=0)
+              //if (set_txt_size!=0)
                 saved_ground_text_size[column]=set_txt_size;
-              else 
-                saved_ground_text_size[column]=16; //default text size
+              //else 
+                //saved_ground_text_size[column]=16; //default text size
               column++;
               for (int i=0;i<512;i++) //init txt array
                 txt[i] = 0;

@@ -141,12 +141,14 @@ void Init() {
   game_over=FALSE;
   frame_tick=-10;
 
+  //fire_rng_i=0;
 
   //Initialize Level
   InitBullet(BULLET_NUM);
   InitGrid();
   InitNodeGrid();
   InitGround(TRUE);
+  InitGroundFire();
   InitNodeGridAttributes();
   InitEnemy();
   InitPlayer();
@@ -297,17 +299,26 @@ void InitLevel(bool load_lvl)
   if (load_lvl) {
     swprintf(lvl_name,128,L"%s",level_names[level_chosen]);    
     swprintf(txt,128,L"saves/%s/level.txt",level_names[level_chosen]);
-    if (!game_hard) {
-      swprintf(save_level,128,L"saves/%s/scores.txt",level_names[level_chosen]);
+    if (!free_will) {
+      if (!game_hard) {
+        swprintf(save_level,128,L"saves/%s/scores.txt",level_names[level_chosen]);
+      } else {
+        swprintf(save_level,128,L"saves/%s/scores_hard.txt",level_names[level_chosen]);
+      }
     } else {
-      swprintf(save_level,128,L"saves/%s/scores_hard.txt",level_names[level_chosen]);
+      if (!game_hard) {
+        swprintf(save_level,128,L"saves/%s/scores_fw.txt",level_names[level_chosen]);
+      } else {
+        swprintf(save_level,128,L"saves/%s/scores_hard_fw.txt",level_names[level_chosen]);
+      }
     }
   } else {
     swprintf(lvl_name,128,L"mm_demo2");    
     swprintf(txt,128,L"saves/mm_demo2/level.txt");
     swprintf(save_level,128,L"saves/mm_demo2/scores.txt");
   }
-  //printf("lvl_chosen_is:%d\n",level_chosen);
+
+
   LoadSave(txt,TRUE);
   OLD_GR_WIDTH=0;
   OLD_GR_HEIGHT=0;
@@ -321,44 +332,41 @@ void InitLevel(bool load_lvl)
   Init();
 
 
-
-  //Load Player Cosmetics
-  //CleanUpPlayerSprites();
-  //InitPlayerSprites();
-
-  //Load Enemy cache spritesF
+  //InitOnce2
+  InitGroundWaterObj();
+  InitGroundFireObj();
+  //Load Enemy cache sprites
   InitGridTiles(lvl_name);
   InitEnemySprites();
   loading_denominator=SHADOW_GRID_NUM+PLATFORM_GRID_NUM+FOREGROUND_GRID_NUM+ENEMY_TYPE_NUM+(LARGE_ENEMY_TYPE_NUM*ROTATED_SPRITE_NUM*2)+LARGER_ENEMY_TYPE_NUM*ROTATED_SPRITE_NUM;
+
   InitEnemySpritesObj();
   InitPFEnemyObj();
   InitEnemyPathfindingNodes();
-    if (load_lvl) {
-      in_main_menu=FALSE;
-//      flag_not_in_main_menu=TRUE;
-    } else {
-      int dice=abs(RandNum(0,100,&misc_rng_i,-1));
-    //printf("in demo:dice,%d",dice);
-      if (dice<30) {
-        if (dice>15) {
-          map_weather=1;
-        } else {
-          map_weather=2;
-        }
+
+  if (load_lvl) {
+    in_main_menu=FALSE;
+  } else {
+    int dice=abs(RandNum(0,100,&misc_rng_i,-1));
+    if (dice<30) {
+      if (dice>15) {
+        map_weather=1;
       } else {
-        map_weather=0;
+        map_weather=2;
       }
+    } else {
+      map_weather=0;
     }
+  }
 
 
-  flag_begin_drawing_tiles=TRUE;  
+  flag_begin_drawing_tiles=TRUE; //flag draw level tiles using screen 
   loading_tile_grid_prog=1;
   //allocate smallest to biggest
 
-  //level_loaded=TRUE;
-    if (!stop_playing_song[0] && stop_playing_song[1] && load_lvl) {//main turntable open only please
-      InitLoadLvlSong();
-    }
+  if (!stop_playing_song[0] && stop_playing_song[1] && load_lvl) {//main turntable open only please
+    InitLoadLvlSong();
+  }
 }
 
 

@@ -737,7 +737,7 @@ void InitBulletRain()
     if (GR_WIDTH>800) {
       max_bullet_num=BULLET_NUM;
     } else {
-      max_bullet_num=SHOOT_BULLET_NUM+(RAIN_NUM/2+RAIN_NUM/12);
+      max_bullet_num=SHOOT_BULLET_NUM+(RAIN_NUM/3/*+RAIN_NUM/24*/);
     }
   }
 
@@ -799,7 +799,7 @@ void RainBulletAct(int bullet_id)
              Bullet[bullet_id].y>player.y+GR_HEIGHT/2+GR_HEIGHT/4-player.cam_mouse_move_y) {//out of player view
     allow_act=1;
   } else if (bullet_on_node_grid_id!=-1) {
-    if (NodeGrid[bullet_on_node_grid_id]->node_water) {
+    if (NodeGrid[bullet_on_node_grid_id]->node_water || NodeGrid[bullet_on_node_grid_id]->node_fire) {
       allow_act=1;
       bullet_on_ground_id=-1;
     } else if ((NodeGrid[bullet_on_node_grid_id]->node_no_rain || !NodeGrid[bullet_on_node_grid_id]->node_no_shade) && !(Bullet[bullet_id].graphics_type==16 || Bullet[bullet_id].graphics_type==15)) {
@@ -810,8 +810,6 @@ void RainBulletAct(int bullet_id)
       }
     }
   }
-
-
   /*if (GetDistance(Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
     //Bullet[bullet_id].angle=RandAngle(0,360,player.seed);//RandNum(-M_PI_2*100,M_PI_2*100,Enemy[enemy_id]->seed)/100;
     //Bullet[bullet_id].speed=Bullet[player.bullet_shot].speed;
@@ -843,13 +841,15 @@ void RainBulletAct(int bullet_id)
     }
   }*/ //end of for,
 
-  hit_player=HitPlayer(bullet_id,22,22);
-  if (hit_player) { //hit player
+  hit_player=HitPlayer(bullet_id,35,35);
+  if (hit_player && Bullet[bullet_id].graphics_type!=14 && Bullet[bullet_id].graphics_type!=16) { //hit player
     if (player.rain_wet_timer==0) {
       rain_sound_duration=0;
     }
     player.rain_wet_timer=260;//60;
-    allow_act=2;
+    allow_act=1;
+    bullet_on_ground_id=-1;
+    //allow_act=2;
     //BulletDamagePlayerAct(bullet_id);
   }
 
@@ -870,7 +870,6 @@ void RainBulletAct(int bullet_id)
     allow_act=0;
   }
   int seed=player.seed*bullet_id;
-  //int seed=-1;
   if (!free_will) seed=-1;
 
   if (allow_act!=-1) { //perform action
@@ -881,7 +880,8 @@ void RainBulletAct(int bullet_id)
         Bullet[bullet_id].angle=GetBounceAngle(Bullet[bullet_id].angle,Ground[bullet_on_ground_id]->angle)
 /*2*M_PI-Bullet[bullet_id].angle+2*Ground[bullet_on_ground_id]->angle*/+RandAngle(-15,15,&Bullet[bullet_id].rng_i,seed); //slight random when hit
       } else if (allow_act==2) {
-        Bullet[bullet_id].angle=RandAngle(-360,360,&misc_rng_i,seed); //slight random when weather hit player
+        //Bullet[bullet_id].angle=RandAngle(-360,360,&misc_rng_i,seed); //slight random when weather hit player
+        //Bullet[bullet_id].range=-1;
       }
       if (Bullet[bullet_id].graphics_type==13 || Bullet[bullet_id].graphics_type==14) {
         if (Bullet[bullet_id].graphics_type==14) {
@@ -927,6 +927,14 @@ void BulletAct(int bullet_id)
     if (!in_map_editor) {
         int on_node_grid_id=GetGridId(Bullet[bullet_id].x,Bullet[bullet_id].y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
         if (on_node_grid_id!=-1) {
+          if (NodeGrid[on_node_grid_id]->node_fire) {
+            if (Bullet[bullet_id].graphics_type==11 || Bullet[bullet_id].graphics_type==10) {
+              Bullet[bullet_id].speed_multiplier++;
+              Bullet[bullet_id].range-=20;
+            } else {
+              Bullet[bullet_id].range/=2;
+            }
+          }
           if (NodeGrid[on_node_grid_id]->node_water && !Bullet[bullet_id].in_water) {
             Bullet[bullet_id].in_water=TRUE;
             if (enemy_id>-1 && enemy_id<ENEMY_NUM) {
@@ -1084,7 +1092,7 @@ void BulletAct(int bullet_id)
                 d=RandNum(0,20,&weather_rng_i,seed);
                 switch (d) {
                   case 0:
-                    weather_bullet_type_speedm=4;
+                    weather_bullet_type_speedm=8;
                     break;
                   case 1:
                     weather_bullet_type_speedm=5;
@@ -1242,7 +1250,7 @@ void RainAct()
           BulletAct(i);
         }
       } else {
-        for (int i=SHOOT_BULLET_NUM;i<SHOOT_BULLET_NUM+(RAIN_NUM/2+RAIN_NUM/12);i++) {
+        for (int i=SHOOT_BULLET_NUM;i<SHOOT_BULLET_NUM+(RAIN_NUM/3/*+RAIN_NUM/24*/);i++) {
           BulletAct(i);
         }
       }

@@ -446,7 +446,7 @@ void CleanupAll(bool btm)
 
 
     for (int i=0;i<PLATFORM_GRID_NUM;i++) {
-     freeTileMap(TileMapPlatform[i]);
+      freeTileMap(TileMapPlatform[i]);
     }
     for (int i=0;i<FOREGROUND_GRID_NUM;i++) {
       freeTileMap(TileMapForeground[i]);
@@ -458,8 +458,19 @@ void CleanupAll(bool btm)
     free(Ground); //free pointer to pointers
     free(NodeGrid); //free pointer to pointers
     free(VGrid); //free pointer to pointers
+
     free(rendered_water_ground);
     WATER_GROUND_NUM=0;
+
+
+    //free(rendered_fire_ground);
+    for (int i=0;i<FIRE_GROUND_NUM;i++) {
+      freeGroundFire(GroundFire[i]);
+    }
+
+    free(GroundFire);
+    FIRE_GROUND_NUM=0;
+
     free(Enemy);
     if (PF_ENEMY_NUM>0) {
       free(EnemyPathfinding);

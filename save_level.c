@@ -516,9 +516,9 @@ void SaveMELvl(HWND hwnd,HDC hdc)
     //GROUND text
     for (int i=0;i<GROUND_NUM;i++) {
       //ground size
-      if (Ground[i]->font_size!=16) { //only set font size if font_size is NOT 16
+      //if (Ground[i]->font_size!=16) { //only set font size if font_size is NOT 16
         fprintf(fptr,"%d",Ground[i]->font_size);
-      }
+      //}
       fprintf(fptr,"\"");
       for (int j=0;j<lstrlenW(Ground[i]->text);j++) {
         fprintf(fptr,"{u%X}",Ground[i]->text[j]);

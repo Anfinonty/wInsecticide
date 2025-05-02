@@ -28,7 +28,7 @@ char *melvlambienttxt_arr[9]=
 "Background Type",
 "Background Color",
 "Has Moon",
-"Has Rain",
+"Weather",
 "Rain Rise",
 "Rain Run",
 "Has Shadow",
@@ -115,7 +115,7 @@ void DrawMapEditorPlatforms(HDC hdc)
   for (int k=0;k<rendered_ground_num;k++) {
     i=render_grounds[k];
     if (i!=-1) {
-      if (Ground[i]->type==3) { 
+      if (Ground[i]->type==3 || Ground[i]->type==4) { 
 	    c=rgbPaint[Ground[i]->color_id];
         if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
             !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
@@ -127,7 +127,26 @@ void DrawMapEditorPlatforms(HDC hdc)
 				Ground[i]->x3+player.cam_x+GR_WIDTH/2,
 				Ground[i]->y3+player.cam_y+GR_HEIGHT/2,FALSE,0);
         }
-      } 
+      } else if (Ground[i]->type==7) {
+	    c=rgbPaint[Ground[i]->color_id];
+        if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
+            !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
+	      DrawTriFill(hdc,c,
+                Ground[i]->x1+player.cam_x+GR_WIDTH/2,
+				Ground[i]->y1+player.cam_y+GR_HEIGHT/2,
+				Ground[i]->x2+player.cam_x+GR_WIDTH/2,
+				Ground[i]->y2+player.cam_y+GR_HEIGHT/2,
+				Ground[i]->x3+player.cam_x+GR_WIDTH/2,
+				Ground[i]->y3+player.cam_y+GR_HEIGHT/2,TRUE,HS_CROSS);
+	      DrawTriFill(hdc,c,
+                Ground[i]->x1+player.cam_x+GR_WIDTH/2,
+				Ground[i]->y1+player.cam_y+GR_HEIGHT/2,
+				Ground[i]->x2+player.cam_x+GR_WIDTH/2,
+				Ground[i]->y2+player.cam_y+GR_HEIGHT/2,
+				Ground[i]->x3+player.cam_x+GR_WIDTH/2,
+				Ground[i]->y3+player.cam_y+GR_HEIGHT/2,TRUE,HS_DIAGCROSS);
+        }
+      }
     } 
   }
 
@@ -540,7 +559,7 @@ void DrawMapEditorUI(HDC hdc,HDC hdc2)
               }
               break;
 
-            case 3:
+            //case 3:
             case 6:
               if (MapEditor.set_lvl_ambient_val[i]==0) {
                 sprintf(melvlambienttxt,"%s: <FALSE>",melvlambienttxt_arr[i]);

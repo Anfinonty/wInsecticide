@@ -348,7 +348,7 @@ void SetMENodeGridAttributes(int i)
       SetGridLineArray(lg_grid_id,i);
     }
   }
-  if (Ground[i]->type==3 || Ground[i]->type==1) {//triangle
+  if ((Ground[i]->type>=3 && Ground[i]->type<=7) || Ground[i]->type==1) {//triangle
     SetMENodeGridAttributes2(i);
   }
 }
@@ -516,7 +516,7 @@ void DestroyMEGround(int i)
       UnSetGridLineArray(lg_grid_id,i);
     }
   }
-  if (Ground[i]->type==3 || Ground[i]->type==1) {//triangle ground
+  if ((Ground[i]->type>=3 && Ground[i]->type<=7) || Ground[i]->type==1) {//triangle ground
     DestroyMEGround2(i);
   }
 
@@ -638,7 +638,6 @@ void InitMapEditor()
   MapEditor.is_typing_search=FALSE;
 
 
-  MapEditor.selected_ground_option=0;
   MapEditor.selected_ground_id=0;
   MapEditor.selected_ground_pivot=0;
   MapEditor.selected_ground_option=0;
@@ -747,7 +746,7 @@ void InitLevelMapEditor()
   loading_denominator=0;
   swprintf(txt,128,L"saves/%s/level.txt",level_names[level_chosen]);
   level_loading=TRUE;
-  //InitMarbles(16);
+
   LoadSave(txt,FALSE); //load saves
 
   wcsncpy(typing_lvl_name,level_names[level_chosen],16);
@@ -763,22 +762,7 @@ void InitLevelMapEditor()
   timeBeginPeriod(1);
   in_map_editor=TRUE;
 
-
-
-
   InitMapEditor();
-
-  //Load Player Cosmetics
-    //DeleteObject(player.sprite_1);
-    //FreeDrawSprite(&player.draw_sprite_1);
-
-    //player.sprite_1 = RotateSprite(NULL, player.osprite_1,0,-1,LTRED,rgbPaint[player_load_iris_color],-1);
-
-  //Load Player Sprites
-    //player.sprite_1_cache = RotateSprite(NULL, player.sprite_1,player.sprite_angle,LTGREEN,BLACK,rgbPaint[player_load_color],-1);
-    //GenerateDrawSprite(&player.draw_sprite_1,player.sprite_1_cache);
-
-
 
   main_menu_chosen=4;
   level_loaded=TRUE;
@@ -875,7 +859,7 @@ void MapEditorAct()
     switch (MapEditor.selected_option) {
       case 0:
         if (player.right_click_hold_timer==62) {
-          if (Ground[MapEditor.selected_ground_id]->type==3 || Ground[MapEditor.selected_ground_id]->type==1) { //trifill
+          if ((Ground[MapEditor.selected_ground_id]->type>=3 && Ground[MapEditor.selected_ground_id]->type<=7) || Ground[MapEditor.selected_ground_id]->type==1) { //trifill
             MapEditor.selected_ground_pivot=LimitValue(MapEditor.selected_ground_pivot+1,0,3);
           } else {
             MapEditor.selected_ground_pivot=LimitValue(MapEditor.selected_ground_pivot+1,0,2);
@@ -919,7 +903,7 @@ void MapEditorAct()
             }
 
 
-            if (Ground[i]->type==3 || Ground[i]->type==1) {//trifill
+            if ((Ground[i]->type>=3 && Ground[i]->type<=7) || Ground[i]->type==1) {//trifill
 	          if (Ground[i]->y1==Ground[i]->y2) {
 	            Ground[i]->y2++;
               }

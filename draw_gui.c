@@ -815,6 +815,8 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
       if (has_water) {
         DrawWaterPlatforms(hdc,hdc2);
       }
+      DrawFirePlatforms(hdc);
+
       if (is_shadows && game_shadow) {
         DrawShadows(hdc,hdc2);
       }

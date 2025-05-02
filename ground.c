@@ -236,7 +236,7 @@ void InitGround(bool is_max)
       }
 
 
-      if (Ground[i]->type==3 || Ground[i]->type==1) {//trifill
+      if ((Ground[i]->type>=3 && Ground[i]->type<=7) || Ground[i]->type==1) {//trifill
 	    if (Ground[i]->y1==Ground[i]->y2) {
 	      Ground[i]->y2++;
         }
@@ -795,7 +795,7 @@ void DrawGroundTriFill(HDC hdc)
 {
   int i=0,c=0;
   for (i=0;i<GROUND_NUM;i++) {
-    if (Ground[i]->type==3) { 
+    if (Ground[i]->type>=3 && Ground[i]->type<=6) { 
       c=Ground[i]->color;
       /*if (Ground[i]->color_id==0 || Ground[i]->color_id%16==0) {
         c=RGB(8,8,8);
@@ -840,7 +840,7 @@ void Draw1Ground(HDC hdc,int i,int x, int y)
 void Draw1GroundTriFill(HDC hdc,int i,int x, int y)
 {
   int c=0;
-    if (Ground[i]->type==3) { 
+    if (Ground[i]->type>=3 && Ground[i]->type<=6) { 
       c=Ground[i]->color;
       /*if (Ground[i]->color_id==0 || Ground[i]->color_id%16==0) {
         c=RGB(8,8,8);
@@ -910,4 +910,117 @@ void Draw1WaterTriFill(HDC hdc,int i,int x,int y) {
     }
 }
 
+
+void Draw1FireTrifill(HDC hdc,int i, int x,int y,int x3,int y3)
+{
+  int c=0;
+    if (Ground[i]->type==7) { 
+      c=Ground[i]->color;
+      if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
+          !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
+	      DrawTriFill(hdc,c,
+                Ground[i]->x1-x,
+				Ground[i]->y1-y,
+				Ground[i]->x2-x,
+				Ground[i]->y2-y,
+				Ground[i]->x3-x3,
+				Ground[i]->y3-y3,TRUE,HS_CROSS);
+	      DrawTriFill(hdc,c,
+                Ground[i]->x1-x,
+				Ground[i]->y1-y,
+				Ground[i]->x2-x,
+				Ground[i]->y2-y,
+				Ground[i]->x3-x3,
+				Ground[i]->y3-y3,TRUE,HS_DIAGCROSS);
+	      /*DrawTriFill(hdc,c,
+                Ground[i]->x1-x,
+				Ground[i]->y1-y,
+				Ground[i]->x2-x,
+				Ground[i]->y2-y,
+				Ground[i]->x3-x3,
+				Ground[i]->y3-y3,FALSE,0);*/
+      }
+    }
+
+}
+
+
+void InitGroundFireObj()
+{
+  //for fire
+  /*rendered_fire_ground=calloc(FIRE_GROUND_NUM,sizeof(int));
+  ci=0;
+  for (int i=0;i<GROUND_NUM;i++) {
+    if (Ground[i]->type==7) {
+      rendered_fire_ground[ci]=i;
+      ci++;
+    }
+  }*/
+
+  //count fire grounds
+  for (int i=0;i<GROUND_NUM;i++) {
+    if (Ground[i]->type==7) {
+      FIRE_GROUND_NUM++;
+    }
+  }
+
+  //malloc fire grounds
+  int ci=0;
+  GroundFire = calloc(FIRE_GROUND_NUM,sizeof(AGroundFire*));
+
+  for (int i=0;i<GROUND_NUM;i++) {
+    if (Ground[i]->type==7) {
+      AGroundFire *myGroundFire=createGroundFire();
+      GroundFire[ci]= myGroundFire;
+      GroundFire[ci]->ground_id=i; //assign ground id to fire ground
+      GroundFire[ci]->rng_i=Ground[i]->font_size;
+      ci++;
+    }
+  }
+}
+
+void InitGroundWaterObj()
+{
+  //count water grounds
+  for (int i=0;i<GROUND_NUM;i++) {
+    if (Ground[i]->type==1) {
+      WATER_GROUND_NUM++;
+    }
+  }
+
+  //malloc water grounds
+  int ci=0;
+  rendered_water_ground=calloc(WATER_GROUND_NUM,sizeof(int));
+  for (int i=0;i<GROUND_NUM;i++) {
+    if (Ground[i]->type==1) {
+      rendered_water_ground[ci]=i;
+      ci++;
+    }
+  }
+}
+
+
+void InitGroundFire()
+{
+  for (int i=0;i<FIRE_GROUND_NUM;i++) {
+    GroundFire[i]->rng_i=Ground[GroundFire[i]->ground_id]->font_size;
+    GroundFire[i]->rand_tip_x=0;
+    GroundFire[i]->rand_tip_y=0;
+    GroundFire[i]->tick=0;
+  }
+}
+
+
+void GroundFireAct()
+{
+  for (int i=0;i<FIRE_GROUND_NUM;i++) {
+    if (GroundFire[i]->tick<7) {
+      GroundFire[i]->tick++;
+    } else {
+      GroundFire[i]->rand_tip_x=RandNum(-40,40,&GroundFire[i]->rng_i,-1);
+      GroundFire[i]->rand_tip_y=RandNum(-40,40,&GroundFire[i]->rng_i,-1);
+      GroundFire[i]->tick=0;
+    }
+  }
+}
 

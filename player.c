@@ -452,6 +452,7 @@ void InitPlayer() {
   player.key_b4_corner_is_left=FALSE;
   player.key_b4_corner_is_right=FALSE;
 
+  player.web_burned=FALSE;
 
   player.web_being_shot=-1;
   for (i=0;i<MAX_WEB_NUM;i++) {
@@ -568,12 +569,12 @@ void PlayerActGroundEdgeMovement()
               player.above_ground_edge=TRUE;
               player.below_ground_edge=FALSE;
               if (player.rst_right) { //clockwize
-                move_x(cos(-player.edge_angle+M_PI_2)*0.1);
-                move_y(sin(-player.edge_angle+M_PI_2)*0.1);
+                move_x(cos(-player.edge_angle+M_PI_2)*0.2);
+                move_y(sin(-player.edge_angle+M_PI_2)*0.2);
                 player.last_left=FALSE;
               } else if (player.rst_left) { //anticlockwize
-                move_x(-cos(-player.edge_angle+M_PI_2)*0.1);
-                move_y(-sin(-player.edge_angle+M_PI_2)*0.1);
+                move_x(-cos(-player.edge_angle+M_PI_2)*0.2);
+                move_y(-sin(-player.edge_angle+M_PI_2)*0.2);
                 player.last_left=TRUE;
               }
           } else { //below pivot
@@ -581,12 +582,12 @@ void PlayerActGroundEdgeMovement()
               player.below_ground_edge=TRUE;
               player.below_ground_edge_timer=5;
               if (player.rst_right) { //clockwize
-                move_x(-cos(-player.edge_angle+M_PI_2)*0.1);
-                move_y(sin(-player.edge_angle+M_PI_2)*0.1);
+                move_x(-cos(-player.edge_angle+M_PI_2)*0.2);
+                move_y(sin(-player.edge_angle+M_PI_2)*0.2);
                 player.last_left=TRUE;
               } else if (player.rst_left) { //anticlockwize
-                move_x(cos(-player.edge_angle+M_PI_2)*0.1);
-                move_y(-sin(-player.edge_angle+M_PI_2)*0.1);
+                move_x(cos(-player.edge_angle+M_PI_2)*0.2);
+                move_y(-sin(-player.edge_angle+M_PI_2)*0.2);
                 player.last_left=FALSE;
               }
           }
@@ -604,12 +605,12 @@ void PlayerActGroundEdgeMovement()
               player.above_ground_edge=TRUE;
               player.below_ground_edge=FALSE;
               if (player.rst_right) { //clockwize
-                move_x(cos(-player.edge_angle+M_PI_2)*0.1);
-                move_y(sin(-player.edge_angle+M_PI_2)*0.1);
+                move_x(cos(-player.edge_angle+M_PI_2)*0.2);
+                move_y(sin(-player.edge_angle+M_PI_2)*0.2);
                 player.last_left=FALSE;
               } else if (player.rst_left) { //anticlockwize
-                move_x(-cos(-player.edge_angle+M_PI_2)*0.1);
-                move_y(-sin(-player.edge_angle+M_PI_2)*0.1);
+                move_x(-cos(-player.edge_angle+M_PI_2)*0.2);
+                move_y(-sin(-player.edge_angle+M_PI_2)*0.2);
                 player.last_left=TRUE;
               }
           } else { //below pivot
@@ -617,12 +618,12 @@ void PlayerActGroundEdgeMovement()
               player.below_ground_edge=TRUE;
               player.below_ground_edge_timer=5;
               if (player.rst_right) { //clockwize
-                move_x(-cos(-player.edge_angle+M_PI_2)*0.1);
-                move_y(sin(-player.edge_angle+M_PI_2)*0.1);
+                move_x(-cos(-player.edge_angle+M_PI_2)*0.2);
+                move_y(sin(-player.edge_angle+M_PI_2)*0.2);
                 player.last_left=TRUE;
               } else if (player.rst_left) { //anticlockwize
-                move_x(cos(-player.edge_angle+M_PI_2)*0.1);
-                move_y(-sin(-player.edge_angle+M_PI_2)*0.1);
+                move_x(cos(-player.edge_angle+M_PI_2)*0.2);
+                move_y(-sin(-player.edge_angle+M_PI_2)*0.2);
                 player.last_left=FALSE;
               }
           }
@@ -987,6 +988,7 @@ void PlayerActFlingWeb(int speed)
   double _b=player.y;
   double _l=player.pivot_length/PLAYER_FLING_WEB_NUM;
   int tmp_ground_id=-1;
+  int tmp_ngid=-1;
   int dist1=-1;
   int dist2=-1;
   for (int i=0;i<PLAYER_FLING_WEB_NUM;i++) {
@@ -997,6 +999,15 @@ void PlayerActFlingWeb(int speed)
 
   //to allow web bending       
     tmp_ground_id=GetOnGroundId(player_fling_web.x[i],player_fling_web.y[i],5,4);
+    tmp_ngid=GetGridId(player_fling_web.x[i],player_fling_web.y[i],MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
+    if (tmp_ngid!=-1 && speed==3) { //web bend and placement
+      if (NodeGrid[tmp_ngid]->node_fire) {
+        player.attack_rst=TRUE;
+        player.web_burned=TRUE;
+        InitPlayerFlingWeb();
+        break;
+      }
+    }
     //printf("tmp_ground_id:%d\n",tmp_ground_id);
     if (tmp_ground_id!=-1 && speed==3) { //web bend and placement
       dist1=GetDistance(player_fling_web.x[i],player_fling_web.y[i],Ground[tmp_ground_id]->x1,Ground[tmp_ground_id]->y1);
@@ -1228,12 +1239,14 @@ void PlayerActGravityMovement(int grav_speed,int speed)
 void PlayerActFlingMovement(int grav_speed)
 {
   if (grav_speed==0 && !player.is_swinging && !player.is_rebounding) { 
-    if (((player.rst_left || player.rst_right) && player.fling_distance<-100) || player.uppercut || player.on_ground_id!=-1) { //cancel flinging when left or right key is pressed
+    if (((player.rst_left || player.rst_right) && player.fling_distance<-100) || player.uppercut || player.on_ground_id!=-1 || player.web_burned) { //cancel flinging when left or right key is pressed
       player.fling_distance=0;
       //if (player.uppercut)
         //player.rst_down=FALSE;
     }
-
+    if (player.web_burned) {
+      player.web_burned=FALSE;
+    }
 
     if (player.fling_distance>0) { //fling and against gravity
       move_x(cos(player.angle_of_reflection));
@@ -1280,7 +1293,7 @@ void PlayerActReboundActions(int grav_speed, int speed)
     move_y(sin(player.angle_of_reflection));
     if (player.on_ground_id!=-1 && player.on_ground_id<GROUND_NUM && speed<=1 && !player.time_breaker) {
       if (player.speed>10) {
-        player.speed-=2;//player.speed*5/6;
+        player.speed=1+player.speed/2;//*5/6;
       } else if (player.speed>5) {
         player.speed-=1;//player.speed*5/6;
       }
@@ -1859,6 +1872,14 @@ void PlayerAct()
         speed_limiter=speed_limiter+speed_limiter/4+1;
       } else if (player.is_swinging) {
         speed_limiter=10;
+      } else if (player.fling_distance==0 && (player.on_ground_id!=-1 || player.is_on_ground_edge)) {
+        if (player.speed<5) {
+          speed_limiter=4;
+        } else if (player.speed<10) {
+          speed_limiter=6;
+        } else if (player.speed<24){
+          speed_limiter=8;
+        }
       }
 
       if (player.uppercut && player.speed>4 && player.bullet_shot==-1) {
@@ -1890,7 +1911,7 @@ void PlayerAct()
 
 
       if (player.is_on_ground_edge) {
-         speed_limiter*=10;
+         speed_limiter*=5;//10;
       }  else if (player.bullet_shot!=-1 && player.speed<10) {
          speed_limiter=10;
       }
@@ -1922,6 +1943,9 @@ void PlayerAct()
           //PLAYER IN NODE GRID ACTIONS
           int in_node_grid_id=GetGridId(player.x,player.y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
           if (in_node_grid_id!=-1) {
+            if (NodeGrid[in_node_grid_id]->node_fire && (player.block_timer>23 || player.block_timer==0)) {
+              player.health-=1;
+            }
             if (NodeGrid[in_node_grid_id]->node_water) {
               if (!player.in_water) {//entering water
                 player.in_air_timer=1002;
@@ -2022,10 +2046,10 @@ void PlayerAct()
 
 
 
-          if (player.y<0) { //Y axis cap
+          if (player.y<6) { //Y axis cap
             move_y(1);
             player.in_air_timer++;
-          } else if (player.y+PLAYER_HEIGHT/2>MAP_HEIGHT) {
+          } else if (player.y+PLAYER_HEIGHT/2>MAP_HEIGHT-6) {
             move_y(-player.player_grav);
             player.health--;
           }
@@ -2034,9 +2058,9 @@ void PlayerAct()
 
 
          //x-axis cap
-          if (player.x-PLAYER_WIDTH/2<0) {
+          if (player.x-PLAYER_WIDTH/2<6) {
             move_x(1);
-          } else if (player.x+PLAYER_WIDTH/2>MAP_WIDTH) {
+          } else if (player.x+PLAYER_WIDTH/2>MAP_WIDTH-6) {
             move_x(-1);
           }
 
@@ -2538,7 +2562,7 @@ void PlayerAct()
         }
         player.bullet_shot_num=0;
 
-        for (int n=0;n<PLAYER_BULLET_NUM;n++) {
+        for (int n=0;n</*PLAYER_BULLET_NUM*/8;n++) {
           int seed=player.seed*n;
           if (!free_will) seed=-1;
           int rand_range=NODE_SIZE*50+NODE_SIZE*RandNum(1,5,&player.death_bullet_rng_i,seed);
