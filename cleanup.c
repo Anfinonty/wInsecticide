@@ -392,6 +392,25 @@ void CleanupAll(bool btm)
     free(saved_ground_y2);
     free(saved_ground_x3);
     free(saved_ground_y3);
+
+
+
+
+    if (WATER_GROUND_NUM>0) {
+      free(rendered_water_ground);
+    }
+    WATER_GROUND_NUM=0;
+
+    if (FIRE_GROUND_NUM>0) {
+      for (int i=0;i<FIRE_GROUND_NUM;i++) {
+        freeGroundFire(GroundFire[i]);
+      }
+      free(GroundFire);
+    }
+    FIRE_GROUND_NUM=0;
+
+
+
     for (int i=0;i<GROUND_NUM;i++) {
       free(saved_ground_text[i]);
     }
@@ -459,18 +478,6 @@ void CleanupAll(bool btm)
     free(NodeGrid); //free pointer to pointers
     free(VGrid); //free pointer to pointers
 
-    free(rendered_water_ground);
-    WATER_GROUND_NUM=0;
-
-
-    //free(rendered_fire_ground);
-    for (int i=0;i<FIRE_GROUND_NUM;i++) {
-      freeGroundFire(GroundFire[i]);
-    }
-
-    free(GroundFire);
-    FIRE_GROUND_NUM=0;
-
     free(Enemy);
     if (PF_ENEMY_NUM>0) {
       free(EnemyPathfinding);
@@ -485,11 +492,9 @@ void CleanupAll(bool btm)
       free(TileMapShadow);
     }
 
+
     DeleteObject(map_background_sprite);
 
-
-    //LoadMainMenuBackground();
-    //back_to_menu=FALSE;
     run_after_once=FALSE;
     if (btm) {
       flag_update_background=TRUE;

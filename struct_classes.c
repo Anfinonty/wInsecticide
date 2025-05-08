@@ -49,14 +49,22 @@ AGround **Ground;
 
 
 
-
+#define GROUND_FIRE_SMOKE_NUM   5//20
 typedef struct GroundLineFire
 {
-  int ground_id;
+  int ground_id; //child of Ground, manage so it doesnt crash
   int rng_i;
+  int old_x3;
+  int old_y3;
+  int current_tx;
+  int current_ty;
   int rand_tip_x;
   int rand_tip_y;
   int tick;
+  int smoke_rng_i;
+  int smoke_x[GROUND_FIRE_SMOKE_NUM];
+  int smoke_y[GROUND_FIRE_SMOKE_NUM];
+  int smoke_height[GROUND_FIRE_SMOKE_NUM];
 } AGroundFire;
 
 

@@ -202,9 +202,9 @@ void DrawWaterPlatformsTexture(HDC hdc,HDC hdc2)
 }
 
 
-void DrawFirePlatforms(HDC hdc)//,HDC hdc2)
+void DrawFirePlatforms(HDC hdc)
 {
-  if (FIRE_GROUND_NUM>0) {
+  if (FIRE_GROUND_NUM>0 && level_loaded) {
   int x,y,x3,y3,
     px=player.x,
     py=player.y,
@@ -212,23 +212,24 @@ void DrawFirePlatforms(HDC hdc)//,HDC hdc2)
     cy1=player.cam_mouse_move_y,
     cx2=player.cam_move_x,
     cy2=player.cam_move_y;
-  //int x1,y1,x2,y2,x3,y3;
   int i,c;
   x=-(GR_WIDTH/2-px+cx1+cx2);
   y=-(GR_HEIGHT/2-py+cy1+cy2);
   for (int k=0;k<FIRE_GROUND_NUM;k++) {
     i = GroundFire[k]->ground_id;
     if (i!=-1) {
-      if (Ground[i]->type==7) {
+      if (Ground[i]->type>=7 && Ground[i]->type<=8) {
         if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
             !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
-            //x1=GR_WIDTH/2+(int)Ground[i]->x1-px+cx1+cx2;
-            //y1=GR_HEIGHT/2+(int)Ground[i]->y1-py+cy1+cy2;
-            //x2=GR_WIDTH/2+(int)Ground[i]->x2-px+cx1+cx2;
-            //y2=GR_HEIGHT/2+(int)Ground[i]->y2-py+cy1+cy2;
-            //x3=GR_WIDTH/2+(int)Ground[i]->x3-px+cx1+cx2;
-            //y3=GR_HEIGHT/2+(int)Ground[i]->y3-py+cy1+cy2;
-            Draw1FireTrifill(hdc,i,x,y,x+GroundFire[k]->rand_tip_x,y+GroundFire[k]->rand_tip_y);
+            if (Ground[i]->type==7) {
+              GrLineThick(hdc,-x+Ground[i]->x1,-y+Ground[i]->y1,-x+GroundFire[k]->old_x3,-y+GroundFire[k]->old_y3,2,Ground[i]->color);
+              GrLineThick(hdc,-x+Ground[i]->x2,-y+Ground[i]->y2,-x+GroundFire[k]->old_x3,-y+GroundFire[k]->old_y3,2,Ground[i]->color);
+            }
+            Draw1FireTrifill(hdc,i,x,y,x+GroundFire[k]->current_tx,y+GroundFire[k]->current_ty);
+
+        }
+        for (int j=0;j<GROUND_FIRE_SMOKE_NUM;j++) { //smoke coming out of fire
+          GrCircle(hdc,-x+GroundFire[k]->smoke_x[j],-y+GroundFire[k]->smoke_y[j],7,DKGRAY,DKGRAY);
         }
       }
     }

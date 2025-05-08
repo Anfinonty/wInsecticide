@@ -291,7 +291,7 @@ void MapEditorKeypressDown(WPARAM wParam)
               case 1: // type
                 if (Ground[MapEditor.selected_ground_id]->type==0)
                   Ground[MapEditor.selected_ground_id]->is_ghost = TRUE;
-                Ground[MapEditor.selected_ground_id]->type=LimitValueInt(Ground[MapEditor.selected_ground_id]->type-1,0,8);
+                Ground[MapEditor.selected_ground_id]->type=LimitValueInt(Ground[MapEditor.selected_ground_id]->type-1,0,9);
                 MapEditor.selected_ground_pivot=0;
                 break;
               /*case 2: // color
@@ -398,7 +398,7 @@ void MapEditorKeypressDown(WPARAM wParam)
                 case 1: // type
                   if (Ground[MapEditor.selected_ground_id]->type==0)
                     Ground[MapEditor.selected_ground_id]->is_ghost = TRUE;
-                  Ground[MapEditor.selected_ground_id]->type=LimitValueInt(Ground[MapEditor.selected_ground_id]->type+1,0,8);
+                  Ground[MapEditor.selected_ground_id]->type=LimitValueInt(Ground[MapEditor.selected_ground_id]->type+1,0,9);
                   MapEditor.selected_ground_pivot=0;
                   break;
                 /*case 2: // color

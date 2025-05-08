@@ -240,9 +240,6 @@ void InitGround(bool is_max)
 	    if (Ground[i]->y1==Ground[i]->y2) {
 	      Ground[i]->y2++;
         }
-        if (Ground[i]->type==1) {
-          has_water=TRUE;
-        }
       }
       if (Ground[i]->y3==Ground[i]->y1) {
 	    Ground[i]->y3+=2;
@@ -840,7 +837,7 @@ void Draw1Ground(HDC hdc,int i,int x, int y)
 void Draw1GroundTriFill(HDC hdc,int i,int x, int y)
 {
   int c=0;
-    if (Ground[i]->type>=3 && Ground[i]->type<=6) { 
+    if ((Ground[i]->type>=3 && Ground[i]->type<=6)) { 
       c=Ground[i]->color;
       /*if (Ground[i]->color_id==0 || Ground[i]->color_id%16==0) {
         c=RGB(8,8,8);
@@ -911,6 +908,25 @@ void Draw1WaterTriFill(HDC hdc,int i,int x,int y) {
 }
 
 
+/*void Draw1FireTriFill2(HDC hdc,int i, int x,int y,int x3,int y3)
+{
+  int c=0;
+    if (Ground[i]->type==7) { 
+      c=Ground[i]->color;
+      if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
+          !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
+	      DrawTriFill(hdc,c,
+                Ground[i]->x1-x,
+				Ground[i]->y1-y,
+				Ground[i]->x2-x,
+				Ground[i]->y2-y,
+				Ground[i]->x3-x3,
+				Ground[i]->y3-y3,FALSE,0);
+      }
+    }
+
+}*/
+
 void Draw1FireTrifill(HDC hdc,int i, int x,int y,int x3,int y3)
 {
   int c=0;
@@ -940,41 +956,53 @@ void Draw1FireTrifill(HDC hdc,int i, int x,int y,int x3,int y3)
 				Ground[i]->x3-x3,
 				Ground[i]->y3-y3,FALSE,0);*/
       }
-    }
+    } else if (Ground[i]->type==8) {
+      c=Ground[i]->color;
+      if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
+          !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
+	      DrawTriFill(hdc,c,
+                Ground[i]->x1-x,
+				Ground[i]->y1-y,
+				Ground[i]->x2-x,
+				Ground[i]->y2-y,
+				Ground[i]->x3-x3,
+				Ground[i]->y3-y3,FALSE,0);
 
+      }
+    }
 }
 
 
 void InitGroundFireObj()
 {
   //for fire
-  /*rendered_fire_ground=calloc(FIRE_GROUND_NUM,sizeof(int));
-  ci=0;
-  for (int i=0;i<GROUND_NUM;i++) {
-    if (Ground[i]->type==7) {
-      rendered_fire_ground[ci]=i;
-      ci++;
-    }
-  }*/
-
   //count fire grounds
   for (int i=0;i<GROUND_NUM;i++) {
-    if (Ground[i]->type==7) {
+    if (Ground[i]->type>=7 && Ground[i]->type<=8) {
       FIRE_GROUND_NUM++;
     }
   }
 
   //malloc fire grounds
-  int ci=0;
-  GroundFire = calloc(FIRE_GROUND_NUM,sizeof(AGroundFire*));
+  if (FIRE_GROUND_NUM>0) {
+    int ci=0;
+    GroundFire = calloc(FIRE_GROUND_NUM,sizeof(AGroundFire*));
 
-  for (int i=0;i<GROUND_NUM;i++) {
-    if (Ground[i]->type==7) {
-      AGroundFire *myGroundFire=createGroundFire();
-      GroundFire[ci]= myGroundFire;
-      GroundFire[ci]->ground_id=i; //assign ground id to fire ground
-      GroundFire[ci]->rng_i=Ground[i]->font_size;
-      ci++;
+    for (int i=0;i<GROUND_NUM;i++) {
+      if (Ground[i]->type>=7 && Ground[i]->type<=8) {
+        AGroundFire *myGroundFire=createGroundFire();
+        GroundFire[ci]= myGroundFire;
+        GroundFire[ci]->ground_id=i; //assign ground id to fire ground
+        GroundFire[ci]->old_x3=Ground[GroundFire[ci]->ground_id]->x3;
+        GroundFire[ci]->old_y3=Ground[GroundFire[ci]->ground_id]->y3;
+        GroundFire[ci]->rng_i=Ground[i]->font_size;
+        GroundFire[ci]->smoke_rng_i=Ground[i]->font_size;
+        for (int j=0;j<GROUND_FIRE_SMOKE_NUM;j++) {
+          GroundFire[ci]->smoke_x[j]=0;
+          GroundFire[ci]->smoke_y[j]=0;
+        }
+        ci++;
+      }
     }
   }
 }
@@ -989,12 +1017,14 @@ void InitGroundWaterObj()
   }
 
   //malloc water grounds
-  int ci=0;
-  rendered_water_ground=calloc(WATER_GROUND_NUM,sizeof(int));
-  for (int i=0;i<GROUND_NUM;i++) {
-    if (Ground[i]->type==1) {
-      rendered_water_ground[ci]=i;
-      ci++;
+  if (WATER_GROUND_NUM>0) {
+    int ci=0;
+    rendered_water_ground=calloc(WATER_GROUND_NUM,sizeof(int));
+    for (int i=0;i<GROUND_NUM;i++) {
+      if (Ground[i]->type==1) {
+        rendered_water_ground[ci]=i;
+        ci++;
+      }
     }
   }
 }
@@ -1004,9 +1034,18 @@ void InitGroundFire()
 {
   for (int i=0;i<FIRE_GROUND_NUM;i++) {
     GroundFire[i]->rng_i=Ground[GroundFire[i]->ground_id]->font_size;
+    GroundFire[i]->current_tx=0;
+    GroundFire[i]->current_ty=0;
     GroundFire[i]->rand_tip_x=0;
     GroundFire[i]->rand_tip_y=0;
+    GroundFire[i]->old_x3=Ground[GroundFire[i]->ground_id]->x3;
+    GroundFire[i]->old_y3=Ground[GroundFire[i]->ground_id]->y3;
     GroundFire[i]->tick=0;
+    for (int j=0;j<GROUND_FIRE_SMOKE_NUM;j++) {
+      GroundFire[i]->smoke_x[j]=0;
+      GroundFire[i]->smoke_y[j]=0;
+      GroundFire[i]->smoke_height[j]=0;
+    }
   }
 }
 
@@ -1014,12 +1053,44 @@ void InitGroundFire()
 void GroundFireAct()
 {
   for (int i=0;i<FIRE_GROUND_NUM;i++) {
-    if (GroundFire[i]->tick<7) {
+    if (GroundFire[i]->tick%2==0) {
+      if (GroundFire[i]->current_tx<GroundFire[i]->rand_tip_x)
+        GroundFire[i]->current_tx+=4;
+      else if (GroundFire[i]->current_tx>GroundFire[i]->rand_tip_x)
+        GroundFire[i]->current_tx-=4;
+
+      if (GroundFire[i]->current_ty<GroundFire[i]->rand_tip_y)
+        GroundFire[i]->current_ty+=4;
+      else if (GroundFire[i]->current_ty>GroundFire[i]->rand_tip_y)
+        GroundFire[i]->current_ty-=4;
+    }
+
+    if (GroundFire[i]->tick<10) {
       GroundFire[i]->tick++;
     } else {
+      GroundFire[i]->old_x3=Ground[GroundFire[i]->ground_id]->x3-GroundFire[i]->current_tx; //warning, when cleanup, cannot access, pls handle
+      GroundFire[i]->old_y3=Ground[GroundFire[i]->ground_id]->y3-GroundFire[i]->current_ty;
       GroundFire[i]->rand_tip_x=RandNum(-40,40,&GroundFire[i]->rng_i,-1);
       GroundFire[i]->rand_tip_y=RandNum(-40,40,&GroundFire[i]->rng_i,-1);
+      if (GroundFire[i]->rand_tip_x%2!=0)
+        GroundFire[i]->rand_tip_x++;
+      if (GroundFire[i]->rand_tip_y%2!=0)
+        GroundFire[i]->rand_tip_y++; 
       GroundFire[i]->tick=0;
+    }
+
+    //Fire particles
+    for (int j=0;j<GROUND_FIRE_SMOKE_NUM;j++) {
+      int lowest_y=min(Ground[GroundFire[i]->ground_id]->y1,Ground[GroundFire[i]->ground_id]->y2);
+      int f_len=Ground[GroundFire[i]->ground_id]->x2-Ground[GroundFire[i]->ground_id]->x1;
+      int f_height=abs(Ground[GroundFire[i]->ground_id]->y3-lowest_y)*3;
+      if (GroundFire[i]->smoke_y[j]<GroundFire[i]->old_y3-GroundFire[i]->smoke_height[j]) {
+        GroundFire[i]->smoke_x[j]=Ground[GroundFire[i]->ground_id]->x1+RandNum(0,f_len,&GroundFire[i]->smoke_rng_i,-1);
+        GroundFire[i]->smoke_y[j]=lowest_y-RandNum(0,f_height,&GroundFire[i]->smoke_rng_i,-1);
+        GroundFire[i]->smoke_height[j]=RandNum(0,f_height,&GroundFire[i]->smoke_rng_i,-1);
+      } else {
+        GroundFire[i]->smoke_y[j]--;
+      }
     }
   }
 }

@@ -348,7 +348,7 @@ void SetMENodeGridAttributes(int i)
       SetGridLineArray(lg_grid_id,i);
     }
   }
-  if ((Ground[i]->type>=3 && Ground[i]->type<=7) || Ground[i]->type==1) {//triangle
+  if ((Ground[i]->type>=3 && Ground[i]->type<=8) || Ground[i]->type==1) {//triangle
     SetMENodeGridAttributes2(i);
   }
 }
@@ -516,7 +516,7 @@ void DestroyMEGround(int i)
       UnSetGridLineArray(lg_grid_id,i);
     }
   }
-  if ((Ground[i]->type>=3 && Ground[i]->type<=7) || Ground[i]->type==1) {//triangle ground
+  if ((Ground[i]->type>=3 && Ground[i]->type<=8) || Ground[i]->type==1) {//triangle ground
     DestroyMEGround2(i);
   }
 
@@ -859,7 +859,7 @@ void MapEditorAct()
     switch (MapEditor.selected_option) {
       case 0:
         if (player.right_click_hold_timer==62) {
-          if ((Ground[MapEditor.selected_ground_id]->type>=3 && Ground[MapEditor.selected_ground_id]->type<=7) || Ground[MapEditor.selected_ground_id]->type==1) { //trifill
+          if ((Ground[MapEditor.selected_ground_id]->type>=3 && Ground[MapEditor.selected_ground_id]->type<=8) || Ground[MapEditor.selected_ground_id]->type==1) { //trifill
             MapEditor.selected_ground_pivot=LimitValue(MapEditor.selected_ground_pivot+1,0,3);
           } else {
             MapEditor.selected_ground_pivot=LimitValue(MapEditor.selected_ground_pivot+1,0,2);
@@ -903,7 +903,7 @@ void MapEditorAct()
             }
 
 
-            if ((Ground[i]->type>=3 && Ground[i]->type<=7) || Ground[i]->type==1) {//trifill
+            if ((Ground[i]->type>=3 && Ground[i]->type<=8) || Ground[i]->type==1) {//trifill
 	          if (Ground[i]->y1==Ground[i]->y2) {
 	            Ground[i]->y2++;
               }

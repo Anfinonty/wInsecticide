@@ -115,7 +115,7 @@ void DrawMapEditorPlatforms(HDC hdc)
   for (int k=0;k<rendered_ground_num;k++) {
     i=render_grounds[k];
     if (i!=-1) {
-      if (Ground[i]->type==3 || Ground[i]->type==4) { 
+      if (Ground[i]->type==3 || Ground[i]->type==4 || Ground[i]->type==8) { 
 	    c=rgbPaint[Ground[i]->color_id];
         if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
             !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {

@@ -576,7 +576,7 @@ void SetNodeGridAttributes2(int i)
 //for saving level
 void TriFillGridType(int gid, int part)
 {
-  if (Ground[gid]->type==1 || (Ground[gid]->type>=3 && Ground[gid]->type<=7)) {
+  if (Ground[gid]->type==1 || (Ground[gid]->type>=3 && Ground[gid]->type<=8)) {
     double
         gradient_middle1,gradient_middle2,gradient_largest,
         c_middle1,c_middle2,c_largest,
@@ -707,7 +707,7 @@ void TriFillNodeGridType(int gid)
 */
 
 
-  if (Ground[gid]->type==1 || (Ground[gid]->type>=3 && Ground[gid]->type<=7)) {
+  if (Ground[gid]->type==1 || (Ground[gid]->type>=3 && Ground[gid]->type<=8)) {
   double
       gradient_middle1,gradient_middle2,gradient_largest,
       c_middle1,c_middle2,c_largest,
@@ -775,7 +775,7 @@ void TriFillNodeGridType(int gid)
           NodeGrid[k]->node_solid=TRUE;
           NodeGrid[k]->node_no_rain=TRUE;
           NodeGrid[k]->non_web=TRUE; //toggle node_solid to false
-        } else if (Ground[gid]->type==7) { //fire
+        } else if (Ground[gid]->type>=7 && Ground[gid]->type<=8) { //fire
           NodeGrid[k]->node_fire=TRUE;
           NodeGrid[k]->node_no_rain=TRUE;
         }
@@ -803,7 +803,7 @@ void TriFillNodeGridType(int gid)
           NodeGrid[k]->node_solid=TRUE;
           NodeGrid[k]->node_no_rain=TRUE;
           NodeGrid[k]->non_web=TRUE;
-        } else if (Ground[gid]->type==7) { //fire trifill
+        } else if (Ground[gid]->type>=7 && Ground[gid]->type<=8) { //fire trifill
           NodeGrid[k]->node_fire=TRUE;
           NodeGrid[k]->node_no_rain=TRUE;
         }
@@ -906,10 +906,10 @@ void SetNodeGridAttributes(int i)
       }
     }
   }
-  if ((Ground[i]->type>=3 && Ground[i]->type<=7) || Ground[i]->type==1) {//triangle
+  if ((Ground[i]->type>=3 && Ground[i]->type<=8) || Ground[i]->type==1) {//triangle
     SetNodeGridAttributes2(i);
   }
-  if ((Ground[i]->type>=3 && Ground[i]->type<=7) || Ground[i]->type==1) { //water and fire, etc trifill
+  if ((Ground[i]->type>=3 && Ground[i]->type<=8) || Ground[i]->type==1) { //water and fire, etc trifill
     TriFillNodeGridType(i);
   }
 }

@@ -808,14 +808,11 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
         DrawPersianClock(hdc,hdc2);
       }
       DrawPlatforms(hdc,hdc2);
-
+      DrawFirePlatforms(hdc);
       DrawWebs(hdc);
       DrawEnemy(hdc,hdc2);
       DrawPlayer(hdc,hdc2);
-      if (has_water) {
-        DrawWaterPlatforms(hdc,hdc2);
-      }
-      DrawFirePlatforms(hdc);
+      DrawWaterPlatforms(hdc,hdc2);
 
       if (is_shadows && game_shadow) {
         DrawShadows(hdc,hdc2);

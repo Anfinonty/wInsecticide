@@ -925,6 +925,7 @@ void SaveNewLimitAdjustedLvl(HWND hwnd, HDC hdc)
     //GROUND text
     if (set_ground_amount>GROUND_NUM) { // text
       for (int i=0;i<GROUND_NUM;i++) {
+        fprintf(fptr,"%d",saved_ground_text_size[i]);
         fprintf(fptr,"\"");
         for (int j=0;j<lstrlenW(saved_ground_text[i]);j++) {
           fprintf(fptr,"{u%X}",saved_ground_text[i][j]);
@@ -932,10 +933,11 @@ void SaveNewLimitAdjustedLvl(HWND hwnd, HDC hdc)
         fprintf(fptr,"\",");
       }
       for (int i=GROUND_NUM;i<set_ground_amount;i++) {
-        fprintf(fptr,"\"\",");
+        fprintf(fptr,"16\"\",");
       }
     } else {
       for (int i=0;i<set_ground_amount;i++) {
+        fprintf(fptr,"%d",saved_ground_text_size[i]);
         fprintf(fptr,"\"");
         for (int j=0;j<lstrlenW(saved_ground_text[i]);j++) {
           fprintf(fptr,"{u%X}",saved_ground_text[i][j]);

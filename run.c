@@ -94,7 +94,7 @@ bool flag_fullscreen=FALSE;
 bool flag_hide_taskbar=FALSE;
 bool flag_taskbar_change_act=FALSE;
 bool flag_borderless_resolution_change=FALSE;
-bool flag_difficulty_change=FALSE;
+bool flag_difficulty_change=TRUE;
 bool flag_begin_drawing_tiles=FALSE;
 bool flag_display_long_loading=FALSE;
 bool hide_cursor=FALSE;
@@ -103,21 +103,19 @@ bool hide_mm=FALSE;
 bool yes_unifont=TRUE;//FALSE;
 bool game_cam_shake=FALSE;
 bool game_audio=TRUE;
-bool game_shadow=TRUE;
-bool has_water=FALSE;
-bool free_will=TRUE;
+bool game_shadow=FALSE;
+bool free_will=FALSE;
+bool hide_taskbar=FALSE;
+bool show_hijiri=FALSE;
+bool game_hard=FALSE;
 
 //game state
-bool hide_taskbar=FALSE;
 bool in_main_menu=TRUE;
 bool level_loaded=FALSE;
 bool level_loading=FALSE;
 bool game_over=FALSE;
 bool show_fps=FALSE;
 bool in_map_editor=FALSE;
-bool show_hijiri=FALSE;
-bool game_hard=FALSE;
-
 bool prelude=TRUE;
 //bool flag_prelude=TRUE;
 //bool alloc_enemy_once=TRUE;
@@ -188,18 +186,17 @@ int frame_tick=-10;
 //int FPS = 60;
 int FPS = 35; //minimum FPS, otherwise run according to screen refresh rate
 
-
 //Player visuals Options Values
 int player_color=0;
-int old_player_color=0;
+int old_player_color=-1;
 int player_load_color=0;
 
 int player_iris_color=4;
-int old_player_iris_color=4;
+int old_player_iris_color=-1;
 int player_load_iris_color=4;
 
 int player_pupil_color=12;
-int old_player_pupil_color=12;
+int old_player_pupil_color=-1;
 int player_load_pupil_color=12;
 
 int player_bullet_color=0;
@@ -503,25 +500,24 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
       if (flag_restart) {
         Sleep(100);
       } else {
-      if (level_loaded) {
-        PlayerAct();
-  
-        for (int i=0;i<ENEMY_NUM;i++) {
-          EnemyAct(i);
-        }
-        if (map_weather>0) {
-          RainAct();
+        if (level_loaded) {
+          PlayerAct();
+          for (int i=0;i<ENEMY_NUM;i++) {
+            EnemyAct(i);
+          }
+          if (map_weather>0) {
+            RainAct();
           //if (!player.time_breaker) {
             //ScreenRainDropAct();
           //}
+          }
+          if (FIRE_GROUND_NUM>0 && !player.time_breaker) {
+            GroundFireAct();
+          }
+          Sleep(player.sleep_timer);
+        } else {
+          Sleep(1000);
         }
-        if (FIRE_GROUND_NUM>0) {
-          GroundFireAct();
-        }
-        Sleep(player.sleep_timer);
-      } else {
-        Sleep(1000);
-      }
       }
     } else if (in_map_editor) {
       MapEditorAct();
@@ -548,7 +544,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
                 ScreenRainDropAct();
               }*/
             }
-            if (FIRE_GROUND_NUM>0) {
+            if (FIRE_GROUND_NUM>0 && !player.time_breaker) {
               GroundFireAct();
             }
           }
@@ -813,13 +809,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           AdjustGameAudio();
 
           //flag_adjust_wav_out_audio=TRUE;
-          KeyChangePlayerColor();
           flag_adjust_audio=TRUE;
           flag_update_background=TRUE;
           InitLevel(FALSE);
           frame_tick=-FPS;
           player.flag_revert_palette=TRUE;
           player.time_breaker_tick=-1;
+          KeyChangePlayerColor();
 
 
           //Init avi playing
@@ -1365,14 +1361,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DrawBackground(hdcBackbuff,hdcBackbuff2);
             DrawWaterPlatformsTexture(hdcBackbuff,hdcBackbuff2);
             DrawPlatforms(hdcBackbuff,hdcBackbuff2);
+            DrawFirePlatforms(hdcBackbuff);
             DrawWebs(hdcBackbuff);
             DrawEnemy(hdcBackbuff,hdcBackbuff2);
             DrawPlayer(hdcBackbuff,hdcBackbuff2);
-            if (has_water) {
-              DrawWaterPlatforms(hdcBackbuff,hdcBackbuff2);
-            }
-            DrawFirePlatforms(hdcBackbuff);
-            //Draw Bullets;
+            DrawWaterPlatforms(hdcBackbuff,hdcBackbuff2);
             //DrawNodeGrids(hdcBackbuff); //debugging
 
 
