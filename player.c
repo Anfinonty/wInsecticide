@@ -1255,7 +1255,6 @@ void PlayerActFlingMovement(int grav_speed)
       if (player.fling_distance==1) { //cap in air timer right before end of fling distance
         player.in_air_timer=1002;
         player.fling_distance=-1;
-        //player.speed+=2;
       }
     } else if (player.fling_distance<0){ //Continue moving but now theres gravity
       move_x(cos(player.angle_of_reflection));
@@ -1529,7 +1528,7 @@ void PlayerActMouseClick()
         if (player.on_ground_id!=-1) { 
           player.fling_distance=0;
         } else { //begin flinging!!
-          player.fling_distance=player.pivot_length/2;
+          player.fling_distance=player.pivot_length;
         }
         player.grav=3; //grav when swing let go
         player.in_air_timer=1000;
@@ -1871,17 +1870,17 @@ void PlayerAct()
       if ((player.fling_distance!=0)) {
         if (player.speed<10) {
           speed_limiter=6;
-        } else if (player.speed<24){
+        } else if (player.speed<25){
           speed_limiter=10;
         }
         if (player.fling_distance>0) {
-          speed_limiter=(speed_limiter+speed_limiter/3+1);
+          speed_limiter=speed_limiter+2;
         } else {
-          speed_limiter=(speed_limiter+speed_limiter/4+1);
+          speed_limiter=speed_limiter;//(speed_limiter+speed_limiter/4+1);
         }
       } else if (player.is_swinging) {
         speed_limiter=10;
-      } else if (player.fling_distance==0 /*&& (player.jump || player.on_ground_id!=-1 || player.is_on_ground_edge)*/) {
+      } else if (player.fling_distance==0 && player.bullet_shot==-1/*&& (player.jump || player.on_ground_id!=-1 || player.is_on_ground_edge)*/) {
         /*if (player.speed<5) {
           speed_limiter=4;
         } else*/ if (player.speed<10) {
