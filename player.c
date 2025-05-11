@@ -1898,7 +1898,7 @@ void PlayerAct()
         //}
       }
 
-      if (game_hard && IsSpeedBreaking()) {
+      if (/*game_hard && */IsSpeedBreaking()) {
         speed_limiter=player.speed;
         speed_limiter=speed_limiter+speed_limiter/2+1;
       }

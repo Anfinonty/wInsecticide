@@ -770,7 +770,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
     if (level_loaded) {
       //DrawBlackBorders(hdc);
 
-      if (!(solar_hour>6 && solar_hour<18)) {
+      if (!(solar_hour>6 && solar_hour<18) && map_weather==0) {
           int dmx,dmy;
           if (lunar_day>=1 && lunar_day<=5) { //1, 2, 3, 4, 5
             dmx=GR_WIDTH-GR_WIDTH/8;
@@ -807,23 +807,24 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
       if (!hide_mm) {
         DrawPersianClock(hdc,hdc2);
       }
-      DrawPlatforms(hdc,hdc2);
-      DrawFirePlatforms(hdc);
-      DrawWebs(hdc);
-      DrawEnemy(hdc,hdc2);
-      DrawPlayer(hdc,hdc2);
-      DrawWaterPlatforms(hdc,hdc2);
+      if (!blank_level) {
+        DrawPlatforms(hdc,hdc2);
+        DrawFirePlatforms(hdc);
+        DrawWebs(hdc);
+        DrawEnemy(hdc,hdc2);
+        DrawPlayer(hdc,hdc2);
+        DrawWaterPlatforms(hdc,hdc2);
 
-      if (is_shadows && game_shadow && SHADOW_GRID_NUM>0) {
-        DrawShadows(hdc,hdc2);
-      }
-
+        if (is_shadows && game_shadow && SHADOW_GRID_NUM>0) {
+          DrawShadows(hdc,hdc2);
+        }
       //DrawWaterShader(hdc,hdc2);
-      if (map_weather>0) {
-        DrawRain(hdc,hdc2);
+        if (map_weather>0) {
+          DrawRain(hdc,hdc2);
         /*if (!player.in_water) {
           DrawRainShader(hdc,hdc2);
         }*/
+        }
       }
     }
   } else {

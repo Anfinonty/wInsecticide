@@ -1587,7 +1587,17 @@ void ZeroMenuKeypressDown( HWND hwnd,  HDC hdc, WPARAM wParam)
            if (game_audio)
              PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
            if (level_chosen>=0 && level_chosen<level_num && main_menu_chosen==0) {
-             CleanupAll(FALSE);
+             if (!blank_level) {
+               CleanupAll(FALSE);
+             } else {
+               back_to_menu=FALSE;
+               blank_level=FALSE;
+               level_loaded=FALSE;
+               DeleteObject(map_background_sprite);
+               call_help_timer=0;
+               run_after_once=FALSE;
+               run_once_only=FALSE;
+             }
              flag_load_level=TRUE;
            }
          }
@@ -1622,7 +1632,18 @@ void ZeroMenuKeypressUp( HWND hwnd,  HDC hdc, WPARAM wParam)
         main_menu_chosen=3;
         /*LOAD selected level details to adjust limits*/
         wchar_t txt[128];
-        CleanupAll(FALSE);
+        if (!blank_level) {
+          CleanupAll(FALSE);
+        } else {
+          back_to_menu=FALSE;
+          blank_level=FALSE;
+          level_loaded=FALSE;
+          DeleteObject(map_background_sprite);
+          call_help_timer=0;
+          run_after_once=FALSE;
+          run_once_only=FALSE;
+        }
+
         swprintf(txt,128,L"saves/%s/level.txt",level_names[level_chosen]);
         LoadSave(txt,FALSE); //load saves
 
@@ -1643,10 +1664,21 @@ void ZeroMenuKeypressUp( HWND hwnd,  HDC hdc, WPARAM wParam)
       case '3': //Build Selected Level
         if (player_color>-1 && player_color<256)
         {
-          main_menu_chosen=4;
           if (game_audio)
             PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
-          CleanupAll(FALSE);
+          if (!blank_level) {
+            main_menu_chosen=4;
+            CleanupAll(FALSE);
+          } else {
+            back_to_menu=FALSE;
+            level_loaded=FALSE;
+            DeleteObject(map_background_sprite);
+            call_help_timer=0;
+            run_after_once=FALSE;
+            run_once_only=FALSE;
+            main_menu_chosen=4;
+            blank_level=FALSE;
+          }
           flag_load_melevel=TRUE;
         }
         break;

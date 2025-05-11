@@ -99,6 +99,7 @@ bool flag_begin_drawing_tiles=FALSE;
 bool flag_display_long_loading=FALSE;
 bool hide_cursor=FALSE;
 bool hide_mm=FALSE;
+bool flag_load_player_sprite=TRUE;
 //game options
 bool yes_unifont=TRUE;//FALSE;
 bool game_cam_shake=TRUE;//FALSE;
@@ -110,6 +111,7 @@ bool show_hijiri=FALSE;
 bool game_hard=FALSE;
 
 //game state
+bool blank_level=FALSE;
 bool in_main_menu=TRUE;
 bool level_loaded=FALSE;
 bool level_loading=FALSE;
@@ -213,8 +215,8 @@ double double_best_score=0;
 
 //double, game options
 double time_begin=0;
-double game_volume=1.0;
-double old_game_volume=1.0;
+double game_volume=0.2;
+double old_game_volume=1.2;
 
 
 
@@ -498,7 +500,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
       Sleep(1000);
     } else if (!in_main_menu) { //In Game
       if (flag_restart) {
-        Sleep(100);
+        //Sleep(100);
       } else {
         if (level_loaded) {
           PlayerAct();
@@ -523,14 +525,14 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
       MapEditorAct();
       Sleep(6);
     } else {
-      if (main_menu_chosen==3) {
+      if (main_menu_chosen==3 || blank_level) {
         Sleep(1000);
       } else {
-        if (wav_mode!=0) {
+        if (wav_mode!=0) { //non mode 0, dj
           Sleep(1000);
-        } else {
+        } else { //mode 0, map demo
           if (flag_restart) {
-            Sleep(100);
+            //Sleep(100);
           }
           if (level_loaded && !flag_restart) {
             PlayerAct();
@@ -564,7 +566,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
           }
           Sleep(6);
           //Sleep(1000);
-        }
+        } //end of wav_mode==0
 
         if (flag_load_level) {
           flag_load_level=FALSE;
@@ -1523,6 +1525,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           hdc=BeginPaint(hwnd, &ps);
           hdcBackbuff=CreateCompatibleDC(hdc);
           hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
+
+          if (flag_load_player_sprite) {
+            flag_load_player_sprite=FALSE;
+            InitPlayerSpritesObjColor(hdc,hdcBackbuff);
+            InitPlayerCursorColor(hdc,hdcBackbuff2);
+          }
 
           if (flag_difficulty_change) {
             flag_difficulty_change=FALSE;

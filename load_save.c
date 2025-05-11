@@ -197,7 +197,7 @@ void GetSavesInDir(const wchar_t *dirname)
 
 
 
-void LoadSave(wchar_t *saves_name, bool spawn_objects)
+bool LoadSave(wchar_t *saves_name, bool spawn_objects)
 {
   int row=0;
   int column=0;
@@ -218,6 +218,10 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
 
   FILE *fptr;
   fptr = _wfopen(saves_name,L"r");
+
+  if (!fptr) { //file notfound
+    return FALSE;
+  }
   int c; //each character
 
   //init
@@ -497,6 +501,7 @@ void LoadSave(wchar_t *saves_name, bool spawn_objects)
     }
   }
   fclose(fptr);
+  return TRUE;
 }
 
 

@@ -313,13 +313,38 @@ void InitLevel(bool load_lvl)
       }
     }
   } else {
-    swprintf(lvl_name,128,L"mm_demo2");    
-    swprintf(txt,128,L"saves/mm_demo2/level.txt");
-    swprintf(save_level,128,L"saves/mm_demo2/scores.txt");
+    swprintf(lvl_name,128,L"__006__");    
+    swprintf(txt,128,L"saves/__006__/level.txt");
+    swprintf(save_level,128,L"saves/__006__/scores.txt");
   }
 
 
-  LoadSave(txt,TRUE);
+  bool saves_exist=LoadSave(txt,TRUE);
+
+  if (!saves_exist) {
+    in_main_menu=TRUE;
+    blank_level=TRUE;
+    level_loaded=TRUE;
+    level_loading=FALSE;
+
+    /*int dice=abs(RandNum(0,100,&misc_rng_i,-1));
+    if (dice<30) {
+      rain_grad_rise=2;
+      rain_grad_run=1;
+      if (dice>15) {
+        map_weather=1;
+      } else {
+        map_weather=2;
+      }
+    } else {
+      map_weather=0;
+    }*/
+
+    return;
+  } else {
+    blank_level=FALSE;
+  }
+
   OLD_GR_WIDTH=0;
   OLD_GR_HEIGHT=0;
   
