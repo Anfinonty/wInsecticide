@@ -729,7 +729,7 @@ void InitBulletRain()
   weather_rng_i=0;
   if (map_weather==1) {
     if (GR_WIDTH>800) {
-      max_bullet_num=SHOOT_BULLET_NUM+(RAIN_NUM/6);
+      max_bullet_num=SHOOT_BULLET_NUM+(RAIN_NUM/3);//+(RAIN_NUM/6);
     } else {
       max_bullet_num=SHOOT_BULLET_NUM+(RAIN_NUM/16);
     }
@@ -1076,7 +1076,8 @@ void BulletAct(int bullet_id)
             }
 
 
-            int c=BLUE;//Highlight(IsInvertedBackground(),BLUE,YELLOW);
+            int c=LTGRAY;//BLUE;//Highlight(IsInvertedBackground(),BLUE,YELLOW);
+            int rand_extra_run=0;
             int weather_bullet_type_graphics=0;
             int weather_bullet_type_speedm=0;
             double weather_bullet_type_speed=0.0;
@@ -1090,12 +1091,13 @@ void BulletAct(int bullet_id)
                 weather_bullet_type_speed=1.0;
 
                 d=RandNum(0,20,&weather_rng_i,seed);
+                rand_extra_run=-5+d/2;
                 switch (d) {
                   case 0:
-                    weather_bullet_type_speedm=8;
+                    weather_bullet_type_speedm=13;
                     break;
                   case 1:
-                    weather_bullet_type_speedm=5;
+                    weather_bullet_type_speedm=15;
                     break;
                   default:
                     weather_bullet_type_speedm=10;
@@ -1152,7 +1154,7 @@ void BulletAct(int bullet_id)
                 rand_y,
                 0,
                 0,
-                rain_grad_run,
+                rain_grad_run+rand_extra_run,
                 rain_grad_rise,
                 0 //angle            
               );
@@ -1171,7 +1173,7 @@ void BulletAct(int bullet_id)
                 0,//y
                 0,
                 0,
-                rain_grad_run,
+                rain_grad_run+rand_extra_run,
                 rain_grad_rise,
                 0 //angle            
               );
@@ -1236,7 +1238,7 @@ void RainAct()
 {
   if (map_weather==1) { //rain
       if (GR_WIDTH>800) {
-        for (int i=SHOOT_BULLET_NUM;i<SHOOT_BULLET_NUM+(RAIN_NUM/6);i++) {
+        for (int i=SHOOT_BULLET_NUM;i<SHOOT_BULLET_NUM/*+(RAIN_NUM/6)*/+(RAIN_NUM/3);i++) {
           BulletAct(i);
         }
       } else {

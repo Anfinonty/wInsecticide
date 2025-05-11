@@ -51,7 +51,7 @@ void InitGridTiles(const wchar_t* lvl_name)
   int j,k;
   bool yes_shadow=FALSE;
   wchar_t seg_name[72];
-  if (is_shadows) {
+  if (is_shadows && game_shadow) {
     yes_shadow=TRUE;
   }
   FOREGROUND_GRID_NUM=0;
@@ -115,7 +115,7 @@ void DrawCreateTiles(HDC hdc)
   int tmp_id;
 
   if (loading_tile_grid_prog==1) {
-    if (is_shadows) {
+    if (is_shadows && game_shadow) {
       yes_shadow=TRUE;
     }
     if (yes_shadow) {
@@ -135,7 +135,7 @@ void DrawCreateTiles(HDC hdc)
     loading_tile_grid_prog=2;
     //Draw "Loading shadows. This will take a while..."
   } else if (loading_tile_grid_prog==2) {
-    if (is_shadows) {
+    if (is_shadows && game_shadow) {
       yes_shadow=TRUE;
     }
     if (yes_shadow) {
@@ -234,7 +234,7 @@ void DrawCreateTiles(HDC hdc)
       loading_tile_grid_prog=5;
     }
   } else if (loading_tile_grid_prog==5) {
-    if (is_shadows) {
+    if (is_shadows && game_shadow) {
       yes_shadow=TRUE;
     }
     if (yes_shadow) {

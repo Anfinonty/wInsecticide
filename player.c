@@ -1295,7 +1295,7 @@ void PlayerActReboundActions(int grav_speed, int speed)
       if (player.speed>10) {
         player.speed=1+player.speed/2;//*5/6;
       } else if (player.speed>5) {
-        player.speed-=1;//player.speed*5/6;
+        player.speed-=2;//player.speed*5/6;
       }
     }
   }
@@ -1529,7 +1529,7 @@ void PlayerActMouseClick()
         if (player.on_ground_id!=-1) { 
           player.fling_distance=0;
         } else { //begin flinging!!
-          player.fling_distance=player.pivot_length;
+          player.fling_distance=player.pivot_length/2;
         }
         player.grav=3; //grav when swing let go
         player.in_air_timer=1000;
@@ -1864,29 +1864,43 @@ void PlayerAct()
 
       //PLAYER TRUE SPEED LIMITER
       double speed_limiter=player.speed;
-      if (player.speed<5 && player.jump) {
+      /*if (player.speed<5 && player.jump) {
         speed_limiter=4;
-      }
+      }*/
 
-      if ((player.fling_distance>0)) {
-        speed_limiter=speed_limiter+speed_limiter/4+1;
+      if ((player.fling_distance!=0)) {
+        if (player.speed<10) {
+          speed_limiter=6;
+        } else if (player.speed<24){
+          speed_limiter=10;
+        }
+        if (player.fling_distance>0) {
+          speed_limiter=(speed_limiter+speed_limiter/3+1);
+        } else {
+          speed_limiter=(speed_limiter+speed_limiter/4+1);
+        }
       } else if (player.is_swinging) {
         speed_limiter=10;
-      } else if (player.fling_distance==0 && (player.on_ground_id!=-1 || player.is_on_ground_edge)) {
-        if (player.speed<5) {
+      } else if (player.fling_distance==0 /*&& (player.jump || player.on_ground_id!=-1 || player.is_on_ground_edge)*/) {
+        /*if (player.speed<5) {
           speed_limiter=4;
-        } else if (player.speed<10) {
+        } else*/ if (player.speed<10) {
           speed_limiter=6;
         } else if (player.speed<24){
           speed_limiter=8;
         }
       }
 
-      if (player.uppercut && player.speed>4 && player.bullet_shot==-1) {
-        speed_limiter=5;
+      if (player.uppercut && player.bullet_shot==-1) { //crouching + uppercut
+        //if (player.speed>4) {
+          //speed_limiter=5;
+        //} else {
+          speed_limiter=4;
+        //}
       }
 
       if (game_hard && IsSpeedBreaking()) {
+        speed_limiter=player.speed;
         speed_limiter=speed_limiter+speed_limiter/2+1;
       }
 
@@ -2704,7 +2718,6 @@ void PlayerSndAct()
   }
 }
 
-
 void PlayerCameraShake()
 {
   int i;
@@ -2712,9 +2725,10 @@ void PlayerCameraShake()
   //if (!the_bravery_tyrant && IsNormalView) {
     double y_bob=0,x_bob=0;
     //if (sprint_bobbing) {  //if sprint_bobbing
+    if (!player.is_swinging) {
       if (player.on_ground_id!=-1) {//not in air, on ground
         if (!player.blocking) {
-          if (player.rst_left || player.rst_right || player.health<=PLAYER_LOW_HEALTH) {
+          if (player.rst_left || player.rst_right /*|| player.health<=PLAYER_LOW_HEALTH*/) {
 	        if (player.speed>=5) {
               x_bob=2.5;
 	          //if (bg_cam_fall_cooldown==0) {
@@ -2739,8 +2753,9 @@ void PlayerCameraShake()
         }
       }
     //}
-    if ((player.grav>3 || player.speed>=5) && (!player.is_on_ground_edge)) { //falling cam effect
-      y_bob=0;//(player.grav-2)/2;
+    
+    //if ((player.grav>3 || player.speed>=5) && (!player.is_on_ground_edge)) { //falling cam effect
+      y_bob=(player.grav)/6;
 
       switch (player.speed) {
          case 1:
@@ -2751,21 +2766,24 @@ void PlayerCameraShake()
            x_bob=RandNum(1,2,&misc_rng_i,player.seed);//move x		
     	   break;
       }
+
       if (player.rst_left) {
 	    player.cam_move_x+=x_bob;
       }
       if (player.rst_right) {
 	    player.cam_move_x-=x_bob;
       }
-      player.cam_move_y-=y_bob;//increase y
+      player.cam_move_y-=y_bob;//y_bob;//increase y
       if (player.grav>5 || (player.speed>=5 && (player.rst_left || player.rst_right))) {
         player.cam_move_x+=RandNum(-1,1,&misc_rng_i,player.seed);//shaky x
         player.cam_move_y+=RandNum(-1,1,&misc_rng_i,player.seed);//shaky y
       }
-    }
+    //}
     x_bob=0;
     y_bob=0;
   //}
+
+  }
   for (i=0;i<abs(player.cam_move_x);i++) { //cam stablizer
     if (player.cam_move_x>0) {
       player.cam_move_x-=0.1;

@@ -97,11 +97,13 @@ void DrawBackground(HDC hdc,HDC hdc2)
 
 
   switch (map_background) {
-    case 0: {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
       DrawBitmap(hdc,hdc2,draw_p_px,draw_p_py,0,0,GR_WIDTH*2,GR_HEIGHT*2,map_background_sprite,SRCCOPY,FALSE,FALSE);
-      }
       break;
-    default:
+    default: //custom map background
       if (map_background_sprite==NULL) {
         GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,custom_map_background_color);
       } else {
@@ -110,7 +112,7 @@ void DrawBackground(HDC hdc,HDC hdc2)
       break;
   }
 
-  if ((is_moon && custom_map_background_color_i>127) || map_background==1) {
+  if ((!(map_background>=2 && map_background<=3) && is_moon && custom_map_background_color_i>127) || map_background==1) {
       int dmx=-1000;
       int dmy=-1000;
       if (lunar_day>=1 && lunar_day<=5) { //1, 2, 3, 4, 5

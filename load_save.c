@@ -509,12 +509,12 @@ void LoadOptions()
       player_color=0;
       player_iris_color=4;
       player_pupil_color=12;
-      game_cam_shake=0;
+      game_cam_shake=1;
       game_audio=1;
       game_volume=0.2000;
       wav_out_volume=0.5000; //scrapped
       yes_unifont=1;
-      game_shadow=1;
+      game_shadow=0;
       hide_taskbar=0;
       resolution_choose=1;
       show_fps=0;

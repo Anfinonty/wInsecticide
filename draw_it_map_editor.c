@@ -242,9 +242,9 @@ void DrawMapEditorBackground(HDC hdc,HDC hdc2)
 {
   switch (MapEditor.set_lvl_ambient_val[0]) {
     case 0:
-      DrawBitmap(hdc,hdc2,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
-      break;
     case 1:
+    case 2:
+    case 3:
       DrawBitmap(hdc,hdc2,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
       break;
     default:

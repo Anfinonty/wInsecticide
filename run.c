@@ -101,7 +101,7 @@ bool hide_cursor=FALSE;
 bool hide_mm=FALSE;
 //game options
 bool yes_unifont=TRUE;//FALSE;
-bool game_cam_shake=FALSE;
+bool game_cam_shake=TRUE;//FALSE;
 bool game_audio=TRUE;
 bool game_shadow=FALSE;
 bool free_will=FALSE;
@@ -1143,9 +1143,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
                 int mb_val=-1;
                 if (solar_hour>6 && solar_hour<18) { //day
-                  mb_val=0;//InitExtractAVIFrames(L"avi/mainmenu_gameplay_day.avi",0);
+                  if (map_weather!=0) {
+                    mb_val=2;
+                  } else {
+                    mb_val=0;
+                  }
+                  //InitExtractAVIFrames(L"avi/mainmenu_gameplay_day.avi",0);
                 } else {
-                  mb_val=1;
+                  if (map_weather!=0) {
+                    mb_val=3;
+                  } else {
+                    mb_val=1;
+                  }
                 }
                 //printf("solar_hour:%d,,%d\n",solar_hour,mb_val);
 
@@ -1167,10 +1176,24 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                       tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
                     }
                     break;
+                  case 2:
+                    if (GR_WIDTH<800 && GR_HEIGHT<600) {
+                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/skdark0.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+                    } else {
+                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/skdark0_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+                    }
+                    break;
+                  case 3:
+                    if (GR_WIDTH<800 && GR_HEIGHT<600) {
+                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/skdark1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+                    } else {
+                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/skdark1_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+                    }
+                    break;
                 }
                 if (tmp_map_background_sprite!=NULL) {
                   map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH,GR_HEIGHT); //note runs once only
-                  if (mb_val!=1) {
+                  if (mb_val!=1 && mb_val!=2 && mb_val!=3) {
                     PlaceDayMoon();
                   }
                 } else {
@@ -1187,7 +1210,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
              } else {
                mb_val=MapEditor.set_lvl_ambient_val[0];
              }
-            if (mb_val>=0 && mb_val<=2) {
+            if (mb_val>=0 && mb_val<=4) {
               DeleteObject(map_background_sprite);
               HBITMAP tmp_map_background_sprite;
 
@@ -1200,26 +1223,36 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                   case 0:
                     if (GR_WIDTH<800 && GR_HEIGHT<600) {
                       tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-                    } else {//if (GR_WIDTH<1280 && GR_HEIGHT<720) {
+                    } else {
                       tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-                    }// else {
-                      //tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky_hd_ultra.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-                    //}
+                    }
                     break;
                   case 1:
                     if (GR_WIDTH<800 && GR_HEIGHT<600) {
                       tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-                    } else {//}if (GR_WIDTH<1280 && GR_HEIGHT<720) {
-                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-                    //} else {
-                      //tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars_hd_ultra.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+                    } else {
+                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);                    
+                    }
+                    break;
+                  case 2:
+                    if (GR_WIDTH<800 && GR_HEIGHT<600) {
+                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/skdark0.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+                    } else {
+                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/skdark0_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);                    
+                    }
+                    break;
+                  case 3:
+                    if (GR_WIDTH<800 && GR_HEIGHT<600) {
+                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/skdark1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+                    } else {
+                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/skdark1_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);                    
                     }
                     break;
                 }
               }
               if (tmp_map_background_sprite!=NULL) {
                 map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH+GR_WIDTH/8,GR_HEIGHT+GR_HEIGHT/8); //note runs once only
-                if (mb_val!=1) {
+                if (mb_val!=1 && mb_val!=2 && mb_val!=3) {
                   PlaceDayMoon();
                 }
               } else {
@@ -1337,14 +1370,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
 
 
-            if (!(player.time_breaker || player.is_swinging || player.is_rebounding)) {
+            //if (!(player.time_breaker /*|| player.is_swinging || player.is_rebounding*/)) {
               if (game_cam_shake && player.health>0) {
                 PlayerCameraShake();
               }
-            } else {
-              player.cam_move_x=0;
-              player.cam_move_y=0;
-            }
+            //} else {
+              //player.cam_move_x=0;
+              //player.cam_move_y=0;
+            //}
 
  
             if (level_loaded && flag_restart) { // restart level when player health hits 0 or VK_RETURN
@@ -1369,7 +1402,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             //DrawNodeGrids(hdcBackbuff); //debugging
 
 
-            if (is_shadows && game_shadow) {
+            if (is_shadows && game_shadow && SHADOW_GRID_NUM>0) {
               DrawShadows(hdcBackbuff,hdcBackbuff2);
             }
 
