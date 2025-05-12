@@ -54,6 +54,9 @@ void KeyChangePlayerColor()
        CopyReplaceColorPalette(player_cursor_palette,rgbColorsDefault,167,rgbPaint[player_color]); //LTGREEN
        CopyReplaceColorPalette(player_cursor_palette,player_cursor_palette,151,rgbPaint[player_iris_color]); //LTBLUE
        CopyReplaceColorPalette(player_cursor_palette,player_cursor_palette,199,rgbPaint[player_pupil_color]);//LTRED
+       if (blank_level) {
+         flag_load_player_sprite=TRUE;
+       }
     }
 }
 
