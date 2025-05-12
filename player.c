@@ -1867,7 +1867,9 @@ void PlayerAct()
         speed_limiter=4;
       }*/
 
-      if ((player.fling_distance!=0)) {
+      if (player.is_swinging) {
+        speed_limiter=10;
+      } else if ((player.fling_distance!=0)) {
         if (player.speed<10) {
           speed_limiter=6;
         } else if (player.speed<25){
@@ -1878,8 +1880,6 @@ void PlayerAct()
         } else {
           speed_limiter=speed_limiter;//(speed_limiter+speed_limiter/4+1);
         }
-      } else if (player.is_swinging) {
-        speed_limiter=10;
       } else if (player.fling_distance==0 && player.bullet_shot==-1/*&& (player.jump || player.on_ground_id!=-1 || player.is_on_ground_edge)*/) {
         /*if (player.speed<5) {
           speed_limiter=4;
