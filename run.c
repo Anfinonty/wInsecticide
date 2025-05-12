@@ -100,6 +100,7 @@ bool flag_display_long_loading=FALSE;
 bool hide_cursor=FALSE;
 bool hide_mm=FALSE;
 bool flag_load_player_sprite=TRUE;
+
 //game options
 bool yes_unifont=TRUE;//FALSE;
 bool game_cam_shake=TRUE;//FALSE;
@@ -2359,7 +2360,7 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
 //       loadSoundEffect(&keySoundEffect[6],L"snd/FE_MB_16.wav",FALSE); //Paint Confirm Sound Effect --> [6]
        loadSoundEffect(&keySoundEffect[6],L"snd/player_paint_confirm.wav",FALSE); //Paint Confirm Sound Effect --> [6]
 
-       loadSoundEffect(&channelSoundEffect[0],L"snd/player_death_.wav",TRUE);
+       loadSoundEffect(&channelSoundEffect[0],L"snd/player_death.wav",TRUE);
        loadSoundEffect(&channelSoundEffect[1],L"snd/flesh_bloody_break.wav",TRUE);
        loadSoundEffect(&channelSoundEffect[2],L"snd/knife_throw.wav",TRUE);
        loadSoundEffect(&channelSoundEffect[3],L"snd/rain2classic.wav",TRUE); //deprecated

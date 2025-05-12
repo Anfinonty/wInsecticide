@@ -2555,6 +2555,10 @@ void PlayerAct()
     }
     //immediate death action
       if (!player.flag_death) {
+        if (game_audio) {
+          PlayMemSnd(&channelSoundEffect[0],&channelSoundEffectCache[0],TRUE,1); 
+        }
+
         player.flag_death=TRUE;
         player.flag_revert_palette=TRUE;
         player.time_breaker_tick=0;
@@ -2587,7 +2591,7 @@ void PlayerAct()
                 11, //graphics type
                 rand_range, // range
                 0.1, //speed
-	            4+RandNum(1,10,&player.death_bullet_rng_i,seed), //speed multiplier
+	            12+RandNum(1,10,&player.death_bullet_rng_i,seed), //speed multiplier
 	            10, //damage
 	            -2,
 	            player.x, //so it doest get stuck to ground
