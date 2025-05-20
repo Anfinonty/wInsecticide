@@ -1257,11 +1257,23 @@ bool InsectBites(int i,int dmg,bool is_mosquito)
                PlaySound(spamSoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //hurt snd
              }
              if (player.health>PLAYER_LOW_HEALTH+1) { //usual response
-               player.health-=dmg;
+               //player.health-=dmg;
+               player.block_health-=1+dmg/2;
+               if (player.block_health<=0) {
+                 player.block_health=0;
+               }
+               double dmg_delta=dmg;
+               if (player.block_health>10) { 
+                 player.health-=dmg/(player.block_health/16+1);
+                 dmg_delta=dmg/(player.block_health/16+1);
+               } else {
+                 player.health-=dmg;
+               }
+
                if (is_mosquito) {
-                 Enemy[i]->health+=dmg;
+                 Enemy[i]->health+=dmg_delta;
                  if (Enemy[i]->health>=Enemy[i]->max_health) {
-                   Enemy[i]->max_health+=dmg;
+                   Enemy[i]->max_health+=dmg_delta;
                  }
                }
              } else { //Player when low health
@@ -1845,7 +1857,8 @@ void EnemyAct(int i)
         }
         for (j=0;j<knock_max;j++) {
           Enemy[i]->in_node_grid_id=GetGridId(Enemy[i]->x,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);      
-          tmp_gid_=GetOnGroundId(Enemy[i]->x,Enemy[i]->y,2,2); //squishy, but risk of clipping, i dont care
+          //tmp_gid_=GetOnGroundId(Enemy[i]->x,Enemy[i]->y,2,2); //squishy, but risk of clipping, i dont care
+          tmp_gid_=GetOnGroundId(Enemy[i]->x,Enemy[i]->y,3,2); //squishy, but risk of clipping, i dont care
             //Enemy[i]->on_ground_id;//
           //Enemy[i]->on_ground_id=GetOnGroundIdE(Enemy[i]->x,Enemy[i]->y,2,2,i);
           EnemyKnockbackMove(i,tmp_gid_);
@@ -2183,14 +2196,14 @@ void EnemyAct(int i)
             if (!game_hard) {
               Enemy[i]->bullet_cooldown--;
             } else {
-	          Enemy[i]->bullet_cooldown-=6;
+	          Enemy[i]->bullet_cooldown-=3;
             }
           }
         } else {
           if (!game_hard) {
 	        Enemy[i]->bullet_fire_cooldown--;
           } else {
-	        Enemy[i]->bullet_fire_cooldown-=6;
+	        Enemy[i]->bullet_fire_cooldown-=3;
           }
         }
       }
@@ -2211,10 +2224,9 @@ void EnemyAct(int i)
     //Movement
       if (Enemy[i]->idling) { //idling
         Enemy[i]->idle_timer++;
-        if (game_hard) {
-          //Enemy[i]->idle_timer+=30;
-          Enemy[i]->idle_timer+=3;
-        }
+        //if (game_hard) { //removed due to cpu overclock risk
+          //Enemy[i]->idle_timer+=3;
+        //}
 	    allow_act=FALSE;
         if (Enemy[i]->saw_player && !Enemy[i]->ignore_player && player.health>0) {//not ignoring
           if (!Enemy[i]->target_player && //not targetting
@@ -2227,11 +2239,11 @@ void EnemyAct(int i)
           EnemyTargetPlayer(i); //target player
         } else if (Enemy[i]->idle_timer>30 || force_search) {//idling over
           Enemy[i]->target_player=FALSE;
-          if (game_hard) {
-            dice=1;
-          } else {
+          //if (game_hard) { //commented out due to risk of cpu overclock
+            //dice=1;
+          //} else {
             dice=RandNum(0,5,&Enemy[i]->idle_rng_i,Enemy[i]->seed);
-          }
+          //}
           Enemy[i]->idle_timer=0;
           if (dice==1 || force_search) { //Start searching
 	      //total ignore player (still hostile)
@@ -3018,7 +3030,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
 //    GrPrint(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y-64,debug_txt,WHITE);
 
     bool allow_act=FALSE;
-    if (!game_hard) {
+    if (!game_hard) { //enemy visibility
       allow_act=Enemy[i]->within_render_distance;
     } else {
       allow_act=(player.health<=0 || (Enemy[i]->within_render_distance && (Enemy[i]->web_stuck || Enemy[i]->last_seen_timer>0)));

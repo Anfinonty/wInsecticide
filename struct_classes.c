@@ -517,6 +517,7 @@ struct Bullet
   bool near_miss;
   bool in_water; 
   bool playsnd;
+  bool is_left;
 
   int color;
   int speed_multiplier;
@@ -572,6 +573,7 @@ void BulletDamagePlayerAct(int bullet_id);
 
 bool HitPlayer(int bullet_id,int r1,int r2);
 void StopBullet(int bullet_id,bool is_player);
+//bool RainBulletTransitNodeGrid(int bullet_id);
 void RainBulletTransitNodeGrid(int bullet_id);
 void EnemyBulletAct(int bullet_id,int enemy_id);
 void MapEditorBulletAct(int bullet_id);

@@ -262,8 +262,8 @@ bool is_khmer=TRUE;
 #define ENEMY_BULLET_NUM            1000
 #define MAX_BULLET_PER_FIRE         10
 
-#define MAX_EXP_NUM_NORMAL                 5
-#define MAX_EXP_NUM_HARD                   3
+#define MAX_EXP_NUM_NORMAL                 10
+#define MAX_EXP_NUM_HARD                   5
 
 
 #define MAX_MAP_NODE_NUM (640*20)/NODE_SIZE * (480*20)/NODE_SIZE //MAX_WIDTH/NODE_SIZE * MAX_HEIGHT/NODE_SIZE
@@ -281,7 +281,7 @@ bool is_khmer=TRUE;
 #define SLOWDOWN_SLEEP_TIMER			35//30
 
 #define DEFAULT_PLAYER_HEALTH			20
-#define DEFAULT_PLAYER_BLOCK_HEALTH_MAX 100//20
+#define DEFAULT_PLAYER_BLOCK_HEALTH_MAX 50//20//100//20
 #define DEFAULT_PLAYER_JUMP_HEIGHT 		150//85//100
 #define DEFAULT_PLAYER_ATTACK_STRENGTH  	1
 #define DEFAULT_PLAYER_KNOCKBACK_STRENGTH	50
@@ -302,7 +302,7 @@ bool is_khmer=TRUE;
 #define HP_SHOW_TIMER_NUM   450
 
 #define PLAYER_LOW_HEALTH   3
-#define PLAYER_BULLET_NUM 36//24//16
+#define PLAYER_BULLET_NUM 16//36//24//16
 #define PLAYER_FLING_WEB_NUM    64//32
 
 #define GAME_OPTIONS_NUM    16
@@ -2340,39 +2340,39 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
     //https://stackoverflow.com/questions/8754111/how-to-read-the-data-in-a-wav-file-to-an-array
       //if (load_sound && level_loaded) {
 
-       loadSoundEffect(&spamSoundEffect[0],L"snd/timebreaker__start.wav",FALSE);
-       loadSoundEffect(&spamSoundEffect[1],L"snd/timebreaker__stop.wav",FALSE);
-       loadSoundEffect(&spamSoundEffect[2],L"snd/flesh_impact_bullet2.wav",FALSE);
-       loadSoundEffect(&spamSoundEffect[3],L"snd/player_block.wav",FALSE);
-       loadSoundEffect(&spamSoundEffect[4],L"snd/player_block_perfect.wav",FALSE);
-       loadSoundEffect(&spamSoundEffect[5],L"snd/player_hurt.wav",FALSE);
-       loadSoundEffect(&spamSoundEffect[6],L"snd/enemy_block.wav",FALSE);
-       loadSoundEffect(&spamSoundEffect[7],L"snd/clang.wav",FALSE);
-       loadSoundEffect(&spamSoundEffect[8],L"snd/powerup.wav",FALSE);
+       loadSoundEffect(&spamSoundEffect[0],L"snd/_timebreaker_start.wav",FALSE);
+       loadSoundEffect(&spamSoundEffect[1],L"snd/_timebreaker_stop.wav",FALSE);
+       loadSoundEffect(&spamSoundEffect[2],L"snd/_enemy_hurt.wav",FALSE);
+       loadSoundEffect(&spamSoundEffect[3],L"snd/_player_block.wav",FALSE);
+       loadSoundEffect(&spamSoundEffect[4],L"snd/_player_block_perfect.wav",FALSE);
+       loadSoundEffect(&spamSoundEffect[5],L"snd/_player_hurt.wav",FALSE);
+       loadSoundEffect(&spamSoundEffect[6],L"snd/_enemy_block.wav",FALSE);
+       loadSoundEffect(&spamSoundEffect[7],L"snd/_clang.wav",FALSE);
+       loadSoundEffect(&spamSoundEffect[8],L"snd/_powerup.wav",FALSE);
 
 
-       loadSoundEffect(&keySoundEffect[0],L"snd/play_level.wav",FALSE); //Enter Sound Effect (Sometimes) [0]
-       loadSoundEffect(&keySoundEffect[1],L"snd/FE_COMMON_MB_02.wav",FALSE); //Key Up Down Sound Effect [1]
-       loadSoundEffect(&keySoundEffect[2],L"snd/FE_COMMON_MB_03.wav",FALSE); //False Sound Effect --> [2]
-       loadSoundEffect(&keySoundEffect[3],L"snd/FE_COMMON_MB_04.wav",FALSE); //True Sound Effect --> [3]
-       loadSoundEffect(&keySoundEffect[4],L"snd/FE_COMMON_MB_05.wav",FALSE); //ESC Sound Effect --> [4]
-       loadSoundEffect(&keySoundEffect[5],L"snd/FE_MB_18.wav",FALSE); //Paint Sound Effect --> [5]
+       loadSoundEffect(&keySoundEffect[0],L"snd/_mm_playlevel.wav",FALSE); //Enter Sound Effect (Sometimes) [0]
+       loadSoundEffect(&keySoundEffect[1],L"snd/_mm_keyupdown.wav",FALSE); //Key Up Down Sound Effect [1]
+       loadSoundEffect(&keySoundEffect[2],L"snd/_mm_false.wav",FALSE); //False Sound Effect --> [2]
+       loadSoundEffect(&keySoundEffect[3],L"snd/_mm_true.wav",FALSE); //True Sound Effect --> [3]
+       loadSoundEffect(&keySoundEffect[4],L"snd/_mm_esc.wav",FALSE); //ESC Sound Effect --> [4]
+       loadSoundEffect(&keySoundEffect[5],L"snd/_mm_paintscroll.wav",FALSE); //Paint Sound Effect --> [5]
 //       loadSoundEffect(&keySoundEffect[6],L"snd/FE_MB_16.wav",FALSE); //Paint Confirm Sound Effect --> [6]
-       loadSoundEffect(&keySoundEffect[6],L"snd/player_paint_confirm.wav",FALSE); //Paint Confirm Sound Effect --> [6]
+       loadSoundEffect(&keySoundEffect[6],L"snd/_mm_paintconfirm.wav",FALSE); //Paint Confirm Sound Effect --> [6]
 
-       loadSoundEffect(&channelSoundEffect[0],L"snd/player_death.wav",TRUE);
-       loadSoundEffect(&channelSoundEffect[1],L"snd/flesh_bloody_break.wav",TRUE);
-       loadSoundEffect(&channelSoundEffect[2],L"snd/knife_throw.wav",TRUE);
-       loadSoundEffect(&channelSoundEffect[3],L"snd/rain2classic.wav",TRUE); //deprecated
-       loadSoundEffect(&channelSoundEffect[4],L"snd/rain2classic.wav",TRUE); //deprecated
-       loadSoundEffect(&channelSoundEffect[5],L"snd/shotgun.wav",TRUE);
-       loadSoundEffect(&channelSoundEffect[6],L"snd/sniper.wav",TRUE);
-       loadSoundEffect(&channelSoundEffect[7],L"snd/shtgnreload.wav",TRUE);
-       loadSoundEffect(&channelSoundEffect[8],L"snd/pistol.wav",TRUE);
-       loadSoundEffect(&channelSoundEffect[9],L"snd/load_knife.wav",TRUE);
-       loadSoundEffect(&channelSoundEffect[10],L"snd/load_3_knife.wav",TRUE);
-       loadSoundEffect(&channelSoundEffect[11],L"snd/load_pistol.wav",TRUE);
-       loadSoundEffect(&channelSoundEffect[12],L"snd/shotgun_empty.wav",TRUE);
+       loadSoundEffect(&channelSoundEffect[0],L"snd/_player_death.wav",TRUE);
+       loadSoundEffect(&channelSoundEffect[1],L"snd/_enemy_death.wav",TRUE);
+       loadSoundEffect(&channelSoundEffect[2],L"snd/_knife_throw.wav",TRUE);
+       //loadSoundEffect(&channelSoundEffect[3],L"snd/_rain.wav",TRUE); //deprecated
+       //loadSoundEffect(&channelSoundEffect[4],L"snd/_rain.wav",TRUE); //deprecated
+       loadSoundEffect(&channelSoundEffect[5],L"snd/_shotgun_fire.wav",TRUE);
+       loadSoundEffect(&channelSoundEffect[6],L"snd/_sniper.wav",TRUE);
+       loadSoundEffect(&channelSoundEffect[7],L"snd/_shotgun_reload.wav",TRUE);
+       loadSoundEffect(&channelSoundEffect[8],L"snd/_pistol.wav",TRUE);
+       loadSoundEffect(&channelSoundEffect[9],L"snd/_load_knife.wav",TRUE);
+       loadSoundEffect(&channelSoundEffect[10],L"snd/_load_3_knife.wav",TRUE);
+       loadSoundEffect(&channelSoundEffect[11],L"snd/_load_pistol.wav",TRUE);
+       loadSoundEffect(&channelSoundEffect[12],L"snd/_shotgun_empty.wav",TRUE);
 
        //for wav sound effects
        /*wfx_wav_sfx1.wFormatTag = WAVE_FORMAT_PCM;
@@ -2407,17 +2407,17 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
 
 
        //For Raining -> unique sfx
-       wfx_wav_sfx_rain.wFormatTag = WAVE_FORMAT_PCM;
+       /*wfx_wav_sfx_rain.wFormatTag = WAVE_FORMAT_PCM;
        wfx_wav_sfx_rain.nChannels = channelSoundEffect[3].wav_header->NumOfChan;
        wfx_wav_sfx_rain.nSamplesPerSec = channelSoundEffect[3].wav_header->SamplesPerSec;
        wfx_wav_sfx_rain.nAvgBytesPerSec = channelSoundEffect[3].wav_header->bytesPerSec;
        wfx_wav_sfx_rain.nBlockAlign = channelSoundEffect[3].wav_header->blockAlign;
        wfx_wav_sfx_rain.wBitsPerSample = channelSoundEffect[3].wav_header->bitsPerSample;
-       wfx_wav_sfx_rain.cbSize = 0;
+       wfx_wav_sfx_rain.cbSize = 0;*/
 
 
-       waveOutOpen(&hWaveOut[4], WAVE_MAPPER, &wfx_wav_sfx_rain, 0, 0, CALLBACK_NULL);
-       waveOutPrepareHeader(hWaveOut[4], &whdr[4], sizeof(WAVEHDR));
+       //waveOutOpen(&hWaveOut[4], WAVE_MAPPER, &wfx_wav_sfx_rain, 0, 0, CALLBACK_NULL);
+       //waveOutPrepareHeader(hWaveOut[4], &whdr[4], sizeof(WAVEHDR));
 
 
        //reload

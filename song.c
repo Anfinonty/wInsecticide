@@ -52,6 +52,8 @@ WAVEFORMATEX wfx_wav_sfx = {
     .nAvgBytesPerSec = 11025L * (1 *  16) / 8
 };
 
+
+
 WAVEFORMATEX wfx_wav_sfx_rain;
 //WAVEFORMATEX wfx_wav_music;
 

@@ -49,6 +49,7 @@ void InitBullet(int max_bullet_num)
   int i=0;
   current_bullet_id=0;
   for (i=0;i<max_bullet_num;i++) {
+    Bullet[i].is_left=FALSE;
     Bullet[i].rng_i=0;
     Bullet[i].bounce_timer=0;
     Bullet[i].playsnd=FALSE;
@@ -127,11 +128,13 @@ void ShootBullet(
     x2=source_x;
     y1=target_y;
     y2=source_y;
+    Bullet[bullet_id].is_left=TRUE;
   } else { //Right
     x2=target_x;
     x1=source_x;
     y2=target_y;
     y1=source_y;
+    Bullet[bullet_id].is_left=FALSE;
   }
   //cos(angle) = adjacent/hypothenuse
   /*0 . 90 degs*/
@@ -173,8 +176,21 @@ void BulletDamagePlayerAct(int bullet_id)
       player.show_health_timer=HP_SHOW_TIMER_NUM;
       player.show_block_health_timer=HP_SHOW_TIMER_NUM;
       blocked_bullet_dmg=Bullet[bullet_id].damage;
+
+      if (player.block_timer<26 && player.block_timer>0) {
+        blocked_bullet_dmg=0;
+      }
+
       if (player.health>PLAYER_LOW_HEALTH+1) { //usual response
-        player.health-=blocked_bullet_dmg;
+        player.block_health-=1+blocked_bullet_dmg/2;
+        if (player.block_health<=0) {
+          player.block_health=0;
+        }
+        if (player.block_health>10) { 
+          player.health-=blocked_bullet_dmg/(player.block_health/16+1); // lower block health =  smaller denominator = closer to 100%,
+        } else {
+          player.health-=blocked_bullet_dmg;
+        }
       } else { //Player when low health
         if (player.health<PLAYER_LOW_HEALTH) {
           player.health-=0.1;
@@ -194,18 +210,21 @@ void BulletDamagePlayerAct(int bullet_id)
         }
         if (player.on_ground_id!=-1) {//on ground
           if (player.block_timer<26) {
-            player.block_health-=blocked_bullet_dmg/4;
+            player.block_health-=blocked_bullet_dmg/8;
           } else {
-            player.block_health-=blocked_bullet_dmg/2;
+            player.block_health-=blocked_bullet_dmg/4;
           }
         } else {//in air
           if (player.block_timer<26) {
-            player.block_health-=blocked_bullet_dmg/4;
+            player.block_health-=blocked_bullet_dmg/8;
           } else {
-            player.block_health-=blocked_bullet_dmg;
+            player.block_health-=blocked_bullet_dmg/4;
           }
         }
         //blocked_bullet_dmg=0;
+        if (player.block_health<=0) {
+          player.block_health=0;
+        }
       } else {//perfect block , 23 or less than
         if (game_audio && player.health>0) {
           PlaySound(spamSoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //block perfect
@@ -293,6 +312,12 @@ void RainBulletTransitNodeGrid(int bullet_id)
     NodeGrid[on_node_grid_id]->tmp_wet=TRUE;
     Bullet[bullet_id].saved_node_grid_id=on_node_grid_id;
   }
+  /*if (on_node_grid_id!=-1) {
+    if (NodeGrid[on_node_grid_id]->node_water) {
+      return FALSE;
+    }
+  }
+  return TRUE;*/
 }
 
 
@@ -514,11 +539,15 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
               flag_play_bullet_heal_snd=TRUE;
             }
 
-            player.health+=0.2;
-            player.block_health+=3;
+            if (player.health<DEFAULT_PLAYER_HEALTH*2)
+              player.health+=1;//0.2;
+            else
+              player.health+=0.2;
+
+            player.block_health+=1;//3;
             if (player.block_health>player.block_health_max) {
               player.block_health=player.block_health_max;
-              player.health+=0.2;
+              player.health+=0.3;
             }
             player.exp++;
 
@@ -755,7 +784,7 @@ void InitBulletRain()
         i,
         -1,
         BLUE,
-        -2, //graphics type
+        -999, //graphics type
         MAP_HEIGHT*2, //range ==>
         1, //speed
         10, //speed multiplier
@@ -783,7 +812,7 @@ void RainBulletAct(int bullet_id)
   bullet_on_node_grid_id=GetGridId(Bullet[bullet_id].x,Bullet[bullet_id].y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
   
   //snow bullet oscillation.
-  if (Bullet[bullet_id].graphics_type==13 || Bullet[bullet_id].graphics_type==14) {
+  if (Bullet[bullet_id].graphics_type==-6 || Bullet[bullet_id].graphics_type==-7) {
     //function to do sine wave movement.
     Bullet[bullet_id].angle=Bullet[bullet_id].oangle+Bullet[bullet_id].oscilating_angle;
     Bullet[bullet_id].oscilating_angle+=Bullet[bullet_id].oscilating_angle_delta;
@@ -799,11 +828,13 @@ void RainBulletAct(int bullet_id)
              Bullet[bullet_id].y>player.y+GR_HEIGHT/2+GR_HEIGHT/4-player.cam_mouse_move_y) {//out of player view
     allow_act=1;
   } else if (bullet_on_node_grid_id!=-1) {
-    if (NodeGrid[bullet_on_node_grid_id]->node_water || NodeGrid[bullet_on_node_grid_id]->node_fire) {
+    if (NodeGrid[bullet_on_node_grid_id]->node_water) {
+      allow_act=2;
+    } else if (NodeGrid[bullet_on_node_grid_id]->node_fire) {
       allow_act=1;
       bullet_on_ground_id=-1;
-    } else if ((NodeGrid[bullet_on_node_grid_id]->node_no_rain || !NodeGrid[bullet_on_node_grid_id]->node_no_shade) && !(Bullet[bullet_id].graphics_type==16 || Bullet[bullet_id].graphics_type==15)) {
-      if (Bullet[bullet_id].graphics_type!=13) { //snowdrop
+    } else if ((NodeGrid[bullet_on_node_grid_id]->node_no_rain || !NodeGrid[bullet_on_node_grid_id]->node_no_shade) && !(Bullet[bullet_id].graphics_type==-5 || Bullet[bullet_id].graphics_type==-4)) {
+      if (Bullet[bullet_id].graphics_type!=-7) { //snowdrop
         bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,NODE_SIZE,NODE_SIZE);
       } else {
         bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,4,4);
@@ -842,7 +873,7 @@ void RainBulletAct(int bullet_id)
   }*/ //end of for,
 
   hit_player=HitPlayer(bullet_id,35,35);
-  if (hit_player && Bullet[bullet_id].graphics_type!=14 && Bullet[bullet_id].graphics_type!=16) { //hit player
+  if (hit_player && Bullet[bullet_id].graphics_type!=-4 && Bullet[bullet_id].graphics_type!=-6) { //hit player
     if (player.rain_wet_timer==0) {
       rain_sound_duration=0;
     }
@@ -864,10 +895,20 @@ void RainBulletAct(int bullet_id)
     }
   }
 
+  //if (!RainBulletTransitNodeGrid(bullet_id)) { //in water
+    //if (Bullet[bullet_id].graphics_type==-2) {
+      //allow_act=2;
+    //}
+  //}
+
   RainBulletTransitNodeGrid(bullet_id);
 
   if (bullet_on_ground_id!=-1) {//hit platform
-    allow_act=0;
+    if (Ground[bullet_on_ground_id]->type!=1) {
+      allow_act=0;
+    } else {
+      allow_act=2;
+    }
   }
   int seed=player.seed*bullet_id;
   if (!free_will) seed=-1;
@@ -883,8 +924,8 @@ void RainBulletAct(int bullet_id)
         //Bullet[bullet_id].angle=RandAngle(-360,360,&misc_rng_i,seed); //slight random when weather hit player
         //Bullet[bullet_id].range=-1;
       }
-      if (Bullet[bullet_id].graphics_type==13 || Bullet[bullet_id].graphics_type==14) {
-        if (Bullet[bullet_id].graphics_type==14) {
+      if (Bullet[bullet_id].graphics_type==-7 || Bullet[bullet_id].graphics_type==-6) {
+        if (Bullet[bullet_id].graphics_type==-6) {
           Bullet[bullet_id].speed=0.2;            
           Bullet[bullet_id].range=20;
         } else {
@@ -896,11 +937,14 @@ void RainBulletAct(int bullet_id)
         }
         Bullet[bullet_id].speed_multiplier=1;
         Bullet[bullet_id].graphics_type+=2; //snow type change, weird but im 2 tired to know why
-      } else if (Bullet[bullet_id].graphics_type==8) {
+      } else if (Bullet[bullet_id].graphics_type==-2) {
         Bullet[bullet_id].speed_multiplier=1;
         Bullet[bullet_id].speed=1;//0.4;
         Bullet[bullet_id].range=26;//13;
-        Bullet[bullet_id].graphics_type=12; //rain type
+        if (allow_act==2) {
+          Bullet[bullet_id].angle=RandAngle(-360,360,&misc_rng_i,seed); //slight random when weather hit water
+        }
+        Bullet[bullet_id].graphics_type=-3; //rain type
       }
     }
 
@@ -994,7 +1038,7 @@ void BulletAct(int bullet_id)
             player.bullet_shot_num--;        
 
             if (PLAYER_BULLET_NUM-player.bullet_shot_num==15 && player.knives_per_throw>=15 && game_audio && player.health>0) { //reload
-              //PlayMemSnd(&channelSoundEffect[7],&channelSoundEffectCache[7],TRUE,5); 
+              PlayMemSnd(&channelSoundEffect[7],&channelSoundEffectCache[7],TRUE,5); 
             }
 
           }
@@ -1084,7 +1128,7 @@ void BulletAct(int bullet_id)
             switch (map_weather) {
               case 1: //rain;
                 {int d;
-                weather_bullet_type_graphics=8;
+                weather_bullet_type_graphics=-2;
                 weather_bullet_type_speedm=10;
                 //rand_x=stickyTo(rand_x,NODE_SIZE*4);
                 //rand_y=stickyTo(rand_y,NODE_SIZE*4);
@@ -1108,10 +1152,10 @@ void BulletAct(int bullet_id)
               case 2: //snow;
                 {
                 int d=RandNum(0,10,&weather_rng_i,seed);
-                if (d==1) {
-                  weather_bullet_type_graphics=14;
-                } else {
-                  weather_bullet_type_graphics=13;
+                if (d==1) { //snowflake
+                  weather_bullet_type_graphics=-6;
+                } else { //snow 
+                  weather_bullet_type_graphics=-7;
                 }
                 Bullet[bullet_id].oscilating_angle=0;
                 Bullet[bullet_id].oscilating_angle_delta=0.0005*((double)(RandNum(0,200,&weather_rng_i,seed)/200.0));
@@ -1149,7 +1193,7 @@ void BulletAct(int bullet_id)
                 weather_bullet_type_speed, //speed
                 weather_bullet_type_speedm, //speed multiplier
                 0, //damage
-                -3,
+                -3, //srcid
                 rand_x,
                 rand_y,
                 0,
@@ -1168,7 +1212,7 @@ void BulletAct(int bullet_id)
                 1, //speed for rain
                 1, //speed multiplier
                 0, //damage
-                -3,
+                -3, //srcid
                 0,//x
                 0,//y
                 0,
@@ -1266,79 +1310,18 @@ void DrawBullet2(HDC hdc,HDC hdc2,int i,double x,double y,int color)
 {
   int c;
   int seed=player.seed*i;
+  double angl=2*M_PI*(Bullet[i].range/(Bullet[i].start_range+1));//*2;
+  double rightangl=-M_PI_2;
+  if (Bullet[i].is_left) {
+    angl=-angl;
+    rightangl=M_PI_2;
+  }
   if (!free_will) seed=-1;
   switch (Bullet[i].graphics_type) {
-    case -1: //type breakout of web
-      GrCircle(hdc,x,y,2,color,LTRED);
-      break;
-    case 0:
-      GrCircle(hdc,x,y,4,color,-1);
-      break;
-    case 1:
-      GrCircle(hdc,x,y,3,color,-1);
-      break;
-    case 2:
-      GrCircle(hdc,x,y,4,color,color);
-      break;
-    case 3://no fill glitery bullet
-      GrCircle(hdc,x,y,3,color,-1);
-      GrCircle(hdc,x,y,RandNum(0,5,&misc_rng_i,seed),color,-1);
-      break;
-    case 4: //fill glitery bullet
-      GrCircle(hdc,x,y,3,color,color);
-      GrCircle(hdc,x,y,RandNum(0,5,&misc_rng_i,seed),color,color);
-      break;
-    case 6: //spinning pellet
-      GrCircle(hdc,x,y,3,color,-1);
-      GrCircle(hdc,x,y,RandNum(0,5,&misc_rng_i,seed),color,-1);
-      break;
-    case 5: //long bullet 0
-      {
-      GrLine(hdc,x,y,x+10*cos(Bullet[i].angle),y+10*sin(Bullet[i].angle),color);
-      }
-      break;
-    case 7: //long bullet 1
-      {
-      GrLine(hdc,x,y,x+6*cos(Bullet[i].angle),y+6*sin(Bullet[i].angle),color);
-      }
-      break;
-    case 8: //rain
-      {
-      GrLine(hdc,x,y,x-128*cos(Bullet[i].angle),y-128*sin(Bullet[i].angle),color);
-      }
-      break;
-    case 9: //long bullet 2
-      {
-      GrLine(hdc,x,y,x-20*cos(Bullet[i].angle),y-20*sin(Bullet[i].angle),color);
-      }
-      break;
-    case 10: //death bullet
-      {
-        //GrCircle(hdc,x,y,Bullet[i]->size,color,color);
-        GrCircle(hdc,x,y,2,color,color);
-        c=WHITE;//Highlight(IsInvertedBackground(),WHITE,BLACK);
-        GrCircle(hdc,x,y,RandNum(1,5,&misc_rng_i,seed),c,-1);
-      }
-      break;
-
-    case 11: //death player
-      {
-        //GrCircle(hdc,x,y,Bullet[i]->size,color,color);
-        GrCircle(hdc,x,y,4,color,color);
-        c=rgbPaint[player_pupil_color];
-        GrCircle(hdc,x,y,RandNum(1,10,&misc_rng_i,seed),c,-1);
-        c=rgbPaint[player_iris_color];
-        GrCircle(hdc,x,y,RandNum(1,10,&misc_rng_i,seed),c,-1);
-      }
-      break;
-    case 12: //no fill gliterry bullet, RAIN
-      GrCircle(hdc,x,y,13,color,-1);
-      GrCircle(hdc,x,y,RandNum(0,13,&misc_rng_i,seed),color,-1);
-      break;
-    case 13: //snow
+    case -7: //snow falling
       GrCircle(hdc,x,y,5,WHITE,WHITE);
       break;
-    case 15: //snow but hit ground
+    case -5: //snow but hit ground
       {
         int e=Bullet[i].saved_ground_id;
         if (e!=-1) {
@@ -1346,10 +1329,193 @@ void DrawBullet2(HDC hdc,HDC hdc2,int i,double x,double y,int color)
         }
       }
       break;
-    case 14: //snowflake
-    case 16: //snowflake
+
+    case -6: //snowflake
+    case -4: //snowflake but hit gound
       DrawSprite(hdc, hdc2,x,y,&draw_snowflake_sprite,FALSE);    
       break;
+
+
+    case -2: //rain
+      GrLine(hdc,x,y,x-128*cos(Bullet[i].angle),y-128*sin(Bullet[i].angle),color);
+      break;
+    case -3: //rain but hit ground
+      GrCircle(hdc,x,y,13,color,-1);
+      GrCircle(hdc,x,y,RandNum(0,13,&misc_rng_i,seed),color,-1);
+      break;
+
+    case -1: //type breakout of web
+      GrCircle(hdc,x,y,2,color,LTRED);
+      break;
+    //Negative zone are allocated bullets for game
+    case 0:
+    case 1:
+    case 2:
+      {
+        int size=9;
+        int traill=3;
+        angl*=10;
+        double trail_delta=-M_PI_4/3;
+        if (Bullet[i].is_left) {
+          trail_delta=-trail_delta;
+        }
+        for (int d=0;d<2;d++) {
+          if (d==0) { //draw borders
+            GrCircle(hdc,x-size*cos(angl),y-size*sin(angl),6,LTGRAY,-1);
+            if (Bullet[i].graphics_type==0) { //filled
+              GrCircle(hdc,x-size*cos(angl),y-size*sin(angl),5,LTGRAY,-1);
+            }
+          } else {
+            if (Bullet[i].graphics_type==0) { //filled
+              GrCircle(hdc,x-size*cos(angl),y-size*sin(angl),4,color,color);
+            } else { //donut
+              if (Bullet[i].graphics_type==2) {
+                GrCircle(hdc,x-size*cos(angl),y-size*sin(angl),5,color,-1);
+                GrCircle(hdc,x-size*cos(angl),y-size*sin(angl),4,color,-1);
+              } else { //small filled
+                GrCircle(hdc,x-size*cos(angl),y-size*sin(angl),3,color,color);
+              }
+            }
+          }
+          for (int k=0;k<traill;k++) {
+            angl-=trail_delta;
+            if (k==0) {
+              angl-=trail_delta+trail_delta/2;
+            }
+            if (d==0) { //draw borders
+              GrCircle(hdc,x-size*cos(angl),y-size*sin(angl),3,LTGRAY,LTGRAY);
+            } else { //draw trails
+              GrCircle(hdc,x-size*cos(angl),y-size*sin(angl),2,color,color);
+            }
+          }
+          angl+=trail_delta*traill+(trail_delta+trail_delta/2);
+        }
+
+      }
+      break;
+    case 3: //spinning shurriken pellet
+      {
+        //int size=4;
+        /*for (int e=0;e<2;e++) {
+          for (int d=0;d<2;d++) {
+            if (e==0) {
+              //GrLineThick(hdc,x-(size+2)*cos(angl),y-(size+2)*sin(angl),x+(size+2)*cos(angl),y+(size+2)*sin(angl),4,LTGRAY);
+              //GrLineThick(hdc,x-(size+2)*cos(angl),y-(size+2)*sin(angl),x-(size+2)*cos(angl)+(size/2+2)*cos(angl+rightangl),y-(size+2)*sin(angl)+(size/2+2)*sin(angl+rightangl),4,LTGRAY);
+              //GrLineThick(hdc,x+(size+2)*cos(angl),y+(size+2)*sin(angl),x+(size+2)*cos(angl)-(size/2+2)*cos(angl+rightangl),y+(size+2)*sin(angl)-(size/2+2)*sin(angl+rightangl),4,LTGRAY);
+
+              GrLineThick(hdc,x-(size+2)*cos(angl),y-(size+2)*sin(angl),x+(size+2)*cos(angl),y+(size+2)*sin(angl),4,LTGRAY);
+              GrLineThick(hdc,x-(size+2)*cos(angl),y-(size+2)*sin(angl),x+(size/2+2)*cos(angl+rightangl),y+(size/2+2)*sin(angl+rightangl),4,LTGRAY);
+              GrLineThick(hdc,x+(size+2)*cos(angl),y+(size+2)*sin(angl),x-(size/2+2)*cos(angl+rightangl),y-(size/2+2)*sin(angl+rightangl),4,LTGRAY);
+            } else {
+              //GrLineThick(hdc,x-size*cos(angl),y-size*sin(angl),x+size*cos(angl),y+size*sin(angl),3,color);
+              //GrLineThick(hdc,x-size*cos(angl),y-size*sin(angl),x-size*cos(angl)+(size/2)*cos(angl+rightangl),y-size*sin(angl)+(size/2)*sin(angl+rightangl),3,color);
+              //GrLineThick(hdc,x+size*cos(angl),y+size*sin(angl),x+size*cos(angl)-(size/2)*cos(angl+rightangl),y+size*sin(angl)-(size/2)*sin(angl+rightangl),3,color);
+
+              GrLineThick(hdc,x-size*cos(angl),y-size*sin(angl),x+size*cos(angl),y+size*sin(angl),3,color);
+              GrLineThick(hdc,x-size*cos(angl),y-size*sin(angl),x+(size/2)*cos(angl+rightangl),y+(size/2)*sin(angl+rightangl),3,color);
+              GrLineThick(hdc,x+size*cos(angl),y+size*sin(angl),x-(size/2)*cos(angl+rightangl),y-(size/2)*sin(angl+rightangl),3,color);
+            }
+            angl-=M_PI_2;
+          }
+          angl+=M_PI;
+        }*/
+        int size=6;
+        angl*=5;
+        GrLineThick(hdc,x-size*cos(angl),y-size*sin(angl),x+size*cos(angl),y+size*sin(angl),4,LTGRAY);
+        GrLineThick(hdc,x-(size-2)*cos(angl),y-(size-2)*sin(angl),x+(size-2)*cos(angl),y+(size-2)*sin(angl),2,color);
+      }
+      break;
+
+    case 4: //meteor with trail
+      GrLineThick(hdc,x+cos(Bullet[i].angle+M_PI_2)*5,
+                      y+sin(Bullet[i].angle+M_PI_2)*5,
+                      x-cos(Bullet[i].angle)*20,y-sin(Bullet[i].angle)*20,3,LTGRAY);
+      GrLineThick(hdc,x-cos(Bullet[i].angle+M_PI_2)*5,
+                      y-sin(Bullet[i].angle+M_PI_2)*5,
+                      x-cos(Bullet[i].angle)*20,y-sin(Bullet[i].angle)*20,3,LTGRAY);
+
+
+
+      GrCircle(hdc,x,y,4,LTGRAY,LTGRAY);
+      GrCircle(hdc,x,y,3,color,color);
+      
+      break;
+
+    case 6: //spinning shuriken, shotgun
+      {
+        int size=6;
+        angl*=10;
+        GrLineThick(hdc,x-size*cos(angl),y-size*sin(angl),x+size*cos(angl),y+size*sin(angl),4,LTGRAY);
+        GrLineThick(hdc,x-(size-2)*cos(angl),y-(size-2)*sin(angl),x+(size-2)*cos(angl),y+(size-2)*sin(angl),2,color);
+
+        /*int size=4;
+        angl*=2;
+        for (int e=0;e<2;e++) {
+          for (int d=0;d<2;d++) {
+            if (e==0) {
+              //GrLineThick(hdc,x-(size+2)*cos(angl),y-(size+2)*sin(angl),x+(size+2)*cos(angl),y+(size+2)*sin(angl),4,LTGRAY);
+              //GrLineThick(hdc,x-(size+2)*cos(angl),y-(size+2)*sin(angl),x-(size+2)*cos(angl)+(size/2+2)*cos(angl+rightangl),y-(size+2)*sin(angl)+(size/2+2)*sin(angl+rightangl),4,LTGRAY);
+              //GrLineThick(hdc,x+(size+2)*cos(angl),y+(size+2)*sin(angl),x+(size+2)*cos(angl)-(size/2+2)*cos(angl+rightangl),y+(size+2)*sin(angl)-(size/2+2)*sin(angl+rightangl),4,LTGRAY);
+
+              GrLineThick(hdc,x-(size+2)*cos(angl),y-(size+2)*sin(angl),x+(size+2)*cos(angl),y+(size+2)*sin(angl),4,LTGRAY);
+              GrLineThick(hdc,x-(size+2)*cos(angl),y-(size+2)*sin(angl),x+(size/2+2)*cos(angl+rightangl),y+(size/2+2)*sin(angl+rightangl),4,LTGRAY);
+              GrLineThick(hdc,x+(size+2)*cos(angl),y+(size+2)*sin(angl),x-(size/2+2)*cos(angl+rightangl),y-(size/2+2)*sin(angl+rightangl),4,LTGRAY);
+            } else {
+              //GrLineThick(hdc,x-size*cos(angl),y-size*sin(angl),x+size*cos(angl),y+size*sin(angl),2,color);
+              //GrLineThick(hdc,x-size*cos(angl),y-size*sin(angl),x-size*cos(angl)+(size/2)*cos(angl+rightangl),y-size*sin(angl)+(size/2)*sin(angl+rightangl),2,color);
+              //GrLineThick(hdc,x+size*cos(angl),y+size*sin(angl),x+size*cos(angl)-(size/2)*cos(angl+rightangl),y+size*sin(angl)-(size/2)*sin(angl+rightangl),2,color);
+
+              GrLineThick(hdc,x-size*cos(angl),y-size*sin(angl),x+size*cos(angl),y+size*sin(angl),2,color);
+              GrLineThick(hdc,x-size*cos(angl),y-size*sin(angl),x+(size/2)*cos(angl+rightangl),y+(size/2)*sin(angl+rightangl),2,color);
+              GrLineThick(hdc,x+size*cos(angl),y+size*sin(angl),x-(size/2)*cos(angl+rightangl),y-(size/2)*sin(angl+rightangl),2,color);
+            }
+            angl-=M_PI_2;
+          }
+          angl+=M_PI;
+        }*/
+      }
+
+      break;
+
+    case 5: //long bullet 0
+      GrLineThick(hdc,x,y,x+12*cos(Bullet[i].angle),y+12*sin(Bullet[i].angle),4,LTGRAY);
+      GrLineThick(hdc,x,y,x+10*cos(Bullet[i].angle),y+10*sin(Bullet[i].angle),2,color);
+      break;
+    case 7: //long bullet 1
+      GrLineThick(hdc,x,y,x+8*cos(Bullet[i].angle),y+8*sin(Bullet[i].angle),4,LTGRAY);
+      GrLineThick(hdc,x,y,x+6*cos(Bullet[i].angle),y+6*sin(Bullet[i].angle),2,color);
+      break;
+
+    case 9: //long bullet 2
+      GrLineThick(hdc,x,y,x-22*cos(Bullet[i].angle),y-22*sin(Bullet[i].angle),2,LTGRAY);
+      GrLine(hdc,x,y,x-20*cos(Bullet[i].angle),y-20*sin(Bullet[i].angle),color);
+      break;
+
+
+
+
+
+
+
+
+
+    case 10: //death bullet
+        GrCircle(hdc,x,y,2,color,color);
+        c=WHITE;
+        GrCircle(hdc,x,y,RandNum(1,5,&misc_rng_i,seed),c,-1);
+      break;
+
+    case 11: //death player
+      {
+        GrCircle(hdc,x,y,4,color,color);
+        c=rgbPaint[player_pupil_color];
+        GrCircle(hdc,x,y,RandNum(1,10,&misc_rng_i,seed),c,-1);
+        c=rgbPaint[player_iris_color];
+        GrCircle(hdc,x,y,RandNum(1,10,&misc_rng_i,seed),c,-1);
+      }
+      break;
+
+
 
       
   }

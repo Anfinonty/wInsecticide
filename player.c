@@ -1290,9 +1290,9 @@ void PlayerActReboundActions(int grav_speed, int speed)
   if (player.is_rebounding && !player.is_swinging && grav_speed==0) {
     move_x(cos(player.angle_of_reflection));
     move_y(sin(player.angle_of_reflection));
-    if (player.on_ground_id!=-1 && player.on_ground_id<GROUND_NUM && speed<=1 && !player.time_breaker) {
+    if (player.on_ground_id!=-1 && player.on_ground_id<GROUND_NUM && speed<=1 /*&& !player.time_breaker*/) {
       if (player.speed>10) {
-        player.speed=1+player.speed/2;//*5/6;
+        player.speed=1+12*player.speed/20;//1+player.speed*5/6;
       } else if (player.speed>5) {
         player.speed-=2;//player.speed*5/6;
       }
@@ -1391,11 +1391,12 @@ void PlayerActMouseClick()
         if (player.knives_per_throw==5) {
           //b_range=160;
           b_speed_m=15;
+          b_dmg_m=4;
         } else if (player.knives_per_throw==15) {
           b_range=65;
           b_g_type=6;
         }
-        b_dmg_m=3;
+        b_dmg_m=4;
       //} else if (player.knives_per_throw==3) { 
       } else if (player.knives_per_throw==1) {
         //b_range=145;
@@ -1880,17 +1881,17 @@ void PlayerAct()
         } else {
           speed_limiter=speed_limiter;//(speed_limiter+speed_limiter/4+1);
         }
-      } else if (player.fling_distance==0 && player.bullet_shot==-1/*&& (player.jump || player.on_ground_id!=-1 || player.is_on_ground_edge)*/) {
+      } else if (player.fling_distance==0 && player.bullet_shot==-1 && !player.is_rebounding/*&& (player.jump || player.on_ground_id!=-1 || player.is_on_ground_edge)*/) { //normal walking
         /*if (player.speed<5) {
           speed_limiter=4;
         } else*/ if (player.speed<10) {
-          speed_limiter=6;
+          speed_limiter=5;
         } else if (player.speed<24){
           speed_limiter=8;
         }
       }
 
-      if (player.uppercut && player.bullet_shot==-1) { //crouching + uppercut
+      if (player.uppercut && player.bullet_shot==-1) { //crouching + uppercut, speed limiter
         //if (player.speed>4) {
           //speed_limiter=5;
         //} else {
@@ -1898,7 +1899,7 @@ void PlayerAct()
         //}
       }
 
-      if (/*game_hard && */IsSpeedBreaking()) {
+      if (/*game_hard && */IsSpeedBreaking()) { //speedbreaking speed limiter
         speed_limiter=player.speed;
         speed_limiter=speed_limiter+speed_limiter/2+1;
       }
@@ -1923,9 +1924,9 @@ void PlayerAct()
       }
 
 
-      if (player.is_on_ground_edge) {
+      if (player.is_on_ground_edge) { //ground edge speed limiter
          speed_limiter*=5;//10;
-      }  else if (player.bullet_shot!=-1 && player.speed<10) {
+      }  else if (player.bullet_shot!=-1 && player.speed<10) { //parachuting speed limiter
          speed_limiter=10;
       }
 
@@ -2933,7 +2934,7 @@ void DrawPlayer(HDC hdc,HDC hdc2)
 
 
   //Draw player is blocking
-  if (player.block_timer>0 && player.block_health>0) {
+  if (player.block_timer>0 /*&& player.block_health>0*/) {
     double ang=2*M_PI*((double)frame_tick/FPS)*10;//player.block_timer;
     if (player.last_left) {
       ang=-abs(ang);

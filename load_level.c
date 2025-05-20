@@ -33,28 +33,28 @@ void CleanupGameAudio()
 
 void AdjustGameAudio()
 {
-  adjustSFXVolume(&spamSoundEffectCache[0],&spamSoundEffect[0],game_volume/4,FALSE); //start
-  adjustSFXVolume(&spamSoundEffectCache[1],&spamSoundEffect[1],game_volume/4,FALSE); //stop
+  adjustSFXVolume(&spamSoundEffectCache[0],&spamSoundEffect[0],game_volume,FALSE); //timebreaker start
+  adjustSFXVolume(&spamSoundEffectCache[1],&spamSoundEffect[1],game_volume/2,FALSE); //timebreaker stop
   adjustSFXVolume(&spamSoundEffectCache[2],&spamSoundEffect[2],game_volume/4,FALSE); //enemy hurt
 
   adjustSFXVolume(&spamSoundEffectCache[3],&spamSoundEffect[3],game_volume/4,FALSE);//block
   adjustSFXVolume(&spamSoundEffectCache[4],&spamSoundEffect[4],game_volume/4,FALSE);//block perfect
-  adjustSFXVolume(&spamSoundEffectCache[5],&spamSoundEffect[5],game_volume/*/4*/,FALSE);//hurt
-  adjustSFXVolume(&spamSoundEffectCache[6],&spamSoundEffect[6],game_volume/30,FALSE);//enemy block
-  adjustSFXVolume(&spamSoundEffectCache[7],&spamSoundEffect[7],game_volume,FALSE); //clang
-  adjustSFXVolume(&spamSoundEffectCache[8],&spamSoundEffect[8],game_volume/3,FALSE); //powerup
+  adjustSFXVolume(&spamSoundEffectCache[5],&spamSoundEffect[5],game_volume,FALSE);//player hurt
+  adjustSFXVolume(&spamSoundEffectCache[6],&spamSoundEffect[6],game_volume/8,FALSE);//enemy block
+  adjustSFXVolume(&spamSoundEffectCache[7],&spamSoundEffect[7],game_volume/3,FALSE); //clang
+  adjustSFXVolume(&spamSoundEffectCache[8],&spamSoundEffect[8],game_volume/2,FALSE); //powerup
 
   adjustSFXVolume(&channelSoundEffectCache[0],&channelSoundEffect[0],game_volume,TRUE); //player death
-  adjustSFXVolume(&channelSoundEffectCache[1],&channelSoundEffect[1],game_volume/2+game_volume/10,TRUE); //death //clang_death
+  adjustSFXVolume(&channelSoundEffectCache[1],&channelSoundEffect[1],game_volume/2,TRUE); //enemy death 
   adjustSFXVolume(&channelSoundEffectCache[2],&channelSoundEffect[2],game_volume,TRUE); //knife throw
-  adjustSFXVolume(&channelSoundEffectCache[3],&channelSoundEffect[3],game_volume/10,TRUE); //rain
-  adjustSFXVolume(&channelSoundEffectCache[4],&channelSoundEffect[4],game_volume/30,TRUE); //rain softer <-- 2 layers
-  adjustSFXVolume(&channelSoundEffectCache[5],&channelSoundEffect[5],game_volume/3,TRUE); //shotgun
-  adjustSFXVolume(&channelSoundEffectCache[6],&channelSoundEffect[6],game_volume/2,TRUE); //sniper
+  //adjustSFXVolume(&channelSoundEffectCache[3],&channelSoundEffect[3],game_volume/10,TRUE); //rain
+  //adjustSFXVolume(&channelSoundEffectCache[4],&channelSoundEffect[4],game_volume/30,TRUE); //rain softer <-- 2 layers
+  adjustSFXVolume(&channelSoundEffectCache[5],&channelSoundEffect[5],game_volume,TRUE); //shotgun
+  adjustSFXVolume(&channelSoundEffectCache[6],&channelSoundEffect[6],game_volume,TRUE); //sniper
   adjustSFXVolume(&channelSoundEffectCache[7],&channelSoundEffect[7],game_volume,TRUE); //reload shotgun
   adjustSFXVolume(&channelSoundEffectCache[8],&channelSoundEffect[8],game_volume,TRUE); //gun shoot
-  adjustSFXVolume(&channelSoundEffectCache[9],&channelSoundEffect[9],game_volume,TRUE); //load knife
-  adjustSFXVolume(&channelSoundEffectCache[10],&channelSoundEffect[10],game_volume,TRUE); //load 3 knife
+  adjustSFXVolume(&channelSoundEffectCache[9],&channelSoundEffect[9],game_volume/2,TRUE); //load knife
+  adjustSFXVolume(&channelSoundEffectCache[10],&channelSoundEffect[10],game_volume/2,TRUE); //load 3 knife
   adjustSFXVolume(&channelSoundEffectCache[11],&channelSoundEffect[11],game_volume,TRUE); //load gun
   adjustSFXVolume(&channelSoundEffectCache[12],&channelSoundEffect[12],game_volume,TRUE); //gun empty
 }

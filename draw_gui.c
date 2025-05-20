@@ -1770,8 +1770,9 @@ void DrawUI(HDC hdc,HDC hdc2)
     }
 
 
-    if (health_length>=150) {
+    //if (health_length>=0) {
       //print health numbers
+    if (player.health>PLAYER_LOW_HEALTH+1) {
       int print_health=player.health;
       if (is_khmer) {
         wchar_t txt[16];
@@ -1829,13 +1830,13 @@ void DrawUI(HDC hdc,HDC hdc2)
 
   //EXP Bar
   //if (player.show_exp_timer>0) {
-    int exp_l=18;
-    int lk=20;
+    int exp_l=9;//18;
+    int lk=10;//20;
     //GrRect(hdc,player.sprite_x-50,player.sprite_y+23,100,5,c4);
     GrRect(hdc,mouse_x-50+14,mouse_y+23+20,100,5,c4);
     if (game_hard) {
-      exp_l=31;
-      lk=33;
+      exp_l=18;//31;
+      lk=20;//33;
     }
     for (int k=0;k<player.exp;k++) {
       //GrRect(hdc,1+player.sprite_x-50+k*lk,player.sprite_y+24,exp_l,3,c5);
@@ -1860,8 +1861,13 @@ void DrawUI(HDC hdc,HDC hdc2)
   int knifethrowstxtx=mouse_x+32;
 //  int knifethrowstxty=mouse_y-48;
   int knifethrowstxty=mouse_y+52;
-  GrRect(hdc,knifethrowsx,knifethrowsy+1,PLAYER_BULLET_NUM*3,9,c4);
-  GrRect(hdc,knifethrowsx,knifethrowsy,player.knives_per_throw*3,10,c10);
+  //32 bullets
+//  GrRect(hdc,knifethrowsx,knifethrowsy+1,PLAYER_BULLET_NUM*3,9,c4); //black
+//  GrRect(hdc,knifethrowsx,knifethrowsy,player.knives_per_throw*3,10,c10);
+  GrRect(hdc,knifethrowsx-1,knifethrowsy+1,PLAYER_BULLET_NUM*7+2,9,c4); //black
+  GrRect(hdc,knifethrowsx,knifethrowsy,player.knives_per_throw*7,10,c10);
+
+
   c2 = LTGREEN;
   int ck=LTCYAN;
   for (int k=0;k<PLAYER_BULLET_NUM-player.bullet_shot_num;k++) {
@@ -1870,8 +1876,9 @@ void DrawUI(HDC hdc,HDC hdc2)
     //GrLine(hdc,player.sprite_x-48+k*4-2,player.sprite_y+32,player.sprite_x-24+k*4,player.sprite_y+36,c2);
     //GrCircle(hdc,player.sprite_x-48+k*4,player.sprite_y+34,2,c5,-1);
     int ckpt=Highlight((k<player.knives_per_throw),ck,c2);
+    GrRect(hdc,knifethrowsx+k*7,knifethrowsy+2,7,6,ckpt);
     //GrRect(hdc,knifethrowsx+k*4,knifethrowsy+2,4,6,ckpt);
-    GrRect(hdc,knifethrowsx+k*3,knifethrowsy+2,2,6,ckpt);
+    //GrRect(hdc,knifethrowsx+k*3,knifethrowsy+2,2,6,ckpt); //32 bullets
 
   }
 
