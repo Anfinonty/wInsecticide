@@ -973,39 +973,6 @@ void Draw1FireTrifill(HDC hdc,int i, int x,int y,int x3,int y3)
 }
 
 
-void InitGroundFireObj()
-{
-  //for fire
-  //count fire grounds
-  for (int i=0;i<GROUND_NUM;i++) {
-    if (Ground[i]->type>=7 && Ground[i]->type<=8) {
-      FIRE_GROUND_NUM++;
-    }
-  }
-
-  //malloc fire grounds
-  if (FIRE_GROUND_NUM>0) {
-    int ci=0;
-    GroundFire = calloc(FIRE_GROUND_NUM,sizeof(AGroundFire*));
-
-    for (int i=0;i<GROUND_NUM;i++) {
-      if (Ground[i]->type>=7 && Ground[i]->type<=8) {
-        AGroundFire *myGroundFire=createGroundFire();
-        GroundFire[ci]= myGroundFire;
-        GroundFire[ci]->ground_id=i; //assign ground id to fire ground
-        GroundFire[ci]->old_x3=Ground[GroundFire[ci]->ground_id]->x3;
-        GroundFire[ci]->old_y3=Ground[GroundFire[ci]->ground_id]->y3;
-        GroundFire[ci]->rng_i=Ground[i]->font_size;
-        GroundFire[ci]->smoke_rng_i=Ground[i]->font_size;
-        for (int j=0;j<GROUND_FIRE_SMOKE_NUM;j++) {
-          GroundFire[ci]->smoke_x[j]=0;
-          GroundFire[ci]->smoke_y[j]=0;
-        }
-        ci++;
-      }
-    }
-  }
-}
 
 void InitGroundWaterObj()
 {
@@ -1046,6 +1013,41 @@ void InitGroundFire()
       GroundFire[i]->smoke_y[j]=0;
       GroundFire[i]->smoke_height[j]=0;
     }
+  }
+}
+
+void InitGroundFireObj()
+{
+  //for fire
+  //count fire grounds
+  for (int i=0;i<GROUND_NUM;i++) {
+    if (Ground[i]->type>=7 && Ground[i]->type<=8) {
+      FIRE_GROUND_NUM++;
+    }
+  }
+
+  //malloc fire grounds
+  if (FIRE_GROUND_NUM>0) {
+    int ci=0;
+    GroundFire = calloc(FIRE_GROUND_NUM,sizeof(AGroundFire*));
+
+    for (int i=0;i<GROUND_NUM;i++) {
+      if (Ground[i]->type>=7 && Ground[i]->type<=8) {
+        AGroundFire *myGroundFire=createGroundFire();
+        GroundFire[ci]= myGroundFire;
+        GroundFire[ci]->ground_id=i; //assign ground id to fire ground
+        GroundFire[ci]->old_x3=Ground[GroundFire[ci]->ground_id]->x3;
+        GroundFire[ci]->old_y3=Ground[GroundFire[ci]->ground_id]->y3;
+        GroundFire[ci]->rng_i=Ground[i]->font_size;
+        GroundFire[ci]->smoke_rng_i=Ground[i]->font_size;
+        for (int j=0;j<GROUND_FIRE_SMOKE_NUM;j++) {
+          GroundFire[ci]->smoke_x[j]=0;
+          GroundFire[ci]->smoke_y[j]=0;
+        }
+        ci++;
+      }
+    }
+    InitGroundFire();
   }
 }
 

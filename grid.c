@@ -123,7 +123,7 @@ void DrawCreateTiles(HDC hdc)
       if (!back_to_menu)
         swprintf(lvl_shadow_name,72,L"%s",level_names[level_chosen]);    
       else
-        swprintf(lvl_shadow_name,72,L"mm_demo2");
+        swprintf(lvl_shadow_name,72,L"__006__");
 
       wchar_t lvl_shadow_folder_name[128];
       swprintf(lvl_shadow_folder_name,128,L"saves/%s/seg_shadow",lvl_shadow_name);
@@ -143,7 +143,7 @@ void DrawCreateTiles(HDC hdc)
       if (!back_to_menu)
         swprintf(lvl_shadow_name,72,L"%s",level_names[level_chosen]);    
       else
-        swprintf(lvl_shadow_name,72,L"mm_demo2");
+        swprintf(lvl_shadow_name,72,L"__006__");
 
       wchar_t lvl_shadow_folder_name[128];
       swprintf(lvl_shadow_folder_name,128,L"saves/%s/seg_shadow",lvl_shadow_name);
@@ -248,7 +248,7 @@ void DrawCreateTiles(HDC hdc)
       if (!back_to_menu)
         swprintf(lvl_name,128,L"%s",level_names[level_chosen]);    
       else
-        swprintf(lvl_name,128,L"mm_demo2");    
+        swprintf(lvl_name,128,L"__006__");    
 
 
       //HBITMAP tmp_bitmap;
