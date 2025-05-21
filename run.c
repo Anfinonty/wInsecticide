@@ -426,69 +426,69 @@ void Prelude()
     InitPlayerSpritesAll();
   }
   if (j<4) {
-      angle_rn=M_PI_2-M_PI_16*i;
-      switch (j) {
-        case 0:
-          tmp_sprite1=
-            GetRotated8BitBitmap(enemy2_sprite_1,angle_rn,LTGREEN);
-          loading_numerator++;
+    angle_rn=M_PI_2-M_PI_16*i;
+    switch (j) {
+      case 0: //cockroach
+        tmp_sprite1=
+          GetRotated8BitBitmap(enemy2_sprite_1,angle_rn,LTGREEN);
+        loading_numerator++;
 
-          tmp_sprite2=
-            GetRotated8BitBitmap(enemy2_sprite_2,angle_rn,LTGREEN);
-          loading_numerator++;
-          break;
-        case 1:
-          tmp_sprite1=
-            GetRotated8BitBitmap(enemy4_sprite_1,angle_rn,LTGREEN);
-          loading_numerator++;
+        tmp_sprite2=
+          GetRotated8BitBitmap(enemy2_sprite_2,angle_rn,LTGREEN);
+        loading_numerator++;
+        break;
+      case 1: //toe biter part 1
+        tmp_sprite1=
+          GetRotated8BitBitmap(enemy4_sprite_1,angle_rn,LTGREEN);
+         loading_numerator++;
 
-          tmp_sprite2=
-            GetRotated8BitBitmap(enemy4_sprite_2,angle_rn,LTGREEN);
-          loading_numerator++;
-          break;
-        case 2:
-          tmp_sprite1=
-            GetRotated8BitBitmap(enemy6_sprite_1,angle_rn,LTGREEN);
-          loading_numerator++;
+        tmp_sprite2=
+          GetRotated8BitBitmap(enemy4_sprite_2,angle_rn,LTGREEN);
+        loading_numerator++;
+        break;
+      case 2: //ants
+        tmp_sprite1=
+          GetRotated8BitBitmap(enemy6_sprite_1,angle_rn,LTGREEN);
+        loading_numerator++;
 
-          tmp_sprite2=
-            GetRotated8BitBitmap(enemy6_sprite_2,angle_rn,LTGREEN);
-          loading_numerator++;
-          break;
-        case 3:
-          tmp_sprite1=
-            GetRotated8BitBitmap(enemy4_sprite_1_0,angle_rn,LTGREEN);
-          loading_numerator++;
-          break;
-      }
-
-
-      if (j<3) {
-        ReplaceBitmapColor2(tmp_sprite1,LTGREEN,BLACK,8,LTGREEN); //8 due to pureblack reserved for mask
-        ReplaceBitmapColor2(tmp_sprite2,LTGREEN,BLACK,8,LTGREEN);
+        tmp_sprite2=
+          GetRotated8BitBitmap(enemy6_sprite_2,angle_rn,LTGREEN);
+        loading_numerator++;
+        break;
+      case 3: //toe biter part 2
+        tmp_sprite1=
+          GetRotated8BitBitmap(enemy4_sprite_1_0,angle_rn,LTGREEN);
+        loading_numerator++;
+        break;
+    }
 
 
+    if (j<3) {
+      ReplaceBitmapColor2(tmp_sprite1,LTGREEN,BLACK,8,LTGREEN); //8 due to pureblack reserved for mask
+      ReplaceBitmapColor2(tmp_sprite2,LTGREEN,BLACK,8,LTGREEN);
         //if (j==0 && i==11) {
           //myTmpEnemyDrawSprite=CopyCrunchyBitmap(tmp_sprite1,SRCCOPY);
         //}
-
-        GenerateDrawSprite(&LoadEnemyRotatedSprite[j].draw_rotated_sprite1[i],tmp_sprite1);
-        GenerateDrawSprite(&LoadEnemyRotatedSprite[j].draw_rotated_sprite2[i],tmp_sprite2);
-        DeleteObject(tmp_sprite2);
-        DeleteObject(tmp_sprite1);
-      } else {
-        ReplaceBitmapColor2(tmp_sprite1,LTGREEN,BLACK,8,LTGREEN);
-        GenerateDrawSprite(&XLoadEnemyRotatedSprite[0].draw_rotated_sprite[i],tmp_sprite1);
-        DeleteObject(tmp_sprite1);
-      }
+      GenerateDrawSprite(&LoadEnemyRotatedSprite[j].draw_rotated_sprite1[i],tmp_sprite1);
+      GenerateDrawSprite(&LoadEnemyRotatedSprite[j].draw_rotated_sprite2[i],tmp_sprite2);
+      DeleteObject(tmp_sprite2);
+      DeleteObject(tmp_sprite1);
+      //printf("%d/%d %1.0f/%1.0f\n",i,j,loading_numerator,loading_denominator);
+    } else { //j==3, xtra sprites
+      ReplaceBitmapColor2(tmp_sprite1,LTGREEN,BLACK,8,LTGREEN);
+      GenerateDrawSprite(&XLoadEnemyRotatedSprite[0].draw_rotated_sprite[i],tmp_sprite1);
+      DeleteObject(tmp_sprite1);
+      //printf("%1.0f/%1.0f xsprite:%d\n",loading_numerator,loading_denominator,i);
+    }
     //}
   //} 
-  prelude_sprite_id++;
-  if (i>=ROTATED_SPRITE_NUM) {
-    prelude_sprite_id=0;
-    prelude_sprite_jid++;
+    prelude_sprite_id++;
+    if (i>=ROTATED_SPRITE_NUM-1) {
+      prelude_sprite_id=0;
+      prelude_sprite_jid++;
+    }
   }
-  }
+  //printf("%1.0f/%1.0f\n",loading_numerator,loading_denominator);
 }
 
 
@@ -1292,9 +1292,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           if (loading_numerator<loading_denominator) {
             DrawLoading(hdcBackbuff);
 
-            if (loading_numerator<loading_denominator) {
-              Prelude();
-            }
+            Prelude();
           } else {
             //if (frame_tick%FPS<FPS/2) {
               //khmer text
@@ -1674,7 +1672,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //MessageBox(NULL, TEXT("ភាសាខ្មែរ"), TEXT("ភាសាខ្មែរ") ,MB_OK); //khmer text box
       //printf("boolsize:%d",sizeof(bool));      
       loading_numerator=0;
-      loading_denominator=ROTATED_SPRITE_NUM*7;
+      loading_denominator=ROTATED_SPRITE_NUM*7; //(2roach,2toebiter,2ant,extratoebiter
 
 
       AddFontResource(L"fonts/unifont-8.0.01.ttf");

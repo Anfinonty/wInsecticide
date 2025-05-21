@@ -187,7 +187,7 @@ MAX_BULLET_PER_FIRE+1, //bullet fire at once
 21, //bullet speed multiplier*
 MAX_FOLLOW_RANGE+1, //bullet range
 16, //bullet color
-8, //bullet_graphics_type
+10, //bullet_graphics_type
 10001, //time breaker rare
 20001 //time breaker length
 };

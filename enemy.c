@@ -1810,7 +1810,7 @@ void EnemyAct(int i)
             ShootBullet(current_bullet_id,
                 Enemy[i]->bullet_shot_num,
                 Enemy[i]->color,
-                10, //graphics type
+                -8, //graphics type
                 rand_range, // range
                 0.1, //speed
                 1+RandNum(1,10,&Enemy[i]->bullet_rng_i,seed), //speed multiuplier
@@ -2639,7 +2639,7 @@ void InitEnemySpritesObj()
 
   for (int i=0;i<LARGER_ENEMY_TYPE_NUM;i++) {
     for (int j=0;j<ROTATED_SPRITE_NUM;j++) {
-      angle_rn=M_PI_2-M_PI_16*j;
+      //angle_rn=M_PI_2-M_PI_16*j;
       species_i=saved_larger_enemy_type_species[i];
       switch (species_i) {
         case 3:
@@ -2869,7 +2869,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
     }
 
   /*funny++;
-  if (funny>63)
+  if (funny>31)
     funny=0;*/
 
   for (i=0;i<ENEMY_NUM;i++) {  
@@ -3065,7 +3065,10 @@ void DrawEnemy(HDC hdc,HDC hdc2)
         case 6:
         case 7:
         {
-          //DrawSprite(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[Enemy[i]->rotated_sprite_id]->draw_rotated_sprite1[funny],Enemy[i]->last_left);
+          //DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[Enemy[i]->rotated_sprite_id].draw_rotated_sprite1[funny],Enemy[i]->last_left);
+          /*if (Enemy[i]->species==3) {
+            DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&XEnemyRotatedSprite[Enemy[i]->rotated_xsprite_id].draw_rotated_sprite[funny],Enemy[i]->last_left);
+          }*/
           //char printfunny[6];
           //sprintf(printfunny,"@%d",funny);
           //GrPrint(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y+48,printfunny,WHITE);
@@ -3210,23 +3213,23 @@ void DrawEnemy(HDC hdc,HDC hdc2)
 
         double health_length = health_length_max*percentage;
         if (Enemy[i]->species==1 || Enemy[i]->species==3) {
-          /*GrRect(hdc,Enemy[i]->sprite_x-health_length/2-2,
+          GrRect(hdc,Enemy[i]->sprite_x-health_length/2-2,
+                    Enemy[i]->sprite_y-58-2,
+                    health_length+4,
+                    8,DKRLTGRAY);
+          GrRect(hdc,Enemy[i]->sprite_x-health_length/2,
                     Enemy[i]->sprite_y-58-1,
-                    health_length+4,
-                    6,BLACK);*/
-          GrRect(hdc,Enemy[i]->sprite_x-health_length/2,
-                    Enemy[i]->sprite_y-58,
                     health_length,
-                    4,c);
+                    6,c);
         } else {
-          /*GrRect(hdc,Enemy[i]->sprite_x-health_length/2-2,
-                    Enemy[i]->sprite_y-26-1,
+          GrRect(hdc,Enemy[i]->sprite_x-health_length/2-2,
+                    Enemy[i]->sprite_y-26-2,
                     health_length+4,
-                    6,BLACK);*/
+                    8,DKRLTGRAY);
           GrRect(hdc,Enemy[i]->sprite_x-health_length/2,
-                    Enemy[i]->sprite_y-26,
+                    Enemy[i]->sprite_y-26-1,
                     health_length,
-                    4,c);
+                    6,c);
         }
 
 

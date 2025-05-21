@@ -177,7 +177,7 @@ void BulletDamagePlayerAct(int bullet_id)
       player.show_block_health_timer=HP_SHOW_TIMER_NUM;
       blocked_bullet_dmg=Bullet[bullet_id].damage;
 
-      if (player.block_timer<26 && player.block_timer>0) {
+      if (player.block_timer<23 && player.block_timer>0) {
         blocked_bullet_dmg=0;
       }
 
@@ -329,7 +329,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
   if (!free_will) seed=-1;
 
   //sniper bullet act with enemy bullet
-  if (Bullet[bullet_id].graphics_type!=10) {
+  if (Bullet[bullet_id].graphics_type!=-8) {
   if (GetDistance(Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
     Bullet[bullet_id].angle=RandAngle(0,360,&player.sniper_bullet_rng_i,seed);//RandNum(-M_PI_2*100,M_PI_2*100,Enemy[enemy_id]->seed)/100;
     Bullet[bullet_id].speed=Bullet[player.bullet_shot].speed;
@@ -346,12 +346,12 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
     saved_angle=Bullet[bullet_id].angle;
     bk=player.bullet[k];
     if (GetDistance(Bullet[bk].x,Bullet[bk].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
-      if (!Bullet[bk].playsnd && game_audio && Bullet[bullet_id].graphics_type!=10 && Bullet[bullet_id].graphics_type!=-1 && player.health>0) {
+      if (!Bullet[bk].playsnd && game_audio && Bullet[bullet_id].graphics_type!=-8 && Bullet[bullet_id].graphics_type!=-1 && player.health>0) {
         Bullet[bk].playsnd=TRUE;
       }
 
 
-      if (Bullet[bullet_id].graphics_type!=10 && Bullet[bullet_id].graphics_type!=-1) {
+      if (Bullet[bullet_id].graphics_type!=-8 && Bullet[bullet_id].graphics_type!=-1) {
         if (Bullet[bullet_id].bounce_timer==0) {
           Bullet[bullet_id].angle=GetMarbleAngle(Bullet[bullet_id].angle,Bullet[bk].angle)+RandAngle(-12,12,&Bullet[bullet_id].rng_i,seed);//GetBounceAngle(Bullet[bk].angle,Bullet[bullet_id].angle);//RandAngle(0,360,player.seed); //scatter type 6
           Bullet[bullet_id].bounce_timer=10;
@@ -367,7 +367,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
       /*if (Bullet[bk].speed_multiplier<7) { //if shotgun bullet, pierce through for the first few ranges
       }*/
 
-      if (Bullet[bk].graphics_type!=6 && Bullet[bullet_id].graphics_type!=10 && Bullet[bullet_id].graphics_type!=-1) { //hit enemy bullet, scatter if NOT type 6
+      if (Bullet[bk].graphics_type!=6 && Bullet[bullet_id].graphics_type!=-8 && Bullet[bullet_id].graphics_type!=-1) { //hit enemy bullet, scatter if NOT type 6
         if (Bullet[bk].bounce_timer==0) {
           Bullet[bk].angle=-GetMarbleAngle(Bullet[bk].angle, saved_angle)+RandAngle(-12,12,&Bullet[bullet_id].rng_i,seed);
           Bullet[bk].bounce_timer=10;
@@ -479,7 +479,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
         }
       //End of Hit Player======
       } else if (bullet_on_ground_id>=GROUND_NUM && bullet_on_ground_id!=player.web_being_shot) { //Not on web being shot
-        if (Bullet[bullet_id].graphics_type!=10) {
+        if (Bullet[bullet_id].graphics_type!=-8) {
             Ground[bullet_on_ground_id]->health-=Bullet[bullet_id].damage;
             if (Ground[bullet_on_ground_id]->health<=0) {//completely destroy web at 0 health (can be regained after '4')
               DestroyGround(bullet_on_ground_id); 
@@ -513,7 +513,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
 
 
       bool predicate=FALSE;
-      if (Bullet[bullet_id].graphics_type==10 || Bullet[bullet_id].graphics_type==11) {
+      if (Bullet[bullet_id].graphics_type==-8 || Bullet[bullet_id].graphics_type==-9) {
         if (hit_player) {
           if (Enemy[enemy_id]->health<=0 && Enemy[enemy_id]->damage_taken_timer<250 && Enemy[enemy_id]->death_timer>10) {
             predicate=TRUE;
@@ -525,7 +525,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
         }
       }
 
-      if ((Bullet[bullet_id].graphics_type!=5 && Bullet[bullet_id].graphics_type!=10) || 
+      if ((Bullet[bullet_id].graphics_type!=5 && Bullet[bullet_id].graphics_type!=-8) || 
             predicate || 
             Bullet[bullet_id].range<=0 || 
             IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)
@@ -533,7 +533,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
           StopBullet(bullet_id,FALSE); 
 
 
-          if (predicate && (Bullet[bullet_id].graphics_type==10 || Bullet[bullet_id].graphics_type==11) && player.health>0) { //heal player
+          if (predicate && (Bullet[bullet_id].graphics_type==-8 || Bullet[bullet_id].graphics_type==-9) && player.health>0) { //heal player
             if (game_audio) {
               //PlaySound(spamSoundEffectCache[8].audio, NULL, SND_MEMORY | SND_ASYNC); //gain snd
               flag_play_bullet_heal_snd=TRUE;
@@ -584,7 +584,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
           Bullet[bullet_id].angle+=2*M_PI;
         }*/
      
-        if (Bullet[bullet_id].saved_ground_id==bullet_on_ground_id && Bullet[bullet_id].graphics_type!=10) { //prevents riding of wall
+        if (Bullet[bullet_id].saved_ground_id==bullet_on_ground_id && Bullet[bullet_id].graphics_type!=-8) { //prevents riding of wall
           Bullet[bullet_id].range=-1;
         }
         Bullet[bullet_id].saved_ground_id=bullet_on_ground_id;
@@ -972,7 +972,7 @@ void BulletAct(int bullet_id)
         int on_node_grid_id=GetGridId(Bullet[bullet_id].x,Bullet[bullet_id].y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
         if (on_node_grid_id!=-1) {
           if (NodeGrid[on_node_grid_id]->node_fire) {
-            if (Bullet[bullet_id].graphics_type==11 || Bullet[bullet_id].graphics_type==10) {
+            if (Bullet[bullet_id].graphics_type==-9 || Bullet[bullet_id].graphics_type==-8) {
               Bullet[bullet_id].speed_multiplier++;
               Bullet[bullet_id].range-=20;
             } else {
@@ -1312,12 +1312,31 @@ void DrawBullet2(HDC hdc,HDC hdc2,int i,double x,double y,int color)
   int seed=player.seed*i;
   double angl=2*M_PI*(Bullet[i].range/(Bullet[i].start_range+1));//*2;
   double rightangl=-M_PI_2;
-  if (Bullet[i].is_left) {
+  if (Bullet[i].is_left) { //spin opposing clockwise direction
     angl=-angl;
     rightangl=M_PI_2;
   }
   if (!free_will) seed=-1;
   switch (Bullet[i].graphics_type) {
+
+    case -9: //death player
+      {
+        GrCircle(hdc,x,y,4,color,color);
+        c=rgbPaint[player_pupil_color];
+        GrCircle(hdc,x,y,RandNum(1,10,&misc_rng_i,seed),c,-1);
+        c=rgbPaint[player_iris_color];
+        GrCircle(hdc,x,y,RandNum(1,10,&misc_rng_i,seed),c,-1);
+      }
+      break;
+
+    case 10:
+    case -8: //death bullet
+        GrCircle(hdc,x,y,2,color,color);
+        c=WHITE;
+        GrCircle(hdc,x,y,RandNum(1,5,&misc_rng_i,seed),c,-1);
+      break;
+
+
     case -7: //snow falling
       GrCircle(hdc,x,y,5,WHITE,WHITE);
       break;
@@ -1393,32 +1412,8 @@ void DrawBullet2(HDC hdc,HDC hdc2,int i,double x,double y,int color)
 
       }
       break;
-    case 3: //spinning shurriken pellet
+    case 3: //spinning rice
       {
-        //int size=4;
-        /*for (int e=0;e<2;e++) {
-          for (int d=0;d<2;d++) {
-            if (e==0) {
-              //GrLineThick(hdc,x-(size+2)*cos(angl),y-(size+2)*sin(angl),x+(size+2)*cos(angl),y+(size+2)*sin(angl),4,LTGRAY);
-              //GrLineThick(hdc,x-(size+2)*cos(angl),y-(size+2)*sin(angl),x-(size+2)*cos(angl)+(size/2+2)*cos(angl+rightangl),y-(size+2)*sin(angl)+(size/2+2)*sin(angl+rightangl),4,LTGRAY);
-              //GrLineThick(hdc,x+(size+2)*cos(angl),y+(size+2)*sin(angl),x+(size+2)*cos(angl)-(size/2+2)*cos(angl+rightangl),y+(size+2)*sin(angl)-(size/2+2)*sin(angl+rightangl),4,LTGRAY);
-
-              GrLineThick(hdc,x-(size+2)*cos(angl),y-(size+2)*sin(angl),x+(size+2)*cos(angl),y+(size+2)*sin(angl),4,LTGRAY);
-              GrLineThick(hdc,x-(size+2)*cos(angl),y-(size+2)*sin(angl),x+(size/2+2)*cos(angl+rightangl),y+(size/2+2)*sin(angl+rightangl),4,LTGRAY);
-              GrLineThick(hdc,x+(size+2)*cos(angl),y+(size+2)*sin(angl),x-(size/2+2)*cos(angl+rightangl),y-(size/2+2)*sin(angl+rightangl),4,LTGRAY);
-            } else {
-              //GrLineThick(hdc,x-size*cos(angl),y-size*sin(angl),x+size*cos(angl),y+size*sin(angl),3,color);
-              //GrLineThick(hdc,x-size*cos(angl),y-size*sin(angl),x-size*cos(angl)+(size/2)*cos(angl+rightangl),y-size*sin(angl)+(size/2)*sin(angl+rightangl),3,color);
-              //GrLineThick(hdc,x+size*cos(angl),y+size*sin(angl),x+size*cos(angl)-(size/2)*cos(angl+rightangl),y+size*sin(angl)-(size/2)*sin(angl+rightangl),3,color);
-
-              GrLineThick(hdc,x-size*cos(angl),y-size*sin(angl),x+size*cos(angl),y+size*sin(angl),3,color);
-              GrLineThick(hdc,x-size*cos(angl),y-size*sin(angl),x+(size/2)*cos(angl+rightangl),y+(size/2)*sin(angl+rightangl),3,color);
-              GrLineThick(hdc,x+size*cos(angl),y+size*sin(angl),x-(size/2)*cos(angl+rightangl),y-(size/2)*sin(angl+rightangl),3,color);
-            }
-            angl-=M_PI_2;
-          }
-          angl+=M_PI;
-        }*/
         int size=6;
         angl*=5;
         GrLineThick(hdc,x-size*cos(angl),y-size*sin(angl),x+size*cos(angl),y+size*sin(angl),4,LTGRAY);
@@ -1427,28 +1422,48 @@ void DrawBullet2(HDC hdc,HDC hdc2,int i,double x,double y,int color)
       break;
 
     case 4: //meteor with trail
-      GrLineThick(hdc,x+cos(Bullet[i].angle+M_PI_2)*5,
-                      y+sin(Bullet[i].angle+M_PI_2)*5,
+      GrLineThick(hdc,x+cos(Bullet[i].angle+M_PI_2)*3,
+                      y+sin(Bullet[i].angle+M_PI_2)*3,
                       x-cos(Bullet[i].angle)*20,y-sin(Bullet[i].angle)*20,3,LTGRAY);
-      GrLineThick(hdc,x-cos(Bullet[i].angle+M_PI_2)*5,
-                      y-sin(Bullet[i].angle+M_PI_2)*5,
+      GrLineThick(hdc,x-cos(Bullet[i].angle+M_PI_2)*3,
+                      y-sin(Bullet[i].angle+M_PI_2)*3,
                       x-cos(Bullet[i].angle)*20,y-sin(Bullet[i].angle)*20,3,LTGRAY);
-
-
 
       GrCircle(hdc,x,y,4,LTGRAY,LTGRAY);
+
+      GrLineThick(hdc,x,y,
+                      x-cos(Bullet[i].angle)*4,y-sin(Bullet[i].angle)*4,2,color);
       GrCircle(hdc,x,y,3,color,color);
       
       break;
 
-    case 6: //spinning shuriken, shotgun
+
+    case 5: //long bullet 0 ,after shotgun
+      GrLineThick(hdc,x,y,x+12*cos(Bullet[i].angle),y+12*sin(Bullet[i].angle),4,LTGRAY);
+      GrLineThick(hdc,x,y,x+10*cos(Bullet[i].angle),y+10*sin(Bullet[i].angle),2,color);
+      break;
+    case 6: //spinning rice, shotgun
       {
         int size=6;
         angl*=10;
         GrLineThick(hdc,x-size*cos(angl),y-size*sin(angl),x+size*cos(angl),y+size*sin(angl),4,LTGRAY);
         GrLineThick(hdc,x-(size-2)*cos(angl),y-(size-2)*sin(angl),x+(size-2)*cos(angl),y+(size-2)*sin(angl),2,color);
+      }
+      break;
 
-        /*int size=4;
+    case 7: //long bullet 1
+      GrLineThick(hdc,x,y,x+8*cos(Bullet[i].angle),y+8*sin(Bullet[i].angle),4,LTGRAY);
+      GrLineThick(hdc,x,y,x+6*cos(Bullet[i].angle),y+6*sin(Bullet[i].angle),2,color);
+      break;
+
+    case 9: //long bullet 2
+      GrLineThick(hdc,x,y,x-22*cos(Bullet[i].angle),y-22*sin(Bullet[i].angle),2,LTGRAY);
+      GrLine(hdc,x,y,x-20*cos(Bullet[i].angle),y-20*sin(Bullet[i].angle),color);
+      break;
+
+    case 8: //shuriken
+      {
+        int size=4;
         angl*=2;
         for (int e=0;e<2;e++) {
           for (int d=0;d<2;d++) {
@@ -1472,52 +1487,9 @@ void DrawBullet2(HDC hdc,HDC hdc2,int i,double x,double y,int color)
             angl-=M_PI_2;
           }
           angl+=M_PI;
-        }*/
-      }
-
-      break;
-
-    case 5: //long bullet 0
-      GrLineThick(hdc,x,y,x+12*cos(Bullet[i].angle),y+12*sin(Bullet[i].angle),4,LTGRAY);
-      GrLineThick(hdc,x,y,x+10*cos(Bullet[i].angle),y+10*sin(Bullet[i].angle),2,color);
-      break;
-    case 7: //long bullet 1
-      GrLineThick(hdc,x,y,x+8*cos(Bullet[i].angle),y+8*sin(Bullet[i].angle),4,LTGRAY);
-      GrLineThick(hdc,x,y,x+6*cos(Bullet[i].angle),y+6*sin(Bullet[i].angle),2,color);
-      break;
-
-    case 9: //long bullet 2
-      GrLineThick(hdc,x,y,x-22*cos(Bullet[i].angle),y-22*sin(Bullet[i].angle),2,LTGRAY);
-      GrLine(hdc,x,y,x-20*cos(Bullet[i].angle),y-20*sin(Bullet[i].angle),color);
-      break;
-
-
-
-
-
-
-
-
-
-    case 10: //death bullet
-        GrCircle(hdc,x,y,2,color,color);
-        c=WHITE;
-        GrCircle(hdc,x,y,RandNum(1,5,&misc_rng_i,seed),c,-1);
-      break;
-
-    case 11: //death player
-      {
-        GrCircle(hdc,x,y,4,color,color);
-        c=rgbPaint[player_pupil_color];
-        GrCircle(hdc,x,y,RandNum(1,10,&misc_rng_i,seed),c,-1);
-        c=rgbPaint[player_iris_color];
-        GrCircle(hdc,x,y,RandNum(1,10,&misc_rng_i,seed),c,-1);
+        }
       }
       break;
-
-
-
-      
   }
 }
 

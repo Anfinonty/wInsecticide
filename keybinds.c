@@ -50,6 +50,9 @@ void KeyChangePlayerColor()
        CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,PlayerSprite[0].PlayerPalette,151,LTGRAY); //border
        CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,PlayerSprite[0].PlayerPalette,199,rgbPaint[player_iris_color]);
 
+       CopyReplaceColorPalette(PlayerSprite[0].PlayerBlurPalette,rgbColorsDefault,167,rgbPaint[player_color]);
+       CopyReplaceColorPalette(PlayerSprite[0].PlayerBlurPalette,PlayerSprite[0].PlayerBlurPalette,151,LTGRAY); //border
+       CopyReplaceColorPalette(PlayerSprite[0].PlayerBlurPalette,PlayerSprite[0].PlayerBlurPalette,199,rgbPaint[player_pupil_color]);
 
        CopyReplaceColorPalette(player_cursor_palette,rgbColorsDefault,167,rgbPaint[player_color]); //LTGREEN
        CopyReplaceColorPalette(player_cursor_palette,player_cursor_palette,151,rgbPaint[player_iris_color]); //LTBLUE

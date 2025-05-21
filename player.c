@@ -141,7 +141,10 @@ void InitPlayerSpritesAll()
 
   tmp_bitmap=CopyCrunchyBitmap(LoadPlayerSprite.sprite_jump,SRCCOPY);
   ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
-  ReplaceBitmapColor(tmp_bitmap,LTBLUE,BLACK);
+  //ReplaceBitmapColor(tmp_bitmap,LTBLUE,BLACK); //remove border
+  DitherBitmapColor(tmp_bitmap,LTBLUE,BLACK);
+  ReplaceBitmapColor(tmp_bitmap,LTBLUE,LTRED);
+
   DitherBitmapColor(tmp_bitmap,LTGREEN,BLACK);
   GenerateDrawSprite(&PlayerSprite[0].blur_sprite_jump,tmp_bitmap);
   DeleteObject(tmp_bitmap);
@@ -163,7 +166,10 @@ void InitPlayerSpritesAll()
 
     tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.spin_sprite,t_angle,BLACK);
     ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
-    ReplaceBitmapColor(tmp_bitmap,LTBLUE,BLACK);
+    //ReplaceBitmapColor(tmp_bitmap,LTBLUE,BLACK); //remove border
+    DitherBitmapColor(tmp_bitmap,LTBLUE,BLACK);
+    ReplaceBitmapColor(tmp_bitmap,LTBLUE,LTRED);
+
     DitherBitmapColor(tmp_bitmap,LTGREEN,BLACK);
     GenerateDrawSprite(&PlayerSprite[0].blur_spin_sprite[i],tmp_bitmap);
     DeleteObject(tmp_bitmap);
@@ -247,6 +253,11 @@ void InitPlayerSpritesAll()
   CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,rgbColorsDefault,167,rgbPaint[player_color]);
   CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,PlayerSprite[0].PlayerPalette,151,LTGRAY); //border
   CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,PlayerSprite[0].PlayerPalette,199,rgbPaint[player_iris_color]);
+
+  CopyReplaceColorPalette(PlayerSprite[0].PlayerBlurPalette,rgbColorsDefault,167,rgbPaint[player_color]);
+  CopyReplaceColorPalette(PlayerSprite[0].PlayerBlurPalette,PlayerSprite[0].PlayerBlurPalette,151,LTGRAY); //border
+  CopyReplaceColorPalette(PlayerSprite[0].PlayerBlurPalette,PlayerSprite[0].PlayerBlurPalette,199,rgbPaint[player_pupil_color]);
+
 }
 
 
@@ -1899,10 +1910,6 @@ void PlayerAct()
         //}
       }
 
-      if (/*game_hard && */IsSpeedBreaking()) { //speedbreaking speed limiter
-        speed_limiter=player.speed;
-        speed_limiter=speed_limiter+speed_limiter/2+1;
-      }
 
 
       //PLAYER ACT SPPED IN WATER
@@ -1929,6 +1936,17 @@ void PlayerAct()
       }  else if (player.bullet_shot!=-1 && player.speed<10) { //parachuting speed limiter
          speed_limiter=10;
       }
+
+      if (/*game_hard && */IsSpeedBreaking()) { //speedbreaking speed limiter
+        speed_limiter=player.speed;
+        if (game_hard) {
+          speed_limiter*=2;
+        } else {
+          speed_limiter=speed_limiter+speed_limiter/2+1;
+        }
+      }
+
+
 
       if (player.below_ground_edge_timer>0) {
         player.below_ground_edge_timer--;
@@ -2589,7 +2607,7 @@ void PlayerAct()
             ShootBullet(current_bullet_id,
 	            player.bullet_shot_num,
 	            rgbPaint[player_load_color],
-                11, //graphics type
+                -9, //graphics type
                 rand_range, // range
                 0.1, //speed
 	            12+RandNum(1,10,&player.death_bullet_rng_i,seed), //speed multiplier
@@ -2828,15 +2846,15 @@ void InitPlayerSpritesObjColor(HDC hdc,HDC hdc2)
 
 
   BitmapPalette(hdc,hdc2,PlayerSprite[0].sprite_jump.sprite_paint,PlayerSprite[0].PlayerPalette);
-  BitmapPalette(hdc,hdc2,PlayerSprite[0].blur_sprite_jump.sprite_paint,PlayerSprite[0].PlayerPalette);
+  BitmapPalette(hdc,hdc2,PlayerSprite[0].blur_sprite_jump.sprite_paint,PlayerSprite[0].PlayerBlurPalette);
   BitmapPalette(hdc,hdc2,PlayerSprite[0].spin_sprite[0].sprite_paint,PlayerSprite[0].PlayerPalette);
   BitmapPalette(hdc,hdc2,PlayerSprite[0].spin_sprite[1].sprite_paint,PlayerSprite[0].PlayerPalette);
   BitmapPalette(hdc,hdc2,PlayerSprite[0].spin_sprite[2].sprite_paint,PlayerSprite[0].PlayerPalette);
   BitmapPalette(hdc,hdc2,PlayerSprite[0].spin_sprite[3].sprite_paint,PlayerSprite[0].PlayerPalette);
-  BitmapPalette(hdc,hdc2,PlayerSprite[0].blur_spin_sprite[0].sprite_paint,PlayerSprite[0].PlayerPalette);
-  BitmapPalette(hdc,hdc2,PlayerSprite[0].blur_spin_sprite[1].sprite_paint,PlayerSprite[0].PlayerPalette);
-  BitmapPalette(hdc,hdc2,PlayerSprite[0].blur_spin_sprite[2].sprite_paint,PlayerSprite[0].PlayerPalette);
-  BitmapPalette(hdc,hdc2,PlayerSprite[0].blur_spin_sprite[3].sprite_paint,PlayerSprite[0].PlayerPalette);
+  BitmapPalette(hdc,hdc2,PlayerSprite[0].blur_spin_sprite[0].sprite_paint,PlayerSprite[0].PlayerBlurPalette);
+  BitmapPalette(hdc,hdc2,PlayerSprite[0].blur_spin_sprite[1].sprite_paint,PlayerSprite[0].PlayerBlurPalette);
+  BitmapPalette(hdc,hdc2,PlayerSprite[0].blur_spin_sprite[2].sprite_paint,PlayerSprite[0].PlayerBlurPalette);
+  BitmapPalette(hdc,hdc2,PlayerSprite[0].blur_spin_sprite[3].sprite_paint,PlayerSprite[0].PlayerBlurPalette);
 }
 
 

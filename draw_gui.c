@@ -1746,8 +1746,10 @@ void DrawUI(HDC hdc,HDC hdc2)
 
   //Draw Block Health
   if (player.show_block_health_timer>0 || (player.health<=PLAYER_LOW_HEALTH+1)) {
-    GrRect(hdc,player.sprite_x-76,player.sprite_y-50-3,152,8,c4);
-    GrRect(hdc,player.sprite_x-75,player.sprite_y-50-2,bhealth_length,6,c3);
+//    GrRect(hdc,player.sprite_x-76,player.sprite_y-50-3,152,8,c4);
+//    GrRect(hdc,player.sprite_x-75,player.sprite_y-50-2,bhealth_length,6,c3);
+    GrRect(hdc,player.sprite_x-76,player.sprite_y-41-3,152,10,c4);
+    GrRect(hdc,player.sprite_x-75,player.sprite_y-41-2,bhealth_length,8,c3);
   }
 
   //Draw Player Health
@@ -1758,14 +1760,14 @@ void DrawUI(HDC hdc,HDC hdc2)
 
     if (player.health>PLAYER_LOW_HEALTH+1) {
       //GrRect(hdc,player.sprite_x-health_length/2-2,player.sprite_y-42-1,health_length+4,6,BLACK);
-      GrRect(hdc,player.sprite_x-health_length/2,player.sprite_y-42,health_length,4,c2);
+      GrRect(hdc,player.sprite_x-health_length/2,player.sprite_y-42,health_length,6,c2);
     } else {
       health_length*=4;
       //GrRect(hdc,player.sprite_x-health_length/2-2,player.sprite_y-42-1,health_length+4,6,BLACK);
       if (frame_tick%15<7) {
-        GrRect(hdc,player.sprite_x-health_length/2,player.sprite_y-42,health_length,4,ca);
+        GrRect(hdc,player.sprite_x-health_length/2,player.sprite_y-42,health_length,6,ca);
       } else {
-        GrRect(hdc,player.sprite_x-health_length/2,player.sprite_y-42,health_length,4,c2);
+        GrRect(hdc,player.sprite_x-health_length/2,player.sprite_y-42,health_length,6,c2);
       }
     }
 

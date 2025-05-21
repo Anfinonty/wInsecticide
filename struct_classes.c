@@ -888,6 +888,7 @@ struct LoadPlayerSprite
 struct PlayerSprite //used in
 {
   RGBQUAD PlayerPalette[256]; //2 colors are changed, LTGREEN and LTREED 
+  RGBQUAD PlayerBlurPalette[256]; //2 colors are changed, LTGREEN and LTREED 
   DRAWSPRITE sprite_jump;
   DRAWSPRITE blur_sprite_jump;
   DRAWSPRITE spin_sprite[4];
