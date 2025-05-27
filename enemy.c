@@ -1497,7 +1497,7 @@ void EnemyAct(int i)
       for (int k=0;k<PLAYER_FLING_WEB_NUM;k++) {
         //knockback
         double dist_from_web_string=GetDistance(player_fling_web.x[k],player_fling_web.y[k],Enemy[i]->x,Enemy[i]->y);
-        if (dist_from_web_string<NODE_SIZE*2) {
+        if (dist_from_web_string<NODE_SIZE*2 && Enemy[i]->on_ground_id==-1 && !Enemy[i]->web_stuck) {
           Enemy[i]->knockback_timer=player.knockback_strength;
           Enemy[i]->knockback_angle=player.angle_of_incidence;//player.pivot_angle+M_PI_2;
         }  
@@ -2311,7 +2311,7 @@ void EnemyAct(int i)
                 } else if (Enemy[i]->x<=player.x) {
                   Enemy[i]->player_at_right=TRUE;
                 }
-                if (Enemy[i]->player_at_left && Enemy[i]->player_at_right) {//Change of X
+                if (Enemy[i]->player_at_left && Enemy[i]->player_at_right && player.health>0) {//Change of X
                   EnemyTargetPlayer(i);
                   Enemy[i]->player_at_left=FALSE;
                   Enemy[i]->player_at_right=FALSE;
@@ -2321,7 +2321,7 @@ void EnemyAct(int i)
                 } else if (Enemy[i]->y<=player.y) {
                   Enemy[i]->player_at_below=TRUE;
                 }
-                if (Enemy[i]->player_at_above && Enemy[i]->player_at_below) {
+                if (Enemy[i]->player_at_above && Enemy[i]->player_at_below && player.health>0) {
                   EnemyTargetPlayer(i);
                   Enemy[i]->player_at_above=FALSE;
                   Enemy[i]->player_at_below=FALSE;
@@ -2333,7 +2333,7 @@ void EnemyAct(int i)
                 } else {
                   Enemy[i]->in_chase_range=TRUE;
                 }
-                if (Enemy[i]->in_unchase_range && Enemy[i]->in_chase_range) {
+                if (Enemy[i]->in_unchase_range && Enemy[i]->in_chase_range && player.health>0) {
                   EnemyTargetPlayer(i);
                   Enemy[i]->in_chase_range=FALSE;
                   Enemy[i]->in_unchase_range=FALSE;

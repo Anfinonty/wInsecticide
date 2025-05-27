@@ -395,6 +395,7 @@ void InitPlayer() {
   player.player_grav=0.5;
   player.exp=0;
   player.invalid_shoot_timer=0;
+  player.dmg_taken_timer=0;
 
   player.cam_x=0;
   player.cam_y=0;
@@ -1400,12 +1401,13 @@ void PlayerActMouseClick()
       double tmp_angle=0;
       if (player.knives_per_throw>4) {
         if (player.knives_per_throw==5) {
-          //b_range=160;
+          b_range=MAX_WEB_LENGTH*3;
           b_speed_m=15;
           b_dmg_m=4;
+          b_g_type=10; 
         } else if (player.knives_per_throw==15) {
           b_range=65;
-          b_g_type=6;
+          b_g_type=6; //shotgun
         }
         b_dmg_m=4;
       //} else if (player.knives_per_throw==3) { 
@@ -1937,8 +1939,11 @@ void PlayerAct()
          speed_limiter=10;
       }
 
-      if (/*game_hard && */IsSpeedBreaking()) { //speedbreaking speed limiter
+      if (IsSpeedBreaking()) { //speedbreaking speed limiter
         speed_limiter=player.speed;
+        if (player.is_on_ground_edge) { //ground edge speed limiter
+           speed_limiter*=5;//10;
+        }
         if (game_hard) {
           speed_limiter*=2;
         } else {
@@ -2867,6 +2872,14 @@ void InitPlayerCursorColor(HDC hdc,HDC hdc2) {
 
 void DrawPlayer(HDC hdc,HDC hdc2)
 {
+  if (player.dmg_taken_timer>0) {
+    if (game_cam_shake) {
+      player.cam_move_x=RandNum(-5,5,&misc_rng_i,-1);
+      player.cam_move_y=RandNum(-5,5,&misc_rng_i,-1);
+    }
+    player.dmg_taken_timer--;
+  }
+
   if (free_will)
     player.seed=rand();
   else

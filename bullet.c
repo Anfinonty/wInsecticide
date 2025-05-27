@@ -237,13 +237,16 @@ void BulletDamagePlayerAct(int bullet_id)
     }
     
     if (blocked_bullet_dmg>0) {
+      if (player.health>0) {
+        player.dmg_taken_timer=9;
+        player.invalid_shoot_timer=9;
+      }
       if (!player.time_breaker) { //penalty for hitting a bullet
         if (player.block_health<=0 || player.block_timer==0) {
           if (player.speed>5) {
             player.speed--;
           } else { //penalty only at low speed
             if (player.time_breaker_units>1) {
-              player.invalid_shoot_timer=9;
               player.time_breaker_units=1;
             }
           }
@@ -1329,7 +1332,6 @@ void DrawBullet2(HDC hdc,HDC hdc2,int i,double x,double y,int color)
       }
       break;
 
-    case 10:
     case -8: //death bullet
         GrCircle(hdc,x,y,2,color,color);
         c=WHITE;
@@ -1463,7 +1465,7 @@ void DrawBullet2(HDC hdc,HDC hdc2,int i,double x,double y,int color)
 
     case 8: //shuriken
       {
-        int size=4;
+        int size=5;
         angl*=2;
         for (int e=0;e<2;e++) {
           for (int d=0;d<2;d++) {
@@ -1489,6 +1491,28 @@ void DrawBullet2(HDC hdc,HDC hdc2,int i,double x,double y,int color)
           angl+=M_PI;
         }
       }
+      break;
+
+    case 10:
+      {
+        int size=5;
+        angl*=2;
+        for (int e=0;e<2;e++) {
+          for (int d=0;d<2;d++) {
+            if (e==0) {
+              GrLineThick(hdc,x-(size+2)*cos(angl),y-(size+2)*sin(angl),x+(size+2)*cos(angl),y+(size+2)*sin(angl),4,LTGRAY);
+              GrLineThick(hdc,x-(size+2)*cos(angl),y-(size+2)*sin(angl),x-(size+2)*cos(angl)+(size/2+2)*cos(angl+rightangl),y-(size+2)*sin(angl)+(size/2+2)*sin(angl+rightangl),4,LTGRAY);
+              GrLineThick(hdc,x+(size+2)*cos(angl),y+(size+2)*sin(angl),x+(size+2)*cos(angl)-(size/2+2)*cos(angl+rightangl),y+(size+2)*sin(angl)-(size/2+2)*sin(angl+rightangl),4,LTGRAY);
+            } else {
+              GrLineThick(hdc,x-size*cos(angl),y-size*sin(angl),x+size*cos(angl),y+size*sin(angl),2,color);
+              GrLineThick(hdc,x-size*cos(angl),y-size*sin(angl),x-size*cos(angl)+(size/2)*cos(angl+rightangl),y-size*sin(angl)+(size/2)*sin(angl+rightangl),2,color);
+              GrLineThick(hdc,x+size*cos(angl),y+size*sin(angl),x+size*cos(angl)-(size/2)*cos(angl+rightangl),y+size*sin(angl)-(size/2)*sin(angl+rightangl),2,color);
+            }
+            angl-=M_PI_2;
+          }
+          angl+=M_PI;
+        }
+      }    
       break;
   }
 }

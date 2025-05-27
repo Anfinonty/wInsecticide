@@ -90,8 +90,8 @@ void DrawBackground(HDC hdc,HDC hdc2)
   double _ppy=(player.y/MAP_HEIGHT);
   double ppx=(MAP_WIDTH-player.x)/MAP_WIDTH;
   double ppy=(MAP_HEIGHT-player.y)/MAP_HEIGHT;
-  parralax_x=(-GR_WIDTH/16*2)+GR_WIDTH/16*ppx;
-  parralax_y=(-GR_HEIGHT/16*2)+GR_HEIGHT/16*ppy;
+  parralax_x=(-GR_WIDTH/16*2)+GR_WIDTH/16*ppx -mouse_x/50;
+  parralax_y=(-GR_HEIGHT/16*2)+GR_HEIGHT/16*ppy -mouse_y/50;
   int draw_p_px=(int)parralax_x;
   int draw_p_py=(int)parralax_y;
 
@@ -454,8 +454,6 @@ void DrawCursor(HDC hDC,HDC hDC2)
     int FPS_x=mouse_x-(strlen(fpstxt)*8-14)/2;
     GrPrintThick(hDC,FPS_x,mouse_y+64,fpstxt,WHITE,BLACK);
   }*/
-
-
   if (player.invalid_shoot_timer>0) {
     if (player.invalid_shoot_timer==10) {
       if (game_audio) {

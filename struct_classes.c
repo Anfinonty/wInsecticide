@@ -200,6 +200,7 @@ struct player
   int play_gun_snd;
   int knives_per_throw;
   int invalid_shoot_timer;
+  int dmg_taken_timer;
 
   int block_recharge_timer_max;
   int block_recharge_timer;
