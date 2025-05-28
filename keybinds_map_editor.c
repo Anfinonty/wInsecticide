@@ -211,7 +211,7 @@ void MapEditorKeypressDown(WPARAM wParam)
           UpdateMEDrawSprite();
         }*/
         if (!MapEditor.is_typing_search && !MapEditor.is_ground_txt_typing) {
-          MapEditor.selected_option=LimitValueInt(MapEditor.selected_option+1,0,5);
+          MapEditor.selected_option=LimitValueInt(MapEditor.selected_option+1,0,6);
         }
         break;
 

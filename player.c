@@ -1940,14 +1940,17 @@ void PlayerAct()
       }
 
       if (IsSpeedBreaking()) { //speedbreaking speed limiter
-        speed_limiter=player.speed;
+        if (player.on_ground_id!=-1) {
+          speed_limiter=player.speed;
+        }
         if (player.is_on_ground_edge) { //ground edge speed limiter
            speed_limiter*=5;//10;
-        }
-        if (game_hard) {
-          speed_limiter*=2;
-        } else {
-          speed_limiter=speed_limiter+speed_limiter/2+1;
+        } else if (!player.is_on_ground_edge && player.on_ground_id!=-1) {
+          if (game_hard) {
+            speed_limiter*=2;
+          } else {
+            speed_limiter=speed_limiter+speed_limiter/2+1;
+          }
         }
       }
 

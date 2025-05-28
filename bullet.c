@@ -181,19 +181,19 @@ void BulletDamagePlayerAct(int bullet_id)
         blocked_bullet_dmg=0;
       }
 
+
+      player.block_health-=1+blocked_bullet_dmg/2;
+      if (player.block_health<=0) {
+        player.block_health=0;
+      }
+
       if (player.health>PLAYER_LOW_HEALTH+1) { //usual response
-        player.block_health-=1+blocked_bullet_dmg/2;
-        if (player.block_health<=0) {
-          player.block_health=0;
-        }
-        if (player.block_health>10) { 
-          player.health-=blocked_bullet_dmg/(player.block_health/16+1); // lower block health =  smaller denominator = closer to 100%,
-        } else {
-          player.health-=blocked_bullet_dmg;
-        }
+         player.health-=blocked_bullet_dmg/(player.block_health/16+1); // lower block health =  smaller denominator = closer to 100% damage,
       } else { //Player when low health
         if (player.health<PLAYER_LOW_HEALTH) {
-          player.health-=0.1;
+          if (player.block_health<=10) {
+            player.health-=0.1;
+          }
         } else {
           player.health-=1;
         }

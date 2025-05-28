@@ -15,7 +15,7 @@ struct MapEditor
   int sticky_level;
   
   //overall
-  int selected_option; //0:ground, 1:player, 2:enemy, 3:enemy_type, 4:background&pallette
+  int selected_option; //0:ground, 1:player, 2:enemy, 3:enemy_type, 4:background, 5:textures editor
 
   //typing search
   bool is_typing_search;
@@ -56,8 +56,19 @@ struct MapEditor
   int selected_lvl_ambient_option;
 
 
+
+
   //set options for lvl ambient
   int set_lvl_ambient_val[9];
+
+
+
+  //=== platform texture ====
+  int selected_ptexture_option;
+  int selected_ptexture_id;
+  //int selected_ptexture_type;
+  //int selected_ptexture_color_id;
+
 
   //Shooting bullet
   bool demo_enemy_spriteisleft;
@@ -137,6 +148,7 @@ void CleanUpMEEnemySprites()
     }
   }
 }
+
 
 /*Set Enemy Type will be in the stack to be consistent with Saved Enemy Type being in the stack*/
 
@@ -651,6 +663,10 @@ void InitMapEditor()
   MapEditor.selected_enemy_type_option=0;
 
   MapEditor.selected_lvl_ambient_option=0;
+
+  MapEditor.selected_ptexture_id=0;
+  MapEditor.selected_ptexture_option=0;
+  
 
   MapEditor.pick_color=-1;
 

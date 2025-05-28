@@ -1,5 +1,14 @@
 
 
+void InitColorPlatformTextures(HDC hdc, HDC hdc2,int i) //run in flag begin drawing tiles.
+{
+  if (i>=0 && i<PLATFORM_TEXTURES_NUM) {
+    SetTexturePalette(GamePlatformTextures[i].color_id,GamePlatformTextures[i].palette); //ltblue water (default perfered)
+    BitmapPalette(hdc,hdc2,GamePlatformTextures[i].palette_sprite,GamePlatformTextures[i].palette);
+  }
+}
+
+
 
 void CleanupGameAudio()
 {

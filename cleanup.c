@@ -128,7 +128,12 @@ void CleanUpEnemy()
     }
   }
 }*/
-
+void CleanUpPlatformTextures()
+{
+  for (int i=0;i<PLATFORM_TEXTURES_NUM;i++) {
+    DeleteObject(GamePlatformTextures[i].palette_sprite);
+  }
+}
 
 
 void CleanUpNodeGrid()

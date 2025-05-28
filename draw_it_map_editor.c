@@ -575,8 +575,20 @@ void DrawMapEditorUI(HDC hdc,HDC hdc2)
               break;
          }
        }
-        break;
+       break;
 
+
+      case 5: //set platform textures
+        GrPrintThick(hdc,8,16,"PLATFORM TEXTURE",YELLOW,BLACK);
+        for (int i=0;i<3;i++) {
+          c = Highlight(MapEditor.selected_ptexture_option==i,WHITE,LTPURPLE);
+          switch (i) {
+            case 0: GrPrintThick(hdc,8,32+16*i,"ID:",c,BLACK); break;
+            case 1: GrPrintThick(hdc,8,32+16*i,"Type:",c,BLACK); break;
+            case 2: GrPrintThick(hdc,8,32+16*i,"Color:",c,BLACK); break;
+          }
+        }
+        break;
     }
 
     if (MapEditor.selected_option==0 || MapEditor.selected_option==2) {

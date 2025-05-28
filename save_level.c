@@ -685,6 +685,18 @@ void SaveMELvl(HWND hwnd,HDC hdc)
     fprintf(fptr,"%d;\n",MapEditor.set_lvl_ambient_val[6]); //
     fprintf(fptr,"%d,%d,;\n",MapEditor.set_lvl_ambient_val[7],MapEditor.set_lvl_ambient_val[8]); //
 
+
+    for (int i=0;i<PLATFORM_TEXTURES_NUM;i++) {
+      fprintf(fptr,"%d,",GamePlatformTextures[i].type);
+    }
+    fprintf(fptr,";\n");
+
+    for (int i=0;i<PLATFORM_TEXTURES_NUM;i++) {
+      fprintf(fptr,"%d,",GamePlatformTextures[i].color_id);
+    }
+    fprintf(fptr,";\n");
+
+
     fclose(fptr);
 
    printf("\n=== Saving Map Id: %d ===\n\n",level_chosen);
@@ -1142,6 +1154,16 @@ void SaveNewLimitAdjustedLvl(HWND hwnd, HDC hdc)
 
     fprintf(fptr,"%d;\n",is_shadows); //
     fprintf(fptr,"%d,%d;\n",shadow_grad_rise,shadow_grad_run); // 
+
+    for (int i=0;i<PLATFORM_TEXTURES_NUM;i++) {
+      fprintf(fptr,"%d,",GamePlatformTextures[i].type);
+    }
+    fprintf(fptr,";\n");
+
+    for (int i=0;i<PLATFORM_TEXTURES_NUM;i++) {
+      fprintf(fptr,"%d,",GamePlatformTextures[i].color_id);
+    }
+    fprintf(fptr,";\n");
 
     fclose(fptr);
 

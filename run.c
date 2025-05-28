@@ -2231,6 +2231,13 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
       }
       intro_msg = LoadRLE8CompressedBitmap(L"sprites/intro_msg.bmp");
       intro_msg_mask = CreateBitmapMask(intro_msg,BLACK,NULL);
+
+
+      for (int k=0;k<PLATFORM_TEXTURES_NUM;k++) {
+        wchar_t texture_name[48];
+        swprintf(texture_name,48,L"sprites/textures/texture%d.bmp",k);
+        LoadedPlatformTextures[k]=LoadRLE8CompressedBitmap(texture_name);
+      }
     
       kh_pressanykey = (HBITMAP) LoadImageW(NULL, L"sprites/kh_pressanykey.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       kh_pressanykey_mask = CreateBitmapMask(kh_pressanykey,LTGREEN,NULL);

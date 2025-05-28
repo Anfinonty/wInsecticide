@@ -1051,8 +1051,22 @@ struct color_chooser
 
 
 //===========OTHER GROUNDS TEXTURE=============
+#define PLATFORM_TEXTURES_NUM 25
+
+HBITMAP LoadedPlatformTextures[PLATFORM_TEXTURES_NUM];
+
+struct GamePlatformTextures
+{
+  int type;
+  int color_id;
+  RGBQUAD palette[256];
+
+  HBITMAP palette_sprite;
+} GamePlatformTextures[PLATFORM_TEXTURES_NUM];
 
 //================================
+
+
 
 
 //===========WATER TEXTURE=============

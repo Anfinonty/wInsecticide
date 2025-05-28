@@ -436,6 +436,8 @@ bool LoadSave(wchar_t *saves_name, bool spawn_objects)
                     }
                   }
                   break;
+                case 49: GamePlatformTextures[column].type=int_saved_val;break;
+                case 50: GamePlatformTextures[column].color_id=int_saved_val;break;
               }
             }
             //printf("%d,",int_saved_val);//save value to arr

@@ -1930,12 +1930,12 @@ void DrawUI(HDC hdc,HDC hdc2)
 
   //===-- Draw Timebreaker Circle ---===
   if (!game_hard) {
-    c5 = Highlight(player.time_breaker,PURPLE,YELLOW);
+    c5 = Highlight(player.time_breaker,LTPURPLE,YELLOW);
   } else {
     c5 = Highlight(player.time_breaker,LTCYAN,YELLOW);
   }
 
-  int c6 = Highlight(game_hard,LTPURPLE,LTBLUE);
+  int c6 = Highlight(game_hard,PURPLE,LTBLUE);
 
   //draw player time breaker
   const int tb_circle_r=8;
