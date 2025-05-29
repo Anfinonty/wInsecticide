@@ -232,7 +232,7 @@ bool LoadSave(wchar_t *saves_name, bool spawn_objects)
 
 
   while ((c=fgetwc(fptr))!=WEOF) {
-    if (row<=3 || (row>=40 && row!=46 && row!=48)) { //first 4 rows
+    if (row<=3 || (row>=40 && row!=46 && row!=48 && row!=49 && row!=50)) { //first 4 rows
       if (c!=';') {//not yet a semicolon
         if (c>='0' && c<='9') { //numerical chars only
           int_val=c-'0'; //ascii convert to num
@@ -444,7 +444,7 @@ bool LoadSave(wchar_t *saves_name, bool spawn_objects)
             column++;
             is_negative_val=FALSE;
             int_val=int_saved_val=0;//restart values
-          }
+          }//end of comma value
 
 
 

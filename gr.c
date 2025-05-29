@@ -2233,6 +2233,7 @@ void SetTexturePalette(int target_color_id,RGBQUAD *myTexturePalette) {
   double grey_val_r;
   double grey_val_g;
   double grey_val_b;
+  target_color_id=rgbPaint_i[target_color_id];
   for (int i=0;i<256;i++) {
     grey_val_r=((double)(rgbColorsNoir[i/*255-i*/].rgbRed))/255*rgbColorsDefault[target_color_id].rgbRed;
     grey_val_g=((double)(rgbColorsNoir[i/*255-i*/].rgbGreen))/255*rgbColorsDefault[target_color_id].rgbGreen;

@@ -131,7 +131,9 @@ void CleanUpEnemy()
 void CleanUpPlatformTextures()
 {
   for (int i=0;i<PLATFORM_TEXTURES_NUM;i++) {
-    DeleteObject(GamePlatformTextures[i].palette_sprite);
+    if (GamePlatformTextures[i].palette_sprite!=NULL) {
+      DeleteObject(GamePlatformTextures[i].palette_sprite);
+    }
   }
 }
 
@@ -370,6 +372,7 @@ void CleanupAll(bool btm)
 {
     level_loaded=FALSE;
     //CleanUpPlayerSprites(); //clean up all sprites
+    CleanUpPlatformTextures();
     CleanUpEnemySprites();
     CleanUpRotatedSprites();
     CleanUpGrid();

@@ -58,6 +58,10 @@ void MEColorPickKeypressDown(WPARAM wParam)
     case 3: //Background
       ColorKeypressDown(wParam,&MapEditor.set_lvl_ambient_val[1]);
       break;
+    case 4: //Texture Palette
+      ColorKeypressDown(wParam,&GamePlatformTextures[MapEditor.selected_ptexture_id].color_id);
+      MapEditor.alter_ptexture_color=TRUE;
+      break;
    }
 }
 
@@ -77,6 +81,10 @@ void MEColorPickKeypressUp(WPARAM wParam)
       break;
     case 3:
       ColorKeypressUp(wParam,&MapEditor.set_lvl_ambient_val[1]);
+      break;
+    case 4: //Texture Palette
+      ColorKeypressUp(wParam,&GamePlatformTextures[MapEditor.selected_ptexture_id].color_id);
+      MapEditor.alter_ptexture_color=TRUE;
       break;
    }
 }
@@ -236,6 +244,9 @@ void MapEditorKeypressDown(WPARAM wParam)
           case 4:
             MapEditor.selected_lvl_ambient_option=LimitValueInt(MapEditor.selected_lvl_ambient_option+1,0,9);
             break;
+         case 5: //textures vk_down++
+           MapEditor.selected_ptexture_option=LimitValueInt(MapEditor.selected_ptexture_option+1,0,3);
+           break;
         }
         break;
 
@@ -261,6 +272,10 @@ void MapEditorKeypressDown(WPARAM wParam)
           case 4:
             MapEditor.selected_lvl_ambient_option=LimitValueInt(MapEditor.selected_lvl_ambient_option-1,0,9);
             break;
+         case 5: //textures vk_up --
+           MapEditor.selected_ptexture_option=LimitValueInt(MapEditor.selected_ptexture_option-1,0,3);
+           break;
+
         }
         break;
 
@@ -302,8 +317,8 @@ void MapEditorKeypressDown(WPARAM wParam)
                   Ground[MapEditor.selected_ground_id]->is_ghost = !Ground[MapEditor.selected_ground_id]->is_ghost;
                 break;
 
-                case 4: //font size
-                  Ground[MapEditor.selected_ground_id]->font_size=LimitValueInt(Ground[MapEditor.selected_ground_id]->font_size-1,0,64);
+              case 4: //font size
+                Ground[MapEditor.selected_ground_id]->font_size=LimitValueInt(Ground[MapEditor.selected_ground_id]->font_size-1,0,64);
                 break;
 
             }
@@ -377,7 +392,18 @@ void MapEditorKeypressDown(WPARAM wParam)
                   melvlambience_max[MapEditor.selected_lvl_ambient_option]);
             }
             break;
-
+         case 5: //textures vk_left, --
+           switch (MapEditor.selected_ptexture_option) {
+             case 0://id
+               MapEditor.selected_ptexture_id=LimitValueInt(MapEditor.selected_ptexture_id-1,0,PLATFORM_TEXTURES_NUM);
+               break;
+             case 1://type
+               GamePlatformTextures[MapEditor.selected_ptexture_id].type=
+                 LimitValueInt(GamePlatformTextures[MapEditor.selected_ptexture_id].type-1,0,PLATFORM_TEXTURES_NUM);
+               MapEditor.alter_ptexture=TRUE;
+               break;
+           }
+           break;
         }
         break;
 
@@ -488,6 +514,19 @@ void MapEditorKeypressDown(WPARAM wParam)
                   melvlambience_max[MapEditor.selected_lvl_ambient_option]);
             }
             break;
+
+         case 5: //textures vk_right, ++
+           switch (MapEditor.selected_ptexture_option) {
+             case 0://id
+               MapEditor.selected_ptexture_id=LimitValueInt(MapEditor.selected_ptexture_id+1,0,PLATFORM_TEXTURES_NUM);
+               break;
+             case 1://type
+               GamePlatformTextures[MapEditor.selected_ptexture_id].type=
+                 LimitValueInt(GamePlatformTextures[MapEditor.selected_ptexture_id].type+1,0,PLATFORM_TEXTURES_NUM);
+               MapEditor.alter_ptexture=TRUE;
+               break;
+           }
+           break;
         }
         break;
 
@@ -527,6 +566,14 @@ void MapEditorKeypressDown(WPARAM wParam)
           MapEditor.pick_color=3;
           color_chooser.color_id=
           color_chooser.color_id_choosing=MapEditor.set_lvl_ambient_val[1];
+        }
+        break;
+      case 5:
+        if (MapEditor.selected_ptexture_option==2) {
+          color_chooser.is_choosing_color=TRUE;
+          MapEditor.pick_color=4;
+          color_chooser.color_id=
+          color_chooser.color_id_choosing=GamePlatformTextures[MapEditor.selected_ptexture_id].color_id;
         }
         break;
       }
