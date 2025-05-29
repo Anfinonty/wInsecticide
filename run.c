@@ -1313,7 +1313,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
 
           if (flag_begin_drawing_tiles) {
-            DrawCreateTiles(hdcBackbuff);
+            DrawCreateTiles(hdcBackbuff,hdcBackbuff2);
           }
 
           screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
@@ -1483,6 +1483,22 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             hdc=BeginPaint(hwnd, &ps);
             hdcBackbuff=CreateCompatibleDC(hdc);
             hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
+
+
+            if (MapEditor.load_ptextures) {
+              for (int i=0;i<PLATFORM_TEXTURES_NUM;i++) {
+                InitPlatformTextures(hdcBackbuff,hdcBackbuff2,i);
+              }
+            }
+
+            if (MapEditor.alter_ptexture) {
+              InitPlatformTextures(hdcBackbuff,hdcBackbuff2,MapEditor.selected_ptexture_id);
+            }
+            if (MapEditor.alter_ptexture_color) {
+              InitColorPlatformTextures(hdcBackbuff,hdcBackbuff2,MapEditor.selected_ptexture_id);
+            }
+
+
             screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
             SelectObject(hdcBackbuff,screen);
             DrawMapEditorBackground(hdcBackbuff,hdcBackbuff2);

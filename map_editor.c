@@ -3,6 +3,9 @@
 struct MapEditor
 {
   bool init_palettes;
+  bool load_ptextures;
+  bool alter_ptexture;
+  bool alter_ptexture_color;
 
   int rd_min_x;
   int rd_max_x;
@@ -765,6 +768,10 @@ void InitLevelMapEditor()
   level_loading=TRUE;
 
   LoadSave(txt,FALSE); //load saves
+
+  MapEditor.load_ptextures=TRUE;
+  MapEditor.alter_ptexture=FALSE;
+  MapEditor.alter_ptexture_color=FALSE;
 
   wcsncpy(typing_lvl_name,level_names[level_chosen],16);
   typing_lvl_name_pos=lstrlenW(typing_lvl_name);

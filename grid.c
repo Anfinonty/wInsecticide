@@ -1,4 +1,5 @@
 
+
 int GetGridId(int x,int y,int width, int size,int max)
 {
   int id=-1,row=0,column=0;
@@ -106,7 +107,7 @@ void InitGridTiles(const wchar_t* lvl_name)
 
 
 int loading_tile_grid_prog=0;
-void DrawCreateTiles(HDC hdc)
+void DrawCreateTiles(HDC hdc,HDC hdc2)
 {
   HBITMAP oldbitmap;
   oldbitmap=CreateBitmap(0,0, 1, 1, NULL);
@@ -132,6 +133,12 @@ void DrawCreateTiles(HDC hdc)
         flag_display_long_loading=TRUE;
       }
     }
+
+    //draw ptextures
+    for (int i=0;i<PLATFORM_TEXTURES_NUM;i++) {
+      InitPlatformTextures(hdc,hdc2,i);
+    }
+
     loading_tile_grid_prog=2;
     //Draw "Loading shadows. This will take a while..."
   } else if (loading_tile_grid_prog==2) {
@@ -175,7 +182,7 @@ void DrawCreateTiles(HDC hdc)
             SelectObject(hdc,TileMapPlatform[tmp_id]->sprite_paint);
             GrRect(hdc,0,0,VGRID_SIZE+1,VGRID_SIZE+1,MYCOLOR1);
 
-            for (int s=0;s<3;s++) {
+            for (int s=0;s<4;s++) {
               for (int k=0;k<VGrid[i]->max_ground_num;k++) {
                 int l = VGrid[i]->ground_ids[k];
                 switch (s) {
@@ -187,6 +194,9 @@ void DrawCreateTiles(HDC hdc)
                     break;
                   case 2: //draw text
                     Draw1GroundText(hdc,l,VGrid[i]->x1,VGrid[i]->y1);
+                    break;
+                  case 3:
+                    //Draw1GroundTextureTriFill(hdc,hdc2,l,VGrid[i]->x1,VGrid[i]->y1);//draw textureground
                     break;
                 }
               }

@@ -193,6 +193,31 @@ void SetGround(int i)
 }
 
 
+
+
+void InitPlatformTextures(HDC hdc, HDC hdc2,int i) //change texture + load color
+{
+  if (i>=0 && i<PLATFORM_TEXTURES_NUM) {
+    int j=GamePlatformTextures[i].type;
+    if (GamePlatformTextures[i].palette_sprite!=NULL) { //delete old palette sprite if exists
+      DeleteObject(GamePlatformTextures[i].palette_sprite); 
+    }
+    GamePlatformTextures[i].palette_sprite = CopyCrunchyBitmap(LoadedPlatformTextures[j],SRCCOPY);//generate new palette sprite
+    SetTexturePalette(GamePlatformTextures[i].color_id,GamePlatformTextures[i].palette);
+    BitmapPalette(hdc,hdc2,GamePlatformTextures[i].palette_sprite,GamePlatformTextures[i].palette);
+  }
+}
+
+
+void InitColorPlatformTextures(HDC hdc, HDC hdc2,int i) //change texture color only
+{
+  if (i>=0 && i<PLATFORM_TEXTURES_NUM) {
+    SetTexturePalette(GamePlatformTextures[i].color_id,GamePlatformTextures[i].palette);
+    BitmapPalette(hdc,hdc2,GamePlatformTextures[i].palette_sprite,GamePlatformTextures[i].palette);
+  }
+}
+
+
 void InitGround(bool is_max)
 {
   int i,j;
