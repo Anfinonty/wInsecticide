@@ -859,10 +859,11 @@ void Draw1Ground(HDC hdc,int i,int x, int y)
     }
 }
 
+
 void Draw1GroundTriFill(HDC hdc,int i,int x, int y)
 {
   int c=0;
-    if ((Ground[i]->type>=3 && Ground[i]->type<=6)) { 
+    if ((Ground[i]->type>=3 && Ground[i]->type<=4)) { 
       c=Ground[i]->color;
       /*if (Ground[i]->color_id==0 || Ground[i]->color_id%16==0) {
         c=RGB(8,8,8);
@@ -880,6 +881,34 @@ void Draw1GroundTriFill(HDC hdc,int i,int x, int y)
     }
 }
 
+void Draw1GroundTextureTriFill(HDC hdc, HDC hdc2,int i,int x, int y)
+{
+  int c=0;
+  int texture_id=Ground[i]->font_size;
+  if ((Ground[i]->type>=5 && Ground[i]->type<=6)) { 
+    if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
+        !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
+      if (texture_id>=0 && texture_id<PLATFORM_TEXTURES_NUM) {
+        DrawTexturedTriangle(hdc,hdc2,
+          Ground[i]->x1-x,
+		  Ground[i]->y1-y,
+		  Ground[i]->x2-x,
+		  Ground[i]->y2-y,
+		  Ground[i]->x3-x,
+		  Ground[i]->y3-y,GamePlatformTextures[texture_id].palette_sprite);
+      } else {
+        c=Ground[i]->color;
+        DrawTriFill(hdc,c,
+                Ground[i]->x1-x,
+				Ground[i]->y1-y,
+				Ground[i]->x2-x,
+				Ground[i]->y2-y,
+				Ground[i]->x3-x,
+				Ground[i]->y3-y,FALSE,0);
+      }
+    }
+  }
+}
 
 
 void Draw1GroundText(HDC hdc,int i,int x, int y)

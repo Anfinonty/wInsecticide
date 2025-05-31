@@ -725,12 +725,6 @@ void DrawKhDiffic(HDC hdc,HDC hdc2,int x,int y,bool t,bool sel)
 
 
 
-
-
-
-
-
-
 void DrawKhCornMid(HDC hdc,HDC hdc2,int x,int y,bool sel)
 {
     DrawBitmap(hdc,hdc2,x,y,0,0,94,19,kh_cornmid_mask,SRCAND,FALSE,FALSE);
@@ -752,58 +746,14 @@ void DrawMM2Kh(HDC hdc,HDC hdc2,int x,int y,int l,int w,int t)
     }
 }
 
+
+
+
 void DrawMainMenu(HDC hdc,HDC hdc2)
 {
-
-  //draw bkgrnd
-  //DrawBitmap(hdc,hdc2,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
-
-
   if (wav_mode==0) {
-    //DrawMovingAVI(hdc,hdc2);
-    //DrawBitmap(hdc,hdc2,0,0,0,0,160,160,texture_water,SRCCOPY,FALSE,FALSE);
-    //GrRect(hdc,90,90,210,210,YELLOW);
-    //DrawBitmap(hdc,hdc2,100,100,0,0,200,200,myTmpEnemyDrawSprite,SRCCOPY,FALSE,FALSE);
-    // DrawBitmap(hdc,hdc2,100,100,0,0,200,200,enemy2_sprite_1,SRCCOPY,FALSE,FALSE);
-    // DrawPaletteSquare(hdc,60+220+24,240);
-    DrawBitmap(hdc,hdc2,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
     if (level_loaded) {
-      //DrawBlackBorders(hdc);
-
-      if (!(solar_hour>6 && solar_hour<18) && map_weather==0) {
-          int dmx,dmy;
-          if (lunar_day>=1 && lunar_day<=5) { //1, 2, 3, 4, 5
-            dmx=GR_WIDTH-GR_WIDTH/8;
-            dmy=GR_HEIGHT-GR_HEIGHT/3;//GR_HEIGHT-GR_HEIGHT/6;
-            DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
-          } else if (lunar_day>=6 && lunar_day<=9) {// 6, 7, 8, 9
-            dmx=GR_WIDTH/2+GR_WIDTH/4;
-            dmy=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3;
-            DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
-          } else if (lunar_day>=10 && lunar_day<=12) {// 10, 11, 12,
-            dmx=GR_WIDTH/2+GR_WIDTH/4-GR_WIDTH/8;
-            dmy=GR_HEIGHT/4+GR_HEIGHT/12;
-            DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
-          } else if (lunar_day>=13 && lunar_day<=15) {//13, 14, 15 //fullmoon
-            dmx=GR_WIDTH/2;
-            dmy=GR_HEIGHT/4;
-            DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
-          } else if (lunar_day>=16 && lunar_day<=18) {//16, 17, 18
-            dmx=GR_WIDTH/4+GR_WIDTH/8;
-            dmy=GR_HEIGHT/4+GR_HEIGHT/12;
-            DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
-          } else if (lunar_day>=19 && lunar_day<=22) {//19, 20, 21, 22
-            dmx=GR_WIDTH/4;
-            dmy=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3;
-            DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
-          } else if (lunar_day>=23 && lunar_day<=26) {//23, 24, 25,26
-            dmx=GR_WIDTH/8;
-            dmy=GR_HEIGHT-GR_HEIGHT/3;//GR_HEIGHT-GR_HEIGHT/6;
-            DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
-          }
-
-      }
-
+      DrawBackground(hdc,hdc2);
       if (!hide_mm) {
         DrawPersianClock(hdc,hdc2);
       }
@@ -818,12 +768,8 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
         if (is_shadows && game_shadow && SHADOW_GRID_NUM>0) {
           DrawShadows(hdc,hdc2);
         }
-      //DrawWaterShader(hdc,hdc2);
         if (map_weather>0) {
           DrawRain(hdc,hdc2);
-        /*if (!player.in_water) {
-          DrawRainShader(hdc,hdc2);
-        }*/
         }
       }
     }
@@ -841,21 +787,13 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
 
 
   if (!hide_mm) {
-  //Draw Moon Phase
-  //GrSprite(hdc, GR_WIDTH-128, 128, moon_sprite_cache,FALSE);
-
-  DrawTitle(hdc,hdc2);
-  if (hide_taskbar) {
-    main_menu_y=15;
-//    main_menu_y2=15;
-  } else {
-    main_menu_y=0;
-//    main_menu_y2=35;
-  }
+    DrawTitle(hdc,hdc2);
+    if (hide_taskbar) {
+      main_menu_y=15;
+    } else {
+      main_menu_y=0;
+    }
   //GrPrintW(hdc,30,main_menu_y+10,L"អាពីងស៊ីរុយ - Welcome to the wInsecticide Menu!","",WHITE,16,FALSE,yes_unifont);
-
-
-
 
 
 

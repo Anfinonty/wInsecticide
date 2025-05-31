@@ -326,25 +326,12 @@ void InitLevel(bool load_lvl)
     blank_level=TRUE;
     level_loaded=TRUE;
     level_loading=FALSE;
-
-    /*int dice=abs(RandNum(0,100,&misc_rng_i,-1));
-    if (dice<30) {
-      rain_grad_rise=2;
-      rain_grad_run=1;
-      if (dice>15) {
-        map_weather=1;
-      } else {
-        map_weather=2;
-      }
-    } else {
-      map_weather=0;
-    }*/
-
     return;
   } else {
     blank_level=FALSE;
   }
 
+  flag_update_background=TRUE;
   OLD_GR_WIDTH=0;
   OLD_GR_HEIGHT=0;
   

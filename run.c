@@ -819,14 +819,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           player.flag_revert_palette=TRUE;
           player.time_breaker_tick=-1;
           KeyChangePlayerColor();
-
-
-          //Init avi playing
-          //if (solar_hour>6 && solar_hour<18) { //day
-            //InitExtractAVIFrames(L"avi/mainmenu_gameplay_day.avi",0);
-          //} else {
-            //InitExtractAVIFrames(L"avi/mainmenu_gameplay_night.avi",0);
-          //}
         }
       }
 
@@ -1117,12 +1109,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
         }
 
-        if (GR_WIDTH!=OLD_GR_WIDTH || GR_HEIGHT!=OLD_GR_HEIGHT || flag_update_background) {
+        if (GR_WIDTH!=OLD_GR_WIDTH || GR_HEIGHT!=OLD_GR_HEIGHT || flag_update_background) { //change in background res
           if (!in_map_editor) {
             InitPlayerCamera(player.saved_x,player.saved_y);
             player.cam_x=0;
             player.cam_y=0;
-            CameraInit(player.x,player.y); //idk scaling is weird for sprite
+            CameraInit(player.x,player.y);
           }
           InitRDGrid();
           ResetBulletRain();
@@ -1137,91 +1129,36 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
           OLD_GR_WIDTH = GR_WIDTH;
           OLD_GR_HEIGHT = GR_HEIGHT;
+
           //In main menu
-          if (in_main_menu) {
-            if (map_background_sprite!=NULL) {
-              DeleteObject(map_background_sprite);
-            }
-              HBITMAP tmp_map_background_sprite;
-
-                int mb_val=-1;
-                if (solar_hour>6 && solar_hour<18) { //day
-                  if (map_weather!=0) {
-                    mb_val=2;
-                  } else {
-                    mb_val=0;
-                  }
-                  //InitExtractAVIFrames(L"avi/mainmenu_gameplay_day.avi",0);
-                } else {
-                  if (map_weather!=0) {
-                    mb_val=3;
-                  } else {
-                    mb_val=1;
-                  }
-                }
-                //printf("solar_hour:%d,,%d\n",solar_hour,mb_val);
-
-                /*else {
-                  //InitExtractAVIFrames(L"avi/mainmenu_gameplay_night.avi",0);
-                }*/
-                switch (mb_val) {
-                  case 0:
-                    if (GR_WIDTH<800 && GR_HEIGHT<600) {
-                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-                    } else {
-                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-                    }
-                    break;
-                  case 1:
-                    if (GR_WIDTH<800 && GR_HEIGHT<600) {
-                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-                    } else {
-                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-                    }
-                    break;
-                  case 2:
-                    if (GR_WIDTH<800 && GR_HEIGHT<600) {
-                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/skdark0.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-                    } else {
-                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/skdark0_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-                    }
-                    break;
-                  case 3:
-                    if (GR_WIDTH<800 && GR_HEIGHT<600) {
-                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/skdark1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-                    } else {
-                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/skdark1_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-                    }
-                    break;
-                }
-                if (tmp_map_background_sprite!=NULL) {
-                  map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH,GR_HEIGHT); //note runs once only
-                  if (mb_val!=1 && mb_val!=2 && mb_val!=3) {
-                    PlaceDayMoon();
-                  }
-                } else {
-                  map_background_sprite=NULL;
-                }
-                DeleteObject(tmp_map_background_sprite);
-          }
-
           //Load Map Background sprites
-          if (!in_main_menu || level_loading || in_map_editor) {
-             int mb_val;
-             if (!in_main_menu || level_loading) {
-               mb_val=map_background;
-             } else {
+             int mb_val=-1;
+             if (in_map_editor) {
                mb_val=MapEditor.set_lvl_ambient_val[0];
+             } else {
+               mb_val=map_background;
              }
             if (mb_val>=0 && mb_val<=4) {
-              DeleteObject(map_background_sprite);
+              if (map_background_sprite!=NULL) { //renew and scale upwards
+                DeleteObject(map_background_sprite);
+              }
               HBITMAP tmp_map_background_sprite;
 
               wchar_t lvl_background_bmp[64];
               swprintf(lvl_background_bmp,64,L"saves/%s/images/background.bmp",level_names[level_chosen]);
               tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, lvl_background_bmp, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
-              if (tmp_map_background_sprite==NULL) { //not found :/
+              if ((in_main_menu && !level_loading && !in_map_editor) || back_to_menu) {
+                if (tmp_map_background_sprite==NULL) {  //custom overwrites regular
+                  if (solar_hour>6 && solar_hour<18) { //day
+                    if (map_weather!=0) {mb_val=2;} else {mb_val=0;}
+                  } else {       //night
+                    if (map_weather!=0) {mb_val=3;} else {mb_val=1;}
+                  }
+                }
+              }
+
+              if (tmp_map_background_sprite==NULL) { //custom background doesnt exist
                 switch (mb_val) {
                   case 0:
                     if (GR_WIDTH<800 && GR_HEIGHT<600) {
@@ -1263,26 +1200,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               }
               DeleteObject(tmp_map_background_sprite);
             }
-          } else {            
-            //LoadMainMenuBackground();
-          }
-        }
+        } //end of screen actions
 
-        //UpdateFrame(hwnd);
+
         HBITMAP screen;
         PAINTSTRUCT ps;
         
-
-
         if (prelude) {
           hdc=BeginPaint(hwnd, &ps);
           hdcBackbuff=CreateCompatibleDC(hdc);
           hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
 
-
           screen=CreateCompatibleBitmap(hdc,640,440);
           SelectObject(hdcBackbuff,screen);
-          //GrRect(hdcBackbuff,0,0,GR_WIDTH+2,GR_HEIGHT+2,LTBLUE);
 
           DrawMovingAVI(hdcBackbuff,hdcBackbuff2);
 
@@ -1291,17 +1221,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
           if (loading_numerator<loading_denominator) {
             DrawLoading(hdcBackbuff);
-
             Prelude();
           } else {
-            //if (frame_tick%FPS<FPS/2) {
-              //khmer text
-              DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-324/2,GR_HEIGHT-96-8,0,0,324,47,kh_pressanykey_mask,SRCAND,FALSE,FALSE);
-              DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-324/2,GR_HEIGHT-96-8,0,0,324,47,kh_pressanykey,SRCPAINT,FALSE,FALSE);
-              //GrPrint(hdcBackbuff,GR_WIDTH/2-25*4,GR_HEIGHT-72,"Press Any Key to Continue",WHITE);
-            //}
+            DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-324/2,GR_HEIGHT-96-8,0,0,324,47,kh_pressanykey_mask,SRCAND,FALSE,FALSE);
+            DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-324/2,GR_HEIGHT-96-8,0,0,324,47,kh_pressanykey,SRCPAINT,FALSE,FALSE);
           }
-          //DrawCursor(hdcBackbuff,hdcBackbuff2);
 
           BitBlt(hdc, 0, 0, 640,440, hdcBackbuff, 0, 0,  SRCCOPY);
           DeleteDC(hdcBackbuff2);
@@ -1340,7 +1264,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         if (!in_main_menu) //### In game
         { //https://stackoverflow.com/questions/752593/win32-app-suspends-on-minimize-window-animation
-
           frame_tick++;
           showoff++;
           if (frame_tick>FPS) {
@@ -1353,11 +1276,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             } else {
               if (!game_over) {
                 if (game_timer<int_best_score && player.health>0) { //New high score
-                /*DIR* dir;
-                dir=opendir("score_saves");
-                if (ENOENT==errno) {
-                  mkdir("score_saves");
-                }*/
                   FILE *fptr;
                   fptr = _wfopen(save_level,L"w");
                   char txt[12];
@@ -1370,17 +1288,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               }
             }
 
+            if (game_cam_shake && player.health>0) {
+              PlayerCameraShake();
+            }
 
-            //if (!(player.time_breaker /*|| player.is_swinging || player.is_rebounding*/)) {
-              if (game_cam_shake && player.health>0) {
-                PlayerCameraShake();
-              }
-            //} else {
-              //player.cam_move_x=0;
-              //player.cam_move_y=0;
-            //}
-
- 
             if (level_loaded && flag_restart) { // restart level when player health hits 0 or VK_RETURN
               flag_restart_audio=TRUE;
               Init();
@@ -1407,20 +1318,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               DrawShadows(hdcBackbuff,hdcBackbuff2);
             }
 
-          //DrawGrids(hdcBackbuff); //debugging
-            //DrawWaterShader(hdcBackbuff,hdcBackbuff2);
+            //DrawGrids(hdcBackbuff); //debugging
+            //DrawWaterShader(hdcBackbuff,hdcBackbuff2); //deprecated
             if (map_weather>0) {
               DrawRain(hdcBackbuff,hdcBackbuff2);
               /*if (!player.in_water) {
-                DrawRainShader(hdcBackbuff,hdcBackbuff2);
+                DrawRainShader(hdcBackbuff,hdcBackbuff2);  //deprecated
               }*/
             }
             DrawBlackBorders(hdcBackbuff);
-
             DrawUI(hdcBackbuff,hdcBackbuff2);
             if (player.health>0) {
               DrawCursor(hdcBackbuff,hdcBackbuff2);
-            } else if (player.death_timer>150) {
+            } else if (player.death_timer>150) { //dead cursor
               int pc=rgbPaint[player_color];
               GrCircle(hdcBackbuff,mouse_x,mouse_y,10,pc,pc);
               pc=rgbPaint[player_pupil_color];
@@ -1440,7 +1350,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
             int c=BLACK;
-            if (IsSpeedBreaking()) { //cinema mode 
+            if (IsSpeedBreaking()) { //cinema mode when speedbreaking
               GrRect(hdcBackbuff,0,0,GR_WIDTH+4,32,c);
               if (hide_taskbar) {
                 GrRect(hdcBackbuff,0,GR_HEIGHT-48,GR_WIDTH+4,100,c);
@@ -1506,7 +1416,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             SelectObject(hdcBackbuff,screen);
             DrawMapEditorBackground(hdcBackbuff,hdcBackbuff2);
             DrawMapEditorWaterTexturePlatforms(hdcBackbuff,hdcBackbuff2);
-            DrawMapEditorPlatforms(hdcBackbuff);
+            DrawMapEditorPlatforms(hdcBackbuff,hdcBackbuff2);
             DrawMapEditorEnemy(hdcBackbuff,hdcBackbuff2);
             DrawMapEditorPlayer(hdcBackbuff,hdcBackbuff2);
             DrawGrids(hdcBackbuff,player.cam_x+GR_WIDTH/2,player.cam_y+GR_HEIGHT/2);

@@ -105,7 +105,7 @@ void DrawMapEditorWaterPlatforms(HDC hdc)
 
 
 //Graphics
-void DrawMapEditorPlatforms(HDC hdc)
+void DrawMapEditorPlatforms(HDC hdc,HDC hdc2)
 {
   //Draw type 3
   int c;
@@ -126,6 +126,21 @@ void DrawMapEditorPlatforms(HDC hdc)
 				Ground[i]->y2+player.cam_y+GR_HEIGHT/2,
 				Ground[i]->x3+player.cam_x+GR_WIDTH/2,
 				Ground[i]->y3+player.cam_y+GR_HEIGHT/2,FALSE,0);
+        }
+      } else if (Ground[i]->type==5 || Ground[i]->type==6) {
+        if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
+            !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
+              int texture_type=Ground[i]->font_size;
+              if (texture_type>=0 && texture_type<PLATFORM_TEXTURES_NUM) {
+              DrawTexturedTriangle(hdc,hdc2,
+                Ground[i]->x1+player.cam_x+GR_WIDTH/2,
+				Ground[i]->y1+player.cam_y+GR_HEIGHT/2,
+				Ground[i]->x2+player.cam_x+GR_WIDTH/2,
+				Ground[i]->y2+player.cam_y+GR_HEIGHT/2,
+				Ground[i]->x3+player.cam_x+GR_WIDTH/2,
+				Ground[i]->y3+player.cam_y+GR_HEIGHT/2,
+                GamePlatformTextures[texture_type].palette_sprite);
+              }
         }
       } else if (Ground[i]->type==7) {
 	    c=rgbPaint[Ground[i]->color_id];

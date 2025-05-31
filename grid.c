@@ -133,12 +133,6 @@ void DrawCreateTiles(HDC hdc,HDC hdc2)
         flag_display_long_loading=TRUE;
       }
     }
-
-    //draw ptextures
-    for (int i=0;i<PLATFORM_TEXTURES_NUM;i++) {
-      InitPlatformTextures(hdc,hdc2,i);
-    }
-
     loading_tile_grid_prog=2;
     //Draw "Loading shadows. This will take a while..."
   } else if (loading_tile_grid_prog==2) {
@@ -164,10 +158,17 @@ void DrawCreateTiles(HDC hdc,HDC hdc2)
       }
     }
 
+    //draw load ptextures
+    for (int i=0;i<PLATFORM_TEXTURES_NUM;i++) {
+      InitPlatformTextures(hdc,hdc2,i);
+    }
+
     loading_tile_grid_prog=3;
   } else if (loading_tile_grid_prog==3) {
+
+
     TileMapPlatform = calloc(PLATFORM_GRID_NUM,sizeof(ATileMap*));
-    for (int i=0;i<PLATFORM_GRID_NUM;i++) {
+    for (int i=0;i<PLATFORM_GRID_NUM;i++) { //calloc platform tiles
       ATileMap *newTileMap = createTileMap();
       TileMapPlatform[i] = newTileMap;
     }
@@ -178,7 +179,8 @@ void DrawCreateTiles(HDC hdc,HDC hdc2)
             TileMapPlatform[tmp_id]->x=VGrid[i]->x1;
             TileMapPlatform[tmp_id]->y=VGrid[i]->y1;
 
-            TileMapPlatform[tmp_id]->sprite_paint=CreateCrunchyBitmap(VGRID_SIZE,VGRID_SIZE);
+            TileMapPlatform[tmp_id]->sprite_paint=//CreateLargeBitmap(VGRID_SIZE,VGRID_SIZE);
+                CreateCrunchyBitmap(VGRID_SIZE,VGRID_SIZE);
             SelectObject(hdc,TileMapPlatform[tmp_id]->sprite_paint);
             GrRect(hdc,0,0,VGRID_SIZE+1,VGRID_SIZE+1,MYCOLOR1);
 
@@ -189,14 +191,14 @@ void DrawCreateTiles(HDC hdc,HDC hdc2)
                   case 0: //draw ground trifill
                     Draw1GroundTriFill(hdc,l,VGrid[i]->x1,VGrid[i]->y1);
                     break;
-                  case 1: //draw ground line
+                  case 1:
+                    Draw1GroundTextureTriFill(hdc,hdc2,l,VGrid[i]->x1,VGrid[i]->y1);//draw textureground
+                    break;
+                  case 2: //draw ground line
                     Draw1Ground(hdc,l,VGrid[i]->x1,VGrid[i]->y1);
                     break;
-                  case 2: //draw text
+                  case 3: //draw text
                     Draw1GroundText(hdc,l,VGrid[i]->x1,VGrid[i]->y1);
-                    break;
-                  case 3:
-                    //Draw1GroundTextureTriFill(hdc,hdc2,l,VGrid[i]->x1,VGrid[i]->y1);//draw textureground
                     break;
                 }
               }

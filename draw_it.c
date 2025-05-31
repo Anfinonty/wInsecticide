@@ -112,42 +112,45 @@ void DrawBackground(HDC hdc,HDC hdc2)
       break;
   }
 
-  if ((!(map_background>=2 && map_background<=3) && is_moon && custom_map_background_color_i>127) || map_background==1) {
+  if (
+      (!in_main_menu && ((!(map_background>=2 && map_background<=3) && is_moon && custom_map_background_color_i>127) || map_background==1)) ||
+      (in_main_menu && (!(solar_hour>6 && solar_hour<18) && (map_background==1 || (map_background==4 && is_moon))))
+    ) {
       int dmx=-1000;
       int dmy=-1000;
       if (lunar_day>=1 && lunar_day<=5) { //1, 2, 3, 4, 5
-        dmx=GR_WIDTH-GR_WIDTH/8-GR_WIDTH/16*_ppx;
-        dmy=GR_HEIGHT-GR_HEIGHT/3-GR_HEIGHT/16*_ppy;//GR_HEIGHT-GR_HEIGHT/6;
+        dmx=GR_WIDTH-GR_WIDTH/8-GR_WIDTH/16*_ppx-mouse_x/50;
+        dmy=GR_HEIGHT-GR_HEIGHT/3-GR_HEIGHT/16*_ppy-mouse_y/50;//GR_HEIGHT-GR_HEIGHT/6;
         //dmy=160+160-GR_HEIGHT/16*_ppy;
         DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
       } else if (lunar_day>=6 && lunar_day<=9) {// 6, 7, 8, 9
-        dmx=GR_WIDTH/2+GR_WIDTH/4-GR_WIDTH/16*_ppx;
-        dmy=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3-GR_HEIGHT/16*_ppy;
+        dmx=GR_WIDTH/2+GR_WIDTH/4-GR_WIDTH/16*_ppx-mouse_x/50;
+        dmy=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3-GR_HEIGHT/16*_ppy-mouse_y/50;
         //dmy=160+110-GR_HEIGHT/16*_ppy;
         DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
       } else if (lunar_day>=10 && lunar_day<=12) {// 10, 11, 12,
-        dmx=GR_WIDTH/2+GR_WIDTH/4-GR_WIDTH/8-GR_WIDTH/16*_ppx;
-        dmy=GR_HEIGHT/4+GR_HEIGHT/12-GR_HEIGHT/16*_ppy;
+        dmx=GR_WIDTH/2+GR_WIDTH/4-GR_WIDTH/8-GR_WIDTH/16*_ppx-mouse_x/50;
+        dmy=GR_HEIGHT/4+GR_HEIGHT/12-GR_HEIGHT/16*_ppy-mouse_y/50;
         //dmy=160+50-GR_HEIGHT/16*_ppy;
         DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
       } else if (lunar_day>=13 && lunar_day<=15) {//13, 14, 15 //fullmoon
-        dmx=GR_WIDTH/2-GR_WIDTH/16*_ppx;
-        dmy=GR_HEIGHT/4-GR_HEIGHT/16*_ppy;
+        dmx=GR_WIDTH/2-GR_WIDTH/16*_ppx-mouse_x/50;
+        dmy=GR_HEIGHT/4-GR_HEIGHT/16*_ppy-mouse_y/50;
         //dmy=160-GR_HEIGHT/16*_ppy;
         DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
       } else if (lunar_day>=16 && lunar_day<=18) {//16, 17, 18
-        dmx=GR_WIDTH/4+GR_WIDTH/8-GR_WIDTH/16*_ppx;
-        dmy=GR_HEIGHT/4+GR_HEIGHT/12-GR_HEIGHT/16*_ppy;
+        dmx=GR_WIDTH/4+GR_WIDTH/8-GR_WIDTH/16*_ppx-mouse_x/50;
+        dmy=GR_HEIGHT/4+GR_HEIGHT/12-GR_HEIGHT/16*_ppy-mouse_y/50;
         //dmy=160+50-GR_HEIGHT/16*_ppy;
         DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
       } else if (lunar_day>=19 && lunar_day<=22) {//19, 20, 21, 22
-        dmx=GR_WIDTH/4-GR_WIDTH/16*_ppx;
-        dmy=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3-GR_HEIGHT/16*_ppy;
+        dmx=GR_WIDTH/4-GR_WIDTH/16*_ppx-mouse_x/50;
+        dmy=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3-GR_HEIGHT/16*_ppy-mouse_y/50;
         //dmy=160+110-GR_HEIGHT/16*_ppy;
         DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
       } else if (lunar_day>=23 && lunar_day<=26) {//23, 24, 25,26
-        dmx=GR_WIDTH/8-GR_WIDTH/16*_ppx;
-        dmy=GR_HEIGHT-GR_HEIGHT/3-GR_HEIGHT/16*_ppy;//GR_HEIGHT-GR_HEIGHT/6;
+        dmx=GR_WIDTH/8-GR_WIDTH/16*_ppx-mouse_x/50;
+        dmy=GR_HEIGHT-GR_HEIGHT/3-GR_HEIGHT/16*_ppy-mouse_y/50;//GR_HEIGHT-GR_HEIGHT/6;
         //dmy=160+160-GR_HEIGHT/16*_ppy;
         DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
       }// else {

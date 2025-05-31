@@ -2183,8 +2183,8 @@ bool InitExtractAVIFrames(const wchar_t* szFileName,int index)
     DeleteDC(memDC);
 }*/
 
-/*
-void DrawTexturedTriangle(HDC hdc, HDC hdc2,int x1, int y1, int x2, int y2, int x3, int y3, HBITMAP hBitmap) {
+
+/*void DrawTexturedTriangle(HDC hdc, HDC hdc2,int x1, int y1, int x2, int y2, int x3, int y3, HBITMAP hBitmap,int color_texture_id) {
     // Select the BMP into a memory DC
     //HDC memDC = CreateCompatibleDC(hdc);
     HBITMAP oldBitmap = (HBITMAP)SelectObject(hdc2, hBitmap);
@@ -2205,28 +2205,74 @@ void DrawTexturedTriangle(HDC hdc, HDC hdc2,int x1, int y1, int x2, int y2, int 
     DeleteObject(brush);
 }*/
 
-
-
-
-void DrawTexturedTriangle(HDC hdc, HDC hdc2, int x1, int y1, int x2, int y2, int x3, int y3, HBITMAP hBitmap) {
+/*void DrawTexturedTriangleWorking(HDC hdc, HDC hdc2, int x1, int y1, int x2, int y2, int x3, int y3, HBITMAP hBitmap, int color_texture_id) {
     // Select the BMP into a memory DC
     HBITMAP oldBitmap = (HBITMAP)SelectObject(hdc2, hBitmap);
 
     // Define the triangle vertices
-    POINT triangle[3] = {{x1,y1}, {x2,y2}, {x3,y3}};
+    POINT triangle[3] = {{x1, y1}, {x2, y2}, {x3, y3}};
 
     // Create a brush from the texture
     HBRUSH brush = CreatePatternBrush(hBitmap);
 
-    // Select the brush and draw the triangle
+    // Select the brush and set the pen to NULL (removes borders)
     HBRUSH oldBrush = (HBRUSH)SelectObject(hdc, brush);
+    HPEN oldPen = (HPEN)SelectObject(hdc, GetStockObject(NULL_PEN));
+
+    // Draw the triangle
     Polygon(hdc, triangle, 3);
 
     // Cleanup
-    SelectObject(hdc2, oldBitmap);
     SelectObject(hdc, oldBrush);
+    SelectObject(hdc, oldPen);
+    SelectObject(hdc2, oldBitmap);
     DeleteObject(brush);
 }
+*/
+
+
+
+void DrawTexturedTriangle(HDC hdc, HDC hdc2, int x1, int y1, int x2, int y2, int x3, int y3, HBITMAP hBitmap) {
+    float cx = (x1 + x2 + x3) / 3.0f;
+    float cy = (y1 + y2 + y3) / 3.0f;
+
+    // Apply scaling (1.5 pixels outward)
+    float offset = 1.5f; // Offset amount
+    float factor = offset / sqrt(pow(x1 - cx, 2) + pow(y1 - cy, 2)); // Normalize
+
+    int sx1 = x1 + (x1 - cx) * factor;
+    int sy1 = y1 + (y1 - cy) * factor;
+    int sx2 = x2 + (x2 - cx) * factor;
+    int sy2 = y2 + (y2 - cy) * factor;
+    int sx3 = x3 + (x3 - cx) * factor;
+    int sy3 = y3 + (y3 - cy) * factor;
+
+
+    // Select the BMP into a memory DC
+    HBITMAP oldBitmap = (HBITMAP)SelectObject(hdc2, hBitmap);
+
+    // Define the triangle vertices
+    POINT triangle[3] = {{sx1, sy1}, {sx2, sy2}, {sx3, sy3}};
+
+    // Create a brush from the texture
+    HBRUSH brush = CreatePatternBrush(hBitmap);
+
+    // Select the brush and set the pen to NULL (removes borders)
+    HBRUSH oldBrush = (HBRUSH)SelectObject(hdc, brush);
+    HPEN oldPen = (HPEN)SelectObject(hdc, GetStockObject(NULL_PEN));
+
+    // Draw the triangle
+    Polygon(hdc, triangle, 3);
+
+    // Cleanup
+    SelectObject(hdc, oldBrush);
+    SelectObject(hdc, oldPen);
+    SelectObject(hdc2, oldBitmap);
+    DeleteObject(brush);
+}
+
+
+
 
 RGBQUAD waterPalette[256];
 void SetTexturePalette(int target_color_id,RGBQUAD *myTexturePalette) {

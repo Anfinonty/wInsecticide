@@ -108,6 +108,7 @@ void DrawGroundTriFill(HDC hdc);
 void DrawWaterTriFill(HDC hdc);
 void Draw1Ground(HDC hdc,int i,int x, int y);
 void Draw1GroundText(HDC hdc,int i,int x, int y);
+void Draw1GroundTextureTriFill(HDC hdc,HDC hdc2,int i,int x, int y);
 void Draw1GroundTriFill(HDC hdc,int i,int x, int y);
 void Draw1WaterTriFill(HDC hdc, int i,int x,int y);
 
