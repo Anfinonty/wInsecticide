@@ -192,26 +192,38 @@ void SetGround(int i)
   }
 }
 
-HBITMAP GenerateColoredTexture(int loaded_ptexture_id, float solid_value,int color_id)
+HBITMAP GenerateColoredTexture(int loaded_ptexture_id, int solid_value,int color_id)
 {
+  if (solid_value>255) solid_value=255;
+  else if (solid_value<0) solid_value=0;
+
   //bitmap stuff
   HDC hdc=GetDC(NULL);
   HDC hdcSrc=CreateCompatibleDC(hdc);
   HDC hdcDest=CreateCompatibleDC(hdc);
 
-  HBITMAP tmp_bitmap=CreateCrunchyBitmap(VGRID_SIZE,VGRID_SIZE);
+
+  HBITMAP tmp_bitmap=CopyCrunchyBitmap(LoadedPlatformTextures[loaded_ptexture_id],SRCCOPY);
+  SelectObject(hdcDest,tmp_bitmap);
+
+  HBITMAP tmp_bitmap2=CreateCrunchyBitmap(VGRID_SIZE,VGRID_SIZE);
+  SelectObject(hdcSrc,tmp_bitmap2);
+  GrRect(hdcSrc,0,0,VGRID_SIZE+1,VGRID_SIZE+1,rgbPaint[color_id]);
+
+
+
+  /*
+  HBITMAP tmp_bitmap=CreateCrunchyBitmap(VGRID_SIZE,VGRID_SIZE); //dest = background
   SelectObject(hdcDest,tmp_bitmap);
   GrRect(hdcDest,0,0,VGRID_SIZE+1,VGRID_SIZE+1,rgbPaint[color_id]);
 
-  if (solid_value>100) solid_value=100;
-  else if (solid_value<0) solid_value=0;
+  SelectObject(hdcSrc,LoadedPlatformTextures[loaded_ptexture_id]); //ontop*/
 
-  SelectObject(hdcSrc,LoadedPlatformTextures[loaded_ptexture_id]);
 
   BLENDFUNCTION blendFunction;
   blendFunction.BlendOp = AC_SRC_OVER;
   blendFunction.BlendFlags = 0;
-  blendFunction.SourceConstantAlpha = 255.0f * solid_value/100;// Transparency level (0-255)
+  blendFunction.SourceConstantAlpha = solid_value;// Transparency level (0-255)
   blendFunction.AlphaFormat = 0;
 
   //draw texture over color background
@@ -223,36 +235,24 @@ HBITMAP GenerateColoredTexture(int loaded_ptexture_id, float solid_value,int col
   DeleteDC(hdcDest);
   ReleaseDC(NULL,hdc);
 
+
+  DeleteObject(tmp_bitmap2);
   return tmp_bitmap;
 }
 
 
-void InitPlatformTextures(HDC hdc, HDC hdc2,int i) //change texture + load color
-{
-  if (i>=0 && i<PLATFORM_TEXTURES_NUM) {
-    int j=GamePlatformTextures[i].type;
-    if (GamePlatformTextures[i].palette_sprite!=NULL) { //delete old palette sprite if exists
-      DeleteObject(GamePlatformTextures[i].palette_sprite); 
-    }
-    //GamePlatformTextures[i].palette_sprite = CopyCrunchyBitmap(LoadedPlatformTextures[j],SRCCOPY);//generate new palette sprite
-    //SetTexturePalette(GamePlatformTextures[i].color_id,GamePlatformTextures[i].palette);
-    //BitmapPalette(hdc,hdc2,GamePlatformTextures[i].palette_sprite,GamePlatformTextures[i].palette);
-    GamePlatformTextures[i].palette_sprite = GenerateColoredTexture(j,50,GamePlatformTextures[i].color_id);
-    BitmapPalette(hdc,hdc2,GamePlatformTextures[i].palette_sprite,rgbColorsDefault);
-  }
-}
 
 
 void InitColorPlatformTextures(HDC hdc, HDC hdc2,int i) //change texture color only
 {
   if (i>=0 && i<PLATFORM_TEXTURES_NUM) {
-    //SetTexturePalette(GamePlatformTextures[i].color_id,GamePlatformTextures[i].palette);
+    //SetTexturePalette(GamePlatformTextures[i].color_id,GamePlatformTextures[i].palette); //only works if 32-bit texture, independent from platform tiles
     //BitmapPalette(hdc,hdc2,GamePlatformTextures[i].palette_sprite,GamePlatformTextures[i].palette);
     int j=GamePlatformTextures[i].type;
     if (GamePlatformTextures[i].palette_sprite!=NULL) { //delete old palette sprite if exists
       DeleteObject(GamePlatformTextures[i].palette_sprite); 
     }
-    GamePlatformTextures[i].palette_sprite = GenerateColoredTexture(j,50,GamePlatformTextures[i].color_id);
+    GamePlatformTextures[i].palette_sprite = GenerateColoredTexture(j,GamePlatformTextures[i].solid_value,GamePlatformTextures[i].color_id);
     BitmapPalette(hdc,hdc2,GamePlatformTextures[i].palette_sprite,rgbColorsDefault);    
   }
 }

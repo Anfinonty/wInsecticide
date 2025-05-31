@@ -160,7 +160,7 @@ void DrawCreateTiles(HDC hdc,HDC hdc2)
 
     //draw load ptextures
     for (int i=0;i<PLATFORM_TEXTURES_NUM;i++) {
-      InitPlatformTextures(hdc,hdc2,i);
+      InitColorPlatformTextures(hdc,hdc2,i);
     }
 
     loading_tile_grid_prog=3;

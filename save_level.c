@@ -692,6 +692,11 @@ void SaveMELvl(HWND hwnd,HDC hdc)
     fprintf(fptr,";\n");
 
     for (int i=0;i<PLATFORM_TEXTURES_NUM;i++) {
+      fprintf(fptr,"%d,",GamePlatformTextures[i].solid_value);
+    }
+    fprintf(fptr,";\n");
+
+    for (int i=0;i<PLATFORM_TEXTURES_NUM;i++) {
       fprintf(fptr,"%d,",GamePlatformTextures[i].color_id);
     }
     fprintf(fptr,";\n");
@@ -1157,6 +1162,11 @@ void SaveNewLimitAdjustedLvl(HWND hwnd, HDC hdc)
 
     for (int i=0;i<PLATFORM_TEXTURES_NUM;i++) {
       fprintf(fptr,"%d,",GamePlatformTextures[i].type);
+    }
+    fprintf(fptr,";\n");
+
+    for (int i=0;i<PLATFORM_TEXTURES_NUM;i++) {
+      fprintf(fptr,"%d,",GamePlatformTextures[i].solid_value);
     }
     fprintf(fptr,";\n");
 

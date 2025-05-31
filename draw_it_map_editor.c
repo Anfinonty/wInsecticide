@@ -595,7 +595,7 @@ void DrawMapEditorUI(HDC hdc,HDC hdc2)
 
       case 5: //set platform textures
         GrPrintThick(hdc,8,16,"PLATFORM TEXTURE",YELLOW,BLACK);
-        for (int i=0;i<3;i++) {
+        for (int i=0;i<4;i++) {
           char txt[24];
           c = Highlight(MapEditor.selected_ptexture_option==i,WHITE,LTPURPLE);
           switch (i) {
@@ -607,7 +607,11 @@ void DrawMapEditorUI(HDC hdc,HDC hdc2)
               sprintf(txt,"Type: <%d>",GamePlatformTextures[MapEditor.selected_ptexture_id].type);
               GrPrintThick(hdc,8,32+16*i,txt,c,BLACK); 
               break;
-            case 2: 
+            case 2:
+              sprintf(txt,"Saturation: <%d>",GamePlatformTextures[MapEditor.selected_ptexture_id].solid_value);
+              GrPrintThick(hdc,8,32+16*i,txt,c,BLACK); 
+              break;
+            case 3: 
               GrPrintThick(hdc,8,32+16*i,"Color:",c,BLACK); 
               GrPrintThick(hdc,8*11,32+16*i,"[      ]",c,BLACK);
               GrRect(hdc,8*12+1,32+16*i+2,16,16,WHITE);
@@ -619,6 +623,7 @@ void DrawMapEditorUI(HDC hdc,HDC hdc2)
           DrawPaintSquare(hdc,8*25,52+2,color_chooser.color_id,color_chooser.color_id_choosing);
         }
         DrawBitmap(hdc,hdc2,16,32+16*5,0,0,VGRID_SIZE,VGRID_SIZE,GamePlatformTextures[MapEditor.selected_ptexture_id].palette_sprite,SRCCOPY,FALSE,FALSE);
+        DrawBitmap(hdc,hdc2,16,32+16*5+VGRID_SIZE+16,0,0,VGRID_SIZE,VGRID_SIZE,LoadedPlatformTextures[GamePlatformTextures[MapEditor.selected_ptexture_id].type],SRCCOPY,FALSE,FALSE);
         break;
     }
 

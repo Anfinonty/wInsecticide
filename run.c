@@ -1397,15 +1397,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             if (MapEditor.load_ptextures) {
               for (int i=0;i<PLATFORM_TEXTURES_NUM;i++) {
-                InitPlatformTextures(hdcBackbuff,hdcBackbuff2,i);
+                InitColorPlatformTextures(hdcBackbuff,hdcBackbuff2,i);
               }
               MapEditor.load_ptextures=FALSE;
             }
 
-            if (MapEditor.alter_ptexture) {
-              InitPlatformTextures(hdcBackbuff,hdcBackbuff2,MapEditor.selected_ptexture_id);
-              MapEditor.alter_ptexture=FALSE;
-            }
             if (MapEditor.alter_ptexture_color) {
               InitColorPlatformTextures(hdcBackbuff,hdcBackbuff2,MapEditor.selected_ptexture_id);
               MapEditor.alter_ptexture_color=FALSE;

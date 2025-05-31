@@ -484,7 +484,6 @@ ANode **NodeGrid;
 int GetGridId(int x,int y,int width, int size,int max);
 void SetGridLineArray(int grid_id,int ground_id);
 void UnSetGridLineArray(int grid_id,int ground_id);
-void InitPlatformTextures(HDC hdc, HDC hdc2,int i);
 void InitColorPlatformTextures(HDC hdc, HDC hdc2,int i);
 void DrawCreateTiles(HDC hdc,HDC hdc2);
 void InitGrid();
@@ -499,6 +498,7 @@ void InitNodeGridAttributes();
 void DrawNodeGrids(HDC hdc);
 void DrawShadows2(HDC hdcSrc,HDC hdcDest,int x,int y,bool t);
 void CreatePlatformShadowBitmap(HDC hdc,double rise,double run,int color);
+HBITMAP GenerateColoredTexture(int loaded_ptexture_id, int solid_value,int color_id);
 //void DrawGrid(HDC hdc);
 
 
@@ -1061,8 +1061,9 @@ HBITMAP LoadedPlatformTextures[PLATFORM_TEXTURES_NUM];
 struct GamePlatformTextures
 {
   int type;
+  int solid_value; //0-255
   int color_id;
-  RGBQUAD palette[256];
+  //RGBQUAD palette[256];
 
   HBITMAP palette_sprite;
 } GamePlatformTextures[PLATFORM_TEXTURES_NUM];

@@ -232,7 +232,7 @@ bool LoadSave(wchar_t *saves_name, bool spawn_objects)
 
 
   while ((c=fgetwc(fptr))!=WEOF) {
-    if (row<=3 || (row>=40 && row!=46 && row!=48 && row!=49 && row!=50)) { //first 4 rows
+    if (row<=3 || (row>=40 && row!=46 && row!=48 && !(row>=49 && row<=51))) { //first 4 rows
       if (c!=';') {//not yet a semicolon
         if (c>='0' && c<='9') { //numerical chars only
           int_val=c-'0'; //ascii convert to num
@@ -437,7 +437,8 @@ bool LoadSave(wchar_t *saves_name, bool spawn_objects)
                   }
                   break;
                 case 49: GamePlatformTextures[column].type=int_saved_val;break;
-                case 50: GamePlatformTextures[column].color_id=int_saved_val;break;
+                case 50: GamePlatformTextures[column].solid_value=int_saved_val;break;
+                case 51: GamePlatformTextures[column].color_id=int_saved_val;break;
               }
             }
             //printf("%d,",int_saved_val);//save value to arr

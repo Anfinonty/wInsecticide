@@ -244,9 +244,9 @@ void MapEditorKeypressDown(WPARAM wParam)
           case 4:
             MapEditor.selected_lvl_ambient_option=LimitValueInt(MapEditor.selected_lvl_ambient_option+1,0,9);
             break;
-         case 5: //textures vk_down++
-           MapEditor.selected_ptexture_option=LimitValueInt(MapEditor.selected_ptexture_option+1,0,3);
-           break;
+          case 5: //textures vk_down++
+            MapEditor.selected_ptexture_option=LimitValueInt(MapEditor.selected_ptexture_option+1,0,4);
+            break;
         }
         break;
 
@@ -272,10 +272,9 @@ void MapEditorKeypressDown(WPARAM wParam)
           case 4:
             MapEditor.selected_lvl_ambient_option=LimitValueInt(MapEditor.selected_lvl_ambient_option-1,0,9);
             break;
-         case 5: //textures vk_up --
-           MapEditor.selected_ptexture_option=LimitValueInt(MapEditor.selected_ptexture_option-1,0,3);
-           break;
-
+          case 5: //textures vk_up --
+            MapEditor.selected_ptexture_option=LimitValueInt(MapEditor.selected_ptexture_option-1,0,4);
+            break;
         }
         break;
 
@@ -400,7 +399,12 @@ void MapEditorKeypressDown(WPARAM wParam)
              case 1://type
                GamePlatformTextures[MapEditor.selected_ptexture_id].type=
                  LimitValueInt(GamePlatformTextures[MapEditor.selected_ptexture_id].type-1,0,PLATFORM_TEXTURES_NUM);
-               MapEditor.alter_ptexture=TRUE;
+               MapEditor.alter_ptexture_color=TRUE;
+               break;
+             case 2://solid_value
+               GamePlatformTextures[MapEditor.selected_ptexture_id].solid_value=
+                 LimitValueInt(GamePlatformTextures[MapEditor.selected_ptexture_id].solid_value-1,0,256);
+               MapEditor.alter_ptexture_color=TRUE;
                break;
            }
            break;
@@ -523,7 +527,12 @@ void MapEditorKeypressDown(WPARAM wParam)
              case 1://type
                GamePlatformTextures[MapEditor.selected_ptexture_id].type=
                  LimitValueInt(GamePlatformTextures[MapEditor.selected_ptexture_id].type+1,0,PLATFORM_TEXTURES_NUM);
-               MapEditor.alter_ptexture=TRUE;
+               MapEditor.alter_ptexture_color=TRUE;
+               break;
+             case 2://solid_value
+               GamePlatformTextures[MapEditor.selected_ptexture_id].solid_value=
+                 LimitValueInt(GamePlatformTextures[MapEditor.selected_ptexture_id].solid_value+1,0,256);
+               MapEditor.alter_ptexture_color=TRUE;
                break;
            }
            break;
@@ -569,7 +578,7 @@ void MapEditorKeypressDown(WPARAM wParam)
         }
         break;
       case 5:
-        if (MapEditor.selected_ptexture_option==2) {
+        if (MapEditor.selected_ptexture_option==3) {
           color_chooser.is_choosing_color=TRUE;
           MapEditor.pick_color=4;
           color_chooser.color_id=
