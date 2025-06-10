@@ -354,6 +354,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
       }
 
 
+      if (Bullet[bk].graphics_type==6 || Bullet[bk].graphics_type==8 || Bullet[bk].graphics_type==10) {
       if (Bullet[bullet_id].graphics_type!=-8 && Bullet[bullet_id].graphics_type!=-1) {
         if (Bullet[bullet_id].bounce_timer==0) {
           Bullet[bullet_id].angle=GetMarbleAngle(Bullet[bullet_id].angle,Bullet[bk].angle)+RandAngle(-12,12,&Bullet[bullet_id].rng_i,seed);//GetBounceAngle(Bullet[bk].angle,Bullet[bullet_id].angle);//RandAngle(0,360,player.seed); //scatter type 6
@@ -366,6 +367,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
       } else { //death bullet
         Bullet[bullet_id].angle=Bullet[bk].angle+RandAngle(-65,65,&player.bullet_rng_i,seed); //scatter type 6
       }
+      }
 
       /*if (Bullet[bk].speed_multiplier<7) { //if shotgun bullet, pierce through for the first few ranges
       }*/
@@ -375,18 +377,32 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
           Bullet[bk].angle=-GetMarbleAngle(Bullet[bk].angle, saved_angle)+RandAngle(-12,12,&Bullet[bullet_id].rng_i,seed);
           Bullet[bk].bounce_timer=10;
         }
-        switch (Bullet[bk].graphics_type) {
-          case 5: //kpt 3
-            //Bullet[bk].range/=4;
-            Bullet[bk].range-=16;
-            break;
-          case 9: //kpt 1
-            Bullet[bk].range-=8;
-            break;
-          default:
-            Bullet[bk].range-=4;
-            break;
-        }
+        /*if (player.type==0) {
+          switch (Bullet[bk].graphics_type) {
+            case 5: //kpt 3
+              //Bullet[bk].range/=4;
+              Bullet[bk].range-=16;
+              break;
+            case 9: //kpt 1
+              Bullet[bk].range-=8;
+              break;
+            default:
+              Bullet[bk].range-=4;
+              break;
+          }
+        } else if (player.type==1) {*/
+          switch (Bullet[bk].graphics_type) {
+            case 5: //kpt 3
+              Bullet[bk].range-=64;
+              break;
+            case 9: //kpt 1
+              Bullet[bk].range-=24;
+              break;
+            default:
+              Bullet[bk].range-=16;
+              break;
+          }
+        //}
       }
     }
   } //end of for,

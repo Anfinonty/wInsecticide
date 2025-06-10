@@ -1291,7 +1291,7 @@ bool InsectBites(int i,int dmg,bool is_mosquito)
          }
 
         
-        if (player.speed>5) {
+        if (player.speed>5 && player.type==0) {
           player.speed--;
         } else { //penalty only at low speed
           if (player.time_breaker_units>1) {
@@ -2609,7 +2609,12 @@ void InitEnemySpritesObj()
     loading_numerator++;
 
     CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,rgbColorsDefault,167,rgbPaint[saved_enemy_type_color[i]]); //set normal palette
+    //if (map_background==0 || map_background==2) {
+      //CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,151,RGB(16,16,16)); //set outline color
+    //} else {
     CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,151,LTGRAY); //set outline color
+    //}
+
     if (free_will) {
       CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,199,LTCYAN); //set freewill to normal palette
     }
@@ -3005,7 +3010,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
             player.time_breaker_units+=2;
           }
         } else {
-          if (!player.time_breaker) {
+          if (!player.time_breaker && player.type==0) {
             player.speed+=2;
           }
         }

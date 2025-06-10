@@ -204,7 +204,6 @@ int player_load_pupil_color=12;
 
 int player_bullet_color=0;
 
-
 int showoff=0;
 int saved_showoff=0;
 
@@ -505,6 +504,8 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
       } else {
         if (level_loaded) {
           PlayerAct();
+          //PlayerAct(player_type);
+
           for (int i=0;i<ENEMY_NUM;i++) {
             EnemyAct(i);
           }
@@ -1309,7 +1310,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DrawFirePlatforms(hdcBackbuff);
             DrawWebs(hdcBackbuff);
             DrawEnemy(hdcBackbuff,hdcBackbuff2);
-            DrawPlayer(hdcBackbuff,hdcBackbuff2);
+            //DrawPlayer(hdcBackbuff,hdcBackbuff2);
+            DrawPlayer(hdcBackbuff,hdcBackbuff2,player.type);
+
             DrawWaterPlatforms(hdcBackbuff,hdcBackbuff2);
             //DrawNodeGrids(hdcBackbuff); //debugging
 
@@ -1981,6 +1984,13 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
       LoadPlayerSprite.block_sprite_3 = LoadRLE8CompressedBitmap(L"sprites/player-block-3.bmp");
       LoadPlayerSprite.spin_sprite = LoadRLE8CompressedBitmap(L"sprites/player-spin.bmp");
 
+
+      LoadPlayerSprite.sprite_bee_1=LoadRLE8CompressedBitmap(L"sprites/bee-1.bmp");
+      LoadPlayerSprite.sprite_bee_2=LoadRLE8CompressedBitmap(L"sprites/bee-2.bmp");
+      LoadPlayerSprite.sprite_bee_aero_1=LoadRLE8CompressedBitmap(L"sprites/bee-aero-1.bmp");
+      LoadPlayerSprite.sprite_bee_aero_2=LoadRLE8CompressedBitmap(L"sprites/bee-aero-2.bmp");
+
+
       //Load Enemy Sprites
       enemy1_sprite_1 = LoadRLE8CompressedBitmap(L"sprites/enemy1-1.bmp");
       enemy1_sprite_2 = LoadRLE8CompressedBitmap(L"sprites/enemy1-2.bmp");
@@ -2039,6 +2049,16 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
         GenerateDrawSprite(&draw_player_cursor[i],player_cursor_cache[i]);
       }
 
+
+      for (int i=0;i<5;i++) {
+        wchar_t fname[32];
+        swprintf(fname,32,L"sprites/player_cursorbee%d.bmp",i);
+        player_cursorbee[i]=LoadRLE8CompressedBitmap(fname);
+            //LoadImageW(NULL,fname,IMAGE_BITMAP,0,0,LR_LOADFROMFILE);
+        player_cursorbee_cache[i]=CopyCrunchyBitmap(player_cursorbee[i],SRCCOPY);
+        ReplaceBitmapColor2(player_cursorbee_cache[i],LTGREEN,BLACK,8,LTGREEN);
+        GenerateDrawSprite(&draw_player_cursorbee[i],player_cursorbee_cache[i]);
+      }
 
       //Load snowflake
       snowflake_sprite=LoadRLE8CompressedBitmap(L"sprites/snowflake0.bmp");

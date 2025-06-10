@@ -449,14 +449,6 @@ void DrawShadows(HDC hdc,HDC hdc2)
 
 void DrawCursor(HDC hDC,HDC hDC2)
 {
-  //DrawBitmap(hDC,mouse_x,mouse_y,0,0,64,64,mouse_cursor_sprite,SRCAND,FALSE);
-  //DrawBitmap(hDC,mouse_x,mouse_y,0,0,64,64,mouse_cursor_sprite_mask,SRCPAINT,FALSE);
-  /*if (show_fps && saved_showoff>0) {
-    char fpstxt[32];
-    sprintf(fpstxt,"FPS: %d / %d",saved_showoff,FPS);
-    int FPS_x=mouse_x-(strlen(fpstxt)*8-14)/2;
-    GrPrintThick(hDC,FPS_x,mouse_y+64,fpstxt,WHITE,BLACK);
-  }*/
   if (player.invalid_shoot_timer>0) {
     if (player.invalid_shoot_timer==10) {
       if (game_audio) {
@@ -492,8 +484,20 @@ closed
         9     13
     8           12
  10   11       14   15
-*/
 
+
+bee-open
+      1 2 3
+0               4
+
+
+bee-closed
+     6 7 8
+
+5               9
+
+*/
+  if (player.type==0) {
   //DrawBitmap(hDC,hDC2,mouse_x,mouse_y,0,0,64,64,player_cursor[0],SRCCOPY,FALSE,FALSE);
   //right side eyes
   switch (player.knives_per_throw) {
@@ -540,7 +544,25 @@ closed
     DrawSprite(hDC,hDC2,mouse_x-2,mouse_y-2,&draw_player_cursor[8],FALSE); //left eye low hp
     DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+52,mouse_y+rand_shake_y-4,&draw_player_cursor[12],FALSE); //right eye low hp
   }
+
+  } else if (player.type==1) {
+  //bee eyes
+    switch (player.knives_per_throw) {
+      case 1: 
+      case 3:
+      case 0:
+      case 5:
+      case 15:
+        DrawSprite(hDC,hDC2,mouse_x-1,mouse_y-8,&draw_player_cursorbee[0],FALSE); //left main eye
+        DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+23+2,mouse_y+rand_shake_y-25,&draw_player_cursorbee[1],FALSE); //middle left
+        DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+35+2,mouse_y+rand_shake_y-15,&draw_player_cursorbee[3],FALSE); //middle
+        DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+40+1+2,mouse_y+rand_shake_y-23,&draw_player_cursorbee[2],FALSE); //middle right
+        DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+52,mouse_y+rand_shake_y-3,&draw_player_cursorbee[4],FALSE); //right eye
+        break;
+      }
   }
+
+  } //end of flicker fast
 }
 
 

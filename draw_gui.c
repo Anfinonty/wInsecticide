@@ -762,7 +762,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
         DrawFirePlatforms(hdc);
         DrawWebs(hdc);
         DrawEnemy(hdc,hdc2);
-        DrawPlayer(hdc,hdc2);
+        DrawPlayer(hdc,hdc2,player.type);
         DrawWaterPlatforms(hdc,hdc2);
 
         if (is_shadows && game_shadow && SHADOW_GRID_NUM>0) {
@@ -1736,6 +1736,7 @@ void DrawUI(HDC hdc,HDC hdc2)
 
   //===--- Draw player speed ---=== (Over Cursor)
   //hehehehe
+  if (player.type==0) {
   for (i=0;i<player.speed;i++) {
     double speed_angle=i*0.1;
     double speed_dist=64;
@@ -1758,7 +1759,7 @@ void DrawUI(HDC hdc,HDC hdc2)
       3,c2,BLACK
     );
   }
-
+  }
 
 
 
@@ -1772,15 +1773,18 @@ void DrawUI(HDC hdc,HDC hdc2)
   //if (player.show_exp_timer>0) {
     int exp_l=9;//18;
     int lk=10;//20;
+    int loffset=0;
+    if (player.type==1)
+      loffset=8;
     //GrRect(hdc,player.sprite_x-50,player.sprite_y+23,100,5,c4);
-    GrRect(hdc,mouse_x-50+14,mouse_y+23+20,100,5,c4);
+    GrRect(hdc,mouse_x-50+14,mouse_y+23+20-loffset,100,5,c4);
     if (game_hard) {
       exp_l=18;//31;
       lk=20;//33;
     }
     for (int k=0;k<player.exp;k++) {
       //GrRect(hdc,1+player.sprite_x-50+k*lk,player.sprite_y+24,exp_l,3,c5);
-      GrRect(hdc,1+mouse_x-50+k*lk+14,mouse_y+24+20,exp_l,3,c5);      
+      GrRect(hdc,1+mouse_x-50+k*lk+14,mouse_y+24+20-loffset,exp_l,3,c5);      
     }
 
     /*if (is_khmer) {
@@ -1804,7 +1808,12 @@ void DrawUI(HDC hdc,HDC hdc2)
   //32 bullets
 //  GrRect(hdc,knifethrowsx,knifethrowsy+1,PLAYER_BULLET_NUM*3,9,c4); //black
 //  GrRect(hdc,knifethrowsx,knifethrowsy,player.knives_per_throw*3,10,c10);
-  GrRect(hdc,knifethrowsx-1,knifethrowsy+1,PLAYER_BULLET_NUM*7+2,9,c4); //black
+
+  if (player.type==1) {
+    knifethrowsy-=8;
+  }
+
+  GrRect(hdc,knifethrowsx-1,knifethrowsy+1,PLAYER_BULLET_NUM*7+2+1,9,c4); //black
   GrRect(hdc,knifethrowsx,knifethrowsy,player.knives_per_throw*7,10,c10);
 
 
@@ -1841,17 +1850,22 @@ void DrawUI(HDC hdc,HDC hdc2)
   if (player.knives_per_throw>3) {
     bullet_minus=player.knives_per_throw/5;
   }
-  swprintf(bulletlefttxt,32,L"%d/%d",player.bullet_num,bullet_minus);
-  swprintf(bulletlefttxt2,32,L"%d/%d [%d]",player.bullet_num,bullet_minus,player_web_remaining);
+  if (player.type==0) {
+    swprintf(bulletlefttxt,32,L"%d/%d",player.bullet_num,bullet_minus);
+    swprintf(bulletlefttxt2,32,L"%d/%d [%d]",player.bullet_num,bullet_minus,player_web_remaining);
+  } else if (player.type==1) {
+    swprintf(bulletlefttxt,32,L"%d/%d",player.bullet_num,bullet_minus);
+    swprintf(bulletlefttxt2,32,L"%d/%d",player.bullet_num,bullet_minus);
+  }
   //GrPrint(hdc,knifethrowsx-32-8,knifethrowsy-4,bulletlefttxt,c);
   int bc=Highlight(player.bullet_num<bullet_minus,c,LTRED);
   int bc2=Highlight(player_web_remaining==0,c,LTRED);
   if (is_khmer) {
-    GrPrintW(hdc,knifethrowstxtx-32-30-8,knifethrowstxty-4,ReplaceToKhmerNum(bulletlefttxt2),"",bc2,16,FALSE,yes_unifont);
-    GrPrintW(hdc,knifethrowstxtx-32-30-8,knifethrowstxty-4,ReplaceToKhmerNum(bulletlefttxt),"",bc,16,FALSE,yes_unifont);
+    GrPrintW(hdc,knifethrowstxtx-32-30-8,knifethrowstxty-4-loffset,ReplaceToKhmerNum(bulletlefttxt2),"",bc2,16,FALSE,yes_unifont);
+    GrPrintW(hdc,knifethrowstxtx-32-30-8,knifethrowstxty-4-loffset,ReplaceToKhmerNum(bulletlefttxt),"",bc,16,FALSE,yes_unifont);
   } else {
-    GrPrintW(hdc,knifethrowstxtx-32-8,knifethrowstxty-4,bulletlefttxt2,"",bc2,16,FALSE,yes_unifont);
-    GrPrintW(hdc,knifethrowstxtx-32-8,knifethrowstxty-4,bulletlefttxt,"",bc,16,FALSE,yes_unifont);
+    GrPrintW(hdc,knifethrowstxtx-32-8,knifethrowstxty-4-loffset,bulletlefttxt2,"",bc2,16,FALSE,yes_unifont);
+    GrPrintW(hdc,knifethrowstxtx-32-8,knifethrowstxty-4-loffset,bulletlefttxt,"",bc,16,FALSE,yes_unifont);
   }
 
   /*if (player.show_exp_timer>0) {

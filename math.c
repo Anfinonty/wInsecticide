@@ -380,13 +380,13 @@ void PersiaLunarTime(int64_t _seconds,
   const int day_seconds=60*60*24;
   const int days30_seconds=day_seconds*30;
   const int days29_seconds=day_seconds*29; 
-  int64_t lunar_day_start=-day_seconds*21; //lunar hijri unix start day is  1389-10-22 //Gregorian is 1970-1-1 //1 day offset, account for day start at evening
+  int64_t lunar_day_start=-day_seconds*21-(60*30); //lunar hijri unix start day is  1389-10-22 //Gregorian is 1970-1-1 //1 day offset, account for day start at evening
 
   //Break Down the different time parts
   int year=1389;
   int month=9;          //lunar hijri unix start day is  1389-10-22  //Gregorian is 1970-1-1 //month 0 is month 1
-  int64_t seconds=_seconds+day_seconds*21;
-  int64_t seconds_static=_seconds; //Begins on thursday
+  int64_t seconds=_seconds+day_seconds*21+(60*30);
+  int64_t seconds_static=_seconds+(60*30); //Begins on thursday
 
   while (seconds>0) {
     //Get months

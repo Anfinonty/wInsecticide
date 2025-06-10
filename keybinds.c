@@ -820,7 +820,8 @@ void GameKeypressDown(WPARAM wParam)
           if (game_audio)
             PlaySound(spamSoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //tb_start_audio
           player.time_breaker_cooldown=player.time_breaker_cooldown_max;
-          player.speed+=player.time_breaker_units_max/2-1;
+          if (player.type==0)
+            player.speed+=player.time_breaker_units_max/2-1;
         }
         break;
     } //End of Keys switch statement

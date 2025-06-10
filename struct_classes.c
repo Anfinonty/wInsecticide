@@ -197,6 +197,8 @@ struct player
 
   bool web_burned;
 
+  int type;
+
   int bullet_num;
   int play_gun_snd;
   int knives_per_throw;
@@ -398,7 +400,7 @@ void PlayerCameraShake();
 
 void InitPlayerSpritesObjColor(HDC hdc,HDC hdc2);
 void InitPlayerCursorColor(HDC hdc,HDC hdc2);
-void DrawPlayer(HDC hdc,HDC hdc2);
+void DrawPlayer(HDC hdc,HDC hdc2,int ptype);
 
 
 
@@ -886,6 +888,11 @@ struct LoadPlayerSprite
   HBITMAP block_sprite_2;
   HBITMAP block_sprite_3;
   HBITMAP spin_sprite;  
+
+  HBITMAP sprite_bee_1;
+  HBITMAP sprite_bee_2;
+  HBITMAP sprite_bee_aero_1;
+  HBITMAP sprite_bee_aero_2;
 } LoadPlayerSprite;
 
 
@@ -897,6 +904,12 @@ struct PlayerSprite //used in
   DRAWSPRITE blur_sprite_jump;
   DRAWSPRITE spin_sprite[4];
   DRAWSPRITE blur_spin_sprite[4];
+
+  DRAWSPRITE sprite_bee_1;
+  DRAWSPRITE sprite_bee_2;
+  DRAWSPRITE sprite_bee_aero_1;
+  DRAWSPRITE sprite_bee_aero_2;
+
   DRAWSPRITE sprite_1[PLAYER_ROTATED_SPRITE_NUM];
   DRAWSPRITE sprite_2[PLAYER_ROTATED_SPRITE_NUM];
   DRAWSPRITE attack_sprite_1[PLAYER_ROTATED_SPRITE_NUM];
@@ -1091,10 +1104,14 @@ int mouse_y;
 int true_mouse_x;
 int true_mouse_y;
 RGBQUAD player_cursor_palette[256];
+
 HBITMAP player_cursor[16]; //4 left and 4 right, open or closed, loaded
 HBITMAP player_cursor_cache[16];
 DRAWSPRITE draw_player_cursor[16];
 
+HBITMAP player_cursorbee[5]; //4 left and 4 right, open or closed, loaded
+HBITMAP player_cursorbee_cache[5];
+DRAWSPRITE draw_player_cursorbee[5];
 
 
 //enemy global sprites
