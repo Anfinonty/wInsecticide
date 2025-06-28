@@ -79,7 +79,7 @@ void InitLoadLvlSong()
 {
   //Load custom song
   wchar_t dirname[64];
-  swprintf(dirname,64,L"saves/%s/music",level_names[level_chosen]);
+  swprintf(dirname,64,L"saves/%ls/music",level_names[level_chosen]);
   int tmp_song_num=CountSongsInDir(dirname,L"",0);
 
   if (tmp_song_num>0) { //only reload songs are present
@@ -91,7 +91,7 @@ void InitLoadLvlSong()
       if (tmp_song_num>0) {
         ResetSongBank();
         song_num=GetSongsInDir(dirname,L"",0);
-        swprintf(src_music_dir,64,L"saves/%s/music",level_names[level_chosen]);
+        swprintf(src_music_dir,64,L"saves/%ls/music",level_names[level_chosen]);
         play_new_song[0]=TRUE;
       }
       _wclosedir(d);
@@ -194,12 +194,12 @@ void Init() {
 /*void InitPlatformsSprite(HWND hwnd, HDC hdc)
 {
   wchar_t bmp_save[64];
-  swprintf(bmp_save,64,L"saves/%s/map.bmp",level_names[level_chosen]);
+  swprintf(bmp_save,64,L"saves/%ls/map.bmp",level_names[level_chosen]);
   wchar_t bmp_water_save[64];
-//  swprintf(bmp_water_save,64,L"saves/%s/map_water.bmp",level_names[level_chosen]);
-  swprintf(bmp_water_save,64,L"saves/%s/map_foreground.bmp",level_names[level_chosen]);
+//  swprintf(bmp_water_save,64,L"saves/%ls/map_water.bmp",level_names[level_chosen]);
+  swprintf(bmp_water_save,64,L"saves/%ls/map_foreground.bmp",level_names[level_chosen]);
   wchar_t bmp_save_shadow[64];
-  swprintf(bmp_save_shadow,64,L"saves/%s/map_shadow.bmp",level_names[level_chosen]);
+  swprintf(bmp_save_shadow,64,L"saves/%ls/map_shadow.bmp",level_names[level_chosen]);
   //SaveBitmapToFile2(map_platforms_sprite,rgbColorsDefault,bmp_save);
 
   /*map_platforms_sprite=(HBITMAP)LoadImageW(
@@ -297,19 +297,19 @@ void InitLevel(bool load_lvl)
   loading_denominator=0;
 
   if (load_lvl) {
-    swprintf(lvl_name,128,L"%s",level_names[level_chosen]);    
-    swprintf(txt,128,L"saves/%s/level.txt",level_names[level_chosen]);
+    swprintf(lvl_name,128,L"%ls",level_names[level_chosen]);    
+    swprintf(txt,128,L"saves/%ls/level.txt",level_names[level_chosen]);
     if (!free_will) {
       if (!game_hard) {
-        swprintf(save_level,128,L"saves/%s/scores.txt",level_names[level_chosen]);
+        swprintf(save_level,128,L"saves/%ls/scores.txt",level_names[level_chosen]);
       } else {
-        swprintf(save_level,128,L"saves/%s/scores_hard.txt",level_names[level_chosen]);
+        swprintf(save_level,128,L"saves/%ls/scores_hard.txt",level_names[level_chosen]);
       }
     } else {
       if (!game_hard) {
-        swprintf(save_level,128,L"saves/%s/scores_fw.txt",level_names[level_chosen]);
+        swprintf(save_level,128,L"saves/%ls/scores_fw.txt",level_names[level_chosen]);
       } else {
-        swprintf(save_level,128,L"saves/%s/scores_hard_fw.txt",level_names[level_chosen]);
+        swprintf(save_level,128,L"saves/%ls/scores_hard_fw.txt",level_names[level_chosen]);
       }
     }
   } else {

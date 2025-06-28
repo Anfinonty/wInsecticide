@@ -594,7 +594,7 @@ void MapEditorKeypressDown(WPARAM wParam)
           MapEditor.is_ground_txt_typing=TRUE;
           MapEditor.is_ground_txt_typing_loaded=FALSE;
           MapEditor.typing_ground_txt_pos=lstrlenW(Ground[MapEditor.selected_ground_id]->text);
-          swprintf(MapEditor.typing_ground_txt,512,L"%s",Ground[MapEditor.selected_ground_id]->text);
+          swprintf(MapEditor.typing_ground_txt,512,L"%ls",Ground[MapEditor.selected_ground_id]->text);
         }
       } 
 
@@ -757,7 +757,7 @@ void MapEditorKeypressUp(WPARAM wParam, HWND hwnd, HDC hdc)
 
             for (int i=0;i<512;i++)
               Ground[MapEditor.selected_ground_id]->text[i]=0;
-            swprintf(Ground[MapEditor.selected_ground_id]->text,512,L"%s",MapEditor.typing_ground_txt);
+            swprintf(Ground[MapEditor.selected_ground_id]->text,512,L"%ls",MapEditor.typing_ground_txt);
             MapEditor.is_ground_txt_typing=FALSE;
             MapEditor.typing_ground_txt_pos=0;
             for (int i=0;i<512;i++)

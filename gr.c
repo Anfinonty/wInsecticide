@@ -829,7 +829,7 @@ int DecompressRLE8(const BYTE *compressedData, int width, int height, BYTE *deco
 HBITMAP LoadRLE8CompressedBitmap(const wchar_t *filePath) {
     FILE *file = _wfopen(filePath, L"rb");
     if (file == NULL) {
-        wprintf(L"Failed to open file: %s\n", filePath);
+        wprintf(L"Failed to open file: %ls\n", filePath);
         return NULL;
     }
 
@@ -838,7 +838,7 @@ HBITMAP LoadRLE8CompressedBitmap(const wchar_t *filePath) {
     fread(&fileHeader, sizeof(BITMAPFILEHEADER), 1, file);
 
     if (fileHeader.bfType != 0x4D42) { // 'BM'
-        wprintf(L"Invalid bitmap file: %s\n", filePath);
+        wprintf(L"Invalid bitmap file: %ls\n", filePath);
         fclose(file);
         return NULL;
     }
@@ -848,7 +848,7 @@ HBITMAP LoadRLE8CompressedBitmap(const wchar_t *filePath) {
     fread(&infoHeader, sizeof(BITMAPINFOHEADER), 1, file);
 
     if (infoHeader.biCompression != BI_RLE8) {
-        wprintf(L"Bitmap is not BI_RLE8 compressed: %s\n", filePath);
+        wprintf(L"Bitmap is not BI_RLE8 compressed: %ls\n", filePath);
         fclose(file);
         return NULL;
     }

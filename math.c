@@ -749,7 +749,7 @@ void RemoveFolderRecursive(const wchar_t* dirname)
   if (d) {
     while ((dir=_wreaddir(d))!=NULL) {
       wchar_t indir[256];
-      swprintf(indir,256,L"%s/%s",dirname,dir->d_name);
+      swprintf(indir,256,L"%ls/%ls",dirname,dir->d_name);
       if (PathIsDirectory(indir) && wcscmp(dir->d_name,L".")!=0 && wcscmp(dir->d_name,L"..")!=0) { //folder, check for 
         RemoveFolderRecursive(indir);
       } else {

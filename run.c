@@ -1043,7 +1043,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //ESC + L/RSHIFT = QUIT
               if (level_chosen>=0 && level_chosen<level_num) {
                 wchar_t remove_folder_name[48];
-                swprintf(remove_folder_name,48,L"saves/%s",level_names[level_chosen]);
+                swprintf(remove_folder_name,48,L"saves/%ls",level_names[level_chosen]);
                 RemoveFolderRecursive(remove_folder_name);
                 GetSavesInDir(L"saves");
               }
@@ -1151,7 +1151,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               HBITMAP tmp_map_background_sprite;
 
               wchar_t lvl_background_bmp[64];
-              swprintf(lvl_background_bmp,64,L"saves/%s/images/background.bmp",level_names[level_chosen]);
+              swprintf(lvl_background_bmp,64,L"saves/%ls/images/background.bmp",level_names[level_chosen]);
               tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, lvl_background_bmp, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
               if ((in_main_menu && !level_loading && !in_map_editor) || back_to_menu) {

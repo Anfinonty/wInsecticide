@@ -177,11 +177,11 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4,int z)
         //print song name. songname cutoff at 72 chars, longer = scroll mode
 
         if (showoff%30<5 || showoff%30>25) {
-          swprintf(txt,32+256,L"%c%d/%d%c: %s  [.  ]",171,song_rand_num[z]+1,song_num,187,/*song_names[song_rand_num[z]]*/print_song_playing[z]);
+          swprintf(txt,32+256,L"%c%d/%d%c: %ls  [.  ]",171,song_rand_num[z]+1,song_num,187,/*song_names[song_rand_num[z]]*/print_song_playing[z]);
         } else if ((showoff%30>4 && showoff%30<10) || showoff%30>19){
-          swprintf(txt,32+256,L"%c%d/%d%c: %s  [.. ]",171,song_rand_num[z]+1,song_num,187,/*song_names[song_rand_num[z]]*/print_song_playing[z]);
+          swprintf(txt,32+256,L"%c%d/%d%c: %ls  [.. ]",171,song_rand_num[z]+1,song_num,187,/*song_names[song_rand_num[z]]*/print_song_playing[z]);
         } else {
-          swprintf(txt,32+256,L"%c%d/%d%c: %s  [...]",171,song_rand_num[z]+1,song_num,187,/*song_names[song_rand_num[z]]*/print_song_playing[z]);
+          swprintf(txt,32+256,L"%c%d/%d%c: %ls  [...]",171,song_rand_num[z]+1,song_num,187,/*song_names[song_rand_num[z]]*/print_song_playing[z]);
         }
 
       } else {
@@ -192,11 +192,11 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4,int z)
           songtimediff=(int)((song_audio_duration[z])/1000);//(int)((songAudio->duration)/1000);
         int min=songtimediff/60;
         int seconds=songtimediff%60;
-        swprintf(txt,32+256,L"%c%d/%d%c: %s  [K%c%d:%02d%cI]",171,song_rand_num[z]+1,song_num,187,print_song_playing[z]/*song_names[song_rand_num[z]]*/,171,min,seconds,187);
+        swprintf(txt,32+256,L"%c%d/%d%c: %ls  [K%c%d:%02d%cI]",171,song_rand_num[z]+1,song_num,187,print_song_playing[z]/*song_names[song_rand_num[z]]*/,171,min,seconds,187);
       }
       //%c 187
       //wchar_t txt[32+256];
-      //swprintf(txt,32+256,L"%c%d/%d%c: %s  []",171,song_rand_num[z]+1,song_num,187,song_names[song_rand_num[z]]);
+      //swprintf(txt,32+256,L"%c%d/%d%c: %ls  []",171,song_rand_num[z]+1,song_num,187,song_names[song_rand_num[z]]);
       GrPrintW(hdc,x,y,txt,"",c,14,FALSE,yes_unifont);
       GrPrintW(hdc,x+1,y+1,txt,"",c4,14,FALSE,yes_unifont);
 
@@ -206,7 +206,7 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4,int z)
       //char txt2_1[2046];
       //char txt2_2[256];
       /*for (int j=0;j<128;j++) {
-        sprintf(txt2_1,"%s %d:%c ",txt2_1,'z'+j,'z'+j);
+        sprintf(txt2_1,"%ls %d:%c ",txt2_1,'z'+j,'z'+j);
       }*/ //max 256
       //note %c 134 is a cross
 
@@ -331,7 +331,7 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
 
       sprintf(s_hijri_row1,"=:: Solar Hijri ::= %c",num_char);
 
-      swprintf(s_hijri_row2,128,L":: %s //%d. %s(%d) .%d",
+      swprintf(s_hijri_row2,128,L":: %ls //%d. %ls(%d) .%d",
         solar_days_txt[solar_day_of_week],
         solar_day,
         solar_months_txt[solar_month-1],
@@ -366,7 +366,7 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
   }
 
 
-  swprintf(l_hijri_row2,128,L":: %s //%d. %s(%d) .%d",
+  swprintf(l_hijri_row2,128,L":: %ls //%d. %ls(%d) .%d",
     lunar_days_txt[lunar_day_of_week],
     lunar_day,
     lunar_months_txt[lunar_month-1],
@@ -1168,11 +1168,11 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
       
       if (is_khmer) {
         wchar_t wprintres[32];
-        swprintf(wprintres,32,L"<%dx%d> [%s]",RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],WRESOLUTION_NAME[resolution_choose]);
+        swprintf(wprintres,32,L"<%dx%d> [%ls]",RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],WRESOLUTION_NAME[resolution_choose]);
         GrPrintW(hdc,30+20*8,10+soptions_y+16*10-4,ReplaceToKhmerNum(wprintres),"",c,16,FALSE,yes_unifont);
       } else {
         char printres[32];
-        sprintf(printres,"<%dx%d> [%s]",RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],RESOLUTION_NAME[resolution_choose]);
+        sprintf(printres,"<%dx%d> [%ls]",RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],RESOLUTION_NAME[resolution_choose]);
         GrPrint(hdc,30+20*8,10+soptions_y+16*10,printres,c);
       }
 

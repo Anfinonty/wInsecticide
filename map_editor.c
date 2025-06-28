@@ -696,7 +696,7 @@ void InitMapEditor()
   for (int i=0;i<512;i++) {
     MapEditor.typing_ground_txt[i]='\0';
   }
-  //swprintf(MapEditor.typing_ground_txt,512,L"%s",Ground[MapEditor.selected_ground_id]->text);
+  //swprintf(MapEditor.typing_ground_txt,512,L"%ls",Ground[MapEditor.selected_ground_id]->text);
 
 
 
@@ -764,7 +764,7 @@ void InitLevelMapEditor()
   wchar_t txt[128];
   loading_numerator=0;
   loading_denominator=0;
-  swprintf(txt,128,L"saves/%s/level.txt",level_names[level_chosen]);
+  swprintf(txt,128,L"saves/%ls/level.txt",level_names[level_chosen]);
   level_loading=TRUE;
 
   LoadSave(txt,FALSE); //load saves

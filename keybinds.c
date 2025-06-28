@@ -1651,7 +1651,7 @@ void ZeroMenuKeypressUp( HWND hwnd,  HDC hdc, WPARAM wParam)
           run_once_only=FALSE;
         }
 
-        swprintf(txt,128,L"saves/%s/level.txt",level_names[level_chosen]);
+        swprintf(txt,128,L"saves/%ls/level.txt",level_names[level_chosen]);
         LoadSave(txt,FALSE); //load saves
 
         wcsncpy(typing_lvl_name,level_names[level_chosen],16);
@@ -1883,7 +1883,7 @@ void TwoMenuKeypressUp(WPARAM wParam)
       _WDIR *d;
       struct _wdirent *dir;
       wchar_t create_lvl_name_[32];
-      swprintf(create_lvl_name_,32,L"saves/%s",typing_lvl_name);
+      swprintf(create_lvl_name_,32,L"saves/%ls",typing_lvl_name);
       if (typing_lvl_name_pos>0 && (set_map_width_amount/160*set_map_height_amount/160)<4801) {
         d = _wopendir(create_lvl_name_);
         if (d) {

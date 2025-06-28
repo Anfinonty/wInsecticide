@@ -429,7 +429,7 @@ void DrawMapEditorUI(HDC hdc,HDC hdc2)
           }
           
           if (frame_tick%FPS>10) {
-            //swprintf(duplicate_txt_visual,MapEditor.typing_ground_txt_pos+2,L"%s*",MapEditor.typing_ground_txt);
+            //swprintf(duplicate_txt_visual,MapEditor.typing_ground_txt_pos+2,L"%ls*",MapEditor.typing_ground_txt);
             for (int i=0;i<MapEditor.typing_ground_txt_pos;i++) {
               duplicate_txt_visual[i]=MapEditor.typing_ground_txt[i];
             }

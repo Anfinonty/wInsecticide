@@ -4,19 +4,19 @@ void SaveNewCreatedLvl(const wchar_t* create_lvl_name_)
 {
   //Create Subfolders
   wchar_t create_lvl_name_sub1[48];
-  swprintf(create_lvl_name_sub1,48,L"%s/images",create_lvl_name_);
+  swprintf(create_lvl_name_sub1,48,L"%ls/images",create_lvl_name_);
   _wmkdir(create_lvl_name_sub1);
   wchar_t create_lvl_name_sub2[48];
-  swprintf(create_lvl_name_sub2,48,L"%s/scores",create_lvl_name_);
+  swprintf(create_lvl_name_sub2,48,L"%ls/scores",create_lvl_name_);
   _wmkdir(create_lvl_name_sub2);
   wchar_t create_lvl_name_sub3[48];
-  swprintf(create_lvl_name_sub3,48,L"%s/song",create_lvl_name_);
+  swprintf(create_lvl_name_sub3,48,L"%ls/song",create_lvl_name_);
   _wmkdir(create_lvl_name_sub3);
 
 
   FILE *fptr;
   wchar_t create_lvl_name[64];
-  swprintf(create_lvl_name,64,L"saves/%s/level.txt",typing_lvl_name);
+  swprintf(create_lvl_name,64,L"saves/%ls/level.txt",typing_lvl_name);
   fptr = _wfopen(create_lvl_name,L"w");
 
 
@@ -180,7 +180,7 @@ void SaveNewCreatedLvl(const wchar_t* create_lvl_name_)
 /*void SaveLvlBmpSegmentation2(HWND hwnd,HDC hdc)
 {
   wchar_t water_bmp_seg_save[64];
-  swprintf(water_bmp_seg_save,64,L"saves/%s/seg_foreground",level_names[level_chosen]);
+  swprintf(water_bmp_seg_save,64,L"saves/%ls/seg_foreground",level_names[level_chosen]);
   wchar_t seg_save_seg[72];
 
   PAINTSTRUCT ps; //Suggestion Credit: https://git.xslendi.xyz
@@ -203,7 +203,7 @@ void SaveNewCreatedLvl(const wchar_t* create_lvl_name_)
           SelectObject(hdc2,tmp_bitmap);
           BitBlt(hdc2, 0, 0, VGRID_SIZE, VGRID_SIZE, hdc1, VGrid[i]->x1, VGrid[i]->y1, SRCCOPY); // Copy from hdc1 to hdc2
 
-          swprintf(seg_save_seg,72,L"%s/%d.bmp",water_bmp_seg_save,i);
+          swprintf(seg_save_seg,72,L"%ls/%d.bmp",water_bmp_seg_save,i);
           SaveBitmapToFile2(tmp_bitmap,rgbColorsDefault, seg_save_seg);
           DeleteDC(hdc2);
           DeleteObject(tmp_bitmap);
@@ -222,10 +222,10 @@ void SaveNewCreatedLvl(const wchar_t* create_lvl_name_)
 void SaveLvlBmpSegmentation1(HWND hwnd,HDC hdc,const wchar_t* lvl_name)
 {
   //wchar_t bmp_seg_save[64];
-  //swprintf(bmp_seg_save,64,L"saves/%s/seg_platforms",level_names[level_chosen]);
+  //swprintf(bmp_seg_save,64,L"saves/%ls/seg_platforms",level_names[level_chosen]);
   wchar_t shadow_bmp_seg_save[64];
-  // swprintf(shadow_bmp_seg_save,64,L"saves/%s/seg_shadow",level_names[level_chosen]);
-  swprintf(shadow_bmp_seg_save,64,L"saves/%s/seg_shadow",lvl_name);
+  // swprintf(shadow_bmp_seg_save,64,L"saves/%ls/seg_shadow",level_names[level_chosen]);
+  swprintf(shadow_bmp_seg_save,64,L"saves/%ls/seg_shadow",lvl_name);
 
   //RemoveFolderRecursive(bmp_seg_save);
   //_wmkdir(bmp_seg_save);
@@ -251,7 +251,7 @@ void SaveLvlBmpSegmentation1(HWND hwnd,HDC hdc,const wchar_t* lvl_name)
       SelectObject(hdc2,tmp_bitmap);
       BitBlt(hdc2, 0, 0, VGRID_SIZE, VGRID_SIZE, hdc1, VGrid[i]->x1, VGrid[i]->y1, SRCCOPY); // Copy from hdc1 to hdc2
 
-      swprintf(seg_save_seg,72,L"%s/%d.bmp",bmp_seg_save,i);
+      swprintf(seg_save_seg,72,L"%ls/%d.bmp",bmp_seg_save,i);
       SaveBitmapToFile2(tmp_bitmap,rgbColorsDefault, seg_save_seg);
       DeleteDC(hdc2);
       DeleteObject(tmp_bitmap);
@@ -280,7 +280,7 @@ void SaveLvlBmpSegmentation1(HWND hwnd,HDC hdc,const wchar_t* lvl_name)
           SelectObject(hdc2,tmp_bitmap);
           BitBlt(hdc2, 0, 0, VGRID_SIZE, VGRID_SIZE, hdc1, VGrid[i]->x1, VGrid[i]->y1, SRCCOPY); // Copy from hdc1 to hdc2
 
-          swprintf(seg_save_seg,72,L"%s/%d.bmp",shadow_bmp_seg_save,i);
+          swprintf(seg_save_seg,72,L"%ls/%d.bmp",shadow_bmp_seg_save,i);
           SaveBitmapToFile2(tmp_bitmap,rgbColorsDefault, seg_save_seg);
           DeleteDC(hdc2);
           DeleteObject(tmp_bitmap);
@@ -345,12 +345,12 @@ void SaveLvlBmp(HWND hwnd,HDC hdc,const wchar_t* lvl_name)
 
 
  // wchar_t bmp_save[64];
- // swprintf(bmp_save,64,L"saves/%s/map.bmp",level_names[level_chosen]);
+ // swprintf(bmp_save,64,L"saves/%ls/map.bmp",level_names[level_chosen]);
  // wchar_t water_bmp_save[64];
-//  swprintf(water_bmp_save,64,L"saves/%s/map_water.bmp",level_names[level_chosen]);
-//  swprintf(water_bmp_save,64,L"saves/%s/map_foreground.bmp",level_names[level_chosen]);
+//  swprintf(water_bmp_save,64,L"saves/%ls/map_water.bmp",level_names[level_chosen]);
+//  swprintf(water_bmp_save,64,L"saves/%ls/map_foreground.bmp",level_names[level_chosen]);
 //  wchar_t bmp_save_shadow[64];
-//  swprintf(bmp_save_shadow,64,L"saves/%s/map_shadow.bmp",level_names[level_chosen]);
+//  swprintf(bmp_save_shadow,64,L"saves/%ls/map_shadow.bmp",level_names[level_chosen]);
 
   PAINTSTRUCT ps; //Suggestion Credit: https://git.xslendi.xyz
   if (hwnd!=NULL) {
@@ -426,7 +426,7 @@ void SaveMELvl(HWND hwnd,HDC hdc)
     
     FILE *fptr;
     wchar_t create_lvl_name[64];
-    swprintf(create_lvl_name,64,L"saves/%s/level.txt",level_names[level_chosen]);
+    swprintf(create_lvl_name,64,L"saves/%ls/level.txt",level_names[level_chosen]);
 
 
     //create trash folder
@@ -434,7 +434,7 @@ void SaveMELvl(HWND hwnd,HDC hdc)
 
 
     wchar_t trash_lvl_name[64];
-    swprintf(trash_lvl_name,64,L"trash/%s-level.txt",level_names[level_chosen]);
+    swprintf(trash_lvl_name,64,L"trash/%ls-level.txt",level_names[level_chosen]);
     //copy old file to trash
     myCopyFile(trash_lvl_name,create_lvl_name);
 
@@ -723,7 +723,7 @@ void SaveNewLimitAdjustedLvl(HWND hwnd, HDC hdc)
 {
     FILE *fptr;
     wchar_t create_lvl_name[64];
-    swprintf(create_lvl_name,64,L"saves/%s/level.txt",typing_lvl_name);
+    swprintf(create_lvl_name,64,L"saves/%ls/level.txt",typing_lvl_name);
 
 
     //create trash folder
@@ -731,7 +731,7 @@ void SaveNewLimitAdjustedLvl(HWND hwnd, HDC hdc)
 
 
     wchar_t trash_lvl_name[64];
-    swprintf(trash_lvl_name,64,L"trash/%s-level.txt",typing_lvl_name);
+    swprintf(trash_lvl_name,64,L"trash/%ls-level.txt",typing_lvl_name);
     //copy old file to trash
     myCopyFile(trash_lvl_name,create_lvl_name);
 

@@ -93,7 +93,7 @@ void InitGridTiles(const wchar_t* lvl_name)
 
 
     if (yes_shadow) {
-      swprintf(seg_name,72,L"saves/%s/seg_shadow/%d.bmp", lvl_name,i);
+      swprintf(seg_name,72,L"saves/%ls/seg_shadow/%d.bmp", lvl_name,i);
       if (FileExists(seg_name)) {
         VGrid[i]->has_shadow=TRUE;
         VGrid[i]->draw_shadow_seg_id=SHADOW_GRID_NUM;
@@ -122,12 +122,12 @@ void DrawCreateTiles(HDC hdc,HDC hdc2)
     if (yes_shadow) {
       wchar_t lvl_shadow_name[72];
       if (!back_to_menu)
-        swprintf(lvl_shadow_name,72,L"%s",level_names[level_chosen]);    
+        swprintf(lvl_shadow_name,72,L"%ls",level_names[level_chosen]);    
       else
         swprintf(lvl_shadow_name,72,L"__006__");
 
       wchar_t lvl_shadow_folder_name[128];
-      swprintf(lvl_shadow_folder_name,128,L"saves/%s/seg_shadow",lvl_shadow_name);
+      swprintf(lvl_shadow_folder_name,128,L"saves/%ls/seg_shadow",lvl_shadow_name);
 
       if (!DirExists(lvl_shadow_folder_name)) {
         flag_display_long_loading=TRUE;
@@ -142,12 +142,12 @@ void DrawCreateTiles(HDC hdc,HDC hdc2)
     if (yes_shadow) {
       wchar_t lvl_shadow_name[72];
       if (!back_to_menu)
-        swprintf(lvl_shadow_name,72,L"%s",level_names[level_chosen]);    
+        swprintf(lvl_shadow_name,72,L"%ls",level_names[level_chosen]);    
       else
         swprintf(lvl_shadow_name,72,L"__006__");
 
       wchar_t lvl_shadow_folder_name[128];
-      swprintf(lvl_shadow_folder_name,128,L"saves/%s/seg_shadow",lvl_shadow_name);
+      swprintf(lvl_shadow_folder_name,128,L"saves/%ls/seg_shadow",lvl_shadow_name);
 
       if (!DirExists(lvl_shadow_folder_name)) {
         SaveLvlBmp(NULL,hdc,lvl_shadow_name);
@@ -258,7 +258,7 @@ void DrawCreateTiles(HDC hdc,HDC hdc2)
 
       wchar_t lvl_name[128];
       if (!back_to_menu)
-        swprintf(lvl_name,128,L"%s",level_names[level_chosen]);    
+        swprintf(lvl_name,128,L"%ls",level_names[level_chosen]);    
       else
         swprintf(lvl_name,128,L"__006__");    
 
@@ -270,7 +270,7 @@ void DrawCreateTiles(HDC hdc,HDC hdc2)
         if (VGrid[i]->has_shadow) {
           tms_id=VGrid[i]->draw_shadow_seg_id;
           if (tms_id!=-1) { //0, 1, 2 , ...
-            swprintf(seg_name,72,L"saves/%s/seg_shadow/%d.bmp", lvl_name,i);
+            swprintf(seg_name,72,L"saves/%ls/seg_shadow/%d.bmp", lvl_name,i);
             TileMapShadow[tms_id]->x=VGrid[i]->x1;
             TileMapShadow[tms_id]->y=VGrid[i]->y1;
             TileMapShadow[tms_id]->sprite_paint=//CopyCrunchyBitmap(tmp_bitmap,SRCCOPY);

@@ -93,10 +93,10 @@ int CountSongsInDir(const wchar_t *dirname,const wchar_t *indirname, int song_nu
   if (d) {
     while ((dir=_wreaddir(d))!=NULL) {
       wchar_t indir[256];
-      swprintf(indir,256,L"%s/%s",dirname,dir->d_name);
+      swprintf(indir,256,L"%ls/%ls",dirname,dir->d_name);
       if (PathIsDirectory(indir) && wcscmp(dir->d_name,L".")!=0 && wcscmp(dir->d_name,L"..")!=0) { //folder, check for songs in folder
         wchar_t indir2[256];
-        swprintf(indir2,256,L"%s/%s",indirname,dir->d_name);
+        swprintf(indir2,256,L"%ls/%ls",indirname,dir->d_name);
         song_num=CountSongsInDir(indir,indir2,song_num);
       } else {
         const wchar_t *ext=get_filename_ext(dir->d_name);
@@ -125,11 +125,11 @@ int GetSongsInDir(const wchar_t *dirname,const wchar_t *indirname, int song_num)
   if (d) {
     while ((dir=_wreaddir(d))!=NULL) {
       wchar_t indir[256];
-      swprintf(indir,256,L"%s/%s",dirname,dir->d_name);
+      swprintf(indir,256,L"%ls/%ls",dirname,dir->d_name);
       //printf("status: %d\n",PathIsDirectoryA(indir)); //https://learn.microsoft.com/en-us/windows/win32/api/shlwapi/nf-shlwapi-pathisdirectorya
       if (PathIsDirectory(indir) && wcscmp(dir->d_name,L".")!=0 && wcscmp(dir->d_name,L"..")!=0) { //folder, check for songs in folder
         wchar_t indir2[256];
-        swprintf(indir2,256,L"%s/%s",indirname,dir->d_name);
+        swprintf(indir2,256,L"%ls/%ls",indirname,dir->d_name);
         song_num=GetSongsInDir(indir,indir2,song_num);
       } else {
         const wchar_t *ext=get_filename_ext(dir->d_name);
@@ -137,7 +137,7 @@ int GetSongsInDir(const wchar_t *dirname,const wchar_t *indirname, int song_num)
         for (int i=0;i<6;i++) {
           lowext[i]=tolower(ext[i]);
         }*/
-      //printf("\n--%s ;; %s",ext,lowext);
+      //printf("\n--%ls ;; %ls",ext,lowext);
         if (_wcsicmp(ext,L"wav")==0 || 
             _wcsicmp(ext,L"mp3")==0 || 
             //_wcsicmp(ext,L"wma")==0 || 
@@ -145,7 +145,7 @@ int GetSongsInDir(const wchar_t *dirname,const wchar_t *indirname, int song_num)
             _wcsicmp(ext,L"flac")==0/* ||
             strcmp(lowext,"mpg")==0 ||
             strcmp(lowext,"mpeg")==0*/) {
-        //printf("%d|-> %s\n",song_num,dir->d_name);
+        //printf("%d|-> %ls\n",song_num,dir->d_name);
         //song_names[song_num]=dir->d_name;
           if (_wcsicmp(ext,L"flac")==0) {
             is_flac[song_num]=TRUE;
@@ -169,9 +169,9 @@ int GetSongsInDir(const wchar_t *dirname,const wchar_t *indirname, int song_num)
 
 
           wchar_t indir[256];
-          swprintf(indir,256,L"%s/%s",indirname,dir->d_name);
+          swprintf(indir,256,L"%ls/%ls",indirname,dir->d_name);
           wcsncpy(song_names[song_num],indir,256);
-          //printf("%d|-> %s\n",song_num,song_names[song_num]);
+          //printf("%d|-> %ls\n",song_num,song_names[song_num]);
           song_num++;
           if (song_num>=2000) {
             break;
@@ -998,8 +998,8 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
                 
                 if (loading_wav[z]) {
                   switch (z) {
-                    case 0:swprintf(wav_song_playing,256,L"%s/%s",src_music_dir,song_names[song_rand_num[0]]);break;
-                    case 1:swprintf(wav_song_playing2,256,L"%s/%s",src_music_dir,song_names[song_rand_num[1]]);break;
+                    case 0:swprintf(wav_song_playing,256,L"%ls/%ls",src_music_dir,song_names[song_rand_num[0]]);break;
+                    case 1:swprintf(wav_song_playing2,256,L"%ls/%ls",src_music_dir,song_names[song_rand_num[1]]);break;
                   }
                 } else {
                   switch (z) {
@@ -1076,12 +1076,12 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
                     switch (z) {
                       case 0:
                         system("mkdir \"music_tmp/tmp\""); //make new tmp
-                        swprintf(my_command,512,L"flac.exe --totally-silent -d -f \"%s/%s\" -o music_tmp/tmp/tmp.wav",src_music_dir,song_names[song_rand_num[z]]);
+                        swprintf(my_command,512,L"flac.exe --totally-silent -d -f \"%ls/%ls\" -o music_tmp/tmp/tmp.wav",src_music_dir,song_names[song_rand_num[z]]);
                         _wsystem(my_command);
                         break;
                       case 1:
                         system("mkdir \"music_tmp/tmp2\""); //make new tmp
-                        swprintf(my_command,512,L"flac.exe --totally-silent -d -f \"%s/%s\" -o music_tmp/tmp2/tmp.wav",src_music_dir,song_names[song_rand_num[z]]);
+                        swprintf(my_command,512,L"flac.exe --totally-silent -d -f \"%ls/%ls\" -o music_tmp/tmp2/tmp.wav",src_music_dir,song_names[song_rand_num[z]]);
                         _wsystem(my_command);
                         break;
                     }
@@ -1090,17 +1090,17 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
                     wchar_t my_command[512];
                     loading_mp3[z]=TRUE;
                     //http://mpg123.de/download/win32/mpg123-1.10.1-static-x86.zip //currently used to decode mp3
-                    //swprintf(my_command,512,L"madplay.exe -b 16 -Q -R 44100  \"music/%s\" -o music/tmp/tmp.wav",song_names[song_rand_num[z]]); //not compatible with unicode/utf16
-                    //swprintf(my_command,512,L"lame.exe --decode  \"music/%s\" -o music/tmp/tmp.wav",song_names[song_rand_num[z]]); //unable to decode to a specific desired sample rate
+                    //swprintf(my_command,512,L"madplay.exe -b 16 -Q -R 44100  \"music/%ls\" -o music/tmp/tmp.wav",song_names[song_rand_num[z]]); //not compatible with unicode/utf16
+                    //swprintf(my_command,512,L"lame.exe --decode  \"music/%ls\" -o music/tmp/tmp.wav",song_names[song_rand_num[z]]); //unable to decode to a specific desired sample rate
                     switch (z) {
                       case 0:
                         system("mkdir \"music_tmp/tmp\""); //make new tmp
-                        swprintf(my_command,512,L"mpg123.exe -q -w \"music_tmp/tmp/tmp.wav\"  \"%s/%s\"",src_music_dir,song_names[song_rand_num[z]]);
+                        swprintf(my_command,512,L"mpg123.exe -q -w \"music_tmp/tmp/tmp.wav\"  \"%ls/%ls\"",src_music_dir,song_names[song_rand_num[z]]);
                         _wsystem(my_command);
                         break;
                       case 1:
                         system("mkdir \"music_tmp/tmp2\""); //make new tmp
-                        swprintf(my_command,512,L"mpg123.exe -q -w \"music_tmp/tmp2/tmp.wav\"  \"%s/%s\"",src_music_dir,song_names[song_rand_num[z]]);
+                        swprintf(my_command,512,L"mpg123.exe -q -w \"music_tmp/tmp2/tmp.wav\"  \"%ls/%ls\"",src_music_dir,song_names[song_rand_num[z]]);
                         _wsystem(my_command);
                         break;
                     }
