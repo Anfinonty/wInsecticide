@@ -1172,7 +1172,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
         GrPrintW(hdc,30+20*8,10+soptions_y+16*10-4,ReplaceToKhmerNum(wprintres),"",c,16,FALSE,yes_unifont);
       } else {
         char printres[32];
-        sprintf(printres,"<%dx%d> [%ls]",RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],RESOLUTION_NAME[resolution_choose]);
+        sprintf(printres,"<%dx%d> [%s]",RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],RESOLUTION_NAME[resolution_choose]);
         GrPrint(hdc,30+20*8,10+soptions_y+16*10,printres,c);
       }
 
