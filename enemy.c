@@ -1897,6 +1897,35 @@ void EnemyAct(int i)
       Enemy[i]->in_node_grid_id=GetGridId(Enemy[i]->x,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);      
       tmp_ngid=Enemy[i]->in_node_grid_id;
       if (tmp_ngid!=-1) {
+        //suffocate if inside ground
+            //add current inground_ngid
+            //add inground_timer
+            //if inground_timer>200, begin dying ++ true_dead
+        /*if (NodeGrid[tmp_ngid]->node_solid && NodeGrid[tmp_ngid]->non_web) {
+          for (int s=0;s<8;s++) {
+            int tmp_ngid_=-1;
+            switch (s) {
+              case 0: tmp_ngid_=GetGridId(Enemy[i]->x-NODE_SIZE*2,Enemy[i]->y-NODE_SIZE,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);break;
+              case 1: tmp_ngid_=GetGridId(Enemy[i]->x+NODE_SIZE*2,Enemy[i]->y-NODE_SIZE*2,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);break;
+              case 2: tmp_ngid_=GetGridId(Enemy[i]->x-NODE_SIZE*2,Enemy[i]->y+NODE_SIZE*2,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);break;
+              case 3: tmp_ngid_=GetGridId(Enemy[i]->x+NODE_SIZE*2,Enemy[i]->y+NODE_SIZE*2,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);break;
+
+              case 4: tmp_ngid_=GetGridId(Enemy[i]->x-NODE_SIZE*2,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);break;
+              case 5: tmp_ngid_=GetGridId(Enemy[i]->x+NODE_SIZE*2,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);break;
+              case 6: tmp_ngid_=GetGridId(Enemy[i]->x,Enemy[i]->y+NODE_SIZE*2,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);break;
+              case 7: tmp_ngid_=GetGridId(Enemy[i]->x,Enemy[i]->y-NODE_SIZE*2,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);break;
+            }
+            if (tmp_ngid_!=-1) {
+              if (!NodeGrid[tmp_ngid_]->node_solid && !NodeGrid[tmp_ngid_]->non_web) {
+                s=8;
+                break;
+              }
+            }
+            if (s==7) {
+              Enemy[i]->health--;
+            }
+          }
+        }*/
         if (NodeGrid[tmp_ngid]->node_fire) {
           Enemy[i]->damage_taken_timer=256;
           Enemy[i]->health-=1;
@@ -2500,9 +2529,13 @@ void InitEnemySpritesObjColor(HDC hdc,HDC hdc2)
   int species_i=0;
   int si;
   for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-    BitmapPalette(hdc,hdc2,EnemyTypeSprite[i].draw_fly_sprite_1.sprite_paint,EnemyTypeSprite[i].enemyPalette);
-    BitmapPalette(hdc,hdc2,EnemyTypeSprite[i].draw_fly_sprite_2.sprite_paint,EnemyTypeSprite[i].enemyPalette);
+   // species_i=saved_enemy_type_species[i];
+    //if (species_i!=1 && species_i!=3) {
+      BitmapPalette(hdc,hdc2,EnemyTypeSprite[i].draw_fly_sprite_1.sprite_paint,EnemyTypeSprite[i].enemyPalette);
+      BitmapPalette(hdc,hdc2,EnemyTypeSprite[i].draw_fly_sprite_2.sprite_paint,EnemyTypeSprite[i].enemyPalette);
+    //}
   }
+
   for (int i=0;i<LARGE_ENEMY_TYPE_NUM;i++) {
     for (int j=0;j<ROTATED_SPRITE_NUM;j++) {
       species_i=saved_large_enemy_type_species[i]; 
@@ -2536,7 +2569,7 @@ void InitEnemySpritesObjColorNoir(HDC hdc,HDC hdc2)
   for (int i=0;i<ENEMY_TYPE_NUM;i++) {
     if (!saved_enemy_type_time_breaker_immune[i]) {
       BitmapPalette(hdc,hdc2,EnemyTypeSprite[i].draw_fly_sprite_1.sprite_paint,EnemyTypeSprite[i].enemyPaletteNoir);
-      BitmapPalette(hdc,hdc2,EnemyTypeSprite[i].draw_fly_sprite_2.sprite_paint,EnemyTypeSprite[i].enemyPaletteNoir);
+      BitmapPalette(hdc,hdc2,EnemyTypeSprite[i].draw_fly_sprite_2.sprite_paint,EnemyTypeSprite[i].enemyPaletteNoir);      
     }
   }
   for (int i=0;i<LARGE_ENEMY_TYPE_NUM;i++) {
@@ -2574,51 +2607,59 @@ void InitEnemySpritesObj()
 {
   int species_i=0;
   double angle_rn=0;
-  HBITMAP tmp_sprite1,tmp_sprite2;
-  for (int i=0;i<ENEMY_TYPE_NUM;i++) { //init flysprites
+  HBITMAP tmp_sprite1[ENEMY_TYPE_NUM],
+          tmp_sprite2[ENEMY_TYPE_NUM]; //temporary
+  for (int i=0;i<ENEMY_TYPE_NUM;i++) { //init small flysprites
     species_i=saved_enemy_type_species[i];
     switch (species_i) {
       case 0:
-        tmp_sprite1=CopyCrunchyBitmap(enemy1_sprite_1,SRCCOPY);
-        tmp_sprite2=CopyCrunchyBitmap(enemy1_sprite_2,SRCCOPY);
+        tmp_sprite1[i]=CopyCrunchyBitmap(enemy1_sprite_1,SRCCOPY);
+        tmp_sprite2[i]=CopyCrunchyBitmap(enemy1_sprite_2,SRCCOPY);
         break;
       case 1:
-        tmp_sprite1=CopyCrunchyBitmap(enemy2_sprite_3,SRCCOPY);
-        tmp_sprite2=CopyCrunchyBitmap(enemy2_sprite_4,SRCCOPY);
+        tmp_sprite1[i]=CopyCrunchyBitmap(enemy2_sprite_3,SRCCOPY);
+        tmp_sprite2[i]=CopyCrunchyBitmap(enemy2_sprite_4,SRCCOPY);
         break;
       case 2:
-        tmp_sprite1=CopyCrunchyBitmap(enemy3_sprite_1,SRCCOPY);
-        tmp_sprite2=CopyCrunchyBitmap(enemy3_sprite_2,SRCCOPY);
+        tmp_sprite1[i]=CopyCrunchyBitmap(enemy3_sprite_1,SRCCOPY);
+        tmp_sprite2[i]=CopyCrunchyBitmap(enemy3_sprite_2,SRCCOPY);
         break;
       case 3:
-        tmp_sprite1=CopyCrunchyBitmap(enemy4_sprite_3,SRCCOPY);
-        tmp_sprite2=CopyCrunchyBitmap(enemy4_sprite_4,SRCCOPY);
+        tmp_sprite1[i]=CopyCrunchyBitmap(enemy4_sprite_3,SRCCOPY);
+        tmp_sprite2[i]=CopyCrunchyBitmap(enemy4_sprite_4,SRCCOPY);
         break;
       case 4:
-        tmp_sprite1=CopyCrunchyBitmap(enemy5_sprite_1,SRCCOPY);
-        tmp_sprite2=CopyCrunchyBitmap(enemy5_sprite_2,SRCCOPY);
+        tmp_sprite1[i]=CopyCrunchyBitmap(enemy5_sprite_1,SRCCOPY);
+        tmp_sprite2[i]=CopyCrunchyBitmap(enemy5_sprite_2,SRCCOPY);
         break;
     }
-    ReplaceBitmapColor2(tmp_sprite1,LTGREEN,BLACK,8,LTGREEN); //8 due to pureblack reserved for mask
-    ReplaceBitmapColor2(tmp_sprite2,LTGREEN,BLACK,8,LTGREEN);
-    GenerateDrawSprite(&EnemyTypeSprite[i].draw_fly_sprite_1,tmp_sprite1);
-    GenerateDrawSprite(&EnemyTypeSprite[i].draw_fly_sprite_2,tmp_sprite2);
-    DeleteObject(tmp_sprite2);
-    DeleteObject(tmp_sprite1);
-
+    ReplaceBitmapColor(tmp_sprite1[i],LTBLUE,LTGREEN); //8 due to pureblack reserved for mask
+    ReplaceBitmapColor(tmp_sprite2[i],LTBLUE,LTGREEN);
+    ReplaceBitmapColor2(tmp_sprite1[i],LTGREEN,BLACK,8,LTGREEN); //8 due to pureblack reserved for mask
+    ReplaceBitmapColor2(tmp_sprite2[i],LTGREEN,BLACK,8,LTGREEN);
+    GenerateDrawSprite(&EnemyTypeSprite[i].draw_fly_sprite_1,tmp_sprite1[i]);
+    GenerateDrawSprite(&EnemyTypeSprite[i].draw_fly_sprite_2,tmp_sprite2[i]);
     loading_numerator++;
+  }
 
+  //mass chunks cleanup
+  for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+    DeleteObject(tmp_sprite1[i]);
+    DeleteObject(tmp_sprite2[i]);
+  }
+
+  for (int i=0;i<ENEMY_TYPE_NUM;i++) { //init small flysprites
     CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,rgbColorsDefault,167,rgbPaint[saved_enemy_type_color[i]]); //set normal palette
     //if (map_background==0 || map_background==2) {
       //CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,151,RGB(16,16,16)); //set outline color
     //} else {
-    CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,151,LTGRAY); //set outline color
+    CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,151,BLACK); //set outline color ltblue to ltgrey
     //}
-
     if (free_will) {
-      CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,199,LTCYAN); //set freewill to normal palette
+      CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,199,DKRLTGREEN); //set freewill to normal palette
     }
     CopyReplaceColorPaletteNoir(EnemyTypeSprite[i].enemyPaletteNoir,rgbColorsDefault,167,rgbPaint_i[saved_enemy_type_color[i]]); //set noir palette
+    //}
   }
 
 

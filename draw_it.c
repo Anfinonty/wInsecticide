@@ -553,11 +553,11 @@ bee-closed
       case 0:
       case 5:
       case 15:
-        DrawSprite(hDC,hDC2,mouse_x-1,mouse_y-8,&draw_player_cursorbee[0],FALSE); //left main eye
+        /*DrawSprite(hDC,hDC2,mouse_x-1,mouse_y-8,&draw_player_cursorbee[0],FALSE); //left main eye
         DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+23+2,mouse_y+rand_shake_y-25,&draw_player_cursorbee[1],FALSE); //middle left
         DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+35+2,mouse_y+rand_shake_y-15,&draw_player_cursorbee[3],FALSE); //middle
         DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+40+1+2,mouse_y+rand_shake_y-23,&draw_player_cursorbee[2],FALSE); //middle right
-        DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+52,mouse_y+rand_shake_y-3,&draw_player_cursorbee[4],FALSE); //right eye
+        DrawSprite(hDC,hDC2,mouse_x+rand_shake_x+52,mouse_y+rand_shake_y-3,&draw_player_cursorbee[4],FALSE);*/ //right eye
         break;
       }
   }

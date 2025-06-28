@@ -701,7 +701,8 @@ typedef struct enemy
   int forgor_timer;
   int render_distance_timer;
 
-  int type;
+  int type; //0 to 10
+  int sprite_type; //0 to 10
   int in_air_timer;
   int death_timer;
   int species;
@@ -889,10 +890,10 @@ struct LoadPlayerSprite
   HBITMAP block_sprite_3;
   HBITMAP spin_sprite;  
 
-  HBITMAP sprite_bee_1;
-  HBITMAP sprite_bee_2;
-  HBITMAP sprite_bee_aero_1;
-  HBITMAP sprite_bee_aero_2;
+  //HBITMAP sprite_bee_1;
+  //HBITMAP sprite_bee_2;
+  //HBITMAP sprite_bee_aero_1;
+  //HBITMAP sprite_bee_aero_2;
 } LoadPlayerSprite;
 
 
@@ -905,10 +906,10 @@ struct PlayerSprite //used in
   DRAWSPRITE spin_sprite[4];
   DRAWSPRITE blur_spin_sprite[4];
 
-  DRAWSPRITE sprite_bee_1;
-  DRAWSPRITE sprite_bee_2;
-  DRAWSPRITE sprite_bee_aero_1;
-  DRAWSPRITE sprite_bee_aero_2;
+  //DRAWSPRITE sprite_bee_1;
+  //DRAWSPRITE sprite_bee_2;
+  //DRAWSPRITE sprite_bee_aero_1;
+  //DRAWSPRITE sprite_bee_aero_2;
 
   DRAWSPRITE sprite_1[PLAYER_ROTATED_SPRITE_NUM];
   DRAWSPRITE sprite_2[PLAYER_ROTATED_SPRITE_NUM];
@@ -929,8 +930,9 @@ struct PlayerSprite //used in
 //==================ENEMY SPRITES==================
 //static, saves memory
 //inspired while playing angry birds on Ethihide airlines to Abu Dhabi
-struct EnemyTypeSprite
+struct EnemyTypeSprite //on the fly
 {
+  //int enemy_type_id;
   RGBQUAD enemyPalette[256];
   RGBQUAD enemyPaletteNoir[256];
   DRAWSPRITE draw_fly_sprite_1; //right/left-facing-movesprite-1,right left determined by last_left/is_left/flip_sprite
@@ -940,13 +942,28 @@ struct EnemyTypeSprite
 
 
 
+//loaded
 struct LoadEnemyRotatedSprite
 {
+  HBITMAP prelude_tmp_sprite1[ROTATED_SPRITE_NUM]; //tmp sprite rotated 1
+  HBITMAP prelude_tmp_sprite2[ROTATED_SPRITE_NUM]; //tmp sprite rotated 2
   DRAWSPRITE draw_rotated_sprite1[ROTATED_SPRITE_NUM];
   DRAWSPRITE draw_rotated_sprite2[ROTATED_SPRITE_NUM];
 } LoadEnemyRotatedSprite[3]; //cockroach, toe biter and ant
 
 
+
+
+struct LoadEnemyRotatedSpriteXtra
+{
+  HBITMAP prelude_tmp_sprite[ROTATED_SPRITE_NUM];
+  DRAWSPRITE draw_rotated_sprite[ROTATED_SPRITE_NUM];
+} XLoadEnemyRotatedSprite[1]; //toe biter
+
+
+
+
+//ingame
 struct EnemyRotatedSprite
 {
   int type;
@@ -955,17 +972,17 @@ struct EnemyRotatedSprite
 } EnemyRotatedSprite[ENEMY_TYPE_NUM];
 
 
-struct LoadEnemyRotatedSpriteXtra
-{
-  DRAWSPRITE draw_rotated_sprite[ROTATED_SPRITE_NUM];
-} XLoadEnemyRotatedSprite[1]; //toe biter
-
-
 struct EnemyRotatedSpriteXtra
 {
   int type;
   DRAWSPRITE draw_rotated_sprite[ROTATED_SPRITE_NUM];
 } XEnemyRotatedSprite[ENEMY_TYPE_NUM];
+
+
+
+
+
+
 
 
 
@@ -1109,9 +1126,9 @@ HBITMAP player_cursor[16]; //4 left and 4 right, open or closed, loaded
 HBITMAP player_cursor_cache[16];
 DRAWSPRITE draw_player_cursor[16];
 
-HBITMAP player_cursorbee[5]; //4 left and 4 right, open or closed, loaded
+/*HBITMAP player_cursorbee[5]; //4 left and 4 right, open or closed, loaded
 HBITMAP player_cursorbee_cache[5];
-DRAWSPRITE draw_player_cursorbee[5];
+DRAWSPRITE draw_player_cursorbee[5];*/
 
 
 //enemy global sprites

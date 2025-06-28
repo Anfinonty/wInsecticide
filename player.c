@@ -134,7 +134,7 @@ void InitPlayerSpritesAll()
   HBITMAP tmp_bitmap;
 
   //bee_sprite
-  tmp_bitmap=CopyCrunchyBitmap(LoadPlayerSprite.sprite_bee_1,SRCCOPY);
+  /*tmp_bitmap=CopyCrunchyBitmap(LoadPlayerSprite.sprite_bee_1,SRCCOPY);
   ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
   GenerateDrawSprite(&PlayerSprite[0].sprite_bee_1,tmp_bitmap);
   DeleteObject(tmp_bitmap);
@@ -152,7 +152,7 @@ void InitPlayerSpritesAll()
   tmp_bitmap=CopyCrunchyBitmap(LoadPlayerSprite.sprite_bee_aero_2,SRCCOPY);
   ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
   GenerateDrawSprite(&PlayerSprite[0].sprite_bee_aero_2,tmp_bitmap);
-  DeleteObject(tmp_bitmap);
+  DeleteObject(tmp_bitmap);*/
 
 
   //spider sprite
@@ -2901,12 +2901,12 @@ void InitPlayerSpritesObjColor(HDC hdc,HDC hdc2)
     BitmapPalette(hdc,hdc2,PlayerSprite[0].block_sprite_2[i].sprite_paint,PlayerSprite[0].PlayerPalette);
     BitmapPalette(hdc,hdc2,PlayerSprite[0].block_sprite_3[i].sprite_paint,PlayerSprite[0].PlayerPalette);
   }
-
+/*
   BitmapPalette(hdc,hdc2,PlayerSprite[0].sprite_bee_1.sprite_paint,PlayerSprite[0].PlayerPalette);
   BitmapPalette(hdc,hdc2,PlayerSprite[0].sprite_bee_2.sprite_paint,PlayerSprite[0].PlayerPalette);
   BitmapPalette(hdc,hdc2,PlayerSprite[0].sprite_bee_aero_1.sprite_paint,PlayerSprite[0].PlayerPalette);
   BitmapPalette(hdc,hdc2,PlayerSprite[0].sprite_bee_aero_2.sprite_paint,PlayerSprite[0].PlayerPalette);
-
+*/
 
   BitmapPalette(hdc,hdc2,PlayerSprite[0].sprite_jump.sprite_paint,PlayerSprite[0].PlayerPalette);
   BitmapPalette(hdc,hdc2,PlayerSprite[0].blur_sprite_jump.sprite_paint,PlayerSprite[0].PlayerBlurPalette);
@@ -2925,9 +2925,9 @@ void InitPlayerCursorColor(HDC hdc,HDC hdc2) {
   for (int i=0;i<16;i++) {
     BitmapPalette(hdc,hdc2,draw_player_cursor[i].sprite_paint,player_cursor_palette);
   }
-  for (int i=0;i<5;i++) {
+  /*for (int i=0;i<5;i++) {
     BitmapPalette(hdc,hdc2,draw_player_cursorbee[i].sprite_paint,player_cursor_palette);
-  }
+  }*/
 }
 
 
@@ -2969,6 +2969,7 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
 
   //revert palette back to normal
   if (player.flag_revert_palette && player.time_breaker_tick<=0) {    
+    InitEnemySpritesObjColor(hdc,hdc2);
     InitPlayerSpritesObjColor(hdc,hdc2);
     InitPlayerCursorColor(hdc,hdc2);
 
@@ -2982,7 +2983,6 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
       BitmapPalette(hdc,hdc2,TileMapForeground[i]->sprite_paint,rgbColorsDefault);
     }*/
 
-    InitEnemySpritesObjColor(hdc,hdc2);
     player.flag_revert_palette=FALSE;
     player.time_breaker_tick=0;
   }
@@ -3230,7 +3230,7 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
     }
   }
   } else if (ptype==1) { //bee but moving
-    if (player.health>0) {
+    /*if (player.health>0) {
     if (player.rst_left || player.rst_right || player.rst_up || player.rst_down) {
       if (player.walk_cycle<2) {
         DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y+2,&PlayerSprite[0].sprite_bee_aero_1,player.last_left);
@@ -3244,7 +3244,7 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
         DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].sprite_bee_2,player.last_left);
       }
     }
-    }
+    }*/
   }
   
   //player draw self bullets even after death

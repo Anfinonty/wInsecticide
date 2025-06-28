@@ -411,11 +411,11 @@ void FrameRateSleep(int max_fps)
 
 int prelude_sprite_jid=0;
 int prelude_sprite_id=0;
+
 void Prelude()
 {
   //Load Enemy Rotated Sprite
-  HBITMAP tmp_sprite1;
-  HBITMAP tmp_sprite2;
+  //note: tmp_sprite1, may cause issues with memory
   double angle_rn;
   int j=prelude_sprite_jid;
   int i=prelude_sprite_id;
@@ -428,34 +428,34 @@ void Prelude()
     angle_rn=M_PI_2-M_PI_16*i;
     switch (j) {
       case 0: //cockroach
-        tmp_sprite1=
+        LoadEnemyRotatedSprite[j].prelude_tmp_sprite1[i]=
           GetRotated8BitBitmap(enemy2_sprite_1,angle_rn,LTGREEN);
         loading_numerator++;
 
-        tmp_sprite2=
+        LoadEnemyRotatedSprite[j].prelude_tmp_sprite2[i]=
           GetRotated8BitBitmap(enemy2_sprite_2,angle_rn,LTGREEN);
         loading_numerator++;
         break;
       case 1: //toe biter part 1
-        tmp_sprite1=
+        LoadEnemyRotatedSprite[j].prelude_tmp_sprite1[i]=
           GetRotated8BitBitmap(enemy4_sprite_1,angle_rn,LTGREEN);
          loading_numerator++;
 
-        tmp_sprite2=
+        LoadEnemyRotatedSprite[j].prelude_tmp_sprite2[i]=
           GetRotated8BitBitmap(enemy4_sprite_2,angle_rn,LTGREEN);
         loading_numerator++;
         break;
       case 2: //ants
-        tmp_sprite1=
+        LoadEnemyRotatedSprite[j].prelude_tmp_sprite1[i]=
           GetRotated8BitBitmap(enemy6_sprite_1,angle_rn,LTGREEN);
         loading_numerator++;
 
-        tmp_sprite2=
+        LoadEnemyRotatedSprite[j].prelude_tmp_sprite2[i]=
           GetRotated8BitBitmap(enemy6_sprite_2,angle_rn,LTGREEN);
         loading_numerator++;
         break;
       case 3: //toe biter part 2
-        tmp_sprite1=
+        XLoadEnemyRotatedSprite[0].prelude_tmp_sprite[i]=
           GetRotated8BitBitmap(enemy4_sprite_1_0,angle_rn,LTGREEN);
         loading_numerator++;
         break;
@@ -463,20 +463,25 @@ void Prelude()
 
 
     if (j<3) {
-      ReplaceBitmapColor2(tmp_sprite1,LTGREEN,BLACK,8,LTGREEN); //8 due to pureblack reserved for mask
-      ReplaceBitmapColor2(tmp_sprite2,LTGREEN,BLACK,8,LTGREEN);
+      ReplaceBitmapColor(LoadEnemyRotatedSprite[j].prelude_tmp_sprite1[i],LTBLUE,LTGREEN);
+      ReplaceBitmapColor(LoadEnemyRotatedSprite[j].prelude_tmp_sprite2[i],LTBLUE,LTGREEN);
+
+
+      ReplaceBitmapColor2(LoadEnemyRotatedSprite[j].prelude_tmp_sprite1[i],LTGREEN,BLACK,8,LTGREEN); //8 due to pureblack reserved for mask
+      ReplaceBitmapColor2(LoadEnemyRotatedSprite[j].prelude_tmp_sprite2[i],LTGREEN,BLACK,8,LTGREEN);
         //if (j==0 && i==11) {
           //myTmpEnemyDrawSprite=CopyCrunchyBitmap(tmp_sprite1,SRCCOPY);
         //}
-      GenerateDrawSprite(&LoadEnemyRotatedSprite[j].draw_rotated_sprite1[i],tmp_sprite1);
-      GenerateDrawSprite(&LoadEnemyRotatedSprite[j].draw_rotated_sprite2[i],tmp_sprite2);
-      DeleteObject(tmp_sprite2);
-      DeleteObject(tmp_sprite1);
+      GenerateDrawSprite(&LoadEnemyRotatedSprite[j].draw_rotated_sprite1[i],LoadEnemyRotatedSprite[j].prelude_tmp_sprite1[i]);
+      GenerateDrawSprite(&LoadEnemyRotatedSprite[j].draw_rotated_sprite2[i],LoadEnemyRotatedSprite[j].prelude_tmp_sprite2[i]);
+      //DeleteObject(tmp_sprite2);
+      //DeleteObject(tmp_sprite1);
       //printf("%d/%d %1.0f/%1.0f\n",i,j,loading_numerator,loading_denominator);
     } else { //j==3, xtra sprites
-      ReplaceBitmapColor2(tmp_sprite1,LTGREEN,BLACK,8,LTGREEN);
-      GenerateDrawSprite(&XLoadEnemyRotatedSprite[0].draw_rotated_sprite[i],tmp_sprite1);
-      DeleteObject(tmp_sprite1);
+      ReplaceBitmapColor(XLoadEnemyRotatedSprite[0].prelude_tmp_sprite[i],LTBLUE,LTGREEN);
+      ReplaceBitmapColor2(XLoadEnemyRotatedSprite[0].prelude_tmp_sprite[i],LTGREEN,BLACK,8,LTGREEN);
+      GenerateDrawSprite(&XLoadEnemyRotatedSprite[0].draw_rotated_sprite[i],XLoadEnemyRotatedSprite[0].prelude_tmp_sprite[i]);
+      //DeleteObject(tmp_sprite1);
       //printf("%1.0f/%1.0f xsprite:%d\n",loading_numerator,loading_denominator,i);
     }
     //}
@@ -1985,10 +1990,10 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
       LoadPlayerSprite.spin_sprite = LoadRLE8CompressedBitmap(L"sprites/player-spin.bmp");
 
 
-      LoadPlayerSprite.sprite_bee_1=LoadRLE8CompressedBitmap(L"sprites/bee-1.bmp");
-      LoadPlayerSprite.sprite_bee_2=LoadRLE8CompressedBitmap(L"sprites/bee-2.bmp");
-      LoadPlayerSprite.sprite_bee_aero_1=LoadRLE8CompressedBitmap(L"sprites/bee-aero-1.bmp");
-      LoadPlayerSprite.sprite_bee_aero_2=LoadRLE8CompressedBitmap(L"sprites/bee-aero-2.bmp");
+      //LoadPlayerSprite.sprite_bee_1=LoadRLE8CompressedBitmap(L"sprites/bee-1.bmp");
+      //LoadPlayerSprite.sprite_bee_2=LoadRLE8CompressedBitmap(L"sprites/bee-2.bmp");
+      //LoadPlayerSprite.sprite_bee_aero_1=LoadRLE8CompressedBitmap(L"sprites/bee-aero-1.bmp");
+      //LoadPlayerSprite.sprite_bee_aero_2=LoadRLE8CompressedBitmap(L"sprites/bee-aero-2.bmp");
 
 
       //Load Enemy Sprites
@@ -2050,7 +2055,7 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
       }
 
 
-      for (int i=0;i<5;i++) {
+      /*for (int i=0;i<5;i++) {
         wchar_t fname[32];
         swprintf(fname,32,L"sprites/player_cursorbee%d.bmp",i);
         player_cursorbee[i]=LoadRLE8CompressedBitmap(fname);
@@ -2058,7 +2063,7 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
         player_cursorbee_cache[i]=CopyCrunchyBitmap(player_cursorbee[i],SRCCOPY);
         ReplaceBitmapColor2(player_cursorbee_cache[i],LTGREEN,BLACK,8,LTGREEN);
         GenerateDrawSprite(&draw_player_cursorbee[i],player_cursorbee_cache[i]);
-      }
+      }*/
 
       //Load snowflake
       snowflake_sprite=LoadRLE8CompressedBitmap(L"sprites/snowflake0.bmp");
