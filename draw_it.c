@@ -100,7 +100,7 @@ void DrawBackground(HDC hdc,HDC hdc2)
     case 0:
     case 1:
     case 2:
-    case 3:
+    case 3: //default backgrounds
       DrawBitmap(hdc,hdc2,draw_p_px,draw_p_py,0,0,GR_WIDTH*2,GR_HEIGHT*2,map_background_sprite,SRCCOPY,FALSE,FALSE);
       break;
     default: //custom map background
@@ -112,9 +112,15 @@ void DrawBackground(HDC hdc,HDC hdc2)
       break;
   }
 
-  if (
-      (!in_main_menu && ((!(map_background>=2 && map_background<=3) && is_moon && custom_map_background_color_i>127) || map_background==1)) ||
-      (in_main_menu && (!(solar_hour>6 && solar_hour<18) && (map_background==1 || (map_background==4 && is_moon))))
+  //draw moon
+    if (
+        ((!in_main_menu || (in_main_menu && map_weather==0 && !(solar_hour>6 && solar_hour<18))) &&
+         ((
+           !(map_background>=2 && map_background<=3) && 
+           is_moon && 
+           custom_map_background_color_i>127
+          ) || map_background==1
+        ))        
     ) {
       int dmx=-1000;
       int dmy=-1000;
