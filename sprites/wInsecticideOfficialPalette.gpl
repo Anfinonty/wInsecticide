@@ -1,0 +1,260 @@
+GIMP Palette
+Name: wInsecticideOfficialPalette
+Columns: 0
+#
+  0   0   0	grey3
+  0   0   0	Untitled
+  1   1   1	Untitled
+  1   1   1	Untitled
+  2   2   2	Untitled
+  2   2   2	Untitled
+  3   3   3	Untitled
+  3   3   3	Untitled
+  4   4   4	Untitled
+  4   4   4	Untitled
+  5   5   5	Untitled
+  5   5   5	Untitled
+  6   6   6	Untitled
+  6   6   6	Untitled
+  7   7   7	Untitled
+  7   7   7	Untitled
+  0   0  22	Untitled
+  0   0  43	Untitled
+  0   0  64	Untitled
+  0   0  85	Untitled
+  0   0 107	Untitled
+  0   0 128	Untitled
+  0   0 149	Untitled
+  0   0 170	Untitled
+ 22  22 170	Untitled
+ 43  43 170	Untitled
+ 64  64 170	Untitled
+ 85  85 170	Untitled
+107 107 170	Untitled
+128 128 170	Untitled
+149 149 170	Untitled
+160 160 170	Untitled
+  0  22   0	Untitled
+  0  43   0	Untitled
+  0  64   0	Untitled
+  0  85   0	Untitled
+  0 107   0	Untitled
+  0 128   0	Untitled
+  0 149   0	Untitled
+  0 170   0	Untitled
+ 22 170  22	Untitled
+ 43 170  43	Untitled
+ 64 170  64	Untitled
+ 85 170  85	Untitled
+107 170 107	Untitled
+128 170 128	Untitled
+149 170 149	Untitled
+160 170 160	Untitled
+  0  22  22	Untitled
+  0  43  43	Untitled
+  0  64  64	Untitled
+  0  85  85	Untitled
+  0 107 107	Untitled
+  0 128 128	Untitled
+  0 149 149	Untitled
+  0 170 170	Untitled
+ 22 170 170	Untitled
+ 43 170 170	Untitled
+ 64 170 170	Untitled
+ 85 170 170	Untitled
+107 170 170	Untitled
+128 170 170	Untitled
+149 170 170	Untitled
+160 170 170	Untitled
+ 22   0   0	Untitled
+ 43   0   0	Untitled
+ 64   0   0	Untitled
+ 85   0   0	Untitled
+107   0   0	Untitled
+128   0   0	Untitled
+149   0   0	Untitled
+170   0   0	Untitled
+170  22  22	Untitled
+170  43  43	Untitled
+170  64  64	Untitled
+170  85  85	Untitled
+170 107 107	Untitled
+170 128 128	Untitled
+170 149 149	Untitled
+170 160 160	Untitled
+  0   0   0	Untitled
+ 22   0  22	Untitled
+ 43   0  43	Untitled
+ 64   0  64	Untitled
+ 85   0  85	Untitled
+107   0 107	Untitled
+128   0 128	Untitled
+149   0 149	Untitled
+170  22 170	Untitled
+170  43 170	Untitled
+170  64 170	Untitled
+170  85 170	Untitled
+170 107 170	Untitled
+170 128 170	Untitled
+170 149 170	Untitled
+170 160 170	Untitled
+ 22  11   0	Untitled
+ 43  22   0	Untitled
+ 64  32   0	Untitled
+ 85  43   0	Untitled
+107  54   0	Untitled
+128  64   0	Untitled
+149  75   0	Untitled
+170  85   0	Untitled
+170  96  43	Untitled
+170 107  43	Untitled
+170 117  64	Untitled
+170 133  85	Untitled
+170 148 107	Untitled
+170 160 128	Untitled
+170 176 149	Untitled
+170 170 170	Untitled
+ 11  11  11	Untitled
+ 22  22  22	Untitled
+ 33  33  33	Untitled
+ 43  43  43	Untitled
+ 54  54  54	Untitled
+ 64  64  64	Untitled
+ 75  75  75	Untitled
+ 85  85  85	Untitled
+ 96  96  96	Untitled
+107 107 107	Untitled
+117 117 117	Untitled
+128 128 128	Untitled
+139 139 139	Untitled
+149 149 149	Untitled
+160 160 160	Untitled
+170 170 170	Untitled
+ 22  22  22	Untitled
+ 43  43  43	Untitled
+ 64  64  64	Untitled
+ 85  85  85	Untitled
+107 107 107	Untitled
+128 128 128	Untitled
+149 149 149	Untitled
+170 170 170	Untitled
+181 181 181	Untitled
+191 191 191	Untitled
+201 201 201	Untitled
+211 211 211	Untitled
+221 221 221	Untitled
+231 231 231	Untitled
+241 241 241	Untitled
+251 251 251	Untitled
+  0   0  32	Untitled
+  0   0  64	Untitled
+  0   0  96	Untitled
+  0   0 128	Untitled
+  0   0 160	Untitled
+  0   0 192	Untitled
+  0   0 224	Untitled
+  0   0 255	Untitled
+ 28  28 255	Untitled
+ 56  56 255	Untitled
+ 84  84 255	Untitled
+112 112 255	Untitled
+140 140 255	Untitled
+168 168 255	Untitled
+196 196 255	Untitled
+224 224 255	Untitled
+  0  32   0	Untitled
+  0  64   0	Untitled
+  0  96   0	Untitled
+  0 128   0	Untitled
+  0 160   0	Untitled
+  0 192   0	Untitled
+  0 224   0	Untitled
+  0 255   0	Untitled
+ 28 255  28	Untitled
+ 56 255  56	Untitled
+ 84 255  84	Untitled
+112 255 112	Untitled
+140 255 140	Untitled
+168 255 168	Untitled
+196 255 196	Untitled
+224 255 224	Untitled
+  0  32  32	Untitled
+  0  64  64	Untitled
+  0  96  96	Untitled
+  0 128 128	Untitled
+  0 160 160	Untitled
+  0 192 192	Untitled
+  0 224 224	Untitled
+  0 255 255	Untitled
+ 28 255 255	Untitled
+ 56 255 255	Untitled
+ 84 255 255	Untitled
+112 255 255	Untitled
+140 255 255	Untitled
+168 255 255	Untitled
+196 255 255	Untitled
+224 255 255	Untitled
+ 32   0   0	Untitled
+ 64   0   0	Untitled
+ 96   0   0	Untitled
+128   0   0	Untitled
+160   0   0	Untitled
+192   0   0	Untitled
+224   0   0	Untitled
+255   0   0	Untitled
+255  28  28	Untitled
+255  56  56	Untitled
+255  84  84	Untitled
+255 112 112	Untitled
+255 140 140	Untitled
+255 168 168	Untitled
+255 196 196	Untitled
+255 224 224	Untitled
+ 32   0  32	Untitled
+ 64   0  64	Untitled
+ 96   0  96	Untitled
+128   0 128	Untitled
+160   0 160	Untitled
+192   0 192	Untitled
+224   0 224	Untitled
+255   0 255	Untitled
+255  28 255	Untitled
+255  56 255	Untitled
+255  84 255	Untitled
+255 112 255	Untitled
+255 140 255	Untitled
+255 168 255	Untitled
+255 196 255	Untitled
+255 224 255	Untitled
+ 32  32   0	Untitled
+ 64  64   0	Untitled
+ 96  96   0	Untitled
+128 128   0	Untitled
+160 160   0	Untitled
+192 192   0	Untitled
+224 224   0	Untitled
+255 255   0	Untitled
+255 255  28	Untitled
+255 255  56	Untitled
+255 255  84	Untitled
+255 255 112	Untitled
+255 255 140	Untitled
+255 255 168	Untitled
+255 255 196	Untitled
+255 255 224	Untitled
+255 255 255	Untitled
+255 255 255	Untitled
+255 255 255	Untitled
+255 255 255	Untitled
+255 255 255	Untitled
+255 255 255	Untitled
+255 255 255	Untitled
+255 255 255	Untitled
+255 255 255	Untitled
+255 255 255	Untitled
+255 255 255	Untitled
+255 255 255	grey0
+255 255 255	Untitled
+255 255 255	Untitled
+255 255 255	Untitled
+255 255 255	grey0
