@@ -856,7 +856,7 @@ void EnemyActWebStuck(int i)
 void EnemyActSuffocate(int i)
 {
   int nx,ny,sub_tmp_ngid;
-  if (Enemy[i]->suffocate_timer<100) {
+  if (Enemy[i]->suffocate_timer<450) {
     //for (int j=0;j<9;j++) {
     nx=Enemy[i]->x-NODE_SIZE+GetXFromId(/*j*/Enemy[i]->current_suffocate_ngid_n,3)*NODE_SIZE; //     1 2 3   
     ny=Enemy[i]->y-NODE_SIZE+GetYFromId(/*j*/Enemy[i]->current_suffocate_ngid_n,3)*NODE_SIZE; //     4 5 6  
@@ -876,12 +876,12 @@ void EnemyActSuffocate(int i)
       }
     }
     //}
-  } else {
+  } /*else {
     Enemy[i]->health--;
     if (Enemy[i]->health<=0) {
       Enemy[i]->true_dead=TRUE;
     }
-  }
+  }*/
 }
 
 
@@ -1930,7 +1930,7 @@ void EnemyAct(int i)
       Enemy[i]->in_node_grid_id=GetGridId(Enemy[i]->x,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);      
       tmp_ngid=Enemy[i]->in_node_grid_id;
       if (tmp_ngid!=-1) {
-        if (NodeGrid[tmp_ngid]->node_fire) {
+        if (NodeGrid[tmp_ngid]->node_fire || Enemy[i]->suffocate_timer>=450) {
           Enemy[i]->damage_taken_timer=256;
           Enemy[i]->health-=1;
           if (Enemy[i]->species==1 && Enemy[i]->health<=0) {
