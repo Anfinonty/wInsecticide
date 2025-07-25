@@ -609,9 +609,6 @@ void DrawRain(HDC hdc,HDC hdc2);
 //==================ENEMY==================
 typedef struct enemy
 {
-  //Line Of Sight bullet
-
-
   //Enemy Attributes
   //Enemy Node Attributes
 
@@ -645,12 +642,13 @@ typedef struct enemy
   bool play_death_snd; //:play death sound when killed
   bool is_ground_rebounding; //:is it currently rebounding from a ground it is on
   bool is_in_ground_edge; //:is it currently on the edge of a ground
-  bool flag_web_unstuck;
-  bool flag_web_stuck;
-  bool web_stuck;
-  bool is_clockwize;
-  bool true_dead;
-  bool draw_falling;
+  bool flag_web_unstuck; //:is it not stuck in the web _screen flag
+  bool flag_web_stuck; //: is it currently stuck in the web _screen flag
+  bool web_stuck; //: is it currently stuck in the web
+  bool is_clockwize; //: for ants, is it the cloockwize type ant
+  bool true_dead; //: for cockroach__ is it truly dead in hard mode
+  bool draw_falling; //: for cockroach adn toe_biter__ is it falling and forced to be drawn its flying sprite
+
   //Attacked
   bool knockback_left;
   bool player_knockback;
@@ -700,6 +698,10 @@ typedef struct enemy
   int idle_timer;
   int forgor_timer;
   int render_distance_timer;
+
+  //suffocate in solid trifills
+  int suffocate_timer;
+  int current_suffocate_ngid_n;
 
   int type; //0 to 10
   int sprite_type; //0 to 10

@@ -779,24 +779,24 @@ void EnemyActWebStuck(int i)
       }
     }
 
-  if (Enemy[i]->flag_web_unstuck) {
-    Enemy[i]->flag_web_unstuck=FALSE;
-    if (Enemy[i]->web_stuck) {
-      Enemy[i]->web_stuck=FALSE;
-      Enemy[i]->speed_multiplier=Enemy[i]->ospeed_multiplier;
-      Enemy[i]->speed=Enemy[i]->ospeed;
+    if (Enemy[i]->flag_web_unstuck) {
+      Enemy[i]->flag_web_unstuck=FALSE;
+      if (Enemy[i]->web_stuck) {
+        Enemy[i]->web_stuck=FALSE;
+        Enemy[i]->speed_multiplier=Enemy[i]->ospeed_multiplier;
+        Enemy[i]->speed=Enemy[i]->ospeed;
+      }
     }
-  }
 
 
-    if (Enemy[i]->species==0 || Enemy[i]->species==2 || Enemy[i]->species==4) {
+    if (Enemy[i]->species==0 || Enemy[i]->species==2 || Enemy[i]->species==4) { //3*3
       if (!Enemy[i]->web_stuck) {
         nx=Enemy[i]->x-NODE_SIZE+GetXFromId(Enemy[i]->current_ngid_n,3)*NODE_SIZE; //     1 2 3   
         ny=Enemy[i]->y-NODE_SIZE+GetYFromId(Enemy[i]->current_ngid_n,3)*NODE_SIZE; //     4 5 6  
         if (Enemy[i]->on_ground_id>=GROUND_NUM) {
           Enemy[i]->flag_web_stuck=TRUE;
         }
-      } else {
+      } else { //5*5
         nx=Enemy[i]->x-NODE_SIZE*2+GetXFromId(Enemy[i]->current_ngid_n,5)*NODE_SIZE; //   1 2 3 4 5  
         ny=Enemy[i]->y-NODE_SIZE*2+GetYFromId(Enemy[i]->current_ngid_n,5)*NODE_SIZE; //   6 7 8 9 A 
       }
@@ -806,7 +806,7 @@ void EnemyActWebStuck(int i)
       if (Enemy[i]->on_ground_id>=GROUND_NUM) {
         Enemy[i]->flag_web_stuck=TRUE;
       }
-    } else if (Enemy[i]->species==1 || Enemy[i]->species==3) {
+    } else if (Enemy[i]->species==1 || Enemy[i]->species==3) { //7*7
       nx=Enemy[i]->x-NODE_SIZE*3+GetXFromId(Enemy[i]->current_ngid_n,7)*NODE_SIZE; //0 1 2 3 4 5 6 
       ny=Enemy[i]->y-NODE_SIZE*3+GetYFromId(Enemy[i]->current_ngid_n,7)*NODE_SIZE; //7 8 9 A B C D
       if (Enemy[i]->on_ground_id>=GROUND_NUM) {
@@ -849,6 +849,39 @@ void EnemyActWebStuck(int i)
     } else {
       Enemy[i]->current_ngid_n++;
     }
+}
+
+
+
+void EnemyActSuffocate(int i)
+{
+  int nx,ny,sub_tmp_ngid;
+  if (Enemy[i]->suffocate_timer<100) {
+    //for (int j=0;j<9;j++) {
+    nx=Enemy[i]->x-NODE_SIZE+GetXFromId(/*j*/Enemy[i]->current_suffocate_ngid_n,3)*NODE_SIZE; //     1 2 3   
+    ny=Enemy[i]->y-NODE_SIZE+GetYFromId(/*j*/Enemy[i]->current_suffocate_ngid_n,3)*NODE_SIZE; //     4 5 6  
+    sub_tmp_ngid=GetGridId(nx,ny,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
+    if (sub_tmp_ngid!=-1) {
+      if (NodeGrid[sub_tmp_ngid]->node_solid && NodeGrid[sub_tmp_ngid]->non_web) { //solid
+        Enemy[i]->current_suffocate_ngid_n++;
+        if (/*j==8*/Enemy[i]->current_suffocate_ngid_n>=9) {
+          Enemy[i]->current_suffocate_ngid_n=0; //reset search surrounding
+          //Enemy[i]->suffocate_timer++;
+        }
+        Enemy[i]->suffocate_timer++;
+      } else { //non-solid
+        Enemy[i]->current_suffocate_ngid_n=0; //reset search surrounding
+        Enemy[i]->suffocate_timer=0;
+        //break;
+      }
+    }
+    //}
+  } else {
+    Enemy[i]->health--;
+    if (Enemy[i]->health<=0) {
+      Enemy[i]->true_dead=TRUE;
+    }
+  }
 }
 
 
@@ -1897,35 +1930,6 @@ void EnemyAct(int i)
       Enemy[i]->in_node_grid_id=GetGridId(Enemy[i]->x,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);      
       tmp_ngid=Enemy[i]->in_node_grid_id;
       if (tmp_ngid!=-1) {
-        //suffocate if inside ground
-            //add current inground_ngid
-            //add inground_timer
-            //if inground_timer>200, begin dying ++ true_dead
-        /*if (NodeGrid[tmp_ngid]->node_solid && NodeGrid[tmp_ngid]->non_web) {
-          for (int s=0;s<8;s++) {
-            int tmp_ngid_=-1;
-            switch (s) {
-              case 0: tmp_ngid_=GetGridId(Enemy[i]->x-NODE_SIZE*2,Enemy[i]->y-NODE_SIZE,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);break;
-              case 1: tmp_ngid_=GetGridId(Enemy[i]->x+NODE_SIZE*2,Enemy[i]->y-NODE_SIZE*2,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);break;
-              case 2: tmp_ngid_=GetGridId(Enemy[i]->x-NODE_SIZE*2,Enemy[i]->y+NODE_SIZE*2,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);break;
-              case 3: tmp_ngid_=GetGridId(Enemy[i]->x+NODE_SIZE*2,Enemy[i]->y+NODE_SIZE*2,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);break;
-
-              case 4: tmp_ngid_=GetGridId(Enemy[i]->x-NODE_SIZE*2,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);break;
-              case 5: tmp_ngid_=GetGridId(Enemy[i]->x+NODE_SIZE*2,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);break;
-              case 6: tmp_ngid_=GetGridId(Enemy[i]->x,Enemy[i]->y+NODE_SIZE*2,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);break;
-              case 7: tmp_ngid_=GetGridId(Enemy[i]->x,Enemy[i]->y-NODE_SIZE*2,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);break;
-            }
-            if (tmp_ngid_!=-1) {
-              if (!NodeGrid[tmp_ngid_]->node_solid && !NodeGrid[tmp_ngid_]->non_web) {
-                s=8;
-                break;
-              }
-            }
-            if (s==7) {
-              Enemy[i]->health--;
-            }
-          }
-        }*/
         if (NodeGrid[tmp_ngid]->node_fire) {
           Enemy[i]->damage_taken_timer=256;
           Enemy[i]->health-=1;
@@ -1998,6 +2002,11 @@ void EnemyAct(int i)
 
       //check state web stuck
         EnemyActWebStuck(i);
+
+      //check state suffocate
+        if (!Enemy[i]->is_in_ground_edge) {
+          EnemyActSuffocate(i);
+        }
 
         //Prevent reaching border
         if (Enemy[i]->x<NODE_SIZE*2) {
@@ -2794,6 +2803,8 @@ void InitEnemy()
     Enemy[i]->on_ground_edge_id=-1;
     Enemy[i]->saved_ground_id=-1;
     Enemy[i]->current_ngid_n=0;
+    Enemy[i]->current_suffocate_ngid_n=0;
+    Enemy[i]->suffocate_timer=0;
     Enemy[i]->current_rot_sprite_angle_id=0;//-1;
     Enemy[i]->dist_from_player=999;
     Enemy[i]->flying_timer=0;
