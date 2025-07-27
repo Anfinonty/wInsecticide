@@ -870,8 +870,11 @@ void EnemyActSuffocate(int i)
         }
         Enemy[i]->suffocate_timer++;
       } else { //non-solid
-        Enemy[i]->current_suffocate_ngid_n=0; //reset search surrounding
+        //Enemy[i]->current_suffocate_ngid_n=0; //reset search surrounding
         Enemy[i]->suffocate_timer=0;
+        /*if (Enemy[i]->suffocate_timer<0) {
+          Enemy[i]->suffocate_timer=0;
+        }*/
         //break;
       }
     }
