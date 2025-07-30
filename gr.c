@@ -1462,7 +1462,7 @@ void DitherBitmapColor(HBITMAP hBitmap, COLORREF oldColor, COLORREF newColor)
     }
 
     // Check if both colors are in the palette
-    if (oldColorIndex == 0xFF || newColorIndex == 0xFF) {
+    if ((oldColorIndex == 0xFF || newColorIndex == 0xFF) && oldColor!=-1) {
         return; // Color not found
     }
 
@@ -1473,7 +1473,7 @@ void DitherBitmapColor(HBITMAP hBitmap, COLORREF oldColor, COLORREF newColor)
         for (int x = 0; x < bitmap.bmWidth; x++) {
             if (y%2==0 && x%2==0 ||
                (y%2!=0 && x%2!=0)) {
-              if (row[x] == oldColorIndex) {
+              if (row[x] == oldColorIndex || oldColor==-1) {
                 row[x] = newColorIndex; // Replace the color index
               }
             }
@@ -1481,6 +1481,7 @@ void DitherBitmapColor(HBITMAP hBitmap, COLORREF oldColor, COLORREF newColor)
     }
 
 }
+
 
 
 void ReplaceBitmapColor(HBITMAP hBitmap, COLORREF oldColor, COLORREF newColor)//, RGBQUAD *palette) 

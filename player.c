@@ -159,6 +159,11 @@ void InitPlayerSpritesAll()
   tmp_bitmap=CopyCrunchyBitmap(LoadPlayerSprite.sprite_jump,SRCCOPY);
   ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
   GenerateDrawSprite(&PlayerSprite[0].sprite_jump,tmp_bitmap);
+
+  //create ditehred sprite
+  DitherBitmapColor(tmp_bitmap,-1,BLACK);
+  GenerateDrawSprite(&PlayerSprite[0].dithered_sprite_jump,tmp_bitmap);
+
   DeleteObject(tmp_bitmap);
 
 
@@ -184,6 +189,11 @@ void InitPlayerSpritesAll()
     tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.spin_sprite,t_angle,BLACK);
     ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
     GenerateDrawSprite(&PlayerSprite[0].spin_sprite[i],tmp_bitmap);
+
+    //create ditehred sprite
+    DitherBitmapColor(tmp_bitmap,-1,BLACK);
+    GenerateDrawSprite(&PlayerSprite[0].dithered_spin_sprite[i],tmp_bitmap);
+
     DeleteObject(tmp_bitmap);
 
 
@@ -206,6 +216,11 @@ void InitPlayerSpritesAll()
     tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.sprite_1,angle_rn,LTGREEN);
     ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
     GenerateDrawSprite(&PlayerSprite[0].sprite_1[i],tmp_bitmap);
+
+    //create ditehred sprite
+    DitherBitmapColor(tmp_bitmap,-1,BLACK);
+    GenerateDrawSprite(&PlayerSprite[0].dithered_sprite_1[i],tmp_bitmap);
+
     DeleteObject(tmp_bitmap);
   }
 
@@ -214,6 +229,11 @@ void InitPlayerSpritesAll()
     tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.sprite_2,angle_rn,BLACK);
     ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
     GenerateDrawSprite(&PlayerSprite[0].sprite_2[i],tmp_bitmap);
+
+    //create ditehred sprite
+    DitherBitmapColor(tmp_bitmap,-1,BLACK);
+    GenerateDrawSprite(&PlayerSprite[0].dithered_sprite_2[i],tmp_bitmap);
+
     DeleteObject(tmp_bitmap);
   }
 
@@ -222,6 +242,11 @@ void InitPlayerSpritesAll()
     tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.attack_sprite_1,angle_rn,BLACK);
     ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
     GenerateDrawSprite(&PlayerSprite[0].attack_sprite_1[i],tmp_bitmap);
+
+    //create ditehred sprite
+    DitherBitmapColor(tmp_bitmap,-1,BLACK);
+    GenerateDrawSprite(&PlayerSprite[0].dithered_attack_sprite_1[i],tmp_bitmap);
+
     DeleteObject(tmp_bitmap);
   }
 
@@ -230,6 +255,11 @@ void InitPlayerSpritesAll()
     tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.attack_sprite_2,angle_rn,BLACK);
     ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
     GenerateDrawSprite(&PlayerSprite[0].attack_sprite_2[i],tmp_bitmap);
+
+    //create ditehred sprite
+    DitherBitmapColor(tmp_bitmap,-1,BLACK);
+    GenerateDrawSprite(&PlayerSprite[0].dithered_attack_sprite_2[i],tmp_bitmap);
+
     DeleteObject(tmp_bitmap);
   }
 
@@ -238,6 +268,11 @@ void InitPlayerSpritesAll()
     tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.attack_sprite_3,angle_rn,BLACK);
     ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
     GenerateDrawSprite(&PlayerSprite[0].attack_sprite_3[i],tmp_bitmap);
+
+    //create ditehred sprite
+    DitherBitmapColor(tmp_bitmap,-1,BLACK);
+    GenerateDrawSprite(&PlayerSprite[0].dithered_attack_sprite_3[i],tmp_bitmap);
+
     DeleteObject(tmp_bitmap);
   }
 
@@ -246,6 +281,11 @@ void InitPlayerSpritesAll()
     tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.attack_sprite_4,angle_rn,BLACK);
     ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
     GenerateDrawSprite(&PlayerSprite[0].attack_sprite_4[i],tmp_bitmap);
+
+    //create ditehred sprite
+    DitherBitmapColor(tmp_bitmap,-1,BLACK);
+    GenerateDrawSprite(&PlayerSprite[0].dithered_attack_sprite_4[i],tmp_bitmap);
+
     DeleteObject(tmp_bitmap);
   }
 
@@ -254,6 +294,11 @@ void InitPlayerSpritesAll()
     tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.block_sprite_1,angle_rn,BLACK);
     ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
     GenerateDrawSprite(&PlayerSprite[0].block_sprite_1[i],tmp_bitmap);
+
+    //create ditehred sprite
+    DitherBitmapColor(tmp_bitmap,-1,BLACK);
+    GenerateDrawSprite(&PlayerSprite[0].dithered_block_sprite_1[i],tmp_bitmap);
+
     DeleteObject(tmp_bitmap);
   }
 
@@ -262,6 +307,11 @@ void InitPlayerSpritesAll()
     tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.block_sprite_2,angle_rn,BLACK);
     ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
     GenerateDrawSprite(&PlayerSprite[0].block_sprite_2[i],tmp_bitmap);
+
+    //create ditehred sprite
+    DitherBitmapColor(tmp_bitmap,-1,BLACK);
+    GenerateDrawSprite(&PlayerSprite[0].dithered_block_sprite_2[i],tmp_bitmap);
+
     DeleteObject(tmp_bitmap);
   }
 
@@ -270,9 +320,16 @@ void InitPlayerSpritesAll()
     tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.block_sprite_3,angle_rn,BLACK);
     ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
     GenerateDrawSprite(&PlayerSprite[0].block_sprite_3[i],tmp_bitmap);
+
+    //create ditehred sprite
+    DitherBitmapColor(tmp_bitmap,-1,BLACK);
+    GenerateDrawSprite(&PlayerSprite[0].dithered_block_sprite_3[i],tmp_bitmap);
+
     DeleteObject(tmp_bitmap);
   }
 
+
+  //change player color palette
   CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,rgbColorsDefault,167,rgbPaint[player_color]);
   CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,PlayerSprite[0].PlayerPalette,151,LTGRAY); //border
   CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,PlayerSprite[0].PlayerPalette,199,rgbPaint[player_iris_color]);
@@ -2900,6 +2957,17 @@ void InitPlayerSpritesObjColor(HDC hdc,HDC hdc2)
     BitmapPalette(hdc,hdc2,PlayerSprite[0].block_sprite_1[i].sprite_paint,PlayerSprite[0].PlayerPalette);
     BitmapPalette(hdc,hdc2,PlayerSprite[0].block_sprite_2[i].sprite_paint,PlayerSprite[0].PlayerPalette);
     BitmapPalette(hdc,hdc2,PlayerSprite[0].block_sprite_3[i].sprite_paint,PlayerSprite[0].PlayerPalette);
+
+    //dithered sprite
+    BitmapPalette(hdc,hdc2,PlayerSprite[0].dithered_sprite_1[i].sprite_paint,PlayerSprite[0].PlayerPalette);
+    BitmapPalette(hdc,hdc2,PlayerSprite[0].dithered_sprite_2[i].sprite_paint,PlayerSprite[0].PlayerPalette);
+    BitmapPalette(hdc,hdc2,PlayerSprite[0].dithered_attack_sprite_1[i].sprite_paint,PlayerSprite[0].PlayerPalette);
+    BitmapPalette(hdc,hdc2,PlayerSprite[0].dithered_attack_sprite_2[i].sprite_paint,PlayerSprite[0].PlayerPalette);
+    BitmapPalette(hdc,hdc2,PlayerSprite[0].dithered_attack_sprite_3[i].sprite_paint,PlayerSprite[0].PlayerPalette);
+    BitmapPalette(hdc,hdc2,PlayerSprite[0].dithered_attack_sprite_4[i].sprite_paint,PlayerSprite[0].PlayerPalette);
+    BitmapPalette(hdc,hdc2,PlayerSprite[0].dithered_block_sprite_1[i].sprite_paint,PlayerSprite[0].PlayerPalette);
+    BitmapPalette(hdc,hdc2,PlayerSprite[0].dithered_block_sprite_2[i].sprite_paint,PlayerSprite[0].PlayerPalette);
+    BitmapPalette(hdc,hdc2,PlayerSprite[0].dithered_block_sprite_3[i].sprite_paint,PlayerSprite[0].PlayerPalette);
   }
 /*
   BitmapPalette(hdc,hdc2,PlayerSprite[0].sprite_bee_1.sprite_paint,PlayerSprite[0].PlayerPalette);
@@ -2918,6 +2986,14 @@ void InitPlayerSpritesObjColor(HDC hdc,HDC hdc2)
   BitmapPalette(hdc,hdc2,PlayerSprite[0].blur_spin_sprite[1].sprite_paint,PlayerSprite[0].PlayerBlurPalette);
   BitmapPalette(hdc,hdc2,PlayerSprite[0].blur_spin_sprite[2].sprite_paint,PlayerSprite[0].PlayerBlurPalette);
   BitmapPalette(hdc,hdc2,PlayerSprite[0].blur_spin_sprite[3].sprite_paint,PlayerSprite[0].PlayerBlurPalette);
+
+  //dithered sprite
+  BitmapPalette(hdc,hdc2,PlayerSprite[0].dithered_sprite_jump.sprite_paint,PlayerSprite[0].PlayerPalette);
+  BitmapPalette(hdc,hdc2,PlayerSprite[0].dithered_spin_sprite[0].sprite_paint,PlayerSprite[0].PlayerPalette);
+  BitmapPalette(hdc,hdc2,PlayerSprite[0].dithered_spin_sprite[1].sprite_paint,PlayerSprite[0].PlayerPalette);
+  BitmapPalette(hdc,hdc2,PlayerSprite[0].dithered_spin_sprite[2].sprite_paint,PlayerSprite[0].PlayerPalette);
+  BitmapPalette(hdc,hdc2,PlayerSprite[0].dithered_spin_sprite[3].sprite_paint,PlayerSprite[0].PlayerPalette);
+
 }
 
 
@@ -3141,9 +3217,17 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
       if (player.block_timer==0) { //not blocking
         if (player.on_ground_timer>0) { // on ground
           if (player.walk_cycle<2) {
-            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].sprite_1[player.sprite_angle],player.last_left);
+            if (player.in_water_timer>0) {
+              DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].dithered_sprite_1[player.sprite_angle],player.last_left);
+            } else {
+              DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].sprite_1[player.sprite_angle],player.last_left);
+            }
           } else {
-            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].sprite_2[player.sprite_angle],player.last_left);
+            if (player.in_water_timer>0) {
+              DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].dithered_sprite_2[player.sprite_angle],player.last_left);
+            } else {
+              DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].sprite_2[player.sprite_angle],player.last_left);
+            }
           }
         } else { //in_air
           if (!player.is_on_ground_edge) {
@@ -3151,7 +3235,11 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
               DrawSprite(hdc,hdc2,player.blur_sprite_x[j],player.blur_sprite_y[j],&PlayerSprite[0].blur_sprite_jump,player.last_left);
             }
           }
-          DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].sprite_jump,player.last_left);
+          if (player.in_water_timer>0) {
+            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].dithered_sprite_jump,player.last_left);
+          } else {
+            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].sprite_jump,player.last_left);
+          }
         }
       } else { //blocking
         if (player.on_ground_id==-1 && player.spin_timer>0) { //not on ground
@@ -3159,30 +3247,56 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
             for (int j=0;j<PLAYER_BLUR_NUM;j++) {
               DrawSprite(hdc,hdc2,player.blur_sprite_x[j],player.blur_sprite_y[j],&PlayerSprite[0].blur_spin_sprite[0],!player.last_left);
             }
-            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].spin_sprite[0],!player.last_left);
+            if (player.in_water_timer>0) {
+              DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].dithered_spin_sprite[0],!player.last_left);
+            } else {
+              DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].spin_sprite[0],!player.last_left);
+            }
           } else if (player.spin_timer>10 && player.spin_timer<20) {
             for (int j=0;j<PLAYER_BLUR_NUM;j++) {
               DrawSprite(hdc,hdc2,player.blur_sprite_x[j],player.blur_sprite_y[j],&PlayerSprite[0].blur_spin_sprite[1],!player.last_left);
             }
-            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].spin_sprite[1],!player.last_left);
+            if (player.in_water_timer>0) {
+              DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].dithered_spin_sprite[1],!player.last_left);
+            } else {
+              DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].spin_sprite[1],!player.last_left);
+            }
           } else if (player.spin_timer>20 && player.spin_timer<30) {
             for (int j=0;j<PLAYER_BLUR_NUM;j++) {
               DrawSprite(hdc,hdc2,player.blur_sprite_x[j],player.blur_sprite_y[j],&PlayerSprite[0].blur_spin_sprite[2],!player.last_left);
             }
-            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].spin_sprite[2],!player.last_left);
+            if (player.in_water_timer>0) {
+              DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].dithered_spin_sprite[2],!player.last_left);
+            } else {
+              DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].spin_sprite[2],!player.last_left);
+            }
           } else {
             for (int j=0;j<PLAYER_BLUR_NUM;j++) {
               DrawSprite(hdc,hdc2,player.blur_sprite_x[j],player.blur_sprite_y[j],&PlayerSprite[0].blur_spin_sprite[3],!player.last_left);
             }
-            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].spin_sprite[3],!player.last_left);
+            if (player.in_water_timer>0) {
+              DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].dithered_spin_sprite[3],!player.last_left);
+            } else {
+              DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].spin_sprite[3],!player.last_left);
+            }
           }
         } else { //on ground
-          if (0<player.block_timer && player.block_timer<=5) {
-            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].block_sprite_1[player.sprite_angle],player.last_left);
-          } else if (5<player.block_timer && player.block_timer<=10) {
-            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].block_sprite_2[player.sprite_angle],player.last_left);
+          if (player.in_water_timer>0) {
+            if (0<player.block_timer && player.block_timer<=5) {
+              DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].dithered_block_sprite_1[player.sprite_angle],player.last_left);
+            } else if (5<player.block_timer && player.block_timer<=10) {
+              DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].dithered_block_sprite_2[player.sprite_angle],player.last_left);
+            } else {
+              DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].dithered_block_sprite_3[player.sprite_angle],player.last_left);
+            }
           } else {
-            DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].block_sprite_3[player.sprite_angle],player.last_left);
+            if (0<player.block_timer && player.block_timer<=5) {
+              DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].block_sprite_1[player.sprite_angle],player.last_left);
+            } else if (5<player.block_timer && player.block_timer<=10) {
+              DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].block_sprite_2[player.sprite_angle],player.last_left);
+            } else {
+              DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].block_sprite_3[player.sprite_angle],player.last_left);
+            }
           }
         }
       }
@@ -3192,14 +3306,26 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
           DrawSprite(hdc,hdc2,player.blur_sprite_x[j],player.blur_sprite_y[j],&PlayerSprite[0].blur_sprite_jump,player.last_left);
         }
       }
-      if (30<player.attack_timer && player.attack_timer<=40) {//attack sprite
-        DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].attack_sprite_1[player.sprite_angle],player.last_left);
-      } else if (20<player.attack_timer && player.attack_timer<=30) {
-        DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].attack_sprite_2[player.sprite_angle],player.last_left);
-      } else if (10<player.attack_timer && player.attack_timer<=20) {
-        DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].attack_sprite_3[player.sprite_angle],player.last_left);
-      } else if (-1<player.attack_timer && player.attack_timer<=10) {
-        DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].attack_sprite_4[player.sprite_angle],player.last_left);
+      if (player.in_water_timer>0) {      
+        if (30<player.attack_timer && player.attack_timer<=40) {//attack sprite
+          DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].dithered_attack_sprite_1[player.sprite_angle],player.last_left);
+        } else if (20<player.attack_timer && player.attack_timer<=30) {
+          DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].dithered_attack_sprite_2[player.sprite_angle],player.last_left);
+        } else if (10<player.attack_timer && player.attack_timer<=20) {
+          DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].dithered_attack_sprite_3[player.sprite_angle],player.last_left);
+        } else if (-1<player.attack_timer && player.attack_timer<=10) {
+          DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].dithered_attack_sprite_4[player.sprite_angle],player.last_left);
+        }
+      } else {
+        if (30<player.attack_timer && player.attack_timer<=40) {//attack sprite
+          DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].attack_sprite_1[player.sprite_angle],player.last_left);
+        } else if (20<player.attack_timer && player.attack_timer<=30) {
+          DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].attack_sprite_2[player.sprite_angle],player.last_left);
+        } else if (10<player.attack_timer && player.attack_timer<=20) {
+          DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].attack_sprite_3[player.sprite_angle],player.last_left);
+        } else if (-1<player.attack_timer && player.attack_timer<=10) {
+          DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].attack_sprite_4[player.sprite_angle],player.last_left);
+        }
       }
     }
   }

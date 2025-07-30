@@ -908,6 +908,9 @@ struct PlayerSprite //used in
   DRAWSPRITE spin_sprite[4];
   DRAWSPRITE blur_spin_sprite[4];
 
+  DRAWSPRITE dithered_spin_sprite[4];
+
+
   //DRAWSPRITE sprite_bee_1;
   //DRAWSPRITE sprite_bee_2;
   //DRAWSPRITE sprite_bee_aero_1;
@@ -922,6 +925,23 @@ struct PlayerSprite //used in
   DRAWSPRITE block_sprite_1[PLAYER_ROTATED_SPRITE_NUM];
   DRAWSPRITE block_sprite_2[PLAYER_ROTATED_SPRITE_NUM];
   DRAWSPRITE block_sprite_3[PLAYER_ROTATED_SPRITE_NUM];
+
+  //Dithered Sprite while in water (im left with no other choice!!)
+  DRAWSPRITE dithered_sprite_jump;
+  //DRAWSPRITE dithered_sprite_bee_1;
+  //DRAWSPRITE dithered_sprite_bee_2;
+  //DRAWSPRITE dithered_sprite_bee_aero_1;
+  //DRAWSPRITE dithered_sprite_bee_aero_2;
+
+  DRAWSPRITE dithered_sprite_1[PLAYER_ROTATED_SPRITE_NUM];
+  DRAWSPRITE dithered_sprite_2[PLAYER_ROTATED_SPRITE_NUM];
+  DRAWSPRITE dithered_attack_sprite_1[PLAYER_ROTATED_SPRITE_NUM];
+  DRAWSPRITE dithered_attack_sprite_2[PLAYER_ROTATED_SPRITE_NUM];
+  DRAWSPRITE dithered_attack_sprite_3[PLAYER_ROTATED_SPRITE_NUM];
+  DRAWSPRITE dithered_attack_sprite_4[PLAYER_ROTATED_SPRITE_NUM];
+  DRAWSPRITE dithered_block_sprite_1[PLAYER_ROTATED_SPRITE_NUM];
+  DRAWSPRITE dithered_block_sprite_2[PLAYER_ROTATED_SPRITE_NUM];
+  DRAWSPRITE dithered_block_sprite_3[PLAYER_ROTATED_SPRITE_NUM];
 } PlayerSprite[1];
 
 
