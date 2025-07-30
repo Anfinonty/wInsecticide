@@ -763,7 +763,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
         DrawWebs(hdc);
         DrawEnemy(hdc,hdc2);
         DrawPlayer(hdc,hdc2,player.type);
-        DrawWaterPlatforms(hdc,hdc2);
+        //DrawWaterPlatforms(hdc,hdc2);
 
         if (is_shadows && game_shadow && SHADOW_GRID_NUM>0) {
           DrawShadows(hdc,hdc2);

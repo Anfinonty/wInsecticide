@@ -248,7 +248,7 @@ void DrawFirePlatforms(HDC hdc)
   }
 }
 
-void DrawWaterPlatforms(HDC hdc,HDC hdc2) 
+/*void DrawWaterPlatforms(HDC hdc,HDC hdc2) 
 {
 /*  int extra_h=0;
   if (hide_taskbar) {
@@ -271,7 +271,7 @@ void DrawWaterPlatforms(HDC hdc,HDC hdc2)
                  GR_WIDTH,
                  GR_HEIGHT+extra_h,
                  map_water_platforms_sprite,SRCPAINT,FALSE,FALSE);*/
-  int gid,tmf_id;
+  /*int gid,tmf_id;
   int x,y,_x,_y;
   int 
     px=player.x,
@@ -302,7 +302,7 @@ void DrawWaterPlatforms(HDC hdc,HDC hdc2)
       } 
     } 
   }
-}
+}*/
 
 
 void DrawPlatforms(HDC hdc,HDC hdc2)

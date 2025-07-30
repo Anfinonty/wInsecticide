@@ -1020,7 +1020,7 @@ void freeTileMap(ATileMap *myTileMap)
 
 
 ATileMap **TileMapPlatform;
-ATileMap **TileMapForeground;
+//ATileMap **TileMapForeground;
 
 
 

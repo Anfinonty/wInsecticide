@@ -1318,7 +1318,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             //DrawPlayer(hdcBackbuff,hdcBackbuff2);
             DrawPlayer(hdcBackbuff,hdcBackbuff2,player.type);
 
-            DrawWaterPlatforms(hdcBackbuff,hdcBackbuff2);
+            //DrawWaterPlatforms(hdcBackbuff,hdcBackbuff2);
             //DrawNodeGrids(hdcBackbuff); //debugging
 
 

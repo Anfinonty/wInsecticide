@@ -185,7 +185,7 @@ void CleanUpGrid()
     }
   }
 
-  if (FOREGROUND_GRID_NUM>0) {
+  /*if (FOREGROUND_GRID_NUM>0) {
     for (int i=0;i<FOREGROUND_GRID_NUM;i++) {
       if (TileMapForeground[i]->sprite_paint!=NULL) {
         DeleteObject(TileMapForeground[i]->sprite_paint);
@@ -195,7 +195,7 @@ void CleanUpGrid()
       }
       //FreeDrawSprite(&TileMapForeground[i]->draw_tile);
     }
-  }
+  }*/
 
   if (yes_shadow) { //IMPORTANT: refrain from freeing empty pointers or mem leak and then crash
       for (int i=0;i<SHADOW_GRID_NUM;i++) {
@@ -475,9 +475,9 @@ void CleanupAll(bool btm)
     for (int i=0;i<PLATFORM_GRID_NUM;i++) {
       freeTileMap(TileMapPlatform[i]);
     }
-    for (int i=0;i<FOREGROUND_GRID_NUM;i++) {
+    /*for (int i=0;i<FOREGROUND_GRID_NUM;i++) {
       freeTileMap(TileMapForeground[i]);
-    }
+    }*/
     for (int i=0;i<SHADOW_GRID_NUM;i++) {
       freeTileMapPaint(TileMapShadow[i]);
     }
@@ -493,9 +493,9 @@ void CleanupAll(bool btm)
     if (PLATFORM_GRID_NUM>0) {
       free(TileMapPlatform);
     }
-    if (FOREGROUND_GRID_NUM>0) {
+    /*if (FOREGROUND_GRID_NUM>0) {
       free(TileMapForeground);
-    }
+    }*/
     if (SHADOW_GRID_NUM>0) {
       free(TileMapShadow);
     }
