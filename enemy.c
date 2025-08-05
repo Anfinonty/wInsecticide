@@ -2464,12 +2464,15 @@ void CleanUpRotatedSprites()
     for (int j=0;j<ROTATED_SPRITE_NUM;j++) {
       FreeDrawSprite(&EnemyRotatedSprite[i].draw_rotated_sprite1[j]);
       FreeDrawSprite(&EnemyRotatedSprite[i].draw_rotated_sprite2[j]);
+      FreeDrawSprite(&EnemyRotatedSprite[i].draw_dithered_rotated_sprite1[j]);
+      FreeDrawSprite(&EnemyRotatedSprite[i].draw_dithered_rotated_sprite2[j]);
     }
   }
 
   for (int i=0;i<LARGER_ENEMY_TYPE_NUM;i++) {
     for (int j=0;j<ROTATED_SPRITE_NUM;j++) {
       FreeDrawSprite(&XEnemyRotatedSprite[i].draw_rotated_sprite[j]);
+      FreeDrawSprite(&XEnemyRotatedSprite[i].draw_dithered_rotated_sprite[j]);
     }
   }
 }
@@ -2482,6 +2485,8 @@ void CleanUpEnemySprites()
   for (int i=0;i<ENEMY_TYPE_NUM;i++) {
     FreeDrawSprite(&EnemyTypeSprite[i].draw_fly_sprite_1);
     FreeDrawSprite(&EnemyTypeSprite[i].draw_fly_sprite_2);
+    FreeDrawSprite(&EnemyTypeSprite[i].draw_dithered_fly_sprite_1);
+    FreeDrawSprite(&EnemyTypeSprite[i].draw_dithered_fly_sprite_2);
   }
 }
 
@@ -2497,6 +2502,7 @@ void InitEnemySprites()
     saved_larger_enemy_type_species[i]=-1;
   }
   for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+    //rotated sprites
     if (saved_enemy_type_species[i]==1 || saved_enemy_type_species[i]==3 || (saved_enemy_type_species[i]>=5 && saved_enemy_type_species[i]<=7)) {
       saved_enemy_type_rot_sprite_id[i]=LARGE_ENEMY_TYPE_NUM;
       EnemyRotatedSprite[LARGE_ENEMY_TYPE_NUM].type=i;
@@ -2507,7 +2513,7 @@ void InitEnemySprites()
         saved_large_enemy_type_time_breaker_immune[LARGE_ENEMY_TYPE_NUM]=FALSE;
       }
       LARGE_ENEMY_TYPE_NUM++;
-      if (saved_enemy_type_species[i]==3) {
+      if (saved_enemy_type_species[i]==3) { //xtra rotated rsprite
         saved_enemy_type_rot_xsprite_id[i]=LARGER_ENEMY_TYPE_NUM;
         XEnemyRotatedSprite[LARGER_ENEMY_TYPE_NUM].type=i;
         saved_larger_enemy_type_species[LARGER_ENEMY_TYPE_NUM]=3;
@@ -2522,7 +2528,7 @@ void InitEnemySprites()
         saved_enemy_type_rot_xsprite_id[i]=-1;
         saved_larger_enemy_type_time_breaker_immune[i]=FALSE;
       }
-    } else {
+    } else { //non-rotated sprite
       saved_enemy_type_rot_sprite_id[i]=-1;
       saved_enemy_type_rot_xsprite_id[i]=-1;
       saved_large_enemy_type_time_breaker_immune[i]=FALSE;
@@ -2545,6 +2551,8 @@ void InitEnemySpritesObjColor(HDC hdc,HDC hdc2)
     //if (species_i!=1 && species_i!=3) {
       BitmapPalette(hdc,hdc2,EnemyTypeSprite[i].draw_fly_sprite_1.sprite_paint,EnemyTypeSprite[i].enemyPalette);
       BitmapPalette(hdc,hdc2,EnemyTypeSprite[i].draw_fly_sprite_2.sprite_paint,EnemyTypeSprite[i].enemyPalette);
+      BitmapPalette(hdc,hdc2,EnemyTypeSprite[i].draw_dithered_fly_sprite_1.sprite_paint,EnemyTypeSprite[i].enemyPalette);
+      BitmapPalette(hdc,hdc2,EnemyTypeSprite[i].draw_dithered_fly_sprite_2.sprite_paint,EnemyTypeSprite[i].enemyPalette);
     //}
   }
 
@@ -2558,6 +2566,8 @@ void InitEnemySpritesObjColor(HDC hdc,HDC hdc2)
       }
       BitmapPalette(hdc,hdc2,EnemyRotatedSprite[i].draw_rotated_sprite1[j].sprite_paint,EnemyTypeSprite[EnemyRotatedSprite[i].type].enemyPalette);
       BitmapPalette(hdc,hdc2,EnemyRotatedSprite[i].draw_rotated_sprite2[j].sprite_paint,EnemyTypeSprite[EnemyRotatedSprite[i].type].enemyPalette);
+      BitmapPalette(hdc,hdc2,EnemyRotatedSprite[i].draw_dithered_rotated_sprite1[j].sprite_paint,EnemyTypeSprite[EnemyRotatedSprite[i].type].enemyPalette);
+      BitmapPalette(hdc,hdc2,EnemyRotatedSprite[i].draw_dithered_rotated_sprite2[j].sprite_paint,EnemyTypeSprite[EnemyRotatedSprite[i].type].enemyPalette);
     }
   }
 
@@ -2567,6 +2577,7 @@ void InitEnemySpritesObjColor(HDC hdc,HDC hdc2)
       switch (species_i) {
         case 3:
           BitmapPalette(hdc,hdc2,XEnemyRotatedSprite[i].draw_rotated_sprite[j].sprite_paint,EnemyTypeSprite[XEnemyRotatedSprite[i].type].enemyPalette);
+          BitmapPalette(hdc,hdc2,XEnemyRotatedSprite[i].draw_dithered_rotated_sprite[j].sprite_paint,EnemyTypeSprite[XEnemyRotatedSprite[i].type].enemyPalette);
           break;
       }
     }
@@ -2581,7 +2592,9 @@ void InitEnemySpritesObjColorNoir(HDC hdc,HDC hdc2)
   for (int i=0;i<ENEMY_TYPE_NUM;i++) {
     if (!saved_enemy_type_time_breaker_immune[i]) {
       BitmapPalette(hdc,hdc2,EnemyTypeSprite[i].draw_fly_sprite_1.sprite_paint,EnemyTypeSprite[i].enemyPaletteNoir);
-      BitmapPalette(hdc,hdc2,EnemyTypeSprite[i].draw_fly_sprite_2.sprite_paint,EnemyTypeSprite[i].enemyPaletteNoir);      
+      BitmapPalette(hdc,hdc2,EnemyTypeSprite[i].draw_fly_sprite_2.sprite_paint,EnemyTypeSprite[i].enemyPaletteNoir);
+      BitmapPalette(hdc,hdc2,EnemyTypeSprite[i].draw_dithered_fly_sprite_1.sprite_paint,EnemyTypeSprite[i].enemyPaletteNoir);
+      BitmapPalette(hdc,hdc2,EnemyTypeSprite[i].draw_dithered_fly_sprite_2.sprite_paint,EnemyTypeSprite[i].enemyPaletteNoir);
     }
   }
   for (int i=0;i<LARGE_ENEMY_TYPE_NUM;i++) {
@@ -2595,6 +2608,8 @@ void InitEnemySpritesObjColorNoir(HDC hdc,HDC hdc2)
       }
       BitmapPalette(hdc,hdc2,EnemyRotatedSprite[i].draw_rotated_sprite1[j].sprite_paint,EnemyTypeSprite[EnemyRotatedSprite[i].type].enemyPaletteNoir);
       BitmapPalette(hdc,hdc2,EnemyRotatedSprite[i].draw_rotated_sprite2[j].sprite_paint,EnemyTypeSprite[EnemyRotatedSprite[i].type].enemyPaletteNoir);
+      BitmapPalette(hdc,hdc2,EnemyRotatedSprite[i].draw_dithered_rotated_sprite1[j].sprite_paint,EnemyTypeSprite[EnemyRotatedSprite[i].type].enemyPaletteNoir);
+      BitmapPalette(hdc,hdc2,EnemyRotatedSprite[i].draw_dithered_rotated_sprite2[j].sprite_paint,EnemyTypeSprite[EnemyRotatedSprite[i].type].enemyPaletteNoir);
     }
     }
   }
@@ -2606,6 +2621,7 @@ void InitEnemySpritesObjColorNoir(HDC hdc,HDC hdc2)
       switch (species_i) {
         case 3:
           BitmapPalette(hdc,hdc2,XEnemyRotatedSprite[i].draw_rotated_sprite[j].sprite_paint,EnemyTypeSprite[XEnemyRotatedSprite[i].type].enemyPaletteNoir);
+          BitmapPalette(hdc,hdc2,XEnemyRotatedSprite[i].draw_dithered_rotated_sprite[j].sprite_paint,EnemyTypeSprite[XEnemyRotatedSprite[i].type].enemyPaletteNoir);
           break;
       }
     }
@@ -2651,6 +2667,13 @@ void InitEnemySpritesObj()
     ReplaceBitmapColor2(tmp_sprite2[i],LTGREEN,BLACK,8,LTGREEN);
     GenerateDrawSprite(&EnemyTypeSprite[i].draw_fly_sprite_1,tmp_sprite1[i]);
     GenerateDrawSprite(&EnemyTypeSprite[i].draw_fly_sprite_2,tmp_sprite2[i]);
+
+    //create ditehred sprite
+    DitherBitmapColor(tmp_sprite1[i],-1,BLACK);
+    DitherBitmapColor(tmp_sprite2[i],-1,BLACK);
+    GenerateDrawSprite(&EnemyTypeSprite[i].draw_dithered_fly_sprite_1,tmp_sprite1[i]);
+    GenerateDrawSprite(&EnemyTypeSprite[i].draw_dithered_fly_sprite_2,tmp_sprite2[i]);
+
     loading_numerator++;
   }
 
@@ -2660,6 +2683,7 @@ void InitEnemySpritesObj()
     DeleteObject(tmp_sprite2[i]);
   }
 
+  //set flysprite palettes
   for (int i=0;i<ENEMY_TYPE_NUM;i++) { //init small flysprites
     CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,rgbColorsDefault,167,rgbPaint[saved_enemy_type_color[i]]); //set normal palette
     //if (map_background==0 || map_background==2) {
@@ -2688,9 +2712,13 @@ void InitEnemySpritesObj()
       }
       EnemyRotatedSprite[i].draw_rotated_sprite1[j].sprite_mask=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_rotated_sprite1[j].sprite_mask,SRCCOPY);
       EnemyRotatedSprite[i].draw_rotated_sprite1[j].sprite_paint=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_rotated_sprite1[j].sprite_paint,SRCCOPY);
+      EnemyRotatedSprite[i].draw_dithered_rotated_sprite1[j].sprite_mask=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_dithered_rotated_sprite1[j].sprite_mask,SRCCOPY);
+      EnemyRotatedSprite[i].draw_dithered_rotated_sprite1[j].sprite_paint=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_dithered_rotated_sprite1[j].sprite_paint,SRCCOPY);
       loading_numerator++;
       EnemyRotatedSprite[i].draw_rotated_sprite2[j].sprite_mask=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_rotated_sprite2[j].sprite_mask,SRCCOPY);
       EnemyRotatedSprite[i].draw_rotated_sprite2[j].sprite_paint=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_rotated_sprite2[j].sprite_paint,SRCCOPY);
+      EnemyRotatedSprite[i].draw_dithered_rotated_sprite2[j].sprite_mask=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_dithered_rotated_sprite2[j].sprite_mask,SRCCOPY);
+      EnemyRotatedSprite[i].draw_dithered_rotated_sprite2[j].sprite_paint=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_dithered_rotated_sprite2[j].sprite_paint,SRCCOPY);
       loading_numerator++;
     }
   }
@@ -2703,6 +2731,8 @@ void InitEnemySpritesObj()
         case 3:
           XEnemyRotatedSprite[i].draw_rotated_sprite[j].sprite_mask=CopyCrunchyBitmap(XLoadEnemyRotatedSprite[0].draw_rotated_sprite[j].sprite_mask,SRCCOPY);
           XEnemyRotatedSprite[i].draw_rotated_sprite[j].sprite_paint=CopyCrunchyBitmap(XLoadEnemyRotatedSprite[0].draw_rotated_sprite[j].sprite_paint,SRCCOPY);
+          XEnemyRotatedSprite[i].draw_dithered_rotated_sprite[j].sprite_mask=CopyCrunchyBitmap(XLoadEnemyRotatedSprite[0].draw_dithered_rotated_sprite[j].sprite_mask,SRCCOPY);
+          XEnemyRotatedSprite[i].draw_dithered_rotated_sprite[j].sprite_paint=CopyCrunchyBitmap(XLoadEnemyRotatedSprite[0].draw_dithered_rotated_sprite[j].sprite_paint,SRCCOPY);
           loading_numerator++;
           break;
       }

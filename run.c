@@ -474,6 +474,13 @@ void Prelude()
         //}
       GenerateDrawSprite(&LoadEnemyRotatedSprite[j].draw_rotated_sprite1[i],LoadEnemyRotatedSprite[j].prelude_tmp_sprite1[i]);
       GenerateDrawSprite(&LoadEnemyRotatedSprite[j].draw_rotated_sprite2[i],LoadEnemyRotatedSprite[j].prelude_tmp_sprite2[i]);
+      //create dithered rotated sprite
+      DitherBitmapColor(LoadEnemyRotatedSprite[j].prelude_tmp_sprite1[i],-1,BLACK);
+      DitherBitmapColor(LoadEnemyRotatedSprite[j].prelude_tmp_sprite2[i],-1,BLACK);
+      GenerateDrawSprite(&LoadEnemyRotatedSprite[j].draw_dithered_rotated_sprite1[i],LoadEnemyRotatedSprite[j].prelude_tmp_sprite1[i]);
+      GenerateDrawSprite(&LoadEnemyRotatedSprite[j].draw_dithered_rotated_sprite2[i],LoadEnemyRotatedSprite[j].prelude_tmp_sprite2[i]);
+
+
       //DeleteObject(tmp_sprite2);
       //DeleteObject(tmp_sprite1);
       //printf("%d/%d %1.0f/%1.0f\n",i,j,loading_numerator,loading_denominator);
@@ -481,8 +488,13 @@ void Prelude()
       ReplaceBitmapColor(XLoadEnemyRotatedSprite[0].prelude_tmp_sprite[i],LTBLUE,LTGREEN);
       ReplaceBitmapColor2(XLoadEnemyRotatedSprite[0].prelude_tmp_sprite[i],LTGREEN,BLACK,8,LTGREEN);
       GenerateDrawSprite(&XLoadEnemyRotatedSprite[0].draw_rotated_sprite[i],XLoadEnemyRotatedSprite[0].prelude_tmp_sprite[i]);
+      //create dithered rotated sprite
+      DitherBitmapColor(XLoadEnemyRotatedSprite[j].prelude_tmp_sprite[i],-1,BLACK);
+      GenerateDrawSprite(&XLoadEnemyRotatedSprite[j].draw_dithered_rotated_sprite[i],XLoadEnemyRotatedSprite[j].prelude_tmp_sprite[i]);
       //DeleteObject(tmp_sprite1);
       //printf("%1.0f/%1.0f xsprite:%d\n",loading_numerator,loading_denominator,i);
+      //create dithered rotated sprite
+
     }
     //}
   //} 

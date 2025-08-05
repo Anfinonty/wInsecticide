@@ -959,6 +959,8 @@ struct EnemyTypeSprite //on the fly
   RGBQUAD enemyPaletteNoir[256];
   DRAWSPRITE draw_fly_sprite_1; //right/left-facing-movesprite-1,right left determined by last_left/is_left/flip_sprite
   DRAWSPRITE draw_fly_sprite_2; //right/left-facing-movesprite-2
+  DRAWSPRITE draw_dithered_fly_sprite_1;
+  DRAWSPRITE draw_dithered_fly_sprite_2;
 } EnemyTypeSprite[ENEMY_TYPE_NUM];
 
 
@@ -971,6 +973,8 @@ struct LoadEnemyRotatedSprite
   HBITMAP prelude_tmp_sprite2[ROTATED_SPRITE_NUM]; //tmp sprite rotated 2
   DRAWSPRITE draw_rotated_sprite1[ROTATED_SPRITE_NUM];
   DRAWSPRITE draw_rotated_sprite2[ROTATED_SPRITE_NUM];
+  DRAWSPRITE draw_dithered_rotated_sprite1[ROTATED_SPRITE_NUM];
+  DRAWSPRITE draw_dithered_rotated_sprite2[ROTATED_SPRITE_NUM];
 } LoadEnemyRotatedSprite[3]; //cockroach, toe biter and ant
 
 
@@ -980,6 +984,7 @@ struct LoadEnemyRotatedSpriteXtra
 {
   HBITMAP prelude_tmp_sprite[ROTATED_SPRITE_NUM];
   DRAWSPRITE draw_rotated_sprite[ROTATED_SPRITE_NUM];
+  DRAWSPRITE draw_dithered_rotated_sprite[ROTATED_SPRITE_NUM];
 } XLoadEnemyRotatedSprite[1]; //toe biter
 
 
@@ -991,6 +996,8 @@ struct EnemyRotatedSprite
   int type;
   DRAWSPRITE draw_rotated_sprite1[ROTATED_SPRITE_NUM];
   DRAWSPRITE draw_rotated_sprite2[ROTATED_SPRITE_NUM];
+  DRAWSPRITE draw_dithered_rotated_sprite1[ROTATED_SPRITE_NUM];
+  DRAWSPRITE draw_dithered_rotated_sprite2[ROTATED_SPRITE_NUM];
 } EnemyRotatedSprite[ENEMY_TYPE_NUM];
 
 
@@ -998,6 +1005,7 @@ struct EnemyRotatedSpriteXtra
 {
   int type;
   DRAWSPRITE draw_rotated_sprite[ROTATED_SPRITE_NUM];
+  DRAWSPRITE draw_dithered_rotated_sprite[ROTATED_SPRITE_NUM];
 } XEnemyRotatedSprite[ENEMY_TYPE_NUM];
 
 
