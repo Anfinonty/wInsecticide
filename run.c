@@ -489,8 +489,8 @@ void Prelude()
       ReplaceBitmapColor2(XLoadEnemyRotatedSprite[0].prelude_tmp_sprite[i],LTGREEN,BLACK,8,LTGREEN);
       GenerateDrawSprite(&XLoadEnemyRotatedSprite[0].draw_rotated_sprite[i],XLoadEnemyRotatedSprite[0].prelude_tmp_sprite[i]);
       //create dithered rotated sprite
-      DitherBitmapColor(XLoadEnemyRotatedSprite[j].prelude_tmp_sprite[i],-1,BLACK);
-      GenerateDrawSprite(&XLoadEnemyRotatedSprite[j].draw_dithered_rotated_sprite[i],XLoadEnemyRotatedSprite[j].prelude_tmp_sprite[i]);
+      DitherBitmapColor(XLoadEnemyRotatedSprite[0].prelude_tmp_sprite[i],-1,BLACK);
+      GenerateDrawSprite(&XLoadEnemyRotatedSprite[0].draw_dithered_rotated_sprite[i],XLoadEnemyRotatedSprite[0].prelude_tmp_sprite[i]);
       //DeleteObject(tmp_sprite1);
       //printf("%1.0f/%1.0f xsprite:%d\n",loading_numerator,loading_denominator,i);
       //create dithered rotated sprite
@@ -2033,11 +2033,11 @@ In memory of the Innocent Cambodian Lives lost caused by wars and destabilizatio
       enemy6_sprite_2 = LoadRLE8CompressedBitmap(L"sprites/enemy6-2.bmp");
 
       //water textures 0 to 7
-      //SetTexturePalette(24,waterPalette); //24 is dkblue
+      SetTexturePalette(24,waterPalette); //24 is dkblue
       //SetTexturePalette(166,waterPalette); //lt green water
       //SetTexturePalette(16*2+4,waterPalette); //dkgreen water
       //SetTexturePalette(166,waterPalette);
-      SetTexturePalette(16*9+8,waterPalette); //ltblue water (default perfered)
+      //SetTexturePalette(16*9+8,waterPalette); //ltblue water (default perfered)
 
       for (int i=0;i<9;i++) {
         wchar_t fname[48];

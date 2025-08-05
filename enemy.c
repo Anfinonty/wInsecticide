@@ -3133,19 +3133,35 @@ void DrawEnemy(HDC hdc,HDC hdc2)
       switch (Enemy[i]->species) {
         case 0:case 2:case 4:
           if (etype>-1 && etype<ENEMY_TYPE_NUM) {
-          if (Enemy[i]->sprite_timer%2==0) {
-            if (Enemy[i]->sprite_timer%4==0) {
-              DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y+1,&EnemyTypeSprite[etype].draw_fly_sprite_1,Enemy[i]->last_left);
+            if (Enemy[i]->sprite_timer%2==0) {
+              /*if (Enemy[i]->sprite_timer%4==0) {
+                DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y+1,&EnemyTypeSprite[etype].draw_fly_sprite_1,Enemy[i]->last_left);
+              } else {
+                DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyTypeSprite[etype].draw_fly_sprite_1,Enemy[i]->last_left);
+              }*/
+              DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,
+                Enemy[i]->sprite_timer%4==0
+                  ? Enemy[i]->sprite_y+1
+                  : Enemy[i]->sprite_y,
+                !Enemy[i]->in_water
+                  ? &EnemyTypeSprite[etype].draw_fly_sprite_1
+                  : &EnemyTypeSprite[etype].draw_dithered_fly_sprite_1,
+                Enemy[i]->last_left);              
             } else {
-              DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyTypeSprite[etype].draw_fly_sprite_1,Enemy[i]->last_left);
+              /*if (Enemy[i]->sprite_timer%3==0) {
+                DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y-2,&EnemyTypeSprite[etype].draw_fly_sprite_2,Enemy[i]->last_left);
+              } else {
+                DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y-1,&EnemyTypeSprite[etype].draw_fly_sprite_2,Enemy[i]->last_left);
+              }*/
+              DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,
+                Enemy[i]->sprite_timer%3==0
+                  ? Enemy[i]->sprite_y-2
+                  : Enemy[i]->sprite_y-1,
+                !Enemy[i]->in_water
+                  ? &EnemyTypeSprite[etype].draw_fly_sprite_2
+                  : &EnemyTypeSprite[etype].draw_dithered_fly_sprite_2,
+                Enemy[i]->last_left);
             }
-          } else {
-            if (Enemy[i]->sprite_timer%3==0) {
-              DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y-2,&EnemyTypeSprite[etype].draw_fly_sprite_2,Enemy[i]->last_left);
-            } else {
-              DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y-1,&EnemyTypeSprite[etype].draw_fly_sprite_2,Enemy[i]->last_left);
-            }
-          }
           }
           break;
 
@@ -3174,15 +3190,23 @@ void DrawEnemy(HDC hdc,HDC hdc2)
             if (Enemy[i]->health<=0) {
               swim_rot_id=24;
             }
-            if (Enemy[i]->sprite_timer%8==0) {
+            /*if (Enemy[i]->sprite_timer%8==0) {
               DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
               &EnemyRotatedSprite[rsid].draw_rotated_sprite1[swim_rot_id],Enemy[i]->last_left);
             } else {
               DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
               &EnemyRotatedSprite[rsid].draw_rotated_sprite2[swim_rot_id],Enemy[i]->last_left);
-            }
+            }*/
+            DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
+              Enemy[i]->sprite_timer%8==0
+                ? (!Enemy[i]->in_water
+                  ? &EnemyRotatedSprite[rsid].draw_rotated_sprite1[swim_rot_id]
+                  : &EnemyRotatedSprite[rsid].draw_dithered_rotated_sprite1[swim_rot_id])
+                : (!Enemy[i]->in_water
+                  ? &EnemyRotatedSprite[rsid].draw_rotated_sprite2[swim_rot_id]
+                  : &EnemyRotatedSprite[rsid].draw_dithered_rotated_sprite2[swim_rot_id]),
+              Enemy[i]->last_left);
           } else if (Enemy[i]->on_ground_id!=-1 || Enemy[i]->health<0) { //on a ground
-
             if (!Enemy[i]->is_in_ground_edge) {
               if (Enemy[i]->move_to_target || Enemy[i]->knockback_timer>0) { //moving to target and on ground
                 bool flip_bool=FALSE;
@@ -3192,24 +3216,55 @@ void DrawEnemy(HDC hdc,HDC hdc2)
                   } else if (Enemy[i]->below_ground) {
                     flip_bool=Enemy[i]->flip_sprite;
                   }
-                  if (Enemy[i]->sprite_timer%8==0) {
+                  /*if (Enemy[i]->sprite_timer%8==0) {
                     DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[rsid].draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
                   } else {
                     DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[rsid].draw_rotated_sprite2[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
-                  }
+                  }*/
+                  DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
+                    Enemy[i]->sprite_timer%8==0
+                      ? (!Enemy[i]->in_water
+                        ? &EnemyRotatedSprite[rsid].draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id]
+                        : &EnemyRotatedSprite[rsid].draw_dithered_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id])
+                      : (!Enemy[i]->in_water
+                        ? &EnemyRotatedSprite[rsid].draw_rotated_sprite2[Enemy[i]->current_rot_sprite_angle_id]
+                        : &EnemyRotatedSprite[rsid].draw_dithered_rotated_sprite2[Enemy[i]->current_rot_sprite_angle_id]),
+                    flip_bool
+                  );                
                 } else {
                   if (!(Enemy[i]->species>=5 && Enemy[i]->species<=7)) {
-                    if (Enemy[i]->sprite_timer%2==0) { //fly sprite
+                    /*if (Enemy[i]->sprite_timer%2==0) { //fly sprite
                       DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyTypeSprite[etype].draw_fly_sprite_1,Enemy[i]->last_left);
                     } else {
                       DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyTypeSprite[etype].draw_fly_sprite_2,Enemy[i]->last_left);
-                    }
+                    }*/
+                    DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
+                      Enemy[i]->sprite_timer%2==0
+                        ? (!Enemy[i]->in_water
+                          ? &EnemyTypeSprite[etype].draw_fly_sprite_1
+                          : &EnemyTypeSprite[etype].draw_dithered_fly_sprite_1)
+                        :  (!Enemy[i]->in_water
+                          ? &EnemyTypeSprite[etype].draw_fly_sprite_2
+                          : &EnemyTypeSprite[etype].draw_dithered_fly_sprite_2),
+                      Enemy[i]->last_left
+                    );
+
                   } else {
-                    if (Enemy[i]->sprite_timer%4==0) {
+                    /*if (Enemy[i]->sprite_timer%4==0) {
                       DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[rsid].draw_rotated_sprite1[6],Enemy[i]->last_left);
                     } else {
                       DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[rsid].draw_rotated_sprite2[6],Enemy[i]->last_left);
-                    }                    
+                    }*/                   
+                    DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
+                      Enemy[i]->sprite_timer%4==0
+                        ? (!Enemy[i]->in_water
+                          ? &EnemyRotatedSprite[rsid].draw_rotated_sprite1[6]
+                          : &EnemyRotatedSprite[rsid].draw_dithered_rotated_sprite1[6])
+                        :  (!Enemy[i]->in_water
+                          ? &EnemyRotatedSprite[rsid].draw_rotated_sprite2[6]
+                          : &EnemyRotatedSprite[rsid].draw_dithered_rotated_sprite2[6]),
+                      Enemy[i]->last_left
+                    );
                   }
                 }
               } else { //not moving to target && on ground
@@ -3220,17 +3275,30 @@ void DrawEnemy(HDC hdc,HDC hdc2)
                   flip_bool=Enemy[i]->flip_sprite;
                 }
 
-                if (Enemy[i]->species==3) { 
-                  if (Enemy[i]->idle_timer%16<8) {
-                    DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
-                    &EnemyRotatedSprite[rsid].draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
+                if (Enemy[i]->species==3) {  //head shake toe biter
+                  /*if (Enemy[i]->idle_timer%16<8) {
+                    DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[rsid].draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
                   } else if (Enemy[i]->rotated_xsprite_id!=-1){
-                    DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
-                    &XEnemyRotatedSprite[Enemy[i]->rotated_xsprite_id].draw_rotated_sprite[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
-                  }
-                } else {
+                    DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&XEnemyRotatedSprite[Enemy[i]->rotated_xsprite_id].draw_rotated_sprite[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
+                  }*/
                   DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
-                  &EnemyRotatedSprite[rsid].draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
+                    Enemy[i]->idle_timer%16<8
+                      ? (!Enemy[i]->in_water
+                        ? &EnemyRotatedSprite[rsid].draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id]
+                        : &EnemyRotatedSprite[rsid].draw_dithered_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id])
+                      : (!Enemy[i]->in_water
+                        ? &XEnemyRotatedSprite[rsid].draw_rotated_sprite[Enemy[i]->current_rot_sprite_angle_id]
+                        : &XEnemyRotatedSprite[rsid].draw_dithered_rotated_sprite[Enemy[i]->current_rot_sprite_angle_id]),
+                    flip_bool
+                  );                
+                } else {
+                  //DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[rsid].draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
+                  DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
+                    !Enemy[i]->in_water
+                      ? &EnemyRotatedSprite[rsid].draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id]
+                      : &EnemyRotatedSprite[rsid].draw_dithered_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id],
+                    flip_bool
+                  );
                 }
              }
 
@@ -3243,12 +3311,21 @@ void DrawEnemy(HDC hdc,HDC hdc2)
               } else if (Enemy[i]->below_ground_edge) {
                 flip_bool=Enemy[i]->flip_sprite;
               }
-              if (Enemy[i]->sprite_timer%8==0) {
+              /*if (Enemy[i]->sprite_timer%8==0) {
                 DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[rsid].draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
               } else {
                 DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[rsid].draw_rotated_sprite2[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
-              }
-
+              }*/
+              DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
+                Enemy[i]->sprite_timer%8==0
+                  ? (!Enemy[i]->in_water
+                    ? &EnemyRotatedSprite[rsid].draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id]
+                    : &EnemyRotatedSprite[rsid].draw_dithered_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id])
+                  : (!Enemy[i]->in_water
+                    ? &EnemyRotatedSprite[rsid].draw_rotated_sprite2[Enemy[i]->current_rot_sprite_angle_id]
+                    : &EnemyRotatedSprite[rsid].draw_dithered_rotated_sprite2[Enemy[i]->current_rot_sprite_angle_id]),
+                flip_bool
+              );                
             }
 
 
@@ -3256,25 +3333,52 @@ void DrawEnemy(HDC hdc,HDC hdc2)
           } else { //sprite flying
             if (!(Enemy[i]->species>=5 && Enemy[i]->species<=7)) {
               if (Enemy[i]->sprite_timer%2==0) {
-                if (Enemy[i]->sprite_timer%4==0) {
+                /*if (Enemy[i]->sprite_timer%4==0) {
                   DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y+1,&EnemyTypeSprite[etype].draw_fly_sprite_1,Enemy[i]->last_left);
                 } else {
                   DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyTypeSprite[etype].draw_fly_sprite_1,Enemy[i]->last_left);
-                }
+                }*/
+                DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,
+                    Enemy[i]->sprite_timer%4==0
+                      ? Enemy[i]->sprite_y+1
+                      : Enemy[i]->sprite_y,
+                    !Enemy[i]->in_water 
+                      ? &EnemyTypeSprite[etype].draw_fly_sprite_1
+                      : &EnemyTypeSprite[etype].draw_dithered_fly_sprite_1,
+                    Enemy[i]->last_left
+                );
               } else {
-                if (Enemy[i]->sprite_timer%3==0) {
+                /*if (Enemy[i]->sprite_timer%3==0) {
                   DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y-2,&EnemyTypeSprite[etype].draw_fly_sprite_2,Enemy[i]->last_left);
                 } else {
-                 DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y-1,&EnemyTypeSprite[etype].draw_fly_sprite_2,Enemy[i]->last_left);
-
-                }
+                  DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y-1,&EnemyTypeSprite[etype].draw_fly_sprite_2,Enemy[i]->last_left);
+                }*/
+                DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,
+                    Enemy[i]->sprite_timer%3==0
+                      ? Enemy[i]->sprite_y-2
+                      : Enemy[i]->sprite_y-1,
+                    !Enemy[i]->in_water 
+                      ? &EnemyTypeSprite[etype].draw_fly_sprite_2
+                      : &EnemyTypeSprite[etype].draw_dithered_fly_sprite_2,
+                    Enemy[i]->last_left
+                );
               }
             } else {
-              if (Enemy[i]->sprite_timer%4==0) {
+              /*if (Enemy[i]->sprite_timer%4==0) {
                 DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[rsid].draw_rotated_sprite1[6],Enemy[i]->last_left);
               } else {
                 DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[rsid].draw_rotated_sprite2[6],Enemy[i]->last_left);
-              }                    
+              }*/                   
+              DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
+                Enemy[i]->sprite_timer%4==0
+                  ? (!Enemy[i]->in_water
+                    ? &EnemyRotatedSprite[rsid].draw_rotated_sprite1[6]
+                    : &EnemyRotatedSprite[rsid].draw_dithered_rotated_sprite1[6])
+                  :  (!Enemy[i]->in_water
+                    ? &EnemyRotatedSprite[rsid].draw_rotated_sprite2[6]
+                    : &EnemyRotatedSprite[rsid].draw_dithered_rotated_sprite2[6]),
+                Enemy[i]->last_left
+              );
             }
           }
           }
