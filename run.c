@@ -528,9 +528,9 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
           }
           if (map_weather>0) {
             RainAct();
-          //if (!player.time_breaker) {
-            //ScreenRainDropAct();
-          //}
+            if (!player.time_breaker) {
+              ScreenRainDropAct();
+            }
           }
           if (FIRE_GROUND_NUM>0 && !player.time_breaker) {
             GroundFireAct();
@@ -561,9 +561,9 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
             }
             if (map_weather>0) {
               RainAct();
-              /*if (!player.time_breaker) {
+              if (!player.time_breaker) {
                 ScreenRainDropAct();
-              }*/
+              }
             }
             if (FIRE_GROUND_NUM>0 && !player.time_breaker) {
               GroundFireAct();
@@ -1345,6 +1345,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               /*if (!player.in_water) {
                 DrawRainShader(hdcBackbuff,hdcBackbuff2);  //deprecated
               }*/
+              DrawRainShader3(hdcBackbuff);
+              //DrawRainShader(hdcBackbuff,hdcBackbuff2);
             }
             DrawBlackBorders(hdcBackbuff);
             DrawUI(hdcBackbuff,hdcBackbuff2);

@@ -1471,8 +1471,14 @@ void DitherBitmapColor(HBITMAP hBitmap, COLORREF oldColor, COLORREF newColor)
         BYTE *row = pixels + (y * bitmap.bmWidthBytes); // Calculate row pointer
 
         for (int x = 0; x < bitmap.bmWidth; x++) {
-            if (y%2==0 && x%2==0 ||
+            /*if (y%2==0 && x%2==0 ||
                (y%2!=0 && x%2!=0)) {
+              if (row[x] == oldColorIndex || oldColor==-1) {
+                row[x] = newColorIndex; // Replace the color index
+              }
+            }*/
+            if (y%2==0 /*&& x%2==0 ||
+               (y%2!=0 && x%2!=0)*/) {
               if (row[x] == oldColorIndex || oldColor==-1) {
                 row[x] = newColorIndex; // Replace the color index
               }

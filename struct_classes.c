@@ -1292,6 +1292,16 @@ HBITMAP ga0_kh[5];
 HBITMAP ga0_kh_mask[5];
 
 
+//raindrop
+int sc_raindrop_num=0;
+#define SC_RAINDROP_NUM  20
+struct screenraindrop
+{
+  int lifetime,olifetime;
+  double oy,x,y,speed;
+} sc_raindrop[SC_RAINDROP_NUM];
+
+
 
 
 //Sound

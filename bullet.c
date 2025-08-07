@@ -891,10 +891,14 @@ void RainBulletAct(int bullet_id)
     }
   }*/ //end of for,
 
+  //rain hit player
   hit_player=HitPlayer(bullet_id,35,35);
   if (hit_player && Bullet[bullet_id].graphics_type!=-4 && Bullet[bullet_id].graphics_type!=-6) { //hit player
     if (player.rain_wet_timer==0) {
       rain_sound_duration=0;
+    }
+    if (sc_raindrop_num<SC_RAINDROP_NUM) {
+      sc_raindrop_num++;
     }
     player.rain_wet_timer=260;//60;
     allow_act=1;
