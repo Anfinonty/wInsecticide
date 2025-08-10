@@ -784,11 +784,17 @@ void InitBulletRain()
     } else {
       max_bullet_num=SHOOT_BULLET_NUM+(RAIN_NUM/16);
     }
-  } else if (map_weather==2 || map_weather==3) {
+  } else if (map_weather==2) {
     if (GR_WIDTH>800) {
       max_bullet_num=BULLET_NUM;
     } else {
       max_bullet_num=SHOOT_BULLET_NUM+(RAIN_NUM/3/*+RAIN_NUM/24*/);
+    }
+  } else if (map_weather==3) {
+    if (GR_WIDTH>800) {
+      max_bullet_num=SHOOT_BULLET_NUM+(RAIN_NUM/2)+(RAIN_NUM/4);//+(RAIN_NUM/6);
+    } else {
+      max_bullet_num=SHOOT_BULLET_NUM+(RAIN_NUM/3);
     }
   }
 
@@ -1381,13 +1387,24 @@ void RainAct()
           BulletAct(i);
         }
       }
-  } else if (map_weather==2 || map_weather==3) { //snow
+  } else if (map_weather==2) { //snow
       if (GR_WIDTH>800) {
         for (int i=SHOOT_BULLET_NUM;i<BULLET_NUM;i++) {
           BulletAct(i);
         }
       } else {
         for (int i=SHOOT_BULLET_NUM;i<SHOOT_BULLET_NUM+(RAIN_NUM/3/*+RAIN_NUM/24*/);i++) {
+          BulletAct(i);
+        }
+      }
+
+  } else if (map_weather==3) {
+      if (GR_WIDTH>800) {
+        for (int i=SHOOT_BULLET_NUM;i<SHOOT_BULLET_NUM/*+(RAIN_NUM/6)*/+(RAIN_NUM/2)+(RAIN_NUM/4);i++) {
+          BulletAct(i);
+        }
+      } else {
+        for (int i=SHOOT_BULLET_NUM;i<SHOOT_BULLET_NUM+(RAIN_NUM/3);i++) {
           BulletAct(i);
         }
       }

@@ -26,12 +26,15 @@ void InitScreenRainDrop()
         break;
       case 2:
         sc_raindrop[i].speed=RandNum(1,3,&misc_rng_i,-1)*0.01;
-        sc_raindrop[i].olifetime=RandNum(500,600,&misc_rng_i,-1);
+        sc_raindrop[i].olifetime=RandNum(1000,1100,&misc_rng_i,-1);
+        sc_raindrop[i].lifetime=sc_raindrop[i].olifetime;
+        break;
+      case 3:
+        sc_raindrop[i].speed=RandNum(1,3,&misc_rng_i,-1)*0.01;
+        sc_raindrop[i].olifetime=RandNum(100,300,&misc_rng_i,-1);
         sc_raindrop[i].lifetime=sc_raindrop[i].olifetime;
         break;
     }
-
-
   }
 }
 
@@ -56,7 +59,12 @@ void ScreenRainDropAct()
             break;
           case 2:
             sc_raindrop[i].speed=RandNum(1,3,&misc_rng_i,-1)*0.01;
-            sc_raindrop[i].olifetime=RandNum(500,600,&misc_rng_i,-1);
+            sc_raindrop[i].olifetime=RandNum(1000,1100,&misc_rng_i,-1);
+            sc_raindrop[i].lifetime=sc_raindrop[i].olifetime;
+            break;
+          case 3:
+            sc_raindrop[i].speed=RandNum(1,3,&misc_rng_i,-1)*0.01;
+            sc_raindrop[i].olifetime=RandNum(100,300,&misc_rng_i,-1);
             sc_raindrop[i].lifetime=sc_raindrop[i].olifetime;
             break;
         }
@@ -157,9 +165,17 @@ void DrawRainShader3(HDC hdcMem)
             break;
           case 2:
             if (sc_raindrop[i].olifetime-sc_raindrop[i].lifetime<15)
-              GrCircle(hdcMem,sc_raindrop[i].x+1,sc_raindrop[i].oy,14,WHITE,WHITE);
+              //GrCircle(hdcMem,sc_raindrop[i].x+1,sc_raindrop[i].oy,14,WHITE,WHITE);
+              GrCircle(hdcMem,sc_raindrop[i].x+1,sc_raindrop[i].oy,5,WHITE,WHITE);
             else
-              GrCircle(hdcMem,sc_raindrop[i].x+1,sc_raindrop[i].y,10,WHITE,WHITE);
+              //GrCircle(hdcMem,sc_raindrop[i].x+1,sc_raindrop[i].y,10,WHITE,WHITE);
+              GrCircle(hdcMem,sc_raindrop[i].x+1,sc_raindrop[i].y,3,WHITE,WHITE);
+            break;
+          case 3:
+            if (sc_raindrop[i].olifetime-sc_raindrop[i].lifetime<15)
+              GrCircle(hdcMem,sc_raindrop[i].x+1,sc_raindrop[i].oy,4,WHITE,WHITE);
+            else
+              GrCircle(hdcMem,sc_raindrop[i].x+1,sc_raindrop[i].y,2,WHITE,WHITE);
             break;
         }
       }
