@@ -1,15 +1,15 @@
 bool flag_play_bullet_reflect_snd=FALSE;
 bool flag_play_bullet_heal_snd=FALSE;
-bool flag_play_block_bullet_snd=FALSE;
-bool flag_play_block_player_snd=FALSE;
-bool flag_play_perfect_block_player_snd=FALSE;
-bool flag_play_player_hurt_snd=FALSE;
+//bool flag_play_block_bullet_snd=FALSE;
+//bool flag_play_block_player_snd=FALSE;
+//bool flag_play_perfect_block_player_snd=FALSE;
+//bool flag_play_player_hurt_snd=FALSE;
 
 DWORD WINAPI SpamSoundTask(LPVOID lpArg)
 {
   while (TRUE) {
-    if (player.hurt_snd_timer==0) {
-    if (flag_play_player_hurt_snd || flag_play_block_bullet_snd || flag_play_perfect_block_player_snd) { //player blocking high priority
+    //if (player.hurt_snd_timer==0) {
+    /*if (flag_play_player_hurt_snd || flag_play_block_bullet_snd || flag_play_perfect_block_player_snd) { //player blocking high priority
       if (flag_play_player_hurt_snd) {
         PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
       } else if (flag_play_perfect_block_player_snd) {
@@ -23,11 +23,11 @@ DWORD WINAPI SpamSoundTask(LPVOID lpArg)
       flag_play_block_player_snd=FALSE;
       flag_play_bullet_reflect_snd=FALSE;
       flag_play_bullet_heal_snd=FALSE;
-    } else {
-      if (flag_play_block_player_snd) {
+    } else {*/
+      /*if (flag_play_block_player_snd) {
         PlaySound(spamSoundEffectCache[6].audio,NULL, SND_MEMORY | SND_ASYNC);
         flag_play_block_player_snd=FALSE;
-      }
+      }*/
       if (flag_play_bullet_reflect_snd) {
         PlaySound(spamSoundEffectCache[7].audio,NULL, SND_MEMORY | SND_ASYNC); //clang
         flag_play_bullet_reflect_snd=FALSE;
@@ -36,8 +36,9 @@ DWORD WINAPI SpamSoundTask(LPVOID lpArg)
         PlaySound(spamSoundEffectCache[8].audio,NULL, SND_MEMORY | SND_ASYNC); //heal
         flag_play_bullet_heal_snd=FALSE;
       }
-    }
-    }
+      //player.hurt_snd_timer=HIT_PLAYER_SND_COOLDOWN_DURATION;
+    //}
+    //}
     Sleep(6);
   }
 }
@@ -207,7 +208,7 @@ void BulletDamagePlayerAct(int bullet_id)
         player.show_block_health_timer=HP_SHOW_TIMER_NUM;
         if (game_audio && player.health>0 && player.hurt_snd_timer==0) {
           PlaySound(spamSoundEffectCache[3].audio, NULL, SND_MEMORY | SND_ASYNC); //block normal
-          player.hurt_snd_timer=HIT_SND_COOLDOWN_DURATION;
+          player.hurt_snd_timer=HIT_PLAYER_SND_COOLDOWN_DURATION;
         }
         if (player.on_ground_id!=-1) {//on ground
           if (player.block_timer<26) {
@@ -229,7 +230,7 @@ void BulletDamagePlayerAct(int bullet_id)
       } else {//perfect block , 23 or less than
         if (game_audio && player.health>0 && player.hurt_snd_timer==0) {
           PlaySound(spamSoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //block perfect
-          player.hurt_snd_timer=HIT_SND_COOLDOWN_DURATION;
+          player.hurt_snd_timer=HIT_PLAYER_SND_COOLDOWN_DURATION;
         }
         blocked_bullet_dmg=0;
         /*if (player.time_breaker_units<player.time_breaker_units_max) { //causes speed to increase

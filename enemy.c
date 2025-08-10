@@ -1294,7 +1294,7 @@ bool InsectBites(int i,int dmg,bool is_mosquito)
              }
              if (game_audio && player.health>0 && player.hurt_snd_timer==0) {
                PlaySound(spamSoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //hurt snd
-               player.hurt_snd_timer=HIT_SND_COOLDOWN_DURATION;
+               player.hurt_snd_timer=HIT_PLAYER_SND_COOLDOWN_DURATION;
              }
              if (player.health>PLAYER_LOW_HEALTH+1) { //usual response
                //player.health-=dmg;
@@ -1326,7 +1326,7 @@ bool InsectBites(int i,int dmg,bool is_mosquito)
          } else {
            if (game_audio && player.health>0 && player.hurt_snd_timer==0) {
              PlaySound(spamSoundEffectCache[3].audio, NULL, SND_MEMORY | SND_ASYNC); //hurt snd
-             player.hurt_snd_timer=HIT_SND_COOLDOWN_DURATION;
+             player.hurt_snd_timer=HIT_PLAYER_SND_COOLDOWN_DURATION;
            }
            player.block_health-=dmg;
          }
@@ -1348,7 +1348,7 @@ bool InsectBites(int i,int dmg,bool is_mosquito)
   } else {//perfect block , 23 or less than
     if (game_audio && player.health>0 && player.hurt_snd_timer==0) {
       PlaySound(spamSoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //block perfect
-      player.hurt_snd_timer=HIT_SND_COOLDOWN_DURATION;
+      player.hurt_snd_timer=HIT_PLAYER_SND_COOLDOWN_DURATION;
     }
     return FALSE;    
   }
