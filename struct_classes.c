@@ -262,6 +262,7 @@ struct player
   int decceleration_timer;
   int fast_duration;
   int shoot_knife_duration;
+  int hurt_snd_timer;
 
   int on_ground_edge_id;
   int saved_on_ground_edge_id;
@@ -724,6 +725,8 @@ typedef struct enemy
   int knockback_timer;
   int damage_taken_timer;
   int on_ground_timer;
+  int hurt_snd_timer;
+  int in_water_timer;
   int pathfinding_id;
 
   int rng_i; //rng index doesnt interfere others
@@ -1294,7 +1297,7 @@ HBITMAP ga0_kh_mask[5];
 
 //raindrop
 int sc_raindrop_num=0;
-#define SC_RAINDROP_NUM  20
+#define SC_RAINDROP_NUM  80
 struct screenraindrop
 {
   int lifetime,olifetime;

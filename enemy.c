@@ -747,6 +747,9 @@ void EnemyKnockbackMove(int i,int ground_id) //now with bouncing
 
 void EnemySndAct(int i)
 {
+  if (Enemy[i]->hurt_snd_timer>0)
+    Enemy[i]->hurt_snd_timer--;
+
   if (Enemy[i]->play_death_snd && !back_to_menu) {
     PlayMemSnd(&channelSoundEffect[1],&channelSoundEffectCache[1],TRUE,0); 
     Enemy[i]->play_death_snd=FALSE;
@@ -1289,8 +1292,9 @@ bool InsectBites(int i,int dmg,bool is_mosquito)
              if (is_mosquito) {
                Enemy[i]->damage_taken_timer=256;
              }
-             if (game_audio && player.health>0) {
+             if (game_audio && player.health>0 && player.hurt_snd_timer==0) {
                PlaySound(spamSoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //hurt snd
+               player.hurt_snd_timer=HIT_SND_COOLDOWN_DURATION;
              }
              if (player.health>PLAYER_LOW_HEALTH+1) { //usual response
                //player.health-=dmg;
@@ -1320,8 +1324,9 @@ bool InsectBites(int i,int dmg,bool is_mosquito)
                }
              }
          } else {
-           if (game_audio && player.health>0) {
+           if (game_audio && player.health>0 && player.hurt_snd_timer==0) {
              PlaySound(spamSoundEffectCache[3].audio, NULL, SND_MEMORY | SND_ASYNC); //hurt snd
+             player.hurt_snd_timer=HIT_SND_COOLDOWN_DURATION;
            }
            player.block_health-=dmg;
          }
@@ -1341,8 +1346,9 @@ bool InsectBites(int i,int dmg,bool is_mosquito)
       }
     return TRUE;
   } else {//perfect block , 23 or less than
-    if (game_audio && player.health>0) {
+    if (game_audio && player.health>0 && player.hurt_snd_timer==0) {
       PlaySound(spamSoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //block perfect
+      player.hurt_snd_timer=HIT_SND_COOLDOWN_DURATION;
     }
     return FALSE;    
   }
@@ -1401,8 +1407,6 @@ void EnemyAct(int i)
   /*if (Enemy[i]->species==1 && Enemy[i]->health<=0 && !Enemy[i]->true_dead) {
   }*/
 
-
-
   if (Enemy[i]->health>0 || !Enemy[i]->true_dead) {
 
 
@@ -1413,6 +1417,14 @@ void EnemyAct(int i)
     if (Enemy[i]->damage_taken_timer>0) {
       Enemy[i]->damage_taken_timer--;
     }
+
+    //in water
+    if (Enemy[i]->in_water) {
+      Enemy[i]->in_water_timer=25;
+    } else if (Enemy[i]->in_water_timer>0){
+      Enemy[i]->in_water_timer--;
+    }
+
 
     for (int k=0;k<player.bullet_shot_num;k++) {
       int bk=player.bullet[k];
@@ -1467,8 +1479,9 @@ void EnemyAct(int i)
                   }
                 }
               }
-              if (game_audio) {
+              if (game_audio && Enemy[i]->hurt_snd_timer==0) {
                 PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
+                Enemy[i]->hurt_snd_timer=HIT_SND_COOLDOWN_DURATION;
               }
               if (!Enemy[i]->in_water) {
                 Enemy[i]->knockback_timer=player.knockback_strength;
@@ -1507,9 +1520,10 @@ void EnemyAct(int i)
                 }
               }
 
-            if (game_audio) {
-              PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
-            }
+              if (game_audio && Enemy[i]->hurt_snd_timer==0) {
+                PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
+                Enemy[i]->hurt_snd_timer=HIT_SND_COOLDOWN_DURATION;
+              }
             //if ((Enemy[i]->on_ground_id==-1 && (Enemy[i]->health<=0 || RandNum(0,100,&Enemy[i]->rng_i)<20)) || Enemy[i]->on_ground_id!=-1) {
               Enemy[i]->knockback_timer=player.knockback_strength;
             //}
@@ -1556,8 +1570,9 @@ void EnemyAct(int i)
       switch (Enemy[i]->species) {
 	    case 0:case 2:case 4:case 5:case 6:case 7:
           if (dist_from_bullet<=NODE_SIZE*2) {
-            if (game_audio) {
+            if (game_audio && Enemy[i]->hurt_snd_timer==0) {
               PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
+              Enemy[i]->hurt_snd_timer=HIT_SND_COOLDOWN_DURATION;
             }
             Enemy[i]->damage_taken_timer=256;
             Enemy[i]->health-=Bullet[player.bullet_shot].damage;
@@ -1567,8 +1582,9 @@ void EnemyAct(int i)
           }
           break;
         case 1:case 3:
-          if (game_audio) {
+          if (game_audio && Enemy[i]->hurt_snd_timer==0) {
             PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
+            Enemy[i]->hurt_snd_timer=HIT_SND_COOLDOWN_DURATION;
           }
           Enemy[i]->damage_taken_timer=256;
           if (Enemy[i]->health>0) {
@@ -1765,9 +1781,10 @@ void EnemyAct(int i)
           case 5:case 6:case 7:
             if ((player.speed>0 && Enemy[i]->species>=5) || player.speed>5) {
               deduct_health=TRUE;
-            } else if (game_audio) {
+            } else if (game_audio && Enemy[i]->hurt_snd_timer==0) {
               if (!insect_bite) {
                 PlaySound(spamSoundEffectCache[6].audio,NULL, SND_MEMORY | SND_ASYNC);            
+                Enemy[i]->hurt_snd_timer=HIT_SND_COOLDOWN_DURATION;
               }
             }
             break;
@@ -1779,8 +1796,9 @@ void EnemyAct(int i)
             }
             if (player.speed>10) {
               deduct_health=TRUE;
-            } else if (game_audio) {
+            } else if (game_audio && Enemy[i]->hurt_snd_timer==0) {
               PlaySound(spamSoundEffectCache[6].audio,NULL, SND_MEMORY | SND_ASYNC);
+              Enemy[i]->hurt_snd_timer=HIT_SND_COOLDOWN_DURATION;
             }
             break;
         }
@@ -1812,8 +1830,9 @@ void EnemyAct(int i)
           EnemyDeductMaxHealth(i);
         }
       }
-      if (game_audio && !insect_bite) {
+      if (game_audio && !insect_bite && Enemy[i]->hurt_snd_timer==0) {
         PlaySound(spamSoundEffectCache[2].audio,NULL, SND_MEMORY | SND_ASYNC);
+        Enemy[i]->hurt_snd_timer=HIT_SND_COOLDOWN_DURATION;
       }
     }
 
@@ -2838,6 +2857,8 @@ void InitEnemy()
     Enemy[i]->current_ngid_n=0;
     Enemy[i]->current_suffocate_ngid_n=0;
     Enemy[i]->suffocate_timer=0;
+    Enemy[i]->in_water_timer=0;
+    Enemy[i]->hurt_snd_timer=0;
     Enemy[i]->current_rot_sprite_angle_id=0;//-1;
     Enemy[i]->dist_from_player=999;
     Enemy[i]->flying_timer=0;
@@ -3143,7 +3164,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
                 Enemy[i]->sprite_timer%4==0
                   ? Enemy[i]->sprite_y+1
                   : Enemy[i]->sprite_y,
-                !Enemy[i]->in_water
+                Enemy[i]->in_water_timer==0
                   ? &EnemyTypeSprite[etype].draw_fly_sprite_1
                   : &EnemyTypeSprite[etype].draw_dithered_fly_sprite_1,
                 Enemy[i]->last_left);              
@@ -3157,7 +3178,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
                 Enemy[i]->sprite_timer%3==0
                   ? Enemy[i]->sprite_y-2
                   : Enemy[i]->sprite_y-1,
-                !Enemy[i]->in_water
+                Enemy[i]->in_water_timer==0
                   ? &EnemyTypeSprite[etype].draw_fly_sprite_2
                   : &EnemyTypeSprite[etype].draw_dithered_fly_sprite_2,
                 Enemy[i]->last_left);
@@ -3199,10 +3220,10 @@ void DrawEnemy(HDC hdc,HDC hdc2)
             }*/
             DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
               Enemy[i]->sprite_timer%8==0
-                ? (!Enemy[i]->in_water
+                ? (Enemy[i]->in_water_timer==0
                   ? &EnemyRotatedSprite[rsid].draw_rotated_sprite1[swim_rot_id]
                   : &EnemyRotatedSprite[rsid].draw_dithered_rotated_sprite1[swim_rot_id])
-                : (!Enemy[i]->in_water
+                : (Enemy[i]->in_water_timer==0
                   ? &EnemyRotatedSprite[rsid].draw_rotated_sprite2[swim_rot_id]
                   : &EnemyRotatedSprite[rsid].draw_dithered_rotated_sprite2[swim_rot_id]),
               Enemy[i]->last_left);
@@ -3223,10 +3244,10 @@ void DrawEnemy(HDC hdc,HDC hdc2)
                   }*/
                   DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
                     Enemy[i]->sprite_timer%8==0
-                      ? (!Enemy[i]->in_water
+                      ? (Enemy[i]->in_water_timer==0
                         ? &EnemyRotatedSprite[rsid].draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id]
                         : &EnemyRotatedSprite[rsid].draw_dithered_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id])
-                      : (!Enemy[i]->in_water
+                      : (Enemy[i]->in_water_timer==0
                         ? &EnemyRotatedSprite[rsid].draw_rotated_sprite2[Enemy[i]->current_rot_sprite_angle_id]
                         : &EnemyRotatedSprite[rsid].draw_dithered_rotated_sprite2[Enemy[i]->current_rot_sprite_angle_id]),
                     flip_bool
@@ -3240,10 +3261,10 @@ void DrawEnemy(HDC hdc,HDC hdc2)
                     }*/
                     DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
                       Enemy[i]->sprite_timer%2==0
-                        ? (!Enemy[i]->in_water
+                        ? (Enemy[i]->in_water_timer==0
                           ? &EnemyTypeSprite[etype].draw_fly_sprite_1
                           : &EnemyTypeSprite[etype].draw_dithered_fly_sprite_1)
-                        :  (!Enemy[i]->in_water
+                        :  (Enemy[i]->in_water_timer==0
                           ? &EnemyTypeSprite[etype].draw_fly_sprite_2
                           : &EnemyTypeSprite[etype].draw_dithered_fly_sprite_2),
                       Enemy[i]->last_left
@@ -3257,10 +3278,10 @@ void DrawEnemy(HDC hdc,HDC hdc2)
                     }*/                   
                     DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
                       Enemy[i]->sprite_timer%4==0
-                        ? (!Enemy[i]->in_water
+                        ? (Enemy[i]->in_water_timer==0
                           ? &EnemyRotatedSprite[rsid].draw_rotated_sprite1[6]
                           : &EnemyRotatedSprite[rsid].draw_dithered_rotated_sprite1[6])
-                        :  (!Enemy[i]->in_water
+                        :  (Enemy[i]->in_water_timer==0
                           ? &EnemyRotatedSprite[rsid].draw_rotated_sprite2[6]
                           : &EnemyRotatedSprite[rsid].draw_dithered_rotated_sprite2[6]),
                       Enemy[i]->last_left
@@ -3283,10 +3304,10 @@ void DrawEnemy(HDC hdc,HDC hdc2)
                   }*/
                   DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
                     Enemy[i]->idle_timer%16<8
-                      ? (!Enemy[i]->in_water
+                      ? (Enemy[i]->in_water_timer==0
                         ? &EnemyRotatedSprite[rsid].draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id]
                         : &EnemyRotatedSprite[rsid].draw_dithered_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id])
-                      : (!Enemy[i]->in_water
+                      : (Enemy[i]->in_water_timer==0
                         ? &XEnemyRotatedSprite[rsid].draw_rotated_sprite[Enemy[i]->current_rot_sprite_angle_id]
                         : &XEnemyRotatedSprite[rsid].draw_dithered_rotated_sprite[Enemy[i]->current_rot_sprite_angle_id]),
                     flip_bool
@@ -3294,7 +3315,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
                 } else {
                   //DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[rsid].draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id],flip_bool);
                   DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
-                    !Enemy[i]->in_water
+                    Enemy[i]->in_water_timer==0
                       ? &EnemyRotatedSprite[rsid].draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id]
                       : &EnemyRotatedSprite[rsid].draw_dithered_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id],
                     flip_bool
@@ -3318,10 +3339,10 @@ void DrawEnemy(HDC hdc,HDC hdc2)
               }*/
               DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
                 Enemy[i]->sprite_timer%8==0
-                  ? (!Enemy[i]->in_water
+                  ? (Enemy[i]->in_water_timer==0
                     ? &EnemyRotatedSprite[rsid].draw_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id]
                     : &EnemyRotatedSprite[rsid].draw_dithered_rotated_sprite1[Enemy[i]->current_rot_sprite_angle_id])
-                  : (!Enemy[i]->in_water
+                  : (Enemy[i]->in_water_timer==0
                     ? &EnemyRotatedSprite[rsid].draw_rotated_sprite2[Enemy[i]->current_rot_sprite_angle_id]
                     : &EnemyRotatedSprite[rsid].draw_dithered_rotated_sprite2[Enemy[i]->current_rot_sprite_angle_id]),
                 flip_bool
@@ -3342,7 +3363,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
                     Enemy[i]->sprite_timer%4==0
                       ? Enemy[i]->sprite_y+1
                       : Enemy[i]->sprite_y,
-                    !Enemy[i]->in_water 
+                    Enemy[i]->in_water_timer==0 
                       ? &EnemyTypeSprite[etype].draw_fly_sprite_1
                       : &EnemyTypeSprite[etype].draw_dithered_fly_sprite_1,
                     Enemy[i]->last_left
@@ -3357,7 +3378,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
                     Enemy[i]->sprite_timer%3==0
                       ? Enemy[i]->sprite_y-2
                       : Enemy[i]->sprite_y-1,
-                    !Enemy[i]->in_water 
+                    Enemy[i]->in_water_timer==0 
                       ? &EnemyTypeSprite[etype].draw_fly_sprite_2
                       : &EnemyTypeSprite[etype].draw_dithered_fly_sprite_2,
                     Enemy[i]->last_left
@@ -3371,10 +3392,10 @@ void DrawEnemy(HDC hdc,HDC hdc2)
               }*/                   
               DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,
                 Enemy[i]->sprite_timer%4==0
-                  ? (!Enemy[i]->in_water
+                  ? (Enemy[i]->in_water_timer==0
                     ? &EnemyRotatedSprite[rsid].draw_rotated_sprite1[6]
                     : &EnemyRotatedSprite[rsid].draw_dithered_rotated_sprite1[6])
-                  :  (!Enemy[i]->in_water
+                  :  (Enemy[i]->in_water_timer==0
                     ? &EnemyRotatedSprite[rsid].draw_rotated_sprite2[6]
                     : &EnemyRotatedSprite[rsid].draw_dithered_rotated_sprite2[6]),
                 Enemy[i]->last_left

@@ -276,7 +276,7 @@ int melvlambience_min[9]={
 };
 
 int melvlambience_max[9]={
-5,0,2,3,101,101,2,101,101
+5,0,2,4,101,101,2,101,101
 };
 
 
