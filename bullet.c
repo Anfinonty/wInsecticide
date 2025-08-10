@@ -1410,7 +1410,7 @@ void DrawBullet2(HDC hdc,HDC hdc2,int i,double x,double y,int color)
   if (!free_will) seed=-1;
   switch (Bullet[i].graphics_type) {
     case -11: //hailsorm
-      GrLine(hdc,x,y,x-20*cos(Bullet[i].angle),y-20*sin(Bullet[i].angle),color);
+      GrLine(hdc,x,y,x-16*cos(Bullet[i].angle),y-16*sin(Bullet[i].angle),color);
       break;
 
     case -10: //hailstorm but hit ground
