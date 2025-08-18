@@ -2500,7 +2500,7 @@ void CleanUpRotatedSprites()
 
 void CleanUpEnemySprites()
 {
-  //manual cleaning because static
+  //manual cleaning because static of fly sprite
   for (int i=0;i<ENEMY_TYPE_NUM;i++) {
     FreeDrawSprite(&EnemyTypeSprite[i].draw_fly_sprite_1);
     FreeDrawSprite(&EnemyTypeSprite[i].draw_fly_sprite_2);
@@ -2652,9 +2652,10 @@ void InitEnemySpritesObjColorNoir(HDC hdc,HDC hdc2)
 
 void InitEnemySpritesObj()
 {
+  int si;
   int species_i=0;
   double angle_rn=0;
-  HBITMAP tmp_sprite1[ENEMY_TYPE_NUM],
+  /*HBITMAP tmp_sprite1[ENEMY_TYPE_NUM],
           tmp_sprite2[ENEMY_TYPE_NUM]; //temporary
   for (int i=0;i<ENEMY_TYPE_NUM;i++) { //init small flysprites
     species_i=saved_enemy_type_species[i];
@@ -2696,10 +2697,36 @@ void InitEnemySpritesObj()
     loading_numerator++;
   }
 
-  //mass chunks cleanup
+  //mass chunks cleanup instability, scrapped
   for (int i=0;i<ENEMY_TYPE_NUM;i++) {
     DeleteObject(tmp_sprite1[i]);
     DeleteObject(tmp_sprite2[i]);
+  }*/
+  //Generate Flysprites
+  
+  for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+    species_i=saved_enemy_type_species[i]; 
+    switch (species_i) {
+      case 0: si=0; break; // mosquito
+      case 2: si=1; break; // termite flying
+      case 4: si=2; break; // fly
+      case 1: si=3; break; // cockroach
+      case 3: si=4; break; // toe-biter 
+      default: si=-1; break;
+    }
+    if (si!=-1) {
+    //0,2,4,1,3
+    EnemyTypeSprite[i].draw_fly_sprite_1.sprite_mask=CopyCrunchyBitmap(LoadEnemyFlySprite[si].draw_fly_sprite_1.sprite_mask,SRCCOPY);
+    EnemyTypeSprite[i].draw_fly_sprite_1.sprite_paint=CopyCrunchyBitmap(LoadEnemyFlySprite[si].draw_fly_sprite_1.sprite_paint,SRCCOPY);
+    EnemyTypeSprite[i].draw_fly_sprite_2.sprite_mask=CopyCrunchyBitmap(LoadEnemyFlySprite[si].draw_fly_sprite_2.sprite_mask,SRCCOPY);
+    EnemyTypeSprite[i].draw_fly_sprite_2.sprite_paint=CopyCrunchyBitmap(LoadEnemyFlySprite[si].draw_fly_sprite_2.sprite_paint,SRCCOPY);
+    //dithered
+    EnemyTypeSprite[i].draw_dithered_fly_sprite_1.sprite_mask=CopyCrunchyBitmap(LoadEnemyFlySprite[si].draw_dithered_fly_sprite_1.sprite_mask,SRCCOPY);
+    EnemyTypeSprite[i].draw_dithered_fly_sprite_1.sprite_paint=CopyCrunchyBitmap(LoadEnemyFlySprite[si].draw_dithered_fly_sprite_1.sprite_paint,SRCCOPY);
+    EnemyTypeSprite[i].draw_dithered_fly_sprite_2.sprite_mask=CopyCrunchyBitmap(LoadEnemyFlySprite[si].draw_dithered_fly_sprite_2.sprite_mask,SRCCOPY);
+    EnemyTypeSprite[i].draw_dithered_fly_sprite_2.sprite_paint=CopyCrunchyBitmap(LoadEnemyFlySprite[si].draw_dithered_fly_sprite_2.sprite_paint,SRCCOPY);
+    loading_numerator++;
+    }
   }
 
   //set flysprite palettes
@@ -2719,7 +2746,6 @@ void InitEnemySpritesObj()
 
 
   //init rotated sprites
-  int si;
   for (int i=0;i<LARGE_ENEMY_TYPE_NUM;i++) {
     for (int j=0;j<ROTATED_SPRITE_NUM;j++) {
       //angle_rn=M_PI_2-M_PI_16*j;
@@ -2728,7 +2754,9 @@ void InitEnemySpritesObj()
         case 1:si=0;break;
         case 3:si=1;break;
         case 5:case 6:case 7:si=2;break;
+        default: si=-1; break;
       }
+      if (si!=-1) {
       EnemyRotatedSprite[i].draw_rotated_sprite1[j].sprite_mask=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_rotated_sprite1[j].sprite_mask,SRCCOPY);
       EnemyRotatedSprite[i].draw_rotated_sprite1[j].sprite_paint=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_rotated_sprite1[j].sprite_paint,SRCCOPY);
       EnemyRotatedSprite[i].draw_dithered_rotated_sprite1[j].sprite_mask=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_dithered_rotated_sprite1[j].sprite_mask,SRCCOPY);
@@ -2739,6 +2767,7 @@ void InitEnemySpritesObj()
       EnemyRotatedSprite[i].draw_dithered_rotated_sprite2[j].sprite_mask=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_dithered_rotated_sprite2[j].sprite_mask,SRCCOPY);
       EnemyRotatedSprite[i].draw_dithered_rotated_sprite2[j].sprite_paint=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_dithered_rotated_sprite2[j].sprite_paint,SRCCOPY);
       loading_numerator++;
+      }
     }
   }
 
@@ -2758,6 +2787,7 @@ void InitEnemySpritesObj()
     }
   }
 }
+
 
 void InitEnemyPathfindingNodes()
 {

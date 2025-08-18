@@ -601,10 +601,14 @@ void DrawMusicWav(HDC hdc)
   GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,rgbPaint[djbgcolor]);
 
   int z_m=2;
+  double z_m_height=0.006; //taller when 1 playing, shorter when 2 playing
   if (stop_playing_song[1]) { //wav 2 not playing
     z_m=1;    
   }
   if (wav_mode<=2) {
+    if (z_m==2) {
+      z_m_height=0.002;
+    }
     for (int z=0;z<z_m;z++) {
       int _y=GR_HEIGHT/4;
       if (z_m==1) {
@@ -616,8 +620,8 @@ void DrawMusicWav(HDC hdc)
       }
       c_x1=0;
       c_x2=0;
-      c_y1=_y+audioData[z].buffer1[z]*0.002;//*audioData[z].volume*0.006;
-      c_y2=_y+audioData[z].buffer2[z]*0.002;//*audioData[z].volume*0.006;
+      c_y1=_y+audioData[z].buffer1[z]*z_m_height;//*audioData[z].volume*0.006;
+      c_y2=_y+audioData[z].buffer2[z]*z_m_height;//*audioData[z].volume*0.006;
 
       prev_x1=c_x1;
       prev_y1=c_y1;
@@ -628,11 +632,11 @@ void DrawMusicWav(HDC hdc)
         for (int i=0;i<chosen_buffer_length_o;i++) {
             //if (audioData[z].buffer1[i]>20000) {
               c_x1=((double)i/chosen_buffer_length_o)*GR_WIDTH;
-              c_y1=_y+audioData[z].buffer1[i]*0.002;//*audioData[z].volume*0.006;
+              c_y1=_y+audioData[z].buffer1[i]*z_m_height;//*audioData[z].volume*0.006;
             //}
             //if (audioData[z].buffer2[i]>20000)
               c_x2=((double)i/chosen_buffer_length_o)*GR_WIDTH;
-              c_y2=_y+audioData[z].buffer2[i]*0.002;//*audioData[z].volume*0.006;
+              c_y2=_y+audioData[z].buffer2[i]*z_m_height;//*audioData[z].volume*0.006;
             //}
 
             if (wav_mode==1) {
@@ -1523,6 +1527,12 @@ char help_txt_arr2[HELP_TEXT_ARR_NUM2][64]=
 bool display_controls=FALSE;
 void DrawUI(HDC hdc,HDC hdc2) 
 {
+  //
+  //char leprinttest[10];
+  //sprintf(leprinttest,"%d",player.placed_web_pos);
+  //GrPrint(hdc,8,100,leprinttest,LTBLUE);
+
+
   int c = WHITE;//Highlight(IsInvertedBackground(),WHITE,BLACK);
   int c4 = BLACK;//Highlight(IsInvertedBackground(),BLACK,WHITE);
 

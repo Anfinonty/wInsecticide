@@ -336,15 +336,17 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
 
   //sniper bullet act with enemy bullet
   if (Bullet[bullet_id].graphics_type!=-8) {
-  if (GetDistance(Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
-    Bullet[bullet_id].angle=RandAngle(0,360,&player.sniper_bullet_rng_i,seed);//RandNum(-M_PI_2*100,M_PI_2*100,Enemy[enemy_id]->seed)/100;
-    Bullet[bullet_id].speed=Bullet[player.bullet_shot].speed;
-    Bullet[bullet_id].speed_multiplier=Bullet[player.bullet_shot].speed_multiplier;
-    if (game_audio && player.health>0) {
-      Bullet[player.bullet_shot].playsnd=TRUE;
+    if (player.bullet_shot!=-1) {
+      if (GetDistance(Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y,Bullet[bullet_id].x,Bullet[bullet_id].y)<=22) {
+        Bullet[bullet_id].angle=RandAngle(0,360,&player.sniper_bullet_rng_i,seed);//RandNum(-M_PI_2*100,M_PI_2*100,Enemy[enemy_id]->seed)/100;
+        Bullet[bullet_id].speed=Bullet[player.bullet_shot].speed;
+        Bullet[bullet_id].speed_multiplier=Bullet[player.bullet_shot].speed_multiplier;
+        if (game_audio && player.health>0) {
+          Bullet[player.bullet_shot].playsnd=TRUE;
+        }
+    //Bullet[player.bullet_shot].range-=2;
+      }
     }
-  //Bullet[player.bullet_shot].range-=2;
-  }
   }
 
   double saved_angle;

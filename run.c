@@ -310,6 +310,8 @@ bool is_khmer=TRUE;
 #define GAME_OPTIONS_NUM    16
 #define PLAYER_BLUR_NUM     2
 
+#define RCLICK_HOLD_COOLDOWN      62
+
 #include "gr.c"
 #include "math.c"
 #include "sound.c"
@@ -426,7 +428,49 @@ void Prelude()
     //for (int i=0;i<ROTATED_SPRITE_NUM;i++) {
   if (i==0 && j==0) {
     InitPlayerSpritesAll();
+
+    //load enemy fly sprites
+    for (int g=0;g<5;g++) {
+      switch (g) {
+        case 0: //mosquito
+          LoadEnemyFlySprite[g].prelude_tmp_sprite1=GetRotated8BitBitmap(enemy1_sprite_1,0,LTGREEN);
+          LoadEnemyFlySprite[g].prelude_tmp_sprite2=GetRotated8BitBitmap(enemy1_sprite_2,0,LTGREEN);
+          break;
+        case 1: //termite
+          LoadEnemyFlySprite[g].prelude_tmp_sprite1=GetRotated8BitBitmap(enemy3_sprite_1,0,LTGREEN);
+          LoadEnemyFlySprite[g].prelude_tmp_sprite2=GetRotated8BitBitmap(enemy3_sprite_2,0,LTGREEN);
+          break;
+        case 2: //fly
+          LoadEnemyFlySprite[g].prelude_tmp_sprite1=GetRotated8BitBitmap(enemy5_sprite_1,0,LTGREEN);
+          LoadEnemyFlySprite[g].prelude_tmp_sprite2=GetRotated8BitBitmap(enemy5_sprite_2,0,LTGREEN);
+          break;
+        case 3: //cockroach
+          LoadEnemyFlySprite[g].prelude_tmp_sprite1=GetRotated8BitBitmap(enemy2_sprite_3,0,LTGREEN);
+          LoadEnemyFlySprite[g].prelude_tmp_sprite2=GetRotated8BitBitmap(enemy2_sprite_4,0,LTGREEN);
+          break;
+        case 4: //toe-biter
+          LoadEnemyFlySprite[g].prelude_tmp_sprite1=GetRotated8BitBitmap(enemy4_sprite_3,0,LTGREEN);
+          LoadEnemyFlySprite[g].prelude_tmp_sprite2=GetRotated8BitBitmap(enemy4_sprite_4,0,LTGREEN);
+          break;
+      }
+
+      ReplaceBitmapColor(LoadEnemyFlySprite[g].prelude_tmp_sprite1,LTBLUE,LTGREEN);
+      ReplaceBitmapColor(LoadEnemyFlySprite[g].prelude_tmp_sprite2,LTBLUE,LTGREEN);
+
+      ReplaceBitmapColor2(LoadEnemyFlySprite[g].prelude_tmp_sprite1,LTGREEN,BLACK,8,LTGREEN); //8 due to pureblack reserved for mask
+      ReplaceBitmapColor2(LoadEnemyFlySprite[g].prelude_tmp_sprite2,LTGREEN,BLACK,8,LTGREEN);
+
+      GenerateDrawSprite(&LoadEnemyFlySprite[g].draw_fly_sprite_1,LoadEnemyFlySprite[g].prelude_tmp_sprite1);
+      GenerateDrawSprite(&LoadEnemyFlySprite[g].draw_fly_sprite_2,LoadEnemyFlySprite[g].prelude_tmp_sprite2);
+
+      //create dithered rotated sprite
+      DitherBitmapColor(LoadEnemyFlySprite[g].prelude_tmp_sprite1,-1,BLACK);
+      DitherBitmapColor(LoadEnemyFlySprite[g].prelude_tmp_sprite2,-1,BLACK);
+      GenerateDrawSprite(&LoadEnemyFlySprite[g].draw_dithered_fly_sprite_1,LoadEnemyFlySprite[g].prelude_tmp_sprite1);
+      GenerateDrawSprite(&LoadEnemyFlySprite[g].draw_dithered_fly_sprite_2,LoadEnemyFlySprite[g].prelude_tmp_sprite2);
+    }
   }
+
   if (j<4) {
     angle_rn=M_PI_2-M_PI_16*i;
     switch (j) {
@@ -516,7 +560,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
   while (TRUE) {
     if (prelude) {
       Sleep(1000);
-    } else if (level_loading) {
+    } else if (level_loading) { //Loading Level
       Sleep(1000);
     } else if (!in_main_menu) { //In Game
       if (flag_restart) {
@@ -543,10 +587,10 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
           Sleep(1000);
         }
       }
-    } else if (in_map_editor) {
+    } else if (in_map_editor) { //In map editor
       MapEditorAct();
       Sleep(6);
-    } else {
+    } else { //In Main menu
       if (main_menu_chosen==3 || blank_level) {
         Sleep(1000);
       } else {
@@ -581,14 +625,15 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
               if (player.bullet_shot!=-1) { //player sounds made by sniper player bullets
                 BulletSndAct(player.bullet_shot);
               }
-              /*for (int i=0;i<ENEMY_NUM;i++) {
+              for (int i=0;i<ENEMY_NUM;i++) {
                 EnemySndAct(i);
-              }*/
+              }
               PlayerSndAct();       
           }
           Sleep(6);
-          //Sleep(1000);
-        } //end of wav_mode==0
+        } //end of wav_mode==0 in main menu
+
+
 
         if (flag_load_level) {
           flag_load_level=FALSE;
@@ -1898,21 +1943,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       remove("music_tmp/tmp2/tmp.wav");
       rmdir("music_tmp/tmp2"); //remove tmp
 
-      /*MessageBox(NULL, TEXT(
-"\
-ចងចាំអ្នកខ្មែរដែលបាត់បង់ជីវិតក្នុងសង្គ្រាមដែល\n\
-អ្នកអាគាំងនិងអ្នកជនជាតិជ្វីហ្វចង់ដណ្ដើមយក\n\
-ទន្លេមេគង្គពីសម្តេចឪនរោត្តមសីហនុចាប់ផ្តើមពី\n\
-ឆ្នាំ ១៩៥៩, ១៩៦៣ ដល់ ១៩៩៧ \n\
-កម្ពុជាក្រោមពីឆ្នាំ ១៨៥៨ ដល់ ១៩៤៩ \n\
-និងកម្ពុជាខាងជើង ឆ្នាំ ១៩៤១។\n\n\
-\
-\
-ខ្មែរធ្វើបាន! ជយោកម្ពុជា!\n\n\
-\
-\
-In memory of the Innocent Cambodian Lives lost caused by wars and destabilization efforts by the CIA (1959, 1963-1997).\n\n\nCode is in my Github: https://github.com/Anfinonty/wInsecticide/releases\n\nwInsecticide Version: v-Prel-02-01"), TEXT("អ្នកសម្លាប់សត្វចង្រៃ") ,MB_OK);
-//TEXT("អាពីងស៊ីរុយ") ,MB_OK);*/ //ឈ្មោះចាស់
+
 
       //load levels in save
       GetSavesInDir(L"saves");

@@ -1576,7 +1576,7 @@ void PlayerActMouseClick()
     }
   }
 
-  if (player.right_click_hold_timer==62) {//Right click to Shoot Again
+  if (player.right_click_hold_timer==RCLICK_HOLD_COOLDOWN) {//Right click to Shoot Again
     if (player.bullet_shot!=-1 && !player.is_swinging) {
       StopBullet(player.bullet_shot,TRUE); //Stop the web
       PlayerPlaceWeb(); //Web related
@@ -1591,7 +1591,7 @@ void PlayerActMouseClick()
 
   if (!player.attack_rst && !player.is_swinging) {
     allow_act=FALSE;
-    if (player.right_click_hold_timer==62 && player.type==0) { //right click to shoot
+    if (player.right_click_hold_timer==RCLICK_HOLD_COOLDOWN && player.type==0) { //right click to shoot
       if (player.placed_web_num<player.max_web_num && //webs > 0 
         player.bullet_shot==-1) {
         player.rst_right_click_snd=TRUE;
@@ -1637,7 +1637,7 @@ void PlayerActMouseClick()
     }
   } else { //meelee attack only
     if (player.is_swinging) {
-      if (player.left_click_hold_timer==62 || player.attack_rst || player.right_click_hold_timer==62) { //swing but no web is placed
+      if (player.left_click_hold_timer==62 || player.attack_rst || player.right_click_hold_timer==RCLICK_HOLD_COOLDOWN) { //swing but no web is placed
         if (player.on_ground_id!=-1) { 
           player.fling_distance=0;
         } else { //begin flinging!!
@@ -1662,7 +1662,7 @@ void PlayerActMouseClick()
       }
     }
     
-    if ((player.left_click_hold_timer==62 || player.attack_rst || player.right_click_hold_timer==62)) {
+    if ((player.left_click_hold_timer==62 || player.attack_rst || player.right_click_hold_timer==RCLICK_HOLD_COOLDOWN)) {
       if (player.is_swinging) {//prevent build web if web too short and hiding
         if (game_audio) {
           PlayMemSnd(&channelSoundEffect[2],&channelSoundEffectCache[2],TRUE,3);
@@ -1673,7 +1673,7 @@ void PlayerActMouseClick()
 
 
         //Ensures willingly placed webs never touch the ground or each other
-        if (player.pivot_length>NODE_SIZE*5 && (player.right_click_hold_timer==62)) {
+        if (player.pivot_length>NODE_SIZE*5 && (player.right_click_hold_timer==RCLICK_HOLD_COOLDOWN)) {
 
     //player place web after swing
         double bm_x1=0,bm_y1=0,bm_x2=0,bm_y2=0;
@@ -2750,8 +2750,9 @@ void PlayerAct()
 
 void PlayerSndAct()
 {
-  if (player.hurt_snd_timer>0)
+  if (player.hurt_snd_timer>0) {
     player.hurt_snd_timer--;
+  }
   //rain snd act
   if (player.rain_wet_timer>60) {
     if (player.visible_rain_wet_timer>0) {
@@ -3352,7 +3353,7 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
 
     //Draw sniper bullet of player
     if (player.bullet_shot!=-1) {
-      if (player.right_click_hold_timer<62) {
+      if (player.right_click_hold_timer<RCLICK_HOLD_COOLDOWN) {
         DrawBullet(hdc,hdc2,player.bullet_shot);
         GrLine(hdc,player.sprite_x,player.sprite_y,Bullet[player.bullet_shot].sprite_x,Bullet[player.bullet_shot].sprite_y,color);    
       }
