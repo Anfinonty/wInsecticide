@@ -171,8 +171,9 @@ void BulletDamagePlayerAct(int bullet_id)
 {
     double blocked_bullet_dmg=Bullet[bullet_id].damage;
     if (player.block_timer<=0 || player.block_health<=0) {
-      if (game_audio && player.health>0) {
+      if (game_audio && player.health>0 && player.hurt_snd_timer==0) {
         PlaySound(spamSoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //hurt snd
+        player.hurt_snd_timer=HIT_PLAYER_SND_COOLDOWN_DURATION;
       }
       player.show_health_timer=HP_SHOW_TIMER_NUM;
       player.show_block_health_timer=HP_SHOW_TIMER_NUM;

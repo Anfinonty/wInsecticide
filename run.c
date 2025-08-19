@@ -299,7 +299,7 @@ bool is_khmer=TRUE;
 #define DEFAULT_PLAYER_TIME_BREAKER_TICK_MAX	22 //45
 
 #define HIT_SND_COOLDOWN_DURATION       5
-#define HIT_PLAYER_SND_COOLDOWN_DURATION       7
+#define HIT_PLAYER_SND_COOLDOWN_DURATION       10
 
 #define HP_SHOW_TIMER_NUM   450
 
@@ -2589,9 +2589,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   rmdir("music_tmp/tmp"); //remove tmp, manually because C is like that
   waveOutSetVolume(hWaveOut[2],wav_out_original_volume);
   waveOutSetVolume(hWaveOut[6],wav_out_original_volume);
-  if (level_loaded) {
-    SaveOptions();
-  }
   return (int) msg.wParam;
 }
 

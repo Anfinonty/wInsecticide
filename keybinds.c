@@ -1537,8 +1537,12 @@ int MinusOneMenuKeypressUp(WPARAM wParam)
          }
 
          if (select_main_menu==2) { //exit
-           if (game_audio)
+           if (game_audio) {
              PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
+            }
+            if (level_loaded) {
+              SaveOptions();
+            }
            PostQuitMessage(0);
            return 0;
          }
@@ -1553,6 +1557,9 @@ int MinusOneMenuKeypressUp(WPARAM wParam)
        //case VK_ESCAPE: //release ESC+SHIFT key, exit
        case 'Q': // release Q and shift
          if ((keydown(VK_LSHIFT) || keydown(VK_RSHIFT))) { //ESC + L/RSHIFT = QUIT
+          if (level_loaded) {
+            SaveOptions();
+          }
            PostQuitMessage(0);
            return 0;
          }
