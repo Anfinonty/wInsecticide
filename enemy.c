@@ -1952,12 +1952,18 @@ void EnemyAct(int i)
       Enemy[i]->in_node_grid_id=GetGridId(Enemy[i]->x,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);      
       tmp_ngid=Enemy[i]->in_node_grid_id;
       if (tmp_ngid!=-1) {
-        if (NodeGrid[tmp_ngid]->node_fire || Enemy[i]->suffocate_timer>=450) {
+        if (NodeGrid[tmp_ngid]->node_fire /*|| Enemy[i]->suffocate_timer>=450*/) {
           Enemy[i]->damage_taken_timer=256;
           Enemy[i]->health-=1;
           if (Enemy[i]->species==1 && Enemy[i]->health<=0) {
             Enemy[i]->true_dead=TRUE;
           }
+        }
+        if (Enemy[i]->suffocate_timer>=450) {
+          //teleport back to original position
+          Enemy[i]->x=saved_enemy_x[i];
+          Enemy[i]->y=saved_enemy_y[i];
+          Enemy[i]->suffocate_timer=0;
         }
         if (NodeGrid[tmp_ngid]->node_water) {
           if (!Enemy[i]->in_water) {
