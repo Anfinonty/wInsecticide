@@ -597,10 +597,10 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
         if (wav_mode!=0) { //non mode 0, dj
           Sleep(1000);
         } else { //mode 0, map demo, WARNING, currently no flags to interrupt when sudden map loading
-          if (flag_restart) {
+          //if (flag_restart) {
             //Sleep(100);
-          }
-          /*if (level_loaded && !flag_restart) {
+          //}
+          if (level_loaded && !flag_restart) {
             PlayerAct();
       
             for (int i=0;i<ENEMY_NUM;i++) {
@@ -615,10 +615,9 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
             if (FIRE_GROUND_NUM>0 && !player.time_breaker) {
               GroundFireAct();
             }
-          }
 
           //demo main menu sound act
-          if (game_audio && !flag_load_melevel) {
+            if (game_audio && !flag_load_melevel) {
               for (int i=0;i<player.bullet_shot_num;i++) {
                 BulletSndAct(player.bullet[i]);
               }
@@ -629,7 +628,8 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
                 EnemySndAct(i);
               }
               PlayerSndAct();       
-          }*/
+            }
+          }
           Sleep(6);
         } //end of wav_mode==0 in main menu
 
