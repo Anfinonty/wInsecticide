@@ -1594,8 +1594,9 @@ void ZeroMenuKeypressDown( HWND hwnd,  HDC hdc, WPARAM wParam)
            if (game_audio)
              PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
            if (level_chosen>=0 && level_chosen<level_num && main_menu_chosen==0) {
-             if (!blank_level) {
+             if (!blank_level) { //Load level 
                CleanupAll(FALSE);
+               //printf("Finished cleaning main menu, loading level...\n");
              } else {
                back_to_menu=FALSE;
                blank_level=FALSE;

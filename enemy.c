@@ -2655,55 +2655,8 @@ void InitEnemySpritesObj()
   int si;
   int species_i=0;
   double angle_rn=0;
-  /*HBITMAP tmp_sprite1[ENEMY_TYPE_NUM],
-          tmp_sprite2[ENEMY_TYPE_NUM]; //temporary
-  for (int i=0;i<ENEMY_TYPE_NUM;i++) { //init small flysprites
-    species_i=saved_enemy_type_species[i];
-    switch (species_i) {
-      case 0:
-        tmp_sprite1[i]=CopyCrunchyBitmap(enemy1_sprite_1,SRCCOPY);
-        tmp_sprite2[i]=CopyCrunchyBitmap(enemy1_sprite_2,SRCCOPY);
-        break;
-      case 1:
-        tmp_sprite1[i]=CopyCrunchyBitmap(enemy2_sprite_3,SRCCOPY);
-        tmp_sprite2[i]=CopyCrunchyBitmap(enemy2_sprite_4,SRCCOPY);
-        break;
-      case 2:
-        tmp_sprite1[i]=CopyCrunchyBitmap(enemy3_sprite_1,SRCCOPY);
-        tmp_sprite2[i]=CopyCrunchyBitmap(enemy3_sprite_2,SRCCOPY);
-        break;
-      case 3:
-        tmp_sprite1[i]=CopyCrunchyBitmap(enemy4_sprite_3,SRCCOPY);
-        tmp_sprite2[i]=CopyCrunchyBitmap(enemy4_sprite_4,SRCCOPY);
-        break;
-      case 4:
-        tmp_sprite1[i]=CopyCrunchyBitmap(enemy5_sprite_1,SRCCOPY);
-        tmp_sprite2[i]=CopyCrunchyBitmap(enemy5_sprite_2,SRCCOPY);
-        break;
-    }
-    ReplaceBitmapColor(tmp_sprite1[i],LTBLUE,LTGREEN); //8 due to pureblack reserved for mask
-    ReplaceBitmapColor(tmp_sprite2[i],LTBLUE,LTGREEN);
-    ReplaceBitmapColor2(tmp_sprite1[i],LTGREEN,BLACK,8,LTGREEN); //8 due to pureblack reserved for mask
-    ReplaceBitmapColor2(tmp_sprite2[i],LTGREEN,BLACK,8,LTGREEN);
-    GenerateDrawSprite(&EnemyTypeSprite[i].draw_fly_sprite_1,tmp_sprite1[i]);
-    GenerateDrawSprite(&EnemyTypeSprite[i].draw_fly_sprite_2,tmp_sprite2[i]);
 
-    //create ditehred sprite
-    DitherBitmapColor(tmp_sprite1[i],-1,BLACK);
-    DitherBitmapColor(tmp_sprite2[i],-1,BLACK);
-    GenerateDrawSprite(&EnemyTypeSprite[i].draw_dithered_fly_sprite_1,tmp_sprite1[i]);
-    GenerateDrawSprite(&EnemyTypeSprite[i].draw_dithered_fly_sprite_2,tmp_sprite2[i]);
-
-    loading_numerator++;
-  }
-
-  //mass chunks cleanup instability, scrapped
-  for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-    DeleteObject(tmp_sprite1[i]);
-    DeleteObject(tmp_sprite2[i]);
-  }*/
-  //Generate Flysprites
-  
+  //Generate Flysprites  
   for (int i=0;i<ENEMY_TYPE_NUM;i++) {
     species_i=saved_enemy_type_species[i]; 
     switch (species_i) {
@@ -2716,16 +2669,16 @@ void InitEnemySpritesObj()
     }
     if (si!=-1) {
     //0,2,4,1,3
-    EnemyTypeSprite[i].draw_fly_sprite_1.sprite_mask=CopyCrunchyBitmap(LoadEnemyFlySprite[si].draw_fly_sprite_1.sprite_mask,SRCCOPY);
-    EnemyTypeSprite[i].draw_fly_sprite_1.sprite_paint=CopyCrunchyBitmap(LoadEnemyFlySprite[si].draw_fly_sprite_1.sprite_paint,SRCCOPY);
-    EnemyTypeSprite[i].draw_fly_sprite_2.sprite_mask=CopyCrunchyBitmap(LoadEnemyFlySprite[si].draw_fly_sprite_2.sprite_mask,SRCCOPY);
-    EnemyTypeSprite[i].draw_fly_sprite_2.sprite_paint=CopyCrunchyBitmap(LoadEnemyFlySprite[si].draw_fly_sprite_2.sprite_paint,SRCCOPY);
+      EnemyTypeSprite[i].draw_fly_sprite_1.sprite_mask=CopyCrunchyBitmap(LoadEnemyFlySprite[si].draw_fly_sprite_1.sprite_mask,SRCCOPY);
+      EnemyTypeSprite[i].draw_fly_sprite_1.sprite_paint=CopyCrunchyBitmap(LoadEnemyFlySprite[si].draw_fly_sprite_1.sprite_paint,SRCCOPY);
+      EnemyTypeSprite[i].draw_fly_sprite_2.sprite_mask=CopyCrunchyBitmap(LoadEnemyFlySprite[si].draw_fly_sprite_2.sprite_mask,SRCCOPY);
+      EnemyTypeSprite[i].draw_fly_sprite_2.sprite_paint=CopyCrunchyBitmap(LoadEnemyFlySprite[si].draw_fly_sprite_2.sprite_paint,SRCCOPY);
     //dithered
-    EnemyTypeSprite[i].draw_dithered_fly_sprite_1.sprite_mask=CopyCrunchyBitmap(LoadEnemyFlySprite[si].draw_dithered_fly_sprite_1.sprite_mask,SRCCOPY);
-    EnemyTypeSprite[i].draw_dithered_fly_sprite_1.sprite_paint=CopyCrunchyBitmap(LoadEnemyFlySprite[si].draw_dithered_fly_sprite_1.sprite_paint,SRCCOPY);
-    EnemyTypeSprite[i].draw_dithered_fly_sprite_2.sprite_mask=CopyCrunchyBitmap(LoadEnemyFlySprite[si].draw_dithered_fly_sprite_2.sprite_mask,SRCCOPY);
-    EnemyTypeSprite[i].draw_dithered_fly_sprite_2.sprite_paint=CopyCrunchyBitmap(LoadEnemyFlySprite[si].draw_dithered_fly_sprite_2.sprite_paint,SRCCOPY);
-    loading_numerator++;
+      EnemyTypeSprite[i].draw_dithered_fly_sprite_1.sprite_mask=CopyCrunchyBitmap(LoadEnemyFlySprite[si].draw_dithered_fly_sprite_1.sprite_mask,SRCCOPY);
+      EnemyTypeSprite[i].draw_dithered_fly_sprite_1.sprite_paint=CopyCrunchyBitmap(LoadEnemyFlySprite[si].draw_dithered_fly_sprite_1.sprite_paint,SRCCOPY);
+      EnemyTypeSprite[i].draw_dithered_fly_sprite_2.sprite_mask=CopyCrunchyBitmap(LoadEnemyFlySprite[si].draw_dithered_fly_sprite_2.sprite_mask,SRCCOPY);
+      EnemyTypeSprite[i].draw_dithered_fly_sprite_2.sprite_paint=CopyCrunchyBitmap(LoadEnemyFlySprite[si].draw_dithered_fly_sprite_2.sprite_paint,SRCCOPY);
+      loading_numerator++;
     }
   }
 
@@ -2757,16 +2710,16 @@ void InitEnemySpritesObj()
         default: si=-1; break;
       }
       if (si!=-1) {
-      EnemyRotatedSprite[i].draw_rotated_sprite1[j].sprite_mask=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_rotated_sprite1[j].sprite_mask,SRCCOPY);
-      EnemyRotatedSprite[i].draw_rotated_sprite1[j].sprite_paint=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_rotated_sprite1[j].sprite_paint,SRCCOPY);
-      EnemyRotatedSprite[i].draw_dithered_rotated_sprite1[j].sprite_mask=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_dithered_rotated_sprite1[j].sprite_mask,SRCCOPY);
-      EnemyRotatedSprite[i].draw_dithered_rotated_sprite1[j].sprite_paint=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_dithered_rotated_sprite1[j].sprite_paint,SRCCOPY);
-      loading_numerator++;
-      EnemyRotatedSprite[i].draw_rotated_sprite2[j].sprite_mask=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_rotated_sprite2[j].sprite_mask,SRCCOPY);
-      EnemyRotatedSprite[i].draw_rotated_sprite2[j].sprite_paint=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_rotated_sprite2[j].sprite_paint,SRCCOPY);
-      EnemyRotatedSprite[i].draw_dithered_rotated_sprite2[j].sprite_mask=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_dithered_rotated_sprite2[j].sprite_mask,SRCCOPY);
-      EnemyRotatedSprite[i].draw_dithered_rotated_sprite2[j].sprite_paint=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_dithered_rotated_sprite2[j].sprite_paint,SRCCOPY);
-      loading_numerator++;
+        EnemyRotatedSprite[i].draw_rotated_sprite1[j].sprite_mask=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_rotated_sprite1[j].sprite_mask,SRCCOPY);
+        EnemyRotatedSprite[i].draw_rotated_sprite1[j].sprite_paint=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_rotated_sprite1[j].sprite_paint,SRCCOPY);
+        EnemyRotatedSprite[i].draw_dithered_rotated_sprite1[j].sprite_mask=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_dithered_rotated_sprite1[j].sprite_mask,SRCCOPY);
+        EnemyRotatedSprite[i].draw_dithered_rotated_sprite1[j].sprite_paint=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_dithered_rotated_sprite1[j].sprite_paint,SRCCOPY);
+        loading_numerator++;
+        EnemyRotatedSprite[i].draw_rotated_sprite2[j].sprite_mask=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_rotated_sprite2[j].sprite_mask,SRCCOPY);
+        EnemyRotatedSprite[i].draw_rotated_sprite2[j].sprite_paint=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_rotated_sprite2[j].sprite_paint,SRCCOPY);
+        EnemyRotatedSprite[i].draw_dithered_rotated_sprite2[j].sprite_mask=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_dithered_rotated_sprite2[j].sprite_mask,SRCCOPY);
+        EnemyRotatedSprite[i].draw_dithered_rotated_sprite2[j].sprite_paint=CopyCrunchyBitmap(LoadEnemyRotatedSprite[si].draw_dithered_rotated_sprite2[j].sprite_paint,SRCCOPY);
+        loading_numerator++;
       }
     }
   }

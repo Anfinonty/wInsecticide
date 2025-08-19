@@ -370,6 +370,7 @@ void CleanupPlayerAttributes()
 
 void CleanupAll(bool btm)
 {
+    //printf("Begin level clean\n");
     level_loaded=FALSE;
     //CleanUpPlayerSprites(); //clean up all sprites
     CleanUpPlatformTextures();
@@ -510,4 +511,5 @@ void CleanupAll(bool btm)
       clean_up_sound=TRUE;
     }
     run_once_only=FALSE;
+    //printf("Level cleaned!\n");
 }

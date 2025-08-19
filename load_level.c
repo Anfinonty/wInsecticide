@@ -293,6 +293,7 @@ void InitLevel(bool load_lvl)
   wchar_t txt[128];
   wchar_t lvl_name[128];
   level_loading=TRUE;
+  //printf("Loading_level...\n");
   loading_numerator=0;
   loading_denominator=0;
 
@@ -379,6 +380,7 @@ void InitLevel(bool load_lvl)
   if (!stop_playing_song[0] && stop_playing_song[1] && load_lvl) {//main turntable open only please
     InitLoadLvlSong();
   }
+  //printf("level_loaded\n\n");
 }
 
 
