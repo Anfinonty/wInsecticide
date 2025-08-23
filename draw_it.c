@@ -101,7 +101,9 @@ void DrawBackground(HDC hdc,HDC hdc2)
     case 1:
     case 2:
     case 3: //default backgrounds
-      DrawBitmap(hdc,hdc2,draw_p_px,draw_p_py,0,0,GR_WIDTH*2,GR_HEIGHT*2,map_background_sprite,SRCCOPY,FALSE,FALSE);
+      if (map_background_sprite!=NULL) {
+        DrawBitmap(hdc,hdc2,draw_p_px,draw_p_py,0,0,GR_WIDTH*2,GR_HEIGHT*2,map_background_sprite,SRCCOPY,FALSE,FALSE);
+      }
       break;
     default: //custom map background
       if (map_background_sprite==NULL) {

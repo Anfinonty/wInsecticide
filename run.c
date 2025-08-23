@@ -576,7 +576,6 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
         } else {
           CleanupAll(TRUE);
         }
-        flag_update_background=TRUE;
         flag_game_task_stopped=FALSE;
         flag_draw_task_stopped=FALSE;
         flag_sound_task_stopped=FALSE;
@@ -587,7 +586,6 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
         } else {
           CleanupAll(FALSE);
         }
-        flag_update_background=TRUE;
         flag_load_level=FALSE;
         flag_game_task_stopped=FALSE;
         flag_draw_task_stopped=FALSE;
@@ -600,7 +598,6 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
           CleanupAll(FALSE);
         }
         InterruptAllSnd();
-        flag_update_background=TRUE;
         flag_load_melevel=FALSE;
         flag_game_task_stopped=FALSE;
         flag_draw_task_stopped=FALSE;
