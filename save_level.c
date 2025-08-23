@@ -312,7 +312,7 @@ void SaveLvlBmp(HWND hwnd,HDC hdc,const wchar_t* lvl_name)
 
 
 
-    FOREGROUND_GRID_NUM=0;
+    //FOREGROUND_GRID_NUM=0;
     PLATFORM_GRID_NUM=0;
     SHADOW_GRID_NUM=0;
     if (hwnd!=NULL) {
@@ -320,11 +320,11 @@ void SaveLvlBmp(HWND hwnd,HDC hdc,const wchar_t* lvl_name)
       loading_denominator=0;
     }
 
-    for (int i=0;i<VGRID_NUM;i++) {
+    /*for (int i=0;i<VGRID_NUM;i++) {
       if (VGrid[i]->has_water) {
         FOREGROUND_GRID_NUM++;
       }
-    }
+    }*/
 
     for (int i=0;i<VGRID_NUM;i++) {
       if (VGrid[i]->max_ground_num>0 && (!VGrid[i]->has_water || VGrid[i]->not_just_water)) {
@@ -339,7 +339,7 @@ void SaveLvlBmp(HWND hwnd,HDC hdc,const wchar_t* lvl_name)
     }
 
     if (hwnd!=NULL) {
-      loading_denominator=PLATFORM_GRID_NUM+FOREGROUND_GRID_NUM+SHADOW_GRID_NUM;
+      loading_denominator=PLATFORM_GRID_NUM/*+FOREGROUND_GRID_NUM*/+SHADOW_GRID_NUM;
     }
 
 

@@ -1601,18 +1601,6 @@ void ZeroMenuKeypressDown( HWND hwnd,  HDC hdc, WPARAM wParam)
            if (game_audio)
              PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
            if (level_chosen>=0 && level_chosen<level_num && main_menu_chosen==0) {
-             if (!blank_level) { //Load level 
-               CleanupAll(FALSE);
-               //printf("Finished cleaning main menu, loading level...\n");
-             } else {
-               back_to_menu=FALSE;
-               blank_level=FALSE;
-               level_loaded=FALSE;
-               DeleteObject(map_background_sprite);
-               call_help_timer=0;
-               run_after_once=FALSE;
-               run_once_only=FALSE;
-             }
              flag_load_level=TRUE;
            }
          }
@@ -1645,31 +1633,7 @@ void ZeroMenuKeypressUp( HWND hwnd,  HDC hdc, WPARAM wParam)
       case '2': // Edit Selected Level Limits
         {
         main_menu_chosen=3;
-        /*LOAD selected level details to adjust limits*/
-        wchar_t txt[128];
-        if (!blank_level) {
-          CleanupAll(FALSE);
-        } else {
-          back_to_menu=FALSE;
-          blank_level=FALSE;
-          level_loaded=FALSE;
-          DeleteObject(map_background_sprite);
-          call_help_timer=0;
-          run_after_once=FALSE;
-          run_once_only=FALSE;
-        }
-
-        swprintf(txt,128,L"saves/%ls/level.txt",level_names[level_chosen]);
-        LoadSave(txt,FALSE); //load saves
-
-        wcsncpy(typing_lvl_name,level_names[level_chosen],16);
-        typing_lvl_name_pos=lstrlenW(typing_lvl_name);
-        set_ground_amount=GROUND_NUM;
-        set_enemy_amount=ENEMY_NUM;
-        set_map_width_amount=MAP_WIDTH;
-        set_map_height_amount=MAP_HEIGHT;
-
-
+        flag_load_esll=TRUE;
         if (game_audio)
           PlaySound(keySoundEffectCache[4].audio, NULL, SND_MEMORY | SND_ASYNC); //esc
         }
@@ -1681,19 +1645,7 @@ void ZeroMenuKeypressUp( HWND hwnd,  HDC hdc, WPARAM wParam)
         {
           if (game_audio)
             PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
-          if (!blank_level) {
-            main_menu_chosen=4;
-            CleanupAll(FALSE);
-          } else {
-            back_to_menu=FALSE;
-            level_loaded=FALSE;
-            DeleteObject(map_background_sprite);
-            call_help_timer=0;
-            run_after_once=FALSE;
-            run_once_only=FALSE;
-            main_menu_chosen=4;
-            blank_level=FALSE;
-          }
+          main_menu_chosen=4;            
           flag_load_melevel=TRUE;
         }
         break;

@@ -1,6 +1,5 @@
 
 
-
 void CleanupGameAudio()
 {
   for (int i=0;i<MAX_ENEMY_NUM;i++) {
@@ -60,21 +59,6 @@ void AdjustGameAudio()
 }
 
 
-
-void InitOnce() {
-  GR_WIDTH=SCREEN_WIDTH;
-  GR_HEIGHT=SCREEN_HEIGHT;
-
-  player.cam_move_x=0;
-  player.cam_move_y=0;
-
-  player_load_color=player_color;
-  player_load_iris_color=player_iris_color;
-  player_load_pupil_color=player_pupil_color;
-  player_bullet_color=WHITE;
-}
-
-
 void InitLoadLvlSong()
 {
   //Load custom song
@@ -103,8 +87,7 @@ void InitLoadLvlSong()
 }
 
 
-void Init() {
-
+void Init() { //Repeatable
   //Load Best Score
   //Folder & file creation
   FILE *fptr;
@@ -191,101 +174,6 @@ void Init() {
 
 
 
-/*void InitPlatformsSprite(HWND hwnd, HDC hdc)
-{
-  wchar_t bmp_save[64];
-  swprintf(bmp_save,64,L"saves/%ls/map.bmp",level_names[level_chosen]);
-  wchar_t bmp_water_save[64];
-//  swprintf(bmp_water_save,64,L"saves/%ls/map_water.bmp",level_names[level_chosen]);
-  swprintf(bmp_water_save,64,L"saves/%ls/map_foreground.bmp",level_names[level_chosen]);
-  wchar_t bmp_save_shadow[64];
-  swprintf(bmp_save_shadow,64,L"saves/%ls/map_shadow.bmp",level_names[level_chosen]);
-  //SaveBitmapToFile2(map_platforms_sprite,rgbColorsDefault,bmp_save);
-
-  /*map_platforms_sprite=(HBITMAP)LoadImageW(
-        NULL,               // Handle to the instance (NULL for file)
-        bmp_save,           // File name of the bitmap
-        IMAGE_BITMAP,       // Type of image
-        0, 0,               // Desired width and height (0 to use actual size)
-        LR_LOADFROMFILE   // Load from file
-        | LR_CREATEDIBSECTION // Create a DIB section
-    );*/
-
-  /*map_water_platforms_sprite=(HBITMAP)LoadImageW(
-        NULL,               // Handle to the instance (NULL for file)
-        bmp_water_save,           // File name of the bitmap
-        IMAGE_BITMAP,       // Type of image
-        0, 0,               // Desired width and height (0 to use actual size)
-        LR_LOADFROMFILE   // Load from file
-        | LR_CREATEDIBSECTION // Create a DIB section
-    );*/
-
-
-  /*if (is_shadows && game_shadow) {
-  map_platforms_shadow_shader = (HBITMAP)LoadImageW(
-        NULL,               // Handle to the instance (NULL for file)
-        bmp_save_shadow,           // File name of the bitmap
-        IMAGE_BITMAP,       // Type of image
-        0, 0,               // Desired width and height (0 to use actual size)
-        LR_LOADFROMFILE   // Load from file
-        | LR_CREATEDIBSECTION // Create a DIB section
-  );
-  }*/
-
-  /*if (map_platforms_sprite==NULL) {
-    PAINTSTRUCT ps; //Suggestion Credit: https://git.xslendi.xyz
-    hdc=BeginPaint(hwnd, &ps);
-    HDC hdc2=CreateCompatibleDC(hdc);
-
-
-    map_platforms_sprite=CreateCrunchyBitmap(MAP_WIDTH,MAP_HEIGHT);
-  //map_platforms_sprite=CreateLargeBitmap(MAP_WIDTH,MAP_HEIGHT);
-
-    SelectObject(hdc2,map_platforms_sprite);
-
-    GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,MYCOLOR1); //Create Background with random color over platforms
-
-    DrawGroundTriFill(hdc2);
-    DrawGround(hdc2);
-    DrawGroundText(hdc2);
-
-    //if (map_platforms_shadow_shader==NULL) {
-    //CreatePlatformShadowBitmap(hdc2);//,map_platforms_sprite);
-    //SaveBitmapToFile2(map_platforms_shadow_shader,rgbColorsDefault, bmp_save_shadow);
-    //}  
-
-    DeleteDC(hdc2);
-    EndPaint(hwnd, &ps);
-    //SaveBitmapToFile2(map_platforms_sprite,rgbColorsDefault, bmp_save);
-    //BitmapPalette(hdc,map_platforms_sprite,rgbColorsDefault);
-  }*/
-
-  /*if (map_water_platforms_sprite==NULL && has_water) {
-    PAINTSTRUCT ps; //Suggestion Credit: https://git.xslendi.xyz
-    hdc=BeginPaint(hwnd, &ps);
-    HDC hdc2=CreateCompatibleDC(hdc);
-
-    map_water_platforms_sprite=CreateCrunchyBitmap(MAP_WIDTH,MAP_HEIGHT);
-    SelectObject(hdc2,map_water_platforms_sprite);
-    GrRect(hdc2,0,0,MAP_WIDTH+1,MAP_HEIGHT+1,MYCOLOR1); //Create Background with random color over platforms
-    DrawWaterTriFill(hdc2);
-
-    DeleteDC(hdc2);
-    EndPaint(hwnd, &ps);
-  }*/
-
-
-  //map_platforms_sprite_mask=CreateBitmapMask(map_platforms_sprite,MYCOLOR1,NULL); //create mask where black becomes   //end of platform sprite creation
-
-  /*if (has_water) {
-    map_water_platforms_sprite_mask=CreateBitmapMask(map_water_platforms_sprite,MYCOLOR1,NULL); //create mask where black becomes   //end of platform sprite creation
-  }*/
-  //printf("mask created\n");
-
-  //map_platforms_shadow_shader_mask=CreateBitmapMask(map_platforms_shadow_shader,MYCOLOR1,NULL);
-//}*/
-
-
 
 
 void InitLevel(bool load_lvl)
@@ -313,7 +201,7 @@ void InitLevel(bool load_lvl)
         swprintf(save_level,128,L"saves/%ls/scores_hard_fw.txt",level_names[level_chosen]);
       }
     }
-  } else {
+  } else { //load main menu level
     swprintf(lvl_name,128,L"__006__");    
     swprintf(txt,128,L"saves/__006__/level.txt");
     swprintf(save_level,128,L"saves/__006__/scores.txt");
@@ -340,35 +228,46 @@ void InitLevel(bool load_lvl)
   srand(time(NULL));
   timeBeginPeriod(1);
 
+  GR_WIDTH=SCREEN_WIDTH;
+  GR_HEIGHT=SCREEN_HEIGHT;
 
-  InitOnce();//cannot be repeatedly run
-  Init();
+  player.cam_move_x=0;
+  player.cam_move_y=0;
 
+  player_load_color=player_color;
+  player_load_iris_color=player_iris_color;
+  player_load_pupil_color=player_pupil_color;
+  player_bullet_color=WHITE;
 
-  //InitOnce2
+  Init(); //Repeatable, Load Save via \n
+
+  //Load nalloc-able objects
   InitGroundWaterObj();
   InitGroundFireObj();
-  //Load Enemy cache sprites
   InitGridTiles(lvl_name);
   InitEnemySprites();
-  loading_denominator=SHADOW_GRID_NUM+PLATFORM_GRID_NUM+FOREGROUND_GRID_NUM+ENEMY_TYPE_NUM+(LARGE_ENEMY_TYPE_NUM*ROTATED_SPRITE_NUM*2)+LARGER_ENEMY_TYPE_NUM*ROTATED_SPRITE_NUM;
+
+  //declare size of denominator
+  loading_denominator=SHADOW_GRID_NUM+PLATFORM_GRID_NUM/*+FOREGROUND_GRID_NUM*/+ENEMY_TYPE_NUM+(LARGE_ENEMY_TYPE_NUM*ROTATED_SPRITE_NUM*2)+LARGER_ENEMY_TYPE_NUM*ROTATED_SPRITE_NUM;
 
   InitEnemySpritesObj();
   InitPFEnemyObj();
   InitEnemyPathfindingNodes();
 
-  if (load_lvl) {
+  if (load_lvl) { //not in main menu
     in_main_menu=FALSE;
-  } else {
-    int dice=abs(RandNum(0,100,&misc_rng_i,-1));
+  } else { //going to main menu
+    int dice=abs(RandNum(0,100,&misc_rng_i,-1)); //random weather
     if (dice<30) {
       if (dice>15) {
-        map_weather=1;
+        map_weather=1; //rain
+      } else if (dice<7) {
+        map_weather=2; //snow
       } else {
-        map_weather=2;
+        map_weather=3; //hailstorm
       }
     } else {
-      map_weather=0;
+      map_weather=0; //clear
     }
   }
 

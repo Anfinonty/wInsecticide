@@ -82,8 +82,6 @@ bool flag_restart=FALSE;
 bool flag_restart_audio=FALSE;
 bool flag_adjust_audio=FALSE;
 bool flag_adjust_wav_out_audio=FALSE;
-bool flag_load_level=FALSE;
-bool flag_load_melevel=FALSE;
 bool load_sound=FALSE;
 bool back_to_menu=TRUE;
 bool run_after_once=FALSE;
@@ -100,6 +98,17 @@ bool flag_display_long_loading=FALSE;
 bool hide_cursor=FALSE;
 bool hide_mm=FALSE;
 bool flag_load_player_sprite=TRUE;
+
+//Exit Flags
+//bool flag_exit_to_main_menu=FALSE;
+//bool flag_game_task_stopped=FALSE;
+bool flag_draw_task_stopped=FALSE;
+bool flag_game_task_stopped=FALSE;
+bool flag_sound_task_stopped=FALSE;
+
+bool flag_load_esll=FALSE;
+bool flag_load_level=FALSE;
+bool flag_load_melevel=FALSE;
 
 //game options
 bool yes_unifont=TRUE;//FALSE;
@@ -560,49 +569,75 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
   while (TRUE) {
     if (prelude) {
       Sleep(1000);
+    } else if (flag_game_task_stopped && flag_draw_task_stopped && flag_sound_task_stopped) { //cleanup task after game && draw not acting
+      if (back_to_menu) { //'ESC' from game or map_editor
+        if (in_map_editor) {
+          CleanupMapEditorAll(); //map_editor=FALSE done in this function
+        } else {
+          CleanupAll(TRUE);
+        }
+        flag_update_background=TRUE;
+        flag_game_task_stopped=FALSE;
+        flag_draw_task_stopped=FALSE;
+        flag_sound_task_stopped=FALSE;
+        InitLevel(FALSE);
+      } else if (flag_load_level) { //'/n' from main menu
+        if (blank_level) {
+          CleanUpBlankLevel();
+        } else {
+          CleanupAll(FALSE);
+        }
+        flag_update_background=TRUE;
+        flag_load_level=FALSE;
+        flag_game_task_stopped=FALSE;
+        flag_draw_task_stopped=FALSE;
+        flag_sound_task_stopped=FALSE;
+        InitLevel(TRUE);
+      } else if (flag_load_melevel) { //'3' from main_menu
+        if (blank_level) {
+          CleanUpBlankLevel();
+        } else {
+          CleanupAll(FALSE);
+        }
+        InterruptAllSnd();
+        flag_update_background=TRUE;
+        flag_load_melevel=FALSE;
+        flag_game_task_stopped=FALSE;
+        flag_draw_task_stopped=FALSE;
+        flag_sound_task_stopped=FALSE;
+        InitLevelMapEditor();
+      } else if (flag_load_esll) { //'2' from main_menu
+        if (blank_level) {
+          CleanUpBlankLevel();
+        } else {
+          CleanupAll(FALSE);
+        }
+        wchar_t txt[128];
+        swprintf(txt,128,L"saves/%ls/level.txt",level_names[level_chosen]);
+        LoadSave(txt,FALSE); //load saves
+
+        wcsncpy(typing_lvl_name,level_names[level_chosen],16);
+        typing_lvl_name_pos=lstrlenW(typing_lvl_name);
+        set_ground_amount=GROUND_NUM;
+        set_enemy_amount=ENEMY_NUM;
+        set_map_width_amount=MAP_WIDTH;
+        set_map_height_amount=MAP_HEIGHT;
+        flag_update_background=TRUE;
+        flag_load_esll=FALSE;
+        flag_game_task_stopped=FALSE;
+        flag_draw_task_stopped=FALSE;
+        flag_sound_task_stopped=FALSE;
+      }
+      Sleep(6); //end of cleanup
     } else if (level_loading) { //Loading Level
       Sleep(1000);
     } else if (!in_main_menu) { //In Game
-      if (flag_restart) {
-        //Sleep(100);
-      } else {
+      if (!flag_restart) {
         if (level_loaded) {
-          PlayerAct();
-          //PlayerAct(player_type);
-
-          for (int i=0;i<ENEMY_NUM;i++) {
-            EnemyAct(i);
-          }
-          if (map_weather>0) {
-            RainAct();
-            if (!player.time_breaker) {
-              ScreenRainDropAct();
-            }
-          }
-          if (FIRE_GROUND_NUM>0 && !player.time_breaker) {
-            GroundFireAct();
-          }
-          Sleep(player.sleep_timer);
-        } else {
-          Sleep(1000);
-        }
-      }
-    } else if (in_map_editor) { //In map editor
-      MapEditorAct();
-      Sleep(6);
-    } else { //In Main menu
-      if (main_menu_chosen==3 || blank_level) {
-        Sleep(1000);
-      } else {
-        if (wav_mode!=0) { //non mode 0, dj
-          Sleep(1000);
-        } else { //mode 0, map demo, WARNING, currently no flags to interrupt when sudden map loading
-          //if (flag_restart) {
-            //Sleep(100);
-          //}
-          if (level_loaded && !flag_restart) {
+          if (!flag_game_task_stopped) {
             PlayerAct();
-      
+            //PlayerAct(player_type);
+
             for (int i=0;i<ENEMY_NUM;i++) {
               EnemyAct(i);
             }
@@ -615,36 +650,65 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
             if (FIRE_GROUND_NUM>0 && !player.time_breaker) {
               GroundFireAct();
             }
-
-          //demo main menu sound act
-            if (game_audio && !flag_load_melevel) {
-              for (int i=0;i<player.bullet_shot_num;i++) {
-                BulletSndAct(player.bullet[i]);
-              }
-              if (player.bullet_shot!=-1) { //player sounds made by sniper player bullets
-                BulletSndAct(player.bullet_shot);
-              }
+            if (back_to_menu) {
+              flag_game_task_stopped=TRUE;
+            }
+          }
+          Sleep(player.sleep_timer);
+        } else {
+          Sleep(1000);
+        }
+      }
+    } else if (in_map_editor) { //In map editor
+      flag_sound_task_stopped=TRUE;
+      MapEditorAct();
+      Sleep(6);
+    } else { //In Main menu
+      if (main_menu_chosen==3 || blank_level) {
+        Sleep(1000);
+      } else {
+        if (wav_mode!=0) { //non mode 0, dj
+          Sleep(1000);
+        } else { //mode 0, map demo
+          if (level_loaded && !flag_restart) {
+            if (!flag_game_task_stopped && !flag_sound_task_stopped) {
+              PlayerAct();
               for (int i=0;i<ENEMY_NUM;i++) {
-                EnemySndAct(i);
+                EnemyAct(i);
               }
-              PlayerSndAct();       
+              if (map_weather>0) {
+                RainAct();
+                if (!player.time_breaker) {
+                  ScreenRainDropAct();
+                }
+              }
+              if (FIRE_GROUND_NUM>0 && !player.time_breaker) {
+                GroundFireAct();
+              }
+
+            //demo main menu sound act
+              if (game_audio && !flag_load_level && !flag_load_melevel && !flag_load_esll) {
+                for (int i=0;i<player.bullet_shot_num;i++) {
+                  BulletSndAct(player.bullet[i]);
+                }
+                if (player.bullet_shot!=-1) { //player sounds made by sniper player bullets
+                  BulletSndAct(player.bullet_shot);
+                }
+                for (int i=0;i<ENEMY_NUM;i++) {
+                  EnemySndAct(i);
+                }
+                PlayerSndAct();       
+              }
+              
+            //flag to stop
+              if (flag_load_level || flag_load_melevel || flag_load_esll) {
+                flag_sound_task_stopped=TRUE;
+                flag_game_task_stopped=TRUE;
+              }
             }
           }
           Sleep(6);
         } //end of wav_mode==0 in main menu
-
-
-
-        if (flag_load_level) {
-          flag_load_level=FALSE;
-          if (main_menu_chosen==0) {
-            InitLevel(TRUE);
-          }
-        } else if (flag_load_melevel) {
-          InterruptAllSnd();
-          flag_load_melevel=FALSE;
-          InitLevelMapEditor();
-        }
       }
     }
   }
@@ -880,7 +944,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           //flag_adjust_wav_out_audio=TRUE;
           flag_adjust_audio=TRUE;
           flag_update_background=TRUE;
-          InitLevel(FALSE);
+          InitLevel(FALSE); //load from prelude
           frame_tick=-FPS;
           player.flag_revert_palette=TRUE;
           player.time_breaker_tick=-1;
@@ -1266,13 +1330,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               }
               DeleteObject(tmp_map_background_sprite);
             }
-        } //end of screen actions
+        } //end of alter screen actions
 
 
+        //Draw Game Screen
         HBITMAP screen;
-        PAINTSTRUCT ps;
-        
-        if (prelude) {
+        PAINTSTRUCT ps;        
+        if (prelude) { //draw prelude screen
           hdc=BeginPaint(hwnd, &ps);
           hdcBackbuff=CreateCompatibleDC(hdc);
           hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
@@ -1297,13 +1361,20 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           DeleteDC(hdcBackbuff2);
           DeleteDC(hdcBackbuff);
           DeleteObject(screen);
-        } else if (level_loading) {
+
+        } else if (level_loading) { //draw level loading, also loads level
           hdc=BeginPaint(hwnd, &ps);
           hdcBackbuff=CreateCompatibleDC(hdc);
           hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
 
-          if (flag_begin_drawing_tiles) {
+          if (flag_begin_drawing_tiles && !flag_game_task_stopped && !flag_draw_task_stopped) {
             DrawCreateTiles(hdcBackbuff,hdcBackbuff2);
+            /*flag_begin_drawing_tiles=FALSE;
+              level_loading=FALSE;
+              level_loaded=TRUE;
+              if (back_to_menu) {
+                back_to_menu=FALSE;
+              }            */
           }
 
           screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
@@ -1324,23 +1395,22 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           DeleteDC(hdcBackbuff2);
           DeleteDC(hdcBackbuff);
           DeleteObject(screen);
+
+
         } else {
+          if (!in_main_menu) //### In game
+          { //https://stackoverflow.com/questions/752593/win32-app-suspends-on-minimize-window-animation
+            frame_tick++;
+            showoff++;
+            if (frame_tick>FPS) {
+              frame_tick=0;
+            }
 
-
-
-        if (!in_main_menu) //### In game
-        { //https://stackoverflow.com/questions/752593/win32-app-suspends-on-minimize-window-animation
-          frame_tick++;
-          showoff++;
-          if (frame_tick>FPS) {
-            frame_tick=0;
-          }
-
-          if (level_loaded) {
-            if (enemy_kills<ENEMY_NUM) {
+            if (level_loaded && !flag_draw_task_stopped) {
+            if (enemy_kills<ENEMY_NUM) { //game has not ended
               game_timer= current_timestamp() - time_begin;
             } else {
-              if (!game_over) {
+              if (!game_over) { //game has ended
                 if (game_timer<int_best_score && player.health>0) { //New high score
                   FILE *fptr;
                   fptr = _wfopen(save_level,L"w");
@@ -1354,7 +1424,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               }
             }
 
-            if (game_cam_shake && player.health>0) {
+            if (game_cam_shake && player.health>0) { //camera shake
               PlayerCameraShake();
             }
 
@@ -1375,26 +1445,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DrawFirePlatforms(hdcBackbuff);
             DrawWebs(hdcBackbuff);
             DrawEnemy(hdcBackbuff,hdcBackbuff2);
-            //DrawPlayer(hdcBackbuff,hdcBackbuff2);
             DrawPlayer(hdcBackbuff,hdcBackbuff2,player.type);
-
-            //DrawWaterPlatforms(hdcBackbuff,hdcBackbuff2);
             //DrawNodeGrids(hdcBackbuff); //debugging
 
 
             if (is_shadows && game_shadow && SHADOW_GRID_NUM>0) {
               DrawShadows(hdcBackbuff,hdcBackbuff2);
             }
-
-            //DrawGrids(hdcBackbuff); //debugging
-            //DrawWaterShader(hdcBackbuff,hdcBackbuff2); //deprecated
             if (map_weather>0) {
               DrawRain(hdcBackbuff,hdcBackbuff2);
-              /*if (!player.in_water) {
-                DrawRainShader(hdcBackbuff,hdcBackbuff2);  //deprecated
-              }*/
               DrawRainShader3(hdcBackbuff);
-              //DrawRainShader(hdcBackbuff,hdcBackbuff2);
             }
             DrawBlackBorders(hdcBackbuff);
             DrawUI(hdcBackbuff,hdcBackbuff2);
@@ -1444,12 +1504,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DeleteDC(hdcBackbuff);
             DeleteObject(screen);
 
-
             //Trigger go back to main menu
             if (back_to_menu) {
-              CleanupAll(TRUE);
-              flag_update_background=TRUE;
-              InitLevel(FALSE);
+              flag_draw_task_stopped=TRUE;
             }
           }
         } else if (in_map_editor) {
@@ -1503,12 +1560,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DeleteDC(hdcBackbuff);
             DeleteObject(screen);
 
-              //Map Editor, Trigger go back to main menu
+            //Map Editor, Trigger go back to main menu
             if (back_to_menu) {
-              CleanupMapEditorAll();
-              flag_update_background=TRUE;
-              InitLevel(FALSE);
+              flag_draw_task_stopped=TRUE;
             }
+
           }
         } else { //In Main Menu
           showoff++;
@@ -1582,6 +1638,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           DeleteDC(hdcBackbuff2);
           DeleteDC(hdcBackbuff);
           DeleteObject(screen);
+
+          //flag to stop
+          if (flag_load_level || flag_load_melevel || flag_load_esll) {
+            flag_draw_task_stopped=TRUE;
+          }
         }
         }
         EndPaint(hwnd, &ps);
@@ -1652,20 +1713,20 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         }
         return 0;
         break;
-
-
                 //Actions based on Joystick input
                 // Process joystick input
 
         //}
         //return 0;
 
-    //Tasks to perform on start
+    //Tasks to perform on start before app begin
     case WM_CREATE:
     {
       //LoadBufferSFX(L"music/helicopter.wav");
       //MessageBox(NULL, TEXT("ភាសាខ្មែរ"), TEXT("ភាសាខ្មែរ") ,MB_OK); //khmer text box
       //printf("boolsize:%d",sizeof(bool));      
+
+      //Loading Bar
       loading_numerator=0;
       loading_denominator=ROTATED_SPRITE_NUM*7; //(2roach,2toebiter,2ant,extratoebiter
 
@@ -1676,6 +1737,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         system("mkdir \"music_tmp/\""); //make new music tmp
       }
 
+
+      //Shadows
+      gblendFunction.BlendOp = AC_SRC_OVER;
+      gblendFunction.BlendFlags = 0;
+      gblendFunction.SourceConstantAlpha = 32; // Transparency level (0-255)
+      gblendFunction.AlphaFormat = 0;
 
       //AddFontResource(L"fonts/KhmerUI.ttf");
       //AddFontResource(L"fonts/KhmerOSsys.ttf");
@@ -1838,21 +1905,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         InitSetRes(125,15360,8640,"16K",L"16K");
         InitSetRes(126,16384,8640,"16K Full Format",L"16K Full Format");
-      //...
-        gblendFunction.BlendOp = AC_SRC_OVER;
-        gblendFunction.BlendFlags = 0;
-        gblendFunction.SourceConstantAlpha = 32; // Transparency level (0-255)
-        gblendFunction.AlphaFormat = 0;
 
-
-
-       casbs_i=0;
-       chosen_buffer_length_o=buffer_length_arr[casbs_i];
-       chosen_buffer_size_o=buffer_size_arr[casbs_i];
-       chosen_buffer_length=buffer_length_arr[casbs_i];
-       chosen_buffer_size=buffer_size_arr[casbs_i];
-
-
+      //Load Resolution
       for (int i=1;i<SCREEN_RESOLUTION_NUM;i++) {
         if (SCREEN_WIDTH==RESOLUTION_X[i] && SCREEN_HEIGHT==RESOLUTION_Y[i]) {
           MAX_RESOLUTION_I=i+1;
@@ -1860,20 +1914,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         }
       }
 
-
-      /*WATER_GROUND_NUM=0;
-      for (int i=0;i<MAX_GROUND_NUM;i++) {
-        rendered_water_ground[i]=-1;
-      }*/
-
-
       resolution_choose=0;//MAX_RESOLUTION_I-1;
       GR_WIDTH=RESOLUTION_X[resolution_choose];
       GR_HEIGHT=RESOLUTION_Y[resolution_choose];
       flag_resolution_change=TRUE;
 
+      //Load RNG Table
       LoadRngTable(L"saves/rngtable.txt");
 
+      //Load Color Palettes
       Init8BitRGBColorsNoir(rgbColorsNoir);
       Init8BitRGBColorsDefault(rgbColorsDefault);
       Init8BitRGBColorsInvert(rgbColorsInvert,rgbColorsDefault);
@@ -1887,11 +1936,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
      // waveOutOpen(&audioData[0].hWaveOut, WAVE_MAPPER, &audioData[0].awfx_music, (DWORD_PTR)waveOutProc1, (DWORD_PTR)&audioData[0], CALLBACK_FUNCTION);
      // waveOutOpen(&audioData[1].hWaveOut, WAVE_MAPPER, &audioData[1].awfx_music, (DWORD_PTR)waveOutProc1, (DWORD_PTR)&audioData[1], CALLBACK_FUNCTION);
 
+      //Load AVI Frames intro
       InitExtractAVIFrames(L"avi/intro_.avi",0);
 
 
+      //Load Song Audio
       //waveOutGetVolume(audioData[0].hWaveOut,&wav_out_original_volume);
       //waveOutSetVolume(audioData[0].hWaveOut,wav_out_original_volume);
+      casbs_i=0;
+      chosen_buffer_length_o=buffer_length_arr[casbs_i];
+      chosen_buffer_size_o=buffer_size_arr[casbs_i];
+      chosen_buffer_length=buffer_length_arr[casbs_i];
+      chosen_buffer_size=buffer_size_arr[casbs_i];
+
       audioData[0].tempo=1.0;
       audioData[0].sps_o=0;
       audioData[0].sps_offset=0;
@@ -2546,10 +2603,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   }
 
   SetForegroundWindow(hwnd);
-  HANDLE thread1=CreateThread(NULL,0,AnimateTask01,NULL,0,NULL); //Spawm Game Logic Thread
-  HANDLE thread2=CreateThread(NULL,0,AnimateTask02,NULL,0,NULL); //Spawm Game Logic Thread
+  HANDLE thread1=CreateThread(NULL,0,AnimateTask01,NULL,0,NULL); //Spawn Game Logic Thread
+  HANDLE thread2=CreateThread(NULL,0,AnimateTask02,NULL,0,NULL); //Spawn Song Player Logic and Misc
   HANDLE thread3=CreateThread(NULL,0,SoundTask,NULL,0,NULL); //Spawn Song Player Thread
-  HANDLE thread4=CreateThread(NULL,0,SpamSoundTask,NULL,0,NULL);
+  HANDLE thread4=CreateThread(NULL,0,SpamSoundTask,NULL,0,NULL); //player only
 
 
   //HANDLE thread4=CreateThread(NULL,0,AnimateAVI,NULL,0,NULL); //Spawm Game Logic Thread

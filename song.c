@@ -1159,32 +1159,37 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
     //Game sound tasks
   if (!in_main_menu) {
       //Play Game Souond
-      if (game_audio && level_loaded) {
-        if (!player.time_breaker) { //player sounds made by player bullets
-          for (int i=0;i<player.bullet_shot_num;i++) {
-            BulletSndAct(player.bullet[i]);
-          }
-        }
-        if (player.bullet_shot!=-1) { //player sounds made by sniper player bullets
-          BulletSndAct(player.bullet_shot);
-        }
-        if (level_loaded) {
-          if (!flag_restart_audio) {
-            for (int i=0;i<ENEMY_NUM;i++) {
-              EnemySndAct(i);
+      if (!flag_sound_task_stopped) {
+        if (game_audio && level_loaded) {
+          if (!player.time_breaker) { //player sounds made by player bullets
+            for (int i=0;i<player.bullet_shot_num;i++) {
+              BulletSndAct(player.bullet[i]);
             }
-            PlayerSndAct();       
-          } else {
-            for (int i=0;i<ENEMY_NUM;i++) {
-              PlaySound(NULL, NULL, SND_ASYNC);
-            }
-            flag_restart_audio=FALSE;
           }
-        }
-      }
+          if (player.bullet_shot!=-1) { //player sounds made by sniper player bullets
+            BulletSndAct(player.bullet_shot);
+          }
+          if (level_loaded) {
+            if (!flag_restart_audio) {
+              for (int i=0;i<ENEMY_NUM;i++) {
+                EnemySndAct(i);
+              }
+              PlayerSndAct();       
+            } else {
+              for (int i=0;i<ENEMY_NUM;i++) {
+                PlaySound(NULL, NULL, SND_ASYNC);
+              }
+              flag_restart_audio=FALSE;
+            }
+          }
+        } //end of level loaded
 
-      if (call_help_timer<2000/*5000*/) {
-        call_help_timer+=10;
+        if (call_help_timer<2000/*5000*/) {
+          call_help_timer+=2;
+        }
+        if (back_to_menu) { //go back to menu
+          flag_sound_task_stopped=TRUE; //stop snd act
+        } 
       }
       Sleep(6);
 

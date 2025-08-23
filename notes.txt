@@ -4,3 +4,8 @@ i686-w64-mingw32-gcc-win32 run.c -o "WINSECTICIDE.EXE" my.o -lusp10 -lgdi32 -lgd
 
 
 https://winlibs.com/
+
+
+
+i686-w64-mingw32-windres my.rc -O coff -o my.o
+
