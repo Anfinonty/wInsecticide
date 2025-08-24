@@ -939,10 +939,10 @@ void RainBulletAct(int bullet_id)
   RainBulletTransitNodeGrid(bullet_id);
 
   if (Bullet[bullet_id].graphics_type==-10 && Bullet[bullet_id].range<3 && Bullet[bullet_id].speed==1) { //hailstorm but hit ground
-    if (GR_WIDTH>800)
-      Bullet[bullet_id].speed=0.01;
-    else
-      Bullet[bullet_id].speed=0.02;
+    //if (GR_WIDTH>800)
+      //Bullet[bullet_id].speed=0.02;
+    //else
+    Bullet[bullet_id].speed=0.02;
   }
 
   if (bullet_on_ground_id!=-1) {//hit platform

@@ -510,6 +510,7 @@ void PersiaLunarTime(int64_t _seconds,
 
 //Maths
 //public_seed = rand() in WM_PAINT
+//minmax inclusive
 int RandNum(int min, int max, int *global_rand_i,int seed) {
   int m=0;
   if (min<0) {

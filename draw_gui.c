@@ -19,25 +19,48 @@ void InitScreenRainDrop()
     sc_raindrop[i].y=sc_raindrop[i].oy;
 
     switch (map_weather) {
-      case 1:
+      case 1: //rain
         sc_raindrop[i].speed=RandNum(2,10,&misc_rng_i,-1)*0.1;
-        sc_raindrop[i].olifetime=RandNum(50,200,&misc_rng_i,-1);
+        sc_raindrop[i].olifetime=0;//RandNum(50,200,&misc_rng_i,-1);
         sc_raindrop[i].lifetime=sc_raindrop[i].olifetime;
         break;
-      case 2:
+      case 2: //snow
         sc_raindrop[i].speed=RandNum(1,3,&misc_rng_i,-1)*0.01;
-        sc_raindrop[i].olifetime=RandNum(1000,1100,&misc_rng_i,-1);
+        sc_raindrop[i].olifetime=0;//RandNum(1000,1100,&misc_rng_i,-1);
         sc_raindrop[i].lifetime=sc_raindrop[i].olifetime;
         break;
-      case 3:
+      case 3: //hailstorm
         sc_raindrop[i].speed=RandNum(1,3,&misc_rng_i,-1)*0.01;
-        sc_raindrop[i].olifetime=RandNum(100,300,&misc_rng_i,-1);
+        sc_raindrop[i].olifetime=0;//RandNum(100,300,&misc_rng_i,-1);
         sc_raindrop[i].lifetime=sc_raindrop[i].olifetime;
         break;
     }
   }
 }
 
+int YParabola(int x) {
+  //0 = y=GR_HEIGHT/2
+  //GR_WIDTH/2 = y=0 
+  /*
+  y=240
+  x=0
+
+  320 ---> half of GR_WIDTH
+  Example:
+  y=(x-320)^2/k
+
+  if x==0, y=240 ---> half of GR_HEIGHT
+
+  240 = (-320)^2/k
+
+  k = (-320)^2/240
+  */
+
+  double k = (GR_WIDTH/2*GR_WIDTH/2)/GR_HEIGHT*2; //adjust denominator to widen parabola
+  double X = (x-GR_WIDTH/2);
+  double y = (X*X)/k; 
+  return (int)y; 
+}
 
 void ScreenRainDropAct()
 {
@@ -48,21 +71,36 @@ void ScreenRainDropAct()
       sc_raindrop[i].oy+=sc_raindrop[i].speed/3;
     } else {
       if (player.rain_wet_timer>0) {
-        sc_raindrop[i].x=RandNum(-20,GR_WIDTH+20,&misc_rng_i,-1);
-        sc_raindrop[i].oy=RandNum(-20,GR_HEIGHT+20,&misc_rng_i,-1);
-        sc_raindrop[i].y=sc_raindrop[i].oy;
         switch (map_weather) {
           case 1:
+            sc_raindrop[i].x=RandNum(-20,GR_WIDTH+20,&misc_rng_i,-1);
+            sc_raindrop[i].oy=RandNum(-20,GR_HEIGHT+20,&misc_rng_i,-1);
+            sc_raindrop[i].y=sc_raindrop[i].oy;
             sc_raindrop[i].speed=RandNum(2,10,&misc_rng_i,-1)*0.1;
             sc_raindrop[i].olifetime=RandNum(50,200,&misc_rng_i,-1);
             sc_raindrop[i].lifetime=sc_raindrop[i].olifetime;
             break;
-          case 2:
+          case 2: {
+            sc_raindrop[i].x=RandNum(-10,GR_WIDTH+10,&misc_rng_i,-1);
+            int dice=RandNum(0,1,&misc_rng_i,-1);
+            if (dice==0) //top
+              sc_raindrop[i].oy=RandNum(1,YParabola(sc_raindrop[i].x),&misc_rng_i,-1);
+            else //down->top 
+              sc_raindrop[i].oy=GR_HEIGHT-24-RandNum(1,YParabola(sc_raindrop[i].x),&misc_rng_i,-1);
+            sc_raindrop[i].y=sc_raindrop[i].oy;
             sc_raindrop[i].speed=RandNum(1,3,&misc_rng_i,-1)*0.01;
             sc_raindrop[i].olifetime=RandNum(1000,1100,&misc_rng_i,-1);
             sc_raindrop[i].lifetime=sc_raindrop[i].olifetime;
+            }
             break;
           case 3:
+            sc_raindrop[i].x=RandNum(-10,GR_WIDTH+10,&misc_rng_i,-1);
+            int dice=RandNum(0,1,&misc_rng_i,-1);
+            if (dice==0) //top
+              sc_raindrop[i].oy=RandNum(1,YParabola(sc_raindrop[i].x),&misc_rng_i,-1);
+            else //down->top 
+              sc_raindrop[i].oy=GR_HEIGHT-24-RandNum(1,YParabola(sc_raindrop[i].x),&misc_rng_i,-1);
+            sc_raindrop[i].y=sc_raindrop[i].oy;
             sc_raindrop[i].speed=RandNum(1,3,&misc_rng_i,-1)*0.01;
             sc_raindrop[i].olifetime=RandNum(100,300,&misc_rng_i,-1);
             sc_raindrop[i].lifetime=sc_raindrop[i].olifetime;
@@ -170,6 +208,10 @@ void DrawRainShader3(HDC hdcMem)
             else
               //GrCircle(hdcMem,sc_raindrop[i].x+1,sc_raindrop[i].y,10,WHITE,WHITE);
               GrCircle(hdcMem,sc_raindrop[i].x+1,sc_raindrop[i].y,3,WHITE,WHITE);
+            GrLine(hdcMem,sc_raindrop[i].x-10,sc_raindrop[i].y,sc_raindrop[i].x+10,sc_raindrop[i].y,WHITE);
+            GrLine(hdcMem,sc_raindrop[i].x,sc_raindrop[i].y-10,sc_raindrop[i].x,sc_raindrop[i].y+10,WHITE);
+            GrLine(hdcMem,sc_raindrop[i].x-7,sc_raindrop[i].y-7,sc_raindrop[i].x+7,sc_raindrop[i].y+7,WHITE);
+            GrLine(hdcMem,sc_raindrop[i].x+7,sc_raindrop[i].y-7,sc_raindrop[i].x-7,sc_raindrop[i].y+7,WHITE);
             break;
           case 3:
             if (sc_raindrop[i].olifetime-sc_raindrop[i].lifetime<15)
