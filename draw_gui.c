@@ -56,7 +56,7 @@ int YParabola(int x) {
   k = (-320)^2/240
   */
 
-  int k = (GR_WIDTH/2*GR_WIDTH/2)/(1+GR_HEIGHT*2); //adjust denominator to widen parabola
+  int k = (GR_WIDTH/2*GR_WIDTH/2)/(1+GR_HEIGHT)*2; //adjust denominator to widen parabola
   if (k<=0) k=1;
   int X = (x-GR_WIDTH/2);
   int y = (X*X)/k; 
