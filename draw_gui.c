@@ -56,10 +56,11 @@ int YParabola(int x) {
   k = (-320)^2/240
   */
 
-  double k = (GR_WIDTH/2*GR_WIDTH/2)/GR_HEIGHT*2; //adjust denominator to widen parabola
-  double X = (x-GR_WIDTH/2);
-  double y = (X*X)/k; 
-  return (int)y; 
+  int k = (GR_WIDTH/2*GR_WIDTH/2)/(1+GR_HEIGHT*2); //adjust denominator to widen parabola
+  if (k<=0) k=1;
+  int X = (x-GR_WIDTH/2);
+  int y = (X*X)/k; 
+  return y; 
 }
 
 void ScreenRainDropAct()
@@ -84,9 +85,9 @@ void ScreenRainDropAct()
             sc_raindrop[i].x=RandNum(-10,GR_WIDTH+10,&misc_rng_i,-1);
             int dice=RandNum(0,1,&misc_rng_i,-1);
             if (dice==0) //top
-              sc_raindrop[i].oy=RandNum(1,YParabola(sc_raindrop[i].x),&misc_rng_i,-1);
+              sc_raindrop[i].oy=8+RandNum(1,YParabola(sc_raindrop[i].x),&misc_rng_i,-1);
             else //down->top 
-              sc_raindrop[i].oy=GR_HEIGHT-24-RandNum(1,YParabola(sc_raindrop[i].x),&misc_rng_i,-1);
+              sc_raindrop[i].oy=GR_HEIGHT-16-RandNum(1,YParabola(sc_raindrop[i].x),&misc_rng_i,-1);
             sc_raindrop[i].y=sc_raindrop[i].oy;
             sc_raindrop[i].speed=RandNum(1,3,&misc_rng_i,-1)*0.01;
             sc_raindrop[i].olifetime=RandNum(1000,1100,&misc_rng_i,-1);
@@ -97,9 +98,9 @@ void ScreenRainDropAct()
             sc_raindrop[i].x=RandNum(-10,GR_WIDTH+10,&misc_rng_i,-1);
             int dice=RandNum(0,1,&misc_rng_i,-1);
             if (dice==0) //top
-              sc_raindrop[i].oy=RandNum(1,YParabola(sc_raindrop[i].x),&misc_rng_i,-1);
+              sc_raindrop[i].oy=8+RandNum(1,YParabola(sc_raindrop[i].x),&misc_rng_i,-1);
             else //down->top 
-              sc_raindrop[i].oy=GR_HEIGHT-24-RandNum(1,YParabola(sc_raindrop[i].x),&misc_rng_i,-1);
+              sc_raindrop[i].oy=GR_HEIGHT-16-RandNum(1,YParabola(sc_raindrop[i].x),&misc_rng_i,-1);
             sc_raindrop[i].y=sc_raindrop[i].oy;
             sc_raindrop[i].speed=RandNum(1,3,&misc_rng_i,-1)*0.01;
             sc_raindrop[i].olifetime=RandNum(100,300,&misc_rng_i,-1);
