@@ -139,6 +139,7 @@ void Init() { //Repeatable
   InitRDGrid();
 
   InitScreenRainDrop();
+  InitShootingStars();
   InitBulletRain();
   //BitmapPalette(hdc,map_platforms_sprite,rgbColorsDefault);
   //BitmapPalette(hdc,map_water_platforms_sprite,rgbColorsDefault);

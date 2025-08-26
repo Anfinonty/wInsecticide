@@ -516,7 +516,7 @@ int RandNum(int min, int max, int *global_rand_i,int seed) {
   if (min<0) {
     m=min-1;
   }
-  if (seed!=-1) {
+  if (seed!=-1) { //random not from table
     return (rand()+seed)%(max-m + 1) + m;
   }
   return (myrand(global_rand_i))%(max-m + 1) + m;
@@ -569,7 +569,9 @@ double GetY(double x,double gradient,double c)
 
 double GetDistance(double x1,double y1,double x2,double y2)
 {
-  double dist=sqrt(pow(y2-y1,2)+pow(x2-x1,2));
+  double Y=y2-y1;
+  double X=x2-x1;
+  double dist=sqrt(Y*Y+X*X);//sqrt(pow(y2-y1,2)+pow(x2-x1,2));
   return dist;
 }
 

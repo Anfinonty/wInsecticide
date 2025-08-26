@@ -638,6 +638,11 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
             for (int i=0;i<ENEMY_NUM;i++) {
               EnemyAct(i);
             }
+            if (map_background==1) {
+              if (!player.time_breaker) {
+                ShootingStarAct();
+              }
+            }
             if (map_weather>0) {
               RainAct();
               if (!player.time_breaker) {
@@ -672,6 +677,11 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
               PlayerAct();
               for (int i=0;i<ENEMY_NUM;i++) {
                 EnemyAct(i);
+              }
+              if (map_background==1) {
+                if (!player.time_breaker) {
+                  ShootingStarAct();
+                }
               }
               if (map_weather>0) {
                 RainAct();
@@ -1453,7 +1463,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               DrawRain(hdcBackbuff,hdcBackbuff2);
               DrawRainShader3(hdcBackbuff);
             }
-            DrawBlackBorders(hdcBackbuff);
+            //DrawBlackBorders(hdcBackbuff);
             DrawUI(hdcBackbuff,hdcBackbuff2);
             if (player.health>0) {
               DrawCursor(hdcBackbuff,hdcBackbuff2);

@@ -114,6 +114,17 @@ void DrawBackground(HDC hdc,HDC hdc2)
       break;
   }
 
+
+  //Draw shooting stars
+  if (map_background==1) {
+    for (int i=0;i<SSTAR_NUM;i++) {
+      if (SStar[i].lifetime>0) {
+        GrCircle(hdc,SStar[i].x-GR_WIDTH/16*_ppx-mouse_x/50,SStar[i].y-GR_HEIGHT/16*_ppy-mouse_y/50,1,WHITE,WHITE);
+      }
+    }
+  }
+
+
   //draw moon
     if (
         ((!in_main_menu || (in_main_menu && map_weather==0 && !(solar_hour>6 && solar_hour<18))) &&

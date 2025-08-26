@@ -15,7 +15,8 @@ int CalculateDistanceCost(int enemy_id,int a, int b)
   if (y_dist<0) {
     y_dist*=-1;
   }
-  remaining=sqrt(pow(x_dist-y_dist,2));
+  //remaining=sqrt(pow(x_dist-y_dist,2));
+  remaining=abs(x_dist-y_dist);
   if (x_dist<y_dist) {
     picked=x_dist;
   } else {
@@ -3133,7 +3134,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
     if (!game_hard) { //enemy visibility
       allow_act=Enemy[i]->within_render_distance;
     } else {
-      allow_act=(player.health<=0 || (Enemy[i]->within_render_distance && (Enemy[i]->web_stuck || Enemy[i]->last_seen_timer>0)));
+      allow_act=(player.time_breaker || player.health<=0 || (Enemy[i]->within_render_distance && (Enemy[i]->web_stuck || Enemy[i]->last_seen_timer>0)));
     }
 
     if (allow_act) {

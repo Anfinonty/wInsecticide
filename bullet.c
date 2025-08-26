@@ -1435,6 +1435,7 @@ void DrawBullet2(HDC hdc,HDC hdc2,int i,double x,double y,int color)
 
     case -10: //hailstorm but hit ground
       GrCircle(hdc,x,y,2,WHITE,WHITE);
+      GrCircle(hdc,x+1,y,2,WHITE,WHITE);
       break;
 
     case -9: //death player

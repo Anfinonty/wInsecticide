@@ -38,6 +38,40 @@ void InitScreenRainDrop()
   }
 }
 
+
+void InitShootingStars()
+{
+  sstar_rng_i=0;
+  for (int i=0;i<SSTAR_NUM;i++) {
+    SStar[i].lifetime=0;
+    SStar[i].cooldown=0;
+    SStar[i].speed=10.0;
+  }
+}
+
+
+void ShootingStarAct()
+{
+  for (int i=0;i<SSTAR_NUM;i++) {
+    //movement
+    if (SStar[i].lifetime<1) { //how long it appears
+      if (SStar[i].cooldown<1) { //how long it doesnt appear
+        SStar[i].x=RandNum(0,GR_WIDTH,&sstar_rng_i,-1);
+        SStar[i].y=RandNum(0,GR_HEIGHT,&sstar_rng_i,-1);
+        SStar[i].angle=RandAngle(0,180,&sstar_rng_i,-1);
+        SStar[i].lifetime=5+RandNum(0,(GR_WIDTH+GR_HEIGHT)/20,&sstar_rng_i,-1);
+        SStar[i].cooldown=1000+RandNum(0,(GR_WIDTH+GR_HEIGHT)*2,&sstar_rng_i,-1);
+      } else {
+        SStar[i].cooldown--;
+      }
+    } else {
+      SStar[i].x+=SStar[i].speed*cos(SStar[i].angle);
+      SStar[i].y+=SStar[i].speed*sin(SStar[i].angle);
+      SStar[i].lifetime--;
+    }
+  }
+}
+
 int YParabola(int x) {
   //0 = y=GR_HEIGHT/2
   //GR_WIDTH/2 = y=0 

@@ -1114,14 +1114,14 @@ void CleanupAll(bool btm);
 #define SSTAR_NUM   3
 struct shooting_star
 {
-  int start_time;
-  int time;
+  //int start_time;
+  int cooldown;
+  int lifetime;
   double x;
   double y;
   double speed;
   double angle;
 } SStar[SSTAR_NUM];
-
 
 
 
@@ -1349,4 +1349,5 @@ void SaveLvlBmp(HWND hwnd,HDC hdc,const wchar_t *lvl_name);
 //rng values
 int weather_rng_i=0;
 int misc_rng_i=0;
-//int fire_rng_i=0;
+int sstar_rng_i;
+
