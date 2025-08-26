@@ -59,7 +59,7 @@ void ShootingStarAct()
         SStar[i].x=RandNum(0,GR_WIDTH,&sstar_rng_i,-1);
         SStar[i].y=RandNum(0,GR_HEIGHT,&sstar_rng_i,-1);
         SStar[i].angle=RandAngle(0,180,&sstar_rng_i,-1);
-        SStar[i].lifetime=5+RandNum(0,(GR_WIDTH+GR_HEIGHT)/20,&sstar_rng_i,-1);
+        SStar[i].lifetime=5+RandNum(0,(GR_WIDTH+GR_HEIGHT)/60,&sstar_rng_i,-1);
         SStar[i].cooldown=1000+RandNum(0,(GR_WIDTH+GR_HEIGHT)*2,&sstar_rng_i,-1);
       } else {
         SStar[i].cooldown--;
