@@ -1430,8 +1430,8 @@ void DrawBullet2(HDC hdc,HDC hdc2,int i,double x,double y,int color)
   if (!free_will) seed=-1;
   switch (Bullet[i].graphics_type) {
     case -11: //hailsorm
-      GrLine(hdc,x,y,x-16*cos(Bullet[i].angle),y-16*sin(Bullet[i].angle),color);
-      GrLineThick(hdc,x,y,x-3*cos(Bullet[i].angle),y-3*sin(Bullet[i].angle),2,color);
+      GrLine(hdc,x,y,x-48*cos(Bullet[i].angle),y-48*sin(Bullet[i].angle),color);
+      GrLineThick(hdc,x,y,x-10*cos(Bullet[i].angle),y-10*sin(Bullet[i].angle),2,color);
       //GrCircle(hdc,x,y,2,color,color);
       //GrCircle(hdc,x-2*cos(Bullet[i].angle),y-2*sin(Bullet[i].angle),2,color,color);
       break;
