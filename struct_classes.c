@@ -260,7 +260,7 @@ struct player
   int knockback_strength;
   int time_breaker_tick;
   int decceleration_timer;
-  int fast_duration;
+  //int fast_duration;
   int shoot_knife_duration;
   int hurt_snd_timer;
 
@@ -273,8 +273,8 @@ struct player
 
   int current_blur_sprite;
 
-  int rain_wet_timer;
-  int visible_rain_wet_timer;
+  //int rain_wet_timer;
+  //int visible_rain_wet_timer;
   int exp;
 
   int sprite_angle;
@@ -1314,10 +1314,13 @@ HBITMAP ga0_kh_mask[5];
 
 
 //raindrop
-int sc_raindrop_num=0;
-#define SC_RAINDROP_NUM  80
+int sc_raindrop_num_=0;
+int sc_raindrop_id_1=0;
+int sc_raindrop_id_2=0;
+#define SC_RAINDROP_NUM  240
 struct screenraindrop
 {
+  //bool once;
   int lifetime,olifetime;
   double oy,x,y,speed;
 } sc_raindrop[SC_RAINDROP_NUM];

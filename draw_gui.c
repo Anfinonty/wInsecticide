@@ -10,31 +10,92 @@ void DrawWaterShader(HDC hdc,HDC hdc2)
 
 
 
+int YParabola(int x) {
+  //0 = y=GR_HEIGHT/2
+  //GR_WIDTH/2 = y=0 
+  /*
+  y=240
+  x=0
+
+  320 ---> half of GR_WIDTH
+  Example:
+  y=(x-320)^2/k
+
+  if x==0, y=240 ---> half of GR_HEIGHT
+
+  240 = (-320)^2/k
+
+  k = (-320)^2/240
+  */
+
+  int k = (GR_WIDTH/2*GR_WIDTH/2)/(1+GR_HEIGHT)*2; //adjust denominator to widen parabola
+  if (k<=0) k=1;
+  int X = (x-GR_WIDTH/2);
+  int y = (X*X)/k; 
+  return y; 
+}
+
+void InitOneScreenRainDrop(int i)
+{
+  //sc_raindrop[i].once=FALSE;
+  int dice=0;
+  switch (map_weather) {
+    case 1:
+      sc_raindrop[i].x=RandNum(-200,GR_WIDTH+200,&misc_rng_i,-1);
+      sc_raindrop[i].oy=RandNum(-200,GR_HEIGHT+200,&misc_rng_i,-1);
+      sc_raindrop[i].y=sc_raindrop[i].oy;
+      sc_raindrop[i].speed=1;//RandNum(7,10,&misc_rng_i,-1)*0.1;
+      //sc_raindrop[i].olifetime=RandNum(50,200,&misc_rng_i,-1);
+      int min,lim;
+      //dice=RandNum(0,7,&misc_rng_i,-1);
+      //if (dice==0) {
+      /*if (GR_WIDTH>GR_HEIGHT) {
+        lim=GR_WIDTH;
+      } else {
+        lim=GR_HEIGHT;
+      }*/
+      min=300;
+      lim=400;
+      sc_raindrop[i].olifetime=RandNum(min,lim,&misc_rng_i,-1);
+      sc_raindrop[i].lifetime=sc_raindrop[i].olifetime;
+      break;
+    case 2: {
+      sc_raindrop[i].x=RandNum(-10,GR_WIDTH+10,&misc_rng_i,-1);
+      dice=RandNum(0,1,&misc_rng_i,-1);
+      if (dice==0) //top
+        sc_raindrop[i].oy=8+RandNum(1,YParabola(sc_raindrop[i].x),&misc_rng_i,-1);
+      else //down->top 
+        sc_raindrop[i].oy=GR_HEIGHT-16-RandNum(1,YParabola(sc_raindrop[i].x),&misc_rng_i,-1);
+      sc_raindrop[i].y=sc_raindrop[i].oy;
+      sc_raindrop[i].speed=RandNum(1,3,&misc_rng_i,-1)*0.01;
+      sc_raindrop[i].olifetime=RandNum(3000,3100,&misc_rng_i,-1);
+      sc_raindrop[i].lifetime=sc_raindrop[i].olifetime;
+      }
+      break;
+    case 3:
+      sc_raindrop[i].x=RandNum(-10,GR_WIDTH+10,&misc_rng_i,-1);
+      dice=RandNum(0,1,&misc_rng_i,-1);
+      if (dice==0) //top
+        sc_raindrop[i].oy=8+RandNum(1,YParabola(sc_raindrop[i].x),&misc_rng_i,-1);
+      else //down->top 
+        sc_raindrop[i].oy=GR_HEIGHT-16-RandNum(1,YParabola(sc_raindrop[i].x),&misc_rng_i,-1);
+      sc_raindrop[i].y=sc_raindrop[i].oy;
+      sc_raindrop[i].speed=RandNum(1,3,&misc_rng_i,-1)*0.01;
+      //sc_raindrop[i].olifetime=RandNum(100,300,&misc_rng_i,-1);
+      sc_raindrop[i].olifetime=RandNum(3000,3100,&misc_rng_i,-1);
+      sc_raindrop[i].lifetime=sc_raindrop[i].olifetime;
+      break;
+  }
+}
+
+
 void InitScreenRainDrop()
 {
-  sc_raindrop_num=0;
+  sc_raindrop_num_=
+  sc_raindrop_id_1=0;
+  sc_raindrop_id_2=0;
   for (int i=0;i<SC_RAINDROP_NUM;i++) {
-    sc_raindrop[i].x=RandNum(-20,GR_WIDTH+20,&misc_rng_i,-1);
-    sc_raindrop[i].oy=RandNum(-20,GR_HEIGHT+20,&misc_rng_i,-1);
-    sc_raindrop[i].y=sc_raindrop[i].oy;
-
-    switch (map_weather) {
-      case 1: //rain
-        sc_raindrop[i].speed=RandNum(2,10,&misc_rng_i,-1)*0.1;
-        sc_raindrop[i].olifetime=0;//RandNum(50,200,&misc_rng_i,-1);
-        sc_raindrop[i].lifetime=sc_raindrop[i].olifetime;
-        break;
-      case 2: //snow
-        sc_raindrop[i].speed=RandNum(1,3,&misc_rng_i,-1)*0.01;
-        sc_raindrop[i].olifetime=0;//RandNum(1000,1100,&misc_rng_i,-1);
-        sc_raindrop[i].lifetime=sc_raindrop[i].olifetime;
-        break;
-      case 3: //hailstorm
-        sc_raindrop[i].speed=RandNum(1,3,&misc_rng_i,-1)*0.01;
-        sc_raindrop[i].olifetime=0;//RandNum(100,300,&misc_rng_i,-1);
-        sc_raindrop[i].lifetime=sc_raindrop[i].olifetime;
-        break;
-    }
+    InitOneScreenRainDrop(i);
   }
 }
 
@@ -72,79 +133,64 @@ void ShootingStarAct()
   }
 }
 
-int YParabola(int x) {
-  //0 = y=GR_HEIGHT/2
-  //GR_WIDTH/2 = y=0 
-  /*
-  y=240
-  x=0
-
-  320 ---> half of GR_WIDTH
-  Example:
-  y=(x-320)^2/k
-
-  if x==0, y=240 ---> half of GR_HEIGHT
-
-  240 = (-320)^2/k
-
-  k = (-320)^2/240
-  */
-
-  int k = (GR_WIDTH/2*GR_WIDTH/2)/(1+GR_HEIGHT)*2; //adjust denominator to widen parabola
-  if (k<=0) k=1;
-  int X = (x-GR_WIDTH/2);
-  int y = (X*X)/k; 
-  return y; 
-}
 
 void ScreenRainDropAct()
 {
-  for (int i=0;i<sc_raindrop_num;i++) {
-    if (sc_raindrop[i].lifetime>0) {
-      sc_raindrop[i].lifetime--;
-      sc_raindrop[i].y+=sc_raindrop[i].speed;
-      sc_raindrop[i].oy+=sc_raindrop[i].speed/3;
-    } else {
-      if (player.rain_wet_timer>0) {
-        switch (map_weather) {
-          case 1:
-            sc_raindrop[i].x=RandNum(-20,GR_WIDTH+20,&misc_rng_i,-1);
-            sc_raindrop[i].oy=RandNum(-20,GR_HEIGHT+20,&misc_rng_i,-1);
-            sc_raindrop[i].y=sc_raindrop[i].oy;
-            sc_raindrop[i].speed=RandNum(2,10,&misc_rng_i,-1)*0.1;
-            sc_raindrop[i].olifetime=RandNum(50,200,&misc_rng_i,-1);
-            sc_raindrop[i].lifetime=sc_raindrop[i].olifetime;
-            break;
-          case 2: {
-            sc_raindrop[i].x=RandNum(-10,GR_WIDTH+10,&misc_rng_i,-1);
-            int dice=RandNum(0,1,&misc_rng_i,-1);
-            if (dice==0) //top
-              sc_raindrop[i].oy=8+RandNum(1,YParabola(sc_raindrop[i].x),&misc_rng_i,-1);
-            else //down->top 
-              sc_raindrop[i].oy=GR_HEIGHT-16-RandNum(1,YParabola(sc_raindrop[i].x),&misc_rng_i,-1);
-            sc_raindrop[i].y=sc_raindrop[i].oy;
-            sc_raindrop[i].speed=RandNum(1,3,&misc_rng_i,-1)*0.01;
-            sc_raindrop[i].olifetime=RandNum(1000,1100,&misc_rng_i,-1);
-            sc_raindrop[i].lifetime=sc_raindrop[i].olifetime;
-            }
-            break;
-          case 3:
-            sc_raindrop[i].x=RandNum(-10,GR_WIDTH+10,&misc_rng_i,-1);
-            int dice=RandNum(0,1,&misc_rng_i,-1);
-            if (dice==0) //top
-              sc_raindrop[i].oy=8+RandNum(1,YParabola(sc_raindrop[i].x),&misc_rng_i,-1);
-            else //down->top 
-              sc_raindrop[i].oy=GR_HEIGHT-16-RandNum(1,YParabola(sc_raindrop[i].x),&misc_rng_i,-1);
-            sc_raindrop[i].y=sc_raindrop[i].oy;
-            sc_raindrop[i].speed=RandNum(1,3,&misc_rng_i,-1)*0.01;
-            sc_raindrop[i].olifetime=RandNum(100,300,&misc_rng_i,-1);
-            sc_raindrop[i].lifetime=sc_raindrop[i].olifetime;
-            break;
-        }
-      } else {
-        if (sc_raindrop_num>0)
-          sc_raindrop_num--;
+//  for (int i=0;i<SC_RAINDROP_NUM;i++) {
+  int a,b,c;
+  //a = start scraindrop_i
+  //b = end scraindrop_i
+
+  //a = 0
+  //b = start scraindrop
+
+  //a = end scraindrop
+  //b = SC_RAINDROP_NUM
+  if (sc_raindrop_id_1==sc_raindrop_id_2) {
+    c=0;
+  } else if (sc_raindrop_id_1<sc_raindrop_id_2) {
+    a=sc_raindrop_id_1;
+    b=sc_raindrop_id_2;
+    c=1;
+  } else {
+    c=2;
+  }
+
+  for (int j=0;j<c;j++) {
+    if (c==2) {
+      switch (j) {
+        case 0: 
+          a=0;
+          b=sc_raindrop_id_2;
+          break;
+        case 1:
+          a=sc_raindrop_id_1;
+          b=SC_RAINDROP_NUM;
+          break;
       }
+    }
+
+    for (int i=a;i<b;i++) {
+      if (sc_raindrop[i].lifetime>0) {
+        sc_raindrop[i].lifetime--;
+        sc_raindrop[i].y+=sc_raindrop[i].speed;
+        if (map_weather!=1) {
+          sc_raindrop[i].oy+=sc_raindrop[i].speed/3;
+        }
+      } else { //reset position
+        //if (player.rain_wet_timer>0) {
+        if (i==sc_raindrop_id_1) {
+          if (sc_raindrop_num_>0) {    
+            sc_raindrop_num_--;
+            sc_raindrop_id_1++;
+          }
+          if (sc_raindrop_id_1>=SC_RAINDROP_NUM) {
+            sc_raindrop_id_1=0;
+          }
+          //Set future position
+          InitOneScreenRainDrop(i);
+        }
+      } 
     }
   }
 }
@@ -221,21 +267,75 @@ void DrawRainShader2(HDC hdc)
 
 void DrawRainShader3(HDC hdcMem)
 {
-    if (player.rain_wet_timer>60) {
-    } else {
-      player.visible_rain_wet_timer=160;
-    }
-    for (int i=0;i<sc_raindrop_num;i++) {
+  int a,b,c;
+  //a = start scraindrop_i
+  //b = end scraindrop_i
+
+  //a = 0
+  //b = start scraindrop
+
+  //a = end scraindrop
+  //b = SC_RAINDROP_NUM
+  if (sc_raindrop_id_1==sc_raindrop_id_2) {
+    c=0;
+  } else if (sc_raindrop_id_1<sc_raindrop_id_2) {
+    a=sc_raindrop_id_1;
+    b=sc_raindrop_id_2;
+    c=1;
+  } else {
+    c=2;
+  }
+
+  //debug screen raindrop
+  //GrCircle(hdcMem,sc_raindrop_id_1*5,100,3,GREEN,GREEN);
+  //GrCircle(hdcMem,sc_raindrop_id_2*5,104,3,RED,RED);
+  for (int j=0;j<c;j++) {
+    if (c==2) {
+      switch (j) {
+        case 0: 
+          a=0;
+          b=sc_raindrop_id_2;
+          break;
+        case 1:
+          a=sc_raindrop_id_1;
+          b=SC_RAINDROP_NUM;
+          break;
+      }
+    }    
+    for (int i=a;i<b;i++) {
       if (sc_raindrop[i].lifetime>0) {
        switch (map_weather) {
-          case 1:
+          case 1: { //rain: expanding fading-out circle
+            for (int s=0;s<3;s++) {
+              bool small=FALSE;
+              int size=(int)(sc_raindrop[i].y-sc_raindrop[i].oy)-(15*s);
+              //int max_size=sc_raindrop[i].speed*sc_raindrop[i].olifetime-20*(3-s);
+              if (size<0) {
+                size=(int)(sc_raindrop[i].y-sc_raindrop[i].oy)-(3*s);
+                small=TRUE;
+              } else {
+                size+=size;
+              }
+              //switch (s) {
+                //case 0:
+              if (size>0) {
+                if (small || (s==2) || 
+                    (s==1 && sc_raindrop[i].lifetime>(sc_raindrop[i].olifetime/2)) ||
+                    (s==0 && sc_raindrop[i].lifetime>(sc_raindrop[i].olifetime/2+sc_raindrop[i].olifetime/3))) {
+                  GrCircle(hdcMem,sc_raindrop[i].x,sc_raindrop[i].oy,size,DKGRAY,-1);
+                }
+              }
+            }}
+            break;
+          //old system
+          /*case 1:
             GrLine(hdcMem,sc_raindrop[i].x,sc_raindrop[i].y,sc_raindrop[i].x,sc_raindrop[i].oy,DKGRAY); //trails of rain
             GrLine(hdcMem,sc_raindrop[i].x+1,sc_raindrop[i].y,sc_raindrop[i].x+1,sc_raindrop[i].oy,DKGRAY);
             GrRect(hdcMem,sc_raindrop[i].x-2,sc_raindrop[i].y-10,7,10,DKGRAY);
             GrCircle(hdcMem,sc_raindrop[i].x+1,sc_raindrop[i].y,3,DKGRAY,-1);
             if (sc_raindrop[i].olifetime-sc_raindrop[i].lifetime<15)
               GrCircle(hdcMem,sc_raindrop[i].x+1,sc_raindrop[i].oy,5,DKGRAY,-1);
-            break;
+            break;*/
           case 2:
             if (sc_raindrop[i].olifetime-sc_raindrop[i].lifetime<15)
               //GrCircle(hdcMem,sc_raindrop[i].x+1,sc_raindrop[i].oy,14,WHITE,WHITE);
@@ -256,7 +356,8 @@ void DrawRainShader3(HDC hdcMem)
             break;
         }
       }
-    }  
+    }
+  }  
 }
 
 

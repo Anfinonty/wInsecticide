@@ -1015,6 +1015,59 @@ void GrCircle(HDC hdc, double x, double y, int size, int COLOR, int COLOR_2) {
 }
 
 
+/*void GrDashCircle(HDC hdc, double x, double y, int size, int COLOR, int COLOR_2) {
+    // Shape Coordinates
+    double x1 = x - size;
+    double y1 = y - size;
+    double x2 = x + size;
+    double y2 = y + size;
+
+    int left = (int)min(x1, x2);
+    int top = (int)min(y1, y2);
+    int right = (int)max(x1, x2);
+    int bottom = (int)max(y1, y2);
+
+    int length = min(abs(right - left), abs(bottom - top));
+    if (x2 < x1)
+        left = right - length;
+    else
+        right = left + length;
+
+    if (y2 < y1)
+        top = bottom - length;
+    else
+        bottom = top + length;
+
+    // Create dashed pen
+    HPEN hPen = CreatePen(PS_DASH, 1, COLOR_2 == -1 ? COLOR : COLOR_2);
+    HPEN hOldPen = (HPEN)SelectObject(hdc, hPen);
+
+    // Set brush
+    HBRUSH hOldBrush;
+    if (COLOR_2 == -1) {
+        hOldBrush = (HBRUSH)SelectObject(hdc, GetStockObject(HOLLOW_BRUSH)); // No fill
+    } else {
+        HBRUSH hBrush = CreateSolidBrush(COLOR);
+        hOldBrush = (HBRUSH)SelectObject(hdc, hBrush);
+    }
+
+    // Draw the circle
+    Ellipse(hdc, left, top, right, bottom);
+
+    // Restore old objects
+    SelectObject(hdc, hOldPen);
+    SelectObject(hdc, hOldBrush);
+
+    // Clean up
+    DeleteObject(hPen);
+    if (COLOR_2 != -1) {
+        DeleteObject((HBRUSH)hOldBrush); // Only delete if custom brush was used
+    }
+}*/
+
+
+
+
 void GrPrintW(HDC hdc, int x1, int y1, wchar_t *_txt, char *_atxt, int color, int _height, bool A,bool is_unifont) 
 {
   LPCWSTR txt=_txt;

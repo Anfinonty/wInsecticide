@@ -905,43 +905,34 @@ void RainBulletAct(int bullet_id)
 
   //rain hit player
   hit_player=HitPlayer(bullet_id,35,35);
-  if (hit_player && Bullet[bullet_id].graphics_type!=-4 && Bullet[bullet_id].graphics_type!=-6) { //hit player
-    if (player.rain_wet_timer==0) {
-      rain_sound_duration=0;
+  if (hit_player && Bullet[bullet_id].graphics_type!=-4 && Bullet[bullet_id].graphics_type!=-6) { //hit player    
+    if (sc_raindrop_id_2<=SC_RAINDROP_NUM && sc_raindrop_num_<SC_RAINDROP_NUM) {
+      if (sc_raindrop_id_1<=sc_raindrop_id_2) {
+        sc_raindrop_id_2++;
+        sc_raindrop_num_++;
+        //if (-1<sc_raindrop_id_2 && sc_raindrop_id_2<SC_RAINDROP_NUM)
+          //sc_raindrop[sc_raindrop_id_2].once=TRUE;
+      } else if (sc_raindrop_id_2<sc_raindrop_id_1-1) { //doesnt cross _1 if less than _1
+        sc_raindrop_id_2++;
+        sc_raindrop_num_++;
+        //if (-1<sc_raindrop_id_2 && sc_raindrop_id_2<SC_RAINDROP_NUM)
+          //sc_raindrop[sc_raindrop_id_2].once=TRUE;
+      }
     }
-    if (sc_raindrop_num<SC_RAINDROP_NUM) {
-      sc_raindrop_num++;
+
+    if (sc_raindrop_id_2>=SC_RAINDROP_NUM) {
+      sc_raindrop_id_2=0;
     }
-    player.rain_wet_timer=260;//60;
+
     allow_act=1;
     bullet_on_ground_id=-1;
     //allow_act=2;
     //BulletDamagePlayerAct(bullet_id);
   }
 
-  if (player.rain_wet_timer==0) {
-    if (Bullet[bullet_id].sprite_x>0 && Bullet[bullet_id].sprite_y<GR_WIDTH) {
-      if (Bullet[bullet_id].sprite_y>0 && Bullet[bullet_id].sprite_y<GR_HEIGHT) {
-        if (player.visible_rain_wet_timer==0) {
-          rain_sound_duration=0;
-        }
-          player.visible_rain_wet_timer=160;
-      }
-    }
-  }
-
-  //if (!RainBulletTransitNodeGrid(bullet_id)) { //in water
-    //if (Bullet[bullet_id].graphics_type==-2) {
-      //allow_act=2;
-    //}
-  //}
-
   RainBulletTransitNodeGrid(bullet_id);
 
   if (Bullet[bullet_id].graphics_type==-10 && Bullet[bullet_id].range<3 && Bullet[bullet_id].speed==1) { //hailstorm but hit ground
-    //if (GR_WIDTH>800)
-      //Bullet[bullet_id].speed=0.02;
-    //else
     Bullet[bullet_id].speed=0.02;
   }
 
@@ -1187,27 +1178,6 @@ void BulletAct(int bullet_id)
             double weather_bullet_type_speed=0.0;
             switch (map_weather) {
               case 1: //rain;
-                /*{int d;
-                weather_bullet_type_graphics=-2;
-                weather_bullet_type_speedm=10;
-                //rand_x=stickyTo(rand_x,NODE_SIZE*4);
-                //rand_y=stickyTo(rand_y,NODE_SIZE*4);
-                weather_bullet_type_speed=1.0;
-
-                d=RandNum(0,20,&weather_rng_i,seed);
-                rand_extra_run=-5+d/2;
-                switch (d) {
-                  case 0:
-                    weather_bullet_type_speedm=13;
-                    break;
-                  case 1:
-                    weather_bullet_type_speedm=15;
-                    break;
-                  default:
-                    weather_bullet_type_speedm=10;
-                    break;
-                }
-                }*/
                 {int d;
                 weather_bullet_type_graphics=-2;//-2;
                 weather_bullet_type_speedm=10;

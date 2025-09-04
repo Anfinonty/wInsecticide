@@ -570,7 +570,9 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
     if (prelude) {
       Sleep(1000);
     } else if (flag_game_task_stopped && flag_draw_task_stopped && flag_sound_task_stopped) { //cleanup task after game && draw not acting
+      printf("all 3 flags called...\n");
       if (back_to_menu) { //'ESC' from game or map_editor
+        printf("back_to_menu...\n");
         if (in_map_editor) {
           CleanupMapEditorAll(); //map_editor=FALSE done in this function
         } else {
@@ -579,13 +581,16 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
         flag_game_task_stopped=FALSE;
         flag_draw_task_stopped=FALSE;
         flag_sound_task_stopped=FALSE;
+        printf("all exit flags set to false, initialize level..\n");
         InitLevel(FALSE);
       } else if (flag_load_level) { //'/n' from main menu
+        printf("cleanup level to load level...\n");
         if (blank_level) {
           CleanUpBlankLevel();
         } else {
           CleanupAll(FALSE);
         }
+        printf("loading level...\n");
         flag_load_level=FALSE;
         flag_game_task_stopped=FALSE;
         flag_draw_task_stopped=FALSE;
@@ -627,6 +632,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
       }
       Sleep(6); //end of cleanup
     } else if (level_loading) { //Loading Level
+      printf("in level loading...\n");
       Sleep(1000);
     } else if (!in_main_menu) { //In Game
       if (!flag_restart) {
@@ -662,12 +668,23 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
         }
       }
     } else if (in_map_editor) { //In map editor
-      flag_sound_task_stopped=TRUE;
-      MapEditorAct();
+      if (!flag_game_task_stopped && !flag_sound_task_stopped) {
+        MapEditorAct();
+      }
+      if (back_to_menu) {
+        flag_game_task_stopped=TRUE;
+        flag_sound_task_stopped=TRUE;
+      }
       Sleep(6);
     } else { //In Main menu
       if (main_menu_chosen==3 || blank_level) {
-        Sleep(1000);
+        if (flag_load_level || flag_load_melevel || flag_load_esll) {
+          flag_game_task_stopped=TRUE;
+          flag_sound_task_stopped=TRUE;
+          back_to_menu=FALSE;
+          printf("game and sound flags called in\n");
+        }
+        Sleep(6);
       } else {
         if (wav_mode!=0) { //non mode 0, dj
           Sleep(1000);
@@ -709,8 +726,8 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
               
             //flag to stop
               if (flag_load_level || flag_load_melevel || flag_load_esll) {
-                flag_sound_task_stopped=TRUE;
                 flag_game_task_stopped=TRUE;
+                flag_sound_task_stopped=TRUE;
               }
             }
           }
@@ -1257,6 +1274,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           ResetBulletRain();
           if (map_weather>0) {
             InitBulletRain();
+            InitScreenRainDrop();
           }
           if (in_map_editor) {
             InitMERDGrid();
@@ -1374,7 +1392,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           hdcBackbuff=CreateCompatibleDC(hdc);
           hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
 
-          if (flag_begin_drawing_tiles && !flag_game_task_stopped && !flag_draw_task_stopped) {
+          if (flag_begin_drawing_tiles && !flag_game_task_stopped && !flag_draw_task_stopped && !flag_sound_task_stopped) {
             DrawCreateTiles(hdcBackbuff,hdcBackbuff2);
             /*flag_begin_drawing_tiles=FALSE;
               level_loading=FALSE;
@@ -1524,6 +1542,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               frame_tick=0;
             }
 
+            if (!flag_draw_task_stopped) {
             hdc=BeginPaint(hwnd, &ps);
             hdcBackbuff=CreateCompatibleDC(hdc);
             hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
@@ -1566,9 +1585,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DeleteDC(hdcBackbuff2);
             DeleteDC(hdcBackbuff);
             DeleteObject(screen);
+            }
 
             //Map Editor, Trigger go back to main menu
-            if (back_to_menu) {
+            if (back_to_menu && !flag_draw_task_stopped) {
               flag_draw_task_stopped=TRUE;
             }
 
@@ -1579,6 +1599,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           if (frame_tick>FPS) {
             frame_tick=0;
           }
+          if (!flag_draw_task_stopped) {
           hdc=BeginPaint(hwnd, &ps);
           hdcBackbuff=CreateCompatibleDC(hdc);
           hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
@@ -1645,10 +1666,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           DeleteDC(hdcBackbuff2);
           DeleteDC(hdcBackbuff);
           DeleteObject(screen);
+          }
 
           //flag to stop
-          if (flag_load_level || flag_load_melevel || flag_load_esll) {
+          if ((flag_load_level || flag_load_melevel || flag_load_esll) && !flag_draw_task_stopped) {
             flag_draw_task_stopped=TRUE;
+            printf("drawtask_stopped\n");
           }
         }
         }

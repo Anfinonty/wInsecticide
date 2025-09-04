@@ -875,7 +875,9 @@ void EnemyActSuffocate(int i)
         Enemy[i]->suffocate_timer++;
       } else { //non-solid
         //Enemy[i]->current_suffocate_ngid_n=0; //reset search surrounding
+        //Enemy[i]->suffocate_timer=0;
         Enemy[i]->suffocate_timer=0;
+
         /*if (Enemy[i]->suffocate_timer<0) {
           Enemy[i]->suffocate_timer=0;
         }*/
@@ -1960,7 +1962,7 @@ void EnemyAct(int i)
             Enemy[i]->true_dead=TRUE;
           }
         }
-        if (Enemy[i]->suffocate_timer>=450) {
+        if (Enemy[i]->suffocate_timer>=150) {
           //teleport back to original position
           Enemy[i]->x=saved_enemy_x[i];
           Enemy[i]->y=saved_enemy_y[i];
@@ -3137,6 +3139,12 @@ void DrawEnemy(HDC hdc,HDC hdc2)
       allow_act=(player.time_breaker || player.health<=0 || (Enemy[i]->within_render_distance && (Enemy[i]->web_stuck || Enemy[i]->last_seen_timer>0)));
     }
 
+
+    //DEBUG check suffocate timer
+    //char etxt[16];
+    //sprintf(etxt,"%d",Enemy[i]->suffocate_timer);                
+    //GrPrint(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y-64-16,etxt,RED);
+
     if (allow_act) {
     
       int etype=Enemy[i]->type;
@@ -3436,7 +3444,6 @@ void DrawEnemy(HDC hdc,HDC hdc2)
                     health_length,
                     6,c);
         }
-
 
         if (health_length>32) {
           int print_health=Enemy[i]->health;

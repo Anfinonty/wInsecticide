@@ -1600,7 +1600,7 @@ void ZeroMenuKeypressDown( HWND hwnd,  HDC hdc, WPARAM wParam)
          if (player_color>-1 && player_color<256 && level_loaded) {         
            if (game_audio)
              PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
-           if (level_chosen>=0 && level_chosen<level_num && main_menu_chosen==0) {
+           if (level_chosen>=0 && level_chosen<level_num && main_menu_chosen==0 && !flag_load_level) {
              flag_load_level=TRUE;
            }
          }

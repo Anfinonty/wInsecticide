@@ -534,7 +534,6 @@ void InitPlayer() {
 
 
   player.knives_per_throw=1;
-  player.fast_duration=0;
   player.shoot_knife_duration=0;
 
 
@@ -542,9 +541,6 @@ void InitPlayer() {
   player.mouse_angle=0;
 
 
-
-  player.rain_wet_timer=0;
-  player.visible_rain_wet_timer=0;
   player.in_water=FALSE;
   player.phase_web=FALSE;
   player.phase_web2=FALSE;
@@ -1831,13 +1827,6 @@ void PlayerAct()
   int speed=0,grav_speed=0,claws_l2=NODE_SIZE/2,claws_l=NODE_SIZE/2;
   bool allow_act=FALSE;
 
-  if (player.rain_wet_timer>0) {
-    player.rain_wet_timer--;
-  }
-  if (player.visible_rain_wet_timer>0) {
-    player.visible_rain_wet_timer--;
-  }
-
   //========Player attacking timer==============
   if (player.attack_timer>=0) {
     player.attack_timer--;
@@ -2124,9 +2113,6 @@ void PlayerAct()
                 }
             }
             player.in_water=FALSE;
-          }
-          if (player.time_breaker && player.rain_wet_timer>0) {
-            player.rain_wet_timer=160;
           }
 
 
@@ -2753,74 +2739,6 @@ void PlayerSndAct()
   if (player.hurt_snd_timer>0) {
     player.hurt_snd_timer--;
   }
-  //rain snd act
-  if (player.rain_wet_timer>60) {
-    if (player.visible_rain_wet_timer>0) {
-      player.visible_rain_wet_timer=0;
-      rain_sound_duration=0;
-      //mem_snd_interrupt[4]=TRUE; 
-      //waveOutReset(hWaveOut[4]);
-    }
-
-    if (rain_sound_duration>=channelSoundEffect[3].duration/2) {
-      rain_sound_duration=0;
-    }
-    if (rain_sound_duration==0 && player.rain_wet_timer>0) { //sound effect fast sound effect
-      /*if (game_audio) {
-        PlayMemSnd(&channelSoundEffect[3],&channelSoundEffectCache[3],TRUE,4); 
-      }*/
-    }
-
-    if (rain_sound_duration>0 && player.rain_wet_timer==0) {
-      rain_sound_duration=0;
-      //mem_snd_interrupt[4]=TRUE;
-      //waveOutReset(hWaveOut[4]);
-    }
-    rain_sound_duration+=10;//6;
-
-  //soft rain snd act
-  } else {
-    if (player.rain_wet_timer==60) {
-      player.visible_rain_wet_timer=160;
-      rain_sound_duration=0;
-      //mem_snd_interrupt[4]=TRUE; 
-      //waveOutReset(hWaveOut[4]);
-    }
-
-    if (rain_sound_duration>=channelSoundEffect[4].duration/2) {
-      rain_sound_duration=0;
-    }
-    if (rain_sound_duration==0 && player.visible_rain_wet_timer>0) { //sound effect fast sound effect
-      /*if (game_audio) {
-        PlayMemSnd(&channelSoundEffect[4],&channelSoundEffectCache[4],TRUE,4); 
-      }*/
-    }
-
-    if (rain_sound_duration>0 && player.visible_rain_wet_timer==0) {
-      rain_sound_duration=0;
-      //mem_snd_interrupt[4]=TRUE;
-      //waveOutReset(hWaveOut[4]);
-    }
-    rain_sound_duration+=10;//6;
-  }
-
-
-
-
-  if (player.fast_duration>=channelSoundEffect[0].duration/2) {
-    player.fast_duration=0;
-  }
-  if (player.fast_duration==0 && player.speed>10) { //sound effect fast sound effect
-    /*if (game_audio) {
-      PlayMemSnd(&channelSoundEffect[0],&channelSoundEffectCache[0],TRUE,1); 
-    }*/
-  }
-  if (player.fast_duration>0 && player.speed<=10) {
-    player.fast_duration=0;
-    //mem_snd_interrupt[1]=TRUE;
-    //waveOutReset(hWaveOut[1]);
-  }
-
 
   if (player.rst_right_click_snd) {
     if (game_audio) {
@@ -2851,12 +2769,6 @@ void PlayerSndAct()
   }
 
 
-  //player running fast sound limiter
-  if (player.speed>10) {
-    player.fast_duration+=10;//6;
-  } else {
-    player.fast_duration=0;
-  }
 }
 
 void PlayerCameraShake()

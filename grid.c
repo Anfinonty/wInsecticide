@@ -413,6 +413,7 @@ void InitNodeGrid()
 
 void InitNodeShade()
 {  
+  int tmp_on_ground_id=-1;
   int on_node_grid_id=-1;
   int lim=0,delta=0;;
   double gradient=rain_grad_rise/rain_grad_run; //y/x to down-right
@@ -428,8 +429,10 @@ void InitNodeShade()
 
   while (lim<MAP_WIDTH+MAP_HEIGHT) {
     on_node_grid_id=GetGridId(x,y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
+    //Get ground id tmp
+    tmp_on_ground_id=GetOnGroundId(x,y,16,16);
     if (on_node_grid_id!=-1) {
-      if (NodeGrid[on_node_grid_id]->node_solid || NodeGrid[on_node_grid_id]->node_no_rain || y>=MAP_HEIGHT) { //solid detected, move to next start_x nodegrid
+      if (tmp_on_ground_id!=-1 || NodeGrid[on_node_grid_id]->node_solid || NodeGrid[on_node_grid_id]->node_no_rain || y>=MAP_HEIGHT) { //solid detected, move to next start_x nodegrid
         start_x+=delta;
         x=start_x;
         y=0;
