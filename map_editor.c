@@ -379,7 +379,10 @@ void InitMERDGrid()
     cy2=player.cam_move_y;
 
   for (i=0;i<rendered_ground_num;i++) {
-    Ground[render_grounds[i]]->within_render_distance=FALSE; //All rendered-grounds are no-longer within render distance
+    int k=render_grounds[i];
+    if (k!=-1) {
+      Ground[k]->within_render_distance=FALSE; //All rendered-grounds are no-longer within render distance
+    }
     render_grounds[i]=-1; //unrender all rendered grounds
   }
 
