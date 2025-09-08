@@ -419,7 +419,9 @@ void InitMERDGrid()
       row++; //move to the next row
       column=0; //go back to first column
     }
-  } 
+  }
+  //Sort
+  quicksort(render_grounds, 0, rendered_ground_num-1);
 }
 
 

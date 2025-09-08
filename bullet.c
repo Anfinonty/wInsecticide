@@ -795,9 +795,9 @@ void InitBulletRain()
     }
   } else if (map_weather==3) {
     if (GR_WIDTH>800) {
-      max_bullet_num=SHOOT_BULLET_NUM+(RAIN_NUM/2)+(RAIN_NUM/4);//+(RAIN_NUM/6);
+      max_bullet_num=SHOOT_BULLET_NUM+((RAIN_NUM/3)*2);//+(RAIN_NUM/6);
     } else {
-      max_bullet_num=SHOOT_BULLET_NUM+(RAIN_NUM/3);
+      max_bullet_num=SHOOT_BULLET_NUM+(RAIN_NUM/8);
     }
   }
 
@@ -932,8 +932,8 @@ void RainBulletAct(int bullet_id)
 
   RainBulletTransitNodeGrid(bullet_id);
 
-  if (Bullet[bullet_id].graphics_type==-10 && Bullet[bullet_id].range<3 && Bullet[bullet_id].speed==1) { //hailstorm but hit ground
-    Bullet[bullet_id].speed=0.02;
+  if (Bullet[bullet_id].graphics_type==-10 /*&& Bullet[bullet_id].range<3*/ && Bullet[bullet_id].speed==1) { //hailstorm but hit ground
+    Bullet[bullet_id].speed=2;
   }
 
   if (bullet_on_ground_id!=-1) {//hit platform
@@ -972,10 +972,10 @@ void RainBulletAct(int bullet_id)
             else
               Bullet[bullet_id].speed=0.004;
             Bullet[bullet_id].range=1;
-          } else { //hailstorm
+          } else { //hailstorm but hit ground
             Bullet[bullet_id].speed_multiplier=1;
             Bullet[bullet_id].speed=1;
-            Bullet[bullet_id].range=5;
+            Bullet[bullet_id].range=24;
             if (allow_act==2) {
               Bullet[bullet_id].angle=RandAngle(-360,360,&misc_rng_i,seed); //slight random when weather hit water
             }

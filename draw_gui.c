@@ -41,8 +41,8 @@ void InitOneScreenRainDrop(int i)
   int dice=0;
   switch (map_weather) {
     case 1:
-      sc_raindrop[i].x=RandNum(-200,GR_WIDTH+200,&misc_rng_i,-1);
-      sc_raindrop[i].oy=RandNum(-200,GR_HEIGHT+200,&misc_rng_i,-1);
+      sc_raindrop[i].x=RandNum(-20,GR_WIDTH+20,&misc_rng_i,-1);
+      sc_raindrop[i].oy=RandNum(-20,GR_HEIGHT+20,&misc_rng_i,-1);
       sc_raindrop[i].y=sc_raindrop[i].oy;
       sc_raindrop[i].speed=1;//RandNum(7,10,&misc_rng_i,-1)*0.1;
       //sc_raindrop[i].olifetime=RandNum(50,200,&misc_rng_i,-1);
@@ -50,12 +50,23 @@ void InitOneScreenRainDrop(int i)
       //dice=RandNum(0,7,&misc_rng_i,-1);
       //if (dice==0) {
       /*if (GR_WIDTH>GR_HEIGHT) {
-        lim=GR_WIDTH;
+        min=GR_WIDTH/4;
+        lim=GR_WIDTH/3;
       } else {
-        lim=GR_HEIGHT;
+        min=GR_HEIGHT/4;
+        lim=GR_HEIGHT/3;
       }*/
-      min=300;
-      lim=400;
+
+      //if (min<480) {
+        //min=480;
+      //}
+      //min=20;
+      //lim=200;
+      /*if (lim<640) {
+        lim=640;
+      }*/
+      min=180;
+      lim=250;
       sc_raindrop[i].olifetime=RandNum(min,lim,&misc_rng_i,-1);
       sc_raindrop[i].lifetime=sc_raindrop[i].olifetime;
       break;
@@ -309,15 +320,13 @@ void DrawRainShader3(HDC hdcMem)
             for (int s=0;s<3;s++) {
               bool small=FALSE;
               int size=(int)(sc_raindrop[i].y-sc_raindrop[i].oy)-(15*s);
-              //int max_size=sc_raindrop[i].speed*sc_raindrop[i].olifetime-20*(3-s);
               if (size<0) {
                 size=(int)(sc_raindrop[i].y-sc_raindrop[i].oy)-(3*s);
                 small=TRUE;
-              } else {
+              }
+              if (sc_raindrop[i].olifetime>200) {
                 size+=size;
               }
-              //switch (s) {
-                //case 0:
               if (size>0) {
                 if (small || (s==2) || 
                     (s==1 && sc_raindrop[i].lifetime>(sc_raindrop[i].olifetime/2)) ||
