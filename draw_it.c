@@ -84,14 +84,22 @@ void PlaceDayMoon()
 //Background
 void DrawBackground(HDC hdc,HDC hdc2) 
 {
+  int 
+    cx1=player.cam_mouse_move_x,
+    cy1=player.cam_mouse_move_y,
+    cx2=player.cam_move_x,
+    cy2=player.cam_move_y,
+    cx3=player.cam_limiter_x,
+    cy3=player.cam_limiter_y;
+
   double parralax_x=0;
   double parralax_y=0;
-  double _ppx=(player.x/MAP_WIDTH);
-  double _ppy=(player.y/MAP_HEIGHT);
-  double ppx=(MAP_WIDTH-player.x)/MAP_WIDTH;
-  double ppy=(MAP_HEIGHT-player.y)/MAP_HEIGHT;
-  parralax_x=(-GR_WIDTH/16*2)+GR_WIDTH/16*ppx -mouse_x/50;
-  parralax_y=(-GR_HEIGHT/16*2)+GR_HEIGHT/16*ppy -mouse_y/50;
+  double _ppx=((player.x-cx1-cx2-cx3)/MAP_WIDTH);
+  double _ppy=((player.y-cy1-cy2-cy3)/MAP_HEIGHT);
+  double ppx=(MAP_WIDTH-(player.x-cx1-cx2-cx3))/MAP_WIDTH;
+  double ppy=(MAP_HEIGHT-(player.y-cy1-cy2-cy3))/MAP_HEIGHT;
+  parralax_x=(-GR_WIDTH/8)+GR_WIDTH/16*ppx; 
+  parralax_y=(-GR_HEIGHT/8)+GR_HEIGHT/16*ppy;
   int draw_p_px=(int)parralax_x;
   int draw_p_py=(int)parralax_y;
 
@@ -119,13 +127,13 @@ void DrawBackground(HDC hdc,HDC hdc2)
   if (map_background==1) {
     for (int i=0;i<SSTAR_NUM;i++) {
       if (SStar[i].lifetime>0) {
-        GrCircle(hdc,SStar[i].x-GR_WIDTH/16*_ppx-mouse_x/50,SStar[i].y-GR_HEIGHT/16*_ppy-mouse_y/50,1,WHITE,WHITE);
+        GrCircle(hdc,SStar[i].x-GR_WIDTH/16*_ppx,SStar[i].y-GR_HEIGHT/16*_ppy,1,WHITE,WHITE);
       }
     }
   }
 
 
-  //draw moon
+  //draw night moon
     if (
         ((!in_main_menu || (in_main_menu && map_weather==0 && !(solar_hour>6 && solar_hour<18))) &&
          ((
@@ -138,38 +146,38 @@ void DrawBackground(HDC hdc,HDC hdc2)
       int dmx=-1000;
       int dmy=-1000;
       if (lunar_day>=1 && lunar_day<=5) { //1, 2, 3, 4, 5
-        dmx=GR_WIDTH-GR_WIDTH/8-GR_WIDTH/16*_ppx-mouse_x/50;
-        dmy=GR_HEIGHT-GR_HEIGHT/3-GR_HEIGHT/16*_ppy-mouse_y/50;//GR_HEIGHT-GR_HEIGHT/6;
+        dmx=GR_WIDTH-GR_WIDTH/8-GR_WIDTH/16*_ppx;//-mouse_x/50;
+        dmy=GR_HEIGHT-GR_HEIGHT/3-GR_HEIGHT/16*_ppy;//-mouse_y/50;//GR_HEIGHT-GR_HEIGHT/6;
         //dmy=160+160-GR_HEIGHT/16*_ppy;
         DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
       } else if (lunar_day>=6 && lunar_day<=9) {// 6, 7, 8, 9
-        dmx=GR_WIDTH/2+GR_WIDTH/4-GR_WIDTH/16*_ppx-mouse_x/50;
-        dmy=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3-GR_HEIGHT/16*_ppy-mouse_y/50;
+        dmx=GR_WIDTH/2+GR_WIDTH/4-GR_WIDTH/16*_ppx;//-mouse_x/50;
+        dmy=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3-GR_HEIGHT/16*_ppy;//-mouse_y/50;
         //dmy=160+110-GR_HEIGHT/16*_ppy;
         DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
       } else if (lunar_day>=10 && lunar_day<=12) {// 10, 11, 12,
-        dmx=GR_WIDTH/2+GR_WIDTH/4-GR_WIDTH/8-GR_WIDTH/16*_ppx-mouse_x/50;
-        dmy=GR_HEIGHT/4+GR_HEIGHT/12-GR_HEIGHT/16*_ppy-mouse_y/50;
+        dmx=GR_WIDTH/2+GR_WIDTH/4-GR_WIDTH/8-GR_WIDTH/16*_ppx;//-mouse_x/50;
+        dmy=GR_HEIGHT/4+GR_HEIGHT/12-GR_HEIGHT/16*_ppy;//-mouse_y/50;
         //dmy=160+50-GR_HEIGHT/16*_ppy;
         DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
       } else if (lunar_day>=13 && lunar_day<=15) {//13, 14, 15 //fullmoon
-        dmx=GR_WIDTH/2-GR_WIDTH/16*_ppx-mouse_x/50;
-        dmy=GR_HEIGHT/4-GR_HEIGHT/16*_ppy-mouse_y/50;
+        dmx=GR_WIDTH/2-GR_WIDTH/16*_ppx;//-mouse_x/50;
+        dmy=GR_HEIGHT/4-GR_HEIGHT/16*_ppy;//-mouse_y/50;
         //dmy=160-GR_HEIGHT/16*_ppy;
         DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
       } else if (lunar_day>=16 && lunar_day<=18) {//16, 17, 18
-        dmx=GR_WIDTH/4+GR_WIDTH/8-GR_WIDTH/16*_ppx-mouse_x/50;
-        dmy=GR_HEIGHT/4+GR_HEIGHT/12-GR_HEIGHT/16*_ppy-mouse_y/50;
+        dmx=GR_WIDTH/4+GR_WIDTH/8-GR_WIDTH/16*_ppx;//-mouse_x/50;
+        dmy=GR_HEIGHT/4+GR_HEIGHT/12-GR_HEIGHT/16*_ppy;//-mouse_y/50;
         //dmy=160+50-GR_HEIGHT/16*_ppy;
         DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
       } else if (lunar_day>=19 && lunar_day<=22) {//19, 20, 21, 22
-        dmx=GR_WIDTH/4-GR_WIDTH/16*_ppx-mouse_x/50;
-        dmy=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3-GR_HEIGHT/16*_ppy-mouse_y/50;
+        dmx=GR_WIDTH/4-GR_WIDTH/16*_ppx;//-mouse_x/50;
+        dmy=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3-GR_HEIGHT/16*_ppy;//-mouse_y/50;
         //dmy=160+110-GR_HEIGHT/16*_ppy;
         DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
       } else if (lunar_day>=23 && lunar_day<=26) {//23, 24, 25,26
-        dmx=GR_WIDTH/8-GR_WIDTH/16*_ppx-mouse_x/50;
-        dmy=GR_HEIGHT-GR_HEIGHT/3-GR_HEIGHT/16*_ppy-mouse_y/50;//GR_HEIGHT-GR_HEIGHT/6;
+        dmx=GR_WIDTH/8-GR_WIDTH/16*_ppx;//-mouse_x/50;
+        dmy=GR_HEIGHT-GR_HEIGHT/3-GR_HEIGHT/16*_ppy;//-mouse_y/50;//GR_HEIGHT-GR_HEIGHT/6;
         //dmy=160+160-GR_HEIGHT/16*_ppy;
         DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
       }// else {
@@ -350,16 +358,18 @@ void DrawPlatforms(HDC hdc,HDC hdc2)
     cx1=player.cam_mouse_move_x,
     cy1=player.cam_mouse_move_y,
     cx2=player.cam_move_x,
-    cy2=player.cam_move_y;
+    cy2=player.cam_move_y,
+    cx3=player.cam_limiter_x,
+    cy3=player.cam_limiter_y;
   for (int i=0;i<RDGRID_DYN_NUM;i++) {
-    _x=RDGrid[i].x+px-GR_WIDTH/2-cx1-cx2;//+cx1+cx2;//GR_WIDTH/2+RDGrid[i].x-px+cx1+cx2;
-    _y=RDGrid[i].y+py-GR_HEIGHT/2-cy1-cy2;//+cy1+cy2;//GR_HEIGHT/2+RDGrid[i].y-py+cy1+cy2;
+    _x=RDGrid[i].x+px-GR_WIDTH/2-cx1-cx2-cx3;
+    _y=RDGrid[i].y+py-GR_HEIGHT/2-cy1-cy2-cy3;
     gid=GetGridId(_x,_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
     if (gid>-1 && gid<VGRID_NUM && _x>=0 && _y>=0 && _x<=MAP_WIDTH && _y<=MAP_HEIGHT) {
       tmp_id=VGrid[gid]->draw_platform_seg_id;
       if (tmp_id!=-1) {
-        x=GR_WIDTH/2+TileMapPlatform[tmp_id]->x-px+cx1+cx2;
-        y=GR_HEIGHT/2+TileMapPlatform[tmp_id]->y-py+cy1+cy2;
+        x=GR_WIDTH/2+TileMapPlatform[tmp_id]->x-px+cx1+cx2+cx3;
+        y=GR_HEIGHT/2+TileMapPlatform[tmp_id]->y-py+cy1+cy2+cy3;
 
 
         SelectObject(hdc2,TileMapPlatform[tmp_id]->sprite_mask);
@@ -390,12 +400,14 @@ void DrawBlackBorders(HDC hdc)
     cx1=player.cam_mouse_move_x,
     cy1=player.cam_mouse_move_y,
     cx2=player.cam_move_x,
-    cy2=player.cam_move_y;
-  int x=GR_WIDTH/2+0-px+cx1+cx2;
+    cy2=player.cam_move_y,
+    cx3=player.cam_limiter_x,
+    cy3=player.cam_limiter_y;
+  int x=GR_WIDTH/2+0-px+cx1+cx2+cx3;
   GrRect(hdc,0,0,x+14,GR_HEIGHT+14,BLACK); //left rect
 
 
-  x=GR_WIDTH/2+MAP_WIDTH-px+cx1+cx2-14;
+  x=GR_WIDTH/2+MAP_WIDTH-px+cx1+cx2+cx3-14;
   w=GR_WIDTH-(MAP_WIDTH-player.x);
   if (w>0) {
     GrRect(hdc,x,0,w,GR_HEIGHT+14,BLACK); //right rect
@@ -405,14 +417,11 @@ void DrawBlackBorders(HDC hdc)
   //GrRect(hdc,0,0,GR_WIDTH+14,y+8,BLACK); //upper rect
    
 
-  y=GR_HEIGHT/2+MAP_HEIGHT-py+cy1+cy2-14;
+  y=GR_HEIGHT/2+MAP_HEIGHT-py+cy1+cy2+cy3-14;
   l=GR_HEIGHT-(MAP_HEIGHT-player.y);
   if (l>0) {
     GrRect(hdc,-14,y,GR_WIDTH+18,l,BLACK); //lowerrect
-  }
-
-
-  
+  } 
 }
 
 
@@ -432,25 +441,27 @@ void DrawShadows(HDC hdc,HDC hdc2)
     cx1=player.cam_mouse_move_x,
     cy1=player.cam_mouse_move_y,
     cx2=player.cam_move_x,
-    cy2=player.cam_move_y;
+    cy2=player.cam_move_y,
+    cx3=player.cam_limiter_x,
+    cy3=player.cam_limiter_y;
   //2024-12-21 IMPORTANT: floating point in drawing sprite will cause grids to form and cause grid infighting = lag
   //turn it to int to make it appear as one singular bitmap
   //  GrCircle(hdc,GR_WIDTH/2-cx1+cx2,GR_HEIGHT/2-cy1+cy2,10,BLUE,BLUE); //debug
 
   for (int i=0;i<RDGRID_DYN_NUM;i++) {
-    _x=RDGrid[i].x+px-GR_WIDTH/2-cx1-cx2;//+cx1+cx2;//GR_WIDTH/2+RDGrid[i].x-px+cx1+cx2;
-    _y=RDGrid[i].y+py-GR_HEIGHT/2-cy1-cy2;//+cy1+cy2;//GR_HEIGHT/2+RDGrid[i].y-py+cy1+cy2;
+    _x=RDGrid[i].x+px-GR_WIDTH/2-cx1-cx2-cx3;//+cx1+cx2;//GR_WIDTH/2+RDGrid[i].x-px+cx1+cx2;
+    _y=RDGrid[i].y+py-GR_HEIGHT/2-cy1-cy2-cy3;//+cy1+cy2;//GR_HEIGHT/2+RDGrid[i].y-py+cy1+cy2;
     gid=GetGridId(_x,_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
     if (gid>-1 && gid<VGRID_NUM && _x>=0 && _y>=0 && _x<=MAP_WIDTH && _y<=MAP_HEIGHT) {
       tms_id=VGrid[gid]->draw_shadow_seg_id;
       if (tms_id!=-1) {
-        x=GR_WIDTH/2+TileMapShadow[tms_id]->x-px+cx1+cx2;
-        y=GR_HEIGHT/2+TileMapShadow[tms_id]->y-py+cy1+cy2;
+        x=GR_WIDTH/2+TileMapShadow[tms_id]->x-px+cx1+cx2+cx3;
+        y=GR_HEIGHT/2+TileMapShadow[tms_id]->y-py+cy1+cy2+cy3;
         SelectObject(hdc2,TileMapShadow[tms_id]->sprite_paint);
         AlphaBlend(hdc, x, y, VGRID_SIZE, VGRID_SIZE, hdc2, 0, 0, VGRID_SIZE, VGRID_SIZE, gblendFunction);
       } else {
-        x=GR_WIDTH/2+VGrid[gid]->x1-px+cx1+cx2;
-        y=GR_HEIGHT/2+VGrid[gid]->y1-py+cy1+cy2;
+        x=GR_WIDTH/2+VGrid[gid]->x1-px+cx1+cx2+cx3;
+        y=GR_HEIGHT/2+VGrid[gid]->y1-py+cy1+cy2+cy3;
         if (map_background==1 || (map_background==2 && custom_map_background_color_i>127)) {
           //GrGlassRect(hdc,x,y,VGRID_SIZE,VGRID_SIZE,DKRDKGRAY,32);
           SelectObject(hdc2,dkrdkgray_shadow_tile);

@@ -1053,8 +1053,8 @@ void BulletAct(int bullet_id)
     }
     for (int i=0;i<Bullet[bullet_id].speed_multiplier;i++) {
       allow_act=FALSE;
-      Bullet[bullet_id].sprite_x=(int)Bullet[bullet_id].x+(int)player.cam_x+(int)player.cam_move_x+(int)player.cam_mouse_move_x;
-      Bullet[bullet_id].sprite_y=(int)Bullet[bullet_id].y+(int)player.cam_y+(int)player.cam_move_y+(int)player.cam_mouse_move_y;
+      Bullet[bullet_id].sprite_x=(int)Bullet[bullet_id].x+(int)player.cam_x+(int)player.cam_move_x+(int)player.cam_mouse_move_x+(int)player.cam_limiter_x;
+      Bullet[bullet_id].sprite_y=(int)Bullet[bullet_id].y+(int)player.cam_y+(int)player.cam_move_y+(int)player.cam_mouse_move_y+(int)player.cam_limiter_y;
   //----------------
       if (enemy_id<0) {//player bullet movement
         if (enemy_id==-1) { //web-snipe
@@ -1462,151 +1462,229 @@ void DrawBullet2(HDC hdc,HDC hdc2,int i,double x,double y,int color)
       GrCircle(hdc,x,y,2,color,LTRED);
       break;
     //Negative zone are allocated bullets for game
+
+    case 1: //spinning triangle
+      {
+        int size=10;
+        angl*=5;
+
+/*
+                    X2,Y2
+
+                      /\
+                     /  \
+                    /    \
+                   /______\
+
+            X1,Y1            X3,Y3
+*/
+          int x1=x-(size)*cos(angl);
+          int y1=y-(size)*sin(angl);
+          angl-=2*M_PI/3;
+
+          int x2=x-(size)*cos(angl);
+          int y2=y-(size)*sin(angl);
+          angl-=2*M_PI/3;
+
+          int x3=x-(size)*cos(angl);
+          int y3=y-(size)*sin(angl);
+
+          GrLineThick(hdc,x1,y1,x2,y2,2,color);
+          GrLineThick(hdc,x2,y2,x3,y3,2,color); 
+          GrLineThick(hdc,x3,y3,x1,y1,2,color);
+      }
+      break;
+
+
+
     case 0:
-    case 1:
     case 2:
       {
         int size=9;
-        int traill=3;
+        int traill=6;
         angl*=10;
-        double trail_delta=-M_PI_4/3;
+        double trail_delta=-M_PI_4/4;
         if (Bullet[i].is_left) {
           trail_delta=-trail_delta;
         }
         for (int d=0;d<2;d++) {
-          if (d==0) { //draw borders
-            GrCircle(hdc,x-size*cos(angl),y-size*sin(angl),6,LTGRAY,-1);
-            if (Bullet[i].graphics_type==0) { //filled
-              GrCircle(hdc,x-size*cos(angl),y-size*sin(angl),5,LTGRAY,-1);
-            }
-          } else {
-            if (Bullet[i].graphics_type==0) { //filled
-              GrCircle(hdc,x-size*cos(angl),y-size*sin(angl),4,color,color);
-            } else { //donut
-              if (Bullet[i].graphics_type==2) {
-                GrCircle(hdc,x-size*cos(angl),y-size*sin(angl),5,color,-1);
-                GrCircle(hdc,x-size*cos(angl),y-size*sin(angl),4,color,-1);
-              } else { //small filled
-                GrCircle(hdc,x-size*cos(angl),y-size*sin(angl),3,color,color);
-              }
-            }
+          if (Bullet[i].graphics_type==0) { //filled
+            GrCircle(hdc,x-size*cos(angl),y-size*sin(angl),5,color,color);
+          } else { //donut
+            GrCircle(hdc,x-size*cos(angl),y-size*sin(angl),5,color,-1);
+            GrCircle(hdc,x-size*cos(angl),y-size*sin(angl),4,color,-1);
           }
           for (int k=0;k<traill;k++) {
             angl-=trail_delta;
             if (k==0) {
               angl-=trail_delta+trail_delta/2;
             }
-            if (d==0) { //draw borders
-              GrCircle(hdc,x-size*cos(angl),y-size*sin(angl),3,LTGRAY,LTGRAY);
-            } else { //draw trails
-              GrCircle(hdc,x-size*cos(angl),y-size*sin(angl),2,color,color);
-            }
+            GrCircle(hdc,x-size*cos(angl),y-size*sin(angl),2,color,color);
           }
           angl+=trail_delta*traill+(trail_delta+trail_delta/2);
         }
 
       }
       break;
-    case 3: //spinning rice
+    case 3: //spinning square
       {
-        int size=6;
+        int size=10;
         angl*=5;
-        GrLineThick(hdc,x-size*cos(angl),y-size*sin(angl),x+size*cos(angl),y+size*sin(angl),4,LTGRAY);
-        GrLineThick(hdc,x-(size-2)*cos(angl),y-(size-2)*sin(angl),x+(size-2)*cos(angl),y+(size-2)*sin(angl),2,color);
+/*
+                    X2,Y2
+                      |
+                      |
+                      |
+        X1,Y1   -------------X3,Y3
+                      |
+                      |
+                      |
+                    X4,Y4
+
+*/
+          int x1=x-(size)*cos(angl);
+          int y1=y-(size)*sin(angl);
+          int x3=x+(size)*cos(angl);
+          int y3=y+(size)*sin(angl);
+          angl-=M_PI_2;
+
+          int x2=x-(size)*cos(angl);
+          int y2=y-(size)*sin(angl);
+          int x4=x+(size)*cos(angl);
+          int y4=y+(size)*sin(angl);
+
+          GrLineThick(hdc,x1,y1,x2,y2,2,color);
+          GrLineThick(hdc,x2,y2,x3,y3,2,color); 
+          GrLineThick(hdc,x3,y3,x4,y4,2,color);
+          GrLineThick(hdc,x1,y1,x4,y4,2,color);
       }
       break;
 
     case 4: //meteor with trail
-      GrLineThick(hdc,x+cos(Bullet[i].angle+M_PI_2)*3,
-                      y+sin(Bullet[i].angle+M_PI_2)*3,
-                      x-cos(Bullet[i].angle)*20,y-sin(Bullet[i].angle)*20,3,LTGRAY);
-      GrLineThick(hdc,x-cos(Bullet[i].angle+M_PI_2)*3,
-                      y-sin(Bullet[i].angle+M_PI_2)*3,
-                      x-cos(Bullet[i].angle)*20,y-sin(Bullet[i].angle)*20,3,LTGRAY);
-
-      GrCircle(hdc,x,y,4,LTGRAY,LTGRAY);
-
       GrLineThick(hdc,x,y,
-                      x-cos(Bullet[i].angle)*4,y-sin(Bullet[i].angle)*4,2,color);
-      GrCircle(hdc,x,y,3,color,color);
-      
+                      x-cos(Bullet[i].angle)*4,
+                      y-sin(Bullet[i].angle)*4,2,color);
+      GrCircle(hdc,x,y,3,color,color);      
       break;
 
-
-    case 5: //long bullet 0 ,after shotgun
-      GrLineThick(hdc,x,y,x+12*cos(Bullet[i].angle),y+12*sin(Bullet[i].angle),4,LTGRAY);
-      GrLineThick(hdc,x,y,x+10*cos(Bullet[i].angle),y+10*sin(Bullet[i].angle),2,color);
-      break;
-    case 6: //spinning rice, shotgun
+    case 5: //spinning star after shotgun
+    case 6: //spinning star, shotgun
       {
-        int size=6;
+        int size=15;
+        if (Bullet[i].graphics_type==5) {
+          size=10;
+        }
         angl*=10;
-        GrLineThick(hdc,x-size*cos(angl),y-size*sin(angl),x+size*cos(angl),y+size*sin(angl),4,LTGRAY);
-        GrLineThick(hdc,x-(size-2)*cos(angl),y-(size-2)*sin(angl),x+(size-2)*cos(angl),y+(size-2)*sin(angl),2,color);
+/*
+                X1,Y1
+
+                  ^^
+                 //\\
+    X5,Y5   ==============   X2,Y2
+              ==========
+               // \ / \\
+              // /   \ \\
+
+          X4,Y4         X3,Y3
+
+*/
+
+          int x1=x-(size)*cos(angl);
+          int y1=y-(size)*sin(angl);
+          angl-=2*M_PI/5;
+          int x2=x-(size)*cos(angl);
+          int y2=y-(size)*sin(angl);
+          angl-=2*M_PI/5;
+          int x3=x-(size)*cos(angl);
+          int y3=y-(size)*sin(angl);
+          angl-=2*M_PI/5;
+          int x4=x-(size)*cos(angl);
+          int y4=y-(size)*sin(angl);
+          angl-=2*M_PI/5;
+          int x5=x-(size)*cos(angl);
+          int y5=y-(size)*sin(angl);
+
+          GrLine(hdc,x4,y4,x1,y1,color);
+          GrLine(hdc,x1,y1,x3,y3,color); 
+          GrLine(hdc,x3,y3,x5,y5,color);
+          GrLine(hdc,x5,y5,x2,y2,color);
+          GrLine(hdc,x2,y2,x4,y4,color);
+
+          GrCircle(hdc,x,y,2,color,color);
       }
       break;
 
-    case 7: //long bullet 1
-      GrLineThick(hdc,x,y,x+8*cos(Bullet[i].angle),y+8*sin(Bullet[i].angle),4,LTGRAY);
-      GrLineThick(hdc,x,y,x+6*cos(Bullet[i].angle),y+6*sin(Bullet[i].angle),2,color);
+    case 7: //short bullet
+      GrLine(hdc,x,y,x+10*cos(Bullet[i].angle),y+15*sin(Bullet[i].angle),color);
       break;
 
-    case 9: //long bullet 2
-      GrLineThick(hdc,x,y,x-22*cos(Bullet[i].angle),y-22*sin(Bullet[i].angle),2,LTGRAY);
+    case 9: //long bullet
       GrLine(hdc,x,y,x-20*cos(Bullet[i].angle),y-20*sin(Bullet[i].angle),color);
       break;
 
-    case 8: //shuriken
+    case 8: //unmoving X
       {
-        int size=5;
+      int size=10;
+      angl=(Bullet[i].angle-M_PI_4);
+      int x1=x-(size)*cos(angl);
+      int y1=y-(size)*sin(angl);
+      int x3=x+(size)*cos(angl);
+      int y3=y+(size)*sin(angl);
+
+      angl=(Bullet[i].angle+M_PI_4);
+      int x2=x-(size)*cos(angl);
+      int y2=y-(size)*sin(angl);
+      int x4=x+(size)*cos(angl);
+      int y4=y+(size)*sin(angl);
+
+      GrLineThick(hdc,x1,y1,x3,y3,2,color);
+      GrLineThick(hdc,x2,y2,x4,y4,2,color);
+      }
+      break;
+
+    case 10://shuriken
+      {
+        int size=10;
         angl*=2;
-        for (int e=0;e<2;e++) {
+        //for (int e=0;e<2;e++) {
           for (int d=0;d<2;d++) {
-            if (e==0) {
+            //if (e==0) {
               //GrLineThick(hdc,x-(size+2)*cos(angl),y-(size+2)*sin(angl),x+(size+2)*cos(angl),y+(size+2)*sin(angl),4,LTGRAY);
               //GrLineThick(hdc,x-(size+2)*cos(angl),y-(size+2)*sin(angl),x-(size+2)*cos(angl)+(size/2+2)*cos(angl+rightangl),y-(size+2)*sin(angl)+(size/2+2)*sin(angl+rightangl),4,LTGRAY);
               //GrLineThick(hdc,x+(size+2)*cos(angl),y+(size+2)*sin(angl),x+(size+2)*cos(angl)-(size/2+2)*cos(angl+rightangl),y+(size+2)*sin(angl)-(size/2+2)*sin(angl+rightangl),4,LTGRAY);
 
-              GrLineThick(hdc,x-(size+2)*cos(angl),y-(size+2)*sin(angl),x+(size+2)*cos(angl),y+(size+2)*sin(angl),4,LTGRAY);
-              GrLineThick(hdc,x-(size+2)*cos(angl),y-(size+2)*sin(angl),x+(size/2+2)*cos(angl+rightangl),y+(size/2+2)*sin(angl+rightangl),4,LTGRAY);
-              GrLineThick(hdc,x+(size+2)*cos(angl),y+(size+2)*sin(angl),x-(size/2+2)*cos(angl+rightangl),y-(size/2+2)*sin(angl+rightangl),4,LTGRAY);
-            } else {
+              //GrLineThick(hdc,x-(size+2)*cos(angl),y-(size+2)*sin(angl),x+(size+2)*cos(angl),y+(size+2)*sin(angl),4,LTGRAY);
+              //GrLineThick(hdc,x-(size+2)*cos(angl),y-(size+2)*sin(angl),x+(size/2+2)*cos(angl+rightangl),y+(size/2+2)*sin(angl+rightangl),4,LTGRAY);
+              //GrLineThick(hdc,x+(size+2)*cos(angl),y+(size+2)*sin(angl),x-(size/2+2)*cos(angl+rightangl),y-(size/2+2)*sin(angl+rightangl),4,LTGRAY);
+            //} else {
               //GrLineThick(hdc,x-size*cos(angl),y-size*sin(angl),x+size*cos(angl),y+size*sin(angl),2,color);
               //GrLineThick(hdc,x-size*cos(angl),y-size*sin(angl),x-size*cos(angl)+(size/2)*cos(angl+rightangl),y-size*sin(angl)+(size/2)*sin(angl+rightangl),2,color);
               //GrLineThick(hdc,x+size*cos(angl),y+size*sin(angl),x+size*cos(angl)-(size/2)*cos(angl+rightangl),y+size*sin(angl)-(size/2)*sin(angl+rightangl),2,color);
 
-              GrLineThick(hdc,x-size*cos(angl),y-size*sin(angl),x+size*cos(angl),y+size*sin(angl),2,color);
-              GrLineThick(hdc,x-size*cos(angl),y-size*sin(angl),x+(size/2)*cos(angl+rightangl),y+(size/2)*sin(angl+rightangl),2,color);
-              GrLineThick(hdc,x+size*cos(angl),y+size*sin(angl),x-(size/2)*cos(angl+rightangl),y-(size/2)*sin(angl+rightangl),2,color);
-            }
+              GrLine(hdc,x-size*cos(angl),y-size*sin(angl),x+size*cos(angl),y+size*sin(angl),color);
+              GrLine(hdc,x-size*cos(angl),y-size*sin(angl),x+(size/2)*cos(angl+rightangl),y+(size/2)*sin(angl+rightangl),color);
+              GrLine(hdc,x+size*cos(angl),y+size*sin(angl),x-(size/2)*cos(angl+rightangl),y-(size/2)*sin(angl+rightangl),color);
+            //}
             angl-=M_PI_2;
           }
-          angl+=M_PI;
-        }
+          GrCircle(hdc,x,y,2,color,color);
+          //angl+=M_PI;
+        //}
       }
       break;
 
-    case 10:
+    /*case :
       {
-        int size=5;
+        int size=7;
         angl*=2;
-        for (int e=0;e<2;e++) {
-          for (int d=0;d<2;d++) {
-            if (e==0) {
-              GrLineThick(hdc,x-(size+2)*cos(angl),y-(size+2)*sin(angl),x+(size+2)*cos(angl),y+(size+2)*sin(angl),4,LTGRAY);
-              GrLineThick(hdc,x-(size+2)*cos(angl),y-(size+2)*sin(angl),x-(size+2)*cos(angl)+(size/2+2)*cos(angl+rightangl),y-(size+2)*sin(angl)+(size/2+2)*sin(angl+rightangl),4,LTGRAY);
-              GrLineThick(hdc,x+(size+2)*cos(angl),y+(size+2)*sin(angl),x+(size+2)*cos(angl)-(size/2+2)*cos(angl+rightangl),y+(size+2)*sin(angl)-(size/2+2)*sin(angl+rightangl),4,LTGRAY);
-            } else {
-              GrLineThick(hdc,x-size*cos(angl),y-size*sin(angl),x+size*cos(angl),y+size*sin(angl),2,color);
-              GrLineThick(hdc,x-size*cos(angl),y-size*sin(angl),x-size*cos(angl)+(size/2)*cos(angl+rightangl),y-size*sin(angl)+(size/2)*sin(angl+rightangl),2,color);
-              GrLineThick(hdc,x+size*cos(angl),y+size*sin(angl),x+size*cos(angl)-(size/2)*cos(angl+rightangl),y+size*sin(angl)-(size/2)*sin(angl+rightangl),2,color);
-            }
-            angl-=M_PI_2;
-          }
-          angl+=M_PI;
+        for (int d=0;d<2;d++) {
+          GrLineThick(hdc,x-size*cos(angl),y-size*sin(angl),x+size*cos(angl),y+size*sin(angl),2,color);
+          GrLineThick(hdc,x-size*cos(angl),y-size*sin(angl),x-size*cos(angl)+(size/2)*cos(angl+rightangl),y-size*sin(angl)+(size/2)*sin(angl+rightangl),2,color);
+          GrLineThick(hdc,x+size*cos(angl),y+size*sin(angl),x+size*cos(angl)-(size/2)*cos(angl+rightangl),y+size*sin(angl)-(size/2)*sin(angl+rightangl),2,color);
+          angl-=M_PI_2;
         }
       }    
-      break;
+      break;*/
   }
 }
 

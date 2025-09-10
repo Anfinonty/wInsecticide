@@ -51,6 +51,48 @@ void Click()
 
 
 //Player
+void PlayerCameraLimiterBorder()
+{
+  int 
+    px=player.x,
+    py=player.y,
+    cx1=player.cam_mouse_move_x,
+    cy1=player.cam_mouse_move_y,
+    cx2=player.cam_move_x,
+    cy2=player.cam_move_y;
+
+  //left x
+  int border_x=(GR_WIDTH/2-px+cx1+cx2+16);
+
+  //right x
+  int rborder_w=GR_WIDTH/2-(MAP_WIDTH-px+cx1+cx2-24);
+
+  if (border_x>0) { //near left x border
+    player.cam_limiter_x=-border_x;
+  } else if (rborder_w>0) {// near right x borderf
+    player.cam_limiter_x=(rborder_w);
+  } else {
+    player.cam_limiter_x=0;
+
+  }
+
+
+
+  //top y
+  int border_y=GR_HEIGHT/2-py+cy1+cy2+16;
+
+  //lower y
+  int d_border_h=GR_HEIGHT/2-(MAP_HEIGHT-py+cy1+cy2-24);
+
+  if (border_y>0) { //near top border
+    player.cam_limiter_y=-border_y;
+  } else if (d_border_h>0) { //near down border
+    player.cam_limiter_y=d_border_h;
+  } else {
+    player.cam_limiter_y=0;
+  }  
+}
+
 
 void move_x(double x)
 {
@@ -83,7 +125,9 @@ void CameraInit(double x,double y)
   while (y>GR_HEIGHT/2) {
     player.cam_y--;
     y--;
-  }  
+  }
+  player.cam_limiter_x=0;
+  player.cam_limiter_y=0;
 }
 
 void InitPlayerCamera(int target_x,int target_y)
@@ -1431,6 +1475,10 @@ void PlayerActMouseMovement()
     player.cam_mouse_move_y=sin(player.mouse_angle)*player.mouse_dist/divider;
   else
     player.cam_mouse_move_y=0;
+
+
+  /*if (player.x-(mouse_x+player.cam_mouse_move_x)<0)
+    player.cam_mouse_move_x=0;*/
 }
 
 
@@ -1461,7 +1509,7 @@ void PlayerActMouseClick()
 
       int b_speed_m=9;
       double b_dmg_m=1;
-      int b_g_type=5;
+      int b_g_type=7; //default type shootknives==3
       int b_range=MAX_WEB_LENGTH*2;
       /*if (player.speed>10) {
         b_speed_m=9;
@@ -2054,8 +2102,13 @@ void PlayerAct()
         player.below_ground_edge_timer--;
       }
 
+
       for (speed=0;speed<speed_limiter;speed++) {
         for (grav_speed=0;grav_speed<player.grav;grav_speed++) {
+
+          //limit border and spritex
+          PlayerCameraLimiterBorder();
+
 
           player.on_ground_id=GetOnGroundIdPlayer(player.x,player.y,5,4);
           //player.on_ground_id_u1=GetOnGroundId(player.above_x1,player.above_y1,5,4); //left up
@@ -2280,7 +2333,7 @@ void PlayerAct()
 
           //======PLAYER ACT FLING MOVEMENT======
           PlayerActFlingMovement(grav_speed);
-            }
+        }
 
          //misc
           player.print_current_above=player.current_above;
@@ -2648,10 +2701,6 @@ void PlayerAct()
       if (player.show_exp_timer>0)
         player.show_exp_timer--;
 
-      //sprite axes
-      player.sprite_x=GR_WIDTH/2+player.cam_move_x+player.cam_mouse_move_x;
-      player.sprite_y=GR_HEIGHT/2+player.cam_move_y+player.cam_mouse_move_y;
-
 
       //
       player.blur_timer[player.current_blur_sprite]++;
@@ -2666,8 +2715,8 @@ void PlayerAct()
       }
 
       for (int i=0;i<PLAYER_BLUR_NUM;i++) {
-        player.blur_sprite_x[i]=player.blur_x[i]+player.cam_x+player.cam_move_x+player.cam_mouse_move_x;
-        player.blur_sprite_y[i]=player.blur_y[i]+player.cam_y+player.cam_move_y+player.cam_mouse_move_y;
+        player.blur_sprite_x[i]=player.blur_x[i]+player.cam_x+player.cam_move_x+player.cam_mouse_move_x+player.cam_limiter_x;
+        player.blur_sprite_y[i]=player.blur_y[i]+player.cam_y+player.cam_move_y+player.cam_mouse_move_y+player.cam_limiter_y;
       }
 
   } else { //player.health<=0
@@ -2779,15 +2828,13 @@ void PlayerCameraShake()
     double y_bob=0,x_bob=0;
     //if (sprint_bobbing) {  //if sprint_bobbing
     if (!player.is_swinging) {
-      if (player.on_ground_id!=-1) {//not in air, on ground
+      if (player.on_ground_id!=-1 && player.cam_limiter_x==0 && player.cam_limiter_y==0) {//not in air, on ground
         if (!player.blocking) {
-          if (player.rst_left || player.rst_right /*|| player.health<=PLAYER_LOW_HEALTH*/|| (player.type==1 && (player.rst_up || player.rst_down))) {
+          if (player.rst_left || player.rst_right || (player.type==1 && (player.rst_up || player.rst_down))) {
 	        if (player.speed>=5 || player.type==1) {
               x_bob=2.5;
-	          //if (bg_cam_fall_cooldown==0) {
-	            player.cam_move_x+=0.75*RandNum(-1,1,&misc_rng_i,player.seed);//shaky cam
-	            player.cam_move_y+=0.75*RandNum(-1,1,&misc_rng_i,player.seed);
-	          //}
+              player.cam_move_x+=0.75*RandNum(-1,1,&misc_rng_i,player.seed);//shaky cam
+              player.cam_move_y+=0.75*RandNum(-1,1,&misc_rng_i,player.seed);
 	        } else {
               x_bob=1.5;
 	        }
@@ -2820,15 +2867,22 @@ void PlayerCameraShake()
     	   break;
       }
 
-      if (player.rst_left) {
-	    player.cam_move_x+=x_bob;
+      if (player.grav>5 && player.cam_limiter_y==0) {
+        if (player.rst_left) {
+	      player.cam_move_x+=x_bob;
+        }
+        if (player.rst_right) {
+	      player.cam_move_x-=x_bob;
+        }
+        player.cam_move_y-=y_bob;//y_bob;//increase y
       }
-      if (player.rst_right) {
-	    player.cam_move_x-=x_bob;
-      }
-      player.cam_move_y-=y_bob;//y_bob;//increase y
-      if (player.grav>5 || (player.speed>=5 && (player.rst_left || player.rst_right)) || player.type==1) {
-        player.cam_move_x+=RandNum(-1,1,&misc_rng_i,player.seed);//shaky x
+
+      if ((player.grav>5  && player.cam_limiter_y==0) ||
+            ((player.cam_limiter_x==0 && player.cam_limiter_y==0) && 
+              (/*player.grav>5 ||*/ (player.speed>=5 && (player.rst_left || player.rst_right)))
+            )
+          || player.type==1) {
+        //player.cam_move_x+=RandNum(-1,1,&misc_rng_i,player.seed);//shaky x
         player.cam_move_y+=RandNum(-1,1,&misc_rng_i,player.seed);//shaky y
       }
     //}
@@ -2837,6 +2891,7 @@ void PlayerCameraShake()
   //}
 
   }
+
   for (i=0;i<abs(player.cam_move_x);i++) { //cam stablizer
     if (player.cam_move_x>0) {
       player.cam_move_x-=0.1;
@@ -2925,6 +2980,10 @@ void InitPlayerCursorColor(HDC hdc,HDC hdc2) {
 
 void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
 {
+  //sprite axes
+  player.sprite_x=GR_WIDTH/2+(int)player.cam_move_x+(int)player.cam_mouse_move_x+(int)player.cam_limiter_x;
+  player.sprite_y=GR_HEIGHT/2+(int)player.cam_move_y+(int)player.cam_mouse_move_y+(int)player.cam_limiter_y;
+
   if (player.dmg_taken_timer>0) {
     if (game_cam_shake) {
       player.cam_move_x=RandNum(-5,5,&misc_rng_i,-1);
@@ -3118,9 +3177,17 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
     if (tmp_ground_id==-1)
       tmp_ground_id=player.saved_on_ground_edge_id;
     if (player.is_on_left_ground_edge) {
-      GrLine(hdc,player.sprite_x,player.sprite_y,Ground[tmp_ground_id]->x1+player.cam_x+player.cam_move_x+player.cam_mouse_move_x,Ground[tmp_ground_id]->y1+player.cam_y+player.cam_move_y+player.cam_mouse_move_y,LTCYAN);
+      GrLine(hdc,player.sprite_x,
+                 player.sprite_y,
+                 Ground[tmp_ground_id]->x1+player.cam_x+player.cam_move_x+player.cam_mouse_move_x+player.cam_limiter_x,
+                 Ground[tmp_ground_id]->y1+player.cam_y+player.cam_move_y+player.cam_mouse_move_y+player.cam_limiter_y,
+                 LTCYAN);
     } else if (player.is_on_right_ground_edge) {
-      GrLine(hdc,player.sprite_x,player.sprite_y,Ground[tmp_ground_id]->x2+player.cam_x+player.cam_move_x+player.cam_mouse_move_x,Ground[tmp_ground_id]->y2+player.cam_y+player.cam_move_y+player.cam_mouse_move_y,LTCYAN);
+      GrLine(hdc,player.sprite_x,
+                player.sprite_y,
+                Ground[tmp_ground_id]->x2+player.cam_x+player.cam_move_x+player.cam_mouse_move_x+player.cam_limiter_x,
+                Ground[tmp_ground_id]->y2+player.cam_y+player.cam_move_y+player.cam_mouse_move_y+player.cam_limiter_y,
+                LTCYAN);
     }
   }
 
@@ -3251,8 +3318,8 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
   if (player.is_swinging) {
     GrLine(hdc,player.sprite_x,
                player.sprite_y,
-                player.pivot_x+player.cam_x+player.cam_move_x+player.cam_mouse_move_x,
-                player.pivot_y+player.cam_y+player.cam_move_y+player.cam_mouse_move_y,
+                player.pivot_x+player.cam_x+player.cam_move_x+player.cam_mouse_move_x+player.cam_limiter_x,
+                player.pivot_y+player.cam_y+player.cam_move_y+player.cam_mouse_move_y+player.cam_limiter_y,
                 color);
     //line showing where player will launc/fling to
     /*GrCircle(hdc,player.pivot_x+player.cam_x+player.cam_move_x+player.cam_mouse_move_x,
@@ -3293,5 +3360,14 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
   for (int i=0;i<player.bullet_shot_num;i++) {
     DrawBullet(hdc,hdc2,player.bullet[i]);
   }
+
+  //debug print x,y cam mouse, when see post left gridx==0, x should be negative
+  //int le1=GR_WIDTH/2-player.x+player.cam_mouse_move_x+player.cam_move_x+player.cam_limiter_x;
+  //int le2=GR_HEIGHT/2-player.y+player.cam_mouse_move_y+player.cam_move_y+player.cam_limiter_y;
+
+
+  //char printme[16];
+  //sprintf(printme,"x:%d,y:%d",le1,le2);
+  //GrPrint(hdc,mouse_x,mouse_y+20,printme,LTGREEN);
 }
 

@@ -2965,7 +2965,9 @@ void DrawEnemy(HDC hdc,HDC hdc2)
     cx1=player.cam_mouse_move_x,
     cy1=player.cam_mouse_move_y,
     cx2=player.cam_move_x,
-    cy2=player.cam_move_y;
+    cy2=player.cam_move_y,
+    cx3=player.cam_limiter_x,
+    cy3=player.cam_limiter_y;
     if (frame_tick==-8) { //initiate on start of app
       player.flag_revert_palette=TRUE;
       player.time_breaker_tick=-1;
@@ -2981,8 +2983,8 @@ void DrawEnemy(HDC hdc,HDC hdc2)
     else
       Enemy[i]->seed=-1;
 
-    Enemy[i]->sprite_x=(int)Enemy[i]->x+px+cx1+cx2;
-    Enemy[i]->sprite_y=(int)Enemy[i]->y+py+cy1+cy2;
+    Enemy[i]->sprite_x=(int)Enemy[i]->x+px+cx1+cx2+cx3;
+    Enemy[i]->sprite_y=(int)Enemy[i]->y+py+cy1+cy2+cy3;
     if (Enemy[i]->species==1 || Enemy[i]->species==3 || (Enemy[i]->species>=5 && Enemy[i]->species<=7)) {//rotate sprite
 
 

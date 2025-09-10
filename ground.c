@@ -736,8 +736,8 @@ void DestroyGround(int i)
 void DrawWebs(HDC hdc)
 { int id;
   int c;
-  int cx=(int)player.cam_x+(int)player.cam_move_x+(int)player.cam_mouse_move_x;
-  int cy=(int)player.cam_y+(int)player.cam_move_y+(int)player.cam_mouse_move_y;
+  int cx=(int)player.cam_x+(int)player.cam_move_x+(int)player.cam_mouse_move_x+(int)player.cam_limiter_x;
+  int cy=(int)player.cam_y+(int)player.cam_move_y+(int)player.cam_mouse_move_y+(int)player.cam_limiter_y;
   for (int i=GROUND_NUM;i<GROUND_NUM+player.max_web_num;i++) {
     id=i;
     c=LTCYAN;//Highlight(Ground[id]->health%10<5,LTGRAY,LTCYAN);

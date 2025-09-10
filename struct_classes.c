@@ -319,13 +319,14 @@ struct player
 //  double saved_block_sprite_angle;
 //  double saved_attack_sprite_angle;
   double player_grav;
-
   double cam_x;
   double cam_y;
   double cam_move_x;
   double cam_move_y;
   double cam_mouse_move_x;
   double cam_mouse_move_y;
+  int cam_limiter_x;
+  int cam_limiter_y;
   double sprite_x;
   double sprite_y;
   double claws_x;

@@ -216,6 +216,7 @@ int player_bullet_color=0;
 int showoff=0;
 int saved_showoff=0;
 
+
 //double, game state system values
 long long game_timer=0;
 double double_best_score=0;
