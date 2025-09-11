@@ -109,8 +109,6 @@ void InitGridTiles(const wchar_t* lvl_name)
 int loading_tile_grid_prog=0;
 void DrawCreateTiles(HDC hdc,HDC hdc2)
 {
-  HBITMAP oldbitmap;
-  oldbitmap=CreateBitmap(0,0, 1, 1, NULL);
   bool yes_shadow=FALSE;
   wchar_t seg_name[72];  
   int tmp_id;
@@ -203,7 +201,7 @@ void DrawCreateTiles(HDC hdc,HDC hdc2)
                 }
               }
             }
-            SelectObject(hdc,oldbitmap);
+            SelectObject(hdc,_bb);
             TileMapPlatform[tmp_id]->sprite_mask=CreateBitmapMask(TileMapPlatform[tmp_id]->sprite_paint,MYCOLOR1,NULL); //create mask
             loading_numerator++;
           }
@@ -294,8 +292,6 @@ void DrawCreateTiles(HDC hdc,HDC hdc2)
       back_to_menu=FALSE;
     }
   }
-  SelectObject(hdc,oldbitmap);
-  DeleteObject(oldbitmap);
 }
 
 

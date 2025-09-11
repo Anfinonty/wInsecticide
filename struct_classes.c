@@ -1314,6 +1314,8 @@ HBITMAP ga0_kh[5];
 HBITMAP ga0_kh_mask[5];
 
 
+HBITMAP _bb;
+
 //raindrop
 int sc_raindrop_num_=0;
 int sc_raindrop_id_1=0;

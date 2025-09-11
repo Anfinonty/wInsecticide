@@ -25,6 +25,7 @@
 #define LPURPLE     RGB(170,43,170)
 #define LLTGREEN    RGB(0,254,0)
 #define MYCOLOR1    RGB(22,22,22)//RGB(1,1,1)
+#define MYCOLOR32   RGB(12,254,123)
 
 //DARK COLORS
 #define DKRBLACK       RGB(0,0,0)
@@ -689,6 +690,36 @@ HBITMAP CopyStretchBitmap(HBITMAP srcBitmap,int SRCOPERATION, int nWidth, int nH
 
 
 
+HBITMAP CreateBitmapMask2(HBITMAP hbmColour, COLORREF crTransparent, HDC hdcMem, HDC hdcMem2)
+{//http://www.winprog.org/tutorial/transparency.html
+    HBITMAP hbmMask;
+    BITMAP bm;
+
+    // Create monochrome (1 bit) mask bitmap.  
+    GetObject(hbmColour, sizeof(BITMAP), &bm);
+    hbmMask = CreateBitmap(bm.bmWidth, bm.bmHeight, 1, 1, NULL);
+
+    // Get some HDCs that are compatible with the display driver
+    SelectObject(hdcMem, hbmColour);
+    SelectObject(hdcMem2, hbmMask);
+
+    // Set the background colour of the colour image to the colour
+    // you want to be transparent.
+    SetBkColor(hdcMem, crTransparent);
+
+    // Copy the bits from the colour image to the B+W mask... everything
+    // with the background colour ends up white while everythig else ends up
+    // black...Just what we wanted.
+
+    BitBlt(hdcMem2, 0, 0, bm.bmWidth, bm.bmHeight, hdcMem, 0, 0, SRCCOPY);
+
+    // Take our new mask and use it to turn the transparent colour in our
+    // original colour image to black so the transparency effect will
+    // work right.
+    BitBlt(hdcMem, 0, 0, bm.bmWidth, bm.bmHeight, hdcMem2, 0, 0, SRCINVERT);
+
+    return hbmMask;
+}
 
 
 HBITMAP CreateBitmapMask(HBITMAP hbmColour, COLORREF crTransparent, HDC hdc)
@@ -1775,6 +1806,11 @@ void GenerateDrawSprite(DRAWSPRITE* myDrawSprite,HBITMAP srcBitmap)
     myDrawSprite->sprite_mask=CreateBitmapMask(myDrawSprite->sprite_paint,BLACK,NULL);
 }
 
+void GenerateLargeDrawSprite(DRAWSPRITE* myDrawSprite,HBITMAP srcBitmap)
+{
+    myDrawSprite->sprite_paint=CopyBitmap(srcBitmap,SRCCOPY);
+    myDrawSprite->sprite_mask=CreateBitmapMask(myDrawSprite->sprite_paint,BLACK,NULL);
+}
 
 
 void FreeDrawSprite(DRAWSPRITE* myDrawSprite)
@@ -2349,4 +2385,68 @@ void SetTexturePalette(int target_color_id,RGBQUAD *myTexturePalette) {
     myTexturePalette[i].rgbBlue=grey_val_b;
   }
 }
+
+
+
+
+
+HBITMAP FlipBitmapVertically(HBITMAP hBitmap)
+{
+    BITMAP bmp;
+    if (!GetObject(hBitmap, sizeof(BITMAP), &bmp))
+        return NULL;
+
+    // Prepare BITMAPINFO
+    BITMAPINFO bmi = {0};
+    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    bmi.bmiHeader.biWidth = bmp.bmWidth;
+    bmi.bmiHeader.biHeight = bmp.bmHeight;
+    bmi.bmiHeader.biPlanes = 1;
+    bmi.bmiHeader.biBitCount = bmp.bmBitsPixel;
+    bmi.bmiHeader.biCompression = BI_RGB;
+
+    int rowSize = ((bmp.bmBitsPixel * bmp.bmWidth + 31) / 32) * 4;
+    int dataSize = rowSize * bmp.bmHeight;
+
+    BYTE* pPixels = (BYTE*)malloc(dataSize);
+    if (!pPixels)
+        return NULL;
+
+    HDC hdc = GetDC(NULL);
+    if (!GetDIBits(hdc, hBitmap, 0, bmp.bmHeight, pPixels, &bmi, DIB_RGB_COLORS)) {
+        free(pPixels);
+        ReleaseDC(NULL, hdc);
+        return NULL;
+    }
+
+    // Flip vertically
+    BYTE* pFlipped = (BYTE*)malloc(dataSize);
+    if (!pFlipped) {
+        free(pPixels);
+        ReleaseDC(NULL, hdc);
+        return NULL;
+    }
+
+    for (int y = 0; y < bmp.bmHeight; ++y) {
+        memcpy(
+            pFlipped + y * rowSize,
+            pPixels + (bmp.bmHeight - 1 - y) * rowSize,
+            rowSize
+        );
+    }
+
+    // Create flipped bitmap
+    HBITMAP hFlipped = CreateCompatibleBitmap(hdc, bmp.bmWidth, bmp.bmHeight);
+    if (hFlipped) {
+        SetDIBits(hdc, hFlipped, 0, bmp.bmHeight, pFlipped, &bmi, DIB_RGB_COLORS);
+    }
+
+    // Cleanup
+    free(pPixels);
+    free(pFlipped);
+    ReleaseDC(NULL, hdc);
+
+    return hFlipped;
+}
+
 

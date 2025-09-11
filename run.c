@@ -816,7 +816,7 @@ void InitSetRes(int i,int w,int h,char *txt,wchar_t* wtxt)
 
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-  HDC hdc, hdcBackbuff, hdcBackbuff2;
+  HDC hdc, hdcBackbuff, hdcBackbuff2, hdcBackbuffMirror;
   switch(msg) {
 
     //Left Click Hold
@@ -1360,7 +1360,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
         //Draw Game Screen
-        HBITMAP screen;
+        HBITMAP screen,screen_mask,screen_mirror,screen_watercolour;
         PAINTSTRUCT ps;        
         if (prelude) { //draw prelude screen
           hdc=BeginPaint(hwnd, &ps);
@@ -1463,15 +1463,20 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             hdc=BeginPaint(hwnd, &ps);
             hdcBackbuff=CreateCompatibleDC(hdc);
             hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
-            screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+            //screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+            screen=CreateLargeBitmap(GR_WIDTH,GR_HEIGHT);
             SelectObject(hdcBackbuff,screen);
             DrawBackground(hdcBackbuff,hdcBackbuff2);
-            DrawWaterPlatformsTexture(hdcBackbuff,hdcBackbuff2);
+            if (player.in_water_timer>0) {
+              DrawWaterPlatformsTexture(hdcBackbuff,hdcBackbuff2);
+            }
             DrawPlatforms(hdcBackbuff,hdcBackbuff2);
             DrawFirePlatforms(hdcBackbuff);
-            DrawWebs(hdcBackbuff);
-            DrawEnemy(hdcBackbuff,hdcBackbuff2);
-            DrawPlayer(hdcBackbuff,hdcBackbuff2,player.type);
+            if (!player.in_water_timer>0) {
+              DrawWebs(hdcBackbuff);
+              DrawEnemy(hdcBackbuff,hdcBackbuff2);
+              DrawPlayer(hdcBackbuff,hdcBackbuff2,player.type);
+            }
             //DrawNodeGrids(hdcBackbuff); //debugging
 
 
@@ -1482,53 +1487,103 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               DrawRain(hdcBackbuff,hdcBackbuff2);
               DrawRainShader3(hdcBackbuff);
             }
+
+            //Game Action reflection=======
+            if (player.in_water_timer==0) {
+              hdcBackbuffMirror=CreateCompatibleDC(hdc);
+              screen_mirror=FlipBitmapVertically(screen);
+              SelectObject(hdcBackbuffMirror,screen_mirror);
+            //StretchBlt(hdcBackbuffMirror, 0, GR_HEIGHT, GR_WIDTH, -GR_HEIGHT, hdcBackbuff, 0,0, GR_WIDTH,GR_HEIGHT, SRCCOPY); //REFLECTION
+            
+            //Cutout main screen to show reflective, water
+              SelectObject(hdcBackbuff,screen);
+            //CreateMask of main screen
+              DrawWaterPlatformsCutout(hdcBackbuff,hdcBackbuff2);
+
+
+              SelectObject(hdcBackbuff,_bb);
+              screen_mask=CreateBitmapMask(screen,MYCOLOR32,NULL);//cretatebitmap mask
+
+            //draw screen ontop of reflection layer
+              SelectObject(hdcBackbuff,screen_mask);
+              BitBlt(hdcBackbuffMirror, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0, SRCAND);
+              SelectObject(hdcBackbuff,screen);
+              BitBlt(hdcBackbuffMirror, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0, SRCPAINT);
+            } else {
+              hdcBackbuffMirror=CreateCompatibleDC(hdc);
+              screen_mirror=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);//CopyBitmap(screen,SRCCOPY);
+              SelectObject(hdcBackbuffMirror,screen_mirror);
+              SelectObject(hdcBackbuff,screen);
+              BitBlt(hdcBackbuffMirror, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0, SRCPAINT);
+            }
+
+            if (player.in_water_timer>0) {
+              DrawWebs(hdcBackbuffMirror);
+              DrawEnemy(hdcBackbuffMirror,hdcBackbuff2);
+              DrawPlayer(hdcBackbuffMirror,hdcBackbuff2,player.type);
+            }
+
+            //draw watercolor
+            screen_watercolour=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+            SelectObject(hdcBackbuff,screen_watercolour);
+            DrawWaterColour(hdcBackbuff,hdcBackbuff2);
+            //Draw watercolour onto overall screen
+            BitBlt(hdcBackbuffMirror, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0, SRCPAINT);
+
+
+            //misc
+            //DrawGUI
             //DrawBlackBorders(hdcBackbuff);
-            DrawUI(hdcBackbuff,hdcBackbuff2);
+            DrawUI(hdcBackbuffMirror,hdcBackbuff2);
             if (player.health>0) {
-              DrawCursor(hdcBackbuff,hdcBackbuff2);
+              DrawCursor(hdcBackbuffMirror,hdcBackbuff2);
             } else if (player.death_timer>150) { //dead cursor
               int pc=rgbPaint[player_color];
-              GrCircle(hdcBackbuff,mouse_x,mouse_y,10,pc,pc);
+              GrCircle(hdcBackbuffMirror,mouse_x,mouse_y,10,pc,pc);
               pc=rgbPaint[player_pupil_color];
-              GrCircle(hdcBackbuff,mouse_x,mouse_y,5,pc,pc);
+              GrCircle(hdcBackbuffMirror,mouse_x,mouse_y,5,pc,pc);
               pc=rgbPaint[player_iris_color];
               if (player.bullet_shot_num>0) {
                 if (!player.rst_left_click) {
-                  GrCircle(hdcBackbuff,mouse_x,mouse_y,RandNum(1,5,&misc_rng_i,-1),pc,pc);
+                  GrCircle(hdcBackbuffMirror,mouse_x,mouse_y,RandNum(1,5,&misc_rng_i,-1),pc,pc);
                 } else {
-                  GrCircle(hdcBackbuff,mouse_x,mouse_y,5,pc,pc);
+                  GrCircle(hdcBackbuffMirror,mouse_x,mouse_y,5,pc,pc);
                 }
               } else {
                 call_help_timer=0;
               }
             }
 
-
-
+            //Draw Cinematic Mode
             int c=BLACK;
             if (IsSpeedBreaking()) { //cinema mode when speedbreaking
-              GrRect(hdcBackbuff,0,0,GR_WIDTH+4,32,c);
+              GrRect(hdcBackbuffMirror,0,0,GR_WIDTH+4,32,c);
               if (hide_taskbar) {
-                GrRect(hdcBackbuff,0,GR_HEIGHT-48,GR_WIDTH+4,100,c);
+                GrRect(hdcBackbuffMirror,0,GR_HEIGHT-48,GR_WIDTH+4,100,c);
               } else {
-                GrRect(hdcBackbuff,0,GR_HEIGHT-32-32,GR_WIDTH+4,32+32,c);
+                GrRect(hdcBackbuffMirror,0,GR_HEIGHT-32-32,GR_WIDTH+4,32+32,c);
               }
             }
-
 
             if (hide_taskbar) {
               BitBlt(hdc, SCREEN_WIDTH/2-RESOLUTION_X[resolution_choose]/2, 
                             SCREEN_HEIGHT/2-RESOLUTION_Y[resolution_choose]/2, 
                             RESOLUTION_X[resolution_choose],
                             RESOLUTION_Y[resolution_choose],
-                            hdcBackbuff, 0, 0,  SRCCOPY);
+                            hdcBackbuffMirror, 0, 0,  SRCCOPY);
             } else {
-              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
+              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuffMirror, 0, 0,  SRCCOPY);
             }
             
+            DeleteDC(hdcBackbuffMirror);
             DeleteDC(hdcBackbuff2);
             DeleteDC(hdcBackbuff);
             DeleteObject(screen);
+            if (screen_mask!=NULL)
+              DeleteObject(screen_mask);
+            if (screen_mirror!=NULL)
+              DeleteObject(screen_mirror);
+            DeleteObject(screen_watercolour);
 
             //Trigger go back to main menu
             if (back_to_menu) {
@@ -1631,18 +1686,42 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             SelectObject(hdcBackbuff,screen);
       
             DrawMainMenu(hdcBackbuff,hdcBackbuff2);
-          //DrawNodeGrids(hdcBackbuff); //debugging
+            //DrawNodeGrids(hdcBackbuff); //debugging
 
             DrawCursor(hdcBackbuff,hdcBackbuff2);
             DrawMMExtraKeys(hdcBackbuff);
+
+
+            //reflection mirror screen
+            hdcBackbuffMirror=CreateCompatibleDC(hdc);
+            screen_mirror=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+            SelectObject(hdcBackbuffMirror,screen_mirror);
+            StretchBlt(hdcBackbuffMirror, 0, GR_HEIGHT, GR_WIDTH, -GR_HEIGHT, hdcBackbuff, 0,0, GR_WIDTH,GR_HEIGHT, SRCCOPY); //REFLECTION
+
+
+            //Cutout main screen to show reflective, water
+            SelectObject(hdcBackbuff,screen);
+            //GrRect(hdcBackbuff,0,0,GR_WIDTH,GR_HEIGHT/2,MYCOLOR32); 
+            //GrCircle(hdcBackbuff,100,100,30,MYCOLOR32,MYCOLOR32);
+            //CreateMask of main screen
+            SelectObject(hdcBackbuff,_bb);
+            screen_mask=CreateBitmapMask(screen,MYCOLOR32,NULL);//cretatebitmap mask
+
+            //draw screen ontop of reflection layer
+            SelectObject(hdcBackbuff,screen_mask);
+            BitBlt(hdcBackbuffMirror, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0, SRCAND);
+            SelectObject(hdcBackbuff,screen);
+            BitBlt(hdcBackbuffMirror, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0, SRCPAINT);
+
+
             if (hide_taskbar) {
               BitBlt(hdc, SCREEN_WIDTH/2-RESOLUTION_X[resolution_choose]/2, 
                             SCREEN_HEIGHT/2-RESOLUTION_Y[resolution_choose]/2, 
                             RESOLUTION_X[resolution_choose],
                             RESOLUTION_Y[resolution_choose],
-                            hdcBackbuff, 0, 0,  SRCCOPY);
+                            hdcBackbuffMirror, 0, 0,  SRCCOPY);
             } else {
-              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
+              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuffMirror, 0, 0,  SRCCOPY); //Original portion
             }
           } else {
             if (flag_resolution_change) { //blackout clear screen
@@ -1664,9 +1743,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
           }
 
+          DeleteDC(hdcBackbuffMirror);
           DeleteDC(hdcBackbuff2);
           DeleteDC(hdcBackbuff);
           DeleteObject(screen);
+          DeleteObject(screen_mask);
+          DeleteObject(screen_mirror);
           }
 
           //flag to stop
@@ -1756,6 +1838,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //LoadBufferSFX(L"music/helicopter.wav");
       //MessageBox(NULL, TEXT("ភាសាខ្មែរ"), TEXT("ភាសាខ្មែរ") ,MB_OK); //khmer text box
       //printf("boolsize:%d",sizeof(bool));      
+
+      //bufferbitmap to be refered to
+      _bb=CreateBitmap(0,0, 1, 1, NULL);
 
       //Loading Bar
       loading_numerator=0;
