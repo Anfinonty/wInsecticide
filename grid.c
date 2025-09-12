@@ -232,6 +232,7 @@ void DrawCreateTiles(HDC hdc,HDC hdc2)
             for (int k=0;k<VGrid[i]->max_ground_num;k++) {
               int l = VGrid[i]->ground_ids[k];
               Draw1WaterTriFill(hdc,l,VGrid[i]->x1,VGrid[i]->y1);
+              
             }
             SelectObject(hdc,_bb);
             TileMapForeground[tmp_id]->sprite_mask=CreateBitmapMask(TileMapForeground[tmp_id]->sprite_paint,MYCOLOR1,NULL); //create mask

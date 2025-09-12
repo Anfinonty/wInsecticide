@@ -1472,7 +1472,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               DrawWaterPlatformsTexture(hdcBackbuff,hdcBackbuff2);
             }
             DrawPlatforms(hdcBackbuff,hdcBackbuff2);
-            DrawWaterPlatforms(hdcBackbuff,hdcBackbuff2);
+            //DrawWaterPlatforms(hdcBackbuff,hdcBackbuff2);
             DrawFirePlatforms(hdcBackbuff);
             if (!player.in_water_timer>0) {
               DrawWebs(hdcBackbuff);
@@ -1494,29 +1494,34 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             if (player.in_water_timer==0) {
               hdcBackbuffMirror=CreateCompatibleDC(hdc);
               screen_mirror=FastFlipLargeBitmapVertically(screen);
+                        //CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
               SelectObject(hdcBackbuffMirror,screen_mirror);
             //StretchBlt(hdcBackbuffMirror, 0, GR_HEIGHT, GR_WIDTH, -GR_HEIGHT, hdcBackbuff, 0,0, GR_WIDTH,GR_HEIGHT, SRCCOPY); //REFLECTION
             
             //Cutout main screen to show reflective, water
               SelectObject(hdcBackbuff,screen);
             //CreateMask of main screen
-              DrawWaterPlatformsCutout(hdcBackbuff,hdcBackbuff2);
+              //DrawWaterPlatformsCutout(hdcBackbuff,hdcBackbuff2);
 
-
-              SelectObject(hdcBackbuff,_bb);
-              screen_mask=CreateBitmapMask(screen,MYCOLOR32,NULL);//cretatebitmap mask
+              //SelectObject(hdcBackbuff,_bb);
+              //screen_mask=CreateBitmapMask(screen,MYCOLOR32,NULL);//hdcBackbuff,hdcBackbuff2);//cretatebitmap mask
 
             //draw screen ontop of reflection layer
-              SelectObject(hdcBackbuff,screen_mask);
+              //SelectObject(hdcBackbuff,screen_mask);
               BitBlt(hdcBackbuffMirror, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0, SRCAND);
-              SelectObject(hdcBackbuff,screen);
+              //GrRect(hdcBackbuff,0,0,GR_WIDTH,GR_HEIGHT/2,BLACK);
+              DrawWaterPlatformsCutout(hdcBackbuff,hdcBackbuff2);
+              //SelectObject(hdcBackbuff,screen); 
               BitBlt(hdcBackbuffMirror, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0, SRCPAINT);
+              //DrawWaterPlatforms(hdcBackbuffMirror,hdcBackbuff2);
+              //BitBlt(hdcBackbuffMirror, 0,  0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0, SRCCOPY);
             } else {
               hdcBackbuffMirror=CreateCompatibleDC(hdc);
               screen_mirror=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);//CopyBitmap(screen,SRCCOPY);
               SelectObject(hdcBackbuffMirror,screen_mirror);
               SelectObject(hdcBackbuff,screen);
               BitBlt(hdcBackbuffMirror, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0, SRCPAINT);
+              //DrawWaterPlatforms(hdcBackbuffMirror,hdcBackbuff2);
             }
 
             if (player.in_water_timer>0) {
@@ -1526,11 +1531,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
 
             //draw watercolor
-            screen_watercolour=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
-            SelectObject(hdcBackbuff,screen_watercolour);
-            DrawWaterColour(hdcBackbuff,hdcBackbuff2);
+            //screen_watercolour=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+            //SelectObject(hdcBackbuff,screen_watercolour);
+            //DrawWaterColour(hdcBackbuff,hdcBackbuff2);
             //Draw watercolour onto overall screen
-            BitBlt(hdcBackbuffMirror, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0, SRCPAINT);
+            //BitBlt(hdcBackbuffMirror, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0, SRCPAINT);
 
 
             //misc
@@ -1585,7 +1590,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               DeleteObject(screen_mask);
             if (screen_mirror!=NULL)
               DeleteObject(screen_mirror);
-            DeleteObject(screen_watercolour);
+            //DeleteObject(screen_watercolour);
 
             //Trigger go back to main menu
             if (back_to_menu) {

@@ -262,7 +262,7 @@ void DrawWaterPlatformsCutout(HDC hdc, HDC hdc2)
             y2=GR_HEIGHT/2+(int)Ground[i]->y2-py+cy1+cy2+cy3;
             x3=GR_WIDTH/2+(int)Ground[i]->x3-px+cx1+cx2+cx3;
             y3=GR_HEIGHT/2+(int)Ground[i]->y3-py+cy1+cy2+cy3;
-  	        DrawTriFill(hdc,MYCOLOR32,x1,y1,x2,y2,x3,y3,FALSE,0);
+  	        DrawTriFill(hdc,BLACK,x1,y1,x2,y2,x3,y3,FALSE,0);
         }
       }
     }
@@ -394,8 +394,8 @@ void DrawWaterPlatforms(HDC hdc,HDC hdc2)
 //        DrawBitmap(hdc,x,y,0, 0,VGRID_SIZE,VGRID_SIZE,TileMapForeground[tmf_id]->sprite_paint,SRCPAINT,FALSE,FALSE);
         //DrawSprite(hdc,x,y,&TileMapForeground[tmf_id]->draw_tile,FALSE);
 
-        SelectObject(hdc2,TileMapForeground[tmf_id]->sprite_mask);
-        BitBlt(hdc, x, y, VGRID_SIZE, VGRID_SIZE, hdc2, 0, 0, SRCAND);
+        //SelectObject(hdc2,TileMapForeground[tmf_id]->sprite_mask);
+        //BitBlt(hdc, x, y, VGRID_SIZE, VGRID_SIZE, hdc2, 0, 0, SRCAND);
 
         SelectObject(hdc2,TileMapForeground[tmf_id]->sprite_paint);
         BitBlt(hdc, x, y, VGRID_SIZE, VGRID_SIZE, hdc2, 0, 0, SRCPAINT);

@@ -983,7 +983,7 @@ void Draw1WaterTriFill(HDC hdc,int i,int x,int y) {
       c=Ground[i]->color;
       if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
           !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
-	      DrawTriFill(hdc,c,
+	      /*DrawTriFill(hdc,c,
                 Ground[i]->x1-x,
 				Ground[i]->y1-y,
 				Ground[i]->x2-x,
@@ -996,7 +996,14 @@ void Draw1WaterTriFill(HDC hdc,int i,int x,int y) {
 				Ground[i]->x2-x,
 				Ground[i]->y2-y,
 				Ground[i]->x3-x,
-				Ground[i]->y3-y,TRUE,HS_DIAGCROSS);
+				Ground[i]->y3-y,TRUE,HS_DIAGCROSS);*/
+	      DrawTriFill(hdc,c,
+                Ground[i]->x1-x,
+				Ground[i]->y1-y,
+				Ground[i]->x2-x,
+				Ground[i]->y2-y,
+				Ground[i]->x3-x,
+				Ground[i]->y3-y,FALSE,0);
       }
     }
 }

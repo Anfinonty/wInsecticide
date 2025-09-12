@@ -722,6 +722,44 @@ HBITMAP CopyStretchBitmap(HBITMAP srcBitmap,int SRCOPERATION, int nWidth, int nH
 }*/
 
 
+HBITMAP CreateBitmapMaskFast(HBITMAP hbmColour, COLORREF crTransparent, HDC hdcMem, HDC hdcMem2)
+{//http://www.winprog.org/tutorial/transparency.html
+    HBITMAP hbmMask;
+    BITMAP bm;
+
+    // Create monochrome (1 bit) mask bitmap.  
+
+    GetObject(hbmColour, sizeof(BITMAP), &bm);
+    hbmMask = CreateBitmap(bm.bmWidth, bm.bmHeight, 1, 1, NULL);
+
+    // Get some HDCs that are compatible with the display driver
+    SelectObject(hdcMem, hbmColour);
+    SelectObject(hdcMem2, hbmMask);
+
+    // Set the background colour of the colour image to the colour
+    // you want to be transparent.
+    SetBkColor(hdcMem, crTransparent); //<----causes lag
+
+    // Copy the bits from the colour image to the B+W mask... everything
+    // with the background colour ends up white while everythig else ends up
+    // black...Just what we wanted.
+
+    BitBlt(hdcMem2, 0, 0, bm.bmWidth, bm.bmHeight, hdcMem, 0, 0, SRCCOPY);
+
+    // Take our new mask and use it to turn the transparent colour in our
+    // original colour image to black so the transparency effect will
+    // work right.
+    BitBlt(hdcMem, 0, 0, bm.bmWidth, bm.bmHeight, hdcMem2, 0, 0, SRCINVERT);
+
+    // Clean up.
+
+    //DeleteDC(hdcMem);
+    //DeleteDC(hdcMem2);
+
+    return hbmMask;
+}
+
+
 HBITMAP CreateBitmapMask(HBITMAP hbmColour, COLORREF crTransparent, HDC hdc)
 {//http://www.winprog.org/tutorial/transparency.html
     HDC hdcMem, hdcMem2;
