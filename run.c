@@ -31,6 +31,7 @@
 #include <errno.h>
 #include <shlwapi.h>
 #include <float.h>
+#include <emmintrin.h>  // SSE2
 //#include <mmsystem.h>
 //#include <commctrl.h>
 //#include <omp.h>
@@ -1471,6 +1472,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               DrawWaterPlatformsTexture(hdcBackbuff,hdcBackbuff2);
             }
             DrawPlatforms(hdcBackbuff,hdcBackbuff2);
+            DrawWaterPlatforms(hdcBackbuff,hdcBackbuff2);
             DrawFirePlatforms(hdcBackbuff);
             if (!player.in_water_timer>0) {
               DrawWebs(hdcBackbuff);
@@ -1491,7 +1493,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             //Game Action reflection=======
             if (player.in_water_timer==0) {
               hdcBackbuffMirror=CreateCompatibleDC(hdc);
-              screen_mirror=FlipBitmapVertically(screen);
+              screen_mirror=FastFlipLargeBitmapVertically(screen);
               SelectObject(hdcBackbuffMirror,screen_mirror);
             //StretchBlt(hdcBackbuffMirror, 0, GR_HEIGHT, GR_WIDTH, -GR_HEIGHT, hdcBackbuff, 0,0, GR_WIDTH,GR_HEIGHT, SRCCOPY); //REFLECTION
             
@@ -1691,37 +1693,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DrawCursor(hdcBackbuff,hdcBackbuff2);
             DrawMMExtraKeys(hdcBackbuff);
 
-
-            //reflection mirror screen
-            hdcBackbuffMirror=CreateCompatibleDC(hdc);
-            screen_mirror=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
-            SelectObject(hdcBackbuffMirror,screen_mirror);
-            StretchBlt(hdcBackbuffMirror, 0, GR_HEIGHT, GR_WIDTH, -GR_HEIGHT, hdcBackbuff, 0,0, GR_WIDTH,GR_HEIGHT, SRCCOPY); //REFLECTION
-
-
-            //Cutout main screen to show reflective, water
-            SelectObject(hdcBackbuff,screen);
-            //GrRect(hdcBackbuff,0,0,GR_WIDTH,GR_HEIGHT/2,MYCOLOR32); 
-            //GrCircle(hdcBackbuff,100,100,30,MYCOLOR32,MYCOLOR32);
-            //CreateMask of main screen
-            SelectObject(hdcBackbuff,_bb);
-            screen_mask=CreateBitmapMask(screen,MYCOLOR32,NULL);//cretatebitmap mask
-
-            //draw screen ontop of reflection layer
-            SelectObject(hdcBackbuff,screen_mask);
-            BitBlt(hdcBackbuffMirror, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0, SRCAND);
-            SelectObject(hdcBackbuff,screen);
-            BitBlt(hdcBackbuffMirror, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0, SRCPAINT);
-
-
             if (hide_taskbar) {
               BitBlt(hdc, SCREEN_WIDTH/2-RESOLUTION_X[resolution_choose]/2, 
                             SCREEN_HEIGHT/2-RESOLUTION_Y[resolution_choose]/2, 
                             RESOLUTION_X[resolution_choose],
                             RESOLUTION_Y[resolution_choose],
-                            hdcBackbuffMirror, 0, 0,  SRCCOPY);
+                            hdcBackbuff, 0, 0,  SRCCOPY);
             } else {
-              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuffMirror, 0, 0,  SRCCOPY); //Original portion
+              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY); //Original portion
             }
           } else {
             if (flag_resolution_change) { //blackout clear screen
@@ -1743,12 +1722,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
           }
 
-          DeleteDC(hdcBackbuffMirror);
           DeleteDC(hdcBackbuff2);
           DeleteDC(hdcBackbuff);
           DeleteObject(screen);
-          DeleteObject(screen_mask);
-          DeleteObject(screen_mirror);
           }
 
           //flag to stop

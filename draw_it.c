@@ -286,6 +286,7 @@ void DrawWaterColour(HDC hdc, HDC hdc2)
   int x1,y1,x2,y2,x3,y3;
   int i,c;
 
+  //GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,BLACK);
   for (int k=0;k<WATER_GROUND_NUM;k++) {
     i = rendered_water_ground[k];
     if (i!=-1) {
@@ -346,7 +347,7 @@ void DrawFirePlatforms(HDC hdc)
   }
 }
 
-/*void DrawWaterPlatforms(HDC hdc,HDC hdc2) 
+void DrawWaterPlatforms(HDC hdc,HDC hdc2) 
 {
 /*  int extra_h=0;
   if (hide_taskbar) {
@@ -369,7 +370,7 @@ void DrawFirePlatforms(HDC hdc)
                  GR_WIDTH,
                  GR_HEIGHT+extra_h,
                  map_water_platforms_sprite,SRCPAINT,FALSE,FALSE);*/
-  /*int gid,tmf_id;
+  int gid,tmf_id;
   int x,y,_x,_y;
   int 
     px=player.x,
@@ -377,16 +378,18 @@ void DrawFirePlatforms(HDC hdc)
     cx1=player.cam_mouse_move_x,
     cy1=player.cam_mouse_move_y,
     cx2=player.cam_move_x,
-    cy2=player.cam_move_y;
+    cy2=player.cam_move_y,
+    cx3=player.cam_limiter_x,
+    cy3=player.cam_limiter_y;
   for (int i=0;i<RDGRID_DYN_NUM;i++) {
-    _x=RDGrid[i].x+px-GR_WIDTH/2-cx1-cx2;//+cx1+cx2;//GR_WIDTH/2+RDGrid[i].x-px+cx1+cx2;
-    _y=RDGrid[i].y+py-GR_HEIGHT/2-cy1-cy2;//+cy1+cy2;//GR_HEIGHT/2+RDGrid[i].y-py+cy1+cy2;
+    _x=RDGrid[i].x+px-GR_WIDTH/2-cx1-cx2-cx3;//+cx1+cx2;//GR_WIDTH/2+RDGrid[i].x-px+cx1+cx2;
+    _y=RDGrid[i].y+py-GR_HEIGHT/2-cy1-cy2-cy3;//+cy1+cy2;//GR_HEIGHT/2+RDGrid[i].y-py+cy1+cy2;
     gid=GetGridId(_x,_y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
     if (gid>-1 && gid<VGRID_NUM && _x>=0 && _y>=0 && _x<=MAP_WIDTH && _y<=MAP_HEIGHT) {
       tmf_id=VGrid[gid]->draw_foreground_seg_id;
       if (tmf_id!=-1) {
-        x=GR_WIDTH/2+TileMapForeground[tmf_id]->x-px+cx1+cx2;
-        y=GR_HEIGHT/2+TileMapForeground[tmf_id]->y-py+cy1+cy2;
+        x=GR_WIDTH/2+TileMapForeground[tmf_id]->x-px+cx1+cx2+cx3;
+        y=GR_HEIGHT/2+TileMapForeground[tmf_id]->y-py+cy1+cy2+cy3;
 //        DrawBitmap(hdc,x, y,0, 0,VGRID_SIZE,VGRID_SIZE,TileMapForeground[tmf_id]->sprite_mask,SRCAND,FALSE,FALSE);
 //        DrawBitmap(hdc,x,y,0, 0,VGRID_SIZE,VGRID_SIZE,TileMapForeground[tmf_id]->sprite_paint,SRCPAINT,FALSE,FALSE);
         //DrawSprite(hdc,x,y,&TileMapForeground[tmf_id]->draw_tile,FALSE);
@@ -400,7 +403,7 @@ void DrawFirePlatforms(HDC hdc)
       } 
     } 
   }
-}*/
+}
 
 
 void DrawPlatforms(HDC hdc,HDC hdc2)
