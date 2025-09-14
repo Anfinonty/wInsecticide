@@ -289,8 +289,9 @@ void DrawWaterColour(HDC hdc, HDC hdc2)
     cy3=player.cam_limiter_y;
   int x1,y1,x2,y2,x3,y3;
   int i,c;
+  double scale=1.5;
 
-  //GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,BLACK);
+  GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,BLACK);
   for (int k=0;k<WATER_GROUND_NUM;k++) {
     i = rendered_water_ground[k];
     if (i!=-1) {
@@ -298,12 +299,22 @@ void DrawWaterColour(HDC hdc, HDC hdc2)
         if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
             !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
             c=rgbPaint[Ground[i]->color_id];
-            x1=GR_WIDTH/2+(int)Ground[i]->x1-px+cx1+cx2+cx3;
-            y1=GR_HEIGHT/2+(int)Ground[i]->y1-py+cy1+cy2+cy3;
-            x2=GR_WIDTH/2+(int)Ground[i]->x2-px+cx1+cx2+cx3;
-            y2=GR_HEIGHT/2+(int)Ground[i]->y2-py+cy1+cy2+cy3;
-            x3=GR_WIDTH/2+(int)Ground[i]->x3-px+cx1+cx2+cx3;
-            y3=GR_HEIGHT/2+(int)Ground[i]->y3-py+cy1+cy2+cy3;
+
+            double cx=(Ground[i]->x1+Ground[i]->x2+Ground[i]->x3)/3.0f;
+            double cy=(Ground[i]->y1+Ground[i]->y2+Ground[i]->y3)/3.0f;
+            double sx1 = cx + (Ground[i]->x1 - cx) * scale;
+            double sy1 = cy + (Ground[i]->y1 - cy) * scale;
+            double sx2 = cx + (Ground[i]->x2 - cx) * scale;
+            double sy2 = cy + (Ground[i]->y2 - cy) * scale;
+            double sx3 = cx + (Ground[i]->x3 - cx) * scale;
+            double sy3 = cy + (Ground[i]->y3 - cy) * scale;
+
+            x1=GR_WIDTH/2/*+(int)Ground[i]->x1*/-px+cx1+cx2+cx3+(int)sx1;
+            y1=GR_HEIGHT/2/*+(int)Ground[i]->y1*/-py+cy1+cy2+cy3+(int)sy1;
+            x2=GR_WIDTH/2/*+(int)Ground[i]->x2*/-px+cx1+cx2+cx3+(int)sx2;
+            y2=GR_HEIGHT/2/*+(int)Ground[i]->y2*/-py+cy1+cy2+cy3+(int)sy2;
+            x3=GR_WIDTH/2/*+(int)Ground[i]->x3*/-px+cx1+cx2+cx3+(int)sx3;
+            y3=GR_HEIGHT/2/*+(int)Ground[i]->y3*/-py+cy1+cy2+cy3+(int)sy3;
   	        DrawTriFill(hdc,c,x1,y1,x2,y2,x3,y3,FALSE,0);
         }
       }

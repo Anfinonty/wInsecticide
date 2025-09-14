@@ -820,7 +820,7 @@ void InitSetRes(int i,int w,int h,char *txt,wchar_t* wtxt)
 
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-  HDC hdc, hdcBackbuff, hdcBackbuff2;
+  HDC hdc, hdcBackbuff, hdcBackbuff2, hdcBackbuff3;
   switch(msg) {
 
     //Left Click Hold
@@ -1467,7 +1467,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             hdc=BeginPaint(hwnd, &ps);
             hdcBackbuff=CreateCompatibleDC(hdc);
             hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
-            screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+            hdcBackbuff3=CreateCompatibleDC(hdcBackbuff);
+            screen=//CreateLargeBitmapWithBuffer(GR_WIDTH,GR_HEIGHT,&publicDstPixels);
+                  CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
             SelectObject(hdcBackbuff,screen);
             DrawBackground(hdcBackbuff,hdcBackbuff2);
             if (player.in_water_timer>0) {
@@ -1504,17 +1506,46 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             if (player.in_water_timer==0) {        
               if (global_update_reflection_timer>20) {
                 global_update_reflection_timer=0;
-                DeleteObject(screen_mirror);    
+                if (screen_mirror!=NULL)
+                  DeleteObject(screen_mirror);    
                 screen_mirror=FlipLargeBitmapVertically(screen, hdcBackbuff2);
+
+                if (screen_watercolour!=NULL)
+                  DeleteObject(screen_watercolour);    
+                screen_watercolour=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+
+
+
+                SelectObject(hdcBackbuff2,screen_watercolour);
+                DrawWaterColour(hdcBackbuff2,hdcBackbuff);
+
+                SelectObject(hdcBackbuff3,screen_mirror);
+
+                AlphaBlend(hdcBackbuff3, 0, 0, GR_WIDTH,GR_HEIGHT,
+                          hdcBackbuff2, 0, 0, GR_WIDTH,GR_HEIGHT,
+                          waterBlendFunction);
+                /*if (screen_watercolour!=NULL)
+                  DeleteObject(screen_watercolour);    
+                screen_watercolour=CreateLargeBitmapWithBuffer(GR_WIDTH,GR_HEIGHT,&publicSrcPixels);
+                SelectObject(hdcBackbuff2,screen_watercolour);
+                DrawWaterColour(hdcBackbuff2,hdcBackbuff);*/
+                //Draw watercolour onto overall screen
+                //BlendBitmapsSSE2(screen_mirror,screen_watercolour, 60);
               }
+
+
+
               DrawWaterPlatformsReflection(hdcBackbuff,hdcBackbuff2,screen_mirror);
             }
-            DrawWaterPlatforms(hdcBackbuff,hdcBackbuff2);
 
-
+            //DrawWaterPlatforms(hdcBackbuff,hdcBackbuff2);
+            //if (screen_watercolour!=NULL) {
+              //BlendBitmapSSE2_SkipBlack(publicDstPixels,publicSrcPixels, GR_WIDTH,GR_HEIGHT, 60);
+            //}*/
             //misc
             //DrawGUI
             //DrawBlackBorders(hdcBackbuff);
+
             DrawUI(hdcBackbuff,hdcBackbuff2);
             if (player.health>0) {
               DrawCursor(hdcBackbuff,hdcBackbuff2);
@@ -1558,12 +1589,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             
             DeleteDC(hdcBackbuff);
             DeleteDC(hdcBackbuff2);
+            DeleteDC(hdcBackbuff3);
             DeleteObject(screen);
-
             //Trigger go back to main menu
             if (back_to_menu) {
               if (screen_mirror!=NULL)
                 DeleteObject(screen_mirror);    
+              if (screen_watercolour!=NULL)
+                DeleteObject(screen_watercolour);    
               flag_draw_task_stopped=TRUE;
             }
           }
@@ -1810,6 +1843,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       gblendFunction.BlendFlags = 0;
       gblendFunction.SourceConstantAlpha = 32; // Transparency level (0-255)
       gblendFunction.AlphaFormat = 0;
+
+
+      waterBlendFunction.BlendOp = AC_SRC_OVER;
+      waterBlendFunction.BlendFlags = 0;
+      waterBlendFunction.SourceConstantAlpha = 64; // Transparency level (0-255)
+      waterBlendFunction.AlphaFormat = 0;
 
       //AddFontResource(L"fonts/KhmerUI.ttf");
       //AddFontResource(L"fonts/KhmerOSsys.ttf");

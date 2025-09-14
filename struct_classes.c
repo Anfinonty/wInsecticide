@@ -1233,6 +1233,8 @@ HBITMAP map_platforms_shadow_shader;
 //map background drawn
 HBITMAP map_background_sprite;
 HBITMAP screen_mirror;
+HBITMAP screen_watercolour;
+//BYTE *publicSrcPixels,*publicDstPixels;
 
 //moon, for calendar only
 HBITMAP moon_cartoon_sprite;
@@ -1348,6 +1350,9 @@ wavSoundEffectCache channelSoundEffectCache[CHANNEL_SFX_NUM];
 
 //Global blend function for transparency
 BLENDFUNCTION gblendFunction;
+BLENDFUNCTION waterBlendFunction;
+
+
 void SaveLvlBmp(HWND hwnd,HDC hdc,const wchar_t *lvl_name);
 
 
