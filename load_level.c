@@ -123,6 +123,7 @@ void Init() { //Repeatable
   enemy_kills=0;
   game_over=FALSE;
   frame_tick=-10;
+  global_update_reflection_timer=501;
 
   //fire_rng_i=0;
 

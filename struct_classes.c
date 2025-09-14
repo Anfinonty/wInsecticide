@@ -1070,7 +1070,7 @@ void freeTileMap(ATileMap *myTileMap)
 
 
 ATileMap **TileMapPlatform;
-//ATileMap **TileMapForeground;
+ATileMap **TileMapForeground;
 
 
 
@@ -1232,7 +1232,7 @@ HBITMAP map_platforms_shadow_shader;
 
 //map background drawn
 HBITMAP map_background_sprite;
-
+HBITMAP screen_mirror;
 
 //moon, for calendar only
 HBITMAP moon_cartoon_sprite;

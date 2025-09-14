@@ -201,11 +201,6 @@ void DrawCreateTiles(HDC hdc,HDC hdc2)
                 }
               }
             }
-            //draw water ontop
-            /*for (int k=0;k<VGrid[i]->max_ground_num;k++) {
-              int l = VGrid[i]->ground_ids[k];
-              Draw1WaterTriFill(hdc,l,VGrid[i]->x1,VGrid[i]->y1);
-            }*/
             SelectObject(hdc,_bb);
             TileMapPlatform[tmp_id]->sprite_mask=CreateBitmapMask(TileMapPlatform[tmp_id]->sprite_paint,MYCOLOR1,NULL); //create mask
             loading_numerator++;
@@ -232,13 +227,29 @@ void DrawCreateTiles(HDC hdc,HDC hdc2)
 
             TileMapForeground[tmp_id]->sprite_paint=CreateLargeBitmap(VGRID_SIZE,VGRID_SIZE);//CreateCrunchyBitmap(VGRID_SIZE,VGRID_SIZE);
             SelectObject(hdc,TileMapForeground[tmp_id]->sprite_paint);
-
-            GrRect(hdc,0,0,VGRID_SIZE+1,VGRID_SIZE+1,MYCOLOR1);
-            for (int k=0;k<VGrid[i]->max_ground_num;k++) {
+            SelectObject(hdc2,map_background_sprite);
+            //GrRect(hdc,0,0,VGRID_SIZE+1,VGRID_SIZE+1,MYCOLOR1);
+            /*for (int k=0;k<VGrid[i]->max_ground_num;k++) {
               int l = VGrid[i]->ground_ids[k];
-              Draw1WaterTriFill(hdc,l,VGrid[i]->x1,VGrid[i]->y1);
-              
+              //Draw1WaterTriFill(hdc,l,VGrid[i]->x1,VGrid[i]->y1);
+            }*/
+            int tmp_get_mirror_grid_id=GetGridId(VGrid[i]->x1,VGrid[i]->y1-VGRID_SIZE,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
+            int tmp_sprite_id=-1;
+            //printf("tmp_gret_mirror_grid_id%d\n",tmp_get_mirror_grid_id);
+            if (tmp_get_mirror_grid_id!=-1) {
+              if (VGrid[tmp_get_mirror_grid_id]->draw_platform_seg_id!=-1) {
+                tmp_sprite_id=VGrid[tmp_get_mirror_grid_id]->draw_platform_seg_id;
+              }  
             }
+
+            //DrawBitmap(HDC hDC, HDC hdcMem,double _x1,double _y1, double _x2, double _y2, int width, int height, HBITMAP hSourceBitmap,int _SRCTYPE,bool stretch,bool is_left)
+            DrawBitmap(hdc,hdc2,-VGrid[i]->x1,MAP_HEIGHT-VGrid[i]->y1, 0,0, MAP_WIDTH, -MAP_HEIGHT, map_background_sprite,SRCCOPY,TRUE,FALSE); //Draw background
+            if (tmp_sprite_id!=-1) {
+              //SelectObject(hdc2,_bb);
+              DrawBitmap(hdc,hdc2,0,VGRID_SIZE, 0,0, VGRID_SIZE, -VGRID_SIZE, TileMapPlatform[tmp_sprite_id]->sprite_mask ,SRCAND,TRUE,FALSE); //Draw mirrored tile
+              DrawBitmap(hdc,hdc2,0,VGRID_SIZE, 0,0, VGRID_SIZE, -VGRID_SIZE, TileMapPlatform[tmp_sprite_id]->sprite_paint ,SRCPAINT,TRUE,FALSE); //Draw mirrored tile
+            }
+            //StretchBlt(hdcBackbuffMirror, 0, GR_HEIGHT, GR_WIDTH, -GR_HEIGHT, hdcBackbuff, 0,0, GR_WIDTH,GR_HEIGHT, SRCCOPY); //REFLECTION
             SelectObject(hdc,_bb);
             TileMapForeground[tmp_id]->sprite_mask=CreateBitmapMask(TileMapForeground[tmp_id]->sprite_paint,MYCOLOR1,NULL); //create mask
             loading_numerator++;

@@ -235,7 +235,7 @@ void DrawWaterPlatformsTexture(HDC hdc,HDC hdc2)
   }
 }
 
-void DrawWaterPlatformsCutout(HDC hdc, HDC hdc2)
+void DrawWaterPlatformsReflection(HDC hdc, HDC hdc2,HBITMAP mirror_screen)
 {
   if (WATER_GROUND_NUM>0) {
   int 
@@ -249,11 +249,13 @@ void DrawWaterPlatformsCutout(HDC hdc, HDC hdc2)
     cy3=player.cam_limiter_y;
   int x1,y1,x2,y2,x3,y3;
   int i;
-
+  int c;
+  if (mirror_screen!=NULL) {
   for (int k=0;k<WATER_GROUND_NUM;k++) {
     i = rendered_water_ground[k];
     if (i!=-1) {
       if (Ground[i]->type==1) {
+        //c=MYCOLOR32;//BLACK;//Ground[i]->color;
         if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
             !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
             x1=GR_WIDTH/2+(int)Ground[i]->x1-px+cx1+cx2+cx3;
@@ -262,10 +264,12 @@ void DrawWaterPlatformsCutout(HDC hdc, HDC hdc2)
             y2=GR_HEIGHT/2+(int)Ground[i]->y2-py+cy1+cy2+cy3;
             x3=GR_WIDTH/2+(int)Ground[i]->x3-px+cx1+cx2+cx3;
             y3=GR_HEIGHT/2+(int)Ground[i]->y3-py+cy1+cy2+cy3;
-  	        DrawTriFill(hdc,BLACK,x1,y1,x2,y2,x3,y3,FALSE,0);
+  	        //DrawTriFill(hdc,c,x1,y1,x2,y2,x3,y3,FALSE,0);
+            DrawTexturedTriangle(hdc,hdc2,x1,y1,x2,y2,x3,y3,mirror_screen);
         }
       }
     }
+  }
   }
   }
 }

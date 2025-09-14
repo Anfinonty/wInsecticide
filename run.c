@@ -99,7 +99,6 @@ bool flag_display_long_loading=FALSE;
 bool hide_cursor=FALSE;
 bool hide_mm=FALSE;
 bool flag_load_player_sprite=TRUE;
-
 //Exit Flags
 //bool flag_exit_to_main_menu=FALSE;
 //bool flag_game_task_stopped=FALSE;
@@ -196,6 +195,9 @@ wchar_t src_music_dir[64];
 int enemy_kills=0;
 int int_best_score=0; //to store to write
 int frame_tick=-10;
+
+int global_update_reflection_timer=0;
+
 //int FPS = 60;
 int FPS = 35; //minimum FPS, otherwise run according to screen refresh rate
 
@@ -641,6 +643,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
         if (level_loaded) {
           if (!flag_game_task_stopped) {
             PlayerAct();
+            global_update_reflection_timer++;
             //PlayerAct(player_type);
 
             for (int i=0;i<ENEMY_NUM;i++) {
@@ -817,7 +820,7 @@ void InitSetRes(int i,int w,int h,char *txt,wchar_t* wtxt)
 
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-  HDC hdc, hdcBackbuff, hdcBackbuff2, hdcBackbuffMirror;
+  HDC hdc, hdcBackbuff, hdcBackbuff2;
   switch(msg) {
 
     //Left Click Hold
@@ -1361,14 +1364,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
         //Draw Game Screen
-        HBITMAP screen,screen_mask,screen_mirror,screen_watercolour;
+        HBITMAP screen;
         PAINTSTRUCT ps;        
         if (prelude) { //draw prelude screen
           hdc=BeginPaint(hwnd, &ps);
           hdcBackbuff=CreateCompatibleDC(hdc);
           hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
 
-          screen=CreateCompatibleBitmap(hdc,640,440);
+          screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
           SelectObject(hdcBackbuff,screen);
 
           DrawMovingAVI(hdcBackbuff,hdcBackbuff2);
@@ -1384,7 +1387,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-324/2,GR_HEIGHT-96-8,0,0,324,47,kh_pressanykey,SRCPAINT,FALSE,FALSE);
           }
 
-          BitBlt(hdc, 0, 0, 640,440, hdcBackbuff, 0, 0,  SRCCOPY);
+          BitBlt(hdc, 0, 0, GR_WIDTH,GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
           DeleteDC(hdcBackbuff2);
           DeleteDC(hdcBackbuff);
           DeleteObject(screen);
@@ -1464,23 +1467,31 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             hdc=BeginPaint(hwnd, &ps);
             hdcBackbuff=CreateCompatibleDC(hdc);
             hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
-            //screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
-            screen=CreateLargeBitmap(GR_WIDTH,GR_HEIGHT);
+            screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
             SelectObject(hdcBackbuff,screen);
             DrawBackground(hdcBackbuff,hdcBackbuff2);
             if (player.in_water_timer>0) {
               DrawWaterPlatformsTexture(hdcBackbuff,hdcBackbuff2);
             }
             DrawPlatforms(hdcBackbuff,hdcBackbuff2);
-            //DrawWaterPlatforms(hdcBackbuff,hdcBackbuff2);
-            DrawFirePlatforms(hdcBackbuff);
-            if (!player.in_water_timer>0) {
-              DrawWebs(hdcBackbuff);
-              DrawEnemy(hdcBackbuff,hdcBackbuff2);
-              DrawPlayer(hdcBackbuff,hdcBackbuff2,player.type);
-            }
-            //DrawNodeGrids(hdcBackbuff); //debugging
 
+            /*SelectObject(hdcBackbuff2,map_background_sprite);
+            //BitBlt(hdcBackbuff,0,0,GR_WIDTH,GR_HEIGHT,hdcBackbuff2,0,0,SRCPAINT);
+            //DrawWaterPlatforms(hdcBackbuff,hdcBackbuff2);
+
+            //DrawLiveWaterPlatforms(hdcBackbuff,hdcBackbuff2);
+            HBITMAP water_ground;
+            HBITMAP water_mask;
+            water_ground=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+            SelectObject(hdcBackbuff3,water_ground);
+            GrRect(hdcBackbuff3,0,0,GR_WIDTH,GR_HEIGHT,MYCOLOR1);
+            DrawWaterPlatformsCutout(hdcBackbuff3,hdcBackbuff2);*/
+
+            DrawFirePlatforms(hdcBackbuff);
+            DrawWebs(hdcBackbuff);
+            DrawEnemy(hdcBackbuff,hdcBackbuff2);
+            DrawPlayer(hdcBackbuff,hdcBackbuff2,player.type);
+            //DrawNodeGrids(hdcBackbuff); //debugging
 
             if (is_shadows && game_shadow && SHADOW_GRID_NUM>0) {
               DrawShadows(hdcBackbuff,hdcBackbuff2);
@@ -1490,71 +1501,34 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               DrawRainShader3(hdcBackbuff);
             }
 
-            //Game Action reflection=======
-            if (player.in_water_timer==0) {
-              hdcBackbuffMirror=CreateCompatibleDC(hdc);
-              screen_mirror=FastFlipLargeBitmapVertically(screen);
-                        //CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
-              SelectObject(hdcBackbuffMirror,screen_mirror);
-            //StretchBlt(hdcBackbuffMirror, 0, GR_HEIGHT, GR_WIDTH, -GR_HEIGHT, hdcBackbuff, 0,0, GR_WIDTH,GR_HEIGHT, SRCCOPY); //REFLECTION
-            
-            //Cutout main screen to show reflective, water
-              SelectObject(hdcBackbuff,screen);
-            //CreateMask of main screen
-              //DrawWaterPlatformsCutout(hdcBackbuff,hdcBackbuff2);
-
-              //SelectObject(hdcBackbuff,_bb);
-              //screen_mask=CreateBitmapMask(screen,MYCOLOR32,NULL);//hdcBackbuff,hdcBackbuff2);//cretatebitmap mask
-
-            //draw screen ontop of reflection layer
-              //SelectObject(hdcBackbuff,screen_mask);
-              BitBlt(hdcBackbuffMirror, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0, SRCAND);
-              //GrRect(hdcBackbuff,0,0,GR_WIDTH,GR_HEIGHT/2,BLACK);
-              DrawWaterPlatformsCutout(hdcBackbuff,hdcBackbuff2);
-              //SelectObject(hdcBackbuff,screen); 
-              BitBlt(hdcBackbuffMirror, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0, SRCPAINT);
-              //DrawWaterPlatforms(hdcBackbuffMirror,hdcBackbuff2);
-              //BitBlt(hdcBackbuffMirror, 0,  0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0, SRCCOPY);
-            } else {
-              hdcBackbuffMirror=CreateCompatibleDC(hdc);
-              screen_mirror=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);//CopyBitmap(screen,SRCCOPY);
-              SelectObject(hdcBackbuffMirror,screen_mirror);
-              SelectObject(hdcBackbuff,screen);
-              BitBlt(hdcBackbuffMirror, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0, SRCPAINT);
-              //DrawWaterPlatforms(hdcBackbuffMirror,hdcBackbuff2);
+            if (player.in_water_timer==0) {        
+              if (global_update_reflection_timer>20) {
+                global_update_reflection_timer=0;
+                DeleteObject(screen_mirror);    
+                screen_mirror=FlipLargeBitmapVertically(screen, hdcBackbuff2);
+              }
+              DrawWaterPlatformsReflection(hdcBackbuff,hdcBackbuff2,screen_mirror);
             }
-
-            if (player.in_water_timer>0) {
-              DrawWebs(hdcBackbuffMirror);
-              DrawEnemy(hdcBackbuffMirror,hdcBackbuff2);
-              DrawPlayer(hdcBackbuffMirror,hdcBackbuff2,player.type);
-            }
-
-            //draw watercolor
-            //screen_watercolour=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
-            //SelectObject(hdcBackbuff,screen_watercolour);
-            //DrawWaterColour(hdcBackbuff,hdcBackbuff2);
-            //Draw watercolour onto overall screen
-            //BitBlt(hdcBackbuffMirror, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0, SRCPAINT);
+            DrawWaterPlatforms(hdcBackbuff,hdcBackbuff2);
 
 
             //misc
             //DrawGUI
             //DrawBlackBorders(hdcBackbuff);
-            DrawUI(hdcBackbuffMirror,hdcBackbuff2);
+            DrawUI(hdcBackbuff,hdcBackbuff2);
             if (player.health>0) {
-              DrawCursor(hdcBackbuffMirror,hdcBackbuff2);
+              DrawCursor(hdcBackbuff,hdcBackbuff2);
             } else if (player.death_timer>150) { //dead cursor
               int pc=rgbPaint[player_color];
-              GrCircle(hdcBackbuffMirror,mouse_x,mouse_y,10,pc,pc);
+              GrCircle(hdcBackbuff,mouse_x,mouse_y,10,pc,pc);
               pc=rgbPaint[player_pupil_color];
-              GrCircle(hdcBackbuffMirror,mouse_x,mouse_y,5,pc,pc);
+              GrCircle(hdcBackbuff,mouse_x,mouse_y,5,pc,pc);
               pc=rgbPaint[player_iris_color];
               if (player.bullet_shot_num>0) {
                 if (!player.rst_left_click) {
-                  GrCircle(hdcBackbuffMirror,mouse_x,mouse_y,RandNum(1,5,&misc_rng_i,-1),pc,pc);
+                  GrCircle(hdcBackbuff,mouse_x,mouse_y,RandNum(1,5,&misc_rng_i,-1),pc,pc);
                 } else {
-                  GrCircle(hdcBackbuffMirror,mouse_x,mouse_y,5,pc,pc);
+                  GrCircle(hdcBackbuff,mouse_x,mouse_y,5,pc,pc);
                 }
               } else {
                 call_help_timer=0;
@@ -1564,11 +1538,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             //Draw Cinematic Mode
             int c=BLACK;
             if (IsSpeedBreaking()) { //cinema mode when speedbreaking
-              GrRect(hdcBackbuffMirror,0,0,GR_WIDTH+4,32,c);
+              GrRect(hdcBackbuff,0,0,GR_WIDTH+4,32,c);
               if (hide_taskbar) {
-                GrRect(hdcBackbuffMirror,0,GR_HEIGHT-48,GR_WIDTH+4,100,c);
+                GrRect(hdcBackbuff,0,GR_HEIGHT-48,GR_WIDTH+4,100,c);
               } else {
-                GrRect(hdcBackbuffMirror,0,GR_HEIGHT-32-32,GR_WIDTH+4,32+32,c);
+                GrRect(hdcBackbuff,0,GR_HEIGHT-32-32,GR_WIDTH+4,32+32,c);
               }
             }
 
@@ -1577,23 +1551,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                             SCREEN_HEIGHT/2-RESOLUTION_Y[resolution_choose]/2, 
                             RESOLUTION_X[resolution_choose],
                             RESOLUTION_Y[resolution_choose],
-                            hdcBackbuffMirror, 0, 0,  SRCCOPY);
+                            hdcBackbuff, 0, 0,  SRCCOPY);
             } else {
-              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuffMirror, 0, 0,  SRCCOPY);
+              BitBlt(hdc, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
             }
             
-            DeleteDC(hdcBackbuffMirror);
-            DeleteDC(hdcBackbuff2);
             DeleteDC(hdcBackbuff);
+            DeleteDC(hdcBackbuff2);
             DeleteObject(screen);
-            if (screen_mask!=NULL)
-              DeleteObject(screen_mask);
-            if (screen_mirror!=NULL)
-              DeleteObject(screen_mirror);
-            //DeleteObject(screen_watercolour);
 
             //Trigger go back to main menu
             if (back_to_menu) {
+              if (screen_mirror!=NULL)
+                DeleteObject(screen_mirror);    
               flag_draw_task_stopped=TRUE;
             }
           }
