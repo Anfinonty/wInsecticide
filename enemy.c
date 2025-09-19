@@ -587,7 +587,7 @@ void EnemyMove(int enemy_id)
       Enemy[enemy_id]->move_to_target=FALSE;
     } else { //facing direction
       //enemy sprite facing
-      int next_path_node_arr_id=EnemyPathfinding[pfi]->path_nodes_num;
+      int next_path_node_arr_id=EnemyPathfinding[pfi]->path_nodes_num-1;
       int next_path_node_id=-1;
       if (next_path_node_arr_id>-1) {
         next_path_node_id=EnemyPathfinding[pfi]->path_nodes[next_path_node_arr_id];
@@ -616,12 +616,12 @@ void EnemyMove(int enemy_id)
         }
       }
 
-      if (Enemy[enemy_id]->mright_streak>2) {
+      if (Enemy[enemy_id]->mright_streak>1) {
         Enemy[enemy_id]->mleft_streak=0;
         Enemy[enemy_id]->mright_streak=0;
         Enemy[enemy_id]->flag_last_left=FALSE;
         Enemy[enemy_id]->flag_last_right=TRUE;
-      } else  if (Enemy[enemy_id]->mleft_streak>2) {
+      } else  if (Enemy[enemy_id]->mleft_streak>1) {
         Enemy[enemy_id]->mleft_streak=0; 
         Enemy[enemy_id]->mright_streak=0;
         Enemy[enemy_id]->flag_last_left=TRUE;
