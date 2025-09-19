@@ -660,7 +660,16 @@ typedef struct enemy
   bool is_in_right_ground_edge;
   bool force_fall;
   bool try_revive_player;
+
   //movement
+  bool flag_last_left;
+  bool flag_last_right;
+
+  bool flag_flip_sprite;
+  bool flag_unflip_sprite;
+
+  //bool flag_above_ground;
+  //bool flag_below_ground;
 
   //force search
   bool force_search;
@@ -690,6 +699,8 @@ typedef struct enemy
   int bullet_shot_num;
   int bullet_graphics_type;
 
+  int mleft_streak;
+  int mright_streak;
 
 
  //timers
@@ -700,6 +711,7 @@ typedef struct enemy
   int idle_timer;
   int forgor_timer;
   int render_distance_timer;
+  //int in_ground_edge_timer;
 
   //suffocate in solid trifills
   int suffocate_timer;
@@ -745,6 +757,8 @@ typedef struct enemy
 
   int sprite_x;
   int sprite_y;
+
+  int antannae_timer;
 
   double health;
   double max_health;
@@ -1070,7 +1084,7 @@ void freeTileMap(ATileMap *myTileMap)
 
 
 ATileMap **TileMapPlatform;
-ATileMap **TileMapForeground;
+//ATileMap **TileMapForeground;
 
 
 
@@ -1351,6 +1365,7 @@ wavSoundEffectCache channelSoundEffectCache[CHANNEL_SFX_NUM];
 //Global blend function for transparency
 BLENDFUNCTION gblendFunction;
 BLENDFUNCTION waterBlendFunction;
+BLENDFUNCTION underwaterBlendFunction;
 
 
 void SaveLvlBmp(HWND hwnd,HDC hdc,const wchar_t *lvl_name);
@@ -1362,3 +1377,5 @@ int weather_rng_i=0;
 int misc_rng_i=0;
 int sstar_rng_i;
 
+
+double enemy_rotated_angle_arr[ROTATED_SPRITE_NUM];

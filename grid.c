@@ -55,7 +55,7 @@ void InitGridTiles(const wchar_t* lvl_name)
   if (is_shadows && game_shadow) {
     yes_shadow=TRUE;
   }
-  FOREGROUND_GRID_NUM=0;
+  //FOREGROUND_GRID_NUM=0;
   PLATFORM_GRID_NUM=0;
   SHADOW_GRID_NUM=0;
 
@@ -83,8 +83,8 @@ void InitGridTiles(const wchar_t* lvl_name)
 
 
     if (has_water) {
-      VGrid[i]->draw_foreground_seg_id=FOREGROUND_GRID_NUM;
-      FOREGROUND_GRID_NUM++;
+      VGrid[i]->draw_foreground_seg_id=0;//FOREGROUND_GRID_NUM;
+      //FOREGROUND_GRID_NUM++;
     } else {
       VGrid[i]->draw_foreground_seg_id=-1;
     }
@@ -151,7 +151,7 @@ void DrawCreateTiles(HDC hdc,HDC hdc2)
         SaveLvlBmp(NULL,hdc,lvl_shadow_name);
         InitGridTiles(lvl_shadow_name);
         loading_numerator=0;
-        loading_denominator=SHADOW_GRID_NUM+PLATFORM_GRID_NUM+FOREGROUND_GRID_NUM;
+        loading_denominator=SHADOW_GRID_NUM+PLATFORM_GRID_NUM/*+FOREGROUND_GRID_NUM*/;
         flag_display_long_loading=FALSE;
       }
     }
@@ -215,7 +215,7 @@ void DrawCreateTiles(HDC hdc,HDC hdc2)
     loading_tile_grid_prog=4;
 
   } else if (loading_tile_grid_prog==4) {
-    if (FOREGROUND_GRID_NUM>0) {
+    /*if (FOREGROUND_GRID_NUM>0) {
 
       TileMapForeground = calloc(FOREGROUND_GRID_NUM,sizeof(ATileMap*));
       for (int i=0;i<FOREGROUND_GRID_NUM;i++) {
@@ -246,9 +246,9 @@ void DrawCreateTiles(HDC hdc,HDC hdc2)
         }
       }
       loading_tile_grid_prog=5;
-    } else {
+    } else {*/
       loading_tile_grid_prog=5;
-    }
+    //}
   } else if (loading_tile_grid_prog==5) {
     if (is_shadows && game_shadow) {
       yes_shadow=TRUE;

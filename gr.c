@@ -565,6 +565,24 @@ HBITMAP CreateLargeBitmap(int cx, int cy)
 
 
 
+HBITMAP CreateLargeBitmapWithBuffer(int width, int height, BYTE** ppPixels) {
+    BITMAPINFO bmi = {0};
+    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+    bmi.bmiHeader.biWidth = width;
+    bmi.bmiHeader.biHeight = -height; // Top-down
+    bmi.bmiHeader.biPlanes = 1;
+    bmi.bmiHeader.biBitCount = 32;
+    bmi.bmiHeader.biCompression = BI_RGB;
+
+    HDC hDC = GetDC(NULL);
+    HBITMAP hBitmap = CreateDIBSection(hDC, &bmi, DIB_RGB_COLORS, (void**)ppPixels, NULL, 0);
+    ReleaseDC(NULL, hDC);
+    return hBitmap;
+}
+
+
+
+
 void CopyPartialGreyscaleBitmap(HBITMAP dBitmap, HBITMAP sBitmap,int x,int SRCOPERATION)
 {
 
@@ -2353,8 +2371,7 @@ void SetTexturePalette(int target_color_id,RGBQUAD *myTexturePalette) {
 }
 
 
-
-HBITMAP FlipLargeBitmapVertically(HBITMAP hBitmap, HDC hdc)
+HBITMAP FlipLargeBitmapVertically(HDC hdc, HBITMAP hBitmap)//, BYTE ** ppPixels)
 {
 //ACHTUNG! only works with 32 bit bitmap
     if (!hBitmap) return NULL;
@@ -2381,7 +2398,6 @@ HBITMAP FlipLargeBitmapVertically(HBITMAP hBitmap, HDC hdc)
     bmi.bmiHeader.biBitCount = bmp.bmBitsPixel;
     bmi.bmiHeader.biCompression = BI_RGB;
 
-    //HDC hdc = GetDC(NULL);
     BOOL success = GetDIBits(hdc, hBitmap, 0, bmp.bmHeight, pPixels, &bmi, DIB_RGB_COLORS);
     if (!success) {
         free(pPixels);
@@ -2398,38 +2414,23 @@ HBITMAP FlipLargeBitmapVertically(HBITMAP hBitmap, HDC hdc)
         );
     }
 
-    HBITMAP hFlipped = CreateBitmap(bmp.bmWidth, bmp.bmHeight, 1, bmp.bmBitsPixel, NULL);
+    HBITMAP hFlipped;
+    //if (ppPixels==NULL) {
+      hFlipped=CreateBitmap(bmp.bmWidth, bmp.bmHeight, 1, bmp.bmBitsPixel, NULL);
+    //} else {
+      //hFlipped=CreateLargeBitmapWithBuffer(bmp.bmWidth,bmp.bmHeight,ppPixels);
+    //}
     if (hFlipped) {
         SetDIBits(hdc, hFlipped, 0, bmp.bmHeight, pFlipped, &bmi, DIB_RGB_COLORS);
     }
 
     free(pPixels);
     free(pFlipped);
-    //ReleaseDC(NULL, hdc);
-
     return hFlipped;
 }
 
-
-
-
-
-HBITMAP CreateLargeBitmapWithBuffer(int width, int height, BYTE** ppPixels) {
-    BITMAPINFO bmi = {0};
-    bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-    bmi.bmiHeader.biWidth = width;
-    bmi.bmiHeader.biHeight = -height; // Top-down
-    bmi.bmiHeader.biPlanes = 1;
-    bmi.bmiHeader.biBitCount = 32;
-    bmi.bmiHeader.biCompression = BI_RGB;
-
-    HDC hDC = GetDC(NULL);
-    HBITMAP hBitmap = CreateDIBSection(hDC, &bmi, DIB_RGB_COLORS, (void**)ppPixels, NULL, 0);
-    ReleaseDC(NULL, hDC);
-    return hBitmap;
-}
-
-/*void BlendBitmapSSE2(BYTE* pDst, BYTE* pSrc, int width, int height, int transparencyPercent) {
+/*
+void BlendBitmapSSE2(BYTE* pDst, BYTE* pSrc, int width, int height, int transparencyPercent) {
     int numPixels = width * height;
 
     // Fast path: full opacity
@@ -2509,7 +2510,7 @@ HBITMAP CreateLargeBitmapWithBuffer(int width, int height, BYTE** ppPixels) {
             dstPixel[c] = (srcPixel[c] * alpha + dstPixel[c] * invAlpha) >> 8;
         }
     }
-}*/
+}
 
 void BlendBitmapSSE2_SkipBlack(BYTE* pDst, BYTE* pSrc, int width, int height, int transparencyPercent) {
     int numPixels = width * height;
@@ -2601,93 +2602,6 @@ void BlendBitmapSSE2_SkipBlack(BYTE* pDst, BYTE* pSrc, int width, int height, in
         for (int c = 0; c < 4; ++c) {
             dstPixel[c] = (srcPixel[c] * alpha + dstPixel[c] * invAlpha) >> 8;
         }
-    }
-}
-
-
-/*
-
-void BlendBitmapSSE2(BYTE* pDst, BYTE* pSrc, int width, int height, int transparencyPercent) {
-    int numPixels = width * height;
-
-    // Fast path: full opacity, just copy
-    if (transparencyPercent >= 100) {
-        memcpy(pDst, pSrc, numPixels * 4);
-        return;
-    }
-
-    int alpha = (transparencyPercent * 255) / 100;
-    int invAlpha = 255 - alpha;
-
-    __m128i alphaVec = _mm_set1_epi16(alpha);
-    __m128i invAlphaVec = _mm_set1_epi16(invAlpha);
-    __m128i zero = _mm_setzero_si128();
-    __m128i rgbMask = _mm_set1_epi32(0x00FFFFFF); // Mask out alpha
-
-    for (int i = 0; i < numPixels; i += 4) {
-        __m128i src = _mm_loadu_si128((__m128i*)(pSrc + i * 4));
-        __m128i dst = _mm_loadu_si128((__m128i*)(pDst + i * 4));
-
-        // Optional black pixel check
-        __m128i srcRGB = _mm_and_si128(src, rgbMask);
-        __m128i isBlack = _mm_cmpeq_epi32(srcRGB, zero); // 0xFFFFFFFF where pixel is black
-
-        // Unpack to 16-bit
-        __m128i srcLo = _mm_unpacklo_epi8(src, zero);
-        __m128i srcHi = _mm_unpackhi_epi8(src, zero);
-        __m128i dstLo = _mm_unpacklo_epi8(dst, zero);
-        __m128i dstHi = _mm_unpackhi_epi8(dst, zero);
-
-        // Blend
-        srcLo = _mm_mullo_epi16(srcLo, alphaVec);
-        srcHi = _mm_mullo_epi16(srcHi, alphaVec);
-        dstLo = _mm_mullo_epi16(dstLo, invAlphaVec);
-        dstHi = _mm_mullo_epi16(dstHi, invAlphaVec);
-
-        __m128i blendedLo = _mm_add_epi16(srcLo, dstLo);
-        __m128i blendedHi = _mm_add_epi16(srcHi, dstHi);
-        blendedLo = _mm_srli_epi16(blendedLo, 8);
-        blendedHi = _mm_srli_epi16(blendedHi, 8);
-
-        __m128i result = _mm_packus_epi16(blendedLo, blendedHi);
-
-        // Preserve dst where src is black
-        result = _mm_or_si128(_mm_andnot_si128(isBlack, result), _mm_and_si128(dst, isBlack));
-
-        _mm_storeu_si128((__m128i*)(pDst + i * 4), result);
-    }
-}
-
-/*void BlendBitmapSSE2(BYTE* pDst, BYTE* pSrc, int width, int height, int transparencyPercent) {
-    int numPixels = width * height;
-    int alpha = (transparencyPercent * 255) / 100;
-    int invAlpha = 255 - alpha;
-
-    __m128i alphaVec = _mm_set1_epi16(alpha);
-    __m128i invAlphaVec = _mm_set1_epi16(invAlpha);
-    __m128i zero = _mm_setzero_si128();
-
-    for (int i = 0; i < numPixels; i += 4) {
-        __m128i src = _mm_loadu_si128((__m128i*)(pSrc + i * 4));
-        __m128i dst = _mm_loadu_si128((__m128i*)(pDst + i * 4));
-
-        __m128i srcLo = _mm_unpacklo_epi8(src, zero);
-        __m128i srcHi = _mm_unpackhi_epi8(src, zero);
-        __m128i dstLo = _mm_unpacklo_epi8(dst, zero);
-        __m128i dstHi = _mm_unpackhi_epi8(dst, zero);
-
-        srcLo = _mm_mullo_epi16(srcLo, alphaVec);
-        srcHi = _mm_mullo_epi16(srcHi, alphaVec);
-        dstLo = _mm_mullo_epi16(dstLo, invAlphaVec);
-        dstHi = _mm_mullo_epi16(dstHi, invAlphaVec);
-
-        __m128i blendedLo = _mm_add_epi16(srcLo, dstLo);
-        __m128i blendedHi = _mm_add_epi16(srcHi, dstHi);
-        blendedLo = _mm_srli_epi16(blendedLo, 8);
-        blendedHi = _mm_srli_epi16(blendedHi, 8);
-
-        __m128i result = _mm_packus_epi16(blendedLo, blendedHi);
-        _mm_storeu_si128((__m128i*)(pDst + i * 4), result);
     }
 }*/
 

@@ -289,7 +289,7 @@ void DrawWaterColour(HDC hdc, HDC hdc2)
     cy3=player.cam_limiter_y;
   int x1,y1,x2,y2,x3,y3;
   int i,c;
-  double scale=1.5;
+  double scale=2.5;//1.5;
 
   GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,BLACK);
   for (int k=0;k<WATER_GROUND_NUM;k++) {
@@ -361,7 +361,7 @@ void DrawFirePlatforms(HDC hdc)
   }
   }
 }
-
+/*
 void DrawWaterPlatforms(HDC hdc,HDC hdc2) 
 {
 /*  int extra_h=0;
@@ -385,7 +385,7 @@ void DrawWaterPlatforms(HDC hdc,HDC hdc2)
                  GR_WIDTH,
                  GR_HEIGHT+extra_h,
                  map_water_platforms_sprite,SRCPAINT,FALSE,FALSE);*/
-  int gid,tmf_id;
+/*  int gid,tmf_id;
   int x,y,_x,_y;
   int 
     px=player.x,
@@ -409,8 +409,8 @@ void DrawWaterPlatforms(HDC hdc,HDC hdc2)
 //        DrawBitmap(hdc,x,y,0, 0,VGRID_SIZE,VGRID_SIZE,TileMapForeground[tmf_id]->sprite_paint,SRCPAINT,FALSE,FALSE);
         //DrawSprite(hdc,x,y,&TileMapForeground[tmf_id]->draw_tile,FALSE);
 
-        //SelectObject(hdc2,TileMapForeground[tmf_id]->sprite_mask);
-        //BitBlt(hdc, x, y, VGRID_SIZE, VGRID_SIZE, hdc2, 0, 0, SRCAND);
+        SelectObject(hdc2,TileMapForeground[tmf_id]->sprite_mask);
+        BitBlt(hdc, x, y, VGRID_SIZE, VGRID_SIZE, hdc2, 0, 0, SRCAND);
 
         SelectObject(hdc2,TileMapForeground[tmf_id]->sprite_paint);
         BitBlt(hdc, x, y, VGRID_SIZE, VGRID_SIZE, hdc2, 0, 0, SRCPAINT);
@@ -419,7 +419,7 @@ void DrawWaterPlatforms(HDC hdc,HDC hdc2)
     } 
   }
 }
-
+*/
 
 void DrawPlatforms(HDC hdc,HDC hdc2)
 { //Dynamically scale with window size 

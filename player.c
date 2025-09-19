@@ -62,7 +62,7 @@ void PlayerCameraLimiterBorder()
     cy2=player.cam_move_y;
 
   //left x
-  int border_x=(GR_WIDTH/2-px+cx1+cx2+16);
+  int border_x=(GR_WIDTH/2-px+cx1+cx2+24);
 
   //right x
   int rborder_w=GR_WIDTH/2-(MAP_WIDTH-px+cx1+cx2-24);
@@ -79,7 +79,7 @@ void PlayerCameraLimiterBorder()
 
 
   //top y
-  int border_y=GR_HEIGHT/2-py+cy1+cy2+16;
+  int border_y=GR_HEIGHT/2-py+cy1+cy2+24;
 
   //lower y
   int d_border_h=GR_HEIGHT/2-(MAP_HEIGHT-py+cy1+cy2-24);

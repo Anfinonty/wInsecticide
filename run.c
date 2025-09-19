@@ -31,7 +31,7 @@
 #include <errno.h>
 #include <shlwapi.h>
 #include <float.h>
-#include <emmintrin.h>  // SSE2
+//#include <emmintrin.h>  // SSE2
 //#include <mmsystem.h>
 //#include <commctrl.h>
 //#include <omp.h>
@@ -495,6 +495,8 @@ void Prelude()
         LoadEnemyRotatedSprite[j].prelude_tmp_sprite2[i]=
           GetRotated8BitBitmap(enemy2_sprite_2,angle_rn,LTGREEN);
         loading_numerator++;
+
+        enemy_rotated_angle_arr[i]=angle_rn;
         break;
       case 1: //toe biter part 1
         LoadEnemyRotatedSprite[j].prelude_tmp_sprite1[i]=
@@ -643,7 +645,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
         if (level_loaded) {
           if (!flag_game_task_stopped) {
             PlayerAct();
-            global_update_reflection_timer++;
+            //global_update_reflection_timer++;
             //PlayerAct(player_type);
 
             for (int i=0;i<ENEMY_NUM;i++) {
@@ -1472,22 +1474,51 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                   CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
             SelectObject(hdcBackbuff,screen);
             DrawBackground(hdcBackbuff,hdcBackbuff2);
-            if (player.in_water_timer>0) {
-              DrawWaterPlatformsTexture(hdcBackbuff,hdcBackbuff2);
+            global_update_reflection_timer++;
+            if (player.in_water_timer>0 && WATER_GROUND_NUM>0) {        
+              //DrawWaterPlatformsTexture(hdcBackbuff,hdcBackbuff2);
+              if (global_update_reflection_timer>=15) {
+                global_update_reflection_timer=0;
+                if (screen_mirror!=NULL)
+                  DeleteObject(screen_mirror);    
+
+                screen_mirror=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+                SelectObject(hdcBackbuff3,screen_mirror);
+                //BitBlt(hdcBackbuff3,0,0,GR_WIDTH,GR_HEIGHT,hdcBackbuff,0,0,SRCCOPY);
+                //DrawBackground(hdcBackbuff3,hdcBackbuff2);
+                //DrawWaterPlatformsTexture(hdcBackbuff3,hdcBackbuff2);
+                if (global_water_texture_timer>1) {
+                  global_water_texture_timer=0;
+                  global_water_texture_id+=2;
+                  if (global_water_texture_id>=8) {
+                    global_water_texture_id=0;
+                  }
+                } else {
+                  //global_water_texture_timer++;
+                  global_water_texture_timer++;
+                }
+                DrawTexturedTriangle(hdcBackbuff3,hdcBackbuff2,0,0,GR_WIDTH,GR_HEIGHT,0,GR_HEIGHT,texture_water[global_water_texture_id]);
+                DrawTexturedTriangle(hdcBackbuff3,hdcBackbuff2,GR_WIDTH,GR_HEIGHT,GR_WIDTH,0,0,0,texture_water[global_water_texture_id]);
+
+
+                if (screen_watercolour!=NULL)
+                  DeleteObject(screen_watercolour);      
+                screen_watercolour=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+
+                SelectObject(hdcBackbuff2,screen_watercolour);
+                DrawWaterColour(hdcBackbuff2,hdcBackbuff);
+
+                SelectObject(hdcBackbuff3,screen_mirror);
+
+                AlphaBlend(hdcBackbuff3, 0, 0, GR_WIDTH,GR_HEIGHT,
+                          hdcBackbuff2, 0, 0, GR_WIDTH,GR_HEIGHT,
+                          underwaterBlendFunction);
+              }
+              DrawWaterPlatformsReflection(hdcBackbuff,hdcBackbuff2,screen_mirror);
             }
+
+
             DrawPlatforms(hdcBackbuff,hdcBackbuff2);
-
-            /*SelectObject(hdcBackbuff2,map_background_sprite);
-            //BitBlt(hdcBackbuff,0,0,GR_WIDTH,GR_HEIGHT,hdcBackbuff2,0,0,SRCPAINT);
-            //DrawWaterPlatforms(hdcBackbuff,hdcBackbuff2);
-
-            //DrawLiveWaterPlatforms(hdcBackbuff,hdcBackbuff2);
-            HBITMAP water_ground;
-            HBITMAP water_mask;
-            water_ground=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
-            SelectObject(hdcBackbuff3,water_ground);
-            GrRect(hdcBackbuff3,0,0,GR_WIDTH,GR_HEIGHT,MYCOLOR1);
-            DrawWaterPlatformsCutout(hdcBackbuff3,hdcBackbuff2);*/
 
             DrawFirePlatforms(hdcBackbuff);
             DrawWebs(hdcBackbuff);
@@ -1500,21 +1531,20 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
             if (map_weather>0) {
               DrawRain(hdcBackbuff,hdcBackbuff2);
-              DrawRainShader3(hdcBackbuff);
             }
 
-            if (player.in_water_timer==0) {        
-              if (global_update_reflection_timer>20) {
+            //Draw water
+            if (player.in_water_timer==0 && WATER_GROUND_NUM>0) {        
+              if (global_update_reflection_timer>=15) {
                 global_update_reflection_timer=0;
                 if (screen_mirror!=NULL)
                   DeleteObject(screen_mirror);    
-                screen_mirror=FlipLargeBitmapVertically(screen, hdcBackbuff2);
+                screen_mirror=FlipLargeBitmapVertically(hdcBackbuff2,screen);
+
 
                 if (screen_watercolour!=NULL)
-                  DeleteObject(screen_watercolour);    
+                  DeleteObject(screen_watercolour);      
                 screen_watercolour=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
-
-
 
                 SelectObject(hdcBackbuff2,screen_watercolour);
                 DrawWaterColour(hdcBackbuff2,hdcBackbuff);
@@ -1524,27 +1554,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                 AlphaBlend(hdcBackbuff3, 0, 0, GR_WIDTH,GR_HEIGHT,
                           hdcBackbuff2, 0, 0, GR_WIDTH,GR_HEIGHT,
                           waterBlendFunction);
-                /*if (screen_watercolour!=NULL)
-                  DeleteObject(screen_watercolour);    
-                screen_watercolour=CreateLargeBitmapWithBuffer(GR_WIDTH,GR_HEIGHT,&publicSrcPixels);
-                SelectObject(hdcBackbuff2,screen_watercolour);
-                DrawWaterColour(hdcBackbuff2,hdcBackbuff);*/
+
                 //Draw watercolour onto overall screen
                 //BlendBitmapsSSE2(screen_mirror,screen_watercolour, 60);
               }
-
-
-
               DrawWaterPlatformsReflection(hdcBackbuff,hdcBackbuff2,screen_mirror);
             }
 
-            //DrawWaterPlatforms(hdcBackbuff,hdcBackbuff2);
-            //if (screen_watercolour!=NULL) {
-              //BlendBitmapSSE2_SkipBlack(publicDstPixels,publicSrcPixels, GR_WIDTH,GR_HEIGHT, 60);
-            //}*/
             //misc
             //DrawGUI
             //DrawBlackBorders(hdcBackbuff);
+            if (map_weather>0) {
+              DrawRainShader3(hdcBackbuff);
+            }
 
             DrawUI(hdcBackbuff,hdcBackbuff2);
             if (player.health>0) {
@@ -1849,6 +1871,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       waterBlendFunction.BlendFlags = 0;
       waterBlendFunction.SourceConstantAlpha = 64; // Transparency level (0-255)
       waterBlendFunction.AlphaFormat = 0;
+
+      underwaterBlendFunction.BlendOp = AC_SRC_OVER;
+      underwaterBlendFunction.BlendFlags = 0;
+      underwaterBlendFunction.SourceConstantAlpha = 128; // Transparency level (0-255)
+      underwaterBlendFunction.AlphaFormat = 0;
 
       //AddFontResource(L"fonts/KhmerUI.ttf");
       //AddFontResource(L"fonts/KhmerOSsys.ttf");
