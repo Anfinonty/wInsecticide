@@ -1275,7 +1275,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             InitPlayerCamera(player.saved_x,player.saved_y);
             player.cam_x=0;
             player.cam_y=0;
+            player.cam_limiter_x=0;
+            player.cam_limiter_y=0;
             CameraInit(player.x,player.y);
+            PlayerCameraLimiterBorder();
           }
           InitRDGrid();
           ResetBulletRain();

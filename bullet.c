@@ -1108,7 +1108,7 @@ void BulletAct(int bullet_id)
             StopBullet(bullet_id,FALSE);
             int rand_x,rand_y;
             if (GR_WIDTH>800) {
-              rand_x=player.x-GR_WIDTH/2-GR_WIDTH/4+ RandNum(0,GR_WIDTH+GR_WIDTH/2,&weather_rng_i,seed) -player.cam_mouse_move_x;
+              rand_x=player.x-GR_WIDTH/2-GR_WIDTH/4+ RandNum(0,GR_WIDTH+GR_WIDTH/2,&weather_rng_i,seed) -player.cam_mouse_move_x-player.cam_limiter_x;
                 //RandNum(player.x-GR_WIDTH/2+6-player.cam_mouse_move_x,player.x+GR_WIDTH/2-6-player.cam_mouse_move_x,&weather_rng_i); //so it doest get stuck to ground
             //if (rand_x<10)
               //rand_x=RandNum(10,player.x+GR_WIDTH/2-6-player.cam_mouse_move_x,&weather_rng_i);
@@ -1120,7 +1120,7 @@ void BulletAct(int bullet_id)
             //else
               //rand_x=stickyTo(rand_x,VGRID_SIZE);
 
-              rand_y=player.y-GR_HEIGHT/2-GR_HEIGHT/4+RandNum(0,GR_HEIGHT+GR_HEIGHT/2,&weather_rng_i,seed)  -player.cam_mouse_move_y;//
+              rand_y=player.y-GR_HEIGHT/2-GR_HEIGHT/4+RandNum(0,GR_HEIGHT+GR_HEIGHT/2,&weather_rng_i,seed)  -player.cam_mouse_move_y-player.cam_limiter_y;//
                 //RandNum(player.y-10,player.y+10,&weather_rng_i);
                 //RandNum(player.y-GR_HEIGHT/2+6-player.cam_mouse_move_y,player.y+GR_HEIGHT/2-6-player.cam_mouse_move_y,&weather_rng_i); //so it doest get stuck to ground
             //if (rand_y<10)
@@ -1133,8 +1133,8 @@ void BulletAct(int bullet_id)
             //else
               //rand_y=stickyTo(rand_y,VGRID_SIZE);
             } else {
-              rand_x=player.x-GR_WIDTH/2-GR_WIDTH/2+ RandNum(0,GR_WIDTH+GR_WIDTH,&weather_rng_i,seed) -player.cam_mouse_move_x;
-              rand_y=player.y-GR_HEIGHT/2-GR_HEIGHT/4+RandNum(0,GR_HEIGHT+GR_HEIGHT/2,&weather_rng_i,seed)  -player.cam_mouse_move_y;//
+              rand_x=player.x-GR_WIDTH/2-GR_WIDTH/2+ RandNum(0,GR_WIDTH+GR_WIDTH,&weather_rng_i,seed) -player.cam_mouse_move_x-player.cam_limiter_x;
+              rand_y=player.y-GR_HEIGHT/2-GR_HEIGHT/4+RandNum(0,GR_HEIGHT+GR_HEIGHT/2,&weather_rng_i,seed)  -player.cam_mouse_move_y-player.cam_limiter_y;//
             }
             bool allow_spawn=TRUE;
             //check if below spawned web

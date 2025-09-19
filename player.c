@@ -639,6 +639,8 @@ void InitPlayer() {
   InitPlayerCamera(player.saved_x,player.saved_y);
 
   InitPlayerFlingWeb();
+
+  PlayerCameraLimiterBorder();
 }
 
 
@@ -1144,8 +1146,8 @@ void PlayerActFlingWeb(int speed)
   for (int i=0;i<PLAYER_FLING_WEB_NUM;i++) {
     player_fling_web.x[i]=_a;
     player_fling_web.y[i]=_b;          
-    player_fling_web.sprite_x[i]=_a+player.cam_x+player.cam_move_x+player.cam_mouse_move_x;
-    player_fling_web.sprite_y[i]=_b+player.cam_y+player.cam_move_y+ player.cam_mouse_move_y;
+    player_fling_web.sprite_x[i]=_a+player.cam_x+player.cam_move_x+player.cam_mouse_move_x+player.cam_limiter_x;
+    player_fling_web.sprite_y[i]=_b+player.cam_y+player.cam_move_y+ player.cam_mouse_move_y+player.cam_limiter_y;
 
   //to allow web bending       
     tmp_ground_id=GetOnGroundId(player_fling_web.x[i],player_fling_web.y[i],5,4);
@@ -2315,6 +2317,8 @@ void PlayerAct()
 
           //==========Gravity=========
           PlayerActGravityMovement(grav_speed,speed);
+          //limit border and spritex
+          PlayerCameraLimiterBorder();
 
           //X movement
           PlayerActXMovement(grav_speed);
@@ -2333,6 +2337,7 @@ void PlayerAct()
 
           //======PLAYER ACT FLING MOVEMENT======
           PlayerActFlingMovement(grav_speed);
+
         }
 
          //misc
@@ -2346,6 +2351,8 @@ void PlayerAct()
 
           player.saved_ground_id=player.on_ground_id;
 
+           //limit border and spritex
+          PlayerCameraLimiterBorder();
 
 
        //Set Character's Axis
