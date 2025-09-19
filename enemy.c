@@ -315,17 +315,17 @@ void EnemySpriteOnGroundId(int enemy_id,int ground_id)
     double edge_1_dist=-1;
     double edge_2_dist=-1;
     double edge_angle=-1;
-    double distl=34;
+    double distl=32;//34;
 
     if (Enemy[enemy_id]->species==1 && Enemy[enemy_id]->health<=0) {
       if  (height_from_ground<0) {
         Enemy[enemy_id]->force_fall=TRUE;
-        Enemy[enemy_id]->draw_falling=FALSE;
+        Enemy[enemy_id]->draw_falling=TRUE;
       }
       height_from_ground=-abs(height_from_ground);
     }
 
-    Enemy[enemy_id]->draw_falling=FALSE;
+    //Enemy[enemy_id]->draw_falling=FALSE;
 
     //GROUND EDGE
     int ground_edge_id=-1;
@@ -357,12 +357,12 @@ void EnemySpriteOnGroundId(int enemy_id,int ground_id)
             Enemy[enemy_id]->angle=edge_angle;
           }
           if (Enemy[enemy_id]->y<Ground[ground_edge_id]->y1) {
-            if (Enemy[enemy_id]->y>Ground[ground_edge_id]->y1-15) {
+            if (Enemy[enemy_id]->y>Ground[ground_edge_id]->y1) {
               Enemy[enemy_id]->above_ground_edge=TRUE;
               Enemy[enemy_id]->below_ground_edge=FALSE;
             }
           } else if (Enemy[enemy_id]->y>Ground[ground_edge_id]->y1){
-            if (Enemy[enemy_id]->y>Ground[ground_edge_id]->y1+15) {
+            if (Enemy[enemy_id]->y>Ground[ground_edge_id]->y1) {
             Enemy[enemy_id]->above_ground_edge=FALSE;
             Enemy[enemy_id]->below_ground_edge=TRUE;
             if(Enemy[enemy_id]->last_left) {
@@ -383,12 +383,12 @@ void EnemySpriteOnGroundId(int enemy_id,int ground_id)
             Enemy[enemy_id]->angle=edge_angle;
           }
           if (Enemy[enemy_id]->y<Ground[ground_edge_id]->y2) {
-            if (Enemy[enemy_id]->y<Ground[ground_edge_id]->y2-15) {
+            if (Enemy[enemy_id]->y<Ground[ground_edge_id]->y2) {
               Enemy[enemy_id]->above_ground_edge=TRUE;
               Enemy[enemy_id]->below_ground_edge=FALSE;
             }
           } else if (Enemy[enemy_id]->y>Ground[ground_edge_id]->y2){
-            if (Enemy[enemy_id]->y>Ground[ground_edge_id]->y2+15) {
+            if (Enemy[enemy_id]->y>Ground[ground_edge_id]->y2) {
               Enemy[enemy_id]->above_ground_edge=FALSE;
               Enemy[enemy_id]->below_ground_edge=TRUE;
             //}
@@ -505,7 +505,7 @@ void EnemyGravity(int enemy_id,int gr)
                 Enemy[enemy_id]->draw_falling=FALSE;
               } else {
                 Enemy[enemy_id]->force_fall=TRUE;
-                Enemy[enemy_id]->draw_falling=FALSE;
+                Enemy[enemy_id]->draw_falling=TRUE;
               }
           } else if (Enemy[enemy_id]->species==3) {
               if (abs(RandNum(0,100,&Enemy[enemy_id]->flying_rng_i,Enemy[enemy_id]->seed))==5) {
@@ -572,7 +572,7 @@ void EnemyMove(int enemy_id)
     if (Enemy[enemy_id]->y<path_node_center_y) { //move down
       Enemy[enemy_id]->y+=Enemy[enemy_id]->speed;
     } else { //move up
-      Enemy[enemy_id]->draw_falling=FALSE;
+      //Enemy[enemy_id]->draw_falling=FALSE;
       Enemy[enemy_id]->y-=Enemy[enemy_id]->speed;
     }
 
@@ -781,7 +781,7 @@ void EnemyKnockbackMove(int i,int ground_id) //now with bouncing
     }
     if (Enemy[i]->species==1) { //knock cockroach off
       Enemy[i]->force_fall=TRUE;
-      Enemy[i]->draw_falling=FALSE;
+      Enemy[i]->draw_falling=TRUE;
     }
     if (!Enemy[i]->player_knockback) {
       Enemy[i]->x+=kb_x;
@@ -3291,8 +3291,6 @@ void DrawEnemy(HDC hdc,HDC hdc2)
                   ? &EnemyTypeSprite[etype].draw_fly_sprite_1
                   : &EnemyTypeSprite[etype].draw_dithered_fly_sprite_1,
                 Enemy[i]->last_left);              
-              if (Enemy[i]->species==1)
-                Enemy[i]->current_rot_sprite_angle_id=6;
             } else {
               /*if (Enemy[i]->sprite_timer%3==0) {
                 DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y-2,&EnemyTypeSprite[etype].draw_fly_sprite_2,Enemy[i]->last_left);
@@ -3307,8 +3305,6 @@ void DrawEnemy(HDC hdc,HDC hdc2)
                   ? &EnemyTypeSprite[etype].draw_fly_sprite_2
                   : &EnemyTypeSprite[etype].draw_dithered_fly_sprite_2,
                 Enemy[i]->last_left);
-              if (Enemy[i]->species==1)
-                Enemy[i]->current_rot_sprite_angle_id=6;
             }
           }
           break;
@@ -3354,7 +3350,6 @@ void DrawEnemy(HDC hdc,HDC hdc2)
                   ? &EnemyRotatedSprite[rsid].draw_rotated_sprite2[swim_rot_id]
                   : &EnemyRotatedSprite[rsid].draw_dithered_rotated_sprite2[swim_rot_id]),
               Enemy[i]->last_left);
-            Enemy[i]->current_rot_sprite_angle_id=swim_rot_id;
             if (Enemy[i]->species==1)
               do_draw_antannae=TRUE;
           } else if (Enemy[i]->on_ground_id!=-1 || Enemy[i]->health<0 || Enemy[i]->on_ground_timer>0) { //on a ground
@@ -3401,9 +3396,6 @@ void DrawEnemy(HDC hdc,HDC hdc2)
                           : &EnemyTypeSprite[etype].draw_dithered_fly_sprite_2),
                       Enemy[i]->last_left
                     );
-                    if (Enemy[i]->species==1)
-                      Enemy[i]->current_rot_sprite_angle_id=6;
-
                   } else {
                     /*if (Enemy[i]->sprite_timer%4==0) {
                       DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y,&EnemyRotatedSprite[rsid].draw_rotated_sprite1[6],Enemy[i]->last_left);
@@ -3420,9 +3412,6 @@ void DrawEnemy(HDC hdc,HDC hdc2)
                           : &EnemyRotatedSprite[rsid].draw_dithered_rotated_sprite2[6]),
                       Enemy[i]->last_left
                     );
-                    Enemy[i]->current_rot_sprite_angle_id=6;
-                    if (Enemy[i]->species==1)
-                      do_draw_antannae=TRUE;
                   }
                 }
               } else { //not moving to target && on ground
@@ -3506,8 +3495,6 @@ void DrawEnemy(HDC hdc,HDC hdc2)
                       : &EnemyTypeSprite[etype].draw_dithered_fly_sprite_1,
                     Enemy[i]->last_left
                 );
-                if (Enemy[i]->species==1)
-                  Enemy[i]->current_rot_sprite_angle_id=6;
               } else {
                 /*if (Enemy[i]->sprite_timer%3==0) {
                   DrawSprite(hdc,hdc2,Enemy[i]->sprite_x,Enemy[i]->sprite_y-2,&EnemyTypeSprite[etype].draw_fly_sprite_2,Enemy[i]->last_left);
@@ -3523,8 +3510,6 @@ void DrawEnemy(HDC hdc,HDC hdc2)
                       : &EnemyTypeSprite[etype].draw_dithered_fly_sprite_2,
                     Enemy[i]->last_left
                 );
-                if (Enemy[i]->species==1)
-                  Enemy[i]->current_rot_sprite_angle_id=6;
               }
             } else {
               /*if (Enemy[i]->sprite_timer%4==0) {
@@ -3541,7 +3526,6 @@ void DrawEnemy(HDC hdc,HDC hdc2)
                     ? &EnemyRotatedSprite[rsid].draw_rotated_sprite2[6]
                     : &EnemyRotatedSprite[rsid].draw_dithered_rotated_sprite2[6]),
                 Enemy[i]->last_left);
-              Enemy[i]->current_rot_sprite_angle_id=6;
               if (Enemy[i]->species==1)
                 do_draw_antannae=TRUE;
             }
@@ -3570,13 +3554,20 @@ void DrawEnemy(HDC hdc,HDC hdc2)
          double l_angle=-enemy_rotated_angle_arr[Enemy[i]->current_rot_sprite_angle_id];
          double moving_ang_offset=0.00;
          bool flip_bool;
-         if (!Enemy[i]->is_in_ground_edge) { //not on ground edge
+         if (Enemy[i]->draw_falling || (Enemy[i]->sprite_in_water && !Enemy[i]->web_stuck)) {
+           if (Enemy[i]->health>0) {
+             l_angle=-enemy_rotated_angle_arr[7];
+           } else {
+             l_angle=-enemy_rotated_angle_arr[24];
+           }
+         }
+         if (Enemy[i]->draw_falling) {
+           flip_bool=Enemy[i]->last_left;
+         } else if (!Enemy[i]->is_in_ground_edge) { //not on ground edge
            if (Enemy[i]->above_ground) {
             flip_bool=Enemy[i]->last_left;
            } else if (Enemy[i]->below_ground) {
             flip_bool=Enemy[i]->flip_sprite;
-           } else { //in air
-            flip_bool=Enemy[i]->last_left;
            }
         } else { //in ground edge
           l_angle=-enemy_rotated_angle_arr[Enemy[i]->current_rot_sprite_angle_id];
