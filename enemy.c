@@ -1666,6 +1666,7 @@ void EnemyAct(int i)
 
 
     //sniper web bullet-enemy interaction
+    if (player.bullet_shot!=-1) {
     double dist_from_bullet=GetDistance(Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y,Enemy[i]->x,Enemy[i]->y);
     if (Enemy[i]->species==4 && !Enemy[i]->web_stuck) {
       if (dist_from_bullet<=NODE_SIZE*8) {
@@ -1712,7 +1713,7 @@ void EnemyAct(int i)
           break;
       }
     }
-
+    }
    //dazzle if fly close to player
       if (Enemy[i]->species==4 && !Enemy[i]->web_stuck) {
         if (game_hard && Enemy[i]->dist_from_player<=NODE_SIZE*5) {
@@ -3226,6 +3227,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
       //Add to enemy kill count and buff player stats
       if (Enemy[i]->health>-500) {
         enemy_kills++;
+        Enemy[i]->play_death_snd=TRUE;
         //Add to player stats after defeat
         if (!IsSpeedBreaking()) {
           if (player.time_breaker_units<player.time_breaker_units_max-2 && !player.time_breaker) {
@@ -3238,7 +3240,6 @@ void DrawEnemy(HDC hdc,HDC hdc2)
         }
       }
 
-      Enemy[i]->play_death_snd=TRUE;
       Enemy[i]->health=-99999;
       if (in_main_menu && game_audio) {
         PlayMemSnd(&channelSoundEffect[1],&channelSoundEffectCache[1],TRUE,0); 

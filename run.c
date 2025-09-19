@@ -1272,12 +1272,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         if (GR_WIDTH!=OLD_GR_WIDTH || GR_HEIGHT!=OLD_GR_HEIGHT || flag_update_background) { //change in background res
           if (!in_map_editor) {
-            InitPlayerCamera(player.saved_x,player.saved_y);
-            player.cam_x=0;
-            player.cam_y=0;
+            //InitPlayerCamera(player.saved_x,player.saved_y);
+            //player.cam_x=0;
+            //player.cam_y=0;
             player.cam_limiter_x=0;
             player.cam_limiter_y=0;
-            CameraInit(player.x,player.y);
+            CameraInit(player.x+player.cam_x,player.y+player.cam_y);
             PlayerCameraLimiterBorder();
           }
           InitRDGrid();

@@ -126,15 +126,15 @@ void CameraInit(double x,double y)
     player.cam_y--;
     y--;
   }
-  player.cam_limiter_x=0;
-  player.cam_limiter_y=0;
 }
 
-void InitPlayerCamera(int target_x,int target_y)
+void InitPlayerCamera(double target_x,double target_y)
 {
 //set camera
   player.cam_x=0;
   player.cam_y=0;
+  player.cam_limiter_x=0;
+  player.cam_limiter_y=0;
   CameraInit(target_x,target_y);
 }
 

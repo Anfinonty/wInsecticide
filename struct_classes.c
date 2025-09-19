@@ -375,7 +375,7 @@ void Click();
 void move_x(double x);
 void move_y(double y);
 void CameraInit(double x,double y);
-void InitPlayerCamera(int target_x,int target_y);
+void InitPlayerCamera(double target_x,double target_y);
 void PlayerPlaceWeb();
 void PlayerActPlaceWeb(int bm_x1,int bm_y1,int bm_x2,int bm_y2);
 void InitPlayerSpritesAll();
