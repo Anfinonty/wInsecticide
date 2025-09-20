@@ -1545,8 +1545,8 @@ void DitherBitmapColor(HBITMAP hBitmap, COLORREF oldColor, COLORREF newColor)
                 row[x] = newColorIndex; // Replace the color index
               }
             }*/
-            if (y%2==0 /*&& x%2==0 ||
-               (y%2!=0 && x%2!=0)*/) {
+            if (y%2==0 && x%2==0 ||
+               (y%2!=0 && x%2!=0)) {
               if (row[x] == oldColorIndex || oldColor==-1) {
                 row[x] = newColorIndex; // Replace the color index
               }
@@ -2239,79 +2239,6 @@ bool InitExtractAVIFrames(const wchar_t* szFileName,int index)
 }*/
 
 
-//void DrawTexturedTriangle(HDC hdc, HBITMAP hBitmap) {
-/*void DrawTexturedTriangle(HDC hdc, int x1, int y1, int x2, int y2, int x3, int y3, HBITMAP hBitmap) {
-    // Select the BMP into a memory DC
-    HDC memDC = CreateCompatibleDC(hdc);
-    HBITMAP oldBitmap = (HBITMAP)SelectObject(memDC, hBitmap);
-
-    // Define the triangle vertices
-//    POINT triangle[3] = {{100, 100}, {150, 50}, {200, 100}};
-    POINT triangle[3] = {{x1,y1}, {x2,y2}, {x3,y3}};
-
-    // Create a brush from the texture
-    HBRUSH brush = CreatePatternBrush(hBitmap);
-
-    // Select the brush and draw the triangle
-    HBRUSH oldBrush = (HBRUSH)SelectObject(hdc, brush);
-    Polygon(hdc, triangle, 3);
-
-    // Cleanup
-    SelectObject(memDC, oldBitmap);
-    SelectObject(hdc, oldBrush);
-    DeleteObject(brush);
-    DeleteDC(memDC);
-}*/
-
-
-/*void DrawTexturedTriangle(HDC hdc, HDC hdc2,int x1, int y1, int x2, int y2, int x3, int y3, HBITMAP hBitmap,int color_texture_id) {
-    // Select the BMP into a memory DC
-    //HDC memDC = CreateCompatibleDC(hdc);
-    HBITMAP oldBitmap = (HBITMAP)SelectObject(hdc2, hBitmap);
-
-    // Define the triangle vertices
-    POINT triangle[3] = {{x1,y1}, {x2,y2}, {x3,y3}};
-
-    // Create a brush from the texture
-    HBRUSH brush = CreatePatternBrush(hBitmap);
-
-    // Select the brush and draw the triangle
-    HBRUSH oldBrush = (HBRUSH)SelectObject(hdc, brush);
-    Polygon(hdc, triangle, 3);
-
-    // Cleanup
-    SelectObject(hdc2, oldBitmap);
-    SelectObject(hdc, oldBrush);
-    DeleteObject(brush);
-}*/
-
-/*void DrawTexturedTriangleWorking(HDC hdc, HDC hdc2, int x1, int y1, int x2, int y2, int x3, int y3, HBITMAP hBitmap, int color_texture_id) {
-    // Select the BMP into a memory DC
-    HBITMAP oldBitmap = (HBITMAP)SelectObject(hdc2, hBitmap);
-
-    // Define the triangle vertices
-    POINT triangle[3] = {{x1, y1}, {x2, y2}, {x3, y3}};
-
-    // Create a brush from the texture
-    HBRUSH brush = CreatePatternBrush(hBitmap);
-
-    // Select the brush and set the pen to NULL (removes borders)
-    HBRUSH oldBrush = (HBRUSH)SelectObject(hdc, brush);
-    HPEN oldPen = (HPEN)SelectObject(hdc, GetStockObject(NULL_PEN));
-
-    // Draw the triangle
-    Polygon(hdc, triangle, 3);
-
-    // Cleanup
-    SelectObject(hdc, oldBrush);
-    SelectObject(hdc, oldPen);
-    SelectObject(hdc2, oldBitmap);
-    DeleteObject(brush);
-}
-*/
-
-
-
 void DrawTexturedTriangle(HDC hdc, HDC hdc2, int x1, int y1, int x2, int y2, int x3, int y3, HBITMAP hBitmap) {
     float cx = (x1 + x2 + x3) / 3.0f;
     float cy = (y1 + y2 + y3) / 3.0f;
@@ -2371,7 +2298,7 @@ void SetTexturePalette(int target_color_id,RGBQUAD *myTexturePalette) {
 }
 
 
-HBITMAP FlipLargeBitmapVertically(HDC hdc, HBITMAP hBitmap)//, BYTE ** ppPixels)
+HBITMAP FlipLargeBitmapVertically(HDC hdc, HBITMAP hBitmap)
 {
 //ACHTUNG! only works with 32 bit bitmap
     if (!hBitmap) return NULL;
@@ -2429,194 +2356,20 @@ HBITMAP FlipLargeBitmapVertically(HDC hdc, HBITMAP hBitmap)//, BYTE ** ppPixels)
     return hFlipped;
 }
 
-/*
-void BlendBitmapSSE2(BYTE* pDst, BYTE* pSrc, int width, int height, int transparencyPercent) {
-    int numPixels = width * height;
 
-    // Fast path: full opacity
-    if (transparencyPercent >= 100) {
-        memcpy(pDst, pSrc, numPixels * 4);
-        return;
-    }
 
-    // Fast path: fully transparent
-    if (transparencyPercent <= 0) {
-        return;
-    }
-
-    int alpha = (transparencyPercent * 255) / 100;
-    int invAlpha = 255 - alpha;
-
-    __m128i alphaVec = _mm_set1_epi16(alpha);
-    __m128i invAlphaVec = _mm_set1_epi16(invAlpha);
-    __m128i zero = _mm_setzero_si128();
-
-    int i = 0;
-    int numIterations = numPixels & ~7; // process 8 pixels per loop
-
-    for (; i < numIterations; i += 8) {
-        // Load 8 pixels (32 bytes)
-        __m128i src1 = _mm_load_si128((__m128i*)(pSrc + i * 4));
-        __m128i src2 = _mm_load_si128((__m128i*)(pSrc + (i + 4) * 4));
-        __m128i dst1 = _mm_load_si128((__m128i*)(pDst + i * 4));
-        __m128i dst2 = _mm_load_si128((__m128i*)(pDst + (i + 4) * 4));
-
-        // Unpack to 16-bit
-        __m128i src1Lo = _mm_unpacklo_epi8(src1, zero);
-        __m128i src1Hi = _mm_unpackhi_epi8(src1, zero);
-        __m128i src2Lo = _mm_unpacklo_epi8(src2, zero);
-        __m128i src2Hi = _mm_unpackhi_epi8(src2, zero);
-
-        __m128i dst1Lo = _mm_unpacklo_epi8(dst1, zero);
-        __m128i dst1Hi = _mm_unpackhi_epi8(dst1, zero);
-        __m128i dst2Lo = _mm_unpacklo_epi8(dst2, zero);
-        __m128i dst2Hi = _mm_unpackhi_epi8(dst2, zero);
-
-        // Blend
-        src1Lo = _mm_mullo_epi16(src1Lo, alphaVec);
-        src1Hi = _mm_mullo_epi16(src1Hi, alphaVec);
-        src2Lo = _mm_mullo_epi16(src2Lo, alphaVec);
-        src2Hi = _mm_mullo_epi16(src2Hi, alphaVec);
-
-        dst1Lo = _mm_mullo_epi16(dst1Lo, invAlphaVec);
-        dst1Hi = _mm_mullo_epi16(dst1Hi, invAlphaVec);
-        dst2Lo = _mm_mullo_epi16(dst2Lo, invAlphaVec);
-        dst2Hi = _mm_mullo_epi16(dst2Hi, invAlphaVec);
-
-        __m128i blended1Lo = _mm_add_epi16(src1Lo, dst1Lo);
-        __m128i blended1Hi = _mm_add_epi16(src1Hi, dst1Hi);
-        __m128i blended2Lo = _mm_add_epi16(src2Lo, dst2Lo);
-        __m128i blended2Hi = _mm_add_epi16(src2Hi, dst2Hi);
-
-        blended1Lo = _mm_srli_epi16(blended1Lo, 8);
-        blended1Hi = _mm_srli_epi16(blended1Hi, 8);
-        blended2Lo = _mm_srli_epi16(blended2Lo, 8);
-        blended2Hi = _mm_srli_epi16(blended2Hi, 8);
-
-        __m128i result1 = _mm_packus_epi16(blended1Lo, blended1Hi);
-        __m128i result2 = _mm_packus_epi16(blended2Lo, blended2Hi);
-
-        // Store results
-        _mm_store_si128((__m128i*)(pDst + i * 4), result1);
-        _mm_store_si128((__m128i*)(pDst + (i + 4) * 4), result2);
-    }
-
-    // Handle remaining pixels
-    for (; i < numPixels; ++i) {
-        BYTE* srcPixel = pSrc + i * 4;
-        BYTE* dstPixel = pDst + i * 4;
-
-        for (int c = 0; c < 4; ++c) {
-            dstPixel[c] = (srcPixel[c] * alpha + dstPixel[c] * invAlpha) >> 8;
-        }
+void FastFlipLargeBitmapVertically(BYTE* pDst, const BYTE* pSrc, int pSrcWidth, int height)
+{
+    const int rowSize = ((32 * pSrcWidth + 31) / 32) * 4;
+    for (int y = 0; y < height; ++y) { //only height effects performance
+        memcpy(
+            pDst + y * rowSize,
+            pSrc + (height - 1 - y) * rowSize,
+            rowSize
+        );
     }
 }
 
-void BlendBitmapSSE2_SkipBlack(BYTE* pDst, BYTE* pSrc, int width, int height, int transparencyPercent) {
-    int numPixels = width * height;
-
-    if (transparencyPercent >= 100) {
-        memcpy(pDst, pSrc, numPixels * 4);
-        return;
-    }
-
-    if (transparencyPercent <= 0) {
-        return;
-    }
-
-    int alpha = (transparencyPercent * 255) / 100;
-    int invAlpha = 255 - alpha;
-
-    __m128i alphaVec = _mm_set1_epi16(alpha);
-    __m128i invAlphaVec = _mm_set1_epi16(invAlpha);
-    __m128i zero = _mm_setzero_si128();
-    __m128i rgbMask = _mm_set1_epi32(0x00FFFFFF); // Mask out alpha
-
-    int i = 0;
-    int numIterations = numPixels & ~7;
-
-    for (; i < numIterations; i += 8) {
-        __m128i src1 = _mm_loadu_si128((__m128i*)(pSrc + i * 4));
-        __m128i src2 = _mm_loadu_si128((__m128i*)(pSrc + (i + 4) * 4));
-        __m128i dst1 = _mm_loadu_si128((__m128i*)(pDst + i * 4));
-        __m128i dst2 = _mm_loadu_si128((__m128i*)(pDst + (i + 4) * 4));
-
-        // Check for black pixels
-        __m128i src1RGB = _mm_and_si128(src1, rgbMask);
-        __m128i src2RGB = _mm_and_si128(src2, rgbMask);
-        __m128i isBlack1 = _mm_cmpeq_epi32(src1RGB, zero);
-        __m128i isBlack2 = _mm_cmpeq_epi32(src2RGB, zero);
-
-        // Unpack to 16-bit
-        __m128i src1Lo = _mm_unpacklo_epi8(src1, zero);
-        __m128i src1Hi = _mm_unpackhi_epi8(src1, zero);
-        __m128i src2Lo = _mm_unpacklo_epi8(src2, zero);
-        __m128i src2Hi = _mm_unpackhi_epi8(src2, zero);
-
-        __m128i dst1Lo = _mm_unpacklo_epi8(dst1, zero);
-        __m128i dst1Hi = _mm_unpackhi_epi8(dst1, zero);
-        __m128i dst2Lo = _mm_unpacklo_epi8(dst2, zero);
-        __m128i dst2Hi = _mm_unpackhi_epi8(dst2, zero);
-
-        // Blend
-        src1Lo = _mm_mullo_epi16(src1Lo, alphaVec);
-        src1Hi = _mm_mullo_epi16(src1Hi, alphaVec);
-        src2Lo = _mm_mullo_epi16(src2Lo, alphaVec);
-        src2Hi = _mm_mullo_epi16(src2Hi, alphaVec);
-
-        dst1Lo = _mm_mullo_epi16(dst1Lo, invAlphaVec);
-        dst1Hi = _mm_mullo_epi16(dst1Hi, invAlphaVec);
-        dst2Lo = _mm_mullo_epi16(dst2Lo, invAlphaVec);
-        dst2Hi = _mm_mullo_epi16(dst2Hi, invAlphaVec);
-
-        __m128i blended1Lo = _mm_add_epi16(src1Lo, dst1Lo);
-        __m128i blended1Hi = _mm_add_epi16(src1Hi, dst1Hi);
-        __m128i blended2Lo = _mm_add_epi16(src2Lo, dst2Lo);
-        __m128i blended2Hi = _mm_add_epi16(src2Hi, dst2Hi);
-
-        blended1Lo = _mm_srli_epi16(blended1Lo, 8);
-        blended1Hi = _mm_srli_epi16(blended1Hi, 8);
-        blended2Lo = _mm_srli_epi16(blended2Lo, 8);
-        blended2Hi = _mm_srli_epi16(blended2Hi, 8);
-
-        __m128i result1 = _mm_packus_epi16(blended1Lo, blended1Hi);
-        __m128i result2 = _mm_packus_epi16(blended2Lo, blended2Hi);
-
-        // Preserve dst where src is black
-        result1 = _mm_or_si128(_mm_andnot_si128(isBlack1, result1), _mm_and_si128(dst1, isBlack1));
-        result2 = _mm_or_si128(_mm_andnot_si128(isBlack2, result2), _mm_and_si128(dst2, isBlack2));
-
-        _mm_storeu_si128((__m128i*)(pDst + i * 4), result1);
-        _mm_storeu_si128((__m128i*)(pDst + (i + 4) * 4), result2);
-    }
-
-    // Handle remaining pixels
-    for (; i < numPixels; ++i) {
-        BYTE* srcPixel = pSrc + i * 4;
-        BYTE* dstPixel = pDst + i * 4;
-
-        if (srcPixel[0] == 0 && srcPixel[1] == 0 && srcPixel[2] == 0) {
-            continue; // Skip black pixel
-        }
-
-        for (int c = 0; c < 4; ++c) {
-            dstPixel[c] = (srcPixel[c] * alpha + dstPixel[c] * invAlpha) >> 8;
-        }
-    }
-}*/
 
 
-
-/*
-int width = 800;
-int height = 600;
-BYTE *pDstPixels, *pSrcPixels;
-
-HBITMAP hDst = CreateBitmapWithBuffer(width, height, &pDstPixels);
-HBITMAP hSrc = CreateBitmapWithBuffer(width, height, &pSrcPixels);
-
-// Fill pSrcPixels and pDstPixels with your image data here...
-
-BlendBitmapSSE2(pDstPixels, pSrcPixels, width, height, 60); // Blend with 60% opacity
-*/
 

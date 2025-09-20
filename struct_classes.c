@@ -1246,9 +1246,9 @@ HBITMAP map_platforms_shadow_shader;
 
 //map background drawn
 HBITMAP map_background_sprite;
+HBITMAP screen;
 HBITMAP screen_mirror;
-HBITMAP screen_watercolour;
-//BYTE *publicSrcPixels,*publicDstPixels;
+BYTE *publicSrcPixels,*publicDstPixels;
 
 //moon, for calendar only
 HBITMAP moon_cartoon_sprite;
