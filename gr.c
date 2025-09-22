@@ -582,6 +582,26 @@ HBITMAP CreateLargeBitmapWithBuffer(int width, int height, BYTE** ppPixels) {
 
 
 
+HBITMAP CopyBitmapWithBuffer(HBITMAP srcBitmap, BYTE **ppPixels, int SRCOPERATION)
+{
+  BITMAP bm;
+  GetObject(srcBitmap, sizeof(bm), &bm);
+  HBITMAP destBitmap=CreateLargeBitmapWithBuffer(bm.bmWidth,bm.bmHeight,ppPixels);
+
+  HDC hdcMem = CreateCompatibleDC(NULL);
+  HDC hdcMem2 = CreateCompatibleDC(NULL);
+
+  SelectObject(hdcMem2, srcBitmap);
+  SelectObject(hdcMem, destBitmap);
+
+  BitBlt(hdcMem, 0, 0, bm.bmWidth, bm.bmHeight, hdcMem2, 0, 0, SRCOPERATION);
+
+  DeleteDC(hdcMem);
+  DeleteDC(hdcMem2);
+
+  return destBitmap;
+}
+
 
 void CopyPartialGreyscaleBitmap(HBITMAP dBitmap, HBITMAP sBitmap,int x,int SRCOPERATION)
 {
@@ -2355,21 +2375,5 @@ HBITMAP FlipLargeBitmapVertically(HDC hdc, HBITMAP hBitmap)
     free(pFlipped);
     return hFlipped;
 }
-
-
-
-void FastFlipLargeBitmapVertically(BYTE* pDst, const BYTE* pSrc, int pSrcWidth, int height)
-{
-    const int rowSize = ((32 * pSrcWidth + 31) / 32) * 4;
-    for (int y = 0; y < height; ++y) { //only height effects performance
-        memcpy(
-            pDst + y * rowSize,
-            pSrc + (height - 1 - y) * rowSize,
-            rowSize
-        );
-    }
-}
-
-
 
 

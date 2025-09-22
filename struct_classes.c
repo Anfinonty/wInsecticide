@@ -1173,6 +1173,7 @@ struct GamePlatformTextures
 int global_water_texture_timer=0;
 int global_water_texture_id=0;
 HBITMAP texture_water[9];
+BYTE *ptexture_water[9];
 
 
 

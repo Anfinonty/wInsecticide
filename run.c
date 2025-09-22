@@ -326,8 +326,9 @@ bool is_khmer=TRUE;
 
 #define RCLICK_HOLD_COOLDOWN      62
 
-#include "gr.c"
 #include "math.c"
+#include "gr.c"
+#include "gr_fast.c"
 #include "sound.c"
 
 
@@ -1478,7 +1479,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DrawBackground(hdcBackbuff,hdcBackbuff2);
             global_update_reflection_timer++;
             if (player.in_water_timer>0 && WATER_GROUND_NUM>0) {        
-              DrawWaterPlatformsTexture(hdcBackbuff,hdcBackbuff2);
+              FastDrawWaterPlatformsTexture();
               if (global_update_reflection_timer>=global_update_reflection_timer_max) {
                 global_update_reflection_timer=0;
               }
@@ -1508,16 +1509,20 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               if (global_update_reflection_timer>=global_update_reflection_timer_max) {
                 global_update_reflection_timer=0;
                 FastFlipLargeBitmapVertically(publicDstPixels,publicSrcPixels,SCREEN_WIDTH,GR_HEIGHT);
-                DrawAlphaWaterColour(publicDstPixels);
+                //DrawAlphaWaterColour(publicDstPixels);
                 //Draw watercolour onto overall screen
                 //BlendBitmapsSSE2(screen_mirror,screen_watercolour, 60);
               }
-              SelectObject(hdcBackbuff2,screen_mirror);
-              DrawWaterPlatformsReflection(hdcBackbuff,hdcBackbuff2,screen_mirror);
+              //SelectObject(hdcBackbuff2,screen_mirror);
+              //DrawWaterPlatformsReflection(hdcBackbuff,hdcBackbuff2,screen_mirror);
+              FastDrawWaterPlatformsReflection();
+
+
+              //TileTexture(publicSrcPixels, SCREEN_WIDTH, SCREEN_HEIGHT, publicDstPixels, 160, 160, 4);
             }
-            if (player.in_water_timer>0) { //Draw Water ontop if in water
+            //if (player.in_water_timer>0) { //Draw Water ontop if in water
               DrawAlphaWaterColour(publicSrcPixels);
-            }
+            //}
 
             //misc
             //DrawGUI
@@ -2223,7 +2228,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //SetTexturePalette(166,waterPalette);
       //SetTexturePalette(16*9+8,waterPalette); //ltblue water (default perfered)
 
-      for (int i=0;i<9;i++) {
+      /*for (int i=0;i<9;i++) {
         wchar_t fname[48];
         swprintf(fname,48,L"sprites/textures/water_texture%d.bmp",i);        
         //HBITMAP tmp_bitmap = (HBITMAP) LoadImageW(NULL, fname, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);//LoadRLE8CompressedBitmap(fname);
@@ -2232,8 +2237,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         //tricky working with 32-bit like sprites, expection'
         texture_water[i] =(HBITMAP) LoadImageW(NULL, fname, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
-      }
+      }*/
 
+
+     for (int i=0;i<9;i++) {
+        wchar_t fname[48];
+        swprintf(fname,48,L"sprites/textures/water_texture%d.bmp",i);        
+        HBITMAP tmp_bitmap = (HBITMAP) LoadImageW(NULL, fname, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);//LoadRLE8CompressedBitmap(fname);
+        texture_water[i] = CopyBitmapWithBuffer(tmp_bitmap,&ptexture_water[i],SRCCOPY);
+        DeleteObject(tmp_bitmap);
+      }
 
       dkrdkgray_shadow_tile = LoadRLE8CompressedBitmap(L"sprites/shadow_dkrdkgray.bmp");//(HBITMAP) LoadImageW(NULL, L"sprites/shadow_dkrdkgray.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
       ltgray_shadow_tile = LoadRLE8CompressedBitmap(L"sprites/shadow_ltgray.bmp");//(HBITMAP) LoadImageW(NULL, L"sprites/shadow_ltgray.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
@@ -2737,6 +2750,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   rmdir("music_tmp/tmp"); //remove tmp, manually because C is like that
   waveOutSetVolume(hWaveOut[2],wav_out_original_volume);
   waveOutSetVolume(hWaveOut[6],wav_out_original_volume);
+  if (level_loaded) {
+    SaveOptions();
+  }
   return (int) msg.wParam;
 }
 

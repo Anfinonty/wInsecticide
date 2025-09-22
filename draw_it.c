@@ -188,6 +188,48 @@ void DrawBackground(HDC hdc,HDC hdc2)
 }
 
 
+
+/*
+void DrawWaterPlatformsReflection(HDC hdc, HDC hdc2,HBITMAP mirror_screen)
+{
+  if (WATER_GROUND_NUM>0) {
+  int 
+    px=player.x,
+    py=player.y,
+    cx1=player.cam_mouse_move_x,
+    cy1=player.cam_mouse_move_y,
+    cx2=player.cam_move_x,
+    cy2=player.cam_move_y,
+    cx3=player.cam_limiter_x,
+    cy3=player.cam_limiter_y;
+  int x1,y1,x2,y2,x3,y3;
+  int i;
+  if (mirror_screen!=NULL) {
+  for (int k=0;k<WATER_GROUND_NUM;k++) {
+    i = rendered_water_ground[k];
+    if (i!=-1) {
+      if (Ground[i]->type==1) {
+        if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
+            !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
+            x1=GR_WIDTH/2+(int)Ground[i]->x1-px+cx1+cx2+cx3;
+            y1=GR_HEIGHT/2+(int)Ground[i]->y1-py+cy1+cy2+cy3;
+            x2=GR_WIDTH/2+(int)Ground[i]->x2-px+cx1+cx2+cx3;
+            y2=GR_HEIGHT/2+(int)Ground[i]->y2-py+cy1+cy2+cy3;
+            x3=GR_WIDTH/2+(int)Ground[i]->x3-px+cx1+cx2+cx3;
+            y3=GR_HEIGHT/2+(int)Ground[i]->y3-py+cy1+cy2+cy3;
+            DrawTexturedTriangle(hdc,hdc2,x1,y1,x2,y2,x3,y3,mirror_screen);
+        }
+      }
+    }
+  }
+  }
+  }
+}*/
+
+
+
+
+/*
 void DrawWaterPlatformsTexture(HDC hdc,HDC hdc2)
 {
   if (WATER_GROUND_NUM>0) {
@@ -227,52 +269,19 @@ void DrawWaterPlatformsTexture(HDC hdc,HDC hdc2)
             y2=GR_HEIGHT/2+(int)Ground[i]->y2-py+cy1+cy2+cy3;
             x3=GR_WIDTH/2+(int)Ground[i]->x3-px+cx1+cx2+cx3;
             y3=GR_HEIGHT/2+(int)Ground[i]->y3-py+cy1+cy2+cy3;
-            DrawTexturedTriangle(hdc,hdc2,x1,y1,x2,y2,x3,y3,texture_water[global_water_texture_id]);
+            //DrawTexturedTriangle(hdc,hdc2,x1,y1,x2,y2,x3,y3,texture_water[global_water_texture_id]);
+            //FastDrawTexturedTriangle(publicSrcPixels,x1,y1,x2,y2,x3,y3,SCREEN_WIDTH,ptexture_water[global_water_texture_id],160,160);
+            //DrawGlassTriangle(publicSrcPixels, SCREEN_WIDTH, x1,y1,x2,y2,x3,y3,rgbColorsDefault,rgbPaint_i[Ground[i]->color_id],200);
         }
       }
     }
   }
   }
-}
+}*/
 
-void DrawWaterPlatformsReflection(HDC hdc, HDC hdc2,HBITMAP mirror_screen)
-{
-  if (WATER_GROUND_NUM>0) {
-  int 
-    px=player.x,
-    py=player.y,
-    cx1=player.cam_mouse_move_x,
-    cy1=player.cam_mouse_move_y,
-    cx2=player.cam_move_x,
-    cy2=player.cam_move_y,
-    cx3=player.cam_limiter_x,
-    cy3=player.cam_limiter_y;
-  int x1,y1,x2,y2,x3,y3;
-  int i;
-  if (mirror_screen!=NULL) {
-  for (int k=0;k<WATER_GROUND_NUM;k++) {
-    i = rendered_water_ground[k];
-    if (i!=-1) {
-      if (Ground[i]->type==1) {
-        if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
-            !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
-            x1=GR_WIDTH/2+(int)Ground[i]->x1-px+cx1+cx2+cx3;
-            y1=GR_HEIGHT/2+(int)Ground[i]->y1-py+cy1+cy2+cy3;
-            x2=GR_WIDTH/2+(int)Ground[i]->x2-px+cx1+cx2+cx3;
-            y2=GR_HEIGHT/2+(int)Ground[i]->y2-py+cy1+cy2+cy3;
-            x3=GR_WIDTH/2+(int)Ground[i]->x3-px+cx1+cx2+cx3;
-            y3=GR_HEIGHT/2+(int)Ground[i]->y3-py+cy1+cy2+cy3;
-            DrawTexturedTriangle(hdc,hdc2,x1,y1,x2,y2,x3,y3,mirror_screen);
-        }
-      }
-    }
-  }
-  }
-  }
-}
 
-/*
-void DrawWaterColour(HDC hdc, HDC hdc2)
+
+void FastDrawWaterPlatformsTexture()
 {
   if (WATER_GROUND_NUM>0) {
   int 
@@ -286,188 +295,72 @@ void DrawWaterColour(HDC hdc, HDC hdc2)
     cy3=player.cam_limiter_y;
   int x1,y1,x2,y2,x3,y3;
   int i,c;
-  double scale=2.5;//1.5;
 
-  GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,BLACK);
+  if (global_water_texture_timer>1) {
+    global_water_texture_timer=0;
+    global_water_texture_id++;
+    if (global_water_texture_id>=9) {
+      global_water_texture_id=0;
+    }
+  } else {
+    global_water_texture_timer++;
+  }
+
+
+  for (int k=0;k<WATER_GROUND_NUM;k++) {
+    i = rendered_water_ground[k];
+    if (i!=-1) {
+      if (Ground[i]->type==1) {
+        //c=rgbPaint[Ground[i]->color_id];
+        if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
+            !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
+            x1=GR_WIDTH/2+(int)Ground[i]->x1-px+cx1+cx2+cx3;
+            y1=GR_HEIGHT/2+(int)Ground[i]->y1-py+cy1+cy2+cy3;
+            x2=GR_WIDTH/2+(int)Ground[i]->x2-px+cx1+cx2+cx3;
+            y2=GR_HEIGHT/2+(int)Ground[i]->y2-py+cy1+cy2+cy3;
+            x3=GR_WIDTH/2+(int)Ground[i]->x3-px+cx1+cx2+cx3;
+            y3=GR_HEIGHT/2+(int)Ground[i]->y3-py+cy1+cy2+cy3;
+            FastDrawTexturedTriangle(publicSrcPixels,x1,y1,x2,y2,x3,y3,SCREEN_WIDTH,ptexture_water[global_water_texture_id],160,160);
+            //DrawGlassTriangle(publicSrcPixels, SCREEN_WIDTH, x1,y1,x2,y2,x3,y3,rgbColorsDefault,rgbPaint_i[Ground[i]->color_id],200);
+        }
+      }
+    }
+  }
+  }
+}
+
+void FastDrawWaterPlatformsReflection()
+{
+  if (WATER_GROUND_NUM>0) {
+  int 
+    px=player.x,
+    py=player.y,
+    cx1=player.cam_mouse_move_x,
+    cy1=player.cam_mouse_move_y,
+    cx2=player.cam_move_x,
+    cy2=player.cam_move_y,
+    cx3=player.cam_limiter_x,
+    cy3=player.cam_limiter_y;
+  int x1,y1,x2,y2,x3,y3;
+  int i;
   for (int k=0;k<WATER_GROUND_NUM;k++) {
     i = rendered_water_ground[k];
     if (i!=-1) {
       if (Ground[i]->type==1) {
         if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
             !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
-            c=rgbPaint[Ground[i]->color_id];
-
-            double cx=(Ground[i]->x1+Ground[i]->x2+Ground[i]->x3)/3.0f;
-            double cy=(Ground[i]->y1+Ground[i]->y2+Ground[i]->y3)/3.0f;
-            double sx1 = cx + (Ground[i]->x1 - cx) * scale;
-            double sy1 = cy + (Ground[i]->y1 - cy) * scale;
-            double sx2 = cx + (Ground[i]->x2 - cx) * scale;
-            double sy2 = cy + (Ground[i]->y2 - cy) * scale;
-            double sx3 = cx + (Ground[i]->x3 - cx) * scale;
-            double sy3 = cy + (Ground[i]->y3 - cy) * scale;
-
-            //x1=GR_WIDTH/2/*+(int)Ground[i]->x1*///-px+cx1+cx2+cx3+(int)sx1;
-            //y1=GR_HEIGHT/2/*+(int)Ground[i]->y1*/-py+cy1+cy2+cy3+(int)sy1;
-            //x2=GR_WIDTH/2/*+(int)Ground[i]->x2*/-px+cx1+cx2+cx3+(int)sx2;
-            //y2=GR_HEIGHT/2/*+(int)Ground[i]->y2*/-py+cy1+cy2+cy3+(int)sy2;
-            //x3=GR_WIDTH/2/*+(int)Ground[i]->x3*/-px+cx1+cx2+cx3+(int)sx3;
-            //y3=GR_HEIGHT/2/*+(int)Ground[i]->y3*/-py+cy1+cy2+cy3+(int)sy3;
-  	        //DrawTriFill(hdc,c,x1,y1,x2,y2,x3,y3,FALSE,0);
-        /*}
+            x1=GR_WIDTH/2+(int)Ground[i]->x1-px+cx1+cx2+cx3;
+            y1=GR_HEIGHT/2+(int)Ground[i]->y1-py+cy1+cy2+cy3;
+            x2=GR_WIDTH/2+(int)Ground[i]->x2-px+cx1+cx2+cx3;
+            y2=GR_HEIGHT/2+(int)Ground[i]->y2-py+cy1+cy2+cy3;
+            x3=GR_WIDTH/2+(int)Ground[i]->x3-px+cx1+cx2+cx3;
+            y3=GR_HEIGHT/2+(int)Ground[i]->y3-py+cy1+cy2+cy3;
+            FastDrawTexturedTriangle(publicSrcPixels,x1,y1,x2,y2,x3,y3,SCREEN_WIDTH,publicDstPixels,SCREEN_WIDTH,GR_HEIGHT);
+            //DrawGlassTriangle(publicSrcPixels, SCREEN_WIDTH, x1,y1,x2,y2,x3,y3,rgbColorsDefault,rgbPaint_i[Ground[i]->color_id],200);
+        }
       }
     }
   }
-  }
-}*/
-
-
-typedef struct {
-    uint8_t r, g, b, a;
-} Color;
-
-
-static inline void blendPixel(BYTE* pixel, Color color) {
-    // Precompute alpha and inverse alpha
-    unsigned int alpha = color.a;
-    unsigned int invAlpha = 255 - alpha;
-
-    // Blend each channel using integer math and bit shifting
-    pixel[0] = (BYTE)((pixel[0] * invAlpha + color.b * alpha) >> 8); // Blue
-    pixel[1] = (BYTE)((pixel[1] * invAlpha + color.g * alpha) >> 8); // Green
-    pixel[2] = (BYTE)((pixel[2] * invAlpha + color.r * alpha) >> 8); // Red
-    pixel[3] = 255; // Fully opaque
-}
-
-void DrawGlassTriangle(BYTE* pDst, int width, int _x1, int _y1, int _x2, int _y2, int _x3, int _y3, RGBQUAD *rgbPalette, int color_id,int t) {
-    /*for (int x=0;x<GR_WIDTH;x++) {
-      for (int y=0;y<GR_HEIGHT;y++) {
-        BYTE* pixel = pDst + (y * width + x) * 4;
-        blendPixel(pixel, color);
-      }
-    }*/
-    //to a point where below function is faster than filling a square
-
-   if (t>255) t=255;
-   Color color={rgbPalette[color_id].rgbRed, 
-                rgbPalette[color_id].rgbGreen, 
-                rgbPalette[color_id].rgbBlue, t};
- 
-//=============
-  double
-    gradient_middle1,gradient_middle2,gradient_largest,
-    c_middle1,c_middle2,c_largest,
-    smallest=INT_MAX,largest=0,
-    x_arr[3],y_arr[3];
-
-  x_arr[0]=_x1;
-  x_arr[1]=_x2;
-  x_arr[2]=_x3;
-  y_arr[0]=_y1;
-  y_arr[1]=_y2;
-  y_arr[2]=_y3;
-
-  int x_1,x_2,i,x,y,k,saved_largest=0,saved_smallest=0,saved_middle=0;
-
-  for (i=0;i<3;i++) {
-    if (y_arr[i]<smallest) {
-      smallest=y_arr[i];
-      saved_smallest=i;
-    }
-  }
-  for (i=0;i<3;i++) {
-    if (y_arr[i]>largest) {
-      largest=y_arr[i];
-      saved_largest=i;
-    }
-  }
-  for (i=0;i<3;i++) {
-    if (i!=saved_smallest && i!=saved_largest) {
-      saved_middle=i;
-    }
-  }
-  
-
-  /*x_arr[saved_smallest]-=30;
-  y_arr[saved_smallest]-=30;
-  x_arr[saved_middle]-=30;
-  y_arr[saved_middle]-=30;
-  x_arr[saved_largest]+=30;
-  y_arr[saved_largest]+=30;*/
-
-  gradient_middle1=GetGradient(x_arr[saved_smallest],y_arr[saved_smallest],x_arr[saved_middle],y_arr[saved_middle]); //Gradient of main line
-  c_middle1=GetGroundC(x_arr[saved_smallest],y_arr[saved_smallest],gradient_middle1);
-
-  gradient_middle2=GetGradient(x_arr[saved_largest],y_arr[saved_largest],x_arr[saved_middle],y_arr[saved_middle]);
-  c_middle2=GetGroundC(x_arr[saved_largest],y_arr[saved_largest],gradient_middle2);
-
-  gradient_largest=GetGradient(x_arr[saved_largest],y_arr[saved_largest],x_arr[saved_smallest],y_arr[saved_smallest]);
-  c_largest=GetGroundC(x_arr[saved_smallest],y_arr[saved_smallest],gradient_largest);
-
-
-
-  int smallest_y=smallest;
-  int middle_y=y_arr[saved_middle];
-  int largest_y=largest;
-
-
-  int x1,x2;
-  if (smallest_y>GR_HEIGHT)
-    smallest_y=GR_HEIGHT;
-  else if (smallest_y<0)
-    smallest_y=0;
-  if (middle_y>GR_HEIGHT)
-    middle_y=GR_HEIGHT;
-  else if (middle_y<0)
-    middle_y=0;
-  if (largest_y>GR_HEIGHT)
-    largest_y=GR_HEIGHT;
-  else if (largest_y<0)
-    largest_y=0;
-
-
-
-  for (y=smallest_y;y<middle_y;y+=1) {//small to middle
-    x_1=GetX(y,gradient_middle1,c_middle1);//left point to right point
-    x_2=GetX(y,gradient_largest,c_largest);
-    x1=min(x_1,x_2);
-    x2=max(x_1,x_2);
-    if (x1>GR_WIDTH)
-      x1=GR_WIDTH;
-    else if (x1<0)
-      x1=0;
-    if (x2>GR_WIDTH)
-      x2=GR_WIDTH;
-    else if (x2<0)
-      x2=0;
-
-    for (x=x1;x<x2;x+=2) {
-      if (x>=0 && x<=GR_WIDTH && y>=0 && y<=GR_HEIGHT) {
-        BYTE* pixel = pDst + (y * width + x) * 4;
-        blendPixel(pixel, color);
-      }
-    }
-  }
-
-
-  for (y=middle_y;y<largest_y;y+=1) {//middle to largest
-    x_1=GetX(y,gradient_middle2,c_middle2);
-    x_2=GetX(y,gradient_largest,c_largest);
-    x1=min(x_1,x_2);
-    x2=max(x_1,x_2);
-    if (x1>GR_WIDTH)
-      x1=GR_WIDTH;
-    else if (x1<0)
-      x1=0;
-    if (x2>GR_WIDTH)
-      x2=GR_WIDTH;
-    else if (x2<0)
-      x2=0;
-    for (x=x1;x<x2;x+=2) {
-      if (x>=0 && x<=GR_WIDTH && y>=0 && y<=GR_HEIGHT) {
-        BYTE* pixel = pDst + (y * width + x) * 4;
-        blendPixel(pixel, color);
-      }
-    }
   }
 }
 
@@ -486,15 +379,15 @@ void DrawAlphaWaterColour(BYTE *pDst)
     cy3=player.cam_limiter_y;
   int x1,y1,x2,y2,x3,y3;
   int i,c;
-  const double scalex=1.0023; //idk why it just works
-  const double scaley=1.023;
+  //const double scalex=1.0023; //idk why it just works
+  //const double scaley=1.023;
   for (int k=0;k<WATER_GROUND_NUM;k++) {
     i = rendered_water_ground[k];
     if (i!=-1) {
       if (Ground[i]->type==1) {
         if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
             !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
-            double cx=(Ground[i]->x1+Ground[i]->x2+Ground[i]->x3)/3.0f;
+            /*double cx=(Ground[i]->x1+Ground[i]->x2+Ground[i]->x3)/3.0f;
             double cy=(Ground[i]->y1+Ground[i]->y2+Ground[i]->y3)/3.0f;
             double sx1 = cx + (Ground[i]->x1 - cx) * scalex;
             double sy1 = cy + (Ground[i]->y1 - cy) * scaley;
@@ -508,13 +401,13 @@ void DrawAlphaWaterColour(BYTE *pDst)
             x2=GR_WIDTH/2-px+cx1+cx2+cx3+(int)sx2;
             y2=GR_HEIGHT/2-py+cy1+cy2+cy3+(int)sy2;
             x3=GR_WIDTH/2-px+cx1+cx2+cx3+(int)sx3;
-            y3=GR_HEIGHT/2-py+cy1+cy2+cy3+(int)sy3;
-            /*x1=GR_WIDTH/2+(int)Ground[i]->x1-px+cx1+cx2+cx3;
+            y3=GR_HEIGHT/2-py+cy1+cy2+cy3+(int)sy3;*/
+            x1=GR_WIDTH/2+(int)Ground[i]->x1-px+cx1+cx2+cx3;
             y1=GR_HEIGHT/2+(int)Ground[i]->y1-py+cy1+cy2+cy3;
             x2=GR_WIDTH/2+(int)Ground[i]->x2-px+cx1+cx2+cx3;
             y2=GR_HEIGHT/2+(int)Ground[i]->y2-py+cy1+cy2+cy3;
             x3=GR_WIDTH/2+(int)Ground[i]->x3-px+cx1+cx2+cx3;
-            y3=GR_HEIGHT/2+(int)Ground[i]->y3-py+cy1+cy2+cy3;*/
+            y3=GR_HEIGHT/2+(int)Ground[i]->y3-py+cy1+cy2+cy3;
             if (!player.time_breaker) {
               DrawGlassTriangle(pDst, SCREEN_WIDTH, x1,y1,x2,y2,x3,y3,rgbColorsDefault,rgbPaint_i[Ground[i]->color_id],200);
             } else {
