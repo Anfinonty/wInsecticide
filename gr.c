@@ -558,7 +558,7 @@ HBITMAP CreateLargeBitmap(int cx, int cy)
   bi.bmiHeader.biWidth=cx;
   bi.bmiHeader.biHeight=-cy;
   bi.bmiHeader.biPlanes=1;
-  bi.bmiHeader.biBitCount=32;
+  bi.bmiHeader.biBitCount=16;
   return CreateDIBSection(NULL, &bi,DIB_RGB_COLORS, (VOID**)&lpBitmapBits,NULL,0);
 }
 
@@ -571,7 +571,7 @@ HBITMAP CreateLargeBitmapWithBuffer(int width, int height, BYTE** ppPixels) {
     bmi.bmiHeader.biWidth = width;
     bmi.bmiHeader.biHeight = -height; // Top-down
     bmi.bmiHeader.biPlanes = 1;
-    bmi.bmiHeader.biBitCount = 32;
+    bmi.bmiHeader.biBitCount = 16;
     bmi.bmiHeader.biCompression = BI_RGB;
 
     HDC hDC = GetDC(NULL);

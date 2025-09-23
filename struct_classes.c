@@ -1173,7 +1173,7 @@ struct GamePlatformTextures
 int global_water_texture_timer=0;
 int global_water_texture_id=0;
 HBITMAP texture_water[9];
-//BYTE *ptexture_water[9];
+BYTE *ptexture_water[9];
 
 
 
@@ -1247,9 +1247,9 @@ HBITMAP map_platforms_shadow_shader;
 
 //map background drawn
 HBITMAP map_background_sprite;
-//HBITMAP screen;
-//HBITMAP screen_mirror;
-//BYTE *publicSrcPixels,*publicDstPixels;
+HBITMAP screen;
+HBITMAP screen_mirror;
+BYTE *publicSrcPixels,*publicDstPixels;
 
 //moon, for calendar only
 HBITMAP moon_cartoon_sprite;

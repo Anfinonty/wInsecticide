@@ -824,7 +824,7 @@ void InitSetRes(int i,int w,int h,char *txt,wchar_t* wtxt)
 
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-  HBITMAP screen;
+  //HBITMAP screen;
   HDC hdc, hdcBackbuff, hdcBackbuff2;
   switch(msg) {
 
@@ -1378,7 +1378,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           hdcBackbuff=CreateCompatibleDC(hdc);
           hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
 
-          screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+          //screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
 
           SelectObject(hdcBackbuff,screen);
 
@@ -1386,6 +1386,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
           DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-370/2,GR_HEIGHT/2-370/2-48,0,0,370,370,intro_msg_mask,SRCAND,FALSE,FALSE);
           DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-370/2,GR_HEIGHT/2-370/2-48,0,0,370,370,intro_msg,SRCPAINT,FALSE,FALSE);
+
+          if (loading_numerator==loading_denominator-2) {
+            BITMAP bmp;
+            if (GetObject(screen, sizeof(BITMAP), &bmp)) {
+               printf("Bitmap Info:\n");
+                printf("Width: %ld\n", bmp.bmWidth);
+                printf("Height: %ld\n", bmp.bmHeight);
+                printf("Bits per Pixel: %d\n", bmp.bmBitsPixel);
+                printf("Planes: %d\n", bmp.bmPlanes);
+                printf("Bytes per Line: %ld\n", bmp.bmWidthBytes);
+                printf("Total Size: %ld bytes\n", bmp.bmHeight * bmp.bmWidthBytes);
+            }
+          }
 
           if (loading_numerator<loading_denominator) {
             DrawLoading(hdcBackbuff);
@@ -1398,7 +1411,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           BitBlt(hdc, 0, 0, GR_WIDTH,GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
           DeleteDC(hdcBackbuff2);
           DeleteDC(hdcBackbuff);
-          DeleteObject(screen);
+          //DeleteObject(screen);
 
         } else if (level_loading) { //draw level loading, also loads level
           hdc=BeginPaint(hwnd, &ps);
@@ -1415,7 +1428,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               }            */
           }
 
-          screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+          //screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
           SelectObject(hdcBackbuff,screen);
           //GrRect(hdcBackbuff,0,0,GR_WIDTH+2,GR_HEIGHT+2,BLACK);    
           DrawBackground(hdcBackbuff,hdcBackbuff2);
@@ -1432,7 +1445,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
           DeleteDC(hdcBackbuff2);
           DeleteDC(hdcBackbuff);
-          DeleteObject(screen);
+          //DeleteObject(screen);
 
 
         } else {
@@ -1475,13 +1488,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             hdc=BeginPaint(hwnd, &ps);
             hdcBackbuff=CreateCompatibleDC(hdc);
             hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
-            screen=//CreateLargeBitmapWithBuffer(GR_WIDTH,GR_HEIGHT,&publicDstPixels);
-                  CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+            //screen=//CreateLargeBitmapWithBuffer(GR_WIDTH,GR_HEIGHT,&publicDstPixels);
+            //      CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
             SelectObject(hdcBackbuff,screen);
             DrawBackground(hdcBackbuff,hdcBackbuff2);
             global_update_reflection_timer++;
             if (player.in_water_timer>0 && WATER_GROUND_NUM>0) {        
-              //FastDrawWaterPlatformsTexture();
+              FastDrawWaterPlatformsTexture();
               if (global_update_reflection_timer>=global_update_reflection_timer_max) {
                 global_update_reflection_timer=0;
               }
@@ -1510,20 +1523,20 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             if (player.in_water_timer==0 && WATER_GROUND_NUM>0) {
               if (global_update_reflection_timer>=global_update_reflection_timer_max) {
                 global_update_reflection_timer=0;
-                //FastFlipLargeBitmapVertically(publicDstPixels,publicSrcPixels,SCREEN_WIDTH,GR_HEIGHT);
+                FastFlipLargeBitmapVertically(publicDstPixels,publicSrcPixels,SCREEN_WIDTH,GR_HEIGHT);
                 //DrawAlphaWaterColour(publicDstPixels);
                 //Draw watercolour onto overall screen
                 //BlendBitmapsSSE2(screen_mirror,screen_watercolour, 60);
               }
               //SelectObject(hdcBackbuff2,screen_mirror);
               //DrawWaterPlatformsReflection(hdcBackbuff,hdcBackbuff2,screen_mirror);
-              //FastDrawWaterPlatformsReflection();
+              FastDrawWaterPlatformsReflection();
 
 
               //TileTexture(publicSrcPixels, SCREEN_WIDTH, SCREEN_HEIGHT, publicDstPixels, 160, 160, 4);
             }
             //if (player.in_water_timer>0) { //Draw Water ontop if in water
-              //DrawAlphaWaterColour(publicSrcPixels);
+              DrawAlphaWaterColour(publicSrcPixels);
             //}
 
             //misc
@@ -1576,7 +1589,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             
             DeleteDC(hdcBackbuff);
             DeleteDC(hdcBackbuff2);
-            DeleteObject(screen);
+            //DeleteObject(screen);
             //Trigger go back to main menu
             if (back_to_menu) {
               flag_draw_task_stopped=TRUE;
@@ -1609,7 +1622,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
 
 
-            screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+            //screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
             SelectObject(hdcBackbuff,screen);
             DrawMapEditorBackground(hdcBackbuff,hdcBackbuff2);
             DrawMapEditorWaterTexturePlatforms(hdcBackbuff,hdcBackbuff2);
@@ -1632,7 +1645,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
             DeleteDC(hdcBackbuff2);
             DeleteDC(hdcBackbuff);
-            DeleteObject(screen);
+            //DeleteObject(screen);
             }
 
             //Map Editor, Trigger go back to main menu
@@ -1674,7 +1687,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
 
           if (!flag_taskbar_change_act && !flag_resolution_change && !flag_borderless_resolution_change) {
-            screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+            //screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
             SelectObject(hdcBackbuff,screen);
       
             DrawMainMenu(hdcBackbuff,hdcBackbuff2);
@@ -1694,9 +1707,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
           } else {
             if (flag_resolution_change) { //blackout clear screen
-              screen=CreateCompatibleBitmap(hdc,SCREEN_WIDTH,SCREEN_HEIGHT);
+              //creen=CreateCompatibleBitmap(hdc,SCREEN_WIDTH,SCREEN_HEIGHT);
               SelectObject(hdcBackbuff,screen);
-              GrRect(hdcBackbuff,0,0,SCREEN_WIDTH,SCREEN_HEIGHT,BLACK);
+              GrRect(hdcBackbuff,0,0,SCREEN_WIDTH+24,SCREEN_HEIGHT+24,BLACK);
               BitBlt(hdc, 0,0, SCREEN_WIDTH,SCREEN_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
               flag_resolution_change=FALSE;
             } else if (flag_taskbar_change_act) {
@@ -1714,7 +1727,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
           DeleteDC(hdcBackbuff2);
           DeleteDC(hdcBackbuff);
-          DeleteObject(screen);
+          //DeleteObject(screen);
           }
 
           //flag to stop
@@ -2012,8 +2025,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       GR_HEIGHT=RESOLUTION_Y[resolution_choose];
       flag_resolution_change=TRUE;
 
-      //screen=CreateLargeBitmapWithBuffer(SCREEN_WIDTH,SCREEN_HEIGHT,&publicSrcPixels);
-      //screen_mirror=CreateLargeBitmapWithBuffer(SCREEN_WIDTH,SCREEN_HEIGHT,&publicDstPixels);
+      screen=CreateLargeBitmapWithBuffer(SCREEN_WIDTH,SCREEN_HEIGHT,&publicSrcPixels);
+      screen_mirror=CreateLargeBitmapWithBuffer(SCREEN_WIDTH,SCREEN_HEIGHT,&publicDstPixels);
 
 
       //Load RNG Table
@@ -2244,10 +2257,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
      for (int i=0;i<9;i++) {
         wchar_t fname[48];
         swprintf(fname,48,L"sprites/textures/water_texture%d.bmp",i);        
-        //HBITMAP tmp_bitmap = (HBITMAP) LoadImageW(NULL, fname, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);//LoadRLE8CompressedBitmap(fname);
-        //texture_water[i] = CopyBitmapWithBuffer(tmp_bitmap,&ptexture_water[i],SRCCOPY);
-        //DeleteObject(tmp_bitmap);
-        texture_water[i]=(HBITMAP) LoadImageW(NULL, fname, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+        HBITMAP tmp_bitmap = (HBITMAP) LoadImageW(NULL, fname, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);//LoadRLE8CompressedBitmap(fname);
+        texture_water[i] = CopyBitmapWithBuffer(tmp_bitmap,&ptexture_water[i],SRCCOPY);
+        DeleteObject(tmp_bitmap);
+        //texture_water[i]=(HBITMAP) LoadImageW(NULL, fname, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
       }
 
       dkrdkgray_shadow_tile = LoadRLE8CompressedBitmap(L"sprites/shadow_dkrdkgray.bmp");//(HBITMAP) LoadImageW(NULL, L"sprites/shadow_dkrdkgray.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);

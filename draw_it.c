@@ -280,7 +280,7 @@ void DrawWaterPlatformsTexture(HDC hdc,HDC hdc2)
 }*/
 
 
-/*
+
 void FastDrawWaterPlatformsTexture()
 {
   if (WATER_GROUND_NUM>0) {
@@ -327,8 +327,8 @@ void FastDrawWaterPlatformsTexture()
     }
   }
   }
-}*/
-/*
+}
+
 void FastDrawWaterPlatformsReflection()
 {
   if (WATER_GROUND_NUM>0) {
@@ -362,7 +362,7 @@ void FastDrawWaterPlatformsReflection()
     }
   }
   }
-}*/
+}
 
 
 void DrawAlphaWaterColour(BYTE *pDst)
