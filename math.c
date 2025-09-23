@@ -3,11 +3,11 @@
 
 //Solar Hijri Time for Drawing
 int solar_sec=0,solar_min=0,solar_hour=0,solar_day=0,solar_month=0,solar_year=0,solar_day_of_week=0;
-double solar_angle_day=0;
+float solar_angle_day=0;
 
 //Lunar Hijri Time for Drawing
 int lunar_sec=0,lunar_min=0,lunar_hour=0,lunar_day=0,lunar_month=0,lunar_year=0,lunar_day_of_week=0;
-double moon_angle_shift=0;
+float moon_angle_shift=0;
 
 
 unsigned long long current_timestamp() {//https://copyprogramming.com/howto/c-sleep-in-milliseconds-in-c-code-example
@@ -210,7 +210,7 @@ void PersiaSolarTime(int64_t _seconds,
   int *_solar_month,
   int *_solar_year,
   int *_solar_day_of_week,
-  double *_solar_angle_day
+  float *_solar_angle_day
 )
 {  
   //Beginning date:
@@ -336,7 +336,7 @@ void PersiaSolarTime(int64_t _seconds,
   //printf("SD~%d~\n",__solar_day);
 
 
-  double __solar_angle=0;
+  float __solar_angle=0;
   if (year==leap_year) {
     __solar_angle=(M_PI*2)*__solar_day/366;
   } else {
@@ -364,7 +364,7 @@ void PersiaLunarTime(int64_t _seconds,
   int *_lunar_month,
   int *_lunar_year,
   int *_lunar_day_of_week,
-  double *_moon_angle_shift
+  float *_moon_angle_shift
 )
 {
   //622 C.E. = Beginning of Year
@@ -490,7 +490,7 @@ void PersiaLunarTime(int64_t _seconds,
     lunar_day_start+=(print_days*day_seconds);
   }
 
-  double moon_angle_shift=0;
+  float moon_angle_shift=0;
   PersiaSolarTime(lunar_day_start,&_,&_,&_,&_,&_,&_,&_,&moon_angle_shift);
   
   if (print_days+1==28) //new moon
@@ -524,7 +524,7 @@ int RandNum(int min, int max, int *global_rand_i,int seed) {
 
 
 
-double RandAngle(int min, int max, int *global_rand_i,int seed) {
+float RandAngle(int min, int max, int *global_rand_i,int seed) {
   return RandNum(min,max,global_rand_i,seed)*M_PI/180;
 }
 
@@ -540,54 +540,54 @@ double RandAngle(int min, int max, int *global_rand_i,int seed) {
 
 
 //----------------------------------------
-double GetGradient(double x1,double y1,double x2,double y2) 
+float GetGradient(float x1,float y1,float x2,float y2) 
 {
   // gradient = rise/run, m = (y1-y2)/(x1-x2)
-  double denominator=(x2-x1);
+  float denominator=(x2-x1);
   if (denominator==0) {
     return DBL_MAX;
   }
   return (y2-y1)/denominator;
 }
 
-double GetGroundC(double x,double y,double gradient)
+float GetGroundC(float x,float y,float gradient)
 {
   //y=mx+c, c = y-mx
   return y-gradient*x; 
 }
 
-double GetX(double y,double gradient,double c)
+float GetX(float y,float gradient,float c)
 {
   return (y-c)/gradient;
 }
 
 
-double GetY(double x,double gradient,double c)
+float GetY(float x,float gradient,float c)
 {
   return x*gradient+c;
 }
 
-double GetDistance(double x1,double y1,double x2,double y2)
+float GetDistance(float x1,float y1,float x2,float y2)
 {
-  double Y=y2-y1;
-  double X=x2-x1;
-  double dist=sqrt(Y*Y+X*X);//sqrt(pow(y2-y1,2)+pow(x2-x1,2));
+  float Y=y2-y1;
+  float X=x2-x1;
+  float dist=sqrt(Y*Y+X*X);//sqrt(pow(y2-y1,2)+pow(x2-x1,2));
   return dist;
 }
 
-double GetSinAngle(double height,double length)
+float GetSinAngle(float height,float length)
 {
   return asin(height/length);
 }
 
-double GetCosAngle(double vertical_distance,double length)
+float GetCosAngle(float vertical_distance,float length)
 {
   return acos(vertical_distance/length);
 }
 
-double GetRotateAngle(double x,double y) 
+float GetRotateAngle(float x,float y) 
 {
-  double adj=0,hypo=0,E=0;
+  float adj=0,hypo=0,E=0;
   adj=x;
   hypo=GetDistance(x,y,0,0);
   E=acos(adj/hypo);
@@ -604,7 +604,7 @@ double GetRotateAngle(double x,double y)
 }
 
 //------------------------------------------------------------
-bool IsOutOfBounds(double x,double y,int r,int max_width,int max_height)
+bool IsOutOfBounds(float x,float y,int r,int max_width,int max_height)
 {
   if (x<=r || x>=max_width-r ||  //more than or less than
       y<=r || y>=max_height-r) { //
@@ -627,9 +627,9 @@ int LimitValueInt(int value, int min, int max)
 }
 
 
-double LimitValue(double value,double min,double max)
+float LimitValue(float value,float min,float max)
 {
-  double num=value;
+  float num=value;
   if (value>=max) {
     num=min;
   } else if (value<min) {
@@ -908,9 +908,9 @@ Ascii art woo!! :D
    *Al-Khwarizmi
 */
 
-double GetBounceAngle(double angle1,double angle2)
+float GetBounceAngle(float angle1,float angle2)
 {
-  double ans;
+  float ans;
   ans=2*M_PI-angle1+2*angle2;
   //if (ans>2*M_PI || ans<0) {
   if (ans>0) {
@@ -937,9 +937,9 @@ double GetBounceAngle(double angle1,double angle2)
 
 
 
-double GetMarbleAngle(double angle1,double angle2)
+float GetMarbleAngle(float angle1,float angle2)
 {
-  double x1,y1,x2,y2,rx,ry,ans;
+  float x1,y1,x2,y2,rx,ry,ans;
   x1=cos(angle1);
   y1=sin(angle1);
   x2=cos(angle2);

@@ -152,7 +152,7 @@ void DrawGlassTriangle(BYTE* pDst, int width, int _x1, int _y1, int _x2, int _y2
 
  
 //=============
-  double
+  float
     gradient_middle1,gradient_middle2,gradient_largest,
     c_middle1,c_middle2,c_largest,
     smallest=INT_MAX,largest=0,
@@ -218,7 +218,7 @@ void DrawGlassTriangle(BYTE* pDst, int width, int _x1, int _y1, int _x2, int _y2
 
   for (int r=0;r<2;r++) {
     int miny,maxy;
-    double gradient1,gradient2,c1,c2;
+    float gradient1,gradient2,c1,c2;
     switch (r) {
       case 0: //smallest to middle
         miny=smallest_y;
@@ -280,7 +280,7 @@ void DrawGlassTriangle(BYTE* pDst, int width, int _x1, int _y1, int _x2, int _y2
 void FastDrawTexturedTriangle(BYTE *pDst, int _x1, int _y1, int _x2, int _y2, int _x3, int _y3, int width, BYTE *pTexture, int twidth, int theight) 
 {
 //=============
-  double
+  float
     gradient_middle1,gradient_middle2,gradient_largest,
     c_middle1,c_middle2,c_largest,
     smallest=INT_MAX,largest=0,
@@ -349,7 +349,7 @@ void FastDrawTexturedTriangle(BYTE *pDst, int _x1, int _y1, int _x2, int _y2, in
 
   for (int r=0;r<2;r++) {
     int miny,maxy;
-    double gradient1,gradient2,c1,c2;
+    float gradient1,gradient2,c1,c2;
     switch (r) {
       case 0: //smallest to middle
         miny=smallest_y;

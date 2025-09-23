@@ -239,7 +239,7 @@ void MapEditorKeypressDown(WPARAM wParam)
             break;
           case 3:
             MapEditor.selected_enemy_type_option=
-                LimitValueInt(MapEditor.selected_enemy_type_option+1,0,ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM+ENEMY_TYPE_BOOL_ATTR_NUM+1);
+                LimitValueInt(MapEditor.selected_enemy_type_option+1,0,ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_float_ATTR_NUM+ENEMY_TYPE_BOOL_ATTR_NUM+1);
             break;
           case 4:
             MapEditor.selected_lvl_ambient_option=LimitValueInt(MapEditor.selected_lvl_ambient_option+1,0,9);
@@ -267,7 +267,7 @@ void MapEditorKeypressDown(WPARAM wParam)
             MapEditor.selected_enemy_option=LimitValueInt(MapEditor.selected_enemy_option-1,0,2);
             break;
           case 3:
-            MapEditor.selected_enemy_type_option=LimitValueInt(MapEditor.selected_enemy_type_option-1,0,ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM+ENEMY_TYPE_BOOL_ATTR_NUM+1);
+            MapEditor.selected_enemy_type_option=LimitValueInt(MapEditor.selected_enemy_type_option-1,0,ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_float_ATTR_NUM+ENEMY_TYPE_BOOL_ATTR_NUM+1);
             break;
           case 4:
             MapEditor.selected_lvl_ambient_option=LimitValueInt(MapEditor.selected_lvl_ambient_option-1,0,9);
@@ -363,16 +363,16 @@ void MapEditorKeypressDown(WPARAM wParam)
                     LimitValueInt(set_enemy_type_int_attr[3][MapEditor.selected_enemy_type_id],1,1+set_enemy_type_int_attr[1][MapEditor.selected_enemy_type_id]);
                 }
 
-              } else if (seto>=ENEMY_TYPE_INT_ATTR_NUM && seto<ENEMY_TYPE_DOUBLE_ATTR_NUM+ENEMY_TYPE_INT_ATTR_NUM) { //double values
+              } else if (seto>=ENEMY_TYPE_INT_ATTR_NUM && seto<ENEMY_TYPE_float_ATTR_NUM+ENEMY_TYPE_INT_ATTR_NUM) { //float values
                 seto-=ENEMY_TYPE_INT_ATTR_NUM;
-                set_enemy_type_double_attr[seto][MapEditor.selected_enemy_type_id]=
+                set_enemy_type_float_attr[seto][MapEditor.selected_enemy_type_id]=
                 LimitValue(
-                  set_enemy_type_double_attr[seto][MapEditor.selected_enemy_type_id]-enemy_double_attr_delta[seto],
-                  enemy_double_attr_min[seto],
-                  enemy_double_attr_max[seto]+1
+                  set_enemy_type_float_attr[seto][MapEditor.selected_enemy_type_id]-enemy_float_attr_delta[seto],
+                  enemy_float_attr_min[seto],
+                  enemy_float_attr_max[seto]+1
                 );                
               } else { //bool values
-                seto-=(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM);
+                seto-=(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_float_ATTR_NUM);
                 set_enemy_type_bool_attr[seto][MapEditor.selected_enemy_type_id]=!set_enemy_type_bool_attr[seto][MapEditor.selected_enemy_type_id];
               }
               }
@@ -487,16 +487,16 @@ void MapEditorKeypressDown(WPARAM wParam)
                     LimitValueInt(set_enemy_type_int_attr[3][MapEditor.selected_enemy_type_id],1,1+set_enemy_type_int_attr[1][MapEditor.selected_enemy_type_id]);
                 }
 
-              } else if (seto>=ENEMY_TYPE_INT_ATTR_NUM && seto<ENEMY_TYPE_DOUBLE_ATTR_NUM+ENEMY_TYPE_INT_ATTR_NUM) { //double values
+              } else if (seto>=ENEMY_TYPE_INT_ATTR_NUM && seto<ENEMY_TYPE_float_ATTR_NUM+ENEMY_TYPE_INT_ATTR_NUM) { //float values
                 seto-=ENEMY_TYPE_INT_ATTR_NUM;
-                set_enemy_type_double_attr[seto][MapEditor.selected_enemy_type_id]=
+                set_enemy_type_float_attr[seto][MapEditor.selected_enemy_type_id]=
                 LimitValue(
-                  set_enemy_type_double_attr[seto][MapEditor.selected_enemy_type_id]+enemy_double_attr_delta[seto],
-                  enemy_double_attr_min[seto],
-                  enemy_double_attr_max[seto]
+                  set_enemy_type_float_attr[seto][MapEditor.selected_enemy_type_id]+enemy_float_attr_delta[seto],
+                  enemy_float_attr_min[seto],
+                  enemy_float_attr_max[seto]
                 );                
               } else { //bool values
-                seto-=(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM);
+                seto-=(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_float_ATTR_NUM);
                 set_enemy_type_bool_attr[seto][MapEditor.selected_enemy_type_id]=!set_enemy_type_bool_attr[seto][MapEditor.selected_enemy_type_id];
               }
               }

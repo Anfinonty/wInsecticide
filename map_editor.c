@@ -76,8 +76,8 @@ struct MapEditor
   //Shooting bullet
   bool demo_enemy_spriteisleft;
   int demo_enemy_spritecooldown;  
-  double demo_enemy_spritex;
-  double demo_enemy_spritey;
+  float demo_enemy_spritex;
+  float demo_enemy_spritey;
 
   int bullet_cooldown;
   int bullet_fire_cooldown;
@@ -96,7 +96,7 @@ struct MapEditor
 
 typedef struct MEEnemy
 {
-  double x,y;
+  float x,y;
   int type;
 } AMEEnemy;
 
@@ -156,7 +156,7 @@ void CleanUpMEEnemySprites()
 /*Set Enemy Type will be in the stack to be consistent with Saved Enemy Type being in the stack*/
 
 #define ENEMY_TYPE_INT_ATTR_NUM 20
-#define ENEMY_TYPE_DOUBLE_ATTR_NUM 2
+#define ENEMY_TYPE_float_ATTR_NUM 2
 #define ENEMY_TYPE_BOOL_ATTR_NUM 1
 
 int enemy_int_attr_min[ENEMY_TYPE_INT_ATTR_NUM]=
@@ -257,10 +257,10 @@ int *set_enemy_type_int_attr[ENEMY_TYPE_INT_ATTR_NUM]=
 };
 
 
-double enemy_double_attr_min[ENEMY_TYPE_DOUBLE_ATTR_NUM]={0,0};
-double enemy_double_attr_max[ENEMY_TYPE_DOUBLE_ATTR_NUM]={1.0,1.0};
-double enemy_double_attr_delta[ENEMY_TYPE_DOUBLE_ATTR_NUM]={0.1,0.1};
-double *set_enemy_type_double_attr[ENEMY_TYPE_DOUBLE_ATTR_NUM]={
+float enemy_float_attr_min[ENEMY_TYPE_float_ATTR_NUM]={0,0};
+float enemy_float_attr_max[ENEMY_TYPE_float_ATTR_NUM]={1.0,1.0};
+float enemy_float_attr_delta[ENEMY_TYPE_float_ATTR_NUM]={0.1,0.1};
+float *set_enemy_type_float_attr[ENEMY_TYPE_float_ATTR_NUM]={
   set_enemy_type_speed,
   set_enemy_type_bullet_speed
 };
@@ -285,7 +285,7 @@ int melvlambience_max[9]={
 void SetMENodeGridAttributes2(int i)
 {
   int j=0,x=0,y=0,lg_grid_id=0,min=0,max=0,x1=0,y1=0;
-  double gradient1,gradient2,c1,c2,lg_x=0,lg_y=0,gradient=0,c=0;
+  float gradient1,gradient2,c1,c2,lg_x=0,lg_y=0,gradient=0,c=0;
   gradient1=GetGradient(Ground[i]->x1,Ground[i]->y1,Ground[i]->x3,Ground[i]->y3);
   gradient2=GetGradient(Ground[i]->x2,Ground[i]->y2,Ground[i]->x3,Ground[i]->y3);
   c1=GetGroundC(Ground[i]->x3,Ground[i]->y3,gradient1);
@@ -342,7 +342,7 @@ void SetMENodeGridAttributes2(int i)
 void SetMENodeGridAttributes(int i)
 {
   int lg_grid_id=0,node_grid_id=0,x=0,y=0,min=0,max=0;
-  double lg_x=0,lg_y=0;
+  float lg_x=0,lg_y=0;
   if (-1<Ground[i]->gradient && Ground[i]->gradient<1) { // y=mx+c
     for (x=Ground[i]->x1;x<Ground[i]->x2;x++) {
       lg_y=x*Ground[i]->gradient+Ground[i]->c;
@@ -424,6 +424,7 @@ void InitMERDGrid()
     }
   }
   //Sort
+  draw_rendered_ground_num=rendered_ground_num;
   quicksort(render_grounds, 0, rendered_ground_num-1);
 }
 
@@ -457,7 +458,7 @@ void InitMENodeGridAttributes()
 void DestroyMEGround2(int i)
 {
   int j=0,x=0,y=0,lg_grid_id=0,min=0,max=0,x1=0,y1=0;
-  double gradient1,gradient2,c1,c2,lg_x=0,lg_y=0,gradient=0,c=0;
+  float gradient1,gradient2,c1,c2,lg_x=0,lg_y=0,gradient=0,c=0;
   gradient1=GetGradient(Ground[i]->x1,Ground[i]->y1,Ground[i]->x3,Ground[i]->y3);
   gradient2=GetGradient(Ground[i]->x2,Ground[i]->y2,Ground[i]->x3,Ground[i]->y3);
   c1=GetGroundC(Ground[i]->x3,Ground[i]->y3,gradient1);
@@ -515,7 +516,7 @@ void DestroyMEGround2(int i)
 void DestroyMEGround(int i)
 {
   int lg_grid_id=0,x=0,y=0,min=0,max=0;
-  double lg_x=0,lg_y=0;
+  float lg_x=0,lg_y=0;
   if (-1<Ground[i]->gradient && Ground[i]->gradient<1) {
     for (x=Ground[i]->x1;x<Ground[i]->x2;x++) {
       lg_y=x*Ground[i]->gradient+Ground[i]->c;
@@ -647,6 +648,7 @@ void InitMapEditorPlayer()
 void InitMapEditor()
 {
   rendered_ground_num=0;
+  draw_rendered_ground_num=0;
 
   MapEditor.selected_option=0;
 
@@ -819,7 +821,7 @@ void InitLevelMapEditor()
 
 
 //Logic
-void MEmove_x(double x)
+void MEmove_x(float x)
 {
   player.cam_x-=x;
   //limiter x
@@ -829,7 +831,7 @@ void MEmove_x(double x)
     player.cam_x=-MAP_WIDTH+5;
 }
 
-void MEmove_y(double y)
+void MEmove_y(float y)
 {
   player.cam_y-=y;
   //limiter y
@@ -976,7 +978,7 @@ void MapEditorAct()
         int q=MapEditor.selected_enemy_type_id;
         int slash_time=1;
         int dice=0;
-        double unchase_dist=0;
+        float unchase_dist=0;
         if (mouse_x-1<=MapEditor.demo_enemy_spritex && MapEditor.demo_enemy_spritex<=mouse_x+1 &&
             mouse_y-1<=MapEditor.demo_enemy_spritey && MapEditor.demo_enemy_spritey<=mouse_y+1) {
           MapEditor.demo_enemy_spritecooldown=300;
@@ -1045,7 +1047,7 @@ void MapEditorAct()
                 if (MapEditor.bullet_length==0) {
                   for (int j=0;j<set_enemy_type_bullet_fire_at_once[q];j++) {//shoot several bullets at once
 	                    //MapEditor.bullet_head_x[j]=8+RandNum(-set_enemy_type_aim_rand[q],set_enemy_type_aim_rand[q],player.seed);
-	                    //MapEditor.bullet_head_y[j]=32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_DOUBLE_ATTR_NUM)+16*3+RandNum(-set_enemy_type_aim_rand[q],set_enemy_type_aim_rand[q],player.seed);
+	                    //MapEditor.bullet_head_y[j]=32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_float_ATTR_NUM)+16*3+RandNum(-set_enemy_type_aim_rand[q],set_enemy_type_aim_rand[q],player.seed);
 	                  MapEditor.bullet_head_x[j]=mouse_x+RandNum(-set_enemy_type_aim_rand[q],set_enemy_type_aim_rand[q],&misc_rng_i,-1);
 	                  MapEditor.bullet_head_y[j]=mouse_y+RandNum(-set_enemy_type_aim_rand[q],set_enemy_type_aim_rand[q],&misc_rng_i,-1);
                   }
@@ -1055,8 +1057,8 @@ void MapEditorAct()
 
                 if (MapEditor.bullet_cooldown<=0) {
                   for (int j=0;j<set_enemy_type_bullet_fire_at_once[q];j++) {//several bullets at once
-	                double shoot_target_x= MapEditor.bullet_head_x[j];
-    	  	        double shoot_target_y= MapEditor.bullet_head_y[j];
+	                float shoot_target_x= MapEditor.bullet_head_x[j];
+    	  	        float shoot_target_y= MapEditor.bullet_head_y[j];
                     ShootBullet(current_bullet_id,
                         -1,//Enemy[i]->bullet_shot_num,
                         rgbPaint[set_enemy_type_bullet_color[q]],//Enemy[i]->bullet_color,
@@ -1146,6 +1148,8 @@ void CleanupMapEditorAll()
     free(saved_ground_y3);
 
     rendered_ground_num=0;
+    draw_rendered_ground_num=0;
+
     for (int i=0;i<GROUND_NUM;i++) {
       free(saved_ground_text[i]);
     }

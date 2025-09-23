@@ -53,7 +53,7 @@ int smallest_f_cost(int enemy_id)
   }
 }
 
-void InitEnemyPathfinding(int enemy_id,double target_x,double target_y)
+void InitEnemyPathfinding(int enemy_id,float target_x,float target_y)
 {
   int i=0,j=0,k=0,j2=0,x=0,y=0,
       start_node_x=0,start_node_y=0,
@@ -310,12 +310,12 @@ void EnemyPathFinding(int enemy_id)
 
 void EnemySpriteOnGroundId(int enemy_id,int ground_id)
 {
-    double ground_entity_angle=GetLineTargetAngle(ground_id,Enemy[enemy_id]->x,Enemy[enemy_id]->y);
-    double height_from_ground=GetLineTargetHeight(ground_id,ground_entity_angle,Enemy[enemy_id]->x,Enemy[enemy_id]->y);
-    double edge_1_dist=-1;
-    double edge_2_dist=-1;
-    double edge_angle=-1;
-    double distl=32;//34;
+    float ground_entity_angle=GetLineTargetAngle(ground_id,Enemy[enemy_id]->x,Enemy[enemy_id]->y);
+    float height_from_ground=GetLineTargetHeight(ground_id,ground_entity_angle,Enemy[enemy_id]->x,Enemy[enemy_id]->y);
+    float edge_1_dist=-1;
+    float edge_2_dist=-1;
+    float edge_angle=-1;
+    float distl=32;//34;
 
     if (Enemy[enemy_id]->species==1 && Enemy[enemy_id]->health<=0) {
       if  (height_from_ground<0) {
@@ -635,7 +635,7 @@ void EnemyMove(int enemy_id)
 void EnemyTargetPlayer(int i)
 {
   int target_node=0;
-  double target_x=0,target_y=0;
+  float target_x=0,target_y=0;
   int pfi=Enemy[i]->pathfinding_id;
   if (pfi!=-1) {
   Enemy[i]->idling=FALSE;
@@ -703,7 +703,7 @@ void EnemyTargetPlayer(int i)
 void EnemyLOSAct(int i)
 {
   int los_on_ground_id=0,j=0;
-  double x1=0,x2=0,y1=0,y2=0,bullet_gradient=0;
+  float x1=0,x2=0,y1=0,y2=0,bullet_gradient=0;
   bool allow_act=FALSE;
   for (j=0;j</*10*/15;j++) {//LOS Speed
     if (Enemy[i]->LOS_shot) {
@@ -773,8 +773,8 @@ void EnemyKnockbackMove(int i,int ground_id) //now with bouncing
       Enemy[i]->player_knockback=FALSE;
     }
 
-    double kb_x=cos(Enemy[i]->knockback_angle)*player.knockback_speed;
-    double kb_y=sin(Enemy[i]->knockback_angle)*player.knockback_speed;      
+    float kb_x=cos(Enemy[i]->knockback_angle)*player.knockback_speed;
+    float kb_y=sin(Enemy[i]->knockback_angle)*player.knockback_speed;      
     if (Enemy[i]->in_water) {
       kb_x/=2;
       kb_y/=2;
@@ -953,7 +953,7 @@ void EnemyActSuffocate(int i)
 
 
 
-void EnemyAntActOnGround(int i,double height_from_e_x,int ground_id,bool clockwise)
+void EnemyAntActOnGround(int i,float height_from_e_x,int ground_id,bool clockwise)
 { 
   if (ground_id!=-1) {
     Enemy[i]->angle=Ground[ground_id]->angle;
@@ -1047,10 +1047,10 @@ void EnemyAntActOnGround(int i,double height_from_e_x,int ground_id,bool clockwi
 void EnemyAntActOnGroundEdge(int i,bool clockwise)
 {
 
-  double edge_dist1;
-  double edge_dist2;
-  double edge_angle;
-  double distl=20;
+  float edge_dist1;
+  float edge_dist2;
+  float edge_angle;
+  float distl=20;
   if (!Enemy[i]->is_in_ground_edge) {
         if (Enemy[i]->on_ground_id!=-1) {
           edge_dist1=GetDistance(Enemy[i]->x,Enemy[i]->y,Ground[Enemy[i]->on_ground_id]->x1,Ground[Enemy[i]->on_ground_id]->y1); //left edge
@@ -1295,8 +1295,8 @@ void EnemyAntAct(int i,int slash_time_i)
         }
 
         if (Enemy[i]->on_ground_id!=-1) {
-          double ground_entity_E=GetLineTargetAngle(Enemy[i]->on_ground_id,Enemy[i]->x,Enemy[i]->y);
-          double height_from_e_x=GetLineTargetHeight(Enemy[i]->on_ground_id,ground_entity_E,Enemy[i]->x,Enemy[i]->y);
+          float ground_entity_E=GetLineTargetAngle(Enemy[i]->on_ground_id,Enemy[i]->x,Enemy[i]->y);
+          float height_from_e_x=GetLineTargetHeight(Enemy[i]->on_ground_id,ground_entity_E,Enemy[i]->x,Enemy[i]->y);
 
           if  ((Ground[Enemy[i]->on_ground_id]->x1-10<Enemy[i]->x &&  Enemy[i]->x<Ground[Enemy[i]->on_ground_id]->x2+10) &&
               ((Ground[Enemy[i]->on_ground_id]->y1-10<Enemy[i]->y && Enemy[i]->y<Ground[Enemy[i]->on_ground_id]->y2+10) ||
@@ -1363,7 +1363,7 @@ bool InsectBites(int i,int dmg,bool is_mosquito)
                if (player.block_health<=0) {
                  player.block_health=0;
                }
-               double dmg_delta=dmg;
+               float dmg_delta=dmg;
                if (player.block_health>10) { 
                  player.health-=dmg/(player.block_health/16+1);
                  dmg_delta=dmg/(player.block_health/16+1);
@@ -1440,7 +1440,7 @@ void EnemyAct(int i)
 	slash_time_i=0,
 	target_node=0,
 	knock_max=0;
-  double target_x=0,target_y=0;
+  float target_x=0,target_y=0;
   bool allow_act=FALSE;
   //Attack
   bool deduct_health=FALSE;
@@ -1538,7 +1538,7 @@ void EnemyAct(int i)
 
     for (int k=0;k<player.bullet_shot_num;k++) {
       int bk=player.bullet[k];
-      double dist_from_bullet0=GetDistance(Bullet[bk].x,Bullet[bk].y,Enemy[i]->x,Enemy[i]->y);
+      float dist_from_bullet0=GetDistance(Bullet[bk].x,Bullet[bk].y,Enemy[i]->x,Enemy[i]->y);
       if (dist_from_bullet0<=NODE_SIZE*10) {
         Enemy[i]->force_search=TRUE;
       }
@@ -1656,7 +1656,7 @@ void EnemyAct(int i)
     if (player.is_swinging && player.health>0) {
       for (int k=0;k<PLAYER_FLING_WEB_NUM;k++) {
         //knockback
-        double dist_from_web_string=GetDistance(player_fling_web.x[k],player_fling_web.y[k],Enemy[i]->x,Enemy[i]->y);
+        float dist_from_web_string=GetDistance(player_fling_web.x[k],player_fling_web.y[k],Enemy[i]->x,Enemy[i]->y);
         if (dist_from_web_string<NODE_SIZE*2 && Enemy[i]->on_ground_id==-1 && !Enemy[i]->web_stuck) {
           Enemy[i]->knockback_timer=player.knockback_strength;
           Enemy[i]->knockback_angle=player.angle_of_incidence;//player.pivot_angle+M_PI_2;
@@ -1667,7 +1667,7 @@ void EnemyAct(int i)
 
     //sniper web bullet-enemy interaction
     if (player.bullet_shot!=-1) {
-    double dist_from_bullet=GetDistance(Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y,Enemy[i]->x,Enemy[i]->y);
+    float dist_from_bullet=GetDistance(Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y,Enemy[i]->x,Enemy[i]->y);
     if (Enemy[i]->species==4 && !Enemy[i]->web_stuck) {
       if (dist_from_bullet<=NODE_SIZE*8) {
         slash_time=EnemyActDazzle(i,1000);
@@ -1781,7 +1781,7 @@ void EnemyAct(int i)
 
    //Enemy knockback & attacked
     allow_act=FALSE;
-    double distance_from_player_claws=GetDistance(Enemy[i]->x,Enemy[i]->y,player.claws_attack_x,player.claws_attack_y);
+    float distance_from_player_claws=GetDistance(Enemy[i]->x,Enemy[i]->y,player.claws_attack_x,player.claws_attack_y);
     switch (Enemy[i]->species) {
       case 0:case 2:case 4:case 5:case 6:case 7:
 	    if (!(Enemy[i]->time_breaker_length>0)) {
@@ -2277,8 +2277,8 @@ void EnemyAct(int i)
         //ensure doesnt get too close to ground, absolute;
         int tbgid=GetOnGroundId(Enemy[i]->x,Enemy[i]->y,2,2);
         if (tbgid!=-1) {
-            double ground_entity_E=GetLineTargetAngle(tbgid,Enemy[i]->x,Enemy[i]->y);
-            double height_from_e_x=GetLineTargetHeight(tbgid,ground_entity_E,Enemy[i]->x,Enemy[i]->y);
+            float ground_entity_E=GetLineTargetAngle(tbgid,Enemy[i]->x,Enemy[i]->y);
+            float height_from_e_x=GetLineTargetHeight(tbgid,ground_entity_E,Enemy[i]->x,Enemy[i]->y);
             EnemyAntActOnGround(i,height_from_e_x,tbgid,Enemy[i]->last_left);
             Enemy[i]->player_knockback=FALSE;          
             Enemy[i]->idling=TRUE;
@@ -2309,7 +2309,7 @@ void EnemyAct(int i)
 	          if (Enemy[i]->bullet_shot_num<500) {//shot less than 500 bullets
                 int bspeed_m=Enemy[i]->bullet_speed_multiplier,
                     bdmg=Enemy[i]->bullet_damage,btype=Enemy[i]->bullet_graphics_type;
-                double bspeed=Enemy[i]->bullet_speed,
+                float bspeed=Enemy[i]->bullet_speed,
                        brange=Enemy[i]->bullet_range;
                 if (Enemy[i]->web_stuck) { //shoot webstuck bullets
                   bspeed/=3;
@@ -2773,7 +2773,7 @@ void InitEnemySpritesObj()
 {
   int si;
   int species_i=0;
-  double angle_rn=0;
+  float angle_rn=0;
 
   //Generate Flysprites  
   for (int i=0;i<ENEMY_TYPE_NUM;i++) {
@@ -3137,7 +3137,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
      //WHILE ON GROUND EDGE
       if (Enemy[i]->is_in_ground_edge && Enemy[i]->health>0) {
         int le_angle;
-        double le_enemy_angle=Enemy[i]->angle;
+        float le_enemy_angle=Enemy[i]->angle;
         if ((Enemy[i]->species>=5 && Enemy[i]->species<=7)) {
           le_enemy_angle=Enemy[i]->sprite_angle;
         }
@@ -3168,7 +3168,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
      //ON GROUND ACTUAL
       } else if (Enemy[i]->on_ground_id!=-1) {
         int le_angle=8;
-        double le_enemy_angle=Enemy[i]->angle;
+        float le_enemy_angle=Enemy[i]->angle;
         if ((Enemy[i]->species>=5 && Enemy[i]->species<=7)) {
           le_enemy_angle=Enemy[i]->sprite_angle;
         }
@@ -3549,10 +3549,10 @@ void DrawEnemy(HDC hdc,HDC hdc2)
          */
          int al=44;
          const int al2=40;
-         double ang_offset=0.09;
-         const double ang_offset2=0.1;
-         double l_angle=-enemy_rotated_angle_arr[Enemy[i]->current_rot_sprite_angle_id];
-         double moving_ang_offset=0.00;
+         float ang_offset=0.09;
+         const float ang_offset2=0.1;
+         float l_angle=-enemy_rotated_angle_arr[Enemy[i]->current_rot_sprite_angle_id];
+         float moving_ang_offset=0.00;
          bool flip_bool;
          if (Enemy[i]->draw_falling || (Enemy[i]->sprite_in_water && !Enemy[i]->web_stuck)) {
            if (Enemy[i]->health>0) {
@@ -3606,8 +3606,8 @@ void DrawEnemy(HDC hdc,HDC hdc2)
         //percentage 
         c = LTRED;//Highlight(IsInvertedBackground(),LTRED,LTCYAN);
         c2 = WHITE;//Highlight(IsInvertedBackground(),WHITE,BLACK);
-        double percentage = Enemy[i]->health/Enemy[i]->max_health;
-        double health_length_max=64;
+        float percentage = Enemy[i]->health/Enemy[i]->max_health;
+        float health_length_max=64;
         if (Enemy[i]->species==1 || Enemy[i]->species==3) {
           health_length_max=100;
         }
@@ -3620,7 +3620,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
           }
         }
 
-        double health_length = health_length_max*percentage;
+        float health_length = health_length_max*percentage;
         if (Enemy[i]->species==1 || Enemy[i]->species==3) {
           GrRect(hdc,Enemy[i]->sprite_x-health_length/2-2,
                     Enemy[i]->sprite_y-58-2,

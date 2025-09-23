@@ -14,17 +14,17 @@ typedef struct GroundLine
 
   //int fire_ground_id;
 
-  double x1;
-  double y1;
-  double x2;
-  double y2;
-  double x3;
-  double y3; //3 Axes of ground
-  double length; // = sqrt(x^2 + y^2)) // Babylonian Trigonometry Theorem for Calculating the Hypothenuse
-  double gradient;// y of ground / x of ground
-  double c; //The C in y-mx_c
-  //double height_from_player_x;//= gradient * player_x + c
-  double angle; // = ACos of (x/length)
+  float x1;
+  float y1;
+  float x2;
+  float y2;
+  float x3;
+  float y3; //3 Axes of ground
+  float length; // = sqrt(x^2 + y^2)) // Babylonian Trigonometry Theorem for Calculating the Hypothenuse
+  float gradient;// y of ground / x of ground
+  float c; //The C in y-mx_c
+  //float height_from_player_x;//= gradient * player_x + c
+  float angle; // = ACos of (x/length)
   wchar_t text[512]; //for type 1 which is Text_ground
   bool already_in_grid[MAX_VGRID_NUM];
   int saved_pos_in_grid[MAX_VGRID_NUM];
@@ -89,15 +89,15 @@ AGroundFire** GroundFire;
 
 
 
-double GetLineTargetAngle(int Ground_id,double x,double y);
-double GetLineTargetHeight(int Ground_id,double E,double x,double y);
-double GetLineTargetHeightII(int Ground_id,double E,double x,double y);
+float GetLineTargetAngle(int Ground_id,float x,float y);
+float GetLineTargetHeight(int Ground_id,float E,float x,float y);
+float GetLineTargetHeightII(int Ground_id,float E,float x,float y);
 void SetGround(int i);
 void InitGround(bool is_max);
 void InitGround2();
-int GetOnGroundId(double x,double y,double min_range_1,double min_range_2);
-int GetOnGroundIdPlayer(double x,double y,double min_range_1,double min_range_2);
-int GetOnGroundIdE(double x,double y,double min_range_1,double min_range_2,int enemy_id);
+int GetOnGroundId(float x,float y,float min_range_1,float min_range_2);
+int GetOnGroundIdPlayer(float x,float y,float min_range_1,float min_range_2);
+int GetOnGroundIdE(float x,float y,float min_range_1,float min_range_2,int enemy_id);
 void DestroyGround(int i);
 
 
@@ -130,6 +130,7 @@ struct RenderDistanceGrid
 
 //map editor only
 int rendered_ground_num;
+int draw_rendered_ground_num;
 int *render_grounds;
 
 
@@ -293,64 +294,64 @@ struct player
   int blur_sprite_x[PLAYER_BLUR_NUM];
   int blur_sprite_y[PLAYER_BLUR_NUM];
 
-  double knockback_speed;
-  double attack_strength;
-  double saved_x;
-  double saved_y;
-  double x;
-  double y;
-  double below_x1;
-  double below_y1;
-  double below_x2;
-  double below_y2;
-  double above_x;
-  double above_y;
-  double above_head_x;
-  double above_head_y;
-  double above_x1;
-  double above_y1;
-  double above_x2;
-  double above_y2;
-//  double sprite_angle;
-  double angle;
-  double edge_angle;
-  double saved_angle;
-//  double saved_sprite_angle;
-//  double saved_block_sprite_angle;
-//  double saved_attack_sprite_angle;
-  double player_grav;
-  double cam_x;
-  double cam_y;
-  double cam_move_x;
-  double cam_move_y;
-  double cam_mouse_move_x;
-  double cam_mouse_move_y;
+  float knockback_speed;
+  float attack_strength;
+  float saved_x;
+  float saved_y;
+  float x;
+  float y;
+  float below_x1;
+  float below_y1;
+  float below_x2;
+  float below_y2;
+  float above_x;
+  float above_y;
+  float above_head_x;
+  float above_head_y;
+  float above_x1;
+  float above_y1;
+  float above_x2;
+  float above_y2;
+//  float sprite_angle;
+  float angle;
+  float edge_angle;
+  float saved_angle;
+//  float saved_sprite_angle;
+//  float saved_block_sprite_angle;
+//  float saved_attack_sprite_angle;
+  float player_grav;
+  float cam_x;
+  float cam_y;
+  float cam_move_x;
+  float cam_move_y;
+  float cam_mouse_move_x;
+  float cam_mouse_move_y;
   int cam_limiter_x;
   int cam_limiter_y;
-  double sprite_x;
-  double sprite_y;
-  double claws_x;
-  double claws_y;
-  double claws_attack_x;
-  double claws_attack_y;
+  float sprite_x;
+  float sprite_y;
+  float claws_x;
+  float claws_y;
+  float claws_attack_x;
+  float claws_attack_y;
 
-  double block_health_max;
-  double block_health;
+  float block_health_max;
+  float block_health;
 
 
-  double health;
-  double pivot_x;
-  double pivot_y;
-  double pivot_angle;
-  double pivot_length;
-  double jump_angle;
-  double jump_angle2;
-  double fling_distance;
-  double angle_of_incidence;
-  double angle_of_reflection;
+  float health;
+  float pivot_x;
+  float pivot_y;
+  float pivot_angle;
+  float pivot_length;
+  float jump_angle;
+  float jump_angle2;
+  float fling_distance;
+  float angle_of_incidence;
+  float angle_of_reflection;
 
-  double mouse_angle;
-  double mouse_dist;
+  float mouse_angle;
+  float mouse_dist;
 
 
   int web_storage[MAX_WEB_NUM];
@@ -361,10 +362,10 @@ struct player
 
 struct PlayerFlingWeb {
   //player shot web attributes
-  double x[PLAYER_FLING_WEB_NUM];
-  double y[PLAYER_FLING_WEB_NUM];
-  double sprite_x[PLAYER_FLING_WEB_NUM];
-  double sprite_y[PLAYER_FLING_WEB_NUM];
+  float x[PLAYER_FLING_WEB_NUM];
+  float y[PLAYER_FLING_WEB_NUM];
+  float sprite_x[PLAYER_FLING_WEB_NUM];
+  float sprite_y[PLAYER_FLING_WEB_NUM];
 } player_fling_web;
 
 
@@ -372,10 +373,10 @@ struct PlayerFlingWeb {
 
 bool IsSpeedBreaking();
 void Click();
-void move_x(double x);
-void move_y(double y);
-void CameraInit(double x,double y);
-void InitPlayerCamera(double target_x,double target_y);
+void move_x(float x);
+void move_y(float y);
+void CameraInit(float x,float y);
+void InitPlayerCamera(float target_x,float target_y);
 void PlayerPlaceWeb();
 void PlayerActPlaceWeb(int bm_x1,int bm_y1,int bm_x2,int bm_y2);
 void InitPlayerSpritesAll();
@@ -501,7 +502,7 @@ void TriFillNodeGridType(int gid);
 void InitNodeGridAttributes();
 void DrawNodeGrids(HDC hdc);
 void DrawShadows2(HDC hdcSrc,HDC hdcDest,int x,int y,bool t);
-void CreatePlatformShadowBitmap(HDC hdc,double rise,double run,int color);
+void CreatePlatformShadowBitmap(HDC hdc,float rise,float run,int color);
 HBITMAP GenerateColoredTexture(int loaded_ptexture_id, int solid_value,int color_id);
 //void DrawGrid(HDC hdc);
 
@@ -539,23 +540,23 @@ struct Bullet
 
   int rng_i;
 
-  double oangle;
-  double oscilating_angle;
-  double oscilating_angle_max;
-  double oscilating_angle_delta;
+  float oangle;
+  float oscilating_angle;
+  float oscilating_angle_max;
+  float oscilating_angle_delta;
 
-  double damage;
-  double sprite_x;
-  double sprite_y;
-  double start_x;
-  double start_y;
-  double x;
-  double y;
-  double angle;
-  double speed;
-  double ospeed;
-  double range;
-  double start_range;
+  float damage;
+  float sprite_x;
+  float sprite_y;
+  float start_x;
+  float start_y;
+  float x;
+  float y;
+  float angle;
+  float speed;
+  float ospeed;
+  float range;
+  float start_range;
 
 } Bullet[BULLET_NUM];
 
@@ -566,17 +567,17 @@ void ShootBullet(
   int color,
   int graphics_type,
   int range,
-  double speed,
+  float speed,
   int speed_multiplier,
-  double damage,
+  float damage,
   int enemy_id,
-  double start_x,
-  double start_y,
-  double source_x,
-  double source_y,
-  double target_x,
-  double target_y,
-  double off_angle);
+  float start_x,
+  float start_y,
+  float source_x,
+  float source_y,
+  float target_x,
+  float target_y,
+  float off_angle);
 void BulletDamagePlayerAct(int bullet_id);
 
 bool HitPlayer(int bullet_id,int r1,int r2);
@@ -594,7 +595,7 @@ void BulletAct(int bullet_id);
 void BulletSndAct(int i);
 void RainAct();
 
-void DrawBullet2(HDC hdc,HDC hdc2,int i,double x,double y,int color);
+void DrawBullet2(HDC hdc,HDC hdc2,int i,float x,float y,int color);
 void DrawBullet(HDC hdc,HDC hdc2,int i);
 void DrawRain(HDC hdc,HDC hdc2);
 
@@ -760,24 +761,24 @@ typedef struct enemy
 
   int antannae_timer;
 
-  double health;
-  double max_health;
-  double LOS_x;
-  double LOS_y;
-  double LOS_angle;
-  double LOS_target_x;
-  double LOS_target_y;
-  double bullet_speed;
-  double shoot_target_x;
-  double shoot_target_y;
-  double x;
-  double y;
-  double angle;
-  double sprite_angle;
-  double dist_from_player;
-  double speed;
-  double ospeed;
-  double knockback_angle;
+  float health;
+  float max_health;
+  float LOS_x;
+  float LOS_y;
+  float LOS_angle;
+  float LOS_target_x;
+  float LOS_target_y;
+  float bullet_speed;
+  float shoot_target_x;
+  float shoot_target_y;
+  float x;
+  float y;
+  float angle;
+  float sprite_angle;
+  float dist_from_player;
+  float speed;
+  float ospeed;
+  float knockback_angle;
 
 
   //6715632
@@ -861,7 +862,7 @@ AEnemyPathfinding **EnemyPathfinding;
 
 int CalculateDistanceCost(int enemy_id,int a, int b);
 int smallest_f_cost(int enemy_id);
-void InitEnemyPathfinding(int enemy_id,double target_x,double target_y);
+void InitEnemyPathfinding(int enemy_id,float target_x,float target_y);
 void EnemyPathFinding(int enemy_id);
 void EnemySpriteOnGroundId(int enemy_id,int ground_id);
 void LargeEnemySpriteTimer(int enemy_id);
@@ -873,7 +874,7 @@ void EnemyKnockbackMove(int i,int ground_id);
 void EnemySndAct(int i);
 int EnemyActDazzle(int i, int slash_t);
 void EnemyActWebStuck(int i);
-void EnemyAntActOnGround(int i,double height_from_e_x,int ground_id,bool clockwise);
+void EnemyAntActOnGround(int i,float height_from_e_x,int ground_id,bool clockwise);
 void EnemyAntActOnGroundEdge(int i,bool clockwise);
 void EnemyAntGravity(int enemy_id);
 void EnemyAntActGravity(int i,int slash_time_i);
@@ -1132,10 +1133,10 @@ struct shooting_star
   //int start_time;
   int cooldown;
   int lifetime;
-  double x;
-  double y;
-  double speed;
-  double angle;
+  float x;
+  float y;
+  float speed;
+  float angle;
 } SStar[SSTAR_NUM];
 
 
@@ -1342,7 +1343,7 @@ struct screenraindrop
 {
   //bool once;
   int lifetime,olifetime;
-  double oy,x,y,speed;
+  float oy,x,y,speed;
 } sc_raindrop[SC_RAINDROP_NUM];
 
 
@@ -1379,4 +1380,4 @@ int misc_rng_i=0;
 int sstar_rng_i;
 
 
-double enemy_rotated_angle_arr[ROTATED_SPRITE_NUM];
+float enemy_rotated_angle_arr[ROTATED_SPRITE_NUM];

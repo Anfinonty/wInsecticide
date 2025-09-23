@@ -417,9 +417,9 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4,int z)
     } else {
       sprintf(r_txt,"");
     }
-   double nc_=0;
+   float nc_=0;
    if (!stop_playing_song[z]) {
-     double _d=audioData[z].sps_o*2;
+     float _d=audioData[z].sps_o*2;
      if (_d!=0) {
        nc_=audioData[z].sps_offset/_d;
      }
@@ -527,7 +527,7 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
   if (!hide_taskbar) { //task bar is shown
     mcalendar_y-=8*3; //go up abit
   }
-  double moon_angle=0; 
+  float moon_angle=0; 
   //Space Clock
   //Draw blue marbel
   //if (GR_WIDTH>=800 && lunar_day<=26) {
@@ -551,7 +551,7 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
     moon_angle=-moon_angle_shift;
 
   for (int i=0;i<27;i++) {
-    double tmp_angle=-2*M_PI/27 * i - moon_angle_shift;
+    float tmp_angle=-2*M_PI/27 * i - moon_angle_shift;
     if (i>1 && i<26) {
       GrCircle(hdc,mcalendar_x + mcalendar_l*cos(tmp_angle), mcalendar_y + mcalendar_l*sin(tmp_angle),5,BLACK,DKGRAY);
     } else {
@@ -760,7 +760,7 @@ void DrawTitle(HDC hdc,HDC hdc2)
 
 void DrawMusicWav(HDC hdc)
 {
-  double c_x1,c_x2,c_y1,c_y2,prev_x1,prev_x2,prev_y1,prev_y2;
+  float c_x1,c_x2,c_y1,c_y2,prev_x1,prev_x2,prev_y1,prev_y2;
   int djbgcolor=player_color;
   /*djbgcolor=player_color+(audioData[gct].played_units/4)*16;  
   if (djbgcolor>255) {
@@ -788,7 +788,7 @@ void DrawMusicWav(HDC hdc)
   GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,rgbPaint[djbgcolor]);
 
   int z_m=2;
-  double z_m_height=0.006; //taller when 1 playing, shorter when 2 playing
+  float z_m_height=0.006; //taller when 1 playing, shorter when 2 playing
   if (stop_playing_song[1]) { //wav 2 not playing
     z_m=1;    
   }
@@ -818,16 +818,16 @@ void DrawMusicWav(HDC hdc)
       if (!stop_playing_song[z]) {
         for (int i=0;i<chosen_buffer_length_o;i++) {
             //if (audioData[z].buffer1[i]>20000) {
-              c_x1=((double)i/chosen_buffer_length_o)*GR_WIDTH;
+              c_x1=((float)i/chosen_buffer_length_o)*GR_WIDTH;
               c_y1=_y+audioData[z].buffer1[i]*z_m_height;//*audioData[z].volume*0.006;
             //}
             //if (audioData[z].buffer2[i]>20000)
-              c_x2=((double)i/chosen_buffer_length_o)*GR_WIDTH;
+              c_x2=((float)i/chosen_buffer_length_o)*GR_WIDTH;
               c_y2=_y+audioData[z].buffer2[i]*z_m_height;//*audioData[z].volume*0.006;
             //}
 
             if (wav_mode==1) {
-                if (audioData[z].double_buffer) {
+                if (audioData[z].float_buffer) {
                   GrLine(hdc,prev_x1,prev_y1,c_x1,c_y1,rgbPaint[player_iris_color]);
                 } else {
                   GrLine(hdc,prev_x2,prev_y2,c_x2,c_y2,rgbPaint[player_pupil_color]);
@@ -883,7 +883,7 @@ void DrawMusicWav(HDC hdc)
           GrLine(hdc,0,cy2,GR_WIDTH,cy2,rgbPaint[player_pupil_color]);
 
           for (int j=0;j<audioData[z].read_size;j+=128) {
-              c_x1=((GR_WIDTH/READ_BUFFER_NUM)*i) + ((double)j/audioData[z].read_size)*(GR_WIDTH/5);
+              c_x1=((GR_WIDTH/READ_BUFFER_NUM)*i) + ((float)j/audioData[z].read_size)*(GR_WIDTH/5);
               c_y1=_y+audioData[z].read_buffer[audio_index][j]*0.0012*(1+GR_HEIGHT/480);//audioData[z].volume*0.006;
             if (!beat_line) {
               memcpy(amp,audioData[z].read_buffer[audio_index],audioData[z].read_size);
@@ -1145,7 +1145,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
     case 0:
     {
       int current_page=(level_chosen/max_lvl_rows)+1;
-      double max_page=ceil(((double)(level_num)/max_lvl_rows));
+      float max_page=ceil(((float)(level_num)/max_lvl_rows));
       sprintf(page_num,"Levels - [%d/%1.0f]",current_page,max_page);
       GrPrint(hdc,30,main_menu_y+10+32,page_num,WHITE);
 
@@ -1742,7 +1742,7 @@ void DrawUI(HDC hdc,HDC hdc2)
 
   char gamebesttimetxt[32];
   wchar_t wgamebesttimetxt[32];
-  double best_time=double_best_score;
+  double best_time=float_best_score;
 
   char enemykills[10];
   wchar_t wenemykills[10];
@@ -1942,11 +1942,11 @@ void DrawUI(HDC hdc,HDC hdc2)
   c3 = LTGRAY;//Highlight(IsInvertedBackground(),LTGRAY,DKGRAY);
 
   if (player.health>0) {
-  double percentage=player.health/DEFAULT_PLAYER_HEALTH;
-  double health_length=64*percentage;
+  float percentage=player.health/DEFAULT_PLAYER_HEALTH;
+  float health_length=64*percentage;
 
-  double bpercentage=player.block_health/player.block_health_max;
-  double bhealth_length=150*bpercentage;
+  float bpercentage=player.block_health/player.block_health_max;
+  float bhealth_length=150*bpercentage;
 
   //Draw Block Health
   if (player.show_block_health_timer>0 || (player.health<=PLAYER_LOW_HEALTH+1)) {
@@ -2004,9 +2004,9 @@ void DrawUI(HDC hdc,HDC hdc2)
   //hehehehe
   if (player.type==0) {
   for (i=0;i<player.speed;i++) {
-    double speed_angle=i*0.1;
-    double speed_dist=64;
-    double angle_limit=M_PI_4+M_PI_2;
+    float speed_angle=i*0.1;
+    float speed_dist=64;
+    float angle_limit=M_PI_4+M_PI_2;
     if (speed_angle>angle_limit) {
       int speed_times=speed_angle/angle_limit;
       speed_angle-=angle_limit*speed_times;
@@ -2159,7 +2159,7 @@ void DrawUI(HDC hdc,HDC hdc2)
   const int tb_circle_r=8;
   if (player.time_breaker_units<player.time_breaker_units_max || (player.time_breaker_units==player.time_breaker_units_max && frame_tick%16<8)) {
   for (i=0;i<player.time_breaker_units;i++) {
-    double tb_angle=M_PI_2+2*M_PI_2/player.time_breaker_units_max*i*2;
+    float tb_angle=M_PI_2+2*M_PI_2/player.time_breaker_units_max*i*2;
     if (player.time_breaker || (IsSpeedBreaking() && game_hard)) {
       if ((player.time_breaker_units<=4 && frame_tick%10<5) || player.time_breaker_units>4) {
         GrCircle(hdc,
@@ -2187,7 +2187,7 @@ void DrawUI(HDC hdc,HDC hdc2)
   if (player.time_breaker_units==player.time_breaker_units_max && !player.time_breaker) {
     int frame_t=frame_tick%20;
     for (i=0;i<3;i++) {
-      double tb_angle=M_PI_2+2*M_PI_2/player.time_breaker_units_max*(frame_t-i)*2;
+      float tb_angle=M_PI_2+2*M_PI_2/player.time_breaker_units_max*(frame_t-i)*2;
       /*GrCircle(hdc,
         player.sprite_x-32*cos(tb_angle),
         player.sprite_y-32*sin(tb_angle),
@@ -2284,7 +2284,7 @@ void DrawUI(HDC hdc,HDC hdc2)
 struct marble
 {
   int color_id;
-  double x,y,angle;
+  float x,y,angle;
 } marble[MARBLE_NUM];
 
 void InitMarbles(int max_marbles)
@@ -2362,7 +2362,7 @@ void DrawLoading(HDC hDC/*,int max_marbles*/)
     DrawSprite(hDC,mouse_x-2,mouse_y-2,&draw_player_cursor_pupil[0],FALSE);*/
 
   int extra_y=0;
-  double grectl=(GR_WIDTH-34-34)*loading_percentage;
+  float grectl=(GR_WIDTH-34-34)*loading_percentage;
   if (!hide_taskbar) {
     extra_y=32;
   }

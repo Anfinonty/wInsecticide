@@ -92,12 +92,12 @@ void DrawBackground(HDC hdc,HDC hdc2)
     cx3=player.cam_limiter_x,
     cy3=player.cam_limiter_y;
 
-  double parralax_x=0;
-  double parralax_y=0;
-  double _ppx=((player.x-cx1-cx2-cx3)/MAP_WIDTH);
-  double _ppy=((player.y-cy1-cy2-cy3)/MAP_HEIGHT);
-  double ppx=(MAP_WIDTH-(player.x-cx1-cx2-cx3))/MAP_WIDTH;
-  double ppy=(MAP_HEIGHT-(player.y-cy1-cy2-cy3))/MAP_HEIGHT;
+  float parralax_x=0;
+  float parralax_y=0;
+  float _ppx=((player.x-cx1-cx2-cx3)/MAP_WIDTH);
+  float _ppy=((player.y-cy1-cy2-cy3)/MAP_HEIGHT);
+  float ppx=(MAP_WIDTH-(player.x-cx1-cx2-cx3))/MAP_WIDTH;
+  float ppy=(MAP_HEIGHT-(player.y-cy1-cy2-cy3))/MAP_HEIGHT;
   parralax_x=(-GR_WIDTH/8)+GR_WIDTH/16*ppx; 
   parralax_y=(-GR_HEIGHT/8)+GR_HEIGHT/16*ppy;
   int draw_p_px=(int)parralax_x;
@@ -379,22 +379,22 @@ void DrawAlphaWaterColour(BYTE *pDst)
     cy3=player.cam_limiter_y;
   int x1,y1,x2,y2,x3,y3;
   int i,c;
-  //const double scalex=1.0023; //idk why it just works
-  //const double scaley=1.023;
+  //const float scalex=1.0023; //idk why it just works
+  //const float scaley=1.023;
   for (int k=0;k<WATER_GROUND_NUM;k++) {
     i = rendered_water_ground[k];
     if (i!=-1) {
       if (Ground[i]->type==1) {
         if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
             !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
-            /*double cx=(Ground[i]->x1+Ground[i]->x2+Ground[i]->x3)/3.0f;
-            double cy=(Ground[i]->y1+Ground[i]->y2+Ground[i]->y3)/3.0f;
-            double sx1 = cx + (Ground[i]->x1 - cx) * scalex;
-            double sy1 = cy + (Ground[i]->y1 - cy) * scaley;
-            double sx2 = cx + (Ground[i]->x2 - cx) * scalex;
-            double sy2 = cy + (Ground[i]->y2 - cy) * scaley;
-            double sx3 = cx + (Ground[i]->x3 - cx) * scalex;
-            double sy3 = cy + (Ground[i]->y3 - cy) * scaley;
+            /*float cx=(Ground[i]->x1+Ground[i]->x2+Ground[i]->x3)/3.0f;
+            float cy=(Ground[i]->y1+Ground[i]->y2+Ground[i]->y3)/3.0f;
+            float sx1 = cx + (Ground[i]->x1 - cx) * scalex;
+            float sy1 = cy + (Ground[i]->y1 - cy) * scaley;
+            float sx2 = cx + (Ground[i]->x2 - cx) * scalex;
+            float sy2 = cy + (Ground[i]->y2 - cy) * scaley;
+            float sx3 = cx + (Ground[i]->x3 - cx) * scalex;
+            float sy3 = cy + (Ground[i]->y3 - cy) * scaley;
 
             x1=GR_WIDTH/2-px+cx1+cx2+cx3+(int)sx1;
             y1=GR_HEIGHT/2-py+cy1+cy2+cy3+(int)sy1;

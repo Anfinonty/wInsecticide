@@ -94,21 +94,21 @@ void PlayerCameraLimiterBorder()
 }
 
 
-void move_x(double x)
+void move_x(float x)
 {
   player.x+=x;
   player.cam_x-=x;
 }
 
 
-void move_y(double y)
+void move_y(float y)
 {
   player.y+=y;
   player.cam_y-=y;
 }
 
 
-void CameraInit(double x,double y)
+void CameraInit(float x,float y)
 {
   while (x<GR_WIDTH/2) {
     player.cam_x++;
@@ -128,7 +128,7 @@ void CameraInit(double x,double y)
   }
 }
 
-void InitPlayerCamera(double target_x,double target_y)
+void InitPlayerCamera(float target_x,float target_y)
 {
 //set camera
   player.cam_x=0;
@@ -223,7 +223,7 @@ void InitPlayerSpritesAll()
 
 
   for (int i=0;i<4;i++) {
-    double t_angle;
+    float t_angle;
     switch (i) {
       case 0:t_angle=0.1;break;
       case 1:t_angle=0.1+M_PI_2;break;
@@ -254,7 +254,7 @@ void InitPlayerSpritesAll()
 
 
 
-  double angle_rn;
+  float angle_rn;
   for (int i=0;i<PLAYER_ROTATED_SPRITE_NUM;i++) {
     angle_rn=M_PI_2-M_PI_32*i;
     tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.sprite_1,angle_rn,LTGREEN);
@@ -681,9 +681,9 @@ void PlayerRevive()
 void PlayerActGroundEdgeMovement()
 {
 
-  double edge_dist1;
-  double edge_dist2;
-  double distl=20;
+  float edge_dist1;
+  float edge_dist2;
+  float distl=20;
 
   if (!player.blocking && !player.rst_up) {
       if (!player.is_on_ground_edge) {
@@ -1136,9 +1136,9 @@ void PlayerOnGroundAction(int speed, int grav, int height_from_player_x)
 
 void PlayerActFlingWeb(int speed)
 {
-  double _a=player.x;
-  double _b=player.y;
-  double _l=player.pivot_length/PLAYER_FLING_WEB_NUM;
+  float _a=player.x;
+  float _b=player.y;
+  float _l=player.pivot_length/PLAYER_FLING_WEB_NUM;
   int tmp_ground_id=-1;
   int tmp_ngid=-1;
   int dist1=-1;
@@ -1170,7 +1170,7 @@ void PlayerActFlingWeb(int speed)
             GetDistance(player.pivot_x,player.pivot_y,player_fling_web.x[i],player_fling_web.y[i])>NODE_SIZE*2 /*&& 
             !player.hiding*/) {//prevent build web if web too short
           player.pivot_on_ground_id=tmp_ground_id;
-          double bm_x1=0,bm_y1=0,bm_x2=0,bm_y2=0;
+          float bm_x1=0,bm_y1=0,bm_x2=0,bm_y2=0;
           if (player.x<player.pivot_x) {
             bm_x1=player_fling_web.x[i];
             bm_y1=player_fling_web.y[i];	
@@ -1486,7 +1486,7 @@ void PlayerActMouseMovement()
 
 void PlayerActMouseClick()
 {
-  double grad_x1=0,grad_y1=0,grad_x2=0,grad_y2=0;
+  float grad_x1=0,grad_y1=0,grad_x2=0,grad_y2=0;
   bool allow_act=FALSE;
   if (player.attack_rst) {//Left click to Attack
     player.attack=TRUE;
@@ -1510,7 +1510,7 @@ void PlayerActMouseClick()
 
 
       int b_speed_m=9;
-      double b_dmg_m=1;
+      float b_dmg_m=1;
       int b_g_type=7; //default type shootknives==3
       int b_range=MAX_WEB_LENGTH*2;
       /*if (player.speed>10) {
@@ -1542,7 +1542,7 @@ void PlayerActMouseClick()
       grad_y1=player.sprite_y;
       grad_x2=mouse_x;
       grad_y2=mouse_y;
-      double tmp_angle=0;
+      float tmp_angle=0;
       if (player.knives_per_throw>4) {
         if (player.knives_per_throw==5) {
           b_range=MAX_WEB_LENGTH*3;
@@ -1722,8 +1722,8 @@ void PlayerActMouseClick()
         if (player.pivot_length>NODE_SIZE*5 && (player.right_click_hold_timer==RCLICK_HOLD_COOLDOWN)) {
 
     //player place web after swing
-        double bm_x1=0,bm_y1=0,bm_x2=0,bm_y2=0;
-        double bm_x1__,bm_y1__,bm_x2__,bm_y2__;
+        float bm_x1=0,bm_y1=0,bm_x2=0,bm_y2=0;
+        float bm_x1__,bm_y1__,bm_x2__,bm_y2__;
         if (player.x<player.pivot_x) {
           bm_x1=player.x;
           bm_y1=player.y;	
@@ -1929,8 +1929,8 @@ void PlayerAct()
         cy2=player.cam_move_y;
     for (int f=0;f<player.bullet_shot_num;f++) {
         int bk=player.bullet[f];
-        double pbt=0.2;
-        double pbdist=GetDistance(mouse_x,mouse_y,Bullet[bk].sprite_x,Bullet[bk].sprite_y);
+        float pbt=0.2;
+        float pbdist=GetDistance(mouse_x,mouse_y,Bullet[bk].sprite_x,Bullet[bk].sprite_y);
         for (int c=0;c<Bullet[bk].speed_multiplier;c++) {
         if (pbdist<250) {
           if (pbdist<150) {
@@ -2020,7 +2020,7 @@ void PlayerAct()
       PlayerActDecceleration();
 
       //PLAYER TRUE SPEED LIMITER
-      double speed_limiter=player.speed;
+      float speed_limiter=player.speed;
       /*if (player.speed<5 && player.jump) {
         speed_limiter=4;
       }*/
@@ -2194,8 +2194,8 @@ void PlayerAct()
           if (player.on_ground_id!=-1 && player.on_ground_id!=player.previous_web_placed) {
 
             //get dist between player and ground
-            double ground_entity_E=GetLineTargetAngle(player.on_ground_id,player.x,player.y);
-            double height_from_player_x=GetLineTargetHeight(player.on_ground_id,ground_entity_E,player.x,player.y);
+            float ground_entity_E=GetLineTargetAngle(player.on_ground_id,player.x,player.y);
+            float height_from_player_x=GetLineTargetHeight(player.on_ground_id,ground_entity_E,player.x,player.y);
 
 
             //player speed when on ground
@@ -2254,8 +2254,8 @@ void PlayerAct()
 
             //parachuting spider action
             if (player.bullet_shot!=-1 && !player.in_water) {
-              double pdist_from_bullet=GetDistance(player.x,player.y,Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y);
-              double pangle=GetCosAngle(player.x-Bullet[player.bullet_shot].x,player.pivot_length);
+              float pdist_from_bullet=GetDistance(player.x,player.y,Bullet[player.bullet_shot].x,Bullet[player.bullet_shot].y);
+              float pangle=GetCosAngle(player.x-Bullet[player.bullet_shot].x,player.pivot_length);
               if (pdist_from_bullet>DEFAULT_PLAYER_BUILD_RANGE*3 /*&& player.on_ground_id==-1*/) {
                 if (player.speed<6) {
                   player.speed=6;
@@ -2356,8 +2356,8 @@ void PlayerAct()
 
 
        //Set Character's Axis
-          double clawlx;
-          double clawly;
+          float clawlx;
+          float clawly;
           if (player.current_above) {
             player.above_x=player.x+(claws_l)*cos(player.angle-M_PI/2);
             player.above_y=player.y+(claws_l)*sin(player.angle-M_PI/2);
@@ -2485,11 +2485,11 @@ void PlayerAct()
       if (!player.is_swinging && player.bullet_shot==-1) {
         if (player.jump_height>0) { //jumping and not swinging
           if (player.rst_left || player.rst_right) { // jump + holding left/right
-            double t_speed1=player.speed*cos(player.jump_angle2);
-            double t_speed2=player.speed;
-            double t_speed=t_speed1+t_speed2;
-            double t_grav=player.speed*sin(player.jump_angle2);
-            double grav_dist=GetDistance(t_speed,0,0,t_grav);
+            float t_speed1=player.speed*cos(player.jump_angle2);
+            float t_speed2=player.speed;
+            float t_speed=t_speed1+t_speed2;
+            float t_grav=player.speed*sin(player.jump_angle2);
+            float grav_dist=GetDistance(t_speed,0,0,t_grav);
             player.angle_of_incidence=GetCosAngle(t_speed,grav_dist);
             if (player.last_left) {
               player.angle_of_incidence=M_PI+player.angle_of_incidence-M_PI_2;
@@ -2503,18 +2503,18 @@ void PlayerAct()
         } else { //end of jump height, not jumping
           if (!player.on_a_ground) { //in air and holding left or right key
             if (player.rst_left || player.rst_right) {
-              double grav_dist=GetDistance(player.speed,0,0,player.grav*player.player_grav);
+              float grav_dist=GetDistance(player.speed,0,0,player.grav*player.player_grav);
               player.angle_of_incidence=GetCosAngle(player.speed,grav_dist);
               if (player.last_left) {
                 player.angle_of_incidence=M_PI-player.angle_of_incidence;
               }
             } else { //not holding left or right but still in air
               if ((player.is_rebounding || player.fling_distance!=0) && player.bullet_shot==-1) {//flinging or rebounding
-                double t_speed=player.speed*cos(player.angle_of_reflection); //rate of change in x . player travel to refleciton angle
-                double t_grav1=player.speed*sin(player.angle_of_reflection); //rate of change in y . player travel to reflection angle
-                double t_grav2=player.grav*player.player_grav; //rate of change in y . Gravity
-                double t_grav=t_grav1+t_grav2; //dy/dx
-                double grav_dist=GetDistance(t_speed,0,0,t_grav);
+                float t_speed=player.speed*cos(player.angle_of_reflection); //rate of change in x . player travel to refleciton angle
+                float t_grav1=player.speed*sin(player.angle_of_reflection); //rate of change in y . player travel to reflection angle
+                float t_grav2=player.grav*player.player_grav; //rate of change in y . Gravity
+                float t_grav=t_grav1+t_grav2; //dy/dx
+                float grav_dist=GetDistance(t_speed,0,0,t_grav);
                 if (t_grav<0) { //still going upwards
                   player.angle_of_incidence=2*M_PI-GetCosAngle(t_speed,grav_dist);
                 } else { //going downwards
@@ -2832,7 +2832,7 @@ void PlayerCameraShake()
   int i;
 //camshake
   //if (!the_bravery_tyrant && IsNormalView) {
-    double y_bob=0,x_bob=0;
+    float y_bob=0,x_bob=0;
     //if (sprint_bobbing) {  //if sprint_bobbing
     if (!player.is_swinging) {
       if (player.on_ground_id!=-1 && player.cam_limiter_x==0 && player.cam_limiter_y==0) {//not in air, on ground
@@ -3087,12 +3087,12 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
 
   //Draw player is blocking
   if (player.block_timer>0 /*&& player.block_health>0*/) {
-    double ang=2*M_PI*((double)frame_tick/FPS)*10;//player.block_timer;
+    float ang=2*M_PI*((float)frame_tick/FPS)*10;//player.block_timer;
     if (player.last_left) {
       ang=-abs(ang);
     }
-    double tx=player.sprite_x+cos(ang)*player.block_timer;
-    double ty=player.sprite_y+sin(ang)*player.block_timer;
+    float tx=player.sprite_x+cos(ang)*player.block_timer;
+    float ty=player.sprite_y+sin(ang)*player.block_timer;
     if (player.block_timer>23) {
       tx=player.sprite_x+cos(ang)*(23-(player.block_timer-23)*2);
       ty=player.sprite_y+sin(ang)*(23-(player.block_timer-23)*2);
@@ -3135,7 +3135,7 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
   //ON GROUND ACTUAL
   if (player.on_ground_id!=-1) {
     int le_angle=16;
-    double le_player_angle=player.angle;
+    float le_player_angle=player.angle;
     if (player.angle>0) { //Slope ++ \/
         if (player.print_current_above) {
           if (!player.last_left) {

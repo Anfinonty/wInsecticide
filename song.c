@@ -200,10 +200,10 @@ void InitSongBank() {
 }
 
 
-void adjustBufferVol(int16_t* dest,const int16_t* src,long buffer_size, double volumeFactor)
+void adjustBufferVol(int16_t* dest,const int16_t* src,long buffer_size, float volumeFactor)
 {
   for (long i=0; i<buffer_size; i++) {
-    double scaled_value=(double)src[i]*volumeFactor;
+    float scaled_value=(float)src[i]*volumeFactor;
     if (scaled_value >= INT16_MAX) {
       dest[i] = INT16_MAX;
     } else if (scaled_value <= INT16_MIN) {
@@ -218,11 +218,11 @@ void adjustBufferVol(int16_t* dest,const int16_t* src,long buffer_size, double v
 
 
 /*
-void lowPassFilter(int16_t* audioBuffer,const int16_t* previousBuffer, int bufferSize, double CUTOFF_FREQUENCY, double sample_rate) {
+void lowPassFilter(int16_t* audioBuffer,const int16_t* previousBuffer, int bufferSize, float CUTOFF_FREQUENCY, float sample_rate) {
     // Calculate the RC (resistance-capacitance) constant
-    double RC = 1.0 / (CUTOFF_FREQUENCY * 2 * M_PI);
-    double dt = 1.0 / sample_rate;
-    double alpha = dt / (RC + dt);
+    float RC = 1.0 / (CUTOFF_FREQUENCY * 2 * M_PI);
+    float dt = 1.0 / sample_rate;
+    float alpha = dt / (RC + dt);
 
     // Apply the low-pass filter
     audioBuffer[0]=previousBuffer[bufferSize-1];
@@ -232,11 +232,11 @@ void lowPassFilter(int16_t* audioBuffer,const int16_t* previousBuffer, int buffe
 }*/
 
 /*
-void highPassFilter(int16_t* audioBufferOutput, int16_t* audioBufferInput, int bufferSize, double CUTOFF_FREQUENCY, double sample_rate) {
+void highPassFilter(int16_t* audioBufferOutput, int16_t* audioBufferInput, int bufferSize, float CUTOFF_FREQUENCY, float sample_rate) {
     // Calculate the RC (resistance-capacitance) constant
-    double RC = 1.0 / (CUTOFF_FREQUENCY * 2 * M_PI);
-    double dt = 1.0 / sample_rate;
-    double alpha = RC / (RC + dt);
+    float RC = 1.0 / (CUTOFF_FREQUENCY * 2 * M_PI);
+    float dt = 1.0 / sample_rate;
+    float alpha = RC / (RC + dt);
 
     // Apply the high-pass filter
     audioBufferOutput[0] = audioBufferInput[0];
@@ -249,24 +249,24 @@ void highPassFilter(int16_t* audioBufferOutput, int16_t* audioBufferInput, int b
 
 
 // Convert linear gain to dB
-double linearToDb(double linearGain) {
+float linearToDb(float linearGain) {
     return 20.0f * log10(linearGain);
 }
 
 
 // Convert dB to linear gain
-double dbToLinear(double dbGain) {
+float dbToLinear(float dbGain) {
     return pow(10.0f, dbGain / 20.0f);
 }
 
 
 
 // Function to apply high EQ gain to audio buffer
-void applyHighEQGain(int16_t* buffer, int bufferSize, double gain, double cutoffFrequency,double sample_rate) {
-    double a0, a1, a2, b0, b1, b2;
-    double omega = 2.0f * M_PI * cutoffFrequency / sample_rate;
-    double cosw = cos(omega);
-    double alpha = sin(omega) / 2.0f * sqrt((gain + 1.0f / gain) * (1.0f / (1.0f / 2.0f)));
+void applyHighEQGain(int16_t* buffer, int bufferSize, float gain, float cutoffFrequency,float sample_rate) {
+    float a0, a1, a2, b0, b1, b2;
+    float omega = 2.0f * M_PI * cutoffFrequency / sample_rate;
+    float cosw = cos(omega);
+    float alpha = sin(omega) / 2.0f * sqrt((gain + 1.0f / gain) * (1.0f / (1.0f / 2.0f)));
 
     // Coefficients for high-shelf filter
     b0 = gain * ((gain + 1.0f) + (gain - 1.0f) * cosw + 2.0f * sqrt(gain) * alpha);
@@ -290,11 +290,11 @@ void applyHighEQGain(int16_t* buffer, int bufferSize, double gain, double cutoff
 }
 
 // Function to apply low EQ gain to audio buffer
-void applyLowEQGain(int16_t* buffer, int bufferSize, double gain, double cutoffFrequency,double sample_rate) {
-    double a0, a1, a2, b0, b1, b2;
-    double omega = 2.0f * M_PI * cutoffFrequency / sample_rate;
-    double cosw = cos(omega);
-    double alpha = sin(omega) / 2.0f * sqrt((gain + 1.0f / gain) * (1.0f / (1.0f / 2.0f)));
+void applyLowEQGain(int16_t* buffer, int bufferSize, float gain, float cutoffFrequency,float sample_rate) {
+    float a0, a1, a2, b0, b1, b2;
+    float omega = 2.0f * M_PI * cutoffFrequency / sample_rate;
+    float cosw = cos(omega);
+    float alpha = sin(omega) / 2.0f * sqrt((gain + 1.0f / gain) * (1.0f / (1.0f / 2.0f)));
 
     // Coefficients for low-shelf filter
     b0 = gain * ((gain + 1.0f) - (gain - 1.0f) * cosw + 2.0f * sqrt(gain) * alpha);
@@ -319,11 +319,11 @@ void applyLowEQGain(int16_t* buffer, int bufferSize, double gain, double cutoffF
 
 
 /*
-void applyMidEQGain(int16_t* buffer, int bufferSize, double gain, double centerFrequency, double Q, double sample_rate) {
-    double a0, a1, a2, b0, b1, b2;
-    double omega = 2.0 * M_PI * centerFrequency / sample_rate;
-    double alpha = sin(omega) / (2.0 * Q);
-    double cosw = cos(omega);
+void applyMidEQGain(int16_t* buffer, int bufferSize, float gain, float centerFrequency, float Q, float sample_rate) {
+    float a0, a1, a2, b0, b1, b2;
+    float omega = 2.0 * M_PI * centerFrequency / sample_rate;
+    float alpha = sin(omega) / (2.0 * Q);
+    float cosw = cos(omega);
 
     // Coefficients for band-pass filter
     b0 = alpha * gain;
@@ -350,9 +350,9 @@ void applyMidEQGain(int16_t* buffer, int bufferSize, double gain, double centerF
 //https://www.codeproject.com/Articles/8396/Using-DirectSound-to-Play-Audio-Stream-Data
 //im not using direct sound just learning its concept
 
-//https://stackoverflow.com/questions/49605552/double-buffered-waveoutwrite-stuttering-like-hell
+//https://stackoverflow.com/questions/49605552/float-buffered-waveoutwrite-stuttering-like-hell
 //https://www.vbforums.com/showthread.php?742723-RESOLVED-waveout-API-Tutorial-Example
-//https://stackoverflow.com/questions/49605552/double-buffered-waveoutwrite-stuttering-like-hell
+//https://stackoverflow.com/questions/49605552/float-buffered-waveoutwrite-stuttering-like-hell
 
 //#define AUDIO_STREAM_BUFFER_NUM    2  //2mb
 //#define AUDIO_STREAM_BUFFER_SIZE   524288//4096//524288//44100//16384//8192//524288  minimum //int16_t *524288 = 1mb //0.00049mb
@@ -396,11 +396,11 @@ typedef struct AudioData
 
   bool playing_wav;
 
-  bool double_buffer;
+  bool float_buffer;
   bool song_rewind;
 
-  bool saved_double_buffer;
-  bool saved_loop_double_buffer;
+  bool saved_float_buffer;
+  bool saved_loop_float_buffer;
 
   bool record_loop;
   bool play_loop;
@@ -447,15 +447,15 @@ typedef struct AudioData
   long buffer_size;
 
 
-  double tempo;
-  double volume;
-  //double CUTOFF_FREQUENCY;
-  double HIGH_CUTOFF_FREQUENCY;
-  double LOW_CUTOFF_FREQUENCY;
+  float tempo;
+  float volume;
+  //float CUTOFF_FREQUENCY;
+  float HIGH_CUTOFF_FREQUENCY;
+  float LOW_CUTOFF_FREQUENCY;
 
-  double high_gain_db;
-  //double mid_gain_db;
-  double low_gain_db;
+  float high_gain_db;
+  //float mid_gain_db;
+  float low_gain_db;
 
   int16_t max_amp;
   int16_t max_amp2;
@@ -478,13 +478,13 @@ AudioData audioData[2];
 
 
 
-//void PassFilter(int16_t *audioBuffer, const int16_t* previousBuffer, int bufferLength, double HIGH_CUTOFF_FREQ,double LOW_CUTOFF_FREQ,double high_gain_db, double low_gain_db,double sample_rate,bool hpf_on,bool lpf_on)
+//void PassFilter(int16_t *audioBuffer, const int16_t* previousBuffer, int bufferLength, float HIGH_CUTOFF_FREQ,float LOW_CUTOFF_FREQ,float high_gain_db, float low_gain_db,float sample_rate,bool hpf_on,bool lpf_on)
 void PassFilter(int16_t *audioBuffer, const int16_t* previousBuffer,AudioData *_audioData,int bufferLength)
 {
-    double low_gain_db=_audioData->low_gain_db;
-    //double mid_gain_db=_audioData->mid_gain_db;
-    double high_gain_db=_audioData->high_gain_db;
-    double sample_rate=audioData->wav_header->SamplesPerSec;
+    float low_gain_db=_audioData->low_gain_db;
+    //float mid_gain_db=_audioData->mid_gain_db;
+    float high_gain_db=_audioData->high_gain_db;
+    float sample_rate=audioData->wav_header->SamplesPerSec;
     /*BiQuad lowEQ, midEQ, highEQ;
 
     // Initialize filters
@@ -495,8 +495,8 @@ void PassFilter(int16_t *audioBuffer, const int16_t* previousBuffer,AudioData *_
 
     //applyMidEQGain(audioBuffer,bufferLength,dbToLinear(mid_gain_db),1000,1.0,sample_rate);
     
-    double LOW_CUTOFF_FREQ = _audioData->LOW_CUTOFF_FREQUENCY;
-    double HIGH_CUTOFF_FREQ = _audioData->HIGH_CUTOFF_FREQUENCY;
+    float LOW_CUTOFF_FREQ = _audioData->LOW_CUTOFF_FREQUENCY;
+    float HIGH_CUTOFF_FREQ = _audioData->HIGH_CUTOFF_FREQUENCY;
     bool hpf_on=_audioData->hpf_on;
     bool lpf_on=_audioData->lpf_on;
 
@@ -514,9 +514,9 @@ void PassFilter(int16_t *audioBuffer, const int16_t* previousBuffer,AudioData *_
 
     if (hpf_on || lpf_on) {
         // Calculate the RC (resistance-capacitance) constant HIGH PASS
-        double RC = 1.0 / (HIGH_CUTOFF_FREQ * 2 * M_PI);
-        double dt = 1.0 / sample_rate;
-        double alpha = dt / (RC + dt);
+        float RC = 1.0 / (HIGH_CUTOFF_FREQ * 2 * M_PI);
+        float dt = 1.0 / sample_rate;
+        float alpha = dt / (RC + dt);
 
 
         if (!(_audioData->high_eq_on || _audioData->low_eq_on))
@@ -550,7 +550,7 @@ void JumpToBufferLoop(AudioData *audioData)
   audioData->current_filesize=audioData->loop_start;
   audioData->queue_play_buffer=audioData->loop_play;
   audioData->queue_read_buffer=audioData->loop_read;
-  audioData->double_buffer=audioData->saved_loop_double_buffer;
+  audioData->float_buffer=audioData->saved_loop_float_buffer;
   audioData->read_filesize=audioData->current_filesize-(audioData->read_size*READ_BUFFER_NUM/2);
   fseek(audioData->music_file, audioData->read_filesize, SEEK_SET);
 
@@ -611,8 +611,8 @@ void CALLBACK waveOutProc1(HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance, DWORD_
       if (uMsg == WOM_DONE) {
         WAVEHDR *waveHdr = (WAVEHDR *)dwParam1;
         if (waveHdr == &audioData->waveHdr1) {
-            audioData->double_buffer=TRUE;
-            audioData->read_size=(double)chosen_buffer_size*audioData->tempo;
+            audioData->float_buffer=TRUE;
+            audioData->read_size=(float)chosen_buffer_size*audioData->tempo;
             if (!audioData->song_rewind) {
                 audioData->current_filesize+=audioData->read_size;
                 if (audioData->play_loop && !audioData->record_loop && audioData->current_filesize>audioData->loop_end) {
@@ -645,8 +645,8 @@ void CALLBACK waveOutProc1(HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance, DWORD_
                 waveOutWrite(audioData->hWaveOut, &audioData->waveHdr1, sizeof(WAVEHDR));
             }
         } else if (waveHdr == &audioData->waveHdr2) {
-            audioData->double_buffer=FALSE;
-            audioData->read_size=(double)chosen_buffer_size*audioData->tempo;
+            audioData->float_buffer=FALSE;
+            audioData->read_size=(float)chosen_buffer_size*audioData->tempo;
             if (!audioData->song_rewind) {
                 audioData->current_filesize+=audioData->read_size;
                 if (audioData->play_loop && !audioData->record_loop && audioData->current_filesize>audioData->loop_end) {
@@ -845,9 +845,9 @@ void LoadBufferSFX(const wchar_t* filename, int z)
   audioData[z].loop_end=audioData[z].filesize;
   audioData[z].loop_read=11;
   audioData[z].loop_play=2;
-  audioData[z].saved_loop_double_buffer=FALSE;
+  audioData[z].saved_loop_float_buffer=FALSE;
 
-  audioData[z].double_buffer=FALSE;
+  audioData[z].float_buffer=FALSE;
   audioData[z].queue_read_buffer=0;
   audioData[z].queue_play_buffer=0;
   audioData[z].sps_offset=0;
@@ -892,7 +892,7 @@ void LoadBufferSFX(const wchar_t* filename, int z)
 
     audioData[z].buffer_size=chosen_buffer_size;
     audioData[z].filesize=filesize;
-    song_audio_duration[z]=(double)filesize / (audioData[z].wav_header->SamplesPerSec * audioData[z].wav_header->NumOfChan * audioData[z].wav_header->bitsPerSample/8) *1000;
+    song_audio_duration[z]=(float)filesize / (audioData[z].wav_header->SamplesPerSec * audioData[z].wav_header->NumOfChan * audioData[z].wav_header->bitsPerSample/8) *1000;
 
 
 
@@ -910,7 +910,7 @@ void LoadBufferSFX(const wchar_t* filename, int z)
 
 
     //fill buffers on start
-    audioData[z].read_size=(double)chosen_buffer_size*audioData[z].tempo;
+    audioData[z].read_size=(float)chosen_buffer_size*audioData[z].tempo;
     for (int i=0;i<11;i++) {
       fread(audioData[z].read_buffer[i], sizeof(BYTE), audioData[z].read_size, audioData[z].music_file);  
 
@@ -978,7 +978,7 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
             if (audioData[z].playing_wav) { //hi im currently playing a flac/wav
               
               //current_song_time=current_timestamp();
-              current_song_time[z]=(double)audioData[z].current_filesize / (audioData[z].wav_header->SamplesPerSec * audioData[z].wav_header->NumOfChan * audioData[z].wav_header->bitsPerSample/8) *1000;
+              current_song_time[z]=(float)audioData[z].current_filesize / (audioData[z].wav_header->SamplesPerSec * audioData[z].wav_header->NumOfChan * audioData[z].wav_header->bitsPerSample/8) *1000;
               if (current_song_time[z]>time_song_end[z] ||  play_new_song[z]) { //stop playing flac when duration is over //second delay
                 play_new_song[z]=TRUE;
                 audioData[z].playing_wav=FALSE;

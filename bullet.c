@@ -94,19 +94,19 @@ void ShootBullet(
   int color,
   int graphics_type,
   int range,
-  double speed,
+  float speed,
   int speed_multiplier,
-  double damage,
+  float damage,
   int enemy_id,
-  double start_x,
-  double start_y,
-  double source_x,
-  double source_y,
-  double target_x,
-  double target_y,
-  double off_angle)
+  float start_x,
+  float start_y,
+  float source_x,
+  float source_y,
+  float target_x,
+  float target_y,
+  float off_angle)
 {
-  double x1,x2,y1,y2;
+  float x1,x2,y1,y2;
   Bullet[bullet_id].shot=TRUE;
   Bullet[bullet_id].in_water=FALSE;
   Bullet[bullet_id].graphics_type=graphics_type;
@@ -169,7 +169,7 @@ void ShootBullet(
 
 void BulletDamagePlayerAct(int bullet_id)
 {
-    double blocked_bullet_dmg=Bullet[bullet_id].damage;
+    float blocked_bullet_dmg=Bullet[bullet_id].damage;
     if (player.block_timer<=0 || player.block_health<=0) {
       if (game_audio && player.health>0 && player.hurt_snd_timer==0) {
         PlaySound(spamSoundEffectCache[5].audio, NULL, SND_MEMORY | SND_ASYNC); //hurt snd
@@ -268,7 +268,7 @@ void BulletDamagePlayerAct(int bullet_id)
 
 bool HitPlayer(int bullet_id,int r1,int r2)
 {
-  double dist=GetDistance(player.x,player.y,Bullet[bullet_id].x,Bullet[bullet_id].y);
+  float dist=GetDistance(player.x,player.y,Bullet[bullet_id].x,Bullet[bullet_id].y);
   if (!player.time_breaker && player.hit_cooldown_timer<=0) {//near miss
     if (dist>r1 && dist<=r2) {
       //combo_timer[0]=PLAYER_COMBO_TIME_LIMIT,
@@ -350,7 +350,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
     }
   }
 
-  double saved_angle;
+  float saved_angle;
   for (int k=0;k<player.bullet_shot_num;k++) {//playerknives interact with enemy bullet
     saved_angle=Bullet[bullet_id].angle;
     bk=player.bullet[k];
@@ -418,7 +418,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
      if (player.is_swinging) {
        for (int k=0;k<PLAYER_FLING_WEB_NUM;k++) {
          //knockback
-         double dist_from_web_string=GetDistance(player_fling_web.x[k],player_fling_web.y[k],Bullet[bullet_id].x,Bullet[bullet_id].y);
+         float dist_from_web_string=GetDistance(player_fling_web.x[k],player_fling_web.y[k],Bullet[bullet_id].x,Bullet[bullet_id].y);
          if (dist_from_web_string<NODE_SIZE*2) {
            Bullet[bullet_id].angle=player.angle_of_incidence;//player.pivot_angle+M_PI_2;
          }  
@@ -446,8 +446,8 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
   //enemy gib movement after its death
   bullet_on_ground_id=GetOnGroundId(Bullet[bullet_id].x,Bullet[bullet_id].y,2,2);
   if (bullet_on_ground_id==-1 && Enemy[enemy_id]->health<=0 && (Enemy[enemy_id]->death_timer>100) && player.health>0) {
-    double pbdist=GetDistance(player.x,player.y,Bullet[bullet_id].x,Bullet[bullet_id].y);
-    double pbt=0.2;    
+    float pbdist=GetDistance(player.x,player.y,Bullet[bullet_id].x,Bullet[bullet_id].y);
+    float pbt=0.2;    
     if (pbdist<250) {
       if (game_hard) {
         pbt=0.1;
@@ -645,9 +645,9 @@ void PlayerBulletAct(int bullet_id,int enemy_id)
        if (enemy_id==-1) {//travelling sniper bullet
         player.pivot_length=GetDistance(Bullet[bullet_id].x,Bullet[bullet_id].y,player.x,player.y);
         player.pivot_angle=GetCosAngle(player.x-Bullet[bullet_id].x,player.pivot_length);
-        double _a=player.x;
-        double _b=player.y;
-        double _l=player.pivot_length/PLAYER_FLING_WEB_NUM;
+        float _a=player.x;
+        float _b=player.y;
+        float _l=player.pivot_length/PLAYER_FLING_WEB_NUM;
         int tmp_ground_id=-1;
         for (int i=0;i<PLAYER_FLING_WEB_NUM;i++) {
           player_fling_web.x[i]=_a;
@@ -1016,7 +1016,7 @@ void RainBulletAct(int bullet_id)
 void BulletAct(int bullet_id)
 {
   int enemy_id=Bullet[bullet_id].from_enemy_id;
-  //double bm_x1=0,bm_y1=0,bm_x2=0,bm_y2=0;
+  //float bm_x1=0,bm_y1=0,bm_x2=0,bm_y2=0;
   bool allow_act=FALSE;
   if (Bullet[bullet_id].shot) {
     if (!in_map_editor) {
@@ -1138,8 +1138,8 @@ void BulletAct(int bullet_id)
             }
             bool allow_spawn=TRUE;
             //check if below spawned web
-            double check_x1,check_x2,c1,c2;
-            double rain_gradient=rain_grad_rise/rain_grad_run;
+            float check_x1,check_x2,c1,c2;
+            float rain_gradient=rain_grad_rise/rain_grad_run;
 
             int spawn_on_ng=GetGridId(rand_x,rand_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
             if (spawn_on_ng!=-1) {
@@ -1175,7 +1175,7 @@ void BulletAct(int bullet_id)
             int rand_extra_run=0;
             int weather_bullet_type_graphics=0;
             int weather_bullet_type_speedm=0;
-            double weather_bullet_type_speed=0.0;
+            float weather_bullet_type_speed=0.0;
             switch (map_weather) {
               case 1: //rain;
                 {int d;
@@ -1207,8 +1207,8 @@ void BulletAct(int bullet_id)
                   weather_bullet_type_graphics=-7;
                 }
                 Bullet[bullet_id].oscilating_angle=0;
-                Bullet[bullet_id].oscilating_angle_delta=0.0005*((double)(RandNum(0,200,&weather_rng_i,seed)/200.0));
-                            //0.0005*((double)(RandNum(0,1000,&weather_rng_i*frame_tick*bullet_id)/1000.0));//RandNum(0,1000,Bullet[bullet_id].seed*frame_tick)*0.0001;
+                Bullet[bullet_id].oscilating_angle_delta=0.0005*((float)(RandNum(0,200,&weather_rng_i,seed)/200.0));
+                            //0.0005*((float)(RandNum(0,1000,&weather_rng_i*frame_tick*bullet_id)/1000.0));//RandNum(0,1000,Bullet[bullet_id].seed*frame_tick)*0.0001;
                 Bullet[bullet_id].oscilating_angle_max=  0.01 * RandNum(1,10,&weather_rng_i,seed);
                     //Bullet[bullet_id].oscilating_angle_delta*RandNum(0,30,Bullet[bullet_id].seed*frame_tick/3*bullet_id);//Bullet[bullet_id].oscilating_angle_delta*RandNum(0,5,Bullet[bullet_id].seed*frame_tick/2);
                 d=RandNum(0,1,&weather_rng_i,seed);
@@ -1387,12 +1387,12 @@ void RainAct()
 
 
 
-void DrawBullet2(HDC hdc,HDC hdc2,int i,double x,double y,int color)
+void DrawBullet2(HDC hdc,HDC hdc2,int i,float x,float y,int color)
 {
   int c;
   int seed=player.seed*i;
-  double angl=2*M_PI*(Bullet[i].range/(Bullet[i].start_range+1));//*2;
-  double rightangl=-M_PI_2;
+  float angl=2*M_PI*(Bullet[i].range/(Bullet[i].start_range+1));//*2;
+  float rightangl=-M_PI_2;
   if (Bullet[i].is_left) { //spin opposing clockwise direction
     angl=-angl;
     rightangl=M_PI_2;
@@ -1503,7 +1503,7 @@ void DrawBullet2(HDC hdc,HDC hdc2,int i,double x,double y,int color)
         int size=9;
         int traill=6;
         angl*=10;
-        double trail_delta=-M_PI_4/4;
+        float trail_delta=-M_PI_4/4;
         if (Bullet[i].is_left) {
           trail_delta=-trail_delta;
         }

@@ -183,9 +183,9 @@ int resolution_choose=0; //640,480, 800,600, SCREEN_WIDTH,SCREEN_HEIGHT
 
 int call_help_timer=0;
 
-double loading_numerator=0;
-double loading_denominator=1;
-double loading_percentage=0;
+float loading_numerator=0;
+float loading_denominator=1;
+float loading_percentage=0;
 
 bool lvl_has_song=FALSE;
 wchar_t src_music_dir[64];
@@ -221,16 +221,16 @@ int showoff=0;
 int saved_showoff=0;
 
 
-//double, game state system values
+//float, game state system values
 long long game_timer=0;
-double double_best_score=0;
+float float_best_score=0;
 
 
 
-//double, game options
+//float, game options
 double time_begin=0;
-double game_volume=0.2;
-double old_game_volume=1.2;
+float game_volume=0.2;
+float old_game_volume=1.2;
 
 
 
@@ -436,7 +436,7 @@ void Prelude()
 {
   //Load Enemy Rotated Sprite
   //note: tmp_sprite1, may cause issues with memory
-  double angle_rn;
+  float angle_rn;
   int j=prelude_sprite_jid;
   int i=prelude_sprite_id;
   //for (int j=0;j<4;j++) {
@@ -1387,7 +1387,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-370/2,GR_HEIGHT/2-370/2-48,0,0,370,370,intro_msg_mask,SRCAND,FALSE,FALSE);
           DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-370/2,GR_HEIGHT/2-370/2-48,0,0,370,370,intro_msg,SRCPAINT,FALSE,FALSE);
 
-          if (loading_numerator==loading_denominator-2) {
+          /*if (loading_numerator==loading_denominator-2) {
             BITMAP bmp;
             if (GetObject(screen, sizeof(BITMAP), &bmp)) {
                printf("Bitmap Info:\n");
@@ -1398,7 +1398,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                 printf("Bytes per Line: %ld\n", bmp.bmWidthBytes);
                 printf("Total Size: %ld bytes\n", bmp.bmHeight * bmp.bmWidthBytes);
             }
-          }
+          }*/
 
           if (loading_numerator<loading_denominator) {
             DrawLoading(hdcBackbuff);
@@ -2302,8 +2302,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       //Load moon sprite based on lunar day
       //lunar_day=1; //moon debug
-      double lunar_angle=0;
-      double mirror_lunar_angle=0;
+      float lunar_angle=0;
+      float mirror_lunar_angle=0;
       if (lunar_day>=1 && lunar_day<=5) { //1, 2, 3, 4, 5
         swprintf(moon_cartoony_sprite_name,48,L"sprites/moon-cartoon-1.bmp");
         lunar_angle=-M_PI_4-M_PI_4/2;

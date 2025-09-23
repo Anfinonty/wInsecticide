@@ -1,10 +1,10 @@
 
 
 //Ground
-double GetLineTargetAngle(int Ground_id,double x,double y)
+float GetLineTargetAngle(int Ground_id,float x,float y)
 {
 
-  double E=0,
+  float E=0,
       hypothenuse=0,
       adjacent=0;
   if (x>(Ground[Ground_id]->x1+Ground[Ground_id]->x2)/2) {//right of Ground
@@ -47,9 +47,9 @@ double GetLineTargetAngle(int Ground_id,double x,double y)
   return E;
 }
 
-double GetLineTargetHeight(int Ground_id,double E,double x,double y)
+float GetLineTargetHeight(int Ground_id,float E,float x,float y)
 {
-  double h=0;
+  float h=0;
   if (x>(Ground[Ground_id]->x1+Ground[Ground_id]->x2)/2) {//right of Ground
     h=sin(Ground[Ground_id]->angle-E)*
       GetDistance(
@@ -72,10 +72,10 @@ double GetLineTargetHeight(int Ground_id,double E,double x,double y)
 
 
 /*
-double GetLineTargetAngleII(int Ground_id,double x,double y)
+float GetLineTargetAngleII(int Ground_id,float x,float y)
 {
 
-  double E=0,
+  float E=0,
       hypothenuse=0,
       opposite=0,x1=0,y1=0,x2=0,y2=0;
   if (Ground[Ground_id]->y1<Ground[Ground_id]->y2) {
@@ -131,9 +131,9 @@ double GetLineTargetAngleII(int Ground_id,double x,double y)
 
 
 
-double GetLineTargetHeightII(int Ground_id,double E,double x,double y)
+float GetLineTargetHeightII(int Ground_id,float E,float x,float y)
 {
-  double h=0,x1=0,y1=0,x2=0,y2=0;
+  float h=0,x1=0,y1=0,x2=0,y2=0;
   if (Ground[Ground_id]->y1<Ground[Ground_id]->y2) {
     x1=Ground[Ground_id]->x1; //1 is the upper
     y1=Ground[Ground_id]->y1;
@@ -167,7 +167,7 @@ double GetLineTargetHeightII(int Ground_id,double E,double x,double y)
 
 void SetGround(int i)
 {
-  double tmp=Ground[i]->x2;
+  float tmp=Ground[i]->x2;
   if (Ground[i]->x1>=Ground[i]->x2) {
     Ground[i]->x2=Ground[i]->x1+0.0001;
     Ground[i]->x1=tmp;
@@ -275,13 +275,13 @@ void InitGround(bool is_max)
     //printf("%d saving ground\n",i);
     if (i<GROUND_NUM) {
     //set the saved data
-      Ground[i]->x1=(double)saved_ground_x1[i];
+      Ground[i]->x1=(float)saved_ground_x1[i];
       //printf("%d %1.0f=%1.0f\n",i,Ground[i]->x1,saved_ground_x1[i]);
-      Ground[i]->y1=(double)saved_ground_y1[i];
-      Ground[i]->x2=(double)saved_ground_x2[i];
-      Ground[i]->y2=(double)saved_ground_y2[i];
-      Ground[i]->x3=(double)saved_ground_x3[i];
-      Ground[i]->y3=(double)saved_ground_y3[i];
+      Ground[i]->y1=(float)saved_ground_y1[i];
+      Ground[i]->x2=(float)saved_ground_x2[i];
+      Ground[i]->y2=(float)saved_ground_y2[i];
+      Ground[i]->x3=(float)saved_ground_x3[i];
+      Ground[i]->y3=(float)saved_ground_y3[i];
  
       Ground[i]->type=saved_ground_type[i];
       if (Ground[i]->x1<1) {
@@ -359,7 +359,7 @@ void InitGround(bool is_max)
 === +++ ===
 */
 
-double x_quad[12]=
+float x_quad[12]=
 {
 //top left corner
 0,
@@ -384,7 +384,7 @@ VGRID_SIZE,
 ;
 
 
-double y_quad[12]=
+float y_quad[12]=
 {
 //Top left corner
 -VGRID_SIZE,
@@ -413,10 +413,10 @@ VGRID_SIZE,
 
 
 //!!NO CLIPPING PROTECTION BUT BLAZING FAST
-int GetOnGroundId(double x,double y,double min_range_1,double min_range_2)
+int GetOnGroundId(float x,float y,float min_range_1,float min_range_2)
 {
   int i=0,Ground_id=0,on_grid_id=0;
-  double ground_entity_E=0,height_from_ground=0;
+  float ground_entity_E=0,height_from_ground=0;
   if (0<x && x<MAP_WIDTH && 0<y && y<MAP_HEIGHT) { //within bounderies
     on_grid_id=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);//maths to get grid
     for (i=0;i<VGrid[on_grid_id]->max_ground_num;i++) {
@@ -438,17 +438,17 @@ int GetOnGroundId(double x,double y,double min_range_1,double min_range_2)
 
 
 
-int GetOnGroundIdPlayer(double x,double y,double min_range_1,double min_range_2)
+int GetOnGroundIdPlayer(float x,float y,float min_range_1,float min_range_2)
 {
   int i=0,j=-1,Ground_id=0,on_grid_id=0;
-  double ground_entity_E=0,height_from_ground=0,_x=x,_y=y;
+  float ground_entity_E=0,height_from_ground=0,_x=x,_y=y;
 
 
   int main_grid_id=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
   if (main_grid_id!=-1) {
   if (VGrid[main_grid_id]->max_ground_num>0) {
-  double main_grid_x=(VGrid[main_grid_id]->x1+VGrid[main_grid_id]->x2)/2;
-  double main_grid_y=(VGrid[main_grid_id]->y1+VGrid[main_grid_id]->y2)/2;
+  float main_grid_x=(VGrid[main_grid_id]->x1+VGrid[main_grid_id]->x2)/2;
+  float main_grid_y=(VGrid[main_grid_id]->y1+VGrid[main_grid_id]->y2)/2;
   int in_quadrant=0; //0=topleft, 1=topright, 2=lowerleft, 3=lowerright
   int index_quadrant=0;
   if (y<main_grid_y) {
@@ -525,18 +525,18 @@ int GetOnGroundIdPlayer(double x,double y,double min_range_1,double min_range_2)
 
 
 
-/*int GetOnGroundIdE(double x,double y,double min_range_1,double min_range_2,int enemy_id)
+/*int GetOnGroundIdE(float x,float y,float min_range_1,float min_range_2,int enemy_id)
 {
   int i=0,j=-1,Ground_id=0,on_grid_id=0;
-  double ground_entity_E=0,height_from_ground=0,_x=x,_y=y;
+  float ground_entity_E=0,height_from_ground=0,_x=x,_y=y;
 
 
   int main_grid_id=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
 
   if (main_grid_id!=-1) {
   if (VGrid[main_grid_id]->max_ground_num>0) {
-  double main_grid_x=(VGrid[main_grid_id]->x1+VGrid[main_grid_id]->x2)/2;
-  double main_grid_y=(VGrid[main_grid_id]->y1+VGrid[main_grid_id]->y2)/2;
+  float main_grid_x=(VGrid[main_grid_id]->x1+VGrid[main_grid_id]->x2)/2;
+  float main_grid_y=(VGrid[main_grid_id]->y1+VGrid[main_grid_id]->y2)/2;
   int in_quadrant=0; //0=topleft, 1=topright, 2=lowerleft, 3=lowerright
   int index_quadrant=0;
   if (y<main_grid_y) {
@@ -611,11 +611,11 @@ int GetOnGroundIdPlayer(double x,double y,double min_range_1,double min_range_2)
 }*/
 
 
-int GetOnGroundIdE(double x,double y,double min_range_1,double min_range_2,int enemy_id)
+int GetOnGroundIdE(float x,float y,float min_range_1,float min_range_2,int enemy_id)
 {
   //checks 1 grid only for efficiency but theres a risk of clipping
   int i=0,j=-1,Ground_id=0;
-  double ground_entity_E=0,height_from_ground=0,_x=x,_y=y;
+  float ground_entity_E=0,height_from_ground=0,_x=x,_y=y;
 
   int on_grid_id=GetGridId(x,y,MAP_WIDTH,VGRID_SIZE,VGRID_NUM);
   if (on_grid_id!=-1) {
@@ -658,7 +658,7 @@ int GetOnGroundIdE(double x,double y,double min_range_1,double min_range_2,int e
 void DestroyGround(int i)
 {
   int lg_grid_id=0,node_grid_id=0,x=0,y=0,min=0,max=0;
-  double lg_x=0,lg_y=0;
+  float lg_x=0,lg_y=0;
   if (-1<Ground[i]->gradient && Ground[i]->gradient<1) {
     for (x=Ground[i]->x1;x<Ground[i]->x2;x++) {
       lg_y=x*Ground[i]->gradient+Ground[i]->c;
@@ -670,7 +670,7 @@ void DestroyGround(int i)
       }
 
       for (int n=0;n<4;n++) {
-        double llg_x,llg_y;
+        float llg_x,llg_y;
         switch (n) {
           case 0:llg_x=x-NODE_SIZE;llg_y=lg_y-NODE_SIZE;break;
           case 1:llg_x=x+NODE_SIZE;llg_y=lg_y-NODE_SIZE;break;
@@ -707,7 +707,7 @@ void DestroyGround(int i)
         NodeGrid[node_grid_id]->node_solid=FALSE;
       }
       for (int n=0;n<4;n++) {
-          double llg_x,llg_y;
+          float llg_x,llg_y;
           switch (n) {
             case 0:llg_x=lg_x-NODE_SIZE;llg_y=y-NODE_SIZE;break;
             case 1:llg_x=lg_x+NODE_SIZE;llg_y=y-NODE_SIZE;break;

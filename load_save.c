@@ -32,23 +32,23 @@ int *saved_ground_type;
 int *saved_ground_text_size;
 
 int *saved_enemy_type;//[MAX_ENEMY_NUM];
-double *saved_enemy_x;//[MAX_ENEMY_NUM];
-double *saved_enemy_y;//[MAX_ENEMY_NUM];
+float *saved_enemy_x;//[MAX_ENEMY_NUM];
+float *saved_enemy_y;//[MAX_ENEMY_NUM];
 
 
-double *saved_ground_x1;
-double *saved_ground_y1;
-double *saved_ground_x2;
-double *saved_ground_y2;
-double *saved_ground_x3;
-double *saved_ground_y3;
+float *saved_ground_x1;
+float *saved_ground_y1;
+float *saved_ground_x2;
+float *saved_ground_y2;
+float *saved_ground_x3;
+float *saved_ground_y3;
 wchar_t **saved_ground_text;
 
 
 
 //Enemy Type (fixed value of 10)
-double saved_enemy_type_speed[ENEMY_TYPE_NUM];
-double saved_enemy_type_bullet_speed[ENEMY_TYPE_NUM];
+float saved_enemy_type_speed[ENEMY_TYPE_NUM];
+float saved_enemy_type_bullet_speed[ENEMY_TYPE_NUM];
 int saved_enemy_type_species[ENEMY_TYPE_NUM];
 int saved_large_enemy_type_species[ENEMY_TYPE_NUM];
 int saved_larger_enemy_type_species[ENEMY_TYPE_NUM];
@@ -80,8 +80,8 @@ bool saved_larger_enemy_type_time_breaker_immune[ENEMY_TYPE_NUM];
 
 
 
-double set_enemy_type_speed[ENEMY_TYPE_NUM];
-double set_enemy_type_bullet_speed[ENEMY_TYPE_NUM];
+float set_enemy_type_speed[ENEMY_TYPE_NUM];
+float set_enemy_type_bullet_speed[ENEMY_TYPE_NUM];
 int set_enemy_type_species[ENEMY_TYPE_NUM];
 int set_enemy_type_follow_range[ENEMY_TYPE_NUM];
 int set_enemy_type_unchase_range[ENEMY_TYPE_NUM];
@@ -105,7 +105,7 @@ int set_enemy_type_time_breaker_length[ENEMY_TYPE_NUM];
 bool set_enemy_type_time_breaker_immune[ENEMY_TYPE_NUM];
 
 
-/*double *enemy_type_double_pointer[ENEMY_F64_ATTRIBUTES_NUM]=
+/*float *enemy_type_float_pointer[ENEMY_F64_ATTRIBUTES_NUM]=
 {
   saved_enemy_type_speed,
   saved_enemy_type_bullet_speed
@@ -136,8 +136,8 @@ int* enemy_type_int_pointer[ENEMY_I64_ATTRIBUTES_NUM]=
   saved_enemy_type_time_breaker_length
 };*/
 
-double saved_player_x;
-double saved_player_y;
+float saved_player_x;
+float saved_player_y;
 int map_background;
 int custom_map_background_color;
 int custom_map_background_color_i;
@@ -147,10 +147,10 @@ bool is_shadows=FALSE;
 int map_weather=0;
 
 int rain_sound_duration=0;
-double shadow_grad_rise=2;
-double shadow_grad_run=1;
-double rain_grad_rise=1;
-double rain_grad_run=1;
+float shadow_grad_rise=2;
+float shadow_grad_run=1;
+float rain_grad_rise=1;
+float rain_grad_run=1;
 
 
 int level_num=0;
@@ -204,8 +204,8 @@ bool LoadSave(wchar_t *saves_name, bool spawn_objects)
   int set_txt_size=0;
   int int_val=0;
   int int_saved_val=0;
-  double double_val;
-  double double_saved_val;
+  float float_val;
+  float float_saved_val;
   
   //for string char
   int char_utf16=0;
@@ -266,16 +266,16 @@ bool LoadSave(wchar_t *saves_name, bool spawn_objects)
 
             saved_enemy_type=calloc(ENEMY_NUM,sizeof(int));
             saved_ground_text_size=calloc(GROUND_NUM,sizeof(int));
-            saved_enemy_x=calloc(ENEMY_NUM,sizeof(double));
-            saved_enemy_y=calloc(ENEMY_NUM,sizeof(double));
+            saved_enemy_x=calloc(ENEMY_NUM,sizeof(float));
+            saved_enemy_y=calloc(ENEMY_NUM,sizeof(float));
 
 
-            saved_ground_x1=calloc(GROUND_NUM,sizeof(double));
-            saved_ground_y1=calloc(GROUND_NUM,sizeof(double));
-            saved_ground_x2=calloc(GROUND_NUM,sizeof(double));
-            saved_ground_y2=calloc(GROUND_NUM,sizeof(double));
-            saved_ground_x3=calloc(GROUND_NUM,sizeof(double));
-            saved_ground_y3=calloc(GROUND_NUM,sizeof(double));
+            saved_ground_x1=calloc(GROUND_NUM,sizeof(float));
+            saved_ground_y1=calloc(GROUND_NUM,sizeof(float));
+            saved_ground_x2=calloc(GROUND_NUM,sizeof(float));
+            saved_ground_y2=calloc(GROUND_NUM,sizeof(float));
+            saved_ground_x3=calloc(GROUND_NUM,sizeof(float));
+            saved_ground_y3=calloc(GROUND_NUM,sizeof(float));
             saved_ground_text=calloc(GROUND_NUM,sizeof(wchar_t*));
             for (int i=0;i<GROUND_NUM;i++) {
               saved_ground_text[i]=(wchar_t*)malloc(512*sizeof(wchar_t));
@@ -320,10 +320,10 @@ bool LoadSave(wchar_t *saves_name, bool spawn_objects)
 
             break;
           case 40:
-            saved_player_x=(double)int_saved_val;
+            saved_player_x=(float)int_saved_val;
             break;
           case 41:
-            saved_player_y=(double)int_saved_val;
+            saved_player_y=(float)int_saved_val;
             break;
           case 42:
             map_background=int_saved_val;
@@ -355,11 +355,11 @@ bool LoadSave(wchar_t *saves_name, bool spawn_objects)
               int_saved_val+=int_val; //append number digit to right side
             } else {
               if (deci) {
-                double_val=(double)(c-'0')*0.1;
-                double_saved_val+=double_val;
+                float_val=(float)(c-'0')*0.1;
+                float_saved_val+=float_val;
                 deci=FALSE;
               } else {
-                double_saved_val=c-'0';
+                float_saved_val=c-'0';
                 deci=TRUE;
               }
             }
@@ -373,12 +373,12 @@ bool LoadSave(wchar_t *saves_name, bool spawn_objects)
             //ground
             if (row>=4 && row<=12) {
               switch (row) {
-                case 4: saved_ground_x1[column]=(double)int_saved_val; break;
-                case 5: saved_ground_y1[column]=(double)int_saved_val; break;
-                case 6: saved_ground_x2[column]=(double)int_saved_val; break;
-                case 7: saved_ground_y2[column]=(double)int_saved_val; break;
-                case 8: saved_ground_x3[column]=(double)int_saved_val; break;
-                case 9: saved_ground_y3[column]=(double)int_saved_val; break;
+                case 4: saved_ground_x1[column]=(float)int_saved_val; break;
+                case 5: saved_ground_y1[column]=(float)int_saved_val; break;
+                case 6: saved_ground_x2[column]=(float)int_saved_val; break;
+                case 7: saved_ground_y2[column]=(float)int_saved_val; break;
+                case 8: saved_ground_x3[column]=(float)int_saved_val; break;
+                case 9: saved_ground_y3[column]=(float)int_saved_val; break;
                 case 10: saved_ground_is_ghost[column]=(bool)int_saved_val; break;
                 case 11: saved_ground_color[column]=int_saved_val; break;
                 case 12: saved_ground_type[column]=int_saved_val; break;
@@ -387,14 +387,14 @@ bool LoadSave(wchar_t *saves_name, bool spawn_objects)
             //enemy
               switch (row) {
                 case 14:saved_enemy_type[column]=int_saved_val; //int
-                case 15:saved_enemy_x[column]=(double)int_saved_val; //double
-                case 16:saved_enemy_y[column]=(double)int_saved_val; //double
+                case 15:saved_enemy_x[column]=(float)int_saved_val; //float
+                case 16:saved_enemy_y[column]=(float)int_saved_val; //float
               }
             } else { //17
             //enemy type
               switch (row) {
-                case 17: saved_enemy_type_speed[column]=double_saved_val;break;    //NOTE: can be in decimals 
-                case 18: saved_enemy_type_bullet_speed[column]=double_saved_val;break; //NOTE: can be in decimals 
+                case 17: saved_enemy_type_speed[column]=float_saved_val;break;    //NOTE: can be in decimals 
+                case 18: saved_enemy_type_bullet_speed[column]=float_saved_val;break; //NOTE: can be in decimals 
                 case 19: saved_enemy_type_species[column]=int_saved_val;break;
                 case 20: saved_enemy_type_follow_range[column]=int_saved_val;break;
                 case 21: saved_enemy_type_unchase_range[column]=int_saved_val;break;
@@ -466,7 +466,7 @@ bool LoadSave(wchar_t *saves_name, bool spawn_objects)
               char_pos=0;//restart value
               set_txt_size=0;
             }
-          } else { //not double quotations
+          } else { //not float quotations
             if (writing_txt) {
               if (!is_calc_utf16) {
                 if (c!='{') {
@@ -536,7 +536,7 @@ void LoadOptions()
 
   int c,row=0; //each character
   int int_val=0,int_saved_val=0;
-  double double_val=0,double_saved_val=0;
+  float float_val=0,float_saved_val=0;
   bool deci=FALSE;
   FILE *fptr;
   fptr = _wfopen(L"saves/options.txt",L"r");
@@ -549,15 +549,15 @@ void LoadOptions()
           int_saved_val*=10; //move digit to left
           int_saved_val+=int_val; //append number digit to right side
         }
-      } else { //row 5 and 6 is double values
+      } else { //row 5 and 6 is float values
         if (c>='0' && c<='9') {
           if (deci) { //post '.'
-            double_val=(double)(c-'0')*0.1;
-            double_saved_val+=double_val;
+            float_val=(float)(c-'0')*0.1;
+            float_saved_val+=float_val;
           } else { //pre '.'
-            double_val=c-'0';
-            double_saved_val*=10;
-            double_saved_val+=double_val;
+            float_val=c-'0';
+            float_saved_val*=10;
+            float_saved_val+=float_val;
           }
         } else if (c=='.') {
           deci=TRUE;
@@ -581,10 +581,10 @@ void LoadOptions()
           game_audio=int_saved_val;
           break;
         case 5:
-          game_volume=double_saved_val;
+          game_volume=float_saved_val;
           break;
         case 6:
-          wav_out_volume=double_saved_val;
+          wav_out_volume=float_saved_val;
           break;
         case 7:
           yes_unifont=int_saved_val;
@@ -614,10 +614,10 @@ void LoadOptions()
           free_will=int_saved_val;
           break;
       }
-      //printf("row:%d,option:%d,%5.4f\n",row,int_saved_val,double_saved_val);
+      //printf("row:%d,option:%d,%5.4f\n",row,int_saved_val,float_saved_val);
       deci=FALSE;
       int_saved_val=0;
-      double_saved_val=0;
+      float_saved_val=0;
       row++;
     }
   }

@@ -140,7 +140,7 @@ HWAVEOUT hWaveOut[SND_THREAD_NUM];
 WAVEHDR whdr[SND_THREAD_NUM];
 
 //to restore on shutdown (what if crash)?
-double wav_out_volume=0.50;
+float wav_out_volume=0.50;
 DWORD wav_out_original_volume;
 
 
@@ -172,12 +172,12 @@ void loadSoundEffect(wavSoundEffect* mySoundEffect,const wchar_t* filename,bool 
     fclose(file);
 
     mySoundEffect->filesize = filesize;
-    mySoundEffect->duration = (double)filesize / ( mySoundEffect->wav_header->SamplesPerSec * mySoundEffect->wav_header->NumOfChan * mySoundEffect->wav_header->bitsPerSample/8) *1000;
+    mySoundEffect->duration = (float)filesize / ( mySoundEffect->wav_header->SamplesPerSec * mySoundEffect->wav_header->NumOfChan * mySoundEffect->wav_header->bitsPerSample/8) *1000;
   }
 }
 
 
-int16_t* adjustSFXVol(const int16_t* src, long filesize, double volumeFactor,bool skipped_header)
+int16_t* adjustSFXVol(const int16_t* src, long filesize, float volumeFactor,bool skipped_header)
 {
   memset(SND_MEM_STACK, 0, SND_MEM_STACK_SIZE);
   memcpy(SND_MEM_STACK,src,filesize);  
@@ -185,7 +185,7 @@ int16_t* adjustSFXVol(const int16_t* src, long filesize, double volumeFactor,boo
   if (skipped_header)
     start=0;
   for (long i=start; i<filesize; i++) {
-    double scaled_value=(double)SND_MEM_STACK[i]*volumeFactor;
+    float scaled_value=(float)SND_MEM_STACK[i]*volumeFactor;
     if (scaled_value >= INT16_MAX) {
       SND_MEM_STACK[i] = INT16_MAX;
     } else if (scaled_value <= INT16_MIN) {
@@ -200,7 +200,7 @@ int16_t* adjustSFXVol(const int16_t* src, long filesize, double volumeFactor,boo
 }
 
 
-void adjustSFXVolume(wavSoundEffectCache* mySoundEffectCache, wavSoundEffect* mySoundEffect, double game_volume,bool skipped_header)
+void adjustSFXVolume(wavSoundEffectCache* mySoundEffectCache, wavSoundEffect* mySoundEffect, float game_volume,bool skipped_header)
 {
   //keySoundEffectCache[i].audio=adjustSFXVolume(keySoundEffect[i].audio,keySoundEffect[i].filesize,game_volume);
   mySoundEffectCache->audio = adjustSFXVol( mySoundEffect->audio, mySoundEffect->filesize, game_volume, skipped_header);

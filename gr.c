@@ -195,7 +195,7 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
   int calc;
   for(int i=0; i<256; i++) {
     calc=i/16;
-    double index_range = i-16*calc+1; //0 to 15 //0,1, 2,3, 4,5, 6,7      8,9, 10,11, 12,13, 14,15
+    float index_range = i-16*calc+1; //0 to 15 //0,1, 2,3, 4,5, 6,7      8,9, 10,11, 12,13, 14,15
     switch (calc) {
       case 0: //BLACK
         rgbColors[i].rgbRed = i/2;
@@ -403,9 +403,9 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
         rgbColors[i].rgbReserved = 0;
         break;
       case 15: //WHITE
-        rgbColors[i].rgbRed =  255;//ceil((double)(i-16*calc+1)*255/16);
-        rgbColors[i].rgbGreen = 255;//ceil((double)(i-16*calc+1)*255/16);
-        rgbColors[i].rgbBlue = 255;//ceil((double)(i-16*calc+1)*255/16);
+        rgbColors[i].rgbRed =  255;//ceil((float)(i-16*calc+1)*255/16);
+        rgbColors[i].rgbGreen = 255;//ceil((float)(i-16*calc+1)*255/16);
+        rgbColors[i].rgbBlue = 255;//ceil((float)(i-16*calc+1)*255/16);
         rgbColors[i].rgbReserved = 0;
         break;
     }
@@ -770,7 +770,7 @@ HBITMAP CreateBitmapMask(HBITMAP hbmColour, COLORREF crTransparent, HDC hdc)
 
 
 //Graphics
-void GrRect(HDC hdc, double x,double y,int l, int h,int COLOR) {
+void GrRect(HDC hdc, float x,float y,int l, int h,int COLOR) {
   HBRUSH hBrush,holdBrush;
   HPEN hPen,holdPen;
 
@@ -981,7 +981,7 @@ HBITMAP LoadRLE8CompressedBitmap(const wchar_t *filePath) {
 
 
 
-void GrLine(HDC hdc, double x1,double y1,double x2,double y2,int COLOR) {
+void GrLine(HDC hdc, float x1,float y1,float x2,float y2,int COLOR) {
   HPEN hPen = CreatePen(PS_SOLID, 1, COLOR);
   HPEN hOldPen = SelectObject(hdc, hPen);
   MoveToEx(hdc,x1,y1,NULL);
@@ -990,7 +990,7 @@ void GrLine(HDC hdc, double x1,double y1,double x2,double y2,int COLOR) {
   DeleteObject(hPen);
 }
 
-void GrLineThick(HDC hdc, double x1,double y1,double x2,double y2,int size,int COLOR) {
+void GrLineThick(HDC hdc, float x1,float y1,float x2,float y2,int size,int COLOR) {
   HPEN hPen = CreatePen(PS_SOLID, size, COLOR);
   HPEN hOldPen = SelectObject(hdc, hPen);
   MoveToEx(hdc,x1,y1,NULL);
@@ -1000,7 +1000,7 @@ void GrLineThick(HDC hdc, double x1,double y1,double x2,double y2,int size,int C
 }
 
 
-void GrDottedLine(HDC hdc, double x1,double y1,double x2,double y2,int COLOR) {
+void GrDottedLine(HDC hdc, float x1,float y1,float x2,float y2,int COLOR) {
   DWORD dashPattern[2] = { 10, 5 };
   //10 pixels solid, 5 pixels gap 
   LOGBRUSH lb = { BS_SOLID, COLOR, 0 }; // Black color // Create a custom pen with the dash pattern 
@@ -1012,12 +1012,12 @@ void GrDottedLine(HDC hdc, double x1,double y1,double x2,double y2,int COLOR) {
   DeleteObject(hPen);
 }
 
-void GrCircle(HDC hdc, double x, double y, int size, int COLOR, int COLOR_2) {
+void GrCircle(HDC hdc, float x, float y, int size, int COLOR, int COLOR_2) {
 //Shape Coordinates
-  double x1=x-size;
-  double y1=y-size;
-  double x2=x+size;
-  double y2=y+size;
+  float x1=x-size;
+  float y1=y-size;
+  float x2=x+size;
+  float y2=y+size;
 
   int left = min(x1, x2);
   int top = min(y1, y2);
@@ -1050,12 +1050,12 @@ void GrCircle(HDC hdc, double x, double y, int size, int COLOR, int COLOR_2) {
 }
 
 
-/*void GrDashCircle(HDC hdc, double x, double y, int size, int COLOR, int COLOR_2) {
+/*void GrDashCircle(HDC hdc, float x, float y, int size, int COLOR, int COLOR_2) {
     // Shape Coordinates
-    double x1 = x - size;
-    double y1 = y - size;
-    double x2 = x + size;
-    double y2 = y + size;
+    float x1 = x - size;
+    float y1 = y - size;
+    float x2 = x + size;
+    float y2 = y + size;
 
     int left = (int)min(x1, x2);
     int top = (int)min(y1, y2);
@@ -1202,7 +1202,7 @@ void GrPrintThick(HDC hdc,int x, int y, char *_txt,int color1,int color2)
 }
 
 
-void GrPrintA(HDC hdc, double x1, double y1, wchar_t *_txt, int color) 
+void GrPrintA(HDC hdc, float x1, float y1, wchar_t *_txt, int color) 
 {//https://forums.codeguru.com/showthread.php?329037-Drawtext-with-japanese-character
 //https://stackoverflow.com/questions/1974015/how-to-use-drawtext-to-write-text-in-a-given-window-whose-handle-is-known
 
@@ -1236,7 +1236,7 @@ void CreateNoirPalette()
 
 
 
-void DrawBitmap(HDC hDC, HDC hdcMem,double _x1,double _y1, double _x2, double _y2, int width, int height, HBITMAP hSourceBitmap,int _SRCTYPE,bool stretch,bool is_left)
+void DrawBitmap(HDC hDC, HDC hdcMem,float _x1,float _y1, float _x2, float _y2, int width, int height, HBITMAP hSourceBitmap,int _SRCTYPE,bool stretch,bool is_left)
 
 {
   if (hSourceBitmap!=NULL) {
@@ -1266,7 +1266,7 @@ void DrawBitmap(HDC hDC, HDC hdcMem,double _x1,double _y1, double _x2, double _y
 ////https://www.codeguru.com/multimedia/rotate-a-bitmap-image/
 ////https://github.com/StephanBusch/EcoZip/blob/35c215fbc3efc16951182f6127885d22d11a018e/EcoZipFM/ImageUtils.cpp
 
-HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, double radians,int rTransparent, int old_color, int sprite_color, int sprite_color_2) 
+HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, float radians,int rTransparent, int old_color, int sprite_color, int sprite_color_2) 
 { //if (hSourceBitmap != NULL) { ////https://ftp.zx.net.nz/pub/Patches/ftp.microsoft.com/MISC/KB/en-us/77/127.HTM
  //https://github.com/StephanBusch/EcoZip/blob/35c215fbc3efc16951182f6127885d22d11a018e/EcoZipFM/ImageUtils.cpp
   HBITMAP hOldSourceBitmap, hOldDestBitmap, hDestBitmap; ////https://www.codeguru.com/multimedia/rotate-a-bitmap-image/
@@ -1285,8 +1285,8 @@ HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, double radians,int rTranspa
 
   //printf("bits:%d",iSrcBitmap.bmBitsPixel)
   // Get logical coordinates
-  double cosine = (double)cos(radians);
-  double sine = (double)sin(radians);
+  float cosine = (float)cos(radians);
+  float sine = (float)sin(radians);
 
   // Compute dimensions of the resulting bitmap
   // First get the coordinates of the 3 corners other than origin
@@ -1383,7 +1383,7 @@ HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, double radians,int rTranspa
   return (hDestBitmap);
 }
 
-HBITMAP GetRotated8BitBitmap(HBITMAP hBitmap,double radians,COLORREF clrBack)
+HBITMAP GetRotated8BitBitmap(HBITMAP hBitmap,float radians,COLORREF clrBack)
 {
 //***https://forums.codeguru.com/showthread.php?111988-rotating-a-HBITMAP***
 //###https://www.codeguru.com/multimedia/rotate-a-bitmap-at-any-angle-without-getpixel-setpixel/###
@@ -1451,8 +1451,8 @@ HBITMAP GetRotated8BitBitmap(HBITMAP hBitmap,double radians,COLORREF clrBack)
 
 
   //Get Dimensions of rotated bitmap
-  double cosine = cos(radians);
-  double sine = sin(radians);
+  float cosine = cos(radians);
+  float sine = sin(radians);
   int newWidth = (int)(abs(width*cosine) + abs(height*sine));
   int newHeight = (int)(abs(width*sine) + abs(height*cosine));
 
@@ -1730,7 +1730,7 @@ void ReplaceBitmapColor2(HBITMAP hBitmap,
 
 
 
-void DrawTriFill(HDC hdc, int tri_color, double x1,double y1,double x2,double y2,double x3,double y3,bool IsHatch,int hatch_type)
+void DrawTriFill(HDC hdc, int tri_color, float x1,float y1,float x2,float y2,float x3,float y3,bool IsHatch,int hatch_type)
 {//https://stackoverflow.com/questions/33447305/c-windows32-gdi-fill-triangle
   HPEN hPen = CreatePen(PS_SOLID, 2, tri_color);
   HPEN hOldPen = SelectObject(hdc, hPen);
@@ -2303,14 +2303,14 @@ void DrawTexturedTriangle(HDC hdc, HDC hdc2, int x1, int y1, int x2, int y2, int
 
 RGBQUAD waterPalette[256];
 void SetTexturePalette(int target_color_id,RGBQUAD *myTexturePalette) {
-  double grey_val_r;
-  double grey_val_g;
-  double grey_val_b;
+  float grey_val_r;
+  float grey_val_g;
+  float grey_val_b;
   target_color_id=rgbPaint_i[target_color_id];
   for (int i=0;i<256;i++) {
-    grey_val_r=((double)(rgbColorsNoir[i/*255-i*/].rgbRed))/255*rgbColorsDefault[target_color_id].rgbRed;
-    grey_val_g=((double)(rgbColorsNoir[i/*255-i*/].rgbGreen))/255*rgbColorsDefault[target_color_id].rgbGreen;
-    grey_val_b=((double)(rgbColorsNoir[i/*255-i*/].rgbBlue))/255*rgbColorsDefault[target_color_id].rgbBlue;
+    grey_val_r=((float)(rgbColorsNoir[i/*255-i*/].rgbRed))/255*rgbColorsDefault[target_color_id].rgbRed;
+    grey_val_g=((float)(rgbColorsNoir[i/*255-i*/].rgbGreen))/255*rgbColorsDefault[target_color_id].rgbGreen;
+    grey_val_b=((float)(rgbColorsNoir[i/*255-i*/].rgbBlue))/255*rgbColorsDefault[target_color_id].rgbBlue;
     myTexturePalette[i].rgbRed=grey_val_r;
     myTexturePalette[i].rgbGreen=grey_val_g;
     myTexturePalette[i].rgbBlue=grey_val_b;

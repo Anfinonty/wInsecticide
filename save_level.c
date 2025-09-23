@@ -555,12 +555,12 @@ void SaveMELvl(HWND hwnd,HDC hdc)
 
     //ENEMY TYPE
     //enemy Type,, NOTE: ENEMY_TYPE NUM DOES NOT CHANGE
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) { //double type var
+    for (int i=0;i<ENEMY_TYPE_NUM;i++) { //float type var
       fprintf(fptr,"%3.1f,",set_enemy_type_speed[i]);
     }
     fprintf(fptr,";\n");
 
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) { //double type var
+    for (int i=0;i<ENEMY_TYPE_NUM;i++) { //float type var
       fprintf(fptr,"%3.1f,",set_enemy_type_bullet_speed[i]);
     }
     fprintf(fptr,";\n");

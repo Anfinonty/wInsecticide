@@ -418,8 +418,8 @@ void InitNodeShade()
   int tmp_on_ground_id=-1;
   int on_node_grid_id=-1;
   int lim=0,delta=0;;
-  double gradient=rain_grad_rise/rain_grad_run; //y/x to down-right
-  double start_x=0,x=0,y=0;
+  float gradient=rain_grad_rise/rain_grad_run; //y/x to down-right
+  float start_x=0,x=0,y=0;
 
   if (gradient>0) {
     start_x=-MAP_HEIGHT;
@@ -458,10 +458,10 @@ void InitNodeShade()
   }
 }
 
-/*bool IsCollideSolid(double x1,double y1,double x2,double y2,double gradient,double c)
+/*bool IsCollideSolid(float x1,float y1,float x2,float y2,float gradient,float c)
 {
   int node_grid_id=0,x=0,y=0,min=0,max=0;
-  double lg_x,lg_y;
+  float lg_x,lg_y;
   if (-1<gradient && gradient<1) { // y=mx+c
     for (x=x1;x<=x2;x++) {
       lg_y=x*gradient+c;
@@ -538,7 +538,7 @@ bool IsHasNeighbours(int nx,int ny)
 void SetNodeGridAttributes2(int i)
 {
   int j=0,x=0,y=0,lg_grid_id=0,min=0,max=0,x1=0,y1=0;
-  double gradient1,gradient2,c1,c2,lg_x=0,lg_y=0,gradient=0,c=0;
+  float gradient1,gradient2,c1,c2,lg_x=0,lg_y=0,gradient=0,c=0;
   gradient1=GetGradient(Ground[i]->x1,Ground[i]->y1,Ground[i]->x3,Ground[i]->y3);
   gradient2=GetGradient(Ground[i]->x2,Ground[i]->y2,Ground[i]->x3,Ground[i]->y3);
   c1=GetGroundC(Ground[i]->x3,Ground[i]->y3,gradient1);
@@ -594,7 +594,7 @@ void SetNodeGridAttributes2(int i)
 void TriFillGridType(int gid, int part)
 {
   if (Ground[gid]->type==1 || (Ground[gid]->type>=3 && Ground[gid]->type<=8)) {
-    double
+    float
         gradient_middle1,gradient_middle2,gradient_largest,
         c_middle1,c_middle2,c_largest,
         smallest=INT_MAX,largest=0,
@@ -725,7 +725,7 @@ void TriFillNodeGridType(int gid)
 
 
   if (Ground[gid]->type==1 || (Ground[gid]->type>=3 && Ground[gid]->type<=8)) {
-  double
+  float
       gradient_middle1,gradient_middle2,gradient_largest,
       c_middle1,c_middle2,c_largest,
       smallest=INT_MAX,largest=0,
@@ -834,7 +834,7 @@ void TriFillNodeGridType(int gid)
 void SetNodeGridAttributes(int i)
 {
   int lg_grid_id=0,node_grid_id=0,x=0,y=0,min=0,max=0;
-  double lg_x=0,lg_y=0;
+  float lg_x=0,lg_y=0;
   if (-1<Ground[i]->gradient && Ground[i]->gradient<1) { // y=mx+c
     for (x=Ground[i]->x1;x<Ground[i]->x2;x++) {
       lg_y=x*Ground[i]->gradient+Ground[i]->c;
@@ -848,7 +848,7 @@ void SetNodeGridAttributes(int i)
         }
       }
       /*for (int n=0;n<4;n++) {
-        double llg_x,llg_y;
+        float llg_x,llg_y;
         switch (n) {
           case 0:llg_x=x-NODE_SIZE;llg_y=lg_y-NODE_SIZE;break;
           //case 1:llg_x=x;llg_y=lg_y-NODE_SIZE;break;
@@ -896,7 +896,7 @@ void SetNodeGridAttributes(int i)
         }
       }
       for (int n=0;n<4;n++) {
-          double llg_x,llg_y;
+          float llg_x,llg_y;
           switch (n) {
             case 0:llg_x=lg_x-NODE_SIZE;llg_y=y-NODE_SIZE;break;
             //case 1:llg_x=lg_x;llg_y=y-NODE_SIZE;break;
@@ -961,7 +961,7 @@ void DrawGrids(HDC hdc,int player_cam_move_x,int player_cam_move_y)
 void DrawNodeGrids(HDC hdc)
 {
   int x,y;
-  double dist;
+  float dist;
   if (level_loaded) {
   for (int i=0;i<MAP_NODE_NUM;i++) {
     x=NodeGrid[i]->x1+player.cam_x+player.cam_move_x;
@@ -990,7 +990,7 @@ struct photon
   bool in_solid,
        passed_solid;
   int dist_travelled;
-  double rise,run;
+  float rise,run;
 } photon;
 
 
@@ -1081,14 +1081,14 @@ void DrawShadows3(HBITMAP destBitmap, HBITMAP sourceBitmap, BITMAPINFO* bmInfo,i
 }
 
 
-void CreatePlatformShadowBitmap2(HDC hdc,HBITMAP hBitmap, double rise, double run, COLORREF clrBack)
+void CreatePlatformShadowBitmap2(HDC hdc,HBITMAP hBitmap, float rise, float run, COLORREF clrBack)
 {
 /*
 
 struct photon
 {
     bool passed_solid;
-    double x,y;
+    float x,y;
 }
 
 
@@ -1158,8 +1158,8 @@ non-solids
     DeleteDC(hMemDest);
 
 
-    double gradient=photon.rise / photon.run;
-    double start_x=0, x=0, y=0, _start_x=0;
+    float gradient=photon.rise / photon.run;
+    float start_x=0, x=0, y=0, _start_x=0;
 
 
     photon.dist_travelled=0;
