@@ -196,8 +196,9 @@ int enemy_kills=0;
 int int_best_score=0; //to store to write
 int frame_tick=-10;
 
-int global_update_reflection_timer=0;
-int global_update_reflection_timer_max=0;
+//int global_update_reflection_timer=0;
+//int global_update_reflection_timer_max=0;
+int global_screen_bits=32;
 
 //int FPS = 60;
 int FPS = 35; //minimum FPS, otherwise run according to screen refresh rate
@@ -1379,26 +1380,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
 
           //screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
-
           SelectObject(hdcBackbuff,screen);
 
           DrawMovingAVI(hdcBackbuff,hdcBackbuff2);
 
           DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-370/2,GR_HEIGHT/2-370/2-48,0,0,370,370,intro_msg_mask,SRCAND,FALSE,FALSE);
           DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-370/2,GR_HEIGHT/2-370/2-48,0,0,370,370,intro_msg,SRCPAINT,FALSE,FALSE);
-
-          /*if (loading_numerator==loading_denominator-2) {
-            BITMAP bmp;
-            if (GetObject(screen, sizeof(BITMAP), &bmp)) {
-               printf("Bitmap Info:\n");
-                printf("Width: %ld\n", bmp.bmWidth);
-                printf("Height: %ld\n", bmp.bmHeight);
-                printf("Bits per Pixel: %d\n", bmp.bmBitsPixel);
-                printf("Planes: %d\n", bmp.bmPlanes);
-                printf("Bytes per Line: %ld\n", bmp.bmWidthBytes);
-                printf("Total Size: %ld bytes\n", bmp.bmHeight * bmp.bmWidthBytes);
-            }
-          }*/
 
           if (loading_numerator<loading_denominator) {
             DrawLoading(hdcBackbuff);
@@ -1492,12 +1479,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             //      CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
             SelectObject(hdcBackbuff,screen);
             DrawBackground(hdcBackbuff,hdcBackbuff2);
-            global_update_reflection_timer++;
+
+
+            //global_update_reflection_timer++;
             if (player.in_water_timer>0 && WATER_GROUND_NUM>0) {        
               FastDrawWaterPlatformsTexture();
-              if (global_update_reflection_timer>=global_update_reflection_timer_max) {
-                global_update_reflection_timer=0;
-              }
+              //if (global_update_reflection_timer>=global_update_reflection_timer_max) {
+                //global_update_reflection_timer=0;
+              //}
               //SelectObject(hdcBackbuff2,screen_mirror);
               //DrawTexturedTriangle(hdcBackbuff2,hdcBackbuff,0,0,GR_WIDTH,GR_HEIGHT,GR_WIDTH,0,texture_water[global_water_texture_id]);
               //DrawTexturedTriangle(hdcBackbuff2,hdcBackbuff,0,0,0,GR_HEIGHT,GR_WIDTH,GR_HEIGHT,texture_water[global_water_texture_id]);
@@ -1521,13 +1510,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             //Draw water Reflection
             if (player.in_water_timer==0 && WATER_GROUND_NUM>0) {
-              if (global_update_reflection_timer>=global_update_reflection_timer_max) {
-                global_update_reflection_timer=0;
-                FastFlipLargeBitmapVertically(publicDstPixels,publicSrcPixels,SCREEN_WIDTH,GR_HEIGHT);
+              //if (global_update_reflection_timer>=global_update_reflection_timer_max) {
+                //global_update_reflection_timer=0;
+                FastFlipLargeBitmapVertically(publicDstPixels,SCREEN_WIDTH,publicSrcPixels,GR_WIDTH,GR_HEIGHT,global_screen_bits);
                 //DrawAlphaWaterColour(publicDstPixels);
                 //Draw watercolour onto overall screen
                 //BlendBitmapsSSE2(screen_mirror,screen_watercolour, 60);
-              }
+              //}
               //SelectObject(hdcBackbuff2,screen_mirror);
               //DrawWaterPlatformsReflection(hdcBackbuff,hdcBackbuff2,screen_mirror);
               FastDrawWaterPlatformsReflection();
@@ -1821,6 +1810,25 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //bufferbitmap to be refered to
       _bb=CreateBitmap(0,0, 1, 1, NULL);
 
+
+
+      BITMAP bmp;
+      HBITMAP tmp_bitmap=CreateCompatibleBitmap(GetDC(NULL),1,1);
+      if (GetObject(tmp_bitmap, sizeof(BITMAP), &bmp)) {
+          //printf("Bitmap Info:\n");
+          //printf("Width: %ld\n", bmp.bmWidth);
+          //printf("Height: %ld\n", bmp.bmHeight);
+          printf("Screen Mode: %d-bits\n", bmp.bmBitsPixel);
+          //printf("Planes: %d\n", bmp.bmPlanes);
+          //printf("Bytes per Line: %ld\n", bmp.bmWidthBytes);
+          //printf("Total Size: %ld bytes\n", bmp.bmHeight * bmp.bmWidthBytes);
+        global_screen_bits=16;//bmp.bmBitsPixel;//bmp.bmBitsPixel;
+      }
+      DeleteObject(tmp_bitmap);
+
+      screen=CreateLargeBitmapWithBuffer(SCREEN_WIDTH,SCREEN_HEIGHT,&publicSrcPixels,global_screen_bits);
+      screen_mirror=CreateLargeBitmapWithBuffer(SCREEN_WIDTH,SCREEN_HEIGHT,&publicDstPixels,global_screen_bits);
+
       //Loading Bar
       loading_numerator=0;
       loading_denominator=ROTATED_SPRITE_NUM*7; //(2roach,2toebiter,2ant,extratoebiter
@@ -2025,10 +2033,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       GR_HEIGHT=RESOLUTION_Y[resolution_choose];
       flag_resolution_change=TRUE;
 
-      screen=CreateLargeBitmapWithBuffer(SCREEN_WIDTH,SCREEN_HEIGHT,&publicSrcPixels);
-      screen_mirror=CreateLargeBitmapWithBuffer(SCREEN_WIDTH,SCREEN_HEIGHT,&publicDstPixels);
-
-
       //Load RNG Table
       LoadRngTable(L"saves/rngtable.txt");
 
@@ -2038,8 +2042,19 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       Init8BitRGBColorsInvert(rgbColorsInvert,rgbColorsDefault);
       Init8BitRGBPaintDefault(rgbPaint,rgbPaint_i,rgbColorsDefault,TRUE,8);
 
-      CopyReplaceColorPalette(rgbColorsRedToBlue,rgbColorsDefault,199,LTBLUE);
 
+
+      for (int cl=0;cl<256;cl++) {
+        BYTE r=(BYTE)rgbColorsDefault[cl].rgbRed;
+        BYTE g=(BYTE)rgbColorsDefault[cl].rgbGreen;
+        BYTE b=(BYTE)rgbColorsDefault[cl].rgbBlue;
+        uint16_t rgb565 = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3);
+        byte_16_color_arr[cl]=rgb565;
+      }
+
+
+
+      CopyReplaceColorPalette(rgbColorsRedToBlue,rgbColorsDefault,199,LTBLUE);
       wav_out_original_volume=VolumeValue(50,1); //set volume
       //waveOutGetVolume(hWaveOut[2],&wav_out_original_volume);
       //waveOutSetVolume(hWaveOut[6],wav_out_original_volume);
@@ -2257,10 +2272,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
      for (int i=0;i<9;i++) {
         wchar_t fname[48];
         swprintf(fname,48,L"sprites/textures/water_texture%d.bmp",i);        
-        HBITMAP tmp_bitmap = (HBITMAP) LoadImageW(NULL, fname, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);//LoadRLE8CompressedBitmap(fname);
-        texture_water[i] = CopyBitmapWithBuffer(tmp_bitmap,&ptexture_water[i],SRCCOPY);
+        HBITMAP tmp_bitmap = (HBITMAP) LoadImageW(NULL, fname, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+        texture_water[i] = CopyBitmapWithBuffer(tmp_bitmap,&ptexture_water[i],SRCCOPY,global_screen_bits); //Convert to appropriate bits
         DeleteObject(tmp_bitmap);
-        //texture_water[i]=(HBITMAP) LoadImageW(NULL, fname, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
       }
 
       dkrdkgray_shadow_tile = LoadRLE8CompressedBitmap(L"sprites/shadow_dkrdkgray.bmp");//(HBITMAP) LoadImageW(NULL, L"sprites/shadow_dkrdkgray.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
@@ -2272,12 +2286,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         wchar_t fname[32];
         swprintf(fname,32,L"sprites/player_cursor%d.bmp",i);
         player_cursor[i]=LoadRLE8CompressedBitmap(fname);
-            //LoadImageW(NULL,fname,IMAGE_BITMAP,0,0,LR_LOADFROMFILE);
         player_cursor_cache[i]=CopyCrunchyBitmap(player_cursor[i],SRCCOPY);
         ReplaceBitmapColor2(player_cursor_cache[i],LTGREEN,BLACK,8,LTGREEN);
         GenerateDrawSprite(&draw_player_cursor[i],player_cursor_cache[i]);
       }
-
 
       /*for (int i=0;i<5;i++) {
         wchar_t fname[32];

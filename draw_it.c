@@ -42,7 +42,7 @@ void PlaceDayMoon()
   HDC hdcSrc=CreateCompatibleDC(hdc);
   HDC hdcDest=CreateCompatibleDC(hdc);
 
-  HBITMAP tmp_bitmap=CreateLargeBitmap(backgroundbitmap.bmWidth,backgroundbitmap.bmHeight);
+  HBITMAP tmp_bitmap=CreateLargeBitmap(backgroundbitmap.bmWidth,backgroundbitmap.bmHeight,backgroundbitmap.bmBitsPixel);
   SelectObject(hdcDest,tmp_bitmap);
   SelectObject(hdcSrc,draw_mirror_moon_sprite[current_moon_phase_id].sprite_paint);
 
@@ -320,7 +320,7 @@ void FastDrawWaterPlatformsTexture()
             y2=GR_HEIGHT/2+(int)Ground[i]->y2-py+cy1+cy2+cy3;
             x3=GR_WIDTH/2+(int)Ground[i]->x3-px+cx1+cx2+cx3;
             y3=GR_HEIGHT/2+(int)Ground[i]->y3-py+cy1+cy2+cy3;
-            FastDrawTexturedTriangle(publicSrcPixels,x1,y1,x2,y2,x3,y3,SCREEN_WIDTH,ptexture_water[global_water_texture_id],160,160);
+            FastDrawTexturedTriangle(publicSrcPixels,x1,y1,x2,y2,x3,y3,SCREEN_WIDTH,ptexture_water[global_water_texture_id],160,160,global_screen_bits);
             //DrawGlassTriangle(publicSrcPixels, SCREEN_WIDTH, x1,y1,x2,y2,x3,y3,rgbColorsDefault,rgbPaint_i[Ground[i]->color_id],200);
         }
       }
@@ -355,7 +355,7 @@ void FastDrawWaterPlatformsReflection()
             y2=GR_HEIGHT/2+(int)Ground[i]->y2-py+cy1+cy2+cy3;
             x3=GR_WIDTH/2+(int)Ground[i]->x3-px+cx1+cx2+cx3;
             y3=GR_HEIGHT/2+(int)Ground[i]->y3-py+cy1+cy2+cy3;
-            FastDrawTexturedTriangle(publicSrcPixels,x1,y1,x2,y2,x3,y3,SCREEN_WIDTH,publicDstPixels,SCREEN_WIDTH,GR_HEIGHT);
+            FastDrawTexturedTriangle(publicSrcPixels,x1,y1,x2,y2,x3,y3,SCREEN_WIDTH,publicDstPixels,SCREEN_WIDTH,GR_HEIGHT,global_screen_bits);
             //DrawGlassTriangle(publicSrcPixels, SCREEN_WIDTH, x1,y1,x2,y2,x3,y3,rgbColorsDefault,rgbPaint_i[Ground[i]->color_id],200);
         }
       }
@@ -409,9 +409,9 @@ void DrawAlphaWaterColour(BYTE *pDst)
             x3=GR_WIDTH/2+(int)Ground[i]->x3-px+cx1+cx2+cx3;
             y3=GR_HEIGHT/2+(int)Ground[i]->y3-py+cy1+cy2+cy3;
             if (!player.time_breaker) {
-              DrawGlassTriangle(pDst, SCREEN_WIDTH, x1,y1,x2,y2,x3,y3,rgbColorsDefault,rgbPaint_i[Ground[i]->color_id],200);
+              DrawGlassTriangle(pDst, SCREEN_WIDTH, x1,y1,x2,y2,x3,y3,rgbColorsDefault,rgbPaint_i[Ground[i]->color_id],200,global_screen_bits);
             } else {
-              DrawGlassTriangle(pDst, SCREEN_WIDTH, x1,y1,x2,y2,x3,y3,rgbColorsNoir,rgbPaint_i[Ground[i]->color_id],200);
+              DrawGlassTriangle(pDst, SCREEN_WIDTH, x1,y1,x2,y2,x3,y3,rgbColorsNoir,rgbPaint_i[Ground[i]->color_id],200,global_screen_bits);
             }
 
         }

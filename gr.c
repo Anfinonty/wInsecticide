@@ -547,7 +547,7 @@ HBITMAP CreateCrunchyBitmap(int cx, int cy)
 
 
 
-HBITMAP CreateLargeBitmap(int cx, int cy)
+HBITMAP CreateLargeBitmap(int cx, int cy, int bits)
 {
 //https://forums.codeguru.com/showthread.php?526563-Accessing-Pixels-with-CreateDIBSection
  unsigned char* lpBitmapBits; 
@@ -558,20 +558,20 @@ HBITMAP CreateLargeBitmap(int cx, int cy)
   bi.bmiHeader.biWidth=cx;
   bi.bmiHeader.biHeight=-cy;
   bi.bmiHeader.biPlanes=1;
-  bi.bmiHeader.biBitCount=16;
+  bi.bmiHeader.biBitCount=bits;
   return CreateDIBSection(NULL, &bi,DIB_RGB_COLORS, (VOID**)&lpBitmapBits,NULL,0);
 }
 
 
 
 
-HBITMAP CreateLargeBitmapWithBuffer(int width, int height, BYTE** ppPixels) {
+HBITMAP CreateLargeBitmapWithBuffer(int width, int height, BYTE** ppPixels, int bits) {
     BITMAPINFO bmi = {0};
     bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
     bmi.bmiHeader.biWidth = width;
     bmi.bmiHeader.biHeight = -height; // Top-down
     bmi.bmiHeader.biPlanes = 1;
-    bmi.bmiHeader.biBitCount = 16;
+    bmi.bmiHeader.biBitCount = bits;
     bmi.bmiHeader.biCompression = BI_RGB;
 
     HDC hDC = GetDC(NULL);
@@ -582,11 +582,11 @@ HBITMAP CreateLargeBitmapWithBuffer(int width, int height, BYTE** ppPixels) {
 
 
 
-HBITMAP CopyBitmapWithBuffer(HBITMAP srcBitmap, BYTE **ppPixels, int SRCOPERATION)
+HBITMAP CopyBitmapWithBuffer(HBITMAP srcBitmap, BYTE **ppPixels, int SRCOPERATION, int bits)
 {
   BITMAP bm;
   GetObject(srcBitmap, sizeof(bm), &bm);
-  HBITMAP destBitmap=CreateLargeBitmapWithBuffer(bm.bmWidth,bm.bmHeight,ppPixels);
+  HBITMAP destBitmap=CreateLargeBitmapWithBuffer(bm.bmWidth,bm.bmHeight,ppPixels,bits);
 
   HDC hdcMem = CreateCompatibleDC(NULL);
   HDC hdcMem2 = CreateCompatibleDC(NULL);
@@ -662,7 +662,7 @@ HBITMAP CopyBitmap(HBITMAP srcBitmap,int SRCOPERATION)
 {
   BITMAP bm;
   GetObject(srcBitmap, sizeof(bm), &bm);
-  HBITMAP destBitmap=CreateLargeBitmap(bm.bmWidth,bm.bmHeight);
+  HBITMAP destBitmap=CreateLargeBitmap(bm.bmWidth,bm.bmHeight,bm.bmBitsPixel);
 
   HDC hdcMem = CreateCompatibleDC(NULL);
   HDC hdcMem2 = CreateCompatibleDC(NULL);
@@ -708,7 +708,7 @@ HBITMAP CopyStretchBitmap(HBITMAP srcBitmap,int SRCOPERATION, int nWidth, int nH
   BITMAP bm;
   GetObject(srcBitmap, sizeof(bm), &bm);
 
-  HBITMAP destBitmap=CreateLargeBitmap(nWidth,nHeight);
+  HBITMAP destBitmap=CreateLargeBitmap(nWidth,nHeight,bm.bmBitsPixel);
 
   HDC hdcMem = CreateCompatibleDC(NULL);
   HDC hdcMem2 = CreateCompatibleDC(NULL);
