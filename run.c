@@ -224,7 +224,7 @@ int saved_showoff=0;
 
 //float, game state system values
 long long game_timer=0;
-float float_best_score=0;
+double double_best_score=0;
 
 
 
@@ -349,6 +349,7 @@ bool is_khmer=TRUE;
 #include "draw_it.c"
 #include "draw_gui.c"
 
+#include "load_stars.c"
 #include "load_level.c"
 #include "cleanup.c"
 
@@ -427,6 +428,21 @@ void FrameRateSleep(int max_fps)
       } while (!done);            
     }
     m_prev_end_of_frame = t;
+}
+
+void SetDesktopScreenRes(int w,int h,int bits)
+{
+  DEVMODE devMode;
+  ZeroMemory(&devMode, sizeof(DEVMODE));
+  devMode.dmSize = sizeof(DEVMODE);
+
+  // Set desired resolution
+  devMode.dmPelsWidth = w;
+  devMode.dmPelsHeight = h;
+  devMode.dmBitsPerPel = bits;
+  devMode.dmFields = DM_PELSWIDTH | DM_PELSHEIGHT | DM_BITSPERPEL;
+
+  LONG result = ChangeDisplaySettings(&devMode, CDS_FULLSCREEN);
 }
 
 
@@ -579,9 +595,9 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
     if (prelude) {
       Sleep(1000);
     } else if (flag_game_task_stopped && flag_draw_task_stopped && flag_sound_task_stopped) { //cleanup task after game && draw not acting
-      printf("all 3 flags called...\n");
+      //printf("all 3 flags called...\n"); //Debug
       if (back_to_menu) { //'ESC' from game or map_editor
-        printf("back_to_menu...\n");
+        //printf("back_to_menu...\n"); //Debug
         if (in_map_editor) {
           CleanupMapEditorAll(); //map_editor=FALSE done in this function
         } else {
@@ -590,16 +606,16 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
         flag_game_task_stopped=FALSE;
         flag_draw_task_stopped=FALSE;
         flag_sound_task_stopped=FALSE;
-        printf("all exit flags set to false, initialize level..\n");
+        //printf("all exit flags set to false, initialize level..\n"); //Debug
         InitLevel(FALSE);
       } else if (flag_load_level) { //'/n' from main menu
-        printf("cleanup level to load level...\n");
+        //printf("cleanup level to load level...\n"); //Debug
         if (blank_level) {
           CleanUpBlankLevel();
         } else {
           CleanupAll(FALSE);
         }
-        printf("loading level...\n");
+        //printf("loading level...\n"); //Debug
         flag_load_level=FALSE;
         flag_game_task_stopped=FALSE;
         flag_draw_task_stopped=FALSE;
@@ -641,7 +657,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
       }
       Sleep(6); //end of cleanup
     } else if (level_loading) { //Loading Level
-      printf("in level loading...\n");
+      //printf("in level loading...\n"); //Debug
       Sleep(1000);
     } else if (!in_main_menu) { //In Game
       if (!flag_restart) {
@@ -656,6 +672,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
             }
             if (map_background==1) {
               if (!player.time_breaker) {
+                StarAct();
                 ShootingStarAct();
               }
             }
@@ -692,7 +709,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
           flag_game_task_stopped=TRUE;
           flag_sound_task_stopped=TRUE;
           back_to_menu=FALSE;
-          printf("game and sound flags called in\n");
+          //printf("game and sound flags called in\n"); //Debug
         }
         Sleep(6);
       } else {
@@ -707,6 +724,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
               }
               if (map_background==1) {
                 if (!player.time_breaker) {
+                  StarAct();
                   ShootingStarAct();
                 }
               }
@@ -825,7 +843,6 @@ void InitSetRes(int i,int w,int h,char *txt,wchar_t* wtxt)
 
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
-  //HBITMAP screen;
   HDC hdc, hdcBackbuff, hdcBackbuff2;
   switch(msg) {
 
@@ -1221,6 +1238,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       return TRUE;
       break;
 
+    /*case WM_POWERBROADCAST:
+      switch (wParam) {
+        case PBT_APMSUSPEND:
+          printf("-- system has suspended\n");
+          break;
+        case PBT_APMRESUMESUSPEND:
+          printf("-- resuming from suspension\n");
+          break;
+      }
+      break;*/
+
 
 
     //Graphics DrawIt()
@@ -1260,6 +1288,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU); //borderless mode
           SetWindowLong(hwnd, GWL_STYLE, lStyle);
           SetWindowPos(hwnd,HWND_TOPMOST,0,0,SCREEN_WIDTH,SCREEN_HEIGHT, SWP_FRAMECHANGED);
+          //SetDesktopScreenRes(RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],global_screen_bits);
         }
         if (hide_taskbar) {
           GR_WIDTH=RESOLUTION_X[resolution_choose];
@@ -1298,6 +1327,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
           OLD_GR_WIDTH = GR_WIDTH;
           OLD_GR_HEIGHT = GR_HEIGHT;
+
+          /*if (screen!=NULL) {
+            DeleteObject(screen);
+            screen=CreateLargeBitmapWithBuffer(GR_WIDTH,GR_HEIGHT,&publicScreenPixels,global_screen_bits);
+          }
+          if (screen_mirror!=NULL) {
+            DeleteObject(screen_mirror);
+            screen_mirror=CreateLargeBitmapWithBuffer(GR_WIDTH,GR_HEIGHT,&publicScreenMirrorPixels,global_screen_bits);
+          }*/
 
           //In main menu
           //Load Map Background sprites
@@ -1379,6 +1417,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           hdcBackbuff=CreateCompatibleDC(hdc);
           hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
 
+          //screen=CreateLargeBitmapWithBuffer(hdc,GR_WIDTH,GR_HEIGHT,&publicScreenPixels,global_screen_bits);
           //screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
           SelectObject(hdcBackbuff,screen);
 
@@ -1399,12 +1438,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           DeleteDC(hdcBackbuff2);
           DeleteDC(hdcBackbuff);
           //DeleteObject(screen);
-
+          //free(publicScreenPixels);
         } else if (level_loading) { //draw level loading, also loads level
           hdc=BeginPaint(hwnd, &ps);
           hdcBackbuff=CreateCompatibleDC(hdc);
           hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
-
+          //screen=CreateLargeBitmapWithBuffer(hdc,GR_WIDTH,GR_HEIGHT,&publicScreenPixels,global_screen_bits);
+          //screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
           if (flag_begin_drawing_tiles && !flag_game_task_stopped && !flag_draw_task_stopped && !flag_sound_task_stopped) {
             DrawCreateTiles(hdcBackbuff,hdcBackbuff2);
             /*flag_begin_drawing_tiles=FALSE;
@@ -1415,7 +1455,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               }            */
           }
 
-          //screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
           SelectObject(hdcBackbuff,screen);
           //GrRect(hdcBackbuff,0,0,GR_WIDTH+2,GR_HEIGHT+2,BLACK);    
           DrawBackground(hdcBackbuff,hdcBackbuff2);
@@ -1433,6 +1472,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           DeleteDC(hdcBackbuff2);
           DeleteDC(hdcBackbuff);
           //DeleteObject(screen);
+          //free(publicScreenPixels);
 
 
         } else {
@@ -1475,8 +1515,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             hdc=BeginPaint(hwnd, &ps);
             hdcBackbuff=CreateCompatibleDC(hdc);
             hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
-            //screen=//CreateLargeBitmapWithBuffer(GR_WIDTH,GR_HEIGHT,&publicDstPixels);
-            //      CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+            //screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+            //screen=CreateLargeBitmapWithBuffer(hdc,GR_WIDTH,GR_HEIGHT,&publicScreenPixels,global_screen_bits);
+            //screen=CreateLargeBitmapWithBuffer(GR_WIDTH,GR_HEIGHT,&publicScreenPixels,global_screen_bits);
             SelectObject(hdcBackbuff,screen);
             DrawBackground(hdcBackbuff,hdcBackbuff2);
 
@@ -1484,14 +1525,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             //global_update_reflection_timer++;
             if (player.in_water_timer>0 && WATER_GROUND_NUM>0) {        
               FastDrawWaterPlatformsTexture();
-              //if (global_update_reflection_timer>=global_update_reflection_timer_max) {
-                //global_update_reflection_timer=0;
-              //}
-              //SelectObject(hdcBackbuff2,screen_mirror);
-              //DrawTexturedTriangle(hdcBackbuff2,hdcBackbuff,0,0,GR_WIDTH,GR_HEIGHT,GR_WIDTH,0,texture_water[global_water_texture_id]);
-              //DrawTexturedTriangle(hdcBackbuff2,hdcBackbuff,0,0,0,GR_HEIGHT,GR_WIDTH,GR_HEIGHT,texture_water[global_water_texture_id]);
-              //DrawAlphaWaterColour(publicDstPixels);
-              //DrawWaterPlatformsReflection(hdcBackbuff,hdcBackbuff2,screen_mirror);
             }
 
             DrawPlatforms(hdcBackbuff,hdcBackbuff2);
@@ -1510,23 +1543,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             //Draw water Reflection
             if (player.in_water_timer==0 && WATER_GROUND_NUM>0) {
-              //if (global_update_reflection_timer>=global_update_reflection_timer_max) {
-                //global_update_reflection_timer=0;
-                FastFlipLargeBitmapVertically(publicDstPixels,SCREEN_WIDTH,publicSrcPixels,GR_WIDTH,GR_HEIGHT,global_screen_bits);
-                //DrawAlphaWaterColour(publicDstPixels);
-                //Draw watercolour onto overall screen
-                //BlendBitmapsSSE2(screen_mirror,screen_watercolour, 60);
-              //}
-              //SelectObject(hdcBackbuff2,screen_mirror);
-              //DrawWaterPlatformsReflection(hdcBackbuff,hdcBackbuff2,screen_mirror);
+              FastFlipLargeBitmapVertically(publicScreenMirrorPixels,SCREEN_WIDTH,publicScreenPixels,GR_WIDTH,GR_HEIGHT,global_screen_bits);
               FastDrawWaterPlatformsReflection();
-
-
-              //TileTexture(publicSrcPixels, SCREEN_WIDTH, SCREEN_HEIGHT, publicDstPixels, 160, 160, 4);
+              //SelectObject(hdcBackbuff2,screen_mirror);
+              //upside down bitblt, safe
+              //for (int h=0;h<GR_HEIGHT;h++) {
+                //BitBlt(hdcBackbuff2,0,h,GR_WIDTH,1,hdcBackbuff,0,GR_HEIGHT-h,SRCCOPY);
+              //}
+              //DrawWaterPlatformsReflection(hdcBackbuff,hdcBackbuff2,screen_mirror);
             }
-            //if (player.in_water_timer>0) { //Draw Water ontop if in water
-              DrawAlphaWaterColour(publicSrcPixels);
-            //}
+            DrawAlphaWaterColour(publicScreenPixels);
 
             //misc
             //DrawGUI
@@ -1555,6 +1581,23 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               }
             }
 
+            //if (!player.is_on_ground_edge) {
+            //RotateBitmapArbitraryAngle(publicScreenModPixels,SCREEN_WIDTH,SCREEN_HEIGHT,publicScreenPixels,SCREEN_WIDTH,SCREEN_HEIGHT,global_screen_bits,player.angle);
+
+            /*} else {
+              if (player.above_ground_edge) {
+                RotateBitmapArbitraryAngle(publicScreenModPixels,SCREEN_WIDTH,SCREEN_HEIGHT,publicScreenPixels,SCREEN_WIDTH,SCREEN_HEIGHT,global_screen_bits,-player.edge_angle);
+              } else {
+                RotateBitmapArbitraryAngle(publicScreenModPixels,SCREEN_WIDTH,SCREEN_HEIGHT,publicScreenPixels,SCREEN_WIDTH,SCREEN_HEIGHT,global_screen_bits,player.edge_angle);
+              }
+            }*/
+
+            
+            //ZoomBitmap(publicScreenModPixels,SCREEN_WIDTH,SCREEN_HEIGHT,publicScreenPixels,SCREEN_WIDTH,SCREEN_HEIGHT,global_screen_bits,0.5);
+            //SelectObject(hdcBackbuff2,screen_mod);
+            //BitBlt(hdcBackbuff, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff2, 0, 0,  SRCCOPY);
+            
+
             //Draw Cinematic Mode
             int c=BLACK;
             if (IsSpeedBreaking()) { //cinema mode when speedbreaking
@@ -1579,6 +1622,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DeleteDC(hdcBackbuff);
             DeleteDC(hdcBackbuff2);
             //DeleteObject(screen);
+            //free(publicScreenPixels);
             //Trigger go back to main menu
             if (back_to_menu) {
               flag_draw_task_stopped=TRUE;
@@ -1611,6 +1655,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
 
 
+            //screen=CreateLargeBitmapWithBuffer(hdc,GR_WIDTH,GR_HEIGHT,&publicScreenPixels,global_screen_bits);
             //screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
             SelectObject(hdcBackbuff,screen);
             DrawMapEditorBackground(hdcBackbuff,hdcBackbuff2);
@@ -1635,6 +1680,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DeleteDC(hdcBackbuff2);
             DeleteDC(hdcBackbuff);
             //DeleteObject(screen);
+            //free(publicScreenPixels);
             }
 
             //Map Editor, Trigger go back to main menu
@@ -1644,6 +1690,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
           }
         } else { //In Main Menu
+          //HBITMAP mm_screen;
           showoff++;
           frame_tick++;
           if (frame_tick>FPS) {
@@ -1653,6 +1700,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           hdc=BeginPaint(hwnd, &ps);
           hdcBackbuff=CreateCompatibleDC(hdc);
           hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
+          //screen=CreateLargeBitmapWithBuffer(GR_WIDTH,GR_HEIGHT,&publicScreenPixels,global_screen_bits);
 
           if (flag_load_player_sprite) {
             flag_load_player_sprite=FALSE;
@@ -1676,7 +1724,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
 
           if (!flag_taskbar_change_act && !flag_resolution_change && !flag_borderless_resolution_change) {
-            //screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+            //screen=CreateLargeBitmapWithBuffer(hdc,GR_WIDTH,GR_HEIGHT,&publicScreenPixels,global_screen_bits);
+            //mm_screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
             SelectObject(hdcBackbuff,screen);
       
             DrawMainMenu(hdcBackbuff,hdcBackbuff2);
@@ -1696,11 +1745,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
           } else {
             if (flag_resolution_change) { //blackout clear screen
-              //creen=CreateCompatibleBitmap(hdc,SCREEN_WIDTH,SCREEN_HEIGHT);
+              //screen=CreateLargeBitmapWithBuffer(hdc,SCREEN_WIDTH,SCREEN_HEIGHT,&publicScreenPixels,global_screen_bits);
+              //mm_screen=CreateCompatibleBitmap(hdc,SCREEN_WIDTH,SCREEN_HEIGHT);
               SelectObject(hdcBackbuff,screen);
-              GrRect(hdcBackbuff,0,0,SCREEN_WIDTH+24,SCREEN_HEIGHT+24,BLACK);
+              GrRect(hdcBackbuff,0,0,SCREEN_WIDTH+1,SCREEN_HEIGHT+1,BLACK);
               BitBlt(hdc, 0,0, SCREEN_WIDTH,SCREEN_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
               flag_resolution_change=FALSE;
+              //if (hide_taskbar) {
+                //SetDesktopScreenRes(RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],global_screen_bits);
+              //}
             } else if (flag_taskbar_change_act) {
               TaskbarChangeAct(hwnd);
               flag_taskbar_change_act=FALSE;
@@ -1708,6 +1761,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               SetWindowPos(hwnd,HWND_NOTOPMOST,0,0,RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],SWP_FRAMECHANGED);
               ShowWindow(hwnd, SW_RESTORE);
               SetForegroundWindow(hwnd); //return back focus
+
               GR_WIDTH=RESOLUTION_X[resolution_choose];
               GR_HEIGHT=RESOLUTION_Y[resolution_choose];
               flag_borderless_resolution_change=FALSE;
@@ -1716,17 +1770,21 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
           DeleteDC(hdcBackbuff2);
           DeleteDC(hdcBackbuff);
-          //DeleteObject(screen);
+          //if (mm_screen!=NULL) {
+            //DeleteObject(mm_screen);
+          //}
           }
 
           //flag to stop
           if ((flag_load_level || flag_load_melevel || flag_load_esll) && !flag_draw_task_stopped) {
             flag_draw_task_stopped=TRUE;
-            printf("drawtask_stopped\n");
+            //printf("drawtask_stopped\n"); //Debug
           }
         }
         }
         EndPaint(hwnd, &ps);
+        ReleaseDC(hwnd,hdc);
+        DeleteDC(hdc);
       }
       return 0;
       break;
@@ -1810,7 +1868,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //bufferbitmap to be refered to
       _bb=CreateBitmap(0,0, 1, 1, NULL);
 
-
+      InitStars();
 
       BITMAP bmp;
       HBITMAP tmp_bitmap=CreateCompatibleBitmap(GetDC(NULL),1,1);
@@ -1822,12 +1880,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           //printf("Planes: %d\n", bmp.bmPlanes);
           //printf("Bytes per Line: %ld\n", bmp.bmWidthBytes);
           //printf("Total Size: %ld bytes\n", bmp.bmHeight * bmp.bmWidthBytes);
-        global_screen_bits=16;//bmp.bmBitsPixel;//bmp.bmBitsPixel;
+        global_screen_bits=bmp.bmBitsPixel;//bmp.bmBitsPixel;
       }
       DeleteObject(tmp_bitmap);
 
-      screen=CreateLargeBitmapWithBuffer(SCREEN_WIDTH,SCREEN_HEIGHT,&publicSrcPixels,global_screen_bits);
-      screen_mirror=CreateLargeBitmapWithBuffer(SCREEN_WIDTH,SCREEN_HEIGHT,&publicDstPixels,global_screen_bits);
+      screen=CreateLargeBitmapWithBuffer(SCREEN_WIDTH,SCREEN_HEIGHT,&publicScreenPixels,global_screen_bits);
+      screen_mirror=CreateLargeBitmapWithBuffer(SCREEN_WIDTH,SCREEN_HEIGHT,&publicScreenMirrorPixels,global_screen_bits);
+
+        //CreateCompatibleBitmap(GetDC(NULL),SCREEN_WIDTH,SCREEN_HEIGHT);
+        //CreateCompatibleBitmap(GetDC(NULL),SCREEN_WIDTH,SCREEN_HEIGHT);        
+      //screen_mod=CreateLargeBitmapWithBuffer(SCREEN_WIDTH,SCREEN_HEIGHT,&publicScreenModPixels,global_screen_bits);
+
 
       //Loading Bar
       loading_numerator=0;
@@ -2756,6 +2819,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   //lStyle &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU); //borderless mode
   //SetWindowLong(hwnd, GWL_STYLE, lStyle);
   //SetWindowPos(hwnd,HWND_TOPMOST,0,0,SCREEN_WIDTH,SCREEN_HEIGHT, SWP_FRAMECHANGED);
+
+
+
   SetWindowPos(hwnd,HWND_TOPMOST,SCREEN_WIDTH/2-640/2,SCREEN_HEIGHT/2-440/2,640,440, SWP_FRAMECHANGED);
 
   MSG msg;
@@ -2780,6 +2846,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   if (level_loaded) {
     SaveOptions();
   }
+  //SetDesktopScreenRes(RESOLUTION_X[0],RESOLUTION_Y[0],global_screen_bits);  
   return (int) msg.wParam;
 }
 

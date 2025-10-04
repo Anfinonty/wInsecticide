@@ -36,7 +36,7 @@ char *melvlambienttxt_arr[9]=
 "Shadow Run"
 };
 
-char *enemy_type_float_attr_names[ENEMY_TYPE_float_ATTR_NUM]=
+char *enemy_type_float_attr_names[ENEMY_TYPE_FLOAT_ATTR_NUM]=
 {
 "Speed",
 "Bullet Speed"
@@ -510,7 +510,7 @@ void DrawMapEditorUI(HDC hdc,HDC hdc2)
         }
 
 
-        for (int i=0;i<ENEMY_TYPE_float_ATTR_NUM;i++) {
+        for (int i=0;i<ENEMY_TYPE_FLOAT_ATTR_NUM;i++) {
           c = Highlight((MapEditor.selected_enemy_type_option==i+ENEMY_TYPE_INT_ATTR_NUM+1),WHITE,LTPURPLE);
           char print_enemy_type_float_attr[32];
           sprintf(print_enemy_type_float_attr,"%s <%1.1f>  {%1.1f}",enemy_type_float_attr_names[i],set_enemy_type_float_attr[i][MapEditor.selected_enemy_type_id],set_enemy_type_float_attr[i][MapEditor.clipboard_enemy_type_id]);
@@ -519,10 +519,10 @@ void DrawMapEditorUI(HDC hdc,HDC hdc2)
 
 
         for (int i=0;i<ENEMY_TYPE_BOOL_ATTR_NUM;i++) {
-          c = Highlight((MapEditor.selected_enemy_type_option==i+ENEMY_TYPE_float_ATTR_NUM+ENEMY_TYPE_INT_ATTR_NUM+1),WHITE,LTPURPLE);
+          c = Highlight((MapEditor.selected_enemy_type_option==i+ENEMY_TYPE_FLOAT_ATTR_NUM+ENEMY_TYPE_INT_ATTR_NUM+1),WHITE,LTPURPLE);
           char print_enemy_type_bool_attr[32];
           sprintf(print_enemy_type_bool_attr,"%s <%d>  {%d}",enemy_type_bool_attr_names[i],set_enemy_type_bool_attr[i][MapEditor.selected_enemy_type_id],set_enemy_type_bool_attr[i][MapEditor.clipboard_enemy_type_id]);
-          GrPrintThick(hdc,8,32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_float_ATTR_NUM)+16*i,print_enemy_type_bool_attr,c,BLACK);
+          GrPrintThick(hdc,8,32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_FLOAT_ATTR_NUM)+16*i,print_enemy_type_bool_attr,c,BLACK);
         }
         
 

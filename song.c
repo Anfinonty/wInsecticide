@@ -396,11 +396,11 @@ typedef struct AudioData
 
   bool playing_wav;
 
-  bool float_buffer;
+  bool double_buffer;
   bool song_rewind;
 
-  bool saved_float_buffer;
-  bool saved_loop_float_buffer;
+  bool saved_double_buffer;
+  bool saved_loop_double_buffer;
 
   bool record_loop;
   bool play_loop;
@@ -550,7 +550,7 @@ void JumpToBufferLoop(AudioData *audioData)
   audioData->current_filesize=audioData->loop_start;
   audioData->queue_play_buffer=audioData->loop_play;
   audioData->queue_read_buffer=audioData->loop_read;
-  audioData->float_buffer=audioData->saved_loop_float_buffer;
+  audioData->double_buffer=audioData->saved_loop_double_buffer;
   audioData->read_filesize=audioData->current_filesize-(audioData->read_size*READ_BUFFER_NUM/2);
   fseek(audioData->music_file, audioData->read_filesize, SEEK_SET);
 
@@ -611,7 +611,7 @@ void CALLBACK waveOutProc1(HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance, DWORD_
       if (uMsg == WOM_DONE) {
         WAVEHDR *waveHdr = (WAVEHDR *)dwParam1;
         if (waveHdr == &audioData->waveHdr1) {
-            audioData->float_buffer=TRUE;
+            audioData->double_buffer=TRUE;
             audioData->read_size=(float)chosen_buffer_size*audioData->tempo;
             if (!audioData->song_rewind) {
                 audioData->current_filesize+=audioData->read_size;
@@ -645,7 +645,7 @@ void CALLBACK waveOutProc1(HWAVEOUT hwo, UINT uMsg, DWORD_PTR dwInstance, DWORD_
                 waveOutWrite(audioData->hWaveOut, &audioData->waveHdr1, sizeof(WAVEHDR));
             }
         } else if (waveHdr == &audioData->waveHdr2) {
-            audioData->float_buffer=FALSE;
+            audioData->double_buffer=FALSE;
             audioData->read_size=(float)chosen_buffer_size*audioData->tempo;
             if (!audioData->song_rewind) {
                 audioData->current_filesize+=audioData->read_size;
@@ -845,9 +845,9 @@ void LoadBufferSFX(const wchar_t* filename, int z)
   audioData[z].loop_end=audioData[z].filesize;
   audioData[z].loop_read=11;
   audioData[z].loop_play=2;
-  audioData[z].saved_loop_float_buffer=FALSE;
+  audioData[z].saved_loop_double_buffer=FALSE;
 
-  audioData[z].float_buffer=FALSE;
+  audioData[z].double_buffer=FALSE;
   audioData[z].queue_read_buffer=0;
   audioData[z].queue_play_buffer=0;
   audioData[z].sps_offset=0;
