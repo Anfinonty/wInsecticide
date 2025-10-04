@@ -145,6 +145,17 @@ void ShootingStarAct()
 }
 
 
+void StarAct()
+{
+  for (int i=0;i<STAR_NUM;i++) {
+    Star[i].timer--;
+    if (Star[i].timer<1) {
+      Star[i].size=RandNum(0,4,&star_rng_i,-1);
+      Star[i].timer=RandNum(50,350,&star_rng_i,-1);
+    } 
+  }
+}
+
 void ScreenRainDropAct()
 {
 //  for (int i=0;i<SC_RAINDROP_NUM;i++) {
@@ -376,7 +387,14 @@ void DrawMMExtraKeys (HDC hdc)
   //draw extra keys on cursor
   if (mouse_y>GR_HEIGHT-144) {
     char printtxt[128];
-    sprintf(printtxt,"[^: %d] [U:%d] [Y:%d] [l_SHIFT:%d,%d/%d,%d][%1.0f/%1.0f]",buffer_length_arr[casbs_i],wav_mode,hide_mm,audioData[0].play_loop,audioData[0].record_loop,audioData[1].play_loop,audioData[1].record_loop);
+    sprintf(printtxt,"[^: %d] [U:%d] [Y:%d] [l_SHIFT:%d,%d/%d,%d]",
+        buffer_length_arr[casbs_i],
+        wav_mode,
+        hide_mm,
+        audioData[0].play_loop,
+        audioData[0].record_loop,
+        audioData[1].play_loop,
+        audioData[1].record_loop);
     GrPrint(hdc,mouse_x+64,mouse_y,printtxt,WHITE);
 
 
@@ -827,7 +845,7 @@ void DrawMusicWav(HDC hdc)
             //}
 
             if (wav_mode==1) {
-                if (audioData[z].float_buffer) {
+                if (audioData[z].double_buffer) {
                   GrLine(hdc,prev_x1,prev_y1,c_x1,c_y1,rgbPaint[player_iris_color]);
                 } else {
                   GrLine(hdc,prev_x2,prev_y2,c_x2,c_y2,rgbPaint[player_pupil_color]);
@@ -1742,7 +1760,7 @@ void DrawUI(HDC hdc,HDC hdc2)
 
   char gamebesttimetxt[32];
   wchar_t wgamebesttimetxt[32];
-  double best_time=float_best_score;
+  double best_time=double_best_score;
 
   char enemykills[10];
   wchar_t wenemykills[10];

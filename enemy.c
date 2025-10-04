@@ -1453,7 +1453,9 @@ void EnemyAct(int i)
   if (GR_WIDTH<GR_HEIGHT)
     dist_unit=GR_HEIGHT/2+VGRID_SIZE*2;
 
-  if (Enemy[i]->dist_from_player<=dist_unit) {
+  if (Enemy[i]->dist_from_player<=dist_unit || 
+      ((Enemy[i]->sprite_x>=-64 && Enemy[i]->sprite_x<=GR_WIDTH+64)&& (Enemy[i]->sprite_y>=-64 && Enemy[i]->sprite_y<=GR_HEIGHT+64))
+      ) {
     Enemy[i]->within_render_distance=TRUE;
     Enemy[i]->render_distance_timer=100;
   } else {

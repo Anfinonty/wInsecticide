@@ -1575,42 +1575,8 @@ void DrawBullet2(HDC hdc,HDC hdc2,int i,float x,float y,int color)
           size=10;
         }
         angl*=10;
-/*
-                X1,Y1
-
-                  ^^
-                 //\\
-    X5,Y5   ==============   X2,Y2
-              ==========
-               // \ / \\
-              // /   \ \\
-
-          X4,Y4         X3,Y3
-
-*/
-
-          int x1=x-(size)*cos(angl);
-          int y1=y-(size)*sin(angl);
-          angl-=2*M_PI/5;
-          int x2=x-(size)*cos(angl);
-          int y2=y-(size)*sin(angl);
-          angl-=2*M_PI/5;
-          int x3=x-(size)*cos(angl);
-          int y3=y-(size)*sin(angl);
-          angl-=2*M_PI/5;
-          int x4=x-(size)*cos(angl);
-          int y4=y-(size)*sin(angl);
-          angl-=2*M_PI/5;
-          int x5=x-(size)*cos(angl);
-          int y5=y-(size)*sin(angl);
-
-          GrLine(hdc,x4,y4,x1,y1,color);
-          GrLine(hdc,x1,y1,x3,y3,color); 
-          GrLine(hdc,x3,y3,x5,y5,color);
-          GrLine(hdc,x5,y5,x2,y2,color);
-          GrLine(hdc,x2,y2,x4,y4,color);
-
-          GrCircle(hdc,x,y,2,color,color);
+        DrawStar(hdc,x,y,size,angl,color);
+        GrCircle(hdc,x,y,2,color,color);
       }
       break;
 

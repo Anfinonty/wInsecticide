@@ -156,7 +156,7 @@ void CleanUpMEEnemySprites()
 /*Set Enemy Type will be in the stack to be consistent with Saved Enemy Type being in the stack*/
 
 #define ENEMY_TYPE_INT_ATTR_NUM 20
-#define ENEMY_TYPE_float_ATTR_NUM 2
+#define ENEMY_TYPE_FLOAT_ATTR_NUM 2
 #define ENEMY_TYPE_BOOL_ATTR_NUM 1
 
 int enemy_int_attr_min[ENEMY_TYPE_INT_ATTR_NUM]=
@@ -257,10 +257,10 @@ int *set_enemy_type_int_attr[ENEMY_TYPE_INT_ATTR_NUM]=
 };
 
 
-float enemy_float_attr_min[ENEMY_TYPE_float_ATTR_NUM]={0,0};
-float enemy_float_attr_max[ENEMY_TYPE_float_ATTR_NUM]={1.0,1.0};
-float enemy_float_attr_delta[ENEMY_TYPE_float_ATTR_NUM]={0.1,0.1};
-float *set_enemy_type_float_attr[ENEMY_TYPE_float_ATTR_NUM]={
+float enemy_float_attr_min[ENEMY_TYPE_FLOAT_ATTR_NUM]={0,0};
+float enemy_float_attr_max[ENEMY_TYPE_FLOAT_ATTR_NUM]={1.0,1.0};
+float enemy_float_attr_delta[ENEMY_TYPE_FLOAT_ATTR_NUM]={0.1,0.1};
+float *set_enemy_type_float_attr[ENEMY_TYPE_FLOAT_ATTR_NUM]={
   set_enemy_type_speed,
   set_enemy_type_bullet_speed
 };
@@ -424,7 +424,6 @@ void InitMERDGrid()
     }
   }
   //Sort
-  draw_rendered_ground_num=rendered_ground_num;
   quicksort(render_grounds, 0, rendered_ground_num-1);
 }
 
@@ -648,7 +647,6 @@ void InitMapEditorPlayer()
 void InitMapEditor()
 {
   rendered_ground_num=0;
-  draw_rendered_ground_num=0;
 
   MapEditor.selected_option=0;
 
@@ -1047,7 +1045,7 @@ void MapEditorAct()
                 if (MapEditor.bullet_length==0) {
                   for (int j=0;j<set_enemy_type_bullet_fire_at_once[q];j++) {//shoot several bullets at once
 	                    //MapEditor.bullet_head_x[j]=8+RandNum(-set_enemy_type_aim_rand[q],set_enemy_type_aim_rand[q],player.seed);
-	                    //MapEditor.bullet_head_y[j]=32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_float_ATTR_NUM)+16*3+RandNum(-set_enemy_type_aim_rand[q],set_enemy_type_aim_rand[q],player.seed);
+	                    //MapEditor.bullet_head_y[j]=32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_FLOAT_ATTR_NUM)+16*3+RandNum(-set_enemy_type_aim_rand[q],set_enemy_type_aim_rand[q],player.seed);
 	                  MapEditor.bullet_head_x[j]=mouse_x+RandNum(-set_enemy_type_aim_rand[q],set_enemy_type_aim_rand[q],&misc_rng_i,-1);
 	                  MapEditor.bullet_head_y[j]=mouse_y+RandNum(-set_enemy_type_aim_rand[q],set_enemy_type_aim_rand[q],&misc_rng_i,-1);
                   }
@@ -1148,7 +1146,6 @@ void CleanupMapEditorAll()
     free(saved_ground_y3);
 
     rendered_ground_num=0;
-    draw_rendered_ground_num=0;
 
     for (int i=0;i<GROUND_NUM;i++) {
       free(saved_ground_text[i]);

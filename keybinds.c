@@ -224,7 +224,7 @@ void GlobalKeypressDown(WPARAM wParam)
             audioData[gct].loop_start=audioData[gct].current_filesize;
             audioData[gct].loop_read=audioData[gct].queue_read_buffer;
             audioData[gct].loop_play=audioData[gct].queue_play_buffer;
-            audioData[gct].saved_loop_float_buffer=audioData[gct].float_buffer;
+            audioData[gct].saved_loop_double_buffer=audioData[gct].double_buffer;
           } else  {
             audioData[gct].record_loop=FALSE;
             audioData[gct].loop_end=audioData[gct].current_filesize;
@@ -285,12 +285,12 @@ void GlobalKeypressDown(WPARAM wParam)
           audioData[gct].jump1=audioData[gct].current_filesize; //spindle, not read
           audioData[gct].saved_play_buffer1=audioData[gct].queue_play_buffer;
           audioData[gct].saved_read_buffer1=audioData[gct].queue_read_buffer;
-          audioData[gct].saved_float_buffer=audioData[gct].float_buffer;
+          audioData[gct].saved_double_buffer=audioData[gct].double_buffer;
         } else { //jump to
           audioData[gct].current_filesize=audioData[gct].jump1;
           audioData[gct].queue_play_buffer=audioData[gct].saved_play_buffer1;
           audioData[gct].queue_read_buffer=audioData[gct].saved_read_buffer1;
-          audioData[gct].float_buffer=audioData[gct].saved_float_buffer;
+          audioData[gct].double_buffer=audioData[gct].saved_double_buffer;
           audioData[gct].read_filesize=audioData[gct].current_filesize-(audioData[gct].read_size*READ_BUFFER_NUM/2);
           fseek(audioData[gct].music_file, audioData[gct].read_filesize, SEEK_SET);
           InitAudioBuffer(gct);
@@ -306,12 +306,12 @@ void GlobalKeypressDown(WPARAM wParam)
           audioData[gct].jump2=audioData[gct].current_filesize;//spindle, not read
           audioData[gct].saved_play_buffer2=audioData[gct].queue_play_buffer;
           audioData[gct].saved_read_buffer2=audioData[gct].queue_read_buffer;
-          audioData[gct].saved_float_buffer=audioData[gct].float_buffer;
+          audioData[gct].saved_double_buffer=audioData[gct].double_buffer;
         } else { //jump to
           audioData[gct].current_filesize=audioData[gct].jump2; //to read filesize
           audioData[gct].queue_play_buffer=audioData[gct].saved_play_buffer2;
           audioData[gct].queue_read_buffer=audioData[gct].saved_read_buffer2;
-          audioData[gct].float_buffer=audioData[gct].saved_float_buffer;
+          audioData[gct].double_buffer=audioData[gct].saved_double_buffer;
           audioData[gct].read_filesize=audioData[gct].current_filesize-(audioData[gct].read_size*READ_BUFFER_NUM/2);
           fseek(audioData[gct].music_file, audioData[gct].read_filesize, SEEK_SET);
           InitAudioBuffer(gct);
@@ -2123,7 +2123,7 @@ void DJKeys(WPARAM wParam)
     case '-': //shift starting loop to left
       if (audioData[gct].loop_start>audioData[gct].read_size){
         audioData[gct].loop_start-=audioData[gct].read_size;
-        audioData[gct].saved_loop_float_buffer=!audioData[gct].saved_loop_float_buffer;
+        audioData[gct].saved_loop_double_buffer=!audioData[gct].saved_loop_double_buffer;
         if (audioData[gct].loop_read>0) {audioData[gct].loop_read--;} else {audioData[gct].loop_read=READ_BUFFER_NUM-1;}
         if (audioData[gct].loop_play>0) {audioData[gct].loop_play--;} else {audioData[gct].loop_play=READ_BUFFER_NUM-1;} 
       }
@@ -2131,7 +2131,7 @@ void DJKeys(WPARAM wParam)
     case '=': //shift starting loop to right
       if (audioData[gct].loop_start<audioData[gct].filesize-audioData[gct].read_size) {
         audioData[gct].loop_start+=audioData[gct].read_size;
-        audioData[gct].saved_loop_float_buffer=!audioData[gct].saved_loop_float_buffer;
+        audioData[gct].saved_loop_double_buffer=!audioData[gct].saved_loop_double_buffer;
         if (audioData[gct].loop_read<=18) {audioData[gct].loop_read++;} else {audioData[gct].loop_read=0;}
         if (audioData[gct].loop_play<=18) {audioData[gct].loop_play++;} else {audioData[gct].loop_play=0;}
       }

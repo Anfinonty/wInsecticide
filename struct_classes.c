@@ -130,7 +130,6 @@ struct RenderDistanceGrid
 
 //map editor only
 int rendered_ground_num;
-int draw_rendered_ground_num;
 int *render_grounds;
 
 
@@ -1149,6 +1148,20 @@ struct color_chooser
 } color_chooser;
 
 
+#define STAR_NUM    627
+#define MAX_STAR_X  900    
+#define MAX_STAR_Y  600
+struct star
+{
+  int size;
+  int timer;
+  float x;
+  float y;
+} Star[STAR_NUM];
+
+void SetStar(int i,float x,float y);
+void DrawStar(HDC hdc,int x, int y, int size, float angl,int color);
+void DrawStars(HDC hdc);
 
 //===========OTHER GROUNDS TEXTURE=============
 #define PLATFORM_TEXTURES_NUM 25
@@ -1250,7 +1263,7 @@ HBITMAP map_platforms_shadow_shader;
 HBITMAP map_background_sprite;
 HBITMAP screen;
 HBITMAP screen_mirror;
-BYTE *publicSrcPixels,*publicDstPixels;
+BYTE *publicScreenPixels,*publicScreenMirrorPixels;// *publicScreenModPixels;
 
 //moon, for calendar only
 HBITMAP moon_cartoon_sprite;
@@ -1377,7 +1390,8 @@ void SaveLvlBmp(HWND hwnd,HDC hdc,const wchar_t *lvl_name);
 //rng values
 int weather_rng_i=0;
 int misc_rng_i=0;
-int sstar_rng_i;
+int sstar_rng_i=0;
+int star_rng_i=0;
 
 
 float enemy_rotated_angle_arr[ROTATED_SPRITE_NUM];

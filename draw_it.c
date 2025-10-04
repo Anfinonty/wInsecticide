@@ -1,4 +1,40 @@
+void DrawStar(HDC hdc,int x, int y, int size, float angl,int color)
+{
+/*
+                X1,Y1
 
+                  ^^
+                 //\\
+    X5,Y5   ==============   X2,Y2
+              ==========
+               // \ / \\
+              // /   \ \\
+
+          X4,Y4         X3,Y3
+
+*/
+
+  int x1=x-(size)*cos(angl);
+  int y1=y-(size)*sin(angl);
+  angl-=2*M_PI/5;
+  int x2=x-(size)*cos(angl);
+  int y2=y-(size)*sin(angl);
+  angl-=2*M_PI/5;
+  int x3=x-(size)*cos(angl);
+  int y3=y-(size)*sin(angl);
+  angl-=2*M_PI/5;
+  int x4=x-(size)*cos(angl);
+  int y4=y-(size)*sin(angl);
+  angl-=2*M_PI/5;
+  int x5=x-(size)*cos(angl);
+  int y5=y-(size)*sin(angl);
+
+  GrLine(hdc,x4,y4,x1,y1,color);
+  GrLine(hdc,x1,y1,x3,y3,color); 
+  GrLine(hdc,x3,y3,x5,y5,color);
+  GrLine(hdc,x5,y5,x2,y2,color);
+  GrLine(hdc,x2,y2,x4,y4,color);
+}
 
 void PlaceDayMoon()
 {
@@ -79,6 +115,26 @@ void PlaceDayMoon()
   DeleteObject(tmp_bitmap);
 }
 
+void DrawStars(HDC hdc)
+{
+  GrRect(hdc,0,0,GR_WIDTH+24,GR_HEIGHT+24,BLACK);  
+  for (int i=0;i<STAR_NUM;i++) {
+      int _x = (Star[i].x * GR_WIDTH)/MAX_STAR_X;
+      int _y = (Star[i].y * GR_HEIGHT)/MAX_STAR_Y;
+      if (Star[i].size>0) {
+        //SetPixel(hdc,_x,_y,WHITE);
+        //SetPixel(hdc,_x+1,_y,WHITE);
+        //SetPixel(hdc,_x+1,_y+1,WHITE);
+        //SetPixel(hdc,_x+1,_y-1,WHITE);
+        if (GR_WIDTH>1000)
+          GrRect(hdc,_x,_y,3,3,WHITE);
+        else
+          GrRect(hdc,_x,_y,2,2,WHITE);
+      }
+      //GrCircle(hdc,_x,_y,Star[i].size,WHITE,WHITE);
+  }
+}
+
 
 
 //Background
@@ -104,9 +160,13 @@ void DrawBackground(HDC hdc,HDC hdc2)
   int draw_p_py=(int)parralax_y;
 
 
+  GrRect(hdc,0,0,GR_WIDTH+24,GR_HEIGHT+24,custom_map_background_color);
   switch (map_background) {
-    case 0:
     case 1:
+      DrawStars(hdc);
+      break;
+    case 0:
+    //case 1:
     case 2:
     case 3: //default backgrounds
       if (map_background_sprite!=NULL) {
@@ -114,9 +174,7 @@ void DrawBackground(HDC hdc,HDC hdc2)
       }
       break;
     default: //custom map background
-      if (map_background_sprite==NULL) {
-        GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,custom_map_background_color);
-      } else {
+      if (map_background_sprite!=NULL) {
         DrawBitmap(hdc,hdc2,draw_p_px,draw_p_py,0,0,GR_WIDTH*2,GR_HEIGHT*2,map_background_sprite,SRCCOPY,FALSE,FALSE);
       }
       break;
@@ -146,38 +204,38 @@ void DrawBackground(HDC hdc,HDC hdc2)
       int dmx=-1000;
       int dmy=-1000;
       if (lunar_day>=1 && lunar_day<=5) { //1, 2, 3, 4, 5
-        dmx=GR_WIDTH-GR_WIDTH/8-GR_WIDTH/16*_ppx;//-mouse_x/50;
-        dmy=GR_HEIGHT-GR_HEIGHT/3-GR_HEIGHT/16*_ppy;//-mouse_y/50;//GR_HEIGHT-GR_HEIGHT/6;
+        dmx=GR_WIDTH-GR_WIDTH/8;//-GR_WIDTH/16*_ppx;//-mouse_x/50;
+        dmy=GR_HEIGHT-GR_HEIGHT/3;//-GR_HEIGHT/16*_ppy;//-mouse_y/50;//GR_HEIGHT-GR_HEIGHT/6;
         //dmy=160+160-GR_HEIGHT/16*_ppy;
         DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
       } else if (lunar_day>=6 && lunar_day<=9) {// 6, 7, 8, 9
-        dmx=GR_WIDTH/2+GR_WIDTH/4-GR_WIDTH/16*_ppx;//-mouse_x/50;
-        dmy=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3-GR_HEIGHT/16*_ppy;//-mouse_y/50;
+        dmx=GR_WIDTH/2+GR_WIDTH/4;//-GR_WIDTH/16*_ppx;//-mouse_x/50;
+        dmy=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3;//-GR_HEIGHT/16*_ppy;//-mouse_y/50;
         //dmy=160+110-GR_HEIGHT/16*_ppy;
         DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
       } else if (lunar_day>=10 && lunar_day<=12) {// 10, 11, 12,
-        dmx=GR_WIDTH/2+GR_WIDTH/4-GR_WIDTH/8-GR_WIDTH/16*_ppx;//-mouse_x/50;
-        dmy=GR_HEIGHT/4+GR_HEIGHT/12-GR_HEIGHT/16*_ppy;//-mouse_y/50;
+        dmx=GR_WIDTH/2+GR_WIDTH/4-GR_WIDTH/8;//-GR_WIDTH/16*_ppx;//-mouse_x/50;
+        dmy=GR_HEIGHT/4+GR_HEIGHT/12;//-GR_HEIGHT/16*_ppy;//-mouse_y/50;
         //dmy=160+50-GR_HEIGHT/16*_ppy;
         DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
       } else if (lunar_day>=13 && lunar_day<=15) {//13, 14, 15 //fullmoon
-        dmx=GR_WIDTH/2-GR_WIDTH/16*_ppx;//-mouse_x/50;
-        dmy=GR_HEIGHT/4-GR_HEIGHT/16*_ppy;//-mouse_y/50;
+        dmx=GR_WIDTH/2;//-GR_WIDTH/16*_ppx;//-mouse_x/50;
+        dmy=GR_HEIGHT/4;//-GR_HEIGHT/16*_ppy;//-mouse_y/50;
         //dmy=160-GR_HEIGHT/16*_ppy;
         DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
       } else if (lunar_day>=16 && lunar_day<=18) {//16, 17, 18
-        dmx=GR_WIDTH/4+GR_WIDTH/8-GR_WIDTH/16*_ppx;//-mouse_x/50;
-        dmy=GR_HEIGHT/4+GR_HEIGHT/12-GR_HEIGHT/16*_ppy;//-mouse_y/50;
+        dmx=GR_WIDTH/4+GR_WIDTH/8;//-GR_WIDTH/16*_ppx;//-mouse_x/50;
+        dmy=GR_HEIGHT/4+GR_HEIGHT/12;//-GR_HEIGHT/16*_ppy;//-mouse_y/50;
         //dmy=160+50-GR_HEIGHT/16*_ppy;
         DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
       } else if (lunar_day>=19 && lunar_day<=22) {//19, 20, 21, 22
-        dmx=GR_WIDTH/4-GR_WIDTH/16*_ppx;//-mouse_x/50;
-        dmy=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3-GR_HEIGHT/16*_ppy;//-mouse_y/50;
+        dmx=GR_WIDTH/4;//-GR_WIDTH/16*_ppx;//-mouse_x/50;
+        dmy=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3;//-GR_HEIGHT/16*_ppy;//-mouse_y/50;
         //dmy=160+110-GR_HEIGHT/16*_ppy;
         DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
       } else if (lunar_day>=23 && lunar_day<=26) {//23, 24, 25,26
-        dmx=GR_WIDTH/8-GR_WIDTH/16*_ppx;//-mouse_x/50;
-        dmy=GR_HEIGHT-GR_HEIGHT/3-GR_HEIGHT/16*_ppy;//-mouse_y/50;//GR_HEIGHT-GR_HEIGHT/6;
+        dmx=GR_WIDTH/8;//-GR_WIDTH/16*_ppx;//-mouse_x/50;
+        dmy=GR_HEIGHT-GR_HEIGHT/3;//-GR_HEIGHT/16*_ppy;//-mouse_y/50;//GR_HEIGHT-GR_HEIGHT/6;
         //dmy=160+160-GR_HEIGHT/16*_ppy;
         DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
       }// else {
@@ -189,7 +247,7 @@ void DrawBackground(HDC hdc,HDC hdc2)
 
 
 
-/*
+
 void DrawWaterPlatformsReflection(HDC hdc, HDC hdc2,HBITMAP mirror_screen)
 {
   if (WATER_GROUND_NUM>0) {
@@ -224,7 +282,7 @@ void DrawWaterPlatformsReflection(HDC hdc, HDC hdc2,HBITMAP mirror_screen)
   }
   }
   }
-}*/
+}
 
 
 
@@ -270,15 +328,14 @@ void DrawWaterPlatformsTexture(HDC hdc,HDC hdc2)
             x3=GR_WIDTH/2+(int)Ground[i]->x3-px+cx1+cx2+cx3;
             y3=GR_HEIGHT/2+(int)Ground[i]->y3-py+cy1+cy2+cy3;
             //DrawTexturedTriangle(hdc,hdc2,x1,y1,x2,y2,x3,y3,texture_water[global_water_texture_id]);
-            //FastDrawTexturedTriangle(publicSrcPixels,x1,y1,x2,y2,x3,y3,SCREEN_WIDTH,ptexture_water[global_water_texture_id],160,160);
-            //DrawGlassTriangle(publicSrcPixels, SCREEN_WIDTH, x1,y1,x2,y2,x3,y3,rgbColorsDefault,rgbPaint_i[Ground[i]->color_id],200);
+            //FastDrawTexturedTriangle(publicScreenPixels,x1,y1,x2,y2,x3,y3,SCREEN_WIDTH,ptexture_water[global_water_texture_id],160,160);
+            //DrawGlassTriangle(publicScreenPixels, SCREEN_WIDTH, x1,y1,x2,y2,x3,y3,rgbColorsDefault,rgbPaint_i[Ground[i]->color_id],200);
         }
       }
     }
   }
   }
 }*/
-
 
 
 void FastDrawWaterPlatformsTexture()
@@ -320,8 +377,8 @@ void FastDrawWaterPlatformsTexture()
             y2=GR_HEIGHT/2+(int)Ground[i]->y2-py+cy1+cy2+cy3;
             x3=GR_WIDTH/2+(int)Ground[i]->x3-px+cx1+cx2+cx3;
             y3=GR_HEIGHT/2+(int)Ground[i]->y3-py+cy1+cy2+cy3;
-            FastDrawTexturedTriangle(publicSrcPixels,x1,y1,x2,y2,x3,y3,SCREEN_WIDTH,ptexture_water[global_water_texture_id],160,160,global_screen_bits);
-            //DrawGlassTriangle(publicSrcPixels, SCREEN_WIDTH, x1,y1,x2,y2,x3,y3,rgbColorsDefault,rgbPaint_i[Ground[i]->color_id],200);
+            FastDrawTexturedTriangle(publicScreenPixels,x1,y1,x2,y2,x3,y3,SCREEN_WIDTH,ptexture_water[global_water_texture_id],160,160,global_screen_bits);
+            //DrawGlassTriangle(publicScreenPixels, SCREEN_WIDTH, x1,y1,x2,y2,x3,y3,rgbColorsDefault,rgbPaint_i[Ground[i]->color_id],200);
         }
       }
     }
@@ -355,8 +412,8 @@ void FastDrawWaterPlatformsReflection()
             y2=GR_HEIGHT/2+(int)Ground[i]->y2-py+cy1+cy2+cy3;
             x3=GR_WIDTH/2+(int)Ground[i]->x3-px+cx1+cx2+cx3;
             y3=GR_HEIGHT/2+(int)Ground[i]->y3-py+cy1+cy2+cy3;
-            FastDrawTexturedTriangle(publicSrcPixels,x1,y1,x2,y2,x3,y3,SCREEN_WIDTH,publicDstPixels,SCREEN_WIDTH,GR_HEIGHT,global_screen_bits);
-            //DrawGlassTriangle(publicSrcPixels, SCREEN_WIDTH, x1,y1,x2,y2,x3,y3,rgbColorsDefault,rgbPaint_i[Ground[i]->color_id],200);
+            FastDrawTexturedTriangle(publicScreenPixels,x1,y1,x2,y2,x3,y3,SCREEN_WIDTH,publicScreenMirrorPixels,SCREEN_WIDTH,GR_HEIGHT,global_screen_bits);
+            //DrawGlassTriangle(publicScreenPixels, SCREEN_WIDTH, x1,y1,x2,y2,x3,y3,rgbColorsDefault,rgbPaint_i[Ground[i]->color_id],200);
         }
       }
     }
@@ -578,7 +635,6 @@ void DrawPlatforms(HDC hdc,HDC hdc2)
     } 
   }
 }
-
 
 
 void DrawBlackBorders(HDC hdc)

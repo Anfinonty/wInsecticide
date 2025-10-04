@@ -109,11 +109,11 @@ void Init() { //Repeatable
     if (c>='0' && c<='9') {
       current_int=c-'0';
       int_best_score*=10; //shift digit by left,  //Read from file while !=EOF score*=10
-      int_best_score+=current_int; //add to right digit //after reading, convert into (float)/1000
+      int_best_score+=current_int; //add to right digit //after reading, convert into (double)/1000
     }
   }
   fclose(fr);
-  float_best_score=(float)int_best_score/1000;
+  double_best_score=(double)int_best_score/1000;
 
 
   //Start level
