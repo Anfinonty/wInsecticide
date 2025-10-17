@@ -465,7 +465,7 @@ void DrawAlphaWaterColour(BYTE *pDst)
             y2=GR_HEIGHT/2+(int)Ground[i]->y2-py+cy1+cy2+cy3;
             x3=GR_WIDTH/2+(int)Ground[i]->x3-px+cx1+cx2+cx3;
             y3=GR_HEIGHT/2+(int)Ground[i]->y3-py+cy1+cy2+cy3;
-            if (!player.time_breaker) {
+            if (player.time_breaker_tick<GR_WIDTH || player.time_breaker_tick<GR_HEIGHT) {
               DrawGlassTriangle(pDst, SCREEN_WIDTH, x1,y1,x2,y2,x3,y3,rgbColorsDefault,rgbPaint_i[Ground[i]->color_id],200,global_screen_bits);
             } else {
               DrawGlassTriangle(pDst, SCREEN_WIDTH, x1,y1,x2,y2,x3,y3,rgbColorsNoir,rgbPaint_i[Ground[i]->color_id],200,global_screen_bits);
