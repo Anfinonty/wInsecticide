@@ -1,4 +1,7 @@
 
+#define SND_MEM_STACK_SIZE  50000 //100kb MAX // to be new fixed size for each allowed audio
+//100000 ,200kb MAX
+//500000 ,1MB MAX
 
 
 //https://onestepcode.com/read-wav-header/
@@ -23,13 +26,13 @@ typedef struct WavSoundEffect
 {
   int duration;
   long filesize;  
-  AWavHeader* wav_header;
-  int16_t* audio;
+  AWavHeader *wav_header;
+  int16_t audio[SND_MEM_STACK_SIZE];
 } wavSoundEffect;
 
 typedef struct WavSoundEffectCache //for sound whoese volume that needs to be adjustable
 {
-  int16_t* audio;
+  int16_t audio[SND_MEM_STACK_SIZE];
 } wavSoundEffectCache;
 
 
@@ -92,33 +95,34 @@ typedef struct threadSFX
   int duration;
   long filesize;
   AWavHeader* wav_header;
-  int16_t* audio;
+  int16_t* audio; //pointer to audio
 } AWavChannelSFX;
 
 AWavChannelSFX memSFX[SND_THREAD_NUM];
 
 
 
-void freeSoundEffectWFX(wavSoundEffect* mySoundEffect)
+/*void freeSoundEffectWFX(wavSoundEffect* mySoundEffect)
 {
   if (mySoundEffect->wav_header!=NULL)
     free(mySoundEffect->wav_header);
-}
+}*/
 
-void freeSoundEffect(wavSoundEffect* mySoundEffect) 
+/*void freeSoundEffect(wavSoundEffect* mySoundEffect) 
 {
-  if (mySoundEffect->audio!=NULL)
-    free(mySoundEffect->audio);
-}
+  //if (mySoundEffect->audio!=NULL)
+    //free(mySoundEffect->audio);
+  memset(mySoundEffect->audio, 0, SND_MEM_STACK_SIZE);
+}*/
 
 void freeSoundEffectCache(wavSoundEffectCache* mySoundEffectCache) 
 {
-  if (mySoundEffectCache->audio!=NULL)
-    free(mySoundEffectCache->audio);
+  //if (mySoundEffectCache->audio!=NULL)
+    //free(mySoundEffectCache->audio); 
+  memset(mySoundEffectCache->audio, 0, SND_MEM_STACK_SIZE); //resets sound
 }
 
 
-#define SND_MEM_STACK_SIZE  500000  // to be new fixed size for each allowed audio
 int16_t SND_MEM_STACK[SND_MEM_STACK_SIZE]; //for adjusting volume because access via heap is finicky!!, 5 megabyte 500k KB Ram allowed max
 HANDLE hMemSndArray[SND_THREAD_NUM];
 bool mem_snd_interrupt[SND_THREAD_NUM]={FALSE,FALSE,FALSE,FALSE,FALSE,FALSE};//,FALSE};
@@ -166,7 +170,7 @@ void loadSoundEffect(wavSoundEffect* mySoundEffect,const wchar_t* filename,bool 
 
     //Alloc actual audio int16_t*
     fseek(file, wav_header_size, SEEK_SET);
-    mySoundEffect->audio = malloc(filesize);
+    //mySoundEffect->audio = malloc(filesize);
     fread(mySoundEffect->audio, 1, filesize, file); //read once filesize
 
     fclose(file);
@@ -177,7 +181,7 @@ void loadSoundEffect(wavSoundEffect* mySoundEffect,const wchar_t* filename,bool 
 }
 
 
-int16_t* adjustSFXVol(const int16_t* src, long filesize, float volumeFactor,bool skipped_header)
+void adjustSFXVol(int16_t* dest, const int16_t* src, long filesize, float volumeFactor,bool skipped_header)
 {
   memset(SND_MEM_STACK, 0, SND_MEM_STACK_SIZE);
   memcpy(SND_MEM_STACK,src,filesize);  
@@ -194,16 +198,14 @@ int16_t* adjustSFXVol(const int16_t* src, long filesize, float volumeFactor,bool
       SND_MEM_STACK[i] = (int16_t)scaled_value;
     }
   }
-  int16_t* dest=malloc(filesize);
   memcpy(dest,SND_MEM_STACK,filesize);
-  return dest;
 }
 
 
 void adjustSFXVolume(wavSoundEffectCache* mySoundEffectCache, wavSoundEffect* mySoundEffect, float game_volume,bool skipped_header)
 {
   //keySoundEffectCache[i].audio=adjustSFXVolume(keySoundEffect[i].audio,keySoundEffect[i].filesize,game_volume);
-  mySoundEffectCache->audio = adjustSFXVol( mySoundEffect->audio, mySoundEffect->filesize, game_volume, skipped_header);
+  adjustSFXVol(mySoundEffectCache->audio, mySoundEffect->audio, mySoundEffect->filesize, game_volume, skipped_header);
 }
 
 // Play stereo audio from a buffer
