@@ -670,6 +670,11 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
             for (int i=0;i<ENEMY_NUM;i++) {
               EnemyAct(i);
             }
+
+            if (!player.time_breaker) {
+              CloudAct();
+            }
+
             if (map_background==1) {
               if (!player.time_breaker) {
                 StarAct();
@@ -721,6 +726,9 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
               PlayerAct();
               for (int i=0;i<ENEMY_NUM;i++) {
                 EnemyAct(i);
+              }
+              if (!player.time_breaker) {
+                CloudAct();
               }
               if (map_background==1) {
                 if (!player.time_breaker) {
@@ -1253,7 +1261,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
     //Graphics DrawIt()
     case WM_PAINT: //https://cplusplus.com/forum/beginner/269434/
-      FrameRateSleep(FPS); // (Uncapped) //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
+      if (!level_loading) {
+        FrameRateSleep(FPS); // (Uncapped) //35 or 60 fps Credit: ayevdood/sharoyveduchi && y4my4m - move it here
+      }
       if (!IsIconic(hwnd)) //no action when minimized, prevents crash https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-isiconic?redirectedfrom=MSDN
       {
         //RandIndexIncrement();
@@ -1314,6 +1324,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             PlayerCameraLimiterBorder();
           }
           InitRDGrid();
+          InitClouds();
           ResetBulletRain();
           if (map_weather>0) {
             InitBulletRain();
@@ -1426,6 +1437,39 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-370/2,GR_HEIGHT/2-370/2-48,0,0,370,370,intro_msg_mask,SRCAND,FALSE,FALSE);
           DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-370/2,GR_HEIGHT/2-370/2-48,0,0,370,370,intro_msg,SRCPAINT,FALSE,FALSE);
 
+          if (loading_numerator==0) { //load clouds
+              HDC thdcDst=CreateCompatibleDC(hdcBackbuff);
+              HDC thdcSrc=CreateCompatibleDC(hdcBackbuff);
+              int cloud_src_x[LLOADED_CLOUD_NUM]={11,3,0,462,42,282,0,440,464,100};
+              int cloud_src_y[LLOADED_CLOUD_NUM]={62,255,0,8,178,171,411,450,553,100};
+              int cloud_l[LLOADED_CLOUD_NUM]={504,532,442,190,196,325,417,190,138,100};
+              int cloud_w[LLOADED_CLOUD_NUM]={165,258,164,170,156,250,258,94,70,100};
+
+              SelectObject(thdcSrc,cloudwhite8bit_sprite_2);
+              for (int i=0;i<2;i++) {
+                DrawGameCloud[i].sprite_cache=CreateCrunchyBitmap(cloud_l[i],cloud_w[i]); //size of bitmap
+                SelectObject(thdcDst,DrawGameCloud[i].sprite_cache);
+                BitBlt(thdcDst, 0, 0, cloud_l[i], cloud_w[i], thdcSrc, cloud_src_x[i], cloud_src_y[i],SRCCOPY); //axis from large src
+              }
+              //
+              SelectObject(thdcSrc,cloudwhite8bit_sprite_1);
+              for (int i=2;i<LLOADED_CLOUD_NUM;i++) {
+                DrawGameCloud[i].sprite_cache=CreateCrunchyBitmap(cloud_l[i],cloud_w[i]); //size of bitmap
+                SelectObject(thdcDst,DrawGameCloud[i].sprite_cache);
+                BitBlt(thdcDst, 0, 0, cloud_l[i], cloud_w[i], thdcSrc, cloud_src_x[i], cloud_src_y[i],SRCCOPY); //axis from large src
+              }
+
+              //Generate Draw Sprites
+              for (int i=0;i<LOADED_CLOUD_NUM;i++) {
+                DrawGameCloud[i].l=cloud_l[i];                
+                ReplaceBitmapColor(DrawGameCloud[i].sprite_cache,LTGREEN,BLACK);
+                GenerateDrawSprite(&DrawGameCloud[i].draw_sprite,DrawGameCloud[i].sprite_cache);
+              }
+
+              DeleteDC(thdcDst);
+              DeleteDC(thdcSrc);
+          } 
+
           if (loading_numerator<loading_denominator) {
             DrawLoading(hdcBackbuff);
             Prelude();
@@ -1524,7 +1568,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             //global_update_reflection_timer++;
             if (player.in_water_timer>0 && WATER_GROUND_NUM>0) {        
-              FastDrawWaterPlatformsTexture();
+              //FastDrawWaterPlatformsTexture();
+              DrawWaterPlatformsTexture(hdcBackbuff,hdcBackbuff2);
             }
 
             DrawPlatforms(hdcBackbuff,hdcBackbuff2);
@@ -1545,6 +1590,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             if (player.in_water_timer==0 && WATER_GROUND_NUM>0) {
               FastFlipLargeBitmapVertically(publicScreenMirrorPixels,SCREEN_WIDTH,publicScreenPixels,GR_WIDTH,GR_HEIGHT,global_screen_bits);
               FastDrawWaterPlatformsReflection();
+              //DrawWaterPlatformsReflection(hdcBackbuff,hdcBackbuff2,screen_mirror);
               //SelectObject(hdcBackbuff2,screen_mirror);
               //upside down bitblt, safe
               //for (int h=0;h<GR_HEIGHT;h++) {
@@ -2313,8 +2359,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       enemy6_sprite_1 = LoadRLE8CompressedBitmap(L"sprites/enemy6-1.bmp");
       enemy6_sprite_2 = LoadRLE8CompressedBitmap(L"sprites/enemy6-2.bmp");
 
+
+
+      //Load Cloud
+      cloudwhite8bit_sprite_2=LoadRLE8CompressedBitmap(L"sprites/cloudswhite8_2.bmp");
+      cloudwhite8bit_sprite_1=LoadRLE8CompressedBitmap(L"sprites/cloudswhite8_1.bmp");
+
       //water textures 0 to 7
-      SetTexturePalette(24,waterPalette); //24 is dkblue
+      //SetTexturePalette(24,waterPalette); //24 is dkblue
       //SetTexturePalette(166,waterPalette); //lt green water
       //SetTexturePalette(16*2+4,waterPalette); //dkgreen water
       //SetTexturePalette(166,waterPalette);

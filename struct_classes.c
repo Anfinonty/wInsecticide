@@ -1126,6 +1126,21 @@ void CleanupAll(bool btm);
 
 
 
+
+
+
+//==========Color Chooser=======
+struct color_chooser
+{
+  bool is_choosing_color;
+  int color_id;
+  int color_id_choosing;
+} color_chooser;
+//==============================
+
+
+
+//==========Stars=============
 #define SSTAR_NUM   3
 struct shooting_star
 {
@@ -1139,13 +1154,6 @@ struct shooting_star
 } SStar[SSTAR_NUM];
 
 
-
-struct color_chooser
-{
-  bool is_choosing_color;
-  int color_id;
-  int color_id_choosing;
-} color_chooser;
 
 
 #define STAR_NUM    627
@@ -1162,7 +1170,7 @@ struct star
 void SetStar(int i,float x,float y);
 void DrawStar(HDC hdc,int x, int y, int size, float angl,int color);
 void DrawStars(HDC hdc);
-
+//=================================================================
 //===========OTHER GROUNDS TEXTURE=============
 #define PLATFORM_TEXTURES_NUM 25
 
@@ -1188,11 +1196,50 @@ int global_water_texture_timer=0;
 int global_water_texture_id=0;
 HBITMAP texture_water[9];
 BYTE *ptexture_water[9];
-
-
-
 //================================
 
+
+//=============CLOUDS===============
+#define LOADED_CLOUD_NUM 9
+#define LLOADED_CLOUD_NUM 10
+#define CLOUD_NUM    20
+
+HBITMAP cloudwhite8bit_sprite_1;
+HBITMAP cloudwhite8bit_sprite_2;
+
+struct LoadedGameCloud
+{
+  int l;
+  HBITMAP sprite_cache;
+  DRAWSPRITE draw_sprite;
+} DrawGameCloud[LLOADED_CLOUD_NUM];
+
+
+/*struct LoadedGameCloudSpecial
+{
+  int l;
+  HBITMAP sprite_cache;
+  DRAWSPRITE draw_sprite;
+} DrawGameCloudSpecial;
+*/
+
+
+
+struct GameClouds
+{
+  int max_speed_timer;
+  int speed_timer;
+  int x;
+  int y;
+  int type; //0->8
+} GameCloud[CLOUD_NUM];
+
+void SetCloud(int i,int x,int y,int type,int max_speed_timer);
+void InitClouds();
+void DrawCloud(HDC hdc, HDC hdc2,int i);
+void DrawClouds(HDC hdc, HDC hdc2);
+
+//===================================
 
 
 
@@ -1345,7 +1392,7 @@ HBITMAP ga0_kh[5];
 HBITMAP ga0_kh_mask[5];
 
 
-HBITMAP _bb;
+HBITMAP _bb; // blank hbitmap to point to
 
 //raindrop
 int sc_raindrop_num_=0;
@@ -1392,6 +1439,7 @@ int weather_rng_i=0;
 int misc_rng_i=0;
 int sstar_rng_i=0;
 int star_rng_i=0;
+int cloud_rng_i=0;
 
 
 float enemy_rotated_angle_arr[ROTATED_SPRITE_NUM];

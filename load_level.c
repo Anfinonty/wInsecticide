@@ -128,6 +128,7 @@ void Init() { //Repeatable
   //fire_rng_i=0;
 
   //Initialize Level
+  InitClouds();
   InitBullet(BULLET_NUM);
   InitGrid();
   InitNodeGrid();

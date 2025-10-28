@@ -135,6 +135,73 @@ void DrawStars(HDC hdc)
   }
 }
 
+void CloudAct()
+{
+  int x,y,type,max_speed_timer;
+  for (int i=0;i<CLOUD_NUM;i++) {
+    if (GameCloud[i].speed_timer>0) {
+      GameCloud[i].speed_timer--;
+    } else {
+      GameCloud[i].x--;
+      GameCloud[i].speed_timer=GameCloud[i].max_speed_timer;
+    }
+    if (GameCloud[i].type>=0 && GameCloud[i].type<LOADED_CLOUD_NUM) {
+    if (GameCloud[i].x<-DrawGameCloud[GameCloud[i].type].l) {
+      y=RandNum(0,GR_HEIGHT/2,&cloud_rng_i,-1);
+      type=RandNum(0,LOADED_CLOUD_NUM,&cloud_rng_i,-1);
+      max_speed_timer=RandNum(12,20,&cloud_rng_i,-1);
+      x=GR_WIDTH+DrawGameCloud[type].l+2+RandNum(50,DrawGameCloud[type].l*2,&cloud_rng_i,-1);
+      SetCloud(i,x,y,type,max_speed_timer);
+    }
+    }
+  }
+}
+
+
+void SetCloud(int i, int x, int y, int type,int max_speed_timer)
+{
+  GameCloud[i].x=x;
+  GameCloud[i].y=y;
+  GameCloud[i].type=type;
+  GameCloud[i].max_speed_timer=max_speed_timer;
+  GameCloud[i].speed_timer=max_speed_timer;
+}
+
+
+void InitClouds()
+{
+  int x,y,type,max_speed_timer;
+  cloud_rng_i=0;
+  for (int i=0;i<CLOUD_NUM;i++) {
+    //x=RandNum((GR_WIDTH*2/CLOUD_NUM *(i)),GR_WIDTH*2,&cloud_rng_i,-1);
+    x=GR_WIDTH*2/CLOUD_NUM *(i);
+    y=RandNum(0,GR_HEIGHT/2,&cloud_rng_i,-1);
+    type=RandNum(0,LOADED_CLOUD_NUM,&cloud_rng_i,-1);
+    max_speed_timer=RandNum(12,20,&cloud_rng_i,-1);
+    SetCloud(i,x,y,type,max_speed_timer);//max_speed_timer);
+  }
+}
+
+
+void DrawCloud(HDC hdc,HDC hdc2,int i)
+{
+  DrawSprite(hdc, hdc2,GameCloud[i].x,GameCloud[i].y,&DrawGameCloud[GameCloud[i].type].draw_sprite,FALSE);
+}
+
+
+void DrawClouds(HDC hdc, HDC hdc2)
+{
+  for (int i=0;i<CLOUD_NUM;i++) {
+    DrawCloud(hdc,hdc2, i);
+  }
+}
+
+void DrawSun(HDC hdc)
+{
+  int dmx=GR_WIDTH/2+GR_WIDTH/4;//-GR_WIDTH/16*_ppx;//-mouse_x/50;
+  int dmy=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3;//-GR_HEIGHT/16*_ppy;//-mouse_y/50;
+  GrCircle(hdc,dmx,dmy,60,YELLOW,WHITE);
+}
 
 
 //Background
@@ -162,11 +229,14 @@ void DrawBackground(HDC hdc,HDC hdc2)
 
   GrRect(hdc,0,0,GR_WIDTH+24,GR_HEIGHT+24,custom_map_background_color);
   switch (map_background) {
+    case 0:
+      DrawSun(hdc);
+      DrawClouds(hdc,hdc2);
+      break;
     case 1:
       DrawStars(hdc);
       break;
-    case 0:
-    //case 1:
+
     case 2:
     case 3: //default backgrounds
       if (map_background_sprite!=NULL) {
@@ -247,7 +317,7 @@ void DrawBackground(HDC hdc,HDC hdc2)
 
 
 
-
+/*
 void DrawWaterPlatformsReflection(HDC hdc, HDC hdc2,HBITMAP mirror_screen)
 {
   if (WATER_GROUND_NUM>0) {
@@ -282,12 +352,12 @@ void DrawWaterPlatformsReflection(HDC hdc, HDC hdc2,HBITMAP mirror_screen)
   }
   }
   }
-}
+}*/
 
 
 
 
-/*
+
 void DrawWaterPlatformsTexture(HDC hdc,HDC hdc2)
 {
   if (WATER_GROUND_NUM>0) {
@@ -327,7 +397,7 @@ void DrawWaterPlatformsTexture(HDC hdc,HDC hdc2)
             y2=GR_HEIGHT/2+(int)Ground[i]->y2-py+cy1+cy2+cy3;
             x3=GR_WIDTH/2+(int)Ground[i]->x3-px+cx1+cx2+cx3;
             y3=GR_HEIGHT/2+(int)Ground[i]->y3-py+cy1+cy2+cy3;
-            //DrawTexturedTriangle(hdc,hdc2,x1,y1,x2,y2,x3,y3,texture_water[global_water_texture_id]);
+            DrawTexturedTriangle(hdc,hdc2,x1,y1,x2,y2,x3,y3,texture_water[global_water_texture_id]);
             //FastDrawTexturedTriangle(publicScreenPixels,x1,y1,x2,y2,x3,y3,SCREEN_WIDTH,ptexture_water[global_water_texture_id],160,160);
             //DrawGlassTriangle(publicScreenPixels, SCREEN_WIDTH, x1,y1,x2,y2,x3,y3,rgbColorsDefault,rgbPaint_i[Ground[i]->color_id],200);
         }
@@ -335,9 +405,9 @@ void DrawWaterPlatformsTexture(HDC hdc,HDC hdc2)
     }
   }
   }
-}*/
+}
 
-
+/*
 void FastDrawWaterPlatformsTexture()
 {
   if (WATER_GROUND_NUM>0) {
@@ -377,14 +447,14 @@ void FastDrawWaterPlatformsTexture()
             y2=GR_HEIGHT/2+(int)Ground[i]->y2-py+cy1+cy2+cy3;
             x3=GR_WIDTH/2+(int)Ground[i]->x3-px+cx1+cx2+cx3;
             y3=GR_HEIGHT/2+(int)Ground[i]->y3-py+cy1+cy2+cy3;
-            FastDrawTexturedTriangle(publicScreenPixels,x1,y1,x2,y2,x3,y3,SCREEN_WIDTH,ptexture_water[global_water_texture_id],160,160,global_screen_bits);
+            //FastDrawTexturedTriangle(publicScreenPixels,x1,y1,x2,y2,x3,y3,SCREEN_WIDTH,ptexture_water[global_water_texture_id],160,160,global_screen_bits);
             //DrawGlassTriangle(publicScreenPixels, SCREEN_WIDTH, x1,y1,x2,y2,x3,y3,rgbColorsDefault,rgbPaint_i[Ground[i]->color_id],200);
         }
       }
     }
   }
   }
-}
+}*/
 
 void FastDrawWaterPlatformsReflection()
 {
