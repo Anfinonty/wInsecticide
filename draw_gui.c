@@ -1036,6 +1036,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
       }
       if (!blank_level) {
         DrawPlatforms(hdc,hdc2);
+        DrawSunRays(hdc,hdc2);
         DrawFirePlatforms(hdc);
         DrawWebs(hdc);
         DrawEnemy(hdc,hdc2);
@@ -1048,6 +1049,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
         if (map_weather>0) {
           DrawRain(hdc,hdc2);
           DrawRainShader3(hdc);
+
         }
       }
     }
@@ -1600,6 +1602,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
 
     case 2: //Create New Level 
     case 3:
+       GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,BLACK);
       if (main_menu_chosen==2)
         GrPrint(hdc,30,main_menu_y+10+16*2,"Create New Level",WHITE);
       else

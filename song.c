@@ -1191,6 +1191,11 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
           flag_sound_task_stopped=TRUE; //stop snd act
         } 
       }
+
+      //Special: runs in sleep 6 even when slowed
+      if (!player.time_breaker) {
+        SunRayAct();
+      }
       Sleep(6);
 
   } else { //in main menu

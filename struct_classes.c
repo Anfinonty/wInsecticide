@@ -1201,7 +1201,7 @@ BYTE *ptexture_water[9];
 
 //=============CLOUDS===============
 #define LOADED_CLOUD_NUM 9
-#define LLOADED_CLOUD_NUM 10
+#define LLOADED_CLOUD_NUM 10 //slack space, idk why, needs to be in or last sprite wont load
 #define CLOUD_NUM    20
 
 HBITMAP cloudwhite8bit_sprite_1;
@@ -1214,19 +1214,9 @@ struct LoadedGameCloud
   DRAWSPRITE draw_sprite;
 } DrawGameCloud[LLOADED_CLOUD_NUM];
 
-
-/*struct LoadedGameCloudSpecial
-{
-  int l;
-  HBITMAP sprite_cache;
-  DRAWSPRITE draw_sprite;
-} DrawGameCloudSpecial;
-*/
-
-
-
 struct GameClouds
 {
+  bool flipped;
   int max_speed_timer;
   int speed_timer;
   int x;
@@ -1234,12 +1224,46 @@ struct GameClouds
   int type; //0->8
 } GameCloud[CLOUD_NUM];
 
-void SetCloud(int i,int x,int y,int type,int max_speed_timer);
+void SetCloud(int i,int x,int y,int type,int max_speed_timer,bool flipped);
 void InitClouds();
 void DrawCloud(HDC hdc, HDC hdc2,int i);
 void DrawClouds(HDC hdc, HDC hdc2);
 
 //===================================
+
+
+
+//=============SUN===============
+#define SUN_RAY_NUM    16//32
+int sun_ray_l[9]={90,30,41,31,64,43,83,19,72};
+struct Sun
+{
+  bool flag_overcast;
+  bool ray_is_blocked[SUN_RAY_NUM];
+  int flag_move_cycle;
+  int overcast_timer;
+  int overcast_lvl;
+  int current_sun_i;
+  int current_sun_ray_i;
+  int rays_visible_num;
+  int x;
+  int y;
+
+  int ray_l[SUN_RAY_NUM];
+  int draw_ray_x[SUN_RAY_NUM];
+  int draw_ray_y[SUN_RAY_NUM];
+  float ray_x[SUN_RAY_NUM];
+  float ray_y[SUN_RAY_NUM];
+  float ray_angle[SUN_RAY_NUM];
+} Sun;
+
+void InitSun();
+void SunRayAct();
+void DrawSun(HDC hdc);
+void DrawSunRays(HDC hdc,HDC hdc2);
+
+
+//===============================
 
 
 
@@ -1440,6 +1464,6 @@ int misc_rng_i=0;
 int sstar_rng_i=0;
 int star_rng_i=0;
 int cloud_rng_i=0;
-
+int sun_rng_i=0;
 
 float enemy_rotated_angle_arr[ROTATED_SPRITE_NUM];

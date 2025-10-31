@@ -449,6 +449,34 @@ void Init8BitRGBPaintDefault(int *rgbPaint_dest,int *rgbPaint_i_dest,RGBQUAD *rg
   }
 }
 
+RGBQUAD rgbColorsDarker1[256];
+RGBQUAD rgbColorsDarker2[256];
+RGBQUAD rgbColorsDarker3[256];
+
+void Init8BitRGBPaintDarker(RGBQUAD *rgbColors,RGBQUAD *rgbColorsSrc,float dark)
+{
+  /*dark=abs(dark);
+  if (dark==0)
+    dark=1;
+  for (int i=0;i<256;i++) {
+    rgbColors[i].rgbRed = rgbColorsSrc[i].rgbRed/dark;
+    rgbColors[i].rgbGreen = rgbColorsSrc[i].rgbGreen/dark;
+    rgbColors[i].rgbBlue = rgbColorsSrc[i].rgbBlue/dark;
+  }*/
+  // Clamp dark between 0.0 and 1.0
+  if (dark < 0.0f) dark = 0.0f;
+  if (dark > 1.0f) dark = 1.0f;
+
+  float brightnessFactor = 1.0f - dark; // e.g., dark = 0.3 → brightnessFactor = 0.7
+
+  for (int i = 0; i < 256; i++) {
+    rgbColors[i].rgbRed   = (BYTE)(rgbColorsSrc[i].rgbRed   * brightnessFactor);
+    rgbColors[i].rgbGreen = (BYTE)(rgbColorsSrc[i].rgbGreen * brightnessFactor);
+    rgbColors[i].rgbBlue  = (BYTE)(rgbColorsSrc[i].rgbBlue  * brightnessFactor);
+  }
+}
+
+
 
 void BitmapPalette(HDC hdc, HDC hdc2,HBITMAP hBitmap,RGBQUAD *bitmapPalette) {
   SelectObject(hdc2, hBitmap);

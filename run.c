@@ -346,13 +346,14 @@ bool is_khmer=TRUE;
 #include "enemy.c"
 
 #include "song.c"
+
+#include "draw_background.c"
 #include "draw_it.c"
 #include "draw_gui.c"
 
 #include "load_stars.c"
 #include "load_level.c"
 #include "cleanup.c"
-
 
 #include "map_editor.c"
 #include "draw_it_map_editor.c"
@@ -729,6 +730,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
               }
               if (!player.time_breaker) {
                 CloudAct();
+                SunRayAct();
               }
               if (map_background==1) {
                 if (!player.time_breaker) {
@@ -1325,6 +1327,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
           InitRDGrid();
           InitClouds();
+          InitSun();
           ResetBulletRain();
           if (map_weather>0) {
             InitBulletRain();
@@ -1432,6 +1435,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           //screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
           SelectObject(hdcBackbuff,screen);
 
+          GrRect(hdcBackbuff,0,0,GR_WIDTH,GR_HEIGHT,BLACK);
           DrawMovingAVI(hdcBackbuff,hdcBackbuff2);
 
           DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-370/2,GR_HEIGHT/2-370/2-48,0,0,370,370,intro_msg_mask,SRCAND,FALSE,FALSE);
@@ -1440,10 +1444,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           if (loading_numerator==0) { //load clouds
               HDC thdcDst=CreateCompatibleDC(hdcBackbuff);
               HDC thdcSrc=CreateCompatibleDC(hdcBackbuff);
-              int cloud_src_x[LLOADED_CLOUD_NUM]={11,3,0,462,42,282,0,440,464,100};
-              int cloud_src_y[LLOADED_CLOUD_NUM]={62,255,0,8,178,171,411,450,553,100};
-              int cloud_l[LLOADED_CLOUD_NUM]={504,532,442,190,196,325,417,190,138,100};
-              int cloud_w[LLOADED_CLOUD_NUM]={165,258,164,170,156,250,258,94,70,100};
+              int cloud_src_x[LLOADED_CLOUD_NUM]={11,3,0,462,42,282,0,440,464,0};
+              int cloud_src_y[LLOADED_CLOUD_NUM]={62,255,0,8,178,171,411,450,553,0};
+              int cloud_l[LLOADED_CLOUD_NUM]={504,532,442,190,196,325,417,190,138,1};
+              int cloud_w[LLOADED_CLOUD_NUM]={165,258,164,170,156,250,258,94,70,1};
 
               SelectObject(thdcSrc,cloudwhite8bit_sprite_2);
               for (int i=0;i<2;i++) {
@@ -1573,6 +1577,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
 
             DrawPlatforms(hdcBackbuff,hdcBackbuff2);
+            DrawSunRays(hdcBackbuff,hdcBackbuff2);
             DrawFirePlatforms(hdcBackbuff);
             DrawWebs(hdcBackbuff);
             DrawEnemy(hdcBackbuff,hdcBackbuff2);
@@ -1606,6 +1611,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             if (map_weather>0) {
               DrawRainShader3(hdcBackbuff);
             }
+            //DrawSunRays(hdcBackbuff,hdcBackbuff2);
 
             DrawUI(hdcBackbuff,hdcBackbuff2);
             if (player.health>0) {
@@ -2148,6 +2154,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //Load Color Palettes
       Init8BitRGBColorsNoir(rgbColorsNoir);
       Init8BitRGBColorsDefault(rgbColorsDefault);
+
+      Init8BitRGBPaintDarker(rgbColorsDarker1,rgbColorsDefault,0.25);
+      Init8BitRGBPaintDarker(rgbColorsDarker2,rgbColorsDefault,0.50);
+      Init8BitRGBPaintDarker(rgbColorsDarker3,rgbColorsDefault,0.75);
+
       Init8BitRGBColorsInvert(rgbColorsInvert,rgbColorsDefault);
       Init8BitRGBPaintDefault(rgbPaint,rgbPaint_i,rgbColorsDefault,TRUE,8);
 
