@@ -1,10 +1,10 @@
 
 void SetStar(int i,float x,float y)
 {
-  Star[i].x=x;
-  Star[i].y=y;
-  Star[i].size=0;
-  Star[i].timer=0;
+  Star.x[i]=x;
+  Star.y[i]=y;
+  Star.size[i]=0;
+  Star.timer[i]=0;
 }
 
 
@@ -636,5 +636,20 @@ void InitStars() {
     SetStar(624,637,563);
     SetStar(625,92,564);
     SetStar(626,14,588);
+
+    Star.pivot_x=GR_WIDTH/2;
+    Star.pivot_y=GR_HEIGHT/2+GR_HEIGHT/4;
+    int m=max(GR_WIDTH,GR_HEIGHT);
+    for (int i=0;i<STAR_NUM;i++) {
+      Star.x[i]=(Star.x[i] * m)/MAX_STAR_X;
+      Star.y[i]=(Star.y[i] * m)/MAX_STAR_Y;
+
+      Star.dist_l[i]=GetDistance(0,0,Star.x[i]-Star.pivot_x,Star.y[i]-Star.pivot_y);//Calculate Dist from pivot to  Star
+      Star.angle[i]=atan2(Star.y[i]-Star.pivot_y,Star.x[i]-Star.pivot_x)-M_PI_4;//GetCosAngle(Star.x[i]-Star.pivot_x,Star.dist_l[i]/2);
+      Star.oangle[i]=Star.angle[i];
+
+      Star.x[i]=Star.pivot_x+Star.dist_l[i]*cos(Star.angle[i]);
+      Star.y[i]=Star.pivot_y+Star.dist_l[i]*sin(Star.angle[i]);
+    }
 }
 

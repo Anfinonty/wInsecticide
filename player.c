@@ -2030,8 +2030,10 @@ void PlayerAct()
       } else if ((player.fling_distance!=0)) {
         if (player.speed<10) {
           speed_limiter=6;
-        } else if (player.speed<25){
+        } else if (player.speed<15) {
           speed_limiter=10;
+        } else if (player.speed<25) {
+          speed_limiter=15;
         }
         if (player.fling_distance>0) {
           speed_limiter=speed_limiter+2;

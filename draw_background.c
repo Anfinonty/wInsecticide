@@ -38,7 +38,7 @@ void PlaceDayMoon()
   GetObject(map_background_sprite,sizeof(BITMAP),&backgroundbitmap);
 
   BITMAP moonbitmap;
-  GetObject(draw_mirror_moon_sprite[current_moon_phase_id].sprite_paint,sizeof(BITMAP),&moonbitmap);
+  GetObject(Moon[current_moon_phase_id].draw_moon_sprite[0].sprite_paint,sizeof(BITMAP),&moonbitmap);
 
   HDC hdc=GetDC(NULL);
   HDC hdcSrc=CreateCompatibleDC(hdc);
@@ -46,7 +46,7 @@ void PlaceDayMoon()
 
   HBITMAP tmp_bitmap=CreateLargeBitmap(backgroundbitmap.bmWidth,backgroundbitmap.bmHeight,backgroundbitmap.bmBitsPixel);
   SelectObject(hdcDest,tmp_bitmap);
-  SelectObject(hdcSrc,draw_mirror_moon_sprite[current_moon_phase_id].sprite_paint);
+  SelectObject(hdcSrc,Moon[current_moon_phase_id].draw_moon_sprite[0].sprite_paint);
 
 
   int background_width=backgroundbitmap.bmWidth;
@@ -83,13 +83,69 @@ void PlaceDayMoon()
 //================================
 
 //=======Draw Stars===============
+void InitShootingStars()
+{
+  sstar_rng_i=0;
+  for (int i=0;i<SSTAR_NUM;i++) {
+    SStar[i].lifetime=0;
+    SStar[i].cooldown=0;
+    SStar[i].speed=10.0;
+  }
+}
+
+
+void ShootingStarAct()
+{
+  for (int i=0;i<SSTAR_NUM;i++) {
+    //movement
+    if (SStar[i].lifetime<1) { //how long it appears
+      if (SStar[i].cooldown<1) { //how long it doesnt appear
+        SStar[i].x=RandNum(0,GR_WIDTH,&sstar_rng_i,-1);
+        SStar[i].y=RandNum(0,GR_HEIGHT,&sstar_rng_i,-1);
+        SStar[i].angle=RandAngle(0,180,&sstar_rng_i,-1);
+        SStar[i].lifetime=5+RandNum(0,(GR_WIDTH+GR_HEIGHT)/60,&sstar_rng_i,-1);
+        SStar[i].cooldown=1000+RandNum(0,(GR_WIDTH+GR_HEIGHT)*2,&sstar_rng_i,-1);
+      } else {
+        SStar[i].cooldown--;
+      }
+    } else {
+      SStar[i].x+=SStar[i].speed*cos(SStar[i].angle);
+      SStar[i].y+=SStar[i].speed*sin(SStar[i].angle);
+      SStar[i].lifetime--;
+    }
+  }
+}
+
+
+void StarAct()
+{
+  for (int i=0;i<STAR_NUM;i++) {
+    Star.timer[i]--;
+    if (Star.timer[i]<1) {
+      Star.size[i]=RandNum(0,4,&star_rng_i,-1);
+      Star.timer[i]=RandNum(50,350,&star_rng_i,-1);
+    } 
+
+    Star.x[i]=Star.pivot_x+Star.dist_l[i]*cos(Star.angle[i]);
+    Star.y[i]=Star.pivot_y+Star.dist_l[i]*sin(Star.angle[i]);
+    Star.angle[i]+=0.0025;
+    //if (Star.angle[i]<=0) {
+      //Star.angle[i]+=2*M_PI;
+    //}
+    if (Star.angle[i]>=2*M_PI) {
+      Star.angle[i]-=2*M_PI;
+    }
+  }
+}
+
+
 void DrawStars(HDC hdc)
 {
   GrRect(hdc,0,0,GR_WIDTH+24,GR_HEIGHT+24,BLACK);  
   for (int i=0;i<STAR_NUM;i++) {
-      int _x = (Star[i].x * GR_WIDTH)/MAX_STAR_X;
-      int _y = (Star[i].y * GR_HEIGHT)/MAX_STAR_Y;
-      if (Star[i].size>0) {
+      int _x = Star.x[i];//(Star.x[i] * GR_WIDTH)/MAX_STAR_X;
+      int _y = Star.y[i];//(Star.y[i] * GR_HEIGHT)/MAX_STAR_Y;
+      if (Star.size[i]>0) {
         //SetPixel(hdc,_x,_y,WHITE);
         //SetPixel(hdc,_x+1,_y,WHITE);
         //SetPixel(hdc,_x+1,_y+1,WHITE);
@@ -105,70 +161,146 @@ void DrawStars(HDC hdc)
 //=============================
 
 //=======Clouds ==============
-void CloudAct()
+void LoadClouds(HDC hdc,HDC hdc2)
 {
-  bool flipped;
-  int x,y,type,max_speed_timer;
-  for (int i=0;i<CLOUD_NUM;i++) {
-    if (GameCloud[i].speed_timer>0) {
-      GameCloud[i].speed_timer--;
-    } else {
-      GameCloud[i].x--;
-      GameCloud[i].speed_timer=GameCloud[i].max_speed_timer;
-    }
-    if (GameCloud[i].type>=0 && GameCloud[i].type<LOADED_CLOUD_NUM) {
-    if (GameCloud[i].x<-DrawGameCloud[GameCloud[i].type].l) {
-      y=RandNum(0,GR_HEIGHT/2,&cloud_rng_i,-1);
-      type=RandNum(0,LOADED_CLOUD_NUM,&cloud_rng_i,-1);
-      max_speed_timer=5+RandNum(1,8,&cloud_rng_i,-1);
-      x=GR_WIDTH+DrawGameCloud[type].l+2+RandNum(50,DrawGameCloud[type].l*2,&cloud_rng_i,-1);
-      flipped=(bool)RandNum(0,1,&cloud_rng_i,-1);
-      SetCloud(i,x,y,type,max_speed_timer,flipped);
-    }
-    }
+  HDC thdcDst=CreateCompatibleDC(hdc);
+  HDC thdcSrc=CreateCompatibleDC(hdc);
+  int cloud_src_x[LLOADED_CLOUD_NUM]={ 11,   3,  0,  0, 282,462, 42,440,464,0};
+  int cloud_src_y[LLOADED_CLOUD_NUM]={ 62, 255,  0,411, 171,  8,178,450,553,0};
+  int cloud_l[LLOADED_CLOUD_NUM]=    {504,532,442,417, 325,190,196,190,138,1};
+  int cloud_w[LLOADED_CLOUD_NUM]=    {165,258,164,258, 250,170,156, 94,70 ,1};
+
+  SelectObject(thdcSrc,cloudwhite8bit_sprite_2);
+  for (int i=0;i<2;i++) {
+    DrawGameCloud[i].sprite_cache=CreateCrunchyBitmap(cloud_l[i],cloud_w[i]); //size of bitmap
+    SelectObject(thdcDst,DrawGameCloud[i].sprite_cache);
+    BitBlt(thdcDst, 0, 0, cloud_l[i], cloud_w[i], thdcSrc, cloud_src_x[i], cloud_src_y[i],SRCCOPY); //axis from large src
   }
+  //
+  SelectObject(thdcSrc,cloudwhite8bit_sprite_1);
+  for (int i=2;i<LLOADED_CLOUD_NUM;i++) {
+    DrawGameCloud[i].sprite_cache=CreateCrunchyBitmap(cloud_l[i],cloud_w[i]); //size of bitmap
+    SelectObject(thdcDst,DrawGameCloud[i].sprite_cache);
+    BitBlt(thdcDst, 0, 0, cloud_l[i], cloud_w[i], thdcSrc, cloud_src_x[i], cloud_src_y[i],SRCCOPY); //axis from large src
+  }
+
+  //Generate Draw Sprites
+  for (int i=0;i<LOADED_CLOUD_NUM;i++) {
+    DrawGameCloud[i].l=cloud_l[i];                
+    ReplaceBitmapColor(DrawGameCloud[i].sprite_cache,LTGREEN,BLACK);
+    GenerateDrawSprite(&DrawGameCloud[i].draw_sprite,DrawGameCloud[i].sprite_cache);
+  }
+
+  DeleteDC(thdcDst);
+  DeleteDC(thdcSrc);
+
+
+
+  //Create Bitmap and Begin placing clouds on bitmap
+  GameCloudsBackground.sprite_paint=CreateLargeBitmap(SCREEN_WIDTH*2,SCREEN_HEIGHT/2+SCREEN_HEIGHT/4,global_screen_bits);
+
+  //create backgrnd
+  SelectObject(hdc,GameCloudsBackground.sprite_paint);
+  GrRect(hdc,0,0,(SCREEN_WIDTH*2)+1,SCREEN_HEIGHT/2+SCREEN_HEIGHT/4+1,YELLOW);
+  
+  //Draw Clouds
+  for (int i=0;i<40/*1000*/;i++) {
+    int x;
+    int y;
+    int type;
+    int flipped;
+
+    y=RandNum(0,SCREEN_HEIGHT/2+SCREEN_HEIGHT/8,&cloud_rng_i,-1);
+    type=RandNum(0,LOADED_CLOUD_NUM,&cloud_rng_i,-1);
+    //max_speed_timer=5+RandNum(1,8,&cloud_rng_i,-1);
+    //x=540+RandNum(0,SCREEN_WIDTH*2-540*2,&cloud_rng_i,-1);//GR_WIDTH+DrawGameCloud[type].l+2+RandNum(50,DrawGameCloud[type].l*2,&cloud_rng_i,-1);
+
+    x=RandNum(0,SCREEN_WIDTH*2,&cloud_rng_i,-1);//GR_WIDTH+DrawGameCloud[type].l+2+RandNum(50,DrawGameCloud[type].l*2,&cloud_rng_i,-1);
+    if (i<40) {
+      if (x>SCREEN_WIDTH*2-(cloud_l[type]/2)-30) {
+        x-=(cloud_l[type]/2+30);
+      }
+      if (x<cloud_l[type]/2+30) {
+        x+=cloud_l[type]/2+30;
+      }
+
+      if (y>SCREEN_HEIGHT/2+SCREEN_HEIGHT/4-(cloud_w[type]/2)-20) {
+        y-=(cloud_w[type]/2+20);
+      }
+    }
+    flipped=(bool)RandNum(0,1,&cloud_rng_i,-1);
+    DrawSprite(hdc, hdc2,x,y,&DrawGameCloud[type].draw_sprite,flipped);
+  }
+
+
+  //Create Mask
+  SelectObject(hdc,_bb);
+  GameCloudsBackground.sprite_mask=CreateBitmapMask(GameCloudsBackground.sprite_paint,YELLOW,NULL);
 }
 
 
-void SetCloud(int i, int x, int y, int type,int max_speed_timer,bool flipped)
+void CloudAct()
 {
-  GameCloud[i].x=x;
-  GameCloud[i].y=y;
-  GameCloud[i].type=type;
-  GameCloud[i].max_speed_timer=max_speed_timer;
-  GameCloud[i].speed_timer=max_speed_timer;
-  GameCloud[i].flipped=flipped;
+  GameCloudsBackground.timer++;
+  if (GameCloudsBackground.timer>15) {
+    GameCloudsBackground.timer=0;
+    GameCloudsBackground.cam_x+=1;//10;//10;
+    if (GameCloudsBackground.cam_x>SCREEN_WIDTH*2)
+      GameCloudsBackground.cam_x=0;
+  }
 }
 
 
 void InitClouds()
 {
-  bool flipped;
-  int x,y,type,max_speed_timer;
-  cloud_rng_i=0;
-  for (int i=0;i<CLOUD_NUM;i++) {
-    //x=RandNum((GR_WIDTH*2/CLOUD_NUM *(i)),GR_WIDTH*2,&cloud_rng_i,-1);
-    x=GR_WIDTH*2/CLOUD_NUM *(i);
-    y=RandNum(0,GR_HEIGHT/2,&cloud_rng_i,-1);
-    type=RandNum(0,LOADED_CLOUD_NUM,&cloud_rng_i,-1);
-    max_speed_timer=5+RandNum(1,8,&cloud_rng_i,-1);
-    flipped=(bool)RandNum(0,1,&cloud_rng_i,-1);
-    SetCloud(i,x,y,type,max_speed_timer,flipped);//max_speed_timer);
-  }
-}
-
-
-void DrawCloud(HDC hdc,HDC hdc2,int i)
-{
-  DrawSprite(hdc, hdc2,GameCloud[i].x,GameCloud[i].y,&DrawGameCloud[GameCloud[i].type].draw_sprite,GameCloud[i].flipped);
+  GameCloudsBackground.cam_x=0;
+  GameCloudsBackground.timer=0;
 }
 
 
 void DrawClouds(HDC hdc, HDC hdc2)
 {
-  for (int i=0;i<CLOUD_NUM;i++) {
-    DrawCloud(hdc,hdc2, i);
+  //  Sun.y=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3;//-GR_HEIGHT/16*_ppy;//-mouse_y/50;
+  int _h=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3+300;
+        //GR_HEIGHT/6+GR_HEIGHT/3;//GR_HEIGHT/20+GR_HEIGHT/4
+  int h=SCREEN_HEIGHT/2+SCREEN_HEIGHT/4-_h;
+  if (h<=0)
+    h=0;
+
+  int x1=GameCloudsBackground.cam_x;
+  int x2=x1+GR_WIDTH;
+  if (x2>SCREEN_WIDTH*2) { //x2 is x1 after it has reached past the clouds bitmap max length
+    int x_remaining=SCREEN_WIDTH*2-x1;
+    //draw x1 to END on left
+    //x_remaining is decreasing
+    //SelectObject(hdc2,GameCloudsBackground.sprite_mask);
+    //BitBlt(hdc, 0, 0, x_remaining,_h, hdc2, x1, h,  SRCAND);
+
+    SelectObject(hdc2,GameCloudsBackground.sprite_paint);
+    BitBlt(hdc, 0, 0, x_remaining,_h, hdc2, x1, h,  SRCPAINT);
+    //BitBlt(hdc, 0, 0, x_remaining,_h, hdc2, x1, h,  SRCCOPY);
+
+    //x_loopback is increasing
+    //draw x2 to starting on right to loop back
+    int x_loop_back=x2-SCREEN_WIDTH*2;
+    //SelectObject(hdc2,GameCloudsBackground.sprite_mask);
+    //BitBlt(hdc, x_remaining, 0, x_loop_back,_h, hdc2, 0, h,  SRCAND);
+
+    //SelectObject(hdc2,GameCloudsBackground.sprite_paint);
+    BitBlt(hdc, x_remaining, 0, x_loop_back,_h, hdc2, 0, h,  SRCPAINT);
+    //BitBlt(hdc, x_remaining, 0, x_loop_back,_h, hdc2, 0, h,  SRCCOPY);
+
+    //GrRect(hdc,x_remaining,0,5,GR_HEIGHT,BLACK);
+
+  } else { //Full 0 to GRWIDTH
+    //SelectObject(hdc2,GameCloudsBackground.sprite_mask);
+    //BitBlt(hdc, 0, 0, GR_WIDTH,_h, hdc2, x1, h,  SRCAND);
+
+    SelectObject(hdc2,GameCloudsBackground.sprite_paint);
+    BitBlt(hdc, 0, 0, GR_WIDTH,_h, hdc2, x1, h,  SRCPAINT);
+    //BitBlt(hdc, 0, 0, GR_WIDTH,_h, hdc2, x1, h,  SRCCOPY);
   }
+
 }
 //============================================================================
 
@@ -232,16 +364,66 @@ bool IsPixelColorAt(BYTE* pixels, int width, int height, int x, int y, COLORREF 
     return pixelColor == targetColor;
 }
 
+
+
+bool IsPixelColorAt16(BYTE* pixels, int width, int height, int x, int y, WORD targetColor) {
+    if (!pixels || x < 0 || y < 0 || x >= width || y >= height) {
+        return false;
+    }
+    // Calculate the offset: 2 bytes per pixel
+    int offset = (y * width + x) * 2;
+
+    // Read the 16-bit pixel value
+    WORD pixelColor = *(WORD*)(pixels + offset);
+
+    //printf("color:%d,target:%d\n",pixelColor,targetColor);
+    return pixelColor == targetColor;
+}
+
+//bool IsPixelColorAt(HDC hdc, HBITMAP hBitmap, int x, int y, COLORREF targetColor) {
+   // if (!hdc || !hBitmap || x < 0 || y < 0) {
+     //   return false;
+    //}
+
+    // Create a compatible DC and select the bitmap into it
+    //HDC memDC = CreateCompatibleDC(hdc);
+    //if (!memDC) {
+      //  return false;
+    //}
+
+    //HBITMAP oldBitmap = (HBITMAP)SelectObject(memDC, hBitmap);
+
+    // Get the pixel color
+    //SelectObject(hdc,hBitmap);
+    //COLORREF pixelColor = GetPixel(hdc, x, y);
+
+    // Restore the original bitmap and clean up
+    //SelectObject(memDC, oldBitmap);
+    //DeleteDC(memDC);
+
+    // Compare the pixel color
+    //return pixelColor == targetColor;
+//}
+
+
+
 void DrawSunRays(HDC hdc,HDC hdc2)
 {
 
-  //for (int k=0;k<2;k++) {
-    Sun.ray_is_blocked[Sun.current_sun_ray_i]=!IsPixelColorAt(publicScreenPixels, SCREEN_WIDTH,SCREEN_HEIGHT, Sun.ray_x[Sun.current_sun_ray_i], Sun.ray_y[Sun.current_sun_ray_i], custom_map_background_color);
+  for (int k=0;k<8;k++) {
+    if (global_screen_bits==32) {
+      Sun.ray_is_blocked[Sun.current_sun_ray_i]=!IsPixelColorAt(publicScreenPixels, SCREEN_WIDTH,SCREEN_HEIGHT, Sun.ray_x[Sun.current_sun_ray_i], Sun.ray_y[Sun.current_sun_ray_i], custom_map_background_color);
+    } else if (global_screen_bits==16) {
+      uint16_t _color=byte_16_color_arr[rgbPaint_i[custom_map_background_color_i]]/2; //the returned value from the function below is hald the true color, potential bug that needs to be resolved
+      Sun.ray_is_blocked[Sun.current_sun_ray_i]=!IsPixelColorAt16(publicScreenPixels, SCREEN_WIDTH,SCREEN_HEIGHT, Sun.ray_x[Sun.current_sun_ray_i], Sun.ray_y[Sun.current_sun_ray_i], _color);
+    }
+
+
     Sun.current_sun_ray_i++;
     if (Sun.current_sun_ray_i>SUN_RAY_NUM-1) {
       Sun.current_sun_ray_i=0;
     }
-  //}
+  }
 
   for (int i=0;i<SUN_RAY_NUM;i++) {
     if (!Sun.ray_is_blocked[i]) {
@@ -270,10 +452,10 @@ void DrawSunRays(HDC hdc,HDC hdc2)
       } else if (Sun.overcast_lvl!=2 && Sun.rays_visible_num>=8 && Sun.rays_visible_num<=12) {//darker
         Sun.overcast_lvl=2;
         Sun.flag_overcast=TRUE;
-      } else if (Sun.overcast_lvl!=1 && Sun.rays_visible_num>=20 && Sun.rays_visible_num<=SUN_RAY_NUM*2-8) { //dark
+      } else if (Sun.overcast_lvl!=1 && Sun.rays_visible_num>=20 && Sun.rays_visible_num<=SUN_RAY_NUM*2-6) { //dark
         Sun.overcast_lvl=1;
         Sun.flag_overcast=TRUE;    
-      } else if (Sun.overcast_lvl!=0 && Sun.rays_visible_num>SUN_RAY_NUM*2-4) { //brightest
+      } else if (Sun.overcast_lvl!=0 && Sun.rays_visible_num>SUN_RAY_NUM*2-2) { //brightest
         Sun.overcast_lvl=0;
         Sun.flag_overcast=TRUE;
       }
@@ -320,6 +502,21 @@ void DrawSun(HDC hdc)
 
 void SunRayAct()
 {
+    /*if (global_screen_bits==32) {
+      Sun.ray_is_blocked[Sun.current_sun_ray_i]=!IsPixelColorAt(publicScreenPixels, SCREEN_WIDTH,SCREEN_HEIGHT, Sun.ray_x[Sun.current_sun_ray_i], Sun.ray_y[Sun.current_sun_ray_i], custom_map_background_color);
+    } else if (global_screen_bits==16) {
+      uint16_t _color=byte_16_color_arr[rgbPaint_i[custom_map_background_color_i]]/2; //the returned value from the function below is hald the true color, potential bug that needs to be resolved
+      Sun.ray_is_blocked[Sun.current_sun_ray_i]=!IsPixelColorAt16(publicScreenPixels, SCREEN_WIDTH,SCREEN_HEIGHT, Sun.ray_x[Sun.current_sun_ray_i], Sun.ray_y[Sun.current_sun_ray_i], _color);
+    }
+
+
+    Sun.current_sun_ray_i++;
+    if (Sun.current_sun_ray_i>SUN_RAY_NUM-1) {
+      Sun.current_sun_ray_i=0;
+    }*/
+
+
+
   if (Sun.overcast_lvl==0) { 
     Sun.ray_l[Sun.current_sun_i]=60+sun_ray_l[sun_rng_i];
   } else if (Sun.overcast_lvl==1){
@@ -350,7 +547,95 @@ void SunRayAct()
   }
 }
 
+//==============Draw Moon====================
+void InitMoon()
+{
+  DrawGameMoon.phase_range_x[0]=GR_WIDTH-GR_WIDTH/8;
+  DrawGameMoon.phase_range_y[0]=GR_HEIGHT-GR_HEIGHT/3;
 
+  DrawGameMoon.phase_range_x[1]=GR_WIDTH/2+GR_WIDTH/4;
+  DrawGameMoon.phase_range_y[1]=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3;
+
+  DrawGameMoon.phase_range_x[2]=GR_WIDTH/2+GR_WIDTH/4-GR_WIDTH/8;
+  DrawGameMoon.phase_range_y[2]=GR_HEIGHT/4+GR_HEIGHT/12;
+
+  DrawGameMoon.phase_range_x[3]=GR_WIDTH/2;
+  DrawGameMoon.phase_range_y[3]=GR_HEIGHT/4;
+
+  DrawGameMoon.phase_range_x[4]=GR_WIDTH/4+GR_WIDTH/8;
+  DrawGameMoon.phase_range_y[4]=GR_HEIGHT/4+GR_HEIGHT/12;
+
+  DrawGameMoon.phase_range_x[5]=GR_WIDTH/4+GR_WIDTH/8;
+  DrawGameMoon.phase_range_y[5]=GR_HEIGHT/4+GR_HEIGHT/12;
+
+  DrawGameMoon.phase_range_x[6]=GR_WIDTH/4;
+  DrawGameMoon.phase_range_y[6]=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3;
+
+  DrawGameMoon.phase_range_x[7]=GR_WIDTH/8;
+  DrawGameMoon.phase_range_y[7]=GR_HEIGHT-GR_HEIGHT/3;
+
+  DrawGameMoon.x=-10;
+  DrawGameMoon.y=GR_HEIGHT;
+
+  DrawGameMoon.pivot_x=GR_WIDTH/2;
+  //DrawGameMoon.pivot_y=GR_HEIGHT+GR_HEIGHT/4;
+  DrawGameMoon.pivot_y=GR_HEIGHT;
+
+  DrawGameMoon.dist_l=GetDistance(DrawGameMoon.x,DrawGameMoon.y,DrawGameMoon.pivot_x,DrawGameMoon.pivot_y);
+
+  DrawGameMoon.angle=GetCosAngle(DrawGameMoon.x-DrawGameMoon.pivot_x,DrawGameMoon.dist_l);
+
+
+}
+
+
+
+void MoonAct()
+{
+  //DrawGameMoon.x++;
+  //DrawGameMoon.y=MoonF(DrawGameMoon.x);
+  if (DrawGameMoon.x>GR_WIDTH) {
+      DrawGameMoon.x=0;
+      DrawGameMoon.y=GR_HEIGHT;
+
+      DrawGameMoon.pivot_x=GR_WIDTH/2;
+      DrawGameMoon.pivot_y=GR_HEIGHT;
+
+      DrawGameMoon.angle=GetCosAngle(DrawGameMoon.x-DrawGameMoon.pivot_x,DrawGameMoon.dist_l);    
+      for (int i=0;i<STAR_NUM;i++) {
+        Star.angle[i]=Star.oangle[i];
+      }
+
+      current_moon_phase_id++;
+      if (current_moon_phase_id>=7)
+        current_moon_phase_id=0;
+  }
+
+  DrawGameMoon.angle+=0.005;
+  DrawGameMoon.x=DrawGameMoon.pivot_x+DrawGameMoon.dist_l*cos(DrawGameMoon.angle);
+  DrawGameMoon.y=DrawGameMoon.pivot_y+DrawGameMoon.dist_l*sin(DrawGameMoon.angle);
+  
+
+  if (DrawGameMoon.x>DrawGameMoon.phase_range_x[0]) {
+    DrawGameMoon.current_angle_id=0;
+  } else if (DrawGameMoon.x<DrawGameMoon.phase_range_x[7]) {
+    DrawGameMoon.current_angle_id=6;    
+  } else {
+    for (int k=1;k<6;k++) {
+      if (DrawGameMoon.x<=DrawGameMoon.phase_range_x[k] && DrawGameMoon.x>DrawGameMoon.phase_range_x[k+1]) {
+        DrawGameMoon.current_angle_id=k;
+        break;
+      }
+    }
+  }
+}
+
+
+void DrawMoon(HDC hdc,HDC hdc2)
+{
+  DrawSprite(hdc, hdc2,DrawGameMoon.x,DrawGameMoon.y,&Moon[current_moon_phase_id].draw_moon_sprite[DrawGameMoon.current_angle_id],FALSE);
+}
+//===========================================
 //===============Background===================
 void DrawBackground(HDC hdc,HDC hdc2) 
 {
@@ -418,46 +703,47 @@ void DrawBackground(HDC hdc,HDC hdc2)
           ) || map_background==1
         ))        
     ) {
-      int dmx=-1000;
+      DrawMoon(hdc,hdc2);
+      /*int dmx=-1000;
       int dmy=-1000;
       if (lunar_day>=1 && lunar_day<=5) { //1, 2, 3, 4, 5
         dmx=GR_WIDTH-GR_WIDTH/8;//-GR_WIDTH/16*_ppx;//-mouse_x/50;
         dmy=GR_HEIGHT-GR_HEIGHT/3;//-GR_HEIGHT/16*_ppy;//-mouse_y/50;//GR_HEIGHT-GR_HEIGHT/6;
         //dmy=160+160-GR_HEIGHT/16*_ppy;
-        DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
+        DrawSprite(hdc, hdc2,dmx,dmy,&Moon[current_moon_phase_id].draw_moon_sprite[0],FALSE);
       } else if (lunar_day>=6 && lunar_day<=9) {// 6, 7, 8, 9
         dmx=GR_WIDTH/2+GR_WIDTH/4;//-GR_WIDTH/16*_ppx;//-mouse_x/50;
         dmy=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3;//-GR_HEIGHT/16*_ppy;//-mouse_y/50;
         //dmy=160+110-GR_HEIGHT/16*_ppy;
-        DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
+        DrawSprite(hdc, hdc2,dmx,dmy,&Moon[current_moon_phase_id].draw_moon_sprite[0],FALSE);
       } else if (lunar_day>=10 && lunar_day<=12) {// 10, 11, 12,
         dmx=GR_WIDTH/2+GR_WIDTH/4-GR_WIDTH/8;//-GR_WIDTH/16*_ppx;//-mouse_x/50;
         dmy=GR_HEIGHT/4+GR_HEIGHT/12;//-GR_HEIGHT/16*_ppy;//-mouse_y/50;
         //dmy=160+50-GR_HEIGHT/16*_ppy;
-        DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
+        DrawSprite(hdc, hdc2,dmx,dmy,&Moon[current_moon_phase_id].draw_moon_sprite[0],FALSE);
       } else if (lunar_day>=13 && lunar_day<=15) {//13, 14, 15 //fullmoon
         dmx=GR_WIDTH/2;//-GR_WIDTH/16*_ppx;//-mouse_x/50;
         dmy=GR_HEIGHT/4;//-GR_HEIGHT/16*_ppy;//-mouse_y/50;
         //dmy=160-GR_HEIGHT/16*_ppy;
-        DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
+        DrawSprite(hdc, hdc2,dmx,dmy,&Moon[current_moon_phase_id].draw_moon_sprite[0],FALSE);
       } else if (lunar_day>=16 && lunar_day<=18) {//16, 17, 18
         dmx=GR_WIDTH/4+GR_WIDTH/8;//-GR_WIDTH/16*_ppx;//-mouse_x/50;
         dmy=GR_HEIGHT/4+GR_HEIGHT/12;//-GR_HEIGHT/16*_ppy;//-mouse_y/50;
         //dmy=160+50-GR_HEIGHT/16*_ppy;
-        DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
+        DrawSprite(hdc, hdc2,dmx,dmy,&Moon[current_moon_phase_id].draw_moon_sprite[0],FALSE);
       } else if (lunar_day>=19 && lunar_day<=22) {//19, 20, 21, 22
         dmx=GR_WIDTH/4;//-GR_WIDTH/16*_ppx;//-mouse_x/50;
         dmy=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3;//-GR_HEIGHT/16*_ppy;//-mouse_y/50;
         //dmy=160+110-GR_HEIGHT/16*_ppy;
-        DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
+        DrawSprite(hdc, hdc2,dmx,dmy,&Moon[current_moon_phase_id].draw_moon_sprite[0],FALSE);
       } else if (lunar_day>=23 && lunar_day<=26) {//23, 24, 25,26
         dmx=GR_WIDTH/8;//-GR_WIDTH/16*_ppx;//-mouse_x/50;
         dmy=GR_HEIGHT-GR_HEIGHT/3;//-GR_HEIGHT/16*_ppy;//-mouse_y/50;//GR_HEIGHT-GR_HEIGHT/6;
         //dmy=160+160-GR_HEIGHT/16*_ppy;
-        DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
-      }// else {
+        DrawSprite(hdc, hdc2,dmx,dmy,&Moon[current_moon_phase_id].draw_moon_sprite[0],FALSE);
+      }*/// else {
 //      }
-//      DrawSprite(hdc, hdc2,dmx,dmy,&draw_moon_sprite[current_moon_phase_id],FALSE);
+//      DrawSprite(hdc, hdc2,dmx,dmy,&Moon[current_moon_phase_id].draw_moon_sprite[0],FALSE);
 
   }
 }

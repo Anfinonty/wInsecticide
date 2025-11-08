@@ -111,51 +111,6 @@ void InitScreenRainDrop()
 }
 
 
-void InitShootingStars()
-{
-  sstar_rng_i=0;
-  for (int i=0;i<SSTAR_NUM;i++) {
-    SStar[i].lifetime=0;
-    SStar[i].cooldown=0;
-    SStar[i].speed=10.0;
-  }
-}
-
-
-void ShootingStarAct()
-{
-  for (int i=0;i<SSTAR_NUM;i++) {
-    //movement
-    if (SStar[i].lifetime<1) { //how long it appears
-      if (SStar[i].cooldown<1) { //how long it doesnt appear
-        SStar[i].x=RandNum(0,GR_WIDTH,&sstar_rng_i,-1);
-        SStar[i].y=RandNum(0,GR_HEIGHT,&sstar_rng_i,-1);
-        SStar[i].angle=RandAngle(0,180,&sstar_rng_i,-1);
-        SStar[i].lifetime=5+RandNum(0,(GR_WIDTH+GR_HEIGHT)/60,&sstar_rng_i,-1);
-        SStar[i].cooldown=1000+RandNum(0,(GR_WIDTH+GR_HEIGHT)*2,&sstar_rng_i,-1);
-      } else {
-        SStar[i].cooldown--;
-      }
-    } else {
-      SStar[i].x+=SStar[i].speed*cos(SStar[i].angle);
-      SStar[i].y+=SStar[i].speed*sin(SStar[i].angle);
-      SStar[i].lifetime--;
-    }
-  }
-}
-
-
-void StarAct()
-{
-  for (int i=0;i<STAR_NUM;i++) {
-    Star[i].timer--;
-    if (Star[i].timer<1) {
-      Star[i].size=RandNum(0,4,&star_rng_i,-1);
-      Star[i].timer=RandNum(50,350,&star_rng_i,-1);
-    } 
-  }
-}
-
 void ScreenRainDropAct()
 {
 //  for (int i=0;i<SC_RAINDROP_NUM;i++) {
@@ -560,7 +515,7 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
     GrCircle(hdc,mcalendar_x-3,mcalendar_y-5,2,LTGREEN,LTGREEN);
     GrCircle(hdc,mcalendar_x-3,mcalendar_y+5,2,LTGREEN,LTGREEN);*/
   //} else {
-    DrawSprite(hdc, hdc2,mcalendar_x,mcalendar_y,&draw_moon_cartoon_sprite,FALSE);
+//    DrawSprite(hdc, hdc2,mcalendar_x,mcalendar_y,&draw_moon_cartoon_sprite,FALSE);
   //}
 
   if (lunar_day<27) //0 to 26

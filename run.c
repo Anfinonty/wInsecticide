@@ -330,6 +330,8 @@ bool is_khmer=TRUE;
 #include "math.c"
 #include "gr.c"
 #include "gr_fast.c"
+//#include "gr_faster.c"
+//#include "xm4NG65.cpp"
 #include "sound.c"
 
 
@@ -680,6 +682,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
               if (!player.time_breaker) {
                 StarAct();
                 ShootingStarAct();
+                MoonAct();
               }
             }
             if (map_weather>0) {
@@ -736,6 +739,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
                 if (!player.time_breaker) {
                   StarAct();
                   ShootingStarAct();
+                  MoonAct();
                 }
               }
               if (map_weather>0) {
@@ -1328,6 +1332,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           InitRDGrid();
           InitClouds();
           InitSun();
+          InitMoon();
+          InitStars();
           ResetBulletRain();
           if (map_weather>0) {
             InitBulletRain();
@@ -1433,6 +1439,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
           //screen=CreateLargeBitmapWithBuffer(hdc,GR_WIDTH,GR_HEIGHT,&publicScreenPixels,global_screen_bits);
           //screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
+          if (loading_numerator==0) { //load clouds
+            LoadClouds(hdcBackbuff,hdcBackbuff2);
+
+          } 
+
           SelectObject(hdcBackbuff,screen);
 
           GrRect(hdcBackbuff,0,0,GR_WIDTH,GR_HEIGHT,BLACK);
@@ -1441,38 +1452,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-370/2,GR_HEIGHT/2-370/2-48,0,0,370,370,intro_msg_mask,SRCAND,FALSE,FALSE);
           DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-370/2,GR_HEIGHT/2-370/2-48,0,0,370,370,intro_msg,SRCPAINT,FALSE,FALSE);
 
-          if (loading_numerator==0) { //load clouds
-              HDC thdcDst=CreateCompatibleDC(hdcBackbuff);
-              HDC thdcSrc=CreateCompatibleDC(hdcBackbuff);
-              int cloud_src_x[LLOADED_CLOUD_NUM]={11,3,0,462,42,282,0,440,464,0};
-              int cloud_src_y[LLOADED_CLOUD_NUM]={62,255,0,8,178,171,411,450,553,0};
-              int cloud_l[LLOADED_CLOUD_NUM]={504,532,442,190,196,325,417,190,138,1};
-              int cloud_w[LLOADED_CLOUD_NUM]={165,258,164,170,156,250,258,94,70,1};
-
-              SelectObject(thdcSrc,cloudwhite8bit_sprite_2);
-              for (int i=0;i<2;i++) {
-                DrawGameCloud[i].sprite_cache=CreateCrunchyBitmap(cloud_l[i],cloud_w[i]); //size of bitmap
-                SelectObject(thdcDst,DrawGameCloud[i].sprite_cache);
-                BitBlt(thdcDst, 0, 0, cloud_l[i], cloud_w[i], thdcSrc, cloud_src_x[i], cloud_src_y[i],SRCCOPY); //axis from large src
-              }
-              //
-              SelectObject(thdcSrc,cloudwhite8bit_sprite_1);
-              for (int i=2;i<LLOADED_CLOUD_NUM;i++) {
-                DrawGameCloud[i].sprite_cache=CreateCrunchyBitmap(cloud_l[i],cloud_w[i]); //size of bitmap
-                SelectObject(thdcDst,DrawGameCloud[i].sprite_cache);
-                BitBlt(thdcDst, 0, 0, cloud_l[i], cloud_w[i], thdcSrc, cloud_src_x[i], cloud_src_y[i],SRCCOPY); //axis from large src
-              }
-
-              //Generate Draw Sprites
-              for (int i=0;i<LOADED_CLOUD_NUM;i++) {
-                DrawGameCloud[i].l=cloud_l[i];                
-                ReplaceBitmapColor(DrawGameCloud[i].sprite_cache,LTGREEN,BLACK);
-                GenerateDrawSprite(&DrawGameCloud[i].draw_sprite,DrawGameCloud[i].sprite_cache);
-              }
-
-              DeleteDC(thdcDst);
-              DeleteDC(thdcSrc);
-          } 
 
           if (loading_numerator<loading_denominator) {
             DrawLoading(hdcBackbuff);
@@ -1481,6 +1460,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-324/2,GR_HEIGHT-96-8,0,0,324,47,kh_pressanykey_mask,SRCAND,FALSE,FALSE);
             DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-324/2,GR_HEIGHT-96-8,0,0,324,47,kh_pressanykey,SRCPAINT,FALSE,FALSE);
           }
+
+
 
           BitBlt(hdc, 0, 0, GR_WIDTH,GR_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
           DeleteDC(hdcBackbuff2);
@@ -1563,9 +1544,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             hdc=BeginPaint(hwnd, &ps);
             hdcBackbuff=CreateCompatibleDC(hdc);
             hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
-            //screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
-            //screen=CreateLargeBitmapWithBuffer(hdc,GR_WIDTH,GR_HEIGHT,&publicScreenPixels,global_screen_bits);
-            //screen=CreateLargeBitmapWithBuffer(GR_WIDTH,GR_HEIGHT,&publicScreenPixels,global_screen_bits);
             SelectObject(hdcBackbuff,screen);
             DrawBackground(hdcBackbuff,hdcBackbuff2);
 
@@ -1577,7 +1555,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
 
             DrawPlatforms(hdcBackbuff,hdcBackbuff2);
-            DrawSunRays(hdcBackbuff,hdcBackbuff2);
+            if (map_background==0) {
+              DrawSunRays(hdcBackbuff,hdcBackbuff2);
+            }
             DrawFirePlatforms(hdcBackbuff);
             DrawWebs(hdcBackbuff);
             DrawEnemy(hdcBackbuff,hdcBackbuff2);
@@ -1595,23 +1575,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             if (player.in_water_timer==0 && WATER_GROUND_NUM>0) {
               FastFlipLargeBitmapVertically(publicScreenMirrorPixels,SCREEN_WIDTH,publicScreenPixels,GR_WIDTH,GR_HEIGHT,global_screen_bits);
               FastDrawWaterPlatformsReflection();
-              //DrawWaterPlatformsReflection(hdcBackbuff,hdcBackbuff2,screen_mirror);
-              //SelectObject(hdcBackbuff2,screen_mirror);
-              //upside down bitblt, safe
-              //for (int h=0;h<GR_HEIGHT;h++) {
-                //BitBlt(hdcBackbuff2,0,h,GR_WIDTH,1,hdcBackbuff,0,GR_HEIGHT-h,SRCCOPY);
-              //}
-              //DrawWaterPlatformsReflection(hdcBackbuff,hdcBackbuff2,screen_mirror);
             }
             DrawAlphaWaterColour(publicScreenPixels);
 
             //misc
             //DrawGUI
-            //DrawBlackBorders(hdcBackbuff);
             if (map_weather>0) {
               DrawRainShader3(hdcBackbuff);
             }
-            //DrawSunRays(hdcBackbuff,hdcBackbuff2);
 
             DrawUI(hdcBackbuff,hdcBackbuff2);
             if (player.health>0) {
@@ -1673,8 +1644,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             
             DeleteDC(hdcBackbuff);
             DeleteDC(hdcBackbuff2);
-            //DeleteObject(screen);
-            //free(publicScreenPixels);
+
             //Trigger go back to main menu
             if (back_to_menu) {
               flag_draw_task_stopped=TRUE;
@@ -1707,8 +1677,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
 
 
-            //screen=CreateLargeBitmapWithBuffer(hdc,GR_WIDTH,GR_HEIGHT,&publicScreenPixels,global_screen_bits);
-            //screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
             SelectObject(hdcBackbuff,screen);
             DrawMapEditorBackground(hdcBackbuff,hdcBackbuff2);
             DrawMapEditorWaterTexturePlatforms(hdcBackbuff,hdcBackbuff2);
@@ -1731,8 +1699,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
             DeleteDC(hdcBackbuff2);
             DeleteDC(hdcBackbuff);
-            //DeleteObject(screen);
-            //free(publicScreenPixels);
             }
 
             //Map Editor, Trigger go back to main menu
@@ -1752,7 +1718,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           hdc=BeginPaint(hwnd, &ps);
           hdcBackbuff=CreateCompatibleDC(hdc);
           hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
-          //screen=CreateLargeBitmapWithBuffer(GR_WIDTH,GR_HEIGHT,&publicScreenPixels,global_screen_bits);
 
           if (flag_load_player_sprite) {
             flag_load_player_sprite=FALSE;
@@ -1797,15 +1762,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
           } else {
             if (flag_resolution_change) { //blackout clear screen
-              //screen=CreateLargeBitmapWithBuffer(hdc,SCREEN_WIDTH,SCREEN_HEIGHT,&publicScreenPixels,global_screen_bits);
-              //mm_screen=CreateCompatibleBitmap(hdc,SCREEN_WIDTH,SCREEN_HEIGHT);
               SelectObject(hdcBackbuff,screen);
               GrRect(hdcBackbuff,0,0,SCREEN_WIDTH+1,SCREEN_HEIGHT+1,BLACK);
               BitBlt(hdc, 0,0, SCREEN_WIDTH,SCREEN_HEIGHT, hdcBackbuff, 0, 0,  SRCCOPY);
               flag_resolution_change=FALSE;
-              //if (hide_taskbar) {
-                //SetDesktopScreenRes(RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],global_screen_bits);
-              //}
             } else if (flag_taskbar_change_act) {
               TaskbarChangeAct(hwnd);
               flag_taskbar_change_act=FALSE;
@@ -1822,9 +1782,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
           DeleteDC(hdcBackbuff2);
           DeleteDC(hdcBackbuff);
-          //if (mm_screen!=NULL) {
-            //DeleteObject(mm_screen);
-          //}
           }
 
           //flag to stop
@@ -2436,11 +2393,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       //Load mooon sprites
       wchar_t moon_sprite_name[48];
-      wchar_t moon_cartoony_sprite_name[48];
+      //wchar_t moon_cartoony_sprite_name[48];
 
       //Load moon sprite based on lunar day
       //lunar_day=1; //moon debug
-      float lunar_angle=0;
+      /*float lunar_angle=0;
       float mirror_lunar_angle=0;
       if (lunar_day>=1 && lunar_day<=5) { //1, 2, 3, 4, 5
         swprintf(moon_cartoony_sprite_name,48,L"sprites/moon-cartoon-1.bmp");
@@ -2480,67 +2437,76 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       } else { // new moon
         swprintf(moon_cartoony_sprite_name,48,L"sprites/moon-cartoon-28.bmp");
         current_moon_phase_id=7;
-      }
+      }*/
 
       //generate cartoon moon in calendar
-      moon_cartoon_sprite=LoadRLE8CompressedBitmap(moon_cartoony_sprite_name);
+      /*moon_cartoon_sprite=LoadRLE8CompressedBitmap(moon_cartoony_sprite_name);
       moon_cartoon_sprite_cache=GetRotated8BitBitmap(moon_cartoon_sprite,lunar_angle,LTGREEN);
       ReplaceBitmapColor(moon_cartoon_sprite_cache,LTGREEN,BLACK);
-      GenerateDrawSprite(&draw_moon_cartoon_sprite,moon_cartoon_sprite_cache);
+      GenerateDrawSprite(&draw_moon_cartoon_sprite,moon_cartoon_sprite_cache);*/
 
       //generate backgorund moons
-      for (int i=0;i<8;i++) {
+      for (int i=0;i<7;i++) {
         switch (i) {
           case 0:
-            swprintf(moon_sprite_name,48,L"sprites/moon-1.bmp");
-            lunar_angle=-M_PI_4-M_PI_4/2;
-            mirror_lunar_angle=M_PI_4+M_PI_4/2;
+            swprintf(moon_sprite_name,48,L"sprites/moon-cartoon-1.bmp");
+            MoonAngle[i].angle=-M_PI_4-M_PI_4/2;
             break;
           case 1:
-            swprintf(moon_sprite_name,48,L"sprites/moon-8.bmp");
-            lunar_angle=-M_PI_4;
-            mirror_lunar_angle=M_PI_4;
+            swprintf(moon_sprite_name,48,L"sprites/moon-cartoon-8.bmp");
+            MoonAngle[i].angle=-M_PI_4;
             break;
           case 2:
-            swprintf(moon_sprite_name,48,L"sprites/moon-11.bmp");
-            lunar_angle=-M_PI_4+M_PI_4/2;
-            mirror_lunar_angle=M_PI_4-M_PI_4/2;
+            swprintf(moon_sprite_name,48,L"sprites/moon-cartoon-11.bmp");
+            MoonAngle[i].angle=-M_PI_4+M_PI_4/2;
             break;
           case 3:
-            swprintf(moon_sprite_name,48,L"sprites/moon-14.bmp");
-            lunar_angle=mirror_lunar_angle=0;
+            swprintf(moon_sprite_name,48,L"sprites/moon-cartoon-14.bmp");
+            MoonAngle[i].angle=/*MoonAngle[i].mirror_angle=*/0;
             break;
           case 4:
-            swprintf(moon_sprite_name,48,L"sprites/moon-16.bmp");
-            lunar_angle=M_PI_4-M_PI_4/2;
-            mirror_lunar_angle=-M_PI_4+M_PI_4/2;
+            swprintf(moon_sprite_name,48,L"sprites/moon-cartoon-16.bmp");
+            MoonAngle[i].angle=M_PI_4-M_PI_4/2;
             break;
           case 5:
-            swprintf(moon_sprite_name,48,L"sprites/moon-21.bmp");
-            lunar_angle=M_PI_4;
-            mirror_lunar_angle=-M_PI_4;
+            swprintf(moon_sprite_name,48,L"sprites/moon-cartoon-21.bmp");
+            MoonAngle[i].angle=M_PI_4;
             break;
           case 6:
-            swprintf(moon_sprite_name,48,L"sprites/moon-26.bmp");
-            lunar_angle=M_PI_4+M_PI_4/2;
-            mirror_lunar_angle=-M_PI_4-M_PI_4/2;
+            swprintf(moon_sprite_name,48,L"sprites/moon-cartoon-26.bmp");
+            MoonAngle[i].angle=M_PI_4+M_PI_4/2;
             break;
-          case 7:
-            swprintf(moon_sprite_name,48,L"sprites/moon-28.bmp");
+          /*case 7:
+            swprintf(moon_sprite_name,48,L"sprites/moon-cartoon-28.bmp");
             lunar_angle=mirror_lunar_angle=0;
-            break;
-        }
-        moon_sprite[i]=LoadRLE8CompressedBitmap(moon_sprite_name);
-        moon_sprite_cache[i]=GetRotated8BitBitmap(moon_sprite[i],lunar_angle,LTGREEN);
-        mirror_moon_sprite_cache[i]=GetRotated8BitBitmap(moon_sprite[i],mirror_lunar_angle,LTGREEN);
-        ReplaceBitmapColor(moon_sprite_cache[i],LTGREEN,BLACK);
-        ReplaceBitmapColor(mirror_moon_sprite_cache[i],LTGREEN,BLACK);
+            break;*/
+          }
+          Moon[i].loaded_sprite=LoadRLE8CompressedBitmap(moon_sprite_name);
+          //moon_sprite[i]=LoadRLE8CompressedBitmap(moon_sprite_name);
+          //moon_sprite_cache[i]=GetRotated8BitBitmap(moon_sprite[i],lunar_angle,LTGREEN);
+          //mirror_moon_sprite_cache[i]=GetRotated8BitBitmap(moon_sprite[i],mirror_lunar_angle,LTGREEN);
+          //ReplaceBitmapColor(moon_sprite_cache[i],LTGREEN,BLACK);
+          //ReplaceBitmapColor(mirror_moon_sprite_cache[i],LTGREEN,BLACK);
       
-        GenerateDrawSprite(&draw_moon_sprite[i],moon_sprite_cache[i]);
-        GenerateDrawSprite(&draw_mirror_moon_sprite[i],mirror_moon_sprite_cache[i]);
+          //GenerateDrawSprite(&draw_moon_sprite[i],moon_sprite_cache[i]);
+          //GenerateDrawSprite(&draw_mirror_moon_sprite[i],mirror_moon_sprite_cache[i]);
+        }
       }
 
+      for (int j=0;j<7;j++) {
+        for (int i=0;i<7;i++) {
+          Moon[j].sprite_cache[i]=GetRotated8BitBitmap(Moon[j].loaded_sprite,MoonAngle[i].angle,LTGREEN);
+          ReplaceBitmapColor(Moon[j].sprite_cache[i],LTGREEN,BLACK);
+        }
       }
+
+      for (int j=0;j<7;j++) {
+        for (int i=0;i<7;i++) {
+          GenerateDrawSprite(&Moon[j].draw_moon_sprite[i],Moon[j].sprite_cache[i]);
+        }
+      }
+      //
+      //
       intro_msg = LoadRLE8CompressedBitmap(L"sprites/intro_msg.bmp");
       intro_msg_mask = CreateBitmapMask(intro_msg,BLACK,NULL);
 

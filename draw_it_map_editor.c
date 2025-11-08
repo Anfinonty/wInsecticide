@@ -272,7 +272,7 @@ void DrawMapEditorBackground(HDC hdc,HDC hdc2)
   }
 
   if (MapEditor.set_lvl_ambient_val[2]==1) {
-    DrawSprite(hdc, hdc2,GR_WIDTH-128,128,&draw_moon_sprite[current_moon_phase_id],FALSE);
+    //DrawSprite(hdc, hdc2,GR_WIDTH-128,128,&draw_moon_sprite[current_moon_phase_id],FALSE);
   }
 }
 

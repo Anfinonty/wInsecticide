@@ -1161,11 +1161,16 @@ struct shooting_star
 #define MAX_STAR_Y  600
 struct star
 {
-  int size;
-  int timer;
-  float x;
-  float y;
-} Star[STAR_NUM];
+  int pivot_x;
+  int pivot_y;  
+  int size[STAR_NUM];
+  int timer[STAR_NUM];
+  float dist_l[STAR_NUM];
+  float angle[STAR_NUM];
+  float oangle[STAR_NUM];
+  float x[STAR_NUM];
+  float y[STAR_NUM];
+} Star;
 
 void SetStar(int i,float x,float y);
 void DrawStar(HDC hdc,int x, int y, int size, float angl,int color);
@@ -1202,7 +1207,7 @@ BYTE *ptexture_water[9];
 //=============CLOUDS===============
 #define LOADED_CLOUD_NUM 9
 #define LLOADED_CLOUD_NUM 10 //slack space, idk why, needs to be in or last sprite wont load
-#define CLOUD_NUM    20
+//#define CLOUD_NUM    30//100//30//10//20
 
 HBITMAP cloudwhite8bit_sprite_1;
 HBITMAP cloudwhite8bit_sprite_2;
@@ -1214,19 +1219,30 @@ struct LoadedGameCloud
   DRAWSPRITE draw_sprite;
 } DrawGameCloud[LLOADED_CLOUD_NUM];
 
-struct GameClouds
+/*struct GameClouds
 {
   bool flipped;
-  int max_speed_timer;
-  int speed_timer;
+  //int max_speed_timer;
+  //int speed_timer;
   int x;
   int y;
   int type; //0->8
-} GameCloud[CLOUD_NUM];
+} GameClouds;*///[CLOUD_NUM];
 
-void SetCloud(int i,int x,int y,int type,int max_speed_timer,bool flipped);
+struct GameCloudBackground
+{
+  int cam_x;
+  int timer;
+  HBITMAP sprite_paint;
+  HBITMAP sprite_mask;
+} GameCloudsBackground;
+
+
+void LoadClouds(HDC hdc,HDC hdc2);
+void DrawCloudBackground(HDC hdc, HDC hdc2);
+//void SetCloud(int i,int x,int y,int type,int max_speed_timer,bool flipped);
 void InitClouds();
-void DrawCloud(HDC hdc, HDC hdc2,int i);
+//void DrawCloud(HDC hdc, HDC hdc2,int i);
 void DrawClouds(HDC hdc, HDC hdc2);
 
 //===================================
@@ -1337,7 +1353,7 @@ HBITMAP screen_mirror;
 BYTE *publicScreenPixels,*publicScreenMirrorPixels;// *publicScreenModPixels;
 
 //moon, for calendar only
-HBITMAP moon_cartoon_sprite;
+/*HBITMAP moon_cartoon_sprite;
 HBITMAP moon_cartoon_sprite_cache;
 DRAWSPRITE draw_moon_cartoon_sprite;
 
@@ -1349,7 +1365,42 @@ HBITMAP moon_sprite_cache[8];
 DRAWSPRITE draw_moon_sprite[8];
 
 HBITMAP mirror_moon_sprite_cache[8];
-DRAWSPRITE draw_mirror_moon_sprite[8];
+DRAWSPRITE draw_mirror_moon_sprite[8];*/
+
+
+
+//Moon
+int current_moon_phase_id;
+
+struct MoonAngle
+{
+  float angle;
+} MoonAngle[7];
+
+
+
+struct Moon
+{
+  float angle;
+  HBITMAP loaded_sprite;
+  HBITMAP sprite_cache[7];
+  DRAWSPRITE draw_moon_sprite[7]; //all 7 rotations
+} Moon[7];
+
+
+struct GameMoon
+{
+  int x;
+  int y;
+  int pivot_x;
+  int pivot_y;
+  int current_angle_id;
+  float dist_l;
+  float angle;
+  int phase_range_x[7];
+  int phase_range_y[7];
+}  DrawGameMoon;
+
 
 HBITMAP snowflake_sprite;
 HBITMAP snowflake_sprite_cache;
