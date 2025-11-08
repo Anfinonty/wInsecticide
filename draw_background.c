@@ -161,7 +161,7 @@ void DrawStars(HDC hdc)
 //=============================
 
 //=======Clouds ==============
-void LoadClouds(HDC hdc,HDC hdc2)
+void LoadClouds(HDC hdc,HDC hdc2) //runs once
 {
   HDC thdcDst=CreateCompatibleDC(hdc);
   HDC thdcSrc=CreateCompatibleDC(hdc);
@@ -242,8 +242,10 @@ void LoadClouds(HDC hdc,HDC hdc2)
 void CloudAct()
 {
   GameCloudsBackground.timer++;
+//  if (GameCloudsBackground.timer>15) {
   if (GameCloudsBackground.timer>15) {
     GameCloudsBackground.timer=0;
+    flag_draw_game_background_sprite=TRUE;
     GameCloudsBackground.cam_x+=1;//10;//10;
     if (GameCloudsBackground.cam_x>SCREEN_WIDTH*2)
       GameCloudsBackground.cam_x=0;
@@ -631,6 +633,17 @@ void MoonAct()
 }
 
 
+void DrawGameBackgroundSprite(HDC hdc1,HDC hdc2)
+{
+  HDC hdc=CreateCompatibleDC(hdc1);
+  SelectObject(hdc,game_background_sprite);
+  GrRect(hdc,0,0,GR_WIDTH+24,GR_HEIGHT+24,custom_map_background_color);
+  DrawSun(hdc);
+  DrawClouds(hdc,hdc2);
+  DeleteDC(hdc);
+}
+
+
 void DrawMoon(HDC hdc,HDC hdc2)
 {
   DrawSprite(hdc, hdc2,DrawGameMoon.x,DrawGameMoon.y,&Moon[current_moon_phase_id].draw_moon_sprite[DrawGameMoon.current_angle_id],FALSE);
@@ -659,23 +672,35 @@ void DrawBackground(HDC hdc,HDC hdc2)
   int draw_p_py=(int)parralax_y;
 
 
-  GrRect(hdc,0,0,GR_WIDTH+24,GR_HEIGHT+24,custom_map_background_color);
   switch (map_background) {
     case 0:
-      DrawSun(hdc);
-      DrawClouds(hdc,hdc2);
+      //DrawSun(hdc);
+      //DrawClouds(hdc,hdc2);
+      if (flag_draw_game_background_sprite) { //Refresh background, runs when timer hits 15, delayed for speed
+        DrawGameBackgroundSprite(hdc,hdc2);
+        flag_draw_game_background_sprite=FALSE;
+      }
+      //SelectObject(hdc2,game_background_sprite);
+      //BitBlt(hdc,0,0,GR_WIDTH,GR_HEIGHT,hdc2,0,0,SRCCOPY);
+      //SelectObject(hdc2,_bb);
+      //FastDrawTexturedTriangle(publicScreenPixels,0,0,GR_WIDTH,0,GR_WIDTH,GR_HEIGHT,SCREEN_WIDTH,publicBackgroundPixels,SCREEN_WIDTH,GR_HEIGHT,global_screen_bits);
+      //FastDrawTexturedTriangle(publicScreenPixels,0,0,0,GR_HEIGHT,GR_WIDTH,GR_HEIGHT,SCREEN_WIDTH,publicBackgroundPixels,SCREEN_WIDTH,GR_HEIGHT,global_screen_bits);
+      FastDrawTexturedRect(publicScreenPixels,SCREEN_WIDTH,publicBackgroundPixels,GR_WIDTH,GR_HEIGHT,global_screen_bits);//(publicScreenPixels,0,0,GR_WIDTH,GR_HEIGHT,publicBackgroundPixels,SCREEN_WIDTH,GR_HEIGHT,global_screen_bits);
       break;
     case 1:
+      GrRect(hdc,0,0,GR_WIDTH+24,GR_HEIGHT+24,custom_map_background_color);
       DrawStars(hdc);
       break;
 
     case 2:
     case 3: //default backgrounds
+      GrRect(hdc,0,0,GR_WIDTH+24,GR_HEIGHT+24,custom_map_background_color);
       if (map_background_sprite!=NULL) {
         DrawBitmap(hdc,hdc2,draw_p_px,draw_p_py,0,0,GR_WIDTH*2,GR_HEIGHT*2,map_background_sprite,SRCCOPY,FALSE,FALSE);
       }
       break;
     default: //custom map background
+      GrRect(hdc,0,0,GR_WIDTH+24,GR_HEIGHT+24,custom_map_background_color);
       if (map_background_sprite!=NULL) {
         DrawBitmap(hdc,hdc2,draw_p_px,draw_p_py,0,0,GR_WIDTH*2,GR_HEIGHT*2,map_background_sprite,SRCCOPY,FALSE,FALSE);
       }

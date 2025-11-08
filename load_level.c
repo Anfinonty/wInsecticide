@@ -99,6 +99,7 @@ void Init() { //Repeatable
     fclose(fptr);
   }
 
+  flag_draw_game_background_sprite=TRUE;
 
   int_best_score=0;
   FILE *fr; //Begin setting best score

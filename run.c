@@ -99,6 +99,7 @@ bool flag_display_long_loading=FALSE;
 bool hide_cursor=FALSE;
 bool hide_mm=FALSE;
 bool flag_load_player_sprite=TRUE;
+bool flag_draw_game_background_sprite=FALSE;
 //Exit Flags
 //bool flag_exit_to_main_menu=FALSE;
 //bool flag_game_task_stopped=FALSE;
@@ -1329,6 +1330,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             CameraInit(player.x+player.cam_x,player.y+player.cam_y);
             PlayerCameraLimiterBorder();
           }
+          flag_draw_game_background_sprite=TRUE;
           InitRDGrid();
           InitClouds();
           InitSun();
@@ -1347,15 +1349,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
           OLD_GR_WIDTH = GR_WIDTH;
           OLD_GR_HEIGHT = GR_HEIGHT;
-
-          /*if (screen!=NULL) {
-            DeleteObject(screen);
-            screen=CreateLargeBitmapWithBuffer(GR_WIDTH,GR_HEIGHT,&publicScreenPixels,global_screen_bits);
-          }
-          if (screen_mirror!=NULL) {
-            DeleteObject(screen_mirror);
-            screen_mirror=CreateLargeBitmapWithBuffer(GR_WIDTH,GR_HEIGHT,&publicScreenMirrorPixels,global_screen_bits);
-          }*/
 
           //In main menu
           //Load Map Background sprites
@@ -1437,8 +1430,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           hdcBackbuff=CreateCompatibleDC(hdc);
           hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
 
-          //screen=CreateLargeBitmapWithBuffer(hdc,GR_WIDTH,GR_HEIGHT,&publicScreenPixels,global_screen_bits);
-          //screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
           if (loading_numerator==0) { //load clouds
             LoadClouds(hdcBackbuff,hdcBackbuff2);
 
@@ -1472,8 +1463,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           hdc=BeginPaint(hwnd, &ps);
           hdcBackbuff=CreateCompatibleDC(hdc);
           hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
-          //screen=CreateLargeBitmapWithBuffer(hdc,GR_WIDTH,GR_HEIGHT,&publicScreenPixels,global_screen_bits);
-          //screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
           if (flag_begin_drawing_tiles && !flag_game_task_stopped && !flag_draw_task_stopped && !flag_sound_task_stopped) {
             DrawCreateTiles(hdcBackbuff,hdcBackbuff2);
             /*flag_begin_drawing_tiles=FALSE;
@@ -1482,6 +1471,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               if (back_to_menu) {
                 back_to_menu=FALSE;
               }            */
+            //DrawGameBackgroundSprite(hdcBackbuff,hdcBackbuff2);
           }
 
           SelectObject(hdcBackbuff,screen);
@@ -1741,8 +1731,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           }
 
           if (!flag_taskbar_change_act && !flag_resolution_change && !flag_borderless_resolution_change) {
-            //screen=CreateLargeBitmapWithBuffer(hdc,GR_WIDTH,GR_HEIGHT,&publicScreenPixels,global_screen_bits);
-            //mm_screen=CreateCompatibleBitmap(hdc,GR_WIDTH,GR_HEIGHT);
             SelectObject(hdcBackbuff,screen);
       
             DrawMainMenu(hdcBackbuff,hdcBackbuff2);
@@ -1893,6 +1881,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       }
       DeleteObject(tmp_bitmap);
 
+      game_background_sprite=CreateLargeBitmapWithBuffer(SCREEN_WIDTH,SCREEN_HEIGHT,&publicBackgroundPixels,global_screen_bits);
       screen=CreateLargeBitmapWithBuffer(SCREEN_WIDTH,SCREEN_HEIGHT,&publicScreenPixels,global_screen_bits);
       screen_mirror=CreateLargeBitmapWithBuffer(SCREEN_WIDTH,SCREEN_HEIGHT,&publicScreenMirrorPixels,global_screen_bits);
 

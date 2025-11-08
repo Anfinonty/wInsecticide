@@ -661,3 +661,19 @@ void FastDrawTexturedTriangle(BYTE *pDst, int _x1, int _y1, int _x2, int _y2, in
 }
 
 
+
+
+void FastDrawTexturedRect(BYTE* pDst, int dstWidth, const BYTE* pSrc, int srcWidth, int srcHeight, int bytesPerPixel)
+{ //both same true size
+    int bspace=bytesPerPixel/8;
+    const int dstRowSize = ((32 * dstWidth + 31) / 32) * bspace;
+    const int srcRowSize = ((32 * srcWidth + 31) / 32) * bspace;
+    for (int y = 0; y < srcHeight; ++y) { //only height effects performance
+        memcpy(
+            pDst + y * dstRowSize,
+            pSrc + y * dstRowSize,
+            srcRowSize
+        );
+    }
+}
+
