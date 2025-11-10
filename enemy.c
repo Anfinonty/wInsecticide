@@ -3556,7 +3556,8 @@ void DrawEnemy(HDC hdc,HDC hdc2)
          float l_angle=-enemy_rotated_angle_arr[Enemy[i]->current_rot_sprite_angle_id];
          float moving_ang_offset=0.00;
          bool flip_bool;
-         if (Enemy[i]->draw_falling || (Enemy[i]->sprite_in_water && !Enemy[i]->web_stuck)) {
+
+         if ((!Enemy[i]->is_in_ground_edge && Enemy[i]->draw_falling) || (Enemy[i]->sprite_in_water && !Enemy[i]->web_stuck)) {
            if (Enemy[i]->health>0) {
              l_angle=-enemy_rotated_angle_arr[7];
            } else {
@@ -3572,7 +3573,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
             flip_bool=Enemy[i]->flip_sprite;
            }
         } else { //in ground edge
-          //l_angle=-enemy_rotated_angle_arr[Enemy[i]->current_rot_sprite_angle_id];
+          l_angle=-enemy_rotated_angle_arr[Enemy[i]->current_rot_sprite_angle_id];
           if (Enemy[i]->above_ground_edge) {
             flip_bool=Enemy[i]->last_left;
           } else if (Enemy[i]->below_ground_edge) {
