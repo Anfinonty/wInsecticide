@@ -3538,7 +3538,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
       }
 
 
-      if (Enemy[i]->species==1 && do_draw_antannae) { //cockroach antennae
+      if (Enemy[i]->species==1 && do_draw_antannae) { //cockroach antannae
         /*
           height to antannae start = 5
           length to antannae start = 44
@@ -3572,7 +3572,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
             flip_bool=Enemy[i]->flip_sprite;
            }
         } else { //in ground edge
-          l_angle=-enemy_rotated_angle_arr[Enemy[i]->current_rot_sprite_angle_id];
+          //l_angle=-enemy_rotated_angle_arr[Enemy[i]->current_rot_sprite_angle_id];
           if (Enemy[i]->above_ground_edge) {
             flip_bool=Enemy[i]->last_left;
           } else if (Enemy[i]->below_ground_edge) {
