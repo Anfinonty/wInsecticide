@@ -502,7 +502,7 @@ void CleanupAll(bool btm)
     }
 
 
-    DeleteObject(map_background_sprite);
+    //DeleteObject(map_background_sprite);
 
     run_after_once=FALSE;
     if (btm) {
@@ -520,7 +520,7 @@ void CleanUpBlankLevel()
 {
     back_to_menu=FALSE;
     level_loaded=FALSE;
-    DeleteObject(map_background_sprite);
+    //DeleteObject(map_background_sprite);
     call_help_timer=0;
     run_after_once=FALSE;
     run_once_only=FALSE;

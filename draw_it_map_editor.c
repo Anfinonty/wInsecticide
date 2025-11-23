@@ -255,22 +255,23 @@ void DrawMapEditorPlatforms(HDC hdc,HDC hdc2)
 
 void DrawMapEditorBackground(HDC hdc,HDC hdc2)
 {
-  switch (MapEditor.set_lvl_ambient_val[0]) {
+  /*switch (MapEditor.set_lvl_ambient_val[0]) {
     case 0:
     case 1:
     case 2:
     case 3:
-      DrawBitmap(hdc,hdc2,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
+      //DrawBitmap(hdc,hdc2,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
       break;
     default:
-      if (map_background_sprite==NULL) {
+      //if (map_background_sprite==NULL) {
         GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,rgbPaint[MapEditor.set_lvl_ambient_val[1]]);
-      } else {
+      //} else {
         DrawBitmap(hdc,hdc2,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
-      }
+      //}
       break;
-  }
+  }*/
 
+  GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,rgbPaint[MapEditor.set_lvl_ambient_val[1]]);
   if (MapEditor.set_lvl_ambient_val[2]==1) {
     //DrawSprite(hdc, hdc2,GR_WIDTH-128,128,&draw_moon_sprite[current_moon_phase_id],FALSE);
   }

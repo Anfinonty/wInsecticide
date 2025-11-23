@@ -1836,13 +1836,13 @@ void EnemyAct(int i)
           Enemy[i]->knockback_angle=player.angle;
         }
 
-        if (player.rst_down) {
+        /*if (player.rst_down) {
           if (!player.last_left) {//drag enemy to player
             Enemy[i]->knockback_angle+=M_PI_2;
           } else {
             Enemy[i]->knockback_angle+=-M_PI_2;
           }
-        }
+        }*/
       } else /*if (player.uppercut)*/ {//uppercut
         if (player.print_current_above) {
           if (!player.last_left) {
@@ -2527,7 +2527,7 @@ void EnemyAct(int i)
         if (!Enemy[i]->web_stuck) {
           if (Enemy[i]->species==0 || Enemy[i]->species==2 || (Enemy[i]->species==4 && (!player.time_breaker || Enemy[i]->time_breaker_immune)) || (Enemy[i]->species>=5 && Enemy[i]->species<=7)) {
             Enemy[i]->sprite_timer++;
-            if (Enemy[i]->sprite_timer>3) {
+            if (Enemy[i]->sprite_timer>16) {
               Enemy[i]->sprite_timer=0;
             }
           }
@@ -2809,8 +2809,9 @@ void InitEnemySpritesObj()
     //if (map_background==0 || map_background==2) {
       //CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,151,RGB(16,16,16)); //set outline color
     //} else {
-    CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,151,BLACK); //set outline color ltblue to ltgrey
+    //CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,151,BLACK); //set outline color ltblue to BLACK
     //}
+    CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,151,LTGRAY); //set outline color ltblue go LTGRAY
     if (free_will) {
       CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,199,DKRLTGREEN); //set freewill to normal palette
     }
@@ -3563,8 +3564,8 @@ void DrawEnemy(HDC hdc,HDC hdc2)
            } else {
              l_angle=-enemy_rotated_angle_arr[24];
            }
-         }
-         if (Enemy[i]->draw_falling) {
+         //}
+         //if (Enemy[i]->draw_falling) {
            flip_bool=Enemy[i]->last_left;
          } else if (!Enemy[i]->is_in_ground_edge) { //not on ground edge
            if (Enemy[i]->above_ground) {

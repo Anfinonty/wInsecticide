@@ -1178,7 +1178,7 @@ void CleanupMapEditorAll()
     free(MEEnemySprite);
 
 
-    DeleteObject(map_background_sprite);
+    //DeleteObject(map_background_sprite);
     //LoadMainMenuBackground();
     main_menu_chosen=0;
     //back_to_menu=FALSE;

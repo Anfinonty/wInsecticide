@@ -706,7 +706,7 @@ void SaveMELvl(HWND hwnd,HDC hdc)
 
    printf("\n=== Saving Map Id: %d ===\n\n",level_chosen);
 
-   SaveLvlBmp(hwnd,hdc,level_names[level_chosen]);
+   //SaveLvlBmp(hwnd,hdc,level_names[level_chosen]);
    level_loading=FALSE;
    printf("\n\n=== Save Complete ===\n",level_chosen);
 

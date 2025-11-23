@@ -529,16 +529,6 @@ float RandAngle(int min, int max, int *global_rand_i,int seed) {
 }
 
 
-/*int FreeWillRandNum(int min,int max,int seed)
-{
-  int m=0;
-  if (min<0) {
-    m=min-1;
-  }
-  return (seed)%(max-m + 1) + m;
-}*/
-
-
 //----------------------------------------
 float GetGradient(float x1,float y1,float x2,float y2) 
 {
@@ -567,8 +557,34 @@ float GetY(float x,float gradient,float c)
   return x*gradient+c;
 }
 
+
+//https://stackoverflow.com/questions/1349542/john-carmacks-unusual-fast-inverse-square-root-quake-iii
+// Source - https://stackoverflow.com/q
+// Posted by Alex, modified by community. See post 'Timeline' for change history
+// Retrieved 2025-11-13, License - CC BY-SA 3.0
+
+/*float Q_rsqrt( float number )
+{
+	long i;
+	float x2, y;
+	const float threehalfs = 1.5F;
+
+	x2 = number * 0.5F;
+	y  = number;
+	i  = * ( long * ) &y;                       // evil floating point bit level hacking
+	i  = 0x5f3759df - ( i >> 1 );               // what the fuck?
+	y  = * ( float * ) &i;
+	y  = y * ( threehalfs - ( x2 * y * y ) );   // 1st iteration
+//	y  = y * ( threehalfs - ( x2 * y * y ) );   // 2nd iteration, this can be removed
+
+	return y;
+}*/
+
+
 float GetDistance(float x1,float y1,float x2,float y2)
 {
+  //float d=Y*Y+X*X;
+  //return d*Q_rsqrt(d);
   float Y=y2-y1;
   float X=x2-x1;
   float dist=sqrt(Y*Y+X*X);//sqrt(pow(y2-y1,2)+pow(x2-x1,2));
@@ -1016,18 +1032,5 @@ void quicksort(int arr[], int low, int high) {
         quicksort(arr, pi + 1, high);
     }
 }
-
-// Driver code
-/*int main() {
-    int arr[] = {10, 7, 8, 9, 1, 5};
-    int n = sizeof(arr) / sizeof(arr[0]);
-
-    quicksort(arr, 0, n - 1);
-
-    printf("Sorted array: ");
-    for (int i = 0; i < n; i++)
-        printf("%d ", arr[i]);
-    return 0;
-}*/
 
 

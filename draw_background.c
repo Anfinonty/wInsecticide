@@ -2,7 +2,7 @@
 
 
 //=================Moon============================
-void PlaceDayMoon()
+/*void PlaceDayMoon()
 {
   if (!is_moon) { //cancel operation if is_moon not enabled
     return;
@@ -79,7 +79,7 @@ void PlaceDayMoon()
   DeleteObject(map_background_sprite);
   map_background_sprite=CopyBitmap(tmp_bitmap,SRCCOPY);
   DeleteObject(tmp_bitmap);
-}
+}*/
 //================================
 
 //=======Draw Stars===============
@@ -165,10 +165,6 @@ void LoadClouds(HDC hdc,HDC hdc2) //runs once
 {
   HDC thdcDst=CreateCompatibleDC(hdc);
   HDC thdcSrc=CreateCompatibleDC(hdc);
-  int cloud_src_x[LLOADED_CLOUD_NUM]={ 11,   3,  0,  0, 282,462, 42,440,464,0};
-  int cloud_src_y[LLOADED_CLOUD_NUM]={ 62, 255,  0,411, 171,  8,178,450,553,0};
-  int cloud_l[LLOADED_CLOUD_NUM]=    {504,532,442,417, 325,190,196,190,138,1};
-  int cloud_w[LLOADED_CLOUD_NUM]=    {165,258,164,258, 250,170,156, 94,70 ,1};
 
   SelectObject(thdcSrc,cloudwhite8bit_sprite_2);
   for (int i=0;i<2;i++) {
@@ -188,54 +184,72 @@ void LoadClouds(HDC hdc,HDC hdc2) //runs once
   for (int i=0;i<LOADED_CLOUD_NUM;i++) {
     DrawGameCloud[i].l=cloud_l[i];                
     ReplaceBitmapColor(DrawGameCloud[i].sprite_cache,LTGREEN,BLACK);
-    GenerateDrawSprite(&DrawGameCloud[i].draw_sprite,DrawGameCloud[i].sprite_cache);
+    //GenerateDrawSprite(&DrawGameCloud[i].draw_sprite,DrawGameCloud[i].sprite_cache);
   }
 
   DeleteDC(thdcDst);
   DeleteDC(thdcSrc);
+}
 
 
 
+bool prelude_clouds_loaded=FALSE;
+int prelude_clouds_i=0;
+
+void PreludeLoadCloudBackgroundSprite(HDC hdc,HDC hdc2)
+{
   //Create Bitmap and Begin placing clouds on bitmap
-  GameCloudsBackground.sprite_paint=CreateLargeBitmap(SCREEN_WIDTH*2,SCREEN_HEIGHT/2+SCREEN_HEIGHT/4,global_screen_bits);
-
+  if (prelude_clouds_i==0) {
+    GameCloudsBackground.sprite_paint=CreateCrunchyBitmap(SCREEN_WIDTH*2,(SCREEN_HEIGHT/2+SCREEN_HEIGHT/4));
+    //CreateLargeBitmap(SCREEN_WIDTH*2,SCREEN_HEIGHT/2+SCREEN_HEIGHT/4,global_screen_bits);
+ 
   //create backgrnd
-  SelectObject(hdc,GameCloudsBackground.sprite_paint);
-  GrRect(hdc,0,0,(SCREEN_WIDTH*2)+1,SCREEN_HEIGHT/2+SCREEN_HEIGHT/4+1,YELLOW);
+    SelectObject(hdc,GameCloudsBackground.sprite_paint);
+    GrRect(hdc,0,0,(SCREEN_WIDTH*2)+1,SCREEN_HEIGHT/2+SCREEN_HEIGHT/4+1,YELLOW);
+  }
   
   //Draw Clouds
-  for (int i=0;i<40/*1000*/;i++) {
+  //for (int i=0;i<40/*1000*/;i++) {
     int x;
     int y;
     int type;
     int flipped;
 
-    y=RandNum(0,SCREEN_HEIGHT/2+SCREEN_HEIGHT/8,&cloud_rng_i,-1);
     type=RandNum(0,LOADED_CLOUD_NUM,&cloud_rng_i,-1);
+    y=-cloud_w[type]+RandNum(0,SCREEN_HEIGHT/2+SCREEN_HEIGHT/8,&cloud_rng_i,-1);
     //max_speed_timer=5+RandNum(1,8,&cloud_rng_i,-1);
     //x=540+RandNum(0,SCREEN_WIDTH*2-540*2,&cloud_rng_i,-1);//GR_WIDTH+DrawGameCloud[type].l+2+RandNum(50,DrawGameCloud[type].l*2,&cloud_rng_i,-1);
 
     x=RandNum(0,SCREEN_WIDTH*2,&cloud_rng_i,-1);//GR_WIDTH+DrawGameCloud[type].l+2+RandNum(50,DrawGameCloud[type].l*2,&cloud_rng_i,-1);
-    if (i<40) {
-      if (x>SCREEN_WIDTH*2-(cloud_l[type]/2)-30) {
-        x-=(cloud_l[type]/2+30);
+    //if (i<40) {
+      if (x>SCREEN_WIDTH*2-(cloud_l[type])-30) {
+        x-=(cloud_l[type]+30);
       }
-      if (x<cloud_l[type]/2+30) {
-        x+=cloud_l[type]/2+30;
+      if (x<cloud_l[type]+30) {
+        x+=cloud_l[type]+30;
       }
 
-      if (y>SCREEN_HEIGHT/2+SCREEN_HEIGHT/4-(cloud_w[type]/2)-20) {
-        y-=(cloud_w[type]/2+20);
+      if (y>SCREEN_HEIGHT/2+SCREEN_HEIGHT/4-(cloud_w[type])-20) {
+        y-=(cloud_w[type]+20);
       }
-    }
+    //}
     flipped=(bool)RandNum(0,1,&cloud_rng_i,-1);
-    DrawSprite(hdc, hdc2,x,y,&DrawGameCloud[type].draw_sprite,flipped);
-  }
+    //DrawSprite(hdc, hdc2,x,y,&DrawGameCloud[type].draw_sprite,flipped);
+    BitBlt8BitTransparent(GameCloudsBackground.sprite_paint, x,y, cloud_l[type], cloud_w[type], DrawGameCloud[type].sprite_cache, 0, 0, BLACK,flipped);
+  //}
 
+
+  prelude_clouds_i++;
+  loading_numerator++;
+  if (prelude_clouds_i==DRAW_CLOUDS_NUM) {
 
   //Create Mask
-  SelectObject(hdc,_bb);
-  GameCloudsBackground.sprite_mask=CreateBitmapMask(GameCloudsBackground.sprite_paint,YELLOW,NULL);
+    SelectObject(hdc,_bb);
+    GameCloudsBackground.sprite_mask=CreateBitmapMask(GameCloudsBackground.sprite_paint,YELLOW,NULL);
+    prelude_clouds_loaded=TRUE; //completed
+  }
+  //BitmapPalette(hdc,hdc2,GameCloudsBackground.sprite_paint,rgbColorsNoir);
+
 }
 
 
@@ -695,15 +709,15 @@ void DrawBackground(HDC hdc,HDC hdc2)
     case 2:
     case 3: //default backgrounds
       GrRect(hdc,0,0,GR_WIDTH+24,GR_HEIGHT+24,custom_map_background_color);
-      if (map_background_sprite!=NULL) {
-        DrawBitmap(hdc,hdc2,draw_p_px,draw_p_py,0,0,GR_WIDTH*2,GR_HEIGHT*2,map_background_sprite,SRCCOPY,FALSE,FALSE);
-      }
+      //if (map_background_sprite!=NULL) {
+        //DrawBitmap(hdc,hdc2,draw_p_px,draw_p_py,0,0,GR_WIDTH*2,GR_HEIGHT*2,map_background_sprite,SRCCOPY,FALSE,FALSE);
+      //}
       break;
     default: //custom map background
       GrRect(hdc,0,0,GR_WIDTH+24,GR_HEIGHT+24,custom_map_background_color);
-      if (map_background_sprite!=NULL) {
-        DrawBitmap(hdc,hdc2,draw_p_px,draw_p_py,0,0,GR_WIDTH*2,GR_HEIGHT*2,map_background_sprite,SRCCOPY,FALSE,FALSE);
-      }
+      //if (map_background_sprite!=NULL) {
+        //DrawBitmap(hdc,hdc2,draw_p_px,draw_p_py,0,0,GR_WIDTH*2,GR_HEIGHT*2,map_background_sprite,SRCCOPY,FALSE,FALSE);
+      //}
       break;
   }
 

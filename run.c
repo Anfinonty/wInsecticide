@@ -449,14 +449,19 @@ void SetDesktopScreenRes(int w,int h,int bits)
   LONG result = ChangeDisplaySettings(&devMode, CDS_FULLSCREEN);
 }
 
-
 int prelude_sprite_jid=0;
 int prelude_sprite_id=0;
 
+
 void Prelude()
 {
+  if (!prelude_clouds_loaded) {
+    //PreludeLoadCloudBackgroundSprite();
+
+
   //Load Enemy Rotated Sprite
   //note: tmp_sprite1, may cause issues with memory
+  } else {
   float angle_rn;
   int j=prelude_sprite_jid;
   int i=prelude_sprite_id;
@@ -490,8 +495,8 @@ void Prelude()
           break;
       }
 
-      ReplaceBitmapColor(LoadEnemyFlySprite[g].prelude_tmp_sprite1,LTBLUE,LTGREEN);
-      ReplaceBitmapColor(LoadEnemyFlySprite[g].prelude_tmp_sprite2,LTBLUE,LTGREEN);
+      //ReplaceBitmapColor(LoadEnemyFlySprite[g].prelude_tmp_sprite1,LTBLUE,LTGREEN);
+      //ReplaceBitmapColor(LoadEnemyFlySprite[g].prelude_tmp_sprite2,LTBLUE,LTGREEN);
 
       ReplaceBitmapColor2(LoadEnemyFlySprite[g].prelude_tmp_sprite1,LTGREEN,BLACK,8,LTGREEN); //8 due to pureblack reserved for mask
       ReplaceBitmapColor2(LoadEnemyFlySprite[g].prelude_tmp_sprite2,LTGREEN,BLACK,8,LTGREEN);
@@ -548,8 +553,8 @@ void Prelude()
 
 
     if (j<3) {
-      ReplaceBitmapColor(LoadEnemyRotatedSprite[j].prelude_tmp_sprite1[i],LTBLUE,LTGREEN);
-      ReplaceBitmapColor(LoadEnemyRotatedSprite[j].prelude_tmp_sprite2[i],LTBLUE,LTGREEN);
+      //ReplaceBitmapColor(LoadEnemyRotatedSprite[j].prelude_tmp_sprite1[i],LTBLUE,LTGREEN);
+      //ReplaceBitmapColor(LoadEnemyRotatedSprite[j].prelude_tmp_sprite2[i],LTBLUE,LTGREEN);
 
 
       ReplaceBitmapColor2(LoadEnemyRotatedSprite[j].prelude_tmp_sprite1[i],LTGREEN,BLACK,8,LTGREEN); //8 due to pureblack reserved for mask
@@ -570,7 +575,7 @@ void Prelude()
       //DeleteObject(tmp_sprite1);
       //printf("%d/%d %1.0f/%1.0f\n",i,j,loading_numerator,loading_denominator);
     } else { //j==3, xtra sprites
-      ReplaceBitmapColor(XLoadEnemyRotatedSprite[0].prelude_tmp_sprite[i],LTBLUE,LTGREEN);
+      //ReplaceBitmapColor(XLoadEnemyRotatedSprite[0].prelude_tmp_sprite[i],LTBLUE,LTGREEN);
       ReplaceBitmapColor2(XLoadEnemyRotatedSprite[0].prelude_tmp_sprite[i],LTGREEN,BLACK,8,LTGREEN);
       GenerateDrawSprite(&XLoadEnemyRotatedSprite[0].draw_rotated_sprite[i],XLoadEnemyRotatedSprite[0].prelude_tmp_sprite[i]);
       //create dithered rotated sprite
@@ -588,6 +593,7 @@ void Prelude()
       prelude_sprite_id=0;
       prelude_sprite_jid++;
     }
+  }
   }
   //printf("%1.0f/%1.0f\n",loading_numerator,loading_denominator);
 }
@@ -1359,26 +1365,26 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                mb_val=map_background;
              }
             if (mb_val>=0 && mb_val<=4) {
-              if (map_background_sprite!=NULL) { //renew and scale upwards
+              /*if (map_background_sprite!=NULL) { //renew and scale upwards
                 DeleteObject(map_background_sprite);
               }
               HBITMAP tmp_map_background_sprite;
 
               wchar_t lvl_background_bmp[64];
               swprintf(lvl_background_bmp,64,L"saves/%ls/images/background.bmp",level_names[level_chosen]);
-              tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, lvl_background_bmp, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+              tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, lvl_background_bmp, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);*/
 
               if ((in_main_menu && !level_loading && !in_map_editor) || back_to_menu) {
-                if (tmp_map_background_sprite==NULL) {  //custom overwrites regular
+                //if (tmp_map_background_sprite==NULL) {  //custom overwrites regular
                   if (solar_hour>6 && solar_hour<18) { //day
                     if (map_weather!=0) {mb_val=2;} else {mb_val=0;}
                   } else {       //night
                     if (map_weather!=0) {mb_val=3;} else {mb_val=1;}
                   }
-                }
+                //}
               }
 
-              if (tmp_map_background_sprite==NULL) { //custom background doesnt exist
+              /*if (tmp_map_background_sprite==NULL) { //custom background doesnt exist
                 switch (mb_val) {
                   case 0:
                     if (GR_WIDTH<800 && GR_HEIGHT<600) {
@@ -1409,8 +1415,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                     }
                     break;
                 }
-              }
-              if (tmp_map_background_sprite!=NULL) {
+              }*/
+              /*if (tmp_map_background_sprite!=NULL) {
                 map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH+GR_WIDTH/8,GR_HEIGHT+GR_HEIGHT/8); //note runs once only
                 if (mb_val!=1 && mb_val!=2 && mb_val!=3) {
                   PlaceDayMoon();
@@ -1418,7 +1424,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               } else {
                 map_background_sprite=NULL;
               }
-              DeleteObject(tmp_map_background_sprite);
+              DeleteObject(tmp_map_background_sprite);*/
             }
         } //end of alter screen actions
 
@@ -1432,8 +1438,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
           if (loading_numerator==0) { //load clouds
             LoadClouds(hdcBackbuff,hdcBackbuff2);
-
           } 
+          if (!prelude_clouds_loaded) {
+            PreludeLoadCloudBackgroundSprite(hdcBackbuff,hdcBackbuff2);
+          }
 
           SelectObject(hdcBackbuff,screen);
 
@@ -1892,7 +1900,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       //Loading Bar
       loading_numerator=0;
-      loading_denominator=ROTATED_SPRITE_NUM*7; //(2roach,2toebiter,2ant,extratoebiter
+      loading_denominator=ROTATED_SPRITE_NUM*7+DRAW_CLOUDS_NUM; //(2roach,2toebiter,2ant,extratoebiter ,, Clouds
 
 
       AddFontResource(L"fonts/unifont-8.0.01.ttf");

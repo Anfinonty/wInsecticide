@@ -1207,7 +1207,12 @@ BYTE *ptexture_water[9];
 //=============CLOUDS===============
 #define LOADED_CLOUD_NUM 9
 #define LLOADED_CLOUD_NUM 10 //slack space, idk why, needs to be in or last sprite wont load
+#define DRAW_CLOUDS_NUM     20
 //#define CLOUD_NUM    30//100//30//10//20
+int cloud_src_x[LLOADED_CLOUD_NUM]={ 11,   3,  0,  0, 282,462, 42,440,464,0};
+int cloud_src_y[LLOADED_CLOUD_NUM]={ 62, 255,  0,411, 171,  8,178,450,553,0};
+int cloud_l[LLOADED_CLOUD_NUM]=    {504,532,442,417, 325,190,196,190,138,1};
+int cloud_w[LLOADED_CLOUD_NUM]=    {165,258,164,258, 250,170,156, 94,70 ,1};
 
 HBITMAP cloudwhite8bit_sprite_1;
 HBITMAP cloudwhite8bit_sprite_2;
@@ -1216,7 +1221,7 @@ struct LoadedGameCloud
 {
   int l;
   HBITMAP sprite_cache;
-  DRAWSPRITE draw_sprite;
+  //DRAWSPRITE draw_sprite;
 } DrawGameCloud[LLOADED_CLOUD_NUM];
 
 /*struct GameClouds
@@ -1347,7 +1352,7 @@ HBITMAP map_platforms_shadow_shader;
 
 
 //map background drawn
-HBITMAP map_background_sprite;
+//HBITMAP map_background_sprite;
 HBITMAP game_background_sprite;
 HBITMAP screen;
 HBITMAP screen_mirror;

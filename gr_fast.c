@@ -677,3 +677,102 @@ void FastDrawTexturedRect(BYTE* pDst, int dstWidth, const BYTE* pSrc, int srcWid
     }
 }
 
+
+
+
+
+
+void BitBlt8BitTransparent(HBITMAP dstHBitmap, int dst_x, int dst_y, int src_l, int src_h, HBITMAP srcHBitmap, int src_x, int src_y, COLORREF oldColor, bool flip)
+{
+    BITMAP dstBitmap,srcBitmap;
+    GetObject(dstHBitmap, sizeof(BITMAP), &dstBitmap);
+    GetObject(srcHBitmap, sizeof(BITMAP), &srcBitmap);
+
+    // Ensure it's an 8-bit bitmap
+    if (srcBitmap.bmBitsPixel != 8) {
+        return; // Not an 8-bit bitmap
+    }
+
+    // Ensure it's an 8-bit bitmap
+    if (dstBitmap.bmBitsPixel != 8) {
+        return; // Not an 8-bit bitmap
+    }
+
+
+    // Access the pixel data
+    BYTE *dstPixels = (BYTE *)dstBitmap.bmBits;
+    BYTE *srcPixels = (BYTE *)srcBitmap.bmBits;
+
+
+    // Retrieve the palette
+    HDC hdc = CreateCompatibleDC(NULL);
+    SelectObject(hdc, srcHBitmap);
+    RGBQUAD palette[256];
+    GetDIBColorTable(hdc, 0, 256, palette); // Get the palette
+    DeleteDC(hdc);
+
+    // Find indices for oldColor and newColor
+    BYTE oldColorIndex = 0xFF; // Invalid initially
+    for (int i = 0; i < 256; i++) {
+        if (RGB(palette[i].rgbRed, palette[i].rgbGreen, palette[i].rgbBlue) == oldColor) {
+            oldColorIndex = (BYTE)i;
+        }
+    }
+
+    for (int cf=0;cf<16;cf++) {
+      if (oldColor==cf) {
+        oldColorIndex=cf;
+        break;
+      }
+    }
+
+    // Check if both colors are in the palette
+    if ((oldColorIndex == 0xFF) && oldColor!=-1) {
+        return; // Color not found
+    }
+
+    // Traverse and fill in pixel data
+    int maxx=dstBitmap.bmWidth;
+    int maxy=dstBitmap.bmHeight;
+
+    int current_dst_x=dst_x;
+    int current_dst_y=dst_y;
+    //int current_dst_y=dst_y+src_h;
+    for (int y = src_y; y < src_y+src_h; y++) {
+      if (current_dst_x>0 && current_dst_x<maxx && current_dst_y>0 && current_dst_y<maxy) { //axis is withn dest bitmap
+        BYTE *rowSrc = srcPixels + (y  * srcBitmap.bmWidthBytes);
+        BYTE *rowDst = dstPixels + (current_dst_y * dstBitmap.bmWidthBytes); // Calculate row pointer        
+        if (!flip) { //normal
+          for (int x = src_x; x < src_x+src_l; x++) {
+             if (rowSrc[x] != oldColorIndex) {
+               rowDst[current_dst_x] = rowSrc[x]; // copy over bitmap
+             }
+             current_dst_x++;
+             if (current_dst_x>=maxx || current_dst_x<=0)
+               break;            
+           }
+         } else { //flipped
+          for (int x = src_x+src_l-1; x > src_x-1; x--) {
+             if (rowSrc[x] != oldColorIndex) {
+               rowDst[current_dst_x] = rowSrc[x]; // copy over bitmap
+             }
+             current_dst_x++;
+             if (current_dst_x>=maxx || current_dst_x<=0)
+               break;            
+           }
+         }
+       }
+        // new row
+       current_dst_x=dst_x;
+       current_dst_y++;
+       if (current_dst_y>=maxy) {
+         break;
+       }
+       /*current_dst_y--;
+       if (current_dst_y<=0) {
+        break;
+       }*/
+    } //end of for
+}
+
+

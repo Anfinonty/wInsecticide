@@ -557,7 +557,7 @@ HBITMAP CreateCrunchyBitmap(int cx, int cy)
   BITMAPINFO* pbmi = (BITMAPINFO*)alloca(offsetof(BITMAPINFO, bmiColors[256]));
   pbmi->bmiHeader.biSize = sizeof (pbmi->bmiHeader);
   pbmi->bmiHeader.biWidth = cx;
-  pbmi->bmiHeader.biHeight = cy;
+  pbmi->bmiHeader.biHeight = -cy; //top-down bitmap
   pbmi->bmiHeader.biPlanes = 1;
   pbmi->bmiHeader.biBitCount = 8;
   pbmi->bmiHeader.biCompression = BI_RGB;
@@ -1294,6 +1294,7 @@ void DrawBitmap(HDC hDC, HDC hdcMem,float _x1,float _y1, float _x2, float _y2, i
 ////https://www.codeguru.com/multimedia/rotate-a-bitmap-image/
 ////https://github.com/StephanBusch/EcoZip/blob/35c215fbc3efc16951182f6127885d22d11a018e/EcoZipFM/ImageUtils.cpp
 
+//to deprecate
 HBITMAP RotateSprite(HDC hDC, HBITMAP hSourceBitmap, float radians,int rTransparent, int old_color, int sprite_color, int sprite_color_2) 
 { //if (hSourceBitmap != NULL) { ////https://ftp.zx.net.nz/pub/Patches/ftp.microsoft.com/MISC/KB/en-us/77/127.HTM
  //https://github.com/StephanBusch/EcoZip/blob/35c215fbc3efc16951182f6127885d22d11a018e/EcoZipFM/ImageUtils.cpp

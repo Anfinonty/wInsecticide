@@ -1336,13 +1336,16 @@ void PlayerActGravityMovement(int grav_speed,int speed)
         if (player.in_air_timer<1100) { //note: 1001 is post fling or rebounding
           if (player.in_air_timer%14/*20*/==0 && player.grav<=100) {
             player.grav+=2;
-          /*if (player.is_rebounding && player.speed<4) {
+          }
+          if (player.fling_distance==0 && !player.is_rebounding && player.in_air_timer>74 && player.in_air_timer%25==0 && player.speed<15) {
             player.speed++;
-          }*/
           }
         } else {
           if (player.in_air_timer%7/*12*/==0 && player.grav<=100 && player.in_water_timer==0) {
             player.grav+=2;
+          }
+          if (player.fling_distance<-200 && !player.is_rebounding && player.in_air_timer%50==0 && player.speed<9) {
+            player.speed++;
           }
         }
       }
@@ -1695,9 +1698,9 @@ void PlayerActMouseClick()
         if (player.on_ground_timer==0 && !player.is_on_ground_edge && !player.uppercut /*&& !player.rst_up && !player.rst_down*/ && player.type==0) {
           if (player.speed<5)
             player.speed+=3;
-          else if (player.speed<10)
-            player.speed+=2;
-          else
+          else //if (player.speed<10)
+            //player.speed+=2;
+          //else
             player.speed++;
         }
 
@@ -2558,13 +2561,15 @@ void PlayerAct()
 
     //block
       allow_act=FALSE;
-      if (player.attack_timer<=0) { // not attacking
+      //if (player.attack_timer<=0) { // not attacking
         if (player.rst_down && player.type==0) { //pressing down button
           allow_act=TRUE;
         }
-      }
+      //}
       if (allow_act) {
         player.blocking=TRUE;
+        player.attack=TRUE;
+        //player.attack_timer=40;
       } else {
         player.blocking=FALSE;
       }
@@ -3206,7 +3211,7 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
     is_blink=FALSE;
   }
   if (is_blink) {
-    if (player.attack_timer==-1) { //not attacking
+    if (player.attack_timer==-1 || player.rst_down) { //not attacking
       if (player.block_timer==0) { //not blocking
         if (player.on_ground_timer>0) { // on ground
           if (player.walk_cycle<2) {
