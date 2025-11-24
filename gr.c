@@ -377,7 +377,7 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
         }
         rgbColors[i].rgbReserved = 0;
         break;
-      case 13: //LTPURPLE
+      case 13: //LTPURPLE 16*13 = 208, 208+7 =215
         if (index_range<=8) { //1->7 Darker values, 8 is true value
           rgbColors[i].rgbRed = ceil(index_range*255/8);
           rgbColors[i].rgbGreen = 0;
@@ -389,7 +389,7 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
         }
         rgbColors[i].rgbReserved = 0;
         break;
-      case 14: //YELLOW
+      case 14: //YELLOW 16*14 = 224   224 -> ,,,, 224+7=231
         if (index_range<=8) { //1->7 Darker values, 8 is true value
           rgbColors[i].rgbRed = ceil(index_range*255/8);
           rgbColors[i].rgbGreen = ceil(index_range*255/8);
@@ -489,9 +489,6 @@ void BitmapPalette(HDC hdc, HDC hdc2,HBITMAP hBitmap,RGBQUAD *bitmapPalette) {
 
 //https://learn.microsoft.com/en-us/windows/win32/gdi/drawing-a-shaded-triangle
 //https://stackoverflow.com/questions/33447305/c-windows32-gdi-fill-triangl//https://stackoverflow.com/questions/3142349/drawing-on-8bpp-grayscale-bitmap-unmanaged-c
-
-
-
 HBITMAP CreateGreyscaleBitmap(int cx, int cy)
 {
   BITMAPINFO* pbmi = (BITMAPINFO*)alloca(offsetof(BITMAPINFO, bmiColors[256]));
@@ -841,7 +838,9 @@ void GrGlassRect(HDC hdc, HDC hdcMem, int x, int y, int width, int height, int C
     DeleteObject(hBitmap);
 }
 
-
+//https://github.com/ChuOkupai/rle-compression/blob/master/src/rle.c
+//https://stackoverflow.com/questions/55599268/creating-a-code-to-decompress-byte-oriented-rle-image
+//https://github.com/glampert/compression-algorithms/blob/master/rle.hpp
 // Function to decompress BI_RLE8-compressed data while retaining color mapping
 int DecompressRLE8(const BYTE *compressedData, int width, int height, BYTE *decompressedData) {
     int x = 0, y = 0;
@@ -888,6 +887,7 @@ int DecompressRLE8(const BYTE *compressedData, int width, int height, BYTE *deco
     return 0; // Success
 }
 
+//https://forums.codeguru.com/showthread.php?456626-RESOLVED-How-does-CreateDIBSection-SetDIBitsToDevice-and-DIB-s-in-general-work
 // Function to load a BI_RLE8-compressed bitmap as a DIBSection with retained colors
 HBITMAP LoadRLE8CompressedBitmap(const wchar_t *filePath) {
     FILE *file = _wfopen(filePath, L"rb");
@@ -943,21 +943,11 @@ HBITMAP LoadRLE8CompressedBitmap(const wchar_t *filePath) {
     fclose(file);
 
 
-    // Decompress the RLE8 data
-    if (DecompressRLE8(compressedData, width, height, decompressedData) != 0) {
-        wprintf(L"Failed to decompress RLE8 data.\n");
-        free(compressedData);
-        free(decompressedData);
-        free(colorTable);
-        return NULL;
-    }
-
-
     // Set up the BITMAPINFO structure
     BITMAPINFO* bmInfo = (BITMAPINFO*)alloca(offsetof(BITMAPINFO, bmiColors[256]));
     bmInfo->bmiHeader.biSize = sizeof (bmInfo->bmiHeader);
     bmInfo->bmiHeader.biWidth = width;
-    bmInfo->bmiHeader.biHeight = height; // Top-down DIB
+    bmInfo->bmiHeader.biHeight = height; // RLE is stored low to top
     bmInfo->bmiHeader.biPlanes = 1;
     bmInfo->bmiHeader.biBitCount = 8;
     bmInfo->bmiHeader.biCompression = BI_RGB;
@@ -975,18 +965,19 @@ HBITMAP LoadRLE8CompressedBitmap(const wchar_t *filePath) {
     HDC hdc = GetDC(NULL);
 
     // Create the DIBSection
-    void *dibPixels = NULL;
-    HBITMAP hBitmap = //CreateDIBSection(hdc,bmInfo,DIB_RGB_COLORS,&dibPixels,NULL,0);
-            CreateDIBitmap(
-                hdc,
-                &bmInfo->bmiHeader,       // Pointer to BITMAPINFOHEADER
-                CBM_INIT,                 // Initialization flag
-                decompressedData,         // Pointer to the decompressed pixel data
-                bmInfo,                   // Pointer to BITMAPINFO structure with color information
-                DIB_RGB_COLORS            // Color usage
-            );
+    HBITMAP hBitmap = CreateDIBSection(hdc,bmInfo,DIB_RGB_COLORS,(VOID**)&decompressedData,NULL,0);
+
     // Release the DC
     ReleaseDC(NULL, hdc);
+
+    // Decompress the RLE8 data + draw onto hbitmap
+    if (DecompressRLE8(compressedData, width, height, decompressedData) != 0) {
+        wprintf(L"Failed to decompress RLE8 data.\n");
+        free(compressedData);
+        free(decompressedData);
+        free(colorTable);
+        return NULL;
+    }
 
     if (hBitmap == NULL) {
         wprintf(L"Failed to create DIBSection.\n");
@@ -997,15 +988,163 @@ HBITMAP LoadRLE8CompressedBitmap(const wchar_t *filePath) {
         free(colorTable);
         return NULL;
     }
-
     // Copy the decompressed data into the DIBSection
     free(bmInfo);
     free(compressedData);
     free(decompressedData);
     free(colorTable);
-
     return hBitmap;
 }
+
+//https://www.vbforums.com/showthread.php?261522-C-C-Loading-Bitmap-Files-(Manually)
+/*
+HBITMAP LoadRLE8CompressedBitmapII(const wchar_t *filePath) {
+
+  BITMAPINFOHEADER bitmapInfoHeader;
+
+//unsigned char *LoadBitmapFile(char *filename, BITMAPINFOHEADER *bitmapInfoHeader)
+  FILE *filePtr; //our file pointer
+  BITMAPFILEHEADER bitmapFileHeader; //our bitmap file header
+  unsigned char *bitmapImage;  //store image data
+  unsigned char tempRGB;  //our swap variable
+
+  //open filename in read binary mode
+  filePtr =  _wfopen(filePath, L"rb");//fopen(filename,"rb");
+
+  if (filePtr == NULL)
+  return NULL;
+
+  //read the bitmap file header
+  fread(&bitmapFileHeader, sizeof(BITMAPFILEHEADER),1,filePtr);
+
+  //verify that this is a bmp file by check bitmap id
+  if (bitmapFileHeader.bfType !=0x4D42)
+  {
+    fclose(filePtr);
+    return NULL;
+  }
+
+  //read the bitmap info header
+  fread(&bitmapInfoHeader, sizeof(BITMAPINFOHEADER),1,filePtr);
+
+  if (bitmapInfoHeader.biCompression != BI_RLE8) {
+    wprintf(L"Bitmap is not BI_RLE8 compressed: %ls\n", filePath);
+    fclose(filePtr);
+    return NULL;
+  } else {
+    wprintf(L"Bitmap is indeed BI_RLE8 compressed: %ls\n", filePath);
+  }
+
+
+  //move file point to the begging of bitmap data
+  fseek(filePtr, bitmapFileHeader.bfOffBits, SEEK_SET);
+
+  //allocate enough memory for the bitmap image data
+  bitmapImage = (unsigned char*)malloc(bitmapInfoHeader.biSizeImage);
+
+  //verify memory allocation
+  if (!bitmapImage)
+  {
+    free(bitmapImage);
+    fclose(filePtr);
+    return NULL;
+  }
+
+  //read in the bitmap image data
+  printf("reading");
+  fread(bitmapImage,bitmapInfoHeader.biSizeImage,1,filePtr);
+  printf("read\n");
+
+  //make sure bitmap image data was read
+  if (bitmapImage == NULL)
+  {
+    fclose(filePtr);
+    return NULL;
+  }
+
+//swap the r and b values to get RGB (bitmap is BGR)
+  for (int imageIdx = 0;imageIdx < bitmapInfoHeader.biSizeImage;imageIdx+=3) //image index counter
+  {
+    tempRGB = bitmapImage[imageIdx];
+    bitmapImage[imageIdx] = bitmapImage[imageIdx + 2];
+    bitmapImage[imageIdx + 2] = tempRGB;
+  }
+
+//close file and return bitmap iamge data
+  fclose(filePtr);
+
+*/
+
+  /*printf("Bitmap Info Header:\n");
+  printf("biBitCount:%d\n",bitmapInfoHeader.biBitCount);
+  printf("biWidth:%d\n",bitmapInfoHeader.biWidth);
+  printf("biHeight:%d\n",bitmapInfoHeader.biHeight);
+  printf("biSizeImage:%d\n",bitmapInfoHeader.biSizeImage);
+  printf("biXPelsPerMeter:%d\n",bitmapInfoHeader.biXPelsPerMeter);
+  printf("biYPelsPerMeter:%d\n",bitmapInfoHeader.biYPelsPerMeter);
+  printf("=====\n");*/
+
+  /*int nbiWidth=;
+  int nbiHeight=;
+  int nbiPlanes=;
+  int n*/
+
+  /*BITMAPINFO bmi = {0};
+  bmi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+  bmi.bmiHeader.biWidth = bitmapInfoHeader.biWidth;
+  bmi.bmiHeader.biHeight = -bitmapInfoHeader.biHeight; // negative for Top-down
+  bmi.bmiHeader.biPlanes = bitmapInfoHeader.biPlanes;
+  bmi.bmiHeader.biBitCount = 8;//bitmapInfoHeader.biBitCount;
+  bmi.bmiHeader.biXPelsPerMeter = bitmapInfoHeader.biXPelsPerMeter;
+  bmi.bmiHeader.biYPelsPerMeter = bitmapInfoHeader.biYPelsPerMeter;
+  //Init8BitRGBColorsDefault(bmi.bmiColors);
+  bmi.bmiHeader.biClrUsed = bitmapInfoHeader.biClrUsed;
+  bmi.bmiHeader.biClrImportant = bitmapInfoHeader.biClrImportant;
+  bmi.bmiHeader.biCompression = bitmapInfoHeader.biCompression;*/
+
+  //BYTE** ppPixels;
+  
+
+/*
+  pbmi->bmiHeader.biSize = sizeof (pbmi->bmiHeader);
+  pbmi->bmiHeader.biWidth = cx;
+  pbmi->bmiHeader.biHeight = -cy; //top-down bitmap
+  pbmi->bmiHeader.biPlanes = 1;
+  pbmi->bmiHeader.biBitCount = 8;
+  pbmi->bmiHeader.biCompression = BI_RGB;
+  pbmi->bmiHeader.biSizeImage = 0;
+
+  pbmi->bmiHeader.biXPelsPerMeter = 14173;
+  pbmi->bmiHeader.biYPelsPerMeter = 14173;
+
+
+*/
+  //PVOID pv;
+
+
+/*
+  BITMAPINFO* pbmi = (BITMAPINFO*)alloca(offsetof(BITMAPINFO, bmiColors[256]));
+  pbmi->bmiHeader.biSize = sizeof (pbmi->bmiHeader);
+  pbmi->bmiHeader.biWidth = bitmapInfoHeader.biWidth;
+  pbmi->bmiHeader.biHeight = -bitmapInfoHeader.biHeight; //top-down bitmap
+  pbmi->bmiHeader.biPlanes = 1;
+  pbmi->bmiHeader.biBitCount = 8;
+  pbmi->bmiHeader.biCompression = BI_RGB;
+  pbmi->bmiHeader.biSizeImage = 0;
+
+  pbmi->bmiHeader.biXPelsPerMeter = 14173;
+  pbmi->bmiHeader.biYPelsPerMeter = 14173;
+  Init8BitRGBColorsDefault(pbmi->bmiColors);
+
+  pbmi->bmiHeader.biClrUsed = 0;
+  pbmi->bmiHeader.biClrImportant = 0;
+
+
+  printf("CreatingDIBSection...\n");
+//  return CreateDIBSection(NULL,pbmi,DIB_RGB_COLORS,(PVOID)&bitmapImage,NULL,0);
+
+}
+*/
 
 
 
@@ -1246,22 +1385,6 @@ void GrPrintA(HDC hdc, float x1, float y1, wchar_t *_txt, int color)
   SetTextColor(hdc, TRANSPARENT);
 }
 
-/*HPALETTE rgbPaletteColorsNoir;
-void CreateNoirPalette()
-{
-  LOGPALETTE *pLogPal = (LOGPALETTE*)malloc(sizeof(LOGPALETTE)+255*sizeof(PALETTEENTRY));
-  pLogPal->palVersion = 0x300;
-  pLogPal->palNumEntries=256;
-  for (int i=0;i<256;i++) {
-    pLogPal->palPalEntry[i].peRed=i;
-    pLogPal->palPalEntry[i].peGreen=i;
-    pLogPal->palPalEntry[i].peBlue=i;
-    pLogPal->palPalEntry[i].peFlags=0;
-  }
-  rgbPaletteColorsNoir=CreatePalette(pLogPal);
-  free(pLogPal);
-}*/
-
 
 
 void DrawBitmap(HDC hDC, HDC hdcMem,float _x1,float _y1, float _x2, float _y2, int width, int height, HBITMAP hSourceBitmap,int _SRCTYPE,bool stretch,bool is_left)
@@ -1418,18 +1541,17 @@ HBITMAP GetRotated8BitBitmap(HBITMAP hBitmap,float radians,COLORREF clrBack)
 //###https://www.codeguru.com/multimedia/rotate-a-bitmap-at-any-angle-without-getpixel-setpixel/###
 //https://web.archive.org/web/20150519150259/http://www.codeguru.com/cpp/g-m/bitmap/specialeffects/article.php/c1743/Rotate-a-bitmap-image.htm
 
-  //Convert to 8Bit, play it safe
-  HBITMAP tmp_h8BitBitmap = CopyCrunchyBitmap(hBitmap,SRCCOPY);
 
   //Retrieve Bitmap Info
-  BITMAP bmp;
-  if (!GetObject(hBitmap,sizeof(BITMAP),&bmp)) //assign 8bit bitmap to bmp
+  BITMAP srcBitmap;
+  if (!GetObject(hBitmap,sizeof(BITMAP),&srcBitmap)) //assign 8bit bitmap to bmp
     return NULL;
+  BYTE *sourcePixels = (BYTE *)srcBitmap.bmBits;
 
 
-  int width = bmp.bmWidth;
-  int height = bmp.bmHeight;
-  int bpp = 1;//8/8;
+  int width = srcBitmap.bmWidth;
+  int height = srcBitmap.bmHeight;
+  int bpp = 1;//8/8; 8bits
   int stride = ((width*bpp+3) & ~3); //row size aligned to 4 bytes
 
 
@@ -1459,25 +1581,7 @@ HBITMAP GetRotated8BitBitmap(HBITMAP hBitmap,float radians,COLORREF clrBack)
   }
 
   HDC hdc = GetDC(NULL);
-  void *sourcePixels=NULL;
-  HBITMAP hSourceDIB = CreateDIBSection(hdc,bmInfo,DIB_RGB_COLORS,&sourcePixels,NULL,0);
-  if (!hSourceDIB) {
-    free(bmInfo);
-    DeleteObject(hSourceDIB);
-    DeleteObject(tmp_h8BitBitmap);
-    ReleaseDC(NULL,hdc);
-    return NULL;
-  }
-
-  //Copy pixels from bitmap to hSourceDIB
-  HDC hMemDC = CreateCompatibleDC(hdc);
-  SelectObject(hMemDC,hSourceDIB);
-  HDC hSrcDC = CreateCompatibleDC(hdc);
-  SelectObject(hSrcDC,tmp_h8BitBitmap);
-  BitBlt(hMemDC,0,0,width,height,hSrcDC,0,0,SRCCOPY);
-  DeleteDC(hSrcDC);
-
-
+  
 
   //Get Dimensions of rotated bitmap
   float cosine = cos(radians);
@@ -1496,9 +1600,6 @@ HBITMAP GetRotated8BitBitmap(HBITMAP hBitmap,float radians,COLORREF clrBack)
 
   if (!hRotatedDIB) {
     free(bmInfo);
-    DeleteObject(hSourceDIB);
-    DeleteObject(tmp_h8BitBitmap);
-    DeleteDC(hMemDC);
     ReleaseDC(NULL,hdc);
     return(NULL);
   }
@@ -1526,9 +1627,6 @@ HBITMAP GetRotated8BitBitmap(HBITMAP hBitmap,float radians,COLORREF clrBack)
 
   //Cleanup
   free(bmInfo);
-  DeleteObject(hSourceDIB);
-  DeleteObject(tmp_h8BitBitmap);
-  DeleteDC(hMemDC);
   ReleaseDC(NULL,hdc);
   return hRotatedDIB;
 }
@@ -1839,6 +1937,8 @@ void GenerateDrawSprite(DRAWSPRITE* myDrawSprite,HBITMAP srcBitmap)
     myDrawSprite->sprite_mask=CreateBitmapMask(myDrawSprite->sprite_paint,BLACK,NULL);
 }
 
+
+
 void GenerateLargeDrawSprite(DRAWSPRITE* myDrawSprite,HBITMAP srcBitmap)
 {
     myDrawSprite->sprite_paint=CopyBitmap(srcBitmap,SRCCOPY);
@@ -1884,7 +1984,7 @@ void DrawSprite(HDC hdc,HDC hdc2,int _x1, int _y1, DRAWSPRITE* myDrawSprite,bool
 
 //https://github.com/jroop6/SimpleKeylogger/blob/2a8fd44237a2ba85bcdb9b6bd05bec26ac2cd4f5/SimpleKeylogger/MainWindow.cpp
 //https://github.com/MarySoroka/OSASP-2/blob/70c997b0f58a3a2886654fc97feaf82572038c95/Paint/Paint/paint.cpp
-
+//https://stackoverflow.com/questions/24720451/save-hbitmap-to-bmp-file-using-only-win32
 
 bool SaveLargeBitmapToFile(HBITMAP hBitmap, LPCWSTR lpszFileName) {
     BITMAP bmp;
@@ -1996,7 +2096,7 @@ bool SaveLargeBitmapToFile(HBITMAP hBitmap, LPCWSTR lpszFileName) {
 
 
 //DONT DELETE
-void SaveBitmapToFile(HBITMAP hBitmap, RGBQUAD* palette, const wchar_t* filename) {
+/*void SaveBitmapToFile(HBITMAP hBitmap, RGBQUAD* palette, const wchar_t* filename) {
     BITMAP bmp;
     BITMAPINFOHEADER bi;
     BITMAPFILEHEADER bf;
@@ -2141,7 +2241,7 @@ void SaveBitmapToFile2(HBITMAP hBitmap, RGBQUAD* palette, const wchar_t* filenam
     free(rleData);
     //printf("drawn\n");
 }
-
+*/
 
 
 
@@ -2347,7 +2447,7 @@ void SetTexturePalette(int target_color_id,RGBQUAD *myTexturePalette) {
 }
 
 
-HBITMAP FlipLargeBitmapVertically(HDC hdc, HBITMAP hBitmap)
+/*HBITMAP FlipLargeBitmapVertically(HDC hdc, HBITMAP hBitmap)
 {
 //ACHTUNG! only works with 32 bit bitmap
     if (!hBitmap) return NULL;
@@ -2403,6 +2503,6 @@ HBITMAP FlipLargeBitmapVertically(HDC hdc, HBITMAP hBitmap)
     free(pPixels);
     free(pFlipped);
     return hFlipped;
-}
+}*/
 
 
