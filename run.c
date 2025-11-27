@@ -453,24 +453,12 @@ int prelude_sprite_jid=0;
 int prelude_sprite_id=0;
 
 
-void InitSpriteAndCanvas(DRAWSPRITE *target_sprite, DRAWSPRITE *target_dithered_sprite, HBITMAP canvas,HBITMAP loaded_sprite)
-{
-  BITMAP bmp;
-  GetObject(loaded_sprite,sizeof(BITMAP),&bmp);
-  int osize=bmp.bmWidth;
-  BitBlt8BitTransparent(canvas, 0,0, osize,osize, loaded_sprite, 0, 0, BROWN, FALSE);
-  ReplaceBitmapColor2(canvas,LTGREEN,YELLOW,BLACK,LTGREEN);
-  ReplaceBitmapColor(canvas,YELLOW,BLACK);
-  GenerateDrawSpriteII(target_sprite,canvas,loaded_sprite);
-
-  DitherBitmapColor(canvas,-1,BLACK);
-  GenerateDrawSpriteII(target_dithered_sprite,canvas,loaded_sprite);
-}
-
-
 void Prelude()
 {
   if (!prelude_clouds_loaded) {
+    //PreludeLoadCloudBackgroundSprite();
+
+
   //Load Enemy Rotated Sprite
   //note: tmp_sprite1, may cause issues with memory
   } else {
@@ -480,38 +468,47 @@ void Prelude()
   //for (int j=0;j<4;j++) {
     //for (int i=0;i<ROTATED_SPRITE_NUM;i++) {
   if (i==0 && j==0) {
+    InitPlayerSpritesAll();
 
-    //Create Mask for clouds
-    GameCloudsBackground.sprite_mask1=CreateBitmapMask(GameCloudsBackground.sprite_paint1,YELLOW,NULL);
-    GameCloudsBackground.sprite_mask2=CreateBitmapMask(GameCloudsBackground.sprite_paint2,YELLOW,NULL);
-
-    small_entity_canvas=CreateCrunchyBitmap(64,-64);
-    large_entity_canvas=CreateCrunchyBitmap(200,-200);
-    giant_entity_canvas=CreateCrunchyBitmap(256,-256);
     //load enemy fly sprites
     for (int g=0;g<5;g++) {
-       switch (g) {
+      switch (g) {
         case 0: //mosquito
-           InitSpriteAndCanvas(&LoadEnemyFlySprite[g].draw_fly_sprite_1,&LoadEnemyFlySprite[g].draw_dithered_fly_sprite_1,small_entity_canvas,enemy1_sprite_1);
-           InitSpriteAndCanvas(&LoadEnemyFlySprite[g].draw_fly_sprite_2,&LoadEnemyFlySprite[g].draw_dithered_fly_sprite_2,small_entity_canvas,enemy1_sprite_2);
+          LoadEnemyFlySprite[g].prelude_tmp_sprite1=GetRotated8BitBitmap(enemy1_sprite_1,0,LTGREEN);
+          LoadEnemyFlySprite[g].prelude_tmp_sprite2=GetRotated8BitBitmap(enemy1_sprite_2,0,LTGREEN);
           break;
         case 1: //termite
-           InitSpriteAndCanvas(&LoadEnemyFlySprite[g].draw_fly_sprite_1,&LoadEnemyFlySprite[g].draw_dithered_fly_sprite_1,small_entity_canvas,enemy3_sprite_1);
-           InitSpriteAndCanvas(&LoadEnemyFlySprite[g].draw_fly_sprite_2,&LoadEnemyFlySprite[g].draw_dithered_fly_sprite_2,small_entity_canvas,enemy3_sprite_2);
+          LoadEnemyFlySprite[g].prelude_tmp_sprite1=GetRotated8BitBitmap(enemy3_sprite_1,0,LTGREEN);
+          LoadEnemyFlySprite[g].prelude_tmp_sprite2=GetRotated8BitBitmap(enemy3_sprite_2,0,LTGREEN);
           break;
         case 2: //fly
-           InitSpriteAndCanvas(&LoadEnemyFlySprite[g].draw_fly_sprite_1,&LoadEnemyFlySprite[g].draw_dithered_fly_sprite_1,small_entity_canvas,enemy5_sprite_1);
-           InitSpriteAndCanvas(&LoadEnemyFlySprite[g].draw_fly_sprite_2,&LoadEnemyFlySprite[g].draw_dithered_fly_sprite_2,small_entity_canvas,enemy5_sprite_2);
+          LoadEnemyFlySprite[g].prelude_tmp_sprite1=GetRotated8BitBitmap(enemy5_sprite_1,0,LTGREEN);
+          LoadEnemyFlySprite[g].prelude_tmp_sprite2=GetRotated8BitBitmap(enemy5_sprite_2,0,LTGREEN);
           break;
         case 3: //cockroach
-           InitSpriteAndCanvas(&LoadEnemyFlySprite[g].draw_fly_sprite_1,&LoadEnemyFlySprite[g].draw_dithered_fly_sprite_1,large_entity_canvas,enemy2_sprite_3);
-           InitSpriteAndCanvas(&LoadEnemyFlySprite[g].draw_fly_sprite_2,&LoadEnemyFlySprite[g].draw_dithered_fly_sprite_2,large_entity_canvas,enemy2_sprite_4);
+          LoadEnemyFlySprite[g].prelude_tmp_sprite1=GetRotated8BitBitmap(enemy2_sprite_3,0,LTGREEN);
+          LoadEnemyFlySprite[g].prelude_tmp_sprite2=GetRotated8BitBitmap(enemy2_sprite_4,0,LTGREEN);
           break;
         case 4: //toe-biter
-           InitSpriteAndCanvas(&LoadEnemyFlySprite[g].draw_fly_sprite_1,&LoadEnemyFlySprite[g].draw_dithered_fly_sprite_1,giant_entity_canvas,enemy4_sprite_3);
-           InitSpriteAndCanvas(&LoadEnemyFlySprite[g].draw_fly_sprite_2,&LoadEnemyFlySprite[g].draw_dithered_fly_sprite_2,giant_entity_canvas,enemy4_sprite_4);
+          LoadEnemyFlySprite[g].prelude_tmp_sprite1=GetRotated8BitBitmap(enemy4_sprite_3,0,LTGREEN);
+          LoadEnemyFlySprite[g].prelude_tmp_sprite2=GetRotated8BitBitmap(enemy4_sprite_4,0,LTGREEN);
           break;
       }
+
+      //ReplaceBitmapColor(LoadEnemyFlySprite[g].prelude_tmp_sprite1,LTBLUE,LTGREEN);
+      //ReplaceBitmapColor(LoadEnemyFlySprite[g].prelude_tmp_sprite2,LTBLUE,LTGREEN);
+
+      ReplaceBitmapColor2(LoadEnemyFlySprite[g].prelude_tmp_sprite1,LTGREEN,BLACK,8,LTGREEN); //8 due to pureblack reserved for mask
+      ReplaceBitmapColor2(LoadEnemyFlySprite[g].prelude_tmp_sprite2,LTGREEN,BLACK,8,LTGREEN);
+
+      GenerateDrawSprite(&LoadEnemyFlySprite[g].draw_fly_sprite_1,LoadEnemyFlySprite[g].prelude_tmp_sprite1);
+      GenerateDrawSprite(&LoadEnemyFlySprite[g].draw_fly_sprite_2,LoadEnemyFlySprite[g].prelude_tmp_sprite2);
+
+      //create dithered rotated sprite
+      DitherBitmapColor(LoadEnemyFlySprite[g].prelude_tmp_sprite1,-1,BLACK);
+      DitherBitmapColor(LoadEnemyFlySprite[g].prelude_tmp_sprite2,-1,BLACK);
+      GenerateDrawSprite(&LoadEnemyFlySprite[g].draw_dithered_fly_sprite_1,LoadEnemyFlySprite[g].prelude_tmp_sprite1);
+      GenerateDrawSprite(&LoadEnemyFlySprite[g].draw_dithered_fly_sprite_2,LoadEnemyFlySprite[g].prelude_tmp_sprite2);
     }
   }
 
@@ -519,48 +516,85 @@ void Prelude()
     angle_rn=M_PI_2-M_PI_16*i;
     switch (j) {
       case 0: //cockroach
-        InitRotatedSpriteAndCanvas(&LoadEnemyRotatedSprite[j].draw_rotated_sprite1[i],&LoadEnemyRotatedSprite[j].draw_dithered_rotated_sprite1[i],large_entity_canvas,enemy2_sprite_1,angle_rn);
+        LoadEnemyRotatedSprite[j].prelude_tmp_sprite1[i]=
+          GetRotated8BitBitmap(enemy2_sprite_1,angle_rn,LTGREEN);
         loading_numerator++;
 
-        InitRotatedSpriteAndCanvas(&LoadEnemyRotatedSprite[j].draw_rotated_sprite2[i],&LoadEnemyRotatedSprite[j].draw_dithered_rotated_sprite2[i],large_entity_canvas,enemy2_sprite_2,angle_rn);
+        LoadEnemyRotatedSprite[j].prelude_tmp_sprite2[i]=
+          GetRotated8BitBitmap(enemy2_sprite_2,angle_rn,LTGREEN);
         loading_numerator++;
 
         enemy_rotated_angle_arr[i]=angle_rn;
         break;
       case 1: //toe biter part 1
-        InitRotatedSpriteAndCanvas(&LoadEnemyRotatedSprite[j].draw_rotated_sprite1[i],&LoadEnemyRotatedSprite[j].draw_dithered_rotated_sprite1[i],giant_entity_canvas,enemy4_sprite_1,angle_rn);
-        loading_numerator++;
+        LoadEnemyRotatedSprite[j].prelude_tmp_sprite1[i]=
+          GetRotated8BitBitmap(enemy4_sprite_1,angle_rn,LTGREEN);
+         loading_numerator++;
 
-        InitRotatedSpriteAndCanvas(&LoadEnemyRotatedSprite[j].draw_rotated_sprite2[i],&LoadEnemyRotatedSprite[j].draw_dithered_rotated_sprite2[i],giant_entity_canvas,enemy4_sprite_2,angle_rn);
+        LoadEnemyRotatedSprite[j].prelude_tmp_sprite2[i]=
+          GetRotated8BitBitmap(enemy4_sprite_2,angle_rn,LTGREEN);
         loading_numerator++;
         break;
       case 2: //ants
-        InitRotatedSpriteAndCanvas(&LoadEnemyRotatedSprite[j].draw_rotated_sprite1[i],&LoadEnemyRotatedSprite[j].draw_dithered_rotated_sprite1[i],small_entity_canvas,enemy6_sprite_1,angle_rn);
+        LoadEnemyRotatedSprite[j].prelude_tmp_sprite1[i]=
+          GetRotated8BitBitmap(enemy6_sprite_1,angle_rn,LTGREEN);
         loading_numerator++;
 
-        InitRotatedSpriteAndCanvas(&LoadEnemyRotatedSprite[j].draw_rotated_sprite2[i],&LoadEnemyRotatedSprite[j].draw_dithered_rotated_sprite2[i],small_entity_canvas,enemy6_sprite_2,angle_rn);
+        LoadEnemyRotatedSprite[j].prelude_tmp_sprite2[i]=
+          GetRotated8BitBitmap(enemy6_sprite_2,angle_rn,LTGREEN);
         loading_numerator++;
         break;
       case 3: //toe biter part 2
-        InitRotatedSpriteAndCanvas(&XLoadEnemyRotatedSprite[0].draw_rotated_sprite[i],&XLoadEnemyRotatedSprite[0].draw_dithered_rotated_sprite[i],giant_entity_canvas,enemy4_sprite_1_0,angle_rn);
+        XLoadEnemyRotatedSprite[0].prelude_tmp_sprite[i]=
+          GetRotated8BitBitmap(enemy4_sprite_1_0,angle_rn,LTGREEN);
         loading_numerator++;
         break;
     }
 
+
+    if (j<3) {
+      //ReplaceBitmapColor(LoadEnemyRotatedSprite[j].prelude_tmp_sprite1[i],LTBLUE,LTGREEN);
+      //ReplaceBitmapColor(LoadEnemyRotatedSprite[j].prelude_tmp_sprite2[i],LTBLUE,LTGREEN);
+
+
+      ReplaceBitmapColor2(LoadEnemyRotatedSprite[j].prelude_tmp_sprite1[i],LTGREEN,BLACK,8,LTGREEN); //8 due to pureblack reserved for mask
+      ReplaceBitmapColor2(LoadEnemyRotatedSprite[j].prelude_tmp_sprite2[i],LTGREEN,BLACK,8,LTGREEN);
+        //if (j==0 && i==11) {
+          //myTmpEnemyDrawSprite=CopyCrunchyBitmap(tmp_sprite1,SRCCOPY);
+        //}
+      GenerateDrawSprite(&LoadEnemyRotatedSprite[j].draw_rotated_sprite1[i],LoadEnemyRotatedSprite[j].prelude_tmp_sprite1[i]);
+      GenerateDrawSprite(&LoadEnemyRotatedSprite[j].draw_rotated_sprite2[i],LoadEnemyRotatedSprite[j].prelude_tmp_sprite2[i]);
+      //create dithered rotated sprite
+      DitherBitmapColor(LoadEnemyRotatedSprite[j].prelude_tmp_sprite1[i],-1,BLACK);
+      DitherBitmapColor(LoadEnemyRotatedSprite[j].prelude_tmp_sprite2[i],-1,BLACK);
+      GenerateDrawSprite(&LoadEnemyRotatedSprite[j].draw_dithered_rotated_sprite1[i],LoadEnemyRotatedSprite[j].prelude_tmp_sprite1[i]);
+      GenerateDrawSprite(&LoadEnemyRotatedSprite[j].draw_dithered_rotated_sprite2[i],LoadEnemyRotatedSprite[j].prelude_tmp_sprite2[i]);
+
+
+      //DeleteObject(tmp_sprite2);
+      //DeleteObject(tmp_sprite1);
+      //printf("%d/%d %1.0f/%1.0f\n",i,j,loading_numerator,loading_denominator);
+    } else { //j==3, xtra sprites
+      //ReplaceBitmapColor(XLoadEnemyRotatedSprite[0].prelude_tmp_sprite[i],LTBLUE,LTGREEN);
+      ReplaceBitmapColor2(XLoadEnemyRotatedSprite[0].prelude_tmp_sprite[i],LTGREEN,BLACK,8,LTGREEN);
+      GenerateDrawSprite(&XLoadEnemyRotatedSprite[0].draw_rotated_sprite[i],XLoadEnemyRotatedSprite[0].prelude_tmp_sprite[i]);
+      //create dithered rotated sprite
+      DitherBitmapColor(XLoadEnemyRotatedSprite[0].prelude_tmp_sprite[i],-1,BLACK);
+      GenerateDrawSprite(&XLoadEnemyRotatedSprite[0].draw_dithered_rotated_sprite[i],XLoadEnemyRotatedSprite[0].prelude_tmp_sprite[i]);
+      //DeleteObject(tmp_sprite1);
+      //printf("%1.0f/%1.0f xsprite:%d\n",loading_numerator,loading_denominator,i);
+      //create dithered rotated sprite
+
+    }
+    //}
+  //} 
     prelude_sprite_id++;
     if (i>=ROTATED_SPRITE_NUM-1) {
       prelude_sprite_id=0;
       prelude_sprite_jid++;
     }
   }
-
-
   }
-  if (prelude_sprite_jid==4) {
-    InitPlayerSpritesAll();
-    prelude_sprite_jid++;
-  }
-
   //printf("%1.0f/%1.0f\n",loading_numerator,loading_denominator);
 }
 
@@ -2268,11 +2302,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       //Load Enemy Sprites
       enemy1_sprite_1 = LoadRLE8CompressedBitmap(L"sprites/enemy1-1.bmp");
-
-      //BITMAP bmprinttest;
-      //GetObject(enemy1_sprite_1 ,sizeof(bmprinttest),&bmprinttest);
-      //printf("enemy1_sprite_1 bits:%d\n",bmprinttest.bmBitsPixel);
-
       enemy1_sprite_2 = LoadRLE8CompressedBitmap(L"sprites/enemy1-2.bmp");
 
       enemy2_sprite_1 = LoadRLE8CompressedBitmap(L"sprites/enemy2-1.bmp");
@@ -2338,8 +2367,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         swprintf(fname,32,L"sprites/player_cursor%d.bmp",i);
         player_cursor[i]=LoadRLE8CompressedBitmap(fname);
         player_cursor_cache[i]=CopyCrunchyBitmap(player_cursor[i],SRCCOPY);
-        ReplaceBitmapColor2(player_cursor_cache[i],LTGREEN,YELLOW,BLACK,LTGREEN);
-        ReplaceBitmapColor(player_cursor_cache[i],YELLOW,BLACK);
+        ReplaceBitmapColor2(player_cursor_cache[i],LTGREEN,BLACK,8,LTGREEN);
         GenerateDrawSprite(&draw_player_cursor[i],player_cursor_cache[i]);
       }
 

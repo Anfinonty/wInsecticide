@@ -758,7 +758,7 @@ void DrawMusicWav(HDC hdc)
     }
 
 
-  GrRect(hdc,0,0,GR_WIDTH+1,GR_HEIGHT+1,rgbPaint[djbgcolor]);
+  GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,rgbPaint[djbgcolor]);
 
   int z_m=2;
   float z_m_height=0.006; //taller when 1 playing, shorter when 2 playing
@@ -1012,19 +1012,6 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
     DrawMusicWav(hdc);
   }
 
-
-  //debugging stuff with loading bitmaps
-  /*SelectObject(hdc2,LoadPlayerSprite.sprite_2);
-  BitBlt(hdc,0,64,32,32,hdc2,0,0,SRCCOPY);*/
-
-  /*SelectObject(hdc2,PlayerSpriteCanvas[0].canvas);
-  BitBlt(hdc,0,0,64,64,hdc2,0,0,SRCCOPY);
-
-  SelectObject(hdc2,PlayerSprite[0].sprite_1[0].sprite_paint);
-  BitBlt(hdc,0,64,32,32,hdc2,0,0,SRCCOPY);
-
-  SelectObject(hdc2,LoadPlayerSprite.sprite_1);
-  BitBlt(hdc,0,128,32,32,hdc2,0,0,SRCCOPY);*/
 
   int main_menu_y=0;
   int main_menu_y2=0;
@@ -1570,7 +1557,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
 
     case 2: //Create New Level 
     case 3:
-       GrRect(hdc,0,0,GR_WIDTH+1,GR_HEIGHT+1,BLACK);
+       GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,BLACK);
       if (main_menu_chosen==2)
         GrPrint(hdc,30,main_menu_y+10+16*2,"Create New Level",WHITE);
       else

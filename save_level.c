@@ -266,7 +266,7 @@ void SaveLvlBmpSegmentation1(HWND hwnd,HDC hdc,const wchar_t* lvl_name)
 
 
   //shadow platforms, water excluded from shadow
-  /*if ((hwnd==NULL) || 
+  if ((hwnd==NULL) || 
         (MapEditor.set_lvl_ambient_val[6]==1 && 
         (MapEditor.set_lvl_ambient_val[7]!=shadow_grad_rise || MapEditor.set_lvl_ambient_val[8]!=shadow_grad_run))) {
       hdc1=CreateCompatibleDC(hdc);
@@ -293,7 +293,7 @@ void SaveLvlBmpSegmentation1(HWND hwnd,HDC hdc,const wchar_t* lvl_name)
       }
       DeleteDC(hdc1);
       DeleteObject(map_platforms_shadow_shader);
-  }*/
+  }
   if (hwnd!=NULL) {
     EndPaint(hwnd, &ps);
   }

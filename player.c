@@ -173,22 +173,9 @@ void PlayerActPlaceWeb(int bm_x1,int bm_y1,int bm_x2,int bm_y2)
   }
 }
 
-void InitRotatedSpriteAndCanvas(DRAWSPRITE *target_sprite, DRAWSPRITE *target_dithered_sprite, HBITMAP canvas, HBITMAP loaded_sprite,float radians)
-{
-    //create rotated sprite
-    RotateBitBlt8Bit(canvas, loaded_sprite, radians, 167, canvas);
-    ReplaceBitmapColor2(canvas,LTGREEN,YELLOW,BLACK,LTGREEN);
-    ReplaceBitmapColor(canvas,YELLOW,BLACK);
-    GenerateDrawSpriteIII(target_sprite,canvas,radians,loaded_sprite);
-
-    //Craete dithhered roated sprite
-    DitherBitmapColor(canvas,-1,BLACK);
-    GenerateDrawSpriteIII(target_dithered_sprite,canvas,radians,loaded_sprite); 
-}
-
 void InitPlayerSpritesAll()
 {
-  //HBITMAP tmp_bitmap;
+  HBITMAP tmp_bitmap;
 
   //bee_sprite
   /*tmp_bitmap=CopyCrunchyBitmap(LoadPlayerSprite.sprite_bee_1,SRCCOPY);
@@ -210,25 +197,29 @@ void InitPlayerSpritesAll()
   ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
   GenerateDrawSprite(&PlayerSprite[0].sprite_bee_aero_2,tmp_bitmap);
   DeleteObject(tmp_bitmap);*/
-  
-  //SpiderSprite
-  BitBlt8BitTransparent(small_entity_canvas, 0,0, 32,32, LoadPlayerSprite.sprite_jump, 0, 0, BROWN, FALSE);
-  ReplaceBitmapColor2(small_entity_canvas,LTGREEN,YELLOW,BLACK,LTGREEN);
-  ReplaceBitmapColor(small_entity_canvas,YELLOW,BLACK);
-  GenerateDrawSpriteII(&PlayerSprite[0].sprite_jump,small_entity_canvas,LoadPlayerSprite.sprite_jump);
 
-  DitherBitmapColor(small_entity_canvas,-1,BLACK);
-  GenerateDrawSpriteII(&PlayerSprite[0].dithered_sprite_jump,small_entity_canvas,LoadPlayerSprite.sprite_jump);
 
-  //spiderSprite - blur sprite jump
-  BitBlt8BitTransparent(small_entity_canvas, 0,0, 32,32, LoadPlayerSprite.sprite_jump, 0, 0, BROWN, FALSE);
-  ReplaceBitmapColor2(small_entity_canvas,LTGREEN,YELLOW,BLACK,LTGREEN); //set backgroudn as yellow, set player to ltgreen
-  ReplaceBitmapColor(small_entity_canvas,YELLOW,BLACK); //set yellow background as black
-  DitherBitmapColor(small_entity_canvas,LTBLUE,BLACK); //dither borders black
-  ReplaceBitmapColor(small_entity_canvas,LTBLUE,LTRED); //change remaining borders to iris color
-  DitherBitmapColor(small_entity_canvas,LTGREEN,BLACK); //dither player sprite
-  GenerateDrawSpriteII(&PlayerSprite[0].blur_sprite_jump,small_entity_canvas,LoadPlayerSprite.sprite_jump);
+  //spider sprite
+  tmp_bitmap=CopyCrunchyBitmap(LoadPlayerSprite.sprite_jump,SRCCOPY);
+  ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+  GenerateDrawSprite(&PlayerSprite[0].sprite_jump,tmp_bitmap);
 
+  //create ditehred sprite
+  DitherBitmapColor(tmp_bitmap,-1,BLACK);
+  GenerateDrawSprite(&PlayerSprite[0].dithered_sprite_jump,tmp_bitmap);
+
+  DeleteObject(tmp_bitmap);
+
+
+  tmp_bitmap=CopyCrunchyBitmap(LoadPlayerSprite.sprite_jump,SRCCOPY);
+  ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+  //ReplaceBitmapColor(tmp_bitmap,LTBLUE,BLACK); //remove border
+  DitherBitmapColor(tmp_bitmap,LTBLUE,BLACK);
+  ReplaceBitmapColor(tmp_bitmap,LTBLUE,LTRED);
+
+  DitherBitmapColor(tmp_bitmap,LTGREEN,BLACK);
+  GenerateDrawSprite(&PlayerSprite[0].blur_sprite_jump,tmp_bitmap);
+  DeleteObject(tmp_bitmap);
 
 
   for (int i=0;i<4;i++) {
@@ -239,17 +230,26 @@ void InitPlayerSpritesAll()
       case 2:t_angle=0.1+M_PI;break;
       case 3:t_angle=0.1+M_PI+M_PI_2;break;
     }
+    tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.spin_sprite,t_angle,BLACK);
+    ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+    GenerateDrawSprite(&PlayerSprite[0].spin_sprite[i],tmp_bitmap);
 
-    InitRotatedSpriteAndCanvas(&PlayerSprite[0].spin_sprite[i],&PlayerSprite[0].dithered_spin_sprite[i],small_entity_canvas,LoadPlayerSprite.spin_sprite, t_angle);
+    //create ditehred sprite
+    DitherBitmapColor(tmp_bitmap,-1,BLACK);
+    GenerateDrawSprite(&PlayerSprite[0].dithered_spin_sprite[i],tmp_bitmap);
 
-    //create blur sprite
-    RotateBitBlt8Bit(small_entity_canvas, LoadPlayerSprite.spin_sprite, t_angle, 167, small_entity_canvas);
-    ReplaceBitmapColor2(small_entity_canvas,LTGREEN,YELLOW,BLACK,LTGREEN);
-    ReplaceBitmapColor(small_entity_canvas,YELLOW,BLACK);
-    DitherBitmapColor(small_entity_canvas,LTBLUE,BLACK);
-    ReplaceBitmapColor(small_entity_canvas,LTBLUE,LTRED);
-    DitherBitmapColor(small_entity_canvas,LTGREEN,BLACK);
-    GenerateDrawSpriteIII(&PlayerSprite[0].blur_spin_sprite[i],small_entity_canvas,t_angle,LoadPlayerSprite.spin_sprite);
+    DeleteObject(tmp_bitmap);
+
+
+    tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.spin_sprite,t_angle,BLACK);
+    ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+    //ReplaceBitmapColor(tmp_bitmap,LTBLUE,BLACK); //remove border
+    DitherBitmapColor(tmp_bitmap,LTBLUE,BLACK);
+    ReplaceBitmapColor(tmp_bitmap,LTBLUE,LTRED);
+
+    DitherBitmapColor(tmp_bitmap,LTGREEN,BLACK);
+    GenerateDrawSprite(&PlayerSprite[0].blur_spin_sprite[i],tmp_bitmap);
+    DeleteObject(tmp_bitmap);
   }
 
 
@@ -257,47 +257,119 @@ void InitPlayerSpritesAll()
   float angle_rn;
   for (int i=0;i<PLAYER_ROTATED_SPRITE_NUM;i++) {
     angle_rn=M_PI_2-M_PI_32*i;
-    InitRotatedSpriteAndCanvas(&PlayerSprite[0].sprite_1[i],&PlayerSprite[0].dithered_sprite_1[i],small_entity_canvas,LoadPlayerSprite.sprite_1, angle_rn);    
+    tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.sprite_1,angle_rn,LTGREEN);
+    ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+    GenerateDrawSprite(&PlayerSprite[0].sprite_1[i],tmp_bitmap);
+
+    //create ditehred sprite
+    DitherBitmapColor(tmp_bitmap,-1,BLACK);
+    GenerateDrawSprite(&PlayerSprite[0].dithered_sprite_1[i],tmp_bitmap);
+
+    DeleteObject(tmp_bitmap);
   }
 
   for (int i=0;i<PLAYER_ROTATED_SPRITE_NUM;i++) {
     angle_rn=M_PI_2-M_PI_32*i;
-    InitRotatedSpriteAndCanvas(&PlayerSprite[0].sprite_2[i],&PlayerSprite[0].dithered_sprite_2[i],small_entity_canvas,LoadPlayerSprite.sprite_2, angle_rn);
+    tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.sprite_2,angle_rn,BLACK);
+    ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+    GenerateDrawSprite(&PlayerSprite[0].sprite_2[i],tmp_bitmap);
+
+    //create ditehred sprite
+    DitherBitmapColor(tmp_bitmap,-1,BLACK);
+    GenerateDrawSprite(&PlayerSprite[0].dithered_sprite_2[i],tmp_bitmap);
+
+    DeleteObject(tmp_bitmap);
   }
 
   for (int i=0;i<PLAYER_ROTATED_SPRITE_NUM;i++) {
     angle_rn=M_PI_2-M_PI_32*i;
-    InitRotatedSpriteAndCanvas(&PlayerSprite[0].attack_sprite_1[i],&PlayerSprite[0].dithered_attack_sprite_1[i],small_entity_canvas,LoadPlayerSprite.attack_sprite_1, angle_rn);
+    tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.attack_sprite_1,angle_rn,BLACK);
+    ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+    GenerateDrawSprite(&PlayerSprite[0].attack_sprite_1[i],tmp_bitmap);
+
+    //create ditehred sprite
+    DitherBitmapColor(tmp_bitmap,-1,BLACK);
+    GenerateDrawSprite(&PlayerSprite[0].dithered_attack_sprite_1[i],tmp_bitmap);
+
+    DeleteObject(tmp_bitmap);
   }
 
   for (int i=0;i<PLAYER_ROTATED_SPRITE_NUM;i++) {
     angle_rn=M_PI_2-M_PI_32*i;
-    InitRotatedSpriteAndCanvas(&PlayerSprite[0].attack_sprite_2[i],&PlayerSprite[0].dithered_attack_sprite_2[i],small_entity_canvas,LoadPlayerSprite.attack_sprite_2, angle_rn);
+    tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.attack_sprite_2,angle_rn,BLACK);
+    ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+    GenerateDrawSprite(&PlayerSprite[0].attack_sprite_2[i],tmp_bitmap);
+
+    //create ditehred sprite
+    DitherBitmapColor(tmp_bitmap,-1,BLACK);
+    GenerateDrawSprite(&PlayerSprite[0].dithered_attack_sprite_2[i],tmp_bitmap);
+
+    DeleteObject(tmp_bitmap);
   }
 
   for (int i=0;i<PLAYER_ROTATED_SPRITE_NUM;i++) {
     angle_rn=M_PI_2-M_PI_32*i;
-    InitRotatedSpriteAndCanvas(&PlayerSprite[0].attack_sprite_3[i],&PlayerSprite[0].dithered_attack_sprite_3[i],small_entity_canvas,LoadPlayerSprite.attack_sprite_3, angle_rn);
+    tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.attack_sprite_3,angle_rn,BLACK);
+    ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+    GenerateDrawSprite(&PlayerSprite[0].attack_sprite_3[i],tmp_bitmap);
+
+    //create ditehred sprite
+    DitherBitmapColor(tmp_bitmap,-1,BLACK);
+    GenerateDrawSprite(&PlayerSprite[0].dithered_attack_sprite_3[i],tmp_bitmap);
+
+    DeleteObject(tmp_bitmap);
   }
 
   for (int i=0;i<PLAYER_ROTATED_SPRITE_NUM;i++) {
     angle_rn=M_PI_2-M_PI_32*i;
-    InitRotatedSpriteAndCanvas(&PlayerSprite[0].attack_sprite_4[i],&PlayerSprite[0].dithered_attack_sprite_4[i],small_entity_canvas,LoadPlayerSprite.attack_sprite_4, angle_rn);
+    tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.attack_sprite_4,angle_rn,BLACK);
+    ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+    GenerateDrawSprite(&PlayerSprite[0].attack_sprite_4[i],tmp_bitmap);
+
+    //create ditehred sprite
+    DitherBitmapColor(tmp_bitmap,-1,BLACK);
+    GenerateDrawSprite(&PlayerSprite[0].dithered_attack_sprite_4[i],tmp_bitmap);
+
+    DeleteObject(tmp_bitmap);
   }
 
   for (int i=0;i<PLAYER_ROTATED_SPRITE_NUM;i++) {
     angle_rn=M_PI_2-M_PI_32*i;
-    InitRotatedSpriteAndCanvas(&PlayerSprite[0].block_sprite_1[i],&PlayerSprite[0].dithered_block_sprite_1[i],small_entity_canvas,LoadPlayerSprite.block_sprite_1, angle_rn);
+    tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.block_sprite_1,angle_rn,BLACK);
+    ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+    GenerateDrawSprite(&PlayerSprite[0].block_sprite_1[i],tmp_bitmap);
+
+    //create ditehred sprite
+    DitherBitmapColor(tmp_bitmap,-1,BLACK);
+    GenerateDrawSprite(&PlayerSprite[0].dithered_block_sprite_1[i],tmp_bitmap);
+
+    DeleteObject(tmp_bitmap);
   }
 
   for (int i=0;i<PLAYER_ROTATED_SPRITE_NUM;i++) {
     angle_rn=M_PI_2-M_PI_32*i;
-    InitRotatedSpriteAndCanvas(&PlayerSprite[0].block_sprite_2[i],&PlayerSprite[0].dithered_block_sprite_2[i],small_entity_canvas,LoadPlayerSprite.block_sprite_2, angle_rn);
+    tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.block_sprite_2,angle_rn,BLACK);
+    ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+    GenerateDrawSprite(&PlayerSprite[0].block_sprite_2[i],tmp_bitmap);
+
+    //create ditehred sprite
+    DitherBitmapColor(tmp_bitmap,-1,BLACK);
+    GenerateDrawSprite(&PlayerSprite[0].dithered_block_sprite_2[i],tmp_bitmap);
+
+    DeleteObject(tmp_bitmap);
   }
 
   for (int i=0;i<PLAYER_ROTATED_SPRITE_NUM;i++) {
     angle_rn=M_PI_2-M_PI_32*i;
-    InitRotatedSpriteAndCanvas(&PlayerSprite[0].block_sprite_3[i],&PlayerSprite[0].dithered_block_sprite_3[i],small_entity_canvas,LoadPlayerSprite.block_sprite_3, angle_rn);
+    tmp_bitmap=GetRotated8BitBitmap(LoadPlayerSprite.block_sprite_3,angle_rn,BLACK);
+    ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
+    GenerateDrawSprite(&PlayerSprite[0].block_sprite_3[i],tmp_bitmap);
+
+    //create ditehred sprite
+    DitherBitmapColor(tmp_bitmap,-1,BLACK);
+    GenerateDrawSprite(&PlayerSprite[0].dithered_block_sprite_3[i],tmp_bitmap);
+
+    DeleteObject(tmp_bitmap);
   }
 
 
@@ -2496,8 +2568,7 @@ void PlayerAct()
       //}
       if (allow_act) {
         player.blocking=TRUE;
-        if (player.block_timer<30)
-          player.attack=TRUE;
+        player.attack=TRUE;
         //player.attack_timer=40;
       } else {
         player.blocking=FALSE;
