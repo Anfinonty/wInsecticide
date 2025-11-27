@@ -433,7 +433,7 @@ void EnemySpriteOnGroundId(int enemy_id,int ground_id)
         Enemy[enemy_id]->in_air_timer=0;
         Enemy[enemy_id]->flying_timer=0;
         Enemy[enemy_id]->force_fall=FALSE;
-        if (height_from_ground>0) {    //species 1 above ground (positive)
+        if (height_from_ground>-5) {    //species 1 above ground (positive)
           Enemy[enemy_id]->angle=Ground[ground_id]->angle;
           Enemy[enemy_id]->above_ground=TRUE;
           Enemy[enemy_id]->below_ground=FALSE;

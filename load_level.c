@@ -131,8 +131,8 @@ void Init() { //Repeatable
   //Initialize Level
   InitClouds();
   InitSun();
-  InitStars();
-  InitMoon();
+  InitStars(); //<----change
+  InitMoon(); //<----change
   InitBullet(BULLET_NUM);
   InitGrid();
   InitNodeGrid();

@@ -1,16 +1,4 @@
 
-/*bool IsInvertedBackground()
-{
-  if (map_background==1) {
-    return TRUE;
-  } else if (is_inverted && map_background==2) {
-    return TRUE;
-  }
-  return FALSE;
-}*/
-
-
-
 bool IsSpeedBreaking()
 {
   if (player.sleep_timer==SLOWDOWN_SLEEP_TIMER) {
@@ -186,6 +174,10 @@ void InitRotatedSpriteAndCanvas(DRAWSPRITE *target_sprite, DRAWSPRITE *target_di
     GenerateDrawSpriteIII(target_dithered_sprite,canvas,radians,loaded_sprite); 
 }
 
+
+int prelude_player_step=0;
+int prelude_player_step_i=-1;//transitioning from step 0 to step 1, 0 has to be included
+
 void InitPlayerSpritesAll()
 {
   //HBITMAP tmp_bitmap;
@@ -210,106 +202,124 @@ void InitPlayerSpritesAll()
   ReplaceBitmapColor2(tmp_bitmap,LTGREEN,BLACK,8,LTGREEN);
   GenerateDrawSprite(&PlayerSprite[0].sprite_bee_aero_2,tmp_bitmap);
   DeleteObject(tmp_bitmap);*/
-  
-  //SpiderSprite
-  BitBlt8BitTransparent(small_entity_canvas, 0,0, 32,32, LoadPlayerSprite.sprite_jump, 0, 0, BROWN, FALSE);
-  ReplaceBitmapColor2(small_entity_canvas,LTGREEN,YELLOW,BLACK,LTGREEN);
-  ReplaceBitmapColor(small_entity_canvas,YELLOW,BLACK);
-  GenerateDrawSpriteII(&PlayerSprite[0].sprite_jump,small_entity_canvas,LoadPlayerSprite.sprite_jump);
-
-  DitherBitmapColor(small_entity_canvas,-1,BLACK);
-  GenerateDrawSpriteII(&PlayerSprite[0].dithered_sprite_jump,small_entity_canvas,LoadPlayerSprite.sprite_jump);
-
-  //spiderSprite - blur sprite jump
-  BitBlt8BitTransparent(small_entity_canvas, 0,0, 32,32, LoadPlayerSprite.sprite_jump, 0, 0, BROWN, FALSE);
-  ReplaceBitmapColor2(small_entity_canvas,LTGREEN,YELLOW,BLACK,LTGREEN); //set backgroudn as yellow, set player to ltgreen
-  ReplaceBitmapColor(small_entity_canvas,YELLOW,BLACK); //set yellow background as black
-  DitherBitmapColor(small_entity_canvas,LTBLUE,BLACK); //dither borders black
-  ReplaceBitmapColor(small_entity_canvas,LTBLUE,LTRED); //change remaining borders to iris color
-  DitherBitmapColor(small_entity_canvas,LTGREEN,BLACK); //dither player sprite
-  GenerateDrawSpriteII(&PlayerSprite[0].blur_sprite_jump,small_entity_canvas,LoadPlayerSprite.sprite_jump);
-
-
-
-  for (int i=0;i<4;i++) {
-    float t_angle;
-    switch (i) {
-      case 0:t_angle=0.1;break;
-      case 1:t_angle=0.1+M_PI_2;break;
-      case 2:t_angle=0.1+M_PI;break;
-      case 3:t_angle=0.1+M_PI+M_PI_2;break;
-    }
-
-    InitRotatedSpriteAndCanvas(&PlayerSprite[0].spin_sprite[i],&PlayerSprite[0].dithered_spin_sprite[i],small_entity_canvas,LoadPlayerSprite.spin_sprite, t_angle);
-
-    //create blur sprite
-    RotateBitBlt8Bit(small_entity_canvas, LoadPlayerSprite.spin_sprite, t_angle, 167, small_entity_canvas);
-    ReplaceBitmapColor2(small_entity_canvas,LTGREEN,YELLOW,BLACK,LTGREEN);
-    ReplaceBitmapColor(small_entity_canvas,YELLOW,BLACK);
-    DitherBitmapColor(small_entity_canvas,LTBLUE,BLACK);
-    ReplaceBitmapColor(small_entity_canvas,LTBLUE,LTRED);
-    DitherBitmapColor(small_entity_canvas,LTGREEN,BLACK);
-    GenerateDrawSpriteIII(&PlayerSprite[0].blur_spin_sprite[i],small_entity_canvas,t_angle,LoadPlayerSprite.spin_sprite);
-  }
-
-
-
   float angle_rn;
-  for (int i=0;i<PLAYER_ROTATED_SPRITE_NUM;i++) {
+  float t_angle;
+
+  int i=prelude_player_step_i;
+  int k_max=1;
+  if (prelude_player_step>=2 && prelude_player_step<=10) {
+    k_max=8;    
+  }
+  for (int k=0;k<k_max;k++) {
+
+
+  if (prelude_player_step>=2 && prelude_player_step<=10) {
+    i=prelude_player_step_i;
     angle_rn=M_PI_2-M_PI_32*i;
-    InitRotatedSpriteAndCanvas(&PlayerSprite[0].sprite_1[i],&PlayerSprite[0].dithered_sprite_1[i],small_entity_canvas,LoadPlayerSprite.sprite_1, angle_rn);    
   }
 
-  for (int i=0;i<PLAYER_ROTATED_SPRITE_NUM;i++) {
-    angle_rn=M_PI_2-M_PI_32*i;
-    InitRotatedSpriteAndCanvas(&PlayerSprite[0].sprite_2[i],&PlayerSprite[0].dithered_sprite_2[i],small_entity_canvas,LoadPlayerSprite.sprite_2, angle_rn);
-  }
+  switch (prelude_player_step) {
+    case 0:
+  //spider jump sprites
+      BitBlt8BitTransparent(small_entity_canvas, 0,0, 32,32, LoadPlayerSprite.sprite_jump, 0, 0, BROWN, FALSE);
+      ReplaceBitmapColor2(small_entity_canvas,LTGREEN,YELLOW,BLACK,LTGREEN);
+      ReplaceBitmapColor(small_entity_canvas,YELLOW,BLACK);
+      GenerateDrawSpriteII(&PlayerSprite[0].sprite_jump,small_entity_canvas,LoadPlayerSprite.sprite_jump);
 
-  for (int i=0;i<PLAYER_ROTATED_SPRITE_NUM;i++) {
-    angle_rn=M_PI_2-M_PI_32*i;
-    InitRotatedSpriteAndCanvas(&PlayerSprite[0].attack_sprite_1[i],&PlayerSprite[0].dithered_attack_sprite_1[i],small_entity_canvas,LoadPlayerSprite.attack_sprite_1, angle_rn);
-  }
+      DitherBitmapColor(small_entity_canvas,-1,BLACK);
+      GenerateDrawSpriteII(&PlayerSprite[0].dithered_sprite_jump,small_entity_canvas,LoadPlayerSprite.sprite_jump);
+  
+      //spiderSprite - blur sprite jump
+      BitBlt8BitTransparent(small_entity_canvas, 0,0, 32,32, LoadPlayerSprite.sprite_jump, 0, 0, BROWN, FALSE);
+      ReplaceBitmapColor2(small_entity_canvas,LTGREEN,YELLOW,BLACK,LTGREEN); //set backgroudn as yellow, set player to ltgreen
+      ReplaceBitmapColor(small_entity_canvas,YELLOW,BLACK); //set yellow background as black
+      DitherBitmapColor(small_entity_canvas,LTBLUE,BLACK); //dither borders black
+      ReplaceBitmapColor(small_entity_canvas,LTBLUE,LTRED); //change remaining borders to iris color
+      DitherBitmapColor(small_entity_canvas,LTGREEN,BLACK); //dither player sprite
+      GenerateDrawSpriteII(&PlayerSprite[0].blur_sprite_jump,small_entity_canvas,LoadPlayerSprite.sprite_jump);
+      prelude_player_step++;
+      break;
 
-  for (int i=0;i<PLAYER_ROTATED_SPRITE_NUM;i++) {
-    angle_rn=M_PI_2-M_PI_32*i;
-    InitRotatedSpriteAndCanvas(&PlayerSprite[0].attack_sprite_2[i],&PlayerSprite[0].dithered_attack_sprite_2[i],small_entity_canvas,LoadPlayerSprite.attack_sprite_2, angle_rn);
-  }
+    case 1:
+      switch (i) {
+        case 0:t_angle=0.1;break;
+        case 1:t_angle=0.1+M_PI_2;break;
+        case 2:t_angle=0.1+M_PI;break;
+        case 3:t_angle=0.1+M_PI+M_PI_2;break;
+      }
+      InitRotatedSpriteAndCanvas(&PlayerSprite[0].spin_sprite[i],&PlayerSprite[0].dithered_spin_sprite[i],small_entity_canvas,LoadPlayerSprite.spin_sprite, t_angle);
 
-  for (int i=0;i<PLAYER_ROTATED_SPRITE_NUM;i++) {
-    angle_rn=M_PI_2-M_PI_32*i;
-    InitRotatedSpriteAndCanvas(&PlayerSprite[0].attack_sprite_3[i],&PlayerSprite[0].dithered_attack_sprite_3[i],small_entity_canvas,LoadPlayerSprite.attack_sprite_3, angle_rn);
-  }
+      //create blur sprite
+      RotateBitBlt8Bit(small_entity_canvas, LoadPlayerSprite.spin_sprite, t_angle, 167, small_entity_canvas);
+      ReplaceBitmapColor2(small_entity_canvas,LTGREEN,YELLOW,BLACK,LTGREEN);
+      ReplaceBitmapColor(small_entity_canvas,YELLOW,BLACK);
+      DitherBitmapColor(small_entity_canvas,LTBLUE,BLACK);
+      ReplaceBitmapColor(small_entity_canvas,LTBLUE,LTRED);
+      DitherBitmapColor(small_entity_canvas,LTGREEN,BLACK);
+      GenerateDrawSpriteIII(&PlayerSprite[0].blur_spin_sprite[i],small_entity_canvas,t_angle,LoadPlayerSprite.spin_sprite);
+      break;
 
-  for (int i=0;i<PLAYER_ROTATED_SPRITE_NUM;i++) {
-    angle_rn=M_PI_2-M_PI_32*i;
-    InitRotatedSpriteAndCanvas(&PlayerSprite[0].attack_sprite_4[i],&PlayerSprite[0].dithered_attack_sprite_4[i],small_entity_canvas,LoadPlayerSprite.attack_sprite_4, angle_rn);
-  }
-
-  for (int i=0;i<PLAYER_ROTATED_SPRITE_NUM;i++) {
-    angle_rn=M_PI_2-M_PI_32*i;
-    InitRotatedSpriteAndCanvas(&PlayerSprite[0].block_sprite_1[i],&PlayerSprite[0].dithered_block_sprite_1[i],small_entity_canvas,LoadPlayerSprite.block_sprite_1, angle_rn);
-  }
-
-  for (int i=0;i<PLAYER_ROTATED_SPRITE_NUM;i++) {
-    angle_rn=M_PI_2-M_PI_32*i;
-    InitRotatedSpriteAndCanvas(&PlayerSprite[0].block_sprite_2[i],&PlayerSprite[0].dithered_block_sprite_2[i],small_entity_canvas,LoadPlayerSprite.block_sprite_2, angle_rn);
-  }
-
-  for (int i=0;i<PLAYER_ROTATED_SPRITE_NUM;i++) {
-    angle_rn=M_PI_2-M_PI_32*i;
-    InitRotatedSpriteAndCanvas(&PlayerSprite[0].block_sprite_3[i],&PlayerSprite[0].dithered_block_sprite_3[i],small_entity_canvas,LoadPlayerSprite.block_sprite_3, angle_rn);
-  }
+    case 2:
+      InitRotatedSpriteAndCanvas(&PlayerSprite[0].sprite_1[i],&PlayerSprite[0].dithered_sprite_1[i],small_entity_canvas,LoadPlayerSprite.sprite_1, angle_rn);    
+      break;
+    case 3: 
+      InitRotatedSpriteAndCanvas(&PlayerSprite[0].sprite_2[i],&PlayerSprite[0].dithered_sprite_2[i],small_entity_canvas,LoadPlayerSprite.sprite_2, angle_rn);
+      break;
+    case 4:
+      InitRotatedSpriteAndCanvas(&PlayerSprite[0].attack_sprite_1[i],&PlayerSprite[0].dithered_attack_sprite_1[i],small_entity_canvas,LoadPlayerSprite.attack_sprite_1, angle_rn);
+      break;
+    case 5:
+      InitRotatedSpriteAndCanvas(&PlayerSprite[0].attack_sprite_2[i],&PlayerSprite[0].dithered_attack_sprite_2[i],small_entity_canvas,LoadPlayerSprite.attack_sprite_2, angle_rn);
+      break;
+    case 6:
+      InitRotatedSpriteAndCanvas(&PlayerSprite[0].attack_sprite_3[i],&PlayerSprite[0].dithered_attack_sprite_3[i],small_entity_canvas,LoadPlayerSprite.attack_sprite_3, angle_rn);
+      break;
+    case 7: 
+      InitRotatedSpriteAndCanvas(&PlayerSprite[0].attack_sprite_4[i],&PlayerSprite[0].dithered_attack_sprite_4[i],small_entity_canvas,LoadPlayerSprite.attack_sprite_4, angle_rn);
+      break;
+    case 8:
+      InitRotatedSpriteAndCanvas(&PlayerSprite[0].block_sprite_1[i],&PlayerSprite[0].dithered_block_sprite_1[i],small_entity_canvas,LoadPlayerSprite.block_sprite_1, angle_rn);
+      break;
+    case 9:
+      InitRotatedSpriteAndCanvas(&PlayerSprite[0].block_sprite_2[i],&PlayerSprite[0].dithered_block_sprite_2[i],small_entity_canvas,LoadPlayerSprite.block_sprite_2, angle_rn);
+      break;
+    case 10:
+      InitRotatedSpriteAndCanvas(&PlayerSprite[0].block_sprite_3[i],&PlayerSprite[0].dithered_block_sprite_3[i],small_entity_canvas,LoadPlayerSprite.block_sprite_3, angle_rn);
+      break;
 
 
   //change player color palette
-  CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,rgbColorsDefault,167,rgbPaint[player_color]);
-  CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,PlayerSprite[0].PlayerPalette,151,LTGRAY); //border
-  CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,PlayerSprite[0].PlayerPalette,199,rgbPaint[player_iris_color]);
+    case 11:
+      CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,rgbColorsDefault,167,rgbPaint[player_color]);
+      CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,PlayerSprite[0].PlayerPalette,151,LTGRAY); //border
+      CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,PlayerSprite[0].PlayerPalette,199,rgbPaint[player_iris_color]);
 
-  CopyReplaceColorPalette(PlayerSprite[0].PlayerBlurPalette,rgbColorsDefault,167,rgbPaint[player_color]);
-  CopyReplaceColorPalette(PlayerSprite[0].PlayerBlurPalette,PlayerSprite[0].PlayerBlurPalette,151,LTGRAY); //border
-  CopyReplaceColorPalette(PlayerSprite[0].PlayerBlurPalette,PlayerSprite[0].PlayerBlurPalette,199,rgbPaint[player_pupil_color]);
+      CopyReplaceColorPalette(PlayerSprite[0].PlayerBlurPalette,rgbColorsDefault,167,rgbPaint[player_color]);
+      CopyReplaceColorPalette(PlayerSprite[0].PlayerBlurPalette,PlayerSprite[0].PlayerBlurPalette,151,LTGRAY); //border
+      CopyReplaceColorPalette(PlayerSprite[0].PlayerBlurPalette,PlayerSprite[0].PlayerBlurPalette,199,rgbPaint[player_pupil_color]);
+      break;
+  } //end of switch statement
 
+  if (prelude_player_step>=2 && prelude_player_step<=10) {
+    loading_numerator++;
+    prelude_player_step_i++;
+    if (prelude_player_step_i==PLAYER_ROTATED_SPRITE_NUM) {
+      prelude_player_step++;
+      prelude_player_step_i=0;
+    }
+  }
+  if (prelude_player_step==1) {
+    loading_numerator++;
+    prelude_player_step_i++;
+    if (prelude_player_step_i==4) {
+      prelude_player_step++;
+      prelude_player_step_i=0;
+    }
+  }
+
+
+
+  } //end of for loop
 }
 
 
@@ -1960,7 +1970,7 @@ void PlayerAct()
         speed_limiter=10;
       } else if ((player.fling_distance!=0)) {
         if (player.speed<10) {
-          speed_limiter=6;
+          speed_limiter=8;
         } else if (player.speed<15) {
           speed_limiter=10;
         } else if (player.speed<25) {
@@ -2496,7 +2506,7 @@ void PlayerAct()
       //}
       if (allow_act) {
         player.blocking=TRUE;
-        if (player.block_timer<30)
+        if (player.block_timer<5)
           player.attack=TRUE;
         //player.attack_timer=40;
       } else {
@@ -2968,9 +2978,9 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
     InitPlayerSpritesObjColor(hdc,hdc2);
     InitPlayerCursorColor(hdc,hdc2);
 
-    for (int i=0;i<9;i++) {
+    /*for (int i=0;i<9;i++) {
       BitmapPalette(hdc,hdc2,texture_water[i],waterPalette);
-    }
+    }*/
     for (int i=0;i<PLATFORM_GRID_NUM;i++) {
       BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsDefault);
     }

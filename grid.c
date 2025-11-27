@@ -114,7 +114,7 @@ void DrawCreateTiles(HDC hdc,HDC hdc2)
   int tmp_id;
 
   if (loading_tile_grid_prog==1) {
-    if (is_shadows && game_shadow) {
+    /*if (is_shadows && game_shadow) {
       yes_shadow=TRUE;
     }
     if (yes_shadow) {
@@ -130,11 +130,11 @@ void DrawCreateTiles(HDC hdc,HDC hdc2)
       if (!DirExists(lvl_shadow_folder_name)) {
         flag_display_long_loading=TRUE;
       }
-    }
+    }*/
     loading_tile_grid_prog=2;
     //Draw "Loading shadows. This will take a while..."
   } else if (loading_tile_grid_prog==2) {
-    if (is_shadows && game_shadow) {
+    /*if (is_shadows && game_shadow) {
       yes_shadow=TRUE;
     }
     if (yes_shadow) {
@@ -147,14 +147,14 @@ void DrawCreateTiles(HDC hdc,HDC hdc2)
       wchar_t lvl_shadow_folder_name[128];
       swprintf(lvl_shadow_folder_name,128,L"saves/%ls/seg_shadow",lvl_shadow_name);
 
-      if (!DirExists(lvl_shadow_folder_name)) {
+      /*if (!DirExists(lvl_shadow_folder_name)) {
         SaveLvlBmp(NULL,hdc,lvl_shadow_name);
         InitGridTiles(lvl_shadow_name);
         loading_numerator=0;
-        loading_denominator=SHADOW_GRID_NUM+PLATFORM_GRID_NUM/*+FOREGROUND_GRID_NUM*/;
-        flag_display_long_loading=FALSE;
-      }
-    }
+        loading_denominator=SHADOW_GRID_NUM+PLATFORM_GRID_NUM/*+FOREGROUND_GRID_NUM*///;
+        /*flag_display_long_loading=FALSE;
+      }*/
+    //}
 
     //draw load ptextures
     for (int i=0;i<PLATFORM_TEXTURES_NUM;i++) {
@@ -250,7 +250,7 @@ void DrawCreateTiles(HDC hdc,HDC hdc2)
       loading_tile_grid_prog=5;
     //}
   } else if (loading_tile_grid_prog==5) {
-    if (is_shadows && game_shadow) {
+    /*if (is_shadows && game_shadow) {
       yes_shadow=TRUE;
     }
     if (yes_shadow) {
@@ -283,7 +283,7 @@ void DrawCreateTiles(HDC hdc,HDC hdc2)
           }
         }
       }
-    }
+    }*/
 
     flag_begin_drawing_tiles=FALSE;
     time_begin=current_timestamp();

@@ -973,6 +973,7 @@ HBITMAP LoadRLE8CompressedBitmap(const wchar_t *filePath) {
     // Decompress the RLE8 data + draw onto hbitmap
     if (DecompressRLE8(compressedData, width, height, decompressedData) != 0) {
         wprintf(L"Failed to decompress RLE8 data.\n");
+        free(bmInfo);
         free(compressedData);
         free(decompressedData);
         free(colorTable);
@@ -982,7 +983,6 @@ HBITMAP LoadRLE8CompressedBitmap(const wchar_t *filePath) {
     if (hBitmap == NULL) {
         wprintf(L"Failed to create DIBSection.\n");
         free(bmInfo);
-        //free(bitmapInfo);
         free(compressedData);
         free(decompressedData);
         free(colorTable);
@@ -991,7 +991,7 @@ HBITMAP LoadRLE8CompressedBitmap(const wchar_t *filePath) {
     // Copy the decompressed data into the DIBSection
     free(bmInfo);
     free(compressedData);
-    free(decompressedData);
+    //free(decompressedData); //<---- will crash
     free(colorTable);
     return hBitmap;
 }

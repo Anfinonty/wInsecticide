@@ -95,7 +95,7 @@ bool flag_taskbar_change_act=FALSE;
 bool flag_borderless_resolution_change=FALSE;
 bool flag_difficulty_change=TRUE;
 bool flag_begin_drawing_tiles=FALSE;
-bool flag_display_long_loading=FALSE;
+//bool flag_display_long_loading=FALSE;
 bool hide_cursor=FALSE;
 bool hide_mm=FALSE;
 bool flag_load_player_sprite=TRUE;
@@ -451,7 +451,8 @@ void SetDesktopScreenRes(int w,int h,int bits)
 
 int prelude_sprite_jid=0;
 int prelude_sprite_id=0;
-
+int prelude_sprite_moon=0;
+int prelude_sprite_moon_i=0;
 
 void InitSpriteAndCanvas(DRAWSPRITE *target_sprite, DRAWSPRITE *target_dithered_sprite, HBITMAP canvas,HBITMAP loaded_sprite)
 {
@@ -485,9 +486,6 @@ void Prelude()
     GameCloudsBackground.sprite_mask1=CreateBitmapMask(GameCloudsBackground.sprite_paint1,YELLOW,NULL);
     GameCloudsBackground.sprite_mask2=CreateBitmapMask(GameCloudsBackground.sprite_paint2,YELLOW,NULL);
 
-    small_entity_canvas=CreateCrunchyBitmap(64,-64);
-    large_entity_canvas=CreateCrunchyBitmap(200,-200);
-    giant_entity_canvas=CreateCrunchyBitmap(256,-256);
     //load enemy fly sprites
     for (int g=0;g<5;g++) {
        switch (g) {
@@ -558,7 +556,53 @@ void Prelude()
   }
   if (prelude_sprite_jid==4) {
     InitPlayerSpritesAll();
+    if (prelude_player_step==11) {
+    for (int i=0;i<16;i++) {
+      //InitSpriteAndCanvas(&draw_player_cursor[i],NULL,giant_entity_canvas,player_cursor[i]);
+
+
+      BITMAP bmp;
+      GetObject(player_cursor[i],sizeof(BITMAP),&bmp);
+      int osize=bmp.bmWidth;
+      BitBlt8BitTransparent(large_entity_canvas, 0,0, osize,osize, player_cursor[i], 0, 0, BROWN, FALSE);
+      ReplaceBitmapColor2(large_entity_canvas,LTGREEN,YELLOW,BLACK,LTGREEN);
+      ReplaceBitmapColor(large_entity_canvas,YELLOW,BLACK);
+      GenerateDrawSpriteII(&draw_player_cursor[i],large_entity_canvas,player_cursor[i]);
+
+    }
     prelude_sprite_jid++;
+    }
+  }
+  if (prelude_sprite_jid==5) {
+    //for (int j=0;j<7;j++) {
+      //for (int i=0;i<7;i++) {
+        //Moon[j].sprite_cache[i]=GetRotated8BitBitmap(Moon[j].loaded_sprite,MoonAngle[i].angle,LTGREEN);
+        //ReplaceBitmapColor(Moon[j].sprite_cache[i],LTGREEN,BLACK);
+      //}
+    //}
+  
+    int j=prelude_sprite_moon;
+    int i=prelude_sprite_moon_i;
+    //for (int j=0;j<7;j++) {
+      //for (int i=0;i<7;i++) {
+        //GenerateDrawSpriteII(&Moon[j].draw_moon_sprite[i],Moon[j].loaded_sprite);
+        //create rotated sprite
+    RotateBitBlt8Bit(large_entity_canvas, Moon[j].loaded_sprite, MoonAngle[i].angle, 167, large_entity_canvas);
+    //ReplaceBitmapColor2(large_entity_canvas,LTGREEN,YELLOW,BLACK,LTGREEN);
+    ReplaceBitmapColor(large_entity_canvas,BLACK,RGB(6,6,6));
+    ReplaceBitmapColor(large_entity_canvas,LTGREEN,BLACK);
+    GenerateDrawSpriteIII(&Moon[j].draw_moon_sprite[i],large_entity_canvas,MoonAngle[i].angle,Moon[j].loaded_sprite);
+    loading_numerator++;
+      //}
+    //}
+    prelude_sprite_moon_i++;
+    if (prelude_sprite_moon_i==7) {
+      prelude_sprite_moon_i=0;
+      prelude_sprite_moon++;
+    }
+    if (prelude_sprite_moon==7) {
+      prelude_sprite_jid++;
+    }
   }
 
   //printf("%1.0f/%1.0f\n",loading_numerator,loading_denominator);
@@ -1404,6 +1448,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
           if (loading_numerator==0) { //load clouds
             LoadClouds(hdcBackbuff,hdcBackbuff2);
+            //prelude_clouds_loaded=TRUE;
+            //loading_numerator=DRAW_CLOUDS_NUM;
           } 
           if (!prelude_clouds_loaded) {
             PreludeLoadCloudBackgroundSprite(hdcBackbuff,hdcBackbuff2);
@@ -1419,8 +1465,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
           if (loading_numerator<loading_denominator) {
-            DrawLoading(hdcBackbuff);
             Prelude();
+            /*SelectObject(hdcBackbuff2,giant_entity_canvas);
+            BitBlt(hdcBackbuff,0,GR_HEIGHT/2-200,256,256,hdcBackbuff2,0,0,SRCCOPY);
+            SelectObject(hdcBackbuff2,small_entity_canvas);
+            BitBlt(hdcBackbuff,GR_WIDTH/2-32,GR_HEIGHT/2-64,64,64,hdcBackbuff2,0,0,SRCCOPY);
+            SelectObject(hdcBackbuff2,large_entity_canvas);
+            BitBlt(hdcBackbuff,GR_WIDTH-200,GR_HEIGHT/2-150,200,200,hdcBackbuff2,0,0,SRCCOPY);*/
+            DrawLoading(hdcBackbuff);
           } else {
             DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-324/2,GR_HEIGHT-96-8,0,0,324,47,kh_pressanykey_mask,SRCAND,FALSE,FALSE);
             DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-324/2,GR_HEIGHT-96-8,0,0,324,47,kh_pressanykey,SRCPAINT,FALSE,FALSE);
@@ -1528,9 +1580,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DrawPlayer(hdcBackbuff,hdcBackbuff2,player.type);
             //DrawNodeGrids(hdcBackbuff); //debugging
 
-            if (is_shadows && game_shadow && SHADOW_GRID_NUM>0) {
-              DrawShadows(hdcBackbuff,hdcBackbuff2);
-            }
+            //if (is_shadows && game_shadow && SHADOW_GRID_NUM>0) {
+              //DrawShadows(hdcBackbuff,hdcBackbuff2);
+            //}
             if (map_weather>0) {
               DrawRain(hdcBackbuff,hdcBackbuff2);
             }
@@ -1866,7 +1918,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       //Loading Bar
       loading_numerator=0;
-      loading_denominator=ROTATED_SPRITE_NUM*7+DRAW_CLOUDS_NUM; //(2roach,2toebiter,2ant,extratoebiter ,, Clouds
+      loading_denominator=ROTATED_SPRITE_NUM*7+DRAW_CLOUDS_NUM+(PLAYER_ROTATED_SPRITE_NUM*9+4)+(7*7); //(2roach,2toebiter,2ant,extratoebiter ,, Clouds
 
 
       AddFontResource(L"fonts/unifont-8.0.01.ttf");
@@ -2095,6 +2147,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
       CopyReplaceColorPalette(rgbColorsRedToBlue,rgbColorsDefault,199,LTBLUE);
+
+
+      small_entity_canvas=CreateCrunchyBitmap(64,-64);
+      large_entity_canvas=CreateCrunchyBitmap(200,-200);
+      giant_entity_canvas=CreateCrunchyBitmap(256,-256);
+
       wav_out_original_volume=VolumeValue(50,1); //set volume
       //waveOutGetVolume(hWaveOut[2],&wav_out_original_volume);
       //waveOutSetVolume(hWaveOut[6],wav_out_original_volume);
@@ -2322,14 +2380,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
      for (int i=0;i<9;i++) {
         wchar_t fname[48];
-        swprintf(fname,48,L"sprites/textures/water_texture%d.bmp",i);        
-        HBITMAP tmp_bitmap = (HBITMAP) LoadImageW(NULL, fname, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
-        texture_water[i] = CopyBitmapWithBuffer(tmp_bitmap,&ptexture_water[i],SRCCOPY,global_screen_bits); //Convert to appropriate bits
-        DeleteObject(tmp_bitmap);
+        swprintf(fname,48,L"sprites/textures/water_texture%d.bmp",i);
+        //HBITMAP tmp_bitmap = (HBITMAP) LoadImageW(NULL, fname, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
+        //texture_water[i] = CopyBitmapWithBuffer(tmp_bitmap,&ptexture_water[i],SRCCOPY,global_screen_bits); //Convert to appropriate bits
+        //DeleteObject(tmp_bitmap);
+         texture_water[i]=(HBITMAP) LoadImageW(NULL, fname, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION); //loaded to system screne bits accordingly 16-bit/32-bit
       }
 
-      dkrdkgray_shadow_tile = LoadRLE8CompressedBitmap(L"sprites/shadow_dkrdkgray.bmp");//(HBITMAP) LoadImageW(NULL, L"sprites/shadow_dkrdkgray.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      ltgray_shadow_tile = LoadRLE8CompressedBitmap(L"sprites/shadow_ltgray.bmp");//(HBITMAP) LoadImageW(NULL, L"sprites/shadow_ltgray.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      //dkrdkgray_shadow_tile = LoadRLE8CompressedBitmap(L"sprites/shadow_dkrdkgray.bmp");//(HBITMAP) LoadImageW(NULL, L"sprites/shadow_dkrdkgray.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      //ltgray_shadow_tile = LoadRLE8CompressedBitmap(L"sprites/shadow_ltgray.bmp");//(HBITMAP) LoadImageW(NULL, L"sprites/shadow_ltgray.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
       //Load mouse cursor sprite
       //player cursor
@@ -2337,10 +2396,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         wchar_t fname[32];
         swprintf(fname,32,L"sprites/player_cursor%d.bmp",i);
         player_cursor[i]=LoadRLE8CompressedBitmap(fname);
-        player_cursor_cache[i]=CopyCrunchyBitmap(player_cursor[i],SRCCOPY);
-        ReplaceBitmapColor2(player_cursor_cache[i],LTGREEN,YELLOW,BLACK,LTGREEN);
-        ReplaceBitmapColor(player_cursor_cache[i],YELLOW,BLACK);
-        GenerateDrawSprite(&draw_player_cursor[i],player_cursor_cache[i]);
       }
 
       /*for (int i=0;i<5;i++) {
@@ -2462,7 +2517,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         }
       }
 
-      for (int j=0;j<7;j++) {
+      /*for (int j=0;j<7;j++) {
         for (int i=0;i<7;i++) {
           Moon[j].sprite_cache[i]=GetRotated8BitBitmap(Moon[j].loaded_sprite,MoonAngle[i].angle,LTGREEN);
           ReplaceBitmapColor(Moon[j].sprite_cache[i],LTGREEN,BLACK);
@@ -2473,7 +2528,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         for (int i=0;i<7;i++) {
           GenerateDrawSprite(&Moon[j].draw_moon_sprite[i],Moon[j].sprite_cache[i]);
         }
-      }
+      }*/
       //
       //
       intro_msg = LoadRLE8CompressedBitmap(L"sprites/intro_msg.bmp");
@@ -2675,7 +2730,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
        //reload
        waveOutOpen(&hWaveOut[5], WAVE_MAPPER, &wfx_wav_sfx, 0, 0, CALLBACK_NULL);
        waveOutPrepareHeader(hWaveOut[5], &whdr[5], sizeof(WAVEHDR));
-
        return 0;
        break;
     //Tasks to perform on exit
@@ -2762,7 +2816,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
    InitCController();
 
 
-  //this looks unneccessary but for some reason its required for high fps :/
+  //this looks unneccessary but for some reason its required for cpu to clock in automatically :/
   Sleep(100);
   INPUT ip;
   ip.type = INPUT_KEYBOARD;
@@ -2770,7 +2824,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   ip.ki.time = 0;
   ip.ki.dwExtraInfo = 0;
  
-  for (int i=0;i<2;i++) {
+  //for (int i=0;i<2;i++) {
   // Press the "Ctrl" key
     ip.ki.wVk = VK_CONTROL;
     ip.ki.dwFlags = 0; // 0 for key press
@@ -2792,7 +2846,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
     SendInput(1, &ip, sizeof(INPUT));
 
     Sleep(200);
-  }
+  //}
 
   SetForegroundWindow(hwnd);
   HANDLE thread1=CreateThread(NULL,0,AnimateTask01,NULL,0,NULL); //Spawn Game Logic Thread

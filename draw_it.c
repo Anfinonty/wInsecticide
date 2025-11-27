@@ -464,7 +464,7 @@ void DrawBlackBorders(HDC hdc)
 
 //To Depracate
 //=========== Shadows ===============
-void DrawShadows(HDC hdc,HDC hdc2)
+/*void DrawShadows(HDC hdc,HDC hdc2)
 {
   /*DrawGlassBitmap(hdc, 
         map_platforms_shadow_shader, 
@@ -472,7 +472,7 @@ void DrawShadows(HDC hdc,HDC hdc2)
         GR_HEIGHT/2-player.y+player.cam_mouse_move_y+player.cam_move_y,
         32//128
   );*/
-  int gid,tms_id;
+/*  int gid,tms_id;
   int x,y,_x,_y;
   int 
     px=player.x,
@@ -513,7 +513,7 @@ void DrawShadows(HDC hdc,HDC hdc2)
       }
     }
   }
-}
+}*/
 //======================================
 //=========Player Cursor============
 void DrawCursor(HDC hDC,HDC hDC2)

@@ -197,13 +197,13 @@ void CleanUpGrid()
     }
   }*/
 
-  if (yes_shadow) { //IMPORTANT: refrain from freeing empty pointers or mem leak and then crash
+  /*if (yes_shadow) { //IMPORTANT: refrain from freeing empty pointers or mem leak and then crash
       for (int i=0;i<SHADOW_GRID_NUM;i++) {
         if (TileMapShadow[i]->sprite_paint!=NULL) {
           DeleteObject(TileMapShadow[i]->sprite_paint);
         }
       }
-  }
+  }*/
 
   //printf("freed:%d,%d,%d\n",PLATFORM_GRID_NUM,FOREGROUND_GRID_NUM,SHADOW_GRID_NUM);
 }
@@ -479,9 +479,9 @@ void CleanupAll(bool btm)
     /*for (int i=0;i<FOREGROUND_GRID_NUM;i++) {
       freeTileMap(TileMapForeground[i]);
     }*/
-    for (int i=0;i<SHADOW_GRID_NUM;i++) {
+    /*for (int i=0;i<SHADOW_GRID_NUM;i++) {
       freeTileMapPaint(TileMapShadow[i]);
-    }
+    }*/
 
     free(Ground); //free pointer to pointers
     free(NodeGrid); //free pointer to pointers
@@ -497,9 +497,9 @@ void CleanupAll(bool btm)
     /*if (FOREGROUND_GRID_NUM>0) {
       free(TileMapForeground);
     }*/
-    if (SHADOW_GRID_NUM>0) {
+    /*if (SHADOW_GRID_NUM>0) {
       free(TileMapShadow);
-    }
+    }*/
 
 
     //DeleteObject(map_background_sprite);

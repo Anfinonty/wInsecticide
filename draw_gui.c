@@ -998,9 +998,9 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
         DrawPlayer(hdc,hdc2,player.type);
         //DrawWaterPlatforms(hdc,hdc2);
 
-        if (is_shadows && game_shadow && SHADOW_GRID_NUM>0) {
-          DrawShadows(hdc,hdc2);
-        }
+        //if (is_shadows && game_shadow && SHADOW_GRID_NUM>0) {
+          //DrawShadows(hdc,hdc2);
+        //}
         if (map_weather>0) {
           DrawRain(hdc,hdc2);
           DrawRainShader3(hdc);
@@ -2355,9 +2355,9 @@ void DrawLoading(HDC hDC/*,int max_marbles*/)
   if (!hide_taskbar) {
     extra_y=32;
   }
-  if (flag_display_long_loading) {
-    GrPrintThick(hDC,34,GR_HEIGHT-46-extra_y-32,"Loading shadows, this will take a while...",WHITE,BLACK);
-  }
+  //if (flag_display_long_loading) {
+    //GrPrintThick(hDC,34,GR_HEIGHT-46-extra_y-32,"Loading shadows, this will take a while...",WHITE,BLACK);
+  //}
   GrRect(hDC,32,GR_HEIGHT-48-extra_y,GR_WIDTH-64,8*3,WHITE);
   if (loading_denominator>0) {
     loading_percentage=loading_numerator/loading_denominator;   

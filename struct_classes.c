@@ -1114,7 +1114,7 @@ void freeTileMapPaint(ATileMapPaint *myTileMapPaint)
 }
 
 
-ATileMapPaint **TileMapShadow;
+//ATileMapPaint **TileMapShadow;
 
 
 //$#$#$#$#$#$#$#$#$CLEAN UP#$#$#$#$#$#$
@@ -1202,7 +1202,7 @@ struct GamePlatformTextures
 int global_water_texture_timer=0;
 int global_water_texture_id=0;
 HBITMAP texture_water[9];
-BYTE *ptexture_water[9];
+//BYTE *ptexture_water[9];
 //================================
 
 
@@ -1287,7 +1287,7 @@ int true_mouse_y;
 RGBQUAD player_cursor_palette[256];
 
 HBITMAP player_cursor[16]; //4 left and 4 right, open or closed, loaded
-HBITMAP player_cursor_cache[16];
+//HBITMAP player_cursor_cache[16];
 DRAWSPRITE draw_player_cursor[16];
 
 /*HBITMAP player_cursorbee[5]; //4 left and 4 right, open or closed, loaded
@@ -1381,7 +1381,7 @@ struct Moon
 {
   float angle;
   HBITMAP loaded_sprite;
-  HBITMAP sprite_cache[7];
+  //HBITMAP sprite_cache[7];
   DRAWSPRITE draw_moon_sprite[7]; //all 7 rotations
 } Moon[7];
 
@@ -1400,17 +1400,14 @@ struct GameMoon
 }  DrawGameMoon;
 
 
+
+//========= SNOWFLAKE ===========
 HBITMAP snowflake_sprite;
 HBITMAP snowflake_sprite_cache;
 DRAWSPRITE draw_snowflake_sprite;
+//===============================
 
-
-//Shadow Tile
-HBITMAP dkrdkgray_shadow_tile;
-HBITMAP ltgray_shadow_tile;
-
-
-
+//======== GAME TITLES ==========
 //main menu title
 HBITMAP title_sprite[2];
 HBITMAP title_sprite_mask[2];
@@ -1515,4 +1512,5 @@ int star_rng_i=0;
 int cloud_rng_i=0;
 int sun_rng_i=0;
 
+//enemy rotated angle
 float enemy_rotated_angle_arr[ROTATED_SPRITE_NUM];
