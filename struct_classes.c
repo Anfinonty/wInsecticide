@@ -896,6 +896,9 @@ void DrawEnemy(HDC hdc,HDC hdc2);
 #define M_PI_32     M_PI/32
 #define PLAYER_ROTATED_SPRITE_NUM  64
 
+
+
+
 struct LoadPlayerSprite
 {
   HBITMAP sprite_1;
@@ -909,6 +912,7 @@ struct LoadPlayerSprite
   HBITMAP block_sprite_2;
   HBITMAP block_sprite_3;
   HBITMAP spin_sprite;  
+
 
   //HBITMAP sprite_bee_1;
   //HBITMAP sprite_bee_2;
@@ -933,6 +937,7 @@ struct PlayerSprite //used in
   //DRAWSPRITE sprite_bee_2;
   //DRAWSPRITE sprite_bee_aero_1;
   //DRAWSPRITE sprite_bee_aero_2;
+
 
   DRAWSPRITE sprite_1[PLAYER_ROTATED_SPRITE_NUM];
   DRAWSPRITE sprite_2[PLAYER_ROTATED_SPRITE_NUM];
@@ -973,13 +978,13 @@ struct PlayerSprite //used in
 
 //==================ENEMY SPRITES==================
 //static, saves memory
-
+HBITMAP small_entity_canvas; //64*64 like player 
+HBITMAP large_entity_canvas; //200*200, used by cockroach,cursor and moon
+HBITMAP giant_entity_canvas; //256*256, used by toe-biter
 
 //loaded
 struct LoadEnemyFlySprite
 {
-  HBITMAP prelude_tmp_sprite1;
-  HBITMAP prelude_tmp_sprite2;
   DRAWSPRITE draw_fly_sprite_1;
   DRAWSPRITE draw_fly_sprite_2;
   DRAWSPRITE draw_dithered_fly_sprite_1;
@@ -990,8 +995,6 @@ struct LoadEnemyFlySprite
 
 struct LoadEnemyRotatedSprite
 {
-  HBITMAP prelude_tmp_sprite1[ROTATED_SPRITE_NUM]; //tmp sprite rotated 1
-  HBITMAP prelude_tmp_sprite2[ROTATED_SPRITE_NUM]; //tmp sprite rotated 2
   DRAWSPRITE draw_rotated_sprite1[ROTATED_SPRITE_NUM];
   DRAWSPRITE draw_rotated_sprite2[ROTATED_SPRITE_NUM];
   DRAWSPRITE draw_dithered_rotated_sprite1[ROTATED_SPRITE_NUM];
@@ -1002,7 +1005,6 @@ struct LoadEnemyRotatedSprite
 
 struct LoadEnemyRotatedSpriteXtra
 {
-  HBITMAP prelude_tmp_sprite[ROTATED_SPRITE_NUM];
   DRAWSPRITE draw_rotated_sprite[ROTATED_SPRITE_NUM];
   DRAWSPRITE draw_dithered_rotated_sprite[ROTATED_SPRITE_NUM];
 } XLoadEnemyRotatedSprite[1]; //toe biter
@@ -1206,13 +1208,12 @@ BYTE *ptexture_water[9];
 
 //=============CLOUDS===============
 #define LOADED_CLOUD_NUM 9
-#define LLOADED_CLOUD_NUM 10 //slack space, idk why, needs to be in or last sprite wont load
 #define DRAW_CLOUDS_NUM     20
 //#define CLOUD_NUM    30//100//30//10//20
-int cloud_src_x[LLOADED_CLOUD_NUM]={ 11,   3,  0,  0, 282,462, 42,440,464,0};
-int cloud_src_y[LLOADED_CLOUD_NUM]={ 62, 255,  0,411, 171,  8,178,450,553,0};
-int cloud_l[LLOADED_CLOUD_NUM]=    {504,532,442,417, 325,190,196,190,138,1};
-int cloud_w[LLOADED_CLOUD_NUM]=    {165,258,164,258, 250,170,156, 94,70 ,1};
+int cloud_src_x[LOADED_CLOUD_NUM]={ 11,   3,  0,  0, 282,462, 42,440,464};
+int cloud_src_y[LOADED_CLOUD_NUM]={ 62, 255,  0,411, 171,  8,178,450,553};
+int cloud_l[LOADED_CLOUD_NUM]=    {504,532,442,417, 325,190,196,190,138};
+int cloud_w[LOADED_CLOUD_NUM]=    {165,258,164,258, 250,170,156, 94,70};
 
 HBITMAP cloudwhite8bit_sprite_1;
 HBITMAP cloudwhite8bit_sprite_2;
@@ -1221,33 +1222,23 @@ struct LoadedGameCloud
 {
   int l;
   HBITMAP sprite_cache;
-  //DRAWSPRITE draw_sprite;
-} DrawGameCloud[LLOADED_CLOUD_NUM];
+} DrawGameCloud[LOADED_CLOUD_NUM];
 
-/*struct GameClouds
-{
-  bool flipped;
-  //int max_speed_timer;
-  //int speed_timer;
-  int x;
-  int y;
-  int type; //0->8
-} GameClouds;*///[CLOUD_NUM];
 
 struct GameCloudBackground
 {
   int cam_x;
   int timer;
-  HBITMAP sprite_paint;
-  HBITMAP sprite_mask;
+  HBITMAP sprite_paint1;
+  HBITMAP sprite_mask1;
+  HBITMAP sprite_paint2;
+  HBITMAP sprite_mask2;
 } GameCloudsBackground;
 
 
 void LoadClouds(HDC hdc,HDC hdc2);
 void DrawCloudBackground(HDC hdc, HDC hdc2);
-//void SetCloud(int i,int x,int y,int type,int max_speed_timer,bool flipped);
 void InitClouds();
-//void DrawCloud(HDC hdc, HDC hdc2,int i);
 void DrawClouds(HDC hdc, HDC hdc2);
 
 //===================================
@@ -1341,7 +1332,8 @@ HBITMAP enemy6_sprite_2;
 
 
 
-
+//Prelude Canvas (200*200) - for rotation
+//HBITMAP prelude_canvas;
 
 
 //map platforms for loading in
