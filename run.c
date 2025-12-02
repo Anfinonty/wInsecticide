@@ -2824,7 +2824,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
   ip.ki.time = 0;
   ip.ki.dwExtraInfo = 0;
  
-  //for (int i=0;i<2;i++) {
+  for (int i=0;i<2;i++) {
   // Press the "Ctrl" key
     ip.ki.wVk = VK_CONTROL;
     ip.ki.dwFlags = 0; // 0 for key press
@@ -2845,8 +2845,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLin
     ip.ki.dwFlags = KEYEVENTF_KEYUP;
     SendInput(1, &ip, sizeof(INPUT));
 
-    Sleep(200);
-  //}
+    Sleep(150);
+  } //twice for the tab to pop up then go back down
 
   SetForegroundWindow(hwnd);
   HANDLE thread1=CreateThread(NULL,0,AnimateTask01,NULL,0,NULL); //Spawn Game Logic Thread

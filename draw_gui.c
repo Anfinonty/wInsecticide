@@ -1004,7 +1004,6 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
         if (map_weather>0) {
           DrawRain(hdc,hdc2);
           DrawRainShader3(hdc);
-
         }
       }
     }

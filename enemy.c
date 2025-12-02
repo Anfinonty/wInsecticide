@@ -1786,18 +1786,18 @@ void EnemyAct(int i)
     float distance_from_player_claws=GetDistance(Enemy[i]->x,Enemy[i]->y,player.claws_attack_x,player.claws_attack_y);
     switch (Enemy[i]->species) {
       case 0:case 2:case 4:case 5:case 6:case 7:
-	    if (!(Enemy[i]->time_breaker_length>0)) {
-	      if (distance_from_player_claws<=NODE_SIZE*2) {
-	        allow_act=TRUE;
-	      }
-	    } else {
+	    //if (!(Enemy[i]->time_breaker_length>0)) {
+	      //if (distance_from_player_claws<=NODE_SIZE*2) {
+	        //allow_act=TRUE;
+	      //}
+	    //} else {
 	      if (distance_from_player_claws<=NODE_SIZE*4) {
 	        allow_act=TRUE;
 	      }
-	    }
+	    //}
 	    break;
       case 1:case 3:
-	    if (distance_from_player_claws<=NODE_SIZE*4) {
+	    if (distance_from_player_claws<=NODE_SIZE*6) {
 	      allow_act=TRUE;
 	    }
 	    break;
