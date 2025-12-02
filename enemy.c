@@ -357,22 +357,22 @@ void EnemySpriteOnGroundId(int enemy_id,int ground_id)
             Enemy[enemy_id]->angle=edge_angle;
           }
           if (Enemy[enemy_id]->y<Ground[ground_edge_id]->y1) {
-            if (Enemy[enemy_id]->y>Ground[ground_edge_id]->y1) {
+            //if (Enemy[enemy_id]->y>Ground[ground_edge_id]->y1) {
               Enemy[enemy_id]->above_ground_edge=TRUE;
               Enemy[enemy_id]->below_ground_edge=FALSE;
-            }
+            //}
           } else if (Enemy[enemy_id]->y>Ground[ground_edge_id]->y1){
-            if (Enemy[enemy_id]->y>Ground[ground_edge_id]->y1) {
-            Enemy[enemy_id]->above_ground_edge=FALSE;
-            Enemy[enemy_id]->below_ground_edge=TRUE;
-            if(Enemy[enemy_id]->last_left) {
-              Enemy[enemy_id]->flag_unflip_sprite=TRUE;
+            //if (Enemy[enemy_id]->y>Ground[ground_edge_id]->y1) {
+              Enemy[enemy_id]->above_ground_edge=FALSE;
+              Enemy[enemy_id]->below_ground_edge=TRUE;
+              if(Enemy[enemy_id]->last_left) {
+                Enemy[enemy_id]->flag_unflip_sprite=TRUE;
               //Enemy[enemy_id]->flip_sprite=FALSE;
-            } else {
-              Enemy[enemy_id]->flag_flip_sprite=TRUE;
+              } else {
+                Enemy[enemy_id]->flag_flip_sprite=TRUE;
               //Enemy[enemy_id]->flip_sprite=TRUE;
-            }
-            }
+              }
+            //}
           }
         } else if (edge_2_dist<=distl && edge_2_dist>=0 && ground_edge_id!=-1) {
           //Enemy[enemy_id]->x+=cos(edge_angle);
@@ -383,12 +383,12 @@ void EnemySpriteOnGroundId(int enemy_id,int ground_id)
             Enemy[enemy_id]->angle=edge_angle;
           }
           if (Enemy[enemy_id]->y<Ground[ground_edge_id]->y2) {
-            if (Enemy[enemy_id]->y<Ground[ground_edge_id]->y2) {
+            //if (Enemy[enemy_id]->y<Ground[ground_edge_id]->y2) {
               Enemy[enemy_id]->above_ground_edge=TRUE;
               Enemy[enemy_id]->below_ground_edge=FALSE;
-            }
+            //}
           } else if (Enemy[enemy_id]->y>Ground[ground_edge_id]->y2){
-            if (Enemy[enemy_id]->y>Ground[ground_edge_id]->y2) {
+            //if (Enemy[enemy_id]->y>Ground[ground_edge_id]->y2) {
               Enemy[enemy_id]->above_ground_edge=FALSE;
               Enemy[enemy_id]->below_ground_edge=TRUE;
             //}
@@ -399,7 +399,7 @@ void EnemySpriteOnGroundId(int enemy_id,int ground_id)
               Enemy[enemy_id]->flag_flip_sprite=TRUE;
               //Enemy[enemy_id]->flip_sprite=TRUE;
             }
-            }
+            //}
           }
         }
       } else {
@@ -433,7 +433,7 @@ void EnemySpriteOnGroundId(int enemy_id,int ground_id)
         Enemy[enemy_id]->in_air_timer=0;
         Enemy[enemy_id]->flying_timer=0;
         Enemy[enemy_id]->force_fall=FALSE;
-        if (height_from_ground>-5) {    //species 1 above ground (positive)
+        if (height_from_ground>-1/*-5*/) {    //species 1 above ground (positive)
           Enemy[enemy_id]->angle=Ground[ground_id]->angle;
           Enemy[enemy_id]->above_ground=TRUE;
           Enemy[enemy_id]->below_ground=FALSE;
