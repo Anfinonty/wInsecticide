@@ -50,14 +50,14 @@ void InitGridTiles(const wchar_t* lvl_name)
   bool has_ground=FALSE;
   bool has_water=FALSE;
   int j,k;
-  bool yes_shadow=FALSE;
+  //bool yes_shadow=FALSE;
   wchar_t seg_name[72];
-  if (is_shadows && game_shadow) {
+  /*if (is_shadows && game_shadow) {
     yes_shadow=TRUE;
-  }
+  }*/
   //FOREGROUND_GRID_NUM=0;
   PLATFORM_GRID_NUM=0;
-  SHADOW_GRID_NUM=0;
+  //SHADOW_GRID_NUM=0;
 
   for (int i=0;i<VGRID_NUM;i++) {      
     for (int j=0;j<VGrid[i]->max_ground_num;j++) {
@@ -92,7 +92,7 @@ void InitGridTiles(const wchar_t* lvl_name)
 
 
 
-    if (yes_shadow) {
+    /*if (yes_shadow) {
       swprintf(seg_name,72,L"saves/%ls/seg_shadow/%d.bmp", lvl_name,i);
       if (FileExists(seg_name)) {
         VGrid[i]->has_shadow=TRUE;
@@ -101,7 +101,7 @@ void InitGridTiles(const wchar_t* lvl_name)
       } else {
         VGrid[i]->draw_shadow_seg_id=-1;
       }
-    }    
+    }*/    
   }
 }
 
@@ -109,7 +109,7 @@ void InitGridTiles(const wchar_t* lvl_name)
 int loading_tile_grid_prog=0;
 void DrawCreateTiles(HDC hdc,HDC hdc2)
 {
-  bool yes_shadow=FALSE;
+  //bool yes_shadow=FALSE;
   wchar_t seg_name[72];  
   int tmp_id;
 

@@ -2,6 +2,14 @@
 #define S_PRELUDE_ROW_NUM  4
 
 
+#define S_PLAYER_FLOAT_NUM   2
+
+#define S_LEVEL_ATTR_NUM  4 //deprecate 47,48 //6 
+
+#define S_TEXTURE_INT_NUM  3
+
+
+
 //Game Values
 int GROUND_NUM;
 int WATER_GROUND_NUM=0;
@@ -31,6 +39,7 @@ int MAP_NODE_NUM;
 
 
 
+
 //====Ground====
 
 float *saved_ground_x1;
@@ -43,10 +52,6 @@ float *saved_ground_y3;
 float *ground_float_pointer[S_GROUND_FLOAT_NUM];
 void InitGroundFloatPointer()
 {
-  for (int i=0;i<S_GROUND_FLOAT_NUM;i++) {
-    ground_float_pointer[i]=NULL;
-  }
-
   ground_float_pointer[0]=saved_ground_x1;
   ground_float_pointer[1]=saved_ground_y1;
   ground_float_pointer[2]=saved_ground_x2;
@@ -60,28 +65,23 @@ bool *saved_ground_is_ghost;
 bool *ground_bool_pointer[S_GROUND_BOOL_NUM];
 void InitGroundBoolPointer()
 {
-  for (int i=0;i<S_GROUND_BOOL_NUM;i++) {
-    ground_bool_pointer[i]=NULL;
-  }
   ground_bool_pointer[0]=saved_ground_is_ghost;
 }
 
 
 int *saved_ground_color;
 int *saved_ground_type;
+int *saved_ground_text_size;
 #define S_GROUND_INT_NUM 2
 int *ground_int_pointer[S_GROUND_INT_NUM];
 void InitGroundIntPointer()
 {
-  for (int i=0;i<S_GROUND_INT_NUM;i++) {
-    ground_int_pointer[i]=NULL;
-  }
   ground_int_pointer[0]=saved_ground_color;
   ground_int_pointer[1]=saved_ground_type;
+  ground_int_pointer[2]=saved_ground_text_size;
 }
 
 
-int *saved_ground_text_size; //shared with UTF
 wchar_t **saved_ground_text;
 #define S_GROUND_UTF_NUM 1
 //UNIQUE, NO POINTER
@@ -93,9 +93,6 @@ int *saved_enemy_type;
 int *enemy_int_pointer[S_ENEMY_INT_NUM];
 void InitEnemyIntPointer()
 {
-  for (int i=0;i<S_ENEMY_INT_NUM;i++) {
-    enemy_int_pointer[i]=NULL;
-  }
   enemy_int_pointer[0]=saved_enemy_type;
 }
 
@@ -105,9 +102,6 @@ float *saved_enemy_y;
 float *enemy_float_pointer[S_ENEMY_FLOAT_NUM];
 void InitEnemyFloatPointer()
 {
-  for (int i=0;i<S_ENEMY_FLOAT_NUM;i++) {
-    enemy_float_pointer[i]=NULL;
-  }
   enemy_float_pointer[0]=saved_enemy_x;
   enemy_float_pointer[1]=saved_enemy_y;
 }
@@ -226,123 +220,31 @@ int set_enemy_type_time_breaker_length[ENEMY_TYPE_NUM];
 //Set Enemy Bool Segment
 bool set_enemy_type_time_breaker_immune[ENEMY_TYPE_NUM];
 
-float *set_enemy_type_float_pointer[S_ENEMY_TYPE_FLOAT_NUM]=
-{
-  set_enemy_type_speed,
-  set_enemy_type_bullet_speed
-};
-
-//
-int *set_enemy_type_int_pointer[S_ENEMY_TYPE_INT_NUM]=
-{
-  set_enemy_type_species, 
-  set_enemy_type_follow_range, //
-  set_enemy_type_unchase_range, 
-  set_enemy_type_chase_range,  //
-  set_enemy_type_color, 
-  set_enemy_type_speed_multiplier, // 
-  set_enemy_type_health, 
-  set_enemy_type_shoot_at_player_range, // 
-  set_enemy_type_aim_rand, 
-  set_enemy_type_bullet_cooldown, //
-//
-  set_enemy_type_bullet_fire_cooldown, 
-  set_enemy_type_bullet_fire_at_once, //
-  set_enemy_type_bullet_length,
-  set_enemy_type_bullet_damage, //
-  set_enemy_type_bullet_speed_multiplier, 
-  set_enemy_type_bullet_range, //
-  set_enemy_type_bullet_color, 
-  set_enemy_type_bullet_graphics_type, //
-  set_enemy_type_time_breaker_rare, 
-  set_enemy_type_time_breaker_length //
-};
-
-bool *set_enemy_type_bool_pointer[S_ENEMY_TYPE_BOOL_NUM]=
-{
-  set_enemy_type_time_breaker_immune
-};
-
-
-
-
-
 
 
 
 //Level Player Attributes 
 float saved_player_x;
 float saved_player_y;
-#define S_PLAYER_FLOAT_NUM   2
-float *player_float_pointer[S_PLAYER_FLOAT_NUM]=
-{
-  &saved_player_x,
-  &saved_player_y
-};
+
 
 
 //Level Background Attributes
-//they are stored in this exact order
 int map_background;
-int custom_map_background_color,custom_map_background_color_i;
-int is_moon;
+int custom_map_background_color;
+int custom_map_background_color_i;
+bool is_moon;
+bool is_shadows=FALSE;
 int map_weather=0;
+int rain_sound_duration=0;
+float shadow_grad_rise=2;
+float shadow_grad_run=1;
 float rain_grad_rise=1;
 float rain_grad_run=1;
-#define S_LEVEL_ATTR_NUM    6
 
-void *level_attributes[S_LEVEL_ATTR_NUM]=
-{
-  &map_background,
-  &custom_map_background_color_i,
-  &is_moon,
-  &map_weather,
-  &rain_grad_rise,
-  &rain_grad_run
-};
-
-//0 == bool
-//1 == int
-//2 == float
-char map_attr_var_type[S_LEVEL_ATTR_NUM]=
-{
-  1,
-  1,
-  1,
-  1,
-  2,
-  2,
-};
-
-//See in struct_classes.c
-//#define S_TEXTURE_INT_NUM  3
-/*
-  int type;
-  int solid_value; //0-255
-  int color_id;
-*/
-
-#define LVL_LOAD_PHASE_NUM   12
-int load_lvl_jumpmap[LVL_LOAD_PHASE_NUM]=
-{
-  S_PRELUDE_ROW_NUM,
-  S_GROUND_FLOAT_NUM,
-  S_GROUND_BOOL_NUM,
-  S_GROUND_INT_NUM,
-  S_GROUND_UTF_NUM,
-  S_ENEMY_INT_NUM,
-  S_ENEMY_FLOAT_NUM,
-  S_ENEMY_TYPE_FLOAT_NUM,
-  S_ENEMY_TYPE_INT_NUM,
-  S_ENEMY_TYPE_BOOL_NUM,
-  S_PLAYER_FLOAT_NUM,
-  S_LEVEL_ATTR_NUM,
-  //S_TEXTURE_INT_NUM
-};
 
 int level_num=0;
 wchar_t level_names[2000][256];
-
 
 
 /*
@@ -384,6 +286,22 @@ void GetSavesInDir(const wchar_t *dirname)
 }
 
 
+int SAVE_ATTR_ROW_NUM[13]={
+  S_PRELUDE_ROW_NUM,
+  S_GROUND_FLOAT_NUM, //
+  S_GROUND_INT_NUM,
+  S_GROUND_FLOAT_NUM, //
+  S_GROUND_UTF_NUM,
+  S_ENEMY_INT_NUM, //
+  S_ENEMY_FLOAT_NUM,
+  S_ENEMY_TYPE_FLOAT_NUM, //
+  S_ENEMY_TYPE_INT_NUM,
+  S_ENEMY_TYPE_BOOL_NUM, //
+  S_PLAYER_FLOAT_NUM,
+  S_LEVEL_ATTR_NUM, //
+  S_TEXTURE_INT_NUM
+};
+
 
 bool LoadSave(wchar_t *saves_name, bool spawn_objects)
 {
@@ -419,12 +337,24 @@ bool LoadSave(wchar_t *saves_name, bool spawn_objects)
     txt[i] = 0;
 
 
-  int current_lvl_load_phase_i=0;
-  int low_=0;
-  int lim_=load_lvl_jumpmap[current_lvl_load_phase_i];
+  //int current_lim_i=0,next_lim_i=0,low=0,lim=0;
+  //low = SAVE_ATTR_ROW_NUM[current_lim_i];
+  //next_lim_i=current_lim_i+1;
+  //if (next_lim_i<13) {
+    //lim = low + SAVE_ATTR_ROW_NUM[next_lim_i];
+  // } else {
+    //lim=low;
+  //
+  //if (row==lim) {
+    //current_lim_i++;
+  //}
+  int current_lim_i=0,next_lim_i=0,low=0,lim=0;
+  low = SAVE_ATTR_ROW_NUM[current_lim_i];
+  next_lim_i=current_lim_i+1;
+  lim = low + SAVE_ATTR_ROW_NUM[next_lim_i];
 
   while ((c=fgetwc(fptr))!=WEOF) {
-    if (row<=3 /*|| (row>=40 && row!=46 && row!=48 && !(row>=49 && row<=51))*/) { //first 4 rows
+    if (row<=3 || (row>=40 && row!=46 && row!=48 && !(row>=49 && row<=51))) { //first 4 rows
       if (c!=';') {//not yet a semicolon
         if (c>='0' && c<='9') { //numerical chars only
           int_val=c-'0'; //ascii convert to num
@@ -449,9 +379,8 @@ bool LoadSave(wchar_t *saves_name, bool spawn_objects)
             GRID_NUM=(MAP_WIDTH/GRID_SIZE) * (MAP_HEIGHT/GRID_SIZE);
             VGRID_NUM=(MAP_WIDTH/VGRID_SIZE) * (MAP_HEIGHT/VGRID_SIZE);
             MAP_NODE_NUM=(MAP_WIDTH/NODE_SIZE) * (MAP_HEIGHT/NODE_SIZE);
+
             //malloc attributes
-
-
             saved_ground_is_ghost=calloc(GROUND_NUM,sizeof(bool));
             saved_ground_color=calloc(GROUND_NUM,sizeof(int));
             saved_ground_type=calloc(GROUND_NUM,sizeof(int));
@@ -474,10 +403,9 @@ bool LoadSave(wchar_t *saves_name, bool spawn_objects)
             }
 
             InitGroundFloatPointer();
-            InitGroundIntPointer();
             InitGroundBoolPointer();
-
-            InitEnemyIntPointer(); 
+            InitGroundIntPointer();
+            InitEnemyIntPointer();
             InitEnemyFloatPointer();
 
 
@@ -486,6 +414,8 @@ bool LoadSave(wchar_t *saves_name, bool spawn_objects)
               VGrid = calloc(VGRID_NUM,sizeof(struct AVGrid*));
               NodeGrid = calloc(MAP_NODE_NUM,sizeof(ANode*));
               Enemy = calloc(ENEMY_NUM,sizeof(AEnemy*));
+              //EnemySprite = calloc(ENEMY_NUM,sizeof(AEnemySprite*));
+            
 
               for (int i=0;i<(GROUND_NUM+MAX_WEB_NUM);i++) {
                 AGround *newGround = createGround();
@@ -506,22 +436,44 @@ bool LoadSave(wchar_t *saves_name, bool spawn_objects)
                 AEnemy *newEnemy = createEnemy();
                 Enemy[i] = newEnemy;
               }
+            } 
 
-            } /*else {
-              printf("objects not spawned\n");
-            }*/
+            break;
+          case 40:
+            saved_player_x=(float)int_saved_val;
+            break;
+          case 41:
+            saved_player_y=(float)int_saved_val;
+            break;
+          case 42:
+            map_background=int_saved_val;
+            break;
+          case 43:
+            custom_map_background_color_i=int_saved_val;
+            custom_map_background_color=rgbPaint[int_saved_val];//color_arr[int_saved_val];
+            break;
+          case 44:
+            is_moon=(bool)int_saved_val;
+            break;
+          case 45: //is_raining
+            map_weather=(int)int_saved_val;
+            break;
+          case 47: //is_shadow
+            is_shadows=(bool)int_saved_val;
             break;
         }
         column=int_val=int_saved_val=0;//restart values
         row++;
 
-        //checkphase on next row
-        if (row>=lim_) {
-          if (current_lvl_load_phase_i<LVL_LOAD_PHASE_NUM) {
-            low_=lim_;
-            current_lvl_load_phase_i++;
-            lim_+=load_lvl_jumpmap[current_lvl_load_phase_i];
-          }
+
+        if (row>=lim)
+          current_lim_i++;
+        low = SAVE_ATTR_ROW_NUM[current_lim_i];
+        next_lim_i=current_lim_i+1;
+        if (next_lim_i<13) {
+          lim = low + SAVE_ATTR_ROW_NUM[next_lim_i];
+        } else {
+          lim=low;
         }
 
       }
@@ -550,43 +502,62 @@ bool LoadSave(wchar_t *saves_name, bool spawn_objects)
               int_saved_val=-abs(int_saved_val);
               is_negative_val=FALSE;
             }
+          
+            if (row>=low && row<lim) { //Ground Float Segment
+              ground_float_pointer[row-low][column]=(float)int_saved_val;
 
-            //====== SET MULTI-VALUES ======
-            switch (current_lvl_load_phase_i) { //jumpmapping, start from 1 as 0 is before row 4
-              case 1:ground_float_pointer[row-low_][column]=(float)int_saved_val;break; //Ground Float Segment
-              case 2:ground_bool_pointer[row-low_][column]=(bool)int_saved_val;break; //Ground Bool Segmnet
-              case 3:ground_int_pointer[row-low_][column]=(int)int_saved_val;break; //Ground Int Segment
-              case 4: break; //UTF GROUND IS SKIPPED
-              case 5:enemy_int_pointer[row-low_][column]=int_saved_val;break; //Enemy Int Segment
-              case 6: enemy_float_pointer[row-low_][column]=(float)int_saved_val;break; //EnemyType Float Segment
-              case 7: enemy_type_float_pointer[row-low_][column]=float_saved_val;break; //!!true float!! //Enemy Float Segment
-              case 8: enemy_type_int_pointer[row-low_][column]=int_saved_val;break;  //EnemyType Int Segment
-              case 9: enemy_type_bool_pointer[row-low_][column]=(bool)int_saved_val;break; //EnemyType Bool Segment
-              case 10: *player_float_pointer[row-low_]=(float)int_saved_val; break; //Saved Player Float Segment
-              case 11:  //Saved Map Attributes Segment
-                switch (map_attr_var_type[row-low_]) {
-                  case 0:*(bool*)level_attributes[row-low_]=(bool)int_saved_val;break;
-                  case 1:*(int*)level_attributes[row-low_]=int_saved_val;break;
-                  case 2:*(float*)level_attributes[row-low_]=(float)int_saved_val;break;
-                }
-                break;
-              case 12:  //Game Platform Textures Segment
-                switch (row) {
-                  case 48: GamePlatformTextures[column].type=int_saved_val;break;
-                  case 49: GamePlatformTextures[column].solid_value=int_saved_val;break;
-                  case 50: GamePlatformTextures[column].color_id=int_saved_val;break;
-                }
-                break;
+            } else if (row>=low && row<lim) { //Ground Bool Segmemt
+              ground_bool_pointer[row-low][column]=(bool)int_saved_val;
+
+            } else if (row>=low && row<lim) { //Ground Int Segment
+              ground_int_pointer[row-low][column]=int_saved_val;
+
+            } else if (row>=low && row<lim) { //Enemy Int Segment
+              enemy_int_pointer[row-low][column]=int_saved_val;
+
+            } else if (row>=low && row<lim) { //Enemy Float Segment
+              enemy_float_pointer[row-low][column]=(float)int_saved_val;
+
+            } else if (row>=low && row<lim) { //EnemyType Float Segment
+              enemy_type_float_pointer[row-low][column]=(float)int_saved_val;
+
+            } else if (row>=low && row<lim) { //EnemyType Int Segment
+              enemy_type_int_pointer[row-low][column]=int_saved_val;
+
+            } else if (row>=low && row<lim) { //EnemyType Bool Segment
+              enemy_type_bool_pointer[row-low][column]=(bool)int_saved_val;
             }
 
-
+            switch (row) {
+              case 46: 
+                if (column==0) {
+                  rain_grad_rise=int_saved_val;
+                } else {
+                  rain_grad_run=int_saved_val;
+                  if (rain_grad_run==0) {
+                    rain_grad_run=1;
+                  }
+                }
+                break;
+              case 48: 
+                if (column==0) {
+                  shadow_grad_rise=int_saved_val;
+                } else {
+                  shadow_grad_run=int_saved_val;
+                  if (shadow_grad_run==0) {
+                    shadow_grad_run=1;
+                  }
+                }
+                break;
+              case 49: GamePlatformTextures[column].type=int_saved_val;break;
+              case 50: GamePlatformTextures[column].solid_value=int_saved_val;break;
+              case 51: GamePlatformTextures[column].color_id=int_saved_val;break;
+            }
             //printf("%d,",int_saved_val);//save value to arr
             column++;
             is_negative_val=FALSE;
             int_val=int_saved_val=0;//restart values
           }//end of comma value
-
-
 
         } else {//txt characters only (row==13)
           if (c=='"') {
@@ -640,22 +611,35 @@ bool LoadSave(wchar_t *saves_name, bool spawn_objects)
         is_negative_val=FALSE;
         row++;
 
-        //checkphase on next row
-        if (row>=lim_) {
-          if (current_lvl_load_phase_i<LVL_LOAD_PHASE_NUM) {
-            //printf("low_:%d,lim_%d\n",low_,lim_);
-            low_=lim_;
-            current_lvl_load_phase_i++;
-            lim_+=load_lvl_jumpmap[current_lvl_load_phase_i];
-          }
+        if (row>=lim)
+          current_lim_i++;
+        low = SAVE_ATTR_ROW_NUM[current_lim_i];
+        next_lim_i=current_lim_i+1;
+        if (next_lim_i<13) {
+          lim = low + SAVE_ATTR_ROW_NUM[next_lim_i];
+        } else {
+          lim=low;
         }
-        //printf(";\n");
       }
     }
   }
   fclose(fptr);
   return TRUE;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

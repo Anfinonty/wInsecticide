@@ -160,18 +160,21 @@ void SaveNewCreatedLvl(const wchar_t* create_lvl_name_)
   }
 
 
-  fprintf(fptr,"228;\n"); //player x
-  fprintf(fptr,"400;\n"); //player y
+  fprintf(fptr,"228,;\n"); //player x
+  fprintf(fptr,"400,;\n"); //player y
 
-  fprintf(fptr,"2;\n");
-  fprintf(fptr,"15;\n");
-  fprintf(fptr,"0;\n");
+  fprintf(fptr,"2,;\n"); //map background
+  fprintf(fptr,"15,;\n"); // map background color i
+  fprintf(fptr,"0,;\n"); // moon phase
 
-  fprintf(fptr,"0;\n"); //
-  fprintf(fptr,"200,200;\n"); // 
+  fprintf(fptr,"0,;\n"); // weather
+  fprintf(fptr,"37,;\n"); // rain rise
+  fprintf(fptr,"26,;\n"); // rain run
 
-  fprintf(fptr,"0;\n"); //
-  fprintf(fptr,"200,200;\n"); // 
+  //Textures
+  fprintf(fptr,"0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,;\n");
+  fprintf(fptr,"0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,;\n");
+  fprintf(fptr,"0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,;\n");
 
   fclose(fptr);
 }
@@ -314,7 +317,7 @@ void SaveLvlBmp(HWND hwnd,HDC hdc,const wchar_t* lvl_name)
 
     //FOREGROUND_GRID_NUM=0;
     PLATFORM_GRID_NUM=0;
-    SHADOW_GRID_NUM=0;
+    //SHADOW_GRID_NUM=0;
     if (hwnd!=NULL) {
       loading_numerator=0;
       loading_denominator=0;
@@ -332,14 +335,14 @@ void SaveLvlBmp(HWND hwnd,HDC hdc,const wchar_t* lvl_name)
       }
     }
 
-    for (int i=0;i<VGRID_NUM;i++) {
+    /*for (int i=0;i<VGRID_NUM;i++) {
       if (VGrid[i]->has_shadow) {
         SHADOW_GRID_NUM++;
       }
-    }
+    }*/
 
     if (hwnd!=NULL) {
-      loading_denominator=PLATFORM_GRID_NUM/*+FOREGROUND_GRID_NUM*/+SHADOW_GRID_NUM;
+      loading_denominator=PLATFORM_GRID_NUM/*+FOREGROUND_GRID_NUM*//*+SHADOW_GRID_NUM*/;
     }
 
 
@@ -371,7 +374,7 @@ void SaveLvlBmp(HWND hwnd,HDC hdc,const wchar_t* lvl_name)
 
 
   //shadow platforms, water excluded from shadow
-  COLORREF shadowc=LTGRAY;
+  /*COLORREF shadowc=LTGRAY;
   if (hwnd!=NULL) {
   if (MapEditor.set_lvl_ambient_val[6]==1 && 
         (MapEditor.set_lvl_ambient_val[7]!=shadow_grad_rise || MapEditor.set_lvl_ambient_val[8]!=shadow_grad_run)) {
@@ -397,7 +400,7 @@ void SaveLvlBmp(HWND hwnd,HDC hdc,const wchar_t* lvl_name)
 
   //DeleteDC(hdc3);
   DeleteDC(hdc2);
-  SaveLvlBmpSegmentation1(hwnd,hdc,lvl_name);
+  SaveLvlBmpSegmentation1(hwnd,hdc,lvl_name);*/
 
 
   /*hdc2=CreateCompatibleDC(hdc);
@@ -555,135 +558,42 @@ void SaveMELvl(HWND hwnd,HDC hdc)
 
     //ENEMY TYPE
     //enemy Type,, NOTE: ENEMY_TYPE NUM DOES NOT CHANGE
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) { //float type var
-      fprintf(fptr,"%3.1f,",set_enemy_type_speed[i]);
-    }
-    fprintf(fptr,";\n");
+       //Set Float Values
+   for (int k=0;k<S_ENEMY_TYPE_FLOAT_NUM;k++) {
+      for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+        fprintf(fptr,"%3.1f,",set_enemy_type_float_pointer[k][i]);
+      }
+      fprintf(fptr,";\n");
+   }
 
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) { //float type var
-      fprintf(fptr,"%3.1f,",set_enemy_type_bullet_speed[i]);
-    }
-    fprintf(fptr,";\n");
+   //Set Int Values
+   for (int k=0;k<S_ENEMY_TYPE_INT_NUM;k++) {
+      for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+        fprintf(fptr,"%d,",set_enemy_type_int_pointer[k][i]);
+      }
+      fprintf(fptr,";\n");
+   }
 
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",set_enemy_type_species[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",set_enemy_type_follow_range[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",set_enemy_type_unchase_range[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",set_enemy_type_chase_range[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",set_enemy_type_color[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",set_enemy_type_speed_multiplier[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",set_enemy_type_health[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",set_enemy_type_shoot_at_player_range[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",set_enemy_type_aim_rand[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",set_enemy_type_bullet_cooldown[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",set_enemy_type_bullet_fire_cooldown[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",set_enemy_type_bullet_fire_at_once[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",set_enemy_type_bullet_length[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",set_enemy_type_bullet_damage[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",set_enemy_type_bullet_speed_multiplier[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",set_enemy_type_bullet_range[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",set_enemy_type_bullet_color[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",set_enemy_type_bullet_graphics_type[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",set_enemy_type_time_breaker_rare[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",set_enemy_type_time_breaker_length[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) { //bool type var
-      fprintf(fptr,"%d,",set_enemy_type_time_breaker_immune[i]);
-    }
-    fprintf(fptr,";\n");
+   //Set Bool Values
+   for (int k=0;k<S_ENEMY_TYPE_BOOL_NUM;k++) {
+      for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+        fprintf(fptr,"%d,",set_enemy_type_bool_pointer[k][i]);
+      }
+      fprintf(fptr,";\n");
+   }
 
 
 
-    fprintf(fptr,"%1.0f;\n",player.x); //player x
-    fprintf(fptr,"%1.0f;\n",player.y); //player y
 
-    fprintf(fptr,"%d;\n",MapEditor.set_lvl_ambient_val[0]/*map_background*/); //
-    fprintf(fptr,"%d;\n",MapEditor.set_lvl_ambient_val[1]/*custom_map_background_color_i*/); // 
-    fprintf(fptr,"%d;\n",MapEditor.set_lvl_ambient_val[2]/*is_moon*/); //
+    fprintf(fptr,"%1.0f,;\n",player.x); //player x
+    fprintf(fptr,"%1.0f,;\n",player.y); //player y
 
-
-    fprintf(fptr,"%d;\n",MapEditor.set_lvl_ambient_val[3]); // 
-    fprintf(fptr,"%d,%d,;\n",MapEditor.set_lvl_ambient_val[4],MapEditor.set_lvl_ambient_val[5]); //
-    fprintf(fptr,"%d;\n",MapEditor.set_lvl_ambient_val[6]); //
-    fprintf(fptr,"%d,%d,;\n",MapEditor.set_lvl_ambient_val[7],MapEditor.set_lvl_ambient_val[8]); //
+    fprintf(fptr,"%d,;\n",MapEditor.set_lvl_ambient_val[0]/*map_background*/); //
+    fprintf(fptr,"%d,;\n",MapEditor.set_lvl_ambient_val[1]/*custom_map_background_color_i*/); // 
+    fprintf(fptr,"%d,;\n",MapEditor.set_lvl_ambient_val[2]/*is_moon*/); //
+    fprintf(fptr,"%d,;\n",MapEditor.set_lvl_ambient_val[3]); // 
+    fprintf(fptr,"%d,;\n",MapEditor.set_lvl_ambient_val[4]); //
+    fprintf(fptr,"%d,;\n",MapEditor.set_lvl_ambient_val[5]); //
 
 
     for (int i=0;i<PLATFORM_TEXTURES_NUM;i++) {
@@ -1025,140 +935,45 @@ void SaveNewLimitAdjustedLvl(HWND hwnd, HDC hdc)
 
 
 
-
-
-    //ENEMY TYPE
+   //ENEMY TYPE
     //enemy Type,, NOTE: ENEMY_TYPE NUM DOES NOT CHANGE
+   //Set Float Values
+   for (int k=0;k<S_ENEMY_TYPE_FLOAT_NUM;k++) {
+      for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+        fprintf(fptr,"%3.1f,",enemy_type_float_pointer[k][i]);
+      }
+      fprintf(fptr,";\n");
+   }
 
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%3.1f,",saved_enemy_type_speed[i]);
-    }
-    fprintf(fptr,";\n");
+   //Set Int Values
+   for (int k=0;k<S_ENEMY_TYPE_INT_NUM;k++) {
+      for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+        fprintf(fptr,"%d,",enemy_type_int_pointer[k][i]);
+      }
+      fprintf(fptr,";\n");
+   }
 
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%3.1f,",saved_enemy_type_bullet_speed[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",saved_enemy_type_species[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",saved_enemy_type_follow_range[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",saved_enemy_type_unchase_range[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",saved_enemy_type_chase_range[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",saved_enemy_type_color[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",saved_enemy_type_speed_multiplier[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",saved_enemy_type_health[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",saved_enemy_type_shoot_at_player_range[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",saved_enemy_type_aim_rand[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",saved_enemy_type_bullet_cooldown[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",saved_enemy_type_bullet_fire_cooldown[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",saved_enemy_type_bullet_fire_at_once[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",saved_enemy_type_bullet_length[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",saved_enemy_type_bullet_damage[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",saved_enemy_type_bullet_speed_multiplier[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",saved_enemy_type_bullet_range[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",saved_enemy_type_bullet_color[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",saved_enemy_type_bullet_graphics_type[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",saved_enemy_type_time_breaker_rare[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",saved_enemy_type_time_breaker_length[i]);
-    }
-    fprintf(fptr,";\n");
-
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      fprintf(fptr,"%d,",saved_enemy_type_time_breaker_immune[i]);
-    }
-    fprintf(fptr,";\n");
+   //Set Bool Values
+   for (int k=0;k<S_ENEMY_TYPE_BOOL_NUM;k++) {
+      for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+        fprintf(fptr,"%d,",enemy_type_bool_pointer[k][i]);
+      }
+      fprintf(fptr,";\n");
+   }
 
 
 
-    fprintf(fptr,"%1.0f;\n",saved_player_x); //player x
-    fprintf(fptr,"%1.0f;\n",saved_player_y); //player y
+    fprintf(fptr,"%1.0f,;\n",saved_player_x); //player x
+    fprintf(fptr,"%1.0f,;\n",saved_player_y); //player y
 
-    fprintf(fptr,"%d;\n",map_background); //
-    fprintf(fptr,"%d;\n",custom_map_background_color_i); // 
-    fprintf(fptr,"%d;\n",is_moon); //
+    fprintf(fptr,"%d,;\n",map_background); //
+    fprintf(fptr,"%d,;\n",custom_map_background_color_i); // 
+    fprintf(fptr,"%d,;\n",is_moon); //
 
-    fprintf(fptr,"%d;\n",map_weather); //
-    fprintf(fptr,"%d,%d;\n",rain_grad_rise,rain_grad_run); // 
+    fprintf(fptr,"%d,;\n",map_weather); //
+    fprintf(fptr,"%d,;\n",rain_grad_rise); // 
+    fprintf(fptr,"%d,;\n",rain_grad_run); // 
 
-    fprintf(fptr,"%d;\n",is_shadows); //
-    fprintf(fptr,"%d,%d;\n",shadow_grad_rise,shadow_grad_run); // 
 
     for (int i=0;i<PLATFORM_TEXTURES_NUM;i++) {
       fprintf(fptr,"%d,",GamePlatformTextures[i].type);

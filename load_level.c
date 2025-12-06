@@ -134,11 +134,11 @@ void Init() { //Repeatable
   InitStars(); //<----change
   InitMoon(); //<----change
   InitBullet(BULLET_NUM);
-  InitGrid();
-  InitNodeGrid();
-  InitGround(TRUE);
-  InitGroundFire();
-  InitNodeGridAttributes();
+  InitGrid(); //<----- move to once
+  InitNodeGrid(); //<-------- move to once
+  InitGround(TRUE); //<-------- move to once, delete webs only
+  InitGroundFire(); //<---------move to once
+  InitNodeGridAttributes(); //<-----------move to once
   InitEnemy();
   InitPlayer();
 
@@ -246,7 +246,13 @@ void InitLevel(bool load_lvl)
   player_load_pupil_color=player_pupil_color;
   player_bullet_color=WHITE;
 
-  Init(); //Repeatable, Load Save via \n
+  Init(); //Repeatable, Load Save via \n key
+
+  custom_map_background_color=rgbPaint[custom_map_background_color_i];
+
+  if (rain_grad_run==0) {
+    rain_grad_run=1;
+  }
 
   //Load nalloc-able objects
   InitGroundWaterObj();
@@ -255,7 +261,7 @@ void InitLevel(bool load_lvl)
   InitEnemySprites();
 
   //declare size of denominator
-  loading_denominator=SHADOW_GRID_NUM+PLATFORM_GRID_NUM/*+FOREGROUND_GRID_NUM*/+ENEMY_TYPE_NUM+(LARGE_ENEMY_TYPE_NUM*ROTATED_SPRITE_NUM*2)+LARGER_ENEMY_TYPE_NUM*ROTATED_SPRITE_NUM;
+  loading_denominator=/*SHADOW_GRID_NUM+*/PLATFORM_GRID_NUM/*+FOREGROUND_GRID_NUM*/+ENEMY_TYPE_NUM+(LARGE_ENEMY_TYPE_NUM*ROTATED_SPRITE_NUM*2)+LARGER_ENEMY_TYPE_NUM*ROTATED_SPRITE_NUM;
 
   InitEnemySpritesObj();
   InitPFEnemyObj();

@@ -154,8 +154,8 @@ void CleanUpNodeGrid()
 
 
 
-void CleanUpGrid()
-{
+//void CleanUpGrid()
+//{
   //int i=0,j=0;
   /*for (i=0;i<VGRID_NUM;i++) {
     VGrid[i]->within_render_distance=FALSE;
@@ -169,8 +169,8 @@ void CleanUpGrid()
     VGrid[i]->x2=-20;
     VGrid[i]->y2=-20;
   }*/
-  bool yes_shadow=FALSE;
-  if (is_shadows /*&& game_shadow*/) {
+  //bool yes_shadow=FALSE;
+  /*if (is_shadows && game_shadow) {
     yes_shadow=TRUE;
   }
   if (PLATFORM_GRID_NUM>0) {
@@ -183,7 +183,7 @@ void CleanUpGrid()
       }
       //FreeDrawSprite(&TileMapPlatform[i]->draw_tile);
     }
-  }
+  }*/
 
   /*if (FOREGROUND_GRID_NUM>0) {
     for (int i=0;i<FOREGROUND_GRID_NUM;i++) {
@@ -206,7 +206,7 @@ void CleanUpGrid()
   }*/
 
   //printf("freed:%d,%d,%d\n",PLATFORM_GRID_NUM,FOREGROUND_GRID_NUM,SHADOW_GRID_NUM);
-}
+//}
 
 
 
@@ -376,7 +376,7 @@ void CleanupAll(bool btm)
     CleanUpPlatformTextures();
     CleanUpEnemySprites();
     CleanUpRotatedSprites();
-    CleanUpGrid();
+    //CleanUpGrid();
     CleanupPlayerAttributes();
     call_help_timer=0;
 
@@ -473,7 +473,7 @@ void CleanupAll(bool btm)
 
 
 
-    for (int i=0;i<PLATFORM_GRID_NUM;i++) {
+    for (int i=0;i<PLATFORM_GRID_NUM;i++) { //free platforms bitmaps
       freeTileMap(TileMapPlatform[i]);
     }
     /*for (int i=0;i<FOREGROUND_GRID_NUM;i++) {

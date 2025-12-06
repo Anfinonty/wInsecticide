@@ -1123,7 +1123,6 @@ void CleanUpGround();
 void CleanupPlayerAttributes();
 void CleanUpEnemySprites();
 void CleanUpRotatedSprites();
-void CleanUpGrid();
 void CleanupAll(bool btm);
 
 

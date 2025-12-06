@@ -62,7 +62,7 @@ struct MapEditor
 
 
   //set options for lvl ambient
-  int set_lvl_ambient_val[9];
+  int set_lvl_ambient_val[6];
 
 
 
@@ -689,9 +689,6 @@ void InitMapEditor()
   MapEditor.set_lvl_ambient_val[3]=map_weather;
   MapEditor.set_lvl_ambient_val[4]=rain_grad_rise;
   MapEditor.set_lvl_ambient_val[5]=rain_grad_run;
-  MapEditor.set_lvl_ambient_val[6]=is_shadows;
-  MapEditor.set_lvl_ambient_val[7]=shadow_grad_rise;
-  MapEditor.set_lvl_ambient_val[8]=shadow_grad_run;
 
   MapEditor.clipboard_ground_id=0;
   MapEditor.clipboard_ground_color_id=0;
