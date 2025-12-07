@@ -579,7 +579,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
             if ((!game_hard && player.exp>MAX_EXP_NUM_NORMAL) || (game_hard && player.exp>MAX_EXP_NUM_HARD)) {
               player.exp=0;
               player.bullet_num++;
-              if (player.max_web_num<MAX_WEB_NUM) {
+              if (player.max_web_num<MAX_WEB_NUM) { //increase allowed player web num
                 player.max_web_num++;
               } else {
                 player.health+=0.5;

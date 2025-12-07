@@ -322,7 +322,7 @@ void InitGround(bool is_max)
       } else {
         Ground[i]->is_ghost=FALSE;
       }
-    } else { 
+    } else { //set webs
       Ground[i]->x1=-25;
       Ground[i]->y1=2;
       Ground[i]->x2=-20;

@@ -134,11 +134,22 @@ void Init() { //Repeatable
   InitStars(); //<----change
   InitMoon(); //<----change
   InitBullet(BULLET_NUM);
-  InitGrid(); //<----- move to once
-  InitNodeGrid(); //<-------- move to once
-  InitGround(TRUE); //<-------- move to once, delete webs only
-  InitGroundFire(); //<---------move to once
-  InitNodeGridAttributes(); //<-----------move to once
+  if (!run_once_only) { //only run once.
+    InitGrid();
+    InitNodeGrid();
+    InitGround(TRUE);
+  } else { //DESTROY ALL WEBS, GRIDS AND NODEGRIDS UNAFFECTED
+    for (int k=0;k<MAX_WEB_NUM;k++) { //0 -> 200
+      if (Ground[GROUND_NUM+k]->health>0) { //web is placed and not destroyed
+        DestroyGround(GROUND_NUM+k);
+  	    RegainWeb(GROUND_NUM+k);
+      }
+    }
+  }
+  InitGroundFire();
+  if (!run_once_only) { //ONLY RUN ONCE
+    InitNodeGridAttributes(); 
+  }
   InitEnemy();
   InitPlayer();
 
@@ -147,8 +158,6 @@ void Init() { //Repeatable
   InitScreenRainDrop();
   InitShootingStars();
   InitBulletRain();
-  //BitmapPalette(hdc,map_platforms_sprite,rgbColorsDefault);
-  //BitmapPalette(hdc,map_water_platforms_sprite,rgbColorsDefault);
 
   mem_snd_interrupt[0]=TRUE;
   waveOutReset(hWaveOut[0]);

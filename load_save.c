@@ -23,12 +23,7 @@ int PLATFORM_GRID_NUM;
 int RD_DYN_WIDTH;
 int RD_DYN_HEIGHT;
 int RDGRID_DYN_NUM;
-
 int MAP_NODE_NUM;
-
-
-
-
 
 
 //====Ground====
@@ -249,6 +244,11 @@ int *set_enemy_type_int_pointer[S_ENEMY_TYPE_INT_NUM]=
   set_enemy_type_bullet_fire_cooldown, 
   set_enemy_type_bullet_fire_at_once, //
   set_enemy_type_bullet_length,
+
+  //more enemy bullet attributes for bullet patterns here
+  //...,
+  //set_enemy_type_bullet_next_angle //per bullet length, 
+
   set_enemy_type_bullet_damage, //
   set_enemy_type_bullet_speed_multiplier, 
   set_enemy_type_bullet_range, //
@@ -261,12 +261,9 @@ int *set_enemy_type_int_pointer[S_ENEMY_TYPE_INT_NUM]=
 bool *set_enemy_type_bool_pointer[S_ENEMY_TYPE_BOOL_NUM]=
 {
   set_enemy_type_time_breaker_immune
+  //set_enemy_aim_player //enemy aiming at player or not
+  //set_enemy_bullet_angle_oscillate //after shoot bullet:: ?angle=-angle,,:angle=(-angle)+angle (bullet_shot_num%2==1)
 };
-
-
-
-
-
 
 
 
@@ -283,9 +280,17 @@ float *player_float_pointer[S_PLAYER_FLOAT_NUM]=
 
 //Level Background Attributes
 //they are stored in this exact order
-int map_background;
+int map_background; //0 day, //1 night-> night palette, //2 no background,
 int custom_map_background_color,custom_map_background_color_i;
 int is_moon;
+
+//int map_moon_phase=0;
+/*
+  float map_moon_angle;
+  float map_stars_angle;
+  float map_sun_angle;
+*/
+
 int map_weather=0;
 float rain_grad_rise=1;
 float rain_grad_run=1;
@@ -670,7 +675,7 @@ void LoadOptions()
       game_cam_shake=1;
       game_audio=1;
       game_volume=0.2000;
-      wav_out_volume=0.5000; //scrapped
+      wav_out_volume=0.5000; //scrapped, later change to music volume
       yes_unifont=1;
       game_shadow=0;
       hide_taskbar=0;
