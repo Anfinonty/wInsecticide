@@ -2226,8 +2226,62 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       int64_t timenow= int64_current_timestamp(); //local timestamp is returned
 
       printf("\nSeconds Passed Since Jan-1-1970: %d",timenow);
-      PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);
-      PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift);
+
+      PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day,&solar_leap_year);
+      PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);
+
+
+
+      //float localT__ = calculateSunriseSunset(2025,12,12,36.7783,119.4179 ,8,0,0);
+                       //calculateSunriseSunset(solar_year, solar_month, solar_day,11.558464069923632,104.86545288651752 ,7,0,0);
+                       //calculateSunriseSunset(2025,12,12,11.558464069923632,104.86545288651752 ,7,0,0);
+                       //calculateSunriseSunset(2025,12,12,11.558464069923632,104.86545288651752 ,7,0,0);
+      //double hours__;
+      //float minutes__ = modf(localT__,&hours__)*60;
+      //printf("\n TIMEY SUNRISE: %.0f:%.0f",hours__,minutes__);
+
+      sun_ctx_t sun_riseset;
+
+      //sun_riseset.in_yday = 345;
+      //sun_riseset.in_hour = 0;
+
+
+      //Phnom Penh 11.5564° N, 104.9282° E
+      sun_riseset.in_latitude  =  11.558464069923632; 
+      sun_riseset.in_longitude = 104.86545288651752;
+      double utc_offset=time_offset()/3600;
+
+
+      //ITALY
+      //sun_riseset.in_latitude  = 36.7201600;
+      //sun_riseset.in_longitude = -4.4203400;
+      //double utc_offset=...;
+
+      //California (big) County
+      //sun_riseset.in_latitude  =  36.7783;
+      //sun_riseset.in_longitude =  119.4179;
+      //double utc_offset=8;
+
+      //Sweden
+      //sun_riseset.in_latitude  =  59.33;
+      //sun_riseset.in_longitude =  18.07;
+      //double utc_offset=1;
+
+      sun_ret_t ret = sun_compute(&sun_riseset,solar_angle_day,solar_leap_year);
+      double prise=sun_riseset.out_sunrise_mins/60;
+      double pset=sun_riseset.out_sunset_mins/60;
+
+
+      double timeh_rise=utc_offset+prise;
+      double timeh_set =utc_offset+pset;
+      //sunlight duration is set - rise
+      printf("\n==================");
+      printf("\nUTC Offset: %d\n",time_offset()/3600);
+      printf("Sun Rise: %02d:%02d\n",(int)(timeh_rise),(int)fmod(60*timeh_rise,60) );
+      printf("Sun Set:  %02d:%02d\n",(int)(timeh_set), (int)fmod(60*timeh_set ,60) );
+      printf("Total sunlight: %5.4f hours",pset-prise);
+      printf("\n==================\n");
+
 
       int num_char='*'; //hijri
       if (solar_month==1 && solar_day>=12 && solar_day<=19) {

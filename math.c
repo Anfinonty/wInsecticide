@@ -4,11 +4,12 @@
 //Solar Hijri Time for Drawing
 int solar_sec=0,solar_min=0,solar_hour=0,solar_day=0,solar_month=0,solar_year=0,solar_day_of_week=0;
 float solar_angle_day=0;
+bool solar_leap_year;
 
 //Lunar Hijri Time for Drawing
 int lunar_sec=0,lunar_min=0,lunar_hour=0,lunar_day=0,lunar_month=0,lunar_year=0,lunar_day_of_week=0;
 float moon_angle_shift=0;
-
+bool lunar_leap_year;
 
 unsigned long long current_timestamp() {//https://copyprogramming.com/howto/c-sleep-in-milliseconds-in-c-code-example
 //https://stackoverflow.com/questions/10301106/gettimeofday-returns-a-negative-value
@@ -210,7 +211,8 @@ void PersiaSolarTime(int64_t _seconds,
   int *_solar_month,
   int *_solar_year,
   int *_solar_day_of_week,
-  float *_solar_angle_day
+  float *_solar_angle_day,
+  bool *_solar_leap_year
 )
 {  
   //Beginning date:
@@ -336,13 +338,23 @@ void PersiaSolarTime(int64_t _seconds,
   //printf("SD~%d~\n",__solar_day);
 
 
+  bool _is_solar_leap_year=FALSE;
   float __solar_angle=0;
   if (year==leap_year) {
-    __solar_angle=(M_PI*2)*__solar_day/366;
+    _is_solar_leap_year=TRUE;
+    __solar_angle=(M_PI*2)*(__solar_day)/366;
   } else {
-    __solar_angle=(M_PI*2)*__solar_day/365;
+    __solar_angle=(M_PI*2)*(__solar_day)/365;
   }
 
+/*
+    double gamma = ctx->in_yday + ((ctx->in_hour - 12.0) / 24.0);    
+    if (!is_solar_leap_year) {
+      gamma = gamma * 2.0 * M_PI / 365.0;
+    } else {
+      gamma = gamma * 2.0 * M_PI / 366.0;
+    }
+*/
 
   *_solar_year=year;
   *_solar_month=month+1;
@@ -352,6 +364,7 @@ void PersiaSolarTime(int64_t _seconds,
   *_solar_sec=(int)print_seconds;
   *_solar_day_of_week=seconds_static/SEC_PER_DAY%7;
   *_solar_angle_day=__solar_angle;
+  *_solar_leap_year=_is_solar_leap_year;
 }
 
 
@@ -364,7 +377,8 @@ void PersiaLunarTime(int64_t _seconds,
   int *_lunar_month,
   int *_lunar_year,
   int *_lunar_day_of_week,
-  float *_moon_angle_shift
+  float *_moon_angle_shift,
+  bool *_lunar_leap_year
 )
 {
   //622 C.E. = Beginning of Year
@@ -486,12 +500,13 @@ void PersiaLunarTime(int64_t _seconds,
   }
 
   int _;
+  bool b_;
   if (print_days+1>=29) { //new moon
     lunar_day_start+=(print_days*day_seconds);
   }
 
   float moon_angle_shift=0;
-  PersiaSolarTime(lunar_day_start,&_,&_,&_,&_,&_,&_,&_,&moon_angle_shift);
+  PersiaSolarTime(lunar_day_start,&_,&_,&_,&_,&_,&_,&_,&moon_angle_shift,&b_);
   
   if (print_days+1==28) //new moon
     moon_angle_shift+=2*M_PI/27;
@@ -505,7 +520,141 @@ void PersiaLunarTime(int64_t _seconds,
   *_lunar_sec=(int)print_seconds;
   *_lunar_day_of_week=seconds_static/SEC_PER_DAY%7;
   *_moon_angle_shift=moon_angle_shift;
+  *_lunar_leap_year=leap;
 }
+
+
+
+
+/***
+JAN 1 ----> JAN 31
+FEB 1 ----> FEB 28 (normal) or 29 (leap year)       ESFAND      
+MAR 1 ----> MAR 19/20/21                            FAVRADIN    1
+
+***/
+
+
+// sun: compute sunrise/sunset times
+//
+// https://github.com/oreparaz/sun
+//
+// (c) 2022 Oscar Reparaz <firstname.lastname@esat.kuleuven.be>
+
+typedef uint64_t fti_sample_t;
+
+typedef struct sun_ctx_t {
+    double in_latitude;
+    double in_longitude;
+    uint32_t in_yday; // number of days since Jan 1, in the range of 0 to 365 //~~! unused
+    uint32_t in_hour; // number of hours past midnight (range 0 to 23) //~~! unused
+    double out_sunrise_mins; // minutes after midnight (UTC)
+    double out_sunset_mins;
+} sun_ctx_t;
+
+typedef enum {
+    SUN_SUCCESS = 0,
+    SUN_ERROR,
+} sun_ret_t;
+
+
+#define deg2rad(deg) ((deg) * (M_PI / 180.0))
+#define rad2deg(rad) ((rad) * (180.0 / M_PI))
+
+// sun_compute follows:
+//
+//    General Solar Position Calculations
+//    NOAA Global Monitoring Division
+//    https://gml.noaa.gov/grad/solcalc/solareqns.PDF
+//
+
+sun_ret_t sun_compute(sun_ctx_t *ctx, double gamma, bool is_solar_leap_year)
+{
+    // fractional year [radians]
+    //double gamma = ctx->in_yday + ((ctx->in_hour - 12.0) / 24.0);
+    
+    //if (!is_solar_leap_year) {
+      //gamma = gamma * 2.0 * M_PI / 365.0;
+    //} else {
+      //gamma = gamma * 2.0 * M_PI / 366.0;
+    //}
+
+   //Hijri Offset (this is a work-around so it will be changed)
+   if (!is_solar_leap_year) {
+      gamma += (M_PI*2)*77.5025/365;
+   } else {
+      gamma += (M_PI*2)*77.5025/366;
+   }
+   //printf("\ngamma:%5.4f\n__gamma:%5.4f\n",gamma,__gamma);
+
+    double cosGamma = cos(gamma);
+    double cos2Gamma = cos(2 * gamma);
+    double cos3Gamma = cos(3 * gamma);
+
+    double sinGamma = sin(gamma);
+    double sin2Gamma = sin(2 * gamma);
+    double sin3Gamma = sin(3 * gamma);
+
+    // equation of time [minutes]
+    double eqtime = 0.000075 +
+                    0.001868 * cosGamma +
+                    -0.032077 * sinGamma +
+                    -0.014615 * cos2Gamma +
+                    -0.040849 * sin2Gamma;
+    eqtime = eqtime * 229.18;
+
+    // solar declination angle [radians]
+    double decl = -0.399912 * cosGamma + 0.070257 * sinGamma;
+    decl = decl + -0.006758 * cos2Gamma + 0.000907 * sin2Gamma;
+    decl = decl + -0.002697 * cos3Gamma + 0.00148 * sin3Gamma;
+    decl = decl + 0.006918;
+
+    // hour angle [radians]
+    double ha_sunrise = acos(((cos(deg2rad(90.833))) / (cos(deg2rad(ctx->in_latitude)) * cos(decl))) - tan(deg2rad(ctx->in_latitude)) * tan(decl));
+    double ha_sunset = -ha_sunrise;
+
+    // sunrise [minutes]
+    double sunRise = 720 - 4 * (ctx->in_longitude + rad2deg(ha_sunrise)) - eqtime;
+    double sunSet = 720 - 4 * (ctx->in_longitude + rad2deg(ha_sunset)) - eqtime;
+
+    ctx->out_sunrise_mins = sunRise;
+    ctx->out_sunset_mins = sunSet;
+
+    return SUN_SUCCESS;
+}
+
+
+
+
+
+
+// Source - https://stackoverflow.com/questions/13804095/get-the-time-zone-gmt-offset-in-c
+// Posted by Hill, modified by community. See post 'Timeline' for change history
+// Retrieved 2025-12-12, License - CC BY-SA 4.0
+
+int time_offset()
+{
+    time_t gmt, rawtime = time(NULL);
+    struct tm *ptm;
+
+#if !defined(WIN32)
+    struct tm gbuf;
+    ptm = gmtime_r(&rawtime, &gbuf);
+#else
+    ptm = gmtime(&rawtime);
+#endif
+    // Request that mktime() looksup dst in timezone database
+    ptm->tm_isdst = -1;
+    gmt = mktime(ptm);
+
+    return (int)difftime(rawtime, gmt);
+}
+
+
+
+
+
+
+
 
 
 //Maths

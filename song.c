@@ -1229,8 +1229,36 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
       get_current_time(&current_hour,&current_min,&current_sec);
         if (current_hour==0 && current_min==0 && current_sec<=1) {//next day
           int64_t timenow=int64_current_timestamp();
-          PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);
-          PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift);
+
+
+/*            
+    double in_latitude;
+    double in_longitude;
+    uint32_t in_yday; // number of days since Jan 1, in the range of 0 to 365
+    uint32_t in_hour; // number of hours past midnight (range 0 to 23)
+    double out_sunrise_mins; // minutes after midnight (UTC)
+    double out_sunset_mins;
+*/
+          //sun_ctx_t sun_riseset;
+          //sun_riseset.in_latitude  = 36.7201600;
+          //sun_riseset.in_longitude = -4.4203400;
+          //Phnom Penh 11.5564° N, 104.9282° E
+          //California
+          //sun_riseset.in_latitude  =  36.7783;
+          //sun_riseset.in_longitude =  119.4179;
+          //sun_riseset.in_latitude  = 36.7201600;
+          //sun_riseset.in_longitude = -4.4203400;
+
+
+          PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day,&solar_leap_year);
+          PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);
+
+          //sun_ret_t ret = sun_compute(&sun_riseset,solar_angle_day,solar_leap_year);
+          //double prise=sun_riseset.out_sunrise_mins;
+          //double pset=sun_riseset.out_sunset_mins;
+          //printf("Rise: %5.4f\n",prise);
+          //printf("Set: %5.4f\n",pset);
+
         }
       }
       Sleep(1000);

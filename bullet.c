@@ -1371,7 +1371,7 @@ void RainAct()
         }
       }
 
-  } else if (map_weather==3) {
+  } else if (map_weather==3) { //hailstorm
       if (GR_WIDTH>800) {
         for (int i=SHOOT_BULLET_NUM;i<SHOOT_BULLET_NUM/*+(RAIN_NUM/6)*/+(RAIN_NUM/2)+(RAIN_NUM/4);i++) {
           BulletAct(i);
