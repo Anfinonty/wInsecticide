@@ -617,25 +617,25 @@ sun_ret_t sun_compute(sun_ctx_t *ctx, double __farvarin_angle, bool is_solar_lea
     //last month (Esfand) has 29 days normal years and 30 days on leap years
     //Dey is the 10th month
     int thisYearDey=31*6+ 30*3; // 1,2,3,4,5,6  7,8,9  (10)
-    int _D; //Days since last Winter Solstice (Yalda Night), Dey 1,, Dey 1; D=0, Dey 2; D=1; etc..
+    int _D_Farvadin; //Days since 1 Farvadin
     if (is_solar_leap_year) { //this year is a leap year
-      _D = (int) (366*__farvarin_angle/(M_PI*2));
+      _D_Farvadin = (int) (366*__farvarin_angle/(M_PI*2));
     } else {
-      _D = (int) (365*__farvarin_angle/(M_PI*2));
+      _D_Farvadin = (int) (365*__farvarin_angle/(M_PI*2));
     }
 
-    int D;
-    if (_D<thisYearDey) { //Day is Before Dey of this Year
+    int D_Dey;  //Days since last Winter Solstice (Yalda Night), Dey 1,, Dey 1; D=0, Dey 2; D=1; etc..
+    if (_D_Farvadin<thisYearDey) { //Day is Before Dey of this Year
       if (last_year_is_leap) { //last year is leap year
-        D= 30+30+30 + _D;
+        D_Dey= 30+30+30 + _D_Farvadin;
       } else { //last year is common year
-        D= 30+30+29 +_D;
+        D_Dey= 30+30+29 +_D_Farvadin;
       }
     } else {//Day is After Dey of this Year
-      D=_D-thisYearDey;
+      D_Dey=_D_Farvadin-thisYearDey;
     }
 
-    double A=D*n; //Days since last Winter Solstice * 360degs/DaysPerYear,,,  Days Since Yalda Night, Dey 1
+    double A=D_Dey*n; //Days since last Winter Solstice * 360degs/DaysPerYear,,,  Days Since Yalda Night, Dey 1
 
     /*
       0.0167 is the Earth's orbital eccentricity
@@ -647,7 +647,7 @@ sun_ret_t sun_compute(sun_ctx_t *ctx, double __farvarin_angle, bool is_solar_lea
       B is the angle the Earth moves from the Winter solstice to date D
     */
 
-    double B=A + 0.033405602*sin((D-12)*n); //Perihelion //Approx. 2 weeks after Yalda Night or 12 Days, 0.033405602 radians is 1.914degs
+    double B=A + 0.033405602*sin((D_Dey-12)*n); //Perihelion //Approx. 2 weeks after Yalda Night or 12 Days, 0.033405602 radians is 1.914degs
     double C = (A - atan( tan(B)/cos(0.409) ))/M_PI; //Difference between angle moved at mean speed, 23.44 degs or 0.409 radians is the tilt of the Earth's Axis
     double eqtime = 720 * (int)(C+0.5);//(C - (int)(C+0.5));
 
