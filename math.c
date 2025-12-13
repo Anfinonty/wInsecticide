@@ -5,6 +5,7 @@
 int solar_sec=0,solar_min=0,solar_hour=0,solar_day=0,solar_month=0,solar_year=0,solar_day_of_week=0;
 float solar_angle_day=0;
 bool solar_leap_year;
+bool solar_last_year_is_leap;
 
 //Lunar Hijri Time for Drawing
 int lunar_sec=0,lunar_min=0,lunar_hour=0,lunar_day=0,lunar_month=0,lunar_year=0,lunar_day_of_week=0;
@@ -212,7 +213,8 @@ void PersiaSolarTime(int64_t _seconds,
   int *_solar_year,
   int *_solar_day_of_week,
   float *_solar_angle_day,
-  bool *_solar_leap_year
+  bool *_solar_leap_year,
+  bool *_solar_last_year_is_leap
 )
 {  
   //Beginning date:
@@ -338,23 +340,21 @@ void PersiaSolarTime(int64_t _seconds,
   //printf("SD~%d~\n",__solar_day);
 
 
+
   bool _is_solar_leap_year=FALSE;
   float __solar_angle=0;
-  if (year==leap_year) {
+  if (year==leap_year) { //this year is a leap year
     _is_solar_leap_year=TRUE;
     __solar_angle=(M_PI*2)*(__solar_day)/366;
   } else {
     __solar_angle=(M_PI*2)*(__solar_day)/365;
   }
 
-/*
-    double gamma = ctx->in_yday + ((ctx->in_hour - 12.0) / 24.0);    
-    if (!is_solar_leap_year) {
-      gamma = gamma * 2.0 * M_PI / 365.0;
-    } else {
-      gamma = gamma * 2.0 * M_PI / 366.0;
-    }
-*/
+  if (year-1==leap_year) {//check if last year is a leap year
+    *_solar_last_year_is_leap=TRUE;
+  } else {
+    *_solar_last_year_is_leap=FALSE;
+  }
 
   *_solar_year=year;
   *_solar_month=month+1;
@@ -506,7 +506,7 @@ void PersiaLunarTime(int64_t _seconds,
   }
 
   float moon_angle_shift=0;
-  PersiaSolarTime(lunar_day_start,&_,&_,&_,&_,&_,&_,&_,&moon_angle_shift,&b_);
+  PersiaSolarTime(lunar_day_start,&_,&_,&_,&_,&_,&_,&_,&moon_angle_shift,&b_,&b_);
   
   if (print_days+1==28) //new moon
     moon_angle_shift+=2*M_PI/27;
@@ -530,7 +530,6 @@ void PersiaLunarTime(int64_t _seconds,
 JAN 1 ----> JAN 31
 FEB 1 ----> FEB 28 (normal) or 29 (leap year)       ESFAND      
 MAR 1 ----> MAR 19/20/21                            FAVRADIN    1
-
 ***/
 
 
@@ -567,35 +566,28 @@ typedef enum {
 //    https://gml.noaa.gov/grad/solcalc/solareqns.PDF
 //
 
-sun_ret_t sun_compute(sun_ctx_t *ctx, double gamma, bool is_solar_leap_year)
-{
+//{
+  //Old equation that assumes jan 1 as day 1
     // fractional year [radians]
-    //double gamma = ctx->in_yday + ((ctx->in_hour - 12.0) / 24.0);
+    /*double gamma = ctx->in_yday + ((ctx->in_hour - 12.0) / 24.0);
     
-    //if (!is_solar_leap_year) {
-      //gamma = gamma * 2.0 * M_PI / 365.0;
-    //} else {
-      //gamma = gamma * 2.0 * M_PI / 366.0;
-    //}
+    if (!is_solar_leap_year) {
+      gamma = gamma * 2.0 * M_PI / 365.0;
+    } else {
+      gamma = gamma * 2.0 * M_PI / 366.0;
+    }*/
 
-   //Hijri Offset (this is a work-around so it will be changed)
+   //Hijri Offset (this is a work-around so it will be changed),,, Julian/Gregorian dependent
+   /*double __gamma = gamma;
    if (!is_solar_leap_year) {
       gamma += (M_PI*2)*77.5025/365;
    } else {
       gamma += (M_PI*2)*77.5025/366;
    }
-   //printf("\ngamma:%5.4f\n__gamma:%5.4f\n",gamma,__gamma);
-
-    double cosGamma = cos(gamma);
-    double cos2Gamma = cos(2 * gamma);
-    double cos3Gamma = cos(3 * gamma);
-
-    double sinGamma = sin(gamma);
-    double sin2Gamma = sin(2 * gamma);
-    double sin3Gamma = sin(3 * gamma);
+   printf("\ngamma:%5.4f\n__gamma:%5.4f\n",gamma,__gamma);*/
 
     // equation of time [minutes]
-    double eqtime = 0.000075 +
+    /*double eqtime = 0.000075 +
                     0.001868 * cosGamma +
                     -0.032077 * sinGamma +
                     -0.014615 * cos2Gamma +
@@ -606,22 +598,79 @@ sun_ret_t sun_compute(sun_ctx_t *ctx, double gamma, bool is_solar_leap_year)
     double decl = -0.399912 * cosGamma + 0.070257 * sinGamma;
     decl = decl + -0.006758 * cos2Gamma + 0.000907 * sin2Gamma;
     decl = decl + -0.002697 * cos3Gamma + 0.00148 * sin3Gamma;
-    decl = decl + 0.006918;
+    decl = decl + 0.006918;*/
+//}
+
+sun_ret_t sun_compute(sun_ctx_t *ctx, double __farvarin_angle, bool is_solar_leap_year,bool last_year_is_leap)
+{
+    //Alternatuve Calculation
+    //https://en.wikipedia.org/wiki/Equation_of_time
+    double n;
+    if (is_solar_leap_year) {
+      n=360/366; //1 more day added in Esfand, 30 instead of 29
+    } else {
+      n=360/365;
+    }
+
+    //First 6 months have 31 days, 
+    //next 5 months, 30 days,
+    //last month (Esfand) has 29 days normal years and 30 days on leap years
+    //Dey is the 10th month
+    int thisYearDey=31*6+ 30*3; // 1,2,3,4,5,6  7,8,9  (10)
+    int _D; //Days since last Winter Solstice (Yalda Night), Dey 1,, Dey 1; D=0, Dey 2; D=1; etc..
+    if (is_solar_leap_year) { //this year is a leap year
+      _D = (int) (366*__farvarin_angle/(M_PI*2));
+    } else {
+      _D = (int) (365*__farvarin_angle/(M_PI*2));
+    }
+
+    int D;
+    if (_D<thisYearDey) { //Day is Before Dey of this Year
+      if (last_year_is_leap) { //last year is leap year
+        D= 30+30+30 + _D;
+      } else { //last year is common year
+        D= 30+30+29 +_D;
+      }
+    } else {//Day is After Dey of this Year
+      D=_D-thisYearDey;
+    }
+
+    double A=D*n; //Days since last Winter Solstice * 360degs/DaysPerYear,,,  Days Since Yalda Night, Dey 1
+
+    /*
+      0.0167 is the Earth's orbital eccentricity
+
+      0.0167 * 360degs/PI * sin((D-12)*n) //12 Days after Winter Solstice is Perihelion
+        =1.914degs*sin((D-12)*n)
+        =0.033405602 RAD * sin((D-12)*n)
+
+      B is the angle the Earth moves from the Winter solstice to date D
+    */
+
+    double B=A + 0.033405602*sin((D-12)*n); //Perihelion //Approx. 2 weeks after Yalda Night or 12 Days, 0.033405602 radians is 1.914degs
+    double C = (A - atan( tan(B)/cos(0.409) ))/M_PI; //Difference between angle moved at mean speed, 23.44 degs or 0.409 radians is the tilt of the Earth's Axis
+    double eqtime = 720 * (int)(C+0.5);//(C - (int)(C+0.5));
+
+
+    //Solar Declination (23.44 degrees is 0.409 radians)
+    double decl = -asin(sin(0.409)*cos(B));
+
+    //720 is 12hours * 60 minutes
+
 
     // hour angle [radians]
     double ha_sunrise = acos(((cos(deg2rad(90.833))) / (cos(deg2rad(ctx->in_latitude)) * cos(decl))) - tan(deg2rad(ctx->in_latitude)) * tan(decl));
     double ha_sunset = -ha_sunrise;
 
     // sunrise [minutes]
-    double sunRise = 720 - 4 * (ctx->in_longitude + rad2deg(ha_sunrise)) - eqtime;
-    double sunSet = 720 - 4 * (ctx->in_longitude + rad2deg(ha_sunset)) - eqtime;
+    double sunRise = 720 - 4 * (ctx->in_longitude + rad2deg(ha_sunrise)) - eqtime -8; //is offset
+    double sunSet = 720 - 4 * (ctx->in_longitude + rad2deg(ha_sunset)) - eqtime -4; //is offset
 
     ctx->out_sunrise_mins = sunRise;
     ctx->out_sunset_mins = sunSet;
 
     return SUN_SUCCESS;
 }
-
 
 
 

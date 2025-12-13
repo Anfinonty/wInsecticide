@@ -470,7 +470,7 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4,int z)
   GrPrint(hdc,x+1,y+32+1,txt3,c4);*/
 }
 
-
+//int funnyrun=0;
 void DrawCrosses(HDC hdc,int x, int y)
 {
   char C[1];
@@ -518,13 +518,22 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
 //    DrawSprite(hdc, hdc2,mcalendar_x,mcalendar_y,&draw_moon_cartoon_sprite,FALSE);
   //}
 
+  double drawoffset=-M_PI/2;
+  //timenow++;
+  //funnyrun+=1000*20;
+  //int64_t timenow=int64_current_timestamp()+funnyrun;
+
+  //PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day,&solar_leap_year);
+  //PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);
+
+
   if (lunar_day<27) //0 to 26
     moon_angle=(-2*M_PI/27 * lunar_day ) - moon_angle_shift;
   else
     moon_angle=-moon_angle_shift;
 
   for (int i=0;i<27;i++) {
-    float tmp_angle=-2*M_PI/27 * i - moon_angle_shift;
+    float tmp_angle=-2*M_PI/27 * i - moon_angle_shift   +drawoffset;
     if (i>1 && i<26) {
       GrCircle(hdc,mcalendar_x + mcalendar_l*cos(tmp_angle), mcalendar_y + mcalendar_l*sin(tmp_angle),5,BLACK,DKGRAY);
     } else {
@@ -535,10 +544,10 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
       }
     }
   }
-  GrCircle(hdc,mcalendar_x + mcalendar_l*cos(moon_angle), mcalendar_y + mcalendar_l*sin(moon_angle),5,WHITE,WHITE);
+  GrCircle(hdc,mcalendar_x + mcalendar_l*cos(moon_angle+drawoffset), mcalendar_y + mcalendar_l*sin(moon_angle+drawoffset),5,WHITE,WHITE);
 
   //Sun Pos
-  GrCircle(hdc,mcalendar_x + mcalendar_l*cos(-solar_angle_day), mcalendar_y + mcalendar_l*sin(-solar_angle_day),5,YELLOW,YELLOW);
+  GrCircle(hdc,mcalendar_x + mcalendar_l*cos(-solar_angle_day+drawoffset), mcalendar_y + mcalendar_l*sin(-solar_angle_day+drawoffset),5,YELLOW,YELLOW);
 
 
 

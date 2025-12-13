@@ -2223,41 +2223,46 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
     //hijri related (*
-      int64_t timenow= int64_current_timestamp(); //local timestamp is returned
+      int64_t timenow=int64_current_timestamp(); //local timestamp is returned
+       //1774022400; //march 21 2026, farvirdin 1
 
       printf("\nSeconds Passed Since Jan-1-1970: %d",timenow);
 
-      PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day,&solar_leap_year);
+      PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day,&solar_leap_year,&solar_last_year_is_leap);
       PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);
 
 
 
-      //float localT__ = calculateSunriseSunset(2025,12,12,36.7783,119.4179 ,8,0,0);
-                       //calculateSunriseSunset(solar_year, solar_month, solar_day,11.558464069923632,104.86545288651752 ,7,0,0);
-                       //calculateSunriseSunset(2025,12,12,11.558464069923632,104.86545288651752 ,7,0,0);
-                       //calculateSunriseSunset(2025,12,12,11.558464069923632,104.86545288651752 ,7,0,0);
-      //double hours__;
-      //float minutes__ = modf(localT__,&hours__)*60;
-      //printf("\n TIMEY SUNRISE: %.0f:%.0f",hours__,minutes__);
-
       sun_ctx_t sun_riseset;
-
-      //sun_riseset.in_yday = 345;
+      //sun_riseset.in_yday = 346;
       //sun_riseset.in_hour = 0;
 
 
       //Phnom Penh 11.5564° N, 104.9282° E
-      sun_riseset.in_latitude  =  11.558464069923632; 
-      sun_riseset.in_longitude = 104.86545288651752;
-      double utc_offset=time_offset()/3600;
+      //sun_riseset.in_latitude  =  11.558464069923632; 
+      //sun_riseset.in_longitude = 104.86545288651752;
+      //double utc_offset=7;
+
+      //Siem Reap 13.4125° N, 103.8670° E
+      //sun_riseset.in_latitude=13.4125;
+      //sun_riseset.in_longitude=103.8670;
+      //double utc_offset=7;
+      //Dec 12 2025, 6:10am -> 5:38pm
+      //double utc_offset=time_offset()/3600;
 
 
-      //ITALY
+      //Tehran 35.68° North latitude and 51.42° E
+      sun_riseset.in_latitude=35.68;
+      sun_riseset.in_longitude=51.42;
+      double utc_offset=3.50;
+
+
+      //SPAIN, Malaga
       //sun_riseset.in_latitude  = 36.7201600;
       //sun_riseset.in_longitude = -4.4203400;
-      //double utc_offset=...;
+      //double utc_offset=1;
 
-      //California (big) County
+      //California Fresno County
       //sun_riseset.in_latitude  =  36.7783;
       //sun_riseset.in_longitude =  119.4179;
       //double utc_offset=8;
@@ -2267,7 +2272,20 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //sun_riseset.in_longitude =  18.07;
       //double utc_offset=1;
 
-      sun_ret_t ret = sun_compute(&sun_riseset,solar_angle_day,solar_leap_year);
+
+      //Zaandam, Netherlands
+      //sun_riseset.in_latitude  = 52.44;
+      //sun_riseset.in_longitude = 4.83;
+      //double utc_offset=1;
+
+
+      //PERTH, Western Australia
+      //sun_riseset.in_latitude  = -31.9514;
+      //sun_riseset.in_longitude = 115.8617;
+      //double utc_offset=8;
+        
+
+      sun_ret_t ret = sun_compute(&sun_riseset,solar_angle_day,solar_leap_year,solar_last_year_is_leap);
       double prise=sun_riseset.out_sunrise_mins/60;
       double pset=sun_riseset.out_sunset_mins/60;
 
@@ -2276,7 +2294,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       double timeh_set =utc_offset+pset;
       //sunlight duration is set - rise
       printf("\n==================");
-      printf("\nUTC Offset: %d\n",time_offset()/3600);
+      //printf("\nUTC Offset: %d\n",time_offset()/3600);
+      printf("\nUTC Offset: %5.4f\n",utc_offset);
       printf("Sun Rise: %02d:%02d\n",(int)(timeh_rise),(int)fmod(60*timeh_rise,60) );
       printf("Sun Set:  %02d:%02d\n",(int)(timeh_set), (int)fmod(60*timeh_set ,60) );
       printf("Total sunlight: %5.4f hours",pset-prise);
