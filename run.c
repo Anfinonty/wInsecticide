@@ -2225,6 +2225,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     //hijri related (*
       int64_t timenow=int64_current_timestamp(); //local timestamp is returned
        //1774022400; //march 21 2026, farvirdin 1
+      //1845686400;
 
       printf("\nSeconds Passed Since Jan-1-1970: %d",timenow);
 
@@ -2237,6 +2238,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //sun_riseset.in_yday = 346;
       //sun_riseset.in_hour = 0;
 
+      //90 (North) to -90 (South)
+      sun_riseset.in_latitude  = 0; 
+      sun_riseset.in_longitude = 0;
+      double utc_offset=0;
 
       //Phnom Penh 11.5564° N, 104.9282° E
       //sun_riseset.in_latitude  =  11.558464069923632; 
@@ -2252,9 +2257,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
       //Tehran 35.68° North latitude and 51.42° E
-      sun_riseset.in_latitude=35.68;
-      sun_riseset.in_longitude=51.42;
-      double utc_offset=3.50;
+      //sun_riseset.in_latitude=35.68;
+      //sun_riseset.in_longitude=51.42;
+      //double utc_offset=3.50;
 
 
       //SPAIN, Malaga
@@ -2296,6 +2301,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       printf("\n==================");
       //printf("\nUTC Offset: %d\n",time_offset()/3600);
       printf("\nUTC Offset: %5.4f\n",utc_offset);
+      printf("Latitude: %5.4f\n",sun_riseset.in_latitude);
+      printf("Longitude: %5.4f\n",sun_riseset.in_longitude);
       printf("Sun Rise: %02d:%02d\n",(int)(timeh_rise),(int)fmod(60*timeh_rise,60) );
       printf("Sun Set:  %02d:%02d\n",(int)(timeh_set), (int)fmod(60*timeh_set ,60) );
       printf("Total sunlight: %5.4f hours",pset-prise);

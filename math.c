@@ -532,11 +532,9 @@ FEB 1 ----> FEB 28 (normal) or 29 (leap year)       ESFAND
 MAR 1 ----> MAR 19/20/21                            FAVRADIN    1
 ***/
 
-
 // sun: compute sunrise/sunset times
-//
+// (Note: reference only)
 // https://github.com/oreparaz/sun
-//
 // (c) 2022 Oscar Reparaz <firstname.lastname@esat.kuleuven.be>
 
 typedef uint64_t fti_sample_t;
@@ -559,57 +557,15 @@ typedef enum {
 #define deg2rad(deg) ((deg) * (M_PI / 180.0))
 #define rad2deg(rad) ((rad) * (180.0 / M_PI))
 
-// sun_compute follows:
-//
-//    General Solar Position Calculations
-//    NOAA Global Monitoring Division
-//    https://gml.noaa.gov/grad/solcalc/solareqns.PDF
-//
-
-//{
-  //Old equation that assumes jan 1 as day 1
-    // fractional year [radians]
-    /*double gamma = ctx->in_yday + ((ctx->in_hour - 12.0) / 24.0);
-    
-    if (!is_solar_leap_year) {
-      gamma = gamma * 2.0 * M_PI / 365.0;
-    } else {
-      gamma = gamma * 2.0 * M_PI / 366.0;
-    }*/
-
-   //Hijri Offset (this is a work-around so it will be changed),,, Julian/Gregorian dependent
-   /*double __gamma = gamma;
-   if (!is_solar_leap_year) {
-      gamma += (M_PI*2)*77.5025/365;
-   } else {
-      gamma += (M_PI*2)*77.5025/366;
-   }
-   printf("\ngamma:%5.4f\n__gamma:%5.4f\n",gamma,__gamma);*/
-
-    // equation of time [minutes]
-    /*double eqtime = 0.000075 +
-                    0.001868 * cosGamma +
-                    -0.032077 * sinGamma +
-                    -0.014615 * cos2Gamma +
-                    -0.040849 * sin2Gamma;
-    eqtime = eqtime * 229.18;
-
-    // solar declination angle [radians]
-    double decl = -0.399912 * cosGamma + 0.070257 * sinGamma;
-    decl = decl + -0.006758 * cos2Gamma + 0.000907 * sin2Gamma;
-    decl = decl + -0.002697 * cos3Gamma + 0.00148 * sin3Gamma;
-    decl = decl + 0.006918;*/
-//}
-
 sun_ret_t sun_compute(sun_ctx_t *ctx, double __farvarin_angle, bool is_solar_leap_year,bool last_year_is_leap)
 {
-    //Alternatuve Calculation
+    //Alternative Calculation
     //https://en.wikipedia.org/wiki/Equation_of_time
     double n;
     if (is_solar_leap_year) {
-      n=360/366; //1 more day added in Esfand, 30 instead of 29
+      n=2*M_PI/366.0; //1 more day added in Esfand, 30 instead of 29
     } else {
-      n=360/365;
+      n=2*M_PI/365.0;
     }
 
     //First 6 months have 31 days, 
@@ -619,9 +575,9 @@ sun_ret_t sun_compute(sun_ctx_t *ctx, double __farvarin_angle, bool is_solar_lea
     int thisYearDey=31*6+ 30*3; // 1,2,3,4,5,6  7,8,9  (10)
     int _D_Farvadin; //Days since 1 Farvadin
     if (is_solar_leap_year) { //this year is a leap year
-      _D_Farvadin = (int) (366*__farvarin_angle/(M_PI*2));
+      _D_Farvadin = (int) (366.0*__farvarin_angle/(M_PI*2));
     } else {
-      _D_Farvadin = (int) (365*__farvarin_angle/(M_PI*2));
+      _D_Farvadin = (int) (365.0*__farvarin_angle/(M_PI*2));
     }
 
     int D_Dey;  //Days since last Winter Solstice (Yalda Night), Dey 1,, Dey 1; D=0, Dey 2; D=1; etc..
@@ -635,6 +591,7 @@ sun_ret_t sun_compute(sun_ctx_t *ctx, double __farvarin_angle, bool is_solar_lea
       D_Dey=_D_Farvadin-thisYearDey;
     }
 
+    //~~ https://web.archive.org/web/20120323231813/http://www.green-life-innovators.org/tiki-index.php?page=The%2BLatitude%2Band%2BLongitude%2Bof%2Bthe%2BSun%2Bby%2BDavid%2BWilliams
     double A=D_Dey*n; //Days since last Winter Solstice * 360degs/DaysPerYear,,,  Days Since Yalda Night, Dey 1
 
     /*
@@ -649,22 +606,20 @@ sun_ret_t sun_compute(sun_ctx_t *ctx, double __farvarin_angle, bool is_solar_lea
 
     double B=A + 0.033405602*sin((D_Dey-12)*n); //Perihelion //Approx. 2 weeks after Yalda Night or 12 Days, 0.033405602 radians is 1.914degs
     double C = (A - atan( tan(B)/cos(0.409) ))/M_PI; //Difference between angle moved at mean speed, 23.44 degs or 0.409 radians is the tilt of the Earth's Axis
-    double eqtime = 720 * (int)(C+0.5);//(C - (int)(C+0.5));
 
-
+    //720 is 12hours * 60 minutes
+    double eqtime = 720 * (C-(int)(C+0.5)); //720(C - nint C) nint is nearest integer to C.
     //Solar Declination (23.44 degrees is 0.409 radians)
     double decl = -asin(sin(0.409)*cos(B));
 
-    //720 is 12hours * 60 minutes
-
-
+    //~~ https://gml.noaa.gov/grad/solcalc/solareqns.PDF
     // hour angle [radians]
     double ha_sunrise = acos(((cos(deg2rad(90.833))) / (cos(deg2rad(ctx->in_latitude)) * cos(decl))) - tan(deg2rad(ctx->in_latitude)) * tan(decl));
     double ha_sunset = -ha_sunrise;
 
     // sunrise [minutes]
-    double sunRise = 720 - 4 * (ctx->in_longitude + rad2deg(ha_sunrise)) - eqtime -8; //is offset
-    double sunSet = 720 - 4 * (ctx->in_longitude + rad2deg(ha_sunset)) - eqtime -4; //is offset
+    double sunRise = 720 - 4 * (ctx->in_longitude + rad2deg(ha_sunrise)) - eqtime;
+    double sunSet = 720 - 4 * (ctx->in_longitude + rad2deg(ha_sunset)) - eqtime;
 
     ctx->out_sunrise_mins = sunRise;
     ctx->out_sunset_mins = sunSet;

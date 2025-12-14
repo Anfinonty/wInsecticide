@@ -470,7 +470,6 @@ void DrawPlayingMusic(HDC hdc,int x,int y,int c, int c4,int z)
   GrPrint(hdc,x+1,y+32+1,txt3,c4);*/
 }
 
-//int funnyrun=0;
 void DrawCrosses(HDC hdc,int x, int y)
 {
   char C[1];
@@ -489,9 +488,12 @@ void DrawCrosses(HDC hdc,int x, int y)
   GrLine(hdc,x2,y2+10,x2+8*8,y2+12,WHITE);
 }
 
-
+//int funnyrun=0;
 void DrawPersianClock(HDC hdc,HDC hdc2)
 {
+
+
+
   //Moon Pos
   int mcalendar_l=70;//64;
   int mcalendartxt_l=64;
@@ -519,11 +521,10 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
   //}
 
   double drawoffset=-M_PI/2;
-  //timenow++;
-  //funnyrun+=1000*20;
+  //funnyrun+=2000*20;
   //int64_t timenow=int64_current_timestamp()+funnyrun;
 
-  //PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day,&solar_leap_year);
+  //PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day,&solar_leap_year,&solar_last_year_is_leap);
   //PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);
 
 
@@ -673,6 +674,34 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
 
   GrLine(hdc,GR_WIDTH-8*17-4,8*25+10,GR_WIDTH-8*17-4-8*8,8*25+12,WHITE);
   GrLine(hdc,GR_WIDTH-8*17-4,8*25+10,GR_WIDTH-8*17-4+8*8,8*25+12,WHITE);)*/
+
+
+  //SunRise Map
+  /*int _k=50;
+  sun_ctx_t tmp_sun_riseset;
+
+  char printme[10];
+  sprintf(printme,"%5.4f",solar_angle_day);
+  GrPrint(hdc,200,200,printme,GREEN);
+  for (int k=90;k>-91;k--) {
+    tmp_sun_riseset.in_latitude  = k; 
+    tmp_sun_riseset.in_longitude = 0;
+    //double utc_offset=0;
+
+    _k+=2;
+    sun_ret_t ret = sun_compute(&tmp_sun_riseset,solar_angle_day,solar_leap_year,solar_last_year_is_leap);
+    double prise=tmp_sun_riseset.out_sunrise_mins/60;
+    double pset=tmp_sun_riseset.out_sunset_mins/60;
+    double sunlight=pset-prise;
+
+    if (k>0) {
+      GrCircle(hdc,GR_WIDTH/2-(prise/2*50),50+(180*2+50)-_k,5,YELLOW,YELLOW);
+      GrCircle(hdc,GR_WIDTH/2+(prise/2*50),50+(180*2+50)-_k,5,YELLOW,YELLOW);
+    } else {
+      GrCircle(hdc,GR_WIDTH/2-(prise/2*50),50+(180*2+50)-_k,5,LTCYAN,LTCYAN);
+      GrCircle(hdc,GR_WIDTH/2+(prise/2*50),50+(180*2+50)-_k,5,LTCYAN,LTCYAN);
+    }
+  }*/
 }
 
 
