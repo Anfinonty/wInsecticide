@@ -2,7 +2,7 @@
 #include "math_randnum.c"
 
 //Solar Hijri Time for Drawing
-int solar_sec=0,solar_min=0,solar_hour=0,solar_day=0,solar_month=0,solar_year=0,solar_day_of_week=0;
+int64_t solar_sec=0,solar_min=0,solar_hour=0,solar_day=0,solar_month=0,solar_year=0,solar_day_of_week=0;
 float solar_angle_day=0;
 bool solar_leap_year;
 bool solar_last_year_is_leap;
@@ -205,13 +205,13 @@ wchar_t *solar_days_txt[7]={
 };
 
 void PersiaSolarTime(int64_t _seconds,
-  int *_solar_sec,
-  int *_solar_min,
-  int *_solar_hour,
-  int *_solar_day,
-  int *_solar_month,
-  int *_solar_year,
-  int *_solar_day_of_week,
+  int64_t *_solar_sec,
+  int64_t *_solar_min,
+  int64_t *_solar_hour,
+  int64_t *_solar_day,
+  int64_t *_solar_month,
+  int64_t *_solar_year,
+  int64_t *_solar_day_of_week,
   float *_solar_angle_day,
   bool *_solar_leap_year,
   bool *_solar_last_year_is_leap
@@ -499,7 +499,7 @@ void PersiaLunarTime(int64_t _seconds,
     }
   }
 
-  int _;
+  int64_t _;
   bool b_;
   if (print_days+1>=29) { //new moon
     lunar_day_start+=(print_days*day_seconds);
@@ -537,30 +537,28 @@ MAR 1 ----> MAR 19/20/21                            FAVRADIN    1
 // https://github.com/oreparaz/sun
 // (c) 2022 Oscar Reparaz <firstname.lastname@esat.kuleuven.be>
 
-typedef uint64_t fti_sample_t;
-
 typedef struct sun_ctx_t {
     double in_latitude;
     double in_longitude;
-    uint32_t in_yday; // number of days since Jan 1, in the range of 0 to 365 //~~! unused
-    uint32_t in_hour; // number of hours past midnight (range 0 to 23) //~~! unused
     double out_sunrise_mins; // minutes after midnight (UTC)
     double out_sunset_mins;
+    int in_yday;
+    int in_hour;
 } sun_ctx_t;
 
-typedef enum {
-    SUN_SUCCESS = 0,
-    SUN_ERROR,
-} sun_ret_t;
 
-
+#define arcsec2rad(arcsec)    ((arcsec*(M_PI/648000.0)))
 #define deg2rad(deg) ((deg) * (M_PI / 180.0))
 #define rad2deg(rad) ((rad) * (180.0 / M_PI))
 
-sun_ret_t sun_compute(sun_ctx_t *ctx, double __farvarin_angle, bool is_solar_leap_year,bool last_year_is_leap)
+void sun_compute(sun_ctx_t *ctx, double __farvarin_angle, int64_t solar_hijri_year,bool is_solar_leap_year,bool last_year_is_leap)
 {
-    //Alternative Calculation
-    //https://en.wikipedia.org/wiki/Equation_of_time
+  /*
+  Simple Calculation, features a shifting perihelion although not 100% accurate as it does not account for the other factors
+  that would only be of concern 20 generations later.
+  */
+
+    //Calculate RadianAngle based on Day of Year Since 1 Farvadin unit
     double n;
     if (is_solar_leap_year) {
       n=2*M_PI/366.0; //1 more day added in Esfand, 30 instead of 29
@@ -592,7 +590,10 @@ sun_ret_t sun_compute(sun_ctx_t *ctx, double __farvarin_angle, bool is_solar_lea
     }
 
     //~~ https://web.archive.org/web/20120323231813/http://www.green-life-innovators.org/tiki-index.php?page=The%2BLatitude%2Band%2BLongitude%2Bof%2Bthe%2BSun%2Bby%2BDavid%2BWilliams
-    double A=D_Dey*n; //Days since last Winter Solstice * 360degs/DaysPerYear,,,  Days Since Yalda Night, Dey 1
+    //https://www.youtube.com/user/GreenLifeInnovators
+
+    //original: A = (D+9)*n where 9 is Days since winter-solstice and D is days since Jan 1
+    //(D (Jan 1)-> D-9 (Winter solstice Date))
 
     /*
       0.0167 is the Earth's orbital eccentricity
@@ -603,16 +604,125 @@ sun_ret_t sun_compute(sun_ctx_t *ctx, double __farvarin_angle, bool is_solar_lea
 
       B is the angle the Earth moves from the Winter solstice to date D
     */
+    //original: B = A + 1.1914degs*sin((D-3)*n) where D is days since Jan 1 and 3 is approx. days from 31 Dec to current  date of earth's perihelion' (Jan 3)
+    //(D-3) -> ((D-9)-3) (Winter Solstice Date instead of Jan 1 Date)-> (D-12)
 
-    double B=A + 0.033405602*sin((D_Dey-12)*n); //Perihelion //Approx. 2 weeks after Yalda Night or 12 Days, 0.033405602 radians is 1.914degs
-    double C = (A - atan( tan(B)/cos(0.409) ))/M_PI; //Difference between angle moved at mean speed, 23.44 degs or 0.409 radians is the tilt of the Earth's Axis
+    //double B=A + 0.033405602*sin((D_Dey-12)*n); //Perihelion //Approx. 2 weeks after Yalda Night or 12 Days, 0.033405602 radians is 1.914degs -> shifts after 100 years thoe
+
+
+    //Alternative Calculation
+    //https://en.wikipedia.org/wiki/Equation_of_time
+
+    //n is already in radians
+    double A=D_Dey*n; //Days since last Winter Solstice * 360degs/DaysPerYear,,,  Days Since Yalda Night, Dey 1
+
+    
+
+    //~~ https://astronomy.stackexchange.com/questions/6555/advancement-of-perihelion-data
+    //https://farside.ph.utexas.edu/teaching/336k/Newton/node115.html 
+
+    double earth_orbital_eccentricity=0.01671022; //decreases over centuries, slowly - 0 is a perfect circle
+    double F = deg2rad(earth_orbital_eccentricity*360/M_PI);
+
+
+
+    //https://iranchamber.com/calendar/converter/iranian_calendar_converter.php
+    //https://astronomy.stackexchange.com/questions/6625/why-earths-perihelion-occurs-3rd-january-rather-than-1st
+    //https://astropixels.com/ephemeris/perap/perap1801.html
+       
+    //Axial Precession
+    /*~~https://en.wikipedia.org/wiki/Axial_precession
+        //https://owd.tcnj.edu/~pfeiffer/AST261/AST261Chap4,Preces.pdf
+    //50.29 arcseconds per year
+    //pA = 5,028.796195 T + 1.1054348 T2 ...  (5028 arcseconds per century)
+
+        axial precession changes seasons closer to periphelion, currently its winter solstice
+
+        P         P         P
+        A       A   B       B
+      D * B       *       A * C
+        C       D   C       D
+    */
+
+    //Apsidal Precession
+    /*
+      //https://en.wikipedia.org/wiki/Apsidal_precession
+
+      //https://dictionary.obspm.fr/index.php?showAll=1&formSearchTextfield=apsidal
+      //  https://www.iau.org/Profile?ID=29332
+
+      //  11.6 arc-seconds every year
+      112000 years for Earth's Apsidal cycle
+      1 degree = 3600 arcseconds
+      arcseconds per year = (360 degrees * 3600 arcsec perdegree)/112000 = ~11.571428571 or ~11.6
+                                    
+                             A          A
+         B             B                
+      C  *    A          *           B  *  D
+         D            C    D            C
+
+      //https://www.timeanddate.com/astronomy/perihelion-aphelion-solstice.html
+      //At year 625 Dey 1 or 1246 AD Dec 22, they both occur on the same day
+    */
+    //1 day shift every 58 years from the effects of both Axial Precession and Apsidal Precession
+    //General precession:
+    //E is the number of days from Dey 1 until the next periphelion day. right now it is 13.5 days apart
+    double E=fmod(  (solar_hijri_year-625)*arcsec2rad((50.28796195+11.571428571)) ,2*M_PI);  
+
+    //1 year = 61.89arcsec
+    //365.25 days = 61.89arcsec
+    //1 day = arcsec2rad(61.89)/365.25
+    printf("\nDays from Dey 1 (Winter Solstice) to Perihelion: %5.4f, %5.4f \n",  E/n   , (solar_hijri_year-625)/58.0/*12.0*n*/ );
+    //printf("\nE:%5.4f, _E:%5.4f,  \nF:%5.4f, _F:%5.4f\n",E,12.0*n,F,deg2rad(0.0167*360/M_PI));
+
+
+    //B is the angle the Earth moves from the solstice to date D, including a first-order correction for the Earth's orbital eccentricity, 0.0167 
+    double B= A + F*sin(A - E); //0.033405602 radians is 1.914degs 
+
+
+    //Difference between angle moved at mean speed
+    double C = (A - atan( tan(B)/cos(deg2rad(23.44)) ))/M_PI; //23.44 is earth's  tilt
+
 
     //720 is 12hours * 60 minutes
     double eqtime = 720 * (C-(int)(C+0.5)); //720(C - nint C) nint is nearest integer to C.
-    //Solar Declination (23.44 degrees is 0.409 radians)
-    double decl = -asin(sin(0.409)*cos(B));
+
+
+    //Solar Declination
+    double decl = asin(sin(-deg2rad(23.44))*cos(B)); //23.44 is earth's  tilt
+
 
     //~~ https://gml.noaa.gov/grad/solcalc/solareqns.PDF
+
+    //This equation will become inaccurate after year 3000
+    /*double gamma = ctx->in_yday + ((ctx->in_hour - 12.0) / 24.0);
+    gamma = gamma * 2.0 * M_PI / 365.0;
+
+    double cosGamma = cos(gamma);
+    double cos2Gamma = cos(2 * gamma);
+    double cos3Gamma = cos(3 * gamma);
+
+    double sinGamma = sin(gamma);
+    double sin2Gamma = sin(2 * gamma);
+    double sin3Gamma = sin(3 * gamma);
+
+    // equation of time [minutes]
+    double eqtime = 0.000075 +
+                    0.001868 * cosGamma +
+                    -0.032077 * sinGamma +
+                    -0.014615 * cos2Gamma +
+                    -0.040849 * sin2Gamma;
+    eqtime = eqtime * 229.18;
+
+    // solar declination angle [radians]
+    double decl = -0.399912 * cosGamma + 0.070257 * sinGamma;
+    decl = decl + -0.006758 * cos2Gamma + 0.000907 * sin2Gamma;
+    decl = decl + -0.002697 * cos3Gamma + 0.00148 * sin3Gamma;
+    decl = decl + 0.006918;*/
+
+
+
+    //90.833 is the zenith angle
     // hour angle [radians]
     double ha_sunrise = acos(((cos(deg2rad(90.833))) / (cos(deg2rad(ctx->in_latitude)) * cos(decl))) - tan(deg2rad(ctx->in_latitude)) * tan(decl));
     double ha_sunset = -ha_sunrise;
@@ -623,8 +733,6 @@ sun_ret_t sun_compute(sun_ctx_t *ctx, double __farvarin_angle, bool is_solar_lea
 
     ctx->out_sunrise_mins = sunRise;
     ctx->out_sunset_mins = sunSet;
-
-    return SUN_SUCCESS;
 }
 
 

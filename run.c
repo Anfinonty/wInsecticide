@@ -2223,11 +2223,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
     //hijri related (*
-      int64_t timenow=int64_current_timestamp(); //local timestamp is returned
+      int64_t timenow=
+       int64_current_timestamp(); //local timestamp is returned
        //1774022400; //march 21 2026, farvirdin 1
       //1845686400;
+      //1877363064;
+      //33434301164; // year 3029, june, 29
+      //64991296364;
+      //96548205164; //year 5029 june 29
+      //222775983864; //year 9029 june 29 //3.53am, 10,00pm
 
-      printf("\nSeconds Passed Since Jan-1-1970: %d",timenow);
+      printf("\nSeconds Passed Since Jan-1-1970: %lld",timenow);
 
       PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day,&solar_leap_year,&solar_last_year_is_leap);
       PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);
@@ -2235,7 +2241,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
       sun_ctx_t sun_riseset;
-      //sun_riseset.in_yday = 346;
+      //sun_riseset.in_yday = 193;//180;//346;
       //sun_riseset.in_hour = 0;
 
       //90 (North) to -90 (South)
@@ -2246,7 +2252,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //Phnom Penh 11.5564° N, 104.9282° E
       //sun_riseset.in_latitude  =  11.558464069923632; 
       //sun_riseset.in_longitude = 104.86545288651752;
-      //double utc_offset=7;
+      //utc_offset=7;
 
       //Siem Reap 13.4125° N, 103.8670° E
       //sun_riseset.in_latitude=13.4125;
@@ -2259,7 +2265,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //Tehran 35.68° North latitude and 51.42° E
       //sun_riseset.in_latitude=35.68;
       //sun_riseset.in_longitude=51.42;
-      //double utc_offset=3.50;
+      //utc_offset=3.50;
 
 
       //SPAIN, Malaga
@@ -2273,9 +2279,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //double utc_offset=8;
 
       //Sweden
-      //sun_riseset.in_latitude  =  59.33;
-      //sun_riseset.in_longitude =  18.07;
-      //double utc_offset=1;
+      //sun_riseset.in_latitude  =  59.3327;
+      //sun_riseset.in_longitude =  18.0656;
+      //utc_offset=1; //2 for summer
 
 
       //Zaandam, Netherlands
@@ -2290,7 +2296,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //double utc_offset=8;
         
 
-      sun_ret_t ret = sun_compute(&sun_riseset,solar_angle_day,solar_leap_year,solar_last_year_is_leap);
+      sun_compute(&sun_riseset,solar_angle_day,solar_year,solar_leap_year,solar_last_year_is_leap);
       double prise=sun_riseset.out_sunrise_mins/60;
       double pset=sun_riseset.out_sunset_mins/60;
 
@@ -2314,7 +2320,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         num_char='+';
       }
 
-      printf("\n~:: Solar Hijri ::~ %c\n~:: %02d.%s(%02d).%02d // %s // [%02d:%02d:%02d] ::~\n",
+      printf("\n~:: Solar Hijri ::~ %c\n~:: %02lld.%s(%02lld).%02lld // %s // [%02lld:%02lld:%02lld] ::~\n",
         num_char,
         solar_year,
         solar_months_en_txt[solar_month-1],
