@@ -6,6 +6,7 @@ int64_t solar_sec=0,solar_min=0,solar_hour=0,solar_day=0,solar_month=0,solar_yea
 float solar_angle_day=0;
 bool solar_leap_year;
 bool solar_last_year_is_leap;
+int64_t total_solar_hijri_days=0;
 
 //Lunar Hijri Time for Drawing
 int lunar_sec=0,lunar_min=0,lunar_hour=0,lunar_day=0,lunar_month=0,lunar_year=0,lunar_day_of_week=0;
@@ -204,6 +205,8 @@ wchar_t *solar_days_txt[7]={
     L"چهارشنبه"
 };
 
+
+//   *Omar Khayyam
 void PersiaSolarTime(int64_t _seconds,
   int64_t *_solar_sec,
   int64_t *_solar_min,
@@ -214,7 +217,8 @@ void PersiaSolarTime(int64_t _seconds,
   int64_t *_solar_day_of_week,
   float *_solar_angle_day,
   bool *_solar_leap_year,
-  bool *_solar_last_year_is_leap
+  bool *_solar_last_year_is_leap,
+  int64_t *total_solar_hijri_days
 )
 {  
   //Beginning date:
@@ -243,6 +247,8 @@ void PersiaSolarTime(int64_t _seconds,
   int month=9;          //start day     //solar hijri unix date is 1348-10-11 //month 0 is month 1
   int64_t seconds_static=_seconds; //Begins on thursday solar time
   int64_t seconds=_seconds+day_seconds*11;
+
+  int64_t _total_solar_hijri_days=0;
   while (seconds>0) {
     //Get months
     if (month<6) {   //First 6 months have 31 days          0,1,2,3,4,5
@@ -251,6 +257,7 @@ void PersiaSolarTime(int64_t _seconds,
       } else {
         seconds-=days31_seconds;
         month++;
+        _total_solar_hijri_days+=31;
       }
     } else if (month>5 && month<11) {  //6 months have 30 days      6,7,8,9,10
       if (seconds-days30_seconds<=0) {
@@ -258,6 +265,7 @@ void PersiaSolarTime(int64_t _seconds,
       } else {
         seconds-=days30_seconds;
         month++;
+        _total_solar_hijri_days+=30;
       }
     } else { //12th month   //leap year at last month, 30 days = leap year       29 days = common year      ,11
       if (year==leap_year) {//Leap year
@@ -266,6 +274,7 @@ void PersiaSolarTime(int64_t _seconds,
         } else {
           seconds-=days30_seconds;
           month++;
+          _total_solar_hijri_days+=30;
         }
       } else {//Common Year
         if (seconds-days29_seconds<=0) {
@@ -273,6 +282,7 @@ void PersiaSolarTime(int64_t _seconds,
         } else {
           seconds-=days29_seconds;
           month++;
+          _total_solar_hijri_days+=29;
         }
       }
     }
@@ -326,6 +336,7 @@ void PersiaSolarTime(int64_t _seconds,
     }
   }
 
+  //Check this year's solar_day since 1 Farvadin
   int __solar_day=0;
   if (month<6) {
     __solar_day=31*month;
@@ -337,9 +348,10 @@ void PersiaSolarTime(int64_t _seconds,
     __solar_day+=30*5;
   }
   __solar_day+=days;
+  _total_solar_hijri_days+=__solar_day;
   //printf("SD~%d~\n",__solar_day);
 
-
+  *total_solar_hijri_days=_total_solar_hijri_days;
 
   bool _is_solar_leap_year=FALSE;
   float __solar_angle=0;
@@ -366,6 +378,136 @@ void PersiaSolarTime(int64_t _seconds,
   *_solar_angle_day=__solar_angle;
   *_solar_leap_year=_is_solar_leap_year;
 }
+
+
+
+
+int64_t GetSolarHijriDays(int64_t day0,int64_t month0,int64_t year0)
+{
+  //1348-10-11 
+  int solar_hijri_cycle=28;
+  int month=10;
+  int sh_days=0;
+  int leap_year=1350;
+  //1348-10-11 , 1348 Dey 11 is Jan 01 1970 aka start of unix
+  int64_t year_i=1348;
+  if (year0<1348) { //count day backwards
+    leap_year=1346;
+    // current year, 10
+    sh_days+=10;
+    month--;
+    while (month>0) { // 9, 8 , 7, 6,  |5, 4, 3, 2, 1
+      if (month>5)
+        sh_days+=31;
+      else
+        sh_days+=30; 
+      month--;
+    }
+    
+    year_i--;
+    solar_hijri_cycle--;
+
+    // years inbetween
+    while (year_i>year0) {     
+      if (year_i==leap_year) {
+        if (solar_hijri_cycle!=17) {
+          leap_year-=4;
+        } else {
+          leap_year-=5;
+        }
+        sh_days+=31*6+30*5+30;
+      } else {
+        sh_days+=31*6+30*5+29;
+      }
+
+      year_i--;
+      solar_hijri_cycle--;
+      if (solar_hijri_cycle<1) {
+        solar_hijri_cycle=33;
+      }
+    }
+
+    // final year
+    month=12;
+    if (year_i==leap_year) {
+      sh_days+=30;
+    } else {
+      sh_days+=29;
+    }
+    month--;
+
+
+    while (month>month0) { //11, 10, 9, 8 , 7, 6,  |5, 4, 3, 2, 1
+      if (month>5)
+        sh_days+=31;
+      else
+        sh_days+=30; 
+      month--;
+    }
+
+    if (month0>5) {
+      sh_days+=31-day0;
+    } else {
+      sh_days+=30-day0;
+    }
+  } else {
+    //leap_year=1350;
+    // current year, 10
+    sh_days+=(30-10);
+    month++;
+    while (month<12) { // 9, 8 , 7, 6,  |5, 4, 3, 2, 1
+      if (month>5)
+        sh_days+=31;
+      else
+        sh_days+=30; 
+      month++;
+    }
+    //non-leapyear
+    sh_days+=29;    
+    year_i++;
+    solar_hijri_cycle++;
+
+    // years inbetween
+    while (year_i<year0) {     
+      if (year_i==leap_year) {
+        if (solar_hijri_cycle!=17) {
+          leap_year+=4;
+        } else {
+          leap_year+=5;
+        }
+        sh_days+=31*6+30*5+30;
+      } else {
+        sh_days+=31*6+30*5+29;
+      }
+
+      year_i++;
+      solar_hijri_cycle++;
+      if (solar_hijri_cycle>33) {
+        solar_hijri_cycle=1;
+      }
+    }
+
+    // final year
+    month=1;
+    while (month<month0) { //1, 2, 3, 4, 5, 6 | 7, 8, 9 ,10 ,11 ,12
+      if (month>5)
+        sh_days+=31;
+      else
+        sh_days+=30; 
+      month++;
+    }
+
+    sh_days+=day0; //at target month
+
+  }
+  return sh_days;
+}
+
+
+
+
+
+
 
 
 //   *Al-Khwarizmi
@@ -506,7 +648,7 @@ void PersiaLunarTime(int64_t _seconds,
   }
 
   float moon_angle_shift=0;
-  PersiaSolarTime(lunar_day_start,&_,&_,&_,&_,&_,&_,&_,&moon_angle_shift,&b_,&b_);
+  PersiaSolarTime(lunar_day_start,&_,&_,&_,&_,&_,&_,&_,&moon_angle_shift,&b_,&b_,&_);
   
   if (print_days+1==28) //new moon
     moon_angle_shift+=2*M_PI/27;
@@ -551,7 +693,7 @@ typedef struct sun_ctx_t {
 #define deg2rad(deg) ((deg) * (M_PI / 180.0))
 #define rad2deg(rad) ((rad) * (180.0 / M_PI))
 
-void sun_compute(sun_ctx_t *ctx, double __farvarin_angle, int64_t solar_hijri_year,bool is_solar_leap_year,bool last_year_is_leap)
+void sun_compute(sun_ctx_t *ctx, double __farvarin_angle,int64_t solar_hijri_days, int64_t solar_hijri_year, bool is_solar_leap_year,bool last_year_is_leap)
 {
   /*
   Simple Calculation, features a shifting perihelion although not 100% accurate as it does not account for the other factors
@@ -620,12 +762,6 @@ void sun_compute(sun_ctx_t *ctx, double __farvarin_angle, int64_t solar_hijri_ye
 
     //~~ https://astronomy.stackexchange.com/questions/6555/advancement-of-perihelion-data
     //https://farside.ph.utexas.edu/teaching/336k/Newton/node115.html 
-
-    double earth_orbital_eccentricity=0.01671022; //decreases over centuries, slowly - 0 is a perfect circle
-    double F = deg2rad(earth_orbital_eccentricity*360/M_PI);
-
-
-
     //https://iranchamber.com/calendar/converter/iranian_calendar_converter.php
     //https://astronomy.stackexchange.com/questions/6625/why-earths-perihelion-occurs-3rd-january-rather-than-1st
     //https://astropixels.com/ephemeris/perap/perap1801.html
@@ -667,21 +803,71 @@ void sun_compute(sun_ctx_t *ctx, double __farvarin_angle, int64_t solar_hijri_ye
     //1 day shift every 58 years from the effects of both Axial Precession and Apsidal Precession
     //General precession:
     //E is the number of days from Dey 1 until the next periphelion day. right now it is 13.5 days apart
-    double E=fmod(  (solar_hijri_year-625)*arcsec2rad((50.28796195+11.571428571)) ,2*M_PI);  
+    //double E=fmod(  (solar_hijri_year-625)*arcsec2rad((50.28796195+11.571428571)) ,2*M_PI);  
+
+
+    //~~ https://github.com/php/php-src/blob/61249b01257929e96ce3e2ad7b9f0067a6c44aa4/ext/date/lib/astro.c#L207
+    //~~ https://stjarnhimlen.se/comp/tutorial.html
+    /*
+        //Try factoring solar days instead of years.
+        Other things:
+        1.151E-9 <----- change of earth's eccentricity per day
+        4.70935E-5 <----- change of earth's perihelion per day
+        3.563E-7 <----- change of earth's axial tilt per day
+
+        1246AD Dec 22 to 1970 Jan 01 is 264,080 days
+
+            625 Dey 1 to 1348 Dey 11 is &? days
+
+
+        1246AD Dec 22 to 2000 Jan 01 is 275,037 days
+
+            625 Dey 1  to 1348 Dey 11 +
+            1348 Dey 11 to 1378 Dey11  
+                                            is ^? days
+
+        F0 = 0.01671022  + 1.151E-9 * ^? days      
+
+        sh_days = &? + solarhijri days
+    */
+
+
+    int64_t sh_days0 = GetSolarHijriDays(1,10,625); //shjri:264080 greg: 264080
+    int64_t sh_days = sh_days0 + solar_hijri_days;
+    double perihelion_wsolstice_dist = fmod(deg2rad(4.70935E-5 * sh_days),2*M_PI); //axial and apsidal preccedent movement per day
+
+
+
+    //on 625 Dey 1, 0.0170267876 is its eccentricity
+    //on Jan 1 2000, it is 0.01671022  
+    //decreases over centuries, slowly - 0 is a perfect circle
+
+    int64_t jan2000_sh_days = GetSolarHijriDays(11,10,1378); //shjri:10957 greg:10957
+    double earth_orbital_eccentricity= 0.01671022+1.151E-9*(jan2000_sh_days - solar_hijri_days); //orbital accentricity per day
+    double F = deg2rad(earth_orbital_eccentricity*360/M_PI);
+    double earth_axial_tilt=23.4393 + 3.563E-7*(jan2000_sh_days-solar_hijri_days);
+
+
+    //printf("\noriginal earth_eccentricity: %10.10f , now: 0.01671022",0.01671022+1.151E-9*275037);
+    //printf("\nsh_days0: %lld, sh_days: %lld, solar_hijri_days: %lld\n",sh_days0,sh_days,solar_hijri_days);
+    //printf("\ndays between 1 jan 1970 and 1 jan 2000: %lld\n" , jan2000_sh_days);
 
     //1 year = 61.89arcsec
-    //365.25 days = 61.89arcsec
-    //1 day = arcsec2rad(61.89)/365.25
-    printf("\nDays from Dey 1 (Winter Solstice) to Perihelion: %5.4f, %5.4f \n",  E/n   , (solar_hijri_year-625)/58.0/*12.0*n*/ );
     //printf("\nE:%5.4f, _E:%5.4f,  \nF:%5.4f, _F:%5.4f\n",E,12.0*n,F,deg2rad(0.0167*360/M_PI));
 
+    printf("\n\n/************[EARTH]***************/\n");
+    printf("**Days from Dey 1 (Winter Solstice) to Perihelion: %5.4f, \n",  perihelion_wsolstice_dist/n /*,(solar_hijri_year-625)/58.0*//*12.0*n*/ );
+    printf("** -- Caused by the combined effects of Aspidal and Axial Precession.\n");
+    printf("**Earth Orbital Eccentricity: %10.10f\n",earth_orbital_eccentricity);
+    printf("**Earth Axial Tilt: %10.10f\n",earth_axial_tilt);
+    printf("/****************************/\n");
 
-    //B is the angle the Earth moves from the solstice to date D, including a first-order correction for the Earth's orbital eccentricity, 0.0167 
-    double B= A + F*sin(A - E); //0.033405602 radians is 1.914degs 
+    //B is the angle the Earth moves from the solstice to date D
+    double B= A + F*sin(A - perihelion_wsolstice_dist);
 
 
     //Difference between angle moved at mean speed
-    double C = (A - atan( tan(B)/cos(deg2rad(23.44)) ))/M_PI; //23.44 is earth's  tilt
+    double C = (A - atan( tan(B)/cos(deg2rad(earth_axial_tilt)) ))/M_PI; //23.44 is earth's  tilt
 
 
     //720 is 12hours * 60 minutes
@@ -689,7 +875,7 @@ void sun_compute(sun_ctx_t *ctx, double __farvarin_angle, int64_t solar_hijri_ye
 
 
     //Solar Declination
-    double decl = asin(sin(-deg2rad(23.44))*cos(B)); //23.44 is earth's  tilt
+    double decl = asin(sin(-deg2rad(earth_axial_tilt))*cos(B)); //23.44 is earth's  tilt
 
 
     //~~ https://gml.noaa.gov/grad/solcalc/solareqns.PDF
@@ -719,7 +905,6 @@ void sun_compute(sun_ctx_t *ctx, double __farvarin_angle, int64_t solar_hijri_ye
     decl = decl + -0.006758 * cos2Gamma + 0.000907 * sin2Gamma;
     decl = decl + -0.002697 * cos3Gamma + 0.00148 * sin3Gamma;
     decl = decl + 0.006918;*/
-
 
 
     //90.833 is the zenith angle

@@ -488,7 +488,7 @@ void DrawCrosses(HDC hdc,int x, int y)
   GrLine(hdc,x2,y2+10,x2+8*8,y2+12,WHITE);
 }
 
-//int funnyrun=0;
+int funnyrun=0;
 void DrawPersianClock(HDC hdc,HDC hdc2)
 {
 
@@ -524,7 +524,7 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
   //funnyrun+=2000*20;
   //int64_t timenow=int64_current_timestamp()+funnyrun;
 
-  //PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day,&solar_leap_year,&solar_last_year_is_leap);
+  //PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day,&solar_leap_year,&solar_last_year_is_leap,&total_solar_hijri_days);
   //PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);
 
 
@@ -689,7 +689,7 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
     //double utc_offset=0;
 
     _k+=2;
-    sun_ret_t ret = sun_compute(&tmp_sun_riseset,solar_angle_day,solar_leap_year,solar_last_year_is_leap);
+    sun_compute(&tmp_sun_riseset,solar_angle_day,total_solar_hijri_days,solar_year,solar_leap_year,solar_last_year_is_leap);
     double prise=tmp_sun_riseset.out_sunrise_mins/60;
     double pset=tmp_sun_riseset.out_sunset_mins/60;
     double sunlight=pset-prise;

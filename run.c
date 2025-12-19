@@ -2235,7 +2235,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       printf("\nSeconds Passed Since Jan-1-1970: %lld",timenow);
 
-      PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day,&solar_leap_year,&solar_last_year_is_leap);
+      PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day,&solar_leap_year,&solar_last_year_is_leap,&total_solar_hijri_days);
       PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);
 
 
@@ -2279,9 +2279,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //double utc_offset=8;
 
       //Sweden
-      //sun_riseset.in_latitude  =  59.3327;
-      //sun_riseset.in_longitude =  18.0656;
-      //utc_offset=1; //2 for summer
+      sun_riseset.in_latitude  =  59.3327;
+      sun_riseset.in_longitude =  18.0656;
+      utc_offset=1; //2 for summer
 
 
       //Zaandam, Netherlands
@@ -2296,7 +2296,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //double utc_offset=8;
         
 
-      sun_compute(&sun_riseset,solar_angle_day,solar_year,solar_leap_year,solar_last_year_is_leap);
+      sun_compute(&sun_riseset,solar_angle_day,total_solar_hijri_days,solar_year,solar_leap_year,solar_last_year_is_leap);
       double prise=sun_riseset.out_sunrise_mins/60;
       double pset=sun_riseset.out_sunset_mins/60;
 
