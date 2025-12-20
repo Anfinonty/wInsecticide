@@ -206,7 +206,7 @@ wchar_t *solar_days_txt[7]={
 };
 
 
-struct SolarHijri
+/*struct SolarHijri
 {
   int sec;
   int min;
@@ -221,7 +221,7 @@ struct SolarHijri
   int64_t total_days;
   bool solar_leap_year;
   bool last_year_is_leap;
-} SolarHijri;
+} SolarHijri;*/
 
 //   *Omar Khayyam
 void PersiaSolarTime(int64_t _seconds,
@@ -715,11 +715,23 @@ typedef struct sun_ctx_t {
 } sun_ctx_t;
 
 
+
+typedef struct Earth
+{
+  double orbital_eccentricity;
+  double perihelion;
+  double axial_tilt;  
+} Earth;
+
+
+Earth planet_earth;
+
+
 #define arcsec2rad(arcsec)    ((arcsec*(M_PI/648000.0)))
 #define deg2rad(deg) ((deg) * (M_PI / 180.0))
 #define rad2deg(rad) ((rad) * (180.0 / M_PI))
 
-void sun_compute(sun_ctx_t *ctx, int solar_hijri_day, int solar_hijri_month, int64_t solar_hijri_year)
+void sun_compute(sun_ctx_t *ctx, Earth *_earth,int solar_hijri_day, int solar_hijri_month, int64_t solar_hijri_year)
 {
   /*
   Simple Calculation, features a shifting perihelion,  although not 100% accurate as it does not account for the other factors
@@ -840,21 +852,21 @@ void sun_compute(sun_ctx_t *ctx, int solar_hijri_day, int solar_hijri_month, int
 
         sh_days = &? + solarhijri days
     */
+    int64_t jan2000_sh_days = GetSolarHijriDays(11,10,1378); //shjri:10957 greg:10957
 
 
     int64_t sh_days0 = GetSolarHijriDays(1,10,625); //shjri:264080 greg: 264080
     int64_t sh_days = sh_days0 + solar_hijri_days;
-    double perihelion_wsolstice_dist = fmod(deg2rad(4.70935E-5 * sh_days),2*M_PI); //axial and apsidal preccedent movement per day
+    double perihelion_wsolstice_ang = fmod(deg2rad(4.70935E-5 * sh_days),2*M_PI); //axial and apsidal preccedent movement per day
+    _earth->perihelion=perihelion_wsolstice_ang;
 
-
-
+    //printf("\n!~days since 1jan2000: %lld\n",(solar_hijri_days-jan2000_sh_days));
     //on 625 Dey 1, 0.0170267876 is its eccentricity
     //on Jan 1 2000, it is 0.01671022  
     //decreases over centuries, slowly - 0 is a perfect circle
     //*Johannes Kepler
     //https://en.wikipedia.org/wiki/Milankovitch_cycles
 
-    int64_t jan2000_sh_days = GetSolarHijriDays(11,10,1378); //shjri:10957 greg:10957
     double earth_orbital_eccentricity= 0.01671022+1.151E-9*(jan2000_sh_days - solar_hijri_days); //orbital accentricity per day
     //Earth oribital eccentricity Bounce back after reaching limit and vice versa
 
@@ -873,6 +885,7 @@ void sun_compute(sun_ctx_t *ctx, int solar_hijri_day, int solar_hijri_month, int
     } else {
         earth_orbital_eccentricity = maxEcc - (in_Ecc_range - Ecc_range);
     }
+    _earth->orbital_eccentricity=earth_orbital_eccentricity;
 
 
     double F = deg2rad(earth_orbital_eccentricity*360/M_PI); //convert to radians 
@@ -897,21 +910,22 @@ void sun_compute(sun_ctx_t *ctx, int solar_hijri_day, int solar_hijri_month, int
     } else {
         earth_axial_tilt = maxTilt - (in_range - range);
     }
+    _earth->axial_tilt=deg2rad(earth_axial_tilt);
 
 
     //printf("\nsh_days0: %lld, sh_days: %lld, solar_hijri_days: %lld\n",sh_days0,sh_days,solar_hijri_days);
     //printf("\ndays between 1 jan 1970 and 1 jan 2000: %lld\n" , jan2000_sh_days);
     //1 year = 61.89arcsec
 
-    printf("\n\n/************[EARTH]***************/\n");
-    printf("**Days from Dey 1 (Winter Solstice) to Perihelion: %5.4f, \n",  perihelion_wsolstice_dist/(2*M_PI/365.25) /*,(solar_hijri_year-625)/58.0*//*12.0*n*/ );
-    printf("** -- Caused by the combined effects of Aspidal and Axial Precession.\n");
-    printf("**Earth Orbital Eccentricity: %10.10f\n",earth_orbital_eccentricity);
-    printf("**Earth Axial Tilt: %10.10f\n",earth_axial_tilt);
-    printf("/****************************/\n");
+    //printf("\n\n/************[EARTH]***************/\n");
+    //printf("**Days from Dey 1 (Winter Solstice) to Perihelion: %5.4f, \n",  perihelion_wsolstice_ang/(2*M_PI/365.25) /*,(solar_hijri_year-625)/58.0*//*12.0*n*/ );
+    //printf("** -- Caused by the combined effects of Aspidal and Axial Precession.\n");
+    //printf("**Earth Orbital Eccentricity: %10.10f\n",earth_orbital_eccentricity);
+    //printf("**Earth Axial Tilt: %10.10f\n",earth_axial_tilt);
+    //printf("/****************************/\n");
 
     //B is the angle the Earth moves from the solstice to date D
-    double B= A + F*sin(A - perihelion_wsolstice_dist);
+    double B= A + F*sin(A - perihelion_wsolstice_ang);
 
 
     //Difference between angle moved at mean speed

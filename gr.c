@@ -1857,6 +1857,37 @@ void ReplaceBitmapColor2(HBITMAP hBitmap,
 
 
 
+
+
+void DrawEllipse(HDC hdc, float px, float py, double a, double b, int sides, double tilt,int color)
+{
+  //https://forums.wxwidgets.org/viewtopic.php?t=14790
+  int x;
+  int y;
+  //for (int i=0;i<sides;i++) {
+  double step=M_PI*2/sides;
+  int x1;
+  int y1;
+  int i=0;
+  for (double angle=0;angle<M_PI*2;angle+=step) {
+    if (i>0) {
+      GrLine(hdc,x1,y1,x,y,color);
+      x1=x;
+      y1=y;
+    }
+    // rotated ellipse coordinates
+    x = px + (a * cos(angle) * cos(tilt) - b * sin(angle) * sin(tilt));
+    y = py + (a * cos(angle) * sin(tilt) + b * sin(angle) * cos(tilt));
+    if (i==0) {
+      x1=x;
+      y1=y;
+    }
+    i++;
+  }
+  GrLine(hdc,x1,y1,x,y,color);
+  //GrLine(hdc,px,py,px+200*cos(tilt),py+200*sin(tilt),color);
+}
+
 void DrawTriFill(HDC hdc, int tri_color, float x1,float y1,float x2,float y2,float x3,float y3,bool IsHatch,int hatch_type)
 {//https://stackoverflow.com/questions/33447305/c-windows32-gdi-fill-triangle
   HPEN hPen = CreatePen(PS_SOLID, 2, tri_color);

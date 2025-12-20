@@ -488,7 +488,7 @@ void DrawCrosses(HDC hdc,int x, int y)
   GrLine(hdc,x2,y2+10,x2+8*8,y2+12,WHITE);
 }
 
-int funnyrun=0;
+int64_t funnyrun=0;
 void DrawPersianClock(HDC hdc,HDC hdc2)
 {
 
@@ -506,7 +506,19 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
   //Space Clock
   //Draw blue marbel
   //if (GR_WIDTH>=800 && lunar_day<=26) {
-    /*GrCircle(hdc,mcalendar_x,mcalendar_y,10,LTBLUE,LTBLUE);
+
+  //Draw Axial Tilt
+  GrLineThick(hdc,mcalendar_x,mcalendar_y,mcalendar_x+cos(-M_PI/2)*20,mcalendar_y+sin(-M_PI/2)*20,2,LTRED);
+  GrLineThick(hdc,mcalendar_x,mcalendar_y,mcalendar_x-cos(-M_PI/2)*20,mcalendar_y-sin(-M_PI/2)*20,2,LTRED);
+  GrLineThick(hdc,mcalendar_x,mcalendar_y,mcalendar_x+cos(-planet_earth.axial_tilt*5)*20,mcalendar_y+sin(-planet_earth.axial_tilt*5)*20,2,LTBLUE);
+  GrLineThick(hdc,mcalendar_x,mcalendar_y,mcalendar_x-cos(-planet_earth.axial_tilt*5)*20,mcalendar_y-sin(-planet_earth.axial_tilt*5)*20,2,LTBLUE);
+
+  //Draw Perihelion semicircle + Eccentricity
+  //GrLineThick(hdc,mcalendar_x,mcalendar_y,mcalendar_x+cos(-planet_earth.perihelion)*100,mcalendar_y+sin(-planet_earth.perihelion)*100,2,PURPLE);
+  DrawEllipse(hdc,mcalendar_x+15*cos(-planet_earth.perihelion),mcalendar_y+15*sin(-planet_earth.perihelion),70+(500*planet_earth.orbital_eccentricity),70,48,-planet_earth.perihelion,PURPLE);
+
+
+    GrCircle(hdc,mcalendar_x,mcalendar_y,10,LTBLUE,LTBLUE);
     GrRect(hdc,mcalendar_x,mcalendar_y,3,4,LTGREEN);
     GrRect(hdc,mcalendar_x-3,mcalendar_y,9,4,LTGREEN);
     GrRect(hdc,mcalendar_x+4,mcalendar_y,5,2,LTGREEN);
@@ -515,16 +527,17 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
     GrCircle(hdc,mcalendar_x+2,mcalendar_y+5,3,LTGREEN,LTGREEN);
     GrCircle(hdc,mcalendar_x-2,mcalendar_y-3,3,LTGREEN,LTGREEN);
     GrCircle(hdc,mcalendar_x-3,mcalendar_y-5,2,LTGREEN,LTGREEN);
-    GrCircle(hdc,mcalendar_x-3,mcalendar_y+5,2,LTGREEN,LTGREEN);*/
+    GrCircle(hdc,mcalendar_x-3,mcalendar_y+5,2,LTGREEN,LTGREEN);
   //} else {
 //    DrawSprite(hdc, hdc2,mcalendar_x,mcalendar_y,&draw_moon_cartoon_sprite,FALSE);
   //}
 
   double drawoffset=-M_PI/2;
-  //funnyrun+=2000*20;
-  //int64_t timenow=int64_current_timestamp()+funnyrun;
 
-  //PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day,&solar_leap_year,&solar_last_year_is_leap,&total_solar_hijri_days);
+  /*funnyrun+=60*60*24*365+60*60*24*128*100;//2000*20;
+  int64_t timenow=int64_current_timestamp()+funnyrun;*/
+
+  //PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day/*,&solar_leap_year*/);
   //PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);
 
 
@@ -569,7 +582,7 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
 
       sprintf(s_hijri_row1,"=:: Solar Hijri ::= %c",num_char);
 
-      swprintf(s_hijri_row2,128,L":: %ls //%d. %ls(%d) .%d",
+      swprintf(s_hijri_row2,128,L":: %ls //%lld. %ls(%lld) .%lld",
         solar_days_txt[solar_day_of_week],
         solar_day,
         solar_months_txt[solar_month-1],
@@ -689,7 +702,7 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
     //double utc_offset=0;
 
     _k+=2;
-    sun_compute(&tmp_sun_riseset,solar_angle_day,total_solar_hijri_days,solar_year,solar_leap_year,solar_last_year_is_leap);
+    sun_compute(&tmp_sun_riseset,&planet_earth,solar_day,solar_month,solar_year);
     double prise=tmp_sun_riseset.out_sunrise_mins/60;
     double pset=tmp_sun_riseset.out_sunset_mins/60;
     double sunlight=pset-prise;
@@ -702,10 +715,26 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
       GrCircle(hdc,GR_WIDTH/2+(prise/2*50),50+(180*2+50)-_k,5,LTCYAN,LTCYAN);
     }
   }*/
+
+  sun_ctx_t tmp_sun_riseset;
+  tmp_sun_riseset.in_latitude  = 0; 
+  tmp_sun_riseset.in_longitude = 0;
+  sun_compute(&tmp_sun_riseset,&planet_earth,solar_day,solar_month,solar_year);
+
+
+
+
+
+  /*char printme2[10];
+  sprintf(printme2,"%5.2f",rad2deg(planet_earth.axial_tilt));
+  GrPrint(hdc,mcalendar_x+16,mcalendar_y-16,printme2,LTRED);
+  char printme3[20];
+  sprintf(printme3,"%10.10f",planet_earth.orbital_eccentricity);
+  GrPrint(hdc,mcalendar_x+16,mcalendar_y-64,printme3,LTRED);*/
 }
 
 
-void DrawTitle(HDC hdc,HDC hdc2)
+void DrawTitle(HDC hdc,HDC hdc2)  
 {
   int title_x=GR_WIDTH/2-352/2+4;
   int title_y=-32;

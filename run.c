@@ -2224,8 +2224,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
     //hijri related (*
       int64_t timenow=
-       int64_current_timestamp(); //local timestamp is returned
-       //1774022400; //march 21 2026, farvirdin 1
+      int64_current_timestamp(); //local timestamp is returned
+      //1774022400; //march 21 2026, farvirdin 1
       //1845686400;
       //1877363064;
       //33434301164; // year 3029, june, 29
@@ -2301,7 +2301,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //double utc_offset=8;
         
 
-      sun_compute(&sun_riseset,solar_day,solar_month,solar_year);
+      sun_compute(&sun_riseset,&planet_earth,solar_day,solar_month,solar_year);
       double prise=sun_riseset.out_sunrise_mins/60;
       double pset=sun_riseset.out_sunset_mins/60;
 
