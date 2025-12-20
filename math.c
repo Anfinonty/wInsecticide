@@ -206,6 +206,23 @@ wchar_t *solar_days_txt[7]={
 };
 
 
+struct SolarHijri
+{
+  int sec;
+  int min;
+  int hour;
+
+  int day;
+  int month;
+  int64_t year;
+
+  int solar_day_of_week;
+
+  int64_t total_days;
+  bool solar_leap_year;
+  bool last_year_is_leap;
+} SolarHijri;
+
 //   *Omar Khayyam
 void PersiaSolarTime(int64_t _seconds,
   int64_t *_solar_sec,
@@ -215,12 +232,21 @@ void PersiaSolarTime(int64_t _seconds,
   int64_t *_solar_month,
   int64_t *_solar_year,
   int64_t *_solar_day_of_week,
-  float *_solar_angle_day,
-  bool *_solar_leap_year,
-  bool *_solar_last_year_is_leap,
-  int64_t *total_solar_hijri_days
+  float *_solar_angle_day//,
+//  bool *_solar_leap_year,
+//  bool *_solar_last_year_is_leap,
+//  int64_t *total_solar_hijri_days
 )
 {  
+  //https://en.wikipedia.org/wiki/Solar_Hijri_calendar
+  //I am sticking with the traditional 33 year cycle as the
+  //proposed new system by Birashk and Zabih Behruz are refuted
+    //https://web.archive.org/web/20160224162520/http://aramis.obspm.fr/~heydari/divers/ir-cal-eng.html
+  //expect to see small day drifts after 10k centuries from results online
+  //Also it'll be less complex for me haha
+
+  //https://web.archive.org/web/20160318112553/http://payvand.com/calendar/
+
   //Beginning date:
   //Gegorian
     //01-Jan-1970 THURSDAY
@@ -242,7 +268,7 @@ void PersiaSolarTime(int64_t _seconds,
   int leap_year=1350;
 
   //Break Down the different time parts
-  int solar_hijri_cycle=28; //28/33
+  int solar_hijri_cycle=28; //28
   int year=1348;        //gregorian unix is 1970-1-1 THURSDAY
   int month=9;          //start day     //solar hijri unix date is 1348-10-11 //month 0 is month 1
   int64_t seconds_static=_seconds; //Begins on thursday solar time
@@ -351,7 +377,7 @@ void PersiaSolarTime(int64_t _seconds,
   _total_solar_hijri_days+=__solar_day;
   //printf("SD~%d~\n",__solar_day);
 
-  *total_solar_hijri_days=_total_solar_hijri_days;
+  //*total_solar_hijri_days=_total_solar_hijri_days;
 
   bool _is_solar_leap_year=FALSE;
   float __solar_angle=0;
@@ -362,11 +388,11 @@ void PersiaSolarTime(int64_t _seconds,
     __solar_angle=(M_PI*2)*(__solar_day)/365;
   }
 
-  if (year-1==leap_year) {//check if last year is a leap year
-    *_solar_last_year_is_leap=TRUE;
-  } else {
-    *_solar_last_year_is_leap=FALSE;
-  }
+  //if (year-1==leap_year) {//check if last year is a leap year
+    //*_solar_last_year_is_leap=TRUE;
+  //} else {
+    //*_solar_last_year_is_leap=FALSE;
+  //}
 
   *_solar_year=year;
   *_solar_month=month+1;
@@ -376,7 +402,7 @@ void PersiaSolarTime(int64_t _seconds,
   *_solar_sec=(int)print_seconds;
   *_solar_day_of_week=seconds_static/SEC_PER_DAY%7;
   *_solar_angle_day=__solar_angle;
-  *_solar_leap_year=_is_solar_leap_year;
+  //*_solar_leap_year=_is_solar_leap_year;
 }
 
 
@@ -648,7 +674,7 @@ void PersiaLunarTime(int64_t _seconds,
   }
 
   float moon_angle_shift=0;
-  PersiaSolarTime(lunar_day_start,&_,&_,&_,&_,&_,&_,&_,&moon_angle_shift,&b_,&b_,&_);
+  PersiaSolarTime(lunar_day_start,&_,&_,&_,&_,&_,&_,&_,&moon_angle_shift);//,&b_,&b_,&_);
   
   if (print_days+1==28) //new moon
     moon_angle_shift+=2*M_PI/27;
@@ -693,43 +719,34 @@ typedef struct sun_ctx_t {
 #define deg2rad(deg) ((deg) * (M_PI / 180.0))
 #define rad2deg(rad) ((rad) * (180.0 / M_PI))
 
-void sun_compute(sun_ctx_t *ctx, double __farvarin_angle,int64_t solar_hijri_days, int64_t solar_hijri_year, bool is_solar_leap_year,bool last_year_is_leap)
+void sun_compute(sun_ctx_t *ctx, int solar_hijri_day, int solar_hijri_month, int64_t solar_hijri_year)
 {
   /*
-  Simple Calculation, features a shifting perihelion although not 100% accurate as it does not account for the other factors
+  Simple Calculation, features a shifting perihelion,  although not 100% accurate as it does not account for the other factors
   that would only be of concern 20 generations later.
   */
 
-    //Calculate RadianAngle based on Day of Year Since 1 Farvadin unit
-    double n;
-    if (is_solar_leap_year) {
-      n=2*M_PI/366.0; //1 more day added in Esfand, 30 instead of 29
-    } else {
-      n=2*M_PI/365.0;
+
+    int64_t last_yalda_night=GetSolarHijriDays(1,10,solar_hijri_year-1); //Last Year Yalda Night (Winter Solstice)
+    int64_t this_yalda_night=GetSolarHijriDays(1,10,solar_hijri_year);  //Last Year Yalda Night (Winter Solstice)
+
+    int64_t solar_hijri_days=GetSolarHijriDays(solar_hijri_day,solar_hijri_month,solar_hijri_year)+1; //Total Number of Solar Hijri Days Today 
+    //(+1 offset as astronomical calcs start with 1)
+    
+    //earth orbits 360 degs or 2pi radians exactly 365.25 years 
+    double A;
+
+    //Days since last Winter Solstice * 360degs/DaysPerYear,,,  Days Since Yalda Night, Dey 1
+    if (solar_hijri_days<this_yalda_night) { //include last year yalda night until today
+      A = (solar_hijri_days-last_yalda_night)* 2*M_PI/365.25;
+    } else { //
+      A = (solar_hijri_days-this_yalda_night)* 2*M_PI/365.25;
     }
 
-    //First 6 months have 31 days, 
-    //next 5 months, 30 days,
-    //last month (Esfand) has 29 days normal years and 30 days on leap years
-    //Dey is the 10th month
-    int thisYearDey=31*6+ 30*3; // 1,2,3,4,5,6  7,8,9  (10)
-    int _D_Farvadin; //Days since 1 Farvadin
-    if (is_solar_leap_year) { //this year is a leap year
-      _D_Farvadin = (int) (366.0*__farvarin_angle/(M_PI*2));
-    } else {
-      _D_Farvadin = (int) (365.0*__farvarin_angle/(M_PI*2));
-    }
 
-    int D_Dey;  //Days since last Winter Solstice (Yalda Night), Dey 1,, Dey 1; D=0, Dey 2; D=1; etc..
-    if (_D_Farvadin<thisYearDey) { //Day is Before Dey of this Year
-      if (last_year_is_leap) { //last year is leap year
-        D_Dey= 30+30+30 + _D_Farvadin;
-      } else { //last year is common year
-        D_Dey= 30+30+29 +_D_Farvadin;
-      }
-    } else {//Day is After Dey of this Year
-      D_Dey=_D_Farvadin-thisYearDey;
-    }
+
+    //Alternative Calculation
+    //https://en.wikipedia.org/wiki/Equation_of_time    
 
     //~~ https://web.archive.org/web/20120323231813/http://www.green-life-innovators.org/tiki-index.php?page=The%2BLatitude%2Band%2BLongitude%2Bof%2Bthe%2BSun%2Bby%2BDavid%2BWilliams
     //https://www.youtube.com/user/GreenLifeInnovators
@@ -752,13 +769,6 @@ void sun_compute(sun_ctx_t *ctx, double __farvarin_angle,int64_t solar_hijri_day
     //double B=A + 0.033405602*sin((D_Dey-12)*n); //Perihelion //Approx. 2 weeks after Yalda Night or 12 Days, 0.033405602 radians is 1.914degs -> shifts after 100 years thoe
 
 
-    //Alternative Calculation
-    //https://en.wikipedia.org/wiki/Equation_of_time
-
-    //n is already in radians
-    double A=D_Dey*n; //Days since last Winter Solstice * 360degs/DaysPerYear,,,  Days Since Yalda Night, Dey 1
-
-    
 
     //~~ https://astronomy.stackexchange.com/questions/6555/advancement-of-perihelion-data
     //https://farside.ph.utexas.edu/teaching/336k/Newton/node115.html 
@@ -841,22 +851,60 @@ void sun_compute(sun_ctx_t *ctx, double __farvarin_angle,int64_t solar_hijri_day
     //on 625 Dey 1, 0.0170267876 is its eccentricity
     //on Jan 1 2000, it is 0.01671022  
     //decreases over centuries, slowly - 0 is a perfect circle
+    //*Johannes Kepler
+    //https://en.wikipedia.org/wiki/Milankovitch_cycles
 
     int64_t jan2000_sh_days = GetSolarHijriDays(11,10,1378); //shjri:10957 greg:10957
     double earth_orbital_eccentricity= 0.01671022+1.151E-9*(jan2000_sh_days - solar_hijri_days); //orbital accentricity per day
-    double F = deg2rad(earth_orbital_eccentricity*360/M_PI);
+    //Earth oribital eccentricity Bounce back after reaching limit and vice versa
+
+    //http://profharwood.x10host.com/GEOL102/Study/Eccentricity.htm
+    double minEcc = 0.0058;
+    double maxEcc = 0.057;
+    double Ecc_range  = maxEcc - minEcc; 
+
+
+    // Wrap into oscillating range
+    double in_Ecc_range = fmod(earth_orbital_eccentricity - minEcc, 2 * Ecc_range);
+    if (in_Ecc_range < 0) in_Ecc_range += 2 * Ecc_range; // keep positive
+
+    if (in_Ecc_range < Ecc_range) {
+        earth_orbital_eccentricity = minEcc + in_Ecc_range;
+    } else {
+        earth_orbital_eccentricity = maxEcc - (in_Ecc_range - Ecc_range);
+    }
+
+
+    double F = deg2rad(earth_orbital_eccentricity*360/M_PI); //convert to radians 
+
+
     double earth_axial_tilt=23.4393 + 3.563E-7*(jan2000_sh_days-solar_hijri_days);
 
 
-    //printf("\noriginal earth_eccentricity: %10.10f , now: 0.01671022",0.01671022+1.151E-9*275037);
+    //Axial Tilt Bounce back after reaching limit and vice versa
+    //https://science.nasa.gov/earth/earth-observatory/milutin-milankovitch/
+    double minTilt = 22.1;
+    double maxTilt = 24.5;
+    double range   = maxTilt - minTilt; // 2.4
+
+    // Wrap into oscillating range
+    double in_range = fmod(earth_axial_tilt - minTilt, 2 * range);
+
+    if (in_range < 0) in_range += 2 * range; // ensure positive
+
+    if (in_range < range) {
+        earth_axial_tilt = minTilt + in_range;
+    } else {
+        earth_axial_tilt = maxTilt - (in_range - range);
+    }
+
+
     //printf("\nsh_days0: %lld, sh_days: %lld, solar_hijri_days: %lld\n",sh_days0,sh_days,solar_hijri_days);
     //printf("\ndays between 1 jan 1970 and 1 jan 2000: %lld\n" , jan2000_sh_days);
-
     //1 year = 61.89arcsec
-    //printf("\nE:%5.4f, _E:%5.4f,  \nF:%5.4f, _F:%5.4f\n",E,12.0*n,F,deg2rad(0.0167*360/M_PI));
 
     printf("\n\n/************[EARTH]***************/\n");
-    printf("**Days from Dey 1 (Winter Solstice) to Perihelion: %5.4f, \n",  perihelion_wsolstice_dist/n /*,(solar_hijri_year-625)/58.0*//*12.0*n*/ );
+    printf("**Days from Dey 1 (Winter Solstice) to Perihelion: %5.4f, \n",  perihelion_wsolstice_dist/(2*M_PI/365.25) /*,(solar_hijri_year-625)/58.0*//*12.0*n*/ );
     printf("** -- Caused by the combined effects of Aspidal and Axial Precession.\n");
     printf("**Earth Orbital Eccentricity: %10.10f\n",earth_orbital_eccentricity);
     printf("**Earth Axial Tilt: %10.10f\n",earth_axial_tilt);
@@ -879,34 +927,6 @@ void sun_compute(sun_ctx_t *ctx, double __farvarin_angle,int64_t solar_hijri_day
 
 
     //~~ https://gml.noaa.gov/grad/solcalc/solareqns.PDF
-
-    //This equation will become inaccurate after year 3000
-    /*double gamma = ctx->in_yday + ((ctx->in_hour - 12.0) / 24.0);
-    gamma = gamma * 2.0 * M_PI / 365.0;
-
-    double cosGamma = cos(gamma);
-    double cos2Gamma = cos(2 * gamma);
-    double cos3Gamma = cos(3 * gamma);
-
-    double sinGamma = sin(gamma);
-    double sin2Gamma = sin(2 * gamma);
-    double sin3Gamma = sin(3 * gamma);
-
-    // equation of time [minutes]
-    double eqtime = 0.000075 +
-                    0.001868 * cosGamma +
-                    -0.032077 * sinGamma +
-                    -0.014615 * cos2Gamma +
-                    -0.040849 * sin2Gamma;
-    eqtime = eqtime * 229.18;
-
-    // solar declination angle [radians]
-    double decl = -0.399912 * cosGamma + 0.070257 * sinGamma;
-    decl = decl + -0.006758 * cos2Gamma + 0.000907 * sin2Gamma;
-    decl = decl + -0.002697 * cos3Gamma + 0.00148 * sin3Gamma;
-    decl = decl + 0.006918;*/
-
-
     //90.833 is the zenith angle
     // hour angle [radians]
     double ha_sunrise = acos(((cos(deg2rad(90.833))) / (cos(deg2rad(ctx->in_latitude)) * cos(decl))) - tan(deg2rad(ctx->in_latitude)) * tan(decl));

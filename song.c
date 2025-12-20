@@ -1250,7 +1250,7 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
           //sun_riseset.in_longitude = -4.4203400;
 
 
-          PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day,&solar_leap_year,&solar_last_year_is_leap,&total_solar_hijri_days);
+          PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);//,&solar_leap_year,&solar_last_year_is_leap,&total_solar_hijri_days);
           PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);
 
           //sun_ret_t ret = sun_compute(&sun_riseset,solar_angle_day,solar_leap_year);

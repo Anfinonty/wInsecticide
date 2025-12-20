@@ -2233,9 +2233,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //96548205164; //year 5029 june 29
       //222775983864; //year 9029 june 29 //3.53am, 10,00pm
 
+      //536647968000; //19029 june 29 to unix time
+      //1363222080000; //24029 june 29 to unix time      
+        //664573309200;  //23029 june 29 to unix time https://www.unixtimestamp.com/
+     	//177144080400; //7583, june 23
+      //230727805200; //9281 june 22
       printf("\nSeconds Passed Since Jan-1-1970: %lld",timenow);
 
-      PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day,&solar_leap_year,&solar_last_year_is_leap,&total_solar_hijri_days);
+      PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);//,&solar_leap_year,&solar_last_year_is_leap,&total_solar_hijri_days);
       PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);
 
 
@@ -2296,7 +2301,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //double utc_offset=8;
         
 
-      sun_compute(&sun_riseset,solar_angle_day,total_solar_hijri_days,solar_year,solar_leap_year,solar_last_year_is_leap);
+      sun_compute(&sun_riseset,solar_day,solar_month,solar_year);
       double prise=sun_riseset.out_sunrise_mins/60;
       double pset=sun_riseset.out_sunset_mins/60;
 
