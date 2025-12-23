@@ -825,7 +825,7 @@ void PersiaLunarTime(int64_t _seconds,
       } else { //Odd number months
         print_days=days%30;
       }
-    } else { //negative
+    } else { //negative unix time
       if ((month+1)%2==0) { //Even number months, 29 days
         print_days=30-days; //1 day epoch
       } else { //Odd number months
@@ -848,11 +848,11 @@ void PersiaLunarTime(int64_t _seconds,
       } else {
         print_days=days%29;
       }
-    } else {
-      if ((month+1)%2==0) {
-        print_days=30-days; //1 day epoch
-      } else { //Odd number months
-        print_days=31-days; //1 day epoch
+    } else { //negative unix time
+      if (leap) {
+        print_days=31-days; //1day epoch
+      } else {
+        print_days=30-days; //1day epoch
       }
     }
   }
