@@ -281,6 +281,7 @@ void PersiaSolarTime(int64_t _seconds,
   int64_t seconds=_seconds+day_seconds*11;
 
   int64_t _total_solar_hijri_days=0;
+  if (_seconds>0) {
   while (seconds>0) {
     //Get months
     if (month<6) {   //First 6 months have 31 days          0,1,2,3,4,5
@@ -338,7 +339,69 @@ void PersiaSolarTime(int64_t _seconds,
     }
   }
 
+  //negative unix time
+  } else if (_seconds<0) {
+    leap_year=1346;
+    while (seconds<0) {
+    //Get months
+    if (month<6 && month>-1) {   //First 6 months have 31 days          0,1,2,3,4,5
+      if (seconds+days31_seconds>=0) {
+        break;
+      } else {
+        seconds+=days31_seconds;
+        month--;
+        _total_solar_hijri_days-=31;
+      }
+    } else if (month>5 && month<11) {  //6 months have 30 days      6,7,8,9,10
+      if (seconds+days30_seconds>=0) {
+        break;
+      } else {
+        seconds+=days30_seconds;
+        month--;
+        _total_solar_hijri_days-=30;
+      }
+    }
 
+
+    //new year
+    if (month==-1) {
+      year--;
+      month=11;
+      if (year==leap_year) {//Leap year
+        if (seconds+days30_seconds>=0) {
+          break;
+        } else {
+          seconds+=days30_seconds;
+          month--;//month=10
+          _total_solar_hijri_days-=30;
+        }
+      } else {//Common Year
+        if (seconds+days29_seconds>=0) {
+          break;
+        } else {
+          seconds+=days29_seconds;
+          month--; //month=10
+          _total_solar_hijri_days-=29;
+        }
+      }
+
+      if (year==leap_year) {
+        if (solar_hijri_cycle!=17) {
+          leap_year-=4;
+        } else {
+          leap_year-=5;
+        }
+      }
+      solar_hijri_cycle--;
+      if (solar_hijri_cycle<1) {
+        solar_hijri_cycle=33;
+      }
+    } //end of month-1
+
+  } //end of while loop
+  } //end of else if + or - seconds
+
+  seconds=abs(seconds);
 
   int64_t print_seconds=seconds%60; //60 seconds in a minute
  
@@ -356,18 +419,33 @@ void PersiaSolarTime(int64_t _seconds,
 
   //31 or 30 or 29 days in a month
   int print_days=0;
-  if (month<6) {
-    print_days=days%31;
-  } else if (month>5 && month<11) {
-    print_days=days%30;
-  } else {
-    if ((year-1346)%4==0) {
+  if (_seconds>0) {
+    if (month<6) {
+      print_days=days%31;
+    } else if (month>5 && month<11) {
       print_days=days%30;
     } else {
-      print_days=days%29;
+      if ((year-1346)%4==0) {
+        print_days=days%30;
+      } else {
+        print_days=days%29;
+      }
+    }
+  } else if (_seconds<0) {
+    if (month<6) {
+      print_days=31-days;
+    } else if (month>5 && month<11) {
+      print_days=30-days;
+    } else {
+      if ((year-1346)%4==0) {
+       print_days=30-days;
+      } else {
+        print_days=29-days;
+      }
     }
   }
 
+  //misc
   //Check this year's solar_day since 1 Farvadin
   int __solar_day=0;
   if (month<6) {
@@ -401,12 +479,15 @@ void PersiaSolarTime(int64_t _seconds,
   //}
 
   *_solar_year=year;
-  *_solar_month=month+1;
+  if (_seconds>0)
+    *_solar_month=abs(month+1);
+  else
+    *_solar_month=abs(month);
   *_solar_day=(int)print_days+1;
   *_solar_hour=(int)print_hours;
   *_solar_min=(int)print_min;
   *_solar_sec=(int)print_seconds;
-  *_solar_day_of_week=seconds_static/SEC_PER_DAY%7;
+  *_solar_day_of_week=abs(seconds_static/SEC_PER_DAY%7);
   *_solar_angle_day=__solar_angle;
   //*_solar_leap_year=_is_solar_leap_year;
 }
@@ -791,12 +872,12 @@ void PersiaLunarTime(int64_t _seconds,
 
   //Assign to variables
   *_lunar_year=year;
-  *_lunar_month=month+1;
+  *_lunar_month=abs(month+1);
   *_lunar_day=(int)print_days+1;
   *_lunar_hour=(int)print_hours;
   *_lunar_min=(int)print_min;
   *_lunar_sec=(int)print_seconds;
-  *_lunar_day_of_week=seconds_static/SEC_PER_DAY%7;
+  *_lunar_day_of_week=abs(seconds_static/SEC_PER_DAY%7);
   *_moon_angle_shift=moon_angle_shift;
   *_lunar_leap_year=leap;
 }
