@@ -2224,7 +2224,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
     //hijri related (*
       int64_t timenow=
-      int64_current_timestamp(); //local timestamp is returned
+        int64_current_timestamp(); //local timestamp is returned
+       //-42220978113; //June 20 700A.D
+       //-40062608806; //Shawwal 29 10A.H
       //1774022400; //march 21 2026, farvirdin 1
       //1845686400;
       //1877363064;

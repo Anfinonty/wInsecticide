@@ -245,7 +245,13 @@ void PersiaSolarTime(int64_t _seconds,
   //expect to see small day drifts after 10k centuries from results online
   //Also it'll be less complex for me haha
 
-  //https://web.archive.org/web/20160318112553/http://payvand.com/calendar/
+  //2025-12-23 it has be revealed to me that the 20,33,33,33,37 cycle was erronously guessed by an individual
+  //who was extremely passionate about pre-Islamic Iran - Behris Zabih or Zabih Behruz
+  //https://www.iranicaonline.org/articles/behruz-dabih-1889-1971-persian-satirist-son-of-the-physician-and-calligrapher-abul-fazl-savaji/
+  //Birashk's leap year proposal is based on that and it has been refuted.
+
+  //https://web.archive.org/web/20160318112553/http://payvand.com/calendar/ 
+  //(not working though)
 
   //Beginning date:
   //Gegorian
@@ -570,6 +576,8 @@ void PersiaLunarTime(int64_t _seconds,
   int64_t seconds=_seconds+day_seconds*21;
   int64_t seconds_static=_seconds+(60*30); //Begins on thursday
 
+
+  if (_seconds>0) {
   while (seconds>0) {
     //Get months
     if (month<11) {   //0,1,2,3,4,5
@@ -628,7 +636,90 @@ void PersiaLunarTime(int64_t _seconds,
       year++;
     }    
   }
-  
+  }else if (_seconds<0) { //before 1970 jan 1
+
+  //JAN-01-1970 IS 22-10(SHAWWAL)-1389                             1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17  18  19  20  21  22  23               
+  //EPOCH 22-10-1389 IS 01-JAN-2027, MAX SHAWAL DAYS IS 29       (22,21,20,19,18,17,18,15,14,13,12,11,10,9, 8, 7, 6 ,  5,  4,  3,  2,  1,  30, 29, 28, 27)
+
+  //22 days to move 22-10-1389 to 30-09-1389
+  seconds=_seconds+day_seconds*23; //1 day Epoch
+  month--; //shift from shawwal to start from rammadan
+
+  //does not work
+  //seconds=_seconds-day_seconds*8; //8 days to move 22-10-1389 to 1 dhulqada (30 shawal turns to this)
+  //month++; //shift from shawwal to dhuqada
+
+
+  while (seconds<0) {
+    //Get months
+    if (month<11) {   //0,1,2,3,4,5
+      if ((month+1)%2==0) { //29 Days, Even number months
+        if (seconds+days29_seconds>=0) {
+          break;
+        } else {
+          seconds+=days29_seconds;
+          lunar_day_start-=days29_seconds;
+          month--;
+        }        
+      } else { //30 Days, Odd Number months
+        if (seconds+days30_seconds>=0) {
+          break;
+        } else {
+          seconds+=days30_seconds;
+          lunar_day_start-=days30_seconds;
+          month--;
+        }
+      }
+    } else { //12th month   //leap year at last month, 30 days = leap year       29 days = common year      ,11
+      //30 yrs, 11 leap years
+      //2,5,7,10,13,16,18,21,24,26,29
+      bool leap=FALSE;
+      int lyr=year%30;
+      for (int i=0;i<11;i++) {
+        if (lyr==leap_years[i]) {
+          leap=TRUE;
+          break;
+        }
+      }
+
+      if (leap) {//Leap year
+        if (seconds+days30_seconds>=0) {
+          break;
+        } else {
+          seconds+=days30_seconds;
+          lunar_day_start-=days30_seconds;
+          month--;
+        }
+      } else {//Common Year
+        if (seconds+days29_seconds>=0) {
+          break;
+        } else {
+          seconds+=days29_seconds;
+          lunar_day_start-=days29_seconds;
+          month--;
+        }
+      }
+    }
+
+
+    //new year
+    if (month==-1) {
+      month=11;
+      year--;
+    }    
+  } //end of while
+
+
+  //change to positive
+  seconds=abs(seconds);
+
+  //Muhammed's (PBUH) Son, Ibrahim, passed away on 10AH Shawwal 29,  
+  //Solar Eclipse Notes:
+  //https://www.sid.ir/FileServer/JE/12392000603
+  }
+
+
+
   //::
   //Get Seconds, Minutes, Hours and Days
   int64_t print_seconds=seconds%60; //60 seconds in a minute
@@ -646,11 +737,21 @@ void PersiaLunarTime(int64_t _seconds,
   bool leap=FALSE;
   int print_days=0;
   if (month<11) {
-    if ((month+1)%2==0) { //Even number months, 29 days
-      print_days=days%29;
-    } else { //Odd number months
-      print_days=days%30;
+
+    if (_seconds>0) {
+      if ((month+1)%2==0) { //Even number months, 29 days
+        print_days=days%29;
+      } else { //Odd number months
+        print_days=days%30;
+      }
+    } else { //negative
+      if ((month+1)%2==0) { //Even number months, 29 days
+        print_days=30-days; //1 day epoch
+      } else { //Odd number months
+        print_days=31-days; //1 day epoch
+      }
     }
+
   } else { //Leap Year
     int lyr=year%30;
     for (int i=0;i<11;i++) {
@@ -660,10 +761,18 @@ void PersiaLunarTime(int64_t _seconds,
       }
     }
 
-    if (leap) {
-      print_days=days%30;
+    if (_seconds>0) {
+      if (leap) {
+        print_days=days%30;
+      } else {
+        print_days=days%29;
+      }
     } else {
-      print_days=days%29;
+      if ((month+1)%2==0) {
+        print_days=30-days; //1 day epoch
+      } else { //Odd number months
+        print_days=31-days; //1 day epoch
+      }
     }
   }
 
@@ -678,6 +787,7 @@ void PersiaLunarTime(int64_t _seconds,
   
   if (print_days+1==28) //new moon
     moon_angle_shift+=2*M_PI/27;
+
 
   //Assign to variables
   *_lunar_year=year;
