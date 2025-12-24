@@ -342,6 +342,11 @@ void PersiaSolarTime(int64_t _seconds,
   //negative unix time
   } else if (_seconds<0) {
     leap_year=1346;
+
+    if (abs(_seconds/day_seconds<30)) { //1348,Dey (10th month, 30 days), 10
+      seconds=abs((30-9)*day_seconds -_seconds);
+    }
+
     while (seconds<0) {
     //Get months
     if (month<6 && month>-1) {   //First 6 months have 31 days          0,1,2,3,4,5
@@ -723,8 +728,14 @@ void PersiaLunarTime(int64_t _seconds,
   //EPOCH 22-10-1389 IS 01-JAN-2027, MAX SHAWAL DAYS IS 29       (22,21,20,19,18,17,18,15,14,13,12,11,10,9, 8, 7, 6 ,  5,  4,  3,  2,  1,  30, 29, 28, 27)
 
   //22 days to move 22-10-1389 to 30-09-1389
-  seconds=_seconds+day_seconds*23; //1 day Epoch
-  month--; //shift from shawwal to start from rammadan
+  if (abs(_seconds/day_seconds) > 23) {
+    seconds=_seconds+day_seconds*23; //1 day Epoch
+    month--; //shift from shawwal to start from rammadan
+  } else {
+    seconds=abs(-day_seconds*(29-19)+_seconds);     //29-18
+    printf("\nless than 23\n");
+  }
+
 
   //does not work
   //seconds=_seconds-day_seconds*8; //8 days to move 22-10-1389 to 1 dhulqada (30 shawal turns to this)
