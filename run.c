@@ -2221,28 +2221,122 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       player.health=20; //init player heath (for cursor)
 
 
+      /*int64_t scount_ibrahim_eclipse=-GetLunarHijriDays(29,10,10) * 60*60*24;
+      printf("29 Shawwal 10: %lld \n",scount_ibrahim_eclipse);
+
+      int64_t scount_ibrahim_eclipse_s=-GetSolarHijriDays(11,11,10) * 60*60*24;
+      int64_t scount_ibrahim_eclipse_days=-GetSolarHijriDays(11,11,10);
+      printf("11 Bahman 10: %lld \n",scount_ibrahim_eclipse_s);
+
+      printf("diffdays:%lld\n",(scount_ibrahim_eclipse_s-scount_ibrahim_eclipse)/(60*60*24));
+      printf("11 Bahman 10 Days: %lld\n",scount_ibrahim_eclipse_days);*/
+
+
+     printf("=====Testing Calendar====\n");
+    int kk=120;
+    for (int k=0;k<kk*2;k++) {
+
+
+    //hijri related (*
+      int64_t ttimenow=
+       //int64_current_timestamp(); //local timestamp is returned
+       -kk*24*60*60 + k*24*60*60;
+
+      //printf("\nSeconds Passed Since Jan-1-1970: %lld",ttimenow);
+      printf("day: %d\n",-kk+k);
+      if (-kk+k==0) {
+        ttimenow+=1;
+      }
+      PersiaSolarTime(ttimenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);//,&solar_leap_year,&solar_last_year_is_leap,&total_solar_hijri_days);
+      //PersiaLunarTime(ttimenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);
+
+
+          int num_char='*'; //hijri
+          if (solar_month==1 && solar_day>=12 && solar_day<=19) {
+            num_char='+';
+          }
+
+          printf("~:: Solar Hijri ::~ %c\n~:: %02lld.%s(%02lld).%02lld // %s // [%02lld:%02lld:%02lld] ::~\n",
+            num_char,
+            solar_year,
+            solar_months_en_txt[solar_month-1],
+            solar_month,
+            solar_day,
+            solar_days_en_txt[solar_day_of_week],
+            solar_hour,
+            solar_min,
+            solar_sec
+          );
+
+
+          //) |> (|> 0 <|) <| ( @
+          /*printf("~:: Lunar Hijri ::~ ");
+          if (lunar_day>=1 && lunar_day<=5) { //1, 2, 3, 4, 5
+            printf("  )");
+          } else if (lunar_day>=6 && lunar_day<=9) {// 6, 7, 8, 9
+            printf(" |)");
+          } else if (lunar_day>=10 && lunar_day<=12) {// 10, 11, 12,
+            printf("<|)");
+          } else if (lunar_day>=13 && lunar_day<=15) {//13, 14, 15
+            printf("(O)");
+          } else if (lunar_day>=16 && lunar_day<=18) {//16, 17, 18
+            printf("(|>");
+          } else if (lunar_day>=19 && lunar_day<=22) {//19, 20, 21, 22
+            printf("(|");
+          } else if (lunar_day>=23 && lunar_day<=26) {//23, 24, 25,26
+            printf("(");
+          } else { //27, 28, 29, 30
+            printf(" @");
+          }
+
+
+
+          printf("\n~:: %d.%s(%d).%d // %s // [%02d:%02d:%02d] ::~\n",
+            lunar_year,
+            lunar_months_en_txt[lunar_month-1],
+            lunar_month,
+            lunar_day,
+            lunar_days_en_txt[lunar_day_of_week],
+            lunar_hour,
+            lunar_min,
+            lunar_sec
+          );
+*/
+      } //end of for loop for testing
+     printf("=====Test Complete=======\n");
+
+    //2025-DEC-29: EPOCH for lunar hijri is needed, it has been shown to align properly even after crossing JAN-01-1970
+        //Still need to account the smaller unix date values.
+
 
     //hijri related (*
       int64_t timenow=
-        //-1;
-        //-6721546; //oct 15 1969
-        //-40071946; // september 24 1968
-        int64_current_timestamp(); //local timestamp is returned
-       //-40062608806; //June 20 700
-       //-42220978113; //Shawwal 29 10A.H
-      //1774022400; //march 21 2026, farvirdin 1
-      //1845686400;
-      //1877363064;
-      //33434301164; // year 3029, june, 29
-      //64991296364;
-      //96548205164; //year 5029 june 29
-      //222775983864; //year 9029 june 29 //3.53am, 10,00pm
+        int64_current_timestamp()+7*60*60; //local timestamp is returned
+            //-60985824000  - 60*60*24*3; //3 day epoch julian-gregorian;
+            //-61117898852; //Crusifixion
 
-      //536647968000; //19029 june 29 to unix time
-      //1363222080000; //24029 june 29 to unix time      
-        //664573309200;  //23029 june 29 to unix time https://www.unixtimestamp.com/
-     	//177144080400; //7583, june 23
-      //230727805200; //9281 june 22
+       	 	//-42521846400+ 60*60*24*3; //(----------3 Day epoch from JULIAN -> GREGORIAN), After Hijra
+            //-42220978113 + 60*60*24*3; //Shawwal 29 10A.H (----------3 Day epoch from JULIAN -> GREGORIAN)  27 Jan 632AD(JC) -> 30 Jan 632AD(GC)
+            //-42248649600;
+            ///scount_ibrahim_eclipse;
+            //-6721546; //oct 15 1969
+            //-40071946; // september 24 1968
+            //-40062608806; //June 20 700
+            //1774022400; //march 21 2026, farvirdin 1
+          //1845686400;
+          //1877363064;
+          //33434301164; // year 3029, june, 29
+          //64991296364;
+          //96548205164; //year 5029 june 29
+          //222775983864; //year 9029 june 29 //3.53am, 10,00pm
+
+          //536647968000; //19029 june 29 to unix time
+          //1363222080000; //24029 june 29 to unix time      
+            //664573309200;  //23029 june 29 to unix time https://www.unixtimestamp.com/
+         	//177144080400; //7583, june 23
+          //230727805200; //9281 june 22
+
+
       printf("\nSeconds Passed Since Jan-1-1970: %lld",timenow);
 
       PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);//,&solar_leap_year,&solar_last_year_is_leap,&total_solar_hijri_days);

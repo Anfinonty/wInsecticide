@@ -70,9 +70,11 @@ void get_current_time_diff(int64_t *hour_diff,int64_t *min_diff, int64_t *sec_di
 
 
 
-int64_t int64_current_timestamp() {
-  //struct timeval te;
-  //mingw_gettimeofday(&te, NULL);
+int64_t int64_current_timestamp()
+{//https://stackoverflow.com/questions/13804095/get-the-time-zone-gmt-offset-in-c
+
+  struct timeval te;
+  mingw_gettimeofday(&te, NULL);
   __time64_t t;
   _time64(&t);
   int64_t h_diff;
@@ -80,7 +82,10 @@ int64_t int64_current_timestamp() {
   int64_t _l;
 
   get_current_time_diff(&h_diff,&m_diff,&_l);
-  return (int64_t) t - (SEC_PER_HOUR*h_diff) - (SEC_PER_MIN*m_diff);
+
+  //printf("\nhdiff:%lld, mdiff:%lld\n",h_diff,m_diff);
+
+  return (int64_t) t-  (SEC_PER_HOUR*h_diff) - (SEC_PER_MIN*m_diff);
 }
 
 
@@ -93,7 +98,10 @@ unsigned long long long_current_timestamp() {
 }
 
 
-int leap_years[11]={2,5,7,10,13,16,18,21,24,26,29};
+
+int leap_years[11]={2,5,7,10,13,16,18,21,24,26,29}; //Kuwaiti Algorithm, Tabular algortihm also by Al-Khwarizmi
+//https://en.wikipedia.org/wiki/Tabular_Islamic_calendar
+//int leap_years[11]={2,5,8,11,13,16,19,21,24,27,0}; //Habash al-Hasib last nuber is 30 but modulo %30 is 0
 
 
 
@@ -206,6 +214,211 @@ wchar_t *solar_days_txt[7]={
 };
 
 
+
+
+int64_t GetLunarHijriDays(int day0,int month0, int64_t year0)
+{
+  int64_t year_i=1389;
+  int month=10;          //lunar hijri unix start day is  1389-10-22  //Gregorian is 1970-1-1
+  int64_t lh_days=0;
+
+  if (year0<1389) { //less than jan 1 1970, count day backwards
+    lh_days+=21; //-1 day epoch for direct days to work
+    month--;    
+    while (month>0) { // 9, 8 , 7, 6,  |5, 4, 3, 2, 1
+      if (month%2==0)
+        lh_days+=29;
+      else
+        lh_days+=30; 
+      month--;
+    }
+    year_i--;
+ // years inbetween
+    while (year_i>year0) {    
+      //check leap year 
+      bool leap=FALSE;
+      int lyr=year_i%30;
+      for (int i=0;i<11;i++) {
+        if (lyr==leap_years[i]) {
+          leap=TRUE;
+          break;
+        }
+      }
+      lh_days+=30*6 + 29*5;
+      if (leap) {                                                    // x | x | x | x | x |  x
+        lh_days+=30;          //odd = 30 *6, even= 29*5, leap=29/30,,,, 1,2,3,4,5,6,7,8,9,10,11
+      } else {
+        lh_days+=29;
+      }
+      year_i--;
+    }
+
+    // final year
+    month=12;
+    //check leap year 
+    bool leap=FALSE;
+    int lyr=year_i%30;
+    for (int i=0;i<11;i++) {
+      if (lyr==leap_years[i]) {
+        leap=TRUE;
+        break;
+      }
+    }
+    if (leap) {                                                    // x | x | x | x | x |  x
+      lh_days+=30;          //odd = 30 *6, even= 29*5, leap=29/30,,,, 1,2,3,4,5,6,7,8,9,10,11
+    } else {
+      lh_days+=29;
+    }
+    month--;
+
+    //check months
+    while (month>month0) { //11, 10, 9, 8 , 7, 6,  |5, 4, 3, 2, 1
+      if (month%2==0) //even 29, odd 30
+        lh_days+=29;
+      else
+        lh_days+=30; 
+      month--;
+    }
+
+    if (month0%2==0) { //1 day epoch, day 0 isnt a thing i.e. 29-day0 where day0 is 29
+      lh_days+=30-day0;
+    } else {
+      lh_days+=31-day0;
+    }    
+    //
+  } else {  //count forwards (TBA)
+
+  }
+  return lh_days;
+}
+
+int64_t GetSolarHijriDays(int64_t day0,int64_t month0,int64_t year0)
+{
+  //1348-10-11 
+  int solar_hijri_cycle=28;
+  int month=10;
+  int64_t sh_days=0;
+  int64_t year_i=1348;
+  int leap_year=1350;
+  //1348-10-11 , 1348 Dey 11 is Jan 01 1970 aka start of unix
+  if (year0<1348) { //count day backwards
+    leap_year=1346;
+    // current year, 10
+    sh_days+=12; //reach new month //+epoch 1 day for direct days calc to work
+    month--;
+    while (month>0) { // 9, 8 , 7, 6,  |5, 4, 3, 2, 1
+      if (month>5)
+        sh_days+=31;
+      else
+        sh_days+=30; 
+      month--;
+    }
+    
+    year_i--;
+    solar_hijri_cycle--;
+
+    // years inbetween
+    while (year_i>year0) {     
+      if (year_i==leap_year) {
+        if (solar_hijri_cycle!=17) {
+          leap_year-=4;
+        } else {
+          leap_year-=5;
+        }
+        sh_days+=31*6+ 30*5 +30;
+      } else {
+        sh_days+=31*6+ 30*5 +29;
+      }
+
+      year_i--;
+      solar_hijri_cycle--;
+      if (solar_hijri_cycle<1) {
+        solar_hijri_cycle=33;
+      }
+    }
+
+    // final year
+    month=12;
+    if (year_i==leap_year) {
+      sh_days+=30;
+    } else {
+      sh_days+=29;
+    }
+    month--;
+
+
+    while (month>month0) { //11, 10, 9, 8 , 7, |6, 5, 4, 3, 2, 1
+      if (month>=7)
+        sh_days+=30;
+      else
+        sh_days+=31; 
+      month--;
+    }
+
+    //final day
+    if (month0>=7 && month0<=12) {
+      sh_days+=31-day0;
+    } else if (month0>=1 && month0>=6){ //first 6 months
+      sh_days+=32-day0;
+    }
+
+
+  } else { //count solar hijri day forwards
+    //leap_year=1350;
+    // current year, 10
+    sh_days+=(30-10);
+    month++;
+    while (month<12) {
+      if (month<=6)
+        sh_days+=31;
+      else
+        sh_days+=30; 
+      month++;
+    }
+    //non-leapyear
+    sh_days+=29;    
+    year_i++;
+    solar_hijri_cycle++;
+
+    // years inbetween
+    while (year_i<year0) {     
+      if (year_i==leap_year) {
+        if (solar_hijri_cycle!=17) {
+          leap_year+=4;
+        } else {
+          leap_year+=5;
+        }
+        sh_days+=31*6+ 30*5+ 30;
+      } else {
+        sh_days+=31*6+ 30*5+ 29;
+      }
+
+      year_i++;
+      solar_hijri_cycle++;
+      if (solar_hijri_cycle>33) {
+        solar_hijri_cycle=1;
+      }
+    }
+
+    // final year
+    month=1;
+    while (month<month0) { //1, 2, 3, 4, 5, 6 | 7, 8, 9 ,10 ,11 ,12
+      if (month<=6)
+        sh_days+=31;
+      else
+        sh_days+=30; 
+      month++;
+    }
+
+    sh_days+=day0; //day at target month
+
+  }
+  return sh_days;
+}
+
+
+
+
 /*struct SolarHijri
 {
   int sec;
@@ -224,6 +437,7 @@ wchar_t *solar_days_txt[7]={
 } SolarHijri;*/
 
 //   *Omar Khayyam
+
 void PersiaSolarTime(int64_t _seconds,
   int64_t *_solar_sec,
   int64_t *_solar_min,
@@ -276,15 +490,15 @@ void PersiaSolarTime(int64_t _seconds,
   //Break Down the different time parts
   int solar_hijri_cycle=28; //28
   int year=1348;        //gregorian unix is 1970-1-1 THURSDAY
-  int month=9;          //start day     //solar hijri unix date is 1348-10-11 //month 0 is month 1
+  int month=10;          //start day     //solar hijri unix date is 1348-10-11
   int64_t seconds_static=_seconds; //Begins on thursday solar time
-  int64_t seconds=_seconds+day_seconds*11;
+  int64_t seconds=_seconds+day_seconds*11; // 11 days offset, move to next month
 
   int64_t _total_solar_hijri_days=0;
-  if (_seconds>0) {
+  if (_seconds>0) { //positive UNIX time
   while (seconds>0) {
     //Get months
-    if (month<6) {   //First 6 months have 31 days          0,1,2,3,4,5
+    if (month>=1 && month<=6) {   //First 6 months have 31 days          1,2,3,4,5
       if (seconds-days31_seconds<=0) {
         break;
       } else {
@@ -292,7 +506,7 @@ void PersiaSolarTime(int64_t _seconds,
         month++;
         _total_solar_hijri_days+=31;
       }
-    } else if (month>5 && month<11) {  //6 months have 30 days      6,7,8,9,10
+    } else if (month>=7 && month<=11) {  //last 5 months have 30 days      7,8,9,10,11
       if (seconds-days30_seconds<=0) {
         break;
       } else {
@@ -300,7 +514,7 @@ void PersiaSolarTime(int64_t _seconds,
         month++;
         _total_solar_hijri_days+=30;
       }
-    } else { //12th month   //leap year at last month, 30 days = leap year       29 days = common year      ,11
+    } else { //12th month   //leap year at last month, 30 days = leap year       29 days = common year      ,12
       if (year==leap_year) {//Leap year
         if (seconds-days30_seconds<=0) {
           break;
@@ -322,7 +536,7 @@ void PersiaSolarTime(int64_t _seconds,
 
 
     //new year
-    if (month==12) {
+    if (month==13) {
       if (year==leap_year) {
         if (solar_hijri_cycle!=17) {
           leap_year+=4;
@@ -330,7 +544,7 @@ void PersiaSolarTime(int64_t _seconds,
           leap_year+=5;
         }
       }
-      month=0;
+      month=1;
       year++;
       solar_hijri_cycle++;
       if (solar_hijri_cycle>33) {
@@ -343,53 +557,54 @@ void PersiaSolarTime(int64_t _seconds,
   } else if (_seconds<0) {
     leap_year=1346;
 
-    if (abs(_seconds/day_seconds<30)) { //1348,Dey (10th month, 30 days), 10
-      seconds=abs((30-9)*day_seconds -_seconds);
+    if (abs(_seconds)/day_seconds>10) { //1348 // Dey (10th month, 30 days)// 11  1348-10-11
+      seconds=_seconds+day_seconds*10; // 10 days offset, move to 9th month
+      month--;
+      _total_solar_hijri_days+=10;
+    } else {
+      seconds=-abs( (30-10)*day_seconds -_seconds); //30 days in 10th month
     }
 
     while (seconds<0) {
     //Get months
-    if (month<6 && month>-1) {   //First 6 months have 31 days          0,1,2,3,4,5
+    if (month<=6 && month>=1) {   //First 6 months have 31 days          
       if (seconds+days31_seconds>=0) {
         break;
       } else {
         seconds+=days31_seconds;
         month--;
-        _total_solar_hijri_days-=31;
+        _total_solar_hijri_days+=31;
       }
-    } else if (month>5 && month<11) {  //6 months have 30 days      6,7,8,9,10
+    } else if (month>=7 && month<=11) {  //last 5 months have 30 days
       if (seconds+days30_seconds>=0) {
         break;
       } else {
         seconds+=days30_seconds;
         month--;
-        _total_solar_hijri_days-=30;
+        _total_solar_hijri_days+=30;
       }
-    }
-
-
-    //new year
-    if (month==-1) {
-      year--;
-      month=11;
+    } else { //12th month  //leap year at last month, 30 days = leap year       29 days = common year      ,12
       if (year==leap_year) {//Leap year
         if (seconds+days30_seconds>=0) {
           break;
         } else {
           seconds+=days30_seconds;
-          month--;//month=10
-          _total_solar_hijri_days-=30;
+          month--;//month=11
+          _total_solar_hijri_days+=30;
         }
       } else {//Common Year
         if (seconds+days29_seconds>=0) {
           break;
         } else {
           seconds+=days29_seconds;
-          month--; //month=10
-          _total_solar_hijri_days-=29;
+          month--; //month=11
+          _total_solar_hijri_days+=29;
         }
       }
+    }
 
+    //new year
+    if (month==0) {
       if (year==leap_year) {
         if (solar_hijri_cycle!=17) {
           leap_year-=4;
@@ -397,12 +612,13 @@ void PersiaSolarTime(int64_t _seconds,
           leap_year-=5;
         }
       }
+      year--;
+      month=12;
       solar_hijri_cycle--;
       if (solar_hijri_cycle<1) {
         solar_hijri_cycle=33;
       }
-    } //end of month-1
-
+    } //end of month
   } //end of while loop
   } //end of else if + or - seconds
 
@@ -422,42 +638,49 @@ void PersiaSolarTime(int64_t _seconds,
   int64_t days=hours/24;
 
 
+
   //31 or 30 or 29 days in a month
   int print_days=0;
   if (_seconds>0) {
-    if (month<6) {
+    if (month<=6) {
+      print_days=days%32;
+    } else if (month>=7 && month<=11) {
       print_days=days%31;
-    } else if (month>5 && month<11) {
-      print_days=days%30;
-    } else {
-      if ((year-1346)%4==0) {
-        print_days=days%30;
+    } else { //print leap year
+      //if ((year-1346)%4==0) {
+      if (year==leap_year) {
+        print_days=days%31;
       } else {
-        print_days=days%29;
+        print_days=days%30;
       }
     }
-  } else if (_seconds<0) {
-    if (month<6) {
+  } else if (_seconds<0) { //1 day epoch day 0 not existing
+    if (month>=1 && month<=6) {
+      print_days=32-days;
+    } else if (month>=7 && month<=11) {
       print_days=31-days;
-    } else if (month>5 && month<11) {
-      print_days=30-days;
-    } else {
-      if ((year-1346)%4==0) {
-       print_days=30-days;
+    } else { //print leap year        
+      if (year==leap_year) {
+        print_days=31-days;
       } else {
-        print_days=29-days;
+        print_days=30-days;
       }
     }
   }
+ 
+  //int64_t lol=(int64_t) print_days;
+  //printf("\nprintdays: %d,%lld\n",days,lol);
+  //printf("total days: %lld\n", _total_solar_hijri_days+lol);
+
 
   //misc
   //Check this year's solar_day since 1 Farvadin
   int __solar_day=0;
-  if (month<6) {
-    __solar_day=31*month;
-  }  else if (month>5 && month<11) {
+  if (month>=1 && month<=6) {
+    __solar_day=31*(month-1);
+  }  else if (month>=7 && month<=11) {
     __solar_day=31*6;
-    __solar_day+=30*(month-6);
+    __solar_day+=30*(month-1-6);
   } else {
     __solar_day=31*6;
     __solar_day+=30*5;
@@ -484,11 +707,8 @@ void PersiaSolarTime(int64_t _seconds,
   //}
 
   *_solar_year=year;
-  if (_seconds>0)
-    *_solar_month=abs(month+1);
-  else
-    *_solar_month=abs(month);
-  *_solar_day=(int)print_days+1;
+  *_solar_month=abs(month);
+  *_solar_day=(int)print_days;
   *_solar_hour=(int)print_hours;
   *_solar_min=(int)print_min;
   *_solar_sec=(int)print_seconds;
@@ -496,135 +716,6 @@ void PersiaSolarTime(int64_t _seconds,
   *_solar_angle_day=__solar_angle;
   //*_solar_leap_year=_is_solar_leap_year;
 }
-
-
-
-
-int64_t GetSolarHijriDays(int64_t day0,int64_t month0,int64_t year0)
-{
-  //1348-10-11 
-  int solar_hijri_cycle=28;
-  int month=10;
-  int sh_days=0;
-  int leap_year=1350;
-  //1348-10-11 , 1348 Dey 11 is Jan 01 1970 aka start of unix
-  int64_t year_i=1348;
-  if (year0<1348) { //count day backwards
-    leap_year=1346;
-    // current year, 10
-    sh_days+=10;
-    month--;
-    while (month>0) { // 9, 8 , 7, 6,  |5, 4, 3, 2, 1
-      if (month>5)
-        sh_days+=31;
-      else
-        sh_days+=30; 
-      month--;
-    }
-    
-    year_i--;
-    solar_hijri_cycle--;
-
-    // years inbetween
-    while (year_i>year0) {     
-      if (year_i==leap_year) {
-        if (solar_hijri_cycle!=17) {
-          leap_year-=4;
-        } else {
-          leap_year-=5;
-        }
-        sh_days+=31*6+30*5+30;
-      } else {
-        sh_days+=31*6+30*5+29;
-      }
-
-      year_i--;
-      solar_hijri_cycle--;
-      if (solar_hijri_cycle<1) {
-        solar_hijri_cycle=33;
-      }
-    }
-
-    // final year
-    month=12;
-    if (year_i==leap_year) {
-      sh_days+=30;
-    } else {
-      sh_days+=29;
-    }
-    month--;
-
-
-    while (month>month0) { //11, 10, 9, 8 , 7, 6,  |5, 4, 3, 2, 1
-      if (month>5)
-        sh_days+=31;
-      else
-        sh_days+=30; 
-      month--;
-    }
-
-    if (month0>5) {
-      sh_days+=31-day0;
-    } else {
-      sh_days+=30-day0;
-    }
-  } else {
-    //leap_year=1350;
-    // current year, 10
-    sh_days+=(30-10);
-    month++;
-    while (month<12) { // 9, 8 , 7, 6,  |5, 4, 3, 2, 1
-      if (month>5)
-        sh_days+=31;
-      else
-        sh_days+=30; 
-      month++;
-    }
-    //non-leapyear
-    sh_days+=29;    
-    year_i++;
-    solar_hijri_cycle++;
-
-    // years inbetween
-    while (year_i<year0) {     
-      if (year_i==leap_year) {
-        if (solar_hijri_cycle!=17) {
-          leap_year+=4;
-        } else {
-          leap_year+=5;
-        }
-        sh_days+=31*6+30*5+30;
-      } else {
-        sh_days+=31*6+30*5+29;
-      }
-
-      year_i++;
-      solar_hijri_cycle++;
-      if (solar_hijri_cycle>33) {
-        solar_hijri_cycle=1;
-      }
-    }
-
-    // final year
-    month=1;
-    while (month<month0) { //1, 2, 3, 4, 5, 6 | 7, 8, 9 ,10 ,11 ,12
-      if (month>5)
-        sh_days+=31;
-      else
-        sh_days+=30; 
-      month++;
-    }
-
-    sh_days+=day0; //at target month
-
-  }
-  return sh_days;
-}
-
-
-
-
-
 
 
 
@@ -654,20 +745,20 @@ void PersiaLunarTime(int64_t _seconds,
   const int day_seconds=60*60*24;
   const int days30_seconds=day_seconds*30;
   const int days29_seconds=day_seconds*29; 
-  int64_t lunar_day_start=-day_seconds*21; //lunar hijri unix start day is  1389-10-22 //Gregorian is 1970-1-1 //1 day offset, account for day start at evening
+  int64_t lunar_day_start=-day_seconds*21; //lunar hijri unix start day is  1389-10-22 //Gregorian is 1970-1-1
 
   //Break Down the different time parts
   int year=1389;
-  int month=9;          //lunar hijri unix start day is  1389-10-22  //Gregorian is 1970-1-1 //month 0 is month 1
-  int64_t seconds=_seconds+day_seconds*21;
+  int month=10;          //lunar hijri unix start day is  1389-10-22  //Gregorian is 1970-1-1
+  int64_t seconds=_seconds+day_seconds*22;
   int64_t seconds_static=_seconds+(60*30); //Begins on thursday
 
 
   if (_seconds>0) {
-  while (seconds>0) {
+  while (seconds>0) { //positive seconds
     //Get months
-    if (month<11) {   //0,1,2,3,4,5
-      if ((month+1)%2==0) { //29 Days, Even number months
+    if (month<12) {   //0,1,2,3,4,5
+      if ((month)%2==0) { //29 Days, Even number months
         if (seconds-days29_seconds<=0) {
           break;
         } else {
@@ -690,7 +781,7 @@ void PersiaLunarTime(int64_t _seconds,
       bool leap=FALSE;
       int lyr=year%30;
       for (int i=0;i<11;i++) {
-        if (lyr==leap_years[i]) {
+        if (abs(lyr)==leap_years[i]) {
           leap=TRUE;
           break;
         }
@@ -717,8 +808,8 @@ void PersiaLunarTime(int64_t _seconds,
 
 
     //new year
-    if (month==12) {
-      month=0;
+    if (month==13) {
+      month=1;
       year++;
     }    
   }
@@ -727,25 +818,20 @@ void PersiaLunarTime(int64_t _seconds,
   //JAN-01-1970 IS 22-10(SHAWWAL)-1389                             1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17  18  19  20  21  22  23               
   //EPOCH 22-10-1389 IS 01-JAN-2027, MAX SHAWAL DAYS IS 29       (22,21,20,19,18,17,18,15,14,13,12,11,10,9, 8, 7, 6 ,  5,  4,  3,  2,  1,  30, 29, 28, 27)
 
+  lunar_day_start=-day_seconds*(29-21); //lunar hijri unix start day is  1389-10-22 //Gregorian is 1970-1-1
   //22 days to move 22-10-1389 to 30-09-1389
-  if (abs(_seconds/day_seconds) > 23) {
-    seconds=_seconds+day_seconds*23; //1 day Epoch
-    month--; //shift from shawwal to start from rammadan
-  } else {
-    seconds=abs(-day_seconds*(29-19)+_seconds);     //29-18
-    printf("\nless than 23\n");
+  if (abs(_seconds/day_seconds) > 21) { //post starting month date
+    seconds=_seconds+day_seconds*21;
+    month--; //shift from shawwal (10) to start from rammadan (9)
+  } else { //inside starting month date
+    seconds=abs(-day_seconds*(29-21)+_seconds);  //29-22 = 22 -> 29 = 7 days, 29 days in shawall (even number month) 
+    //printf("\nless than 22\n");
   }
-
-
-  //does not work
-  //seconds=_seconds-day_seconds*8; //8 days to move 22-10-1389 to 1 dhulqada (30 shawal turns to this)
-  //month++; //shift from shawwal to dhuqada
-
 
   while (seconds<0) {
     //Get months
-    if (month<11) {   //0,1,2,3,4,5
-      if ((month+1)%2==0) { //29 Days, Even number months
+    if (month<12) {   //0,1,2,3,4,5
+      if ((month)%2==0) { //29 Days, Even number months
         if (seconds+days29_seconds>=0) {
           break;
         } else {
@@ -768,7 +854,7 @@ void PersiaLunarTime(int64_t _seconds,
       bool leap=FALSE;
       int lyr=year%30;
       for (int i=0;i<11;i++) {
-        if (lyr==leap_years[i]) {
+        if (abs(lyr)==leap_years[i]) {
           leap=TRUE;
           break;
         }
@@ -795,8 +881,8 @@ void PersiaLunarTime(int64_t _seconds,
 
 
     //new year
-    if (month==-1) {
-      month=11;
+    if (month==0) {
+      month=12;
       year--;
     }    
   } //end of while
@@ -828,19 +914,19 @@ void PersiaLunarTime(int64_t _seconds,
   //31 or 30 or 29 days in a month
   bool leap=FALSE;
   int print_days=0;
-  if (month<11) {
+  if (month<12) {
 
     if (_seconds>0) {
-      if ((month+1)%2==0) { //Even number months, 29 days
-        print_days=days%29;
+      if ((month)%2==0) { //Even number months, 29 days
+        print_days=days%30; //1 day epoch
       } else { //Odd number months
-        print_days=days%30;
+        print_days=days%31; //1 day epoch
       }
     } else { //negative unix time
-      if ((month+1)%2==0) { //Even number months, 29 days
-        print_days=30-days; //1 day epoch
+      if ((month)%2==0) { //Even number months, 29 days
+        print_days=30-days; //1day epoch
       } else { //Odd number months
-        print_days=31-days; //1 day epoch
+        print_days=31-days;//1day epoch
       }
     }
 
@@ -855,36 +941,36 @@ void PersiaLunarTime(int64_t _seconds,
 
     if (_seconds>0) {
       if (leap) {
-        print_days=days%30;
+        print_days=days%31;//1day epoch from 30
       } else {
-        print_days=days%29;
+        print_days=days%30; //1day epoch from 29
       }
     } else { //negative unix time
       if (leap) {
-        print_days=31-days; //1day epoch
+        print_days=31-days; //1day epoch from 30
       } else {
-        print_days=30-days; //1day epoch
+        print_days=30-days;//1day epoch from 29
       }
     }
   }
 
   int64_t _;
   bool b_;
-  if (print_days+1>=29) { //new moon
+  if (print_days>=28) { //new moon
     lunar_day_start+=(print_days*day_seconds);
   }
 
   float moon_angle_shift=0;
   PersiaSolarTime(lunar_day_start,&_,&_,&_,&_,&_,&_,&_,&moon_angle_shift);//,&b_,&b_,&_);
   
-  if (print_days+1==28) //new moon
-    moon_angle_shift+=2*M_PI/27;
+  if (print_days>=28) //new moon
+    moon_angle_shift-=2*M_PI/27;
 
 
   //Assign to variables
   *_lunar_year=year;
-  *_lunar_month=abs(month+1);
-  *_lunar_day=(int)print_days+1;
+  *_lunar_month=abs(month);
+  *_lunar_day=(int)print_days;
   *_lunar_hour=(int)print_hours;
   *_lunar_min=(int)print_min;
   *_lunar_sec=(int)print_seconds;
@@ -1022,7 +1108,7 @@ void sun_compute(sun_ctx_t *ctx, Earth *_earth,int solar_hijri_day, int solar_hi
          D            C    D            C
 
       //https://www.timeanddate.com/astronomy/perihelion-aphelion-solstice.html
-      //At year 625 Dey 1 or 1246 AD Dec 22, they both occur on the same day
+      //At year 625 Dey 1 or 1246 AD Dec 22 (JULIAN), they both occur on the same day
     */
     //1 day shift every 58 years from the effects of both Axial Precession and Apsidal Precession
     //General precession:
@@ -1055,9 +1141,7 @@ void sun_compute(sun_ctx_t *ctx, Earth *_earth,int solar_hijri_day, int solar_hi
         sh_days = &? + solarhijri days
     */
     int64_t jan2000_sh_days = GetSolarHijriDays(11,10,1378); //shjri:10957 greg:10957
-
-
-    int64_t sh_days0 = GetSolarHijriDays(1,10,625); //shjri:264080 greg: 264080
+    int64_t sh_days0 = GetSolarHijriDays(1 +3,10,625); //shjri:264080 greg: 264080 //3day offset as this occured before swap from julian to gregorian
     int64_t sh_days = sh_days0 + solar_hijri_days;
     double perihelion_wsolstice_ang = fmod(deg2rad(4.70935E-5 * sh_days),2*M_PI); //axial and apsidal preccedent movement per day
     _earth->perihelion=perihelion_wsolstice_ang;
