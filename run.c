@@ -2339,8 +2339,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 //        GetLunarHijriDays(11,3,1369)*-60*60*24; //Online and This days are the same
 
     //hijri related (*
+      int64_t total_solar_eclipse_571=GetLunarHijriDays(29,9,571)*-60*60*24;
+
       int64_t timenow=
         //demo_lunar;
+        //total_solar_eclipse_571;
         int64_current_timestamp(); //local timestamp is returned
             //-60985824000  - 60*60*24*3; //3 day epoch julian-gregorian;
             //-61117898852; //Crusifixion

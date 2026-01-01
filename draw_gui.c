@@ -488,7 +488,7 @@ void DrawCrosses(HDC hdc,int x, int y)
   GrLine(hdc,x2,y2+10,x2+8*8,y2+12,WHITE);
 }
 
-int64_t funnyrun=0;
+//int64_t funnyrun=0;
 void DrawPersianClock(HDC hdc,HDC hdc2)
 {
 
@@ -534,8 +534,9 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
 
   double drawoffset=-M_PI/2;
 
-  //funnyrun+=24*60*60/2;//60*60*24*365+60*60*24*128*100;//2000*20;
-  //int64_t timenow=int64_current_timestamp()+funnyrun;
+  //funnyrun+=24*60*60/8;//60*60*24*365+60*60*24*128*100;//2000*20;
+  //int64_t timenow=-25046928000
+        /*int64_current_timestamp()*///+funnyrun;
 
   //PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day/*,&solar_leap_year*/);
   //PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);

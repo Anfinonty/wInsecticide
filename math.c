@@ -643,7 +643,7 @@ https://en.wikipedia.org/wiki/Solar_Hijri_calendar
       }
     } else { //12th month  //leap year at last month, 30 days = leap year       29 days = common year      ,12
       if (year==leap_year) {//Leap year
-        printf("%d: %d *\n",solar_hijri_cycle,year);
+        //printf("%d: %d *\n",solar_hijri_cycle,year);
         if (seconds+days30_seconds>=0) {
           break;
         } else {
@@ -652,7 +652,7 @@ https://en.wikipedia.org/wiki/Solar_Hijri_calendar
           _total_solar_hijri_days+=30;
         }
       } else {//Common Year
-        printf("%d: %d\n",solar_hijri_cycle,year);
+        //printf("%d: %d\n",solar_hijri_cycle,year);
         if (seconds+days29_seconds>=0) {
           break;
         } else {
@@ -669,7 +669,7 @@ https://en.wikipedia.org/wiki/Solar_Hijri_calendar
         if (solar_hijri_cycle!=22) {
           leap_year-=4;
         } else {
-          printf("\n=========**************=================\n",year);
+          //printf("\n=========**************=================\n",year);
           leap_year-=5;
         }
       }
@@ -742,12 +742,28 @@ https://en.wikipedia.org/wiki/Solar_Hijri_calendar
   }  else if (month>=7 && month<=11) {
     __solar_day=31*6;
     __solar_day+=30*(month-1-6);
-  } else {
+  } else { //12th month
     __solar_day=31*6;
     __solar_day+=30*5;
   }
-  __solar_day+=days;
+
+  //add remaining days
+  if(_seconds>0) {
+    __solar_day+=days;
+  } else {
+    if (month>=1 && month<=6) {
+      __solar_day+=32-days;
+    }  else if (month>=7 && month<=11) {
+      __solar_day+=31-days;
+    } else { //12th month
+      if (year==leap_year)
+        __solar_day+=31-days; //30
+      else
+        __solar_day+=30-days; //29
+    }
+  }
   _total_solar_hijri_days+=__solar_day;
+
   //printf("SD~%d~\n",__solar_day);
 
   //*total_solar_hijri_days=_total_solar_hijri_days;
@@ -884,7 +900,7 @@ void PersiaLunarTime(int64_t _seconds,
   //JAN-01-1970 IS 22-10(SHAWWAL)-1389                             1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17  18  19  20  21  22  23               
   //EPOCH 22-10-1389 IS 01-JAN-2027, MAX SHAWAL DAYS IS 29       (22,21,20,19,18,17,18,15,14,13,12,11,10,9, 8, 7, 6 ,  5,  4,  3,  2,  1,  30, 29, 28, 27)
 
-  lunar_day_start=-day_seconds*(29-21); //lunar hijri unix start day is  1389-10-22 //Gregorian is 1970-1-1
+  lunar_day_start=-lunar_day_start; //lunar hijri unix start day is  1389-10-22 //Gregorian is 1970-1-1
 
   //22 days to move 22-10-1389 to 30-09-1389
   if (abs(_seconds/day_seconds) > 21) { //post starting month date
@@ -903,7 +919,7 @@ void PersiaLunarTime(int64_t _seconds,
           break;
         } else {
           seconds+=days29_seconds;
-          lunar_day_start-=days29_seconds;
+          lunar_day_start+=days29_seconds;
           month--;
         }        
       } else { //30 Days, Odd Number months
@@ -911,7 +927,7 @@ void PersiaLunarTime(int64_t _seconds,
           break;
         } else {
           seconds+=days30_seconds;
-          lunar_day_start-=days30_seconds;
+          lunar_day_start+=days30_seconds;
           month--;
         }
       }
@@ -932,7 +948,7 @@ void PersiaLunarTime(int64_t _seconds,
           break;
         } else {
           seconds+=days30_seconds;
-          lunar_day_start-=days30_seconds;
+          lunar_day_start+=days30_seconds;
           month--;
         }
       } else {//Common Year
@@ -940,7 +956,7 @@ void PersiaLunarTime(int64_t _seconds,
           break;
         } else {
           seconds+=days29_seconds;
-          lunar_day_start-=days29_seconds;
+          lunar_day_start+=days29_seconds;
           month--;
         }
       }
@@ -1021,11 +1037,18 @@ void PersiaLunarTime(int64_t _seconds,
     }
   }
 
+  if (_seconds<=0) {
+    lunar_day_start=-lunar_day_start;
+  }
+
   int64_t _;
   bool b_;
   if (print_days>=28) { //new moon
-    lunar_day_start+=(print_days*day_seconds);
+    lunar_day_start+=((print_days-1)*day_seconds);
   }
+
+
+  //int64_t lunar_day_start_=-GetLunarHijriDays(print_days,abs(month),year)*day_seconds;
 
   float moon_angle_shift=0;
   PersiaSolarTime(lunar_day_start,&_,&_,&_,&_,&_,&_,&_,&moon_angle_shift);//,&b_,&b_,&_);
@@ -1033,6 +1056,10 @@ void PersiaLunarTime(int64_t _seconds,
   if (print_days>=28) //new moon
     moon_angle_shift-=2*M_PI/27;
 
+  if (_seconds<=0) {//epoch for moon in negative unix
+    moon_angle_shift-=2*M_PI/27;
+    moon_angle_shift-=0.03;
+  }
 
   //Assign to variables
   *_lunar_year=year;
