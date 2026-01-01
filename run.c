@@ -2220,17 +2220,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       player.health=20; //init player heath (for cursor)
 
-/*
-      int64_t scount_ibrahim_eclipse=-GetLunarHijriDays(29,10,10) * 60*60*24;
+
+      /*int64_t scount_ibrahim_eclipse=-GetLunarHijriDays(29,10,10) * 60*60*24;
       printf("29 Shawwal 10: %lld \n",scount_ibrahim_eclipse);
 
-      int64_t scount_ibrahim_eclipse_s=-GetSolarHijriDays(11,11,10) * 60*60*24;
-      int64_t scount_ibrahim_eclipse_days=-GetSolarHijriDays(11,11,10);
-      printf("11 Bahman 10: %lld \n",scount_ibrahim_eclipse_s);
+      int64_t scount_ibrahim_eclipse_s=-GetSolarHijriDays(10,11,10) * 60*60*24;
+      int64_t scount_ibrahim_eclipse_days=-GetSolarHijriDays(10,11,10);
+      printf("10 Bahman 10: %lld \n",scount_ibrahim_eclipse_s);
 
       printf("diffdays:%lld\n",(scount_ibrahim_eclipse_s-scount_ibrahim_eclipse)/(60*60*24));
-      printf("11 Bahman 10 Days: %lld\n",scount_ibrahim_eclipse_days);
-*/
+      printf("10 Bahman 10 Days: %lld\n",scount_ibrahim_eclipse_days);*/
+
 
      /*printf("=====Testing Calendar====\n");
     int kk=120;
@@ -2308,7 +2308,35 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     //2025-DEC-29: EPOCH for lunar hijri is needed, it has been shown to align properly even after crossing JAN-01-1970
         //Still need to account the smaller unix date values.
 
-    //int64_t demo_lunar=GetLunarHijriDays(10,10,-100)*-60*60*24;
+    //int64_t demo_lunar=
+        //GetLunarHijriDays(11,3,800)*-60*60*24; //Online and This days are NOT the same
+        //GetLunarHijriDays(11,3,900)*-60*60*24; //Online and This days are NOT the same
+        //GetLunarHijriDays(11,3,950)*-60*60*24; //Online and This days are NOT the same
+        //GetLunarHijriDays(11,3,990)*-60*60*24; //Online and This days are NOT the same
+        //GetLunarHijriDays(11,3,999)*-60*60*24; //Online and This days are NOT the same
+
+
+          //GetLunarHijriDays(5,5,999)*-60*60*24; //NOT same, Esfand-11-969
+          //GetLunarHijriDays(24,5,999)*-60*60*24; //NOT SAME Esfand-29 <------ 1 day epoch 970 a leap year?
+
+          //GetLunarHijriDays(25,5,999)*-60*60*24; //SAME Farvardin-1-970
+          //GetLunarHijriDays(5,7,999)*-60*60*24; //SAME Ordibehsht-970
+          //GetLunarHijriDays(5,7,999)*-60*60*24; //SAME Ordibehsht-970
+          //GetLunarHijriDays(5,10,999)*-60*60*24; //SAME Mordad-5-970
+
+          //GetLunarHijriDays(30,11,999)*-60*60*24; //same, Shahrivar-28-970
+          //GetLunarHijriDays(1,12,999)*-60*60*24; //same, Shahrivar-29-970
+
+
+          //GetLunarHijriDays(28,12,999)*-60*60*24; //same, Mehr-25-970
+          //GetLunarHijriDays(28,12,999)*-60*60*24; //same, Mehr-25-970
+          //GetLunarHijriDays(29,12,999)*-60*60*24; //same, Mehr-26-970
+
+
+//        GetLunarHijriDays(1,1,1000)*-60*60*24; //Online and This days ARE THE SAME
+//        GetLunarHijriDays(11,3,1000)*-60*60*24; //Online and This days are the same
+//        GetLunarHijriDays(11,3,1360)*-60*60*24; //Online and This days are the same
+//        GetLunarHijriDays(11,3,1369)*-60*60*24; //Online and This days are the same
 
     //hijri related (*
       int64_t timenow=
