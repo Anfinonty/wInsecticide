@@ -2220,8 +2220,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       player.health=20; //init player heath (for cursor)
 
-
-      /*int64_t scount_ibrahim_eclipse=-GetLunarHijriDays(29,10,10) * 60*60*24;
+/*
+      int64_t scount_ibrahim_eclipse=-GetLunarHijriDays(29,10,10) * 60*60*24;
       printf("29 Shawwal 10: %lld \n",scount_ibrahim_eclipse);
 
       int64_t scount_ibrahim_eclipse_s=-GetSolarHijriDays(11,11,10) * 60*60*24;
@@ -2229,10 +2229,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       printf("11 Bahman 10: %lld \n",scount_ibrahim_eclipse_s);
 
       printf("diffdays:%lld\n",(scount_ibrahim_eclipse_s-scount_ibrahim_eclipse)/(60*60*24));
-      printf("11 Bahman 10 Days: %lld\n",scount_ibrahim_eclipse_days);*/
+      printf("11 Bahman 10 Days: %lld\n",scount_ibrahim_eclipse_days);
+*/
 
-
-     printf("=====Testing Calendar====\n");
+     /*printf("=====Testing Calendar====\n");
     int kk=120;
     for (int k=0;k<kk*2;k++) {
 
@@ -2247,11 +2247,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       if (-kk+k==0) {
         ttimenow+=1;
       }
-      PersiaSolarTime(ttimenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);//,&solar_leap_year,&solar_last_year_is_leap,&total_solar_hijri_days);
-      //PersiaLunarTime(ttimenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);
+      //PersiaSolarTime(ttimenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);//,&solar_leap_year,&solar_last_year_is_leap,&total_solar_hijri_days);
+      PersiaLunarTime(ttimenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);
 
 
-          int num_char='*'; //hijri
+          /*int num_char='*'; //hijri
           if (solar_month==1 && solar_day>=12 && solar_day<=19) {
             num_char='+';
           }
@@ -2266,7 +2266,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             solar_hour,
             solar_min,
             solar_sec
-          );
+          );*/
 
 
           //) |> (|> 0 <|) <| ( @
@@ -2301,16 +2301,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             lunar_min,
             lunar_sec
           );
-*/
+
       } //end of for loop for testing
-     printf("=====Test Complete=======\n");
+     printf("=====Test Complete=======\n");*/
 
     //2025-DEC-29: EPOCH for lunar hijri is needed, it has been shown to align properly even after crossing JAN-01-1970
         //Still need to account the smaller unix date values.
 
+    //int64_t demo_lunar=GetLunarHijriDays(10,10,-100)*-60*60*24;
 
     //hijri related (*
       int64_t timenow=
+        //demo_lunar;
         int64_current_timestamp()+7*60*60; //local timestamp is returned
             //-60985824000  - 60*60*24*3; //3 day epoch julian-gregorian;
             //-61117898852; //Crusifixion
@@ -2318,7 +2320,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
        	 	//-42521846400+ 60*60*24*3; //(----------3 Day epoch from JULIAN -> GREGORIAN), After Hijra
             //-42220978113 + 60*60*24*3; //Shawwal 29 10A.H (----------3 Day epoch from JULIAN -> GREGORIAN)  27 Jan 632AD(JC) -> 30 Jan 632AD(GC)
             //-42248649600;
-            ///scount_ibrahim_eclipse;
+            //scount_ibrahim_eclipse;
             //-6721546; //oct 15 1969
             //-40071946; // september 24 1968
             //-40062608806; //June 20 700

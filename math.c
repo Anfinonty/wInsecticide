@@ -239,7 +239,7 @@ int64_t GetLunarHijriDays(int day0,int month0, int64_t year0)
       bool leap=FALSE;
       int lyr=year_i%30;
       for (int i=0;i<11;i++) {
-        if (lyr==leap_years[i]) {
+        if (abs(lyr)==leap_years[i]) {
           leap=TRUE;
           break;
         }
@@ -259,7 +259,7 @@ int64_t GetLunarHijriDays(int day0,int month0, int64_t year0)
     bool leap=FALSE;
     int lyr=year_i%30;
     for (int i=0;i<11;i++) {
-      if (lyr==leap_years[i]) {
+      if (abs(lyr)==leap_years[i]) {
         leap=TRUE;
         break;
       }
@@ -453,9 +453,10 @@ void PersiaSolarTime(int64_t _seconds,
 )
 {  
   //https://en.wikipedia.org/wiki/Solar_Hijri_calendar
-  //I am sticking with the traditional 33 year cycle as the
+  //I am sticking with the traditional 33 year cycle by Omar Khayyam as the
   //proposed new system by Birashk and Zabih Behruz are refuted
     //https://web.archive.org/web/20160224162520/http://aramis.obspm.fr/~heydari/divers/ir-cal-eng.html
+    //https://iranologia.es/en/2020/09/23/a-concise-review-of-the-iranian-calendar/
   //expect to see small day drifts after 10k centuries from results online
   //Also it'll be less complex for me haha
 
@@ -463,6 +464,14 @@ void PersiaSolarTime(int64_t _seconds,
   //who was extremely passionate about pre-Islamic Iran - Behris Zabih or Zabih Behruz
   //https://www.iranicaonline.org/articles/behruz-dabih-1889-1971-persian-satirist-son-of-the-physician-and-calligrapher-abul-fazl-savaji/
   //Birashk's leap year proposal is based on that and it has been refuted.
+
+  //2026-01-01 Most online resources use the code seen in this website (viewed using Ctrl-S as .html and Save Page As...)
+  //https://www.muqawwim.com/
+  //https://www.fourmilab.ch/documents/calendar/
+  //It does not use the 33-year cycle leading to some days to misalign with my results many years later
+  //The logic used here is consistent with no magic number epochs, any instances of them you may interpret it as so is to
+  //allow for the printf be correct but mathematically it is consistent.
+
 
   //https://web.archive.org/web/20160318112553/http://payvand.com/calendar/ 
   //(not working though)
@@ -483,12 +492,25 @@ void PersiaSolarTime(int64_t _seconds,
   const int days31_seconds=day_seconds*31;
   const int days30_seconds=day_seconds*30;
   const int days29_seconds=day_seconds*29;
+/*
+https://en.wikipedia.org/wiki/Solar_Hijri_calendar
 
+26   1346* 
+27   1367
+28   1348 <--------- starting year
+29   1349
+30   1350*
+31   1351
+32   1352
+33   1353
+
+1    1354 (-4)
+*/
   //1346 is a leap year
   int leap_year=1350;
 
   //Break Down the different time parts
-  int solar_hijri_cycle=28; //28
+  int solar_hijri_cycle=28; 
   int year=1348;        //gregorian unix is 1970-1-1 THURSDAY
   int month=10;          //start day     //solar hijri unix date is 1348-10-11
   int64_t seconds_static=_seconds; //Begins on thursday solar time
@@ -556,6 +578,7 @@ void PersiaSolarTime(int64_t _seconds,
   //negative unix time
   } else if (_seconds<0) {
     leap_year=1346;
+    seconds_static=_seconds+day_seconds;
 
     if (abs(_seconds)/day_seconds>10) { //1348 // Dey (10th month, 30 days)// 11  1348-10-11
       seconds=_seconds+day_seconds*10; // 10 days offset, move to 9th month
@@ -712,7 +735,13 @@ void PersiaSolarTime(int64_t _seconds,
   *_solar_hour=(int)print_hours;
   *_solar_min=(int)print_min;
   *_solar_sec=(int)print_seconds;
-  *_solar_day_of_week=abs(seconds_static/SEC_PER_DAY%7);
+  if (_seconds>0)
+    *_solar_day_of_week=abs(seconds_static/SEC_PER_DAY%7);
+  else 
+    *_solar_day_of_week=6-abs(seconds_static/SEC_PER_DAY%7);
+
+
+
   *_solar_angle_day=__solar_angle;
   //*_solar_leap_year=_is_solar_leap_year;
 }
@@ -814,11 +843,11 @@ void PersiaLunarTime(int64_t _seconds,
     }    
   }
   }else if (_seconds<0) { //before 1970 jan 1
-
   //JAN-01-1970 IS 22-10(SHAWWAL)-1389                             1  2  3  4  5  6  7  8  9  10 11 12 13 14 15 16 17  18  19  20  21  22  23               
   //EPOCH 22-10-1389 IS 01-JAN-2027, MAX SHAWAL DAYS IS 29       (22,21,20,19,18,17,18,15,14,13,12,11,10,9, 8, 7, 6 ,  5,  4,  3,  2,  1,  30, 29, 28, 27)
 
   lunar_day_start=-day_seconds*(29-21); //lunar hijri unix start day is  1389-10-22 //Gregorian is 1970-1-1
+
   //22 days to move 22-10-1389 to 30-09-1389
   if (abs(_seconds/day_seconds) > 21) { //post starting month date
     seconds=_seconds+day_seconds*21;
@@ -974,7 +1003,11 @@ void PersiaLunarTime(int64_t _seconds,
   *_lunar_hour=(int)print_hours;
   *_lunar_min=(int)print_min;
   *_lunar_sec=(int)print_seconds;
-  *_lunar_day_of_week=abs(seconds_static/SEC_PER_DAY%7);
+  if (_seconds>0)
+    *_lunar_day_of_week=abs(seconds_static/SEC_PER_DAY%7);
+  else
+    *_lunar_day_of_week=6-abs(seconds_static/SEC_PER_DAY%7);
+
   *_moon_angle_shift=moon_angle_shift;
   *_lunar_leap_year=leap;
 }
