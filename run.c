@@ -2313,7 +2313,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
     //hijri related (*
       int64_t timenow=
         //demo_lunar;
-        int64_current_timestamp()+7*60*60; //local timestamp is returned
+        int64_current_timestamp(); //local timestamp is returned
             //-60985824000  - 60*60*24*3; //3 day epoch julian-gregorian;
             //-61117898852; //Crusifixion
 

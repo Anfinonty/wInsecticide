@@ -72,18 +72,20 @@ void get_current_time_diff(int64_t *hour_diff,int64_t *min_diff, int64_t *sec_di
 
 int64_t int64_current_timestamp()
 {//https://stackoverflow.com/questions/13804095/get-the-time-zone-gmt-offset-in-c
-
+ //https://www.unixtimestamp.com/ returns time where GMT+0000
   struct timeval te;
   mingw_gettimeofday(&te, NULL);
   __time64_t t;
-  _time64(&t);
+  _time64(&t); //GMT 0 time
+
   int64_t h_diff;
   int64_t m_diff;
   int64_t _l;
 
-  get_current_time_diff(&h_diff,&m_diff,&_l);
+  get_current_time_diff(&h_diff,&m_diff,&_l); //Get GMT <x> difference
 
-  //printf("\nhdiff:%lld, mdiff:%lld\n",h_diff,m_diff);
+  //printf("\nhdiff:%lld, mdiff:%lld\n",h_diff,m_diff); //Print difference
+
 
   return (int64_t) t-  (SEC_PER_HOUR*h_diff) - (SEC_PER_MIN*m_diff);
 }
