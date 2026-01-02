@@ -532,34 +532,61 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
 //    DrawSprite(hdc, hdc2,mcalendar_x,mcalendar_y,&draw_moon_cartoon_sprite,FALSE);
   //}
 
-  double drawoffset=-M_PI/2;
 
+  //======================Test Cases===========================
+  //https://eclipse.gsfc.nasa.gov/SEcat5/SE1601-1700.html
+  //https://eclipse.gsfc.nasa.gov/SEcat5/SE1701-1800.html
+  //https://eclipse.gsfc.nasa.gov/SEcat5/SE2101-2200.html
+  //https://eclipse.gsfc.nasa.gov/SEcat5/SE2001-2100.html
+  //https://eclipse.gsfc.nasa.gov/SEcat5/SE1901-2000.html
   //funnyrun+=24*60*60  * 28;
        // 60*60*24*365+60*60*24*128*100;//2000*20;
   //int64_t timenow=
             //GetLunarHijriDays(15,8,-607) * 60*60*24 //cruxifixtion
             //GetLunarHijriDays(29,9,-53) * 60*60*24//https://www.astronomy.com/science/a-timeline-of-famous-eclipses/
-            //GetLunarHijriDays(29,10,10) * 60*60*24    //Mohammed Ibrahim's Eclipse
+            //GetLunarHijriDays(29,10,10) * 60*60*24    //Mohammed Ibrahim's Eclipse ** (annular)
             //GetLunarHijriDays(29,9,571) * 60*60*24   //Saladin's Eclipse
 
-            //GetLunarHijriDays(29,2,1448) * 60*60*24; //next eclipse  august 14, 2026 **
+            //GetLunarHijriDays(29,2,1448) * 60*60*24; //next eclipse  august 14, 2026
             //GetLunarHijriDays(29,11,1504) * 60*60*24; //next eclipse2 September 3, 2081
             //GetLunarHijriDays(29,7,1452) * 60*60*24 //next eclipse november 25 2030
 
+            //GetLunarHijriDays(28,10,1329) * 60*60*24;//past eclipse 1911-10-22** (annular)
+            //GetLunarHijriDays(29,9,1334) * 60*60*24;//past eclipse 1916 Jul 30 ** (annular)
+
+            //GetLunarHijriDays(29,7,1319) * 60*60*24;//past eclipse 1901 Nov 11  **(annular)
 
             //GetLunarHijriDays(28,11,1345) * 60*60*24;//past eclipse 1927AD-06-29
             //GetLunarHijriDays(28,12,1253) * 60*60*24;//past eclipse1838 Mar 25 
-            //GetLunarHijriDays(28,2,1248) * 60*60*24;//past eclipse 1832AD Jul 27 **
+            //GetLunarHijriDays(28,2,1248) * 60*60*24;//past eclipse 1832AD Jul 27 
 
-            //GetLunarHijriDays(28,11,1415) * 60*60*24;//past eclipse 1995AD-04-29
+            //GetLunarHijriDays(28,11,1415) * 60*60*24;//past eclipse 1995AD-04-29** (Annular)
             //GetLunarHijriDays(29,5,1415) * 60*60*24;//past eclipse 1994AD-11-3
             //int64_current_timestamp()
             //+funnyrun;
 
-  //PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day/*,&solar_leap_year*/);
-  //PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);
+            //GetLunarHijriDays(28,8,1538) *60*60*24;//future eclipse 2114AD Jun 03
+            //GetLunarHijriDays(28,2,1539) *60*60*24; // 2114 Nov 27 ** (annular)
+            //GetLunarHijriDays(28,12,1545) *60*60*24; //2121 Jul 14   ** (annular)
+            //GetLunarHijriDays(28,12,1545) *60*60*24; //2121 Jul 14   ** (annular)
+            //GetLunarHijriDays(29,7,1541) *60*60*24; //2117 Apr 02  **(annular)
+             
+
+            //GetLunarHijriDays(29,6,1546) *60*60*24; //2122 Jan 08  ** (annular)  #!# At Annular, Annular, 2nd annular appear as total
+            //GetLunarHijriDays(28,11,1056) *60*60*24;//1647 Jan 05 ** (annular)
+            //GetLunarHijriDays(28,3,1132)*60*60*24;    //1720 Feb 08 ** (Annular)
+            //GetLunarHijriDays(29,9,1132)*60*60*24;//1720 Aug 04  ** (annular) #!# At Annular, Annular, 2nd annular appear as total
+
+            //GetLunarHijriDays(28,4,1530)*60*60*24//2106 May 03 
+            //GetLunarHijriDays(27,10,1530)*60*60*24//2106 Oct 26 ** (annular)
+            //GetLunarHijriDays(29,4,1531)*60*60*24//2107 Apr 23  ##! 2nd annular
+          //;
+          //PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day/*,&solar_leap_year*/);
+          //PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);
+  //=================End of Test===================
 
 
+  double drawoffset=-M_PI/2;
   //Draw Eclipse Seasons
   float eclipse_angle= -GetEclipseRadAngle(lunar_day,lunar_month,lunar_year) -  drawoffset;
   float eaoffset1=-2*M_PI/27;
@@ -585,11 +612,21 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
   GrCircle(hdc,mcalendar_x + mcalendar_l*cos(eclipse_angle+eaoffset2), mcalendar_y + mcalendar_l*sin(eclipse_angle+eaoffset2),7,BLACK,LTCYAN);
 
 
-  float moon_apogee_angle = GetMoonPerigeeRadAngle(lunar_day,lunar_month,lunar_year) - drawoffset + M_PI;
-  DrawEllipse(hdc,mcalendar_x+15*cos(-moon_apogee_angle),mcalendar_y+15*sin(-moon_apogee_angle),75+5,70+5,48,-moon_apogee_angle,LTCYAN);
-  DrawEllipse(hdc,mcalendar_x+15*cos(-moon_apogee_angle),mcalendar_y+15*sin(-moon_apogee_angle),76+5,71+5,48,-moon_apogee_angle,LTCYAN);
+  //moon's perigee and apogee'
+  float moon_perigee_angle = -GetMoonPerigeeRadAngle(lunar_day,lunar_month,lunar_year) - drawoffset +   M_PI;
+  float moon_apogee_angle=moon_perigee_angle-M_PI;
+  //apogee (further) elipse
+  DrawEllipse(hdc,mcalendar_x+15*cos(moon_apogee_angle),mcalendar_y+15*sin(moon_apogee_angle),75+5,70+5,48,moon_apogee_angle,LTCYAN);
+  DrawEllipse(hdc,mcalendar_x+15*cos(moon_apogee_angle),mcalendar_y+15*sin(moon_apogee_angle),76+5,71+5,48,moon_apogee_angle,LTCYAN);
+  //pierogi line
+  //GrLine(hdc,mcalendar_x-90*cos(moon_perigee_angle),mcalendar_y-90*sin(moon_perigee_angle),mcalendar_x+76*cos(moon_perigee_angle),mcalendar_y+76*sin(moon_perigee_angle),LTCYAN);
+  //GrLine(hdc,mcalendar_x-67*cos(moon_perigee_angle-M_PI_2),mcalendar_y-67*sin(moon_perigee_angle-M_PI_2),mcalendar_x+76*cos(moon_perigee_angle-M_PI_2),mcalendar_y+76*sin(moon_perigee_angle-M_PI_2),LTCYAN);
 
-  //DrawEllipse(hdc,mcalendar_x+15*cos(-planet_earth.perihelion),mcalendar_y+15*sin(-planet_earth.perihelion),70+(500*planet_earth.orbital_eccentricity),70,48,-planet_earth.perihelion,PURPLE);
+  //GrLine(hdc,mcalendar_x+30*cos(moon_perigee_angle),mcalendar_y+30*sin(moon_perigee_angle),mcalendar_x+76*cos(moon_perigee_angle),mcalendar_y+76*sin(moon_perigee_angle),LTCYAN); //pierogi line
+  GrLine(hdc,mcalendar_x+30*cos(moon_perigee_angle-M_PI_2),mcalendar_y+30*sin(moon_perigee_angle-M_PI_2),mcalendar_x+76*cos(moon_perigee_angle-M_PI_2),mcalendar_y+76*sin(moon_perigee_angle-M_PI_2),LTCYAN);
+  //orbit trail
+  GrLine(hdc,mcalendar_x-76*cos(moon_perigee_angle-M_PI_2-M_PI_4),mcalendar_y-76*sin(moon_perigee_angle-M_PI_2-M_PI_4),mcalendar_x-30*cos(moon_perigee_angle-M_PI_2-M_PI_4),mcalendar_y+-30*sin(moon_perigee_angle-M_PI_2-M_PI_4),LTCYAN);
+
 
 
 

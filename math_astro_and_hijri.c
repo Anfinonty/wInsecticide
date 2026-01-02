@@ -1094,14 +1094,14 @@ float GetMoonPerigeeRadAngle(int64_t day0, int64_t month0, int64_t year0)
     }
   }
 
-  const float lunar_apsidal_precession_per_day = 0.11140408;
+  const float lunar_apsidal_precession_per_day = 0.11140408 ;
 
-  // Compute the raw value 
-  float x = 28.6027404990093 + (lunar_apsidal_precession_per_day * days_since_tseclipse); 
+  // Compute the raw value , anti-clockwise
+  float x = 28.6027404990093 - (lunar_apsidal_precession_per_day * days_since_tseclipse); 
   if (input_lunar_days<saladin_eclipse) { //angle adjustment for before anchor
-    x+=rad2deg(2*M_PI/27*1.5);
+    x-=rad2deg(2*M_PI/27*1.5);
   } else if (input_lunar_days>0){
-    x+=rad2deg(2*M_PI/27*0.5);
+    x-=rad2deg(2*M_PI/27*0.5);
   }
 
   // Wrap it into [0,360) 
@@ -1148,7 +1148,7 @@ float GetEclipseRadAngle(int64_t day0, int64_t month0, int64_t year0)
 
   const float lunar_precession_per_day = 0.05295392;
 
-  // Compute the raw value 
+  // Compute the raw value ,moves clockwise
   float x = 28.6027404990093 + (lunar_precession_per_day * days_since_tseclipse); 
   if (input_lunar_days<saladin_eclipse) { //angle adjustment for before anchor
     x+=rad2deg(2*M_PI/27*1.5);
