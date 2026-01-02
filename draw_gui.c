@@ -513,7 +513,7 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
   GrLineThick(hdc,mcalendar_x,mcalendar_y,mcalendar_x+cos(-planet_earth.axial_tilt*5)*20,mcalendar_y+sin(-planet_earth.axial_tilt*5)*20,2,LTBLUE);
   GrLineThick(hdc,mcalendar_x,mcalendar_y,mcalendar_x-cos(-planet_earth.axial_tilt*5)*20,mcalendar_y-sin(-planet_earth.axial_tilt*5)*20,2,LTBLUE);
 
-  //Draw Perihelion semicircle + Eccentricity
+  //Draw Perihelion semicircle + Eccentricitywine W
   //GrLineThick(hdc,mcalendar_x,mcalendar_y,mcalendar_x+cos(-planet_earth.perihelion)*100,mcalendar_y+sin(-planet_earth.perihelion)*100,2,PURPLE);
   DrawEllipse(hdc,mcalendar_x+15*cos(-planet_earth.perihelion),mcalendar_y+15*sin(-planet_earth.perihelion),70+(500*planet_earth.orbital_eccentricity),70,48,-planet_earth.perihelion,PURPLE);
 
@@ -534,12 +534,63 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
 
   double drawoffset=-M_PI/2;
 
-  //funnyrun+=24*60*60/8;//60*60*24*365+60*60*24*128*100;//2000*20;
-  //int64_t timenow=-25046928000
-        /*int64_current_timestamp()*///+funnyrun;
+  //funnyrun+=24*60*60  * 28;
+       // 60*60*24*365+60*60*24*128*100;//2000*20;
+  //int64_t timenow=
+            //GetLunarHijriDays(15,8,-607) * 60*60*24 //cruxifixtion
+            //GetLunarHijriDays(29,9,-53) * 60*60*24//https://www.astronomy.com/science/a-timeline-of-famous-eclipses/
+            //GetLunarHijriDays(29,10,10) * 60*60*24    //Mohammed Ibrahim's Eclipse
+            //GetLunarHijriDays(29,9,571) * 60*60*24   //Saladin's Eclipse
+
+            //GetLunarHijriDays(29,2,1448) * 60*60*24; //next eclipse  august 14, 2026 **
+            //GetLunarHijriDays(29,11,1504) * 60*60*24; //next eclipse2 September 3, 2081
+            //GetLunarHijriDays(29,7,1452) * 60*60*24 //next eclipse november 25 2030
+
+
+            //GetLunarHijriDays(28,11,1345) * 60*60*24;//past eclipse 1927AD-06-29
+            //GetLunarHijriDays(28,12,1253) * 60*60*24;//past eclipse1838 Mar 25 
+            //GetLunarHijriDays(28,2,1248) * 60*60*24;//past eclipse 1832AD Jul 27 **
+
+            //GetLunarHijriDays(28,11,1415) * 60*60*24;//past eclipse 1995AD-04-29
+            //GetLunarHijriDays(29,5,1415) * 60*60*24;//past eclipse 1994AD-11-3
+            //int64_current_timestamp()
+            //+funnyrun;
 
   //PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day/*,&solar_leap_year*/);
   //PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);
+
+
+  //Draw Eclipse Seasons
+  float eclipse_angle= -GetEclipseRadAngle(lunar_day,lunar_month,lunar_year) -  drawoffset;
+  float eaoffset1=-2*M_PI/27;
+  float eaoffset2=2*M_PI/27;
+
+  //Lunar eclipse
+  GrCircle(hdc,mcalendar_x + mcalendar_l*cos(eclipse_angle), mcalendar_y + mcalendar_l*sin(eclipse_angle),9,LTRED,-1);
+  GrCircle(hdc,mcalendar_x + mcalendar_l*cos(eclipse_angle), mcalendar_y + mcalendar_l*sin(eclipse_angle),7,RED,YELLOW);
+
+  GrCircle(hdc,mcalendar_x + mcalendar_l*cos(eclipse_angle+eaoffset1), mcalendar_y + mcalendar_l*sin(eclipse_angle+eaoffset1),9,LTRED,-1);
+  GrCircle(hdc,mcalendar_x + mcalendar_l*cos(eclipse_angle+eaoffset1), mcalendar_y + mcalendar_l*sin(eclipse_angle+eaoffset1),7,RED,YELLOW);
+  GrCircle(hdc,mcalendar_x + mcalendar_l*cos(eclipse_angle+eaoffset2), mcalendar_y + mcalendar_l*sin(eclipse_angle+eaoffset2),9,LTRED,-1);
+  GrCircle(hdc,mcalendar_x + mcalendar_l*cos(eclipse_angle+eaoffset2), mcalendar_y + mcalendar_l*sin(eclipse_angle+eaoffset2),7,RED,YELLOW);
+
+  //Solar eclipse
+  eclipse_angle-=M_PI;
+  GrCircle(hdc,mcalendar_x + mcalendar_l*cos(eclipse_angle), mcalendar_y + mcalendar_l*sin(eclipse_angle),9,LTCYAN,-1);
+  GrCircle(hdc,mcalendar_x + mcalendar_l*cos(eclipse_angle), mcalendar_y + mcalendar_l*sin(eclipse_angle),7,BLACK,LTCYAN);
+  
+  GrCircle(hdc,mcalendar_x + mcalendar_l*cos(eclipse_angle+eaoffset1), mcalendar_y + mcalendar_l*sin(eclipse_angle+eaoffset1),9,LTCYAN,-1);
+  GrCircle(hdc,mcalendar_x + mcalendar_l*cos(eclipse_angle+eaoffset1), mcalendar_y + mcalendar_l*sin(eclipse_angle+eaoffset1),7,BLACK,LTCYAN);
+  GrCircle(hdc,mcalendar_x + mcalendar_l*cos(eclipse_angle+eaoffset2), mcalendar_y + mcalendar_l*sin(eclipse_angle+eaoffset2),9,LTCYAN,-1);
+  GrCircle(hdc,mcalendar_x + mcalendar_l*cos(eclipse_angle+eaoffset2), mcalendar_y + mcalendar_l*sin(eclipse_angle+eaoffset2),7,BLACK,LTCYAN);
+
+
+  float moon_apogee_angle = GetMoonPerigeeRadAngle(lunar_day,lunar_month,lunar_year) - drawoffset + M_PI;
+  DrawEllipse(hdc,mcalendar_x+15*cos(-moon_apogee_angle),mcalendar_y+15*sin(-moon_apogee_angle),75+5,70+5,48,-moon_apogee_angle,LTCYAN);
+  DrawEllipse(hdc,mcalendar_x+15*cos(-moon_apogee_angle),mcalendar_y+15*sin(-moon_apogee_angle),76+5,71+5,48,-moon_apogee_angle,LTCYAN);
+
+  //DrawEllipse(hdc,mcalendar_x+15*cos(-planet_earth.perihelion),mcalendar_y+15*sin(-planet_earth.perihelion),70+(500*planet_earth.orbital_eccentricity),70,48,-planet_earth.perihelion,PURPLE);
+
 
 
   if (lunar_day<27) //0 to 26

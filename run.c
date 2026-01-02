@@ -316,6 +316,7 @@ bool is_khmer=TRUE;
 #define RCLICK_HOLD_COOLDOWN      62
 
 #include "math.c"
+#include "math_astro_and_hijri.c"
 #include "gr.c"
 #include "gr_fast.c"
 //#include "gr_faster.c"
@@ -857,7 +858,7 @@ void InitSetRes(int i,int w,int h,char *txt,wchar_t* wtxt)
 
 
 
-
+int64_t total_solar_eclipse_571;
 
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -2309,39 +2310,50 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         //Still need to account the smaller unix date values.
 
     //int64_t demo_lunar=
-        //GetLunarHijriDays(11,3,800)*-60*60*24; //Online and This days are NOT the same
-        //GetLunarHijriDays(11,3,900)*-60*60*24; //Online and This days are NOT the same
-        //GetLunarHijriDays(11,3,950)*-60*60*24; //Online and This days are NOT the same
-        //GetLunarHijriDays(11,3,990)*-60*60*24; //Online and This days are NOT the same
-        //GetLunarHijriDays(11,3,999)*-60*60*24; //Online and This days are NOT the same
+        //GetLunarHijriDays(11,3,800)*60*60*24; //Online and This days are NOT the same
+        //GetLunarHijriDays(11,3,900)*60*60*24; //Online and This days are NOT the same
+        //GetLunarHijriDays(11,3,950)*60*60*24; //Online and This days are NOT the same
+        //GetLunarHijriDays(11,3,990)*60*60*24; //Online and This days are NOT the same
+        //GetLunarHijriDays(11,3,999)*60*60*24; //Online and This days are NOT the same
 
 
-          //GetLunarHijriDays(5,5,999)*-60*60*24; //NOT same, Esfand-11-969
-          //GetLunarHijriDays(24,5,999)*-60*60*24; //NOT SAME Esfand-29 <------ 1 day epoch 970 a leap year?
+          //GetLunarHijriDays(5,5,999)*60*60*24; //NOT same, Esfand-11-969
+          //GetLunarHijriDays(24,5,999)*60*60*24; //NOT SAME Esfand-29 <------ 1 day epoch 970 a leap year?
 
-          //GetLunarHijriDays(25,5,999)*-60*60*24; //SAME Farvardin-1-970
-          //GetLunarHijriDays(5,7,999)*-60*60*24; //SAME Ordibehsht-970
-          //GetLunarHijriDays(5,7,999)*-60*60*24; //SAME Ordibehsht-970
-          //GetLunarHijriDays(5,10,999)*-60*60*24; //SAME Mordad-5-970
+          //GetLunarHijriDays(25,5,999)*60*60*24; //SAME Farvardin-1-970
+          //GetLunarHijriDays(5,7,999)*60*60*24; //SAME Ordibehsht-970
+          //GetLunarHijriDays(5,7,999)*60*60*24; //SAME Ordibehsht-970
+          //GetLunarHijriDays(5,10,999)*60*60*24; //SAME Mordad-5-970
 
-          //GetLunarHijriDays(30,11,999)*-60*60*24; //same, Shahrivar-28-970
-          //GetLunarHijriDays(1,12,999)*-60*60*24; //same, Shahrivar-29-970
-
-
-          //GetLunarHijriDays(28,12,999)*-60*60*24; //same, Mehr-25-970
-          //GetLunarHijriDays(28,12,999)*-60*60*24; //same, Mehr-25-970
-          //GetLunarHijriDays(29,12,999)*-60*60*24; //same, Mehr-26-970
+          //GetLunarHijriDays(30,11,999)*60*60*24; //same, Shahrivar-28-970
+          //GetLunarHijriDays(1,12,999)*60*60*24; //same, Shahrivar-29-970
 
 
-//        GetLunarHijriDays(1,1,1000)*-60*60*24; //Online and This days ARE THE SAME
-//        GetLunarHijriDays(11,3,1000)*-60*60*24; //Online and This days are the same
-//        GetLunarHijriDays(11,3,1360)*-60*60*24; //Online and This days are the same
-//        GetLunarHijriDays(11,3,1369)*-60*60*24; //Online and This days are the same
+          //GetLunarHijriDays(28,12,999)*60*60*24; //same, Mehr-25-970
+          //GetLunarHijriDays(28,12,999)*60*60*24; //same, Mehr-25-970
+          //GetLunarHijriDays(29,12,999)*60*60*24; //same, Mehr-26-970
+
+
+//        GetLunarHijriDays(1,1,1000)*60*60*24; //Online and This days ARE THE SAME
+//        GetLunarHijriDays(11,3,1000)*60*60*24; //Online and This days are the same
+//        GetLunarHijriDays(11,3,1360)*60*60*24; //Online and This days are the same
+//        GetLunarHijriDays(11,3,1369)*60*60*24; //Online and This days are the same
 
     //hijri related (*
-      int64_t total_solar_eclipse_571=GetLunarHijriDays(29,9,571)*-60*60*24;
 
+
+
+      //float teclipse_angle;
+      //total_solar_eclipse_571=GetLunarHijriDays(29,9,571)*60*60*24;
+      //PersiaLunarTime(total_solar_eclipse_571,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&teclipse_angle,&lunar_leap_year);
+
+      //printf("Total Eclipse Degrees: %5.4f\n",rad2deg(teclipse_angle));
+
+      //int64_t demo_lunar=GetLunarHijriDays(12,7,1447) * 60*60*24;
+      
+      saladin_eclipse=GetLunarHijriDays(29,9,571);
       int64_t timenow=
+        //total_solar_eclipse_571;
         //demo_lunar;
         //total_solar_eclipse_571;
         int64_current_timestamp(); //local timestamp is returned
@@ -2374,6 +2386,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);//,&solar_leap_year,&solar_last_year_is_leap,&total_solar_hijri_days);
       PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);
+      //printf("\ntrue_solar_angle:%10.10f\n",solar_angle_day);
 
 
 
