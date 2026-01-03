@@ -258,6 +258,13 @@ void InitLevel(bool load_lvl)
   Init(); //Repeatable, Load Save via \n key
 
   custom_map_background_color=rgbPaint[custom_map_background_color_i];
+  custom_map_background_dkcolor_i=custom_map_background_color_i-32;
+  if (custom_map_background_dkcolor_i<0) {
+    custom_map_background_dkcolor_i=0;
+  }
+  custom_map_background_dkcolor=rgbPaint[custom_map_background_dkcolor_i];
+
+
 
   if (rain_grad_run==0) {
     rain_grad_run=1;

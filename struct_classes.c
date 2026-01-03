@@ -1260,6 +1260,8 @@ struct Sun
   int x;
   int y;
 
+  int eclipse_type; //0: none, 1: annular, 2: total
+
   int ray_l[SUN_RAY_NUM];
   int draw_ray_x[SUN_RAY_NUM];
   int draw_ray_y[SUN_RAY_NUM];

@@ -681,12 +681,11 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
 
             if (!player.time_breaker) {
               CloudAct();
-            }
-
-            if (map_background==1) {
-              if (!player.time_breaker) {
+              if (Sun.eclipse_type==2 || map_background==1) {
                 StarAct();
                 ShootingStarAct();
+              }
+              if (map_background==1) {
                 MoonAct();
               }
             }
@@ -739,13 +738,12 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
               if (!player.time_breaker) {
                 CloudAct();
                 SunRayAct();
-              }
-              if (map_background==1) {
-                if (!player.time_breaker) {
+                if (map_background==1 || Sun.eclipse_type==2) {
                   StarAct();
                   ShootingStarAct();
-                  MoonAct();
                 }
+                if (map_background==1)
+                  MoonAct();
               }
               if (map_weather>0) {
                 RainAct();
@@ -1906,7 +1904,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       //Loading Bar
       loading_numerator=0;
-      loading_denominator=ROTATED_SPRITE_NUM*7+DRAW_CLOUDS_NUM+(PLAYER_ROTATED_SPRITE_NUM*9+4)+(7*7); //(2roach,2toebiter,2ant,extratoebiter ,, Clouds
+      loading_denominator=ROTATED_SPRITE_NUM*7+DRAW_CLOUDS_NUM+(PLAYER_ROTATED_SPRITE_NUM*9+4)+(7*7+1); //(2roach,2toebiter,2ant,extratoebiter ,, Clouds
 
 
       AddFontResource(L"fonts/unifont-8.0.01.ttf");
