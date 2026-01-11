@@ -478,9 +478,11 @@ void DrawSunRays(HDC hdc,HDC hdc2)
           Sun.ray_is_blocked[Sun.current_sun_ray_i]=!IsPixelColorAt(publicScreenPixels, SCREEN_WIDTH,SCREEN_HEIGHT, Sun.ray_x[Sun.current_sun_ray_i], Sun.ray_y[Sun.current_sun_ray_i], custom_map_background_color);
           break;
         case 1:
+        case 3:
           Sun.ray_is_blocked[Sun.current_sun_ray_i]=!IsPixelColorAt(publicScreenPixels, SCREEN_WIDTH,SCREEN_HEIGHT, Sun.ray_x[Sun.current_sun_ray_i], Sun.ray_y[Sun.current_sun_ray_i], custom_map_background_dkcolor);
           break;
         case 2:
+        case 4:
           Sun.ray_is_blocked[Sun.current_sun_ray_i]=!IsPixelColorAt(publicScreenPixels, SCREEN_WIDTH,SCREEN_HEIGHT, Sun.ray_x[Sun.current_sun_ray_i], Sun.ray_y[Sun.current_sun_ray_i], BLACK); //crashing?
           break;
       }
@@ -488,9 +490,11 @@ void DrawSunRays(HDC hdc,HDC hdc2)
       uint16_t _color=byte_16_color_arr[rgbPaint_i[custom_map_background_color_i]]/2; //the returned value from the function below is hald the true color, potential bug that needs to be resolved
       switch (Sun.eclipse_type) {
         case 1:
+        case 3:
           _color=byte_16_color_arr[rgbPaint_i[custom_map_background_dkcolor_i]]/2;
           break;
         case 2:
+        case 4:
           _color=byte_16_color_arr[rgbPaint_i[0]]/2;
           break;
       }
@@ -507,10 +511,11 @@ void DrawSunRays(HDC hdc,HDC hdc2)
   for (int i=0;i<SUN_RAY_NUM;i++) {
     if (!Sun.ray_is_blocked[i]) {
         //GrLineThick(hdc,Sun.ray_x[i],Sun.ray_y[i],Sun.draw_ray_x[i],Sun.draw_ray_y[i],3,LTRYELLOW);
-      if (Sun.eclipse_type<=1)
+      if (Sun.eclipse_type<=1 || Sun.eclipse_type==3) {
         GrLine(hdc,Sun.draw_ray_x[i],Sun.draw_ray_y[i],Sun.ray_x[i],Sun.ray_y[i],LTRYELLOW);
-      else
+      }  else {
         GrLine(hdc,Sun.draw_ray_x[i],Sun.draw_ray_y[i],Sun.ray_x[i],Sun.ray_y[i],WHITE);
+      }
       Sun.rays_visible_num++;
     }
   }
@@ -545,12 +550,14 @@ void DrawSunRays(HDC hdc,HDC hdc2)
       } else { //Set Darker palette once during eclipse
         switch (Sun.eclipse_type) {
           case 1:
+          case 3:
             if (Sun.overcast_lvl!=2) {
               Sun.overcast_lvl=2;
               Sun.flag_overcast=TRUE;
             }
             break;
           case 2:
+          case 4:
             if (Sun.overcast_lvl!=3) {
               Sun.overcast_lvl=3;
               Sun.flag_overcast=TRUE;
@@ -596,15 +603,24 @@ void DrawSunRays(HDC hdc,HDC hdc2)
 void DrawSun(HDC hdc)
 {
   //Sun.eclipse_type=<demo>;
-  switch (Sun.eclipse_type) { //annular
-    case 1: 
+  switch (Sun.eclipse_type) {
+    case 1: //annular
       GrCircle(hdc,Sun.x,Sun.y,60,LTRYELLOW,LTRYELLOW);
       GrCircle(hdc,Sun.x,Sun.y,55,custom_map_background_dkcolor,custom_map_background_dkcolor);
       break;
-    case 2:
+    case 2: //total
       GrCircle(hdc,Sun.x,Sun.y,62,WHITE,WHITE);
       GrCircle(hdc,Sun.x,Sun.y,59,BLACK,BLACK);
       break;
+    case 3: //partial-annular
+      GrCircle(hdc,Sun.x,Sun.y,60,LTRYELLOW,LTRYELLOW);
+      GrCircle(hdc,Sun.x-4,Sun.y-4,55,custom_map_background_dkcolor,custom_map_background_dkcolor);
+      break;
+    case 4: //partial-total
+      GrCircle(hdc,Sun.x,Sun.y,62,WHITE,WHITE);
+      GrCircle(hdc,Sun.x-4,Sun.y-4,59,BLACK,BLACK);
+      break;
+
     default:
       GrCircle(hdc,Sun.x,Sun.y,60,LTRYELLOW,LTRYELLOW);
       break;
@@ -754,9 +770,11 @@ void DrawGameBackgroundSprite(HDC hdc1,HDC hdc2)
       GrRect(hdc,0,0,GR_WIDTH+24,GR_HEIGHT+24,custom_map_background_color);
       break;
     case 1:
+    case 3:
       GrRect(hdc,0,0,GR_WIDTH+24,GR_HEIGHT+24,custom_map_background_dkcolor);
       break;
     case 2:
+    case 4:
       GrRect(hdc,0,0,GR_WIDTH+24,GR_HEIGHT+24,BLACK);
       DrawStars(hdc);
       break;

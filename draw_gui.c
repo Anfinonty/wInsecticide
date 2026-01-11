@@ -513,7 +513,7 @@ int is_between(double cx, double cy,
 
 
 
-int64_t funnyrun=0;
+//int64_t funnyrun=0;
 void DrawPersianClock(HDC hdc,HDC hdc2)
 {
   //Moon Pos
@@ -561,13 +561,13 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
   //https://eclipse.gsfc.nasa.gov/SEcat5/SE2101-2200.html
   //https://eclipse.gsfc.nasa.gov/SEcat5/SE2001-2100.html
   //https://eclipse.gsfc.nasa.gov/SEcat5/SE1901-2000.html
-  //funnyrun+=24*60*60/2;
+  //funnyrun+=24*60*60/2;///2;
        // 60*60*24*365+60*60*24*128*100;//2000*20;
   //int64_t timenow=
             //GetLunarHijriDays(15,8,-607) * 60*60*24 //cruxifixtion
             //GetLunarHijriDays(29,9,-53) * 60*60*24//https://www.astronomy.com/science/a-timeline-of-famous-eclipses/
-            //GetLunarHijriDays(29,10,10) * 60*60*24    //Mohammed Ibrahim's Eclipse ** (annular)
-            //GetLunarHijriDays(29,9,571) * 60*60*24;  //Saladin's Eclipse
+            //GetLunarHijriDays(29,10,10) * 60*60*24;    //Mohammed Ibrahim's Eclipse ** (annular)
+            //GetLunarHijriDays(29,9,571) * 60*60*24  //Saladin's Eclipse
 
             //GetLunarHijriDays(29,2,1448) * 60*60*24; //next eclipse  august 14, 2026
             //GetLunarHijriDays(29,11,1504) * 60*60*24; //next eclipse2 September 3, 2081
@@ -586,6 +586,10 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
             //GetLunarHijriDays(29,5,1415) * 60*60*24;//past eclipse 1994AD-11-3
             //int64_current_timestamp()
             //GetLunarHijriDays(29,11,1257) * 60*60*24;//past eclipse ...
+            //1767817398
+            //GetLunarHijriDays(29,1,1451)* 60*60*24 // partial annular eclipse June 12 2029
+             //GetLunarHijriDays(29,5,1458)* 60*60*24//partial total eclipse 2036 Jul 23
+            //GetLunarHijriDays(29,9,1488) *60*60*24 //partial eclipse- (total)- 2065 Dec 27
             //+funnyrun;
 
             //GetLunarHijriDays(28,8,1538) *60*60*24;//future eclipse 2114AD Jun 03
@@ -613,39 +617,58 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
   //=================End of Test===================
 
 
-  double drawoffset=-M_PI/2;
+  double drawoffset=-M_PI/2 + deg2rad(1.5);//deg2rad(2);
   //Draw Eclipse Seasons
   float eclipse_angle= -GetEclipseRadAngle(lunar_day,lunar_month,lunar_year) -  drawoffset;
   float eclipse_angle2= eclipse_angle-M_PI;
-  float eaoffset1=-2*M_PI/27*2;
-  float eaoffset2=2*M_PI/27*2;
+  //float eaoffset1=-2*M_PI/27*1.4;
+  //float eaoffset2=2*M_PI/27*1.1;
+//  float eaoffset1=-2*M_PI/27*1.4;
+//  float eaoffset2=2*M_PI/27*1.4;
 
-  //Lunar eclipse
-  GrCircle(hdc,mcalendar_x + mcalendar_l*cos(eclipse_angle), mcalendar_y + mcalendar_l*sin(eclipse_angle),9,LTRED,-1);
-  GrCircle(hdc,mcalendar_x + mcalendar_l*cos(eclipse_angle), mcalendar_y + mcalendar_l*sin(eclipse_angle),7,RED,YELLOW);
+  //float eaoffset1=-deg2rad(18);
+  //float eaoffset2=deg2rad(18);
+
+  //https://eclipse.gsfc.nasa.gov/5MCSE/TP2009-214174.pdf
+  float eaoffset1=-deg2rad(17 /*+2*/);
+  float eaoffset2=deg2rad(17  /*-2*/);
+
+
+  int d_m_=11;
+
+  //Solar eclipse1
+  float full_eclipse1_x=mcalendar_x + mcalendar_l*cos(eclipse_angle);
+  float full_eclipse1_y=mcalendar_y + mcalendar_l*sin(eclipse_angle);
+  GrCircle(hdc,full_eclipse1_x, full_eclipse1_y,9,LTRED,-1);
+  GrCircle(hdc,full_eclipse1_x, full_eclipse1_y,7,RED,YELLOW);
+  GrCircle(hdc,full_eclipse1_x, full_eclipse1_y,d_m_,RED,YELLOW);
 
 
   float eclipse_season1_x1=mcalendar_x + mcalendar_l*cos(eclipse_angle+eaoffset1);
   float eclipse_season1_y1=mcalendar_y + mcalendar_l*sin(eclipse_angle+eaoffset1);
   float eclipse_season1_x2=mcalendar_x + mcalendar_l*cos(eclipse_angle+eaoffset2);
   float eclipse_season1_y2=mcalendar_y + mcalendar_l*sin(eclipse_angle+eaoffset2);
-  GrCircle(hdc, eclipse_season1_x1, eclipse_season1_y1,9,LTRED,-1);
-  GrCircle(hdc, eclipse_season1_x1, eclipse_season1_y1,7,RED,YELLOW);
-  GrCircle(hdc, eclipse_season1_x2, eclipse_season1_y2,9,LTRED,-1);
-  GrCircle(hdc, eclipse_season1_x2, eclipse_season1_y2,7,RED,YELLOW);
+//  GrCircle(hdc, eclipse_season1_x1, eclipse_season1_y1,9,LTRED,-1);
+//  GrCircle(hdc, eclipse_season1_x1, eclipse_season1_y1,7,RED,YELLOW);
+//  GrCircle(hdc, eclipse_season1_x2, eclipse_season1_y2,9,LTRED,-1);
+//  GrCircle(hdc, eclipse_season1_x2, eclipse_season1_y2,7,RED,YELLOW);
 
-  //Solar eclipse
-  GrCircle(hdc,mcalendar_x + mcalendar_l*cos(eclipse_angle2), mcalendar_y + mcalendar_l*sin(eclipse_angle2),9,LTCYAN,-1);
-  GrCircle(hdc,mcalendar_x + mcalendar_l*cos(eclipse_angle2), mcalendar_y + mcalendar_l*sin(eclipse_angle2),7,BLACK,LTCYAN);
+  //Solar eclipse2
+  float full_eclipse2_x=mcalendar_x + mcalendar_l*cos(eclipse_angle2);
+  float full_eclipse2_y=mcalendar_y + mcalendar_l*sin(eclipse_angle2);
+  GrCircle(hdc,full_eclipse2_x, full_eclipse2_y,9,LTCYAN,-1);
+  GrCircle(hdc,full_eclipse2_x, full_eclipse2_y,7,RED,YELLOW);
+  GrCircle(hdc,full_eclipse2_x, full_eclipse2_y,d_m_,RED,YELLOW);
+
   
   float eclipse_season2_x1=mcalendar_x + mcalendar_l*cos(eclipse_angle2+eaoffset1);
   float eclipse_season2_y1=mcalendar_y + mcalendar_l*sin(eclipse_angle2+eaoffset1);
   float eclipse_season2_x2=mcalendar_x + mcalendar_l*cos(eclipse_angle2+eaoffset2);
   float eclipse_season2_y2=mcalendar_y + mcalendar_l*sin(eclipse_angle2+eaoffset2);
-  GrCircle(hdc,eclipse_season2_x1,eclipse_season2_y1,9,LTCYAN,-1);
-  GrCircle(hdc,eclipse_season2_x1,eclipse_season2_y1,7,BLACK,LTCYAN);
-  GrCircle(hdc,eclipse_season2_x2,eclipse_season2_y2,9,LTCYAN,-1);
-  GrCircle(hdc,eclipse_season2_x2,eclipse_season2_y2,7,BLACK,LTCYAN);
+//  GrCircle(hdc,eclipse_season2_x1,eclipse_season2_y1,9,LTCYAN,-1);
+//  GrCircle(hdc,eclipse_season2_x1,eclipse_season2_y1,7,BLACK,LTCYAN);
+//  GrCircle(hdc,eclipse_season2_x2,eclipse_season2_y2,9,LTCYAN,-1);
+//  GrCircle(hdc,eclipse_season2_x2,eclipse_season2_y2,7,BLACK,LTCYAN);
 
 
   //moon's perigee and apogee'
@@ -726,38 +749,117 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
 
   //Determine Sun's Eclipse Type
   //within eclipse season  &&  days 27,28,29,30  && (within pierogi --> Total or apogee --> Annular)
+
+
+ // Convert to time_t (safe on 64-bit systems) 
+  //time_t t = (time_t) timenow; 
+
+  // Break down into calendar components 
+  //struct tm tm = *localtime(&t); 
+
+  // Print as year/month/day 
+
+
   if (lunar_day>=27 && lunar_day<=30) {//new moon
-    if (
-        is_between(mcalendar_x,mcalendar_y,
+    bool between1= is_between(mcalendar_x,mcalendar_y,
                     eclipse_season1_x1,eclipse_season1_y1,
                     eclipse_season1_x2,eclipse_season1_y2,
-                    hsun_calx,hsun_caly) ||
-        is_between(mcalendar_x,mcalendar_y,
+                    hsun_calx,hsun_caly);
+    bool between2= is_between(mcalendar_x,mcalendar_y,
                             eclipse_season2_x1,eclipse_season2_y1,
                             eclipse_season2_x2,eclipse_season2_y2,
-                            hsun_calx,hsun_caly)
-       ) 
+                            hsun_calx,hsun_caly);
+
+    //float db1=GetDistance(full_eclipse1_x,full_eclipse1_y,hsun_calx,hsun_caly)-5;
+    //float db2=GetDistance(full_eclipse2_x,full_eclipse2_y,hsun_calx,hsun_caly)-5;
+    float db1_=GetDistance(full_eclipse1_x,full_eclipse1_y,hsun_calx,hsun_caly);
+    float db2_=GetDistance(full_eclipse2_x,full_eclipse2_y,hsun_calx,hsun_caly);
+
+    float db1_1=GetDistance(eclipse_season1_x1,eclipse_season1_y1,hsun_calx,hsun_caly);
+    float db1_2=GetDistance(eclipse_season1_x2,eclipse_season1_y2,hsun_calx,hsun_caly);
+    float db2_1=GetDistance(eclipse_season2_x1,eclipse_season2_y1,hsun_calx,hsun_caly);
+    float db2_2=GetDistance(eclipse_season2_x2,eclipse_season2_y2,hsun_calx,hsun_caly);
+
+
+    int d_m1=7;
+    int d_m2=7;
+
+    if (between1 || between2) 
     { //within eclipse season
+      /*if (between1) {
+        if (db1_1<=d_m1) {
+          printf("1_1:[%5.4f] ",db1_1);
+        } else if (db1_2<=d_m2) {
+          printf("1_2:[%5.4f] ",db1_2);
+        }
+
+      } else if (between2) {
+        if (db2_1<=d_m1) {
+          printf("2_1:[%5.4f] ",db2_1);
+        } else if (db2_2<=d_m2) {
+          printf("2_2:[%5.4f] ",db2_2);
+        }
+      }*/
       if (is_between(mcalendar_x,mcalendar_y,
                     pierogi_x1,pierogi_y1,
                     pierogi_x2,pierogi_y2,
                     hsun_calx,hsun_caly)
-        ) {
-        Sun.eclipse_type=2;
+        ) { //within pierogi, total
+
+
+        if (/*GetDistance(eclipse_season1_x1,eclipse_season1_y1,hsun_calx,hsun_caly)<=5 ||
+            GetDistance(eclipse_season1_x2,eclipse_season1_y2,hsun_calx,hsun_caly)<=5 ||
+            GetDistance(eclipse_season2_x1,eclipse_season2_y2,hsun_calx,hsun_caly)<=5 ||
+            GetDistance(eclipse_season2_x2,eclipse_season2_y2,hsun_calx,hsun_caly)<=5*/
+
+            /*(db1>=5 && between1) ||
+            (db2>=5 && between2)*/
+
+             (
+                /*((db1_1<=d_m1 || db1_2<=d_m2)  && between1) ||
+                ((db2_1<=d_m1 || db2_2<=d_m2)  && between2)*/
+                (db1_ <= d_m_ && between1) ||
+                (db2_ <= d_m_ && between2)
+             )
+           ) {
+          //printf("T: %04d/%02d/%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
+          //printf("Total\n");
+          Sun.eclipse_type=2;
+        } else { //near edges of eclipse season
+          //printf("* P: %04d/%02d/%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
+          //printf("Partial\n");
+          Sun.eclipse_type=4; //Total-Partial Eclipse
+
+        }
+
         //printf("Total: %d,%d,%d\n",lunar_year,lunar_month,lunar_day);
-      } else {
-        Sun.eclipse_type=1;
+      } else { //outside pierogi
         //printf("Annular: %d,%d,%d\n",lunar_year,lunar_month,lunar_day);
+
+        if (/*GetDistance(eclipse_season1_x1,eclipse_season1_y1,hsun_calx,hsun_caly)<=5 ||
+            GetDistance(eclipse_season1_x2,eclipse_season1_y2,hsun_calx,hsun_caly)<=5 ||
+            GetDistance(eclipse_season2_x1,eclipse_season2_y2,hsun_calx,hsun_caly)<=5 ||
+            GetDistance(eclipse_season2_x2,eclipse_season2_y2,hsun_calx,hsun_caly)<=5*/
+            (
+              /*((db1_1<=d_m1 || db1_2<=d_m2)  && between1) ||
+              ((db2_1<=d_m1 || db2_2<=d_m2)  && between2)*/
+              (db1_ <= d_m_ && between1) ||
+              (db2_ <= d_m_ && between2)
+            )
+            
+        ) {
+          Sun.eclipse_type=1; //Annular Eclipse
+          //printf("A: %04d/%02d/%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
+          //printf("Annular\n");
+        } else { //near edges of eclipse season
+          //printf("* P: %04d/%02d/%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
+          //printf("* Partial");
+          Sun.eclipse_type=3; //Annular-Partial Eclipse
+        }
       }
     } else {
       Sun.eclipse_type=0;
     }
-
-
-
-
-
-
 
 
     /*if ((lim1<=lim_target && lim_target<=lim2) || (lim3<=lim_target && lim_target<=lim4)) { //within eclispe season

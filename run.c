@@ -2427,9 +2427,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //double utc_offset=8;
 
       //Sweden
-      sun_riseset.in_latitude  =  59.3327;
-      sun_riseset.in_longitude =  18.0656;
-      utc_offset=1; //2 for summer
+      //sun_riseset.in_latitude  =  59.3327;
+      //sun_riseset.in_longitude =  18.0656;
+      //utc_offset=1; //2 for summer
 
 
       //Zaandam, Netherlands
@@ -2439,9 +2439,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
       //PERTH, Western Australia
-      //sun_riseset.in_latitude  = -31.9514;
-      //sun_riseset.in_longitude = 115.8617;
-      //double utc_offset=8;
+      sun_riseset.in_latitude  = -31.9514;
+      sun_riseset.in_longitude = 115.8617;
+      utc_offset=8;
         
 
       sun_compute(&sun_riseset,&planet_earth,solar_day,solar_month,solar_year);
