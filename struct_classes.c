@@ -1374,6 +1374,8 @@ int current_moon_phase_id;
 struct MoonAngle
 {
   float angle;
+  float lunar_angle;
+  //float mirror_lunar_angle;
 } MoonAngle[7];
 
 
@@ -1382,9 +1384,8 @@ struct Moon
 {
   float angle;
   HBITMAP loaded_sprite;
-  //HBITMAP sprite_cache[7];
   DRAWSPRITE draw_moon_sprite[7]; //all 7 rotations
-} Moon[7];
+} Moon[8];
 
 
 struct GameMoon
@@ -1398,7 +1399,7 @@ struct GameMoon
   float angle;
   int phase_range_x[7];
   int phase_range_y[7];
-}  DrawGameMoon;
+} DrawGameMoon;
 
 
 

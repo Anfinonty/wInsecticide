@@ -696,9 +696,7 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
   GrLine(hdc,pierogi_x2,pierogi_y2,mcalendar_x-30*cos(pierogi_lim1),mcalendar_y+-30*sin(pierogi_lim1),LTCYAN);
 
 
-
-
-
+  //Draw moon on map
   if (lunar_day<27) //0 to 26
     moon_angle=(-2*M_PI/27 * lunar_day ) - moon_angle_shift;
   else
@@ -760,7 +758,7 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
   // Print as year/month/day 
 
 
-  if (lunar_day>=27 && lunar_day<=30) {//new moon
+  if ((lunar_day>=27 && lunar_day<=30) || (lunar_day>=13 && lunar_day<=15)) {//new moon
     bool between1= is_between(mcalendar_x,mcalendar_y,
                     eclipse_season1_x1,eclipse_season1_y1,
                     eclipse_season1_x2,eclipse_season1_y2,
@@ -770,8 +768,6 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
                             eclipse_season2_x2,eclipse_season2_y2,
                             hsun_calx,hsun_caly);
 
-    //float db1=GetDistance(full_eclipse1_x,full_eclipse1_y,hsun_calx,hsun_caly)-5;
-    //float db2=GetDistance(full_eclipse2_x,full_eclipse2_y,hsun_calx,hsun_caly)-5;
     float db1_=GetDistance(full_eclipse1_x,full_eclipse1_y,hsun_calx,hsun_caly);
     float db2_=GetDistance(full_eclipse2_x,full_eclipse2_y,hsun_calx,hsun_caly);
 
@@ -780,101 +776,48 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
     float db2_1=GetDistance(eclipse_season2_x1,eclipse_season2_y1,hsun_calx,hsun_caly);
     float db2_2=GetDistance(eclipse_season2_x2,eclipse_season2_y2,hsun_calx,hsun_caly);
 
-
-    int d_m1=7;
-    int d_m2=7;
-
     if (between1 || between2) 
     { //within eclipse season
-      /*if (between1) {
-        if (db1_1<=d_m1) {
-          printf("1_1:[%5.4f] ",db1_1);
-        } else if (db1_2<=d_m2) {
-          printf("1_2:[%5.4f] ",db1_2);
-        }
-
-      } else if (between2) {
-        if (db2_1<=d_m1) {
-          printf("2_1:[%5.4f] ",db2_1);
-        } else if (db2_2<=d_m2) {
-          printf("2_2:[%5.4f] ",db2_2);
-        }
-      }*/
-      if (is_between(mcalendar_x,mcalendar_y,
+      if (lunar_day>=13 && lunar_day<=15) { //lunar eclipse
+        current_moon_phase_id=7; //blood moon
+      } else { // solar eclipse
+        if (is_between(mcalendar_x,mcalendar_y,
                     pierogi_x1,pierogi_y1,
                     pierogi_x2,pierogi_y2,
                     hsun_calx,hsun_caly)
-        ) { //within pierogi, total
-
-
-        if (/*GetDistance(eclipse_season1_x1,eclipse_season1_y1,hsun_calx,hsun_caly)<=5 ||
-            GetDistance(eclipse_season1_x2,eclipse_season1_y2,hsun_calx,hsun_caly)<=5 ||
-            GetDistance(eclipse_season2_x1,eclipse_season2_y2,hsun_calx,hsun_caly)<=5 ||
-            GetDistance(eclipse_season2_x2,eclipse_season2_y2,hsun_calx,hsun_caly)<=5*/
-
-            /*(db1>=5 && between1) ||
-            (db2>=5 && between2)*/
-
-             (
-                /*((db1_1<=d_m1 || db1_2<=d_m2)  && between1) ||
-                ((db2_1<=d_m1 || db2_2<=d_m2)  && between2)*/
+          ) { //within pierogi, total
+          if ((             
                 (db1_ <= d_m_ && between1) ||
                 (db2_ <= d_m_ && between2)
-             )
-           ) {
-          //printf("T: %04d/%02d/%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
-          //printf("Total\n");
-          Sun.eclipse_type=2;
-        } else { //near edges of eclipse season
-          //printf("* P: %04d/%02d/%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
-          //printf("Partial\n");
-          Sun.eclipse_type=4; //Total-Partial Eclipse
-
-        }
-
-        //printf("Total: %d,%d,%d\n",lunar_year,lunar_month,lunar_day);
-      } else { //outside pierogi
-        //printf("Annular: %d,%d,%d\n",lunar_year,lunar_month,lunar_day);
-
-        if (/*GetDistance(eclipse_season1_x1,eclipse_season1_y1,hsun_calx,hsun_caly)<=5 ||
-            GetDistance(eclipse_season1_x2,eclipse_season1_y2,hsun_calx,hsun_caly)<=5 ||
-            GetDistance(eclipse_season2_x1,eclipse_season2_y2,hsun_calx,hsun_caly)<=5 ||
-            GetDistance(eclipse_season2_x2,eclipse_season2_y2,hsun_calx,hsun_caly)<=5*/
-            (
-              /*((db1_1<=d_m1 || db1_2<=d_m2)  && between1) ||
-              ((db2_1<=d_m1 || db2_2<=d_m2)  && between2)*/
-              (db1_ <= d_m_ && between1) ||
-              (db2_ <= d_m_ && between2)
-            )
-            
-        ) {
-          Sun.eclipse_type=1; //Annular Eclipse
-          //printf("A: %04d/%02d/%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
-          //printf("Annular\n");
-        } else { //near edges of eclipse season
-          //printf("* P: %04d/%02d/%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
-          //printf("* Partial");
-          Sun.eclipse_type=3; //Annular-Partial Eclipse
+             )) {
+            //printf("T: %04d/%02d/%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
+            //printf("Total\n");
+            Sun.eclipse_type=2;
+          } else { //near edges of eclipse season
+            //printf("* P: %04d/%02d/%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
+            //printf("Partial\n");
+            Sun.eclipse_type=4; //Total-Partial Eclipse
+          }
+          //printf("Total: %d,%d,%d\n",lunar_year,lunar_month,lunar_day);
+        } else { //outside pierogi
+          //printf("Annular: %d,%d,%d\n",lunar_year,lunar_month,lunar_day);
+          if (
+              ((db1_ <= d_m_ && between1) ||
+              (db2_ <= d_m_ && between2))
+          ) {
+            Sun.eclipse_type=1; //Annular Eclipse
+            //printf("A: %04d/%02d/%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
+            //printf("Annular\n");
+          } else { //near edges of eclipse season
+            //printf("* P: %04d/%02d/%02d\n", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
+            //printf("* Partial");
+            Sun.eclipse_type=3; //Annular-Partial Eclipse
+          }
         }
       }
     } else {
       Sun.eclipse_type=0;
     }
-
-
-    /*if ((lim1<=lim_target && lim_target<=lim2) || (lim3<=lim_target && lim_target<=lim4)) { //within eclispe season
-      if (pierogi_lim1<=lim_target && lim_target<=pierogi_lim2) { //total eclipse, near pierogi
-        Sun.eclipse_type=2;
-      } else { //annular eclipse
-        Sun.eclipse_type=1;
-      }
-    } else {
-      Sun.eclipse_type=0;
-    }*/
-    //within eclipse season
-    //total eclipse, near pierogi
-
-
   } else {
     Sun.eclipse_type=0;
   }
@@ -1374,7 +1317,10 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
       }
       if (!blank_level) {
         DrawPlatforms(hdc,hdc2);
-        DrawSunRays(hdc,hdc2);
+        if (solar_hour>6 && solar_hour<18)
+          DrawSunRays(hdc,hdc2);
+        else 
+          custom_map_background_color=BLACK;
         DrawFirePlatforms(hdc);
         DrawWebs(hdc);
         DrawEnemy(hdc,hdc2);

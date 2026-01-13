@@ -588,7 +588,7 @@ void Prelude()
       prelude_sprite_moon_i=0;
       prelude_sprite_moon++;
     }
-    if (prelude_sprite_moon==7) {
+    if (prelude_sprite_moon==8) {
       prelude_sprite_jid++;
     }
   }
@@ -1904,7 +1904,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       //Loading Bar
       loading_numerator=0;
-      loading_denominator=ROTATED_SPRITE_NUM*7+DRAW_CLOUDS_NUM+(PLAYER_ROTATED_SPRITE_NUM*9+4)+(7*7+1); //(2roach,2toebiter,2ant,extratoebiter ,, Clouds
+      loading_denominator=ROTATED_SPRITE_NUM*7+DRAW_CLOUDS_NUM+(PLAYER_ROTATED_SPRITE_NUM*9+4)+(7*8+1); //(2roach,2toebiter,2ant,extratoebiter ,, Clouds
 
 
       AddFontResource(L"fonts/unifont-8.0.01.ttf");
@@ -2354,6 +2354,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         //total_solar_eclipse_571;
         //demo_lunar;
         //total_solar_eclipse_571;
+        //GetLunarHijriDays(5,12,1433)*60*60*24; //Special Moon Day
         int64_current_timestamp(); //local timestamp is returned
             //-60985824000  - 60*60*24*3; //3 day epoch julian-gregorian;
             //-61117898852; //Crusifixion
@@ -2442,7 +2443,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       sun_riseset.in_latitude  = -31.9514;
       sun_riseset.in_longitude = 115.8617;
       utc_offset=8;
-        
+
+      //Romania (General)
+      //sun_riseset.in_latitude = 45.9432;
+      //sun_riseset.in_longitude = 24.9668;
+      //utc_offset=2;
+
+      //Romania - Bucharest
+      //sun_riseset.in_latitude = 44.4268;
+      //sun_riseset.in_longitude = 26.1025;
+      //utc_offset=2;
 
       sun_compute(&sun_riseset,&planet_earth,solar_day,solar_month,solar_year);
       double prise=sun_riseset.out_sunrise_mins/60;
@@ -2690,41 +2700,100 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       ReplaceBitmapColor(moon_cartoon_sprite_cache,LTGREEN,BLACK);
       GenerateDrawSprite(&draw_moon_cartoon_sprite,moon_cartoon_sprite_cache);*/
 
+      //Set Moon Phase based on Today
+      if (lunar_day>=1 && lunar_day<=9) {
+        if (lunar_month<12) {
+          if (lunar_day>=1 && lunar_day<=5) { //1, 2, 3, 4, 5
+            current_moon_phase_id=0;
+          } else if (lunar_day>=6 && lunar_day<=9) {// 6, 7, 8, 9
+            current_moon_phase_id=1;
+          }
+        } else { //month 12 lunar
+          if (lunar_day>=1 && lunar_day<=4) { //1, 2, 3, 4
+            current_moon_phase_id=0;
+          } else {// 5, 6, 7, --> 8 ,9
+            current_moon_phase_id=1;
+          }
+        }
+      }else if (lunar_day>=10 && lunar_day<=12) {// 10, 11, 12,
+        current_moon_phase_id=2;
+      } else if (lunar_day>=13 && lunar_day<=15) {//13, 14, 15 //fullmoon
+        current_moon_phase_id=3;
+      } else if (lunar_day>=16 && lunar_day<=18) {//16, 17, 18
+        current_moon_phase_id=4;
+      } else if (lunar_day>=19 && lunar_day<=22) {//19, 20, 21, 22
+        current_moon_phase_id=5;
+      } else if (lunar_day>=23 && lunar_day<=26) {//23, 24, 25,26
+        current_moon_phase_id=6;
+      } else { // New Moon, no stars
+        //current_moon_phase_id=7;
+        current_moon_phase_id=-1;
+      }
+
+      //if (solar_day==24 && solar_month==7)
+        //current_moon_phase_id=1;
+      //lunar_day==10 && lunar_month==3
+
       //generate backgorund moons
-      for (int i=0;i<7;i++) {
+      for (int i=0;i<8;i++) {
         switch (i) {
           case 0:
             swprintf(moon_sprite_name,48,L"sprites/moon-cartoon-1.bmp");
             MoonAngle[i].angle=-M_PI_4-M_PI_4/2;
+
+            //MoonAngle[i].lunar_angle=-M_PI_4-M_PI_4/2;
+            //MoonAngle[i].mirror_lunar_angle=M_PI_4+M_PI_4/2;
             break;
           case 1:
-            swprintf(moon_sprite_name,48,L"sprites/moon-cartoon-8.bmp");
+            if (lunar_day>=5 && lunar_day<=7 && lunar_month==12) {
+              swprintf(moon_sprite_name,48,L"sprites/moon-cartoon-5.bmp");
+            } else {
+              swprintf(moon_sprite_name,48,L"sprites/moon-cartoon-8.bmp");
+            }
             MoonAngle[i].angle=-M_PI_4;
+
+            //MoonAngle[i].lunar_angle=-M_PI_4;
+            //MoonAngle[i].mirror_lunar_angle=M_PI_4;
             break;
           case 2:
             swprintf(moon_sprite_name,48,L"sprites/moon-cartoon-11.bmp");
             MoonAngle[i].angle=-M_PI_4+M_PI_4/2;
+
+            //MoonAngle[i].lunar_angle=-M_PI_4+M_PI_4/2;
+            //MoonAngle[i].mirror_lunar_angle=M_PI_4-M_PI_4/2;
             break;
           case 3:
             swprintf(moon_sprite_name,48,L"sprites/moon-cartoon-14.bmp");
             MoonAngle[i].angle=/*MoonAngle[i].mirror_angle=*/0;
+
+            //MoonAngle[i].lunar_angle=
+            //MoonAngle[i].mirror_lunar_angle=0;
             break;
           case 4:
             swprintf(moon_sprite_name,48,L"sprites/moon-cartoon-16.bmp");
             MoonAngle[i].angle=M_PI_4-M_PI_4/2;
+
+            //MoonAngle[i].lunar_angle=M_PI_4-M_PI_4/2;
+            //MoonAngle[i].mirror_lunar_angle=-M_PI_4+M_PI_4/2;
             break;
           case 5:
             swprintf(moon_sprite_name,48,L"sprites/moon-cartoon-21.bmp");
             MoonAngle[i].angle=M_PI_4;
+
+            //MoonAngle[i].lunar_angle=M_PI_4;
+            //MoonAngle[i].mirror_lunar_angle=-M_PI_4;
             break;
           case 6:
             swprintf(moon_sprite_name,48,L"sprites/moon-cartoon-26.bmp");
             MoonAngle[i].angle=M_PI_4+M_PI_4/2;
+
+            //MoonAngle[i].lunar_angle=M_PI_4+M_PI_4/2;
+            //MoonAngle[i].mirror_lunar_angle=-M_PI_4-M_PI_4/2;
             break;
-          /*case 7:
-            swprintf(moon_sprite_name,48,L"sprites/moon-cartoon-28.bmp");
-            lunar_angle=mirror_lunar_angle=0;
-            break;*/
+          case 7:
+            swprintf(moon_sprite_name,48,L"sprites/moon-cartoon-red.bmp");
+            MoonAngle[i].angle=0;
+            break;
           }
           Moon[i].loaded_sprite=LoadRLE8CompressedBitmap(moon_sprite_name);
           //moon_sprite[i]=LoadRLE8CompressedBitmap(moon_sprite_name);

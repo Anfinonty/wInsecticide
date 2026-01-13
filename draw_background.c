@@ -675,6 +675,9 @@ void SunRayAct()
   }
 }
 
+
+
+
 //==============Draw Moon====================
 void InitMoon()
 {
@@ -702,18 +705,20 @@ void InitMoon()
   DrawGameMoon.phase_range_x[7]=GR_WIDTH/8;
   DrawGameMoon.phase_range_y[7]=GR_HEIGHT-GR_HEIGHT/3;
 
+
+  for (int k=0;k<8;k++) {
+    MoonAngle[k].lunar_angle=2*M_PI - M_PI/8*(k+1);
+  }
+
   DrawGameMoon.x=-10;
   DrawGameMoon.y=GR_HEIGHT;
 
   DrawGameMoon.pivot_x=GR_WIDTH/2;
-  //DrawGameMoon.pivot_y=GR_HEIGHT+GR_HEIGHT/4;
   DrawGameMoon.pivot_y=GR_HEIGHT;
 
   DrawGameMoon.dist_l=GetDistance(DrawGameMoon.x,DrawGameMoon.y,DrawGameMoon.pivot_x,DrawGameMoon.pivot_y);
 
   DrawGameMoon.angle=GetCosAngle(DrawGameMoon.x-DrawGameMoon.pivot_x,DrawGameMoon.dist_l);
-
-
 }
 
 
@@ -722,7 +727,8 @@ void MoonAct()
 {
   //DrawGameMoon.x++;
   //DrawGameMoon.y=MoonF(DrawGameMoon.x);
-  if (DrawGameMoon.x>GR_WIDTH) { //reset moon position after out of view (width)
+  //Action after moon leaves visibility
+  /*if (DrawGameMoon.x>GR_WIDTH) { //reset moon position after out of view (width)
       DrawGameMoon.x=0;
       DrawGameMoon.y=GR_HEIGHT;
 
@@ -735,24 +741,54 @@ void MoonAct()
       }
 
       current_moon_phase_id++;
-      if (current_moon_phase_id>=7)
+      if (current_moon_phase_id>=8)
         current_moon_phase_id=0;
+  }*/
+  int cmp_id=current_moon_phase_id;
+  if (cmp_id==7)
+    cmp_id=3;
+
+  if (cmp_id!=-1) {
+    if (DrawGameMoon.angle<MoonAngle[cmp_id].lunar_angle && DrawGameMoon.x+64<GR_WIDTH-48) {
+      DrawGameMoon.angle+=0.025;//0.005;
+      for (int i=0;i<STAR_NUM;i++) {
+        Star.angle[i]+=0.0125;//0.0025;
+      }
+    } /*else { //continuously draw moon and stars moving slowly
+      DrawGameMoon.angle+=0.025/1000;
+      for (int i=0;i<STAR_NUM;i++) {
+        Star.angle[i]+=0.0125/1000;
+      }
+    }*/
+  } else if (DrawGameMoon.angle<M_PI+M_PI_2) {
+    DrawGameMoon.angle+=0.025;//0.005;    
+    for (int i=0;i<STAR_NUM;i++) {
+      Star.angle[i]+=0.0125;//0.0025;
+    }
   }
 
-  //DrawGameMoon.angle+=0.005;
   DrawGameMoon.x=DrawGameMoon.pivot_x+DrawGameMoon.dist_l*cos(DrawGameMoon.angle);
-  DrawGameMoon.y=DrawGameMoon.pivot_y+DrawGameMoon.dist_l*sin(DrawGameMoon.angle);
-  
+  //if (DrawGameMoon.x+64>GR_WIDTH-48)
+    //DrawGameMoon.x=GR_WIDTH-48;
 
-  if (DrawGameMoon.x>DrawGameMoon.phase_range_x[0]) {
+  DrawGameMoon.y=DrawGameMoon.pivot_y+DrawGameMoon.dist_l*sin(DrawGameMoon.angle);
+  if (DrawGameMoon.y<128) {
+    DrawGameMoon.y=128;
+  }
+
+  if (DrawGameMoon.x>DrawGameMoon.phase_range_x[0]) { //new-cresent moon, rightside
     DrawGameMoon.current_angle_id=0;
-  } else if (DrawGameMoon.x<DrawGameMoon.phase_range_x[7]) {
+  } else if (DrawGameMoon.x<DrawGameMoon.phase_range_x[7]) { //old-cresent moon, leftside
     DrawGameMoon.current_angle_id=6;    
   } else {
-    for (int k=1;k<6;k++) {
-      if (DrawGameMoon.x<=DrawGameMoon.phase_range_x[k] && DrawGameMoon.x>DrawGameMoon.phase_range_x[k+1]) {
-        DrawGameMoon.current_angle_id=k;
-        break;
+    if (DrawGameMoon.x>=GR_WIDTH/4+GR_WIDTH/8&& DrawGameMoon.x<=GR_WIDTH/2+GR_WIDTH/4-GR_WIDTH/8) {
+      DrawGameMoon.current_angle_id=3;
+    } else {
+      for (int k=1;k<6;k++) { //Decending
+        if (DrawGameMoon.x<=DrawGameMoon.phase_range_x[k] && DrawGameMoon.x>=DrawGameMoon.phase_range_x[k+1]) {
+          DrawGameMoon.current_angle_id=k;
+          break;
+        }
       }
     }
   }
@@ -787,7 +823,9 @@ void DrawGameBackgroundSprite(HDC hdc1,HDC hdc2)
 
 void DrawMoon(HDC hdc,HDC hdc2)
 {
-  DrawSprite(hdc, hdc2,DrawGameMoon.x,DrawGameMoon.y,&Moon[current_moon_phase_id].draw_moon_sprite[DrawGameMoon.current_angle_id],FALSE);
+  if (current_moon_phase_id>=0 && current_moon_phase_id<=7) {
+    DrawSprite(hdc, hdc2,DrawGameMoon.x,DrawGameMoon.y,&Moon[current_moon_phase_id].draw_moon_sprite[DrawGameMoon.current_angle_id],FALSE);
+  }
 }
 //===========================================
 //===============Background===================
@@ -831,6 +869,11 @@ void DrawBackground(HDC hdc,HDC hdc2)
     case 1: //night
       GrRect(hdc,0,0,GR_WIDTH+24,GR_HEIGHT+24,custom_map_background_color);
       DrawStars(hdc);
+      /*char printme[32];
+      sprintf(printme,"lunar_angle:%5.4f",MoonAngle[current_moon_phase_id].lunar_angle);
+      GrPrint(hdc,200,200,printme,WHITE);
+      sprintf(printme,"MoonAngle:%5.4f",DrawGameMoon.angle);
+      GrPrint(hdc,200,232,printme,WHITE);*/
       break;
 
     case 2:
@@ -872,12 +915,12 @@ void DrawBackground(HDC hdc,HDC hdc2)
       DrawMoon(hdc,hdc2);
       /*int dmx=-1000;
       int dmy=-1000;
-      if (lunar_day>=1 && lunar_day<=5) { //1, 2, 3, 4, 5
+      if (lunar_day>=1 && lunar_day<=4) { //1, 2, 3, 4
         dmx=GR_WIDTH-GR_WIDTH/8;//-GR_WIDTH/16*_ppx;//-mouse_x/50;
         dmy=GR_HEIGHT-GR_HEIGHT/3;//-GR_HEIGHT/16*_ppy;//-mouse_y/50;//GR_HEIGHT-GR_HEIGHT/6;
         //dmy=160+160-GR_HEIGHT/16*_ppy;
         DrawSprite(hdc, hdc2,dmx,dmy,&Moon[current_moon_phase_id].draw_moon_sprite[0],FALSE);
-      } else if (lunar_day>=6 && lunar_day<=9) {// 6, 7, 8, 9
+      } else if (lunar_day>=5 && lunar_day<=9) {// 5, 6, 7, 8, 9
         dmx=GR_WIDTH/2+GR_WIDTH/4;//-GR_WIDTH/16*_ppx;//-mouse_x/50;
         dmy=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3;//-GR_HEIGHT/16*_ppy;//-mouse_y/50;
         //dmy=160+110-GR_HEIGHT/16*_ppy;
