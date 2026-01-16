@@ -1420,6 +1420,7 @@ struct Moon
 
 struct GameMoon
 {
+  bool flag_nightshade;
   int x;
   int y;
   int pivot_x;

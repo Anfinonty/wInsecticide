@@ -2122,6 +2122,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       Init8BitRGBColorsInvert(rgbColorsInvert,rgbColorsDefault);
       Init8BitRGBPaintDefault(rgbPaint,rgbPaint_i,rgbColorsDefault,TRUE,8);
 
+      //night palette, invert BLACK
+      CopyReplaceColorPalette(rgbColorsNight, rgbColorsDarker3,8,LTGRAY);
 
 
       for (int cl=0;cl<256;cl++) {

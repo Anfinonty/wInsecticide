@@ -452,6 +452,7 @@ void Init8BitRGBPaintDefault(int *rgbPaint_dest,int *rgbPaint_i_dest,RGBQUAD *rg
 RGBQUAD rgbColorsDarker1[256];
 RGBQUAD rgbColorsDarker2[256];
 RGBQUAD rgbColorsDarker3[256];
+RGBQUAD rgbColorsNight[256];
 
 void Init8BitRGBPaintDarker(RGBQUAD *rgbColors,RGBQUAD *rgbColorsSrc,float dark)
 {

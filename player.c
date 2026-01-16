@@ -2982,7 +2982,11 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
       BitmapPalette(hdc,hdc2,texture_water[i],waterPalette);
     }*/
     for (int i=0;i<PLATFORM_GRID_NUM;i++) {
-      BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsDefault);
+      if (map_background!=1) {
+        BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsDefault);
+      } else {
+        BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsNight);
+      }
     }
     /*for (int i=0;i<FOREGROUND_GRID_NUM;i++) {
       BitmapPalette(hdc,hdc2,TileMapForeground[i]->sprite_paint,rgbColorsDefault);

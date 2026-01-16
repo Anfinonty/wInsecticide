@@ -736,6 +736,7 @@ void InitMoon()
   DrawGameMoon.dist_l=GetDistance(DrawGameMoon.x,DrawGameMoon.y,DrawGameMoon.pivot_x,DrawGameMoon.pivot_y);
 
   DrawGameMoon.angle=GetCosAngle(DrawGameMoon.x-DrawGameMoon.pivot_x,DrawGameMoon.dist_l);
+  DrawGameMoon.flag_nightshade=TRUE;
 }
 
 
@@ -842,6 +843,14 @@ void DrawMoon(HDC hdc,HDC hdc2)
 {
   if (current_moon_phase_id>=0 && current_moon_phase_id<=7) {
     DrawSprite(hdc, hdc2,DrawGameMoon.x,DrawGameMoon.y,&Moon[current_moon_phase_id].draw_moon_sprite[DrawGameMoon.current_angle_id],FALSE);
+  }
+
+  //init palette nighttime
+  if (DrawGameMoon.flag_nightshade && level_loaded) {
+    for (int i=0;i<PLATFORM_GRID_NUM;i++) {
+      BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsNight);
+    }
+    DrawGameMoon.flag_nightshade=FALSE;
   }
 }
 //===========================================
