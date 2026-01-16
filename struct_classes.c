@@ -1214,25 +1214,55 @@ int cloud_src_y[LOADED_CLOUD_NUM]={ 62, 255,  0,411, 171,  8,178,450,553};
 int cloud_l[LOADED_CLOUD_NUM]=    {504,532,442,417, 325,190,196,190,138};
 int cloud_w[LOADED_CLOUD_NUM]=    {165,258,164,258, 250,170,156, 94,70};
 
+
+/*int cloud_grey_src_x[LOADED_CLOUD_NUM]= {};
+int cloud_grey_src_y[LOADED_CLOUD_NUM]= {};
+int cloud_grey_l[LOADED_CLOUD_NUM]=     {};
+int cloud_grey_w[LOADED_CLOUD_NUM]=     {};*/
+
+
+
 HBITMAP cloudwhite8bit_sprite_1;
 HBITMAP cloudwhite8bit_sprite_2;
+HBITMAP cloudgrey8bit_sprite_1;
+HBITMAP cloudgrey8bit_sprite_2;
 
-struct LoadedGameCloud
+typedef struct LoadedGameCloud
 {
   int l;
   HBITMAP sprite_cache;
-} DrawGameCloud[LOADED_CLOUD_NUM];
+} DrawGameCloud;
 
 
-struct GameCloudBackground
+DrawGameCloud DrawGameWhiteClouds[LOADED_CLOUD_NUM];
+DrawGameCloud DrawGameGreyClouds[LOADED_CLOUD_NUM];
+
+DrawGameCloud* DrawGameClouds[2] = {DrawGameWhiteClouds,DrawGameGreyClouds};
+
+
+struct GameCloudsBackground
 {
   int cam_x;
   int timer;
+} GameCloudsBackground;
+
+typedef struct DrawGameCloudBackground
+{
   HBITMAP sprite_paint1;
   HBITMAP sprite_mask1;
   HBITMAP sprite_paint2;
   HBITMAP sprite_mask2;
-} GameCloudsBackground;
+} DrawGameCloudsBackgroundA;
+
+
+DrawGameCloudsBackgroundA DrawGameCloudsBackground[2];
+
+
+
+
+
+
+
 
 
 void LoadClouds(HDC hdc,HDC hdc2);

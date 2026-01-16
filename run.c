@@ -471,8 +471,10 @@ void Prelude()
   if (i==0 && j==0) {
 
     //Create Mask for clouds
-    GameCloudsBackground.sprite_mask1=CreateBitmapMask(GameCloudsBackground.sprite_paint1,YELLOW,NULL);
-    GameCloudsBackground.sprite_mask2=CreateBitmapMask(GameCloudsBackground.sprite_paint2,YELLOW,NULL);
+    DrawGameCloudsBackground[0].sprite_mask1=CreateBitmapMask(DrawGameCloudsBackground[0].sprite_paint1,YELLOW,NULL);
+    DrawGameCloudsBackground[0].sprite_mask2=CreateBitmapMask(DrawGameCloudsBackground[0].sprite_paint2,YELLOW,NULL);
+    DrawGameCloudsBackground[1].sprite_mask1=CreateBitmapMask(DrawGameCloudsBackground[1].sprite_paint1,YELLOW,NULL);
+    DrawGameCloudsBackground[1].sprite_mask2=CreateBitmapMask(DrawGameCloudsBackground[1].sprite_paint2,YELLOW,NULL);
 
     //load enemy fly sprites
     for (int g=0;g<5;g++) {
@@ -2589,6 +2591,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //Load Cloud
       cloudwhite8bit_sprite_2=LoadRLE8CompressedBitmap(L"sprites/cloudswhite8_2.bmp");
       cloudwhite8bit_sprite_1=LoadRLE8CompressedBitmap(L"sprites/cloudswhite8_1.bmp");
+      //clouddkgrey8bit_sprite_2=LoadRLE8CompressedBitmap(L"sprites/cloudsdkgrey8_2.bmp");
+      //clouddkgrey8bit_sprite_1=LoadRLE8CompressedBitmap(L"sprites/cloudsdkgrey8_1.bmp");
+      cloudgrey8bit_sprite_2=LoadRLE8CompressedBitmap(L"sprites/cloudsdkgrey8_2.bmp");
+      cloudgrey8bit_sprite_1=LoadRLE8CompressedBitmap(L"sprites/cloudsdkgrey8_1.bmp");
+
 
       //water textures 0 to 7
       //SetTexturePalette(24,waterPalette); //24 is dkblue
