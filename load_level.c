@@ -286,6 +286,9 @@ void InitLevel(bool load_lvl)
   if (load_lvl) { //not in main menu
     in_main_menu=FALSE;
   } else { //going to main menu
+    if (solar_hour>6 && solar_hour<18) {
+      map_background=0;
+    }
     int dice=abs(RandNum(0,100,&misc_rng_i,-1)); //random weather
     if (dice<30) {
       if (dice>15) {

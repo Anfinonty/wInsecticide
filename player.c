@@ -2983,7 +2983,10 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
     }*/
     for (int i=0;i<PLATFORM_GRID_NUM;i++) {
       if (map_background!=1) {
-        BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsDefault);
+        if (map_weather==0)
+          BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsDefault);
+        else
+          BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsDarker2);
       } else {
         BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsNight);
       }

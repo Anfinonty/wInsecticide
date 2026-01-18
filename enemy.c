@@ -3657,15 +3657,19 @@ void DrawEnemy(HDC hdc,HDC hdc2)
               int sprite_x_health=(int)Enemy[i]->sprite_x-wcslen(wtxt)*12/2-3;
               if (Enemy[i]->species==1 || Enemy[i]->species==3) {
                 if (!player.time_breaker || Enemy[i]->time_breaker_immune) {
-                  GrPrintW(hdc,sprite_x_health,Enemy[i]->sprite_y-64,ReplaceToKhmerNum(wtxt),"",c2,16,FALSE,yes_unifont);
+                  ReplaceToKhmerNum(wtxt);
+                  GrPrintW(hdc,sprite_x_health,Enemy[i]->sprite_y-64,wtxt,"",c2,16,FALSE,yes_unifont);
                 } else {
-                  GrPrintW(hdc,sprite_x_health,Enemy[i]->sprite_y-64,ReplaceToKhmerNum(wtxt),"",LTGRAY,16,FALSE,yes_unifont);
+                  ReplaceToKhmerNum(wtxt);
+                  GrPrintW(hdc,sprite_x_health,Enemy[i]->sprite_y-64,wtxt,"",LTGRAY,16,FALSE,yes_unifont);
                 }
               } else {
                 if (!player.time_breaker || Enemy[i]->time_breaker_immune) {
-                  GrPrintW(hdc,sprite_x_health,Enemy[i]->sprite_y-32,ReplaceToKhmerNum(wtxt),"",c2,16,FALSE,yes_unifont);
+                  ReplaceToKhmerNum(wtxt);
+                  GrPrintW(hdc,sprite_x_health,Enemy[i]->sprite_y-32,wtxt,"",c2,16,FALSE,yes_unifont);
                 } else {
-                  GrPrintW(hdc,sprite_x_health,Enemy[i]->sprite_y-32,ReplaceToKhmerNum(wtxt),"",LTGRAY,16,FALSE,yes_unifont);
+                  ReplaceToKhmerNum(wtxt);
+                  GrPrintW(hdc,sprite_x_health,Enemy[i]->sprite_y-32,wtxt,"",LTGRAY,16,FALSE,yes_unifont);
                 }
               }
           } else {

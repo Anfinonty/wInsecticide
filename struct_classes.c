@@ -1208,17 +1208,12 @@ HBITMAP texture_water[9];
 //=============CLOUDS===============
 #define LOADED_CLOUD_NUM 9
 #define DRAW_CLOUDS_NUM     20
+#define DRAW_CLOUDY_CLOUDS_NUM  100//500
 //#define CLOUD_NUM    30//100//30//10//20
 int cloud_src_x[LOADED_CLOUD_NUM]={ 11,   3,  0,  0, 282,462, 42,440,464};
 int cloud_src_y[LOADED_CLOUD_NUM]={ 62, 255,  0,411, 171,  8,178,450,553};
 int cloud_l[LOADED_CLOUD_NUM]=    {504,532,442,417, 325,190,196,190,138};
 int cloud_w[LOADED_CLOUD_NUM]=    {165,258,164,258, 250,170,156, 94,70};
-
-
-/*int cloud_grey_src_x[LOADED_CLOUD_NUM]= {};
-int cloud_grey_src_y[LOADED_CLOUD_NUM]= {};
-int cloud_grey_l[LOADED_CLOUD_NUM]=     {};
-int cloud_grey_w[LOADED_CLOUD_NUM]=     {};*/
 
 
 
@@ -1255,8 +1250,9 @@ typedef struct DrawGameCloudBackground
 } DrawGameCloudsBackgroundA;
 
 
-DrawGameCloudsBackgroundA DrawGameCloudsBackground[2];
-
+DrawGameCloudsBackgroundA DrawGameCloudsBackground[4];
+//0,1 ---> normal day/night clouds
+//2,3 ---> cloudy day/night clouds
 
 
 

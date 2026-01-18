@@ -471,10 +471,10 @@ void Prelude()
   if (i==0 && j==0) {
 
     //Create Mask for clouds
-    DrawGameCloudsBackground[0].sprite_mask1=CreateBitmapMask(DrawGameCloudsBackground[0].sprite_paint1,YELLOW,NULL);
-    DrawGameCloudsBackground[0].sprite_mask2=CreateBitmapMask(DrawGameCloudsBackground[0].sprite_paint2,YELLOW,NULL);
-    DrawGameCloudsBackground[1].sprite_mask1=CreateBitmapMask(DrawGameCloudsBackground[1].sprite_paint1,YELLOW,NULL);
-    DrawGameCloudsBackground[1].sprite_mask2=CreateBitmapMask(DrawGameCloudsBackground[1].sprite_paint2,YELLOW,NULL);
+    for (int k=0;k<4;k++) {
+      DrawGameCloudsBackground[k].sprite_mask1=CreateBitmapMask(DrawGameCloudsBackground[k].sprite_paint1,YELLOW,NULL); //Reference to Self
+      DrawGameCloudsBackground[k].sprite_mask2=CreateBitmapMask(DrawGameCloudsBackground[k].sprite_paint2,YELLOW,NULL);
+    }
 
     //load enemy fly sprites
     for (int g=0;g<5;g++) {
@@ -1559,7 +1559,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
 
             DrawPlatforms(hdcBackbuff,hdcBackbuff2);
-            if (map_background==0) {
+            if (map_background==0 && map_weather==0) {
               DrawSunRays(hdcBackbuff,hdcBackbuff2);
             }
             DrawFirePlatforms(hdcBackbuff);
@@ -1906,7 +1906,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       //Loading Bar
       loading_numerator=0;
-      loading_denominator=ROTATED_SPRITE_NUM*7+DRAW_CLOUDS_NUM+(PLAYER_ROTATED_SPRITE_NUM*9+4)+(7*8+1); //(2roach,2toebiter,2ant,extratoebiter ,, Clouds
+      loading_denominator=ROTATED_SPRITE_NUM*7+DRAW_CLOUDS_NUM+DRAW_CLOUDY_CLOUDS_NUM+(PLAYER_ROTATED_SPRITE_NUM*9+4)+(7*8+1); //(2roach,2toebiter,2ant,extratoebiter ,, Clouds
 
 
       AddFontResource(L"fonts/unifont-8.0.01.ttf");
