@@ -673,6 +673,29 @@ https://en.wikipedia.org/wiki/Solar_Hijri_calendar
     }
   }
  
+//printing correction
+  int rdays=days;
+  if (print_days==0 && _seconds>0) {
+    month--;
+    if (month==0) {
+      month=12;
+      if (year-1==leap_year) {
+        print_days=30;
+        rdays=30;
+      } else { //non leap year has 29 days
+        print_days=29;
+        rdays=29;
+      }
+    } else {
+      if (month>=1 && month<=6) {
+        print_days=31;
+        rdays=31;
+      } else {
+        print_days=30;
+        rdays=30;
+      }
+    }
+  }
   //int64_t lol=(int64_t) print_days;
   //printf("\nprintdays: %d,%lld\n",days,lol);
   //printf("total days: %lld\n", _total_solar_hijri_days+lol);
@@ -693,7 +716,7 @@ https://en.wikipedia.org/wiki/Solar_Hijri_calendar
 
   //add remaining days
   if(_seconds>0) {
-    __solar_day+=days;
+    __solar_day+=rdays;
   } else {
     if (month>=1 && month<=6) {
       __solar_day+=32-days;
@@ -1001,6 +1024,34 @@ void PersiaLunarTime(int64_t _seconds,
     moon_angle_shift-=2*M_PI/27*2;
     moon_angle_shift-=0.03;
   }
+
+  //printing correction
+  if (_seconds>0 && print_days==0) {
+    month--;
+    if (month==0) {
+      month=12;
+      bool tleap=FALSE;
+      int tlyr=(year-1)%30;
+      for (int i=0;i<11;i++) {
+        if (tlyr==leap_years[i]) {
+          tleap=TRUE;
+          break;
+        }
+      }
+      if (tleap) {
+        print_days=30;
+      } else {
+        print_days=29;
+      }
+    } else {
+      if (month%2==0) {
+        print_days=29;
+      } else {
+        print_days=30;
+      }
+    }
+  }
+
 
   //Assign to variables
   *_lunar_year=year;

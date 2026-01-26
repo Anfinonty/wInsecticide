@@ -1283,10 +1283,16 @@ struct Sun
   int current_sun_i;
   int current_sun_ray_i;
   int rays_visible_num;
+  int eclipse_type; //0: none, 1: annular, 2: total
+
   int x;
   int y;
+  int pivot_x;
+  int pivot_y;
+  float dist_l;
+  float angle;
+  float solar_angle;
 
-  int eclipse_type; //0: none, 1: annular, 2: total
 
   int ray_l[SUN_RAY_NUM];
   int draw_ray_x[SUN_RAY_NUM];
@@ -1298,7 +1304,7 @@ struct Sun
 
 void InitSun();
 void SunRayAct();
-void DrawSun(HDC hdc);
+void DrawSun(HDC hdc,HDC hdc2);
 void DrawSunRays(HDC hdc,HDC hdc2);
 
 
@@ -1369,10 +1375,18 @@ HBITMAP map_water_platforms_sprite;
 HBITMAP map_platforms_shadow_shader;
 
 
+//Red-black-gradient
+HBITMAP red_black_gradient_bg_sprite;
+HBITMAP white_gradient_bg_sprite;
+
+//background transparent layer
+HBITMAP bg_glass_layer;
+
 
 //map background drawn
-//HBITMAP map_background_sprite;
+HBITMAP game_background_deco_sprite;
 HBITMAP game_background_sprite;
+
 HBITMAP screen;
 HBITMAP screen_mirror;
 BYTE *publicScreenPixels,*publicScreenMirrorPixels, *publicBackgroundPixels;// *publicScreenModPixels;
@@ -1396,7 +1410,7 @@ DRAWSPRITE draw_mirror_moon_sprite[8];*/
 
 //Moon
 int current_moon_phase_id;
-
+bool is_blood_moon=FALSE;
 struct MoonAngle
 {
   float angle;

@@ -258,12 +258,18 @@ void InitLevel(bool load_lvl)
   Init(); //Repeatable, Load Save via \n key
 
   custom_map_background_color=rgbPaint[custom_map_background_color_i];
+
   custom_map_background_dkcolor_i=custom_map_background_color_i-32;
   if (custom_map_background_dkcolor_i<0) {
     custom_map_background_dkcolor_i=0;
   }
   custom_map_background_dkcolor=rgbPaint[custom_map_background_dkcolor_i];
 
+  /*custom_map_background_dkcolor_i2=custom_map_background_dkcolor_i-32-8;
+  if (custom_map_background_dkcolor_i2<0) {
+    custom_map_background_dkcolor_i2+=256;
+  }
+  custom_map_background_dkcolor2=rgbPaint[custom_map_background_dkcolor_i2];*/
 
 
   if (rain_grad_run==0) {
@@ -286,7 +292,7 @@ void InitLevel(bool load_lvl)
   if (load_lvl) { //not in main menu
     in_main_menu=FALSE;
   } else { //going to main menu
-    if (solar_hour>6 && solar_hour<18) {
+    if (map_sunrise_time<=seconds_since_00 && seconds_since_00<=map_sunset_time) {
       map_background=0;
     }
     int dice=abs(RandNum(0,100,&misc_rng_i,-1)); //random weather

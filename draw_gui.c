@@ -561,9 +561,10 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
   //https://eclipse.gsfc.nasa.gov/SEcat5/SE2101-2200.html
   //https://eclipse.gsfc.nasa.gov/SEcat5/SE2001-2100.html
   //https://eclipse.gsfc.nasa.gov/SEcat5/SE1901-2000.html
-  //funnyrun+=24*60*60/2;///2;
+  //funnyrun+=600;//24*60*60/2;///2;
        // 60*60*24*365+60*60*24*128*100;//2000*20;
-  //int64_t timenow=
+  //int64_t timenow=0+funnyrun;
+            //1768720540+60*60*4+funnyrun;
             //GetLunarHijriDays(15,8,-607) * 60*60*24 //cruxifixtion
             //GetLunarHijriDays(29,9,-53) * 60*60*24//https://www.astronomy.com/science/a-timeline-of-famous-eclipses/
             //GetLunarHijriDays(29,10,10) * 60*60*24;    //Mohammed Ibrahim's Eclipse ** (annular)
@@ -614,9 +615,14 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
           //;
           //PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day/*,&solar_leap_year*/);
           //PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);
+//          seconds_since_00=8900+funnyrun;//solar_hour*60*60 + solar_min*60 + solar_sec;
+//          Sun.solar_angle=M_PI+M_PI*( (float)(seconds_since_00-map_sunrise_time)/map_sunlight_seconds);
+
+          //char printmee[128];
+          //sprintf(printmee,"%5.4f\ntimenow:%d\nsunrise:%d\nsunset:%d",Sun.solar_angle,seconds_since_00,map_sunrise_time,map_sunset_time);
+          //GrPrint(hdc,100,200,printmee,RED);
+
   //=================End of Test===================
-
-
   double drawoffset=-M_PI/2 + deg2rad(1.5);//deg2rad(2);
   //Draw Eclipse Seasons
   float eclipse_angle= -GetEclipseRadAngle(lunar_day,lunar_month,lunar_year) -  drawoffset;
@@ -780,6 +786,7 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
     { //within eclipse season
       if (lunar_day>=13 && lunar_day<=15) { //lunar eclipse
         current_moon_phase_id=7; //blood moon
+        is_blood_moon=TRUE;
       } else { // solar eclipse
         if (is_between(mcalendar_x,mcalendar_y,
                     pierogi_x1,pierogi_y1,
@@ -1317,14 +1324,14 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
       }
       if (!blank_level) {
         DrawPlatforms(hdc,hdc2);
-        if (solar_hour>6 && solar_hour<18) {
+        //if (map_sunrise_time<=seconds_since_00 && seconds_since_00<=map_sunset_time) {
           if (map_weather==0)
             DrawSunRays(hdc,hdc2);
-          else
+          else //rainy in day
            custom_map_background_color=RGB(35,35,35);
-        } else {
-          custom_map_background_color=BLACK;
-        }
+        //} else { //night palette
+          //custom_map_background_color=BLACK;
+        //}
         DrawFirePlatforms(hdc);
         DrawWebs(hdc);
         DrawEnemy(hdc,hdc2);

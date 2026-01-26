@@ -645,11 +645,11 @@ void InitStars() {
       Star.y[i]=(Star.y[i] * m)/MAX_STAR_Y;
 
       Star.dist_l[i]=GetDistance(0,0,Star.x[i]-Star.pivot_x,Star.y[i]-Star.pivot_y);//Calculate Dist from pivot to  Star
-      if (current_moon_phase_id!=-1) {
-        Star.angle[i]=atan2(Star.y[i]-Star.pivot_y,Star.x[i]-Star.pivot_x)-M_PI_4-(M_PI/8*(4-current_moon_phase_id));//GetCosAngle(Star.x[i]-Star.pivot_x,Star.dist_l[i]/2);
-      } else {
+      //if (current_moon_phase_id!=-1) {
+        //Star.angle[i]=atan2(Star.y[i]-Star.pivot_y,Star.x[i]-Star.pivot_x)-M_PI_4-(M_PI/8*(4-current_moon_phase_id));//GetCosAngle(Star.x[i]-Star.pivot_x,Star.dist_l[i]/2);
+      //} else {
         Star.angle[i]=atan2(Star.y[i]-Star.pivot_y,Star.x[i]-Star.pivot_x)-M_PI_4;//GetCosAngle(Star.x[i]-Star.pivot_x,Star.dist_l[i]/2);
-      }
+      //}
       Star.oangle[i]=Star.angle[i];
 
       Star.x[i]=Star.pivot_x+Star.dist_l[i]*cos(Star.angle[i]);

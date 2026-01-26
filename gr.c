@@ -839,6 +839,20 @@ void GrGlassRect(HDC hdc, HDC hdcMem, int x, int y, int width, int height, int C
     DeleteObject(hBitmap);
 }
 
+
+void GrGlassTexture(HDC hdc1, HBITMAP destBitmap, int x, int y, int width, int height, HDC hdc2, HBITMAP hBitmap,int x2, int y2, int width2, int height2, BYTE alpha) {
+    BLENDFUNCTION blendFunction;
+    blendFunction.BlendOp = AC_SRC_OVER;
+    blendFunction.BlendFlags = 0;
+    blendFunction.SourceConstantAlpha = alpha; // Transparency level (0-255)
+    blendFunction.AlphaFormat = 0;
+
+    SelectObject(hdc1, destBitmap);
+    SelectObject(hdc2, hBitmap);
+    // Use AlphaBlend to draw the transparent rectangle
+    AlphaBlend(hdc1, x, y, width, height, hdc2, x2, y2, width2, height2, blendFunction);
+}
+
 //https://github.com/ChuOkupai/rle-compression/blob/master/src/rle.c
 //https://stackoverflow.com/questions/55599268/creating-a-code-to-decompress-byte-oriented-rle-image
 //https://github.com/glampert/compression-algorithms/blob/master/rle.hpp

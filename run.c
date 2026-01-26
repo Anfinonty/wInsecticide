@@ -100,6 +100,7 @@ bool hide_cursor=FALSE;
 bool hide_mm=FALSE;
 bool flag_load_player_sprite=TRUE;
 bool flag_draw_game_background_sprite=FALSE;
+bool flag_draw_game_background_spriteII=FALSE;
 //Exit Flags
 //bool flag_exit_to_main_menu=FALSE;
 //bool flag_game_task_stopped=FALSE;
@@ -163,6 +164,12 @@ int GR_HEIGHT=480;
 int OLD_GR_WIDTH=640;
 int OLD_GR_HEIGHT=480;
 int MAX_RESOLUTION_I=1;
+
+int seconds_since_00=0;
+int map_sunrise_time=0;
+int map_sunset_time=0;
+int map_sunlight_seconds=0;
+
 
 //bool rst_mbutton=FALSE;
 int mouse_wheel_timer=0;
@@ -740,10 +747,11 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
               if (!player.time_breaker) {
                 CloudAct();
                 SunRayAct();
-                if (map_background==1 || Sun.eclipse_type==2) {
+                SunAct();
+                //if (map_background==1 || Sun.eclipse_type==2) {
                   StarAct();
                   ShootingStarAct();
-                }
+                //}
                 if (map_background==1)
                   MoonAct();
               }
@@ -1348,9 +1356,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           if (in_map_editor) {
             InitMERDGrid();
           }
+          flag_draw_game_background_spriteII=TRUE;
           if (flag_update_background) {
             flag_update_background=FALSE;
           }
+
           OLD_GR_WIDTH = GR_WIDTH;
           OLD_GR_HEIGHT = GR_HEIGHT;
 
@@ -1374,7 +1384,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
               if ((in_main_menu && !level_loading && !in_map_editor) || back_to_menu) {
                 //if (tmp_map_background_sprite==NULL) {  //custom overwrites regular
-                  if (solar_hour>6 && solar_hour<18) { //day
+                  if (map_sunrise_time<=seconds_since_00 && seconds_since_00<=map_sunset_time) { //day
                     if (map_weather!=0) {mb_val=2;} else {mb_val=0;}
                   } else {       //night
                     if (map_weather!=0) {mb_val=3;} else {mb_val=1;}
@@ -2143,6 +2153,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       large_entity_canvas=CreateCrunchyBitmap(200,-200);
       giant_entity_canvas=CreateCrunchyBitmap(256,-256);
 
+      bg_glass_layer=CreateCrunchyBitmap(SCREEN_WIDTH,SCREEN_HEIGHT);
+      //bg_glass_layer=CreateLargeBitmap(SCREEN_WIDTH,SCREEN_HEIGHT.global_screen_bits);
+      game_background_deco_sprite=CreateLargeBitmap(SCREEN_WIDTH,SCREEN_HEIGHT,global_screen_bits);
+
       wav_out_original_volume=VolumeValue(50,1); //set volume
       //waveOutGetVolume(hWaveOut[2],&wav_out_original_volume);
       //waveOutSetVolume(hWaveOut[6],wav_out_original_volume);
@@ -2477,6 +2491,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       printf("\n==================\n");
 
 
+      map_sunrise_time= (int)abs(timeh_rise*60*60);
+      map_sunset_time= (int)abs(timeh_set*60*60);
+      seconds_since_00=solar_hour*60*60 + solar_min*60 + solar_sec;
+      map_sunlight_seconds=map_sunset_time-map_sunrise_time;
+
+      /*printf("Sun Rise (s): %d\n",map_sunrise_time);
+      printf("Sun Set (s):  %d\n",map_sunset_time);
+      printf("Noon (s): %d\n",map_sunrise_time+map_sunlight_seconds/2);
+      printf("Total Time (s): %d\n",seconds_since_00);
+      printf("Time Since Sunlight(s): %d\n",seconds_since_00-map_sunrise_time);
+      printf("Total Sunlight (s): %d",map_sunlight_seconds);*/
+
       int num_char='*'; //hijri
       if (solar_month==1 && solar_day>=12 && solar_day<=19) {
         num_char='+';
@@ -2598,6 +2624,10 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       cloudgrey8bit_sprite_2=LoadRLE8CompressedBitmap(L"sprites/cloudsdkgrey8_2.bmp");
       cloudgrey8bit_sprite_1=LoadRLE8CompressedBitmap(L"sprites/cloudsdkgrey8_1.bmp");
 
+
+      //load 8bit red-black-gradient
+      red_black_gradient_bg_sprite=LoadRLE8CompressedBitmap(L"sprites/red_black_gradient.bmp");
+      white_gradient_bg_sprite=LoadRLE8CompressedBitmap(L"sprites/white_gradient.bmp");
 
       //water textures 0 to 7
       //SetTexturePalette(24,waterPalette); //24 is dkblue

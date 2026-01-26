@@ -281,7 +281,12 @@ float *player_float_pointer[S_PLAYER_FLOAT_NUM]=
 //Level Background Attributes
 //they are stored in this exact order
 int map_background; //0 day, //1 night-> night palette, //2 no background,
-int custom_map_background_color,custom_map_background_dkcolor,custom_map_background_color_i,custom_map_background_dkcolor_i;
+int custom_map_background_color,
+    custom_map_background_dkcolor,
+    //custom_map_background_dkcolor2,
+    custom_map_background_color_i,
+    custom_map_background_dkcolor_i;
+    //custom_map_background_dkcolor_i2;
 int is_moon;
 
 //int map_moon_phase=0;
