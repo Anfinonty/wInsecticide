@@ -174,6 +174,7 @@ void Init() { //Repeatable
   mem_snd_interrupt[5]=TRUE;
   waveOutReset(hWaveOut[5]);
 
+  flag_draw_game_background_spriteII=TRUE;
   if (!run_once_only) {
     run_once_only=TRUE;
   }
@@ -292,7 +293,7 @@ void InitLevel(bool load_lvl)
   if (load_lvl) { //not in main menu
     in_main_menu=FALSE;
   } else { //going to main menu
-    if (map_sunrise_time<=seconds_since_00 && seconds_since_00<=map_sunset_time) {
+    if (map_sunrise_time<=seconds_since_midnight && seconds_since_midnight<=map_sunset_time) {
       map_background=0;
     }
     int dice=abs(RandNum(0,100,&misc_rng_i,-1)); //random weather

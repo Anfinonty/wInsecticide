@@ -1289,6 +1289,7 @@ struct Sun
   int y;
   int pivot_x;
   int pivot_y;
+  int horizon_lvl;
   float dist_l;
   float angle;
   float solar_angle;
@@ -1376,12 +1377,13 @@ HBITMAP map_platforms_shadow_shader;
 
 
 //Red-black-gradient
+HBITMAP yellow_black_gradient_bg_sprite;
 HBITMAP red_black_gradient_bg_sprite;
 HBITMAP white_gradient_bg_sprite;
 
 //background transparent layer
 HBITMAP bg_glass_layer;
-
+HBITMAP bg_black_layer;
 
 //map background drawn
 HBITMAP game_background_deco_sprite;

@@ -82,6 +82,9 @@
 }*/
 //================================
 
+
+#define SUN_SIZE    32
+
 //=======Draw Stars===============
 void InitShootingStars()
 {
@@ -142,7 +145,27 @@ void StarAct()
 void DrawStars(HDC hdc)
 {
   //GrRect(hdc,0,0,GR_WIDTH+24,GR_HEIGHT+24,BLACK);  
-  for (int i=0;i<STAR_NUM;i++) {
+  int scnt=1;
+  switch (Sun.horizon_lvl) {
+    case -1:
+    default:
+      scnt=0;
+      break;
+    case 0: //emerging
+      scnt=8;
+      break;
+    case 1:
+      scnt=4;
+      break;
+    case 2:
+      scnt=2;
+      break;
+    case 3: //final stage
+      scnt=1;
+      break;
+  }
+
+  for (int i=0;i<STAR_NUM;i+=scnt) {
       int _x = Star.x[i];//(Star.x[i] * GR_WIDTH)/MAX_STAR_X;
       int _y = Star.y[i];//(Star.y[i] * GR_HEIGHT)/MAX_STAR_Y;
       if (Star.size[i]>0) {
@@ -347,7 +370,7 @@ void DrawClouds(HDC hdc, HDC hdc2)
   int clouds_type=0;
   if (map_weather>0)
     clouds_type=3;
-  else if (map_background==0 && Sun.y>GR_HEIGHT-GR_HEIGHT/3)
+  else if (map_background==0 && Sun.horizon_lvl!=-1)
     clouds_type=1;
   else if (map_background==1)
     clouds_type=1;
@@ -411,9 +434,23 @@ void InitSun()
 
   Sun.dist_l=GetDistance(Sun.x,Sun.y,Sun.pivot_x,Sun.pivot_y);
 
-  Sun.angle=GetCosAngle(Sun.x-Sun.pivot_x,Sun.dist_l);
+  //Sun.angle=GetCosAngle(Sun.x-Sun.pivot_x,Sun.dist_l);
 
-  Sun.solar_angle=M_PI+M_PI*( (float)(seconds_since_00-map_sunrise_time)/map_sunlight_seconds);
+  if (seconds_since_midnight>=map_sunrise_time && seconds_since_midnight<=map_sunset_time) {
+    //Sun angle at sunrise + Sun angle since sunrise
+    Sun.solar_angle=M_PI + M_PI*( (float)(seconds_since_midnight-map_sunrise_time)/map_sunlight_seconds);
+  } else {
+    //Sun angle at sunset + Sun angle since sunset, instead of map_sunlight_seconds its map_darkness seconds
+    if (seconds_since_midnight>=0 && seconds_since_midnight<map_sunrise_time) { //before sunrise, 00 00 -> sunrise time
+      Sun.solar_angle=2*M_PI + M_PI_2*( (float)(60*60*24-map_sunset_time)/(map_darkness_seconds/2)) + M_PI_2*( (float)(seconds_since_midnight)/(map_darkness_seconds/2));
+    } else { //after sunset
+      Sun.solar_angle=2*M_PI + M_PI_2*( (float)(seconds_since_midnight-map_sunset_time)/(map_darkness_seconds/2));
+    }
+  }
+
+  //Sun.angle=Sun.solar_angle; //Done by SunAct();
+  Sun.x=Sun.pivot_x+Sun.dist_l*cos(Sun.angle);
+  Sun.y=Sun.pivot_y+Sun.dist_l*sin(Sun.angle);
 
   //Sun.x=GR_WIDTH/2+GR_WIDTH/4-GR_WIDTH/8;//-GR_WIDTH/16*_ppx;//-mouse_x/50;
   //Sun.y=GR_HEIGHT/4+GR_HEIGHT/12;//-GR_HEIGHT/16*_ppy;//-mouse_y/50;
@@ -434,8 +471,9 @@ void InitSun()
     Sun.draw_ray_y[i]=Sun.y+l*sin(Sun.ray_angle[i]);
     //Sun.draw_ray_ox[i]=Sun.x+63*cos(Sun.ray_angle[i]);
     //Sun.draw_ray_oy[i]=Sun.y+63*sin(Sun.ray_angle[i]);
-    Sun.ray_x[i]=Sun.x+62*cos(Sun.ray_angle[i]);
-    Sun.ray_y[i]=Sun.y+62*sin(Sun.ray_angle[i]);
+    Sun.ray_x[i]=Sun.x+(SUN_SIZE+2)*cos(Sun.ray_angle[i]);
+    Sun.ray_y[i]=Sun.y+(SUN_SIZE+2)*sin(Sun.ray_angle[i]);
+    Sun.ray_is_blocked[i]=FALSE;
   }
 }
 
@@ -501,6 +539,9 @@ bool IsPixelColorAt16(BYTE* pixels, int width, int height, int x, int y, WORD ta
     // Compare the pixel color
     //return pixelColor == targetColor;
 //}
+#define TWILIGHT_ANGLE_CIVIL     deg2rad(6)
+#define TWILIGHT_ANGLE_NAUTICAL     deg2rad(12)
+#define TWILIGHT_ANGLE_ASTRONOMICAL     deg2rad(18)
 
 
 
@@ -519,8 +560,11 @@ void DrawSunRays(HDC hdc,HDC hdc2)
           break;
         case 2:
         case 4:
-          Sun.ray_is_blocked[Sun.current_sun_ray_i]=!IsPixelColorAt(publicScreenPixels, SCREEN_WIDTH,SCREEN_HEIGHT, Sun.ray_x[Sun.current_sun_ray_i], Sun.ray_y[Sun.current_sun_ray_i], BLACK); //crashing?
+          Sun.ray_is_blocked[Sun.current_sun_ray_i]=!IsPixelColorAt(publicScreenPixels, SCREEN_WIDTH,SCREEN_HEIGHT, Sun.ray_x[Sun.current_sun_ray_i], Sun.ray_y[Sun.current_sun_ray_i], BLACK);
           break;
+      }
+      if (!(Sun.ray_x[Sun.current_sun_ray_i]<=GR_WIDTH && Sun.ray_x[Sun.current_sun_ray_i]>=0 && Sun.ray_y[Sun.current_sun_ray_i]<GR_HEIGHT && Sun.ray_y[Sun.current_sun_ray_i]>=0)) { //not within, block rays
+        Sun.ray_is_blocked[Sun.current_sun_ray_i]=TRUE;
       }
     } else if (global_screen_bits==16) {
       uint16_t _color=byte_16_color_arr[rgbPaint_i[custom_map_background_color_i]]/2; //the returned value from the function below is half the true color, potential bug that needs to be resolved
@@ -535,6 +579,9 @@ void DrawSunRays(HDC hdc,HDC hdc2)
           break;
       }
       Sun.ray_is_blocked[Sun.current_sun_ray_i]=!IsPixelColorAt16(publicScreenPixels, SCREEN_WIDTH,SCREEN_HEIGHT, Sun.ray_x[Sun.current_sun_ray_i], Sun.ray_y[Sun.current_sun_ray_i], _color);
+      if (!(Sun.ray_x[Sun.current_sun_ray_i]<=GR_WIDTH && Sun.ray_x[Sun.current_sun_ray_i]>=0 && Sun.ray_y[Sun.current_sun_ray_i]<GR_HEIGHT && Sun.ray_y[Sun.current_sun_ray_i]>=0)) {
+        Sun.ray_is_blocked[Sun.current_sun_ray_i]=TRUE;
+      }
     }
 
 
@@ -649,24 +696,24 @@ void DrawSun(HDC hdc,HDC hdc2)
   //Sun.eclipse_type=<demo>;
   switch (Sun.eclipse_type) {
     case 1: //annular
-      GrCircle(hdc,Sun.x,Sun.y,60,LTRYELLOW,LTRYELLOW);
-      GrCircle(hdc,Sun.x,Sun.y,55,custom_map_background_dkcolor,custom_map_background_dkcolor);
+      GrCircle(hdc,Sun.x,Sun.y,SUN_SIZE,LTRYELLOW,LTRYELLOW);
+      GrCircle(hdc,Sun.x,Sun.y,SUN_SIZE-4,custom_map_background_dkcolor,custom_map_background_dkcolor);
       break;
     case 2: //total
-      GrCircle(hdc,Sun.x,Sun.y,62,WHITE,WHITE);
-      GrCircle(hdc,Sun.x,Sun.y,59,BLACK,BLACK);
+      GrCircle(hdc,Sun.x,Sun.y,SUN_SIZE+2,WHITE,WHITE);
+      GrCircle(hdc,Sun.x,Sun.y,SUN_SIZE-1,BLACK,BLACK);
       break;
     case 3: //partial-annular
-      GrCircle(hdc,Sun.x,Sun.y,60,LTRYELLOW,LTRYELLOW);
-      GrCircle(hdc,Sun.x-4,Sun.y-4,55,custom_map_background_dkcolor,custom_map_background_dkcolor);
+      GrCircle(hdc,Sun.x,Sun.y,SUN_SIZE,LTRYELLOW,LTRYELLOW);
+      GrCircle(hdc,Sun.x-4,Sun.y-4,SUN_SIZE-5,custom_map_background_dkcolor,custom_map_background_dkcolor);
       break;
     case 4: //partial-total
-      GrCircle(hdc,Sun.x,Sun.y,62,WHITE,WHITE);
-      GrCircle(hdc,Sun.x-4,Sun.y-4,59,BLACK,BLACK);
+      GrCircle(hdc,Sun.x,Sun.y,SUN_SIZE+2,WHITE,WHITE);
+      GrCircle(hdc,Sun.x-4,Sun.y-4,SUN_SIZE-1,BLACK,BLACK);
       break;
 
     default:
-      GrCircle(hdc,Sun.x,Sun.y,60,LTRYELLOW,LTRYELLOW);
+      GrCircle(hdc,Sun.x,Sun.y,SUN_SIZE,LTRYELLOW,LTRYELLOW);
       break;
   }
 }
@@ -681,6 +728,20 @@ void SunAct()
     for (int i=0;i<STAR_NUM;i++) {
       Star.angle[i]=Sun.angle+Star.oangle[i];
     }
+
+    //horizon lvl
+    if (Sun.angle>=M_PI+TWILIGHT_ANGLE_ASTRONOMICAL && Sun.angle<=2*M_PI-TWILIGHT_ANGLE_ASTRONOMICAL) { //none
+      Sun.horizon_lvl=-1;
+    //below horizon
+    } else if (Sun.angle<=2*M_PI+TWILIGHT_ANGLE_CIVIL || Sun.angle>=3*M_PI-TWILIGHT_ANGLE_CIVIL) {  //Civil
+      Sun.horizon_lvl=0;
+    } else if (Sun.angle<=2*M_PI+TWILIGHT_ANGLE_NAUTICAL || Sun.angle>=3*M_PI-TWILIGHT_ANGLE_NAUTICAL) { //nautical
+      Sun.horizon_lvl=1;
+    } else if (Sun.angle<=2*M_PI+TWILIGHT_ANGLE_ASTRONOMICAL || Sun.angle>=3*M_PI-TWILIGHT_ANGLE_ASTRONOMICAL) { //Astronomical
+      Sun.horizon_lvl=2;
+    } else { //Post Astronomical
+      Sun.horizon_lvl=3;
+    }
   }
   if (Sun.y<128) {
     Sun.y=128;
@@ -690,27 +751,12 @@ void SunAct()
 
 void SunRayAct()
 {
-    /*if (global_screen_bits==32) {
-      Sun.ray_is_blocked[Sun.current_sun_ray_i]=!IsPixelColorAt(publicScreenPixels, SCREEN_WIDTH,SCREEN_HEIGHT, Sun.ray_x[Sun.current_sun_ray_i], Sun.ray_y[Sun.current_sun_ray_i], custom_map_background_color);
-    } else if (global_screen_bits==16) {
-      uint16_t _color=byte_16_color_arr[rgbPaint_i[custom_map_background_color_i]]/2; //the returned value from the function below is hald the true color, potential bug that needs to be resolved
-      Sun.ray_is_blocked[Sun.current_sun_ray_i]=!IsPixelColorAt16(publicScreenPixels, SCREEN_WIDTH,SCREEN_HEIGHT, Sun.ray_x[Sun.current_sun_ray_i], Sun.ray_y[Sun.current_sun_ray_i], _color);
-    }
-
-
-    Sun.current_sun_ray_i++;
-    if (Sun.current_sun_ray_i>SUN_RAY_NUM-1) {
-      Sun.current_sun_ray_i=0;
-    }*/
-
-
-
   if (Sun.overcast_lvl==0 || Sun.eclipse_type>0) { 
-    Sun.ray_l[Sun.current_sun_i]=60+sun_ray_l[sun_rng_i];
+    Sun.ray_l[Sun.current_sun_i]=SUN_SIZE+sun_ray_l[sun_rng_i];
   } else if (Sun.overcast_lvl==1){
-    Sun.ray_l[Sun.current_sun_i]=60+sun_ray_l[sun_rng_i]*3;
+    Sun.ray_l[Sun.current_sun_i]=SUN_SIZE+sun_ray_l[sun_rng_i]*3;
   } else {
-    Sun.ray_l[Sun.current_sun_i]=60+sun_ray_l[sun_rng_i]*5;
+    Sun.ray_l[Sun.current_sun_i]=SUN_SIZE+sun_ray_l[sun_rng_i]*5;
   }
   //RandNum(0,max(GR_WIDTH/2,GR_HEIGHT/2),&sun_rng_i,-1);
   sun_rng_i++;
@@ -719,8 +765,8 @@ void SunRayAct()
 
   Sun.draw_ray_x[Sun.current_sun_i]=Sun.x+Sun.ray_l[Sun.current_sun_i]*cos(Sun.ray_angle[Sun.current_sun_i]);
   Sun.draw_ray_y[Sun.current_sun_i]=Sun.y+Sun.ray_l[Sun.current_sun_i]*sin(Sun.ray_angle[Sun.current_sun_i]);
-  Sun.ray_x[Sun.current_sun_i]=Sun.x+62*cos(Sun.ray_angle[Sun.current_sun_i]);
-  Sun.ray_y[Sun.current_sun_i]=Sun.y+62*sin(Sun.ray_angle[Sun.current_sun_i]);
+  Sun.ray_x[Sun.current_sun_i]=Sun.x+(SUN_SIZE+2)*cos(Sun.ray_angle[Sun.current_sun_i]);
+  Sun.ray_y[Sun.current_sun_i]=Sun.y+(SUN_SIZE+2)*sin(Sun.ray_angle[Sun.current_sun_i]);
 
   Sun.current_sun_i++;
   if (Sun.current_sun_i>SUN_RAY_NUM-1) {
@@ -855,67 +901,137 @@ void MoonAct()
 }
 
 
+/*
+  Draws -Background-background, runs once on start unless explicitly called.
+        -it is a large bitmap
+  https://www.astronomy.com/observing/twilights-glow-is-calling/
+
+  https://earthsky.org/earth/twilight-2/
+
+  (O)    > +18deg ->  no gradient
+
+
+
+          (O)   +18deg -> +12deg   Low gradient
+
+
+
+                  (O)   +12deg -> +6deg   Low gradient
+
+
+
+                          (O)   +6deg -> 0deg     Middle gradient
+
+
+
+                                 (O)   0 deg       Middle Gradient           CROSSING THE HORIZON
+_________________________________
+
+
+
+                          0deg -> -6deg     High gradient               CIVIL TWILIGHT
+
+
+
+                  -6deg -> -12deg     middle gradient           NAUTICAL TWILIGHT
+
+
+
+          -12deg -> -18deg   low gradient               ASTRONOMICAL TWILIGHT
+
+
+
+  <-18deg -> no gradient, night sky color
+
+*/
+
+
+
+//Sun at runrise = PI,
+//Sun at sunset = 2*PI
+
 
 void DrawGameBackgroundSpriteII(HDC hdc1,HDC hdc2)
 { //runs on level start or screen res change, more infrequent.
   HDC hdcBG=CreateCompatibleDC(hdc1);
-  int _h=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3;
+  //Black Layer
+  SelectObject(hdcBG,bg_black_layer);
+  GrRect(hdcBG,0,0,GR_WIDTH+4,GR_HEIGHT+4,BLACK);
 
   //sky with gradient
   //draw gradient to glass layer
   SelectObject(hdcBG,bg_glass_layer);
-  if (Sun.y>GR_HEIGHT-GR_HEIGHT/3) {
-    SelectObject(hdc2,red_black_gradient_bg_sprite);
-  } else {
+  if (!(Sun.solar_angle>=M_PI+TWILIGHT_ANGLE_ASTRONOMICAL && Sun.solar_angle<=2*M_PI-TWILIGHT_ANGLE_ASTRONOMICAL)) { //Sky dawn/dusk/twilight
+    if ((Sun.solar_angle>=2*M_PI-TWILIGHT_ANGLE_CIVIL && Sun.solar_angle<=2*M_PI+TWILIGHT_ANGLE_ASTRONOMICAL) || 
+        (Sun.solar_angle>=3*M_PI-TWILIGHT_ANGLE_ASTRONOMICAL) || 
+        (Sun.solar_angle<=M_PI+TWILIGHT_ANGLE_CIVIL)) //Below +civil
+      SelectObject(hdc2,red_black_gradient_bg_sprite);
+    else
+      SelectObject(hdc2,yellow_black_gradient_bg_sprite);
+  } else { //Sky Day
     SelectObject(hdc2,white_gradient_bg_sprite);
   }
   StretchBlt(hdcBG,0,0,GR_WIDTH,GR_HEIGHT,hdc2,0,0,800,600,SRCCOPY); //draw gradient to glass layer
 
   //draw clear sky
   SelectObject(hdc2,game_background_deco_sprite);
-  if (Sun.y<GR_HEIGHT+256) {
+  if (!(Sun.solar_angle>2*M_PI+TWILIGHT_ANGLE_NAUTICAL && Sun.solar_angle<3*M_PI-TWILIGHT_ANGLE_NAUTICAL)) { //above horizon and between sunlight hours
     switch (Sun.eclipse_type) {
     case 0:
     default:
       GrRect(hdc2,0,0,GR_WIDTH+24,GR_HEIGHT+24,custom_map_background_color);
-      if (Sun.y>GR_HEIGHT-GR_HEIGHT/3)
-        DrawStars(hdc2);
       break;
-    case 1:
+    case 1: //Annular Eclipse
     case 3:
       GrRect(hdc2,0,0,GR_WIDTH+24,GR_HEIGHT+24,custom_map_background_dkcolor);
-      if (Sun.y>GR_HEIGHT-GR_HEIGHT/3)
-        DrawStars(hdc2);
       break;
-    case 2:
+    case 2: //Total/Full Eclipse
     case 4:
       GrRect(hdc2,0,0,GR_WIDTH+24,GR_HEIGHT+24,BLACK);
-      DrawStars(hdc2);
       break;
     }
-  } else { //dawn/dusk
-    if (Sun.x>GR_WIDTH/2)
+  } else { //Sunrise/Sunsset
+    if (Sun.x>GR_WIDTH/2) //rising
       GrRect(hdc2,0,0,GR_WIDTH+24,GR_HEIGHT+24,RGB(0,0,24));
-    else
+    else //setting
       GrRect(hdc2,0,0,GR_WIDTH+24,GR_HEIGHT+24,BLACK);
-    DrawStars(hdc2);
   }
 
   //overlay gradient on glass layer over clear sky
   if (Sun.eclipse_type==0) {
-    if (Sun.y>GR_HEIGHT-GR_HEIGHT/3) { //dawn/dusk gradient
-      if (Sun.y<GR_HEIGHT+256) {  //above setting point
-        GrGlassTexture(hdc2, game_background_deco_sprite,0,0,GR_WIDTH,GR_HEIGHT,hdcBG, bg_glass_layer,0,0,GR_WIDTH,GR_HEIGHT, 128+8);
-      } else { //dawn/dusk gradient moving downwards
-        if (Sun.y<GR_HEIGHT+512) {
-          int alpha=128+8;
-            alpha-=(Sun.y-(GR_HEIGHT+256))*2;
-          if (alpha<0)
-            alpha=0;
-          GrGlassTexture(hdc2, game_background_deco_sprite,0,abs(GR_HEIGHT+256-Sun.y),GR_WIDTH,GR_HEIGHT,hdcBG, bg_glass_layer,0,0,GR_WIDTH,GR_HEIGHT, alpha);
-        }
-      } 
+    if (
+      !(Sun.solar_angle>=M_PI+TWILIGHT_ANGLE_ASTRONOMICAL && Sun.solar_angle<=2*M_PI-TWILIGHT_ANGLE_ASTRONOMICAL)
+    ) { //dawn/dusk gradient
+      int alpha=0;
+      switch (Sun.horizon_lvl) {
+        case -1:
+        default:
+          alpha=-1;
+          break;
+        case 0:
+          alpha=136;
+          break;
+        case 1:
+          alpha=136;
+          break;
+        case 2:
+          alpha=136;
+          break;
+        case 3:
+          alpha=136;
+          break;
+      }
+      if (alpha>0) {
+        int the=-GR_HEIGHT+Sun.y+SUN_SIZE*8;
+
+        GrGlassTexture(hdc2, game_background_deco_sprite,0,0,GR_WIDTH,the-SUN_SIZE*2,hdcBG, bg_black_layer,0,0,GR_WIDTH,the, alpha/2);
+        GrGlassTexture(hdc2, game_background_deco_sprite,0,the,GR_WIDTH,GR_HEIGHT,hdcBG, bg_glass_layer,0,0,GR_WIDTH,GR_HEIGHT, alpha/2);
+
+        GrGlassTexture(hdc2, game_background_deco_sprite,0,0,GR_WIDTH,the,hdcBG, bg_black_layer,0,0,GR_WIDTH,the, alpha/2);
+        GrGlassTexture(hdc2, game_background_deco_sprite,0,the-SUN_SIZE*2,GR_WIDTH,GR_HEIGHT,hdcBG, bg_glass_layer,0,0,GR_WIDTH,GR_HEIGHT, alpha/2);
+      }
     } else { //day gradient
+      int _h=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3;
       if (Sun.y+64<_h) { //day gradient moving downwards
         GrGlassTexture(hdc2, game_background_deco_sprite,0,_h,GR_WIDTH,GR_HEIGHT-_h,
                       hdcBG, bg_glass_layer,             0,0,        GR_WIDTH,GR_HEIGHT, 64);
@@ -936,6 +1052,27 @@ void DrawGameBackgroundSprite(HDC hdcMain,HDC hdc2)
   SelectObject(hdcBG,game_background_sprite);
   SelectObject(hdc2,game_background_deco_sprite);
   BitBlt(hdcBG,0,0,GR_WIDTH,GR_HEIGHT,hdc2,0,0,SRCCOPY);
+
+  //Draw Stars
+  if (Sun.solar_angle>=M_PI+TWILIGHT_ANGLE_CIVIL && Sun.solar_angle<=2*M_PI-TWILIGHT_ANGLE_CIVIL) {
+    switch (Sun.eclipse_type) {
+      /*case 0:
+      default:
+        if (Sun.y>GR_HEIGHT-GR_HEIGHT/3)
+          DrawStars(hdcBG);
+        break;*/
+      case 1: //Annular Eclipse
+      case 3:
+          DrawStars(hdcBG);
+        break;
+      case 2: //Total/Full Eclipse
+      case 4:
+        DrawStars(hdcBG);
+        break;
+      }
+  } else { //dawn/dusk
+    DrawStars(hdcBG);
+  }
 
   //Draw Day Moon
   int day_moon_phase_id=0;
@@ -973,6 +1110,7 @@ void DrawGameBackgroundSprite(HDC hdcMain,HDC hdc2)
   } else { // New Moon, no stars
     day_moon_phase_id-1;
   }
+
 
   if (lunar_day>=1 && lunar_day<=26 && day_moon_phase_id>=0 && day_moon_phase_id<=7) {
     DrawGameMoon.phase_range_x[0]=GR_WIDTH-GR_WIDTH/8;
@@ -1031,6 +1169,15 @@ void DrawGameBackgroundSprite(HDC hdcMain,HDC hdc2)
       }
     }
 
+    //Back of moon during sunset
+    /*if (Sun.y>=GR_HEIGHT+GR_HEIGHT/7) {
+      if (Sun.x>GR_WIDTH/2) { //sun-set
+        GrCircle(hdcBG,day_moon_x,day_moon_y,28,RGB(0,0,24),RGB(0,0,24));
+      } else {
+        GrCircle(hdcBG,day_moon_x,day_moon_y,28,custom_map_background_color,custom_map_background_color);
+      }
+    }*/
+
     if (day_moon_angle_id!=-1) {
       BITMAP bm;
       GetObject(Moon[day_moon_phase_id].draw_moon_sprite[day_moon_angle_id].sprite_paint,sizeof(BITMAP),&bm);
@@ -1039,7 +1186,6 @@ void DrawGameBackgroundSprite(HDC hdcMain,HDC hdc2)
       BitBlt(hdcBG,day_moon_x-size/2,day_moon_y-size/2,size,size,hdc2,0,0,SRCPAINT);
     }
 
-    //GrCircle(hdcBG,day_moon_x,day_moon_y,24,LTRED,LTRED); //debug
   }
   //End of Draw Day Moon
 
@@ -1048,9 +1194,7 @@ void DrawGameBackgroundSprite(HDC hdcMain,HDC hdc2)
   if (map_weather==0 && map_background==0)
     DrawSun(hdcBG,hdc2);
 
-  //if (Sun.y>GR_HEIGHT/2)
-    //DrawStars(hdcBG)
-  
+  //Draw Clouds
   DrawClouds(hdcBG,hdc2);
 
   DeleteDC(hdcBG);
@@ -1094,35 +1238,36 @@ void DrawBackground(HDC hdc,HDC hdc2)
   int draw_p_px=(int)parralax_x;
   int draw_p_py=(int)parralax_y;
 
-
+  int dbg_height=GR_HEIGHT;
+  if (GR_HEIGHT>SCREEN_HEIGHT-1);
+    dbg_height=SCREEN_HEIGHT-1;
   switch (map_background) {
-    case 0:
+    case 0: //day and night
       if (flag_draw_game_background_spriteII) {
         DrawGameBackgroundSpriteII(hdc,hdc2);
-        //DrawGameBackgroundSprite(hdc,hdc2);
         flag_draw_game_background_spriteII=FALSE;
       }
-      if (flag_draw_game_background_sprite) { //Refresh background, runs when timer hits 15, delayed for speed
+      if (flag_draw_game_background_sprite) { //Refresh background, runs when timer hits 15, delayed for speed        
         //DrawGameBackgroundSpriteII(hdc,hdc2); //debug only
         DrawGameBackgroundSprite(hdc,hdc2);
         flag_draw_game_background_sprite=FALSE;
       }
-      FastDrawTexturedRect(publicScreenPixels,SCREEN_WIDTH,publicBackgroundPixels,GR_WIDTH,GR_HEIGHT,global_screen_bits);//(publicScreenPixels,0,0,GR_WIDTH,GR_HEIGHT,publicBackgroundPixels,SCREEN_WIDTH,GR_HEIGHT,global_screen_bits);
+      FastDrawTexturedRect(publicScreenPixels,SCREEN_WIDTH,publicBackgroundPixels,GR_WIDTH,dbg_height,global_screen_bits);
+
       break;
     case 1: //night
      // GrRect(hdc,0,0,GR_WIDTH+24,GR_HEIGHT+24,custom_map_background_color);
       if (flag_draw_game_background_spriteII) {
         DrawGameBackgroundSpriteII(hdc,hdc2);
-        //DrawGameBackgroundSprite(hdc,hdc2);
         flag_draw_game_background_spriteII=FALSE;
       }
       if (flag_draw_game_background_sprite) { //Refresh background, runs when timer hits 15, delayed for speed
         DrawGameBackgroundSprite(hdc,hdc2);
         flag_draw_game_background_sprite=FALSE;
       }
-      FastDrawTexturedRect(publicScreenPixels,SCREEN_WIDTH,publicBackgroundPixels,GR_WIDTH,GR_HEIGHT,global_screen_bits);//(publicScreenPixels,0,0,GR_WIDTH,GR_HEIGHT,publicBackgroundPixels,SCREEN_WIDTH,GR_HEIGHT,global_screen_bits);
+      FastDrawTexturedRect(publicScreenPixels,SCREEN_WIDTH,publicBackgroundPixels,GR_WIDTH,dbg_height,global_screen_bits);
 
-      DrawStars(hdc);
+      //DrawStars(hdc);
       /*char printme[32];
       sprintf(printme,"lunar_angle:%5.4f",MoonAngle[current_moon_phase_id].lunar_angle);
       GrPrint(hdc,200,200,printme,WHITE);
@@ -1147,7 +1292,7 @@ void DrawBackground(HDC hdc,HDC hdc2)
 
 
   //Draw shooting stars
-  if (map_background==1) {
+  if ((map_background==0 && Sun.y>=GR_HEIGHT+GR_HEIGHT/7) || map_background==1) {
     for (int i=0;i<SSTAR_NUM;i++) {
       if (SStar[i].lifetime>0) {
         GrCircle(hdc,SStar[i].x-GR_WIDTH/16*_ppx,SStar[i].y-GR_HEIGHT/16*_ppy,1,WHITE,WHITE);
@@ -1158,7 +1303,7 @@ void DrawBackground(HDC hdc,HDC hdc2)
 
   //draw night moon
    if (
-        ((!in_main_menu || (in_main_menu && map_weather==0 && !(map_sunrise_time<=seconds_since_00 && seconds_since_00<=map_sunset_time))) &&
+        ((!in_main_menu || (in_main_menu && map_weather==0 && !(map_sunrise_time<=seconds_since_midnight && seconds_since_midnight<=map_sunset_time))) &&
          ((
            !(map_background>=2 && map_background<=3) && 
            is_moon && 

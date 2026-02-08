@@ -165,11 +165,11 @@ int OLD_GR_WIDTH=640;
 int OLD_GR_HEIGHT=480;
 int MAX_RESOLUTION_I=1;
 
-int seconds_since_00=0;
+int seconds_since_midnight=0;
 int map_sunrise_time=0;
 int map_sunset_time=0;
 int map_sunlight_seconds=0;
-
+int map_darkness_seconds=0;
 
 //bool rst_mbutton=FALSE;
 int mouse_wheel_timer=0;
@@ -624,7 +624,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
         flag_draw_task_stopped=FALSE;
         flag_sound_task_stopped=FALSE;
         //printf("all exit flags set to false, initialize level..\n"); //Debug
-        InitLevel(FALSE);
+        InitLevel(FALSE); //go back to main menu
       } else if (flag_load_level) { //'/n' from main menu
         //printf("cleanup level to load level...\n"); //Debug
         if (blank_level) {
@@ -637,7 +637,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
         flag_game_task_stopped=FALSE;
         flag_draw_task_stopped=FALSE;
         flag_sound_task_stopped=FALSE;
-        InitLevel(TRUE);
+        InitLevel(TRUE); //load selected level
       } else if (flag_load_melevel) { //'3' from main_menu
         if (blank_level) {
           CleanUpBlankLevel();
@@ -690,7 +690,9 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
 
             if (!player.time_breaker) {
               CloudAct();
-              if (Sun.eclipse_type==2 || map_background==1) {
+              //SunRayAct(); //See: song.c
+              SunAct();
+              if (Sun.eclipse_type==2 || map_background==1 || map_background==0) {
                 StarAct();
                 ShootingStarAct();
               }
@@ -752,8 +754,8 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
                   StarAct();
                   ShootingStarAct();
                 //}
-                if (map_background==1)
-                  MoonAct();
+                //if (map_background==1)
+                  //MoonAct();
               }
               if (map_weather>0) {
                 RainAct();
@@ -1334,15 +1336,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
         if (GR_WIDTH!=OLD_GR_WIDTH || GR_HEIGHT!=OLD_GR_HEIGHT || flag_update_background) { //change in background res
           if (!in_map_editor) {
-            //InitPlayerCamera(player.saved_x,player.saved_y);
-            //player.cam_x=0;
-            //player.cam_y=0;
             player.cam_limiter_x=0;
             player.cam_limiter_y=0;
             CameraInit(player.x+player.cam_x,player.y+player.cam_y);
             PlayerCameraLimiterBorder();
           }
-          flag_draw_game_background_sprite=TRUE;
           InitRDGrid();
           InitClouds();
           InitSun();
@@ -1356,10 +1354,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           if (in_map_editor) {
             InitMERDGrid();
           }
-          flag_draw_game_background_spriteII=TRUE;
           if (flag_update_background) {
             flag_update_background=FALSE;
           }
+          flag_draw_game_background_spriteII=TRUE;
+          flag_draw_game_background_sprite=TRUE;
 
           OLD_GR_WIDTH = GR_WIDTH;
           OLD_GR_HEIGHT = GR_HEIGHT;
@@ -1384,7 +1383,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
               if ((in_main_menu && !level_loading && !in_map_editor) || back_to_menu) {
                 //if (tmp_map_background_sprite==NULL) {  //custom overwrites regular
-                  if (map_sunrise_time<=seconds_since_00 && seconds_since_00<=map_sunset_time) { //day
+                  if (map_sunrise_time<=seconds_since_midnight && seconds_since_midnight<=map_sunset_time) { //day
                     if (map_weather!=0) {mb_val=2;} else {mb_val=0;}
                   } else {       //night
                     if (map_weather!=0) {mb_val=3;} else {mb_val=1;}
@@ -2154,6 +2153,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       giant_entity_canvas=CreateCrunchyBitmap(256,-256);
 
       bg_glass_layer=CreateCrunchyBitmap(SCREEN_WIDTH,SCREEN_HEIGHT);
+      bg_black_layer=CreateCrunchyBitmap(SCREEN_WIDTH,SCREEN_HEIGHT);
       //bg_glass_layer=CreateLargeBitmap(SCREEN_WIDTH,SCREEN_HEIGHT.global_screen_bits);
       game_background_deco_sprite=CreateLargeBitmap(SCREEN_WIDTH,SCREEN_HEIGHT,global_screen_bits);
 
@@ -2491,16 +2491,17 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       printf("\n==================\n");
 
 
-      map_sunrise_time= (int)abs(timeh_rise*60*60);
-      map_sunset_time= (int)abs(timeh_set*60*60);
-      seconds_since_00=solar_hour*60*60 + solar_min*60 + solar_sec;
+      map_sunrise_time= (int)abs(timeh_rise*60*60) + (int)fmod(60*timeh_rise,60)*60;
+      map_sunset_time= (int)abs(timeh_set*60*60) + (int)fmod(60*timeh_set,60)*60;
+      seconds_since_midnight=solar_hour*60*60 + solar_min*60 + solar_sec;
       map_sunlight_seconds=map_sunset_time-map_sunrise_time;
+      map_darkness_seconds=60*60*24 - map_sunlight_seconds;
 
       /*printf("Sun Rise (s): %d\n",map_sunrise_time);
       printf("Sun Set (s):  %d\n",map_sunset_time);
       printf("Noon (s): %d\n",map_sunrise_time+map_sunlight_seconds/2);
-      printf("Total Time (s): %d\n",seconds_since_00);
-      printf("Time Since Sunlight(s): %d\n",seconds_since_00-map_sunrise_time);
+      printf("Total Time (s): %d\n",seconds_since_midnight);
+      printf("Time Since Sunlight(s): %d\n",seconds_since_midnight-map_sunrise_time);
       printf("Total Sunlight (s): %d",map_sunlight_seconds);*/
 
       int num_char='*'; //hijri
@@ -2626,8 +2627,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
       //load 8bit red-black-gradient
-      red_black_gradient_bg_sprite=LoadRLE8CompressedBitmap(L"sprites/red_black_gradient.bmp");
-      white_gradient_bg_sprite=LoadRLE8CompressedBitmap(L"sprites/white_gradient.bmp");
+      yellow_black_gradient_bg_sprite=LoadRLE8CompressedBitmap(L"sprites/gradient_orange_red.bmp");
+      red_black_gradient_bg_sprite=LoadRLE8CompressedBitmap(L"sprites/gradient_red_black.bmp");
+      white_gradient_bg_sprite=LoadRLE8CompressedBitmap(L"sprites/gradient_white_gray.bmp");
 
       //water textures 0 to 7
       //SetTexturePalette(24,waterPalette); //24 is dkblue
