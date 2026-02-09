@@ -2981,7 +2981,7 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
     /*for (int i=0;i<9;i++) {
       BitmapPalette(hdc,hdc2,texture_water[i],waterPalette);
     }*/
-    for (int i=0;i<PLATFORM_GRID_NUM;i++) {
+    /*for (int i=0;i<PLATFORM_GRID_NUM;i++) {
       if (map_background!=1) {
         if (map_weather==0)
           BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsDefault);
@@ -2990,11 +2990,11 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
       } else {
         BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsNight);
       }
-    }
+    }*/
     /*for (int i=0;i<FOREGROUND_GRID_NUM;i++) {
       BitmapPalette(hdc,hdc2,TileMapForeground[i]->sprite_paint,rgbColorsDefault);
     }*/
-
+    Sun.flag_overcast=TRUE;
     player.flag_revert_palette=FALSE;
     player.time_breaker_tick=0;
   }

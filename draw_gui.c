@@ -513,7 +513,7 @@ int is_between(double cx, double cy,
 
 
 
-//int64_t funnyrun=0;
+int64_t funnyrun=0;
 void DrawPersianClock(HDC hdc,HDC hdc2)
 {
   //Moon Pos
@@ -624,40 +624,52 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
 
       //Sun-rise-set testing
       /*funnyrun+=60;
+      //int64_t timenow=1782787200+funnyrun;
       int64_t timenow=1770478973+funnyrun;
       PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);
       PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);
+
       sun_ctx_t sun_riseset;
       sun_riseset.in_latitude  = -31.9514;
       sun_riseset.in_longitude = 115.8617;
       double utc_offset=8;
+
       sun_compute(&sun_riseset,&planet_earth,solar_day,solar_month,solar_year);
+
       double prise=sun_riseset.out_sunrise_mins/60;
       double pset=sun_riseset.out_sunset_mins/60;
       double timeh_rise=utc_offset+prise;
       double timeh_set =utc_offset+pset;
+
       map_sunrise_time= (int)abs(timeh_rise*60*60) + (int)fmod(60*timeh_rise,60)*60;
       map_sunset_time= (int)abs(timeh_set*60*60) + (int)fmod(60*timeh_set,60)*60;
+
       seconds_since_midnight=solar_hour*60*60 + solar_min*60 + solar_sec;
+
       map_sunlight_seconds=map_sunset_time-map_sunrise_time;
-      map_darkness_seconds=60*60*24 - map_sunlight_seconds;
+
+      map_darkness_seconds=60*60*24-map_sunlight_seconds;
+
+
+
 
       if (seconds_since_midnight>=map_sunrise_time && seconds_since_midnight<=map_sunset_time) {
         //Sun angle at sunrise + Sun angle since sunrise
         Sun.solar_angle=M_PI + M_PI*( (float)(seconds_since_midnight-map_sunrise_time)/map_sunlight_seconds);
       } else {
         //Sun angle at sunset + Sun angle since sunset, instead of map_sunlight_seconds its map_darkness seconds
-        if (seconds_since_midnight>=0 && seconds_since_midnight<map_sunrise_time) { //before sunrise, 00 00 -> sunrise time
-          Sun.solar_angle=2*M_PI + M_PI_2*( (float)(60*60*24-map_sunset_time)/(map_darkness_seconds/2)) + M_PI_2*( (float)(seconds_since_midnight)/(map_darkness_seconds/2));
-        } else { //after sunset
-          Sun.solar_angle=2*M_PI + M_PI_2*( (float)(seconds_since_midnight-map_sunset_time)/(map_darkness_seconds/2));
+        if (seconds_since_midnight>=0 && seconds_since_midnight<map_sunrise_time) { //before sunrise, midnight -> sunrise time
+          //sometimes the lunar hijri moves a day ahead during midnight causing a shift scratch-back
+          Sun.solar_angle=2*M_PI + M_PI*( (float)((60*60*24-map_sunset_time)+seconds_since_midnight)/(map_darkness_seconds));
+        } else { //after sunset, before midnight
+          Sun.solar_angle=2*M_PI + M_PI*( (float)(seconds_since_midnight-map_sunset_time)/(map_darkness_seconds));
         }
       }
 
       //Sun.angle=Sun.solar_angle; //done by sunact()
       Sun.x=Sun.pivot_x+Sun.dist_l*cos(Sun.angle);
-      Sun.y=Sun.pivot_y+Sun.dist_l*sin(Sun.angle);*/
-
+      Sun.y=Sun.pivot_y+Sun.dist_l*sin(Sun.angle);
+*/
       //flag_update_background=TRUE;
       //flag_draw_game_background_spriteII=TRUE;
 

@@ -370,7 +370,7 @@ void DrawClouds(HDC hdc, HDC hdc2)
   int clouds_type=0;
   if (map_weather>0)
     clouds_type=3;
-  else if (map_background==0 && Sun.horizon_lvl!=-1)
+  else if (map_background==0 && !(Sun.horizon_lvl>=-1 && Sun.horizon_lvl<=0))
     clouds_type=1;
   else if (map_background==1)
     clouds_type=1;
@@ -435,7 +435,6 @@ void InitSun()
   Sun.dist_l=GetDistance(Sun.x,Sun.y,Sun.pivot_x,Sun.pivot_y);
 
   //Sun.angle=GetCosAngle(Sun.x-Sun.pivot_x,Sun.dist_l);
-
   if (seconds_since_midnight>=map_sunrise_time && seconds_since_midnight<=map_sunset_time) {
     //Sun angle at sunrise + Sun angle since sunrise
     Sun.solar_angle=M_PI + M_PI*( (float)(seconds_since_midnight-map_sunrise_time)/map_sunlight_seconds);
@@ -449,14 +448,8 @@ void InitSun()
   }
 
   //Sun.angle=Sun.solar_angle; //Done by SunAct();
-  Sun.x=Sun.pivot_x+Sun.dist_l*cos(Sun.angle);
-  Sun.y=Sun.pivot_y+Sun.dist_l*sin(Sun.angle);
-
-  //Sun.x=GR_WIDTH/2+GR_WIDTH/4-GR_WIDTH/8;//-GR_WIDTH/16*_ppx;//-mouse_x/50;
-  //Sun.y=GR_HEIGHT/4+GR_HEIGHT/12;//-GR_HEIGHT/16*_ppy;//-mouse_y/50;
-
-  //Sun.x=GR_WIDTH/2;//-GR_WIDTH/16*_ppx;//-mouse_x/50;
-  //Sun.y=GR_HEIGHT/4;//-GR_HEIGHT/16*_ppy;//-mouse_y/50;
+  Sun.x=Sun.pivot_x+Sun.dist_l*cos(Sun.solar_angle);
+  Sun.y=Sun.pivot_y+Sun.dist_l*sin(Sun.solar_angle);
 
   Sun.flag_overcast=TRUE;
 
@@ -617,19 +610,21 @@ void DrawSunRays(HDC hdc,HDC hdc2)
 
     if (Sun.flag_move_cycle==2) {
       if (Sun.eclipse_type==0) {
-        if (Sun.overcast_lvl!=4 && Sun.rays_visible_num<=0 && Sun.y+32>=GR_HEIGHT-GR_HEIGHT/3) {
+        if (Sun.overcast_lvl!=4 && Sun.rays_visible_num<=0 && Sun.horizon_lvl>=2) { //nighttime
           Sun.overcast_lvl=4;
           Sun.flag_overcast=TRUE;
-        } else if (Sun.overcast_lvl!=3 && Sun.rays_visible_num<=3 && Sun.y+32<GR_HEIGHT-GR_HEIGHT/3) { //darkest
+        } else if (Sun.overcast_lvl!=3 && ((Sun.rays_visible_num<=3 && Sun.horizon_lvl==-1) || (Sun.horizon_lvl==1))) { //darkest
           Sun.overcast_lvl=3;
           Sun.flag_overcast=TRUE;
-        } else if (Sun.overcast_lvl!=2 && Sun.rays_visible_num>=8 && Sun.rays_visible_num<=12) {//darker
+        } else if (Sun.overcast_lvl!=2 && 
+            ((Sun.rays_visible_num>=8 && Sun.rays_visible_num<=12 && Sun.horizon_lvl==-1) || (Sun.horizon_lvl==0))
+        ) {//darker
           Sun.overcast_lvl=2;
           Sun.flag_overcast=TRUE;
-        } else if (Sun.overcast_lvl!=1 && Sun.rays_visible_num>=20 && Sun.rays_visible_num<=SUN_RAY_NUM*2-6) { //dark
+        } else if (Sun.overcast_lvl!=1 && Sun.rays_visible_num>=20 && Sun.rays_visible_num<=SUN_RAY_NUM*2-6 && Sun.horizon_lvl==-1) { //dark
           Sun.overcast_lvl=1;
           Sun.flag_overcast=TRUE;    
-        } else if (Sun.overcast_lvl!=0 && Sun.rays_visible_num>SUN_RAY_NUM*2-2) { //brightest
+        } else if (Sun.overcast_lvl!=0 && Sun.rays_visible_num>SUN_RAY_NUM*2-2 && Sun.horizon_lvl==-1) { //brightest
           Sun.overcast_lvl=0;
           Sun.flag_overcast=TRUE;
         }
@@ -730,18 +725,19 @@ void SunAct()
     }
 
     //horizon lvl
-    if (Sun.angle>=M_PI+TWILIGHT_ANGLE_ASTRONOMICAL && Sun.angle<=2*M_PI-TWILIGHT_ANGLE_ASTRONOMICAL) { //none
+    if (Sun.angle>=M_PI+TWILIGHT_ANGLE_ASTRONOMICAL && Sun.angle<=2*M_PI-TWILIGHT_ANGLE_ASTRONOMICAL) { //none,lightest
       Sun.horizon_lvl=-1;
     //below horizon
-    } else if (Sun.angle<=2*M_PI+TWILIGHT_ANGLE_CIVIL || Sun.angle>=3*M_PI-TWILIGHT_ANGLE_CIVIL) {  //Civil
+    } else if (Sun.angle<=2*M_PI+TWILIGHT_ANGLE_CIVIL || Sun.angle>=3*M_PI-TWILIGHT_ANGLE_CIVIL) {  //Civil, light
       Sun.horizon_lvl=0;
     } else if (Sun.angle<=2*M_PI+TWILIGHT_ANGLE_NAUTICAL || Sun.angle>=3*M_PI-TWILIGHT_ANGLE_NAUTICAL) { //nautical
       Sun.horizon_lvl=1;
     } else if (Sun.angle<=2*M_PI+TWILIGHT_ANGLE_ASTRONOMICAL || Sun.angle>=3*M_PI-TWILIGHT_ANGLE_ASTRONOMICAL) { //Astronomical
       Sun.horizon_lvl=2;
-    } else { //Post Astronomical
+    } else { //Post Astronomical , darkest
       Sun.horizon_lvl=3;
     }
+    flag_draw_game_background_spriteII=TRUE;
   }
   if (Sun.y<128) {
     Sun.y=128;
@@ -956,15 +952,17 @@ void DrawGameBackgroundSpriteII(HDC hdc1,HDC hdc2)
   HDC hdcBG=CreateCompatibleDC(hdc1);
   //Black Layer
   SelectObject(hdcBG,bg_black_layer);
-  GrRect(hdcBG,0,0,GR_WIDTH+4,GR_HEIGHT+4,BLACK);
+  GrRect(hdcBG,0,0,GR_WIDTH+4,GR_HEIGHT/2,BLACK);
+  //GrRect(hdcBG,0,GR_HEIGHT/2,GR_WIDTH+4,GR_HEIGHT/2+4,YELLOW);
 
   //sky with gradient
   //draw gradient to glass layer
   SelectObject(hdcBG,bg_glass_layer);
   if (!(Sun.solar_angle>=M_PI+TWILIGHT_ANGLE_ASTRONOMICAL && Sun.solar_angle<=2*M_PI-TWILIGHT_ANGLE_ASTRONOMICAL)) { //Sky dawn/dusk/twilight
-    if ((Sun.solar_angle>=2*M_PI-TWILIGHT_ANGLE_CIVIL && Sun.solar_angle<=2*M_PI+TWILIGHT_ANGLE_ASTRONOMICAL) || 
+    /*if ((Sun.solar_angle>=2*M_PI-TWILIGHT_ANGLE_CIVIL && Sun.solar_angle<=2*M_PI+TWILIGHT_ANGLE_ASTRONOMICAL) || 
         (Sun.solar_angle>=3*M_PI-TWILIGHT_ANGLE_ASTRONOMICAL) || 
-        (Sun.solar_angle<=M_PI+TWILIGHT_ANGLE_CIVIL)) //Below +civil
+        (Sun.solar_angle<=M_PI+TWILIGHT_ANGLE_CIVIL))*/ //Below +civil
+    if (Sun.horizon_lvl>=1)
       SelectObject(hdc2,red_black_gradient_bg_sprite);
     else
       SelectObject(hdc2,yellow_black_gradient_bg_sprite);
@@ -975,22 +973,23 @@ void DrawGameBackgroundSpriteII(HDC hdc1,HDC hdc2)
 
   //draw clear sky
   SelectObject(hdc2,game_background_deco_sprite);
-  if (!(Sun.solar_angle>2*M_PI+TWILIGHT_ANGLE_NAUTICAL && Sun.solar_angle<3*M_PI-TWILIGHT_ANGLE_NAUTICAL)) { //above horizon and between sunlight hours
+  //if (!(Sun.solar_angle>2*M_PI+TWILIGHT_ANGLE_NAUTICAL && Sun.solar_angle<3*M_PI-TWILIGHT_ANGLE_NAUTICAL)) { //above horizon and between sunlight hours
+  if (Sun.horizon_lvl!=3) {
     switch (Sun.eclipse_type) {
-    case 0:
-    default:
-      GrRect(hdc2,0,0,GR_WIDTH+24,GR_HEIGHT+24,custom_map_background_color);
-      break;
-    case 1: //Annular Eclipse
-    case 3:
-      GrRect(hdc2,0,0,GR_WIDTH+24,GR_HEIGHT+24,custom_map_background_dkcolor);
-      break;
-    case 2: //Total/Full Eclipse
-    case 4:
-      GrRect(hdc2,0,0,GR_WIDTH+24,GR_HEIGHT+24,BLACK);
-      break;
+      case 0:
+      default:
+        GrRect(hdc2,0,0,GR_WIDTH+24,GR_HEIGHT+24,custom_map_background_color);
+        break;
+      case 1: //Annular Eclipse
+      case 3:
+        GrRect(hdc2,0,0,GR_WIDTH+24,GR_HEIGHT+24,custom_map_background_dkcolor);
+        break;
+      case 2: //Total/Full Eclipse
+      case 4:
+        GrRect(hdc2,0,0,GR_WIDTH+24,GR_HEIGHT+24,BLACK);
+        break;
     }
-  } else { //Sunrise/Sunsset
+  } else { //Night
     if (Sun.x>GR_WIDTH/2) //rising
       GrRect(hdc2,0,0,GR_WIDTH+24,GR_HEIGHT+24,RGB(0,0,24));
     else //setting
@@ -1009,7 +1008,8 @@ void DrawGameBackgroundSpriteII(HDC hdc1,HDC hdc2)
           alpha=-1;
           break;
         case 0:
-          alpha=136;
+          //alpha=136/3; //nice yellow clouds
+          alpha=136/3+16; //nice yellow clouds
           break;
         case 1:
           alpha=136;
@@ -1018,17 +1018,31 @@ void DrawGameBackgroundSpriteII(HDC hdc1,HDC hdc2)
           alpha=136;
           break;
         case 3:
-          alpha=136;
+          alpha=-1;
           break;
       }
       if (alpha>0) {
-        int the=-GR_HEIGHT+Sun.y+SUN_SIZE*8;
-
-        GrGlassTexture(hdc2, game_background_deco_sprite,0,0,GR_WIDTH,the-SUN_SIZE*2,hdcBG, bg_black_layer,0,0,GR_WIDTH,the, alpha/2);
+        //int the=-GR_HEIGHT+Sun.y+SUN_SIZE*8;
+        /*if (Sun.horizon_lvl>=1) {
+          the=Sun.y-GR_HEIGHT;
+        } else {
+          if (the<0)
+            the=0;
+        }*/
+        /*GrGlassTexture(hdc2, game_background_deco_sprite,0,0,GR_WIDTH,the-SUN_SIZE*2,hdcBG, bg_black_layer,0,0,GR_WIDTH,the, alpha/2);
         GrGlassTexture(hdc2, game_background_deco_sprite,0,the,GR_WIDTH,GR_HEIGHT,hdcBG, bg_glass_layer,0,0,GR_WIDTH,GR_HEIGHT, alpha/2);
 
         GrGlassTexture(hdc2, game_background_deco_sprite,0,0,GR_WIDTH,the,hdcBG, bg_black_layer,0,0,GR_WIDTH,the, alpha/2);
-        GrGlassTexture(hdc2, game_background_deco_sprite,0,the-SUN_SIZE*2,GR_WIDTH,GR_HEIGHT,hdcBG, bg_glass_layer,0,0,GR_WIDTH,GR_HEIGHT, alpha/2);
+        GrGlassTexture(hdc2, game_background_deco_sprite,0,the-SUN_SIZE*2,GR_WIDTH,GR_HEIGHT,hdcBG, bg_glass_layer,0,0,GR_WIDTH,GR_HEIGHT, alpha/2);*/
+
+        //GrGlassTexture(hdc2, game_background_deco_sprite,0,0,GR_WIDTH,the,hdcBG, bg_black_layer,0,0,GR_WIDTH,the, alpha);
+
+        //GR_HEIGHT/6+GR_HEIGHT/3;//GR_HEIGHT/20+GR_HEIGHT/4
+        //
+
+        //Consistent 2026-02-08
+        GrGlassTexture(hdc2, game_background_deco_sprite,0,0,GR_WIDTH,Sun.y+SUN_SIZE*4,hdcBG, bg_glass_layer,0,0,GR_WIDTH,GR_HEIGHT, alpha); //abovesun to sun
+        GrGlassTexture(hdc2, game_background_deco_sprite,0,Sun.y+SUN_SIZE*4,GR_WIDTH,  GR_HEIGHT ,hdcBG, bg_glass_layer,0,GR_HEIGHT-16,GR_WIDTH,16, alpha); //yellow below sun
       }
     } else { //day gradient
       int _h=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3;
@@ -1046,7 +1060,7 @@ void DrawGameBackgroundSpriteII(HDC hdc1,HDC hdc2)
 
 void DrawGameBackgroundSprite(HDC hdcMain,HDC hdc2)
 { //runs on call
-  HDC hdcBG=CreateCompatibleDC(hdcMain);
+  HDC hdcBG=CreateCompatibleDC(hdcMain); 
 
   //Draw decorated background (like a rect) to official game background, 16/32-bits
   SelectObject(hdcBG,game_background_sprite);
@@ -1063,11 +1077,11 @@ void DrawGameBackgroundSprite(HDC hdcMain,HDC hdc2)
         break;*/
       case 1: //Annular Eclipse
       case 3:
-          DrawStars(hdcBG);
+        //DrawStars(hdcBG);
         break;
       case 2: //Total/Full Eclipse
       case 4:
-        DrawStars(hdcBG);
+        //DrawStars(hdcBG);
         break;
       }
   } else { //dawn/dusk
@@ -1138,10 +1152,10 @@ void DrawGameBackgroundSprite(HDC hdcMain,HDC hdc2)
     DrawGameMoon.phase_range_y[7]=GR_HEIGHT-GR_HEIGHT/3;
 
     float day_moon_angle=Sun.angle-(2*M_PI*lunar_day/27);
-    if (lunar_day<=3) {
-      day_moon_angle=Sun.angle-(2*M_PI*3/27);
-    } else if (lunar_day>=24)
-      day_moon_angle=Sun.angle-(2*M_PI*24/27);
+    if (lunar_day<=2)
+      day_moon_angle=Sun.angle-(2*M_PI*2/27);
+    else if (lunar_day>=25)
+      day_moon_angle=Sun.angle-(2*M_PI*25/27);
     float day_moon_x=Sun.pivot_x+Sun.dist_l*cos(day_moon_angle);
     float day_moon_y=Sun.pivot_y+Sun.dist_l*sin(day_moon_angle);
 
