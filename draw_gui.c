@@ -513,7 +513,7 @@ int is_between(double cx, double cy,
 
 
 
-int64_t funnyrun=0;
+//int64_t funnyrun=0;
 void DrawPersianClock(HDC hdc,HDC hdc2)
 {
   //Moon Pos
@@ -623,9 +623,11 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
           //GrPrint(hdc,100,200,printmee,RED);
 
       //Sun-rise-set testing
-      /*funnyrun+=60;
+      //funnyrun+=10;
       //int64_t timenow=1782787200+funnyrun;
-      int64_t timenow=1770478973+funnyrun;
+      //int64_t timenow=1770478973+funnyrun;
+      /*int64_t timenow=1770618862-60*60*1 + funnyrun;
+      global_timenow=timenow;
       PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);
       PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);
 
@@ -668,8 +670,8 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
 
       //Sun.angle=Sun.solar_angle; //done by sunact()
       Sun.x=Sun.pivot_x+Sun.dist_l*cos(Sun.angle);
-      Sun.y=Sun.pivot_y+Sun.dist_l*sin(Sun.angle);
-*/
+      Sun.y=Sun.pivot_y+Sun.dist_l*sin(Sun.angle);*/
+
       //flag_update_background=TRUE;
       //flag_draw_game_background_spriteII=TRUE;
 

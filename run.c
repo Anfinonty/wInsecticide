@@ -207,6 +207,8 @@ int frame_tick=-10;
 //int global_update_reflection_timer=0;
 //int global_update_reflection_timer_max=0;
 int global_screen_bits=32;
+int64_t global_timenow=0;
+int64_t global_lhd0=0;
 
 //int FPS = 60;
 int FPS = 35; //minimum FPS, otherwise run according to screen refresh rate
@@ -2398,14 +2400,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
          	//177144080400; //7583, june 23
           //230727805200; //9281 june 22
 
-
+      
       printf("\nSeconds Passed Since Jan-1-1970: %lld",timenow);
 
       PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);//,&solar_leap_year,&solar_last_year_is_leap,&total_solar_hijri_days);
       PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);
       //printf("\ntrue_solar_angle:%10.10f\n",solar_angle_day);
 
-
+      global_timenow=timenow;
+      global_lhd0=GetLunarHijriDays(1,lunar_month,lunar_year)*24*60*60;
 
       sun_ctx_t sun_riseset;
       //sun_riseset.in_yday = 193;//180;//346;

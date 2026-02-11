@@ -2,86 +2,6 @@
 
 
 //=================Moon============================
-/*void PlaceDayMoon()
-{
-  if (!is_moon) { //cancel operation if is_moon not enabled
-    return;
-  }
-
-  int dmx=-300,dmy=-300;
-  if (lunar_day>=1 && lunar_day<=5) { //1, 2, 3, 4, 5
-    dmx=GR_WIDTH/8-GR_WIDTH/16;
-    dmy=GR_HEIGHT-GR_HEIGHT/3-GR_HEIGHT/16;//GR_HEIGHT-GR_HEIGHT/6;
-  } else if (lunar_day>=6 && lunar_day<=9) {// 6, 7, 8, 9
-    dmx=GR_WIDTH/4-GR_WIDTH/16;
-    dmy=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3-GR_HEIGHT/16;
-  } else if (lunar_day>=10 && lunar_day<=12) {// 10, 11, 12,
-    dmx=GR_WIDTH/4+GR_WIDTH/8-GR_WIDTH/16;
-    dmy=GR_HEIGHT/4+GR_HEIGHT/12-GR_HEIGHT/16;
-  } else if (lunar_day>=13 && lunar_day<=15) {//13, 14, 15 //fullmoon
-    //dmx=GR_WIDTH/2-GR_WIDTH/16;
-    //dmy=GR_HEIGHT/4-GR_HEIGHT/16;
-    return;
-  } else if (lunar_day>=16 && lunar_day<=18) {//16, 17, 18
-    dmx=GR_WIDTH/2+GR_WIDTH/4-GR_WIDTH/8-GR_WIDTH/16;
-    dmy=GR_HEIGHT/4+GR_HEIGHT/12-GR_HEIGHT/16;
-  } else if (lunar_day>=19 && lunar_day<=22) {//19, 20, 21, 22
-    dmx=GR_WIDTH/2+GR_WIDTH/4-GR_WIDTH/16;
-    dmy=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3-GR_HEIGHT/16;
-  } else if (lunar_day>=23 && lunar_day<=26) {//23, 24, 25,26
-    dmx=GR_WIDTH-GR_WIDTH/8-GR_WIDTH/16;
-    dmy=GR_HEIGHT-GR_HEIGHT/3-GR_HEIGHT/16;//GR_HEIGHT-GR_HEIGHT/6;
-  }
-
-  //bitmap stuff
-  BITMAP backgroundbitmap;
-  GetObject(map_background_sprite,sizeof(BITMAP),&backgroundbitmap);
-
-  BITMAP moonbitmap;
-  GetObject(Moon[current_moon_phase_id].draw_moon_sprite[0].sprite_paint,sizeof(BITMAP),&moonbitmap);
-
-  HDC hdc=GetDC(NULL);
-  HDC hdcSrc=CreateCompatibleDC(hdc);
-  HDC hdcDest=CreateCompatibleDC(hdc);
-
-  HBITMAP tmp_bitmap=CreateLargeBitmap(backgroundbitmap.bmWidth,backgroundbitmap.bmHeight,backgroundbitmap.bmBitsPixel);
-  SelectObject(hdcDest,tmp_bitmap);
-  SelectObject(hdcSrc,Moon[current_moon_phase_id].draw_moon_sprite[0].sprite_paint);
-
-
-  int background_width=backgroundbitmap.bmWidth;
-  int background_height=backgroundbitmap.bmHeight;
-
-  int moon_width=moonbitmap.bmWidth;
-  int moon_height=moonbitmap.bmHeight;
-
-  //draw moon to back background
-  BitBlt(hdcDest,dmx,dmy,background_width,background_height,hdcSrc,0,0,SRCCOPY);
-  //BitBlt(hdcDest,dmx,dmy, GR_WIDTH+GR_WIDTH/8,GR_HEIGHT+GR_HEIGHT/8,hdcSrc,0,0,SRCCOPY);
-
-  SelectObject(hdcSrc,map_background_sprite);
-
-  BLENDFUNCTION blendFunction;
-  blendFunction.BlendOp = AC_SRC_OVER;
-  blendFunction.BlendFlags = 0;
-  blendFunction.SourceConstantAlpha = 240;// Transparency level (0-255)
-  blendFunction.AlphaFormat = 0;
-
-  //draw background over black background + moon
-  AlphaBlend(hdcDest, 0, 0, background_width, background_height,
-               hdcSrc, 0, 0, background_width, background_height,
-               blendFunction);
-
-  DeleteDC(hdcSrc);
-  DeleteDC(hdcDest);
-  ReleaseDC(NULL,hdc);
-
-  DeleteObject(map_background_sprite);
-  map_background_sprite=CopyBitmap(tmp_bitmap,SRCCOPY);
-  DeleteObject(tmp_bitmap);
-}*/
-//================================
-
 
 #define SUN_SIZE    32
 
@@ -440,10 +360,11 @@ void InitSun()
     Sun.solar_angle=M_PI + M_PI*( (float)(seconds_since_midnight-map_sunrise_time)/map_sunlight_seconds);
   } else {
     //Sun angle at sunset + Sun angle since sunset, instead of map_sunlight_seconds its map_darkness seconds
-    if (seconds_since_midnight>=0 && seconds_since_midnight<map_sunrise_time) { //before sunrise, 00 00 -> sunrise time
-      Sun.solar_angle=2*M_PI + M_PI_2*( (float)(60*60*24-map_sunset_time)/(map_darkness_seconds/2)) + M_PI_2*( (float)(seconds_since_midnight)/(map_darkness_seconds/2));
-    } else { //after sunset
-      Sun.solar_angle=2*M_PI + M_PI_2*( (float)(seconds_since_midnight-map_sunset_time)/(map_darkness_seconds/2));
+    if (seconds_since_midnight>=0 && seconds_since_midnight<map_sunrise_time) { //before sunrise, midnight -> sunrise time
+      //sometimes the lunar hijri moves a day ahead during midnight causing a shift scratch-back
+      Sun.solar_angle=2*M_PI + M_PI*( (float)((60*60*24-map_sunset_time)+seconds_since_midnight)/(map_darkness_seconds));
+    } else { //after sunset, before midnight
+      Sun.solar_angle=2*M_PI + M_PI*( (float)(seconds_since_midnight-map_sunset_time)/(map_darkness_seconds));
     }
   }
 
@@ -991,6 +912,7 @@ void DrawGameBackgroundSpriteII(HDC hdc1,HDC hdc2)
     }
   } else { //Night
     if (Sun.x>GR_WIDTH/2) //rising
+    //if (...); //moon is visible
       GrRect(hdc2,0,0,GR_WIDTH+24,GR_HEIGHT+24,RGB(0,0,24));
     else //setting
       GrRect(hdc2,0,0,GR_WIDTH+24,GR_HEIGHT+24,BLACK);
@@ -1058,6 +980,7 @@ void DrawGameBackgroundSpriteII(HDC hdc1,HDC hdc2)
   DeleteDC(hdcBG);
 }
 
+int64_t funnyrun;
 void DrawGameBackgroundSprite(HDC hdcMain,HDC hdc2)
 { //runs on call
   HDC hdcBG=CreateCompatibleDC(hdcMain); 
@@ -1151,11 +1074,19 @@ void DrawGameBackgroundSprite(HDC hdcMain,HDC hdc2)
     DrawGameMoon.phase_range_x[7]=GR_WIDTH/8;
     DrawGameMoon.phase_range_y[7]=GR_HEIGHT-GR_HEIGHT/3;
 
-    float day_moon_angle=Sun.angle-(2*M_PI*lunar_day/27);
+    /*float day_moon_angle=Sun.angle-(2*M_PI*lunar_day/27);
     if (lunar_day<=2)
       day_moon_angle=Sun.angle-(2*M_PI*2/27);
     else if (lunar_day>=25)
-      day_moon_angle=Sun.angle-(2*M_PI*25/27);
+      day_moon_angle=Sun.angle-(2*M_PI*25/27);*/
+
+    //int64_t lhd0=GetLunarHijriDays(1,lunar_month,lunar_year)*24*60*60;
+    //int64_t lhd1=1782787200+funnyrun;//GetLunarHijriDays(lunar_day,lunar_month,lunar_year)*24*60*60;
+    //Pass public timenow here
+    int64_t lhd0=global_lhd0;
+    int64_t lhd1=global_timenow;
+          
+    float day_moon_angle=Sun.angle - 2*M_PI*(lhd1-lhd0)/(27*24*60*60);
     float day_moon_x=Sun.pivot_x+Sun.dist_l*cos(day_moon_angle);
     float day_moon_y=Sun.pivot_y+Sun.dist_l*sin(day_moon_angle);
 
