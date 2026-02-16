@@ -2494,8 +2494,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       printf("\n==================\n");
 
 
-      map_sunrise_time= (int)abs(timeh_rise*60*60) + (int)fmod(60*timeh_rise,60)*60;
-      map_sunset_time= (int)abs(timeh_set*60*60) + (int)fmod(60*timeh_set,60)*60;
+      map_sunrise_time= sun_riseset.out_sunrise_mins*60 + utc_offset*60*60;//(int)abs(timeh_rise*60*60) + (int)fmod(60*timeh_rise,60)*60;
+      map_sunset_time= sun_riseset.out_sunset_mins*60  + utc_offset*60*60;//(int)abs(timeh_set*60*60) + (int)fmod(60*timeh_set,60)*60;
       seconds_since_midnight=solar_hour*60*60 + solar_min*60 + solar_sec;
       map_sunlight_seconds=map_sunset_time-map_sunrise_time;
       map_darkness_seconds=60*60*24 - map_sunlight_seconds;

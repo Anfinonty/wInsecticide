@@ -1405,6 +1405,10 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
     DrawMusicWav(hdc);
   }
 
+  //debug: sunangle
+ // char ledebug[20];
+ // sprintf(ledebug,"%5.4f",rad2deg(3*M_PI-Sun.angle));
+ // GrPrint(hdc,GR_WIDTH/2,GR_HEIGHT/2,ledebug,WHITE);
 
   //debugging stuff with loading bitmaps
   /*SelectObject(hdc2,LoadPlayerSprite.sprite_2);
@@ -2388,6 +2392,7 @@ void DrawUI(HDC hdc,HDC hdc2)
 
   //debug: middle line
   //GrLine(hdc,GR_WIDTH/2,0,GR_WIDTH/2,GR_HEIGHT,BLACK);
+
 
   //===--- Draw player speed ---=== (Over Cursor)
   //hehehehe

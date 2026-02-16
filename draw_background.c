@@ -1184,8 +1184,13 @@ void DrawBackground(HDC hdc,HDC hdc2)
   int draw_p_py=(int)parralax_y;
 
   int dbg_height=GR_HEIGHT;
-  if (GR_HEIGHT>SCREEN_HEIGHT);
-    dbg_height=SCREEN_HEIGHT;
+  if (!hide_taskbar) {
+    if (GR_HEIGHT>SCREEN_HEIGHT-1);
+      dbg_height=SCREEN_HEIGHT-1;
+  } else {
+    if (GR_HEIGHT>SCREEN_HEIGHT);
+      dbg_height=SCREEN_HEIGHT;
+  }
   switch (map_background) {
     case 0: //day and night
       if (flag_draw_game_background_spriteII) {
