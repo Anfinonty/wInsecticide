@@ -623,10 +623,11 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
           //GrPrint(hdc,100,200,printmee,RED);
 
       //Sun-rise-set testing
-      //funnyrun+=10;
+/*
+      funnyrun+=60*60*24;
       //int64_t timenow=1782787200+funnyrun;
       //int64_t timenow=1770478973+funnyrun;
-      /*int64_t timenow=1770618862-60*60*1 + funnyrun;
+      int64_t timenow=(1771782343-45*60-5*60*60) + funnyrun;
       global_timenow=timenow;
       PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);
       PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);
@@ -636,6 +637,10 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
       sun_riseset.in_longitude = 115.8617;
       double utc_offset=8;
 
+      //sun_riseset.in_latitude  =  59.3327;
+      //sun_riseset.in_longitude =  18.0656;
+      //double utc_offset=1;
+
       sun_compute(&sun_riseset,&planet_earth,solar_day,solar_month,solar_year);
 
       double prise=sun_riseset.out_sunrise_mins/60;
@@ -643,17 +648,29 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
       double timeh_rise=utc_offset+prise;
       double timeh_set =utc_offset+pset;
 
-      map_sunrise_time= (int)abs(timeh_rise*60*60) + (int)fmod(60*timeh_rise,60)*60;
-      map_sunset_time= (int)abs(timeh_set*60*60) + (int)fmod(60*timeh_set,60)*60;
 
+      map_sunrise_time= sun_riseset.out_sunrise_mins*60 + utc_offset*60*60;
+      map_sunset_time= sun_riseset.out_sunset_mins*60  + utc_offset*60*60;
       seconds_since_midnight=solar_hour*60*60 + solar_min*60 + solar_sec;
-
       map_sunlight_seconds=map_sunset_time-map_sunrise_time;
+      map_darkness_seconds=60*60*24 - map_sunlight_seconds;
 
-      map_darkness_seconds=60*60*24-map_sunlight_seconds;
+      
+      Sun.dist_l=(float)(GR_WIDTH/2+10);
+      //printf("map_sunlight_seconds: %5.4f\n",(float)(map_sunlight_seconds/(60.0*60)));
+      if (map_sunlight_seconds<=12*60*60) {
+        Sun.dist_l*=(float)(map_sunlight_seconds/(12.0*60*60));
+      }
+      if (Sun.dist_l>GR_WIDTH/2+10)
+        Sun.dist_l=GR_WIDTH/2+10;
 
+      //Moon dist_l
+      //https://www.almanac.com/its-spring-see-how-sun-getting-higher-every-day
+      if (map_sunlight_seconds<=12*60*60) { //moon is higher than sun in the winter; dist goes: sun_lower_height-> moon_higher_height -> sun_lower_height 
 
+      } else { //moon is lower than sun in the summer; dist goes: sun_higher_height-> moon_low_height -> sun_higher_height
 
+      }
 
       if (seconds_since_midnight>=map_sunrise_time && seconds_since_midnight<=map_sunset_time) {
         //Sun angle at sunrise + Sun angle since sunrise
@@ -670,8 +687,8 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
 
       //Sun.angle=Sun.solar_angle; //done by sunact()
       Sun.x=Sun.pivot_x+Sun.dist_l*cos(Sun.angle);
-      Sun.y=Sun.pivot_y+Sun.dist_l*sin(Sun.angle);*/
-
+      Sun.y=Sun.pivot_y+Sun.dist_l*sin(Sun.angle);
+*/
       //flag_update_background=TRUE;
       //flag_draw_game_background_spriteII=TRUE;
 

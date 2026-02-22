@@ -352,7 +352,13 @@ void InitSun()
   Sun.pivot_x=GR_WIDTH/2;
   Sun.pivot_y=GR_HEIGHT;
 
-  Sun.dist_l=GetDistance(Sun.x,Sun.y,Sun.pivot_x,Sun.pivot_y);
+  //Sun.dist_l=GetDistance(Sun.x,Sun.y,Sun.pivot_x,Sun.pivot_y);
+  Sun.dist_l=(float)(GR_WIDTH/2+10);
+  if (map_sunlight_seconds<=12*60*60) {
+    Sun.dist_l*=(float)(map_sunlight_seconds/(12.0*60*60));
+  }
+  if (Sun.dist_l>GR_WIDTH/2+10)
+    Sun.dist_l=GR_WIDTH/2+10;
 
   //Sun.angle=GetCosAngle(Sun.x-Sun.pivot_x,Sun.dist_l);
   if (seconds_since_midnight>=map_sunrise_time && seconds_since_midnight<=map_sunset_time) {
@@ -931,7 +937,12 @@ void DrawGameBackgroundSpriteII(HDC hdc1,HDC hdc2)
           break;
         case 0:
           //alpha=136/3; //nice yellow clouds
-          alpha=136/3+16; //nice yellow clouds
+          if (global_screen_bits==32)
+            //alpha=136/3+16; //nice yellow clouds
+            alpha=136/2-14; //nice yellow clouds
+            //alpha=136/2-4; //nice yellow clouds
+          else
+            alpha=136/2-13; //nice yellow clouds
           break;
         case 1:
           alpha=136;
