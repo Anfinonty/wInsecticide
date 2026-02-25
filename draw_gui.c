@@ -623,23 +623,24 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
           //GrPrint(hdc,100,200,printmee,RED);
 
       //Sun-rise-set testing
-/*
-      funnyrun+=60*60*24;
+
+      /*funnyrun+=60*15;
       //int64_t timenow=1782787200+funnyrun;
       //int64_t timenow=1770478973+funnyrun;
-      int64_t timenow=(1771782343-45*60-5*60*60) + funnyrun;
+      int64_t timenow=1786137846+ funnyrun;//1793404800 + funnyrun;//(1771782343-45*60-5*60*60) + funnyrun;
       global_timenow=timenow;
       PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);
       PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);
+      global_lhd0=GetLunarHijriDays(1,lunar_month,lunar_year)*24*60*60;
 
       sun_ctx_t sun_riseset;
-      sun_riseset.in_latitude  = -31.9514;
-      sun_riseset.in_longitude = 115.8617;
-      double utc_offset=8;
+      //sun_riseset.in_latitude  = -31.9514;
+      //sun_riseset.in_longitude = 115.8617;
+      //double utc_offset=8;
 
-      //sun_riseset.in_latitude  =  59.3327;
-      //sun_riseset.in_longitude =  18.0656;
-      //double utc_offset=1;
+      sun_riseset.in_latitude  =  59.3327;
+      sun_riseset.in_longitude =  18.0656;
+      double utc_offset=1;
 
       sun_compute(&sun_riseset,&planet_earth,solar_day,solar_month,solar_year);
 
@@ -664,13 +665,6 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
       if (Sun.dist_l>GR_WIDTH/2+10)
         Sun.dist_l=GR_WIDTH/2+10;
 
-      //Moon dist_l
-      //https://www.almanac.com/its-spring-see-how-sun-getting-higher-every-day
-      if (map_sunlight_seconds<=12*60*60) { //moon is higher than sun in the winter; dist goes: sun_lower_height-> moon_higher_height -> sun_lower_height 
-
-      } else { //moon is lower than sun in the summer; dist goes: sun_higher_height-> moon_low_height -> sun_higher_height
-
-      }
 
       if (seconds_since_midnight>=map_sunrise_time && seconds_since_midnight<=map_sunset_time) {
         //Sun angle at sunrise + Sun angle since sunrise

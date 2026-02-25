@@ -84,7 +84,12 @@ void DrawStars(HDC hdc)
       scnt=1;
       break;
   }
-
+  switch (Sun.eclipse_type) {
+    case 2:
+    case 4:
+      scnt=1;
+      break;
+  }
   for (int i=0;i<STAR_NUM;i+=scnt) {
       int _x = Star.x[i];//(Star.x[i] * GR_WIDTH)/MAX_STAR_X;
       int _y = Star.y[i];//(Star.y[i] * GR_HEIGHT)/MAX_STAR_Y;
@@ -164,7 +169,7 @@ void PreludeLoadCloudBackgroundSprite(HDC hdc,HDC hdc2)
       for (int k=0;k<4;k++) {
         DrawGameCloudsBackground[k].sprite_paint2=CreateCrunchyBitmap(SCREEN_WIDTH,(SCREEN_HEIGHT/2+SCREEN_HEIGHT/4));
         SelectObject(hdc,DrawGameCloudsBackground[k].sprite_paint2);
-        GrRect(hdc,0,0,SCREEN_WIDTH+1,SCREEN_HEIGHT/2+SCREEN_HEIGHT/4+1,YELLOW/*BROWN*/);
+        GrRect(hdc,0,0,SCREEN_WIDTH+1,SCREEN_HEIGHT/2+SCREEN_HEIGHT/4+1,YELLOW);
       }
     } 
     prelude_clouds_paint++;
@@ -1009,13 +1014,13 @@ void DrawGameBackgroundSprite(HDC hdcMain,HDC hdc2)
         if (Sun.y>GR_HEIGHT-GR_HEIGHT/3)
           DrawStars(hdcBG);
         break;*/
-      case 1: //Annular Eclipse
-      case 3:
+      //case 1: //Annular Eclipse
+      //case 3:
         //DrawStars(hdcBG);
-        break;
+        //break;
       case 2: //Total/Full Eclipse
       case 4:
-        //DrawStars(hdcBG);
+        DrawStars(hdcBG);
         break;
       }
   } else { //dawn/dusk
@@ -1092,14 +1097,50 @@ void DrawGameBackgroundSprite(HDC hdcMain,HDC hdc2)
       day_moon_angle=Sun.angle-(2*M_PI*25/27);*/
 
     //int64_t lhd0=GetLunarHijriDays(1,lunar_month,lunar_year)*24*60*60;
-    //int64_t lhd1=1782787200+funnyrun;//GetLunarHijriDays(lunar_day,lunar_month,lunar_year)*24*60*60;
+    //int64_t lhd_n=1782787200+funnyrun;//GetLunarHijriDays(lunar_day,lunar_month,lunar_year)*24*60*60;
     //Pass public timenow here
     int64_t lhd0=global_lhd0;
-    int64_t lhd1=global_timenow;
+    int64_t lhd_n=global_timenow;
           
-    float day_moon_angle=Sun.angle - 2*M_PI*(lhd1-lhd0)/(27*24*60*60);
-    float day_moon_x=Sun.pivot_x+Sun.dist_l*cos(day_moon_angle);
-    float day_moon_y=Sun.pivot_y+Sun.dist_l*sin(day_moon_angle);
+    float day_moon_angle=Sun.angle - 2*M_PI*(lhd_n-lhd0)/(27*24*60*60); //seconds passed since the first of today's lunar month
+    //day_moon_angle=M_PI+M_PI_2;//debug only
+    //float day_moon_x=Sun.pivot_x+Sun.dist_l*cos(day_moon_angle);
+    //float day_moon_y=Sun.pivot_y+Sun.dist_l*sin(day_moon_angle);
+
+    //Moon's distance
+    //https://www.almanac.com/its-spring-see-how-sun-getting-higher-every-day
+    float max_day_moon_dist_l=GR_WIDTH/2+10;
+    if (map_darkness_seconds<=12*60*60)
+      max_day_moon_dist_l*=(float)(map_darkness_seconds/(12.0*60*60));
+    if (max_day_moon_dist_l>=GR_WIDTH/2+10)
+      max_day_moon_dist_l=GR_WIDTH/2+10;
+
+    float day_moon_dist_l=Sun.dist_l; //cresent moon generally same dist_l as Sun
+    //Start from Sun_dist_l, move towards max_day_moon_dist_l
+    int64_t lhd_4=lhd0+4*24*60*60;
+    int64_t lhd_15=lhd0+15*24*60*60;
+    if (lunar_day>=4 && lunar_day<=24) { //21-5=16 days  /2 --> 8 days rise, 8 days set
+      int64_t day_moon_dist_l_delta=(max_day_moon_dist_l-Sun.dist_l);
+      //printf("delta: %lld\n",day_moon_dist_l_delta);
+      //delta<0 (-) moon is lower than sun in the summer; dist goes: sun_higher_height-> moon_low_height -> sun_higher_height
+      //delta>0 (+) moon is higher than sun in the winter; dist goes: sun_lower_height-> moon_higher_height -> sun_lower_height 
+      if (lhd_n<lhd_15) { //4 -> 14
+        day_moon_dist_l=  Sun.dist_l + (float)day_moon_dist_l_delta*(float)(lhd_n-lhd_4)/(10*24*60*60.0);
+        //printf("delta: %lld, lhd<15: %5.4f\n",day_moon_dist_l_delta,(float)day_moon_dist_l_delta*(float)(lhd_n-lhd_4)/(10*24*60*60.0));
+        //printf("delta: %lld, lhd_n: %lld, lhd_4: %lld, lhd<15: %5.4f\n",day_moon_dist_l_delta, lhd_n, lhd_4 ,(float)day_moon_dist_l_delta*(float)(lhd_n-lhd_4)/(10*24*60*60.0));
+      } else { // 15 -> 25
+        day_moon_dist_l = max_day_moon_dist_l - (float)day_moon_dist_l_delta * (float)(lhd_n-lhd_15)/(10*24*60*60.0);
+        //printf("delta: %lld, lhd>=15: %5.4f\n",day_moon_dist_l_delta,(float)day_moon_dist_l_delta * (float)(lhd_n-lhd_15)/(10*24*60*60.0));
+      }
+      //day_moon_dist_l = Sun.dist_l + (float)day_moon_dist_l_delta * (float)abs(lhd_n-lhd_15)/(10*24*60*60.0);
+    }
+    if (day_moon_dist_l>=GR_WIDTH/2+10)
+      day_moon_dist_l=GR_WIDTH/2+10;
+    if (day_moon_dist_l<=10)
+      day_moon_dist_l=10;
+
+    float day_moon_x=Sun.pivot_x+day_moon_dist_l*cos(day_moon_angle);
+    float day_moon_y=Sun.pivot_y+day_moon_dist_l*sin(day_moon_angle);
 
     if (day_moon_x>DrawGameMoon.phase_range_x[0]) { //new-cresent moon, rightside
       day_moon_angle_id=0;

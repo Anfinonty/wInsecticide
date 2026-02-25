@@ -1417,7 +1417,6 @@ struct MoonAngle
 {
   float angle;
   float lunar_angle;
-  //float mirror_lunar_angle;
 } MoonAngle[7];
 
 
@@ -1429,6 +1428,12 @@ struct Moon
   DRAWSPRITE draw_moon_sprite[7]; //all 7 rotations
 } Moon[8];
 
+//Day or Night Moon
+/*struct AllMoon
+{
+  int max_dist_l;
+  int dist_l;
+} AllMoon;*/
 
 struct GameMoon
 {
