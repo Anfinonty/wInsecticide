@@ -622,25 +622,33 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
           //sprintf(printmee,"%5.4f\ntimenow:%d\nsunrise:%d\nsunset:%d",Sun.solar_angle,seconds_since_00,map_sunrise_time,map_sunset_time);
           //GrPrint(hdc,100,200,printmee,RED);
 
-      //Sun-rise-set testing
-
-      /*funnyrun+=60*15;
+      //==========Sun-rise-set testing==============
+/*
+      funnyrun+=60*15;
       //int64_t timenow=1782787200+funnyrun;
       //int64_t timenow=1770478973+funnyrun;
-      int64_t timenow=1786137846+ funnyrun;//1793404800 + funnyrun;//(1771782343-45*60-5*60*60) + funnyrun;
+      int64_t timenow=1771139092+funnyrun;
+        //1793515464+funnyrun;
+        //1780296264+funnyrun;
+
+        //1786137846+ funnyrun;//1793404800 + funnyrun;//(1771782343-45*60-5*60*60) + funnyrun;
       global_timenow=timenow;
       PersiaSolarTime(timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);
       PersiaLunarTime(timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);
       global_lhd0=GetLunarHijriDays(1,lunar_month,lunar_year)*24*60*60;
 
       sun_ctx_t sun_riseset;
-      //sun_riseset.in_latitude  = -31.9514;
-      //sun_riseset.in_longitude = 115.8617;
-      //double utc_offset=8;
+      sun_riseset.in_latitude  = -31.9514;
+      sun_riseset.in_longitude = 115.8617;
+      double utc_offset=8;
 
-      sun_riseset.in_latitude  =  59.3327;
-      sun_riseset.in_longitude =  18.0656;
-      double utc_offset=1;
+      //sun_riseset.in_latitude  =  59.3327;
+      //sun_riseset.in_longitude =  18.0656;
+      //double utc_offset=1;
+
+      //sun_riseset.in_latitude  =  60.4720;//69.3281;
+      //sun_riseset.in_longitude  =  8.4689;//18.6940;
+      //double utc_offset=1;
 
       sun_compute(&sun_riseset,&planet_earth,solar_day,solar_month,solar_year);
 
@@ -682,10 +690,10 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
       //Sun.angle=Sun.solar_angle; //done by sunact()
       Sun.x=Sun.pivot_x+Sun.dist_l*cos(Sun.angle);
       Sun.y=Sun.pivot_y+Sun.dist_l*sin(Sun.angle);
-*/
+
       //flag_update_background=TRUE;
       //flag_draw_game_background_spriteII=TRUE;
-
+*/
 
   //=================End of Test===================
   double drawoffset=-M_PI/2 + deg2rad(1.5);//deg2rad(2);
@@ -701,7 +709,7 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
   //float eaoffset2=deg2rad(18);
 
   //https://eclipse.gsfc.nasa.gov/5MCSE/TP2009-214174.pdf
-  float eaoffset1=-deg2rad(17 /*+2*/);
+  float eaoffset1=-deg2rad(17 -1.5);
   float eaoffset2=deg2rad(17  /*-2*/);
 
 
@@ -719,10 +727,10 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
   float eclipse_season1_y1=mcalendar_y + mcalendar_l*sin(eclipse_angle+eaoffset1);
   float eclipse_season1_x2=mcalendar_x + mcalendar_l*cos(eclipse_angle+eaoffset2);
   float eclipse_season1_y2=mcalendar_y + mcalendar_l*sin(eclipse_angle+eaoffset2);
-//  GrCircle(hdc, eclipse_season1_x1, eclipse_season1_y1,9,LTRED,-1);
-//  GrCircle(hdc, eclipse_season1_x1, eclipse_season1_y1,7,RED,YELLOW);
-//  GrCircle(hdc, eclipse_season1_x2, eclipse_season1_y2,9,LTRED,-1);
-//  GrCircle(hdc, eclipse_season1_x2, eclipse_season1_y2,7,RED,YELLOW);
+  //GrCircle(hdc, eclipse_season1_x1, eclipse_season1_y1,9,LTGREEN,-1);
+  //GrCircle(hdc, eclipse_season1_x1, eclipse_season1_y1,7,RED,YELLOW);
+  //GrCircle(hdc, eclipse_season1_x2, eclipse_season1_y2,9,LTRED,-1);
+  //GrCircle(hdc, eclipse_season1_x2, eclipse_season1_y2,7,RED,YELLOW);
 
   //Solar eclipse2
   float full_eclipse2_x=mcalendar_x + mcalendar_l*cos(eclipse_angle2);

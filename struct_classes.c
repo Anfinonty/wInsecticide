@@ -1426,7 +1426,7 @@ struct Moon
   float angle;
   HBITMAP loaded_sprite;
   DRAWSPRITE draw_moon_sprite[7]; //all 7 rotations
-} Moon[8];
+} Moon[9];
 
 //Day or Night Moon
 /*struct AllMoon

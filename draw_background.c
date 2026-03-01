@@ -1034,38 +1034,32 @@ void DrawGameBackgroundSprite(HDC hdcMain,HDC hdc2)
     is_blood_moon=FALSE;
   }
   if (lunar_day>=1 && lunar_day<=9) {
-    if (lunar_month<12) {
-      if (lunar_day>=1 && lunar_day<=5) { //1, 2, 3, 4, 5
-        day_moon_phase_id=0;
-      } else if (lunar_day>=6 && lunar_day<=9) {// 6, 7, 8, 9
-        day_moon_phase_id=1;
-      }
-    } else { //month 12 lunar
-      if (lunar_day>=1 && lunar_day<=4) { //1, 2, 3, 4
-        day_moon_phase_id=0;
-      } else {// 5, 6, 7, --> 8 ,9
-        day_moon_phase_id=1;
-      }
+    if (lunar_day>=1 && lunar_day<=4) { //1, 2, 3, 4, 5
+      day_moon_phase_id=0;
+    } else if (lunar_day>=5 && lunar_day<=7) {// 6, 7, 8, 9
+      day_moon_phase_id=1;
+    } else {
+      day_moon_phase_id=2;
     }
-  }else if (lunar_day>=10 && lunar_day<=12) {// 10, 11, 12,
-    day_moon_phase_id=2;
-  } else if (lunar_day>=13 && lunar_day<=15) {//13, 14, 15 //fullmoon
+  } else if (lunar_day>=10 && lunar_day<=12) {// 10, 11, 12,
     day_moon_phase_id=3;
+  } else if (lunar_day>=13 && lunar_day<=15) {//13, 14, 15 //fullmoon
+    day_moon_phase_id=4;
     if (is_blood_moon) {
-      day_moon_phase_id=7;
+      day_moon_phase_id=8;
     }
   } else if (lunar_day>=16 && lunar_day<=18) {//16, 17, 18
-    day_moon_phase_id=4;
-  } else if (lunar_day>=19 && lunar_day<=22) {//19, 20, 21, 22
     day_moon_phase_id=5;
-  } else if (lunar_day>=23 && lunar_day<=26) {//23, 24, 25,26
+  } else if (lunar_day>=19 && lunar_day<=22) {//19, 20, 21, 22
     day_moon_phase_id=6;
+  } else if (lunar_day>=23 && lunar_day<=26) {//23, 24, 25,26
+    day_moon_phase_id=7;
   } else { // New Moon, no stars
-    day_moon_phase_id-1;
+    day_moon_phase_id=-1;
   }
+  //printf("day_moon_phase_id:%d\n",day_moon_phase_id);
 
-
-  if (lunar_day>=1 && lunar_day<=26 && day_moon_phase_id>=0 && day_moon_phase_id<=7) {
+  if (lunar_day>=1 && lunar_day<=26 && day_moon_phase_id>=0 && day_moon_phase_id<=8) {
     DrawGameMoon.phase_range_x[0]=GR_WIDTH-GR_WIDTH/8;
     DrawGameMoon.phase_range_y[0]=GR_HEIGHT-GR_HEIGHT/3;
 
@@ -1103,6 +1097,9 @@ void DrawGameBackgroundSprite(HDC hdcMain,HDC hdc2)
     int64_t lhd_n=global_timenow;
           
     float day_moon_angle=Sun.angle - 2*M_PI*(lhd_n-lhd0)/(27*24*60*60); //seconds passed since the first of today's lunar month
+    float min_day_moon_angle=  2*M_PI*(2*24*60*60)/(27*24*60*60);
+    if (2*M_PI*(lhd_n-lhd0)/(27*24*60*60) <  min_day_moon_angle)
+      day_moon_angle=Sun.angle - min_day_moon_angle;
     //day_moon_angle=M_PI+M_PI_2;//debug only
     //float day_moon_x=Sun.pivot_x+Sun.dist_l*cos(day_moon_angle);
     //float day_moon_y=Sun.pivot_y+Sun.dist_l*sin(day_moon_angle);
@@ -1114,6 +1111,8 @@ void DrawGameBackgroundSprite(HDC hdcMain,HDC hdc2)
       max_day_moon_dist_l*=(float)(map_darkness_seconds/(12.0*60*60));
     if (max_day_moon_dist_l>=GR_WIDTH/2+10)
       max_day_moon_dist_l=GR_WIDTH/2+10;
+
+   // printf("dls *:%5.4f ds:%5.4f/24\n",map_sunlight_seconds/(24.0*60*60),(map_darkness_seconds/(24.0*60*60)));
 
     float day_moon_dist_l=Sun.dist_l; //cresent moon generally same dist_l as Sun
     //Start from Sun_dist_l, move towards max_day_moon_dist_l
