@@ -264,6 +264,16 @@ int LimitValueInt(int value, int min, int max)
   return num;
 }
 
+int64_t LimitValueInt64(int64_t value, int64_t min, int64_t max)
+{
+  int64_t num=value;
+  if (value>=max) {
+    num=min;
+  } else if (value<min) {
+    num=max-1;
+  }
+  return num;
+}
 
 float LimitValue(float value,float min,float max)
 {

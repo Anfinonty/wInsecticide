@@ -95,15 +95,12 @@ bool flag_taskbar_change_act=FALSE;
 bool flag_borderless_resolution_change=FALSE;
 bool flag_difficulty_change=TRUE;
 bool flag_begin_drawing_tiles=FALSE;
-//bool flag_display_long_loading=FALSE;
 bool hide_cursor=FALSE;
 bool hide_mm=FALSE;
 bool flag_load_player_sprite=TRUE;
 bool flag_draw_game_background_sprite=FALSE;
 bool flag_draw_game_background_spriteII=FALSE;
 //Exit Flags
-//bool flag_exit_to_main_menu=FALSE;
-//bool flag_game_task_stopped=FALSE;
 bool flag_draw_task_stopped=FALSE;
 bool flag_game_task_stopped=FALSE;
 bool flag_sound_task_stopped=FALSE;
@@ -678,15 +675,15 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
               CloudAct();
               //SunRayAct(); //See: song.c
               SunAct();
-              if (Sun.eclipse_type==2 || map_background==1 || map_background==0) {
+              if (Sun.eclipse_type==2 || lvl_map_background.background_id==1 || lvl_map_background.background_id==0) {
                 StarAct();
                 ShootingStarAct();
               }
-              if (map_background==1) {
+              if (lvl_map_background.background_id==1) {
                 MoonAct();
               }
             }
-            if (map_weather>0) {
+            if (lvl_map_background.weather_type>0) {
               RainAct();
               if (!player.time_breaker) {
                 ScreenRainDropAct();
@@ -707,6 +704,12 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
     } else if (in_map_editor) { //In map editor
       if (!flag_game_task_stopped && !flag_sound_task_stopped) {
         MapEditorAct();
+
+        CloudAct();
+        SunRayAct();
+        SunAct();
+        StarAct();
+        ShootingStarAct();
       }
       if (back_to_menu) {
         flag_game_task_stopped=TRUE;
@@ -736,14 +739,14 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
                 CloudAct();
                 SunRayAct();
                 SunAct();
-                //if (map_background==1 || Sun.eclipse_type==2) {
+                //if (lvl_map_background.background_id==1 || Sun.eclipse_type==2) {
                   StarAct();
                   ShootingStarAct();
                 //}
-                //if (map_background==1)
+                //if (lvl_map_background.background_id==1)
                   //MoonAct();
               }
-              if (map_weather>0) {
+              if (lvl_map_background.weather_type>0) {
                 RainAct();
                 if (!player.time_breaker) {
                   ScreenRainDropAct();
@@ -1333,7 +1336,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           InitMoon();
           InitStars();
           ResetBulletRain();
-          if (map_weather>0) {
+          if (lvl_map_background.weather_type>0) {
             InitBulletRain();
             InitScreenRainDrop();
           }
@@ -1353,71 +1356,29 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           //Load Map Background sprites
              int mb_val=-1;
              if (in_map_editor) {
-               mb_val=MapEditor.set_lvl_ambient_val[0];
+               mb_val=MapEditor.bg_attr_background_id;
              } else {
-               mb_val=map_background;
+               mb_val=lvl_map_background.background_id;
              }
             if (mb_val>=0 && mb_val<=4) {
-              /*if (map_background_sprite!=NULL) { //renew and scale upwards
-                DeleteObject(map_background_sprite);
+              /*if (lvl_map_background.background_id_sprite!=NULL) { //renew and scale upwards
+                DeleteObject(lvl_map_background.background_id_sprite);
               }
-              HBITMAP tmp_map_background_sprite;
+              HBITMAP tmp_lvl_map_background.background_id_sprite;
 
               wchar_t lvl_background_bmp[64];
               swprintf(lvl_background_bmp,64,L"saves/%ls/images/background.bmp",level_names[level_chosen]);
-              tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, lvl_background_bmp, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);*/
+              tmp_lvl_map_background.background_id_sprite=(HBITMAP) LoadImageW(NULL, lvl_background_bmp, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);*/
 
               if ((in_main_menu && !level_loading && !in_map_editor) || back_to_menu) {
-                //if (tmp_map_background_sprite==NULL) {  //custom overwrites regular
+                //if (tmp_lvl_map_background.background_id_sprite==NULL) {  //custom overwrites regular
                   if (map_sunrise_time<=seconds_since_midnight && seconds_since_midnight<=map_sunset_time) { //day
-                    if (map_weather!=0) {mb_val=2;} else {mb_val=0;}
+                    if (lvl_map_background.weather_type!=0) {mb_val=2;} else {mb_val=0;}
                   } else {       //night
-                    if (map_weather!=0) {mb_val=3;} else {mb_val=1;}
+                    if (lvl_map_background.weather_type!=0) {mb_val=3;} else {mb_val=1;}
                   }
                 //}
               }
-
-              /*if (tmp_map_background_sprite==NULL) { //custom background doesnt exist
-                switch (mb_val) {
-                  case 0:
-                    if (GR_WIDTH<800 && GR_HEIGHT<600) {
-                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-                    } else {
-                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/sky_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-                    }
-                    break;
-                  case 1:
-                    if (GR_WIDTH<800 && GR_HEIGHT<600) {
-                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-                    } else {
-                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/stars_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);                    
-                    }
-                    break;
-                  case 2:
-                    if (GR_WIDTH<800 && GR_HEIGHT<600) {
-                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/skdark0.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-                    } else {
-                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/skdark0_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);                    
-                    }
-                    break;
-                  case 3:
-                    if (GR_WIDTH<800 && GR_HEIGHT<600) {
-                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/skdark1.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-                    } else {
-                      tmp_map_background_sprite=(HBITMAP) LoadImageW(NULL, L"sprites/skdark1_hd.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);                    
-                    }
-                    break;
-                }
-              }*/
-              /*if (tmp_map_background_sprite!=NULL) {
-                map_background_sprite=CopyStretchBitmap(tmp_map_background_sprite,SRCCOPY,GR_WIDTH+GR_WIDTH/8,GR_HEIGHT+GR_HEIGHT/8); //note runs once only
-                if (mb_val!=1 && mb_val!=2 && mb_val!=3) {
-                  PlaceDayMoon();
-                }
-              } else {
-                map_background_sprite=NULL;
-              }
-              DeleteObject(tmp_map_background_sprite);*/
             }
         } //end of alter screen actions
 
@@ -1554,9 +1515,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             }
 
             DrawPlatforms(hdcBackbuff,hdcBackbuff2);
-            if (map_background==0 && map_weather==0) {
+            if (lvl_map_background.is_sun)
               DrawSunRays(hdcBackbuff,hdcBackbuff2);
-            }
             DrawFirePlatforms(hdcBackbuff);
             DrawWebs(hdcBackbuff);
             DrawEnemy(hdcBackbuff,hdcBackbuff2);
@@ -1566,7 +1526,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             //if (is_shadows && game_shadow && SHADOW_GRID_NUM>0) {
               //DrawShadows(hdcBackbuff,hdcBackbuff2);
             //}
-            if (map_weather>0) {
+            if (lvl_map_background.weather_type>0) {
               DrawRain(hdcBackbuff,hdcBackbuff2);
             }
 
@@ -1579,7 +1539,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             //misc
             //DrawGUI
-            if (map_weather>0) {
+            if (lvl_map_background.weather_type>0) {
               DrawRainShader3(hdcBackbuff);
             }
 
@@ -1680,6 +1640,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             DrawMapEditorBackground(hdcBackbuff,hdcBackbuff2);
             DrawMapEditorWaterTexturePlatforms(hdcBackbuff,hdcBackbuff2);
             DrawMapEditorPlatforms(hdcBackbuff,hdcBackbuff2);
+            //DrawSunRays(hdcBackbuff,hdcBackbuff2);
             DrawMapEditorEnemy(hdcBackbuff,hdcBackbuff2);
             DrawMapEditorPlayer(hdcBackbuff,hdcBackbuff2);
             DrawGrids(hdcBackbuff,player.cam_x+GR_WIDTH/2,player.cam_y+GR_HEIGHT/2);
@@ -2449,6 +2410,12 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       sun_riseset.in_latitude  = -31.9514;
       sun_riseset.in_longitude = 115.8617;
       utc_offset=8;
+
+
+      //Texas
+      //sun_riseset.in_latitude  = 31.9686;
+      //sun_riseset.in_longitude = -99.9018;
+      //utc_offset=-5;
 
       //Norway/ North Norway
       //sun_riseset.in_latitude  =  60.4720;//69.3281;

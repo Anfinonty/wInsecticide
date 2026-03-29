@@ -39,7 +39,7 @@ void InitOneScreenRainDrop(int i)
 {
   //sc_raindrop[i].once=FALSE;
   int dice=0;
-  switch (map_weather) {
+  switch (lvl_map_background.weather_type) {
     case 1:
       sc_raindrop[i].x=RandNum(-20,GR_WIDTH+20,&misc_rng_i,-1);
       sc_raindrop[i].oy=RandNum(-20,GR_HEIGHT+20,&misc_rng_i,-1);
@@ -151,7 +151,7 @@ void ScreenRainDropAct()
       if (sc_raindrop[i].lifetime>0) {
         sc_raindrop[i].lifetime--;
         sc_raindrop[i].y+=sc_raindrop[i].speed;
-        if (map_weather!=1) {
+        if (lvl_map_background.weather_type!=1) {
           sc_raindrop[i].oy+=sc_raindrop[i].speed/3;
         }
       } else { //reset position
@@ -212,7 +212,7 @@ void ScreenRainDropAct()
 void DrawRainShader2(HDC hdc)
 {
   int c;
-  if (custom_map_background_color_i>127 || map_background==1) {
+  if (lvl_map_background.day_sky_color_i>127 || map_background==1) {
     if (player.rain_wet_timer>60) {
       c=DKGRAY;
     } else {
@@ -281,7 +281,7 @@ void DrawRainShader3(HDC hdcMem)
     }    
     for (int i=a;i<b;i++) {
       if (sc_raindrop[i].lifetime>0) {
-       switch (map_weather) {
+       switch (lvl_map_background.weather_type) {
           case 1: { //rain: expanding fading-out circle
             for (int s=0;s<3;s++) {
               bool small=FALSE;
@@ -1398,19 +1398,19 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
       if (!blank_level) {
         DrawPlatforms(hdc,hdc2);
         //if (map_sunrise_time<=seconds_since_00 && seconds_since_00<=map_sunset_time) {
-          if (map_weather==0)
+          if (lvl_map_background.weather_type==0)
             DrawSunRays(hdc,hdc2);
           else //rainy in day
-           custom_map_background_color=RGB(35,35,35);
+           lvl_map_background.day_sky_color=RGB(35,35,35);
         //} else { //night palette
-          //custom_map_background_color=BLACK;
+          //lvl_map_background.day_sky_color=BLACK;
         //}
         DrawFirePlatforms(hdc);
         DrawWebs(hdc);
         DrawEnemy(hdc,hdc2);
         DrawPlayer(hdc,hdc2,player.type);
         //DrawWaterPlatforms(hdc,hdc2);
-        if (map_weather>0) {
+        if (lvl_map_background.weather_type>0) {
           DrawRain(hdc,hdc2);
           DrawRainShader3(hdc);
         }

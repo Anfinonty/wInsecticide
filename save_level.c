@@ -163,11 +163,21 @@ void SaveNewCreatedLvl(const wchar_t* create_lvl_name_)
   fprintf(fptr,"228,;\n"); //player x
   fprintf(fptr,"400,;\n"); //player y
 
-  fprintf(fptr,"2,;\n"); //map background
-  fprintf(fptr,"15,;\n"); // map background color i
-  fprintf(fptr,"0,;\n"); // moon phase
 
-  fprintf(fptr,"0,;\n"); // weather
+  fprintf(fptr,"0,;\n"); //Background id
+  fprintf(fptr,"0,;\n"); //real time
+  fprintf(fptr,"1350878400,;\n"); //unix time
+  fprintf(fptr,"0.0,;\n"); //latitude
+  fprintf(fptr,"0.0,;\n"); //longitude
+  fprintf(fptr,"0.0,;\n"); //utc offset
+  fprintf(fptr,"1,;\n"); //sun on/off
+  fprintf(fptr,"1,;\n"); //stars on/off
+  fprintf(fptr,"1,;\n"); // moon on/off
+  fprintf(fptr,"0,;\n"); //eclipse type
+  fprintf(fptr,"1,;\n"); //clouds type
+  fprintf(fptr,"15,;\n"); // day color
+  fprintf(fptr,"0,;\n"); //night color
+  fprintf(fptr,"0,;\n"); // weather type
   fprintf(fptr,"37,;\n"); // rain rise
   fprintf(fptr,"26,;\n"); // rain run
 
@@ -346,13 +356,30 @@ void SaveMELvl(HWND hwnd,HDC hdc)
     fprintf(fptr,"%1.0f,;\n",player.x); //player x
     fprintf(fptr,"%1.0f,;\n",player.y); //player y
 
-    fprintf(fptr,"%d,;\n",MapEditor.set_lvl_ambient_val[0]/*map_background*/); //
-    fprintf(fptr,"%d,;\n",MapEditor.set_lvl_ambient_val[1]/*custom_map_background_color_i*/); // 
-    fprintf(fptr,"%d,;\n",MapEditor.set_lvl_ambient_val[2]/*is_moon*/); //
+    /*fprintf(fptr,"%d,;\n",MapEditor.set_lvl_ambient_val[0]); //
+    fprintf(fptr,"%d,;\n",MapEditor.set_lvl_ambient_val[1]); // 
+    fprintf(fptr,"%d,;\n",MapEditor.set_lvl_ambient_val[2]); //
     fprintf(fptr,"%d,;\n",MapEditor.set_lvl_ambient_val[3]); // 
     fprintf(fptr,"%d,;\n",MapEditor.set_lvl_ambient_val[4]); //
     fprintf(fptr,"%d,;\n",MapEditor.set_lvl_ambient_val[5]); //
+*/
 
+    fprintf(fptr,"%d,;\n",MapEditor.bg_attr_background_id);
+    fprintf(fptr,"%d,;\n",MapEditor.bg_attr_is_real_time);
+    fprintf(fptr,"%lld,;\n",MapEditor.bg_attr_unix_time);
+    fprintf(fptr,"%5.4f,;\n",MapEditor.bg_attr_latitude);
+    fprintf(fptr,"%5.4f,;\n",MapEditor.bg_attr_longitude);
+    fprintf(fptr,"%5.4f,;\n",MapEditor.bg_attr_utc_offset);
+    fprintf(fptr,"%d,;\n",MapEditor.bg_attr_is_sun);
+    fprintf(fptr,"%d,;\n",MapEditor.bg_attr_is_stars);
+    fprintf(fptr,"%d,;\n",MapEditor.bg_attr_is_moon);
+    fprintf(fptr,"%d,;\n",MapEditor.bg_attr_eclipse_type);
+    fprintf(fptr,"%d,;\n",MapEditor.bg_attr_clouds_type);
+    fprintf(fptr,"%d,;\n",MapEditor.bg_attr_day_bg_color_i);
+    fprintf(fptr,"%d,;\n",MapEditor.bg_attr_night_bg_color_i);
+    fprintf(fptr,"%d,;\n",MapEditor.bg_attr_weather_type);
+    fprintf(fptr,"%d,;\n",MapEditor.bg_attr_weather_grad_rise);
+    fprintf(fptr,"%d,;\n",MapEditor.bg_attr_weather_grad_run);
 
     for (int i=0;i<PLATFORM_TEXTURES_NUM;i++) {
       fprintf(fptr,"%d,",GamePlatformTextures[i].type);
@@ -723,14 +750,31 @@ void SaveNewLimitAdjustedLvl(HWND hwnd, HDC hdc)
     fprintf(fptr,"%1.0f,;\n",saved_player_x); //player x
     fprintf(fptr,"%1.0f,;\n",saved_player_y); //player y
 
-    fprintf(fptr,"%d,;\n",map_background); //
+/*    fprintf(fptr,"%d,;\n",map_background); //
     fprintf(fptr,"%d,;\n",custom_map_background_color_i); // 
     fprintf(fptr,"%d,;\n",is_moon); //
 
     fprintf(fptr,"%d,;\n",map_weather); //
     fprintf(fptr,"%d,;\n",rain_grad_rise); // 
     fprintf(fptr,"%d,;\n",rain_grad_run); // 
+*/
 
+    fprintf(fptr,"%d,;\n",lvl_map_background.background_id); //Background id
+    fprintf(fptr,"%d,;\n",lvl_map_background.is_real_time); //real time
+    fprintf(fptr,"%lld,;\n",lvl_map_background.unix_time); //unix time
+    fprintf(fptr,"%5.4f,;\n",lvl_map_background.latitude); //latitude
+    fprintf(fptr,"%5.4f,;\n",lvl_map_background.longitude); //longitude
+    fprintf(fptr,"%5.4f,;\n",lvl_map_background.utc_offset); //utc offset
+    fprintf(fptr,"%d,;\n",lvl_map_background.is_sun); //sun on/off
+    fprintf(fptr,"%d,;\n",lvl_map_background.is_stars); //stars on/off
+    fprintf(fptr,"%d,;\n",lvl_map_background.is_moon); //moon on/off
+    fprintf(fptr,"%d,;\n",lvl_map_background.eclipse_type); //eclipse type
+    fprintf(fptr,"%d,;\n",lvl_map_background.clouds_type); //clouds type
+    fprintf(fptr,"%d,;\n",lvl_map_background.day_sky_color_i); // day color
+    fprintf(fptr,"%d,;\n",lvl_map_background.night_sky_color_i); //night color
+    fprintf(fptr,"%d,;\n",lvl_map_background.weather_type); //weather type
+    fprintf(fptr,"%d,;\n",lvl_map_background.weather_rise); //weather rise
+    fprintf(fptr,"%d,;\n",lvl_map_background.weather_run); //weather run
 
     for (int i=0;i<PLATFORM_TEXTURES_NUM;i++) {
       fprintf(fptr,"%d,",GamePlatformTextures[i].type);

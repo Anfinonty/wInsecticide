@@ -418,7 +418,12 @@ void InitNodeShade()
   int tmp_on_ground_id=-1;
   int on_node_grid_id=-1;
   int lim=0,delta=0;;
-  float gradient=rain_grad_rise/rain_grad_run; //y/x to down-right
+  float denominator=lvl_map_background.weather_run;
+  float gradient; //y/x to down-right
+  if (denominator==0) {
+    denominator=1;
+  }
+  gradient=lvl_map_background.weather_rise/denominator;
   float start_x=0,x=0,y=0;
 
   if (gradient>0) {

@@ -258,23 +258,19 @@ void InitLevel(bool load_lvl)
 
   Init(); //Repeatable, Load Save via \n key
 
-  custom_map_background_color=rgbPaint[custom_map_background_color_i];
+  lvl_map_background.day_sky_color=rgbPaint[lvl_map_background.day_sky_color_i];
+  lvl_map_background.night_sky_color=rgbPaint[lvl_map_background.night_sky_color_i];
 
-  custom_map_background_dkcolor_i=custom_map_background_color_i-32;
-  if (custom_map_background_dkcolor_i<0) {
-    custom_map_background_dkcolor_i=0;
+  //For Eclipse 
+  lvl_map_background.day_sky_dkcolor_i=lvl_map_background.day_sky_color_i-32;
+  if (lvl_map_background.day_sky_dkcolor_i<0) {
+    lvl_map_background.day_sky_dkcolor_i+=256;
   }
-  custom_map_background_dkcolor=rgbPaint[custom_map_background_dkcolor_i];
-
-  /*custom_map_background_dkcolor_i2=custom_map_background_dkcolor_i-32-8;
-  if (custom_map_background_dkcolor_i2<0) {
-    custom_map_background_dkcolor_i2+=256;
-  }
-  custom_map_background_dkcolor2=rgbPaint[custom_map_background_dkcolor_i2];*/
+  lvl_map_background.day_sky_dkcolor=rgbPaint[lvl_map_background.day_sky_dkcolor_i];
 
 
-  if (rain_grad_run==0) {
-    rain_grad_run=1;
+  if (lvl_map_background.weather_run==0) { //denominator cannot be 0  or it crashes
+    lvl_map_background.weather_run=1;
   }
 
   //Load nalloc-able objects
@@ -284,8 +280,9 @@ void InitLevel(bool load_lvl)
   InitEnemySprites();
 
   //declare size of denominator
-  loading_denominator=/*SHADOW_GRID_NUM+*/PLATFORM_GRID_NUM/*+FOREGROUND_GRID_NUM*/+ENEMY_TYPE_NUM+(LARGE_ENEMY_TYPE_NUM*ROTATED_SPRITE_NUM*2)+LARGER_ENEMY_TYPE_NUM*ROTATED_SPRITE_NUM;
+  loading_denominator=PLATFORM_GRID_NUM+ENEMY_TYPE_NUM+(LARGE_ENEMY_TYPE_NUM*ROTATED_SPRITE_NUM*2)+LARGER_ENEMY_TYPE_NUM*ROTATED_SPRITE_NUM;
 
+  //Load malloc part 2 after calculating loading denominator
   InitEnemySpritesObj();
   InitPFEnemyObj();
   InitEnemyPathfindingNodes();
@@ -294,27 +291,51 @@ void InitLevel(bool load_lvl)
     in_main_menu=FALSE;
   } else { //going to main menu
     if (map_sunrise_time<=seconds_since_midnight && seconds_since_midnight<=map_sunset_time) {
-      map_background=0;
+      lvl_map_background.background_id=0;
     }
     int dice=abs(RandNum(0,100,&misc_rng_i,-1)); //random weather
     if (dice<30) {
       if (dice>15) {
-        map_weather=1; //rain
+        lvl_map_background.weather_type=1; //rain
       } else if (dice<7) {
-        map_weather=2; //snow
+        lvl_map_background.weather_type=2; //snow
       } else {
-        map_weather=3; //hailstorm
+        lvl_map_background.weather_type=3; //hailstorm
       }
     } else {
-      map_weather=0; //clear
+      lvl_map_background.weather_type=0; //clear
     }
   }
 
 
-  flag_begin_drawing_tiles=TRUE; //flag draw level tiles using screen 
-  loading_tile_grid_prog=1;
-  //allocate smallest to biggest
+  //Map Background
+  if (lvl_map_background.is_real_time) {
+    global_timenow=int64_current_timestamp();
+  } else {
+    global_timenow=lvl_map_background.unix_time;
+  }
+  PersiaSolarTime(global_timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);
+  PersiaLunarTime(global_timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);
 
+  global_lhd0=GetLunarHijriDays(1,lunar_month,lunar_year)*24*60*60;
+
+  sun_ctx_t sun_riseset;
+  sun_riseset.in_latitude  = lvl_map_background.latitude; 
+  sun_riseset.in_longitude = lvl_map_background.longitude;
+  sun_compute(&sun_riseset,&planet_earth,solar_day,solar_month,solar_year);
+  map_sunrise_time= sun_riseset.out_sunrise_mins*60 + lvl_map_background.utc_offset*60*60;
+  map_sunset_time= sun_riseset.out_sunset_mins*60  + lvl_map_background.utc_offset*60*60;
+  seconds_since_midnight=solar_hour*60*60 + solar_min*60 + solar_sec;
+  map_sunlight_seconds=map_sunset_time-map_sunrise_time;
+  map_darkness_seconds=60*60*24 - map_sunlight_seconds;
+
+  Sun.horizon_lvl=0;
+
+  flag_begin_drawing_tiles=TRUE; //flag draw level tiles using screen 
+
+  loading_tile_grid_prog=1;
+
+  //allocate smallest to biggest
   if (!stop_playing_song[0] && stop_playing_song[1] && load_lvl) {//main turntable open only please
     InitLoadLvlSong();
   }

@@ -23,19 +23,6 @@ char *enemy_type_int_attr_names[ENEMY_TYPE_INT_ATTR_NUM]=
 "Timebreaker Length"
 };
 
-char *melvlambienttxt_arr[9]=
-{
-"Background Type",
-"Background Color",
-"Has Moon",
-"Weather",
-"Rain Rise",
-"Rain Run",
-"Has Shadow",
-"Shadow Rise",
-"Shadow Run"
-};
-
 char *enemy_type_float_attr_names[ENEMY_TYPE_FLOAT_ATTR_NUM]=
 {
 "Speed",
@@ -46,6 +33,56 @@ char *enemy_type_bool_attr_names[ENEMY_TYPE_BOOL_ATTR_NUM]=
 {
 "Timebreaker Immune"
 };
+
+
+char *melvlattrtxt_arr[S_LVL_ATTR_NUM]=
+{
+  "Background ID",
+  "Real Time",
+  "Unix Time",
+  "Latitude",
+  "Longitude",
+  "UTC Offset",
+  "Sun",
+  "Stars",
+  "Moon",
+  "Eclipse",
+  "Clouds",
+  "Background Day Color",
+  "Background Night Color",
+  "Weather",
+  "Weather dy",
+  "Weather dx",
+};
+
+char *melvlattrtxt_eclipse_arr[6]=
+{
+  "None",
+  "Annular",
+  "Total",
+  "Partial Annular",
+  "Partial Total",
+  "Lunar"
+};
+
+char *melvlattrtxt_cloud_arr[5]=
+{
+  "Light Some",
+  "Dark Some",
+  "Light Cloudy",
+  "Dark Cloudy",
+  "None",
+};
+
+
+char *melvlattrtxt_weather_arr[4]=
+{
+  "None",
+  "Raining",
+  "Snowing",
+  "Hailstorm"
+};
+
 
 
 void DrawMapEditorWaterTexturePlatforms(HDC hdc, HDC hdc2)
@@ -271,10 +308,13 @@ void DrawMapEditorBackground(HDC hdc,HDC hdc2)
       break;
   }*/
 
-  GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,rgbPaint[MapEditor.set_lvl_ambient_val[1]]);
-  if (MapEditor.set_lvl_ambient_val[2]==1) {
+  //GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,rgbPaint[MapEditor.set_lvl_ambient_val[1]]);
+  //if (MapEditor.set_lvl_ambient_val[2]==1) {
     //DrawSprite(hdc, hdc2,GR_WIDTH-128,128,&draw_moon_sprite[current_moon_phase_id],FALSE);
-  }
+  //}
+
+  //GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,rgbPaint[MapEditor.bg_attr_day_bg_color_i]);
+  DrawBackground(hdc,hdc2);
 }
 
 
@@ -469,6 +509,7 @@ void DrawMapEditorUI(HDC hdc,HDC hdc2)
 
       case 3: //set enemy type
 //        GrPrintThick(hdc,8,16,"ENEMY TYPE:",BLACK);
+        {
         c = Highlight((MapEditor.selected_enemy_type_option==0),WHITE,LTPURPLE);
         GrPrintThick(hdc,8,16,"ENEMY TYPE:",c,BLACK);
         char print_enemy_type_id[16];
@@ -477,9 +518,9 @@ void DrawMapEditorUI(HDC hdc,HDC hdc2)
 
 
 
+        char print_enemy_type_int_attr[40];
         for (int i=0;i<ENEMY_TYPE_INT_ATTR_NUM;i++) {
           c = Highlight((MapEditor.selected_enemy_type_option==i+1),WHITE,LTPURPLE);
-          char print_enemy_type_int_attr[40];
           if (i!=4 && i!=16) {
             sprintf(print_enemy_type_int_attr,"%s <%d>  {%d}",enemy_type_int_attr_names[i],set_enemy_type_int_attr[i][MapEditor.selected_enemy_type_id],set_enemy_type_int_attr[i][MapEditor.clipboard_enemy_type_id]);            
             GrPrintThick(hdc,8,32+16*i,print_enemy_type_int_attr,c,BLACK);
@@ -555,49 +596,89 @@ void DrawMapEditorUI(HDC hdc,HDC hdc2)
             DrawBullet2(hdc,hdc2,i,Bullet[i].x,Bullet[i].y,Bullet[i].color);
           }
         }
+        }
         break;
 
-      case 4: //set map backgroudn and palette
-        GrPrintThick(hdc,8,16,"LEVEL",YELLOW,BLACK);
-        GrLine(hdc,320,16*8,320+MapEditor.set_lvl_ambient_val[5],16*8+MapEditor.set_lvl_ambient_val[4],BLUE);
-        GrLine(hdc,320,16*17,320+MapEditor.set_lvl_ambient_val[8],16*17+MapEditor.set_lvl_ambient_val[7],LTGRAY);
+      case 4: //set map background and palette
+        {
+        GrPrintThick(hdc,8,16,"LEVEL ENVIRONMENT",YELLOW,BLACK);
 
-        for (int i=0;i<9;i++) {
-          c = Highlight(MapEditor.selected_lvl_ambient_option==i,WHITE,LTPURPLE);
-          char melvlambienttxt[20];
-          switch (i) {
-            case 1:
-              GrPrintThick(hdc,8,16*3,"Background Color: [      ]",c,BLACK);
-              GrRect(hdc,8*17+1+2,16*3,16,16,WHITE);
-              GrRect(hdc,8*17+2+1+2,16*3+2,12,12,rgbPaint[MapEditor.set_lvl_ambient_val[1]]);
-              if (color_chooser.is_choosing_color) {
-                DrawPaintSquare(hdc,8*25,52+2,color_chooser.color_id,color_chooser.color_id_choosing);
-              }
-              break;
+         //Draw Weather Gradient Lines
+        //GrLine(hdc,320,16*8,320+MapEditor.set_lvl_ambient_val[5],16*8+MapEditor.set_lvl_ambient_val[4],BLUE);
+        //GrLine(hdc,320,16*17,320+MapEditor.set_lvl_ambient_val[8],16*17+MapEditor.set_lvl_ambient_val[7],LTGRAY);
+        char melvlambienttxt[32];
+        for (int i=0;i<S_LVL_ATTR_NUM;i++) {
+          c = Highlight(MapEditor.selected_bg_attr_option==i,WHITE,LTPURPLE);
+          switch (MELVL_bgattr_type[i]) {
+             case 0: {//int
+               int int_val=*(int*)MELVL_bgattr_ptr[i];
+               switch (i) {
+                 case 9: //Eclipse Type
+                   sprintf(melvlambienttxt,"%s: <%s>",melvlattrtxt_arr[i],melvlattrtxt_eclipse_arr[int_val]);
+                   GrPrintThick(hdc,8,16*(i+2),melvlambienttxt,c,BLACK);
+                   break;
+                 case 10: //Cloud Type
+                   sprintf(melvlambienttxt,"%s: <%s>",melvlattrtxt_arr[i],melvlattrtxt_cloud_arr[int_val]);
+                   GrPrintThick(hdc,8,16*(i+2),melvlambienttxt,c,BLACK);
+                   break;
+                 case 13: //Weather Type
+                   sprintf(melvlambienttxt,"%s: <%s>",melvlattrtxt_arr[i],melvlattrtxt_weather_arr[int_val]);
+                   GrPrintThick(hdc,8,16*(i+2),melvlambienttxt,c,BLACK);
+                   break;
+                 default: //numerical values default              
+                   sprintf(melvlambienttxt,"%s: <%d>",melvlattrtxt_arr[i],int_val);
+                   GrPrintThick(hdc,8,16*(i+2),melvlambienttxt,c,BLACK);
+                   break;
+                 case 11: //paint
+                 case 12: //paint
+                   sprintf(melvlambienttxt,"%s: [      ] ",melvlattrtxt_arr[i]);
+                   GrPrintThick(hdc,8,16*(i+2),melvlambienttxt,c,BLACK);
+                   if (i==11) {
+                     GrRect(hdc,8*19,16*(i+2)+1,16,16,WHITE);
+                     GrRect(hdc,8*19+2,16*(i+2)+3,12,12,rgbPaint[int_val]);
+                   } else {
+                     GrRect(hdc,8*20,16*(i+2)+1,16,16,WHITE);
+                     GrRect(hdc,8*20+2,16*(i+2)+3,12,12,rgbPaint[int_val]);
+                   }
+                   if (color_chooser.is_choosing_color && MapEditor.selected_bg_attr_option==i) {
+                     DrawPaintSquare(hdc,8*25,16*(i+2),color_chooser.color_id,color_chooser.color_id_choosing);
+                   }
+                   break;
+                 }
+               }
+               break;
+             case 1: { //bool
+               bool bool_val=*(bool*)MELVL_bgattr_ptr[i];
+               if (!bool_val) {
+                 sprintf(melvlambienttxt,"%s: <FALSE>",melvlattrtxt_arr[i]);
+               } else {
+                 sprintf(melvlambienttxt,"%s: <TRUE>",melvlattrtxt_arr[i]);
+               }
+               GrPrintThick(hdc,8,16*(i+2),melvlambienttxt,c,BLACK);
+               }
+               break;
+             case 2: { //int64_t
+               int64_t int64_val=*(int64_t*)MELVL_bgattr_ptr[i];
+               sprintf(melvlambienttxt,"%s: <%lld>",melvlattrtxt_arr[i],int64_val);
+               GrPrintThick(hdc,8,16*(i+2),melvlambienttxt,c,BLACK);
+               }
+               break;
+             case 3: {//float
+               float float_val=*(float*)MELVL_bgattr_ptr[i];
+               sprintf(melvlambienttxt,"%s: <%5.4f>",melvlattrtxt_arr[i],float_val);
+               GrPrintThick(hdc,8,16*(i+2),melvlambienttxt,c,BLACK);
+               }
+               break;
+          }
+        }
+        }
+        break;
 
-            //case 3:
-            case 6:
-              if (MapEditor.set_lvl_ambient_val[i]==0) {
-                sprintf(melvlambienttxt,"%s: <FALSE>",melvlambienttxt_arr[i]);
-              } else {
-                sprintf(melvlambienttxt,"%s: <TRUE>",melvlambienttxt_arr[i]);
-              }
-              GrPrintThick(hdc,8,16*(i+2),melvlambienttxt,c,BLACK);
-              break;
 
-            default:
-              sprintf(melvlambienttxt,"%s: <%d>",melvlambienttxt_arr[i],MapEditor.set_lvl_ambient_val[i]);
-              GrPrintThick(hdc,8,16*(i+2),melvlambienttxt,c,BLACK);
-              break;
-         }
-       }
-       break;
-
-
-      case 5: //set platform textures
+      case 5: {//set platform textures
+        char txt[24];
         GrPrintThick(hdc,8,16,"PLATFORM TEXTURE",YELLOW,BLACK);
         for (int i=0;i<4;i++) {
-          char txt[24];
           c = Highlight(MapEditor.selected_ptexture_option==i,WHITE,LTPURPLE);
           switch (i) {
             case 0:
@@ -625,6 +706,7 @@ void DrawMapEditorUI(HDC hdc,HDC hdc2)
         }
         DrawBitmap(hdc,hdc2,16,32+16*5,0,0,VGRID_SIZE,VGRID_SIZE,GamePlatformTextures[MapEditor.selected_ptexture_id].palette_sprite,SRCCOPY,FALSE,FALSE);
         DrawBitmap(hdc,hdc2,16,32+16*5+VGRID_SIZE+16,0,0,VGRID_SIZE,VGRID_SIZE,LoadedPlatformTextures[GamePlatformTextures[MapEditor.selected_ptexture_id].type],SRCCOPY,FALSE,FALSE);
+        }
         break;
     }
 

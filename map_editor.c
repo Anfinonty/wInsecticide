@@ -55,16 +55,26 @@ struct MapEditor
   //pick color
   int pick_color;
 
-  //==== background ambient ====
-  int selected_lvl_ambient_option;
+  //==== background attributes ====
+  int selected_bg_attr_option;
 
-
-
-
-  //set options for lvl ambient
-  int set_lvl_ambient_val[6];
-
-
+  //set options for lvl attribute
+  int bg_attr_background_id;
+  bool bg_attr_is_real_time;
+  int64_t bg_attr_unix_time;
+  float bg_attr_latitude;
+  float bg_attr_longitude;
+  float bg_attr_utc_offset;
+  bool bg_attr_is_sun;
+  bool bg_attr_is_stars;
+  bool bg_attr_is_moon;
+  int bg_attr_eclipse_type;
+  int bg_attr_clouds_type;
+  int bg_attr_day_bg_color_i;
+  int bg_attr_night_bg_color_i;
+  int bg_attr_weather_type;
+  int bg_attr_weather_grad_rise;
+  int bg_attr_weather_grad_run;
 
   //=== platform texture ====
   int selected_ptexture_option;
@@ -271,13 +281,123 @@ bool *set_enemy_type_bool_attr[ENEMY_TYPE_BOOL_ATTR_NUM]={
 };
 
 
-int melvlambience_min[9]={
+/*int melvlambience_min[9]={
 0,0,0,0,1,-100,0,1,-100
 };
 
 int melvlambience_max[9]={
 5,0,2,4,101,101,2,101,101
+};*/
+int melvlbgattr_min[S_LVL_ATTR_NUM]={
+0, //background type id:
+0, //real time
+-1,//unix time (handled elsewhere)
+-90,//latitude
+-180,//longitude
+-13,//utc offset
+0, //sun on/off
+0, //stars on/off
+0, //moon on/off
+0, //eclipse type
+0, //clouds type
+-1, //background day color_i  (handled elsewhere)
+-1, //background night color_i  (handled elsewhere)
+0, //weather type
+1, //weather grad rise
+-100 //weather grad run
 };
+
+int melvlbgattr_max[S_LVL_ATTR_NUM]={
+1, //background type id:
+2, //real time
+-1,//unix time (handled elsewhere)
+91,//latitude
+181,//longitude
+15,//utc offset
+2, //sun on/off
+2, //stars on/off
+2, //moon on/off
+6, //eclipse type
+5, //clouds type
+-1, //background day color_i (handled elsewhere)
+-1, //background night color_i  (handled elsewhere)
+4, //weather type
+101, //weather grad rise
+101 //weather grad run
+};
+
+
+//0 int
+//1 bool
+//2 int64_t
+//3 float
+int MELVL_bgattr_type[S_LVL_ATTR_NUM]={
+0, //background type id:
+1, //real time
+2,//unix time
+3,//latitude
+3,//longitude
+3,//utc offset
+1, //sun on/off
+1, //stars on/off
+1, //moon on/off
+0, //eclipse type
+0, //clouds type
+0, //background day color_i (handled elsewhere)
+0, //background night color_i  (handled elsewhere)
+0, //weather type
+0, //weather grad rise
+0 //weather grad run
+};
+
+float melvlbgattr_float_delta[3]=
+{
+  0.0001,
+  0.0001,
+  0.25
+};
+
+int melvlbgattr_int_delta[S_LVL_ATTR_NUM]=
+{
+  1,
+  1,
+  -1,//truefloat
+  -1,//truefloat
+  -1,//truefloat
+  60,
+  1,
+  1,
+  1,
+  1,
+  1,
+  -1,//paint
+  -1,//paint
+  1,
+  1,
+  1
+};
+
+
+void *MELVL_bgattr_ptr[S_LVL_ATTR_NUM]=
+{
+  &MapEditor.bg_attr_background_id,
+  &MapEditor.bg_attr_is_real_time,
+  &MapEditor.bg_attr_unix_time,
+  &MapEditor.bg_attr_latitude,
+  &MapEditor.bg_attr_longitude,
+  &MapEditor.bg_attr_utc_offset,
+  &MapEditor.bg_attr_is_sun,
+  &MapEditor.bg_attr_is_stars,
+  &MapEditor.bg_attr_is_moon,
+  &MapEditor.bg_attr_eclipse_type,
+  &MapEditor.bg_attr_clouds_type,
+  &MapEditor.bg_attr_day_bg_color_i,
+  &MapEditor.bg_attr_night_bg_color_i,
+  &MapEditor.bg_attr_weather_type,
+  &MapEditor.bg_attr_weather_grad_rise,
+  &MapEditor.bg_attr_weather_grad_run
+};
+
 
 
 //Map Editor Init()
@@ -670,7 +790,7 @@ void InitMapEditor()
   MapEditor.selected_enemy_type_id=0;
   MapEditor.selected_enemy_type_option=0;
 
-  MapEditor.selected_lvl_ambient_option=0;
+  MapEditor.selected_bg_attr_option=0;
 
   MapEditor.selected_ptexture_id=0;
   MapEditor.selected_ptexture_option=0;
@@ -682,13 +802,22 @@ void InitMapEditor()
   MapEditor.is_ground_txt_typing_loaded=FALSE;
   MapEditor.typing_ground_txt_pos=0;
 
-
-  MapEditor.set_lvl_ambient_val[0]=map_background;
-  MapEditor.set_lvl_ambient_val[1]=custom_map_background_color_i;
-  MapEditor.set_lvl_ambient_val[2]=is_moon;
-  MapEditor.set_lvl_ambient_val[3]=map_weather;
-  MapEditor.set_lvl_ambient_val[4]=rain_grad_rise;
-  MapEditor.set_lvl_ambient_val[5]=rain_grad_run;
+  MapEditor.bg_attr_background_id=lvl_map_background.background_id;
+  MapEditor.bg_attr_is_real_time=lvl_map_background.is_real_time;
+  MapEditor.bg_attr_unix_time=lvl_map_background.unix_time;
+  MapEditor.bg_attr_latitude=lvl_map_background.latitude;
+  MapEditor.bg_attr_longitude=lvl_map_background.longitude;
+  MapEditor.bg_attr_utc_offset=lvl_map_background.utc_offset;
+  MapEditor.bg_attr_is_sun=lvl_map_background.is_sun;
+  MapEditor.bg_attr_is_stars=lvl_map_background.is_stars;
+  MapEditor.bg_attr_is_moon=lvl_map_background.is_moon;
+  MapEditor.bg_attr_eclipse_type=lvl_map_background.eclipse_type;
+  MapEditor.bg_attr_clouds_type=lvl_map_background.clouds_type;
+  MapEditor.bg_attr_day_bg_color_i=lvl_map_background.day_sky_color_i;
+  MapEditor.bg_attr_night_bg_color_i=lvl_map_background.night_sky_color_i;
+  MapEditor.bg_attr_weather_type=lvl_map_background.weather_type;
+  MapEditor.bg_attr_weather_grad_rise=lvl_map_background.weather_rise;
+  MapEditor.bg_attr_weather_grad_run=lvl_map_background.weather_run;
 
   MapEditor.clipboard_ground_id=0;
   MapEditor.clipboard_ground_color_id=0;
@@ -758,6 +887,63 @@ void InitMapEditor()
 
 
 
+void InitMEBackground()
+{
+  lvl_map_background.is_real_time=MapEditor.bg_attr_is_real_time;
+  if (lvl_map_background.is_real_time) {
+    global_timenow=int64_current_timestamp();
+  } else {
+    global_timenow=MapEditor.bg_attr_unix_time;
+  }
+  PersiaSolarTime(global_timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);
+  PersiaLunarTime(global_timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);
+
+  global_lhd0=GetLunarHijriDays(1,lunar_month,lunar_year)*24*60*60;
+
+  sun_ctx_t sun_riseset;
+
+  sun_riseset.in_latitude  = MapEditor.bg_attr_latitude; 
+  sun_riseset.in_longitude = MapEditor.bg_attr_longitude;
+
+  sun_compute(&sun_riseset,&planet_earth,solar_day,solar_month,solar_year);
+  map_sunrise_time= sun_riseset.out_sunrise_mins*60 + MapEditor.bg_attr_utc_offset*60*60;
+  map_sunset_time= sun_riseset.out_sunset_mins*60  + MapEditor.bg_attr_utc_offset*60*60;
+  seconds_since_midnight=solar_hour*60*60 + solar_min*60 + solar_sec;
+  map_sunlight_seconds=map_sunset_time-map_sunrise_time;
+  map_darkness_seconds=60*60*24 - map_sunlight_seconds;
+
+  lvl_map_background.clouds_type=MapEditor.bg_attr_clouds_type;
+  lvl_map_background.day_sky_color_i=MapEditor.bg_attr_day_bg_color_i;
+  lvl_map_background.night_sky_color_i=MapEditor.bg_attr_night_bg_color_i;
+
+  lvl_map_background.day_sky_color=rgbPaint[lvl_map_background.day_sky_color_i];
+  lvl_map_background.night_sky_color=rgbPaint[lvl_map_background.night_sky_color_i];
+
+  lvl_map_background.is_sun=MapEditor.bg_attr_is_sun;
+  if (MapEditor.bg_attr_eclipse_type<5) {
+    lvl_map_background.eclipse_type=
+    Sun.eclipse_type=MapEditor.bg_attr_eclipse_type;
+    is_blood_moon=FALSE;
+  } else {
+    lvl_map_background.eclipse_type=
+    Sun.eclipse_type=0;
+    is_blood_moon=TRUE;
+  }
+  //For Eclipse 
+  lvl_map_background.day_sky_dkcolor_i=lvl_map_background.day_sky_color_i-32;
+  if (lvl_map_background.day_sky_dkcolor_i<0) {
+    lvl_map_background.day_sky_dkcolor_i+=256;
+  }
+  lvl_map_background.day_sky_dkcolor=rgbPaint[lvl_map_background.day_sky_dkcolor_i];
+
+  InitClouds();
+  InitSun();
+  //InitStars(); //<----change
+  //InitMoon(); //<----change
+
+  flag_draw_game_background_spriteII=TRUE;
+  flag_draw_game_background_sprite=TRUE;
+}
 
 
 
@@ -812,6 +998,8 @@ void InitLevelMapEditor()
   MapEditor.bullet_cooldown=0;
   MapEditor.bullet_fire_cooldown=0;
   MapEditor.bullet_length=0;
+
+  InitMEBackground();
 }
 
 
@@ -837,6 +1025,7 @@ void MEmove_y(float y)
 }
 
 
+
 void MapEditorAct()
 {
   //movement x,y
@@ -856,6 +1045,12 @@ void MapEditorAct()
     if (player.rst_down) {
       MEmove_y(5);
     }
+  }
+
+  //change background color
+  if (lvl_map_background.day_sky_color_i != MapEditor.bg_attr_day_bg_color_i || 
+      lvl_map_background.night_sky_color_i != MapEditor.bg_attr_night_bg_color_i) {
+    InitMEBackground();
   }
 
   //map editor cursor
@@ -1184,4 +1379,6 @@ void CleanupMapEditorAll()
     in_map_editor=FALSE;
     //printf("===All pointers freed, groundnum:%d,gridnum:%d,enemynum:%d\n",GROUND_NUM,VGRID_NUM,ENEMY_NUM);
 }
+
+
 

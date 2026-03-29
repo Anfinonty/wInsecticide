@@ -1393,20 +1393,10 @@ HBITMAP screen;
 HBITMAP screen_mirror;
 BYTE *publicScreenPixels,*publicScreenMirrorPixels, *publicBackgroundPixels;// *publicScreenModPixels;
 
-//moon, for calendar only
-/*HBITMAP moon_cartoon_sprite;
-HBITMAP moon_cartoon_sprite_cache;
-DRAWSPRITE draw_moon_cartoon_sprite;
+
+//Loaded Background
 
 
-//background moon
-int current_moon_phase_id;
-HBITMAP moon_sprite[8];
-HBITMAP moon_sprite_cache[8];
-DRAWSPRITE draw_moon_sprite[8];
-
-HBITMAP mirror_moon_sprite_cache[8];
-DRAWSPRITE draw_mirror_moon_sprite[8];*/
 
 
 

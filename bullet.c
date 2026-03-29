@@ -781,19 +781,19 @@ void InitBulletRain()
 {
   int max_bullet_num;
   weather_rng_i=0;
-  if (map_weather==1) {
+  if (lvl_map_background.weather_type==1) {
     if (GR_WIDTH>800) {
       max_bullet_num=SHOOT_BULLET_NUM+(RAIN_NUM/3);//+(RAIN_NUM/6);
     } else {
       max_bullet_num=SHOOT_BULLET_NUM+(RAIN_NUM/16);
     }
-  } else if (map_weather==2) {
+  } else if (lvl_map_background.weather_type==2) {
     if (GR_WIDTH>800) {
       max_bullet_num=BULLET_NUM;
     } else {
       max_bullet_num=SHOOT_BULLET_NUM+(RAIN_NUM/3/*+RAIN_NUM/24*/);
     }
-  } else if (map_weather==3) {
+  } else if (lvl_map_background.weather_type==3) {
     if (GR_WIDTH>800) {
       max_bullet_num=SHOOT_BULLET_NUM+((RAIN_NUM/3)*2);//+(RAIN_NUM/6);
     } else {
@@ -825,8 +825,8 @@ void InitBulletRain()
         10,
         0,
         0,
-        rain_grad_run,
-        rain_grad_rise,
+        lvl_map_background.weather_run,
+        lvl_map_background.weather_rise,
         0 //angle            
     );
   }
@@ -1139,7 +1139,7 @@ void BulletAct(int bullet_id)
             bool allow_spawn=TRUE;
             //check if below spawned web
             float check_x1,check_x2,c1,c2;
-            float rain_gradient=rain_grad_rise/rain_grad_run;
+            float rain_gradient=lvl_map_background.weather_rise/lvl_map_background.weather_run;
 
             int spawn_on_ng=GetGridId(rand_x,rand_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
             if (spawn_on_ng!=-1) {
@@ -1176,7 +1176,7 @@ void BulletAct(int bullet_id)
             int weather_bullet_type_graphics=0;
             int weather_bullet_type_speedm=0;
             float weather_bullet_type_speed=0.0;
-            switch (map_weather) {
+            switch (lvl_map_background.weather_type) {
               case 1: //rain;
                 {int d;
                 weather_bullet_type_graphics=-2;//-2;
@@ -1268,8 +1268,8 @@ void BulletAct(int bullet_id)
                 rand_y,
                 0,
                 0,
-                rain_grad_run+rand_extra_run,
-                rain_grad_rise,
+                lvl_map_background.weather_run+rand_extra_run,
+                lvl_map_background.weather_rise,
                 0 //angle            
               );
             } else {
@@ -1287,8 +1287,8 @@ void BulletAct(int bullet_id)
                 0,//y
                 0,
                 0,
-                rain_grad_run+rand_extra_run,
-                rain_grad_rise,
+                lvl_map_background.weather_run+rand_extra_run,
+                lvl_map_background.weather_rise,
                 0 //angle            
               );
             }
@@ -1350,7 +1350,7 @@ void BulletSndAct(int i)
 
 void RainAct()
 {
-  if (map_weather==1) { //rain
+  if (lvl_map_background.weather_type==1) { //rain
       if (GR_WIDTH>800) {
         for (int i=SHOOT_BULLET_NUM;i<SHOOT_BULLET_NUM/*+(RAIN_NUM/6)*/+(RAIN_NUM/3);i++) {
           BulletAct(i);
@@ -1360,7 +1360,7 @@ void RainAct()
           BulletAct(i);
         }
       }
-  } else if (map_weather==2) { //snow
+  } else if (lvl_map_background.weather_type==2) { //snow
       if (GR_WIDTH>800) {
         for (int i=SHOOT_BULLET_NUM;i<BULLET_NUM;i++) {
           BulletAct(i);
@@ -1371,7 +1371,7 @@ void RainAct()
         }
       }
 
-  } else if (map_weather==3) { //hailstorm
+  } else if (lvl_map_background.weather_type==3) { //hailstorm
       if (GR_WIDTH>800) {
         for (int i=SHOOT_BULLET_NUM;i<SHOOT_BULLET_NUM/*+(RAIN_NUM/6)*/+(RAIN_NUM/2)+(RAIN_NUM/4);i++) {
           BulletAct(i);

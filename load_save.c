@@ -280,48 +280,78 @@ float *player_float_pointer[S_PLAYER_FLOAT_NUM]=
 
 //Level Background Attributes
 //they are stored in this exact order
-int map_background; //0 day, //1 night-> night palette, //2 no background,
-int custom_map_background_color,
-    custom_map_background_dkcolor,
-    //custom_map_background_dkcolor2,
-    custom_map_background_color_i,
-    custom_map_background_dkcolor_i;
-    //custom_map_background_dkcolor_i2;
-int is_moon;
-
-//int map_moon_phase=0;
-/*
-  float map_moon_angle;
-  float map_stars_angle;
-  float map_sun_angle;
-*/
-
-int map_weather=0;
-float rain_grad_rise=1;
-float rain_grad_run=1;
-#define S_LEVEL_ATTR_NUM    6
-
-void *level_attributes[S_LEVEL_ATTR_NUM]=
+struct lvl_map_background
 {
-  &map_background,
-  &custom_map_background_color_i,
-  &is_moon,
-  &map_weather,
-  &rain_grad_rise,
-  &rain_grad_run
+  int background_id; //Background id
+  bool is_real_time; //real time
+  int64_t unix_time; //unix time
+  float latitude; //latitude
+  float longitude; //longitude
+  float utc_offset; //utc offset
+  bool is_sun; //sun on/off
+  bool is_stars; //stars on/off
+  bool is_moon; //moon on/off
+  int eclipse_type; //eclipse type
+  int clouds_type; //clouds type
+  int day_sky_color_i; // day color
+  int day_sky_dkcolor_i; //day color darker
+  int night_sky_color_i; //night color
+
+  //misc sky color
+  int day_sky_color;
+  int night_sky_color;
+  int day_sky_dkcolor;
+
+  int weather_type; //weather type
+  float weather_rise; //weather rise
+  float weather_run; //weather run
+  
+} lvl_map_background;
+
+#define S_LVL_ATTR_NUM    16
+void *level_attributes[S_LVL_ATTR_NUM]=
+{
+  &lvl_map_background.background_id, //Background id
+  &lvl_map_background.is_real_time, //real time
+  &lvl_map_background.unix_time, //unix time
+  &lvl_map_background.latitude, //latitude
+  &lvl_map_background.longitude, //longitude
+  &lvl_map_background.utc_offset, //utc offset
+  &lvl_map_background.is_sun, //sun on/off
+  &lvl_map_background.is_stars, //stars on/off
+  &lvl_map_background.is_moon, //moon on/off
+  &lvl_map_background.eclipse_type, //eclipse type
+  &lvl_map_background.clouds_type, //clouds type
+  &lvl_map_background.day_sky_color_i, // day color
+  &lvl_map_background.night_sky_color_i, //night color
+  &lvl_map_background.weather_type, //weather type
+  &lvl_map_background.weather_rise, //weather rise
+  &lvl_map_background.weather_run //weather run
 };
 
 //0 == bool
 //1 == int
 //2 == float
-char map_attr_var_type[S_LEVEL_ATTR_NUM]=
+//3 == int64_t
+//4 == true float
+char map_attr_var_type[S_LVL_ATTR_NUM]=
 {
-  1,
-  1,
-  1,
-  1,
-  2,
-  2,
+  1, //Background id
+  0, //real time
+  3, //unix time
+  4, //latitude
+  4, //longitude
+  4, //utc offset
+  0, //sun on/off
+  0, //stars on/off
+  0, //moon on/off
+  1, //eclipse
+  1, //clouds
+  1, // day color
+  1, //night color
+  1, //weather type
+  2, //weather rise
+  2 //weather run
 };
 
 //See in struct_classes.c
@@ -346,7 +376,7 @@ int load_lvl_jumpmap[LVL_LOAD_PHASE_NUM]=
   S_ENEMY_TYPE_INT_NUM,
   S_ENEMY_TYPE_BOOL_NUM,
   S_PLAYER_FLOAT_NUM,
-  S_LEVEL_ATTR_NUM,
+  S_LVL_ATTR_NUM,
   //S_TEXTURE_INT_NUM
 };
 
@@ -393,6 +423,17 @@ void GetSavesInDir(const wchar_t *dirname)
   }
 }
 
+int start_background_row=S_PRELUDE_ROW_NUM+
+      S_GROUND_FLOAT_NUM+
+      S_GROUND_BOOL_NUM+
+      S_GROUND_INT_NUM+
+      S_GROUND_UTF_NUM+
+      S_ENEMY_INT_NUM+
+      S_ENEMY_FLOAT_NUM+
+      S_ENEMY_TYPE_FLOAT_NUM+
+      S_ENEMY_TYPE_INT_NUM+
+      S_ENEMY_TYPE_BOOL_NUM+
+      S_PLAYER_FLOAT_NUM;
 
 
 bool LoadSave(wchar_t *saves_name, bool spawn_objects)
@@ -400,10 +441,11 @@ bool LoadSave(wchar_t *saves_name, bool spawn_objects)
   int row=0;
   int column=0;
   int set_txt_size=0;
-  int int_val=0;
-  int int_saved_val=0;
-  float float_val;
-  float float_saved_val;
+  int64_t int_val=0;
+  int64_t int_saved_val=0;
+  float float_val=0;
+  float float_saved_val=0;
+  float deci_multi=0.1;
   
   //for string char
   int char_utf16=0;
@@ -434,7 +476,7 @@ bool LoadSave(wchar_t *saves_name, bool spawn_objects)
   int lim_=load_lvl_jumpmap[current_lvl_load_phase_i];
 
   while ((c=fgetwc(fptr))!=WEOF) {
-    if (row<=3 /*|| (row>=40 && row!=46 && row!=48 && !(row>=49 && row<=51))*/) { //first 4 rows
+    if (row<=3) { //first 4 rows
       if (c!=';') {//not yet a semicolon
         if (c>='0' && c<='9') { //numerical chars only
           int_val=c-'0'; //ascii convert to num
@@ -539,25 +581,30 @@ bool LoadSave(wchar_t *saves_name, bool spawn_objects)
       if (c!=';') {//not yet a semicolon
         if (row!=13) {
           if (c>='0' && c<='9') { //numerical chars only
-            if (row!=17 && row!=18) {
+            if (row!=17 && row!=18 &&
+                !(row>=start_background_row+3 && row<=start_background_row+5)) { //Integer Rows
               int_val=(int)c-'0'; //ascii convert to num
               int_saved_val*=10; //move digit to left
               int_saved_val+=int_val; //append number digit to right side
-            } else {
+            } else { //Float Rows
               if (deci) {
-                float_val=(float)(c-'0')*0.1;
+                float_val=(float)(c-'0')*deci_multi; //move number to right
                 float_saved_val+=float_val;
-                deci=FALSE;
+                deci_multi*=0.1;
               } else {
-                float_saved_val=c-'0';
-                deci=TRUE;
+                float_val=c-'0';
+                float_saved_val*=10; //move digit to left
+                float_saved_val+=float_val; //append number digit to right side
               }
             }
+          } else if (c=='.') {
+            deci=TRUE;
           } else if (c=='-') {
             is_negative_val=TRUE;
           } else if (c==',') {//comma value
             if (is_negative_val) {
               int_saved_val=-abs(int_saved_val);
+              float_saved_val=-abs(float_saved_val);              
               is_negative_val=FALSE;
             }
 
@@ -576,15 +623,18 @@ bool LoadSave(wchar_t *saves_name, bool spawn_objects)
               case 11:  //Saved Map Attributes Segment
                 switch (map_attr_var_type[row-low_]) {
                   case 0:*(bool*)level_attributes[row-low_]=(bool)int_saved_val;break;
-                  case 1:*(int*)level_attributes[row-low_]=int_saved_val;break;
+                  case 1:*(int*)level_attributes[row-low_]=(int)int_saved_val;break;
                   case 2:*(float*)level_attributes[row-low_]=(float)int_saved_val;break;
+                  case 3:*(int64_t*)level_attributes[row-low_]=(int64_t)int_saved_val;break; //!...
+                  case 4:*(float*)level_attributes[row-low_]=(float)float_saved_val;break;
                 }
                 break;
               case 12:  //Game Platform Textures Segment
-                switch (row) {
-                  case 48: GamePlatformTextures[column].type=int_saved_val;break;
-                  case 49: GamePlatformTextures[column].solid_value=int_saved_val;break;
-                  case 50: GamePlatformTextures[column].color_id=int_saved_val;break;
+                {
+                int le_row=start_background_row+S_LVL_ATTR_NUM;
+                if (row==le_row) {GamePlatformTextures[column].type=int_saved_val;}
+                else if (row==le_row+1) {GamePlatformTextures[column].solid_value=int_saved_val;}
+                else if (row==le_row+2) {GamePlatformTextures[column].color_id=int_saved_val;}
                 }
                 break;
             }
@@ -594,6 +644,9 @@ bool LoadSave(wchar_t *saves_name, bool spawn_objects)
             column++;
             is_negative_val=FALSE;
             int_val=int_saved_val=0;//restart values
+            float_val=float_saved_val=0;
+            deci_multi=0.1;
+            deci=FALSE;
           }//end of comma value
 
 
@@ -647,6 +700,9 @@ bool LoadSave(wchar_t *saves_name, bool spawn_objects)
         //End of characters only
       } else { //semi colon ;
         column=int_val=int_saved_val=0;//restart values
+        float_val=float_saved_val=0;
+        deci_multi=0.1;
+        deci=FALSE;
         is_negative_val=FALSE;
         row++;
 

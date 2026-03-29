@@ -56,9 +56,12 @@ void MEColorPickKeypressDown(WPARAM wParam)
       ColorKeypressDown(wParam,&set_enemy_type_bullet_color[MapEditor.selected_enemy_type_id]);
       break;
     case 3: //Background
-      ColorKeypressDown(wParam,&MapEditor.set_lvl_ambient_val[1]);
+      ColorKeypressDown(wParam,&MapEditor.bg_attr_day_bg_color_i);      
       break;
-    case 4: //Texture Palette
+    case 4: //Background
+      ColorKeypressDown(wParam,&MapEditor.bg_attr_night_bg_color_i);
+      break;
+    case 5: //Texture Palette
       ColorKeypressDown(wParam,&GamePlatformTextures[MapEditor.selected_ptexture_id].color_id);
       MapEditor.alter_ptexture_color=TRUE;
       break;
@@ -80,9 +83,12 @@ void MEColorPickKeypressUp(WPARAM wParam)
       ColorKeypressUp(wParam,&set_enemy_type_bullet_color[MapEditor.selected_enemy_type_id]);
       break;
     case 3:
-      ColorKeypressUp(wParam,&MapEditor.set_lvl_ambient_val[1]);
+      ColorKeypressUp(wParam,&MapEditor.bg_attr_day_bg_color_i);
       break;
-    case 4: //Texture Palette
+    case 4:
+      ColorKeypressUp(wParam,&MapEditor.bg_attr_night_bg_color_i);
+      break;
+    case 5: //Texture Palette
       ColorKeypressUp(wParam,&GamePlatformTextures[MapEditor.selected_ptexture_id].color_id);
       MapEditor.alter_ptexture_color=TRUE;
       break;
@@ -242,7 +248,7 @@ void MapEditorKeypressDown(WPARAM wParam)
                 LimitValueInt(MapEditor.selected_enemy_type_option+1,0,ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_FLOAT_ATTR_NUM+ENEMY_TYPE_BOOL_ATTR_NUM+1);
             break;
           case 4:
-            MapEditor.selected_lvl_ambient_option=LimitValueInt(MapEditor.selected_lvl_ambient_option+1,0,9);
+            MapEditor.selected_bg_attr_option=LimitValueInt(MapEditor.selected_bg_attr_option+1,0,S_LVL_ATTR_NUM);
             break;
           case 5: //textures vk_down++
             MapEditor.selected_ptexture_option=LimitValueInt(MapEditor.selected_ptexture_option+1,0,4);
@@ -270,7 +276,7 @@ void MapEditorKeypressDown(WPARAM wParam)
             MapEditor.selected_enemy_type_option=LimitValueInt(MapEditor.selected_enemy_type_option-1,0,ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_FLOAT_ATTR_NUM+ENEMY_TYPE_BOOL_ATTR_NUM+1);
             break;
           case 4:
-            MapEditor.selected_lvl_ambient_option=LimitValueInt(MapEditor.selected_lvl_ambient_option-1,0,9);
+            MapEditor.selected_bg_attr_option=LimitValueInt(MapEditor.selected_bg_attr_option-1,0,S_LVL_ATTR_NUM);
             break;
           case 5: //textures vk_up --
             MapEditor.selected_ptexture_option=LimitValueInt(MapEditor.selected_ptexture_option-1,0,4);
@@ -308,9 +314,6 @@ void MapEditorKeypressDown(WPARAM wParam)
                 Ground[MapEditor.selected_ground_id]->type=LimitValueInt(Ground[MapEditor.selected_ground_id]->type-1,0,9);
                 MapEditor.selected_ground_pivot=0;
                 break;
-              /*case 2: // color
-                Ground[MapEditor.selected_ground_id]->color_id=LimitValueInt(Ground[MapEditor.selected_ground_id]->color_id-1,0,COLORS_NUM);
-                break;*/
               case 3: // is_ghost
                 if (Ground[MapEditor.selected_ground_id]->type==0)
                   Ground[MapEditor.selected_ground_id]->is_ghost = !Ground[MapEditor.selected_ground_id]->is_ghost;
@@ -380,15 +383,59 @@ void MapEditorKeypressDown(WPARAM wParam)
               MapEditor.selected_enemy_type_id = LimitValueInt(MapEditor.selected_enemy_type_id-1,0,ENEMY_TYPE_NUM);
             }
             break;
-          case 4:
-            if (MapEditor.selected_lvl_ambient_option!=1) {
-              if (MapEditor.selected_lvl_ambient_option==0) {
+          case 4: //background attributes --
+            if (MapEditor.selected_bg_attr_option!=11 && MapEditor.selected_bg_attr_option!=12) { //if not paint option
+              /*if (MapEditor.selected_bg_attr_option==0) { // update background when time is being adjusted
                 flag_update_background=TRUE;
+              }*/
+              if (MapEditor.selected_bg_attr_option>=3 && MapEditor.selected_bg_attr_option<=5) {//truefloat values
+                float float_val=*(float*)MELVL_bgattr_ptr[MapEditor.selected_bg_attr_option];
+                float delta_val=melvlbgattr_float_delta[MapEditor.selected_bg_attr_option-3];
+                if (MapEditor.selected_bg_attr_option<5) { //shift
+                  if (keydown(VK_LSHIFT)) {
+                    delta_val*=10000;
+                  } else if (keydown(VK_RSHIFT)) {
+                    delta_val*=100;
+                  }
+                }
+                *(float*)MELVL_bgattr_ptr[MapEditor.selected_bg_attr_option]=
+                    LimitValue(float_val-delta_val,
+                      melvlbgattr_min[MapEditor.selected_bg_attr_option],
+                      melvlbgattr_max[MapEditor.selected_bg_attr_option]);                
+              } else { //int, int64_t or bool values
+                switch (MELVL_bgattr_type[MapEditor.selected_bg_attr_option]) {
+                  case 0: {
+                    int val=*(int*)MELVL_bgattr_ptr[MapEditor.selected_bg_attr_option];
+                    *(int*)MELVL_bgattr_ptr[MapEditor.selected_bg_attr_option]=
+                      LimitValueInt(val-melvlbgattr_int_delta[MapEditor.selected_bg_attr_option],
+                        melvlbgattr_min[MapEditor.selected_bg_attr_option],
+                        melvlbgattr_max[MapEditor.selected_bg_attr_option]);
+                    }
+                    break;
+                  case 1: {
+                    int val=(int)(*(bool*)MELVL_bgattr_ptr[MapEditor.selected_bg_attr_option]);
+                    *(bool*)MELVL_bgattr_ptr[MapEditor.selected_bg_attr_option]=
+                      LimitValueInt(val-melvlbgattr_int_delta[MapEditor.selected_bg_attr_option],
+                        melvlbgattr_min[MapEditor.selected_bg_attr_option],
+                        melvlbgattr_max[MapEditor.selected_bg_attr_option]);
+                    }
+                    break;
+                  case 2: {
+                    int64_t int64_delta=60;
+                    if (keydown(VK_RSHIFT)) {
+                      int64_delta=600;
+                    } else if (keydown(VK_LSHIFT)) {
+                      int64_delta=3600;
+                    }
+                    MapEditor.bg_attr_unix_time=
+                      LimitValueInt64(MapEditor.bg_attr_unix_time-int64_delta,
+                        -INT64_MAX,
+                        INT64_MAX);
+                    }
+                    break;
+                }
               }
-              MapEditor.set_lvl_ambient_val[MapEditor.selected_lvl_ambient_option]=
-                LimitValue(MapEditor.set_lvl_ambient_val[MapEditor.selected_lvl_ambient_option]-1,
-                  melvlambience_min[MapEditor.selected_lvl_ambient_option],
-                  melvlambience_max[MapEditor.selected_lvl_ambient_option]);
+              InitMEBackground();
             }
             break;
          case 5: //textures vk_left, --
@@ -506,16 +553,60 @@ void MapEditorKeypressDown(WPARAM wParam)
             }
             break;
 
-          //Level ambience
-          case 4:
-            if (MapEditor.selected_lvl_ambient_option!=1) {
-              if (MapEditor.selected_lvl_ambient_option==0) {
+          //Level background attributes
+          case 4: //background attributes ++
+            if (MapEditor.selected_bg_attr_option!=11 && MapEditor.selected_bg_attr_option!=12) { //if not paint option
+              /*if (MapEditor.selected_bg_attr_option==0) { // update background when time is being adjusted
                 flag_update_background=TRUE;
+              }*/
+              if (MapEditor.selected_bg_attr_option>=3 && MapEditor.selected_bg_attr_option<=5) {//truefloat values
+                float float_val=*(float*)MELVL_bgattr_ptr[MapEditor.selected_bg_attr_option];
+                float delta_val=melvlbgattr_float_delta[MapEditor.selected_bg_attr_option-3];
+                if (MapEditor.selected_bg_attr_option<5) { //shift
+                  if (keydown(VK_LSHIFT)) {
+                    delta_val*=10000;
+                  } else if (keydown(VK_RSHIFT)) {
+                    delta_val*=100;
+                  }
+                }
+                *(float*)MELVL_bgattr_ptr[MapEditor.selected_bg_attr_option]=
+                    LimitValue(float_val+delta_val,
+                      melvlbgattr_min[MapEditor.selected_bg_attr_option],
+                      melvlbgattr_max[MapEditor.selected_bg_attr_option]);                
+              } else { //int, int64_t or bool values
+                switch (MELVL_bgattr_type[MapEditor.selected_bg_attr_option]) {
+                  case 0: {
+                    int val=*(int *)MELVL_bgattr_ptr[MapEditor.selected_bg_attr_option];
+                    *(int*)MELVL_bgattr_ptr[MapEditor.selected_bg_attr_option]=
+                      LimitValueInt(val+melvlbgattr_int_delta[MapEditor.selected_bg_attr_option],
+                        melvlbgattr_min[MapEditor.selected_bg_attr_option],
+                        melvlbgattr_max[MapEditor.selected_bg_attr_option]);
+                    }
+                    break;
+                  case 1: {
+                    int val=(int)(*(bool *)MELVL_bgattr_ptr[MapEditor.selected_bg_attr_option]);
+                    *(bool*)MELVL_bgattr_ptr[MapEditor.selected_bg_attr_option]=
+                      LimitValueInt(val+melvlbgattr_int_delta[MapEditor.selected_bg_attr_option],
+                        melvlbgattr_min[MapEditor.selected_bg_attr_option],
+                        melvlbgattr_max[MapEditor.selected_bg_attr_option]);
+                    }
+                    break;
+                  case 2: {
+                    int64_t int64_delta=60;
+                    if (keydown(VK_RSHIFT)) {
+                      int64_delta=600;
+                    } else if (keydown(VK_LSHIFT)) {
+                      int64_delta=3600;
+                    }
+                    MapEditor.bg_attr_unix_time=
+                      LimitValueInt64(MapEditor.bg_attr_unix_time+int64_delta,
+                        -INT64_MAX,
+                        INT64_MAX);
+                    }
+                    break;
+                }
               }
-              MapEditor.set_lvl_ambient_val[MapEditor.selected_lvl_ambient_option]=
-                LimitValue(MapEditor.set_lvl_ambient_val[MapEditor.selected_lvl_ambient_option]+1,
-                  melvlambience_min[MapEditor.selected_lvl_ambient_option],
-                  melvlambience_max[MapEditor.selected_lvl_ambient_option]);
+              InitMEBackground();
             }
             break;
 
@@ -570,17 +661,25 @@ void MapEditorKeypressDown(WPARAM wParam)
           } 
           break;
       case 4:
-        if (MapEditor.selected_lvl_ambient_option==1) {
-          color_chooser.is_choosing_color=TRUE;
-          MapEditor.pick_color=3;
-          color_chooser.color_id=
-          color_chooser.color_id_choosing=MapEditor.set_lvl_ambient_val[1];
+        switch (MapEditor.selected_bg_attr_option) {
+          case 11:
+            color_chooser.is_choosing_color=TRUE;
+            MapEditor.pick_color=3;
+            color_chooser.color_id=
+            color_chooser.color_id_choosing=MapEditor.bg_attr_day_bg_color_i;
+            break;
+          case 12:
+            color_chooser.is_choosing_color=TRUE;
+            MapEditor.pick_color=4;
+            color_chooser.color_id=
+            color_chooser.color_id_choosing=MapEditor.bg_attr_night_bg_color_i;
+            break;
         }
         break;
       case 5:
         if (MapEditor.selected_ptexture_option==3) {
           color_chooser.is_choosing_color=TRUE;
-          MapEditor.pick_color=4;
+          MapEditor.pick_color=5;
           color_chooser.color_id=
           color_chooser.color_id_choosing=GamePlatformTextures[MapEditor.selected_ptexture_id].color_id;
         }
