@@ -157,10 +157,15 @@ void DrawCreateTiles(HDC hdc,HDC hdc2)
     //}
 
     //draw load ptextures
-    for (int i=0;i<PLATFORM_TEXTURES_NUM;i++) {
-      InitColorPlatformTextures(hdc,hdc2,i);
+    if (lvl_map_background.brightness_type==0) {
+      for (int i=0;i<PLATFORM_TEXTURES_NUM;i++) {
+        InitColorPlatformTextures(hdc,hdc2,i,0);
+      }
+    } else {
+      for (int i=0;i<PLATFORM_TEXTURES_NUM;i++) {
+        InitColorPlatformTextures(hdc,hdc2,i,lvl_map_background.dark_lvl);
+      }
     }
-
     loading_tile_grid_prog=3;
   } else if (loading_tile_grid_prog==3) {
 

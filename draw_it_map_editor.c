@@ -53,6 +53,8 @@ char *melvlattrtxt_arr[S_LVL_ATTR_NUM]=
   "Weather",
   "Weather dy",
   "Weather dx",
+  "Brightness Type",
+  "Brightness Level"
 };
 
 char *melvlattrtxt_eclipse_arr[6]=
@@ -83,6 +85,20 @@ char *melvlattrtxt_weather_arr[4]=
   "Hailstorm"
 };
 
+char *melvlattrtxt_brightness_type_arr[2]=
+{
+  "Static",
+  "Dynamic"
+};
+
+char *melvlattrtxt_darkness_lvl_arr[5]=
+{
+  "Normal",
+  "Dark",
+  "Darker",
+  "Darkest",
+  "Night"
+};
 
 
 void DrawMapEditorWaterTexturePlatforms(HDC hdc, HDC hdc2)
@@ -116,7 +132,8 @@ void DrawMapEditorWaterPlatforms(HDC hdc)
     i=render_grounds[k];
     if (i!=-1) {
       if (Ground[i]->type==1) {
-        c=rgbPaint[Ground[i]->color_id];
+        //c=rgbPaint[Ground[i]->color_id];
+        c=rgbPaintBrightness[MapEditor.bg_attr_dark_lvl][Ground[i]->color_id];
         if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
             !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
 	      DrawTriFill(hdc,c,
@@ -153,7 +170,8 @@ void DrawMapEditorPlatforms(HDC hdc,HDC hdc2)
     i=render_grounds[k];
     if (i!=-1) {
       if (Ground[i]->type==3 || Ground[i]->type==4 || Ground[i]->type==8) { 
-	    c=rgbPaint[Ground[i]->color_id];
+	    //c=rgbPaint[Ground[i]->color_id];
+        c=rgbPaintBrightness[MapEditor.bg_attr_dark_lvl][Ground[i]->color_id];
         if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
             !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
 	      DrawTriFill(hdc,c,
@@ -180,7 +198,8 @@ void DrawMapEditorPlatforms(HDC hdc,HDC hdc2)
               }
         }
       } else if (Ground[i]->type==7) {
-	    c=rgbPaint[Ground[i]->color_id];
+	    //c=rgbPaint[Ground[i]->color_id];
+        c=rgbPaintBrightness[MapEditor.bg_attr_dark_lvl][Ground[i]->color_id];
         if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
             !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
 	      DrawTriFill(hdc,c,
@@ -216,8 +235,8 @@ void DrawMapEditorPlatforms(HDC hdc,HDC hdc2)
                 Ground[i]->y1+player.cam_y+GR_HEIGHT/2,
                 Ground[i]->x2+player.cam_x+GR_WIDTH/2,
                 Ground[i]->y2+player.cam_y+GR_HEIGHT/2,
-                rgbPaint[Ground[i]->color_id]);
-
+                //rgbPaint[Ground[i]->color_id]);
+                rgbPaintBrightness[MapEditor.bg_attr_dark_lvl][Ground[i]->color_id]);
       }
     }
     }
@@ -238,7 +257,8 @@ void DrawMapEditorPlatforms(HDC hdc,HDC hdc2)
             Ground[i]->y1+player.cam_y+GR_HEIGHT/2,
             Ground[i]->text,
             "",
-            rgbPaint[Ground[i]->color_id],
+//            rgbPaint[Ground[i]->color_id],
+            rgbPaintBrightness[MapEditor.bg_attr_dark_lvl][Ground[i]->color_id],
             //16,
             Ground[i]->font_size,
             FALSE,
@@ -424,13 +444,13 @@ void DrawMapEditorUI(HDC hdc,HDC hdc2)
         //}
 
         GrRect(hdc,8*12+1,52,16,16,WHITE);
-        GrRect(hdc,8*12+2+1,52+2,12,12,rgbPaint[Ground[MapEditor.selected_ground_id]->color_id]);
+        GrRect(hdc,8*12+2+1,52+2,12,12,rgbPaintBrightness[MapEditor.bg_attr_dark_lvl][Ground[MapEditor.selected_ground_id]->color_id]);//rgbPaint[Ground[MapEditor.selected_ground_id]->color_id]);
 
         GrRect(hdc,8*16,52,16,16,WHITE);
-        GrRect(hdc,8*16+2,52+2,12,12,rgbPaint[Ground[MapEditor.clipboard_ground_id]->color_id]);
+        GrRect(hdc,8*16+2,52+2,12,12,rgbPaintBrightness[MapEditor.bg_attr_dark_lvl][Ground[MapEditor.clipboard_ground_id]->color_id]);//rgbPaint[Ground[MapEditor.clipboard_ground_id]->color_id]);
 
         GrRect(hdc,8*20,52,16,16,WHITE);
-        GrRect(hdc,8*20+2,52+2,12,12,rgbPaint[MapEditor.clipboard_ground_color_id]);
+        GrRect(hdc,8*20+2,52+2,12,12,rgbPaintBrightness[MapEditor.bg_attr_dark_lvl][MapEditor.clipboard_ground_color_id]);//rgbPaint[MapEditor.clipboard_ground_color_id]);
 
         if (color_chooser.is_choosing_color) {
           DrawPaintSquare(hdc,8*12+2+1+64,52+2,color_chooser.color_id,color_chooser.color_id_choosing);
@@ -625,6 +645,14 @@ void DrawMapEditorUI(HDC hdc,HDC hdc2)
                    sprintf(melvlambienttxt,"%s: <%s>",melvlattrtxt_arr[i],melvlattrtxt_weather_arr[int_val]);
                    GrPrintThick(hdc,8,16*(i+2),melvlambienttxt,c,BLACK);
                    break;
+                 case 16:
+                    sprintf(melvlambienttxt,"%s: <%s>",melvlattrtxt_arr[i],melvlattrtxt_brightness_type_arr[int_val]);
+                    GrPrintThick(hdc,8,16*(i+2),melvlambienttxt,c,BLACK);
+                    break;
+                 case 17:
+                    sprintf(melvlambienttxt,"%s: <%s>",melvlattrtxt_arr[i],melvlattrtxt_darkness_lvl_arr[int_val]);
+                    GrPrintThick(hdc,8,16*(i+2),melvlambienttxt,c,BLACK);
+                    break;
                  default: //numerical values default              
                    sprintf(melvlambienttxt,"%s: <%d>",melvlattrtxt_arr[i],int_val);
                    GrPrintThick(hdc,8,16*(i+2),melvlambienttxt,c,BLACK);
@@ -697,15 +725,15 @@ void DrawMapEditorUI(HDC hdc,HDC hdc2)
               GrPrintThick(hdc,8,32+16*i,"Color:",c,BLACK); 
               GrPrintThick(hdc,8*11,32+16*i,"[      ]",c,BLACK);
               GrRect(hdc,8*12+1,32+16*i+2,16,16,WHITE);
-              GrRect(hdc,8*12+2+1,32+16*i+4,12,12,rgbPaint[GamePlatformTextures[MapEditor.selected_ptexture_id].color_id]);
+              GrRect(hdc,8*12+2+1,32+16*i+4,12,12,rgbPaintBrightness[MapEditor.bg_attr_dark_lvl][GamePlatformTextures[MapEditor.selected_ptexture_id].color_id]);//rgbPaint[GamePlatformTextures[MapEditor.selected_ptexture_id].color_id]);
               break;
           }
         }
         if (color_chooser.is_choosing_color) {
           DrawPaintSquare(hdc,8*25,52+2,color_chooser.color_id,color_chooser.color_id_choosing);
         }
-        DrawBitmap(hdc,hdc2,16,32+16*5,0,0,VGRID_SIZE,VGRID_SIZE,GamePlatformTextures[MapEditor.selected_ptexture_id].palette_sprite,SRCCOPY,FALSE,FALSE);
-        DrawBitmap(hdc,hdc2,16,32+16*5+VGRID_SIZE+16,0,0,VGRID_SIZE,VGRID_SIZE,LoadedPlatformTextures[GamePlatformTextures[MapEditor.selected_ptexture_id].type],SRCCOPY,FALSE,FALSE);
+        DrawBitmap(hdc,hdc2,16,32+16*5,0,0,VGRID_SIZE,VGRID_SIZE,GamePlatformTextures[MapEditor.selected_ptexture_id].palette_sprite,SRCCOPY,FALSE,FALSE); //Draw Game Textures
+        DrawBitmap(hdc,hdc2,16,32+16*5+VGRID_SIZE+16,0,0,VGRID_SIZE,VGRID_SIZE,LoadedPlatformTextures[GamePlatformTextures[MapEditor.selected_ptexture_id].type],SRCCOPY,FALSE,FALSE); //Draw Original Textures
         }
         break;
     }

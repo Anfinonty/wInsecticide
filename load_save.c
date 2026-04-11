@@ -306,9 +306,11 @@ struct lvl_map_background
   float weather_rise; //weather rise
   float weather_run; //weather run
   
+  int brightness_type; //dynamic/static
+  int dark_lvl; //
 } lvl_map_background;
 
-#define S_LVL_ATTR_NUM    16
+#define S_LVL_ATTR_NUM    18
 void *level_attributes[S_LVL_ATTR_NUM]=
 {
   &lvl_map_background.background_id, //Background id
@@ -326,7 +328,9 @@ void *level_attributes[S_LVL_ATTR_NUM]=
   &lvl_map_background.night_sky_color_i, //night color
   &lvl_map_background.weather_type, //weather type
   &lvl_map_background.weather_rise, //weather rise
-  &lvl_map_background.weather_run //weather run
+  &lvl_map_background.weather_run, //weather run
+  &lvl_map_background.brightness_type, //static,dynamic
+  &lvl_map_background.dark_lvl //0,dark,darker,darkest,night
 };
 
 //0 == bool
@@ -351,7 +355,9 @@ char map_attr_var_type[S_LVL_ATTR_NUM]=
   1, //night color
   1, //weather type
   2, //weather rise
-  2 //weather run
+  2, //weather run
+  1,
+  1
 };
 
 //See in struct_classes.c

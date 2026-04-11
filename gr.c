@@ -413,6 +413,11 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
 }
 
 int rgbPaint[256];
+int rgbPaintDark[256];
+int rgbPaintDarker[256];
+int rgbPaintDarkest[256];
+int rgbPaintNight[256];
+int* rgbPaintBrightness[5]={rgbPaint,rgbPaintDark,rgbPaintDarker,rgbPaintDarkest,rgbPaintNight};
 int rgbPaint_i[256];
 void Init8BitRGBPaintDefault(int *rgbPaint_dest,int *rgbPaint_i_dest,RGBQUAD *rgbColors_src,bool is_ascending,int start_paint_index)
 {
@@ -453,6 +458,7 @@ RGBQUAD rgbColorsDarker1[256];
 RGBQUAD rgbColorsDarker2[256];
 RGBQUAD rgbColorsDarker3[256];
 RGBQUAD rgbColorsNight[256];
+RGBQUAD* rgbColorsBrightness[5]={rgbColorsDefault,rgbColorsDarker1,rgbColorsDarker2,rgbColorsDarker3,rgbColorsNight};
 
 void Init8BitRGBPaintDarker(RGBQUAD *rgbColors,RGBQUAD *rgbColorsSrc,float dark)
 {

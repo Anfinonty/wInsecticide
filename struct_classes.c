@@ -488,7 +488,7 @@ ANode **NodeGrid;
 int GetGridId(int x,int y,int width, int size,int max);
 void SetGridLineArray(int grid_id,int ground_id);
 void UnSetGridLineArray(int grid_id,int ground_id);
-void InitColorPlatformTextures(HDC hdc, HDC hdc2,int i);
+void InitColorPlatformTextures(HDC hdc, HDC hdc2,int i,int brightness_lvl);
 void DrawCreateTiles(HDC hdc,HDC hdc2);
 void InitGrid();
 void InitRDGrid();
@@ -502,7 +502,7 @@ void InitNodeGridAttributes();
 void DrawNodeGrids(HDC hdc);
 void DrawShadows2(HDC hdcSrc,HDC hdcDest,int x,int y,bool t);
 void CreatePlatformShadowBitmap(HDC hdc,float rise,float run,int color);
-HBITMAP GenerateColoredTexture(int loaded_ptexture_id, int solid_value,int color_id);
+HBITMAP GenerateColoredTexture(int loaded_ptexture_id, int solid_value,int color_id,int brightness_lvl);
 //void DrawGrid(HDC hdc);
 
 

@@ -75,6 +75,8 @@ struct MapEditor
   int bg_attr_weather_type;
   int bg_attr_weather_grad_rise;
   int bg_attr_weather_grad_run;
+  int bg_attr_brightness_type;
+  int bg_attr_dark_lvl;
 
   //=== platform texture ====
   int selected_ptexture_option;
@@ -304,7 +306,9 @@ int melvlbgattr_min[S_LVL_ATTR_NUM]={
 -1, //background night color_i  (handled elsewhere)
 0, //weather type
 1, //weather grad rise
--100 //weather grad run
+-100, //weather grad run
+0,
+0
 };
 
 int melvlbgattr_max[S_LVL_ATTR_NUM]={
@@ -323,7 +327,9 @@ int melvlbgattr_max[S_LVL_ATTR_NUM]={
 -1, //background night color_i  (handled elsewhere)
 4, //weather type
 101, //weather grad rise
-101 //weather grad run
+101, //weather grad run
+2,
+5
 };
 
 
@@ -347,7 +353,9 @@ int MELVL_bgattr_type[S_LVL_ATTR_NUM]={
 0, //background night color_i  (handled elsewhere)
 0, //weather type
 0, //weather grad rise
-0 //weather grad run
+0, //weather grad run
+0, //palette rightness type
+0, //palette darkness level
 };
 
 float melvlbgattr_float_delta[3]=
@@ -374,6 +382,8 @@ int melvlbgattr_int_delta[S_LVL_ATTR_NUM]=
   -1,//paint
   1,
   1,
+  1,
+  1,
   1
 };
 
@@ -395,7 +405,9 @@ void *MELVL_bgattr_ptr[S_LVL_ATTR_NUM]=
   &MapEditor.bg_attr_night_bg_color_i,
   &MapEditor.bg_attr_weather_type,
   &MapEditor.bg_attr_weather_grad_rise,
-  &MapEditor.bg_attr_weather_grad_run
+  &MapEditor.bg_attr_weather_grad_run,
+  &MapEditor.bg_attr_brightness_type,
+  &MapEditor.bg_attr_dark_lvl
 };
 
 
@@ -818,6 +830,9 @@ void InitMapEditor()
   MapEditor.bg_attr_weather_type=lvl_map_background.weather_type;
   MapEditor.bg_attr_weather_grad_rise=lvl_map_background.weather_rise;
   MapEditor.bg_attr_weather_grad_run=lvl_map_background.weather_run;
+  MapEditor.bg_attr_brightness_type=lvl_map_background.brightness_type; //static,dynamic
+  MapEditor.bg_attr_dark_lvl=lvl_map_background.dark_lvl; //0,dark,darker,darkest,night
+
 
   MapEditor.clipboard_ground_id=0;
   MapEditor.clipboard_ground_color_id=0;
@@ -929,6 +944,10 @@ void InitMEBackground()
     Sun.eclipse_type=0;
     is_blood_moon=TRUE;
   }
+
+  lvl_map_background.brightness_type=MapEditor.bg_attr_brightness_type;
+  lvl_map_background.dark_lvl=MapEditor.bg_attr_dark_lvl;
+
   //For Eclipse 
   lvl_map_background.day_sky_dkcolor_i=lvl_map_background.day_sky_color_i-32;
   if (lvl_map_background.day_sky_dkcolor_i<0) {

@@ -180,6 +180,8 @@ void SaveNewCreatedLvl(const wchar_t* create_lvl_name_)
   fprintf(fptr,"0,;\n"); // weather type
   fprintf(fptr,"37,;\n"); // rain rise
   fprintf(fptr,"26,;\n"); // rain run
+  fprintf(fptr,"0,;\n"); //brightness type
+  fprintf(fptr,"0,;\n"); //darkness lvl
 
   //Textures
   fprintf(fptr,"0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,;\n");
@@ -380,6 +382,8 @@ void SaveMELvl(HWND hwnd,HDC hdc)
     fprintf(fptr,"%d,;\n",MapEditor.bg_attr_weather_type);
     fprintf(fptr,"%d,;\n",MapEditor.bg_attr_weather_grad_rise);
     fprintf(fptr,"%d,;\n",MapEditor.bg_attr_weather_grad_run);
+    fprintf(fptr,"%d,;\n",MapEditor.bg_attr_brightness_type);
+    fprintf(fptr,"%d,;\n",MapEditor.bg_attr_dark_lvl);
 
     for (int i=0;i<PLATFORM_TEXTURES_NUM;i++) {
       fprintf(fptr,"%d,",GamePlatformTextures[i].type);
@@ -775,6 +779,8 @@ void SaveNewLimitAdjustedLvl(HWND hwnd, HDC hdc)
     fprintf(fptr,"%d,;\n",lvl_map_background.weather_type); //weather type
     fprintf(fptr,"%d,;\n",lvl_map_background.weather_rise); //weather rise
     fprintf(fptr,"%d,;\n",lvl_map_background.weather_run); //weather run
+    fprintf(fptr,"%d,;\n",MapEditor.bg_attr_brightness_type); //brightness type
+    fprintf(fptr,"%d,;\n",MapEditor.bg_attr_dark_lvl); //dark lvl
 
     for (int i=0;i<PLATFORM_TEXTURES_NUM;i++) {
       fprintf(fptr,"%d,",GamePlatformTextures[i].type);

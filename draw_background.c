@@ -594,7 +594,7 @@ void DrawSunRays(HDC hdc,HDC hdc2)
       }
 
       if (Sun.flag_overcast) {
-        switch (Sun.overcast_lvl) {
+        /*switch (Sun.overcast_lvl) {
           case 0:
             for (int i=0;i<PLATFORM_GRID_NUM;i++) {
               BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsDefault);
@@ -620,6 +620,17 @@ void DrawSunRays(HDC hdc,HDC hdc2)
               BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsNight);
             }
             break;
+        }*/
+        if (lvl_map_background.is_sun || lvl_map_background.brightness_type==0) { //dynamic lightning
+          if (Sun.overcast_lvl>=0 && Sun.overcast_lvl<=4) {
+            for (int i=0;i<PLATFORM_GRID_NUM;i++) {
+              BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsBrightness[Sun.overcast_lvl]);
+            }
+          } else {
+            for (int i=0;i<PLATFORM_GRID_NUM;i++) {
+              BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsDefault);
+            }
+          }
         }
         Sun.flag_overcast=FALSE;
       }

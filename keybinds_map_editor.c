@@ -411,6 +411,8 @@ void MapEditorKeypressDown(WPARAM wParam)
                         melvlbgattr_min[MapEditor.selected_bg_attr_option],
                         melvlbgattr_max[MapEditor.selected_bg_attr_option]);
                     }
+                    if (MapEditor.selected_bg_attr_option==17)
+                      MapEditor.load_ptextures=TRUE;
                     break;
                   case 1: {
                     int val=(int)(*(bool*)MELVL_bgattr_ptr[MapEditor.selected_bg_attr_option]);
@@ -425,7 +427,7 @@ void MapEditorKeypressDown(WPARAM wParam)
                     if (keydown(VK_RSHIFT)) {
                       int64_delta=600;
                     } else if (keydown(VK_LSHIFT)) {
-                      int64_delta=3600;
+                      int64_delta=1200;
                     }
                     MapEditor.bg_attr_unix_time=
                       LimitValueInt64(MapEditor.bg_attr_unix_time-int64_delta,
@@ -582,6 +584,8 @@ void MapEditorKeypressDown(WPARAM wParam)
                         melvlbgattr_min[MapEditor.selected_bg_attr_option],
                         melvlbgattr_max[MapEditor.selected_bg_attr_option]);
                     }
+                    if (MapEditor.selected_bg_attr_option==17)
+                      MapEditor.load_ptextures=TRUE;
                     break;
                   case 1: {
                     int val=(int)(*(bool *)MELVL_bgattr_ptr[MapEditor.selected_bg_attr_option]);
@@ -596,7 +600,7 @@ void MapEditorKeypressDown(WPARAM wParam)
                     if (keydown(VK_RSHIFT)) {
                       int64_delta=600;
                     } else if (keydown(VK_LSHIFT)) {
-                      int64_delta=3600;
+                      int64_delta=1200;
                     }
                     MapEditor.bg_attr_unix_time=
                       LimitValueInt64(MapEditor.bg_attr_unix_time+int64_delta,

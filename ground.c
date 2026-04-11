@@ -192,7 +192,7 @@ void SetGround(int i)
   }
 }
 
-HBITMAP GenerateColoredTexture(int loaded_ptexture_id, int solid_value,int color_id)
+HBITMAP GenerateColoredTexture(int loaded_ptexture_id, int solid_value,int color_id,int brightness_lvl)
 {
   if (solid_value>255) solid_value=255;
   else if (solid_value<0) solid_value=0;
@@ -208,8 +208,11 @@ HBITMAP GenerateColoredTexture(int loaded_ptexture_id, int solid_value,int color
 
   HBITMAP tmp_bitmap2=CreateCrunchyBitmap(VGRID_SIZE,VGRID_SIZE);
   SelectObject(hdcSrc,tmp_bitmap2);
-  GrRect(hdcSrc,0,0,VGRID_SIZE+1,VGRID_SIZE+1,rgbPaint[color_id]);
-
+  //GrRect(hdcSrc,0,0,VGRID_SIZE+1,VGRID_SIZE+1,rgbPaint[color_id]);
+  if (brightness_lvl>=0 && brightness_lvl<=4)
+    GrRect(hdcSrc,0,0,VGRID_SIZE+1,VGRID_SIZE+1,rgbPaintBrightness[brightness_lvl][color_id]);
+  else
+    GrRect(hdcSrc,0,0,VGRID_SIZE+1,VGRID_SIZE+1,rgbPaintBrightness[0][color_id]);
 
 
   /*
@@ -243,7 +246,7 @@ HBITMAP GenerateColoredTexture(int loaded_ptexture_id, int solid_value,int color
 
 
 
-void InitColorPlatformTextures(HDC hdc, HDC hdc2,int i) //change texture color only
+void InitColorPlatformTextures(HDC hdc, HDC hdc2,int i, int brightness_lvl) //change texture color only
 {
   if (i>=0 && i<PLATFORM_TEXTURES_NUM) {
     //SetTexturePalette(GamePlatformTextures[i].color_id,GamePlatformTextures[i].palette); //only works if 32-bit texture, independent from platform tiles
@@ -252,8 +255,12 @@ void InitColorPlatformTextures(HDC hdc, HDC hdc2,int i) //change texture color o
     if (GamePlatformTextures[i].palette_sprite!=NULL) { //delete old palette sprite if exists
       DeleteObject(GamePlatformTextures[i].palette_sprite); 
     }
-    GamePlatformTextures[i].palette_sprite = GenerateColoredTexture(j,GamePlatformTextures[i].solid_value,GamePlatformTextures[i].color_id);
-    BitmapPalette(hdc,hdc2,GamePlatformTextures[i].palette_sprite,rgbColorsDefault);    
+    GamePlatformTextures[i].palette_sprite = GenerateColoredTexture(j,GamePlatformTextures[i].solid_value,GamePlatformTextures[i].color_id,brightness_lvl);
+//    BitmapPalette(hdc,hdc2,GamePlatformTextures[i].palette_sprite,rgbColorsDefault);
+    if (brightness_lvl>=0 && brightness_lvl<=4)
+      BitmapPalette(hdc,hdc2,GamePlatformTextures[i].palette_sprite,rgbColorsBrightness[brightness_lvl]);
+    else
+      BitmapPalette(hdc,hdc2,GamePlatformTextures[i].palette_sprite,rgbColorsBrightness[0]);
   }
 }
 

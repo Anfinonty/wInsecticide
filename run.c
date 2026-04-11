@@ -1625,13 +1625,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             if (MapEditor.load_ptextures) {
               for (int i=0;i<PLATFORM_TEXTURES_NUM;i++) {
-                InitColorPlatformTextures(hdcBackbuff,hdcBackbuff2,i);
+                InitColorPlatformTextures(hdcBackbuff,hdcBackbuff2,i,MapEditor.bg_attr_dark_lvl);
               }
               MapEditor.load_ptextures=FALSE;
             }
 
             if (MapEditor.alter_ptexture_color) {
-              InitColorPlatformTextures(hdcBackbuff,hdcBackbuff2,MapEditor.selected_ptexture_id);
+              InitColorPlatformTextures(hdcBackbuff,hdcBackbuff2,MapEditor.selected_ptexture_id,MapEditor.bg_attr_dark_lvl);
               MapEditor.alter_ptexture_color=FALSE;
             }
 
@@ -2069,17 +2069,26 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       //Load Color Palettes
       Init8BitRGBColorsNoir(rgbColorsNoir);
-      Init8BitRGBColorsDefault(rgbColorsDefault);
 
+      Init8BitRGBColorsDefault(rgbColorsDefault);
       Init8BitRGBPaintDarker(rgbColorsDarker1,rgbColorsDefault,0.25);
       Init8BitRGBPaintDarker(rgbColorsDarker2,rgbColorsDefault,0.50);
       Init8BitRGBPaintDarker(rgbColorsDarker3,rgbColorsDefault,0.75);
 
       Init8BitRGBColorsInvert(rgbColorsInvert,rgbColorsDefault);
-      Init8BitRGBPaintDefault(rgbPaint,rgbPaint_i,rgbColorsDefault,TRUE,8);
+
 
       //night palette, invert BLACK
       CopyReplaceColorPalette(rgbColorsNight, rgbColorsDarker3,8,LTGRAY);
+
+
+
+      Init8BitRGBPaintDefault(rgbPaint,rgbPaint_i,rgbColorsDefault,TRUE,8); //normal
+      Init8BitRGBPaintDefault(rgbPaintDark,rgbPaint_i,rgbColorsDarker1,TRUE,8);
+      Init8BitRGBPaintDefault(rgbPaintDarker,rgbPaint_i,rgbColorsDarker2,TRUE,8);
+      Init8BitRGBPaintDefault(rgbPaintDarkest,rgbPaint_i,rgbColorsDarker3,TRUE,8);
+      Init8BitRGBPaintDefault(rgbPaintNight,rgbPaint_i,rgbColorsNight,TRUE,8);
+
 
 
       for (int cl=0;cl<256;cl++) {
