@@ -166,7 +166,7 @@ void SaveNewCreatedLvl(const wchar_t* create_lvl_name_)
 
   fprintf(fptr,"0,;\n"); //Background id
   fprintf(fptr,"0,;\n"); //real time
-  fprintf(fptr,"1350878400,;\n"); //unix time
+  fprintf(fptr,"1350856800,;\n"); //unix time
   fprintf(fptr,"0.0,;\n"); //latitude
   fprintf(fptr,"0.0,;\n"); //longitude
   fprintf(fptr,"0.0,;\n"); //utc offset

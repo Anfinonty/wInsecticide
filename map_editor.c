@@ -948,6 +948,9 @@ void InitMEBackground()
   lvl_map_background.brightness_type=MapEditor.bg_attr_brightness_type;
   lvl_map_background.dark_lvl=MapEditor.bg_attr_dark_lvl;
 
+  //Stars
+  lvl_map_background.is_stars=MapEditor.bg_attr_is_stars;
+
   //For Eclipse 
   lvl_map_background.day_sky_dkcolor_i=lvl_map_background.day_sky_color_i-32;
   if (lvl_map_background.day_sky_dkcolor_i<0) {
@@ -1067,7 +1070,8 @@ void MapEditorAct()
   }
 
   //change background color
-  if (lvl_map_background.day_sky_color_i != MapEditor.bg_attr_day_bg_color_i || 
+  if (lvl_map_background.is_stars != MapEditor.bg_attr_is_stars ||
+      lvl_map_background.day_sky_color_i != MapEditor.bg_attr_day_bg_color_i || 
       lvl_map_background.night_sky_color_i != MapEditor.bg_attr_night_bg_color_i) {
     InitMEBackground();
   }

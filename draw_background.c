@@ -65,32 +65,33 @@ void StarAct()
 void DrawStars(HDC hdc)
 {
   //GrRect(hdc,0,0,GR_WIDTH+24,GR_HEIGHT+24,BLACK);  
-  int scnt=1;
-  switch (Sun.horizon_lvl) {
-    case -1:
-    default:
-      scnt=0;
-      break;
-    case 0: //emerging
-      scnt=8;
-      break;
-    case 1:
-      scnt=4;
-      break;
-    case 2:
-      scnt=2;
-      break;
-    case 3: //final stage
-      scnt=1;
-      break;
-  }
-  switch (Sun.eclipse_type) {
-    case 2:
-    case 4:
-      scnt=1;
-      break;
-  }
-  for (int i=0;i<STAR_NUM;i+=scnt) {
+  if (lvl_map_background.is_stars) {
+    int scnt=1;
+    switch (Sun.horizon_lvl) {
+      case -1:
+      default:
+        scnt=0;
+        break;
+      case 0: //emerging
+        scnt=8;
+        break;
+      case 1:
+        scnt=4;
+        break;
+      case 2:
+        scnt=2;
+        break;
+      case 3: //final stage
+        scnt=1;
+        break;
+    }
+    switch (Sun.eclipse_type) { //stars if total eclipse
+      case 2:
+      case 4:
+        scnt=1;
+        break;
+    }
+    for (int i=0;i<STAR_NUM;i+=scnt) {
       int _x = Star.x[i];//(Star.x[i] * GR_WIDTH)/MAX_STAR_X;
       int _y = Star.y[i];//(Star.y[i] * GR_HEIGHT)/MAX_STAR_Y;
       if (Star.size[i]>0) {
@@ -104,6 +105,7 @@ void DrawStars(HDC hdc)
           GrRect(hdc,_x,_y,2,2,WHITE);
       }
       //GrCircle(hdc,_x,_y,Star[i].size,WHITE,WHITE);
+    }
   }
 }
 //=============================
@@ -937,6 +939,7 @@ void DrawGameBackgroundSpriteII(HDC hdc1,HDC hdc2)
   //draw clear sky
   SelectObject(hdc2,game_background_deco_sprite);
   //if (!(Sun.solar_angle>2*M_PI+TWILIGHT_ANGLE_NAUTICAL && Sun.solar_angle<3*M_PI-TWILIGHT_ANGLE_NAUTICAL)) { //above horizon and between sunlight hours
+  //draw sky gradient
   if (Sun.horizon_lvl!=3) {
     switch (Sun.eclipse_type) {
       case 0:
@@ -962,7 +965,7 @@ void DrawGameBackgroundSpriteII(HDC hdc1,HDC hdc2)
   }
 
   //overlay gradient on glass layer over clear sky
-  if (lvl_map_background.is_sun) {
+  if (lvl_map_background.is_sun) { //Draw Gradient if sun exists
   if (Sun.eclipse_type==0) {
     if (
       !(Sun.solar_angle>=M_PI+TWILIGHT_ANGLE_ASTRONOMICAL && Sun.solar_angle<=2*M_PI-TWILIGHT_ANGLE_ASTRONOMICAL)
@@ -1045,13 +1048,17 @@ void DrawGameBackgroundSprite(HDC hdcMain,HDC hdc2)
     switch (Sun.eclipse_type) {
       case 2: //Total/Full Eclipse
       case 4:
-        DrawStars(hdcBG);
+        if (lvl_map_background.is_stars)
+          DrawStars(hdcBG);
         break;
       }
   } else { //dawn/dusk
-    DrawStars(hdcBG);
+    if (lvl_map_background.is_stars)
+      DrawStars(hdcBG);
   }
 
+
+  //===================(==========================
   //Draw Moon
   int day_moon_phase_id=0;
   int day_moon_angle_id=-1;
@@ -1200,6 +1207,7 @@ void DrawGameBackgroundSprite(HDC hdcMain,HDC hdc2)
 
   }
   //End of Draw Day Moon
+  //===================)===========================
 
 
   //Draw sun and clouds  
