@@ -927,6 +927,7 @@ void InitMEBackground()
   map_sunlight_seconds=map_sunset_time-map_sunrise_time;
   map_darkness_seconds=60*60*24 - map_sunlight_seconds;
 
+  //Update Background Attributes
   lvl_map_background.clouds_type=MapEditor.bg_attr_clouds_type;
   lvl_map_background.day_sky_color_i=MapEditor.bg_attr_day_bg_color_i;
   lvl_map_background.night_sky_color_i=MapEditor.bg_attr_night_bg_color_i;
@@ -934,7 +935,10 @@ void InitMEBackground()
   lvl_map_background.day_sky_color=rgbPaint[lvl_map_background.day_sky_color_i];
   lvl_map_background.night_sky_color=rgbPaint[lvl_map_background.night_sky_color_i];
 
-  lvl_map_background.is_sun=MapEditor.bg_attr_is_sun;
+
+  lvl_map_background.latitude=MapEditor.bg_attr_latitude;
+  lvl_map_background.longitude=MapEditor.bg_attr_longitude;
+
   if (MapEditor.bg_attr_eclipse_type<5) {
     lvl_map_background.eclipse_type=
     Sun.eclipse_type=MapEditor.bg_attr_eclipse_type;
@@ -948,8 +952,10 @@ void InitMEBackground()
   lvl_map_background.brightness_type=MapEditor.bg_attr_brightness_type;
   lvl_map_background.dark_lvl=MapEditor.bg_attr_dark_lvl;
 
-  //Stars
+  //Celestial Bodies
+  lvl_map_background.is_sun=MapEditor.bg_attr_is_sun;
   lvl_map_background.is_stars=MapEditor.bg_attr_is_stars;
+  lvl_map_background.is_moon=MapEditor.bg_attr_is_moon;
 
   //For Eclipse 
   lvl_map_background.day_sky_dkcolor_i=lvl_map_background.day_sky_color_i-32;
@@ -960,8 +966,8 @@ void InitMEBackground()
 
   InitClouds();
   InitSun();
+  InitMoon();
   //InitStars(); //<----change
-  //InitMoon(); //<----change
 
   flag_draw_game_background_spriteII=TRUE;
   flag_draw_game_background_sprite=TRUE;
@@ -1070,7 +1076,9 @@ void MapEditorAct()
   }
 
   //change background color
-  if (lvl_map_background.is_stars != MapEditor.bg_attr_is_stars ||
+  if (
+      lvl_map_background.latitude != MapEditor.bg_attr_latitude ||
+      lvl_map_background.is_stars != MapEditor.bg_attr_is_stars ||
       lvl_map_background.day_sky_color_i != MapEditor.bg_attr_day_bg_color_i || 
       lvl_map_background.night_sky_color_i != MapEditor.bg_attr_night_bg_color_i) {
     InitMEBackground();

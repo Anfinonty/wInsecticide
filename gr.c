@@ -1982,7 +1982,7 @@ typedef struct DRAWSPRITE
 } DRAWSPRITE;
 
 
-
+//Create DRAWSPRITE.sprite_paint and DRAWSPRITE.sprite_mask from on Source Bitmap
 void GenerateDrawSprite(DRAWSPRITE* myDrawSprite,HBITMAP srcBitmap)
 {
     myDrawSprite->sprite_paint=CopyCrunchyBitmap(srcBitmap,SRCCOPY);

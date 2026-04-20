@@ -49,7 +49,11 @@ void StarAct()
       Star.timer[i]=RandNum(50,350,&star_rng_i,-1);
     } 
 
-    Star.x[i]=Star.pivot_x+Star.dist_l[i]*cos(Star.angle[i]);
+    if (lvl_map_background.latitude<0)
+      Star.x[i]=Star.pivot_x-Star.dist_l[i]*cos(Star.angle[i]);
+    else
+      Star.x[i]=Star.pivot_x+Star.dist_l[i]*cos(Star.angle[i]);
+
     Star.y[i]=Star.pivot_y+Star.dist_l[i]*sin(Star.angle[i]);
     //Star.angle[i]+=0.0025;
     //if (Star.angle[i]<=0) {
@@ -395,9 +399,16 @@ void InitSun()
     }
   }
 
+  //x-axis if inverted
+  if (lvl_map_background.latitude<0)
+    Sun.x=Sun.pivot_x-Sun.dist_l*cos(Sun.solar_angle);
+  else
+    Sun.x=Sun.pivot_x+Sun.dist_l*cos(Sun.solar_angle);
+
   //Sun.angle=Sun.solar_angle; //Done by SunAct();
-  Sun.x=Sun.pivot_x+Sun.dist_l*cos(Sun.solar_angle);
   Sun.y=Sun.pivot_y+Sun.dist_l*sin(Sun.solar_angle);
+
+
 
   Sun.flag_overcast=TRUE;
 
@@ -596,33 +607,6 @@ void DrawSunRays(HDC hdc,HDC hdc2)
       }
 
       if (Sun.flag_overcast) {
-        /*switch (Sun.overcast_lvl) {
-          case 0:
-            for (int i=0;i<PLATFORM_GRID_NUM;i++) {
-              BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsDefault);
-            }
-            break;
-          case 1:
-             for (int i=0;i<PLATFORM_GRID_NUM;i++) {
-             BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsDarker1);
-            }
-            break;
-          case 2:
-            for (int i=0;i<PLATFORM_GRID_NUM;i++) {
-              BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsDarker2);
-            }
-            break;
-          case 3:
-            for (int i=0;i<PLATFORM_GRID_NUM;i++) {
-              BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsDarker3);
-            }
-            break;
-          case 4: //night
-            for (int i=0;i<PLATFORM_GRID_NUM;i++) {
-              BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsNight);
-            }
-            break;
-        }*/
         if (lvl_map_background.is_sun || lvl_map_background.brightness_type==0) { //dynamic lightning
           if (Sun.overcast_lvl>=0 && Sun.overcast_lvl<=4) {
             for (int i=0;i<PLATFORM_GRID_NUM;i++) {
@@ -678,7 +662,14 @@ void SunAct()
 {
   if (Sun.angle!=Sun.solar_angle) {
     Sun.angle=Sun.solar_angle;
-    Sun.x=Sun.pivot_x+Sun.dist_l*cos(Sun.angle);
+
+    //Sun.x=Sun.pivot_x+Sun.dist_l*cos(Sun.angle);
+    //x-axis if inverted
+    if (lvl_map_background.latitude<0)
+      Sun.x=Sun.pivot_x-Sun.dist_l*cos(Sun.angle);
+    else
+      Sun.x=Sun.pivot_x+Sun.dist_l*cos(Sun.angle);
+
     Sun.y=Sun.pivot_y+Sun.dist_l*sin(Sun.angle);
     for (int i=0;i<STAR_NUM;i++) {
       Star.angle[i]=Sun.angle+Star.oangle[i];
@@ -784,6 +775,120 @@ void InitMoon()
 
   DrawGameMoon.angle=GetCosAngle(DrawGameMoon.x-DrawGameMoon.pivot_x,DrawGameMoon.dist_l);
   DrawGameMoon.flag_nightshade=TRUE;
+
+
+
+
+  //Set moon attributes based on *date*
+  DrawGameMoon.day_moon_phase_id=0;
+  DrawGameMoon.day_moon_angle_id=-1;
+  if (!(lunar_day>=13 && lunar_day<=15)) {
+    is_blood_moon=FALSE;
+  }
+  if (lunar_day>=1 && lunar_day<=9) {
+    if (lunar_day>=1 && lunar_day<=4) { //1, 2, 3, 4, 5
+      DrawGameMoon.day_moon_phase_id=0;
+    } else if (lunar_day>=5 && lunar_day<=7) {// 6, 7, 8, 9
+      DrawGameMoon.day_moon_phase_id=1;
+    } else {
+      DrawGameMoon.day_moon_phase_id=2;
+    }
+  } else if (lunar_day>=10 && lunar_day<=12) {// 10, 11, 12,
+    DrawGameMoon.day_moon_phase_id=3;
+  } else if (lunar_day>=13 && lunar_day<=15) {//13, 14, 15 //fullmoon
+    DrawGameMoon.day_moon_phase_id=4;
+    if (is_blood_moon) {
+      DrawGameMoon.day_moon_phase_id=8;
+    }
+  } else if (lunar_day>=16 && lunar_day<=18) {//16, 17, 18
+    DrawGameMoon.day_moon_phase_id=5;
+  } else if (lunar_day>=19 && lunar_day<=22) {//19, 20, 21, 22
+    DrawGameMoon.day_moon_phase_id=6;
+  } else if (lunar_day>=23 && lunar_day<=26) {//23, 24, 25,26
+    DrawGameMoon.day_moon_phase_id=7;
+  } else { // New Moon, no stars
+    DrawGameMoon.day_moon_phase_id=-1;
+  }
+  //printf("day_moon_phase_id:%d\n",day_moon_phase_id);
+
+  if (lunar_day>=1 && lunar_day<=26 && DrawGameMoon.day_moon_phase_id>=0 && DrawGameMoon.day_moon_phase_id<=8) {
+    //Pass public timenow here
+    int64_t lhd0=global_lhd0;
+    int64_t lhd_n=global_timenow;
+          
+    float day_moon_angle=Sun.solar_angle - 2*M_PI*(lhd_n-lhd0)/(27*24*60*60); //seconds passed since the first of today's lunar month
+    float min_day_moon_angle=  2*M_PI*(2*24*60*60)/(27*24*60*60);
+    if (2*M_PI*(lhd_n-lhd0)/(27*24*60*60) <  min_day_moon_angle)
+      day_moon_angle=Sun.solar_angle - min_day_moon_angle;
+    //day_moon_angle=M_PI+M_PI_2;//debug only
+
+    //Moon's distance
+    //https://www.almanac.com/its-spring-see-how-sun-getting-higher-every-day
+    float max_day_moon_dist_l=GR_WIDTH/2+10;
+    if (map_darkness_seconds<=12*60*60)
+      max_day_moon_dist_l*=(float)(map_darkness_seconds/(12.0*60*60));
+    if (max_day_moon_dist_l>=GR_WIDTH/2+10)
+      max_day_moon_dist_l=GR_WIDTH/2+10;
+
+   // printf("dls *:%5.4f ds:%5.4f/24\n",map_sunlight_seconds/(24.0*60*60),(map_darkness_seconds/(24.0*60*60)));
+
+    float day_moon_dist_l=Sun.dist_l; //cresent moon generally same dist_l as Sun
+    //Start from Sun_dist_l, move towards max_day_moon_dist_l
+    int64_t lhd_4=lhd0+4*24*60*60;
+    int64_t lhd_15=lhd0+15*24*60*60;
+    if (lunar_day>=4 && lunar_day<=24) { //21-5=16 days  /2 --> 8 days rise, 8 days set
+      int64_t day_moon_dist_l_delta=(max_day_moon_dist_l-Sun.dist_l);
+      //printf("delta: %lld\n",day_moon_dist_l_delta);
+      //delta<0 (-) moon is lower than sun in the summer; dist goes: sun_higher_height-> moon_low_height -> sun_higher_height
+      //delta>0 (+) moon is higher than sun in the winter; dist goes: sun_lower_height-> moon_higher_height -> sun_lower_height 
+      if (lhd_n<lhd_15) { //4 -> 14
+        day_moon_dist_l=  Sun.dist_l + (float)day_moon_dist_l_delta*(float)(lhd_n-lhd_4)/(10*24*60*60.0);
+        //printf("delta: %lld, lhd<15: %5.4f\n",day_moon_dist_l_delta,(float)day_moon_dist_l_delta*(float)(lhd_n-lhd_4)/(10*24*60*60.0));
+        //printf("delta: %lld, lhd_n: %lld, lhd_4: %lld, lhd<15: %5.4f\n",day_moon_dist_l_delta, lhd_n, lhd_4 ,(float)day_moon_dist_l_delta*(float)(lhd_n-lhd_4)/(10*24*60*60.0));
+      } else { // 15 -> 25
+        day_moon_dist_l = max_day_moon_dist_l - (float)day_moon_dist_l_delta * (float)(lhd_n-lhd_15)/(10*24*60*60.0);
+        //printf("delta: %lld, lhd>=15: %5.4f\n",day_moon_dist_l_delta,(float)day_moon_dist_l_delta * (float)(lhd_n-lhd_15)/(10*24*60*60.0));
+      }
+      //day_moon_dist_l = Sun.dist_l + (float)day_moon_dist_l_delta * (float)abs(lhd_n-lhd_15)/(10*24*60*60.0);
+    }
+    if (day_moon_dist_l>=GR_WIDTH/2+10)
+      day_moon_dist_l=GR_WIDTH/2+10;
+    if (day_moon_dist_l<=10)
+      day_moon_dist_l=10;
+
+    //x axis if latitude<0
+    if (lvl_map_background.latitude<0)
+      DrawGameMoon.day_moon_x=Sun.pivot_x-day_moon_dist_l*cos(day_moon_angle);
+    else
+      DrawGameMoon.day_moon_x=Sun.pivot_x+day_moon_dist_l*cos(day_moon_angle);
+
+    DrawGameMoon.day_moon_y=Sun.pivot_y+day_moon_dist_l*sin(day_moon_angle);
+
+    if (DrawGameMoon.day_moon_x>DrawGameMoon.phase_range_x[0]) { //new-cresent moon, rightside
+      DrawGameMoon.day_moon_angle_id=0;
+    } else if (DrawGameMoon.day_moon_x<DrawGameMoon.phase_range_x[7]) { //old-cresent moon, leftside
+      DrawGameMoon.day_moon_angle_id=6;    
+    } else {
+      if (DrawGameMoon.day_moon_x>=GR_WIDTH/4+GR_WIDTH/8 && DrawGameMoon.day_moon_x<=GR_WIDTH/2+GR_WIDTH/4-GR_WIDTH/8) {
+        DrawGameMoon.day_moon_angle_id=3;
+      } else {
+        for (int k=1;k<6;k++) { //Decending
+          if (DrawGameMoon.day_moon_x<=DrawGameMoon.phase_range_x[k] && DrawGameMoon.day_moon_x>=DrawGameMoon.phase_range_x[k+1]) {
+            DrawGameMoon.day_moon_angle_id=k;
+            break;
+          }
+        }
+        if (DrawGameMoon.day_moon_angle_id==-1) {
+          if (DrawGameMoon.day_moon_x<GR_WIDTH/2) {
+            DrawGameMoon.day_moon_angle_id=5;
+          } else {
+            DrawGameMoon.day_moon_angle_id=1;
+          }
+        }
+      }
+    }
+
+  }
 }
 
 
@@ -834,7 +939,11 @@ void MoonAct()
 
   //if (DrawGameMoon.x+64>GR_WIDTH-48)
     //DrawGameMoon.x=GR_WIDTH-48;
-  DrawGameMoon.x=DrawGameMoon.pivot_x+DrawGameMoon.dist_l*cos(DrawGameMoon.angle);
+  if (lvl_map_background.latitude<0)
+    DrawGameMoon.x=DrawGameMoon.pivot_x-DrawGameMoon.dist_l*cos(DrawGameMoon.angle);
+  else
+    DrawGameMoon.x=DrawGameMoon.pivot_x+DrawGameMoon.dist_l*cos(DrawGameMoon.angle);
+
   DrawGameMoon.y=DrawGameMoon.pivot_y+DrawGameMoon.dist_l*sin(DrawGameMoon.angle);
   if (DrawGameMoon.y<128) {
     DrawGameMoon.y=128;
@@ -917,26 +1026,29 @@ void DrawGameBackgroundSpriteII(HDC hdc1,HDC hdc2)
   GrRect(hdcBG,0,0,GR_WIDTH+4,GR_HEIGHT/2,BLACK);
   //GrRect(hdcBG,0,GR_HEIGHT/2,GR_WIDTH+4,GR_HEIGHT/2+4,YELLOW);
 
+  //=================================
   //sky with gradient
   //draw gradient to glass layer
   SelectObject(hdcBG,bg_glass_layer);
-
   if (lvl_map_background.is_sun) {
-  if (!(Sun.solar_angle>=M_PI+TWILIGHT_ANGLE_ASTRONOMICAL && Sun.solar_angle<=2*M_PI-TWILIGHT_ANGLE_ASTRONOMICAL)) { //Sky dawn/dusk/twilight
-    /*if ((Sun.solar_angle>=2*M_PI-TWILIGHT_ANGLE_CIVIL && Sun.solar_angle<=2*M_PI+TWILIGHT_ANGLE_ASTRONOMICAL) || 
-        (Sun.solar_angle>=3*M_PI-TWILIGHT_ANGLE_ASTRONOMICAL) || 
-        (Sun.solar_angle<=M_PI+TWILIGHT_ANGLE_CIVIL))*/ //Below +civil
-    if (Sun.horizon_lvl>=1)
-      SelectObject(hdc2,red_black_gradient_bg_sprite);
-    else
-      SelectObject(hdc2,yellow_black_gradient_bg_sprite);
-  } else { //Sky Day
-    SelectObject(hdc2,white_gradient_bg_sprite);
+    if (!(Sun.solar_angle>=M_PI+TWILIGHT_ANGLE_ASTRONOMICAL && Sun.solar_angle<=2*M_PI-TWILIGHT_ANGLE_ASTRONOMICAL)) { //Sky dawn/dusk/twilight
+      /*if ((Sun.solar_angle>=2*M_PI-TWILIGHT_ANGLE_CIVIL && Sun.solar_angle<=2*M_PI+TWILIGHT_ANGLE_ASTRONOMICAL) || 
+          (Sun.solar_angle>=3*M_PI-TWILIGHT_ANGLE_ASTRONOMICAL) || 
+          (Sun.solar_angle<=M_PI+TWILIGHT_ANGLE_CIVIL))*/ //Below +civil
+      if (Sun.horizon_lvl>=1)
+        SelectObject(hdc2,red_black_gradient_bg_sprite);
+      else
+        SelectObject(hdc2,yellow_black_gradient_bg_sprite);
+    } else { //Sky Day
+      SelectObject(hdc2,white_gradient_bg_sprite);
+    }
+    StretchBlt(hdcBG,0,0,GR_WIDTH,GR_HEIGHT,hdc2,0,0,800,600,SRCCOPY); //draw gradient to glass layer
   }
-  StretchBlt(hdcBG,0,0,GR_WIDTH,GR_HEIGHT,hdc2,0,0,800,600,SRCCOPY); //draw gradient to glass layer
-  }
+  //=================================
 
-  //draw clear sky
+
+  //=================================
+  //draw clear sky (no gradient)
   SelectObject(hdc2,game_background_deco_sprite);
   //if (!(Sun.solar_angle>2*M_PI+TWILIGHT_ANGLE_NAUTICAL && Sun.solar_angle<3*M_PI-TWILIGHT_ANGLE_NAUTICAL)) { //above horizon and between sunlight hours
   //draw sky gradient
@@ -963,39 +1075,43 @@ void DrawGameBackgroundSpriteII(HDC hdc1,HDC hdc2)
     //else //setting
       //GrRect(hdc2,0,0,GR_WIDTH+24,GR_HEIGHT+24,BLACK);
   }
+  //=================================
 
+
+
+  //=================================
   //overlay gradient on glass layer over clear sky
   if (lvl_map_background.is_sun) { //Draw Gradient if sun exists
-  if (Sun.eclipse_type==0) {
-    if (
-      !(Sun.solar_angle>=M_PI+TWILIGHT_ANGLE_ASTRONOMICAL && Sun.solar_angle<=2*M_PI-TWILIGHT_ANGLE_ASTRONOMICAL)
-    ) { //dawn/dusk gradient
-      int alpha=0;
-      switch (Sun.horizon_lvl) {
-        case -1:
-        default:
-          alpha=-1;
-          break;
-        case 0:
-          //alpha=136/3; //nice yellow clouds
-          if (global_screen_bits==32)
-            //alpha=136/3+16; //nice yellow clouds
-            alpha=136/2-14; //nice yellow clouds
-            //alpha=136/2-4; //nice yellow clouds
-          else
-            alpha=136/2-13; //nice yellow clouds
-          break;
-        case 1:
-          alpha=136;
-          break;
-        case 2:
-          alpha=136;
-          break;
-        case 3:
-          alpha=-1;
-          break;
-      }
-      if (alpha>0) {
+    if (Sun.eclipse_type==0) {
+      if (
+        !(Sun.solar_angle>=M_PI+TWILIGHT_ANGLE_ASTRONOMICAL && Sun.solar_angle<=2*M_PI-TWILIGHT_ANGLE_ASTRONOMICAL)
+        ) { //dawn/dusk gradient
+        int alpha=0;
+        switch (Sun.horizon_lvl) {
+          case -1:
+          default:
+            alpha=-1;
+            break;
+          case 0:
+            //alpha=136/3; //nice yellow clouds
+            if (global_screen_bits==32)
+              //alpha=136/3+16; //nice yellow clouds
+              alpha=136/2-14; //nice yellow clouds
+              //alpha=136/2-4; //nice yellow clouds
+            else
+              alpha=136/2-13; //nice yellow clouds
+            break;
+          case 1:
+            alpha=136;
+            break;
+          case 2:
+            alpha=136;
+            break;
+          case 3:
+            alpha=-1;
+            break;
+        }
+        if (alpha>0) {
         //int the=-GR_HEIGHT+Sun.y+SUN_SIZE*8;
         /*if (Sun.horizon_lvl>=1) {
           the=Sun.y-GR_HEIGHT;
@@ -1014,214 +1130,48 @@ void DrawGameBackgroundSpriteII(HDC hdc1,HDC hdc2)
         //GR_HEIGHT/6+GR_HEIGHT/3;//GR_HEIGHT/20+GR_HEIGHT/4
         //
 
-        //Consistent 2026-02-08
-        GrGlassTexture(hdc2, game_background_deco_sprite,0,0,GR_WIDTH,Sun.y+SUN_SIZE*4,hdcBG, bg_glass_layer,0,0,GR_WIDTH,GR_HEIGHT, alpha); //abovesun to sun
-        GrGlassTexture(hdc2, game_background_deco_sprite,0,Sun.y+SUN_SIZE*4,GR_WIDTH,  GR_HEIGHT ,hdcBG, bg_glass_layer,0,GR_HEIGHT-16,GR_WIDTH,16, alpha); //yellow below sun
-      }
-    } else { //day gradient
-      int _h=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3;
-      if (Sun.y+64<_h) { //day gradient moving downwards
-        GrGlassTexture(hdc2, game_background_deco_sprite,0,_h,GR_WIDTH,GR_HEIGHT-_h,
+          //Consistent 2026-02-08
+          GrGlassTexture(hdc2, game_background_deco_sprite,0,0,GR_WIDTH,Sun.y+SUN_SIZE*4,hdcBG, bg_glass_layer,0,0,GR_WIDTH,GR_HEIGHT, alpha); //abovesun to sun
+          GrGlassTexture(hdc2, game_background_deco_sprite,0,Sun.y+SUN_SIZE*4,GR_WIDTH,  GR_HEIGHT ,hdcBG, bg_glass_layer,0,GR_HEIGHT-16,GR_WIDTH,16, alpha); //yellow below sun
+        }
+      } else { //day gradient
+        int _h=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3;
+        if (Sun.y+64<_h) { //day gradient moving downwards
+          GrGlassTexture(hdc2, game_background_deco_sprite,0,_h,GR_WIDTH,GR_HEIGHT-_h,
+                        hdcBG, bg_glass_layer,             0,0,        GR_WIDTH,GR_HEIGHT, 64);
+        } else {
+          GrGlassTexture(hdc2, game_background_deco_sprite,0,Sun.y+64,GR_WIDTH,GR_HEIGHT-_h,
                       hdcBG, bg_glass_layer,             0,0,        GR_WIDTH,GR_HEIGHT, 64);
-      } else {
-        GrGlassTexture(hdc2, game_background_deco_sprite,0,Sun.y+64,GR_WIDTH,GR_HEIGHT-_h,
-                      hdcBG, bg_glass_layer,             0,0,        GR_WIDTH,GR_HEIGHT, 64);
+        }
       }
     }
   }
+  //=================================
+
+
+  //========Draw Moon (flipped or not)=============
+  //Stretch (upsidedown + flipped) .sprite_paint to target .sprite_paint only
+  //Extra condition: flip moon upside down and face it leftwards if latitude <= 0degs is south
+  SelectObject(hdc2,Moon[DrawGameMoon.day_moon_phase_id].draw_moon_sprite[DrawGameMoon.day_moon_angle_id].sprite_paint); //select moon
+  SelectObject(hdcBG,DrawGameMoon.draw_moon_sprite_lvl); //select 
+
+  BITMAP bm;
+  GetObject(Moon[DrawGameMoon.day_moon_phase_id].draw_moon_sprite[DrawGameMoon.day_moon_angle_id].sprite_paint,sizeof(BITMAP),&bm);
+  int size=bm.bmWidth;
+  GrRect(hdcBG,0,0,257,257,BLACK);
+
+  if (lvl_map_background.latitude<0) {
+    StretchBlt(hdcBG,size,size,-size,-size,hdc2,0,0,size,size,SRCCOPY);
+  } else {
+    BitBlt(hdcBG,0,0,size,size,hdc2,0,0,SRCCOPY);
   }
+
+  //===============================================
   DeleteDC(hdcBG);
 }
 
 //int64_t funnyrun;
-void DrawGameBackgroundSprite(HDC hdcMain,HDC hdc2)
-{ //runs on call
-  HDC hdcBG=CreateCompatibleDC(hdcMain); 
-
-  //Draw decorated background (like a rect) to official game background, 16/32-bits
-  SelectObject(hdcBG,game_background_sprite);
-  SelectObject(hdc2,game_background_deco_sprite);
-  BitBlt(hdcBG,0,0,GR_WIDTH,GR_HEIGHT,hdc2,0,0,SRCCOPY);
-
-  //Draw Stars
-  if (Sun.solar_angle>=M_PI+TWILIGHT_ANGLE_CIVIL && Sun.solar_angle<=2*M_PI-TWILIGHT_ANGLE_CIVIL) {
-    switch (Sun.eclipse_type) {
-      case 2: //Total/Full Eclipse
-      case 4:
-        if (lvl_map_background.is_stars)
-          DrawStars(hdcBG);
-        break;
-      }
-  } else { //dawn/dusk
-    if (lvl_map_background.is_stars)
-      DrawStars(hdcBG);
-  }
-
-
-  //===================(==========================
-  //Draw Moon
-  int day_moon_phase_id=0;
-  int day_moon_angle_id=-1;
-  if (!(lunar_day>=13 && lunar_day<=15)) {
-    is_blood_moon=FALSE;
-  }
-  if (lunar_day>=1 && lunar_day<=9) {
-    if (lunar_day>=1 && lunar_day<=4) { //1, 2, 3, 4, 5
-      day_moon_phase_id=0;
-    } else if (lunar_day>=5 && lunar_day<=7) {// 6, 7, 8, 9
-      day_moon_phase_id=1;
-    } else {
-      day_moon_phase_id=2;
-    }
-  } else if (lunar_day>=10 && lunar_day<=12) {// 10, 11, 12,
-    day_moon_phase_id=3;
-  } else if (lunar_day>=13 && lunar_day<=15) {//13, 14, 15 //fullmoon
-    day_moon_phase_id=4;
-    if (is_blood_moon) {
-      day_moon_phase_id=8;
-    }
-  } else if (lunar_day>=16 && lunar_day<=18) {//16, 17, 18
-    day_moon_phase_id=5;
-  } else if (lunar_day>=19 && lunar_day<=22) {//19, 20, 21, 22
-    day_moon_phase_id=6;
-  } else if (lunar_day>=23 && lunar_day<=26) {//23, 24, 25,26
-    day_moon_phase_id=7;
-  } else { // New Moon, no stars
-    day_moon_phase_id=-1;
-  }
-  //printf("day_moon_phase_id:%d\n",day_moon_phase_id);
-
-  if (lunar_day>=1 && lunar_day<=26 && day_moon_phase_id>=0 && day_moon_phase_id<=8) {
-    DrawGameMoon.phase_range_x[0]=GR_WIDTH-GR_WIDTH/8;
-    DrawGameMoon.phase_range_y[0]=GR_HEIGHT-GR_HEIGHT/3;
-
-    DrawGameMoon.phase_range_x[1]=GR_WIDTH/2+GR_WIDTH/4;
-    DrawGameMoon.phase_range_y[1]=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3;
-
-    DrawGameMoon.phase_range_x[2]=GR_WIDTH/2+GR_WIDTH/4-GR_WIDTH/8;
-    DrawGameMoon.phase_range_y[2]=GR_HEIGHT/4+GR_HEIGHT/12;
-
-    DrawGameMoon.phase_range_x[3]=GR_WIDTH/2;
-    DrawGameMoon.phase_range_y[3]=GR_HEIGHT/4;
-
-    DrawGameMoon.phase_range_x[4]=GR_WIDTH/4+GR_WIDTH/8;
-    DrawGameMoon.phase_range_y[4]=GR_HEIGHT/4+GR_HEIGHT/12;
-
-    DrawGameMoon.phase_range_x[5]=GR_WIDTH/4+GR_WIDTH/8;
-    DrawGameMoon.phase_range_y[5]=GR_HEIGHT/4+GR_HEIGHT/12;
-
-    DrawGameMoon.phase_range_x[6]=GR_WIDTH/4;
-    DrawGameMoon.phase_range_y[6]=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3;
-
-    DrawGameMoon.phase_range_x[7]=GR_WIDTH/8;
-    DrawGameMoon.phase_range_y[7]=GR_HEIGHT-GR_HEIGHT/3;
-
-    //Pass public timenow here
-    int64_t lhd0=global_lhd0;
-    int64_t lhd_n=global_timenow;
-          
-    float day_moon_angle=Sun.angle - 2*M_PI*(lhd_n-lhd0)/(27*24*60*60); //seconds passed since the first of today's lunar month
-    float min_day_moon_angle=  2*M_PI*(2*24*60*60)/(27*24*60*60);
-    if (2*M_PI*(lhd_n-lhd0)/(27*24*60*60) <  min_day_moon_angle)
-      day_moon_angle=Sun.angle - min_day_moon_angle;
-    //day_moon_angle=M_PI+M_PI_2;//debug only
-
-    //Moon's distance
-    //https://www.almanac.com/its-spring-see-how-sun-getting-higher-every-day
-    float max_day_moon_dist_l=GR_WIDTH/2+10;
-    if (map_darkness_seconds<=12*60*60)
-      max_day_moon_dist_l*=(float)(map_darkness_seconds/(12.0*60*60));
-    if (max_day_moon_dist_l>=GR_WIDTH/2+10)
-      max_day_moon_dist_l=GR_WIDTH/2+10;
-
-   // printf("dls *:%5.4f ds:%5.4f/24\n",map_sunlight_seconds/(24.0*60*60),(map_darkness_seconds/(24.0*60*60)));
-
-    float day_moon_dist_l=Sun.dist_l; //cresent moon generally same dist_l as Sun
-    //Start from Sun_dist_l, move towards max_day_moon_dist_l
-    int64_t lhd_4=lhd0+4*24*60*60;
-    int64_t lhd_15=lhd0+15*24*60*60;
-    if (lunar_day>=4 && lunar_day<=24) { //21-5=16 days  /2 --> 8 days rise, 8 days set
-      int64_t day_moon_dist_l_delta=(max_day_moon_dist_l-Sun.dist_l);
-      //printf("delta: %lld\n",day_moon_dist_l_delta);
-      //delta<0 (-) moon is lower than sun in the summer; dist goes: sun_higher_height-> moon_low_height -> sun_higher_height
-      //delta>0 (+) moon is higher than sun in the winter; dist goes: sun_lower_height-> moon_higher_height -> sun_lower_height 
-      if (lhd_n<lhd_15) { //4 -> 14
-        day_moon_dist_l=  Sun.dist_l + (float)day_moon_dist_l_delta*(float)(lhd_n-lhd_4)/(10*24*60*60.0);
-        //printf("delta: %lld, lhd<15: %5.4f\n",day_moon_dist_l_delta,(float)day_moon_dist_l_delta*(float)(lhd_n-lhd_4)/(10*24*60*60.0));
-        //printf("delta: %lld, lhd_n: %lld, lhd_4: %lld, lhd<15: %5.4f\n",day_moon_dist_l_delta, lhd_n, lhd_4 ,(float)day_moon_dist_l_delta*(float)(lhd_n-lhd_4)/(10*24*60*60.0));
-      } else { // 15 -> 25
-        day_moon_dist_l = max_day_moon_dist_l - (float)day_moon_dist_l_delta * (float)(lhd_n-lhd_15)/(10*24*60*60.0);
-        //printf("delta: %lld, lhd>=15: %5.4f\n",day_moon_dist_l_delta,(float)day_moon_dist_l_delta * (float)(lhd_n-lhd_15)/(10*24*60*60.0));
-      }
-      //day_moon_dist_l = Sun.dist_l + (float)day_moon_dist_l_delta * (float)abs(lhd_n-lhd_15)/(10*24*60*60.0);
-    }
-    if (day_moon_dist_l>=GR_WIDTH/2+10)
-      day_moon_dist_l=GR_WIDTH/2+10;
-    if (day_moon_dist_l<=10)
-      day_moon_dist_l=10;
-
-    float day_moon_x=Sun.pivot_x+day_moon_dist_l*cos(day_moon_angle);
-    float day_moon_y=Sun.pivot_y+day_moon_dist_l*sin(day_moon_angle);
-
-    if (day_moon_x>DrawGameMoon.phase_range_x[0]) { //new-cresent moon, rightside
-      day_moon_angle_id=0;
-    } else if (day_moon_x<DrawGameMoon.phase_range_x[7]) { //old-cresent moon, leftside
-      day_moon_angle_id=6;    
-    } else {
-      if (day_moon_x>=GR_WIDTH/4+GR_WIDTH/8 && day_moon_x<=GR_WIDTH/2+GR_WIDTH/4-GR_WIDTH/8) {
-        day_moon_angle_id=3;
-      } else {
-        for (int k=1;k<6;k++) { //Decending
-          if (day_moon_x<=DrawGameMoon.phase_range_x[k] && day_moon_x>=DrawGameMoon.phase_range_x[k+1]) {
-            day_moon_angle_id=k;
-            break;
-          }
-        }
-        if (day_moon_angle_id==-1) {
-          if (day_moon_x<GR_WIDTH/2) {
-            day_moon_angle_id=5;
-          } else {
-            day_moon_angle_id=1;
-          }
-        }
-      }
-    }
-
-    //Back of moon during sunset
-    /*if (Sun.y>=GR_HEIGHT+GR_HEIGHT/7) {
-      if (Sun.x>GR_WIDTH/2) { //sun-set
-        GrCircle(hdcBG,day_moon_x,day_moon_y,28,RGB(0,0,24),RGB(0,0,24));
-      } else {
-        GrCircle(hdcBG,day_moon_x,day_moon_y,28,lvl_map_background.day_sky_color,lvl_map_background.day_sky_color);
-      }
-    }*/
-
-    //Draw Moon **
-    if (day_moon_angle_id!=-1) {
-      BITMAP bm;
-      GetObject(Moon[day_moon_phase_id].draw_moon_sprite[day_moon_angle_id].sprite_paint,sizeof(BITMAP),&bm);
-      int size=bm.bmWidth;
-      SelectObject(hdc2,Moon[day_moon_phase_id].draw_moon_sprite[day_moon_angle_id].sprite_paint);
-      BitBlt(hdcBG,day_moon_x-size/2,day_moon_y-size/2,size,size,hdc2,0,0,SRCPAINT);
-    }
-
-  }
-  //End of Draw Day Moon
-  //===================)===========================
-
-
-  //Draw sun and clouds  
-  if (lvl_map_background.is_sun)
-    DrawSun(hdcBG,hdc2);
-
-  //Draw Clouds
-  DrawClouds(hdcBG,hdc2);
-
-  DeleteDC(hdcBG);
-}
-
-
-void DrawMoon(HDC hdc,HDC hdc2)
+/*void DrawMoon(HDC hdc,HDC hdc2)
 {
   if (current_moon_phase_id>=0 && current_moon_phase_id<=7) {
     DrawSprite(hdc, hdc2,DrawGameMoon.x,DrawGameMoon.y,&Moon[current_moon_phase_id].draw_moon_sprite[DrawGameMoon.current_angle_id],FALSE);
@@ -1235,6 +1185,72 @@ void DrawMoon(HDC hdc,HDC hdc2)
     DrawGameMoon.flag_nightshade=FALSE;
   }
 }
+*/
+
+void DrawGameBackgroundSprite(HDC hdcMain,HDC hdc2)
+{ //runs on call
+  HDC hdcBG=CreateCompatibleDC(hdcMain); 
+
+  //Draw decorated background (like a rect) to official game background, 16/32-bits (has gradient**)
+  SelectObject(hdcBG,game_background_sprite);
+  SelectObject(hdc2,game_background_deco_sprite);
+  BitBlt(hdcBG,0,0,GR_WIDTH,GR_HEIGHT,hdc2,0,0,SRCCOPY);
+
+  //====================*=========================
+  //Draw Stars
+  if (Sun.solar_angle>=M_PI+TWILIGHT_ANGLE_CIVIL && Sun.solar_angle<=2*M_PI-TWILIGHT_ANGLE_CIVIL) {
+    switch (Sun.eclipse_type) {
+      case 2: //Total/Full Eclipse
+      case 4:
+        if (lvl_map_background.is_stars)
+          DrawStars(hdcBG);
+        break;
+    }
+  } else { //dawn/dusk
+    if (lvl_map_background.is_stars)
+      DrawStars(hdcBG);
+  }
+  //==============================================
+
+
+  //===================(==========================
+  //Draw Moon
+    //Back of moon during sunset
+    /*if (Sun.y>=GR_HEIGHT+GR_HEIGHT/7) {
+      if (Sun.x>GR_WIDTH/2) { //sun-set
+        GrCircle(hdcBG,day_moon_x,day_moon_y,28,RGB(0,0,24),RGB(0,0,24));
+      } else {
+        GrCircle(hdcBG,day_moon_x,day_moon_y,28,lvl_map_background.day_sky_color,lvl_map_background.day_sky_color);
+      }
+    }*/
+
+
+    //Draw Moon **
+    if (DrawGameMoon.day_moon_angle_id!=-1 && lvl_map_background.is_moon) {
+      BITMAP bm;
+      GetObject(Moon[DrawGameMoon.day_moon_phase_id].draw_moon_sprite[DrawGameMoon.day_moon_angle_id].sprite_paint,sizeof(BITMAP),&bm);
+      int size=bm.bmWidth;
+      SelectObject(hdc2,DrawGameMoon.draw_moon_sprite_lvl);
+      BitBlt(hdcBG,DrawGameMoon.day_moon_x-size/2,DrawGameMoon.day_moon_y-size/2,size,size,hdc2,0,0,SRCPAINT); //draw to background
+    }
+
+  //}
+  //End of Draw Moon
+  //===================)===========================
+
+
+  //Draw Sun
+  if (lvl_map_background.is_sun)
+    DrawSun(hdcBG,hdc2);
+
+  //Draw Clouds
+  DrawClouds(hdcBG,hdc2);
+
+  DeleteDC(hdcBG);
+}
+
+
+
 //===========================================
 //===============Background===================
 void DrawBackground(HDC hdc,HDC hdc2) 
@@ -1268,16 +1284,16 @@ void DrawBackground(HDC hdc,HDC hdc2)
   }
 
 
-  if (flag_draw_game_background_spriteII) {
+  if (flag_draw_game_background_spriteII) { //Draw static rect background with gradient
     DrawGameBackgroundSpriteII(hdc,hdc2);
     flag_draw_game_background_spriteII=FALSE;
   }
-  if (flag_draw_game_background_sprite) { //Refresh background, runs when timer hits 15, delayed for speed        
+  if (flag_draw_game_background_sprite) { //Refresh background, runs when timer hits 15, delayed for speed, dynamic rect background, no gradient   
     //DrawGameBackgroundSpriteII(hdc,hdc2); //debug only
     DrawGameBackgroundSprite(hdc,hdc2);
     flag_draw_game_background_sprite=FALSE;
   }
-  FastDrawTexturedRect(publicScreenPixels,SCREEN_WIDTH,publicBackgroundPixels,GR_WIDTH,dbg_height,global_screen_bits);
+  FastDrawTexturedRect(publicScreenPixels,SCREEN_WIDTH,publicBackgroundPixels,GR_WIDTH,dbg_height,global_screen_bits); //Draw Background giant rect
 
 
   /*switch (lvl_map_background.background_id) {
@@ -1330,8 +1346,9 @@ void DrawBackground(HDC hdc,HDC hdc2)
   }*/
 
 
-  //Draw shooting stars
-  if ((lvl_map_background.background_id==0 && Sun.y>=GR_HEIGHT+GR_HEIGHT/7) || lvl_map_background.background_id==1) {
+  //Draw shooting stars, live according to tick
+  //if ((lvl_map_background.background_id==0 && Sun.y>=GR_HEIGHT+GR_HEIGHT/7) || lvl_map_background.background_id==1) {
+  if ((lvl_map_background.is_stars && Sun.y>=GR_HEIGHT+GR_HEIGHT/7)) {
     for (int i=0;i<SSTAR_NUM;i++) {
       if (SStar[i].lifetime>0) {
         GrCircle(hdc,SStar[i].x-GR_WIDTH/16*_ppx,SStar[i].y-GR_HEIGHT/16*_ppy,1,WHITE,WHITE);

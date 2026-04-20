@@ -1437,6 +1437,16 @@ struct GameMoon
   float angle;
   int phase_range_x[7];
   int phase_range_y[7];
+
+  //current attributes
+  int day_moon_phase_id;
+  int day_moon_angle_id;
+  float day_moon_angle;
+  float day_moon_x;
+  float day_moon_y;
+
+  HBITMAP draw_moon_sprite_lvl; //<--- Large sprite_paint
+
 } DrawGameMoon;
 
 

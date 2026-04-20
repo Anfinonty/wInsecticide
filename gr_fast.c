@@ -1282,7 +1282,7 @@ void RotateBitBlt8Bit(HBITMAP hDstBitmap, HBITMAP hSrcBitmap, float radians, int
 
 
 
-
+//Load 0 deg Sprite to Canvas and transfer to DRAWSPRITE.sprite_paint and DRAWSPRITE.sprite_mask
 void GenerateDrawSpriteII(DRAWSPRITE* myDrawSprite,HBITMAP hCanvas,HBITMAP hSourceBitmap)
 {
     BITMAP bmp;
@@ -1294,7 +1294,7 @@ void GenerateDrawSpriteII(DRAWSPRITE* myDrawSprite,HBITMAP hCanvas,HBITMAP hSour
     myDrawSprite->sprite_mask=CreateBitmapMask(myDrawSprite->sprite_paint,BLACK,NULL);
 }
 
-
+//Load Rotated Sprite onto Canvas and transfer to DRAWSPRITE.sprite_paint and DRAWSPRITE.sprite_mask
 void GenerateDrawSpriteIII(DRAWSPRITE* myDrawSprite,HBITMAP hCanvas,float radians,HBITMAP hSourceBitmap)
 {
     BITMAP bmp,obmp;

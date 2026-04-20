@@ -1400,8 +1400,8 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
         //if (map_sunrise_time<=seconds_since_00 && seconds_since_00<=map_sunset_time) {
           if (lvl_map_background.weather_type==0)
             DrawSunRays(hdc,hdc2);
-          else //rainy in day
-           lvl_map_background.day_sky_color=RGB(35,35,35);
+          //else //rainy in day
+           //lvl_map_background.day_sky_color=RGB(35,35,35);
         //} else { //night palette
           //lvl_map_background.day_sky_color=BLACK;
         //}

@@ -550,7 +550,7 @@ void Prelude()
 
 
   }
-  if (prelude_sprite_jid==4) {
+  if (prelude_sprite_jid==4) { //Create Player Sprites
     InitPlayerSpritesAll();
     if (prelude_player_step==11) {
     for (int i=0;i<16;i++) {
@@ -566,7 +566,7 @@ void Prelude()
     prelude_sprite_jid++;
     }
   }
-  if (prelude_sprite_jid==5) {
+  if (prelude_sprite_jid==5) { //Create Moon Sprites
   
     int j=prelude_sprite_moon;
     int i=prelude_sprite_moon_i;
@@ -2653,6 +2653,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       ReplaceBitmapColor(snowflake_sprite_cache,LTGREEN,BLACK);
       GenerateDrawSprite(&draw_snowflake_sprite,snowflake_sprite_cache);
 
+      //Draw Canvas for GameMoon
+      DrawGameMoon.draw_moon_sprite_lvl=CreateCrunchyBitmap(256,-256); //upright bitmap
 
       //Load mooon sprites
       wchar_t moon_sprite_name[48];
