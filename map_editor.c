@@ -312,7 +312,7 @@ int melvlbgattr_min[S_LVL_ATTR_NUM]={
 };
 
 int melvlbgattr_max[S_LVL_ATTR_NUM]={
-1, //background type id:
+BACKGROUND_NUM+1, //background type id:
 2, //real time
 -1,//unix time (handled elsewhere)
 91,//latitude
@@ -928,6 +928,8 @@ void InitMEBackground()
   map_darkness_seconds=60*60*24 - map_sunlight_seconds;
 
   //Update Background Attributes
+  lvl_map_background.background_id=MapEditor.bg_attr_background_id;
+
   lvl_map_background.clouds_type=MapEditor.bg_attr_clouds_type;
   lvl_map_background.day_sky_color_i=MapEditor.bg_attr_day_bg_color_i;
   lvl_map_background.night_sky_color_i=MapEditor.bg_attr_night_bg_color_i;
@@ -1077,6 +1079,7 @@ void MapEditorAct()
 
   //change background color
   if (
+      lvl_map_background.background_id != MapEditor.bg_attr_background_id ||
       lvl_map_background.latitude != MapEditor.bg_attr_latitude ||
       lvl_map_background.is_stars != MapEditor.bg_attr_is_stars ||
       lvl_map_background.day_sky_color_i != MapEditor.bg_attr_day_bg_color_i || 

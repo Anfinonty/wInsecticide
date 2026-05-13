@@ -100,6 +100,7 @@ bool hide_mm=FALSE;
 bool flag_load_player_sprite=TRUE;
 bool flag_draw_game_background_sprite=FALSE;
 bool flag_draw_game_background_spriteII=FALSE;
+//bool flag_draw_game_background_spriteIII=FALSE;
 //Exit Flags
 bool flag_draw_task_stopped=FALSE;
 bool flag_game_task_stopped=FALSE;
@@ -173,7 +174,6 @@ int mouse_wheel_timer=0;
 bool rst_shift=FALSE;
 //HBITMAP myTmpEnemyDrawSprite;
 
-
 #define SCREEN_RESOLUTION_NUM   127
 int RESOLUTION_X[SCREEN_RESOLUTION_NUM];
 int RESOLUTION_Y[SCREEN_RESOLUTION_NUM];
@@ -240,6 +240,8 @@ double time_begin=0;
 float game_volume=0.2;
 float old_game_volume=1.2;
 
+
+//int64_t demo_timenow;  
 
 
 bool is_khmer=TRUE;
@@ -675,12 +677,9 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
               CloudAct();
               //SunRayAct(); //See: song.c
               SunAct();
-              if (Sun.eclipse_type==2 || lvl_map_background.background_id==1 || lvl_map_background.background_id==0) {
-                StarAct();
+              if (lvl_map_background.is_stars) {
+                //StarAct();
                 ShootingStarAct();
-              }
-              if (lvl_map_background.background_id==1) {
-                MoonAct();
               }
             }
             if (lvl_map_background.weather_type>0) {
@@ -704,11 +703,10 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
     } else if (in_map_editor) { //In map editor
       if (!flag_game_task_stopped && !flag_sound_task_stopped) {
         MapEditorAct();
-
         CloudAct();
         SunRayAct();
         SunAct();
-        StarAct();
+        //StarAct();
         ShootingStarAct();
       }
       if (back_to_menu) {
@@ -739,12 +737,8 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
                 CloudAct();
                 SunRayAct();
                 SunAct();
-                //if (lvl_map_background.background_id==1 || Sun.eclipse_type==2) {
-                  StarAct();
-                  ShootingStarAct();
-                //}
-                //if (lvl_map_background.background_id==1)
-                  //MoonAct();
+                //StarAct();
+                ShootingStarAct();
               }
               if (lvl_map_background.weather_type>0) {
                 RainAct();
@@ -858,7 +852,6 @@ void InitSetRes(int i,int w,int h,char *txt,wchar_t* wtxt)
 
 
 int64_t total_solar_eclipse_571;
-
 
 LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   HDC hdc, hdcBackbuff, hdcBackbuff2;
@@ -1335,6 +1328,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           InitSun();
           InitMoon();
           InitStars();
+          //InitStarsIfMoon();
           ResetBulletRain();
           if (lvl_map_background.weather_type>0) {
             InitBulletRain();
@@ -1346,6 +1340,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           if (flag_update_background) {
             flag_update_background=FALSE;
           }
+          //flag_draw_game_background_spriteIII=TRUE;
           flag_draw_game_background_spriteII=TRUE;
           flag_draw_game_background_sprite=TRUE;
 
@@ -1435,13 +1430,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
           if (flag_begin_drawing_tiles && !flag_game_task_stopped && !flag_draw_task_stopped && !flag_sound_task_stopped) {
             DrawCreateTiles(hdcBackbuff,hdcBackbuff2);
-            /*flag_begin_drawing_tiles=FALSE;
-              level_loading=FALSE;
-              level_loaded=TRUE;
-              if (back_to_menu) {
-                back_to_menu=FALSE;
-              }            */
-            //DrawGameBackgroundSprite(hdcBackbuff,hdcBackbuff2);
           }
 
           SelectObject(hdcBackbuff,screen);
@@ -1858,8 +1846,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         //CreateCompatibleBitmap(GetDC(NULL),SCREEN_WIDTH,SCREEN_HEIGHT);
         //CreateCompatibleBitmap(GetDC(NULL),SCREEN_WIDTH,SCREEN_HEIGHT);        
       //screen_mod=CreateLargeBitmapWithBuffer(SCREEN_WIDTH,SCREEN_HEIGHT,&publicScreenModPixels,global_screen_bits);
+      draw_background_sprite_stretched_mask=CreateCrunchyBitmap(SCREEN_WIDTH,SCREEN_HEIGHT);
+      draw_background_sprite_stretched_paint=CreateCrunchyBitmap(SCREEN_WIDTH,SCREEN_HEIGHT);
 
+      //draw_background_sprite_stretched_mask2=CreateCrunchyBitmap(SCREEN_WIDTH,SCREEN_HEIGHT);
+      //draw_background_sprite_stretched_paint2=CreateCrunchyBitmap(SCREEN_WIDTH,SCREEN_HEIGHT);
 
+      //draw_background_sprite_stretched_mask3=CreateCrunchyBitmap(SCREEN_WIDTH,SCREEN_HEIGHT);
+      //draw_background_sprite_stretched_paint3=CreateCrunchyBitmap(SCREEN_WIDTH,SCREEN_HEIGHT);
+
+      //draw_background_sprite_cnt_i=0;
       //Loading Bar
       loading_numerator=0;
       loading_denominator=ROTATED_SPRITE_NUM*7+DRAW_CLOUDS_NUM+DRAW_CLOUDY_CLOUDS_NUM+(PLAYER_ROTATED_SPRITE_NUM*9+4)+(7*9+1); //(2roach,2toebiter,2ant,extratoebiter ,, Clouds, player, moon)
@@ -2363,6 +2359,22 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //printf("\ntrue_solar_angle:%10.10f\n",solar_angle_day);
 
       global_timenow=timenow;
+//  https://eclipse.gsfc.nasa.gov/5MCSEmap/-0499--0400/-431-08-14.gif
+//      demo_timenow=GetLunarHijriDays(30,9,-1084) * 60*60*24   - 12*60*60;
+
+//    https://eclipse.gsfc.nasa.gov/SEsearch/SEsearchmap.php?Ecl=-04320330
+//      demo_timenow=
+//            GetLunarHijriDays(29,4,-1086) * 60*60*24   - 12*60*60;
+//            GetLunarHijriDays(31,3,-1089) * 60*60*24   - 12*60*60;
+            //-75886752000;
+
+//      printf("Demo Time: %lld\n",demo_timenow);
+                    //-75718627200 - 12*60*60 + 24*60*60*2;
+                    //=-75718411200;
+                    //=-75777340800;
+                	//=-76329254400;
+                   //-75775872000-24*60*60*17;
+
       global_lhd0=GetLunarHijriDays(1,lunar_month,lunar_year)*24*60*60;
 
       sun_ctx_t sun_riseset;
@@ -2534,6 +2546,22 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       //Load Best Scores :D
       //,,,
+
+      //Load background sprite
+
+      load_background_sprite[0] = LoadRLE8CompressedBitmap(L"sprites/backgrounds/background_hill_ld.bmp");
+      load_background_sprite[1] = LoadRLE8CompressedBitmap(L"sprites/backgrounds/background_bushes_ld.bmp");
+      load_background_sprite[2] = LoadRLE8CompressedBitmap(L"sprites/backgrounds/background_snowhill_ld.bmp");
+      load_background_sprite[3] = LoadRLE8CompressedBitmap(L"sprites/backgrounds/background_windmills_ld.bmp");
+      load_background_sprite[4] = LoadRLE8CompressedBitmap(L"sprites/backgrounds/background_treebranches_ld.bmp");
+
+      for (int i=0;i<BACKGROUND_FOREGROUND_SPRITE_NUM;i++) {
+        GenerateDrawSprite(&draw_background_sprite[i],load_background_sprite[i]);
+      }
+
+      load_background_full_sprite[0] = LoadRLE8CompressedBitmap(L"sprites/backgrounds/background_full_coldrocks.bmp");
+      load_background_full_sprite[1] = LoadRLE8CompressedBitmap(L"sprites/backgrounds/background_full_coldrocks2.bmp");
+      
 
       //Load Player Sprites
       LoadPlayerSprite.sprite_1 =  LoadRLE8CompressedBitmap(L"sprites/player1.bmp");

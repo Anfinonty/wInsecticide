@@ -1162,6 +1162,7 @@ struct shooting_star
 #define MAX_STAR_Y  600
 struct star
 {
+  bool is_draw[STAR_NUM];
   int pivot_x;
   int pivot_y;  
   int size[STAR_NUM];
@@ -1178,7 +1179,7 @@ void DrawStar(HDC hdc,int x, int y, int size, float angl,int color);
 void DrawStars(HDC hdc);
 //=================================================================
 //===========OTHER GROUNDS TEXTURE=============
-#define PLATFORM_TEXTURES_NUM 25
+#define PLATFORM_TEXTURES_NUM 27
 
 HBITMAP LoadedPlatformTextures[PLATFORM_TEXTURES_NUM];
 
@@ -1254,7 +1255,9 @@ DrawGameCloudsBackgroundA DrawGameCloudsBackground[4];
 //0,1 ---> normal day/night clouds
 //2,3 ---> cloudy day/night clouds
 
-
+/*struct GameBackground {
+  int timer;
+} GameBackground;*/
 
 
 
@@ -1396,8 +1399,49 @@ BYTE *publicScreenPixels,*publicScreenMirrorPixels, *publicBackgroundPixels;// *
 
 //Loaded Background
 
+#define BACKGROUND_FOREGROUND_SPRITE_NUM    5
+#define BACKGROUND_FULL_SPRITE_NUM  2
+#define BACKGROUND_NUM  BACKGROUND_FOREGROUND_SPRITE_NUM+BACKGROUND_FULL_SPRITE_NUM
+
+HBITMAP load_background_sprite[BACKGROUND_FOREGROUND_SPRITE_NUM];
+DRAWSPRITE draw_background_sprite[BACKGROUND_FOREGROUND_SPRITE_NUM];
+
+HBITMAP load_background_full_sprite[BACKGROUND_FULL_SPRITE_NUM];
+
+int bg_windmillhand_id=0;
+int bg_windmillhand_timer=0;
+struct draw_bg_sprite_windmillhand
+{
+  //original loaded in
+  int ox1[12];
+  int oy1[12];
+  int ox2[12];
+  int oy2[12];
+
+  //scaled
+  int x1[12];
+  int y1[12];
+  int x2[12];
+  int y2[12];  
+} bg_windmillhand[4];
+//HBITMAP load_background_sprite2;
+//DRAWSPRITE draw_background_sprite2;
 
 
+//HBITMAP load_background_sprite3;
+//DRAWSPRITE draw_background_sprite3;
+
+
+HBITMAP draw_background_sprite_stretched_mask;
+HBITMAP draw_background_sprite_stretched_paint;
+
+//HBITMAP draw_background_sprite_stretched_mask2;
+//HBITMAP draw_background_sprite_stretched_paint2;
+
+//HBITMAP draw_background_sprite_stretched_mask3;
+//HBITMAP draw_background_sprite_stretched_paint3;
+
+//int draw_background_sprite_cnt_i=0;
 
 
 //Moon

@@ -99,7 +99,6 @@ void Init() { //Repeatable
     fclose(fptr);
   }
 
-  flag_draw_game_background_sprite=TRUE;
 
   int_best_score=0;
   FILE *fr; //Begin setting best score
@@ -131,9 +130,11 @@ void Init() { //Repeatable
   //Initialize Level
   InitClouds();
   InitSun();
-  InitStars();
   InitMoon();
+  InitStars();
+  //InitStarsIfMoon();
   InitBullet(BULLET_NUM);
+
   if (!run_once_only) { //only run once.
     InitGrid();
     InitNodeGrid();
@@ -173,6 +174,8 @@ void Init() { //Repeatable
 
   mem_snd_interrupt[5]=TRUE;
   waveOutReset(hWaveOut[5]);
+
+  flag_draw_game_background_sprite=TRUE;
 
   flag_draw_game_background_spriteII=TRUE;
   if (!run_once_only) {
@@ -303,15 +306,18 @@ void InitLevel(bool load_lvl)
       lvl_map_background.is_sun=FALSE;
       lvl_map_background.is_moon=FALSE;
       lvl_map_background.is_stars=FALSE;
-      lvl_map_background.dark_lvl=3;
       if (dice>15) {
+        lvl_map_background.dark_lvl=3;
         lvl_map_background.weather_type=1; //rain
       } else if (dice<7) {
+        lvl_map_background.dark_lvl=4;
         lvl_map_background.weather_type=2; //snow
       } else {
+        lvl_map_background.dark_lvl=3;
         lvl_map_background.weather_type=3; //hailstorm
       }
     } else {
+      lvl_map_background.dark_lvl=4;
       lvl_map_background.weather_type=0; //clear
     }
   }
@@ -323,6 +329,7 @@ void InitLevel(bool load_lvl)
   } else {
     global_timenow=lvl_map_background.unix_time;
   }
+  //global_timenow=demo_timenow;
   PersiaSolarTime(global_timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);
   PersiaLunarTime(global_timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);
 

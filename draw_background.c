@@ -42,19 +42,15 @@ void ShootingStarAct()
 
 void StarAct()
 {
+  //Twinkling Stars
   for (int i=0;i<STAR_NUM;i++) {
     Star.timer[i]--;
     if (Star.timer[i]<1) {
       Star.size[i]=RandNum(0,4,&star_rng_i,-1);
-      Star.timer[i]=RandNum(50,350,&star_rng_i,-1);
+      //Star.timer[i]=RandNum(50,350,&star_rng_i,-1)*10;
+      Star.timer[i]=RandNum(1,35,&star_rng_i,-1);
     } 
 
-    if (lvl_map_background.latitude<0)
-      Star.x[i]=Star.pivot_x-Star.dist_l[i]*cos(Star.angle[i]);
-    else
-      Star.x[i]=Star.pivot_x+Star.dist_l[i]*cos(Star.angle[i]);
-
-    Star.y[i]=Star.pivot_y+Star.dist_l[i]*sin(Star.angle[i]);
     //Star.angle[i]+=0.0025;
     //if (Star.angle[i]<=0) {
       //Star.angle[i]+=2*M_PI;
@@ -98,7 +94,7 @@ void DrawStars(HDC hdc)
     for (int i=0;i<STAR_NUM;i+=scnt) {
       int _x = Star.x[i];//(Star.x[i] * GR_WIDTH)/MAX_STAR_X;
       int _y = Star.y[i];//(Star.y[i] * GR_HEIGHT)/MAX_STAR_Y;
-      if (Star.size[i]>0) {
+      if (Star.size[i]>0 && Star.is_draw[i]) {
         //SetPixel(hdc,_x,_y,WHITE);
         //SetPixel(hdc,_x+1,_y,WHITE);
         //SetPixel(hdc,_x+1,_y+1,WHITE);
@@ -112,6 +108,8 @@ void DrawStars(HDC hdc)
     }
   }
 }
+
+
 //=============================
 
 //=======Clouds ==============
@@ -268,13 +266,133 @@ void PreludeLoadCloudBackgroundSprite(HDC hdc,HDC hdc2)
 void CloudAct()
 {
   GameCloudsBackground.timer++;
-  if (GameCloudsBackground.timer>15) {
+  if (GameCloudsBackground.timer>120) { //slower speed boosts fps
+//  if (GameCloudsBackground.timer>15) { //normal speed
 //  if (GameCloudsBackground.timer>0) {
     GameCloudsBackground.timer=0;
     flag_draw_game_background_sprite=TRUE;
     GameCloudsBackground.cam_x+=1;//10;//10;
     if (GameCloudsBackground.cam_x>SCREEN_WIDTH*2)
       GameCloudsBackground.cam_x=0;
+  }
+
+  if (lvl_map_background.background_id==4) {
+    bg_windmillhand_timer++;
+    if (bg_windmillhand_timer>15) {
+  //  if (bg_windmillhand_timer>120) {
+      bg_windmillhand_id++;
+      if (bg_windmillhand_id>3) {
+        bg_windmillhand_id=0;
+      }
+      bg_windmillhand_timer=0;
+    }
+  }
+}
+
+
+void InitWindmillHand(int i,int j,int x1,int y1, int x2, int y2)
+{
+  bg_windmillhand[i].ox1[j]=x1;
+  bg_windmillhand[i].oy1[j]=y1;
+  bg_windmillhand[i].ox2[j]=x2;
+  bg_windmillhand[i].oy2[j]=y2;
+}
+
+void InitWindmillHandScale(int i,int j)
+{
+  bg_windmillhand[i].x1[j]=(float)(bg_windmillhand[i].ox1[j])*GR_WIDTH/800;
+  bg_windmillhand[i].y1[j]=(float)(bg_windmillhand[i].oy1[j])*GR_HEIGHT/480;
+  bg_windmillhand[i].x2[j]=(float)(bg_windmillhand[i].ox2[j])*GR_WIDTH/800;
+  bg_windmillhand[i].y2[j]=(float)(bg_windmillhand[i].oy2[j])*GR_HEIGHT/480;
+}
+
+
+void InitWindmillHands()
+{
+  InitWindmillHand(0,0,239,275,257,299);
+  InitWindmillHand(0,1,236,326,252,308);
+  InitWindmillHand(0,2,262,297,279,277);
+  //InitWindmillHand(0,3,268,317,276,328);
+  InitWindmillHand(0,3,261,305,276,328);
+
+  InitWindmillHand(0,4,346,304+3,352+1,322+1);
+  InitWindmillHand(0,5,340,335,351,325);
+  InitWindmillHand(0,6,357,321,366,312);
+  InitWindmillHand(0,7,356,324,360+4,333+8+2);
+
+  InitWindmillHand(0,8,400,306,414,318);
+  InitWindmillHand(0,9,418,315,425,296);
+  InitWindmillHand(0,10,405,341,412,327);
+  InitWindmillHand(0,11,419,320,431,332);
+
+//
+  InitWindmillHand(1,0,245,271,257,300);
+  InitWindmillHand(1,1,232,320,254,305);
+  InitWindmillHand(1,2,264,300,282,287);
+  InitWindmillHand(1,3,260,306,271,338);
+
+  //InitWindmillHand(1,4,347+2,305+2,352+2,325+2);
+  //InitWindmillHand(1,5,338+2,335+2,352+2,327+2);
+  //InitWindmillHand(1,6,356+2,322+2,366+2,317+2);
+  //InitWindmillHand(1,7,355+2,326+2,359+2,337+4+2);
+
+  InitWindmillHand(1,4,351,305,354,323);
+  InitWindmillHand(1,5,356,323,369,319);
+  InitWindmillHand(1,6,336,330,352,326);
+  InitWindmillHand(1,7,355,326,359,341);
+
+  InitWindmillHand(1,8,401,305,415,319);
+  InitWindmillHand(1,9,417,318,427,300);
+  InitWindmillHand(1,10,402,343-5,412,326);
+  InitWindmillHand(1,11,418,322,428,336);
+
+//
+  InitWindmillHand(2,0,258,268,258,299);
+  InitWindmillHand(2,1,229,305,254,305);
+  InitWindmillHand(2,2,265,306,284,306);
+  InitWindmillHand(2,3,261,310,261,338);
+
+  InitWindmillHand(2,4,338+1,323+1,351+1,327+1);
+  InitWindmillHand(2,5,353+1,323+1,356+1,305+1+1);
+  InitWindmillHand(2,6,352+1,330+1,350+1,343+1);
+  InitWindmillHand(2,7,355+1,326+1,367+1,328+1); 
+
+  InitWindmillHand(2,8,397,333,414,322);
+  InitWindmillHand(2,9,409,297,415,319);
+  InitWindmillHand(2,10,420,319,433,311);
+  InitWindmillHand(2,11,418,323,425,340);
+
+//
+  InitWindmillHand(3,0,229,299,257,302);
+  InitWindmillHand(3,1,262,301,270,269);
+  InitWindmillHand(3,2,263,305,284,309);
+  InitWindmillHand(3,3,254,331,259,306);
+
+  InitWindmillHand(3,4,338+3,319-5,352,323);
+  InitWindmillHand(3,5,355,323,360+1,309-2);
+  InitWindmillHand(3,6,355,326,366,335);
+  InitWindmillHand(3,7,346,344,353,327);
+
+  //InitWindmillHand(3,8,396+5,328,414,322);
+  //InitWindmillHand(3,9,414,297,417,317+5);
+  //InitWindmillHand(3,10,421,320-5,435,315);
+  //InitWindmillHand(3,11,418,324,418,343);
+
+  InitWindmillHand(3,8,417,296,418,319);
+  InitWindmillHand(3,9,421,322,434,323);
+  InitWindmillHand(3,10,398,321,415,322);
+  InitWindmillHand(3,11,418,324,418,341);
+
+}
+
+void InitWindmillHandsScale()
+{
+  bg_windmillhand_id=0;
+  bg_windmillhand_timer=0;
+  for (int i=0;i<4;i++) {
+    for (int j=0;j<12;j++) {
+      InitWindmillHandScale(i,j);
+    }
   }
 }
 
@@ -283,13 +401,16 @@ void InitClouds()
 {
   GameCloudsBackground.cam_x=0;
   GameCloudsBackground.timer=0;
+
+  InitWindmillHands();
+  InitWindmillHandsScale();
 }
 
 
 void DrawClouds(HDC hdc, HDC hdc2)
 {
   //  Sun.y=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3;//-GR_HEIGHT/16*_ppy;//-mouse_y/50;
-  int _h=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3+300;
+  int _h=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3+300;/*-GR_HEIGHT/12;*/
         //GR_HEIGHT/6+GR_HEIGHT/3;//GR_HEIGHT/20+GR_HEIGHT/4
   int h=SCREEN_HEIGHT/2+SCREEN_HEIGHT/4-_h;
   if (h<=0)
@@ -344,6 +465,30 @@ void DrawClouds(HDC hdc, HDC hdc2)
     }
   }
   }
+
+
+  //draw background infront of skies (foreground portion) <---===FOREGROUND OF CLOUD==
+/*  int _sh=GR_HEIGHT/3;
+  if (_sh<350) _sh=350;
+  int _y=_h-_sh;
+
+  if (_y<0) _y=0;
+
+  SelectObject(hdc2,draw_background_sprite_stretched_mask);
+  BitBlt(hdc,0,_y,GR_WIDTH,_sh,hdc2,0,_y,SRCAND);
+
+  SelectObject(hdc2,draw_background_sprite_stretched_paint);
+  BitBlt(hdc,0,_y,GR_WIDTH,_sh,hdc2,0,_y,SRCPAINT);
+*/
+
+  //Static foreground infront of clouds
+  if (lvl_map_background.background_id>0 && lvl_map_background.background_id<=BACKGROUND_FOREGROUND_SPRITE_NUM) {
+    SelectObject(hdc2,draw_background_sprite_stretched_mask);
+    BitBlt(hdc,0,0,GR_WIDTH,GR_HEIGHT,hdc2,0,0,SRCAND);
+
+    SelectObject(hdc2,draw_background_sprite_stretched_paint);
+    BitBlt(hdc,0,0,GR_WIDTH,GR_HEIGHT,hdc2,0,0,SRCPAINT);
+  }
 }
 //============================================================================
 
@@ -368,6 +513,9 @@ void InitSun()
   Sun.rays_visible_num=0;
   Sun.flag_move_cycle=0;
 
+  //Position Stars Properly
+  Sun.angle=-999999;
+
   //Sun.x=GR_WIDTH/2+GR_WIDTH/4;//-GR_WIDTH/16*_ppx;//-mouse_x/50;
   //Sun.y=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/3;//-GR_HEIGHT/16*_ppy;//-mouse_y/50;
 
@@ -375,7 +523,7 @@ void InitSun()
   Sun.y=GR_HEIGHT;
 
   Sun.pivot_x=GR_WIDTH/2;
-  Sun.pivot_y=GR_HEIGHT;
+  Sun.pivot_y=GR_HEIGHT-GR_HEIGHT/6;
 
   //Sun.dist_l=GetDistance(Sun.x,Sun.y,Sun.pivot_x,Sun.pivot_y);
   Sun.dist_l=(float)(GR_WIDTH/2+10);
@@ -612,10 +760,12 @@ void DrawSunRays(HDC hdc,HDC hdc2)
             for (int i=0;i<PLATFORM_GRID_NUM;i++) {
               BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsBrightness[Sun.overcast_lvl]);
             }
+            //BitmapPalette(hdc,hdc2,draw_background_sprite_stretched_paint,rgbColorsBrightness[Sun.overcast_lvl]);
           } else {
             for (int i=0;i<PLATFORM_GRID_NUM;i++) {
               BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsDefault);
             }
+            //BitmapPalette(hdc,hdc2,draw_background_sprite_stretched_paint,rgbColorsDefault);
           }
         }
         Sun.flag_overcast=FALSE;
@@ -663,7 +813,6 @@ void SunAct()
   if (Sun.angle!=Sun.solar_angle) {
     Sun.angle=Sun.solar_angle;
 
-    //Sun.x=Sun.pivot_x+Sun.dist_l*cos(Sun.angle);
     //x-axis if inverted
     if (lvl_map_background.latitude<0)
       Sun.x=Sun.pivot_x-Sun.dist_l*cos(Sun.angle);
@@ -671,8 +820,23 @@ void SunAct()
       Sun.x=Sun.pivot_x+Sun.dist_l*cos(Sun.angle);
 
     Sun.y=Sun.pivot_y+Sun.dist_l*sin(Sun.angle);
+
+    //Modify Stars angles and position
     for (int i=0;i<STAR_NUM;i++) {
       Star.angle[i]=Sun.angle+Star.oangle[i];
+
+      if (lvl_map_background.latitude<0)
+        Star.x[i]=Star.pivot_x-Star.dist_l[i]*cos(Star.angle[i]);
+      else
+        Star.x[i]=Star.pivot_x+Star.dist_l[i]*cos(Star.angle[i]);
+
+      Star.y[i]=Star.pivot_y+Star.dist_l[i]*sin(Star.angle[i]);
+
+      //Dont Draw Stars if close to moon
+      if (GetDistance(Star.x[i],Star.y[i],DrawGameMoon.day_moon_x,DrawGameMoon.day_moon_y)<56)
+        Star.is_draw[i]=FALSE;
+      else 
+        Star.is_draw[i]=TRUE;
     }
 
     //horizon lvl
@@ -769,7 +933,7 @@ void InitMoon()
   DrawGameMoon.y=GR_HEIGHT;
 
   DrawGameMoon.pivot_x=GR_WIDTH/2;
-  DrawGameMoon.pivot_y=GR_HEIGHT;
+  DrawGameMoon.pivot_y=GR_HEIGHT-GR_HEIGHT/6;
 
   DrawGameMoon.dist_l=GetDistance(DrawGameMoon.x,DrawGameMoon.y,DrawGameMoon.pivot_x,DrawGameMoon.pivot_y);
 
@@ -863,6 +1027,10 @@ void InitMoon()
       DrawGameMoon.day_moon_x=Sun.pivot_x+day_moon_dist_l*cos(day_moon_angle);
 
     DrawGameMoon.day_moon_y=Sun.pivot_y+day_moon_dist_l*sin(day_moon_angle);
+    if (DrawGameMoon.day_moon_y<128) {
+      DrawGameMoon.day_moon_y=128;
+    }  
+
 
     if (DrawGameMoon.day_moon_x>DrawGameMoon.phase_range_x[0]) { //new-cresent moon, rightside
       DrawGameMoon.day_moon_angle_id=0;
@@ -892,7 +1060,7 @@ void InitMoon()
 }
 
 
-
+/*
 void MoonAct()
 {
   //DrawGameMoon.x++;
@@ -914,7 +1082,7 @@ void MoonAct()
       if (current_moon_phase_id>=8)
         current_moon_phase_id=0;
   }*/
-  int cmp_id=current_moon_phase_id;
+/*  int cmp_id=current_moon_phase_id;
   if (cmp_id==7)
     cmp_id=3;
 
@@ -930,7 +1098,7 @@ void MoonAct()
         Star.angle[i]+=0.0125/1000;
       }
     }*/
-  } else if (DrawGameMoon.angle<M_PI+M_PI_2) {
+/*  } else if (DrawGameMoon.angle<M_PI+M_PI_2) {
     DrawGameMoon.angle+=0.025;//0.005;    
     for (int i=0;i<STAR_NUM;i++) {
       Star.angle[i]+=0.0125;//0.0025;
@@ -965,7 +1133,7 @@ void MoonAct()
       }
     }
   }
-}
+}*/
 
 
 /*
@@ -1149,6 +1317,16 @@ void DrawGameBackgroundSpriteII(HDC hdc1,HDC hdc2)
   //=================================
 
 
+  //Draw Background infront of sky
+  /*SelectObject(hdcBG,draw_background_sprite.sprite_mask);
+  StretchBlt(hdc2,0,0,GR_WIDTH,GR_HEIGHT,hdcBG,0,0,626,376,SRCAND);
+  
+  SelectObject(hdcBG,draw_background_sprite.sprite_paint);
+  StretchBlt(hdc2,0,0,GR_WIDTH,GR_HEIGHT,hdcBG,0,0,626,376,SRCPAINT);*/
+//  SelectObject(hdcBG,draw_background_sprite_stretched_mask);
+//  BitBlt(hdc2,0,0,GR_WIDTH,GR_HEIGHT,hdcBG,0,0,SRCAND);
+  
+
   //========Draw Moon (flipped or not)=============
   //Stretch (upsidedown + flipped) .sprite_paint to target .sprite_paint only
   //Extra condition: flip moon upside down and face it leftwards if latitude <= 0degs is south
@@ -1167,6 +1345,65 @@ void DrawGameBackgroundSpriteII(HDC hdc1,HDC hdc2)
   }
 
   //===============================================
+  //Draw Background type
+  if (lvl_map_background.background_id>0 && lvl_map_background.background_id<=BACKGROUND_FOREGROUND_SPRITE_NUM) {
+    SelectObject(hdcBG,draw_background_sprite_stretched_mask);
+    SelectObject(hdc2,draw_background_sprite[lvl_map_background.background_id-1].sprite_mask);
+    GrRect(hdcBG,0,0,GR_WIDTH,GR_HEIGHT,BLACK);
+    StretchBlt(hdcBG,0,0,GR_WIDTH,GR_HEIGHT,hdc2,0,0,800,480,SRCCOPY);
+  
+    SelectObject(hdcBG,draw_background_sprite_stretched_paint);
+    SelectObject(hdc2,draw_background_sprite[lvl_map_background.background_id-1].sprite_paint);
+    GrRect(hdcBG,0,0,GR_WIDTH,GR_HEIGHT,BLACK);
+    StretchBlt(hdcBG,0,0,GR_WIDTH,GR_HEIGHT,hdc2,0,0,800,480,SRCCOPY);
+  }
+  //===============================================
+
+  SelectObject(hdcBG,game_background_deco_sprite);
+
+  //Draw Moon
+    //Back of moon during sunset
+    /*if (Sun.y>=GR_HEIGHT+GR_HEIGHT/7) {
+      if (Sun.x>GR_WIDTH/2) { //sun-set
+        GrCircle(hdcBG,day_moon_x,day_moon_y,28,RGB(0,0,24),RGB(0,0,24));
+      } else {
+        GrCircle(hdcBG,day_moon_x,day_moon_y,28,lvl_map_background.day_sky_color,lvl_map_background.day_sky_color);
+      }
+    }*/
+
+
+  //Draw Moon **
+  if (DrawGameMoon.day_moon_angle_id!=-1 && lvl_map_background.is_moon) {
+    BITMAP bm;
+    GetObject(Moon[DrawGameMoon.day_moon_phase_id].draw_moon_sprite[DrawGameMoon.day_moon_angle_id].sprite_paint,sizeof(BITMAP),&bm);
+    int size=bm.bmWidth;
+    SelectObject(hdc2,DrawGameMoon.draw_moon_sprite_lvl);
+    BitBlt(hdcBG,DrawGameMoon.day_moon_x-size/2,DrawGameMoon.day_moon_y-size/2,size,size,hdc2,0,0,SRCPAINT); //draw to background
+  }
+
+  //}
+  //End of Draw Moon
+  //===================)===========================
+
+
+  //Draw Sun
+  if (lvl_map_background.is_sun)
+    DrawSun(hdcBG,hdc2);
+
+
+ 
+  if (lvl_map_background.background_id>BACKGROUND_FOREGROUND_SPRITE_NUM) {
+  //stretched full background not foreground, overwrites previous 
+   SelectObject(hdc2,load_background_full_sprite[lvl_map_background.background_id-BACKGROUND_FOREGROUND_SPRITE_NUM-1]);
+    StretchBlt(hdcBG,0,0,GR_WIDTH,GR_HEIGHT,hdc2,0,0,800,480,SRCCOPY);
+  } else if (lvl_map_background.background_id>0){
+  //Draw Background infront of clouds and skies
+    SelectObject(hdc2,draw_background_sprite_stretched_mask);
+    BitBlt(hdcBG,0,0,GR_WIDTH,GR_HEIGHT,hdc2,0,0,SRCAND);
+
+    SelectObject(hdc2,draw_background_sprite_stretched_paint);
+    BitBlt(hdcBG,0,0,GR_WIDTH,GR_HEIGHT,hdc2,0,0,SRCPAINT);
+  }
   DeleteDC(hdcBG);
 }
 
@@ -1187,6 +1424,7 @@ void DrawGameBackgroundSpriteII(HDC hdc1,HDC hdc2)
 }
 */
 
+//loads 120 cnt delay 
 void DrawGameBackgroundSprite(HDC hdcMain,HDC hdc2)
 { //runs on call
   HDC hdcBG=CreateCompatibleDC(hdcMain); 
@@ -1213,42 +1451,10 @@ void DrawGameBackgroundSprite(HDC hdcMain,HDC hdc2)
   //==============================================
 
 
-  //===================(==========================
-  //Draw Moon
-    //Back of moon during sunset
-    /*if (Sun.y>=GR_HEIGHT+GR_HEIGHT/7) {
-      if (Sun.x>GR_WIDTH/2) { //sun-set
-        GrCircle(hdcBG,day_moon_x,day_moon_y,28,RGB(0,0,24),RGB(0,0,24));
-      } else {
-        GrCircle(hdcBG,day_moon_x,day_moon_y,28,lvl_map_background.day_sky_color,lvl_map_background.day_sky_color);
-      }
-    }*/
-
-
-    //Draw Moon **
-    if (DrawGameMoon.day_moon_angle_id!=-1 && lvl_map_background.is_moon) {
-      BITMAP bm;
-      GetObject(Moon[DrawGameMoon.day_moon_phase_id].draw_moon_sprite[DrawGameMoon.day_moon_angle_id].sprite_paint,sizeof(BITMAP),&bm);
-      int size=bm.bmWidth;
-      SelectObject(hdc2,DrawGameMoon.draw_moon_sprite_lvl);
-      BitBlt(hdcBG,DrawGameMoon.day_moon_x-size/2,DrawGameMoon.day_moon_y-size/2,size,size,hdc2,0,0,SRCPAINT); //draw to background
-    }
-
-  //}
-  //End of Draw Moon
-  //===================)===========================
-
-
-  //Draw Sun
-  if (lvl_map_background.is_sun)
-    DrawSun(hdcBG,hdc2);
-
   //Draw Clouds
   DrawClouds(hdcBG,hdc2);
-
   DeleteDC(hdcBG);
 }
-
 
 
 //===========================================
@@ -1288,66 +1494,17 @@ void DrawBackground(HDC hdc,HDC hdc2)
     DrawGameBackgroundSpriteII(hdc,hdc2);
     flag_draw_game_background_spriteII=FALSE;
   }
-  if (flag_draw_game_background_sprite) { //Refresh background, runs when timer hits 15, delayed for speed, dynamic rect background, no gradient   
+  if (flag_draw_game_background_sprite) { //Refresh background, runs when timer hits 120, delayed for speed, dynamic rect background, no gradient   
     //DrawGameBackgroundSpriteII(hdc,hdc2); //debug only
+    StarAct();
     DrawGameBackgroundSprite(hdc,hdc2);
     flag_draw_game_background_sprite=FALSE;
   }
-  FastDrawTexturedRect(publicScreenPixels,SCREEN_WIDTH,publicBackgroundPixels,GR_WIDTH,dbg_height,global_screen_bits); //Draw Background giant rect
 
 
-  /*switch (lvl_map_background.background_id) {
-    case 0: //day and night
-      if (flag_draw_game_background_spriteII) {
-        DrawGameBackgroundSpriteII(hdc,hdc2);
-        flag_draw_game_background_spriteII=FALSE;
-      }
-      if (flag_draw_game_background_sprite) { //Refresh background, runs when timer hits 15, delayed for speed        
-        //DrawGameBackgroundSpriteII(hdc,hdc2); //debug only
-        DrawGameBackgroundSprite(hdc,hdc2);
-        flag_draw_game_background_sprite=FALSE;
-      }
-      FastDrawTexturedRect(publicScreenPixels,SCREEN_WIDTH,publicBackgroundPixels,GR_WIDTH,dbg_height,global_screen_bits);
-
-      break;
-    case 1: //night
-     // GrRect(hdc,0,0,GR_WIDTH+24,GR_HEIGHT+24,lvl_lvl_map_background.background_id.day_sky_color);
-      if (flag_draw_game_background_spriteII) {
-        DrawGameBackgroundSpriteII(hdc,hdc2);
-        flag_draw_game_background_spriteII=FALSE;
-      }
-      if (flag_draw_game_background_sprite) { //Refresh background, runs when timer hits 15, delayed for speed
-        DrawGameBackgroundSprite(hdc,hdc2);
-        flag_draw_game_background_sprite=FALSE;
-      }
-      FastDrawTexturedRect(publicScreenPixels,SCREEN_WIDTH,publicBackgroundPixels,GR_WIDTH,dbg_height,global_screen_bits);
-
-      //DrawStars(hdc);
-      /*char printme[32];
-      sprintf(printme,"lunar_angle:%5.4f",MoonAngle[current_moon_phase_id].lunar_angle);
-      GrPrint(hdc,200,200,printme,WHITE);
-      sprintf(printme,"MoonAngle:%5.4f",DrawGameMoon.angle);
-      GrPrint(hdc,200,232,printme,WHITE);*/
-/*      break;
-
-    case 2:
-    case 3: //default backgrounds
-      GrRect(hdc,0,0,GR_WIDTH+24,GR_HEIGHT+24,lvl_map_background.day_sky_color);
-      //if (map_background_sprite!=NULL) {
-        //DrawBitmap(hdc,hdc2,draw_p_px,draw_p_py,0,0,GR_WIDTH*2,GR_HEIGHT*2,map_background_sprite,SRCCOPY,FALSE,FALSE);
-      //}
-      break;
-    default: //custom map background
-      GrRect(hdc,0,0,GR_WIDTH+24,GR_HEIGHT+24,lvl_map_background.day_sky_color);
-      //if (map_background_sprite!=NULL) {
-        //DrawBitmap(hdc,hdc2,draw_p_px,draw_p_py,0,0,GR_WIDTH*2,GR_HEIGHT*2,map_background_sprite,SRCCOPY,FALSE,FALSE);
-      //}
-      break;
-  }*/
-
+  FastDrawTexturedRect(publicScreenPixels,SCREEN_WIDTH,publicBackgroundPixels,GR_WIDTH,dbg_height,global_screen_bits); //Draw Background giant rect infront of skies
 
   //Draw shooting stars, live according to tick
-  //if ((lvl_map_background.background_id==0 && Sun.y>=GR_HEIGHT+GR_HEIGHT/7) || lvl_map_background.background_id==1) {
   if ((lvl_map_background.is_stars && Sun.y>=GR_HEIGHT+GR_HEIGHT/7)) {
     for (int i=0;i<SSTAR_NUM;i++) {
       if (SStar[i].lifetime>0) {
@@ -1356,19 +1513,17 @@ void DrawBackground(HDC hdc,HDC hdc2)
     }
   }
 
+  //Draw Wind Mill Hands
+  if (lvl_map_background.background_id==4) {
+    int i=bg_windmillhand_id;
+    if (i>=0 && i<=3) {
+      for (int j=0;j<12;j++) {
+        GrLineThick(hdc,bg_windmillhand[i].x1[j],bg_windmillhand[i].y1[j],bg_windmillhand[i].x2[j],bg_windmillhand[i].y2[j],3,DKGRAY);
+      }
+    }
+  }
 
-  //draw night moon
-   /*if (
-        ((!in_main_menu || (in_main_menu && lvl_map_background.weather_type==0 && !(map_sunrise_time<=seconds_since_midnight && seconds_since_midnight<=map_sunset_time))) &&
-         ((
-           !(lvl_map_background.background_id>=2 && lvl_map_background.background_id<=3) && 
-           lvl_map_background.is_moon && 
-           lvl_map_background.day_sky_color_i>127
-          ) || lvl_map_background.background_id==1
-        ))        
-    ) {
-      DrawMoon(hdc,hdc2);
-  }*/
+
 }
 //==============================================================================
 

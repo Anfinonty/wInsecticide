@@ -2999,6 +2999,8 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
     for (int i=0;i<PLATFORM_GRID_NUM;i++) {
       BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsBrightness[lvl_map_background.dark_lvl]);
     }
+    BitmapPalette(hdc,hdc2,draw_background_sprite_stretched_paint,rgbColorsBrightness[lvl_map_background.dark_lvl]);
+
     //} 
     Sun.flag_overcast=TRUE;
     player.flag_revert_palette=FALSE;
