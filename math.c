@@ -133,15 +133,24 @@ int time_offset()
 //Maths
 //public_seed = rand() in WM_PAINT
 //minmax inclusive
+//https://stackoverflow.com/questions/29381843/generate-random-number-in-range-min-max
 int RandNum(int min, int max, int *global_rand_i,int seed) {
   int m=0;
+//int m=min;
   if (min<0) {
     m=min-1;
+  } else if (min>1) { //unsure why, m==1 crashes 2026-05-25
+    m=min;
   }
+  int therand;
   if (seed!=-1) { //random not from table
-    return (rand()+seed)%(max-m + 1) + m;
+    therand=(rand()+seed)%(max-m + 1) + m;
+  } else {
+    therand=myrand(global_rand_i)%(max-m + 1) + m;
   }
-  return (myrand(global_rand_i))%(max-m + 1) + m;
+  if (min>0 && therand==0)
+    return 1;
+  return therand;
 }
 
 

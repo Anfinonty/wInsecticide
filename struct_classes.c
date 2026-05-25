@@ -1208,7 +1208,7 @@ HBITMAP texture_water[9];
 
 //=============CLOUDS===============
 #define LOADED_CLOUD_NUM 9
-#define DRAW_CLOUDS_NUM     7//20
+#define DRAW_CLOUDS_NUM     20
 #define DRAW_CLOUDY_CLOUDS_NUM  100//500
 //#define CLOUD_NUM    30//100//30//10//20
 int cloud_src_x[LOADED_CLOUD_NUM]={ 11,   3,  0,  0, 282,462, 42,440,464};

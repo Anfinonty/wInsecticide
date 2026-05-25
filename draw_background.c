@@ -187,7 +187,7 @@ void PreludeLoadCloudBackgroundSprite(HDC hdc,HDC hdc2)
     int flipped;
 
     if (prelude_clouds_i>=DRAW_CLOUDS_NUM) { //after normal clouds are drawn, draw cloudy clouds
-      type=RandNum(0,LOADED_CLOUD_NUM,&cloud_rng_i,-1);
+      type=RandNum(0,LOADED_CLOUD_NUM-1,&cloud_rng_i,-1);
       y=-cloud_w[type]+RandNum(0,SCREEN_HEIGHT/2+SCREEN_HEIGHT/8,&cloud_rng_i,-1);
       x=RandNum(0,SCREEN_WIDTH*2,&cloud_rng_i,-1);
       flipped=(bool)RandNum(0,1,&cloud_rng_i,-1);
@@ -223,8 +223,22 @@ void PreludeLoadCloudBackgroundSprite(HDC hdc,HDC hdc2)
       if (prelude_cloudy_clouds_i>=DRAW_CLOUDY_CLOUDS_NUM) {
         prelude_clouds_loaded=TRUE; //completed
       }
-    } else {
-      type=RandNum(0,LOADED_CLOUD_NUM,&cloud_rng_i,-1);
+    } else { // normal cloud amount
+      if (SCREEN_WIDTH<960) { //large clouds are rarer on smaller width screens
+        if (prelude_clouds_i<2
+            || (DRAW_CLOUDS_NUM-3<prelude_clouds_i && prelude_clouds_i<DRAW_CLOUDS_NUM)) {
+          //spawn big cloud
+          type=RandNum(0,4,&cloud_rng_i,-1);
+        } else { //spawn small cloud
+          if (prelude_clouds_i!=12) {
+            type=RandNum(5,LOADED_CLOUD_NUM-1,&cloud_rng_i,-1);
+          } else {
+            type=RandNum(8,8,&cloud_rng_i,-1);
+          }
+        }
+      } else {
+        type=RandNum(0,LOADED_CLOUD_NUM-1,&cloud_rng_i,-1);
+      }
       y=-cloud_w[type]+RandNum(0,SCREEN_HEIGHT/2+SCREEN_HEIGHT/8,&cloud_rng_i,-1);
       x=RandNum(0,SCREEN_WIDTH*2,&cloud_rng_i,-1);
       flipped=(bool)RandNum(0,1,&cloud_rng_i,-1);
