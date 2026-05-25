@@ -650,12 +650,12 @@ void PlayerActGroundEdgeMovement()
               player.above_ground_edge=TRUE;
               player.below_ground_edge=FALSE;
               if (player.rst_right) { //clockwize
-                move_x(cos(-player.edge_angle+M_PI_2)*0.2);
-                move_y(sin(-player.edge_angle+M_PI_2)*0.2);
+                move_x(cos(-player.edge_angle+M_PI_2)*0.25);
+                move_y(sin(-player.edge_angle+M_PI_2)*0.25);
                 player.last_left=FALSE;
               } else if (player.rst_left) { //anticlockwize
-                move_x(-cos(-player.edge_angle+M_PI_2)*0.2);
-                move_y(-sin(-player.edge_angle+M_PI_2)*0.2);
+                move_x(-cos(-player.edge_angle+M_PI_2)*0.25);
+                move_y(-sin(-player.edge_angle+M_PI_2)*0.25);
                 player.last_left=TRUE;
               }
           } else { //below pivot
@@ -663,12 +663,12 @@ void PlayerActGroundEdgeMovement()
               player.below_ground_edge=TRUE;
               player.below_ground_edge_timer=5;
               if (player.rst_right) { //clockwize
-                move_x(-cos(-player.edge_angle+M_PI_2)*0.2);
-                move_y(sin(-player.edge_angle+M_PI_2)*0.2);
+                move_x(-cos(-player.edge_angle+M_PI_2)*0.25);
+                move_y(sin(-player.edge_angle+M_PI_2)*0.25);
                 player.last_left=TRUE;
               } else if (player.rst_left) { //anticlockwize
-                move_x(cos(-player.edge_angle+M_PI_2)*0.2);
-                move_y(-sin(-player.edge_angle+M_PI_2)*0.2);
+                move_x(cos(-player.edge_angle+M_PI_2)*0.25);
+                move_y(-sin(-player.edge_angle+M_PI_2)*0.25);
                 player.last_left=FALSE;
               }
           }
@@ -686,12 +686,12 @@ void PlayerActGroundEdgeMovement()
               player.above_ground_edge=TRUE;
               player.below_ground_edge=FALSE;
               if (player.rst_right) { //clockwize
-                move_x(cos(-player.edge_angle+M_PI_2)*0.2);
-                move_y(sin(-player.edge_angle+M_PI_2)*0.2);
+                move_x(cos(-player.edge_angle+M_PI_2)*0.25);
+                move_y(sin(-player.edge_angle+M_PI_2)*0.25);
                 player.last_left=FALSE;
               } else if (player.rst_left) { //anticlockwize
-                move_x(-cos(-player.edge_angle+M_PI_2)*0.2);
-                move_y(-sin(-player.edge_angle+M_PI_2)*0.2);
+                move_x(-cos(-player.edge_angle+M_PI_2)*0.25);
+                move_y(-sin(-player.edge_angle+M_PI_2)*0.25);
                 player.last_left=TRUE;
               }
           } else { //below pivot
@@ -699,12 +699,12 @@ void PlayerActGroundEdgeMovement()
               player.below_ground_edge=TRUE;
               player.below_ground_edge_timer=5;
               if (player.rst_right) { //clockwize
-                move_x(-cos(-player.edge_angle+M_PI_2)*0.2);
-                move_y(sin(-player.edge_angle+M_PI_2)*0.2);
+                move_x(-cos(-player.edge_angle+M_PI_2)*0.25);
+                move_y(sin(-player.edge_angle+M_PI_2)*0.25);
                 player.last_left=TRUE;
               } else if (player.rst_left) { //anticlockwize
-                move_x(cos(-player.edge_angle+M_PI_2)*0.2);
-                move_y(-sin(-player.edge_angle+M_PI_2)*0.2);
+                move_x(cos(-player.edge_angle+M_PI_2)*0.25);
+                move_y(-sin(-player.edge_angle+M_PI_2)*0.25);
                 player.last_left=FALSE;
               }
           }
@@ -2020,8 +2020,10 @@ void PlayerAct()
       }
 
 
+      //2026-05-16 fps drop
       if (player.is_on_ground_edge) { //ground edge speed limiter
-         speed_limiter*=5;//10;
+         //speed_limiter*=5;//10;
+         speed_limiter*=3;//10;
       }  else if (player.bullet_shot!=-1 && player.speed<10) { //parachuting speed limiter
          speed_limiter=10;
       }
@@ -2030,8 +2032,10 @@ void PlayerAct()
         if (player.on_ground_id!=-1) {
           speed_limiter=player.speed;
         }
+        //2026-05-16 fps drop
         if (player.is_on_ground_edge) { //ground edge speed limiter
-           speed_limiter*=5;//10;
+           //speed_limiter*=5;//10;
+         speed_limiter*=3;//10;
         } else if (!player.is_on_ground_edge && player.on_ground_id!=-1) {
           if (game_hard) {
             speed_limiter*=2;
@@ -2641,7 +2645,7 @@ void PlayerAct()
           }
         }
       }
-      if (player.spin_timer>40) {
+      if (player.spin_timer>39) {
         player.spin_timer=0;
       }
 
@@ -3194,8 +3198,8 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
           }
         }
       } else { //blocking
-        if (player.on_ground_id==-1 && player.spin_timer>0) { //not on ground
-          if (player.spin_timer<10) {
+        if (player.on_ground_id==-1 && player.spin_timer>=0) { //not on ground
+          if (player.spin_timer>=0 && player.spin_timer<10) {
             for (int j=0;j<PLAYER_BLUR_NUM;j++) {
               DrawSprite(hdc,hdc2,player.blur_sprite_x[j],player.blur_sprite_y[j],&PlayerSprite[0].blur_spin_sprite[0],!player.last_left);
             }
@@ -3204,7 +3208,7 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
             } else {
               DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].spin_sprite[0],!player.last_left);
             }
-          } else if (player.spin_timer>10 && player.spin_timer<20) {
+          } else if (player.spin_timer>=10 && player.spin_timer<20) {
             for (int j=0;j<PLAYER_BLUR_NUM;j++) {
               DrawSprite(hdc,hdc2,player.blur_sprite_x[j],player.blur_sprite_y[j],&PlayerSprite[0].blur_spin_sprite[1],!player.last_left);
             }
@@ -3213,7 +3217,7 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
             } else {
               DrawSprite(hdc,hdc2,player.sprite_x,player.sprite_y,&PlayerSprite[0].spin_sprite[1],!player.last_left);
             }
-          } else if (player.spin_timer>20 && player.spin_timer<30) {
+          } else if (player.spin_timer>=20 && player.spin_timer<30) {
             for (int j=0;j<PLAYER_BLUR_NUM;j++) {
               DrawSprite(hdc,hdc2,player.blur_sprite_x[j],player.blur_sprite_y[j],&PlayerSprite[0].blur_spin_sprite[2],!player.last_left);
             }

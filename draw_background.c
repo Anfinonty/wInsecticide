@@ -523,7 +523,7 @@ void InitSun()
   Sun.y=GR_HEIGHT;
 
   Sun.pivot_x=GR_WIDTH/2;
-  Sun.pivot_y=GR_HEIGHT-GR_HEIGHT/6;
+  Sun.pivot_y=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/5;
 
   //Sun.dist_l=GetDistance(Sun.x,Sun.y,Sun.pivot_x,Sun.pivot_y);
   Sun.dist_l=(float)(GR_WIDTH/2+10);
@@ -933,7 +933,7 @@ void InitMoon()
   DrawGameMoon.y=GR_HEIGHT;
 
   DrawGameMoon.pivot_x=GR_WIDTH/2;
-  DrawGameMoon.pivot_y=GR_HEIGHT-GR_HEIGHT/6;
+  DrawGameMoon.pivot_y=GR_HEIGHT-GR_HEIGHT/6-GR_HEIGHT/5;
 
   DrawGameMoon.dist_l=GetDistance(DrawGameMoon.x,DrawGameMoon.y,DrawGameMoon.pivot_x,DrawGameMoon.pivot_y);
 
@@ -1264,7 +1264,7 @@ void DrawGameBackgroundSpriteII(HDC hdc1,HDC hdc2)
             //alpha=136/3; //nice yellow clouds
             if (global_screen_bits==32)
               //alpha=136/3+16; //nice yellow clouds
-              alpha=136/2-14; //nice yellow clouds
+              alpha=136/2-14; //nice yellow clouds**
               //alpha=136/2-4; //nice yellow clouds
             else
               alpha=136/2-13; //nice yellow clouds
@@ -1387,7 +1387,7 @@ void DrawGameBackgroundSpriteII(HDC hdc1,HDC hdc2)
 
 
   //Draw Sun
-  if (lvl_map_background.is_sun)
+  if (lvl_map_background.is_sun && Sun.horizon_lvl<3)
     DrawSun(hdcBG,hdc2);
 
 

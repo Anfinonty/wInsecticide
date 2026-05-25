@@ -1208,7 +1208,7 @@ HBITMAP texture_water[9];
 
 //=============CLOUDS===============
 #define LOADED_CLOUD_NUM 9
-#define DRAW_CLOUDS_NUM     20
+#define DRAW_CLOUDS_NUM     7//20
 #define DRAW_CLOUDY_CLOUDS_NUM  100//500
 //#define CLOUD_NUM    30//100//30//10//20
 int cloud_src_x[LOADED_CLOUD_NUM]={ 11,   3,  0,  0, 282,462, 42,440,464};
@@ -1494,6 +1494,94 @@ struct GameMoon
 } DrawGameMoon;
 
 
+#define FGROUND_NUM  50
+#define GROUND_IN_FGROUND_NUM   30
+#define FGROUND_SIZE     160
+
+struct FallingGround
+{
+/*
+  Bias: For Solid Ground, like doodle jump, lower ground can be phased through
+    explicitly called, preferrably the top parts in case player clips into the leaf
+
+        |
+     |  |   |
+     |   \  \
+      \  \   \
+      \   \   \
+       \   \          ______
+        \    _/m=>\m-/  /  /
+          _-  / /  / _-/- /
+     ___- __-------=\ \ /
+    |--- \  \  \ _\__--/
+          =----
+
+
+*/
+
+  //loaded in game only
+  //Vars referred below for physics used only when within CLOSE range of player 
+  //Vars referred below for graphics used only when within range of player
+  int solid_ground_num;
+  int solid_grounds[GROUND_IN_FGROUND_NUM];
+  int color[GROUND_IN_FGROUND_NUM]; //Color of ground, RGB()
+  float length[GROUND_IN_FGROUND_NUM]; // = sqrt(x^2 + y^2)) // Babylonian Trigonometry Theorem for Calculating the Hypothenuse, wont move
+  float gradient[GROUND_IN_FGROUND_NUM];// y of ground / x of ground, changes
+  float c[GROUND_IN_FGROUND_NUM]; //The C in y-mx_c, changes
+  //float height_from_player_x;//= gradient * player_x + c
+  float angle[GROUND_IN_FGROUND_NUM]; // = ACos of (x/length)
+  float x1[GROUND_IN_FGROUND_NUM]; //angle_transform(ox) + x
+  float y1[GROUND_IN_FGROUND_NUM]; //angle_transform(oy) + y
+  float x2[GROUND_IN_FGROUND_NUM];
+  float y2[GROUND_IN_FGROUND_NUM];
+  float x3[GROUND_IN_FGROUND_NUM];
+  float y3[GROUND_IN_FGROUND_NUM]; //3 Axes of ground
+
+  //bool is_left; 
+  //loaded in Vars, convert deg (int) to rad in game (-360->0->360)
+  float ospin_angle;
+  float spin_angle_delta;
+  float spin_angle_min;
+  float spin_angle_max;
+
+  float y_oscillation_angle_delta;      //      //      //                      //
+  float y_oscillation_angle_max;      //  //  // //  //  //                       //
+  float y_oscillation_angle;        //      //     //      //                   //
+                                                                                  //
+  float x_oscillation_angle_delta; //speed of oscillation angle                 //
+  float x_oscillation_angle_max; //max oscillation                               //
+  float x_oscillation_angle; //current oscillation angle                       //
+                                                                                //
+  float x; //current x-y position (where the fallingground is on map)
+  float y;
+  int speed_multiplier; //how fast it is moving (like bullet)
+  float speed; // divide int(0-10) by float(10)
+
+  float x_start; //starting points
+  float y_start;
+  float x_end; //ending points
+  float y_end;
+
+  //bool is_ghost[GROUND_IN_FGROUND_NUM]; //Can be colided or not collided
+
+  //bool within_render_distance; //Is the ground within the player's Render Distance Grid'
+  //int health; //For Webs, health of ground
+
+  //bool is_phase_floor2roof[GROUND_IN_FGROUND_NUM];
+  //loaded in Vars
+  int color_id[GROUND_IN_FGROUND_NUM];
+  int type[GROUND_IN_FGROUND_NUM]; //Regular or NoCeilingButFloor or TriFill or Texture TriFill
+  //int font_size[GROUND_IN_FGROUND_NUM];
+  int texture_type[GROUND_IN_FGROUND_NUM];
+  float ox1[GROUND_IN_FGROUND_NUM]; //position within a box (0,0,160,160), NOT THE MAP
+  float oy1[GROUND_IN_FGROUND_NUM];
+  float ox2[GROUND_IN_FGROUND_NUM];
+  float oy2[GROUND_IN_FGROUND_NUM];
+  float ox3[GROUND_IN_FGROUND_NUM];
+  float oy3[GROUND_IN_FGROUND_NUM]; //3 Axes of ground
+  //wchar_t* text[GROUND_IN_FGROUND_NUM][512]; //for type 1 which is Text_ground
+
+} F_GROUND[FGROUND_NUM];
 
 //========= SNOWFLAKE ===========
 HBITMAP snowflake_sprite;

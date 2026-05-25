@@ -666,6 +666,9 @@ void EnemyTargetPlayer(int i)
 			  NODE_SIZE,
 			  EnemyPathfinding[pfi]->node_num);      
   }
+
+
+  //Player went into hiding or in unchase range
   if (EnemyPathfinding[pfi]->node_solid[target_node] ||//Total ignore player (player is hidden)
       Enemy[i]->in_unchase_range //dont chase player if its in unchase range
     ) {
@@ -683,7 +686,7 @@ void EnemyTargetPlayer(int i)
     target_y=Enemy[i]->y+RandNum(-MAX_FOLLOW_RANGE/4*NODE_SIZE,abs(MAX_FOLLOW_RANGE/4*NODE_SIZE),&Enemy[i]->target_player_rng_i,seed2);
     target_node=GetGridId(target_x-EnemyPathfinding[pfi]->node_x[0],
 			target_y-EnemyPathfinding[pfi]->node_y[0],
-                        MAX_FOLLOW_RANGE*NODE_SIZE,
+            MAX_FOLLOW_RANGE*NODE_SIZE,
 			NODE_SIZE,
 			EnemyPathfinding[pfi]->node_num);
   } else {
@@ -697,7 +700,7 @@ void EnemyTargetPlayer(int i)
     }
   }*/
   InitEnemyPathfinding(i,target_x,target_y);
-  }
+  } //end of pfi!=-1
 }
 
 void EnemyLOSAct(int i)
@@ -1077,12 +1080,12 @@ void EnemyAntActOnGroundEdge(int i,bool clockwise)
               Enemy[i]->above_ground_edge=TRUE;
               Enemy[i]->below_ground_edge=FALSE;
               if (clockwise) { //clockwize
-                Enemy[i]->x+=(cos(-edge_angle+M_PI_2)*0.5);
-                Enemy[i]->y+=(sin(-edge_angle+M_PI_2)*0.5);
+                Enemy[i]->x+=(cos(-edge_angle+M_PI_2)*0.25);
+                Enemy[i]->y+=(sin(-edge_angle+M_PI_2)*0.25);
                 Enemy[i]->last_left=FALSE;
               } else { //anticlockwize
-                Enemy[i]->x+=(-cos(-edge_angle+M_PI_2)*0.5);
-                Enemy[i]->y+=(-sin(-edge_angle+M_PI_2)*0.5);
+                Enemy[i]->x+=(-cos(-edge_angle+M_PI_2)*0.25);
+                Enemy[i]->y+=(-sin(-edge_angle+M_PI_2)*0.25);
                 Enemy[i]->last_left=TRUE;
               }
 
@@ -1096,12 +1099,12 @@ void EnemyAntActOnGroundEdge(int i,bool clockwise)
               Enemy[i]->above_ground_edge=FALSE;
               Enemy[i]->below_ground_edge=TRUE;
               if (clockwise) { //clockwize
-                Enemy[i]->x+=(-cos(-edge_angle+M_PI_2)*0.5);
-                Enemy[i]->y+=(sin(-edge_angle+M_PI_2)*0.5);
+                Enemy[i]->x+=(-cos(-edge_angle+M_PI_2)*0.25);
+                Enemy[i]->y+=(sin(-edge_angle+M_PI_2)*0.25);
                 Enemy[i]->last_left=TRUE;
               } else { //anticlockwize
-                Enemy[i]->x+=(cos(-edge_angle+M_PI_2)*0.5);
-                Enemy[i]->y+=(-sin(-edge_angle+M_PI_2)*0.5);
+                Enemy[i]->x+=(cos(-edge_angle+M_PI_2)*0.25);
+                Enemy[i]->y+=(-sin(-edge_angle+M_PI_2)*0.25);
                 Enemy[i]->last_left=FALSE;
               }
 
@@ -2452,7 +2455,7 @@ void EnemyAct(int i)
                   Enemy[i]->flying_timer=100;
                 }
               }*/
-              InitEnemyPathfinding(i,target_x,target_y);
+              InitEnemyPathfinding(i,target_x,target_y); //Pathfind to random node
             } else {
               Enemy[i]->idling=TRUE;
             }
@@ -2487,6 +2490,8 @@ void EnemyAct(int i)
             Enemy[i]->move_to_target=FALSE;
           }*/
               if (!Enemy[i]->idling) {
+                //Re-target if crossing past
+                //if (!Enemy[i]->search_target) { // not actively searching, added in 2026-05-16 due to suspected fps drop (not the cause)
                 if (player.x<Enemy[i]->x) {
                   Enemy[i]->player_at_left=TRUE;
                 } else if (Enemy[i]->x<=player.x) {
@@ -2507,6 +2512,8 @@ void EnemyAct(int i)
                   Enemy[i]->player_at_above=FALSE;
                   Enemy[i]->player_at_below=FALSE;
                 }
+
+                //Re-target depending on chase range
                 if (Enemy[i]->chase_range/2*NODE_SIZE<Enemy[i]->dist_from_player && Enemy[i]->dist_from_player<Enemy[i]->unchase_range/2*NODE_SIZE //in unchase range
             	         ) //not in chase range) 
                 {
@@ -2519,6 +2526,8 @@ void EnemyAct(int i)
                   Enemy[i]->in_chase_range=FALSE;
                   Enemy[i]->in_unchase_range=FALSE;
                 }
+
+                //}
               }
             }
           }

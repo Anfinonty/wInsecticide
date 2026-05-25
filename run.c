@@ -2564,6 +2564,18 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       
 
       //Load Player Sprites
+      /*LoadPlayerSprite.sprite_1 =  LoadRLE8CompressedBitmap(L"sprites/player_other1.bmp");
+      LoadPlayerSprite.sprite_2 = LoadRLE8CompressedBitmap(L"sprites/player_other2.bmp");
+      LoadPlayerSprite.sprite_jump = LoadRLE8CompressedBitmap(L"sprites/player_other3-1.bmp");
+      LoadPlayerSprite.attack_sprite_1 = LoadRLE8CompressedBitmap(L"sprites/player_other-attack-1.bmp");
+      LoadPlayerSprite.attack_sprite_2 = LoadRLE8CompressedBitmap(L"sprites/player_other-attack-2.bmp");
+      LoadPlayerSprite.attack_sprite_3 = LoadRLE8CompressedBitmap(L"sprites/player_other-attack-3.bmp");
+      LoadPlayerSprite.attack_sprite_4 = LoadRLE8CompressedBitmap(L"sprites/player_other-attack-4.bmp");
+      LoadPlayerSprite.block_sprite_1 = LoadRLE8CompressedBitmap(L"sprites/player_other-block-1.bmp");
+      LoadPlayerSprite.block_sprite_2 = LoadRLE8CompressedBitmap(L"sprites/player_other-block-2.bmp");
+      LoadPlayerSprite.block_sprite_3 = LoadRLE8CompressedBitmap(L"sprites/player_other-block-3.bmp");
+      LoadPlayerSprite.spin_sprite = LoadRLE8CompressedBitmap(L"sprites/player_other-spin.bmp");*/
+
       LoadPlayerSprite.sprite_1 =  LoadRLE8CompressedBitmap(L"sprites/player1.bmp");
       LoadPlayerSprite.sprite_2 = LoadRLE8CompressedBitmap(L"sprites/player2.bmp");
       LoadPlayerSprite.sprite_jump = LoadRLE8CompressedBitmap(L"sprites/player3-1.bmp");
@@ -2571,6 +2583,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       LoadPlayerSprite.attack_sprite_2 = LoadRLE8CompressedBitmap(L"sprites/player-attack-2.bmp");
       LoadPlayerSprite.attack_sprite_3 = LoadRLE8CompressedBitmap(L"sprites/player-attack-3.bmp");
       LoadPlayerSprite.attack_sprite_4 = LoadRLE8CompressedBitmap(L"sprites/player-attack-4.bmp");
+
       LoadPlayerSprite.block_sprite_1 = LoadRLE8CompressedBitmap(L"sprites/player-block-1.bmp");
       LoadPlayerSprite.block_sprite_2 = LoadRLE8CompressedBitmap(L"sprites/player-block-2.bmp");
       LoadPlayerSprite.block_sprite_3 = LoadRLE8CompressedBitmap(L"sprites/player-block-3.bmp");
