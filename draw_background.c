@@ -1331,31 +1331,36 @@ void DrawGameBackgroundSpriteII(HDC hdc1,HDC hdc2)
   //=================================
 
 
-  //Draw Background infront of sky
-  /*SelectObject(hdcBG,draw_background_sprite.sprite_mask);
-  StretchBlt(hdc2,0,0,GR_WIDTH,GR_HEIGHT,hdcBG,0,0,626,376,SRCAND);
-  
-  SelectObject(hdcBG,draw_background_sprite.sprite_paint);
-  StretchBlt(hdc2,0,0,GR_WIDTH,GR_HEIGHT,hdcBG,0,0,626,376,SRCPAINT);*/
-//  SelectObject(hdcBG,draw_background_sprite_stretched_mask);
-//  BitBlt(hdc2,0,0,GR_WIDTH,GR_HEIGHT,hdcBG,0,0,SRCAND);
-  
+
+
+  if (lvl_map_background.background_id>BACKGROUND_FOREGROUND_SPRITE_NUM) {
+  //stretched full background not foreground, overwrites previous 
+    SelectObject(hdcBG,load_background_full_sprite[lvl_map_background.background_id-BACKGROUND_FOREGROUND_SPRITE_NUM-1]);
+    StretchBlt(hdc2,0,0,GR_WIDTH,GR_HEIGHT,hdcBG,0,0,800,480,SRCCOPY);
+  } else {
+
+
+  //Draw Sun
+  if (lvl_map_background.is_sun && Sun.horizon_lvl<3)
+    DrawSun(hdc2,hdcBG);
 
   //========Draw Moon (flipped or not)=============
   //Stretch (upsidedown + flipped) .sprite_paint to target .sprite_paint only
   //Extra condition: flip moon upside down and face it leftwards if latitude <= 0degs is south
-  SelectObject(hdc2,Moon[DrawGameMoon.day_moon_phase_id].draw_moon_sprite[DrawGameMoon.day_moon_angle_id].sprite_paint); //select moon
-  SelectObject(hdcBG,DrawGameMoon.draw_moon_sprite_lvl); //select 
+  if (DrawGameMoon.day_moon_phase_id!=-1 && DrawGameMoon.day_moon_angle_id!=-1 && lvl_map_background.is_moon) {
+    SelectObject(hdc2,Moon[DrawGameMoon.day_moon_phase_id].draw_moon_sprite[DrawGameMoon.day_moon_angle_id].sprite_paint); //select moon
+    SelectObject(hdcBG,DrawGameMoon.draw_moon_sprite_lvl); //select 
 
-  BITMAP bm;
-  GetObject(Moon[DrawGameMoon.day_moon_phase_id].draw_moon_sprite[DrawGameMoon.day_moon_angle_id].sprite_paint,sizeof(BITMAP),&bm);
-  int size=bm.bmWidth;
-  GrRect(hdcBG,0,0,257,257,BLACK);
+    BITMAP bm;
+    GetObject(Moon[DrawGameMoon.day_moon_phase_id].draw_moon_sprite[DrawGameMoon.day_moon_angle_id].sprite_paint,sizeof(BITMAP),&bm);
+    int size=bm.bmWidth;
+    GrRect(hdcBG,0,0,257,257,BLACK);
 
-  if (lvl_map_background.latitude<0) {
-    StretchBlt(hdcBG,size,size,-size,-size,hdc2,0,0,size,size,SRCCOPY);
-  } else {
-    BitBlt(hdcBG,0,0,size,size,hdc2,0,0,SRCCOPY);
+    if (lvl_map_background.latitude<0) {
+      StretchBlt(hdcBG,size,size,-size,-size,hdc2,0,0,size,size,SRCCOPY);
+    } else {
+      BitBlt(hdcBG,0,0,size,size,hdc2,0,0,SRCCOPY);
+    }
   }
 
   //===============================================
@@ -1375,19 +1380,8 @@ void DrawGameBackgroundSpriteII(HDC hdc1,HDC hdc2)
 
   SelectObject(hdcBG,game_background_deco_sprite);
 
-  //Draw Moon
-    //Back of moon during sunset
-    /*if (Sun.y>=GR_HEIGHT+GR_HEIGHT/7) {
-      if (Sun.x>GR_WIDTH/2) { //sun-set
-        GrCircle(hdcBG,day_moon_x,day_moon_y,28,RGB(0,0,24),RGB(0,0,24));
-      } else {
-        GrCircle(hdcBG,day_moon_x,day_moon_y,28,lvl_map_background.day_sky_color,lvl_map_background.day_sky_color);
-      }
-    }*/
-
-
   //Draw Moon **
-  if (DrawGameMoon.day_moon_angle_id!=-1 && lvl_map_background.is_moon) {
+  if (DrawGameMoon.day_moon_phase_id!=-1 && DrawGameMoon.day_moon_angle_id!=-1 && lvl_map_background.is_moon) {
     BITMAP bm;
     GetObject(Moon[DrawGameMoon.day_moon_phase_id].draw_moon_sprite[DrawGameMoon.day_moon_angle_id].sprite_paint,sizeof(BITMAP),&bm);
     int size=bm.bmWidth;
@@ -1400,23 +1394,14 @@ void DrawGameBackgroundSpriteII(HDC hdc1,HDC hdc2)
   //===================)===========================
 
 
-  //Draw Sun
-  if (lvl_map_background.is_sun && Sun.horizon_lvl<3)
-    DrawSun(hdcBG,hdc2);
-
-
- 
-  if (lvl_map_background.background_id>BACKGROUND_FOREGROUND_SPRITE_NUM) {
-  //stretched full background not foreground, overwrites previous 
-   SelectObject(hdc2,load_background_full_sprite[lvl_map_background.background_id-BACKGROUND_FOREGROUND_SPRITE_NUM-1]);
-    StretchBlt(hdcBG,0,0,GR_WIDTH,GR_HEIGHT,hdc2,0,0,800,480,SRCCOPY);
-  } else if (lvl_map_background.background_id>0){
+  if (lvl_map_background.background_id>0 && lvl_map_background.background_id<BACKGROUND_FOREGROUND_SPRITE_NUM){
   //Draw Background infront of clouds and skies
     SelectObject(hdc2,draw_background_sprite_stretched_mask);
     BitBlt(hdcBG,0,0,GR_WIDTH,GR_HEIGHT,hdc2,0,0,SRCAND);
 
     SelectObject(hdc2,draw_background_sprite_stretched_paint);
     BitBlt(hdcBG,0,0,GR_WIDTH,GR_HEIGHT,hdc2,0,0,SRCPAINT);
+  }
   }
   DeleteDC(hdcBG);
 }

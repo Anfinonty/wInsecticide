@@ -32,12 +32,15 @@ void UpdateMEDrawSprite()
         break;
     }
 
-    ReplaceBitmapColor2(MEEnemySprite[ei]->sprite_1,LTGREEN,BLACK,8,LTGREEN);
-    loading_numerator++;
+    ReplaceBitmapColor2(MEEnemySprite[ei]->sprite_1,BLACK,YELLOW,LTGREEN,BLACK);
+    ReplaceBitmapColor(MEEnemySprite[ei]->sprite_1,YELLOW,LTGREEN);
+
+    //loading_numerator++;
     GenerateDrawSprite(&MEEnemySprite[ei]->draw_sprite_1,MEEnemySprite[ei]->sprite_1);
 
     //Update Palette!!
     CopyReplaceColorPalette(MEEnemySprite[ei]->enemyPalette,rgbColorsDefault,167,rgbPaint[set_enemy_type_color[ei]]); //set normal palette
+    CopyReplaceColorPalette(MEEnemySprite[ei]->enemyPalette,MEEnemySprite[ei]->enemyPalette,151,LTGRAY); //set outline color ltblue go LTGRAY
 
     MapEditor.flag_enemy_palette_i=ei;
 }
@@ -225,7 +228,7 @@ void MapEditorKeypressDown(WPARAM wParam)
           UpdateMEDrawSprite();
         }*/
         if (!MapEditor.is_typing_search && !MapEditor.is_ground_txt_typing) {
-          MapEditor.selected_option=LimitValueInt(MapEditor.selected_option+1,0,6);
+          MapEditor.selected_option=LimitValueInt(MapEditor.selected_option+1,0,7);
         }
         break;
 
@@ -252,6 +255,9 @@ void MapEditorKeypressDown(WPARAM wParam)
             break;
           case 5: //textures vk_down++
             MapEditor.selected_ptexture_option=LimitValueInt(MapEditor.selected_ptexture_option+1,0,4);
+            break;
+          case 6:
+            MapEditor.selected_fground_option=LimitValueInt(MapEditor.selected_fground_option+1,0,FGROUND_ATTR_NUM+FGROUND_GROUND_ATTR_NUM+2);
             break;
         }
         break;
@@ -280,6 +286,9 @@ void MapEditorKeypressDown(WPARAM wParam)
             break;
           case 5: //textures vk_up --
             MapEditor.selected_ptexture_option=LimitValueInt(MapEditor.selected_ptexture_option-1,0,4);
+            break;
+          case 6:
+            MapEditor.selected_fground_option=LimitValueInt(MapEditor.selected_fground_option-1,0,FGROUND_ATTR_NUM+FGROUND_GROUND_ATTR_NUM+2);
             break;
         }
         break;
@@ -797,6 +806,7 @@ void MapEditorKeypressUp(WPARAM wParam, HWND hwnd, HDC hdc)
           if (game_audio)
             PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start        
           SaveMELvl(hwnd,hdc);
+          SaveLvlFallingGround();
         }
         player.rst_down=FALSE;
         break;
@@ -870,6 +880,7 @@ void MapEditorKeypressUp(WPARAM wParam, HWND hwnd, HDC hdc)
             if (game_audio)
               PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
             SaveMELvl(hwnd,hdc);
+            SaveLvlFallingGround();
             //flag_load_melevel=TRUE;
             back_to_menu=TRUE;
           }

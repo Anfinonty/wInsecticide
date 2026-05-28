@@ -442,6 +442,167 @@ int start_background_row=S_PRELUDE_ROW_NUM+
       S_PLAYER_FLOAT_NUM;
 
 
+bool LoadSaveFallingGround(wchar_t *saves_name)
+{
+  int row=0;
+  int phase=0;
+  int column=0;
+  int current_fground_id=0; //0 to MAX FALLING GROUND
+
+  FILE *fptr;
+  fptr = _wfopen(saves_name,L"r");
+
+  if (!fptr) { //file notfound
+    return FALSE;
+  }
+  int c; //each character
+  int int_val=0;
+  int int_saved_val=0;
+  bool is_negative_val=FALSE;
+
+  //First 16 rows 
+  //Up to FGROUND_NUM number of columns (50)
+
+  //Up to 9 rows * FGROUND_NUM  (50)  <-450 rows, 9 row = falling ground attributes
+  //Up to 30 column -> GROUND_IN_FGROUND_NUM (30)
+
+  while ((c=fgetwc(fptr))!=WEOF) {
+    if (c!=';') {//not yet a semicolon
+      if (c>='0' && c<='9') { //numerical chars only
+        int_val=c-'0'; //ascii convert to num
+        int_saved_val*=10; //move digit to left
+        int_saved_val+=int_val; //append number digit to right side
+      } else if (c=='-') {
+        is_negative_val=TRUE;
+      } else if (c==',') {//comma value, move to next fground_ground_i
+        if (is_negative_val) {
+          int_saved_val=-abs(int_saved_val);
+          is_negative_val=FALSE;
+        }
+        switch (phase) {
+          case 0:
+            switch (row) {//save value
+              case 0:
+                F_GROUND[column].ospin_angle=int_saved_val;
+                break;
+              case 1:
+                F_GROUND[column].ospin_angle_delta=int_saved_val;
+                break;
+              case 2:
+                F_GROUND[column].ospin_angle_min=int_saved_val;
+                break;
+              case 3:
+                F_GROUND[column].ospin_angle_max=int_saved_val;
+                break;
+              case 4:
+                F_GROUND[column].oy_oscillation_angle_delta=int_saved_val;
+                break;
+              case 5:
+                F_GROUND[column].oy_oscillation_angle_max=int_saved_val;
+                break;
+              case 6:
+                F_GROUND[column].oy_oscillation_angle=int_saved_val;
+                break;
+              case 7:
+                F_GROUND[column].ox_oscillation_angle_delta=int_saved_val;
+                break;
+              case 8:
+                F_GROUND[column].ox_oscillation_angle_max=int_saved_val;
+                break;
+              case 9:
+                F_GROUND[column].ox_oscillation_angle=int_saved_val;
+                break;
+              case 10:
+                F_GROUND[column].speed_multiplier=(int_saved_val);
+                break;
+              case 11:
+                F_GROUND[column].ospeed=(int_saved_val);
+                break;
+              case 12:
+                F_GROUND[column].x_start=(float)(int_saved_val);
+                break;
+              case 13:
+                F_GROUND[column].y_start=(float)(int_saved_val);
+                break;
+              case 14:
+                F_GROUND[column].x_end=(float)(int_saved_val);
+                break;
+              case 15:
+                F_GROUND[column].y_end=(float)(int_saved_val);
+                break;
+            }
+            break;
+          case 1:
+            switch (row) {//save value
+              case 0:
+                if (int_saved_val==1)
+                  F_GROUND[current_fground_id].is_ghost[column]=TRUE;
+                else
+                  F_GROUND[current_fground_id].is_ghost[column]=FALSE;
+                break;
+              case 1:
+                F_GROUND[current_fground_id].color_id[column]=int_saved_val;
+                break;
+              case 2:
+                F_GROUND[current_fground_id].type[column]=int_saved_val;
+                break;
+              case 3:
+                F_GROUND[current_fground_id].texture_type[column]=int_saved_val;
+                break;
+              case 4:
+                F_GROUND[current_fground_id].ox1[column]=(float)int_saved_val;
+                break;
+              case 5:
+                F_GROUND[current_fground_id].oy1[column]=(float)int_saved_val;
+                break;
+              case 6:
+                F_GROUND[current_fground_id].ox2[column]=(float)int_saved_val;
+                break;
+              case 7:
+                F_GROUND[current_fground_id].oy2[column]=(float)int_saved_val;
+                break;
+              case 8:
+                F_GROUND[current_fground_id].ox3[column]=(float)int_saved_val;
+                break;
+              case 9:
+                F_GROUND[current_fground_id].oy3[column]=(float)int_saved_val;
+                break;
+            }
+            break;
+        }
+        //printf("%d,",int_saved_val);
+        column++;
+        int_val=int_saved_val=0;//restart values
+        is_negative_val=FALSE;
+      }
+    } else { // == semi colon ;
+      //printf(";\n");
+      column=int_val=int_saved_val=0;//restart values
+      is_negative_val=FALSE;
+      row++;
+      if (phase==0) { //move onto next fground_i
+        if (row>=FGROUND_ATTR_NUM) {
+          //printf("\n==\n@\n");
+          phase=1;
+          row=0; //Restart rows back to 0
+        }
+      } else if (phase==1) {
+        if (row>=FGROUND_GROUND_ATTR_NUM) {
+          //printf("\n@\n");
+          current_fground_id++;
+          row=0;
+          if (current_fground_id>=FGROUND_NUM) {
+            phase=2;
+          }
+        }
+      }
+    }
+  }
+  fclose(fptr);
+  return TRUE;
+}
+
+
 bool LoadSave(wchar_t *saves_name, bool spawn_objects)
 {
   int row=0;
@@ -752,6 +913,7 @@ void LoadOptions()
       is_khmer=0;
       game_hard=0;
       free_will=0;
+      no_insects_mode=0;
       return;
   }
 
@@ -771,7 +933,7 @@ void LoadOptions()
           int_saved_val*=10; //move digit to left
           int_saved_val+=int_val; //append number digit to right side
         }
-      } else { //row 5 and 6 is float values
+      } else { //row 5 and 6 are float values
         if (c>='0' && c<='9') {
           if (deci) { //post '.'
             float_val=(float)(c-'0')*0.1;
@@ -834,6 +996,9 @@ void LoadOptions()
           break;
         case 15:
           free_will=int_saved_val;
+          break;
+        case 16:
+          no_insects_mode=int_saved_val;
           break;
       }
       //printf("row:%d,option:%d,%5.4f\n",row,int_saved_val,float_saved_val);

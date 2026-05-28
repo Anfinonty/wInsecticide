@@ -1498,6 +1498,9 @@ struct GameMoon
 #define GROUND_IN_FGROUND_NUM   30
 #define FGROUND_SIZE     160
 
+#define FGROUND_ATTR_NUM    16
+#define FGROUND_GROUND_ATTR_NUM 10
+
 struct FallingGround
 {
 /*
@@ -1522,6 +1525,20 @@ struct FallingGround
   //loaded in game only
   //Vars referred below for physics used only when within CLOSE range of player 
   //Vars referred below for graphics used only when within range of player
+  float spin_angle;
+  float spin_angle_delta;
+  float spin_angle_min;
+  float spin_angle_max;
+  float x; //current x-y position (where the fallingground is on map)
+  float y;
+  float x_oscillation_angle;
+  float x_oscillation_angle_max;
+  float x_oscillation_angle_delta;
+  float y_oscillation_angle;
+  float y_oscillation_angle_max;
+  float y_osclilation_angle_delta;
+  float speed;
+
   int solid_ground_num;
   int solid_grounds[GROUND_IN_FGROUND_NUM];
   int color[GROUND_IN_FGROUND_NUM]; //Color of ground, RGB()
@@ -1539,36 +1556,34 @@ struct FallingGround
 
   //bool is_left; 
   //loaded in Vars, convert deg (int) to rad in game (-360->0->360)
-  float ospin_angle;
-  float spin_angle_delta;
-  float spin_angle_min;
-  float spin_angle_max;
+  int ospin_angle;
+  int ospin_angle_delta;
+  int ospin_angle_min;
+  int ospin_angle_max;
 
-  float y_oscillation_angle_delta;      //      //      //                      //
-  float y_oscillation_angle_max;      //  //  // //  //  //                       //
-  float y_oscillation_angle;        //      //     //      //                   //
+  int oy_oscillation_angle_delta;      //      //      //                      //
+  int oy_oscillation_angle_max;      //  //  // //  //  //                       //
+  int oy_oscillation_angle;        //      //     //      //                   //
                                                                                   //
-  float x_oscillation_angle_delta; //speed of oscillation angle                 //
-  float x_oscillation_angle_max; //max oscillation                               //
-  float x_oscillation_angle; //current oscillation angle                       //
+  int ox_oscillation_angle_delta; //speed of oscillation angle                 //
+  int ox_oscillation_angle_max; //max oscillation                               //
+  int ox_oscillation_angle; //current oscillation angle                       //
                                                                                 //
-  float x; //current x-y position (where the fallingground is on map)
-  float y;
   int speed_multiplier; //how fast it is moving (like bullet)
-  float speed; // divide int(0-10) by float(10)
+  int ospeed; // divide int(0-10) by float(10)
 
   float x_start; //starting points
   float y_start;
   float x_end; //ending points
   float y_end;
 
-  //bool is_ghost[GROUND_IN_FGROUND_NUM]; //Can be colided or not collided
 
   //bool within_render_distance; //Is the ground within the player's Render Distance Grid'
   //int health; //For Webs, health of ground
 
   //bool is_phase_floor2roof[GROUND_IN_FGROUND_NUM];
   //loaded in Vars
+  bool is_ghost[GROUND_IN_FGROUND_NUM]; //Can be colided or not collided
   int color_id[GROUND_IN_FGROUND_NUM];
   int type[GROUND_IN_FGROUND_NUM]; //Regular or NoCeilingButFloor or TriFill or Texture TriFill
   //int font_size[GROUND_IN_FGROUND_NUM];

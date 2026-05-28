@@ -18,7 +18,7 @@ struct MapEditor
   int sticky_level;
   
   //overall
-  int selected_option; //0:ground, 1:player, 2:enemy, 3:enemy_type, 4:background, 5:textures editor
+  int selected_option; //0:ground, 1:player, 2:enemy, 3:enemy_type, 4:background, 5:textures editor, 6:falling ground
 
   //typing search
   bool is_typing_search;
@@ -83,6 +83,12 @@ struct MapEditor
   int selected_ptexture_id;
   //int selected_ptexture_type;
   //int selected_ptexture_color_id;
+
+  //=== falling ground ===
+  int selected_fground_option;
+  int selected_fground_id;
+  int selected_fground_ground_id;
+
 
 
   //Shooting bullet
@@ -744,7 +750,8 @@ void InitMapEditorEnemy()
         break;
     }
 
-    ReplaceBitmapColor2(MEEnemySprite[i]->sprite_1,LTGREEN,BLACK,8,LTGREEN);
+    ReplaceBitmapColor2(MEEnemySprite[i]->sprite_1,BLACK,YELLOW,LTGREEN,BLACK);
+    ReplaceBitmapColor(MEEnemySprite[i]->sprite_1,YELLOW,LTGREEN);
     loading_numerator++;
     GenerateDrawSprite(&MEEnemySprite[i]->draw_sprite_1,MEEnemySprite[i]->sprite_1);
 
@@ -806,7 +813,10 @@ void InitMapEditor()
 
   MapEditor.selected_ptexture_id=0;
   MapEditor.selected_ptexture_option=0;
-  
+
+  MapEditor.selected_fground_id=0;
+  MapEditor.selected_fground_ground_id=0;
+  MapEditor.selected_fground_option=0;
 
   MapEditor.pick_color=-1;
 
@@ -987,6 +997,11 @@ void InitLevelMapEditor()
 
   LoadSave(txt,FALSE); //load saves
 
+
+  wchar_t txt2[128];
+  swprintf(txt2,128,L"saves/%ls/level_fground.txt",level_names[level_chosen]);
+  LoadSaveFallingGround(txt2);
+
   MapEditor.load_ptextures=TRUE;
   MapEditor.alter_ptexture=FALSE;
   MapEditor.alter_ptexture_color=FALSE;
@@ -1112,6 +1127,9 @@ void MapEditorAct()
     }
 
     switch (MapEditor.selected_option) {
+      case 6: //Falling Ground
+
+        break;
       case 0:
         if (player.right_click_hold_timer==62) {
           if ((Ground[MapEditor.selected_ground_id]->type>=3 && Ground[MapEditor.selected_ground_id]->type<=8) || Ground[MapEditor.selected_ground_id]->type==1) { //trifill

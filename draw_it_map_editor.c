@@ -337,7 +337,34 @@ void DrawMapEditorBackground(HDC hdc,HDC hdc2)
   DrawBackground(hdc,hdc2);
 }
 
+void DrawEnemyAntannae(HDC hdc, int le_x, int le_y,int ac,bool flip_bool)
+{
+     int al=44;
+     const int al2=40;
+     float ang_offset=0.09;
+     const float ang_offset2=0.1;
+     float moving_ang_offset=0.00;
 
+     float l_angle=-enemy_rotated_angle_arr[8];
+
+
+      if (flip_bool) {
+        l_angle=-l_angle+ang_offset+M_PI;
+      } else {
+        l_angle-=ang_offset;
+      }
+
+    moving_ang_offset=30*0.005;
+    int ax1=le_x+cos(l_angle)*(al);
+    int ay1=le_y+sin(l_angle)*(al);
+    int ax2_1=ax1+cos(l_angle+moving_ang_offset)*115;
+    int ay2_1=ay1+sin(l_angle+moving_ang_offset)*115;
+    int ax2_2=ax1+cos(l_angle+0.05-moving_ang_offset)*115;
+    int ay2_2=ay1+sin(l_angle+0.05-moving_ang_offset)*115;
+    GrLine(hdc,ax1,ay1,ax2_1,ay2_1,ac);
+    GrLine(hdc,ax1,ay1,ax2_2,ay2_2,ac); 
+
+}
 
 void DrawMapEditorEnemy(HDC hdc,HDC hdc2)
 {
@@ -358,6 +385,10 @@ void DrawMapEditorEnemy(HDC hdc,HDC hdc2)
       DrawSprite(hdc,hdc2,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y+GR_HEIGHT/2,&MEEnemySprite[type]->draw_sprite_1,FALSE);
     } else {
       DrawSprite(hdc,hdc2,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y+GR_HEIGHT/2,&MEEnemySprite[type]->draw_sprite_1,TRUE);
+    }
+
+    if (set_enemy_type_species[type]==1) { //cockroach draw antannae
+      DrawEnemyAntannae(hdc,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y+GR_HEIGHT/2,rgbPaint[set_enemy_type_color[type]],FALSE);
     }
   }
 }
@@ -605,6 +636,9 @@ void DrawMapEditorUI(HDC hdc,HDC hdc2)
 
         //Draw 
         DrawSprite(hdc,hdc2,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey,&MEEnemySprite[MapEditor.selected_enemy_type_id]->draw_sprite_1,MapEditor.demo_enemy_spriteisleft);
+        if (set_enemy_type_species[MapEditor.selected_enemy_type_id]==1) {
+          DrawEnemyAntannae(hdc,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey, rgbPaint[set_enemy_type_color[MapEditor.selected_enemy_type_id]],MapEditor.demo_enemy_spriteisleft);
+        }
 
 
         //draw bullet frequency
@@ -736,6 +770,113 @@ void DrawMapEditorUI(HDC hdc,HDC hdc2)
         DrawBitmap(hdc,hdc2,16,32+16*5+VGRID_SIZE+16,0,0,VGRID_SIZE,VGRID_SIZE,LoadedPlatformTextures[GamePlatformTextures[MapEditor.selected_ptexture_id].type],SRCCOPY,FALSE,FALSE); //Draw Original Textures
         }
         break;
+
+
+      case 6: { //Set Falling Ground >:D 2026-05-27
+        char txt[48];
+        GrPrintThick(hdc,8,16,"Falling Ground",YELLOW,BLACK);
+
+        for (int i=0;i<FGROUND_ATTR_NUM+1;i++) {
+          c = Highlight(MapEditor.selected_fground_option==i,WHITE,LTPURPLE);
+          switch (i) {
+            case 0:
+              sprintf(txt,"Falling Ground ID: <%d>",MapEditor.selected_fground_id);
+              break;
+            case 1:
+              sprintf(txt,"Spin Angle: <%3.2f>",(float)F_GROUND[MapEditor.selected_fground_id].ospin_angle/100.0);
+              break;
+            case 2:
+              sprintf(txt,"Spin Angle Delta: <%3.2f>",(float)F_GROUND[MapEditor.selected_fground_id].ospin_angle_delta/100.0);
+              break;
+            case 3:
+              sprintf(txt,"Spin Angle Min: <%3.2f>",(float)F_GROUND[MapEditor.selected_fground_id].ospin_angle_min/100.0);
+              break;
+            case 4:
+              sprintf(txt,"Spin Angle Max: <%3.2f>",(float)F_GROUND[MapEditor.selected_fground_id].ospin_angle_max/100.0);
+              break;
+            case 5:
+              sprintf(txt,"Y Oscillation Angle Delta: <%3.2f>",(float)F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle_delta/100.0);
+              break;
+            case 6:
+              sprintf(txt,"Y Oscillation Angle Max: <%3.2f>",(float)F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle_max/100.0);
+              break;
+            case 7:
+              sprintf(txt,"Y Oscillation Angle: <%3.2f>",(float)F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle/100.0);
+              break;
+            case 8:
+              sprintf(txt,"X Oscillation Angle Delta: <%3.2f>",(float)F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle_delta/100.0);
+              break;
+            case 9:
+              sprintf(txt,"X Oscillation Angle Max: <%3.2f>",(float)F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle_max/100.0);
+              break;
+            case 10:
+              sprintf(txt,"X Oscillation Angle: <%3.2f>",(float)F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle/100.0);
+              break;
+            case 11:
+              sprintf(txt,"Speed Multiplier: <%d>",F_GROUND[MapEditor.selected_fground_id].speed_multiplier);
+              break;
+            case 12:
+              sprintf(txt,"Speed: <%1.1f>",(float)F_GROUND[MapEditor.selected_fground_id].ospeed/10);
+              break;
+            case 13:
+              sprintf(txt,"X Start: %1.0f",F_GROUND[MapEditor.selected_fground_id].x_start);
+              break;
+            case 14:
+              sprintf(txt,"Y Start: %1.0f",F_GROUND[MapEditor.selected_fground_id].y_start);
+              break;
+            case 15:
+              sprintf(txt,"X End: %1.0f",F_GROUND[MapEditor.selected_fground_id].x_end);
+              break;
+            case 16:
+              sprintf(txt,"Y End: %1.0f",F_GROUND[MapEditor.selected_fground_id].y_end);
+              break;
+          }          
+          GrPrintThick(hdc,8,32+16*i,txt,c,BLACK);
+        }
+
+
+
+        for (int i=0;i<FGROUND_GROUND_ATTR_NUM+1;i++) {
+          c = Highlight(MapEditor.selected_fground_option==(FGROUND_ATTR_NUM+1+i),WHITE,LTPURPLE);
+          switch (i) {
+            case 0:
+              sprintf(txt,"FGround-Ground ID: <%d>",MapEditor.selected_fground_ground_id);
+              break;
+            case 1:
+              sprintf(txt,"Is Ghost: <%d>",F_GROUND[MapEditor.selected_fground_id].is_ghost[MapEditor.selected_fground_ground_id]);
+              break;
+            case 2:
+              sprintf(txt,"Color:");
+              break;
+            case 3:
+              sprintf(txt,"Type: <%d>",F_GROUND[MapEditor.selected_fground_id].type[MapEditor.selected_fground_ground_id]);
+              break;
+            case 4:
+              sprintf(txt,"Texture Type: <%d>",F_GROUND[MapEditor.selected_fground_id].texture_type[MapEditor.selected_fground_ground_id]);
+              break;
+            case 5:
+              sprintf(txt,"x1: %1.0f",F_GROUND[MapEditor.selected_fground_id].ox1[MapEditor.selected_fground_ground_id]);
+              break;
+            case 6:
+              sprintf(txt,"y1: %1.0f",F_GROUND[MapEditor.selected_fground_id].oy1[MapEditor.selected_fground_ground_id]);
+              break;
+            case 7:
+              sprintf(txt,"x2: %1.0f",F_GROUND[MapEditor.selected_fground_id].ox2[MapEditor.selected_fground_ground_id]);
+              break;
+            case 8:
+              sprintf(txt,"y2: %1.0f",F_GROUND[MapEditor.selected_fground_id].oy2[MapEditor.selected_fground_ground_id]);
+              break;
+            case 9:
+              sprintf(txt,"x3: %1.0f",F_GROUND[MapEditor.selected_fground_id].ox3[MapEditor.selected_fground_ground_id]);
+              break;
+            case 10:
+              sprintf(txt,"y3: %1.0f",F_GROUND[MapEditor.selected_fground_id].oy3[MapEditor.selected_fground_ground_id]);
+              break;
+          }          
+          GrPrintThick(hdc,8,64+16*16+i*16,txt,c,BLACK);
+        }
+        break;
+      }
     }
 
     if (MapEditor.selected_option==0 || MapEditor.selected_option==2) {

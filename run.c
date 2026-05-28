@@ -119,6 +119,7 @@ bool free_will=FALSE;
 bool hide_taskbar=FALSE;
 bool show_hijiri=FALSE;
 bool game_hard=FALSE;
+bool no_insects_mode=FALSE;
 
 //game state
 bool blank_level=FALSE;
@@ -645,6 +646,10 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
         swprintf(txt,128,L"saves/%ls/level.txt",level_names[level_chosen]);
         LoadSave(txt,FALSE); //load saves
 
+        wchar_t txt2[128];
+        swprintf(txt2,128,L"saves/%ls/level_fground.txt",level_names[level_chosen]);
+        LoadSaveFallingGround(txt2); //load saves falling_ground
+
         wcsncpy(typing_lvl_name,level_names[level_chosen],16);
         typing_lvl_name_pos=lstrlenW(typing_lvl_name);
         set_ground_amount=GROUND_NUM;
@@ -988,7 +993,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       if (prelude) {
         if (loading_numerator>=loading_denominator) {
           prelude=FALSE;
-          LoadOptions();
+          //LoadOptions();
           InitSongBank(); //load song
           play_new_song[0]=TRUE;
 
@@ -1823,6 +1828,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //bufferbitmap to be refered to
       _bb=CreateBitmap(0,0, 1, 1, NULL);
 
+      LoadOptions();
       InitStars();
 
       BITMAP bmp;
@@ -2564,31 +2570,31 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       
 
       //Load Player Sprites
-      /*LoadPlayerSprite.sprite_1 =  LoadRLE8CompressedBitmap(L"sprites/player_other1.bmp");
-      LoadPlayerSprite.sprite_2 = LoadRLE8CompressedBitmap(L"sprites/player_other2.bmp");
-      LoadPlayerSprite.sprite_jump = LoadRLE8CompressedBitmap(L"sprites/player_other3-1.bmp");
-      LoadPlayerSprite.attack_sprite_1 = LoadRLE8CompressedBitmap(L"sprites/player_other-attack-1.bmp");
-      LoadPlayerSprite.attack_sprite_2 = LoadRLE8CompressedBitmap(L"sprites/player_other-attack-2.bmp");
-      LoadPlayerSprite.attack_sprite_3 = LoadRLE8CompressedBitmap(L"sprites/player_other-attack-3.bmp");
-      LoadPlayerSprite.attack_sprite_4 = LoadRLE8CompressedBitmap(L"sprites/player_other-attack-4.bmp");
-      LoadPlayerSprite.block_sprite_1 = LoadRLE8CompressedBitmap(L"sprites/player_other-block-1.bmp");
-      LoadPlayerSprite.block_sprite_2 = LoadRLE8CompressedBitmap(L"sprites/player_other-block-2.bmp");
-      LoadPlayerSprite.block_sprite_3 = LoadRLE8CompressedBitmap(L"sprites/player_other-block-3.bmp");
-      LoadPlayerSprite.spin_sprite = LoadRLE8CompressedBitmap(L"sprites/player_other-spin.bmp");*/
-
-      LoadPlayerSprite.sprite_1 =  LoadRLE8CompressedBitmap(L"sprites/player1.bmp");
-      LoadPlayerSprite.sprite_2 = LoadRLE8CompressedBitmap(L"sprites/player2.bmp");
-      LoadPlayerSprite.sprite_jump = LoadRLE8CompressedBitmap(L"sprites/player3-1.bmp");
-      LoadPlayerSprite.attack_sprite_1 = LoadRLE8CompressedBitmap(L"sprites/player-attack-1.bmp");
-      LoadPlayerSprite.attack_sprite_2 = LoadRLE8CompressedBitmap(L"sprites/player-attack-2.bmp");
-      LoadPlayerSprite.attack_sprite_3 = LoadRLE8CompressedBitmap(L"sprites/player-attack-3.bmp");
-      LoadPlayerSprite.attack_sprite_4 = LoadRLE8CompressedBitmap(L"sprites/player-attack-4.bmp");
-
-      LoadPlayerSprite.block_sprite_1 = LoadRLE8CompressedBitmap(L"sprites/player-block-1.bmp");
-      LoadPlayerSprite.block_sprite_2 = LoadRLE8CompressedBitmap(L"sprites/player-block-2.bmp");
-      LoadPlayerSprite.block_sprite_3 = LoadRLE8CompressedBitmap(L"sprites/player-block-3.bmp");
-      LoadPlayerSprite.spin_sprite = LoadRLE8CompressedBitmap(L"sprites/player-spin.bmp");
-
+      if (no_insects_mode) {
+        LoadPlayerSprite.sprite_1 =  LoadRLE8CompressedBitmap(L"sprites/player_other1.bmp");
+        LoadPlayerSprite.sprite_2 = LoadRLE8CompressedBitmap(L"sprites/player_other2.bmp");
+        LoadPlayerSprite.sprite_jump = LoadRLE8CompressedBitmap(L"sprites/player_other3-1.bmp");
+        LoadPlayerSprite.attack_sprite_1 = LoadRLE8CompressedBitmap(L"sprites/player_other-attack-1.bmp");
+        LoadPlayerSprite.attack_sprite_2 = LoadRLE8CompressedBitmap(L"sprites/player_other-attack-2.bmp");
+        LoadPlayerSprite.attack_sprite_3 = LoadRLE8CompressedBitmap(L"sprites/player_other-attack-3.bmp");
+        LoadPlayerSprite.attack_sprite_4 = LoadRLE8CompressedBitmap(L"sprites/player_other-attack-4.bmp");
+        LoadPlayerSprite.block_sprite_1 = LoadRLE8CompressedBitmap(L"sprites/player_other-block-1.bmp");
+        LoadPlayerSprite.block_sprite_2 = LoadRLE8CompressedBitmap(L"sprites/player_other-block-2.bmp");
+        LoadPlayerSprite.block_sprite_3 = LoadRLE8CompressedBitmap(L"sprites/player_other-block-3.bmp");
+        LoadPlayerSprite.spin_sprite = LoadRLE8CompressedBitmap(L"sprites/player_other-spin.bmp");
+      } else {
+        LoadPlayerSprite.sprite_1 =  LoadRLE8CompressedBitmap(L"sprites/player1.bmp");
+        LoadPlayerSprite.sprite_2 = LoadRLE8CompressedBitmap(L"sprites/player2.bmp");
+        LoadPlayerSprite.sprite_jump = LoadRLE8CompressedBitmap(L"sprites/player3-1.bmp");
+        LoadPlayerSprite.attack_sprite_1 = LoadRLE8CompressedBitmap(L"sprites/player-attack-1.bmp");
+        LoadPlayerSprite.attack_sprite_2 = LoadRLE8CompressedBitmap(L"sprites/player-attack-2.bmp");
+        LoadPlayerSprite.attack_sprite_3 = LoadRLE8CompressedBitmap(L"sprites/player-attack-3.bmp");
+        LoadPlayerSprite.attack_sprite_4 = LoadRLE8CompressedBitmap(L"sprites/player-attack-4.bmp");
+        LoadPlayerSprite.block_sprite_1 = LoadRLE8CompressedBitmap(L"sprites/player-block-1.bmp");
+        LoadPlayerSprite.block_sprite_2 = LoadRLE8CompressedBitmap(L"sprites/player-block-2.bmp");
+        LoadPlayerSprite.block_sprite_3 = LoadRLE8CompressedBitmap(L"sprites/player-block-3.bmp");
+        LoadPlayerSprite.spin_sprite = LoadRLE8CompressedBitmap(L"sprites/player-spin.bmp");
+      }
 
       //LoadPlayerSprite.sprite_bee_1=LoadRLE8CompressedBitmap(L"sprites/bee-1.bmp");
       //LoadPlayerSprite.sprite_bee_2=LoadRLE8CompressedBitmap(L"sprites/bee-2.bmp");

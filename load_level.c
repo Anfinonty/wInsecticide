@@ -199,6 +199,7 @@ void Init() { //Repeatable
 void InitLevel(bool load_lvl)
 {
   wchar_t txt[128];
+  wchar_t txt2[128];
   wchar_t lvl_name[128];
   level_loading=TRUE;
   //printf("Loading_level...\n");
@@ -208,6 +209,7 @@ void InitLevel(bool load_lvl)
   if (load_lvl) {
     swprintf(lvl_name,128,L"%ls",level_names[level_chosen]);    
     swprintf(txt,128,L"saves/%ls/level.txt",level_names[level_chosen]);
+    swprintf(txt2,128,L"saves/%ls/level_fground.txt",level_names[level_chosen]);
     if (!free_will) {
       if (!game_hard) {
         swprintf(save_level,128,L"saves/%ls/scores.txt",level_names[level_chosen]);
@@ -224,11 +226,14 @@ void InitLevel(bool load_lvl)
   } else { //load main menu level
     swprintf(lvl_name,128,L"__006__");    
     swprintf(txt,128,L"saves/__006__/level.txt");
+    swprintf(txt2,128,L"saves/__006__/level_fground.txt");
     swprintf(save_level,128,L"saves/__006__/scores.txt");
   }
 
 
   bool saves_exist=LoadSave(txt,TRUE);
+  LoadSaveFallingGround(txt2);
+
 
   if (!saves_exist) {
     in_main_menu=TRUE;

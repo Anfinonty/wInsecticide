@@ -1,5 +1,6 @@
 
 
+
 void SaveNewCreatedLvl(const wchar_t* create_lvl_name_)
 {
   //Create Subfolders
@@ -195,8 +196,7 @@ void SaveNewCreatedLvl(const wchar_t* create_lvl_name_)
 
 
 void SaveMELvl(HWND hwnd,HDC hdc)
-{
-    
+{    
     FILE *fptr;
     wchar_t create_lvl_name[64];
     swprintf(create_lvl_name,64,L"saves/%ls/level.txt",level_names[level_chosen]);
@@ -357,14 +357,6 @@ void SaveMELvl(HWND hwnd,HDC hdc)
 
     fprintf(fptr,"%1.0f,;\n",player.x); //player x
     fprintf(fptr,"%1.0f,;\n",player.y); //player y
-
-    /*fprintf(fptr,"%d,;\n",MapEditor.set_lvl_ambient_val[0]); //
-    fprintf(fptr,"%d,;\n",MapEditor.set_lvl_ambient_val[1]); // 
-    fprintf(fptr,"%d,;\n",MapEditor.set_lvl_ambient_val[2]); //
-    fprintf(fptr,"%d,;\n",MapEditor.set_lvl_ambient_val[3]); // 
-    fprintf(fptr,"%d,;\n",MapEditor.set_lvl_ambient_val[4]); //
-    fprintf(fptr,"%d,;\n",MapEditor.set_lvl_ambient_val[5]); //
-*/
 
     fprintf(fptr,"%d,;\n",MapEditor.bg_attr_background_id);
     fprintf(fptr,"%d,;\n",MapEditor.bg_attr_is_real_time);
@@ -754,15 +746,6 @@ void SaveNewLimitAdjustedLvl(HWND hwnd, HDC hdc)
     fprintf(fptr,"%1.0f,;\n",saved_player_x); //player x
     fprintf(fptr,"%1.0f,;\n",saved_player_y); //player y
 
-/*    fprintf(fptr,"%d,;\n",map_background); //
-    fprintf(fptr,"%d,;\n",custom_map_background_color_i); // 
-    fprintf(fptr,"%d,;\n",is_moon); //
-
-    fprintf(fptr,"%d,;\n",map_weather); //
-    fprintf(fptr,"%d,;\n",rain_grad_rise); // 
-    fprintf(fptr,"%d,;\n",rain_grad_run); // 
-*/
-
     fprintf(fptr,"%d,;\n",lvl_map_background.background_id); //Background id
     fprintf(fptr,"%d,;\n",lvl_map_background.is_real_time); //real time
     fprintf(fptr,"%lld,;\n",lvl_map_background.unix_time); //unix time
@@ -827,7 +810,192 @@ void SaveOptions()
   fprintf(fptr,"%d;\n",is_khmer);  //is_khmer
   fprintf(fptr,"%d;\n",game_hard);  //game difficulty
   fprintf(fptr,"%d;\n",free_will);  //free will
+  fprintf(fptr,"%d;\n",no_insects_mode);  //no insects mode
   
   //close file
   fclose(fptr);
 }
+
+
+
+void SaveNewCreatedLvlFallingGround(const wchar_t* create_lvl_name_)
+{
+  FILE *fptr;
+  wchar_t create_lvl_name[64];
+  swprintf(create_lvl_name,64,L"saves/%ls/level_fground.txt",typing_lvl_name);
+  fptr = _wfopen(create_lvl_name,L"w");
+
+
+  //FGROUND ATTRIBUTES
+  for (int j=0;j<FGROUND_ATTR_NUM;j++) {
+    for (int i=0;i<FGROUND_NUM;i++) {
+      fprintf(fptr,"0,");
+    }
+    fprintf(fptr,";\n");
+  }
+
+  fprintf(fptr,"\n");
+  fprintf(fptr,"==\n");
+  fprintf(fptr,"@\n");
+  //FGROUND GROUND ATTRIBUTES
+  for (int k=0;k<FGROUND_NUM;k++) {
+    for (int j=0;j<FGROUND_GROUND_ATTR_NUM;j++) {
+      for (int i=0;i<GROUND_IN_FGROUND_NUM;i++) {
+        fprintf(fptr,"0,");
+      }
+      fprintf(fptr,";\n");
+    }
+    fprintf(fptr,"\n@\n");
+  }
+  fclose(fptr);
+}
+
+
+void SaveLvlFallingGround()
+{
+    FILE *fptr;
+    wchar_t create_lvl_name[64];
+    swprintf(create_lvl_name,64,L"saves/%ls/level_fground.txt",level_names[level_chosen]);
+
+
+    //create trash folder
+    _wmkdir(L"trash");
+
+
+    wchar_t trash_lvl_name[64];
+    swprintf(trash_lvl_name,64,L"trash/%ls-level_fground.txt",level_names[level_chosen]);
+    //copy old file to trash
+    myCopyFile(trash_lvl_name,create_lvl_name);
+
+
+
+    fptr = _wfopen(create_lvl_name,L"w");
+    int phase=0;
+    int row=0;
+    int column=0;
+    int current_fground_id=0;
+
+    while (phase<2) {
+      switch (phase) {
+        case 0:
+          switch (row) {//save value
+            case 0:
+              fprintf(fptr,"%d,",F_GROUND[column].ospin_angle);
+              break;
+            case 1:
+              fprintf(fptr,"%d,",F_GROUND[column].ospin_angle_delta);
+              break;
+            case 2:
+              fprintf(fptr,"%d,",F_GROUND[column].ospin_angle_min);
+              break;
+            case 3:
+              fprintf(fptr,"%d,",F_GROUND[column].ospin_angle_max);
+              break;
+            case 4:
+              fprintf(fptr,"%d,",F_GROUND[column].oy_oscillation_angle_delta);
+              break;
+            case 5:
+              fprintf(fptr,"%d,",F_GROUND[column].oy_oscillation_angle_max);
+              break;
+            case 6:
+              fprintf(fptr,"%d,",F_GROUND[column].oy_oscillation_angle);
+              break;
+            case 7:
+              fprintf(fptr,"%d,",F_GROUND[column].ox_oscillation_angle_delta);
+              break;
+            case 8:
+              fprintf(fptr,"%d,",F_GROUND[column].ox_oscillation_angle_max);
+              break;
+            case 9:
+              fprintf(fptr,"%d,",F_GROUND[column].ox_oscillation_angle);
+              break;
+            case 10:
+              fprintf(fptr,"%d,",F_GROUND[column].speed_multiplier);
+              break;
+            case 11:
+              fprintf(fptr,"%d,",F_GROUND[column].ospeed);
+              break;
+            case 12:
+              fprintf(fptr,"%1.0f,",F_GROUND[column].x_start);
+              break;
+            case 13:
+              fprintf(fptr,"%1.0f,",F_GROUND[column].y_start);
+              break;
+            case 14:
+              fprintf(fptr,"%1.0f,",F_GROUND[column].x_end);
+              break;
+            case 15:
+              fprintf(fptr,"%1.0f,",F_GROUND[column].y_end);
+              break;
+          }
+          break;
+        case 1:
+          switch (row) {//save value
+            case 0:
+              fprintf(fptr,"%d,",F_GROUND[current_fground_id].is_ghost[column]);
+              break;
+            case 1:
+              fprintf(fptr,"%d,",F_GROUND[current_fground_id].color_id[column]);
+              break;
+            case 2:
+              fprintf(fptr,"%d,",F_GROUND[current_fground_id].type[column]);
+              break;
+            case 3:
+              fprintf(fptr,"%d,",F_GROUND[current_fground_id].texture_type[column]);
+              break;
+            case 4:
+              fprintf(fptr,"%1.0f,",F_GROUND[current_fground_id].ox1[column]);
+              break;
+            case 5:
+              fprintf(fptr,"%1.0f,",F_GROUND[current_fground_id].oy1[column]);
+              break;
+            case 6:
+              fprintf(fptr,"%1.0f,",F_GROUND[current_fground_id].ox2[column]);
+              break;
+            case 7:
+              fprintf(fptr,"%1.0f,",F_GROUND[current_fground_id].oy2[column]);
+              break;
+            case 8:
+              fprintf(fptr,"%1.0f,",F_GROUND[current_fground_id].ox3[column]);
+              break;
+            case 9:
+              fprintf(fptr,"%1.0f,",F_GROUND[current_fground_id].oy3[column]);
+              break;
+          }
+          break;
+      }
+      if (phase==0) {
+        column++;
+        if (column>=FGROUND_NUM) {
+          fprintf(fptr,";\n");
+          column=0;
+          row++;
+          if (row>=FGROUND_ATTR_NUM) {
+            fprintf(fptr,"\n");
+            fprintf(fptr,"==\n");
+            fprintf(fptr,"@\n");
+            phase=1;
+            row=column=0;
+          }
+        }
+      } else if (phase==1) {
+        column++;
+        if (column>=GROUND_IN_FGROUND_NUM) {
+          fprintf(fptr,";\n");
+          column=0;
+          row++;
+          if (row>=FGROUND_GROUND_ATTR_NUM) {
+            fprintf(fptr,"\n@\n");
+            row=column=0;
+            current_fground_id++;
+            if (current_fground_id>=FGROUND_NUM) {
+              phase=2; //end writing fground_ground             
+            }
+          }
+        }
+      }
+    }
+
+    fclose(fptr);
+}
+

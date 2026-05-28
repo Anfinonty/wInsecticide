@@ -1850,6 +1850,7 @@ void TwoMenuKeypressUp(WPARAM wParam)
             PlaySound(keySoundEffectCache[0].audio, NULL, SND_MEMORY | SND_ASYNC); //start
 
           SaveNewCreatedLvl(create_lvl_name_);
+          SaveNewCreatedLvlFallingGround(create_lvl_name_);
           GetSavesInDir(L"saves");
 
 
