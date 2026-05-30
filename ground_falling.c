@@ -37,6 +37,7 @@ void SetFGround(int i,int FGround_Ground_id)
 
 void InitFallingGround(int j)
 {
+    F_GROUND[j].valid_ground_num=0;
     F_GROUND[j].x=F_GROUND[j].x_start;
     F_GROUND[j].y=F_GROUND[j].y_start;
     F_GROUND[j].speed=(float)F_GROUND[j].ospeed/10;
@@ -50,28 +51,14 @@ void InitFallingGround(int j)
     F_GROUND[j].travel_dist_max=GetDistance(F_GROUND[j].x_start,F_GROUND[j].y_start,F_GROUND[j].x_end,F_GROUND[j].y_end);
     
 
-    //if (F_GROUND[j].ox_oscillation_angle_delta>0)
     F_GROUND[j].x_oscillation_angle_delta=deg2rad((float)F_GROUND[j].ox_oscillation_angle_delta/100.0);
-    //else
-      //F_GROUND[j].x_oscillation_angle_delta=abs(deg2rad((float)F_GROUND[j].ox_oscillation_angle_delta/10000.0));
     F_GROUND[j].x_oscillation_angle_max=deg2rad((float)F_GROUND[j].ox_oscillation_angle_max/100.0);
-    F_GROUND[j].x_oscillation_angle=0;//deg2rad((float)F_GROUND[j].ox_oscillation_angle/100.0);
+    F_GROUND[j].x_oscillation_angle=deg2rad((float)F_GROUND[j].ox_oscillation_angle/100.0);
 
-    //if (F_GROUND[j].oy_oscillation_angle_delta>0)
-      F_GROUND[j].y_oscillation_angle_delta=deg2rad((float)F_GROUND[j].oy_oscillation_angle_delta/100.0);
-    //else
-      //F_GROUND[j].y_oscillation_angle_delta=abs(deg2rad((float)F_GROUND[j].oy_oscillation_angle_delta/10000.0));
+    F_GROUND[j].y_oscillation_angle_delta=deg2rad((float)F_GROUND[j].oy_oscillation_angle_delta/100.0);
     F_GROUND[j].y_oscillation_angle_max=deg2rad((float)F_GROUND[j].oy_oscillation_angle_max/100.0);
     F_GROUND[j].y_oscillation_angle=deg2rad((float)F_GROUND[j].oy_oscillation_angle/100.0);
 
-    //F_GROUND[j].x_oscillation_max_timer=
-    //F_GROUND[j].x_oscillation_timer=F_GROUND[j].ox_oscillation_angle;
-
-    /*float height=F_GROUND[j].y_start-F_GROUND[j].y_end;
-    float length=F_GROUND[j].x_start-F_GROUND[j].x_end;
-    if (length==0)
-      length=1;
-    F_GROUND[j].travel_angle=GetTanAngle(height,length); //O A*/
     
 
     float length=F_GROUND[j].x_end-F_GROUND[j].x_start;
@@ -88,6 +75,14 @@ void InitFallingGround(int j)
 
     F_GROUND[j].solid_ground_num=0;
     for (int i=0;i<GROUND_IN_FGROUND_NUM;i++) {
+      if (F_GROUND[j].ox1[i]==0 && F_GROUND[j].oy1[i]==0 &&
+        F_GROUND[j].ox2[i]==0 && F_GROUND[j].oy3[i]==0 &&
+        F_GROUND[j].ox3[i]==0 && F_GROUND[j].oy3[i]==0
+      ) {
+        break;
+      } else {
+        F_GROUND[j].valid_ground_num++;
+      }
       F_GROUND[j].center_length1[i]=GetDistance(0,0,F_GROUND[j].ox1[i]-FGROUND_SIZE/2,F_GROUND[j].oy1[i]-FGROUND_SIZE/2); //runs on init only
       F_GROUND[j].center_length2[i]=GetDistance(0,0,F_GROUND[j].ox2[i]-FGROUND_SIZE/2,F_GROUND[j].oy2[i]-FGROUND_SIZE/2); //runs on init only
       F_GROUND[j].center_length3[i]=GetDistance(0,0,F_GROUND[j].ox3[i]-FGROUND_SIZE/2,F_GROUND[j].oy3[i]-FGROUND_SIZE/2); //runs on init only
@@ -109,7 +104,6 @@ void InitFallingGround(int j)
         F_GROUND[j].solid_ground_ids[F_GROUND[j].solid_ground_num]=i;
         F_GROUND[j].solid_ground_num++;        
       }
-
       SetFGround(j,i);
     }
 
@@ -243,6 +237,12 @@ void FallingGroundAct()
       for (int k=0;k<F_GROUND[j].speed_multiplier;k++) {
         F_GROUND[j].x+=F_GROUND[j].speed*cos(F_GROUND[j].travel_angle+F_GROUND[j].x_oscillation_angle);
         F_GROUND[j].y+=F_GROUND[j].speed*sin(F_GROUND[j].travel_angle+F_GROUND[j].y_oscillation_angle);
+
+        //Friction move player as well depending on spin rate
+        if (!in_map_editor && (j==player.on_fground_id && (player.on_fground_ground_id!=-1 || player.on_fground_ground_edge_id!=-1))) {
+          move_x(F_GROUND[j].speed*cos(F_GROUND[j].travel_angle+F_GROUND[j].x_oscillation_angle));
+          move_y(F_GROUND[j].speed*sin(F_GROUND[j].travel_angle+F_GROUND[j].y_oscillation_angle));
+        }
       }
     }
 
@@ -265,13 +265,13 @@ void FallingGroundAct()
     }
 
 
-    //Friction move player as well depending on spin rate
     
 
     //Drag Axis along 
     if (F_GROUND[j].speed_multiplier>0) {
       F_GROUND[j].travel_dist+=F_GROUND[j].speed;
-      for (int i=0;i<GROUND_IN_FGROUND_NUM;i++) {
+//      for (int i=0;i<GROUND_IN_FGROUND_NUM;i++) {
+      for (int i=0;i<F_GROUND[j].valid_ground_num;i++) {
         F_GROUND[j].x1[i]=cos(F_GROUND[j].spin_angle+F_GROUND[j].center_angle1[i])*F_GROUND[j].center_length1[i] +F_GROUND[j].x;
         F_GROUND[j].y1[i]=sin(F_GROUND[j].spin_angle+F_GROUND[j].center_angle1[i])*F_GROUND[j].center_length1[i] +F_GROUND[j].y;
         F_GROUND[j].x2[i]=cos(F_GROUND[j].spin_angle+F_GROUND[j].center_angle2[i])*F_GROUND[j].center_length2[i] +F_GROUND[j].x;
@@ -446,8 +446,8 @@ void DrawFallingGround(HDC hdc, HDC hdc2)
         (0<= F_GROUND[j].y-FGROUND_SIZE/2+pcamy && F_GROUND[j].y-FGROUND_SIZE/2+pcamy <=GR_HEIGHT)
       )
     ) { //only draw if visible on screen
-    for (int i=0;i<GROUND_IN_FGROUND_NUM;i++) {
-        
+//    for (int i=0;i<GROUND_IN_FGROUND_NUM;i++) {
+    for (int i=0;i<F_GROUND[j].valid_ground_num;i++) {      
       fgcx1=(int)F_GROUND[j].x1[i]+pcamx;
       fgcy1=(int)F_GROUND[j].y1[i]+pcamy;
       fgcx2=(int)F_GROUND[j].x2[i]+pcamx;

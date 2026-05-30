@@ -1553,6 +1553,7 @@ struct FallingGround
   //loaded in game only
   //Vars referred below for physics used only when within CLOSE range of player 
   //Vars referred below for graphics used only when within range of player
+  int valid_ground_num;
   float spin_angle;
   float spin_angle_delta;
   float spin_angle_min;
