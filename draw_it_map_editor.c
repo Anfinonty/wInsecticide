@@ -159,6 +159,173 @@ void DrawMapEditorWaterPlatforms(HDC hdc)
 
 
 //Graphics
+void DrawMapEditorFallingGround(HDC hdc,HDC hdc2)
+{
+  int c;
+  int fgcx1;
+  int fgcy1;
+  int fgcx2;
+  int fgcy2;
+  int fgcx3;
+  int fgcy3;
+  //NOTE: STARTS AT CENTER
+  for (int j=0;j<FGROUND_NUM;j++) {
+    //Draw Start and End Line
+    GrLine(hdc,
+      F_GROUND[j].x_start+player.cam_x+GR_WIDTH/2,
+      F_GROUND[j].y_start+player.cam_y+GR_HEIGHT/2,
+      F_GROUND[j].x_end+player.cam_x+GR_WIDTH/2,
+      F_GROUND[j].y_end+player.cam_y+GR_HEIGHT/2,
+      BLACK
+    );
+
+    GrCircle(hdc,
+      F_GROUND[j].x_end+player.cam_x+GR_WIDTH/2,
+      F_GROUND[j].y_end+player.cam_y+GR_HEIGHT/2,
+      10,
+      BLACK,-1
+    );
+
+    //Draw Falling Ground
+    for (int i=0;i<GROUND_IN_FGROUND_NUM;i++) {
+
+      fgcx1=F_GROUND[j].x1[i]+player.cam_x+GR_WIDTH/2;
+      fgcy1=F_GROUND[j].y1[i]+player.cam_y+GR_HEIGHT/2;
+      fgcx2=F_GROUND[j].x2[i]+player.cam_x+GR_WIDTH/2;
+      fgcy2=F_GROUND[j].y2[i]+player.cam_y+GR_HEIGHT/2;
+      fgcx3=F_GROUND[j].x3[i]+player.cam_x+GR_WIDTH/2;
+      fgcy3=F_GROUND[j].y3[i]+player.cam_y+GR_HEIGHT/2;
+
+      c=rgbPaintBrightness[MapEditor.bg_attr_dark_lvl][F_GROUND[j].color_id[i]];
+      switch (F_GROUND[j].type[i]) {
+
+        case 0: //line
+        case 1: //line but floor not ceiling
+          GrLine(hdc,fgcx1,fgcy1,fgcx2,fgcy2,c);
+          break;
+        case 2: //trifill
+	        DrawTriFill(hdc,c,
+               fgcx1,fgcy1,fgcx2,fgcy2,fgcx3,fgcy3,FALSE,0);
+          break;
+        case 3: //texture trifill
+          {
+          int texture_type=F_GROUND[j].texture_type[i];
+          if (texture_type>=0 && texture_type<PLATFORM_TEXTURES_NUM) {
+            DrawTexturedTriangle(hdc,hdc2,
+              fgcx1,fgcy1,fgcx2,fgcy2,fgcx3,fgcy3,
+              GamePlatformTextures[texture_type].palette_sprite);
+          }
+          }
+          break;
+      }
+    }  
+  }
+}
+
+
+void DrawMapEditorFallingGroundEditor(HDC hdc, HDC hdc2)
+{
+  //Draw Draw Map Editor Grid at Center
+  int cx1=GR_WIDTH/2-(FGROUND_SIZE+2)/2;
+  int cy1=GR_HEIGHT/2-(FGROUND_SIZE)/2;
+  int cx2=GR_WIDTH/2+(FGROUND_SIZE)/2;
+  int cy2=GR_HEIGHT/2+(FGROUND_SIZE)/2;
+  GrLineThick(hdc,cx1,cy1,cx2,cy1,3,BLACK);
+  GrLineThick(hdc,cx1,cy1,cx1,cy2,3,BLACK);
+  GrLineThick(hdc,cx2,cy1,cx2,cy2,3,BLACK);
+  GrLineThick(hdc,cx1,cy2,cx2,cy2,3,BLACK);
+  GrLine(hdc,cx1,cy1,cx2,cy1,LTGRAY);
+  GrLine(hdc,cx1,cy1,cx1,cy2,LTGRAY);
+  GrLine(hdc,cx2,cy1,cx2,cy2,LTGRAY);
+  GrLine(hdc,cx1,cy2,cx2,cy2,LTGRAY);
+  GrCircle(hdc,GR_WIDTH/2,GR_HEIGHT/2,2,BLACK,LTGRAY);
+
+  int c;
+  int fgcx1;
+  int fgcy1;
+  int fgcx2;
+  int fgcy2;
+  int fgcx3;
+  int fgcy3;
+
+  //Draw Selected Falling Ground at Center
+  for (int i=0;i<GROUND_IN_FGROUND_NUM;i++) {
+
+    fgcx1=F_GROUND[MapEditor.selected_fground_id].ox1[i]+cx1;
+    fgcy1=F_GROUND[MapEditor.selected_fground_id].oy1[i]+cy1;
+    fgcx2=F_GROUND[MapEditor.selected_fground_id].ox2[i]+cx1;
+    fgcy2=F_GROUND[MapEditor.selected_fground_id].oy2[i]+cy1;
+    fgcx3=F_GROUND[MapEditor.selected_fground_id].ox3[i]+cx1;
+    fgcy3=F_GROUND[MapEditor.selected_fground_id].oy3[i]+cy1;
+
+    c=rgbPaintBrightness[MapEditor.bg_attr_dark_lvl][F_GROUND[MapEditor.selected_fground_id].color_id[i]];
+    switch (F_GROUND[MapEditor.selected_fground_id].type[i]) {
+
+      case 0: //line
+      case 1: //line but floor not ceiling
+        GrLine(hdc,fgcx1,fgcy1,fgcx2,fgcy2,c);
+        break;
+      case 2: //trifill
+	      DrawTriFill(hdc,c,
+             fgcx1,fgcy1,fgcx2,fgcy2,fgcx3,fgcy3,FALSE,0);
+        break;
+      case 3: //texture trifill
+        {
+        int texture_type=F_GROUND[MapEditor.selected_fground_id].texture_type[i];
+        if (texture_type>=0 && texture_type<PLATFORM_TEXTURES_NUM) {
+        DrawTexturedTriangle(hdc,hdc2,
+          fgcx1,fgcy1,fgcx2,fgcy2,fgcx3,fgcy3,
+          GamePlatformTextures[texture_type].palette_sprite);
+        }
+        }
+        break;
+    }
+  }
+
+  char print_ground_id[4];
+  for (int i=0;i<GROUND_IN_FGROUND_NUM;i++) {
+    fgcx1=F_GROUND[MapEditor.selected_fground_id].ox1[i]+cx1;
+    fgcy1=F_GROUND[MapEditor.selected_fground_id].oy1[i]+cy1;
+    fgcx2=F_GROUND[MapEditor.selected_fground_id].ox2[i]+cx1;
+    fgcy2=F_GROUND[MapEditor.selected_fground_id].oy2[i]+cy1;
+    fgcx3=F_GROUND[MapEditor.selected_fground_id].ox3[i]+cx1;
+    fgcy3=F_GROUND[MapEditor.selected_fground_id].oy3[i]+cy1;
+
+
+      c=Highlight((i==MapEditor.selected_fground_ground_id),BLACK,LTPURPLE);
+      sprintf(print_ground_id,"%d",i);
+      GrPrintThick(hdc,fgcx1,fgcy1,print_ground_id,c,BLACK);
+
+      c=Highlight((MapEditor.selected_ground_pivot==0 && i==MapEditor.selected_fground_id),BLACK,LTPURPLE);
+      GrCircle(hdc,fgcx1,fgcy1,6,c,-1);
+      c=Highlight((MapEditor.selected_ground_pivot==1 && i==MapEditor.selected_fground_id),BLACK,LTPURPLE);
+      GrCircle(hdc,fgcx2,fgcy2,6,c,-1);
+      if (F_GROUND[MapEditor.selected_fground_id].type[i]==3 || F_GROUND[MapEditor.selected_fground_id].type[i]==2) {
+        c=Highlight((MapEditor.selected_ground_pivot==2 && i==MapEditor.selected_fground_id),BLACK,LTPURPLE);
+        GrCircle(hdc,fgcx3,fgcy3,6,c,-1);
+      }
+
+      if (i==MapEditor.selected_fground_ground_id) {
+        switch (MapEditor.selected_ground_pivot) {
+          case 0:
+            c=Highlight((MapEditor.selected_ground_pivot==0),BLACK,LTPURPLE);
+            GrCircle(hdc,fgcx1,fgcy1,8,c,-1);
+            break;
+          case 1:
+            c=Highlight((MapEditor.selected_ground_pivot==1),BLACK,LTPURPLE);
+            GrCircle(hdc,fgcx2,fgcy2,8,c,-1);
+            break;
+          case 2:
+            c=Highlight((MapEditor.selected_ground_pivot==2),BLACK,LTPURPLE);
+            GrCircle(hdc,fgcx3,fgcy3,8,c,-1);
+            break;
+        }
+      }
+  }
+}
+
+
+
 void DrawMapEditorPlatforms(HDC hdc,HDC hdc2)
 {
   //Draw type 3
@@ -312,28 +479,6 @@ void DrawMapEditorPlatforms(HDC hdc,HDC hdc2)
 
 void DrawMapEditorBackground(HDC hdc,HDC hdc2)
 {
-  /*switch (MapEditor.set_lvl_ambient_val[0]) {
-    case 0:
-    case 1:
-    case 2:
-    case 3:
-      //DrawBitmap(hdc,hdc2,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
-      break;
-    default:
-      //if (map_background_sprite==NULL) {
-        GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,rgbPaint[MapEditor.set_lvl_ambient_val[1]]);
-      //} else {
-        DrawBitmap(hdc,hdc2,0,0,0,0,GR_WIDTH,GR_HEIGHT,map_background_sprite,SRCCOPY,FALSE,FALSE);
-      //}
-      break;
-  }*/
-
-  //GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,rgbPaint[MapEditor.set_lvl_ambient_val[1]]);
-  //if (MapEditor.set_lvl_ambient_val[2]==1) {
-    //DrawSprite(hdc, hdc2,GR_WIDTH-128,128,&draw_moon_sprite[current_moon_phase_id],FALSE);
-  //}
-
-  //GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,rgbPaint[MapEditor.bg_attr_day_bg_color_i]);
   DrawBackground(hdc,hdc2);
 }
 
@@ -439,6 +584,10 @@ void DrawMapEditorUI(HDC hdc,HDC hdc2)
   sprintf(axis_y,"sticky:%d",MapEditor.sticky_level);
   GrPrintThick(hdc,mouse_x,mouse_y+100+8,axis_y,GREEN,BLACK);
 
+  sprintf(axis_x,"fg_x:%d",mouse_x-GR_WIDTH/2+FGROUND_SIZE/2);
+  sprintf(axis_y,"fg_y:%d",mouse_y-GR_HEIGHT/2+FGROUND_SIZE/2);
+  GrPrintThick(hdc,mouse_x,mouse_y+116+8,axis_x,WHITE,BLACK);
+  GrPrintThick(hdc,mouse_x,mouse_y+132+8,axis_y,WHITE,BLACK);
 
   int c;
   if (level_loaded) {
@@ -773,6 +922,11 @@ void DrawMapEditorUI(HDC hdc,HDC hdc2)
 
 
       case 6: { //Set Falling Ground >:D 2026-05-27
+        DrawMapEditorFallingGroundEditor(hdc,hdc2);
+        if (color_chooser.is_choosing_color) {
+          DrawPaintSquare(hdc,GR_WIDTH/2+FGROUND_SIZE/2+8,19*16+32,color_chooser.color_id,color_chooser.color_id_choosing);
+        }
+
         char txt[48];
         GrPrintThick(hdc,8,16,"Falling Ground",YELLOW,BLACK);
 
@@ -847,6 +1001,14 @@ void DrawMapEditorUI(HDC hdc,HDC hdc2)
               break;
             case 2:
               sprintf(txt,"Color:");
+              GrPrintThick(hdc,8*8,64+16*16+i*16,"[      ]",c,BLACK);
+
+              //GrRect(hdc,8*13,32+16*i+2,12,12,rgbPaint[F_GROUND[MapEditor.selected_fground_id].color_id[MapEditor.selected_fground_ground_id]]);
+              //GrPrintThick(hdc,8*17,32+16*i,"{     }",c,BLACK);
+
+              GrRect(hdc,8*9+1,64+16*16+i*16,16,16,WHITE);
+              GrRect(hdc,8*9+2+1,64+16*16+i*16+2,12,12,rgbPaintBrightness[MapEditor.bg_attr_dark_lvl][F_GROUND[MapEditor.selected_fground_id].color_id[MapEditor.selected_fground_ground_id]]);
+
               break;
             case 3:
               sprintf(txt,"Type: <%d>",F_GROUND[MapEditor.selected_fground_id].type[MapEditor.selected_fground_ground_id]);

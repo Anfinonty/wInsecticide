@@ -132,6 +132,7 @@ void Init() { //Repeatable
   InitSun();
   InitMoon();
   InitStars();
+  InitFallingGrounds();
   //InitStarsIfMoon();
   InitBullet(BULLET_NUM);
 

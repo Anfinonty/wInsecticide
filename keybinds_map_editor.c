@@ -68,6 +68,9 @@ void MEColorPickKeypressDown(WPARAM wParam)
       ColorKeypressDown(wParam,&GamePlatformTextures[MapEditor.selected_ptexture_id].color_id);
       MapEditor.alter_ptexture_color=TRUE;
       break;
+    case 6: //Falling Ground Ground
+      ColorKeypressDown(wParam,&F_GROUND[MapEditor.selected_fground_id].color_id[MapEditor.selected_fground_ground_id]);
+      break;
    }
 }
 
@@ -94,6 +97,9 @@ void MEColorPickKeypressUp(WPARAM wParam)
     case 5: //Texture Palette
       ColorKeypressUp(wParam,&GamePlatformTextures[MapEditor.selected_ptexture_id].color_id);
       MapEditor.alter_ptexture_color=TRUE;
+      break;
+    case 6: //Falling Ground Ground
+      ColorKeypressUp(wParam,&F_GROUND[MapEditor.selected_fground_id].color_id[MapEditor.selected_fground_ground_id]);
       break;
    }
 }
@@ -466,8 +472,150 @@ void MapEditorKeypressDown(WPARAM wParam)
                break;
            }
            break;
+
+
+
+          case 6: //fallingground vk_left --
+            switch (MapEditor.selected_fground_option) {
+              case 0: //falling ground id
+                MapEditor.selected_fground_id=LimitValueInt(MapEditor.selected_fground_id-1,0,FGROUND_NUM);
+                break;
+              case 1: //spin angle
+                if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+                  F_GROUND[MapEditor.selected_fground_id].ospin_angle=LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ospin_angle-1,-36000,36000);
+                } else {
+                  F_GROUND[MapEditor.selected_fground_id].ospin_angle=LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ospin_angle-100,-36000,36000);
+                }
+                break;
+              case 2: //spin angle delta
+                if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+                  F_GROUND[MapEditor.selected_fground_id].ospin_angle_delta=LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ospin_angle_delta-1,-36000,36000);
+                } else {
+                  F_GROUND[MapEditor.selected_fground_id].ospin_angle_delta=LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ospin_angle_delta-100,-36000,36000);
+                }
+                break;
+              case 3: //spin angle min
+                if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+                  F_GROUND[MapEditor.selected_fground_id].ospin_angle_min=LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ospin_angle_min-1,-36000,36000);
+                } else {
+                  F_GROUND[MapEditor.selected_fground_id].ospin_angle_min=LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ospin_angle_min-100,-36000,36000);
+                }
+                break;
+              case 4: //spin angle max
+                if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+                  F_GROUND[MapEditor.selected_fground_id].ospin_angle_max=LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ospin_angle_max-1,-36000,36000);
+                } else {
+                  F_GROUND[MapEditor.selected_fground_id].ospin_angle_max=LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ospin_angle_max-100,-36000,36000);
+                }
+                break;
+              case 5: //y oscillation angle delta
+                if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+                  F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle_delta
+                    =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle_delta-1,-36000,36000);
+                } else {
+                  F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle_delta
+                    =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle_delta-100,-36000,36000);
+                }
+                break;
+              case 6: //y oscillation angle max
+                if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+                  F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle_max
+                    =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle_max-1,-36000,36000);
+                } else {
+                  F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle_max
+                    =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle_max-100,-36000,36000);
+                }
+                break;
+              case 7: //y oscillation angle 
+                if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+                  F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle
+                    =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle-1,-36000,36000);
+                } else {
+                  F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle
+                    =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle-100,-36000,36000);
+                }
+                break;
+              case 8: //x oscillation delta
+                if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+                  F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle_delta
+                    =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle_delta-1,-36000,36000);
+                } else {
+                  F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle_delta
+                    =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle_delta-100,-36000,36000);
+                }
+                break;
+              case 9: //x osclillation angle max
+                if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+                  F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle_max
+                    =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle_max-1,-36000,36000);
+                } else {
+                  F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle_max
+                    =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle_max-100,-36000,36000);
+                }
+                break;
+              case 10: //x oscillation angle
+                if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+                  F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle
+                    =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle-1,-36000,36000);
+                } else {
+                  F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle
+                    =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle-100,-36000,36000);
+                }
+                break;
+              case 11: //speed multiplier
+                F_GROUND[MapEditor.selected_fground_id].speed_multiplier
+                    =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].speed_multiplier-1,0,10);
+                break;
+              case 12: //speed
+                F_GROUND[MapEditor.selected_fground_id].ospeed
+                    =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ospeed-1,0,11);
+                break;
+              case 13: //x start
+                break;
+              case 14: //y start
+                break;
+              case 15: //x end
+                break;
+              case 16: //y end
+                break;
+
+
+              case 17: //fground-ground id
+                MapEditor.selected_fground_ground_id=LimitValueInt(MapEditor.selected_fground_ground_id-1,0,GROUND_IN_FGROUND_NUM);
+                break;
+              case 18: // is ghost
+                F_GROUND[MapEditor.selected_fground_id].is_ghost[MapEditor.selected_fground_ground_id]=!F_GROUND[MapEditor.selected_fground_id].is_ghost[MapEditor.selected_fground_ground_id];
+                break;
+              case 19: // color
+                break;
+              case 20: // Type
+                F_GROUND[MapEditor.selected_fground_id].type[MapEditor.selected_fground_ground_id]=LimitValueInt(F_GROUND[MapEditor.selected_fground_id].type[MapEditor.selected_fground_ground_id]-1,0,4);
+                break;
+              case 21: // Texture Type
+                F_GROUND[MapEditor.selected_fground_id].texture_type[MapEditor.selected_fground_ground_id]=LimitValueInt(F_GROUND[MapEditor.selected_fground_id].texture_type[MapEditor.selected_fground_ground_id]-1,0,PLATFORM_TEXTURES_NUM);
+                break;
+              case 22: // x1
+                break;
+              case 23: // y1
+                break;
+              case 24: // x2
+                break;
+              case 25: // y2
+                break;
+              case 26: // x3
+                break;
+              case 28: // y3
+                break;
+            }
+
+            if (MapEditor.selected_fground_option!=0) {
+              InitFallingGround(MapEditor.selected_fground_id);
+            }
+            break;
         }
         break;
+
+
 
     //Holding Down Right Arrow or 'D'
       case 'D': //movement up y
@@ -640,6 +788,143 @@ void MapEditorKeypressDown(WPARAM wParam)
                break;
            }
            break;
+
+          case 6: //fallingground vk_right ++
+            switch (MapEditor.selected_fground_option) {
+              case 0: //falling ground id
+                MapEditor.selected_fground_id=LimitValueInt(MapEditor.selected_fground_id+1,0,FGROUND_NUM);
+                break;
+              case 1: //spin angle
+                if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+                  F_GROUND[MapEditor.selected_fground_id].ospin_angle=LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ospin_angle+1,-36000,36000);
+                } else {
+                  F_GROUND[MapEditor.selected_fground_id].ospin_angle=LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ospin_angle+100,-36000,36000);
+                }
+                break;
+              case 2: //spin angle delta
+                if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+                  F_GROUND[MapEditor.selected_fground_id].ospin_angle_delta=LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ospin_angle_delta+1,-36000,36000);
+                } else {
+                  F_GROUND[MapEditor.selected_fground_id].ospin_angle_delta=LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ospin_angle_delta+100,-36000,36000);
+                }
+                break;
+              case 3: //spin angle min
+                if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+                  F_GROUND[MapEditor.selected_fground_id].ospin_angle_min=LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ospin_angle_min+1,-36000,36000);
+                } else {
+                  F_GROUND[MapEditor.selected_fground_id].ospin_angle_min=LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ospin_angle_min+100,-36000,36000);
+                }
+                break;
+              case 4: //spin angle max
+                if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+                  F_GROUND[MapEditor.selected_fground_id].ospin_angle_max=LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ospin_angle_max+1,-36000,36000);
+                } else {
+                  F_GROUND[MapEditor.selected_fground_id].ospin_angle_max=LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ospin_angle_max+100,-36000,36000);
+                }
+                break;
+              case 5: //y oscillation angle delta
+                if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+                  F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle_delta
+                    =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle_delta+1,-36000,36000);
+                } else {
+                  F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle_delta
+                    =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle_delta+100,-36000,36000);
+                }
+                break;
+              case 6: //y oscillation angle max
+                if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+                  F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle_max
+                    =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle_max+1,-36000,36000);
+                } else {
+                  F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle_max
+                    =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle_max+100,-36000,36000);
+                }
+                break;
+              case 7: //y oscillation angle 
+                if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+                  F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle
+                    =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle+1,-36000,36000);
+                } else {
+                  F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle
+                    =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle+100,-36000,36000);
+                }
+                break;
+              case 8: //x oscillation delta
+                if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+                  F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle_delta
+                    =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle_delta+1,-36000,36000);
+                } else {
+                  F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle_delta
+                    =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle_delta+100,-36000,36000);
+                }
+                break;
+              case 9: //x osclillation angle max
+                if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+                  F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle_max
+                    =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle_max+1,-36000,36000);
+                } else {
+                  F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle_max
+                    =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle_max+100,-36000,36000);
+                }
+                break;
+              case 10: //x oscillation angle
+                if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
+                  F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle
+                    =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle+1,-36000,36000);
+                } else {
+                  F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle
+                    =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle+100,-36000,36000);
+                }
+                break;
+              case 11: //speed multiplier
+                F_GROUND[MapEditor.selected_fground_id].speed_multiplier
+                    =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].speed_multiplier+1,0,10);
+                break;
+              case 12: //speed
+                F_GROUND[MapEditor.selected_fground_id].ospeed
+                    =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ospeed+1,0,11);
+                break;
+              case 13: //x start
+                break;
+              case 14: //y start
+                break;
+              case 15: //x end
+                break;
+              case 16: //y end
+                break;
+
+
+              case 17: //fground-ground id
+                MapEditor.selected_fground_ground_id=LimitValueInt(MapEditor.selected_fground_ground_id+1,0,GROUND_IN_FGROUND_NUM);
+                break;
+              case 18: // is ghost
+                F_GROUND[MapEditor.selected_fground_id].is_ghost[MapEditor.selected_fground_ground_id]=!F_GROUND[MapEditor.selected_fground_id].is_ghost[MapEditor.selected_fground_ground_id];
+                break;
+              case 19: // color
+                break;
+              case 20: // Type
+                F_GROUND[MapEditor.selected_fground_id].type[MapEditor.selected_fground_ground_id]=LimitValueInt(F_GROUND[MapEditor.selected_fground_id].type[MapEditor.selected_fground_ground_id]+1,0,4);
+                break;
+              case 21: // Texture Type
+                F_GROUND[MapEditor.selected_fground_id].texture_type[MapEditor.selected_fground_ground_id]=LimitValueInt(F_GROUND[MapEditor.selected_fground_id].texture_type[MapEditor.selected_fground_ground_id]+1,0,PLATFORM_TEXTURES_NUM);
+                break;
+              case 22: // x1
+                break;
+              case 23: // y1
+                break;
+              case 24: // x2
+                break;
+              case 25: // y2
+                break;
+              case 26: // x3
+                break;
+              case 27: // y3
+                break;
+            }
+            if (MapEditor.selected_fground_option!=0) {
+              InitFallingGround(MapEditor.selected_fground_id);
+            }
+            break;
         }
         break;
 
@@ -695,6 +980,14 @@ void MapEditorKeypressDown(WPARAM wParam)
           MapEditor.pick_color=5;
           color_chooser.color_id=
           color_chooser.color_id_choosing=GamePlatformTextures[MapEditor.selected_ptexture_id].color_id;
+        }
+        break;
+      case 6: //
+        if (MapEditor.selected_fground_option==19) {
+          color_chooser.is_choosing_color=TRUE;
+          MapEditor.pick_color=6;
+          color_chooser.color_id=
+          color_chooser.color_id_choosing=F_GROUND[MapEditor.selected_fground_id].color_id[MapEditor.selected_fground_ground_id];
         }
         break;
       }

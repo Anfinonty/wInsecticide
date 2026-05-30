@@ -232,6 +232,11 @@ float GetCosAngle(float vertical_distance,float length)
   return acos(vertical_distance/length);
 }
 
+/*float GetTanAngle(float height, float length)
+{
+  return atan2(height,length);
+}*/
+
 float GetRotateAngle(float x,float y) 
 {
   float adj=0,hypo=0,E=0;

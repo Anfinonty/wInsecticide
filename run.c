@@ -341,6 +341,7 @@ bool is_khmer=TRUE;
 
 #include "grid.c"
 #include "ground.c"
+#include "ground_falling.c"
 #include "bullet.c"
 #include "player.c"
 #include "enemy.c"
@@ -671,8 +672,10 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
         if (level_loaded) {
           if (!flag_game_task_stopped) {
             PlayerAct();
+            FallingGroundAct();
             //global_update_reflection_timer++;
             //PlayerAct(player_type);
+
 
             for (int i=0;i<ENEMY_NUM;i++) {
               EnemyAct(i);
@@ -735,6 +738,8 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
           if (level_loaded && !flag_restart) {
             if (!flag_game_task_stopped && !flag_sound_task_stopped) {
               PlayerAct();
+              FallingGroundAct();
+
               for (int i=0;i<ENEMY_NUM;i++) {
                 EnemyAct(i);
               }
@@ -1499,6 +1504,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             hdcBackbuff2=CreateCompatibleDC(hdcBackbuff);
             SelectObject(hdcBackbuff,screen);
             DrawBackground(hdcBackbuff,hdcBackbuff2);
+            DrawFallingGround(hdcBackbuff,hdcBackbuff2);
 
 
             //global_update_reflection_timer++;
@@ -1631,6 +1637,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
             SelectObject(hdcBackbuff,screen);
             DrawMapEditorBackground(hdcBackbuff,hdcBackbuff2);
+            DrawMapEditorFallingGround(hdcBackbuff,hdcBackbuff2);
             DrawMapEditorWaterTexturePlatforms(hdcBackbuff,hdcBackbuff2);
             DrawMapEditorPlatforms(hdcBackbuff,hdcBackbuff2);
             //DrawSunRays(hdcBackbuff,hdcBackbuff2);

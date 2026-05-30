@@ -289,13 +289,6 @@ bool *set_enemy_type_bool_attr[ENEMY_TYPE_BOOL_ATTR_NUM]={
 };
 
 
-/*int melvlambience_min[9]={
-0,0,0,0,1,-100,0,1,-100
-};
-
-int melvlambience_max[9]={
-5,0,2,4,101,101,2,101,101
-};*/
 int melvlbgattr_min[S_LVL_ATTR_NUM]={
 0, //background type id:
 0, //real time
@@ -897,6 +890,7 @@ void InitMapEditor()
   InitMENodeGridAttributes();
   InitMapEditorEnemy();
   InitMapEditorPlayer();
+  InitFallingGrounds();
   InitBullet(ENEMY_BULLET_NUM);
 
   player.cam_move_x=-player.cam_x;
@@ -1127,9 +1121,6 @@ void MapEditorAct()
     }
 
     switch (MapEditor.selected_option) {
-      case 6: //Falling Ground
-
-        break;
       case 0:
         if (player.right_click_hold_timer==62) {
           if ((Ground[MapEditor.selected_ground_id]->type>=3 && Ground[MapEditor.selected_ground_id]->type<=8) || Ground[MapEditor.selected_ground_id]->type==1) { //trifill
@@ -1216,7 +1207,7 @@ void MapEditorAct()
         break;
 
 
-      case 3: { //Do bullet action when showing enemy type
+      case 3: { //Do bullet action when showing enemy type, MEEnemyAct
         int q=MapEditor.selected_enemy_type_id;
         int slash_time=1;
         int dice=0;
@@ -1343,6 +1334,94 @@ void MapEditorAct()
         for (int i=0;i<ENEMY_BULLET_NUM;i++) {
           BulletAct(i);
             //printf("%d: hello:\n",i);
+        }
+        }
+        break;
+      case 6: {//Falling Ground
+        FallingGroundAct();
+
+        if (player.right_click_hold_timer==62) {
+          if (F_GROUND[MapEditor.selected_fground_id].type[MapEditor.selected_fground_ground_id]>=2) { //trifill
+            MapEditor.selected_ground_pivot=LimitValue(MapEditor.selected_ground_pivot+1,0,3);
+          } else {
+            MapEditor.selected_ground_pivot=LimitValue(MapEditor.selected_ground_pivot+1,0,2);
+          }
+        }    
+        if (player.attack_rst || player.rst_left_click) { //release mouse
+          InitFallingGround(MapEditor.selected_fground_id);
+          if (!(MapEditor.selected_fground_option>=13 && MapEditor.selected_fground_option<=16)){
+            //if (player.attack_rst)
+              //DestroyMEGround(MapEditor.selected_ground_id);
+            int pos_cur_x=mouse_x-GR_WIDTH/2+FGROUND_SIZE/2;
+            int pos_cur_y=mouse_y-GR_HEIGHT/2+FGROUND_SIZE/2;
+            if (pos_cur_x<=0)
+              pos_cur_x=0;
+            else if (pos_cur_x>=FGROUND_SIZE)
+              pos_cur_x=FGROUND_SIZE;
+            if (pos_cur_y<=0)
+              pos_cur_y=0;
+            else if (pos_cur_y>=FGROUND_SIZE)
+              pos_cur_y=FGROUND_SIZE;
+
+            switch (MapEditor.selected_ground_pivot) {
+              case 0:          
+                F_GROUND[MapEditor.selected_fground_id].ox1[MapEditor.selected_fground_ground_id]=pos_cur_x;
+                F_GROUND[MapEditor.selected_fground_id].oy1[MapEditor.selected_fground_ground_id]=pos_cur_y;
+                break;
+              case 1:
+                F_GROUND[MapEditor.selected_fground_id].ox2[MapEditor.selected_fground_ground_id]=pos_cur_x;
+                F_GROUND[MapEditor.selected_fground_id].oy2[MapEditor.selected_fground_ground_id]=pos_cur_y;
+                break;
+              case 2:
+                F_GROUND[MapEditor.selected_fground_id].ox3[MapEditor.selected_fground_ground_id]=pos_cur_x;
+                F_GROUND[MapEditor.selected_fground_id].oy3[MapEditor.selected_fground_ground_id]=pos_cur_y;
+                break;
+            }
+
+            //swap when axis overtake
+            int i=MapEditor.selected_fground_ground_id;
+            int tmp_saved_ground_x1=F_GROUND[MapEditor.selected_fground_id].ox1[i];
+            int tmp_saved_ground_y1=F_GROUND[MapEditor.selected_fground_id].oy1[i];
+            if (F_GROUND[MapEditor.selected_fground_id].ox2[i]<=F_GROUND[MapEditor.selected_fground_id].ox1[i]) {//x1 is less than x2, swap
+              F_GROUND[MapEditor.selected_fground_id].ox1[i]=F_GROUND[MapEditor.selected_fground_id].ox2[i];
+              F_GROUND[MapEditor.selected_fground_id].oy1[i]=F_GROUND[MapEditor.selected_fground_id].oy2[i];
+              F_GROUND[MapEditor.selected_fground_id].ox2[i]=tmp_saved_ground_x1;
+              F_GROUND[MapEditor.selected_fground_id].oy2[i]=tmp_saved_ground_y1;
+              if (MapEditor.selected_ground_pivot==1)//2nd pivot, right pivot
+                MapEditor.selected_ground_pivot=0;
+              else
+                MapEditor.selected_ground_pivot=1;
+            }
+            if (F_GROUND[MapEditor.selected_fground_id].ox3[i]==F_GROUND[MapEditor.selected_fground_id].ox1[i] || F_GROUND[MapEditor.selected_fground_id].ox3[i]==F_GROUND[MapEditor.selected_fground_id].ox2[i]) {
+	          F_GROUND[MapEditor.selected_fground_id].ox3[i]++;
+            }
+
+
+            if ((F_GROUND[MapEditor.selected_fground_id].type[i]>=2)) {//trifill
+	          if (F_GROUND[MapEditor.selected_fground_id].oy1[i]==F_GROUND[MapEditor.selected_fground_id].oy2[i]) {
+	            F_GROUND[MapEditor.selected_fground_id].oy2[i]++;
+              }
+            }
+            if (F_GROUND[MapEditor.selected_fground_id].oy3[i]==F_GROUND[MapEditor.selected_fground_id].oy1[i]) {
+	          F_GROUND[MapEditor.selected_fground_id].oy3[i]+=2;
+            }
+            if (F_GROUND[MapEditor.selected_fground_id].oy3[i]==F_GROUND[MapEditor.selected_fground_id].oy2[i]) {
+	          F_GROUND[MapEditor.selected_fground_id].oy3[i]+=2;
+            }
+          } else {
+            if (!IsOutOfBounds(MapEditor.cursor_x,MapEditor.cursor_y,1,MAP_WIDTH,MAP_HEIGHT)) {
+              if (MapEditor.selected_fground_option<14) { //cursor set End X Y
+                F_GROUND[MapEditor.selected_fground_id].x_start=MapEditor.cursor_x;
+                F_GROUND[MapEditor.selected_fground_id].y_start=MapEditor.cursor_y;
+              } else { //cursor set Start X Y
+                F_GROUND[MapEditor.selected_fground_id].x_end=MapEditor.cursor_x;
+                F_GROUND[MapEditor.selected_fground_id].y_end=MapEditor.cursor_y;
+              }
+            }
+          }
+          if (player.attack_rst) { //let go of left click
+            player.attack_rst=FALSE;
+          }        
         }
         }
         break;

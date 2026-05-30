@@ -364,6 +364,8 @@ void InitPlayer() {
   player.above_ground_edge=FALSE;
   player.below_ground_edge=FALSE;
 
+  player.above_fground_ground_edge=FALSE;
+  player.below_fground_ground_edge=FALSE;
 
   player.rst_arrow_down=FALSE;
   player.rst_arrow_left=FALSE;
@@ -396,8 +398,16 @@ void InitPlayer() {
   //player.is_on_ground_edge2=FALSE;
   player.is_on_left_ground_edge=FALSE;
   player.is_on_right_ground_edge=FALSE;
+  player.is_on_fground_ground_edge=FALSE;
+  player.is_on_left_fground_ground_edge=FALSE;
+  player.is_on_right_fground_ground_edge=FALSE;
+  player.above_fground_ground_edge=FALSE;
+  player.below_fground_ground_edge=FALSE;
+
   player.on_ground_edge_id=-1;
   player.saved_on_ground_edge_id=-1;
+  player.on_fground_ground_edge_id=-1;
+  player.saved_on_fground_ground_edge_id=-1;
 
   player.show_health_timer=HP_SHOW_TIMER_NUM;
   player.show_block_health_timer=HP_SHOW_TIMER_NUM;
@@ -412,7 +422,10 @@ void InitPlayer() {
   player.on_ground_timer=0;
   player.in_water_timer=0;
   player.on_ground_id=-1;
+  player.on_fground_id=-1;
+  player.on_fground_ground_id=-1;
   player.below_ground_edge_timer=0;
+  player.below_fground_ground_edge_timer=0;
 
 //  player.on_ground_id_u1=-1;
   player.on_ground_id_u2=-1;
@@ -426,6 +439,7 @@ void InitPlayer() {
 
   player.on_a_ground=FALSE;
   player.saved_ground_id=-1;
+  player.saved_fground_ground_id=-1;
   player.walk_cycle=0;
   player.player_jump_height=DEFAULT_PLAYER_JUMP_HEIGHT;
 //  player.key_jump_timer=0;
@@ -754,23 +768,23 @@ void PlayerActXMovement(int grav_speed)
   bool allow_act=FALSE;
   if (player.fling_distance<=0 && !player.phase_web && !player.phase_web2 && !player.in_web_corner) { //player's fling distance is 0
     player.previous_web_placed=-1;
-    if (!player.is_swinging && !player.is_on_ground_edge) { // player is not swinging and not on ground edge
-      if (player.on_ground_id==-1) { //player is not on ground
+    if (!player.is_swinging && !player.is_on_ground_edge && !player.is_on_fground_ground_edge) { // player is not swinging and not on ground edge
+      if (player.on_ground_id==-1 ) { //player is not on ground
         allow_act=TRUE;
       } else if (!player.blocking) { //on a ground but not blocking
         allow_act=TRUE;
       } 
-    } else if (player.on_ground_id!=-1 && !player.is_on_ground_edge) { //is swinging but on ground
+    } else if (player.on_ground_id!=-1 && !player.is_on_ground_edge && !player.is_on_fground_ground_edge) { //is swinging but on ground
       if (player.pivot_length<DEFAULT_PLAYER_BUILD_RANGE/2*NODE_SIZE) { //allow movement if within swing distance
         allow_act=TRUE;
       }
     }
   }
-  if (grav_speed==0 && player.is_on_ground_edge && player.speed>5 && player.on_ground_id==-1) {
+  if (grav_speed==0 && (player.is_on_ground_edge ||  player.is_on_fground_ground_edge) && player.speed>5 && player.on_ground_id==-1 && player.on_fground_ground_id==-1) {
     player.decceleration_timer+=2;
   }
   if (grav_speed==0 && allow_act) { //ground movement
-    if (player.speed>10 && player.on_ground_timer>0 && !player.is_on_ground_edge) {
+    if (player.speed>10 && player.on_ground_timer>0 && !player.is_on_ground_edge && !player.is_on_fground_ground_edge) {
       player.decceleration_timer+=2;
     }
     if (player.rst_left || player.rst_right) {
@@ -806,7 +820,7 @@ void PlayerActXMovement(int grav_speed)
           }
         }
         if (player.rst_left) {
-          if (player.below_ground_edge_timer==0) {
+          if (player.below_ground_edge_timer==0 || player.below_fground_ground_edge_timer==0) {
             move_x(-1);
             player.last_left=TRUE;
           } else {
@@ -814,7 +828,7 @@ void PlayerActXMovement(int grav_speed)
             player.last_left=FALSE;
           }
         } else if (player.rst_right) {
-          if (player.below_ground_edge_timer==0) {
+          if (player.below_ground_edge_timer==0 || player.below_fground_ground_edge_timer==0) {
             move_x(1);
             player.last_left=FALSE;
           } else {
@@ -1265,7 +1279,7 @@ void PlayerActSwinging(int grav_speed)
 void PlayerActGravityMovement(int grav_speed,int speed)
 {
   if (grav_speed==0 && speed==0) {
-    if (player.on_ground_id==-1 && !player.is_swinging && !player.is_on_ground_edge) {
+    if (player.on_ground_id==-1 && player.on_fground_ground_id==-1 && !player.is_swinging && !player.is_on_ground_edge && !player.is_on_fground_ground_edge) {
       player.in_air_timer++;
       if (player.in_air_timer>2002) { //dont go above this limit
         player.in_air_timer--;
@@ -1308,14 +1322,14 @@ void PlayerActGravityMovement(int grav_speed,int speed)
 
 
   if (speed==0 && player.type==0) { //Gravity runs on grav speed
-    if (player.on_ground_id==-1 && player.jump_height<=0) { //Credit: y4my4m for pushing me to pursue this gameplay aspect
+    if (player.on_ground_id==-1 && player.on_fground_ground_id==-1  && player.jump_height<=0 ) { //Credit: y4my4m for pushing me to pursue this gameplay aspect
       if (!player.is_swinging) { //not swinigng and player is not flinging
         if ((player.in_air_timer>4 || player.fling_distance<0)) {
           move_y(player.player_grav); //include while being rebounding and flinging
         }
       }
     } else { //landed on ground
-      if (player.grav>=3 && !player.is_swinging && !player.is_on_ground_edge) { //no gravity if on ground edge
+      if (player.grav>=3 && !player.is_swinging && !player.is_on_ground_edge && !player.is_on_fground_ground_edge) { //no gravity if on ground edge
         if (player.grav>7) {
           player.cam_move_x*=-1;
         }
@@ -1633,7 +1647,7 @@ void PlayerActMouseClick()
         player.grav=3; //grav when swing let go
         player.in_air_timer=1000;
         player.decceleration_timer=0;
-        if (player.on_ground_timer==0 && !player.is_on_ground_edge && !player.uppercut /*&& !player.rst_up && !player.rst_down*/ && player.type==0) {
+        if (player.on_ground_timer==0 && !player.is_on_ground_edge && !player.is_on_fground_ground_edge && !player.uppercut /*&& !player.rst_up && !player.rst_down*/ && player.type==0) {
           if (player.speed<5)
             player.speed+=3;
           else //if (player.speed<10)
@@ -1801,7 +1815,7 @@ void PlayerActDecceleration()
   if (player.decceleration_timer>3000/*350*/) {
     if (player.speed>1 && player.type==0) {
       if (!player.time_breaker) {
-        if ((player.is_swinging || player.is_on_ground_edge)) {
+        if ((player.is_swinging || player.is_on_ground_edge || player.is_on_fground_ground_edge)) {
           player.speed--;        
         } else if (player.speed>1 && player.on_ground_id<GROUND_NUM  && player.on_ground_id>-1) {
           player.speed--;        
@@ -1936,17 +1950,23 @@ void PlayerAct()
 
       if (player.type==0 && player.rst_up && (player.on_a_ground || (player.in_water && !player.is_swinging))) { //on ground and jumping
         //player.key_jump_timer=player.player_jump_height;
-        if (player.in_water && player.on_ground_id==-1 && player.jump_height==0) {
+        if (player.in_water && player.on_ground_id==-1 && player.on_fground_ground_id==-1 && player.jump_height==0) {
           player.jump_angle=M_PI_2;
           player.jump_angle2=M_PI_2;
         }
         player.jump=TRUE;
         player.below_ground_edge_timer=0;
+        player.below_fground_ground_edge_timer=0;
         player.on_ground_edge_id=-1;
         player.saved_on_ground_edge_id=-1;
+        player.on_fground_ground_edge_id=-1;
+        player.saved_on_fground_ground_edge_id=-1;
         player.is_on_ground_edge=FALSE;
         player.is_on_left_ground_edge=FALSE;
         player.is_on_right_ground_edge=FALSE;
+        player.is_on_fground_ground_edge=FALSE;
+        player.is_on_left_fground_ground_edge=FALSE;
+        player.is_on_right_fground_ground_edge=FALSE;
       }
 
       if (player.jump && player.jump_height==0) {
@@ -1999,6 +2019,10 @@ void PlayerAct()
         //}
       }
 
+      if (player.on_fground_ground_id!=-1 && player.on_a_ground) {
+        speed_limiter=5;
+      }
+
 
 
       //PLAYER ACT SPPED IN WATER
@@ -2021,7 +2045,7 @@ void PlayerAct()
 
 
       //2026-05-16 fps drop
-      if (player.is_on_ground_edge) { //ground edge speed limiter
+      if (player.is_on_ground_edge || player.is_on_fground_ground_edge) { //ground edge speed limiter
          //speed_limiter*=5;//10;
          speed_limiter*=3;//10;
       }  else if (player.bullet_shot!=-1 && player.speed<10) { //parachuting speed limiter
@@ -2029,14 +2053,14 @@ void PlayerAct()
       }
 
       if (IsSpeedBreaking()) { //speedbreaking speed limiter
-        if (player.on_ground_id!=-1) {
+        if (player.on_ground_id!=-1 || player.on_fground_ground_id!=-1 ) {
           speed_limiter=player.speed;
         }
         //2026-05-16 fps drop
-        if (player.is_on_ground_edge) { //ground edge speed limiter
+        if (player.is_on_ground_edge || player.is_on_fground_ground_edge) { //ground edge speed limiter
            //speed_limiter*=5;//10;
          speed_limiter*=3;//10;
-        } else if (!player.is_on_ground_edge && player.on_ground_id!=-1) {
+        } else if (!player.is_on_fground_ground_edge && !player.is_on_ground_edge && (player.on_ground_id!=-1 || player.on_fground_ground_id!=-1)) {
           if (game_hard) {
             speed_limiter*=2;
           } else {
@@ -2051,6 +2075,9 @@ void PlayerAct()
         player.below_ground_edge_timer--;
       }
 
+      if (player.below_fground_ground_edge_timer>0) {
+        player.below_fground_ground_edge_timer--;
+      }
 
       for (speed=0;speed<speed_limiter;speed++) {
         for (grav_speed=0;grav_speed<player.grav;grav_speed++) {
@@ -2064,6 +2091,32 @@ void PlayerAct()
           //player.on_ground_id_d1=GetOnGroundIdPlayer(player.below_x1,player.below_y1,5,4); //left down
           player.on_ground_id_u2=GetOnGroundId(player.above_x2,player.above_y2,5,4); //right up
           //player.on_ground_id_d2=GetOnGroundIdPlayer(player.below_x2,player.below_y2,5,4); //right down
+
+          if (player.on_ground_id!=-1 && player.on_ground_timer>18) {
+            player.on_fground_id=-1;
+            player.on_fground_ground_id=-1;
+          } else { //on_ground_id==-1 //only detect falling ground when in the air
+            float closer_dist=9999999;
+            float dist;
+            for (int z=0;z<FGROUND_NUM;z++) {
+              if (F_GROUND[z].x-FGROUND_DETECT_SIZE/2<player.x && player.x<F_GROUND[z].x+FGROUND_DETECT_SIZE/2 &&
+                  F_GROUND[z].y-FGROUND_DETECT_SIZE/2<player.y && player.y<F_GROUND[z].y+FGROUND_DETECT_SIZE/2 //must be within range
+              ) {
+                dist=GetDistance(player.x,player.y,F_GROUND[z].x,F_GROUND[z].y); //pick closer falling ground
+                if (dist<closer_dist) {
+                  player.on_fground_id=z;
+                  closer_dist=dist;
+                }
+              }
+            }
+            if (closer_dist==9999999) {//unchanged
+              player.on_fground_id=-1;
+            }
+
+            if (player.on_fground_id!=-1) {
+              player.on_fground_ground_id=GetOnFGroundGroundId(player.on_fground_id,player.x,player.y,5,4);
+            }
+          }
 
        //hiding?    (legacy feature)
           /*int tmp_node_grid=GetGridId(player.above_x,player.above_y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);
@@ -2170,6 +2223,23 @@ void PlayerAct()
             }
           }
 
+          //Fground ACtion
+          if (player.on_ground_id==-1 && player.on_fground_id!=-1 && player.on_fground_ground_id!=-1) {
+            if ((F_GROUND[player.on_fground_id].x1[player.on_fground_ground_id]-10<player.x &&  player.x<F_GROUND[player.on_fground_id].x2[player.on_fground_ground_id]+10) &&
+                ((F_GROUND[player.on_fground_id].y1[player.on_fground_ground_id]-10<player.y && player.y<F_GROUND[player.on_fground_id].y2[player.on_fground_ground_id]+10) ||
+                 (F_GROUND[player.on_fground_id].y2[player.on_fground_ground_id]-10<player.y && player.y<F_GROUND[player.on_fground_id].y1[player.on_fground_ground_id]+10))) {
+              float fground_entity_E=FGGetLineTargetAngle(player.on_fground_id,player.on_fground_ground_id,player.x,player.y);
+              float fgheight_from_player_x=FGGetLineTargetHeight(player.on_fground_id,player.on_fground_ground_id,fground_entity_E,player.x,player.y);
+              PlayerOnFGroundAction(speed,grav_speed,fgheight_from_player_x);
+            } else {
+              player.on_a_ground=FALSE;
+              player.on_ground_timer=0;
+
+              player.in_web_corner=FALSE;
+              player.key_b4_corner_is_left=FALSE;
+              player.key_b4_corner_is_right=FALSE;
+            }
+          }
         //Y movement
         //Condition to jump
           if (player.on_ground_timer>0) {
@@ -2215,7 +2285,10 @@ void PlayerAct()
                 player.in_air_timer=2;
                 player.is_rebounding=FALSE;
                 player.on_ground_edge_id=-1;
+                player.on_fground_ground_edge_id=-1;
+                player.saved_on_fground_ground_edge_id=-1;
                 player.is_on_ground_edge=FALSE;
+                player.is_on_fground_ground_edge=FALSE;
                 player.jump=FALSE;
                 player.jump_height=0;
                 player.is_swinging=FALSE;
@@ -2262,6 +2335,10 @@ void PlayerAct()
             PlayerActGroundEdgeMovement();
           }
 
+          if (grav_speed==1) {
+            PlayerActFGroundEdgeMovement();
+          }
+
           //==========Gravity=========
           PlayerActGravityMovement(grav_speed,speed);
           //limit border and spritex
@@ -2273,6 +2350,7 @@ void PlayerAct()
           //====PLAYER CIRCULAR WEB SWINGING MOVEMENT======
           if (player.is_swinging) {
             player.below_ground_edge_timer=0;
+            player.below_fground_ground_edge_timer=0;
             PlayerActSwinging(grav_speed);
             //set axes of player fling web
             if (grav_speed==3 && speed==3) {//only occurs right after grav_speed==0
@@ -2297,6 +2375,7 @@ void PlayerAct()
           }
 
           player.saved_ground_id=player.on_ground_id;
+          player.saved_fground_ground_id=player.on_fground_ground_id;
 
            //limit border and spritex
           PlayerCameraLimiterBorder();
@@ -2408,7 +2487,7 @@ void PlayerAct()
             player.above_x2=player.claws_x; //up right
             player.above_y2=player.claws_y-(claws_l);
 
-            if (player.is_on_ground_edge) {
+            if (player.is_on_ground_edge || player.is_on_fground_ground_edge) {
               if (player.above_ground_edge) {
                 player.above_head_x=player.x+cos(player.edge_angle-M_PI/2)*NODE_SIZE*2;
                 player.above_head_y=player.y+sin(player.edge_angle-M_PI/2)*NODE_SIZE*2;
@@ -2492,12 +2571,15 @@ void PlayerAct()
 
      //misc
       if (player.on_ground_timer>0) {
-        if (!player.on_a_ground) {
+        if (!player.on_a_ground || ((player.on_fground_id==-1 || player.on_fground_ground_id==-1) && player.on_ground_id==-1)) {
           player.on_ground_timer--;
         }
       } else {
+        player.on_a_ground=FALSE;
         player.on_ground_id=-1;
+        player.on_fground_ground_id=-1;
         player.saved_ground_id=-1;
+        player.saved_fground_ground_id=-1;
       }
 
 
@@ -2632,7 +2714,7 @@ void PlayerAct()
       }
 
       //Spinning
-      if (player.rst_down && player.on_ground_id==-1) { //not on ground and in air
+      if (player.rst_down && player.on_ground_id==-1 ) { //not on ground and in air
         player.spin_timer++;
         if (player.speed>10) {
           player.spin_timer++;
@@ -2785,7 +2867,7 @@ void PlayerCameraShake()
     float y_bob=0,x_bob=0;
     //if (sprint_bobbing) {  //if sprint_bobbing
     if (!player.is_swinging) {
-      if (player.on_ground_id!=-1 && player.cam_limiter_x==0 && player.cam_limiter_y==0) {//not in air, on ground
+      if ((player.on_ground_id!=-1 || !player.on_fground_ground_id!=-1) && player.cam_limiter_x==0 && player.cam_limiter_y==0) {//not in air, on ground
         if (!player.blocking) {
           if (player.rst_left || player.rst_right || (player.type==1 && (player.rst_up || player.rst_down))) {
 	        if (player.speed>=5 || player.type==1) {
@@ -2812,7 +2894,7 @@ void PlayerCameraShake()
     //}
     
     //if ((player.grav>3 || player.speed>=5) && (!player.is_on_ground_edge)) { //falling cam effect
-    if (!player.is_on_ground_edge) {
+    if (!player.is_on_ground_edge && !player.is_on_fground_ground_edge) {
       y_bob=(player.grav)/6;
 
       switch (player.speed) {
@@ -3098,7 +3180,7 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
   //Mathematics
   //sprite angle
   //ON GROUND ACTUAL
-  if (player.on_ground_id!=-1) {
+  if (player.on_ground_id!=-1 || player.on_fground_ground_id!=-1) {
     int le_angle=16;
     float le_player_angle=player.angle;
     if (player.angle>0) { //Slope ++ \/
@@ -3164,6 +3246,28 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
     }
   }
 
+
+  if (player.is_on_fground_ground_edge) {
+    int tmp_ground_id=player.on_fground_ground_edge_id;
+    if (tmp_ground_id==-1)
+      tmp_ground_id=player.saved_on_fground_ground_edge_id;
+    if (player.is_on_left_fground_ground_edge) {
+      GrLine(hdc,player.sprite_x,
+                 player.sprite_y,
+                 F_GROUND[player.on_fground_id].x1[tmp_ground_id]+player.cam_x+player.cam_move_x+player.cam_mouse_move_x+player.cam_limiter_x,
+                 F_GROUND[player.on_fground_id].y1[tmp_ground_id]+player.cam_y+player.cam_move_y+player.cam_mouse_move_y+player.cam_limiter_y,
+                 LTCYAN);
+    } else if (player.is_on_right_fground_ground_edge) {
+      GrLine(hdc,player.sprite_x,
+                player.sprite_y,
+                F_GROUND[player.on_fground_id].x2[tmp_ground_id]+player.cam_x+player.cam_move_x+player.cam_mouse_move_x+player.cam_limiter_x,
+                F_GROUND[player.on_fground_id].y2[tmp_ground_id]+player.cam_y+player.cam_move_y+player.cam_mouse_move_y+player.cam_limiter_y,
+                LTCYAN);
+    }
+  }
+
+
+
   bool is_blink=TRUE;
   if (player.speed>24 && frame_tick%2==0) {
     is_blink=FALSE;
@@ -3198,7 +3302,7 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
           }
         }
       } else { //blocking
-        if (player.on_ground_id==-1 && player.spin_timer>=0) { //not on ground
+        if (player.on_ground_id==-1 && player.on_fground_ground_id==-1  && player.spin_timer>=0) { //not on ground
           if (player.spin_timer>=0 && player.spin_timer<10) {
             for (int j=0;j<PLAYER_BLUR_NUM;j++) {
               DrawSprite(hdc,hdc2,player.blur_sprite_x[j],player.blur_sprite_y[j],&PlayerSprite[0].blur_spin_sprite[0],!player.last_left);
@@ -3339,8 +3443,8 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
   //int le2=GR_HEIGHT/2-player.y+player.cam_mouse_move_y+player.cam_move_y+player.cam_limiter_y;
 
 
-  //char printme[16];
-  //sprintf(printme,"x:%d,y:%d",le1,le2);
-  //GrPrint(hdc,mouse_x,mouse_y+20,printme,LTGREEN);
+  char printme[32];
+  sprintf(printme,"fgid:%d, fg_gid:%d, ogt:%d",player.on_fground_id,player.on_fground_ground_id,player.on_ground_timer);
+  GrPrint(hdc,mouse_x,mouse_y+20,printme,LTRED);
 }
 

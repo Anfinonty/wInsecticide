@@ -169,6 +169,8 @@ struct player
   bool print_current_below;
   bool above_ground_edge;
   bool below_ground_edge;
+  bool above_fground_ground_edge;
+  bool below_fground_ground_edge;
   bool time_breaker;
   bool attack;
   bool blocking;
@@ -186,6 +188,10 @@ struct player
   //bool is_on_ground_edge2;
   bool is_on_left_ground_edge;
   bool is_on_right_ground_edge;
+
+  bool is_on_fground_ground_edge;
+  bool is_on_left_fground_ground_edge;
+  bool is_on_right_fground_ground_edge;
  
   bool in_water;
   bool phase_web;
@@ -249,11 +255,18 @@ struct player
   int sprite_timer;
   int in_air_timer;
   int below_ground_edge_timer;
+  int below_fground_ground_edge_timer;
   int speed;
   int on_ground_timer;
   int on_ground_id;
   int on_ground_id_u2;
   int saved_ground_id;
+  int saved_fground_ground_id;
+
+  int on_fground_id;
+  int on_fground_ground_id;
+
+
   int walk_cycle;
   int player_jump_height;
   int knockback_speed_multiplier;
@@ -266,6 +279,9 @@ struct player
 
   int on_ground_edge_id;
   int saved_on_ground_edge_id;
+  int on_fground_ground_edge_id;
+  int saved_on_fground_ground_edge_id;
+
   int pivot_on_ground_id;
   int show_exp_timer;
   int show_block_health_timer;
@@ -1496,7 +1512,8 @@ struct GameMoon
 
 #define FGROUND_NUM  50
 #define GROUND_IN_FGROUND_NUM   30
-#define FGROUND_SIZE     160
+#define FGROUND_SIZE     320
+#define FGROUND_DETECT_SIZE     350
 
 #define FGROUND_ATTR_NUM    16
 #define FGROUND_GROUND_ATTR_NUM 10
@@ -1520,6 +1537,17 @@ struct FallingGround
           =----
 
 
+
+  **If the player is on normal ground, player does not collide with falling ground**
+  **Collision with falling ground is only enabled when player is:
+    **already in air
+    **within x-175 to x+175 and y-175 to y+175
+  **render if x-175 or x+175 is within 0 to GR_WIDTH and y-175 or y+175 is within 0 to GR_HEIGHT
+  **If the player is on falling ground and reaches normal ground, normal ground takes priority**
+  **Enemies and bullets do not interact with the falling ground**
+  **Falling ground can be interrupted by web but reset after a set amount of time has passed**
+  **if x1,x2,x3,y1,y2,y3 is 0, perform break; in render
+  **for collision only solid grounds (type 0 and 1(no ceiling but floor)) are involved
 */
 
   //loaded in game only
@@ -1529,6 +1557,7 @@ struct FallingGround
   float spin_angle_delta;
   float spin_angle_min;
   float spin_angle_max;
+  float travel_angle;
   float x; //current x-y position (where the fallingground is on map)
   float y;
   float x_oscillation_angle;
@@ -1536,15 +1565,26 @@ struct FallingGround
   float x_oscillation_angle_delta;
   float y_oscillation_angle;
   float y_oscillation_angle_max;
-  float y_osclilation_angle_delta;
+  float y_oscillation_angle_delta;
   float speed;
+  float travel_dist_max;
+  float travel_dist;
 
   int solid_ground_num;
-  int solid_grounds[GROUND_IN_FGROUND_NUM];
+  int solid_ground_ids[GROUND_IN_FGROUND_NUM];
   int color[GROUND_IN_FGROUND_NUM]; //Color of ground, RGB()
+  float center_length1[GROUND_IN_FGROUND_NUM]; //dist from center of grid to ox
+  float center_length2[GROUND_IN_FGROUND_NUM]; //dist from center of grid to ox
+  float center_length3[GROUND_IN_FGROUND_NUM]; //dist from center of grid to ox
+
+  float center_angle1[GROUND_IN_FGROUND_NUM]; //dist from center of grid to ox
+  float center_angle2[GROUND_IN_FGROUND_NUM]; //dist from center of grid to ox
+  float center_angle3[GROUND_IN_FGROUND_NUM]; //dist from center of grid to ox
+
+
   float length[GROUND_IN_FGROUND_NUM]; // = sqrt(x^2 + y^2)) // Babylonian Trigonometry Theorem for Calculating the Hypothenuse, wont move
   float gradient[GROUND_IN_FGROUND_NUM];// y of ground / x of ground, changes
-  float c[GROUND_IN_FGROUND_NUM]; //The C in y-mx_c, changes
+  //float c[GROUND_IN_FGROUND_NUM]; //The C in y-mx_c, changes
   //float height_from_player_x;//= gradient * player_x + c
   float angle[GROUND_IN_FGROUND_NUM]; // = ACos of (x/length)
   float x1[GROUND_IN_FGROUND_NUM]; //angle_transform(ox) + x
@@ -1565,6 +1605,8 @@ struct FallingGround
   int oy_oscillation_angle_max;      //  //  // //  //  //                       //
   int oy_oscillation_angle;        //      //     //      //                   //
                                                                                   //
+  //int x_oscillation_timer;
+  //int x_oscillation_max_timer;
   int ox_oscillation_angle_delta; //speed of oscillation angle                 //
   int ox_oscillation_angle_max; //max oscillation                               //
   int ox_oscillation_angle; //current oscillation angle                       //
