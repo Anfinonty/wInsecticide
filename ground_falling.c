@@ -224,268 +224,6 @@ int GetOnFGroundGroundId(int fground_id,float x,float y,float min_range_1,float 
 
 
 
-void FallingGroundAct()
-{
-  for (int j=0;j<FGROUND_NUM;j++) {
-    //Move Falling Ground Axis
-    if (F_GROUND[j].travel_dist>=F_GROUND[j].travel_dist_max
-    ) {
-      F_GROUND[j].travel_dist=0;
-      F_GROUND[j].x=F_GROUND[j].x_start;
-      F_GROUND[j].y=F_GROUND[j].y_start;
-    } else {
-      for (int k=0;k<F_GROUND[j].speed_multiplier;k++) {
-        F_GROUND[j].x+=F_GROUND[j].speed*cos(F_GROUND[j].travel_angle+F_GROUND[j].x_oscillation_angle);
-        F_GROUND[j].y+=F_GROUND[j].speed*sin(F_GROUND[j].travel_angle+F_GROUND[j].y_oscillation_angle);
-
-        //Friction move player as well depending on spin rate
-        if (!in_map_editor && (j==player.on_fground_id && (player.on_fground_ground_id!=-1 || player.on_fground_ground_edge_id!=-1))) {
-          move_x(F_GROUND[j].speed*cos(F_GROUND[j].travel_angle+F_GROUND[j].x_oscillation_angle));
-          move_y(F_GROUND[j].speed*sin(F_GROUND[j].travel_angle+F_GROUND[j].y_oscillation_angle));
-        }
-      }
-    }
-
-    //Spin Angle
-    F_GROUND[j].spin_angle+=F_GROUND[j].spin_angle_delta;
-    if (F_GROUND[j].spin_angle>=F_GROUND[j].spin_angle_max || F_GROUND[j].spin_angle<=F_GROUND[j].spin_angle_min) {
-      F_GROUND[j].spin_angle_delta=-F_GROUND[j].spin_angle_delta;
-    }
-
-    //X Oscillation
-    F_GROUND[j].x_oscillation_angle+=F_GROUND[j].x_oscillation_angle_delta;
-    if (F_GROUND[j].x_oscillation_angle>F_GROUND[j].x_oscillation_angle_max || F_GROUND[j].x_oscillation_angle<-F_GROUND[j].x_oscillation_angle_max) {
-      F_GROUND[j].x_oscillation_angle_delta=-F_GROUND[j].x_oscillation_angle_delta;
-    }
-
-    //Y Oscillation
-    F_GROUND[j].y_oscillation_angle+=F_GROUND[j].y_oscillation_angle_delta;
-    if (abs(F_GROUND[j].y_oscillation_angle)>F_GROUND[j].y_oscillation_angle_max) {
-      F_GROUND[j].y_oscillation_angle_delta=-F_GROUND[j].y_oscillation_angle_delta;
-    }
-
-
-    
-
-    //Drag Axis along 
-    if (F_GROUND[j].speed_multiplier>0) {
-      F_GROUND[j].travel_dist+=F_GROUND[j].speed;
-//      for (int i=0;i<GROUND_IN_FGROUND_NUM;i++) {
-      for (int i=0;i<F_GROUND[j].valid_ground_num;i++) {
-        F_GROUND[j].x1[i]=cos(F_GROUND[j].spin_angle+F_GROUND[j].center_angle1[i])*F_GROUND[j].center_length1[i] +F_GROUND[j].x;
-        F_GROUND[j].y1[i]=sin(F_GROUND[j].spin_angle+F_GROUND[j].center_angle1[i])*F_GROUND[j].center_length1[i] +F_GROUND[j].y;
-        F_GROUND[j].x2[i]=cos(F_GROUND[j].spin_angle+F_GROUND[j].center_angle2[i])*F_GROUND[j].center_length2[i] +F_GROUND[j].x;
-        F_GROUND[j].y2[i]=sin(F_GROUND[j].spin_angle+F_GROUND[j].center_angle2[i])*F_GROUND[j].center_length2[i] +F_GROUND[j].y;
-        F_GROUND[j].x3[i]=cos(F_GROUND[j].spin_angle+F_GROUND[j].center_angle3[i])*F_GROUND[j].center_length3[i] +F_GROUND[j].x;
-        F_GROUND[j].y3[i]=sin(F_GROUND[j].spin_angle+F_GROUND[j].center_angle3[i])*F_GROUND[j].center_length3[i] +F_GROUND[j].y;
-        SetFGround(j,i);
-      }
-    }
-
-  }
-
-}
-
-
-void PlayerOnFGroundAction(int speed, int grav, int height_from_player_x)
-{
-  player.angle=F_GROUND[player.on_fground_id].angle[player.on_fground_ground_id];//Ground[player.on_ground_id]->angle; //set player angle
-
-  //Player sticking to FGROUND, without this the player will be bounced off
-  //move_x(-cos(player.angle+M_PI_2)*0.01);
-  //move_y(-sin(player.angle+M_PI_2)*0.01);
-  
-  if (player.in_air_timer>0) {
-    if (player.in_air_timer>1000) { //make player rebound
-      player.in_air_timer=1000;
-    }
-    if (player.type==0) {
-    if (player.rst_down) { //spinning
-      player.is_rebounding=TRUE;
-      //if (player.rst_left || player.rst_right) { //continue spin-rebound
-        player.in_air_timer=1000;
-      //}
-    } else { //not reboubding
-      player.is_rebounding=FALSE;
-      player.in_air_timer=1;
-
-      player.jump_height=0; //Stop Jump & stick to ground
-      //if (player.uppercut) {
-        //player.jump_height=-1; //Stop Jump & stick to ground
-      //}
-      player.jump=FALSE;
-    }
-    }
-    player.in_air_timer--;
-  }
-
-//outwards from ground
-  //above ground
-  if (0<height_from_player_x && height_from_player_x<10) {
-    player.current_above=TRUE;
-    player.current_below=FALSE;
-    player.previous_above=TRUE;
-    player.previous_below=FALSE;
-    player.on_a_ground=TRUE;
-    player.on_ground_timer=20;
-
-    if (height_from_player_x<5 || player.is_rebounding /*|| player.is_swinging*/ || player.type==1) {
-    //if (height_from_player_x<3 || player.is_rebounding /*|| player.is_swinging*/ || player.type==1) {
-      if (player.is_rebounding) {
-        move_x(-cos(player.angle+M_PI_2)*2);
-        move_y(-sin(player.angle+M_PI_2)*2);
-      } else {
-        move_x(-cos(player.angle+M_PI_2));
-        move_y(-sin(player.angle+M_PI_2));
-      }
-    }
-
-    player.jump_angle=player.angle+M_PI_2;
-    if (player.angle<0) {/*Slope -. /*/
-      player.jump_angle2=2*M_PI+player.angle-M_PI_2;
-    } else {/*Slope -. \*/
-      player.jump_angle2=player.angle-M_PI_2;
-    }
-    player.fling_distance=0; //on ground, stop flinging
-
-    //angle of incidence and reflection
-    player.angle_of_reflection=
-        //2*M_PI-player.angle_of_incidence+2*player.angle; //real
-        GetBounceAngle(player.angle_of_incidence,player.angle);
-
-
-    if (!player.is_swinging && player.bullet_shot==-1) {
-      player.angle_of_incidence=player.angle_of_reflection;
-    }
-
-  //below ground
-  } else if (-10<height_from_player_x && height_from_player_x<=0) { 
-    player.below_fground_ground_edge_timer=5;
-    player.current_below=TRUE;
-    player.current_above=FALSE;
-    player.previous_above=FALSE;
-    player.previous_below=TRUE;
-    player.on_a_ground=TRUE;
-    player.on_ground_timer=20;
-    if (height_from_player_x>-5 || player.is_rebounding/* || player.is_swinging*/ || player.type==1) {
-    //if (height_from_player_x>-3 || player.is_rebounding/* || player.is_swinging*/ || player.type==1) {
-      if (player.is_rebounding) {
-        move_x(-cos(player.angle-M_PI_2)*2); //go outwards 
-        move_y(-sin(player.angle-M_PI_2)*2);
-      } else {
-        move_x(-cos(player.angle-M_PI_2)); //go outwards 
-        move_y(-sin(player.angle-M_PI_2));
-      }
-    }
-
-    player.jump_angle=player.angle-M_PI_2;
-    if (player.angle<0) {/*Slope -. /*/
-      player.jump_angle2=M_PI_2+player.angle;
-    } else {/*Slope -. \*/
-      player.jump_angle2=player.angle+M_PI_2;
-    }
-    player.fling_distance=0; //on ground, stop flinging
-
-    //angle of incidence and reflection
-    player.angle_of_reflection=GetBounceAngle(player.angle,player.angle_of_incidence);
-    //2*M_PI-player.angle_of_incidence+2*player.angle; //real
-    if (!player.is_swinging && player.bullet_shot==-1) {
-      player.angle_of_incidence=player.angle_of_reflection;
-    }
-  }
-
-  if (height_from_player_x>9 || height_from_player_x<-9) {//leave ground when out of circular range
-    player.on_a_ground=FALSE;
-    player.on_ground_timer=0;
-  }
-}
-
-
-
-void DrawFallingGround(HDC hdc, HDC hdc2)
-{
-  int c;
-  int fgcx1;
-  int fgcy1;
-  int fgcx2;
-  int fgcy2;
-  int fgcx3;
-  int fgcy3;
-  int 
-    px=player.cam_x,
-    py=player.cam_y,
-    cx1=player.cam_mouse_move_x,
-    cy1=player.cam_mouse_move_y,
-    cx2=player.cam_move_x,
-    cy2=player.cam_move_y,
-    cx3=player.cam_limiter_x,
-    cy3=player.cam_limiter_y;
-  //NOTE: STARTS AT CENTER
-  char mytxt[16];
-  for (int j=0;j<FGROUND_NUM;j++) {
-    //Draw Falling Ground
-
-
-    //debug
-    /*fgcx1=(int)F_GROUND[j].x-FGROUND_SIZE/2+px+cx1+cx2+cx3;
-    fgcy1=(int)F_GROUND[j].y-FGROUND_SIZE/2+py+cy1+cy2+cy3;
-    for (int i=0;i<GROUND_IN_FGROUND_NUM;i++) {   
-      sprintf(mytxt,"%d:%d,",i,F_GROUND[j].solid_ground_ids[i]);   
-      GrPrint(hdc,fgcx1-16,fgcy1+i*16,mytxt,LTRED);
-    }*/
-
-    int pcamx=px+cx1+cx2+cx3;
-    int pcamy=py+cy1+cy2+cy3;
-    if (
-      (
-        (0<= F_GROUND[j].x+FGROUND_SIZE/2+pcamx && F_GROUND[j].x+FGROUND_SIZE/2+pcamx <=GR_WIDTH) ||
-        (0<= F_GROUND[j].x-FGROUND_SIZE/2+pcamx && F_GROUND[j].x-FGROUND_SIZE/2+pcamx <=GR_WIDTH)
-      ) &&
-      (
-        (0<= F_GROUND[j].y+FGROUND_SIZE/2+pcamy && F_GROUND[j].y+FGROUND_SIZE/2+pcamy <=GR_HEIGHT) ||
-        (0<= F_GROUND[j].y-FGROUND_SIZE/2+pcamy && F_GROUND[j].y-FGROUND_SIZE/2+pcamy <=GR_HEIGHT)
-      )
-    ) { //only draw if visible on screen
-//    for (int i=0;i<GROUND_IN_FGROUND_NUM;i++) {
-    for (int i=0;i<F_GROUND[j].valid_ground_num;i++) {      
-      fgcx1=(int)F_GROUND[j].x1[i]+pcamx;
-      fgcy1=(int)F_GROUND[j].y1[i]+pcamy;
-      fgcx2=(int)F_GROUND[j].x2[i]+pcamx;
-      fgcy2=(int)F_GROUND[j].y2[i]+pcamy;
-      fgcx3=(int)F_GROUND[j].x3[i]+pcamx;
-      fgcy3=(int)F_GROUND[j].y3[i]+pcamy;
-
-      c=rgbPaintBrightness[lvl_map_background.dark_lvl][F_GROUND[j].color_id[i]];
-      switch (F_GROUND[j].type[i]) {
-
-        case 0: //line
-        case 1: //line but floor not ceiling
-          GrLine(hdc,fgcx1,fgcy1,fgcx2,fgcy2,c);
-          break;
-        case 2: //trifill
-	        DrawTriFill(hdc,c,
-               fgcx1,fgcy1,fgcx2,fgcy2,fgcx3,fgcy3,FALSE,0);
-          break;
-        case 3: //texture trifill
-          {
-          int texture_type=F_GROUND[j].texture_type[i];
-          if (texture_type>=0 && texture_type<PLATFORM_TEXTURES_NUM) {
-            DrawTexturedTriangle(hdc,hdc2,
-              fgcx1,fgcy1,fgcx2,fgcy2,fgcx3,fgcy3,
-              GamePlatformTextures[texture_type].palette_sprite);
-          }
-          }
-          break;
-      }
-    }  
-    }
-  }
-}
-
-
-
-
-
 
 
 
@@ -497,7 +235,7 @@ void PlayerActFGroundEdgeMovement()
 
   float edge_dist1;
   float edge_dist2;
-  float distl=20;
+  float distl=20.0;
 
   if (!player.blocking && !player.rst_up) {
       if (!player.is_on_fground_ground_edge) {
@@ -515,6 +253,7 @@ void PlayerActFGroundEdgeMovement()
             player.on_fground_ground_edge_id=player.on_fground_ground_id;
             player.saved_on_fground_ground_edge_id=player.on_fground_ground_edge_id;
             player.is_on_fground_ground_edge=TRUE;
+            player.on_fground_ground_timer=30;
           }
         }
       } else { //on ground edge id present
@@ -611,4 +350,457 @@ void PlayerActFGroundEdgeMovement()
   }
 
 }
+
+void FallingGroundAct()
+{
+  for (int j=0;j<FGROUND_NUM;j++) {
+    //Move Falling Ground Axis
+    if (F_GROUND[j].travel_dist>=F_GROUND[j].travel_dist_max
+    ) {
+      F_GROUND[j].travel_dist=0;
+      F_GROUND[j].x=F_GROUND[j].x_start;
+      F_GROUND[j].y=F_GROUND[j].y_start;
+    } else {
+      for (int k=0;k<F_GROUND[j].speed_multiplier;k++) {
+        F_GROUND[j].x+=F_GROUND[j].speed*cos(F_GROUND[j].travel_angle+F_GROUND[j].x_oscillation_angle);
+        F_GROUND[j].y+=F_GROUND[j].speed*sin(F_GROUND[j].travel_angle+F_GROUND[j].y_oscillation_angle);
+
+        //Friction move player along with movement of falling ground
+        if (!in_map_editor && (j==player.on_fground_id && (player.on_fground_ground_id!=-1 || player.on_fground_ground_edge_id!=-1))) {
+          //movement of player following the movement of moving ground
+          move_x(F_GROUND[j].speed*cos(F_GROUND[j].travel_angle+F_GROUND[j].x_oscillation_angle));
+          move_y(F_GROUND[j].speed*sin(F_GROUND[j].travel_angle+F_GROUND[j].y_oscillation_angle));
+        }
+
+        if (!in_map_editor && (j==player.on_fground_id)) {
+          //movement of player following the movement of spinning ground
+          int id=player.on_fground_ground_id;
+          if (id==-1)
+            id=player.on_fground_ground_edge_id;
+          if (id!=-1) {
+            if (player.below_fground_ground_edge_timer>0) {//below ground
+               move_x(-cos(F_GROUND[j].angle[id]+M_PI_2)); //go inwards
+               move_y(-sin(F_GROUND[j].angle[id]+M_PI_2));
+            } else { //above ground
+               move_x(-cos(F_GROUND[j].angle[id]-M_PI_2)); //go inwards
+               move_y(-sin(F_GROUND[j].angle[id]-M_PI_2));
+            }
+          }
+
+
+      //copied from groundedge act
+        PlayerActFGroundEdgeMovement();
+
+      //move inwards to pivot ** will try its best to stick, but slipping can still occur
+        float edge_dist1;
+        float edge_dist2;
+        float edmul=0.5;
+
+        if (player.is_on_left_fground_ground_edge) {
+          edge_dist1=GetDistance(player.x,player.y,F_GROUND[player.on_fground_id].x1[player.on_fground_ground_edge_id],F_GROUND[player.on_fground_id].y1[player.on_fground_ground_edge_id]); //left edge
+          player.edge_angle=GetCosAngle(player.x-F_GROUND[player.on_fground_id].x1[player.on_fground_ground_edge_id],edge_dist1);
+          if (edge_dist1>2) {
+            if (player.y<F_GROUND[player.on_fground_id].y2[player.on_fground_ground_edge_id]) { //above pivot
+              move_x(-cos(player.edge_angle)*edmul); //go inwards to pivot
+              move_y( sin(player.edge_angle)*edmul);
+            } else { //below pivot
+              move_x(-cos(player.edge_angle)*edmul); //go inwards to pivot
+              move_y(-sin(player.edge_angle)*edmul);
+            }
+          }          
+        } else if (player.is_on_right_fground_ground_edge) {
+          edge_dist2=GetDistance(player.x,player.y,F_GROUND[player.on_fground_id].x2[player.on_fground_ground_edge_id],F_GROUND[player.on_fground_id].y2[player.on_fground_ground_edge_id]); //right edge
+          player.edge_angle=GetCosAngle(player.x-F_GROUND[player.on_fground_id].x2[player.on_fground_ground_edge_id],edge_dist2);
+          if (edge_dist2>2) {
+            if (player.y<F_GROUND[player.on_fground_id].y2[player.on_fground_ground_edge_id]) { //above pivot
+              move_x(-cos(player.edge_angle)*edmul); //go inwards to pivot
+              move_y( sin(player.edge_angle)*edmul);
+            } else { //below pivot
+              move_x(-cos(player.edge_angle)*edmul); //go inwards to pivot
+              move_y(-sin(player.edge_angle)*edmul);
+            }
+          }
+        }
+
+          /*
+            Circumference c1 = 2 * M_PI * radius1
+            Let Spin Angle Delta = 1 deg <--- constant
+            
+            Smaller Circumference c2 = 2 * M_PI * radius2
+            Let Spin Angle Delta = 1 deg <--- constant
+
+            Spin takes place every 0.06 seconds
+
+                 _________________
+               /___________________\
+              /                     \
+             /                       \
+            /          -----          \
+            /        /       \        \
+            /       |    *    |       \
+            |        \       /        |
+            \          -----          /
+             \                       /
+              \                     /
+               \___________________/            
+                \_________________/         
+
+
+           Circumfereence  (c1)        ________________________________________________________________________  = 2*M_PI*r1
+ 
+
+           Smaller Circumference (c2)  ________________________________ 2*M_PI*r2
+
+           i.e.1
+           Spin Angle Delta = 1 degree per 0.06 seconds
+           360 degs = 0.06 seconds * 360
+                    = 21.6 seconds
+
+           c1 drawn per 0.06 seconds
+           -> 2*M_PI*r1 / 21.6 seconds * 0.06
+
+           c2 drawn per 0.06 seconds
+           -> 2*M_PI*r1 / 21.6 seconds * 0.06
+
+          i.e.2
+          Spin Angle Delta = 2 degree per 0.06 seconds
+          360 degs    = 0.06 seconds * 360 / 2
+                      = 10.8 seconds
+
+           c1 drawn per 0.06 seconds
+           -> 2*M_PI*r1 /10.8 seconds * 0.06
+           -> 2*M_PI*r1 / (0.06 * 360 / 2)   * 0.06 
+           -> 2*M_PI*r1 / (0.06 * 360 / spin_angle_delta) * 0.06
+
+         -> (2 * M_PI * radius) / ( 360 / spin_angle_delta))
+
+          */
+
+          float pdist=GetDistance(player.x,player.y,F_GROUND[player.on_fground_id].x,F_GROUND[player.on_fground_id].y); //distance from player to pivot
+          float player_pivot_angle=GetCosAngle(player.x-F_GROUND[player.on_fground_id].x,pdist); //angle of y=0 plane to line pivot-player
+
+          if (player.on_fground_ground_timer>0) {
+            float circumference_per_6ms =
+                (2*M_PI*pdist) / (360.0/ (abs((float)F_GROUND[player.on_fground_id].ospin_angle_delta)/100.0) );
+            //printf("n: %5.4f\n",circumference_per_6ms);
+            if (player.y<F_GROUND[player.on_fground_id].y) { //above pivot
+              if (F_GROUND[player.on_fground_id].spin_angle_delta<0) { //anticlockwise
+                move_x(cos(M_PI_2+player_pivot_angle)*circumference_per_6ms);
+                move_y(-sin(M_PI_2+player_pivot_angle)*circumference_per_6ms);
+              } else { //clockwise
+                move_x(cos(M_PI_2-player_pivot_angle)*circumference_per_6ms);
+                move_y(sin(M_PI_2-player_pivot_angle)*circumference_per_6ms);
+              }
+            } else { //below pivot
+              if (F_GROUND[player.on_fground_id].spin_angle_delta<0) { //anticlockwise
+                move_x(-cos(M_PI_2+player_pivot_angle)*circumference_per_6ms);
+                move_y(-sin(M_PI_2+player_pivot_angle)*circumference_per_6ms);
+              } else { //clockwise
+                move_x(cos(M_PI_2+player_pivot_angle)*circumference_per_6ms);
+                move_y(sin(M_PI_2+player_pivot_angle)*circumference_per_6ms);
+              }
+            }
+
+            //move player towards pivot as it's observed that its slowly drifting away while spinning 2026-06-01
+            float mul=0.0225;
+            if (player.y<F_GROUND[player.on_fground_id].y) { //above pivot
+              move_x(-cos(player_pivot_angle)*mul); //go inwards
+              move_y( sin(player_pivot_angle)*mul);
+            } else { //below pivot
+              move_x(-cos(player_pivot_angle)*mul); //go inwards
+              move_y(-sin(player_pivot_angle)*mul);
+            }
+          }
+        }
+
+
+      }
+    }
+
+    //Spin Angle
+    F_GROUND[j].spin_angle+=F_GROUND[j].spin_angle_delta;
+    if (F_GROUND[j].spin_angle>=F_GROUND[j].spin_angle_max || F_GROUND[j].spin_angle<=F_GROUND[j].spin_angle_min) {
+      F_GROUND[j].spin_angle_delta=-F_GROUND[j].spin_angle_delta;
+      //once changed, reset to 0
+      if (player.on_fground_ground_timer>0 && player.on_fground_ground_id==-1) {
+        player.on_fground_ground_timer=0;
+      }
+    }
+
+    //X Oscillation
+    F_GROUND[j].x_oscillation_angle+=F_GROUND[j].x_oscillation_angle_delta;
+    if (F_GROUND[j].x_oscillation_angle>F_GROUND[j].x_oscillation_angle_max || F_GROUND[j].x_oscillation_angle<-F_GROUND[j].x_oscillation_angle_max) {
+      F_GROUND[j].x_oscillation_angle_delta=-F_GROUND[j].x_oscillation_angle_delta;
+    }
+
+    //Y Oscillation
+    F_GROUND[j].y_oscillation_angle+=F_GROUND[j].y_oscillation_angle_delta;
+    if (abs(F_GROUND[j].y_oscillation_angle)>F_GROUND[j].y_oscillation_angle_max) {
+      F_GROUND[j].y_oscillation_angle_delta=-F_GROUND[j].y_oscillation_angle_delta;
+    }
+
+    //Drag Axis along 
+    if (F_GROUND[j].speed_multiplier>0) {
+      F_GROUND[j].travel_dist+=F_GROUND[j].speed;
+//      for (int i=0;i<GROUND_IN_FGROUND_NUM;i++) {
+      for (int i=0;i<F_GROUND[j].valid_ground_num;i++) {
+        F_GROUND[j].x1[i]=cos(F_GROUND[j].spin_angle+F_GROUND[j].center_angle1[i])*F_GROUND[j].center_length1[i] +F_GROUND[j].x;
+        F_GROUND[j].y1[i]=sin(F_GROUND[j].spin_angle+F_GROUND[j].center_angle1[i])*F_GROUND[j].center_length1[i] +F_GROUND[j].y;
+        F_GROUND[j].x2[i]=cos(F_GROUND[j].spin_angle+F_GROUND[j].center_angle2[i])*F_GROUND[j].center_length2[i] +F_GROUND[j].x;
+        F_GROUND[j].y2[i]=sin(F_GROUND[j].spin_angle+F_GROUND[j].center_angle2[i])*F_GROUND[j].center_length2[i] +F_GROUND[j].y;
+        F_GROUND[j].x3[i]=cos(F_GROUND[j].spin_angle+F_GROUND[j].center_angle3[i])*F_GROUND[j].center_length3[i] +F_GROUND[j].x;
+        F_GROUND[j].y3[i]=sin(F_GROUND[j].spin_angle+F_GROUND[j].center_angle3[i])*F_GROUND[j].center_length3[i] +F_GROUND[j].y;
+        SetFGround(j,i);
+      }
+    }
+
+  }
+
+}
+
+
+void PlayerOnFGroundAction(int speed, int grav, int height_from_player_x)
+{
+  player.angle=F_GROUND[player.on_fground_id].angle[player.on_fground_ground_id];//Ground[player.on_ground_id]->angle; //set player angle
+
+  //Player sticking to FGROUND, without this the player will be bounced off
+  //move_x(-cos(player.angle+M_PI_2)*0.01);
+  //move_y(-sin(player.angle+M_PI_2)*0.01);
+  
+  if (player.in_air_timer>0) {
+    if (player.in_air_timer>1000) { //make player rebound
+      player.in_air_timer=1000;
+    }
+    if (player.type==0) {
+    if (player.rst_down) { //spinning
+      player.is_rebounding=TRUE;
+      //if (player.rst_left || player.rst_right) { //continue spin-rebound
+        player.in_air_timer=1000;
+      //}
+    } else { //not reboubding
+      player.is_rebounding=FALSE;
+      player.in_air_timer=1;
+
+      player.jump_height=0; //Stop Jump & stick to ground
+      //if (player.uppercut) {
+        //player.jump_height=-1; //Stop Jump & stick to ground
+      //}
+      player.jump=FALSE;
+    }
+    }
+    player.in_air_timer--;
+  }
+
+//outwards from ground
+  //above ground
+  if (0<height_from_player_x && height_from_player_x<10) {
+    player.current_above=TRUE;
+    player.current_below=FALSE;
+    player.previous_above=TRUE;
+    player.previous_below=FALSE;
+    player.on_a_ground=TRUE;
+    player.on_ground_timer=20;
+    player.on_fground_ground_timer=30;
+
+    if (height_from_player_x<5 || player.is_rebounding /*|| player.is_swinging*/ || player.type==1) {
+    //if (height_from_player_x<3 || player.is_rebounding /*|| player.is_swinging*/ || player.type==1) {
+      if (player.is_rebounding) {
+        move_x(-cos(player.angle+M_PI_2)*2);
+        move_y(-sin(player.angle+M_PI_2)*2);
+      } else {
+        move_x(-cos(player.angle+M_PI_2));
+        move_y(-sin(player.angle+M_PI_2));
+      }
+    }
+
+    player.jump_angle=player.angle+M_PI_2;
+    if (player.angle<0) {/*Slope -. /*/
+      player.jump_angle2=2*M_PI+player.angle-M_PI_2;
+    } else {/*Slope -. \*/
+      player.jump_angle2=player.angle-M_PI_2;
+    }
+    player.fling_distance=0; //on ground, stop flinging
+
+    //angle of incidence and reflection
+    player.angle_of_reflection=
+        //2*M_PI-player.angle_of_incidence+2*player.angle; //real
+        GetBounceAngle(player.angle_of_incidence,player.angle);
+
+
+    if (!player.is_swinging && player.bullet_shot==-1) {
+      player.angle_of_incidence=player.angle_of_reflection;
+    }
+
+  //below ground
+  } else if (-10<height_from_player_x && height_from_player_x<=0) { 
+    player.below_fground_ground_edge_timer=5;
+    player.current_below=TRUE;
+    player.current_above=FALSE;
+    player.previous_above=FALSE;
+    player.previous_below=TRUE;
+    player.on_a_ground=TRUE;
+    player.on_ground_timer=20;
+    player.on_fground_ground_timer=30;
+    if (height_from_player_x>-5 || player.is_rebounding/* || player.is_swinging*/ || player.type==1) {
+    //if (height_from_player_x>-3 || player.is_rebounding/* || player.is_swinging*/ || player.type==1) {
+      if (player.is_rebounding) {
+        move_x(-cos(player.angle-M_PI_2)*2); //go outwards 
+        move_y(-sin(player.angle-M_PI_2)*2);
+      } else {
+        move_x(-cos(player.angle-M_PI_2)); //go outwards 
+        move_y(-sin(player.angle-M_PI_2));
+      }
+    }
+
+    player.jump_angle=player.angle-M_PI_2;
+    if (player.angle<0) {/*Slope -. /*/
+      player.jump_angle2=M_PI_2+player.angle;
+    } else {/*Slope -. \*/
+      player.jump_angle2=player.angle+M_PI_2;
+    }
+    player.fling_distance=0; //on ground, stop flinging
+
+    //angle of incidence and reflection
+    player.angle_of_reflection=GetBounceAngle(player.angle,player.angle_of_incidence);
+    //2*M_PI-player.angle_of_incidence+2*player.angle; //real
+    if (!player.is_swinging && player.bullet_shot==-1) {
+      player.angle_of_incidence=player.angle_of_reflection;
+    }
+  }
+
+  if (height_from_player_x>9 || height_from_player_x<-9) {//leave ground when out of circular range
+    player.on_a_ground=FALSE;
+    player.on_ground_timer=0;
+  }
+}
+
+
+
+void DrawFallingGround(HDC hdc, HDC hdc2)
+{
+  int c;
+  int fgcx1;
+  int fgcy1;
+  int fgcx2;
+  int fgcy2;
+  int fgcx3;
+  int fgcy3;
+  int 
+    px=player.cam_x,
+    py=player.cam_y,
+    cx1=player.cam_mouse_move_x,
+    cy1=player.cam_mouse_move_y,
+    cx2=player.cam_move_x,
+    cy2=player.cam_move_y,
+    cx3=player.cam_limiter_x,
+    cy3=player.cam_limiter_y;
+  //NOTE: STARTS AT CENTER
+  char mytxt[16];
+  for (int j=0;j<FGROUND_NUM;j++) {
+    //Draw Falling Ground
+
+
+    //debug
+    /*fgcx1=(int)F_GROUND[j].x-FGROUND_SIZE/2+px+cx1+cx2+cx3;
+    fgcy1=(int)F_GROUND[j].y-FGROUND_SIZE/2+py+cy1+cy2+cy3;
+    for (int i=0;i<GROUND_IN_FGROUND_NUM;i++) {   
+      sprintf(mytxt,"%d:%d,",i,F_GROUND[j].solid_ground_ids[i]);   
+      GrPrint(hdc,fgcx1-16,fgcy1+i*16,mytxt,LTRED);
+    }*/
+
+    int pcamx=px+cx1+cx2+cx3;
+    int pcamy=py+cy1+cy2+cy3;
+    if (
+      (
+        (0<= F_GROUND[j].x+FGROUND_SIZE/2+pcamx && F_GROUND[j].x+FGROUND_SIZE/2+pcamx <=GR_WIDTH) ||
+        (0<= F_GROUND[j].x-FGROUND_SIZE/2+pcamx && F_GROUND[j].x-FGROUND_SIZE/2+pcamx <=GR_WIDTH)
+      ) &&
+      (
+        (0<= F_GROUND[j].y+FGROUND_SIZE/2+pcamy && F_GROUND[j].y+FGROUND_SIZE/2+pcamy <=GR_HEIGHT) ||
+        (0<= F_GROUND[j].y-FGROUND_SIZE/2+pcamy && F_GROUND[j].y-FGROUND_SIZE/2+pcamy <=GR_HEIGHT)
+      )
+    ) { //only draw if visible on screen
+//    for (int i=0;i<GROUND_IN_FGROUND_NUM;i++) {
+    for (int i=0;i<F_GROUND[j].valid_ground_num;i++) {      
+      fgcx1=(int)F_GROUND[j].x1[i]+pcamx;
+      fgcy1=(int)F_GROUND[j].y1[i]+pcamy;
+      fgcx2=(int)F_GROUND[j].x2[i]+pcamx;
+      fgcy2=(int)F_GROUND[j].y2[i]+pcamy;
+      fgcx3=(int)F_GROUND[j].x3[i]+pcamx;
+      fgcy3=(int)F_GROUND[j].y3[i]+pcamy;
+
+      //Debug
+      /*GrLine(hdc, F_GROUND[j].x-cos(F_GROUND[j].spin_angle)*FGROUND_SIZE+pcamx,
+                  F_GROUND[j].y-sin(F_GROUND[j].spin_angle)*FGROUND_SIZE+pcamy,
+                  F_GROUND[j].x+cos(F_GROUND[j].spin_angle)*FGROUND_SIZE+pcamx,
+                  F_GROUND[j].y+sin(F_GROUND[j].spin_angle)*FGROUND_SIZE+pcamy,
+                  LTRED);
+
+      //float right_angle=atan2(F_GROUND[j].y-FGROUND_SIZE/2,F_GROUND[j].x);
+      if (F_GROUND[j].spin_angle_delta<0) { //anticlockwise
+        //right
+        GrLine(hdc, F_GROUND[j].x+cos(F_GROUND[j].spin_angle)*FGROUND_SIZE+cos(F_GROUND[j].spin_angle-M_PI_2)*FGROUND_SIZE/2+pcamx,
+                    F_GROUND[j].y+sin(F_GROUND[j].spin_angle)*FGROUND_SIZE+sin(F_GROUND[j].spin_angle-M_PI_2)*FGROUND_SIZE/2+pcamy,
+                    F_GROUND[j].x+cos(F_GROUND[j].spin_angle)*FGROUND_SIZE+pcamx,
+                    F_GROUND[j].y+sin(F_GROUND[j].spin_angle)*FGROUND_SIZE+pcamy,
+                    LTRED);
+
+        //left
+        GrLine(hdc, F_GROUND[j].x-cos(F_GROUND[j].spin_angle)*FGROUND_SIZE+cos(F_GROUND[j].spin_angle+M_PI_2)*FGROUND_SIZE/2+pcamx,
+                    F_GROUND[j].y-sin(F_GROUND[j].spin_angle)*FGROUND_SIZE+sin(F_GROUND[j].spin_angle+M_PI_2)*FGROUND_SIZE/2+pcamy,
+                    F_GROUND[j].x-cos(F_GROUND[j].spin_angle)*FGROUND_SIZE+pcamx,
+                    F_GROUND[j].y-sin(F_GROUND[j].spin_angle)*FGROUND_SIZE+pcamy,
+                    LTBLUE);
+      } else { //clockwise
+        //right
+        GrLine(hdc, F_GROUND[j].x+cos(F_GROUND[j].spin_angle)*FGROUND_SIZE+cos(F_GROUND[j].spin_angle+M_PI_2)*FGROUND_SIZE/2+pcamx,
+                    F_GROUND[j].y+sin(F_GROUND[j].spin_angle)*FGROUND_SIZE+sin(F_GROUND[j].spin_angle+M_PI_2)*FGROUND_SIZE/2+pcamy,
+                    F_GROUND[j].x+cos(F_GROUND[j].spin_angle)*FGROUND_SIZE+pcamx,
+                    F_GROUND[j].y+sin(F_GROUND[j].spin_angle)*FGROUND_SIZE+pcamy,
+                    LTRED);
+
+        //left
+        GrLine(hdc, F_GROUND[j].x-cos(F_GROUND[j].spin_angle)*FGROUND_SIZE+cos(F_GROUND[j].spin_angle-M_PI_2)*FGROUND_SIZE/2+pcamx,
+                    F_GROUND[j].y-sin(F_GROUND[j].spin_angle)*FGROUND_SIZE+sin(F_GROUND[j].spin_angle-M_PI_2)*FGROUND_SIZE/2+pcamy,
+                    F_GROUND[j].x-cos(F_GROUND[j].spin_angle)*FGROUND_SIZE+pcamx,
+                    F_GROUND[j].y-sin(F_GROUND[j].spin_angle)*FGROUND_SIZE+pcamy,
+                    LTBLUE);
+
+      }
+
+      char printme[32];
+      sprintf(printme,"spin_angle_delta: %5.4f",F_GROUND[j].spin_angle_delta);
+      GrPrint(hdc, F_GROUND[j].x+pcamx,F_GROUND[j].y-16-FGROUND_SIZE/2+pcamy,printme,LTRED);*/
+      //
+
+      c=rgbPaintBrightness[lvl_map_background.dark_lvl][F_GROUND[j].color_id[i]];
+      switch (F_GROUND[j].type[i]) {
+
+        case 0: //line
+        case 1: //line but floor not ceiling
+          GrLine(hdc,fgcx1,fgcy1,fgcx2,fgcy2,c);
+          break;
+        case 2: //trifill
+	        DrawTriFill(hdc,c,
+               fgcx1,fgcy1,fgcx2,fgcy2,fgcx3,fgcy3,FALSE,0);
+          break;
+        case 3: //texture trifill
+          {
+          int texture_type=F_GROUND[j].texture_type[i];
+          if (texture_type>=0 && texture_type<PLATFORM_TEXTURES_NUM) {
+            DrawTexturedTriangle(hdc,hdc2,
+              fgcx1,fgcy1,fgcx2,fgcy2,fgcx3,fgcy3,
+              GamePlatformTextures[texture_type].palette_sprite);
+          }
+          }
+          break;
+      }
+    }  
+    }
+  }
+}
+
+
+
+
 

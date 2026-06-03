@@ -264,6 +264,7 @@ struct player
   int saved_fground_ground_id;
 
   int on_fground_id;
+  int on_fground_ground_timer;
   int on_fground_ground_id;
 
 

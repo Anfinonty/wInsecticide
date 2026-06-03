@@ -420,6 +420,7 @@ void InitPlayer() {
   player.in_air_timer=0;
   player.speed=DEFAULT_PLAYER_SPEED;
   player.on_ground_timer=0;
+  player.on_fground_ground_timer=0;
   player.in_water_timer=0;
   player.on_ground_id=-1;
   player.on_fground_id=-1;
@@ -2570,6 +2571,9 @@ void PlayerAct()
 
 
      //misc
+      if (player.on_fground_ground_timer>0)
+        player.on_fground_ground_timer--;
+
       if (player.on_ground_timer>0) {
         if (!player.on_a_ground || ((player.on_fground_id==-1 || player.on_fground_ground_id==-1) && player.on_ground_id==-1)) {
           player.on_ground_timer--;
@@ -3443,8 +3447,12 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
   //int le2=GR_HEIGHT/2-player.y+player.cam_mouse_move_y+player.cam_move_y+player.cam_limiter_y;
 
 
-  char printme[32];
+  /*char printme[32];
   sprintf(printme,"fgid:%d, fg_gid:%d, ogt:%d",player.on_fground_id,player.on_fground_ground_id,player.on_ground_timer);
   GrPrint(hdc,mouse_x,mouse_y+20,printme,LTRED);
+
+
+  GrLine(hdc,player.sprite_x,player.sprite_y,player.sprite_x+cos(player.angle)+cos(player.angle-M_PI_2)*24,player.sprite_y+sin(player.angle)+sin(player.angle-M_PI_2)*24,LTRED);*/
+
 }
 
