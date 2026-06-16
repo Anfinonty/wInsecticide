@@ -196,8 +196,8 @@ void DrawMapEditorFallingGround(HDC hdc,HDC hdc2)
       fgcx3=F_GROUND[j].x3[i]+player.cam_x+GR_WIDTH/2;
       fgcy3=F_GROUND[j].y3[i]+player.cam_y+GR_HEIGHT/2;
 
-      c=rgbPaintBrightness[MapEditor.bg_attr_dark_lvl][F_GROUND[j].color_id[i]];
-      switch (F_GROUND[j].type[i]) {
+      c=rgbPaintBrightness[MapEditor.bg_attr_dark_lvl][F_GROUND[j].f2ground[i].color_id];
+      switch (F_GROUND[j].f2ground[i].type) {
 
         case 0: //line
         case 1: //line but floor not ceiling
@@ -209,7 +209,7 @@ void DrawMapEditorFallingGround(HDC hdc,HDC hdc2)
           break;
         case 3: //texture trifill
           {
-          int texture_type=F_GROUND[j].texture_type[i];
+          int texture_type=F_GROUND[j].f2ground[i].texture_type;
           if (texture_type>=0 && texture_type<PLATFORM_TEXTURES_NUM) {
             DrawTexturedTriangle(hdc,hdc2,
               fgcx1,fgcy1,fgcx2,fgcy2,fgcx3,fgcy3,
@@ -251,15 +251,15 @@ void DrawMapEditorFallingGroundEditor(HDC hdc, HDC hdc2)
   //Draw Selected Falling Ground at Center
   for (int i=0;i<GROUND_IN_FGROUND_NUM;i++) {
 
-    fgcx1=F_GROUND[MapEditor.selected_fground_id].ox1[i]+cx1;
-    fgcy1=F_GROUND[MapEditor.selected_fground_id].oy1[i]+cy1;
-    fgcx2=F_GROUND[MapEditor.selected_fground_id].ox2[i]+cx1;
-    fgcy2=F_GROUND[MapEditor.selected_fground_id].oy2[i]+cy1;
-    fgcx3=F_GROUND[MapEditor.selected_fground_id].ox3[i]+cx1;
-    fgcy3=F_GROUND[MapEditor.selected_fground_id].oy3[i]+cy1;
+    fgcx1=F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox1+cx1;
+    fgcy1=F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy1+cy1;
+    fgcx2=F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox2+cx1;
+    fgcy2=F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy2+cy1;
+    fgcx3=F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox3+cx1;
+    fgcy3=F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy3+cy1;
 
-    c=rgbPaintBrightness[MapEditor.bg_attr_dark_lvl][F_GROUND[MapEditor.selected_fground_id].color_id[i]];
-    switch (F_GROUND[MapEditor.selected_fground_id].type[i]) {
+    c=rgbPaintBrightness[MapEditor.bg_attr_dark_lvl][F_GROUND[MapEditor.selected_fground_id].f2ground[i].color_id];
+    switch (F_GROUND[MapEditor.selected_fground_id].f2ground[i].type) {
 
       case 0: //line
       case 1: //line but floor not ceiling
@@ -271,7 +271,7 @@ void DrawMapEditorFallingGroundEditor(HDC hdc, HDC hdc2)
         break;
       case 3: //texture trifill
         {
-        int texture_type=F_GROUND[MapEditor.selected_fground_id].texture_type[i];
+        int texture_type=F_GROUND[MapEditor.selected_fground_id].f2ground[i].texture_type;
         if (texture_type>=0 && texture_type<PLATFORM_TEXTURES_NUM) {
         DrawTexturedTriangle(hdc,hdc2,
           fgcx1,fgcy1,fgcx2,fgcy2,fgcx3,fgcy3,
@@ -284,12 +284,12 @@ void DrawMapEditorFallingGroundEditor(HDC hdc, HDC hdc2)
 
   char print_ground_id[4];
   for (int i=0;i<GROUND_IN_FGROUND_NUM;i++) {
-    fgcx1=F_GROUND[MapEditor.selected_fground_id].ox1[i]+cx1;
-    fgcy1=F_GROUND[MapEditor.selected_fground_id].oy1[i]+cy1;
-    fgcx2=F_GROUND[MapEditor.selected_fground_id].ox2[i]+cx1;
-    fgcy2=F_GROUND[MapEditor.selected_fground_id].oy2[i]+cy1;
-    fgcx3=F_GROUND[MapEditor.selected_fground_id].ox3[i]+cx1;
-    fgcy3=F_GROUND[MapEditor.selected_fground_id].oy3[i]+cy1;
+    fgcx1=F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox1+cx1;
+    fgcy1=F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy1+cy1;
+    fgcx2=F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox2+cx1;
+    fgcy2=F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy2+cy1;
+    fgcx3=F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox3+cx1;
+    fgcy3=F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy3+cy1;
 
 
       c=Highlight((i==MapEditor.selected_fground_ground_id),BLACK,LTPURPLE);
@@ -300,7 +300,7 @@ void DrawMapEditorFallingGroundEditor(HDC hdc, HDC hdc2)
       GrCircle(hdc,fgcx1,fgcy1,6,c,-1);
       c=Highlight((MapEditor.selected_ground_pivot==1 && i==MapEditor.selected_fground_id),BLACK,LTPURPLE);
       GrCircle(hdc,fgcx2,fgcy2,6,c,-1);
-      if (F_GROUND[MapEditor.selected_fground_id].type[i]==3 || F_GROUND[MapEditor.selected_fground_id].type[i]==2) {
+      if (F_GROUND[MapEditor.selected_fground_id].f2ground[i].type==3 || F_GROUND[MapEditor.selected_fground_id].f2ground[i].type==2) {
         c=Highlight((MapEditor.selected_ground_pivot==2 && i==MapEditor.selected_fground_id),BLACK,LTPURPLE);
         GrCircle(hdc,fgcx3,fgcy3,6,c,-1);
       }
@@ -930,59 +930,72 @@ void DrawMapEditorUI(HDC hdc,HDC hdc2)
         char txt[48];
         GrPrintThick(hdc,8,16,"Falling Ground",YELLOW,BLACK);
 
-        for (int i=0;i<FGROUND_ATTR_NUM+1;i++) {
+        for (int i=0;i<FGROUND_ATTR_NUM+1-3;i++) {
           c = Highlight(MapEditor.selected_fground_option==i,WHITE,LTPURPLE);
           switch (i) {
             case 0:
               sprintf(txt,"Falling Ground ID: <%d>",MapEditor.selected_fground_id);
               break;
             case 1:
-              sprintf(txt,"Spin Angle: <%3.2f>",(float)F_GROUND[MapEditor.selected_fground_id].ospin_angle/100.0);
+              sprintf(txt,"Spin Angle: <%3.2f> {%3.2f}",(float)F_GROUND[MapEditor.selected_fground_id].ospin_angle/100.0, (float)F_GROUND_CLIPBOARD.ospin_angle/100.0);
               break;
             case 2:
-              sprintf(txt,"Spin Angle Delta: <%3.2f>",(float)F_GROUND[MapEditor.selected_fground_id].ospin_angle_delta/100.0);
+              sprintf(txt,"Spin Angle Delta: <%3.2f> {%3.2f}",(float)F_GROUND[MapEditor.selected_fground_id].ospin_angle_delta/100.0,(float)F_GROUND_CLIPBOARD.ospin_angle_delta/100.0);
               break;
             case 3:
-              sprintf(txt,"Spin Angle Min: <%3.2f>",(float)F_GROUND[MapEditor.selected_fground_id].ospin_angle_min/100.0);
+              sprintf(txt,"Spin Angle Min: <%3.2f> {%3.2f}",(float)F_GROUND[MapEditor.selected_fground_id].ospin_angle_min/100.0,(float)F_GROUND_CLIPBOARD.ospin_angle_min/100.0);
               break;
             case 4:
-              sprintf(txt,"Spin Angle Max: <%3.2f>",(float)F_GROUND[MapEditor.selected_fground_id].ospin_angle_max/100.0);
+              sprintf(txt,"Spin Angle Max: <%3.2f> {%3.2f}",(float)F_GROUND[MapEditor.selected_fground_id].ospin_angle_max/100.0,(float)F_GROUND_CLIPBOARD.ospin_angle_max/100.0);
               break;
             case 5:
-              sprintf(txt,"Y Oscillation Angle Delta: <%3.2f>",(float)F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle_delta/100.0);
+              sprintf(txt,"Y Oscillation Angle Delta: <%3.2f> {%3.2f}",(float)F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle_delta/100.0,(float)F_GROUND_CLIPBOARD.oy_oscillation_angle_delta/100.0);
               break;
             case 6:
-              sprintf(txt,"Y Oscillation Angle Max: <%3.2f>",(float)F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle_max/100.0);
+              sprintf(txt,"Y Oscillation Angle Max: <%3.2f> {%3.2f}",(float)F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle_max/100.0,(float)F_GROUND_CLIPBOARD.oy_oscillation_angle_max/100.0);
               break;
             case 7:
-              sprintf(txt,"Y Oscillation Angle: <%3.2f>",(float)F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle/100.0);
+              sprintf(txt,"Y Oscillation Angle: <%3.2f> {%3.2f}",(float)F_GROUND[MapEditor.selected_fground_id].oy_oscillation_angle/100.0,(float)F_GROUND_CLIPBOARD.oy_oscillation_angle/100.0);
               break;
             case 8:
-              sprintf(txt,"X Oscillation Angle Delta: <%3.2f>",(float)F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle_delta/100.0);
+              sprintf(txt,"X Oscillation Angle Delta: <%3.2f> {%3.2f}",(float)F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle_delta/100.0,(float)F_GROUND_CLIPBOARD.ox_oscillation_angle_delta/100.0);
               break;
             case 9:
-              sprintf(txt,"X Oscillation Angle Max: <%3.2f>",(float)F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle_max/100.0);
+              sprintf(txt,"X Oscillation Angle Max: <%3.2f> {%3.2f}",(float)F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle_max/100.0,(float)F_GROUND_CLIPBOARD.ox_oscillation_angle_max/100.0);
               break;
             case 10:
-              sprintf(txt,"X Oscillation Angle: <%3.2f>",(float)F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle/100.0);
+              sprintf(txt,"X Oscillation Angle: <%3.2f> {%3.2f}",(float)F_GROUND[MapEditor.selected_fground_id].ox_oscillation_angle/100.0,(float)F_GROUND_CLIPBOARD.ox_oscillation_angle/100.0);
               break;
             case 11:
-              sprintf(txt,"Speed Multiplier: <%d>",F_GROUND[MapEditor.selected_fground_id].speed_multiplier);
+              sprintf(txt,"Speed Multiplier: <%d> {%d}",F_GROUND[MapEditor.selected_fground_id].speed_multiplier,F_GROUND_CLIPBOARD.speed_multiplier);
               break;
             case 12:
-              sprintf(txt,"Speed: <%1.1f>",(float)F_GROUND[MapEditor.selected_fground_id].ospeed/10);
+              sprintf(txt,"Speed: <%1.1f> {%1.1f}",(float)F_GROUND[MapEditor.selected_fground_id].ospeed/10,(float)F_GROUND_CLIPBOARD.ospeed/10);
               break;
-            case 13:
-              sprintf(txt,"X Start: %1.0f",F_GROUND[MapEditor.selected_fground_id].x_start);
+            case 13: //Rotational Pivot X,Y (Default is FGROUND_SIZE/FGROUND_SIZE/2)
+              sprintf(txt,"Pivot: %1.0f,%1.0f {%1.0f,%1.0f}",(float)F_GROUND[MapEditor.selected_fground_id].opivot_x,(float)F_GROUND_CLIPBOARD.opivot_y,(float)F_GROUND_CLIPBOARD.opivot_x,(float)F_GROUND_CLIPBOARD.opivot_y);
+              
               break;
-            case 14:
-              sprintf(txt,"Y Start: %1.0f",F_GROUND[MapEditor.selected_fground_id].y_start);
+            case 14: //Action on reach end <Jump back to Start / Travel back to Start>
+              sprintf(txt,"Reach End Action: <%d> {%d}",F_GROUND[MapEditor.selected_fground_id].oreach_end_type,F_GROUND_CLIPBOARD.oreach_end_type);
               break;
             case 15:
-              sprintf(txt,"X End: %1.0f",F_GROUND[MapEditor.selected_fground_id].x_end);
+              sprintf(txt,"Dist Begin: %1.0f / %1.0f {%1.0f / %1.0f}",
+                    F_GROUND[MapEditor.selected_fground_id].odist_start,F_GROUND[MapEditor.selected_fground_id].travel_dist_max,
+                    F_GROUND_CLIPBOARD.odist_start,F_GROUND_CLIPBOARD.travel_dist_max
+              );
               break;
             case 16:
-              sprintf(txt,"Y End: %1.0f",F_GROUND[MapEditor.selected_fground_id].y_end);
+              sprintf(txt,"X,Y Start: %1.0f,%1.0f {%1.0f,%1.0f}",
+                    F_GROUND[MapEditor.selected_fground_id].x_start,F_GROUND[MapEditor.selected_fground_id].y_start,
+                    F_GROUND_CLIPBOARD.x_start,F_GROUND_CLIPBOARD.y_start
+              );
+              break;
+            case 17:
+              sprintf(txt,"X,Y End: %1.0f,%1.0f {%1.0f,%1.0f}",
+                    F_GROUND[MapEditor.selected_fground_id].x_end,F_GROUND[MapEditor.selected_fground_id].y_end,
+                    F_GROUND_CLIPBOARD.x_end,F_GROUND_CLIPBOARD.y_end
+              );
               break;
           }          
           GrPrintThick(hdc,8,32+16*i,txt,c,BLACK);
@@ -990,52 +1003,67 @@ void DrawMapEditorUI(HDC hdc,HDC hdc2)
 
 
 
-        for (int i=0;i<FGROUND_GROUND_ATTR_NUM+1;i++) {
-          c = Highlight(MapEditor.selected_fground_option==(FGROUND_ATTR_NUM+1+i),WHITE,LTPURPLE);
+        for (int i=0;i<FGROUND_GROUND_ATTR_NUM+2;i++) {
+          c = Highlight(MapEditor.selected_fground_option==(FGROUND_ATTR_NUM+1-3+i),WHITE,LTPURPLE);
           switch (i) {
             case 0:
               sprintf(txt,"FGround-Ground ID: <%d>",MapEditor.selected_fground_ground_id);
               break;
             case 1:
-              sprintf(txt,"Is Ghost: <%d>",F_GROUND[MapEditor.selected_fground_id].is_ghost[MapEditor.selected_fground_ground_id]);
+              sprintf(txt,"Is Ghost: <%d> {%d}",F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].is_ghost,f2ground_clipboard.is_ghost);
               break;
             case 2:
               sprintf(txt,"Color:");
-              GrPrintThick(hdc,8*8,64+16*16+i*16,"[      ]",c,BLACK);
+              GrPrintThick(hdc,8*8,64+16*17+i*16,"[      ]",c,BLACK);
 
               //GrRect(hdc,8*13,32+16*i+2,12,12,rgbPaint[F_GROUND[MapEditor.selected_fground_id].color_id[MapEditor.selected_fground_ground_id]]);
               //GrPrintThick(hdc,8*17,32+16*i,"{     }",c,BLACK);
 
-              GrRect(hdc,8*9+1,64+16*16+i*16,16,16,WHITE);
-              GrRect(hdc,8*9+2+1,64+16*16+i*16+2,12,12,rgbPaintBrightness[MapEditor.bg_attr_dark_lvl][F_GROUND[MapEditor.selected_fground_id].color_id[MapEditor.selected_fground_ground_id]]);
+              GrRect(hdc,8*9+1,64+16*17+i*16,16,16,WHITE);
+              GrRect(hdc,8*9+2+1,64+16*17+i*16+2,12,12,rgbPaintBrightness[MapEditor.bg_attr_dark_lvl][F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].color_id]);
 
               break;
             case 3:
-              sprintf(txt,"Type: <%d>",F_GROUND[MapEditor.selected_fground_id].type[MapEditor.selected_fground_ground_id]);
+              sprintf(txt,"Type: <%d> {%d}",F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].type,f2ground_clipboard.type);
               break;
             case 4:
-              sprintf(txt,"Texture Type: <%d>",F_GROUND[MapEditor.selected_fground_id].texture_type[MapEditor.selected_fground_ground_id]);
+              sprintf(txt,"Texture Type: <%d> {%d}",F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].texture_type,f2ground_clipboard.texture_type);
               break;
             case 5:
-              sprintf(txt,"x1: %1.0f",F_GROUND[MapEditor.selected_fground_id].ox1[MapEditor.selected_fground_ground_id]);
+              sprintf(txt,"xy1:%1.0f,%1.0f {%1.0f,%1.0f}",F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].ox1,F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].oy1,
+                                                          f2ground_clipboard.ox1,f2ground_clipboard.oy1);
               break;
             case 6:
-              sprintf(txt,"y1: %1.0f",F_GROUND[MapEditor.selected_fground_id].oy1[MapEditor.selected_fground_ground_id]);
+              sprintf(txt,"xy2:%1.0f,%1.0f {%1.0f,%1.0f}",F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].ox2,F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].oy2,
+                                                          f2ground_clipboard.ox2,f2ground_clipboard.oy2);
               break;
             case 7:
-              sprintf(txt,"x2: %1.0f",F_GROUND[MapEditor.selected_fground_id].ox2[MapEditor.selected_fground_ground_id]);
+              sprintf(txt,"xy3:%1.0f,%1.0f {%1.0f,%1.0f}",F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].ox3,F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].oy3,
+                                                          f2ground_clipboard.ox3,f2ground_clipboard.oy3);
               break;
+
             case 8:
-              sprintf(txt,"y2: %1.0f",F_GROUND[MapEditor.selected_fground_id].oy2[MapEditor.selected_fground_ground_id]);
+              //<Mirror Sprite Horizontally X>
+              sprintf(txt,"<Flip Horizontally (X)>");
               break;
+
             case 9:
-              sprintf(txt,"x3: %1.0f",F_GROUND[MapEditor.selected_fground_id].ox3[MapEditor.selected_fground_ground_id]);
+              //<Mirror Sprite Vertically Y>
+              sprintf(txt,"<Flip Vertically (Y)>");
               break;
+
             case 10:
-              sprintf(txt,"y3: %1.0f",F_GROUND[MapEditor.selected_fground_id].oy3[MapEditor.selected_fground_ground_id]);
+              //<Move sprite X>
+              sprintf(txt,"<Shift Horizontally (X)>");
               break;
+
+            case 11:
+              //<Move Sprite Y>
+              sprintf(txt,"<Shift Vertically (Y)>");
+              break;
+
           }          
-          GrPrintThick(hdc,8,64+16*16+i*16,txt,c,BLACK);
+          GrPrintThick(hdc,8,64+16*17+i*16,txt,c,BLACK);
         }
         break;
       }

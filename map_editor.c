@@ -1341,7 +1341,7 @@ void MapEditorAct()
         FallingGroundAct();
 
         if (player.right_click_hold_timer==62) {
-          if (F_GROUND[MapEditor.selected_fground_id].type[MapEditor.selected_fground_ground_id]>=2) { //trifill
+          if (F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].type>=2) { //trifill
             MapEditor.selected_ground_pivot=LimitValue(MapEditor.selected_ground_pivot+1,0,3);
           } else {
             MapEditor.selected_ground_pivot=LimitValue(MapEditor.selected_ground_pivot+1,0,2);
@@ -1365,48 +1365,48 @@ void MapEditorAct()
 
             switch (MapEditor.selected_ground_pivot) {
               case 0:          
-                F_GROUND[MapEditor.selected_fground_id].ox1[MapEditor.selected_fground_ground_id]=pos_cur_x;
-                F_GROUND[MapEditor.selected_fground_id].oy1[MapEditor.selected_fground_ground_id]=pos_cur_y;
+                F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].ox1=pos_cur_x;
+                F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].oy1=pos_cur_y;
                 break;
               case 1:
-                F_GROUND[MapEditor.selected_fground_id].ox2[MapEditor.selected_fground_ground_id]=pos_cur_x;
-                F_GROUND[MapEditor.selected_fground_id].oy2[MapEditor.selected_fground_ground_id]=pos_cur_y;
+                F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].ox2=pos_cur_x;
+                F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].oy2=pos_cur_y;
                 break;
               case 2:
-                F_GROUND[MapEditor.selected_fground_id].ox3[MapEditor.selected_fground_ground_id]=pos_cur_x;
-                F_GROUND[MapEditor.selected_fground_id].oy3[MapEditor.selected_fground_ground_id]=pos_cur_y;
+                F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].ox3=pos_cur_x;
+                F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].oy3=pos_cur_y;
                 break;
             }
 
             //swap when axis overtake
             int i=MapEditor.selected_fground_ground_id;
-            int tmp_saved_ground_x1=F_GROUND[MapEditor.selected_fground_id].ox1[i];
-            int tmp_saved_ground_y1=F_GROUND[MapEditor.selected_fground_id].oy1[i];
-            if (F_GROUND[MapEditor.selected_fground_id].ox2[i]<=F_GROUND[MapEditor.selected_fground_id].ox1[i]) {//x1 is less than x2, swap
-              F_GROUND[MapEditor.selected_fground_id].ox1[i]=F_GROUND[MapEditor.selected_fground_id].ox2[i];
-              F_GROUND[MapEditor.selected_fground_id].oy1[i]=F_GROUND[MapEditor.selected_fground_id].oy2[i];
-              F_GROUND[MapEditor.selected_fground_id].ox2[i]=tmp_saved_ground_x1;
-              F_GROUND[MapEditor.selected_fground_id].oy2[i]=tmp_saved_ground_y1;
+            int tmp_saved_ground_x1=F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox1;
+            int tmp_saved_ground_y1=F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy1;
+            if (F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox2<=F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox1) {//x1 is less than x2, swap
+              F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox1=F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox2;
+              F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy1=F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy2;
+              F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox2=tmp_saved_ground_x1;
+              F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy2=tmp_saved_ground_y1;
               if (MapEditor.selected_ground_pivot==1)//2nd pivot, right pivot
                 MapEditor.selected_ground_pivot=0;
               else
                 MapEditor.selected_ground_pivot=1;
             }
-            if (F_GROUND[MapEditor.selected_fground_id].ox3[i]==F_GROUND[MapEditor.selected_fground_id].ox1[i] || F_GROUND[MapEditor.selected_fground_id].ox3[i]==F_GROUND[MapEditor.selected_fground_id].ox2[i]) {
-	          F_GROUND[MapEditor.selected_fground_id].ox3[i]++;
+            if (F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox3==F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox1 || F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox3==F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox2) {
+	          F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox3++;
             }
 
 
-            if ((F_GROUND[MapEditor.selected_fground_id].type[i]>=2)) {//trifill
-	          if (F_GROUND[MapEditor.selected_fground_id].oy1[i]==F_GROUND[MapEditor.selected_fground_id].oy2[i]) {
-	            F_GROUND[MapEditor.selected_fground_id].oy2[i]++;
+            if ((F_GROUND[MapEditor.selected_fground_id].f2ground[i].type>=2)) {//trifill
+	          if (F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy1==F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy2) {
+	            F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy2++;
               }
             }
-            if (F_GROUND[MapEditor.selected_fground_id].oy3[i]==F_GROUND[MapEditor.selected_fground_id].oy1[i]) {
-	          F_GROUND[MapEditor.selected_fground_id].oy3[i]+=2;
+            if (F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy3==F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy1) {
+	          F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy3+=2;
             }
-            if (F_GROUND[MapEditor.selected_fground_id].oy3[i]==F_GROUND[MapEditor.selected_fground_id].oy2[i]) {
-	          F_GROUND[MapEditor.selected_fground_id].oy3[i]+=2;
+            if (F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy3==F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy2) {
+	          F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy3+=2;
             }
           } else {
             if (!IsOutOfBounds(MapEditor.cursor_x,MapEditor.cursor_y,1,MAP_WIDTH,MAP_HEIGHT)) {

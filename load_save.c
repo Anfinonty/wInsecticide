@@ -518,16 +518,32 @@ bool LoadSaveFallingGround(wchar_t *saves_name)
               case 11:
                 F_GROUND[column].ospeed=(int_saved_val);
                 break;
+            //opivot x
               case 12:
+                F_GROUND[column].opivot_x=(float)(int_saved_val);
+                break;
+            //opivot y
+              case 13:
+                F_GROUND[column].opivot_y=(float)(int_saved_val);
+                break;
+            //oreach_end_type
+              case 14:
+                F_GROUND[column].oreach_end_type=(int_saved_val);
+                break;
+            //odist_start
+              case 15:
+                F_GROUND[column].odist_start=(float)(int_saved_val);
+                break;
+              case 16:
                 F_GROUND[column].x_start=(float)(int_saved_val);
                 break;
-              case 13:
+              case 17:
                 F_GROUND[column].y_start=(float)(int_saved_val);
                 break;
-              case 14:
+              case 18:
                 F_GROUND[column].x_end=(float)(int_saved_val);
                 break;
-              case 15:
+              case 19:
                 F_GROUND[column].y_end=(float)(int_saved_val);
                 break;
             }
@@ -536,36 +552,36 @@ bool LoadSaveFallingGround(wchar_t *saves_name)
             switch (row) {//save value
               case 0:
                 if (int_saved_val==1)
-                  F_GROUND[current_fground_id].is_ghost[column]=TRUE;
+                  F_GROUND[current_fground_id].f2ground[column].is_ghost=TRUE;
                 else
-                  F_GROUND[current_fground_id].is_ghost[column]=FALSE;
+                  F_GROUND[current_fground_id].f2ground[column].is_ghost=FALSE;
                 break;
               case 1:
-                F_GROUND[current_fground_id].color_id[column]=int_saved_val;
+                F_GROUND[current_fground_id].f2ground[column].color_id=int_saved_val;
                 break;
               case 2:
-                F_GROUND[current_fground_id].type[column]=int_saved_val;
+                F_GROUND[current_fground_id].f2ground[column].type=int_saved_val;
                 break;
               case 3:
-                F_GROUND[current_fground_id].texture_type[column]=int_saved_val;
+                F_GROUND[current_fground_id].f2ground[column].texture_type=int_saved_val;
                 break;
               case 4:
-                F_GROUND[current_fground_id].ox1[column]=(float)int_saved_val;
+                F_GROUND[current_fground_id].f2ground[column].ox1=(float)int_saved_val;
                 break;
               case 5:
-                F_GROUND[current_fground_id].oy1[column]=(float)int_saved_val;
+                F_GROUND[current_fground_id].f2ground[column].oy1=(float)int_saved_val;
                 break;
               case 6:
-                F_GROUND[current_fground_id].ox2[column]=(float)int_saved_val;
+                F_GROUND[current_fground_id].f2ground[column].ox2=(float)int_saved_val;
                 break;
               case 7:
-                F_GROUND[current_fground_id].oy2[column]=(float)int_saved_val;
+                F_GROUND[current_fground_id].f2ground[column].oy2=(float)int_saved_val;
                 break;
               case 8:
-                F_GROUND[current_fground_id].ox3[column]=(float)int_saved_val;
+                F_GROUND[current_fground_id].f2ground[column].ox3=(float)int_saved_val;
                 break;
               case 9:
-                F_GROUND[current_fground_id].oy3[column]=(float)int_saved_val;
+                F_GROUND[current_fground_id].f2ground[column].oy3=(float)int_saved_val;
                 break;
             }
             break;

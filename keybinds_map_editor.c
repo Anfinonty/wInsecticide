@@ -69,7 +69,7 @@ void MEColorPickKeypressDown(WPARAM wParam)
       MapEditor.alter_ptexture_color=TRUE;
       break;
     case 6: //Falling Ground Ground
-      ColorKeypressDown(wParam,&F_GROUND[MapEditor.selected_fground_id].color_id[MapEditor.selected_fground_ground_id]);
+      ColorKeypressDown(wParam,&F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].color_id);
       break;
    }
 }
@@ -99,7 +99,7 @@ void MEColorPickKeypressUp(WPARAM wParam)
       MapEditor.alter_ptexture_color=TRUE;
       break;
     case 6: //Falling Ground Ground
-      ColorKeypressUp(wParam,&F_GROUND[MapEditor.selected_fground_id].color_id[MapEditor.selected_fground_ground_id]);
+      ColorKeypressUp(wParam,&F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].color_id);
       break;
    }
 }
@@ -263,7 +263,7 @@ void MapEditorKeypressDown(WPARAM wParam)
             MapEditor.selected_ptexture_option=LimitValueInt(MapEditor.selected_ptexture_option+1,0,4);
             break;
           case 6:
-            MapEditor.selected_fground_option=LimitValueInt(MapEditor.selected_fground_option+1,0,FGROUND_ATTR_NUM+FGROUND_GROUND_ATTR_NUM+2);
+            MapEditor.selected_fground_option=LimitValueInt(MapEditor.selected_fground_option+1,0,FGROUND_ATTR_NUM+FGROUND_GROUND_ATTR_NUM);
             break;
         }
         break;
@@ -294,7 +294,7 @@ void MapEditorKeypressDown(WPARAM wParam)
             MapEditor.selected_ptexture_option=LimitValueInt(MapEditor.selected_ptexture_option-1,0,4);
             break;
           case 6:
-            MapEditor.selected_fground_option=LimitValueInt(MapEditor.selected_fground_option-1,0,FGROUND_ATTR_NUM+FGROUND_GROUND_ATTR_NUM+2);
+            MapEditor.selected_fground_option=LimitValueInt(MapEditor.selected_fground_option-1,0,FGROUND_ATTR_NUM+FGROUND_GROUND_ATTR_NUM);
             break;
         }
         break;
@@ -570,42 +570,47 @@ void MapEditorKeypressDown(WPARAM wParam)
                 F_GROUND[MapEditor.selected_fground_id].ospeed
                     =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ospeed-1,0,11);
                 break;
-              case 13: //x start
+              case 13: //Rotational Pivot X,Y (Default is FGROUND_SIZE/FGROUND_SIZE/2) (mouse)
                 break;
-              case 14: //y start
+              case 14: //Action on reach end <Jump back to Start / Travel back to Start>
                 break;
-              case 15: //x end
+              case 15: //dist begin (mouse)
                 break;
-              case 16: //y end
+              case 16: //x y start (mouse)
                 break;
-
-
-              case 17: //fground-ground id
+              case 17: //x y end (mouse)
+                break;
+              case 18: //fground-ground id
                 MapEditor.selected_fground_ground_id=LimitValueInt(MapEditor.selected_fground_ground_id-1,0,GROUND_IN_FGROUND_NUM);
                 break;
-              case 18: // is ghost
-                F_GROUND[MapEditor.selected_fground_id].is_ghost[MapEditor.selected_fground_ground_id]=!F_GROUND[MapEditor.selected_fground_id].is_ghost[MapEditor.selected_fground_ground_id];
+              case 19: // is ghost
+                F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].is_ghost=!F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].is_ghost;
                 break;
-              case 19: // color
+              case 20: // color
                 break;
-              case 20: // Type
-                F_GROUND[MapEditor.selected_fground_id].type[MapEditor.selected_fground_ground_id]=LimitValueInt(F_GROUND[MapEditor.selected_fground_id].type[MapEditor.selected_fground_ground_id]-1,0,4);
+              case 21: // Type
+                F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].type=LimitValueInt(F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].type-1,0,4);
                 break;
-              case 21: // Texture Type
-                F_GROUND[MapEditor.selected_fground_id].texture_type[MapEditor.selected_fground_ground_id]=LimitValueInt(F_GROUND[MapEditor.selected_fground_id].texture_type[MapEditor.selected_fground_ground_id]-1,0,PLATFORM_TEXTURES_NUM);
+              case 22: // Texture Type
+                F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].texture_type=LimitValueInt(F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].texture_type-1,0,PLATFORM_TEXTURES_NUM);
                 break;
-              case 22: // x1
+
+              case 23: // xy1
                 break;
-              case 23: // y1
+              case 24: // xy2
                 break;
-              case 24: // x2
+              case 25: // xy3
                 break;
-              case 25: // y2
+              case 26: ////<Mirror Sprite Horizontally X>
                 break;
-              case 26: // x3
+              case 27: ////<Mirror Sprite Vertically Y>
                 break;
-              case 28: // y3
+              case 28: ////<Move sprite X>
                 break;
+              case 29: ////<Move Sprite Y>
+                break;
+
+
             }
 
             if (MapEditor.selected_fground_option!=0) {
@@ -884,41 +889,44 @@ void MapEditorKeypressDown(WPARAM wParam)
                 F_GROUND[MapEditor.selected_fground_id].ospeed
                     =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ospeed+1,0,11);
                 break;
-              case 13: //x start
+              case 13: //Rotational Pivot X,Y (Default is FGROUND_SIZE/FGROUND_SIZE/2)
                 break;
-              case 14: //y start
+              case 14: //Action on reach end <Jump back to Start / Travel back to Start>
                 break;
-              case 15: //x end
+              case 15: //dist begin (mouse)
                 break;
-              case 16: //y end
+              case 16: //x y start (mouse)
+                break;
+              case 17: //x y end (mouse)
                 break;
 
-
-              case 17: //fground-ground id
+              case 18: //fground-ground id
                 MapEditor.selected_fground_ground_id=LimitValueInt(MapEditor.selected_fground_ground_id+1,0,GROUND_IN_FGROUND_NUM);
                 break;
-              case 18: // is ghost
-                F_GROUND[MapEditor.selected_fground_id].is_ghost[MapEditor.selected_fground_ground_id]=!F_GROUND[MapEditor.selected_fground_id].is_ghost[MapEditor.selected_fground_ground_id];
+              case 19: // is ghost
+                F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].is_ghost=!F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].is_ghost;
                 break;
-              case 19: // color
+              case 20: // color
                 break;
-              case 20: // Type
-                F_GROUND[MapEditor.selected_fground_id].type[MapEditor.selected_fground_ground_id]=LimitValueInt(F_GROUND[MapEditor.selected_fground_id].type[MapEditor.selected_fground_ground_id]+1,0,4);
+              case 21: // Type
+                F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].type=LimitValueInt(F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].type+1,0,4);
                 break;
-              case 21: // Texture Type
-                F_GROUND[MapEditor.selected_fground_id].texture_type[MapEditor.selected_fground_ground_id]=LimitValueInt(F_GROUND[MapEditor.selected_fground_id].texture_type[MapEditor.selected_fground_ground_id]+1,0,PLATFORM_TEXTURES_NUM);
+              case 22: // Texture Type
+                F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].texture_type=LimitValueInt(F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].texture_type+1,0,PLATFORM_TEXTURES_NUM);
                 break;
-              case 22: // x1
+              case 23: // xy1
                 break;
-              case 23: // y1
+              case 24: // xy2
                 break;
-              case 24: // x2
+              case 25: // xy3
                 break;
-              case 25: // y2
+              case 26: ////<Mirror Sprite Horizontally X>
                 break;
-              case 26: // x3
+              case 27: ////<Mirror Sprite Vertically Y>
                 break;
-              case 27: // y3
+              case 28: ////<Move sprite X>
+                break;
+              case 29: ////<Move Sprite Y>
                 break;
             }
             if (MapEditor.selected_fground_option!=0) {
@@ -983,11 +991,11 @@ void MapEditorKeypressDown(WPARAM wParam)
         }
         break;
       case 6: //
-        if (MapEditor.selected_fground_option==19) {
+        if (MapEditor.selected_fground_option==20) {
           color_chooser.is_choosing_color=TRUE;
           MapEditor.pick_color=6;
           color_chooser.color_id=
-          color_chooser.color_id_choosing=F_GROUND[MapEditor.selected_fground_id].color_id[MapEditor.selected_fground_ground_id];
+          color_chooser.color_id_choosing=F_GROUND[MapEditor.selected_fground_id].f2ground[MapEditor.selected_fground_ground_id].color_id;
         }
         break;
       }

@@ -916,15 +916,27 @@ void SaveLvlFallingGround()
               fprintf(fptr,"%d,",F_GROUND[column].ospeed);
               break;
             case 12:
-              fprintf(fptr,"%1.0f,",F_GROUND[column].x_start);
+              fprintf(fptr,"%1.0f,",F_GROUND[column].opivot_x);
               break;
             case 13:
-              fprintf(fptr,"%1.0f,",F_GROUND[column].y_start);
+              fprintf(fptr,"%1.0f,",F_GROUND[column].opivot_y);
               break;
             case 14:
-              fprintf(fptr,"%1.0f,",F_GROUND[column].x_end);
+              fprintf(fptr,"%1.0f,",F_GROUND[column].oreach_end_type);
               break;
             case 15:
+              fprintf(fptr,"%1.0f,",F_GROUND[column].odist_start);
+              break;
+            case 16:
+              fprintf(fptr,"%1.0f,",F_GROUND[column].x_start);
+              break;
+            case 17:
+              fprintf(fptr,"%1.0f,",F_GROUND[column].y_start);
+              break;
+            case 18:
+              fprintf(fptr,"%1.0f,",F_GROUND[column].x_end);
+              break;
+            case 19:
               fprintf(fptr,"%1.0f,",F_GROUND[column].y_end);
               break;
           }
@@ -932,34 +944,34 @@ void SaveLvlFallingGround()
         case 1:
           switch (row) {//save value
             case 0:
-              fprintf(fptr,"%d,",F_GROUND[current_fground_id].is_ghost[column]);
+              fprintf(fptr,"%d,",F_GROUND[current_fground_id].f2ground[column].is_ghost);
               break;
             case 1:
-              fprintf(fptr,"%d,",F_GROUND[current_fground_id].color_id[column]);
+              fprintf(fptr,"%d,",F_GROUND[current_fground_id].f2ground[column].color_id);
               break;
             case 2:
-              fprintf(fptr,"%d,",F_GROUND[current_fground_id].type[column]);
+              fprintf(fptr,"%d,",F_GROUND[current_fground_id].f2ground[column].type);
               break;
             case 3:
-              fprintf(fptr,"%d,",F_GROUND[current_fground_id].texture_type[column]);
+              fprintf(fptr,"%d,",F_GROUND[current_fground_id].f2ground[column].texture_type);
               break;
             case 4:
-              fprintf(fptr,"%1.0f,",F_GROUND[current_fground_id].ox1[column]);
+              fprintf(fptr,"%1.0f,",F_GROUND[current_fground_id].f2ground[column].ox1);
               break;
             case 5:
-              fprintf(fptr,"%1.0f,",F_GROUND[current_fground_id].oy1[column]);
+              fprintf(fptr,"%1.0f,",F_GROUND[current_fground_id].f2ground[column].oy1);
               break;
             case 6:
-              fprintf(fptr,"%1.0f,",F_GROUND[current_fground_id].ox2[column]);
+              fprintf(fptr,"%1.0f,",F_GROUND[current_fground_id].f2ground[column].ox2);
               break;
             case 7:
-              fprintf(fptr,"%1.0f,",F_GROUND[current_fground_id].oy2[column]);
+              fprintf(fptr,"%1.0f,",F_GROUND[current_fground_id].f2ground[column].oy2);
               break;
             case 8:
-              fprintf(fptr,"%1.0f,",F_GROUND[current_fground_id].ox3[column]);
+              fprintf(fptr,"%1.0f,",F_GROUND[current_fground_id].f2ground[column].ox3);
               break;
             case 9:
-              fprintf(fptr,"%1.0f,",F_GROUND[current_fground_id].oy3[column]);
+              fprintf(fptr,"%1.0f,",F_GROUND[current_fground_id].f2ground[column].oy3);
               break;
           }
           break;

@@ -75,21 +75,21 @@ void InitFallingGround(int j)
 
     F_GROUND[j].solid_ground_num=0;
     for (int i=0;i<GROUND_IN_FGROUND_NUM;i++) {
-      if (F_GROUND[j].ox1[i]==0 && F_GROUND[j].oy1[i]==0 &&
-        F_GROUND[j].ox2[i]==0 && F_GROUND[j].oy3[i]==0 &&
-        F_GROUND[j].ox3[i]==0 && F_GROUND[j].oy3[i]==0
+      if (F_GROUND[j].f2ground[i].ox1==0 && F_GROUND[j].f2ground[i].oy1==0 &&
+        F_GROUND[j].f2ground[i].ox2==0 && F_GROUND[j].f2ground[i].oy3==0 &&
+        F_GROUND[j].f2ground[i].ox3==0 && F_GROUND[j].f2ground[i].oy3==0
       ) {
         break;
       } else {
         F_GROUND[j].valid_ground_num++;
       }
-      F_GROUND[j].center_length1[i]=GetDistance(0,0,F_GROUND[j].ox1[i]-FGROUND_SIZE/2,F_GROUND[j].oy1[i]-FGROUND_SIZE/2); //runs on init only
-      F_GROUND[j].center_length2[i]=GetDistance(0,0,F_GROUND[j].ox2[i]-FGROUND_SIZE/2,F_GROUND[j].oy2[i]-FGROUND_SIZE/2); //runs on init only
-      F_GROUND[j].center_length3[i]=GetDistance(0,0,F_GROUND[j].ox3[i]-FGROUND_SIZE/2,F_GROUND[j].oy3[i]-FGROUND_SIZE/2); //runs on init only
+      F_GROUND[j].center_length1[i]=GetDistance(0,0,F_GROUND[j].f2ground[i].ox1-FGROUND_SIZE/2,F_GROUND[j].f2ground[i].oy1-FGROUND_SIZE/2); //runs on init only
+      F_GROUND[j].center_length2[i]=GetDistance(0,0,F_GROUND[j].f2ground[i].ox2-FGROUND_SIZE/2,F_GROUND[j].f2ground[i].oy2-FGROUND_SIZE/2); //runs on init only
+      F_GROUND[j].center_length3[i]=GetDistance(0,0,F_GROUND[j].f2ground[i].ox3-FGROUND_SIZE/2,F_GROUND[j].f2ground[i].oy3-FGROUND_SIZE/2); //runs on init only
 
-      F_GROUND[j].center_angle1[i]=atan2(F_GROUND[j].oy1[i]-FGROUND_SIZE/2,F_GROUND[j].ox1[i]-FGROUND_SIZE/2); //runs on init only
-      F_GROUND[j].center_angle2[i]=atan2(F_GROUND[j].oy2[i]-FGROUND_SIZE/2,F_GROUND[j].ox2[i]-FGROUND_SIZE/2); //runs on init only
-      F_GROUND[j].center_angle3[i]=atan2(F_GROUND[j].oy3[i]-FGROUND_SIZE/2,F_GROUND[j].ox3[i]-FGROUND_SIZE/2); //runs on init only
+      F_GROUND[j].center_angle1[i]=atan2(F_GROUND[j].f2ground[i].oy1-FGROUND_SIZE/2,F_GROUND[j].f2ground[i].ox1-FGROUND_SIZE/2); //runs on init only
+      F_GROUND[j].center_angle2[i]=atan2(F_GROUND[j].f2ground[i].oy2-FGROUND_SIZE/2,F_GROUND[j].f2ground[i].ox2-FGROUND_SIZE/2); //runs on init only
+      F_GROUND[j].center_angle3[i]=atan2(F_GROUND[j].f2ground[i].oy3-FGROUND_SIZE/2,F_GROUND[j].f2ground[i].ox3-FGROUND_SIZE/2); //runs on init only
 
 
       F_GROUND[j].x1[i]=cos(F_GROUND[j].spin_angle+F_GROUND[j].center_angle1[i])*F_GROUND[j].center_length1[i] +F_GROUND[j].x_start;
@@ -100,7 +100,7 @@ void InitFallingGround(int j)
       F_GROUND[j].y3[i]=sin(F_GROUND[j].spin_angle+F_GROUND[j].center_angle3[i])*F_GROUND[j].center_length3[i] +F_GROUND[j].y_start;
 
       //Set Solid Grounds
-      if ((F_GROUND[j].type[i]==0 || F_GROUND[j].type[i]==1) && !F_GROUND[j].is_ghost[i]) {
+      if ((F_GROUND[j].f2ground[i].type==0 || F_GROUND[j].f2ground[i].type==1) && !F_GROUND[j].f2ground[i].is_ghost) {
         F_GROUND[j].solid_ground_ids[F_GROUND[j].solid_ground_num]=i;
         F_GROUND[j].solid_ground_num++;        
       }
@@ -773,8 +773,8 @@ void DrawFallingGround(HDC hdc, HDC hdc2)
       GrPrint(hdc, F_GROUND[j].x+pcamx,F_GROUND[j].y-16-FGROUND_SIZE/2+pcamy,printme,LTRED);*/
       //
 
-      c=rgbPaintBrightness[lvl_map_background.dark_lvl][F_GROUND[j].color_id[i]];
-      switch (F_GROUND[j].type[i]) {
+      c=rgbPaintBrightness[lvl_map_background.dark_lvl][F_GROUND[j].f2ground[i].color_id];
+      switch (F_GROUND[j].f2ground[i].type) {
 
         case 0: //line
         case 1: //line but floor not ceiling
@@ -786,7 +786,7 @@ void DrawFallingGround(HDC hdc, HDC hdc2)
           break;
         case 3: //texture trifill
           {
-          int texture_type=F_GROUND[j].texture_type[i];
+          int texture_type=F_GROUND[j].f2ground[i].texture_type;
           if (texture_type>=0 && texture_type<PLATFORM_TEXTURES_NUM) {
             DrawTexturedTriangle(hdc,hdc2,
               fgcx1,fgcy1,fgcx2,fgcy2,fgcx3,fgcy3,

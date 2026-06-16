@@ -1516,10 +1516,32 @@ struct GameMoon
 #define FGROUND_SIZE     320
 #define FGROUND_DETECT_SIZE     350
 
-#define FGROUND_ATTR_NUM    16
+#define FGROUND_ATTR_NUM    20
 #define FGROUND_GROUND_ATTR_NUM 10
 
-struct FallingGround
+
+typedef struct FallingGroundGround
+{
+  //bool within_render_distance; //Is the ground within the player's Render Distance Grid'
+  //int health; //For Webs, health of ground
+
+  //bool is_phase_floor2roof[GROUND_IN_FGROUND_NUM];
+  //loaded in Vars
+  bool is_ghost; //Can be colided or not collided
+  int color_id;
+  int type; //Regular or NoCeilingButFloor or TriFill or Texture TriFill
+  //int font_size[GROUND_IN_FGROUND_NUM];
+  int texture_type;
+  float ox1; //position within a box (0,0,160,160), NOT THE MAP
+  float oy1;
+  float ox2;
+  float oy2;
+  float ox3;
+  float oy3; //3 Axes of ground
+  //wchar_t* text[GROUND_IN_FGROUND_NUM][512]; //for type 1 which is Text_ground
+} F2Ground;
+
+typedef struct FallingGround
 {
 /*
   Bias: For Solid Ground, like doodle jump, lower ground can be phased through
@@ -1607,8 +1629,6 @@ struct FallingGround
   int oy_oscillation_angle_max;      //  //  // //  //  //                       //
   int oy_oscillation_angle;        //      //     //      //                   //
                                                                                   //
-  //int x_oscillation_timer;
-  //int x_oscillation_max_timer;
   int ox_oscillation_angle_delta; //speed of oscillation angle                 //
   int ox_oscillation_angle_max; //max oscillation                               //
   int ox_oscillation_angle; //current oscillation angle                       //
@@ -1616,31 +1636,55 @@ struct FallingGround
   int speed_multiplier; //how fast it is moving (like bullet)
   int ospeed; // divide int(0-10) by float(10)
 
+
+  float opivot_x;
+  float opivot_y;
+  int oreach_end_type;
+  float odist_start; //0 = x_start, max = x_end
+
   float x_start; //starting points
   float y_start;
   float x_end; //ending points
   float y_end;
 
 
-  //bool within_render_distance; //Is the ground within the player's Render Distance Grid'
-  //int health; //For Webs, health of ground
+  F2Ground f2ground[GROUND_IN_FGROUND_NUM];
 
-  //bool is_phase_floor2roof[GROUND_IN_FGROUND_NUM];
-  //loaded in Vars
-  bool is_ghost[GROUND_IN_FGROUND_NUM]; //Can be colided or not collided
-  int color_id[GROUND_IN_FGROUND_NUM];
-  int type[GROUND_IN_FGROUND_NUM]; //Regular or NoCeilingButFloor or TriFill or Texture TriFill
-  //int font_size[GROUND_IN_FGROUND_NUM];
-  int texture_type[GROUND_IN_FGROUND_NUM];
-  float ox1[GROUND_IN_FGROUND_NUM]; //position within a box (0,0,160,160), NOT THE MAP
-  float oy1[GROUND_IN_FGROUND_NUM];
-  float ox2[GROUND_IN_FGROUND_NUM];
-  float oy2[GROUND_IN_FGROUND_NUM];
-  float ox3[GROUND_IN_FGROUND_NUM];
-  float oy3[GROUND_IN_FGROUND_NUM]; //3 Axes of ground
-  //wchar_t* text[GROUND_IN_FGROUND_NUM][512]; //for type 1 which is Text_ground
+} FGround;
 
-} F_GROUND[FGROUND_NUM];
+FGround F_GROUND[FGROUND_NUM];
+
+/*
+FGround*** F_GROUND_PTR[FGROUND_NUM] = {
+  &F_GROUND.ospin_angle,
+  &F_GROUND.ospin_angle_delta,
+  &F_GROUND.ospin_angle_min,
+  &F_GROUND.ospin_angle_max,
+
+  &F_GROUND.oy_oscillation_angle_delta;      //      //      //                      //
+  &F_GROUND.oy_oscillation_angle_max;      //  //  // //  //  //                       //
+  &F_GROUND.oy_oscillation_angle;        //      //     //      //                   //
+                                                                                  //
+  &F_GROUND.ox_oscillation_angle_delta; //speed of oscillation angle                 //
+  &F_GROUND.ox_oscillation_angle_max; //max oscillation                               //
+  &F_GROUND.ox_oscillation_angle; //current oscillation angle                       //
+                                                                                //
+  &F_GROUND.speed_multiplier; //how fast it is moving (like bullet)
+  &F_GROUND.ospeed; // divide int(0-10) by float(10)
+
+  &F_GROUND.x_start; //starting points
+  &F_GROUND.y_start;
+  &F_GROUND.x_end; //ending points
+  &F_GROUND.y_end;
+
+  &F_GROUND.o_dist_start; 
+};*/
+
+
+
+FGround F_GROUND_CLIPBOARD;
+F2Ground f2ground_clipboard;
+
 
 //========= SNOWFLAKE ===========
 HBITMAP snowflake_sprite;
