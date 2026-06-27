@@ -1226,7 +1226,7 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
 
       //persian time update if day change
       if (show_hijiri) {
-      get_current_time(&current_hour,&current_min,&current_sec);
+        get_current_time(&current_hour,&current_min,&current_sec);
         if (current_hour==0 && current_min==0 && current_sec<=1) {//next day
           int64_t timenow=int64_current_timestamp();
 

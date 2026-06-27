@@ -2068,7 +2068,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         }
       }
 
-      resolution_choose=0;//MAX_RESOLUTION_I-1;
+      //resolution_choose=0;//MAX_RESOLUTION_I-1; //???
       GR_WIDTH=RESOLUTION_X[resolution_choose];
       GR_HEIGHT=RESOLUTION_Y[resolution_choose];
       flag_resolution_change=TRUE;

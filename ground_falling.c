@@ -38,8 +38,46 @@ void SetFGround(int i,int FGround_Ground_id)
 void InitFallingGround(int j)
 {
     F_GROUND[j].valid_ground_num=0;
-    F_GROUND[j].x=F_GROUND[j].x_start;
-    F_GROUND[j].y=F_GROUND[j].y_start;
+    //F_GROUND[j].x=F_GROUND[j].x_start;
+    //F_GROUND[j].y=F_GROUND[j].y_start;
+
+    //move x and y using algebra
+/*
+  Trigonometry Revision 2026-06-25
+
+            /|
+           / |
+     dist /  |
+         /   | disty
+        /    |
+       /ang__|
+
+        distx
+
+
+    ang=acos(end_x-start_x,travel_dist_max)
+
+    cos(ang) = distx/dist
+    sin(ang) = disty/dist
+
+    distx=cos(ang)*dist;
+    disty=sin(ang)*dist;
+*/
+    F_GROUND[j].travel_dist=F_GROUND[j].odist_start;
+    F_GROUND[j].travel_dist_max=GetDistance(F_GROUND[j].x_start,F_GROUND[j].y_start,F_GROUND[j].x_end,F_GROUND[j].y_end);
+
+    float length=F_GROUND[j].x_end-F_GROUND[j].x_start;    
+    if (F_GROUND[j].y_end<F_GROUND[j].y_start) {
+      F_GROUND[j].travel_angle=-GetCosAngle(length,F_GROUND[j].travel_dist_max); //A H
+    } else {
+      F_GROUND[j].travel_angle=GetCosAngle(length,F_GROUND[j].travel_dist_max); //A H
+    }
+    float distx=cos(F_GROUND[j].travel_angle)*F_GROUND[j].odist_start;
+    float disty=sin(F_GROUND[j].travel_angle)*F_GROUND[j].odist_start;
+    F_GROUND[j].x=F_GROUND[j].x_start+distx;
+    F_GROUND[j].y=F_GROUND[j].y_start+disty;
+
+
     F_GROUND[j].speed=(float)F_GROUND[j].ospeed/10;
 
     F_GROUND[j].spin_angle=deg2rad((float)F_GROUND[j].ospin_angle/100.0);
@@ -47,8 +85,6 @@ void InitFallingGround(int j)
     F_GROUND[j].spin_angle_min=deg2rad((float)F_GROUND[j].ospin_angle_min/100.0);
     F_GROUND[j].spin_angle_max=deg2rad((float)F_GROUND[j].ospin_angle_max/100.0);
 
-    F_GROUND[j].travel_dist=0;
-    F_GROUND[j].travel_dist_max=GetDistance(F_GROUND[j].x_start,F_GROUND[j].y_start,F_GROUND[j].x_end,F_GROUND[j].y_end);
     
 
     F_GROUND[j].x_oscillation_angle_delta=deg2rad((float)F_GROUND[j].ox_oscillation_angle_delta/100.0);
@@ -61,13 +97,6 @@ void InitFallingGround(int j)
 
     
 
-    float length=F_GROUND[j].x_end-F_GROUND[j].x_start;
-    float dist=GetDistance(F_GROUND[j].x_start,F_GROUND[j].y_start,F_GROUND[j].x_end,F_GROUND[j].y_end);
-    if (F_GROUND[j].y_end<F_GROUND[j].y_start) {
-      F_GROUND[j].travel_angle=-GetCosAngle(length,dist); //A H
-    } else {
-      F_GROUND[j].travel_angle=GetCosAngle(length,dist); //A H
-    }
 
     for (int i=0;i<GROUND_IN_FGROUND_NUM;i++) {
       F_GROUND[j].solid_ground_ids[i]=0;
@@ -519,11 +548,13 @@ void FallingGroundAct()
 
     //Spin Angle
     F_GROUND[j].spin_angle+=F_GROUND[j].spin_angle_delta;
-    if (F_GROUND[j].spin_angle>=F_GROUND[j].spin_angle_max || F_GROUND[j].spin_angle<=F_GROUND[j].spin_angle_min) {
-      F_GROUND[j].spin_angle_delta=-F_GROUND[j].spin_angle_delta;
-      //once changed, reset to 0
-      if (player.on_fground_ground_timer>0 && player.on_fground_ground_id==-1) {
-        player.on_fground_ground_timer=0;
+    if (F_GROUND[j].spin_angle_max!=F_GROUND[j].spin_angle_min) { // continuous rotation if the angles minmax are the same
+      if (F_GROUND[j].spin_angle>=F_GROUND[j].spin_angle_max || F_GROUND[j].spin_angle<=F_GROUND[j].spin_angle_min) {
+        F_GROUND[j].spin_angle_delta=-F_GROUND[j].spin_angle_delta;
+        //once changed, reset to 0
+        if (player.on_fground_ground_timer>0 && player.on_fground_ground_id==-1) {
+          player.on_fground_ground_timer=0;
+        }
       }
     }
 

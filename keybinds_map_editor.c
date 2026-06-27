@@ -123,6 +123,58 @@ void MapEditorKeypressDown(WPARAM wParam)
             case 3: //Enemy Type
               MapEditor.clipboard_enemy_type_id=MapEditor.selected_enemy_type_id;
               break;
+            case 6: //Falling Ground
+              if (MapEditor.selected_fground_option<18) { //Copy FGROUND to clipboard
+                int a=MapEditor.selected_fground_id;
+                F_GROUND_CLIPBOARD.ospin_angle=F_GROUND[a].ospin_angle;
+                F_GROUND_CLIPBOARD.ospin_angle_delta=F_GROUND[a].ospin_angle_delta;
+                F_GROUND_CLIPBOARD.ospin_angle_min=F_GROUND[a].ospin_angle_min;
+                F_GROUND_CLIPBOARD.ospin_angle_max=F_GROUND[a].ospin_angle_max;
+                F_GROUND_CLIPBOARD.oy_oscillation_angle_delta=F_GROUND[a].oy_oscillation_angle_delta;
+                F_GROUND_CLIPBOARD.oy_oscillation_angle_max=F_GROUND[a].oy_oscillation_angle_max;
+                F_GROUND_CLIPBOARD.oy_oscillation_angle=F_GROUND[a].oy_oscillation_angle;
+                F_GROUND_CLIPBOARD.ox_oscillation_angle_delta=F_GROUND[a].ox_oscillation_angle_delta;
+                F_GROUND_CLIPBOARD.ox_oscillation_angle_max=F_GROUND[a].ox_oscillation_angle_max;
+                F_GROUND_CLIPBOARD.ox_oscillation_angle=F_GROUND[a].ox_oscillation_angle;
+                F_GROUND_CLIPBOARD.speed_multiplier=F_GROUND[a].speed_multiplier;
+                F_GROUND_CLIPBOARD.ospeed=F_GROUND[a].ospeed;
+                F_GROUND_CLIPBOARD.opivot_x=F_GROUND[a].opivot_x;
+                F_GROUND_CLIPBOARD.opivot_y=F_GROUND[a].opivot_y;
+                F_GROUND_CLIPBOARD.oreach_end_type=F_GROUND[a].oreach_end_type;
+                F_GROUND_CLIPBOARD.odist_start=F_GROUND[a].odist_start;
+                F_GROUND_CLIPBOARD.x_start=F_GROUND[a].x_start;
+                F_GROUND_CLIPBOARD.y_start=F_GROUND[a].y_start;
+                F_GROUND_CLIPBOARD.x_end=F_GROUND[a].x_end;
+                F_GROUND_CLIPBOARD.y_end=F_GROUND[a].y_end;
+                //Also copy entire FGROUND_GROUND
+                for (int i=0;i<GROUND_IN_FGROUND_NUM;i++) {
+                  int a=MapEditor.selected_fground_id;
+                  f2ground_clipboard_arr[i].is_ghost=F_GROUND[a].f2ground[i].is_ghost;
+                  f2ground_clipboard_arr[i].color_id=F_GROUND[a].f2ground[i].color_id;
+                  f2ground_clipboard_arr[i].type=F_GROUND[a].f2ground[i].type;
+                  f2ground_clipboard_arr[i].texture_type=F_GROUND[a].f2ground[i].texture_type;
+                  f2ground_clipboard_arr[i].ox1=F_GROUND[a].f2ground[i].ox1;
+                  f2ground_clipboard_arr[i].oy1=F_GROUND[a].f2ground[i].oy1;
+                  f2ground_clipboard_arr[i].ox2=F_GROUND[a].f2ground[i].ox2;
+                  f2ground_clipboard_arr[i].oy2=F_GROUND[a].f2ground[i].oy2;
+                  f2ground_clipboard_arr[i].ox3=F_GROUND[a].f2ground[i].ox3;
+                  f2ground_clipboard_arr[i].oy3=F_GROUND[a].f2ground[i].oy3;
+                }
+              } else { //copy FGROUND_GROUND to clipboard
+                int a=MapEditor.selected_fground_id;
+                int b=MapEditor.selected_fground_ground_id;
+                f2ground_clipboard.is_ghost=F_GROUND[a].f2ground[b].is_ghost;
+                f2ground_clipboard.color_id=F_GROUND[a].f2ground[b].color_id;
+                f2ground_clipboard.type=F_GROUND[a].f2ground[b].type;
+                f2ground_clipboard.texture_type=F_GROUND[a].f2ground[b].texture_type;
+                f2ground_clipboard.ox1=F_GROUND[a].f2ground[b].ox1;
+                f2ground_clipboard.oy1=F_GROUND[a].f2ground[b].oy1;
+                f2ground_clipboard.ox2=F_GROUND[a].f2ground[b].ox2;
+                f2ground_clipboard.oy2=F_GROUND[a].f2ground[b].oy2;
+                f2ground_clipboard.ox3=F_GROUND[a].f2ground[b].ox3;
+                f2ground_clipboard.oy3=F_GROUND[a].f2ground[b].oy3;
+              }
+              break;
           }
         }
         break;
@@ -192,6 +244,58 @@ void MapEditorKeypressDown(WPARAM wParam)
               set_enemy_type_time_breaker_immune[k]=set_enemy_type_time_breaker_immune[l];
               UpdateMEDrawSprite();
             }
+              break;
+            case 6: //Falling Ground              
+              if (MapEditor.selected_fground_option<18) { //paste FGROUND from clipboard
+                int a=MapEditor.selected_fground_id;
+                F_GROUND[a].ospin_angle=F_GROUND_CLIPBOARD.ospin_angle;
+                F_GROUND[a].ospin_angle_delta=F_GROUND_CLIPBOARD.ospin_angle_delta;
+                F_GROUND[a].ospin_angle_min=F_GROUND_CLIPBOARD.ospin_angle_min;
+                F_GROUND[a].ospin_angle_max=F_GROUND_CLIPBOARD.ospin_angle_max;
+                F_GROUND[a].oy_oscillation_angle_delta=F_GROUND_CLIPBOARD.oy_oscillation_angle_delta;
+                F_GROUND[a].oy_oscillation_angle_max=F_GROUND_CLIPBOARD.oy_oscillation_angle_max;
+                F_GROUND[a].oy_oscillation_angle=F_GROUND_CLIPBOARD.oy_oscillation_angle;
+                F_GROUND[a].ox_oscillation_angle_delta=F_GROUND_CLIPBOARD.ox_oscillation_angle_delta;
+                F_GROUND[a].ox_oscillation_angle_max=F_GROUND_CLIPBOARD.ox_oscillation_angle_max;
+                F_GROUND[a].ox_oscillation_angle=F_GROUND_CLIPBOARD.ox_oscillation_angle;
+                F_GROUND[a].speed_multiplier=F_GROUND_CLIPBOARD.speed_multiplier;
+                F_GROUND[a].ospeed=F_GROUND_CLIPBOARD.ospeed;
+                F_GROUND[a].opivot_x=F_GROUND_CLIPBOARD.opivot_x;
+                F_GROUND[a].opivot_y=F_GROUND_CLIPBOARD.opivot_y;
+                F_GROUND[a].oreach_end_type=F_GROUND_CLIPBOARD.oreach_end_type;
+                F_GROUND[a].odist_start=F_GROUND_CLIPBOARD.odist_start;
+                F_GROUND[a].x_start=F_GROUND_CLIPBOARD.x_start;
+                F_GROUND[a].y_start=F_GROUND_CLIPBOARD.y_start;
+                F_GROUND[a].x_end=F_GROUND_CLIPBOARD.x_end;
+                F_GROUND[a].y_end=F_GROUND_CLIPBOARD.y_end;
+                //Also paste entire FGROUND_GROUND
+                for (int i=0;i<GROUND_IN_FGROUND_NUM;i++) {
+                  int a=MapEditor.selected_fground_id;
+                  F_GROUND[a].f2ground[i].is_ghost=f2ground_clipboard_arr[i].is_ghost;
+                  F_GROUND[a].f2ground[i].color_id=f2ground_clipboard_arr[i].color_id;
+                  F_GROUND[a].f2ground[i].type=f2ground_clipboard_arr[i].type;
+                  F_GROUND[a].f2ground[i].texture_type=f2ground_clipboard_arr[i].texture_type;
+                  F_GROUND[a].f2ground[i].ox1=f2ground_clipboard_arr[i].ox1;
+                  F_GROUND[a].f2ground[i].oy1=f2ground_clipboard_arr[i].oy1;
+                  F_GROUND[a].f2ground[i].ox2=f2ground_clipboard_arr[i].ox2;
+                  F_GROUND[a].f2ground[i].oy2=f2ground_clipboard_arr[i].oy2;
+                  F_GROUND[a].f2ground[i].ox3=f2ground_clipboard_arr[i].ox3;
+                  F_GROUND[a].f2ground[i].oy3=f2ground_clipboard_arr[i].oy3;
+                }
+              } else { //paste FGROUND_GROUND from clipboard
+                int a=MapEditor.selected_fground_id;
+                int b=MapEditor.selected_fground_ground_id;
+                F_GROUND[a].f2ground[b].is_ghost=f2ground_clipboard.is_ghost;
+                F_GROUND[a].f2ground[b].color_id=f2ground_clipboard.color_id;
+                F_GROUND[a].f2ground[b].type=f2ground_clipboard.type;
+                F_GROUND[a].f2ground[b].texture_type=f2ground_clipboard.texture_type;
+                F_GROUND[a].f2ground[b].ox1=f2ground_clipboard.ox1;
+                F_GROUND[a].f2ground[b].oy1=f2ground_clipboard.oy1;
+                F_GROUND[a].f2ground[b].ox2=f2ground_clipboard.ox2;
+                F_GROUND[a].f2ground[b].oy2=f2ground_clipboard.oy2;
+                F_GROUND[a].f2ground[b].ox3=f2ground_clipboard.ox3;
+                F_GROUND[a].f2ground[b].oy3=f2ground_clipboard.oy3;
+              }
               break;
           }    
         }
@@ -573,8 +677,17 @@ void MapEditorKeypressDown(WPARAM wParam)
               case 13: //Rotational Pivot X,Y (Default is FGROUND_SIZE/FGROUND_SIZE/2) (mouse)
                 break;
               case 14: //Action on reach end <Jump back to Start / Travel back to Start>
+                F_GROUND[MapEditor.selected_fground_id].oreach_end_type
+                    =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].oreach_end_type-1,0,2);
                 break;
-              case 15: //dist begin (mouse)
+              case 15: //dist begin
+                if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //darken
+                  F_GROUND[MapEditor.selected_fground_id].odist_start
+                    =LimitValue(F_GROUND[MapEditor.selected_fground_id].odist_start-1,0,F_GROUND[MapEditor.selected_fground_id].travel_dist_max);
+                } else {
+                  F_GROUND[MapEditor.selected_fground_id].odist_start
+                    =LimitValue(F_GROUND[MapEditor.selected_fground_id].odist_start-5,0,F_GROUND[MapEditor.selected_fground_id].travel_dist_max);
+                }
                 break;
               case 16: //x y start (mouse)
                 break;
@@ -889,11 +1002,20 @@ void MapEditorKeypressDown(WPARAM wParam)
                 F_GROUND[MapEditor.selected_fground_id].ospeed
                     =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].ospeed+1,0,11);
                 break;
-              case 13: //Rotational Pivot X,Y (Default is FGROUND_SIZE/FGROUND_SIZE/2)
+              case 13: //Rotational Pivot X,Y (Default is FGROUND_SIZE/FGROUND_SIZE/2) (mouse)
                 break;
               case 14: //Action on reach end <Jump back to Start / Travel back to Start>
+                F_GROUND[MapEditor.selected_fground_id].oreach_end_type
+                    =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].oreach_end_type+1,0,2);
                 break;
-              case 15: //dist begin (mouse)
+              case 15: //dist begin
+                if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //darken
+                  F_GROUND[MapEditor.selected_fground_id].odist_start
+                      =LimitValue(F_GROUND[MapEditor.selected_fground_id].odist_start+1,0,F_GROUND[MapEditor.selected_fground_id].travel_dist_max);
+                } else {
+                  F_GROUND[MapEditor.selected_fground_id].odist_start
+                      =LimitValue(F_GROUND[MapEditor.selected_fground_id].odist_start+5,0,F_GROUND[MapEditor.selected_fground_id].travel_dist_max);
+                }
                 break;
               case 16: //x y start (mouse)
                 break;

@@ -1513,7 +1513,7 @@ struct GameMoon
 
 #define FGROUND_NUM  50
 #define GROUND_IN_FGROUND_NUM   30
-#define FGROUND_SIZE     320
+#define FGROUND_SIZE     320 //this is big, and sufficient
 #define FGROUND_DETECT_SIZE     350
 
 #define FGROUND_ATTR_NUM    20
@@ -1622,7 +1622,7 @@ typedef struct FallingGround
   //loaded in Vars, convert deg (int) to rad in game (-360->0->360)
   int ospin_angle;
   int ospin_angle_delta;
-  int ospin_angle_min;
+  int ospin_angle_min; //if min == max, no min max, contine clockwise && anticlockwise
   int ospin_angle_max;
 
   int oy_oscillation_angle_delta;      //      //      //                      //
@@ -1635,7 +1635,6 @@ typedef struct FallingGround
                                                                                 //
   int speed_multiplier; //how fast it is moving (like bullet)
   int ospeed; // divide int(0-10) by float(10)
-
 
   float opivot_x;
   float opivot_y;
@@ -1683,6 +1682,7 @@ FGround*** F_GROUND_PTR[FGROUND_NUM] = {
 
 
 FGround F_GROUND_CLIPBOARD;
+F2Ground f2ground_clipboard_arr[GROUND_IN_FGROUND_NUM];
 F2Ground f2ground_clipboard;
 
 

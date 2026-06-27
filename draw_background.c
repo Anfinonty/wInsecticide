@@ -542,7 +542,7 @@ void InitSun()
   //Sun.dist_l=GetDistance(Sun.x,Sun.y,Sun.pivot_x,Sun.pivot_y);
   Sun.dist_l=(float)(GR_WIDTH/2+10);
   if (map_sunlight_seconds<=12*60*60) {
-    Sun.dist_l*=(float)(map_sunlight_seconds/(12.0*60*60));
+    Sun.dist_l*=(float)(map_sunlight_seconds/(19.0*60*60));   //Exaggerate distance from center
   }
   if (Sun.dist_l>GR_WIDTH/2+10)
     Sun.dist_l=GR_WIDTH/2+10;
@@ -1004,7 +1004,7 @@ void InitMoon()
     //https://www.almanac.com/its-spring-see-how-sun-getting-higher-every-day
     float max_day_moon_dist_l=GR_WIDTH/2+10;
     if (map_darkness_seconds<=12*60*60)
-      max_day_moon_dist_l*=(float)(map_darkness_seconds/(12.0*60*60));
+      max_day_moon_dist_l*=(float)(map_darkness_seconds/(19.0*60*60)); //Exaggerate
     if (max_day_moon_dist_l>=GR_WIDTH/2+10)
       max_day_moon_dist_l=GR_WIDTH/2+10;
 
@@ -1020,11 +1020,11 @@ void InitMoon()
       //delta<0 (-) moon is lower than sun in the summer; dist goes: sun_higher_height-> moon_low_height -> sun_higher_height
       //delta>0 (+) moon is higher than sun in the winter; dist goes: sun_lower_height-> moon_higher_height -> sun_lower_height 
       if (lhd_n<lhd_15) { //4 -> 14
-        day_moon_dist_l=  Sun.dist_l + (float)day_moon_dist_l_delta*(float)(lhd_n-lhd_4)/(10*24*60*60.0);
+        day_moon_dist_l=  Sun.dist_l + (float)day_moon_dist_l_delta*(float)(lhd_n-lhd_4)/(19*24*60*60.0);
         //printf("delta: %lld, lhd<15: %5.4f\n",day_moon_dist_l_delta,(float)day_moon_dist_l_delta*(float)(lhd_n-lhd_4)/(10*24*60*60.0));
         //printf("delta: %lld, lhd_n: %lld, lhd_4: %lld, lhd<15: %5.4f\n",day_moon_dist_l_delta, lhd_n, lhd_4 ,(float)day_moon_dist_l_delta*(float)(lhd_n-lhd_4)/(10*24*60*60.0));
       } else { // 15 -> 25
-        day_moon_dist_l = max_day_moon_dist_l - (float)day_moon_dist_l_delta * (float)(lhd_n-lhd_15)/(10*24*60*60.0);
+        day_moon_dist_l = max_day_moon_dist_l - (float)day_moon_dist_l_delta * (float)(lhd_n-lhd_15)/(19*24*60*60.0);
         //printf("delta: %lld, lhd>=15: %5.4f\n",day_moon_dist_l_delta,(float)day_moon_dist_l_delta * (float)(lhd_n-lhd_15)/(10*24*60*60.0));
       }
       //day_moon_dist_l = Sun.dist_l + (float)day_moon_dist_l_delta * (float)abs(lhd_n-lhd_15)/(10*24*60*60.0);
