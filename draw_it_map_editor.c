@@ -322,6 +322,11 @@ void DrawMapEditorFallingGroundEditor(HDC hdc, HDC hdc2)
         }
       }
   }
+
+  //Draw Pivot
+  int fgpx=F_GROUND[MapEditor.selected_fground_id].opivot_x+GR_WIDTH/2-FGROUND_SIZE/2;
+  int fgpy=F_GROUND[MapEditor.selected_fground_id].opivot_y+GR_HEIGHT/2-FGROUND_SIZE/2;
+  GrCircle(hdc,fgpx,fgpy,4,RED,LTRED);
 }
 
 
@@ -973,7 +978,7 @@ void DrawMapEditorUI(HDC hdc,HDC hdc2)
               sprintf(txt,"Speed: <%1.1f> {%1.1f}",(float)F_GROUND[MapEditor.selected_fground_id].ospeed/10,(float)F_GROUND_CLIPBOARD.ospeed/10);
               break;
             case 13: //Rotational Pivot X,Y (Default is FGROUND_SIZE/FGROUND_SIZE/2)
-              sprintf(txt,"Pivot: %1.0f,%1.0f {%1.0f,%1.0f}",(float)F_GROUND[MapEditor.selected_fground_id].opivot_x,(float)F_GROUND_CLIPBOARD.opivot_y,(float)F_GROUND_CLIPBOARD.opivot_x,(float)F_GROUND_CLIPBOARD.opivot_y);
+              sprintf(txt,"Pivot: %1.0f,%1.0f {%1.0f,%1.0f}",(float)F_GROUND[MapEditor.selected_fground_id].opivot_x,(float)F_GROUND[MapEditor.selected_fground_id].opivot_y,(float)F_GROUND_CLIPBOARD.opivot_x,(float)F_GROUND_CLIPBOARD.opivot_y);
               
               break;
             case 14: //Action on reach end <Jump back to Start / Travel back to Start>

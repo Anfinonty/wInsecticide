@@ -331,7 +331,7 @@ void InitLevel(bool load_lvl)
 
   //Map Background
   if (lvl_map_background.is_real_time) {
-    //global_timenow=int64_current_timestamp();
+    global_timenow=int64_current_timestamp();
   } else {
     global_timenow=lvl_map_background.unix_time;
   }

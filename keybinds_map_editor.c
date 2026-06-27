@@ -715,15 +715,45 @@ void MapEditorKeypressDown(WPARAM wParam)
               case 25: // xy3
                 break;
               case 26: ////<Mirror Sprite Horizontally X>
+                for (int i=0;i<GROUND_IN_FGROUND_NUM;i++) {
+                  F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox1=
+                    FGROUND_SIZE-F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox1;
+                  F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox2=
+                    FGROUND_SIZE-F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox2;
+                  F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox3=
+                    FGROUND_SIZE-F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox3;
+                }
                 break;
               case 27: ////<Mirror Sprite Vertically Y>
+                for (int i=0;i<GROUND_IN_FGROUND_NUM;i++) {
+                  F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy1=
+                    FGROUND_SIZE-F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy1;
+                  F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy2=
+                    FGROUND_SIZE-F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy2;
+                  F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy3=
+                    FGROUND_SIZE-F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy3;
+                }
                 break;
               case 28: ////<Move sprite X>
+                for (int i=0;i<GROUND_IN_FGROUND_NUM;i++) {
+                  if (F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox1<FGROUND_SIZE)
+                    F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox1++;
+                  if (F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox2<FGROUND_SIZE)
+                    F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox2++;
+                  if (F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox3<FGROUND_SIZE)
+                    F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox3++;
+                }
                 break;
               case 29: ////<Move Sprite Y>
+                for (int i=0;i<GROUND_IN_FGROUND_NUM;i++) {
+                  if (F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy1<FGROUND_SIZE)
+                    F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy1++;
+                  if (F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy2<FGROUND_SIZE)
+                    F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy2++;
+                  if (F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy3<FGROUND_SIZE)
+                    F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy3++;
+                }
                 break;
-
-
             }
 
             if (MapEditor.selected_fground_option!=0) {
@@ -1043,12 +1073,44 @@ void MapEditorKeypressDown(WPARAM wParam)
               case 25: // xy3
                 break;
               case 26: ////<Mirror Sprite Horizontally X>
+                for (int i=0;i<GROUND_IN_FGROUND_NUM;i++) {
+                  F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox1=
+                    FGROUND_SIZE-F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox1;
+                  F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox2=
+                    FGROUND_SIZE-F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox2;
+                  F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox3=
+                    FGROUND_SIZE-F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox3;
+                }
                 break;
               case 27: ////<Mirror Sprite Vertically Y>
+                for (int i=0;i<GROUND_IN_FGROUND_NUM;i++) {
+                  F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy1=
+                    FGROUND_SIZE-F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy1;
+                  F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy2=
+                    FGROUND_SIZE-F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy2;
+                  F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy3=
+                    FGROUND_SIZE-F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy3;
+                }
                 break;
               case 28: ////<Move sprite X>
+                for (int i=0;i<GROUND_IN_FGROUND_NUM;i++) {
+                  if (F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox1>0)
+                    F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox1--;
+                  if (F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox2>0)
+                    F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox2--;
+                  if (F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox3>0)
+                    F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox3--;
+                }
                 break;
               case 29: ////<Move Sprite Y>
+                for (int i=0;i<GROUND_IN_FGROUND_NUM;i++) {
+                  if (F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy1>0)
+                    F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy1--;
+                  if (F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy2>0)
+                    F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy2--;
+                  if (F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy3>0)
+                    F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy3--;
+                }
                 break;
             }
             if (MapEditor.selected_fground_option!=0) {

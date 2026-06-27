@@ -1349,9 +1349,14 @@ void MapEditorAct()
         }    
         if (player.attack_rst || player.rst_left_click) { //release mouse
           InitFallingGround(MapEditor.selected_fground_id);
-          if (!(MapEditor.selected_fground_option>=16 && MapEditor.selected_fground_option<=17)){ //Moving Falling Ground-Ground
+          int pos_cur_x=mouse_x-GR_WIDTH/2+FGROUND_SIZE/2;
+          int pos_cur_y=mouse_y-GR_HEIGHT/2+FGROUND_SIZE/2;
+          if (MapEditor.selected_fground_option==13) { //Set pivot
             int pos_cur_x=mouse_x-GR_WIDTH/2+FGROUND_SIZE/2;
             int pos_cur_y=mouse_y-GR_HEIGHT/2+FGROUND_SIZE/2;
+            F_GROUND[MapEditor.selected_fground_id].opivot_x=pos_cur_x;
+            F_GROUND[MapEditor.selected_fground_id].opivot_y=pos_cur_y;
+          } else if (MapEditor.selected_fground_option>=23 && MapEditor.selected_fground_option<=25) {
             if (pos_cur_x<=0)
               pos_cur_x=0;
             else if (pos_cur_x>=FGROUND_SIZE)
@@ -1391,22 +1396,22 @@ void MapEditorAct()
                 MapEditor.selected_ground_pivot=1;
             }
             if (F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox3==F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox1 || F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox3==F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox2) {
-	          F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox3++;
+              F_GROUND[MapEditor.selected_fground_id].f2ground[i].ox3++;
             }
 
 
             if ((F_GROUND[MapEditor.selected_fground_id].f2ground[i].type>=2)) {//trifill
-	          if (F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy1==F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy2) {
-	            F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy2++;
+              if (F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy1==F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy2) {
+                F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy2++;
               }
             }
             if (F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy3==F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy1) {
-	          F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy3+=2;
+              F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy3+=2;
             }
             if (F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy3==F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy2) {
-	          F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy3+=2;
+              F_GROUND[MapEditor.selected_fground_id].f2ground[i].oy3+=2;
             }
-          } else { //Moving XY Start and XY End
+          } else if (MapEditor.selected_fground_option>=16 && MapEditor.selected_fground_option<=17){ //Moving Falling Ground-Ground //Moving XY Start and XY End
             if (!IsOutOfBounds(MapEditor.cursor_x,MapEditor.cursor_y,1,MAP_WIDTH,MAP_HEIGHT)) {
               if (MapEditor.selected_fground_option==16) { //cursor set Start X Y
                 F_GROUND[MapEditor.selected_fground_id].x_start=MapEditor.cursor_x;

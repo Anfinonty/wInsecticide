@@ -922,7 +922,7 @@ void SaveLvlFallingGround()
               fprintf(fptr,"%1.0f,",F_GROUND[column].opivot_y);
               break;
             case 14:
-              fprintf(fptr,"%1.0f,",F_GROUND[column].oreach_end_type);
+              fprintf(fptr,"%d,",F_GROUND[column].oreach_end_type);
               break;
             case 15:
               fprintf(fptr,"%1.0f,",F_GROUND[column].odist_start);

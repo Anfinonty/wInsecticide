@@ -112,13 +112,22 @@ void InitFallingGround(int j)
       } else {
         F_GROUND[j].valid_ground_num++;
       }
-      F_GROUND[j].center_length1[i]=GetDistance(0,0,F_GROUND[j].f2ground[i].ox1-FGROUND_SIZE/2,F_GROUND[j].f2ground[i].oy1-FGROUND_SIZE/2); //runs on init only
+/*      F_GROUND[j].center_length1[i]=GetDistance(0,0,F_GROUND[j].f2ground[i].ox1-FGROUND_SIZE/2,F_GROUND[j].f2ground[i].oy1-FGROUND_SIZE/2); //runs on init only
       F_GROUND[j].center_length2[i]=GetDistance(0,0,F_GROUND[j].f2ground[i].ox2-FGROUND_SIZE/2,F_GROUND[j].f2ground[i].oy2-FGROUND_SIZE/2); //runs on init only
       F_GROUND[j].center_length3[i]=GetDistance(0,0,F_GROUND[j].f2ground[i].ox3-FGROUND_SIZE/2,F_GROUND[j].f2ground[i].oy3-FGROUND_SIZE/2); //runs on init only
 
       F_GROUND[j].center_angle1[i]=atan2(F_GROUND[j].f2ground[i].oy1-FGROUND_SIZE/2,F_GROUND[j].f2ground[i].ox1-FGROUND_SIZE/2); //runs on init only
       F_GROUND[j].center_angle2[i]=atan2(F_GROUND[j].f2ground[i].oy2-FGROUND_SIZE/2,F_GROUND[j].f2ground[i].ox2-FGROUND_SIZE/2); //runs on init only
       F_GROUND[j].center_angle3[i]=atan2(F_GROUND[j].f2ground[i].oy3-FGROUND_SIZE/2,F_GROUND[j].f2ground[i].ox3-FGROUND_SIZE/2); //runs on init only
+*/
+
+      F_GROUND[j].center_length1[i]=GetDistance(0,0,F_GROUND[j].f2ground[i].ox1-F_GROUND[j].opivot_x,F_GROUND[j].f2ground[i].oy1-F_GROUND[j].opivot_y); //runs on init only
+      F_GROUND[j].center_length2[i]=GetDistance(0,0,F_GROUND[j].f2ground[i].ox2-F_GROUND[j].opivot_x,F_GROUND[j].f2ground[i].oy2-F_GROUND[j].opivot_y); //runs on init only
+      F_GROUND[j].center_length3[i]=GetDistance(0,0,F_GROUND[j].f2ground[i].ox3-F_GROUND[j].opivot_x,F_GROUND[j].f2ground[i].oy3-F_GROUND[j].opivot_y); //runs on init only
+
+      F_GROUND[j].center_angle1[i]=atan2(F_GROUND[j].f2ground[i].oy1-F_GROUND[j].opivot_y,F_GROUND[j].f2ground[i].ox1-F_GROUND[j].opivot_x); //runs on init only
+      F_GROUND[j].center_angle2[i]=atan2(F_GROUND[j].f2ground[i].oy2-F_GROUND[j].opivot_y,F_GROUND[j].f2ground[i].ox2-F_GROUND[j].opivot_x); //runs on init only
+      F_GROUND[j].center_angle3[i]=atan2(F_GROUND[j].f2ground[i].oy3-F_GROUND[j].opivot_y,F_GROUND[j].f2ground[i].ox3-F_GROUND[j].opivot_x); //runs on init only
 
 
       F_GROUND[j].x1[i]=cos(F_GROUND[j].spin_angle+F_GROUND[j].center_angle1[i])*F_GROUND[j].center_length1[i] +F_GROUND[j].x_start;
