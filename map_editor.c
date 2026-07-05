@@ -173,9 +173,9 @@ void CleanUpMEEnemySprites()
 
 /*Set Enemy Type will be in the stack to be consistent with Saved Enemy Type being in the stack*/
 
-#define ENEMY_TYPE_INT_ATTR_NUM 20
-#define ENEMY_TYPE_FLOAT_ATTR_NUM 2
-#define ENEMY_TYPE_BOOL_ATTR_NUM 1
+#define ENEMY_TYPE_INT_ATTR_NUM  S_ENEMY_TYPE_INT_NUM
+#define ENEMY_TYPE_FLOAT_ATTR_NUM S_ENEMY_TYPE_FLOAT_NUM
+#define ENEMY_TYPE_BOOL_ATTR_NUM S_ENEMY_TYPE_BOOL_NUM
 
 int enemy_int_attr_min[ENEMY_TYPE_INT_ATTR_NUM]=
 {
@@ -183,7 +183,12 @@ int enemy_int_attr_min[ENEMY_TYPE_INT_ATTR_NUM]=
 15, //follow range
 0, //unchase range
 0, //chase range
-0, //color
+
+0, //wing color
+0,// eye color
+0,// border color
+0,//bodypart color
+
 1, //speed multiplier*
 1, //health
 1, //shoot at player range
@@ -197,6 +202,15 @@ int enemy_int_attr_min[ENEMY_TYPE_INT_ATTR_NUM]=
 1, //bullet range
 0, //bullet color
 0, //bullet graphics type
+
+0, //bullet next angle type
+0, //bullet next shoot angle type
+-36000, //bullet shoot original angle
+-36000, //bullet next shoot angle
+-36000, //bullet next angle
+-36000, //bullet oscilating delta
+-36000, //bullet oscilating max
+
 0, //time breaker rare
 0 //time breaker length
 };
@@ -207,7 +221,12 @@ int enemy_int_attr_max[ENEMY_TYPE_INT_ATTR_NUM]=
 MAX_FOLLOW_RANGE+1, //follow range
 MAX_FOLLOW_RANGE+1, //unchase range
 MAX_FOLLOW_RANGE+1, //chase range
-16, //color
+
+0, //wing color
+0,// eye color
+0,// border color
+0,//bodypart color
+
 21, //speed multiplier*
 1001, //health
 MAX_FOLLOW_RANGE+1, //shoot at player range
@@ -221,6 +240,15 @@ MAX_BULLET_PER_FIRE+1, //bullet fire at once
 MAX_FOLLOW_RANGE+1, //bullet range
 16, //bullet color
 11, //bullet_graphics_type
+
+2, //bullet next angle type
+2, //bullet next shoot angle type
+36000, //bullet shoot original angle
+36000, //bullet next shoot angle
+36000, //bullet next angle
+36000, //bullet oscilating delta
+36000, //bullet oscilating max
+
 10001, //time breaker rare
 20001 //time breaker length
 };
@@ -232,7 +260,12 @@ int enemy_int_attr_delta[ENEMY_TYPE_INT_ATTR_NUM]=
 1, //follow range
 1, //unchase range
 1, //chase range
-1, //color
+
+0, //wing color
+0,// eye color
+0,// border color
+0,//bodypart color
+
 1, //speed multiplier*
 1, //health
 1, //shoot at player range
@@ -246,39 +279,26 @@ int enemy_int_attr_delta[ENEMY_TYPE_INT_ATTR_NUM]=
 1, //bullet range
 1, //bullet color
 1, //bullet_graphics_type
+
+1, //bullet next angle type
+1, //bullet next shoot angle type
+1, //bullet shoot original angle
+1, //bullet next shoot angle
+1, //bullet next angle
+1, //bullet oscilating delta
+1, //bullet oscilating max
+
 5, //time breaker rare
 5 //time breaker length
-};
-
-int *set_enemy_type_int_attr[ENEMY_TYPE_INT_ATTR_NUM]=
-{
-    set_enemy_type_species,
-    set_enemy_type_follow_range,
-    set_enemy_type_unchase_range,
-    set_enemy_type_chase_range,
-    set_enemy_type_color,
-    set_enemy_type_speed_multiplier,
-    set_enemy_type_health,
-    set_enemy_type_shoot_at_player_range,
-    set_enemy_type_aim_rand,
-    set_enemy_type_bullet_cooldown,
-    set_enemy_type_bullet_fire_cooldown,
-    set_enemy_type_bullet_fire_at_once,
-    set_enemy_type_bullet_length,
-    set_enemy_type_bullet_damage,
-    set_enemy_type_bullet_speed_multiplier,
-    set_enemy_type_bullet_range,
-    set_enemy_type_bullet_color,
-    set_enemy_type_bullet_graphics_type,
-    set_enemy_type_time_breaker_rare,
-    set_enemy_type_time_breaker_length
 };
 
 
 float enemy_float_attr_min[ENEMY_TYPE_FLOAT_ATTR_NUM]={0,0};
 float enemy_float_attr_max[ENEMY_TYPE_FLOAT_ATTR_NUM]={1.0,1.0};
 float enemy_float_attr_delta[ENEMY_TYPE_FLOAT_ATTR_NUM]={0.1,0.1};
-float *set_enemy_type_float_attr[ENEMY_TYPE_FLOAT_ATTR_NUM]={
+
+
+/*float *set_enemy_type_float_attr[ENEMY_TYPE_FLOAT_ATTR_NUM]={
   set_enemy_type_speed,
   set_enemy_type_bullet_speed
 };
@@ -287,7 +307,7 @@ float *set_enemy_type_float_attr[ENEMY_TYPE_FLOAT_ATTR_NUM]={
 bool *set_enemy_type_bool_attr[ENEMY_TYPE_BOOL_ATTR_NUM]={
   set_enemy_type_time_breaker_immune
 };
-
+*/
 
 int melvlbgattr_min[S_LVL_ATTR_NUM]={
 0, //background type id:
@@ -691,36 +711,10 @@ void InitMapEditorEnemy()
 
   //Load 10 Sprites
   //init set enemy type
-  for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-    set_enemy_type_speed[i]=saved_enemy_type_speed[i];
-    set_enemy_type_bullet_speed[i]=saved_enemy_type_bullet_speed[i];
-    set_enemy_type_species[i]=saved_enemy_type_species[i];
-    set_enemy_type_follow_range[i]=saved_enemy_type_follow_range[i];
-    set_enemy_type_unchase_range[i]=saved_enemy_type_unchase_range[i];
-    set_enemy_type_chase_range[i]=saved_enemy_type_chase_range[i];
-    set_enemy_type_color[i]=saved_enemy_type_color[i];
-    set_enemy_type_speed_multiplier[i]=saved_enemy_type_speed_multiplier[i];
-    set_enemy_type_health[i]=saved_enemy_type_health[i];
-    set_enemy_type_shoot_at_player_range[i]=saved_enemy_type_shoot_at_player_range[i];
-    set_enemy_type_aim_rand[i]=saved_enemy_type_aim_rand[i];
-    set_enemy_type_bullet_cooldown[i]=saved_enemy_type_bullet_cooldown[i];
-    set_enemy_type_bullet_fire_cooldown[i]=saved_enemy_type_bullet_fire_cooldown[i];
-    set_enemy_type_bullet_fire_at_once[i]=saved_enemy_type_bullet_fire_at_once[i];
-    set_enemy_type_bullet_length[i]=saved_enemy_type_bullet_length[i];
-    set_enemy_type_bullet_damage[i]=saved_enemy_type_bullet_damage[i];
-    set_enemy_type_bullet_speed_multiplier[i]=saved_enemy_type_bullet_speed_multiplier[i];
-    set_enemy_type_bullet_range[i]=saved_enemy_type_bullet_range[i];
-    set_enemy_type_bullet_color[i]=saved_enemy_type_bullet_color[i];
-    set_enemy_type_bullet_graphics_type[i]=saved_enemy_type_bullet_graphics_type[i];
-    set_enemy_type_time_breaker_rare[i]=saved_enemy_type_time_breaker_rare[i];
-    set_enemy_type_time_breaker_length[i]=saved_enemy_type_time_breaker_length[i];
-    set_enemy_type_time_breaker_immune[i]=saved_enemy_type_time_breaker_immune[i];
-  }
-
 
   //Generate Sprites for 10 enemy types
   for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-    switch (set_enemy_type_species[i]) {
+    switch (saved_enemy_type_species[i]) {
       case 0:
         MEEnemySprite[i]->sprite_1=CopyCrunchyBitmap(enemy1_sprite_1,SRCCOPY);
         break;
@@ -748,7 +742,7 @@ void InitMapEditorEnemy()
     loading_numerator++;
     GenerateDrawSprite(&MEEnemySprite[i]->draw_sprite_1,MEEnemySprite[i]->sprite_1);
 
-    CopyReplaceColorPalette(MEEnemySprite[i]->enemyPalette,rgbColorsDefault,167,rgbPaint[set_enemy_type_color[i]]); //set normal palette
+    CopyReplaceColorPalette(MEEnemySprite[i]->enemyPalette,rgbColorsDefault,167,rgbPaint[saved_enemy_type_wing_color[i]]); //set normal palette
     CopyReplaceColorPalette(MEEnemySprite[i]->enemyPalette,MEEnemySprite[i]->enemyPalette,151,LTGRAY); //set outline color
     //BitmapPalette(hdc,hdc2,MEEnemySprite[i]->draw_sprite_1.sprite_paint,MEEnemySprite[i]->enemyPalette);
   }
@@ -1218,45 +1212,45 @@ void MapEditorAct()
         }
 
         if (q>-1 && q<ENEMY_TYPE_NUM) {
-          if (set_enemy_type_time_breaker_length[q]>0) {
-            dice=RandNum(0,set_enemy_type_time_breaker_rare[q],&misc_rng_i,-1);
+          if (saved_enemy_type_time_breaker_length[q]>0) {
+            dice=RandNum(0,saved_enemy_type_time_breaker_rare[q],&misc_rng_i,-1);
             if (dice==1) {
-              slash_time=set_enemy_type_time_breaker_length[q];
+              slash_time=saved_enemy_type_time_breaker_length[q];
             }
           }
 
 
           unchase_dist=GetDistance(mouse_x,mouse_y,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey);
-          if ((unchase_dist<NODE_SIZE*set_enemy_type_unchase_range[q]/2 &&
-               GetDistance(mouse_x,mouse_y,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey)>NODE_SIZE*set_enemy_type_chase_range[q]/2)) {
+          if ((unchase_dist<NODE_SIZE*saved_enemy_type_unchase_range[q]/2 &&
+               GetDistance(mouse_x,mouse_y,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey)>NODE_SIZE*saved_enemy_type_chase_range[q]/2)) {
             MapEditor.demo_enemy_spritecooldown=300;
           }
 
           for (int slash_time_i=0;slash_time_i<slash_time;slash_time_i++) {
             if (MapEditor.demo_enemy_spritecooldown==0) {
               unchase_dist=GetDistance(mouse_x,mouse_y,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey);
-              if ((GetDistance(mouse_x,mouse_y,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey)<NODE_SIZE*set_enemy_type_chase_range[q]/2 &&
-                   unchase_dist<NODE_SIZE*set_enemy_type_unchase_range[q]/2) || 
-                  (unchase_dist>=NODE_SIZE*set_enemy_type_unchase_range[q]/2 &&
-                   GetDistance(mouse_x,mouse_y,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey)<NODE_SIZE*set_enemy_type_follow_range[q]/2)) {                    
-                for (int t=0;t<set_enemy_type_speed_multiplier[q];t++) {
+              if ((GetDistance(mouse_x,mouse_y,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey)<NODE_SIZE*saved_enemy_type_chase_range[q]/2 &&
+                   unchase_dist<NODE_SIZE*saved_enemy_type_unchase_range[q]/2) || 
+                  (unchase_dist>=NODE_SIZE*saved_enemy_type_unchase_range[q]/2 &&
+                   GetDistance(mouse_x,mouse_y,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey)<NODE_SIZE*saved_enemy_type_follow_range[q]/2)) {                    
+                for (int t=0;t<saved_enemy_type_speed_multiplier[q];t++) {
                   if (MapEditor.demo_enemy_spritex<mouse_x) {
-                    MapEditor.demo_enemy_spritex+=set_enemy_type_speed[q];
-                    if (set_enemy_type_species[q]!=5 && set_enemy_type_species[q]!=6) {
+                    MapEditor.demo_enemy_spritex+=saved_enemy_type_speed[q];
+                    if (saved_enemy_type_species[q]!=5 && saved_enemy_type_species[q]!=6) {
                       MapEditor.demo_enemy_spriteisleft=FALSE;
                     } else {
-                      if (set_enemy_type_species[q]==5) {
+                      if (saved_enemy_type_species[q]==5) {
                         MapEditor.demo_enemy_spriteisleft=FALSE;
                       } else {
                         MapEditor.demo_enemy_spriteisleft=TRUE;
                       }
                     }
                   } else {
-                    MapEditor.demo_enemy_spritex-=set_enemy_type_speed[q];
-                    if (set_enemy_type_species[q]!=5 && set_enemy_type_species[q]!=6) {
+                    MapEditor.demo_enemy_spritex-=saved_enemy_type_speed[q];
+                    if (saved_enemy_type_species[q]!=5 && saved_enemy_type_species[q]!=6) {
                       MapEditor.demo_enemy_spriteisleft=TRUE;
                     } else {
-                      if (set_enemy_type_species[q]==5) {
+                      if (saved_enemy_type_species[q]==5) {
                         MapEditor.demo_enemy_spriteisleft=FALSE;
                       } else {
                         MapEditor.demo_enemy_spriteisleft=TRUE;
@@ -1265,9 +1259,9 @@ void MapEditorAct()
                   }
 
                   if (MapEditor.demo_enemy_spritey<mouse_y) {
-                    MapEditor.demo_enemy_spritey+=set_enemy_type_speed[q];
+                    MapEditor.demo_enemy_spritey+=saved_enemy_type_speed[q];
                   } else {
-                    MapEditor.demo_enemy_spritey-=set_enemy_type_speed[q];
+                    MapEditor.demo_enemy_spritey-=saved_enemy_type_speed[q];
                   }
                 }
               }
@@ -1275,30 +1269,30 @@ void MapEditorAct()
               MapEditor.demo_enemy_spritecooldown--;
             }
 
-            if (GetDistance(mouse_x,mouse_y,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey)<=NODE_SIZE*set_enemy_type_shoot_at_player_range[q]/2) {
+            if (GetDistance(mouse_x,mouse_y,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey)<=NODE_SIZE*saved_enemy_type_shoot_at_player_range[q]/2) {
               if (MapEditor.bullet_fire_cooldown<=0) {
                 if (MapEditor.bullet_length==0) {
-                  for (int j=0;j<set_enemy_type_bullet_fire_at_once[q];j++) {//shoot several bullets at once
-	                    //MapEditor.bullet_head_x[j]=8+RandNum(-set_enemy_type_aim_rand[q],set_enemy_type_aim_rand[q],player.seed);
-	                    //MapEditor.bullet_head_y[j]=32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_FLOAT_ATTR_NUM)+16*3+RandNum(-set_enemy_type_aim_rand[q],set_enemy_type_aim_rand[q],player.seed);
-	                  MapEditor.bullet_head_x[j]=mouse_x+RandNum(-set_enemy_type_aim_rand[q],set_enemy_type_aim_rand[q],&misc_rng_i,-1);
-	                  MapEditor.bullet_head_y[j]=mouse_y+RandNum(-set_enemy_type_aim_rand[q],set_enemy_type_aim_rand[q],&misc_rng_i,-1);
+                  for (int j=0;j<saved_enemy_type_bullet_fire_at_once[q];j++) {//shoot several bullets at once
+	                    //MapEditor.bullet_head_x[j]=8+RandNum(-saved_enemy_type_aim_rand[q],saved_enemy_type_aim_rand[q],player.seed);
+	                    //MapEditor.bullet_head_y[j]=32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_FLOAT_ATTR_NUM)+16*3+RandNum(-saved_enemy_type_aim_rand[q],saved_enemy_type_aim_rand[q],player.seed);
+	                  MapEditor.bullet_head_x[j]=mouse_x+RandNum(-saved_enemy_type_aim_rand[q],saved_enemy_type_aim_rand[q],&misc_rng_i,-1);
+	                  MapEditor.bullet_head_y[j]=mouse_y+RandNum(-saved_enemy_type_aim_rand[q],saved_enemy_type_aim_rand[q],&misc_rng_i,-1);
                   }
 	            }
 
 
 
                 if (MapEditor.bullet_cooldown<=0) {
-                  for (int j=0;j<set_enemy_type_bullet_fire_at_once[q];j++) {//several bullets at once
+                  for (int j=0;j<saved_enemy_type_bullet_fire_at_once[q];j++) {//several bullets at once
 	                float shoot_target_x= MapEditor.bullet_head_x[j];
     	  	        float shoot_target_y= MapEditor.bullet_head_y[j];
                     ShootBullet(current_bullet_id,
                         -1,//Enemy[i]->bullet_shot_num,
-                        rgbPaint[set_enemy_type_bullet_color[q]],//Enemy[i]->bullet_color,
-                        set_enemy_type_bullet_graphics_type[q],//Enemy[i]->bullet_graphics_type,
-                        set_enemy_type_bullet_range[q],//Enemy[i]->bullet_range,
-                        set_enemy_type_bullet_speed[q],//Enemy[i]->bullet_speed,
-                        set_enemy_type_bullet_speed_multiplier[q],//Enemy[i]->bullet_speed_multiplier,
+                        rgbPaint[saved_enemy_type_bullet_color[q]],//Enemy[i]->bullet_color,
+                        saved_enemy_type_bullet_graphics_type[q],//Enemy[i]->bullet_graphics_type,
+                        saved_enemy_type_bullet_range[q],//Enemy[i]->bullet_range,
+                        saved_enemy_type_bullet_speed[q],//Enemy[i]->bullet_speed,
+                        saved_enemy_type_bullet_speed_multiplier[q],//Enemy[i]->bullet_speed_multiplier,
                         0,//Enemy[i]->bullet_damage,
                         -10,//i,
                         MapEditor.demo_enemy_spritex,//Enemy[i]->x,
@@ -1316,10 +1310,10 @@ void MapEditorAct()
                       current_bullet_id=0;
                     }
 	              } //end of for
-	              MapEditor.bullet_cooldown=set_enemy_type_bullet_cooldown[q];
+	              MapEditor.bullet_cooldown=saved_enemy_type_bullet_cooldown[q];
 	              MapEditor.bullet_length++;
-	              if (MapEditor.bullet_length>=set_enemy_type_bullet_length[q]) {
-  	                MapEditor.bullet_fire_cooldown=set_enemy_type_bullet_fire_cooldown[q];
+	              if (MapEditor.bullet_length>=saved_enemy_type_bullet_length[q]) {
+  	                MapEditor.bullet_fire_cooldown=saved_enemy_type_bullet_fire_cooldown[q];
 	                MapEditor.bullet_length=0;
 	              }
 	            } else {

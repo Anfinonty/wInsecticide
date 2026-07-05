@@ -1974,13 +1974,13 @@ void EnemyAct(int i)
             case 6: rand_bullet_shot_num=1+RandNum(5,10,&Enemy[i]->bullet_rng_i,Enemy[i]->seed); break;
             case 7: rand_bullet_shot_num=1+RandNum(5,10,&Enemy[i]->bullet_rng_i,Enemy[i]->seed); break;
           }
-          for (int n=0;n<rand_bullet_shot_num;n++) {
+          for (int n=0;n<rand_bullet_shot_num;n++) { //shoot death bullets
             int seed=Enemy[i]->seed*n;
             if (!free_will) {seed=-1;}
             int rand_range=NODE_SIZE*3+NODE_SIZE*RandNum(1,5,&Enemy[i]->bullet_rng_i,seed);
             ShootBullet(current_bullet_id,
                 Enemy[i]->bullet_shot_num,
-                Enemy[i]->color,
+                Enemy[i]->wing_color,
                 -8, //graphics type
                 rand_range, // range
                 0.1, //speed
@@ -2301,16 +2301,18 @@ void EnemyAct(int i)
            ) {
           if (Enemy[i]->bullet_fire_cooldown<=0) {
 	        if (Enemy[i]->bullet_length==0) {
-	          for (j=0;j<Enemy[i]->bullet_fire_at_once_max;j++) {//shoot several bullets at once
+              float next_angle;
+	          for (j=0;j<Enemy[i]->bullet_fire_at_once_max;j++) {//Calculate bullet final x and y
                 int seed1=Enemy[i]->seed*j;
                 int seed2=Enemy[i]->seed*2*j;
                 if (!free_will) {seed1=seed2=-1;}
-	            Enemy[i]->bullet_head_x[j]=player.x+RandNum(-Enemy[i]->aim_rand,Enemy[i]->aim_rand,&Enemy[i]->bullet_aim_rand_rng_i,seed1);
+	            Enemy[i]->bullet_head_x[j]=player.x+RandNum(-Enemy[i]->aim_rand,Enemy[i]->aim_rand,&Enemy[i]->bullet_aim_rand_rng_i,seed1); 
 	            Enemy[i]->bullet_head_y[j]=player.y+RandNum(-Enemy[i]->aim_rand,Enemy[i]->aim_rand,&Enemy[i]->bullet_aim_rand_rng_i,seed2);
+                
 	          }
 	        }
 
-            if (Enemy[i]->bullet_cooldown<=0) {
+            if (Enemy[i]->bullet_cooldown<=0) { //Only runs at bullet_fire_cooldown <= 0
 	          if (Enemy[i]->bullet_shot_num<500) {//shot less than 500 bullets
                 int bspeed_m=Enemy[i]->bullet_speed_multiplier,
                     bdmg=Enemy[i]->bullet_damage,btype=Enemy[i]->bullet_graphics_type;
@@ -2323,7 +2325,7 @@ void EnemyAct(int i)
                   
                   //bdmg/=3;
                   btype=-1; //specific type only damages webs, doesnt react to bullets nor player
-	              for (j=0;j<Enemy[i]->bullet_fire_at_once_max;j++) {//shoot several bullets at once
+	              for (j=0;j<Enemy[i]->bullet_fire_at_once_max;j++) {//shoot several bullets at once when stuck in web
                     int seed1=Enemy[i]->seed*j;
                     int seed2=Enemy[i]->seed*2*j;
                     if (!free_will) {seed1=seed2=-1;}
@@ -2331,7 +2333,7 @@ void EnemyAct(int i)
 	                Enemy[i]->bullet_head_y[j]=Enemy[i]->y+RandNum(-1000,1000,&Enemy[i]->bullet_stuck_rng_i,seed2);
                   }
                 }
-	            for (j=0;j<Enemy[i]->bullet_fire_at_once_max;j++) {//several bullets at once
+	            for (j=0;j<Enemy[i]->bullet_fire_at_once_max;j++) {//shoot several bullets at once
 		          if (Enemy[i]->saw_player || Enemy[i]->web_stuck) {
                     if (Enemy[i]->dist_from_player<Enemy[i]->shoot_at_player_range/2*NODE_SIZE || Enemy[i]->web_stuck) {
     		          Enemy[i]->shoot_target_x=Enemy[i]->bullet_head_x[j];
@@ -2376,7 +2378,7 @@ void EnemyAct(int i)
 	          Enemy[i]->bullet_fire_cooldown=Enemy[i]->bullet_fire_cooldown_max;
 	          Enemy[i]->bullet_length=0;
 	        }
-	      } else {
+	      } else { //bullet_cooldown > 0
             if (!game_hard) {
               Enemy[i]->bullet_cooldown--;
             } else {
@@ -2569,7 +2571,7 @@ void SetEnemyByType(int i,int type)
     Enemy[i]->unchase_range=0;
     Enemy[i]->chase_range=0;
   }
-  Enemy[i]->color=rgbPaint[saved_enemy_type_color[type]];
+  Enemy[i]->wing_color=rgbPaint[saved_enemy_type_wing_color[type]];
   Enemy[i]->ospeed=saved_enemy_type_speed[type];
   Enemy[i]->speed=saved_enemy_type_speed[type];
   if (!game_hard) {
@@ -2814,17 +2816,18 @@ void InitEnemySpritesObj()
 
   //set flysprite palettes
   for (int i=0;i<ENEMY_TYPE_NUM;i++) { //init small flysprites
-    CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,rgbColorsDefault,167,rgbPaint[saved_enemy_type_color[i]]); //set normal palette
+    CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,rgbColorsDefault,167,rgbPaint[saved_enemy_type_wing_color[i]]); //set normal palette
     //if (map_background==0 || map_background==2) {
       //CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,151,RGB(16,16,16)); //set outline color
     //} else {
     //CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,151,BLACK); //set outline color ltblue to BLACK
     //}
-    CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,151,LTGRAY); //set outline color ltblue go LTGRAY
+    //CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,151,LTGRAY); //set outline color ltblue go LTGRAY
+    CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,151,BLACK); //set outline color ltblue go LTGRAY
     if (free_will) {
       CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,199,DKRLTGREEN); //set freewill to normal palette
     }
-    CopyReplaceColorPaletteNoir(EnemyTypeSprite[i].enemyPaletteNoir,rgbColorsDefault,167,rgbPaint_i[saved_enemy_type_color[i]]); //set noir palette
+    CopyReplaceColorPaletteNoir(EnemyTypeSprite[i].enemyPaletteNoir,rgbColorsDefault,167,rgbPaint_i[saved_enemy_type_wing_color[i]]); //set noir palette
     //}
   }
 
@@ -3609,7 +3612,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
         int ay2_1=ay1+sin(l_angle+moving_ang_offset)*115;
         int ax2_2=ax1+cos(l_angle+0.05-moving_ang_offset)*115;
         int ay2_2=ay1+sin(l_angle+0.05-moving_ang_offset)*115;
-        int ac=Enemy[i]->color;
+        int ac=Enemy[i]->wing_color;
         GrLine(hdc,ax1,ay1,ax2_1,ay2_1,ac);
         GrLine(hdc,ax1,ay1,ax2_2,ay2_2,ac); 
       }       

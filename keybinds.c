@@ -47,11 +47,14 @@ void KeyChangePlayerColor()
        player.flag_revert_palette=TRUE;
        player.time_breaker_tick=0;
        CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,rgbColorsDefault,167,rgbPaint[player_color]);
-       CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,PlayerSprite[0].PlayerPalette,151,LTGRAY); //border
+      // CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,PlayerSprite[0].PlayerPalette,151,LTGRAY); //border
+       CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,PlayerSprite[0].PlayerPalette,151,BLACK); //border
        CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,PlayerSprite[0].PlayerPalette,199,rgbPaint[player_iris_color]);
 
        CopyReplaceColorPalette(PlayerSprite[0].PlayerBlurPalette,rgbColorsDefault,167,rgbPaint[player_color]);
-       CopyReplaceColorPalette(PlayerSprite[0].PlayerBlurPalette,PlayerSprite[0].PlayerBlurPalette,151,LTGRAY); //border
+       //CopyReplaceColorPalette(PlayerSprite[0].PlayerBlurPalette,PlayerSprite[0].PlayerBlurPalette,151,LTGRAY); //border
+       CopyReplaceColorPalette(PlayerSprite[0].PlayerBlurPalette,PlayerSprite[0].PlayerBlurPalette,151,BLACK); //border
+
        CopyReplaceColorPalette(PlayerSprite[0].PlayerBlurPalette,PlayerSprite[0].PlayerBlurPalette,199,rgbPaint[player_pupil_color]);
 
        CopyReplaceColorPalette(player_cursor_palette,rgbColorsDefault,167,rgbPaint[player_color]); //LTGREEN

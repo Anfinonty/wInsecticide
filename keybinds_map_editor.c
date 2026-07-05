@@ -9,7 +9,7 @@ void UpdateMEDrawSprite()
     MEEnemySprite[ei]->sprite_1=NULL;
     FreeDrawSprite(&MEEnemySprite[ei]->draw_sprite_1);
     //Create New Sprite
-    switch (set_enemy_type_species[ei]) {
+    switch (saved_enemy_type_species[ei]) {
       case 0:
         MEEnemySprite[ei]->sprite_1=CopyCrunchyBitmap(enemy1_sprite_1,SRCCOPY);
         break;
@@ -39,7 +39,7 @@ void UpdateMEDrawSprite()
     GenerateDrawSprite(&MEEnemySprite[ei]->draw_sprite_1,MEEnemySprite[ei]->sprite_1);
 
     //Update Palette!!
-    CopyReplaceColorPalette(MEEnemySprite[ei]->enemyPalette,rgbColorsDefault,167,rgbPaint[set_enemy_type_color[ei]]); //set normal palette
+    CopyReplaceColorPalette(MEEnemySprite[ei]->enemyPalette,rgbColorsDefault,167,rgbPaint[saved_enemy_type_wing_color[ei]]); //set normal palette
     CopyReplaceColorPalette(MEEnemySprite[ei]->enemyPalette,MEEnemySprite[ei]->enemyPalette,151,LTGRAY); //set outline color ltblue go LTGRAY
 
     MapEditor.flag_enemy_palette_i=ei;
@@ -53,10 +53,10 @@ void MEColorPickKeypressDown(WPARAM wParam)
       ColorKeypressDown(wParam,&Ground[MapEditor.selected_ground_id]->color_id);
       break;
     case 1: //Enemy Type color
-      ColorKeypressDown(wParam,&set_enemy_type_color[MapEditor.selected_enemy_type_id]);
+      ColorKeypressDown(wParam,&saved_enemy_type_wing_color[MapEditor.selected_enemy_type_id]);
       break;
     case 2: //Enemy Type bulllet color
-      ColorKeypressDown(wParam,&set_enemy_type_bullet_color[MapEditor.selected_enemy_type_id]);
+      ColorKeypressDown(wParam,&saved_enemy_type_bullet_color[MapEditor.selected_enemy_type_id]);
       break;
     case 3: //Background
       ColorKeypressDown(wParam,&MapEditor.bg_attr_day_bg_color_i);      
@@ -82,11 +82,11 @@ void MEColorPickKeypressUp(WPARAM wParam)
       ColorKeypressUp(wParam,&Ground[MapEditor.selected_ground_id]->color_id);
       break;
     case 1: //Enemy Type color
-      ColorKeypressUp(wParam,&set_enemy_type_color[MapEditor.selected_enemy_type_id]);
+      ColorKeypressUp(wParam,&saved_enemy_type_wing_color[MapEditor.selected_enemy_type_id]);
       UpdateMEDrawSprite();
       break;
     case 2: //Enemy Type bulllet color
-      ColorKeypressUp(wParam,&set_enemy_type_bullet_color[MapEditor.selected_enemy_type_id]);
+      ColorKeypressUp(wParam,&saved_enemy_type_bullet_color[MapEditor.selected_enemy_type_id]);
       break;
     case 3:
       ColorKeypressUp(wParam,&MapEditor.bg_attr_day_bg_color_i);
@@ -219,29 +219,44 @@ void MapEditorKeypressDown(WPARAM wParam)
             {
               int k=MapEditor.selected_enemy_type_id;
               int l=MapEditor.clipboard_enemy_type_id;
-              set_enemy_type_speed[k]=set_enemy_type_speed[l];
-              set_enemy_type_bullet_speed[k]=set_enemy_type_bullet_speed[l];
-              set_enemy_type_species[k]=set_enemy_type_species[l];
-              set_enemy_type_follow_range[k]=set_enemy_type_follow_range[l];
-              set_enemy_type_unchase_range[k]=set_enemy_type_unchase_range[l];
-              set_enemy_type_chase_range[k]=set_enemy_type_chase_range[l];
-              set_enemy_type_color[k]=set_enemy_type_color[l];
-              set_enemy_type_speed_multiplier[k]=set_enemy_type_speed_multiplier[l];
-              set_enemy_type_health[k]=set_enemy_type_health[l];
-              set_enemy_type_shoot_at_player_range[k]=set_enemy_type_shoot_at_player_range[l];
-              set_enemy_type_aim_rand[k]=set_enemy_type_aim_rand[l];
-              set_enemy_type_bullet_cooldown[k]=set_enemy_type_bullet_cooldown[l];
-              set_enemy_type_bullet_fire_cooldown[k]=set_enemy_type_bullet_fire_cooldown[l];
-              set_enemy_type_bullet_fire_at_once[k]=set_enemy_type_bullet_fire_at_once[l];
-              set_enemy_type_bullet_length[k]=set_enemy_type_bullet_length[l];
-              set_enemy_type_bullet_damage[k]=set_enemy_type_bullet_damage[l];
-              set_enemy_type_bullet_speed_multiplier[k]=set_enemy_type_bullet_speed_multiplier[l];
-              set_enemy_type_bullet_range[k]=set_enemy_type_bullet_range[l];
-              set_enemy_type_bullet_color[k]=set_enemy_type_bullet_color[l];
-              set_enemy_type_bullet_graphics_type[k]=set_enemy_type_bullet_graphics_type[l];
-              set_enemy_type_time_breaker_rare[k]=set_enemy_type_time_breaker_rare[l];
-              set_enemy_type_time_breaker_length[k]=set_enemy_type_time_breaker_length[l];
-              set_enemy_type_time_breaker_immune[k]=set_enemy_type_time_breaker_immune[l];
+              saved_enemy_type_speed[k]=saved_enemy_type_speed[l];
+              saved_enemy_type_bullet_speed[k]=saved_enemy_type_bullet_speed[l];
+              saved_enemy_type_species[k]=saved_enemy_type_species[l];
+              saved_enemy_type_follow_range[k]=saved_enemy_type_follow_range[l];
+              saved_enemy_type_unchase_range[k]=saved_enemy_type_unchase_range[l];
+              saved_enemy_type_chase_range[k]=saved_enemy_type_chase_range[l];
+              saved_enemy_type_wing_color[k]=saved_enemy_type_wing_color[l];
+              saved_enemy_type_eye_color[k]=saved_enemy_type_eye_color[l];
+              saved_enemy_type_border_color[k]=saved_enemy_type_border_color[l];
+              saved_enemy_type_bodypart_color[k]=saved_enemy_type_bodypart_color[l];
+              saved_enemy_type_speed_multiplier[k]=saved_enemy_type_speed_multiplier[l];
+              saved_enemy_type_health[k]=saved_enemy_type_health[l];
+              saved_enemy_type_shoot_at_player_range[k]=saved_enemy_type_shoot_at_player_range[l];
+              saved_enemy_type_aim_rand[k]=saved_enemy_type_aim_rand[l];
+              saved_enemy_type_bullet_cooldown[k]=saved_enemy_type_bullet_cooldown[l];
+              saved_enemy_type_bullet_fire_cooldown[k]=saved_enemy_type_bullet_fire_cooldown[l];
+              saved_enemy_type_bullet_fire_at_once[k]=saved_enemy_type_bullet_fire_at_once[l];
+              saved_enemy_type_bullet_length[k]=saved_enemy_type_bullet_length[l];
+              saved_enemy_type_bullet_damage[k]=saved_enemy_type_bullet_damage[l];
+              saved_enemy_type_bullet_speed_multiplier[k]=saved_enemy_type_bullet_speed_multiplier[l];
+              saved_enemy_type_bullet_range[k]=saved_enemy_type_bullet_range[l];
+              saved_enemy_type_bullet_color[k]=saved_enemy_type_bullet_color[l];
+              saved_enemy_type_bullet_graphics_type[k]=saved_enemy_type_bullet_graphics_type[l];
+
+              saved_enemy_type_next_angle_type[k]=saved_enemy_type_next_angle_type[l];
+              saved_enemy_type_next_shoot_angle_type[k]=saved_enemy_type_next_shoot_angle_type[l];
+              saved_enemy_type_bullet_shoot_oangle[k]=saved_enemy_type_bullet_shoot_oangle[l];
+              saved_enemy_type_bullet_next_shoot_angle[k]=saved_enemy_type_bullet_next_shoot_angle[l];
+              saved_enemy_type_bullet_next_angle[k]=saved_enemy_type_bullet_next_angle[l];
+              saved_enemy_type_bullet_oscilating_delta[k]=saved_enemy_type_bullet_oscilating_delta[l];
+              saved_enemy_type_bullet_oscilating_max[k]=saved_enemy_type_bullet_oscilating_max[l];
+
+
+              saved_enemy_type_time_breaker_rare[k]=saved_enemy_type_time_breaker_rare[l];
+              saved_enemy_type_time_breaker_length[k]=saved_enemy_type_time_breaker_length[l];
+              saved_enemy_type_time_breaker_immune[k]=saved_enemy_type_time_breaker_immune[l];
+              saved_enemy_type_is_aim_at_player[k]=saved_enemy_type_is_aim_at_player[l];
+              saved_enemy_type_is_still_when_shooting[k]=saved_enemy_type_is_still_when_shooting[l];
               UpdateMEDrawSprite();
             }
               break;
@@ -463,41 +478,50 @@ void MapEditorKeypressDown(WPARAM wParam)
           case 3: //enemy type --
             if (MapEditor.selected_enemy_type_option>0) { //set enemy_type
               int seto = MapEditor.selected_enemy_type_option-1;
-              if ( MapEditor.selected_enemy_type_option!=5 && MapEditor.selected_enemy_type_option!=17) {
+              //if (!((MapEditor.selected_enemy_type_option>=5 && MapEditor.selected_enemy_type_option<=8) || MapEditor.selected_enemy_type_option!=18)) {
               if (seto<ENEMY_TYPE_INT_ATTR_NUM) {//int values
 
                 if (seto!=2 && seto!=3) {
-                  set_enemy_type_int_attr[seto][MapEditor.selected_enemy_type_id]=
-                  LimitValueInt(
-                    set_enemy_type_int_attr[seto][MapEditor.selected_enemy_type_id]-enemy_int_attr_delta[seto],
-                    enemy_int_attr_min[seto],
-                    enemy_int_attr_max[seto]
-                  );
+                  if (seto>=23 && seto<=27 && (keydown(VK_LSHIFT) || keydown(VK_RSHIFT))) {
+                    enemy_type_int_pointer[seto][MapEditor.selected_enemy_type_id]=
+                    LimitValueInt(
+                      enemy_type_int_pointer[seto][MapEditor.selected_enemy_type_id]-enemy_int_attr_delta[seto]*100,
+                      enemy_int_attr_min[seto],
+                      enemy_int_attr_max[seto]
+                    ); 
+                  } else {
+                    enemy_type_int_pointer[seto][MapEditor.selected_enemy_type_id]=
+                    LimitValueInt(
+                      enemy_type_int_pointer[seto][MapEditor.selected_enemy_type_id]-enemy_int_attr_delta[seto],
+                      enemy_int_attr_min[seto],
+                      enemy_int_attr_max[seto]
+                    ); 
+                  }
                 } else {
-                  set_enemy_type_int_attr[seto][MapEditor.selected_enemy_type_id]--;
+                  enemy_type_int_pointer[seto][MapEditor.selected_enemy_type_id]--;
                 }
 
                 if (seto>=1 && seto<=3) {
-                  set_enemy_type_int_attr[2][MapEditor.selected_enemy_type_id]=
-                    LimitValueInt(set_enemy_type_int_attr[2][MapEditor.selected_enemy_type_id],1,1+set_enemy_type_int_attr[1][MapEditor.selected_enemy_type_id]);
+                  enemy_type_int_pointer[2][MapEditor.selected_enemy_type_id]=
+                    LimitValueInt(enemy_type_int_pointer[2][MapEditor.selected_enemy_type_id],1,1+enemy_type_int_pointer[1][MapEditor.selected_enemy_type_id]);
 
-                  set_enemy_type_int_attr[3][MapEditor.selected_enemy_type_id]=
-                    LimitValueInt(set_enemy_type_int_attr[3][MapEditor.selected_enemy_type_id],1,1+set_enemy_type_int_attr[1][MapEditor.selected_enemy_type_id]);
+                  enemy_type_int_pointer[3][MapEditor.selected_enemy_type_id]=
+                    LimitValueInt(enemy_type_int_pointer[3][MapEditor.selected_enemy_type_id],1,1+enemy_type_int_pointer[1][MapEditor.selected_enemy_type_id]);
                 }
 
               } else if (seto>=ENEMY_TYPE_INT_ATTR_NUM && seto<ENEMY_TYPE_FLOAT_ATTR_NUM+ENEMY_TYPE_INT_ATTR_NUM) { //float values
                 seto-=ENEMY_TYPE_INT_ATTR_NUM;
-                set_enemy_type_float_attr[seto][MapEditor.selected_enemy_type_id]=
+                enemy_type_float_pointer[seto][MapEditor.selected_enemy_type_id]=
                 LimitValue(
-                  set_enemy_type_float_attr[seto][MapEditor.selected_enemy_type_id]-enemy_float_attr_delta[seto],
+                  enemy_type_float_pointer[seto][MapEditor.selected_enemy_type_id]-enemy_float_attr_delta[seto],
                   enemy_float_attr_min[seto],
                   enemy_float_attr_max[seto]+1
                 );                
               } else { //bool values
                 seto-=(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_FLOAT_ATTR_NUM);
-                set_enemy_type_bool_attr[seto][MapEditor.selected_enemy_type_id]=!set_enemy_type_bool_attr[seto][MapEditor.selected_enemy_type_id];
+                enemy_type_bool_pointer[seto][MapEditor.selected_enemy_type_id]=!enemy_type_bool_pointer[seto][MapEditor.selected_enemy_type_id];
               }
-              }
+              //}
             } else { //changing tyoe 0 to 10
               MapEditor.selected_enemy_type_id = LimitValueInt(MapEditor.selected_enemy_type_id-1,0,ENEMY_TYPE_NUM);
             }
@@ -817,43 +841,53 @@ void MapEditorKeypressDown(WPARAM wParam)
           case 3: //Enemy Type ++ 
             if (MapEditor.selected_enemy_type_option>0) { //set enemy_type
               int seto = MapEditor.selected_enemy_type_option-1;
-              if (MapEditor.selected_enemy_type_option!=5 && MapEditor.selected_enemy_type_option!=17) {
+              //if (MapEditor.selected_enemy_type_option!=5 && MapEditor.selected_enemy_type_option!=17) {
+              //if (!((MapEditor.selected_enemy_type_option>=5 && MapEditor.selected_enemy_type_option<=8) || MapEditor.selected_enemy_type_option!=18)) {
               if (seto<ENEMY_TYPE_INT_ATTR_NUM) {//int values
                 if (seto!=2 && seto!=3) {
-                  set_enemy_type_int_attr[seto][MapEditor.selected_enemy_type_id]=
-                  LimitValueInt(
-                    set_enemy_type_int_attr[seto][MapEditor.selected_enemy_type_id]+enemy_int_attr_delta[seto],
-                    enemy_int_attr_min[seto],
-                    enemy_int_attr_max[seto]
-                  );
+                  if (seto>=23 && seto<=27 && (keydown(VK_LSHIFT)||keydown(VK_RSHIFT))) {
+                    enemy_type_int_pointer[seto][MapEditor.selected_enemy_type_id]=
+                      LimitValueInt(
+                        enemy_type_int_pointer[seto][MapEditor.selected_enemy_type_id]+enemy_int_attr_delta[seto]*100,
+                        enemy_int_attr_min[seto],
+                        enemy_int_attr_max[seto]
+                      );
+                  } else {
+                    enemy_type_int_pointer[seto][MapEditor.selected_enemy_type_id]=
+                    LimitValueInt(
+                      enemy_type_int_pointer[seto][MapEditor.selected_enemy_type_id]+enemy_int_attr_delta[seto],
+                      enemy_int_attr_min[seto],
+                      enemy_int_attr_max[seto]
+                    );
+                  }
                 } else {
-                  set_enemy_type_int_attr[seto][MapEditor.selected_enemy_type_id]++;
+                  enemy_type_int_pointer[seto][MapEditor.selected_enemy_type_id]++;
                 }
                 //Limit Other Follow Ranges
-                    //seto0 follow range
-                    //seto1 unchase range
-                    //seto2 rechase range
+                    //seto1 follow range
+                    //seto2 unchase range
+                    //seto3 rechase range
                 if (seto>=1 && seto<=3) {
-                  set_enemy_type_int_attr[2][MapEditor.selected_enemy_type_id]=
-                    LimitValueInt(set_enemy_type_int_attr[2][MapEditor.selected_enemy_type_id],1,1+set_enemy_type_int_attr[1][MapEditor.selected_enemy_type_id]);
+                  enemy_type_int_pointer[2][MapEditor.selected_enemy_type_id]=
+                    LimitValueInt(enemy_type_int_pointer[2][MapEditor.selected_enemy_type_id],1,1+enemy_type_int_pointer[1][MapEditor.selected_enemy_type_id]);
 
-                  set_enemy_type_int_attr[3][MapEditor.selected_enemy_type_id]=
-                    LimitValueInt(set_enemy_type_int_attr[3][MapEditor.selected_enemy_type_id],1,1+set_enemy_type_int_attr[1][MapEditor.selected_enemy_type_id]);
+                  enemy_type_int_pointer[3][MapEditor.selected_enemy_type_id]=
+                    LimitValueInt(enemy_type_int_pointer[3][MapEditor.selected_enemy_type_id],1,1+enemy_type_int_pointer[1][MapEditor.selected_enemy_type_id]);
                 }
 
               } else if (seto>=ENEMY_TYPE_INT_ATTR_NUM && seto<ENEMY_TYPE_FLOAT_ATTR_NUM+ENEMY_TYPE_INT_ATTR_NUM) { //float values
                 seto-=ENEMY_TYPE_INT_ATTR_NUM;
-                set_enemy_type_float_attr[seto][MapEditor.selected_enemy_type_id]=
+                enemy_type_float_pointer[seto][MapEditor.selected_enemy_type_id]=
                 LimitValue(
-                  set_enemy_type_float_attr[seto][MapEditor.selected_enemy_type_id]+enemy_float_attr_delta[seto],
+                  enemy_type_float_pointer[seto][MapEditor.selected_enemy_type_id]+enemy_float_attr_delta[seto],
                   enemy_float_attr_min[seto],
                   enemy_float_attr_max[seto]
                 );                
               } else { //bool values
                 seto-=(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_FLOAT_ATTR_NUM);
-                set_enemy_type_bool_attr[seto][MapEditor.selected_enemy_type_id]=!set_enemy_type_bool_attr[seto][MapEditor.selected_enemy_type_id];
+                enemy_type_bool_pointer[seto][MapEditor.selected_enemy_type_id]=!enemy_type_bool_pointer[seto][MapEditor.selected_enemy_type_id];
               }
-              }
+              //}
             } else { //changing tyoe 0 to 10
               InitBullet(ENEMY_BULLET_NUM);
               MapEditor.selected_enemy_type_id = LimitValueInt(MapEditor.selected_enemy_type_id+1,0,ENEMY_TYPE_NUM);
@@ -1135,18 +1169,32 @@ void MapEditorKeypressDown(WPARAM wParam)
           }
           break;
         case 3:
+          if (MapEditor.selected_enemy_type_option>=5 && MapEditor.selected_enemy_type_option<=8) {
+            color_chooser.is_choosing_color=TRUE;
+            MapEditor.pick_color=1;
+          }
           switch (MapEditor.selected_enemy_type_option) {
             case 5:
-              color_chooser.is_choosing_color=TRUE;
-              MapEditor.pick_color=1;
               color_chooser.color_id=
-              color_chooser.color_id_choosing=set_enemy_type_color[MapEditor.selected_enemy_type_id];
+              color_chooser.color_id_choosing=saved_enemy_type_wing_color[MapEditor.selected_enemy_type_id];
               break;
-            case 17:
+            case 6:
+              color_chooser.color_id=
+              color_chooser.color_id_choosing=saved_enemy_type_eye_color[MapEditor.selected_enemy_type_id];
+              break;
+            case 7:
+              color_chooser.color_id=
+              color_chooser.color_id_choosing=saved_enemy_type_border_color[MapEditor.selected_enemy_type_id];
+              break;
+            case 8:
+              color_chooser.color_id=
+              color_chooser.color_id_choosing=saved_enemy_type_bodypart_color[MapEditor.selected_enemy_type_id];
+              break;
+            case 20:
               color_chooser.is_choosing_color=TRUE;
               MapEditor.pick_color=2;
               color_chooser.color_id=
-              color_chooser.color_id_choosing=set_enemy_type_bullet_color[MapEditor.selected_enemy_type_id];
+              color_chooser.color_id_choosing=saved_enemy_type_bullet_color[MapEditor.selected_enemy_type_id];
               break;
           } 
           break;

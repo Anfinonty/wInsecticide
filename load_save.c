@@ -125,7 +125,15 @@ int saved_enemy_type_species[ENEMY_TYPE_NUM];
 int saved_enemy_type_follow_range[ENEMY_TYPE_NUM]; //
 int saved_enemy_type_unchase_range[ENEMY_TYPE_NUM];
 int saved_enemy_type_chase_range[ENEMY_TYPE_NUM]; //
-int saved_enemy_type_color[ENEMY_TYPE_NUM];
+
+//int saved_enemy_type_color[ENEMY_TYPE_NUM];
+
+int saved_enemy_type_wing_color[ENEMY_TYPE_NUM];
+int saved_enemy_type_eye_color[ENEMY_TYPE_NUM];
+int saved_enemy_type_border_color[ENEMY_TYPE_NUM];
+int saved_enemy_type_bodypart_color[ENEMY_TYPE_NUM];
+
+
 int saved_enemy_type_speed_multiplier[ENEMY_TYPE_NUM]; //
 int saved_enemy_type_health[ENEMY_TYPE_NUM];
 int saved_enemy_type_shoot_at_player_range[ENEMY_TYPE_NUM]; //
@@ -140,23 +148,42 @@ int saved_enemy_type_bullet_speed_multiplier[ENEMY_TYPE_NUM];
 int saved_enemy_type_bullet_range[ENEMY_TYPE_NUM]; //
 int saved_enemy_type_bullet_color[ENEMY_TYPE_NUM];
 int saved_enemy_type_bullet_graphics_type[ENEMY_TYPE_NUM]; //
+
+
+int saved_enemy_type_next_angle_type[ENEMY_TYPE_NUM];
+int saved_enemy_type_next_shoot_angle_type[ENEMY_TYPE_NUM];
+int saved_enemy_type_bullet_shoot_oangle[ENEMY_TYPE_NUM];
+int saved_enemy_type_bullet_next_shoot_angle[ENEMY_TYPE_NUM];
+int saved_enemy_type_bullet_next_angle[ENEMY_TYPE_NUM];
+int saved_enemy_type_bullet_oscilating_delta[ENEMY_TYPE_NUM];
+int saved_enemy_type_bullet_oscilating_max[ENEMY_TYPE_NUM];
+
+
 int saved_enemy_type_time_breaker_rare[ENEMY_TYPE_NUM];
 int saved_enemy_type_time_breaker_length[ENEMY_TYPE_NUM]; //
 //
-#define S_ENEMY_TYPE_INT_NUM 20
+#define S_ENEMY_TYPE_INT_NUM 30
 int *enemy_type_int_pointer[S_ENEMY_TYPE_INT_NUM]=
 {
   saved_enemy_type_species, 
   saved_enemy_type_follow_range, //
   saved_enemy_type_unchase_range, 
   saved_enemy_type_chase_range,  //
-  saved_enemy_type_color, 
+
+//  saved_enemy_type_color, 
+  saved_enemy_type_wing_color,
+  saved_enemy_type_eye_color,
+  saved_enemy_type_border_color,
+  saved_enemy_type_bodypart_color,
+
   saved_enemy_type_speed_multiplier, // 
   saved_enemy_type_health, 
   saved_enemy_type_shoot_at_player_range, // 
   saved_enemy_type_aim_rand, 
-  saved_enemy_type_bullet_cooldown, //
+
+
 //
+  saved_enemy_type_bullet_cooldown, //
   saved_enemy_type_bullet_fire_cooldown, 
   saved_enemy_type_bullet_fire_at_once, //
   saved_enemy_type_bullet_length,
@@ -165,16 +192,32 @@ int *enemy_type_int_pointer[S_ENEMY_TYPE_INT_NUM]=
   saved_enemy_type_bullet_range, //
   saved_enemy_type_bullet_color, 
   saved_enemy_type_bullet_graphics_type, //
+
+  saved_enemy_type_next_angle_type,
+  saved_enemy_type_next_shoot_angle_type,
+  saved_enemy_type_bullet_shoot_oangle,
+  saved_enemy_type_bullet_next_shoot_angle,
+  saved_enemy_type_bullet_next_angle,
+  saved_enemy_type_bullet_oscilating_delta,
+  saved_enemy_type_bullet_oscilating_max,
+
+
+
   saved_enemy_type_time_breaker_rare, 
   saved_enemy_type_time_breaker_length //
 };
 
 //Load EnemyType Bool Segment
 bool saved_enemy_type_time_breaker_immune[ENEMY_TYPE_NUM];
-#define S_ENEMY_TYPE_BOOL_NUM 1
+bool saved_enemy_type_is_aim_at_player[ENEMY_TYPE_NUM];
+bool saved_enemy_type_is_still_when_shooting[ENEMY_TYPE_NUM];
+
+#define S_ENEMY_TYPE_BOOL_NUM 3
 bool *enemy_type_bool_pointer[S_ENEMY_TYPE_BOOL_NUM]=
 {
-  saved_enemy_type_time_breaker_immune
+  saved_enemy_type_time_breaker_immune,
+  saved_enemy_type_is_aim_at_player,
+  saved_enemy_type_is_still_when_shooting
 };
 
 
@@ -193,7 +236,7 @@ bool saved_larger_enemy_type_time_breaker_immune[ENEMY_TYPE_NUM];
 
 
 
-
+/*
 //Set Enemy Float Segment
 float set_enemy_type_speed[ENEMY_TYPE_NUM];
 float set_enemy_type_bullet_speed[ENEMY_TYPE_NUM];
@@ -202,7 +245,12 @@ int set_enemy_type_species[ENEMY_TYPE_NUM];
 int set_enemy_type_follow_range[ENEMY_TYPE_NUM];
 int set_enemy_type_unchase_range[ENEMY_TYPE_NUM];
 int set_enemy_type_chase_range[ENEMY_TYPE_NUM];
-int set_enemy_type_color[ENEMY_TYPE_NUM];
+
+
+//int set_enemy_type_color[ENEMY_TYPE_NUM];
+
+
+
 int set_enemy_type_speed_multiplier[ENEMY_TYPE_NUM];
 int set_enemy_type_health[ENEMY_TYPE_NUM];
 int set_enemy_type_shoot_at_player_range[ENEMY_TYPE_NUM];
@@ -261,10 +309,8 @@ int *set_enemy_type_int_pointer[S_ENEMY_TYPE_INT_NUM]=
 bool *set_enemy_type_bool_pointer[S_ENEMY_TYPE_BOOL_NUM]=
 {
   set_enemy_type_time_breaker_immune
-  //set_enemy_aim_player //enemy aiming at player or not
-  //set_enemy_bullet_angle_oscillate //after shoot bullet:: ?angle=-angle,,:angle=(-angle)+angle (bullet_shot_num%2==1)
 };
-
+*/
 
 
 //Level Player Attributes 
@@ -797,9 +843,9 @@ bool LoadSave(wchar_t *saves_name, bool spawn_objects)
               case 2:ground_bool_pointer[row-low_][column]=(bool)int_saved_val;break; //Ground Bool Segmnet
               case 3:ground_int_pointer[row-low_][column]=(int)int_saved_val;break; //Ground Int Segment
               case 4: break; //UTF GROUND IS SKIPPED
-              case 5:enemy_int_pointer[row-low_][column]=int_saved_val;break; //Enemy Int Segment
-              case 6: enemy_float_pointer[row-low_][column]=(float)int_saved_val;break; //EnemyType Float Segment
-              case 7: enemy_type_float_pointer[row-low_][column]=float_saved_val;break; //!!true float!! //Enemy Float Segment
+              case 5: enemy_int_pointer[row-low_][column]=int_saved_val;break; //Enemy Int Segment
+              case 6: enemy_float_pointer[row-low_][column]=(float)int_saved_val;break; //Enemy Float Segment
+              case 7: enemy_type_float_pointer[row-low_][column]=float_saved_val;break; //!!true float!! //EnemyType Float Segment
               case 8: enemy_type_int_pointer[row-low_][column]=int_saved_val;break;  //EnemyType Int Segment
               case 9: enemy_type_bool_pointer[row-low_][column]=(bool)int_saved_val;break; //EnemyType Bool Segment
               case 10: *player_float_pointer[row-low_]=(float)int_saved_val; break; //Saved Player Float Segment

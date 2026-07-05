@@ -1,11 +1,16 @@
 
-char *enemy_type_int_attr_names[ENEMY_TYPE_INT_ATTR_NUM]=
+char *enemy_type_int_pointer_names[ENEMY_TYPE_INT_ATTR_NUM]=
 {
-"Species",
+"Species", //0
 "Follow Range",
 "Unchase Range",
 "Chase Range",
-"Color", //4
+
+"Wing Color", //4
+"Eye Color", //5 
+"Border Color", //6
+"Body Part Color", //7
+
 "Speed *",
 "Health",
 "Shoot at Player Range",
@@ -17,13 +22,22 @@ char *enemy_type_int_attr_names[ENEMY_TYPE_INT_ATTR_NUM]=
 "Bullet Damage",
 "Bullet Speed *",
 "Bullet Range",
-"Bullet Color", //16
+"Bullet Color", //19
 "Bullet Type",
+
+"Bullet Next Angle Type", //21
+"Bullet Next Shoot Angle Type", //22
+"Bullet Original Shoot Angle", //23
+"Bullet Next Shoot Angle",
+"Bullet Next Angle",
+"Bullet Osciliating Delta",
+"Bullet Osciliating Max", //27
+
 "Timebreaker Rare",
 "Timebreaker Length"
 };
 
-char *enemy_type_float_attr_names[ENEMY_TYPE_FLOAT_ATTR_NUM]=
+char *enemy_type_float_pointer_names[ENEMY_TYPE_FLOAT_ATTR_NUM]=
 {
 "Speed",
 "Bullet Speed"
@@ -31,7 +45,9 @@ char *enemy_type_float_attr_names[ENEMY_TYPE_FLOAT_ATTR_NUM]=
 
 char *enemy_type_bool_attr_names[ENEMY_TYPE_BOOL_ATTR_NUM]=
 {
-"Timebreaker Immune"
+"Timebreaker Immune",
+"Aim at Player",
+"Still when Shooting"
 };
 
 
@@ -523,22 +539,22 @@ void DrawMapEditorEnemy(HDC hdc,HDC hdc2)
   for (int i=0;i<ENEMY_NUM;i++) {
     int type=MEEnemy[i]->type;
     sprintf(txt_i,"%d",i);
-    c=Highlight((i==MapEditor.selected_enemy_id && MapEditor.selected_option==2),rgbPaint[set_enemy_type_color[type]],LTPURPLE);
-    if (set_enemy_type_species[type]==1 || set_enemy_type_species[type]==3)
+    c=Highlight((i==MapEditor.selected_enemy_id && MapEditor.selected_option==2),rgbPaint[saved_enemy_type_wing_color[type]],LTPURPLE);
+    if (saved_enemy_type_species[type]==1 || saved_enemy_type_species[type]==3)
       GrPrintThick(hdc,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y-64+GR_HEIGHT/2,txt_i,c,BLACK);
     else
       GrPrintThick(hdc,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y-32+GR_HEIGHT/2,txt_i,c,BLACK);
 
 
     //GrSprite(hdc,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y+GR_HEIGHT/2,MEEnemySprite[type]->sprite_1,FALSE);
-    if (set_enemy_type_species[type]!=6) {
+    if (saved_enemy_type_species[type]!=6) {
       DrawSprite(hdc,hdc2,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y+GR_HEIGHT/2,&MEEnemySprite[type]->draw_sprite_1,FALSE);
     } else {
       DrawSprite(hdc,hdc2,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y+GR_HEIGHT/2,&MEEnemySprite[type]->draw_sprite_1,TRUE);
     }
 
-    if (set_enemy_type_species[type]==1) { //cockroach draw antannae
-      DrawEnemyAntannae(hdc,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y+GR_HEIGHT/2,rgbPaint[set_enemy_type_color[type]],FALSE);
+    if (saved_enemy_type_species[type]==1) { //cockroach draw antannae
+      DrawEnemyAntannae(hdc,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y+GR_HEIGHT/2,rgbPaint[saved_enemy_type_wing_color[type]],FALSE);
     }
   }
 }
@@ -712,7 +728,7 @@ void DrawMapEditorUI(HDC hdc,HDC hdc2)
         GrPrintThick(hdc,8*11,34,print_enemy_type,c,BLACK);
         break;
 
-      case 3: //set enemy type
+      case 3: //set enemy type Draw Paint Square
 //        GrPrintThick(hdc,8,16,"ENEMY TYPE:",BLACK);
         {
         c = Highlight((MapEditor.selected_enemy_type_option==0),WHITE,LTPURPLE);
@@ -723,30 +739,58 @@ void DrawMapEditorUI(HDC hdc,HDC hdc2)
 
 
 
-        char print_enemy_type_int_attr[40];
+        char print_enemy_type_int_pointer[40];
         for (int i=0;i<ENEMY_TYPE_INT_ATTR_NUM;i++) {
           c = Highlight((MapEditor.selected_enemy_type_option==i+1),WHITE,LTPURPLE);
-          if (i!=4 && i!=16) {
-            sprintf(print_enemy_type_int_attr,"%s <%d>  {%d}",enemy_type_int_attr_names[i],set_enemy_type_int_attr[i][MapEditor.selected_enemy_type_id],set_enemy_type_int_attr[i][MapEditor.clipboard_enemy_type_id]);            
-            GrPrintThick(hdc,8,32+16*i,print_enemy_type_int_attr,c,BLACK);
+          //if (i!=4 && i!=16) {
+          if (!((i>=4 && i<=7) || i==19)) {
+            if (i>=23 && i<=27) { //angle related for bullet shooting
+              sprintf(print_enemy_type_int_pointer,"%s <%3.2f>  {%3.2f}",
+                enemy_type_int_pointer_names[i],
+                (float)enemy_type_int_pointer[i][MapEditor.selected_enemy_type_id]/100.0,
+                (float)enemy_type_int_pointer[i][MapEditor.clipboard_enemy_type_id]/100.0
+              );            
+              GrPrintThick(hdc,8,32+16*i,print_enemy_type_int_pointer,c,BLACK);
+            } else {
+              sprintf(print_enemy_type_int_pointer,"%s <%d>  {%d}",enemy_type_int_pointer_names[i],enemy_type_int_pointer[i][MapEditor.selected_enemy_type_id],enemy_type_int_pointer[i][MapEditor.clipboard_enemy_type_id]);            
+              GrPrintThick(hdc,8,32+16*i,print_enemy_type_int_pointer,c,BLACK);
+            }
           } else {
-
             GrRect(hdc,8*14+1,32+16*i,16,16,WHITE);
             GrRect(hdc,8*18,32+16*i,16,16,WHITE);
             int di=MapEditor.selected_enemy_type_option-1;
-            if (i==4) {
-              GrRect(hdc,8*14+2+1,32+16*i+2,12,12,rgbPaint[set_enemy_type_color[MapEditor.selected_enemy_type_id]]);
-              GrPrintThick(hdc,8,32+16*i,"Enemy Color:",c,BLACK);
+            if ((i>=4 && i<=7)) {
+              switch (i) {
+                case 4:
+                  GrRect(hdc,8*14+2+1,32+16*i+2,12,12,rgbPaint[saved_enemy_type_wing_color[MapEditor.selected_enemy_type_id]]);
+                  GrPrintThick(hdc,8,32+16*i,"Enemy Wings Color:",c,BLACK);
+                  GrRect(hdc,8*18+2,32+16*i+2,12,12,rgbPaint[saved_enemy_type_wing_color[MapEditor.clipboard_enemy_type_id]]);
+                  break;
+                case 5:
+                  GrRect(hdc,8*14+2+1,32+16*i+2,12,12,rgbPaint[saved_enemy_type_eye_color[MapEditor.selected_enemy_type_id]]);
+                  GrPrintThick(hdc,8,32+16*i,"Enemy Eye Color:",c,BLACK);
+                  GrRect(hdc,8*18+2,32+16*i+2,12,12,rgbPaint[saved_enemy_type_eye_color[MapEditor.clipboard_enemy_type_id]]);
+                  break;
+                case 6:
+                  GrRect(hdc,8*14+2+1,32+16*i+2,12,12,rgbPaint[saved_enemy_type_border_color[MapEditor.selected_enemy_type_id]]);
+                  GrPrintThick(hdc,8,32+16*i,"Enemy Border Color:",c,BLACK);
+                  GrRect(hdc,8*18+2,32+16*i+2,12,12,rgbPaint[saved_enemy_type_border_color[MapEditor.clipboard_enemy_type_id]]);
+                  break;
+                case 7:
+                  GrRect(hdc,8*14+2+1,32+16*i+2,12,12,rgbPaint[saved_enemy_type_bodypart_color[MapEditor.selected_enemy_type_id]]);
+                  GrPrintThick(hdc,8,32+16*i,"Enemy Bodypart Color:",c,BLACK);
+                  GrRect(hdc,8*18+2,32+16*i+2,12,12,rgbPaint[saved_enemy_type_bodypart_color[MapEditor.clipboard_enemy_type_id]]);
+                  break;
+              }
               GrPrintThick(hdc,8*13,32+16*i,"[      ]",c,BLACK);
 
-              GrRect(hdc,8*18+2,32+16*i+2,12,12,rgbPaint[set_enemy_type_color[MapEditor.clipboard_enemy_type_id]]);
               GrPrintThick(hdc,8*17,32+16*i,"{     }",c,BLACK);
             } else {
-              GrRect(hdc,8*14+2+1,32+16*i+2,12,12,rgbPaint[set_enemy_type_bullet_color[MapEditor.selected_enemy_type_id]]);
+              GrRect(hdc,8*14+2+1,32+16*i+2,12,12,rgbPaint[saved_enemy_type_bullet_color[MapEditor.selected_enemy_type_id]]);
               GrPrintThick(hdc,8,32+16*i,"Bullet Color:",c,BLACK);
               GrPrintThick(hdc,8*13,32+16*i,"[      ]",c,BLACK);
 
-              GrRect(hdc,8*18+2,32+16*i+2,12,12,rgbPaint[set_enemy_type_bullet_color[MapEditor.clipboard_enemy_type_id]]);
+              GrRect(hdc,8*18+2,32+16*i+2,12,12,rgbPaint[saved_enemy_type_bullet_color[MapEditor.clipboard_enemy_type_id]]);
               GrPrintThick(hdc,8*17,32+16*i,"{     }",c,BLACK);
             }
 
@@ -759,46 +803,46 @@ void DrawMapEditorUI(HDC hdc,HDC hdc2)
 
         for (int i=0;i<ENEMY_TYPE_FLOAT_ATTR_NUM;i++) {
           c = Highlight((MapEditor.selected_enemy_type_option==i+ENEMY_TYPE_INT_ATTR_NUM+1),WHITE,LTPURPLE);
-          char print_enemy_type_float_attr[32];
-          sprintf(print_enemy_type_float_attr,"%s <%1.1f>  {%1.1f}",enemy_type_float_attr_names[i],set_enemy_type_float_attr[i][MapEditor.selected_enemy_type_id],set_enemy_type_float_attr[i][MapEditor.clipboard_enemy_type_id]);
-          GrPrintThick(hdc,8,32+16*ENEMY_TYPE_INT_ATTR_NUM+16*i,print_enemy_type_float_attr,c,BLACK);
+          char print_enemy_type_float_pointer[32];
+          sprintf(print_enemy_type_float_pointer,"%s <%1.1f>  {%1.1f}",enemy_type_float_pointer_names[i],enemy_type_float_pointer[i][MapEditor.selected_enemy_type_id],enemy_type_float_pointer[i][MapEditor.clipboard_enemy_type_id]);
+          GrPrintThick(hdc,8,32+16*ENEMY_TYPE_INT_ATTR_NUM+16*i,print_enemy_type_float_pointer,c,BLACK);
         }
 
 
         for (int i=0;i<ENEMY_TYPE_BOOL_ATTR_NUM;i++) {
           c = Highlight((MapEditor.selected_enemy_type_option==i+ENEMY_TYPE_FLOAT_ATTR_NUM+ENEMY_TYPE_INT_ATTR_NUM+1),WHITE,LTPURPLE);
           char print_enemy_type_bool_attr[32];
-          sprintf(print_enemy_type_bool_attr,"%s <%d>  {%d}",enemy_type_bool_attr_names[i],set_enemy_type_bool_attr[i][MapEditor.selected_enemy_type_id],set_enemy_type_bool_attr[i][MapEditor.clipboard_enemy_type_id]);
+          sprintf(print_enemy_type_bool_attr,"%s <%d>  {%d}",enemy_type_bool_attr_names[i],enemy_type_bool_pointer[i][MapEditor.selected_enemy_type_id],enemy_type_bool_pointer[i][MapEditor.clipboard_enemy_type_id]);
           GrPrintThick(hdc,8,32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_FLOAT_ATTR_NUM)+16*i,print_enemy_type_bool_attr,c,BLACK);
         }
         
 
         //Draw Circle Follow Range
-        GrCircle(hdc,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey,NODE_SIZE*set_enemy_type_follow_range[MapEditor.selected_enemy_type_id]/2,LTGREEN,-1);
-        GrLine(hdc,MapEditor.demo_enemy_spritex+NODE_SIZE*set_enemy_type_follow_range[MapEditor.selected_enemy_type_id]/2,MapEditor.demo_enemy_spritey-8,
+        GrCircle(hdc,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey,NODE_SIZE*saved_enemy_type_follow_range[MapEditor.selected_enemy_type_id]/2,LTGREEN,-1);
+        GrLine(hdc,MapEditor.demo_enemy_spritex+NODE_SIZE*saved_enemy_type_follow_range[MapEditor.selected_enemy_type_id]/2,MapEditor.demo_enemy_spritey-8,
                    MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey-8,LTGREEN);
 
         //Draw Circle Chase Range
-        GrLine(hdc,MapEditor.demo_enemy_spritex+NODE_SIZE*set_enemy_type_chase_range[MapEditor.selected_enemy_type_id]/2,MapEditor.demo_enemy_spritey+8,
+        GrLine(hdc,MapEditor.demo_enemy_spritex+NODE_SIZE*saved_enemy_type_chase_range[MapEditor.selected_enemy_type_id]/2,MapEditor.demo_enemy_spritey+8,
                    MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey+8,LTRED);
-        GrCircle(hdc,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey,NODE_SIZE*set_enemy_type_chase_range[MapEditor.selected_enemy_type_id]/2,LTRED,-1);
+        GrCircle(hdc,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey,NODE_SIZE*saved_enemy_type_chase_range[MapEditor.selected_enemy_type_id]/2,LTRED,-1);
 
         //Draw Circle Unchase Range
-        GrLine(hdc,MapEditor.demo_enemy_spritex+NODE_SIZE*set_enemy_type_unchase_range[MapEditor.selected_enemy_type_id]/2,MapEditor.demo_enemy_spritey,
+        GrLine(hdc,MapEditor.demo_enemy_spritex+NODE_SIZE*saved_enemy_type_unchase_range[MapEditor.selected_enemy_type_id]/2,MapEditor.demo_enemy_spritey,
                    MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey,LTBLUE);
-        GrCircle(hdc,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey,NODE_SIZE*set_enemy_type_unchase_range[MapEditor.selected_enemy_type_id]/2,LTBLUE,-1);
+        GrCircle(hdc,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey,NODE_SIZE*saved_enemy_type_unchase_range[MapEditor.selected_enemy_type_id]/2,LTBLUE,-1);
 
         //Draw 
         DrawSprite(hdc,hdc2,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey,&MEEnemySprite[MapEditor.selected_enemy_type_id]->draw_sprite_1,MapEditor.demo_enemy_spriteisleft);
-        if (set_enemy_type_species[MapEditor.selected_enemy_type_id]==1) {
-          DrawEnemyAntannae(hdc,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey, rgbPaint[set_enemy_type_color[MapEditor.selected_enemy_type_id]],MapEditor.demo_enemy_spriteisleft);
+        if (saved_enemy_type_species[MapEditor.selected_enemy_type_id]==1) {
+          DrawEnemyAntannae(hdc,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey, rgbPaint[saved_enemy_type_wing_color[MapEditor.selected_enemy_type_id]],MapEditor.demo_enemy_spriteisleft);
         }
 
 
         //draw bullet frequency
-        GrLine(hdc,MapEditor.demo_enemy_spritex+NODE_SIZE*set_enemy_type_shoot_at_player_range[MapEditor.selected_enemy_type_id]/2,MapEditor.demo_enemy_spritey+24,
+        GrLine(hdc,MapEditor.demo_enemy_spritex+NODE_SIZE*saved_enemy_type_shoot_at_player_range[MapEditor.selected_enemy_type_id]/2,MapEditor.demo_enemy_spritey+24,
                    MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey+24,LTPURPLE);
-        GrCircle(hdc,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey,NODE_SIZE*set_enemy_type_shoot_at_player_range[MapEditor.selected_enemy_type_id]/2,LTPURPLE,-1);
+        GrCircle(hdc,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey,NODE_SIZE*saved_enemy_type_shoot_at_player_range[MapEditor.selected_enemy_type_id]/2,LTPURPLE,-1);
         for (int i=0;i<ENEMY_BULLET_NUM;i++) {
           if (Bullet[i].shot) {
             DrawBullet2(hdc,hdc2,i,Bullet[i].x,Bullet[i].y,Bullet[i].color);

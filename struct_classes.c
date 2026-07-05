@@ -310,6 +310,11 @@ struct player
   int blur_sprite_x[PLAYER_BLUR_NUM];
   int blur_sprite_y[PLAYER_BLUR_NUM];
 
+  int cam_limiter_x;
+  int cam_limiter_y;
+  int sprite_x;
+  int sprite_y;
+
   float knockback_speed;
   float attack_strength;
   float saved_x;
@@ -342,10 +347,6 @@ struct player
   float cam_move_y;
   float cam_mouse_move_x;
   float cam_mouse_move_y;
-  int cam_limiter_x;
-  int cam_limiter_y;
-  float sprite_x;
-  float sprite_y;
   float claws_x;
   float claws_y;
   float claws_attack_x;
@@ -378,10 +379,10 @@ struct player
 
 struct PlayerFlingWeb {
   //player shot web attributes
+  int sprite_x[PLAYER_FLING_WEB_NUM];
+  int sprite_y[PLAYER_FLING_WEB_NUM];
   float x[PLAYER_FLING_WEB_NUM];
   float y[PLAYER_FLING_WEB_NUM];
-  float sprite_x[PLAYER_FLING_WEB_NUM];
-  float sprite_y[PLAYER_FLING_WEB_NUM];
 } player_fling_web;
 
 
@@ -545,6 +546,7 @@ struct Bullet
   bool is_left;
 
   int color;
+
   int speed_multiplier;
   int ospeed_multiplier;
   int from_enemy_id;
@@ -556,14 +558,19 @@ struct Bullet
 
   int rng_i;
 
+  int sprite_x;
+  int sprite_y;
+
+  //int opivot_x;
+  //int opivot_y;
+
   float oangle;
+
   float oscilating_angle;
-  float oscilating_angle_max;
   float oscilating_angle_delta;
+  float oscilating_angle_max;
 
   float damage;
-  float sprite_x;
-  float sprite_y;
   float start_x;
   float start_y;
   float x;
@@ -631,7 +638,6 @@ typedef struct enemy
   //Enemy Attributes
   //Enemy Node Attributes
 
-  //bool being_drawn;
   bool saw_player; //:Enemy seen the player, player was in line of sight seconds ago.
   bool last_left; //:Enemy was going to the left
   bool target_player; //:Enemy is actively chasing the player
@@ -693,6 +699,12 @@ typedef struct enemy
 
   bool in_water;
   bool sprite_in_water;
+
+  //bool Bullet Shooting attributes
+  bool is_aim_at_player;
+  bool is_still_when_shooting;
+
+
   int in_node_grid_id;
   int current_ngid_n;
   int flying_timer;
@@ -701,14 +713,15 @@ typedef struct enemy
   int rotated_xsprite_id;
   int current_rot_sprite_angle_id;
   //int current_rot_sprite_edge_angle_id;
-  //Bullet
-  int bullet_cooldown_max;
-  int bullet_cooldown;
-  int bullet_fire_at_once_max;
+
+  //int Bullet attributes
   int bullet_fire_cooldown_max;
   int bullet_fire_cooldown;
+  int bullet_cooldown_max;
+  int bullet_cooldown; //Subset of bullet_fire_cooldown
+  int bullet_fire_at_once_max;
   int bullet_length_max;
-  int bullet_length;
+  int bullet_length; //"length" of bullet fired, (bullet_fire_at_once && bullet_cooldown) -> bullet_fire_cooldown
   int bullet_damage;
   int bullet_speed_multiplier;
   int bullet_range;
@@ -716,6 +729,12 @@ typedef struct enemy
   int bullet_shot_num;
   int bullet_graphics_type;
 
+  int bullet_next_angle_type; //alternating, non-alternating
+  int bullet_next_shoot_angle_type; //alternating, non-alternating
+  //int bullet_opivot_x;
+  //int bullet_opivot_y;
+
+ //rotation movement for crawler
   int mleft_streak;
   int mright_streak;
 
@@ -744,7 +763,14 @@ typedef struct enemy
   int unchase_range;
   int shoot_at_player_range;
   int aim_rand;
-  int color;
+
+  //int color;
+  int wing_color;
+  int eye_color;
+  int border_color;
+  int bodypart_color;
+
+
   int ospeed_multiplier;
   int speed_multiplier;
   int time_breaker_rare;
@@ -795,6 +821,19 @@ typedef struct enemy
   float speed;
   float ospeed;
   float knockback_angle;
+
+
+  //===float Bullet shot attributes===
+  float bullet_shoot_angle; //ingame not loaded attribute, angles in a shot      deg2rad(((float)*)/10.0)
+  float bullet_shoot_oangle; //initial angle (only takes effect if not aiming at player)       deg2rad(((float)*)/10.0)
+  float bullet_next_shoot_angle; //delta of shoot_angle     deg2rad
+
+  //bullets per "shot"
+  float bullet_next_angle; //DEG display, deg2rad(((float)Enemy ShootBullet)/10.0)
+
+  float bullet_oscilating_delta; //DEG display, deg2rad (Enemy Pass to ShootBullet)
+  float bullet_oscilating_max; //DEG display, deg2rad (Enemy Pass to ShootBullet),  //max==0, no oscillation angle delta (-)alternation at max
+
 
 
   //6715632
@@ -1638,7 +1677,7 @@ typedef struct FallingGround
 
   float opivot_x;
   float opivot_y;
-  int oreach_end_type;
+  int oreach_end_type; //restart from beginning, travel back to start, tbts and flip horizontally, tbts and flip vertically  
   float odist_start; //0 = x_start, max = x_end
 
   float x_start; //starting points

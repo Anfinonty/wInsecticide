@@ -331,7 +331,7 @@ void SaveMELvl(HWND hwnd,HDC hdc)
        //Set Float Values
    for (int k=0;k<S_ENEMY_TYPE_FLOAT_NUM;k++) {
       for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-        fprintf(fptr,"%3.1f,",set_enemy_type_float_pointer[k][i]);
+        fprintf(fptr,"%3.1f,",enemy_type_float_pointer[k][i]);
       }
       fprintf(fptr,";\n");
    }
@@ -339,7 +339,7 @@ void SaveMELvl(HWND hwnd,HDC hdc)
    //Set Int Values
    for (int k=0;k<S_ENEMY_TYPE_INT_NUM;k++) {
       for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-        fprintf(fptr,"%d,",set_enemy_type_int_pointer[k][i]);
+        fprintf(fptr,"%d,",enemy_type_int_pointer[k][i]);
       }
       fprintf(fptr,";\n");
    }
@@ -347,7 +347,7 @@ void SaveMELvl(HWND hwnd,HDC hdc)
    //Set Bool Values
    for (int k=0;k<S_ENEMY_TYPE_BOOL_NUM;k++) {
       for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-        fprintf(fptr,"%d,",set_enemy_type_bool_pointer[k][i]);
+        fprintf(fptr,"%d,",enemy_type_bool_pointer[k][i]);
       }
       fprintf(fptr,";\n");
    }
