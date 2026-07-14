@@ -100,6 +100,7 @@ struct MapEditor
   int bullet_cooldown;
   int bullet_fire_cooldown;
   int bullet_length;
+  float bullet_length_saved_angle;
 
   int bullet_head_x[MAX_BULLET_PER_FIRE];
   int bullet_head_y[MAX_BULLET_PER_FIRE];
@@ -1031,6 +1032,7 @@ void InitLevelMapEditor()
   MapEditor.bullet_cooldown=0;
   MapEditor.bullet_fire_cooldown=0;
   MapEditor.bullet_length=0;
+  MapEditor.bullet_length_saved_angle=0;
 
   InitMEBackground();
 }
@@ -1206,6 +1208,7 @@ void MapEditorAct()
         int slash_time=1;
         int dice=0;
         float unchase_dist=0;
+        float bullet_length_angle_delta=deg2rad(((float)saved_enemy_type_bullet_next_shoot_angle[q])/100.0);
         if (mouse_x-1<=MapEditor.demo_enemy_spritex && MapEditor.demo_enemy_spritex<=mouse_x+1 &&
             mouse_y-1<=MapEditor.demo_enemy_spritey && MapEditor.demo_enemy_spritey<=mouse_y+1) {
           MapEditor.demo_enemy_spritecooldown=300;
@@ -1272,6 +1275,7 @@ void MapEditorAct()
             if (GetDistance(mouse_x,mouse_y,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey)<=NODE_SIZE*saved_enemy_type_shoot_at_player_range[q]/2) {
               if (MapEditor.bullet_fire_cooldown<=0) {
                 if (MapEditor.bullet_length==0) {
+                  MapEditor.bullet_length_saved_angle=0;
                   for (int j=0;j<saved_enemy_type_bullet_fire_at_once[q];j++) {//shoot several bullets at once
 	                    //MapEditor.bullet_head_x[j]=8+RandNum(-saved_enemy_type_aim_rand[q],saved_enemy_type_aim_rand[q],player.seed);
 	                    //MapEditor.bullet_head_y[j]=32+16*(ENEMY_TYPE_INT_ATTR_NUM+ENEMY_TYPE_FLOAT_ATTR_NUM)+16*3+RandNum(-saved_enemy_type_aim_rand[q],saved_enemy_type_aim_rand[q],player.seed);
@@ -1283,9 +1287,26 @@ void MapEditorAct()
 
 
                 if (MapEditor.bullet_cooldown<=0) {
+                  float tmp_angle=0;
+                  float bullet_angle_delta=deg2rad(((float)saved_enemy_type_bullet_next_angle[q])/100.0);
+
                   for (int j=0;j<saved_enemy_type_bullet_fire_at_once[q];j++) {//several bullets at once
 	                float shoot_target_x= MapEditor.bullet_head_x[j];
     	  	        float shoot_target_y= MapEditor.bullet_head_y[j];
+
+                    //2026-07-06 bullet shooting now has patterns based on angle
+                    if (saved_enemy_type_next_angle_type[q]==0) { //alternating (default)
+                      if (j%2==0) {//even
+                        tmp_angle+=bullet_angle_delta*j;
+                      } else {
+                        tmp_angle-=bullet_angle_delta*j;
+                      }
+                    } else if (j>0) {
+                      tmp_angle+=bullet_angle_delta;
+                    }
+                    //printf("%d-%5.4f,,%5.4f\n",MapEditor.bullet_length,tmp_angle2,bullet_length_angle_delta);
+                    tmp_angle+=MapEditor.bullet_length_saved_angle;
+
                     ShootBullet(current_bullet_id,
                         -1,//Enemy[i]->bullet_shot_num,
                         rgbPaint[saved_enemy_type_bullet_color[q]],//Enemy[i]->bullet_color,
@@ -1301,7 +1322,7 @@ void MapEditorAct()
                         MapEditor.demo_enemy_spritey,//Enemy[i]->y,
                         shoot_target_x,//Enemy[i]->shoot_target_x,
                         shoot_target_y,//Enemy[i]->shoot_target_y,
-                        0
+                        tmp_angle
                     );
 
                 //after shooting
@@ -1312,6 +1333,17 @@ void MapEditorAct()
 	              } //end of for
 	              MapEditor.bullet_cooldown=saved_enemy_type_bullet_cooldown[q];
 	              MapEditor.bullet_length++;
+
+                  if (saved_enemy_type_next_shoot_angle_type[q]==0) { //alternating (default)
+                    if (MapEditor.bullet_length%2==0) {//even
+                      MapEditor.bullet_length_saved_angle+=bullet_length_angle_delta*MapEditor.bullet_length;
+                    } else {
+                      MapEditor.bullet_length_saved_angle-=bullet_length_angle_delta*MapEditor.bullet_length;
+                    }
+                  } else {
+                    MapEditor.bullet_length_saved_angle+=bullet_length_angle_delta;
+                  }
+
 	              if (MapEditor.bullet_length>=saved_enemy_type_bullet_length[q]) {
   	                MapEditor.bullet_fire_cooldown=saved_enemy_type_bullet_fire_cooldown[q];
 	                MapEditor.bullet_length=0;

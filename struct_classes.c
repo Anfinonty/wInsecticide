@@ -768,7 +768,7 @@ typedef struct enemy
   int wing_color;
   int eye_color;
   int border_color;
-  int bodypart_color;
+  int bodypart_color; //i.e. cockroach its antannae, toe biter its arms
 
 
   int ospeed_multiplier;
@@ -827,6 +827,7 @@ typedef struct enemy
   float bullet_shoot_angle; //ingame not loaded attribute, angles in a shot      deg2rad(((float)*)/10.0)
   float bullet_shoot_oangle; //initial angle (only takes effect if not aiming at player)       deg2rad(((float)*)/10.0)
   float bullet_next_shoot_angle; //delta of shoot_angle     deg2rad
+  float bullet_length_saved_angle;
 
   //bullets per "shot"
   float bullet_next_angle; //DEG display, deg2rad(((float)Enemy ShootBullet)/10.0)

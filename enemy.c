@@ -2301,7 +2301,7 @@ void EnemyAct(int i)
            ) {
           if (Enemy[i]->bullet_fire_cooldown<=0) {
 	        if (Enemy[i]->bullet_length==0) {
-              float next_angle;
+              Enemy[i]->bullet_length_saved_angle=0;
 	          for (j=0;j<Enemy[i]->bullet_fire_at_once_max;j++) {//Calculate bullet final x and y
                 int seed1=Enemy[i]->seed*j;
                 int seed2=Enemy[i]->seed*2*j;
@@ -2333,11 +2333,25 @@ void EnemyAct(int i)
 	                Enemy[i]->bullet_head_y[j]=Enemy[i]->y+RandNum(-1000,1000,&Enemy[i]->bullet_stuck_rng_i,seed2);
                   }
                 }
+                float tmp_angle=0;
 	            for (j=0;j<Enemy[i]->bullet_fire_at_once_max;j++) {//shoot several bullets at once
 		          if (Enemy[i]->saw_player || Enemy[i]->web_stuck) {
                     if (Enemy[i]->dist_from_player<Enemy[i]->shoot_at_player_range/2*NODE_SIZE || Enemy[i]->web_stuck) {
     		          Enemy[i]->shoot_target_x=Enemy[i]->bullet_head_x[j];
         		      Enemy[i]->shoot_target_y=Enemy[i]->bullet_head_y[j];
+
+                    //2026-07-06 bullet shooting now has patterns based on angle
+                      if (Enemy[i]->bullet_next_angle_type==0) { //alternating (default)
+                        if (j%2==0) {//even
+                          tmp_angle+=Enemy[i]->bullet_next_angle*j;
+                        } else {
+                          tmp_angle-=Enemy[i]->bullet_next_angle*j;
+                        }
+                      } else {
+                        tmp_angle+=Enemy[i]->bullet_next_angle*j;
+                      }
+                      tmp_angle+=Enemy[i]->bullet_length_saved_angle;
+
                       ShootBullet(current_bullet_id,
 		                Enemy[i]->bullet_shot_num,
 		                Enemy[i]->bullet_color,
@@ -2354,7 +2368,7 @@ void EnemyAct(int i)
 		                Enemy[i]->y,
 		                Enemy[i]->shoot_target_x,
 		                Enemy[i]->shoot_target_y,
-                        0
+                        tmp_angle
                     );
                     /*if (Enemy[i]->shoot_target_x<Enemy[i]->x) {
                        Enemy[i]->last_left=TRUE;
@@ -2374,6 +2388,18 @@ void EnemyAct(int i)
 	        }
 	        Enemy[i]->bullet_cooldown=Enemy[i]->bullet_cooldown_max;
 	        Enemy[i]->bullet_length++;
+
+            if (Enemy[i]->bullet_next_shoot_angle_type==0) { //alternating (default)
+              if (Enemy[i]->bullet_length%2==0) {//even
+                Enemy[i]->bullet_length_saved_angle+=Enemy[i]->bullet_next_shoot_angle*Enemy[i]->bullet_length;
+              } else {
+                Enemy[i]->bullet_length_saved_angle-=Enemy[i]->bullet_next_shoot_angle*Enemy[i]->bullet_length;
+              }
+            } else {
+              Enemy[i]->bullet_length_saved_angle+=Enemy[i]->bullet_next_shoot_angle;
+            }
+
+
 	        if (Enemy[i]->bullet_length>=Enemy[i]->bullet_length_max) {
 	          Enemy[i]->bullet_fire_cooldown=Enemy[i]->bullet_fire_cooldown_max;
 	          Enemy[i]->bullet_length=0;
@@ -2572,6 +2598,10 @@ void SetEnemyByType(int i,int type)
     Enemy[i]->chase_range=0;
   }
   Enemy[i]->wing_color=rgbPaint[saved_enemy_type_wing_color[type]];
+  Enemy[i]->eye_color=rgbPaint[saved_enemy_type_eye_color[type]];
+  Enemy[i]->border_color=rgbPaint[saved_enemy_type_border_color[type]];
+  Enemy[i]->bodypart_color=rgbPaint[saved_enemy_type_bodypart_color[type]];
+
   Enemy[i]->ospeed=saved_enemy_type_speed[type];
   Enemy[i]->speed=saved_enemy_type_speed[type];
   if (!game_hard) {
@@ -2602,6 +2632,19 @@ void SetEnemyByType(int i,int type)
   Enemy[i]->bullet_range=saved_enemy_type_bullet_range[type];
   Enemy[i]->bullet_color=rgbPaint[saved_enemy_type_bullet_color[type]];
   Enemy[i]->bullet_graphics_type=saved_enemy_type_bullet_graphics_type[type];
+
+  //2026-07-06 more attributes
+  Enemy[i]->bullet_next_angle_type=saved_enemy_type_next_angle_type[type];
+  Enemy[i]->bullet_next_shoot_angle_type=saved_enemy_type_next_shoot_angle_type[type];
+  Enemy[i]->bullet_shoot_angle=
+  Enemy[i]->bullet_shoot_oangle=
+    deg2rad(((float)saved_enemy_type_bullet_shoot_oangle[type])/100.0);
+  Enemy[i]->bullet_next_shoot_angle=deg2rad(((float)saved_enemy_type_bullet_next_shoot_angle[type])/100.0);
+  Enemy[i]->bullet_next_angle=deg2rad(((float)saved_enemy_type_bullet_next_angle[type])/100.0);
+  Enemy[i]->bullet_oscilating_delta=deg2rad(((float)saved_enemy_type_bullet_oscilating_delta[type])/100.0);
+  Enemy[i]->bullet_oscilating_max=deg2rad(((float)saved_enemy_type_bullet_oscilating_max[type])/100.0);
+
+
   //time breaker
   Enemy[i]->time_breaker_rare=saved_enemy_type_time_breaker_rare[type];
   Enemy[i]->time_breaker_length=saved_enemy_type_time_breaker_length[type];
