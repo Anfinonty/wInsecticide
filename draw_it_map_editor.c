@@ -46,7 +46,8 @@ char *enemy_type_float_pointer_names[ENEMY_TYPE_FLOAT_ATTR_NUM]=
 char *enemy_type_bool_attr_names[ENEMY_TYPE_BOOL_ATTR_NUM]=
 {
 "Timebreaker Immune",
-"Aim at Player",
+//"Aim at Player",
+"Alternate Oscilating Bullets",
 "Still when Shooting"
 };
 

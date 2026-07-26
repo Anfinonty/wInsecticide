@@ -104,9 +104,15 @@ void ShootBullet(
   float source_y,
   float target_x,
   float target_y,
+  float oscilating_angle_delta,
+  float oscilating_angle_max,
   float off_angle)
 {
   float x1,x2,y1,y2;
+  Bullet[bullet_id].oscilating_angle=0;
+  Bullet[bullet_id].oscilating_angle_delta=oscilating_angle_delta;
+  Bullet[bullet_id].oscilating_angle_max=oscilating_angle_max;
+
   Bullet[bullet_id].shot=TRUE;
   Bullet[bullet_id].in_water=FALSE;
   Bullet[bullet_id].graphics_type=graphics_type;
@@ -327,6 +333,15 @@ void RainBulletTransitNodeGrid(int bullet_id)
   return TRUE;*/
 }
 
+void BulletMoveOscilate(int bullet_id)
+{
+  Bullet[bullet_id].angle=Bullet[bullet_id].oangle+Bullet[bullet_id].oscilating_angle;
+  Bullet[bullet_id].oscilating_angle+=Bullet[bullet_id].oscilating_angle_delta;
+  if (abs(Bullet[bullet_id].oscilating_angle)>Bullet[bullet_id].oscilating_angle_max) {
+    Bullet[bullet_id].oscilating_angle_delta*=-1;
+  }
+}
+
 
 void EnemyBulletAct(int bullet_id,int enemy_id)
 {
@@ -334,6 +349,11 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
   bool hit_player=FALSE,allow_act=FALSE;
   int seed=player.seed*bullet_id;
   if (!free_will) seed=-1;
+
+
+  //sine movement for regular bullet
+  BulletMoveOscilate(bullet_id);
+
 
   //sniper bullet act with enemy bullet
   if (Bullet[bullet_id].graphics_type!=-8) {
@@ -621,6 +641,7 @@ void EnemyBulletAct(int bullet_id,int enemy_id)
 
 void MapEditorBulletAct(int bullet_id)
 {
+  BulletMoveOscilate(bullet_id);  
   if (Bullet[bullet_id].range<=0) {
     StopBullet(bullet_id,FALSE); 
   }
@@ -802,9 +823,7 @@ void InitBulletRain()
   }
 
   for (int i=SHOOT_BULLET_NUM;i<max_bullet_num;i++) {
-  //for (int i=SHOOT_BULLET_NUM;i<BULLET_NUM;i++) {
     int seed=player.seed*i;
-    //int seed=-1;
     if (!free_will) seed=-1;
     int rand_x=RandNum(player.x-GR_WIDTH/2,player.x+GR_WIDTH/2,&weather_rng_i,seed); //so it doest get stuck to ground
     if (rand_x<10)
@@ -827,6 +846,8 @@ void InitBulletRain()
         0,
         lvl_map_background.weather_run,
         lvl_map_background.weather_rise,
+        0,
+        0,
         0 //angle            
     );
   }
@@ -845,11 +866,7 @@ void RainBulletAct(int bullet_id)
   //snow bullet oscillation.
   if (Bullet[bullet_id].graphics_type==-6 || Bullet[bullet_id].graphics_type==-7) {
     //function to do sine wave movement.
-    Bullet[bullet_id].angle=Bullet[bullet_id].oangle+Bullet[bullet_id].oscilating_angle;
-    Bullet[bullet_id].oscilating_angle+=Bullet[bullet_id].oscilating_angle_delta;
-    if (abs(Bullet[bullet_id].oscilating_angle)>Bullet[bullet_id].oscilating_angle_max) {
-      Bullet[bullet_id].oscilating_angle_delta*=-1;
-    }
+    BulletMoveOscilate(bullet_id);  
   }
 
   if (IsOutOfBounds(Bullet[bullet_id].x,Bullet[bullet_id].y,5,MAP_WIDTH,MAP_HEIGHT)) { //out of bounds
@@ -1176,6 +1193,8 @@ void BulletAct(int bullet_id)
             int weather_bullet_type_graphics=0;
             int weather_bullet_type_speedm=0;
             float weather_bullet_type_speed=0.0;
+            float _oscilating_angle_delta=0.0;
+            float _oscilating_angle_max=0.0;
             switch (lvl_map_background.weather_type) {
               case 1: //rain;
                 {int d;
@@ -1206,14 +1225,11 @@ void BulletAct(int bullet_id)
                 } else { //snow 
                   weather_bullet_type_graphics=-7;
                 }
-                Bullet[bullet_id].oscilating_angle=0;
-                Bullet[bullet_id].oscilating_angle_delta=0.0005*((float)(RandNum(0,200,&weather_rng_i,seed)/200.0));
-                            //0.0005*((float)(RandNum(0,1000,&weather_rng_i*frame_tick*bullet_id)/1000.0));//RandNum(0,1000,Bullet[bullet_id].seed*frame_tick)*0.0001;
-                Bullet[bullet_id].oscilating_angle_max=  0.01 * RandNum(1,10,&weather_rng_i,seed);
-                    //Bullet[bullet_id].oscilating_angle_delta*RandNum(0,30,Bullet[bullet_id].seed*frame_tick/3*bullet_id);//Bullet[bullet_id].oscilating_angle_delta*RandNum(0,5,Bullet[bullet_id].seed*frame_tick/2);
+                _oscilating_angle_delta=0.0005*((float)(RandNum(0,200,&weather_rng_i,seed)/200.0));
+                _oscilating_angle_max=  0.01 * RandNum(1,10,&weather_rng_i,seed);
                 d=RandNum(0,1,&weather_rng_i,seed);
                 if (d==0) {
-                  Bullet[bullet_id].oscilating_angle_delta*=-1; 
+                  _oscilating_angle_delta*=-1; 
                 }
                 weather_bullet_type_speed=1.0;
                 d=RandNum(0,3,&weather_rng_i,seed);
@@ -1270,6 +1286,8 @@ void BulletAct(int bullet_id)
                 0,
                 lvl_map_background.weather_run+rand_extra_run,
                 lvl_map_background.weather_rise,
+                _oscilating_angle_delta,
+                _oscilating_angle_max,
                 0 //angle            
               );
             } else {
@@ -1289,6 +1307,8 @@ void BulletAct(int bullet_id)
                 0,
                 lvl_map_background.weather_run+rand_extra_run,
                 lvl_map_background.weather_rise,
+                _oscilating_angle_delta,
+                _oscilating_angle_max,
                 0 //angle            
               );
             }

@@ -1993,6 +1993,8 @@ void EnemyAct(int i)
                 Enemy[i]->y,
                 Enemy[i]->x+RandNum(-50,50,&Enemy[i]->bullet_rng_i,seed),
                 Enemy[i]->y+RandNum(-30,30,&Enemy[i]->bullet_rng_i,seed),
+                0,
+                0,
                 0 //off angle
             );
             Enemy[i]->bullet_shot_arr[Enemy[i]->bullet_shot_num]=current_bullet_id;
@@ -2334,6 +2336,7 @@ void EnemyAct(int i)
                   }
                 }
                 float tmp_angle=0;
+                float tmp_oscilating_delta=Enemy[i]->bullet_oscilating_delta;
 	            for (j=0;j<Enemy[i]->bullet_fire_at_once_max;j++) {//shoot several bullets at once
 		          if (Enemy[i]->saw_player || Enemy[i]->web_stuck) {
                     if (Enemy[i]->dist_from_player<Enemy[i]->shoot_at_player_range/2*NODE_SIZE || Enemy[i]->web_stuck) {
@@ -2352,6 +2355,9 @@ void EnemyAct(int i)
                       }
                       tmp_angle+=Enemy[i]->bullet_length_saved_angle;
 
+                      if (Enemy[i]->is_alternate_oscilating_bullet && j%2!=0) {
+                        tmp_oscilating_delta*=-1;
+                      }
                       ShootBullet(current_bullet_id,
 		                Enemy[i]->bullet_shot_num,
 		                Enemy[i]->bullet_color,
@@ -2368,6 +2374,9 @@ void EnemyAct(int i)
 		                Enemy[i]->y,
 		                Enemy[i]->shoot_target_x,
 		                Enemy[i]->shoot_target_y,
+                        //Enemy[i]->bullet_oscilating_delta,
+                        tmp_oscilating_delta,
+                        Enemy[i]->bullet_oscilating_max,
                         tmp_angle
                     );
                     /*if (Enemy[i]->shoot_target_x<Enemy[i]->x) {
@@ -2505,8 +2514,10 @@ void EnemyAct(int i)
       } else if (Enemy[i]->move_to_target) {
         if (Enemy[i]->knockback_timer==0 && Enemy[i]->health>0) {
           LargeEnemySpriteTimer(i);
-          for (j=0;j<Enemy[i]->speed_multiplier;j++) {
-            EnemyMove(i);
+          if ((Enemy[i]->is_still_when_shooting && Enemy[i]->bullet_fire_cooldown>0) || !Enemy[i]->is_still_when_shooting) {
+            for (j=0;j<Enemy[i]->speed_multiplier;j++) {
+              EnemyMove(i);
+            }
           }
         }
         if (!Enemy[i]->ignore_player) { //chasing player
@@ -2562,11 +2573,16 @@ void EnemyAct(int i)
         }//end of slash_time
       //other
         if (!Enemy[i]->web_stuck) {
-          if (Enemy[i]->species==0 || Enemy[i]->species==2 || (Enemy[i]->species==4 && (!player.time_breaker || Enemy[i]->time_breaker_immune)) || (Enemy[i]->species>=5 && Enemy[i]->species<=7)) {
-            Enemy[i]->sprite_timer++;
-            if (Enemy[i]->sprite_timer>16) {
-              Enemy[i]->sprite_timer=0;
+          if (Enemy[i]->sprite_timer2>10) {
+            if (Enemy[i]->species==0 || Enemy[i]->species==2 || (Enemy[i]->species==4 && (!player.time_breaker || Enemy[i]->time_breaker_immune)) || (Enemy[i]->species>=5 && Enemy[i]->species<=7)) {
+              Enemy[i]->sprite_timer++;
+              if (Enemy[i]->sprite_timer>16) {
+                Enemy[i]->sprite_timer=0;
+              }
             }
+            Enemy[i]->sprite_timer2=0;
+          } else {
+            Enemy[i]->sprite_timer2++;
           }
         }
 
@@ -2641,9 +2657,13 @@ void SetEnemyByType(int i,int type)
     deg2rad(((float)saved_enemy_type_bullet_shoot_oangle[type])/100.0);
   Enemy[i]->bullet_next_shoot_angle=deg2rad(((float)saved_enemy_type_bullet_next_shoot_angle[type])/100.0);
   Enemy[i]->bullet_next_angle=deg2rad(((float)saved_enemy_type_bullet_next_angle[type])/100.0);
+
   Enemy[i]->bullet_oscilating_delta=deg2rad(((float)saved_enemy_type_bullet_oscilating_delta[type])/100.0);
   Enemy[i]->bullet_oscilating_max=deg2rad(((float)saved_enemy_type_bullet_oscilating_max[type])/100.0);
 
+
+  Enemy[i]->is_alternate_oscilating_bullet=saved_enemy_type_is_alternate_oscilating_bullet[type];
+  Enemy[i]->is_still_when_shooting=saved_enemy_type_is_still_when_shooting[type];
 
   //time breaker
   Enemy[i]->time_breaker_rare=saved_enemy_type_time_breaker_rare[type];
@@ -3037,6 +3057,7 @@ void InitEnemy()
     Enemy[i]->is_in_ground_edge=FALSE;
     Enemy[i]->is_in_left_ground_edge=FALSE;
     Enemy[i]->is_in_right_ground_edge=FALSE;
+
     Enemy[i]->above_ground_edge=FALSE;
     Enemy[i]->below_ground_edge=FALSE;
     Enemy[i]->force_search=FALSE;
@@ -3121,6 +3142,7 @@ void InitEnemy()
   //init default int 
     Enemy[i]->last_seen_timer=0;
     Enemy[i]->sprite_timer=0;
+    Enemy[i]->sprite_timer2=0;
     Enemy[i]->idle_timer=0;
     Enemy[i]->search_timer=0;
     Enemy[i]->forgor_timer=100;

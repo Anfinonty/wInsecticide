@@ -255,7 +255,7 @@ void MapEditorKeypressDown(WPARAM wParam)
               saved_enemy_type_time_breaker_rare[k]=saved_enemy_type_time_breaker_rare[l];
               saved_enemy_type_time_breaker_length[k]=saved_enemy_type_time_breaker_length[l];
               saved_enemy_type_time_breaker_immune[k]=saved_enemy_type_time_breaker_immune[l];
-              saved_enemy_type_is_aim_at_player[k]=saved_enemy_type_is_aim_at_player[l];
+              saved_enemy_type_is_alternate_oscilating_bullet[k]=saved_enemy_type_is_alternate_oscilating_bullet[l];
               saved_enemy_type_is_still_when_shooting[k]=saved_enemy_type_is_still_when_shooting[l];
               UpdateMEDrawSprite();
             }

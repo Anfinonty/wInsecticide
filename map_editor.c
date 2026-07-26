@@ -238,7 +238,8 @@ MAX_BULLET_PER_FIRE+1, //bullet fire at once
 501, //bullet length
 101, //bullet damage
 21, //bullet speed multiplier*
-MAX_FOLLOW_RANGE+1, //bullet range
+1001, //bullet range
+//MAX_FOLLOW_RANGE+1, //bullet range
 16, //bullet color
 11, //bullet_graphics_type
 
@@ -1236,6 +1237,7 @@ void MapEditorAct()
                    unchase_dist<NODE_SIZE*saved_enemy_type_unchase_range[q]/2) || 
                   (unchase_dist>=NODE_SIZE*saved_enemy_type_unchase_range[q]/2 &&
                    GetDistance(mouse_x,mouse_y,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey)<NODE_SIZE*saved_enemy_type_follow_range[q]/2)) {                    
+                if ((saved_enemy_type_is_still_when_shooting[q] && MapEditor.bullet_fire_cooldown>0)|| !saved_enemy_type_is_still_when_shooting[q]) {
                 for (int t=0;t<saved_enemy_type_speed_multiplier[q];t++) {
                   if (MapEditor.demo_enemy_spritex<mouse_x) {
                     MapEditor.demo_enemy_spritex+=saved_enemy_type_speed[q];
@@ -1266,11 +1268,13 @@ void MapEditorAct()
                   } else {
                     MapEditor.demo_enemy_spritey-=saved_enemy_type_speed[q];
                   }
+                }//end of for
                 }
               }
             } else {
               MapEditor.demo_enemy_spritecooldown--;
             }
+
 
             if (GetDistance(mouse_x,mouse_y,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey)<=NODE_SIZE*saved_enemy_type_shoot_at_player_range[q]/2) {
               if (MapEditor.bullet_fire_cooldown<=0) {
@@ -1288,6 +1292,7 @@ void MapEditorAct()
 
                 if (MapEditor.bullet_cooldown<=0) {
                   float tmp_angle=0;
+                  float tmp_oscilating_delta=deg2rad(((float)saved_enemy_type_bullet_oscilating_delta[q])/100.0);
                   float bullet_angle_delta=deg2rad(((float)saved_enemy_type_bullet_next_angle[q])/100.0);
 
                   for (int j=0;j<saved_enemy_type_bullet_fire_at_once[q];j++) {//several bullets at once
@@ -1307,6 +1312,10 @@ void MapEditorAct()
                     //printf("%d-%5.4f,,%5.4f\n",MapEditor.bullet_length,tmp_angle2,bullet_length_angle_delta);
                     tmp_angle+=MapEditor.bullet_length_saved_angle;
 
+                    if (saved_enemy_type_is_alternate_oscilating_bullet[q] && j%2!=0) {
+                      tmp_oscilating_delta*=-1;
+                    }
+
                     ShootBullet(current_bullet_id,
                         -1,//Enemy[i]->bullet_shot_num,
                         rgbPaint[saved_enemy_type_bullet_color[q]],//Enemy[i]->bullet_color,
@@ -1322,6 +1331,8 @@ void MapEditorAct()
                         MapEditor.demo_enemy_spritey,//Enemy[i]->y,
                         shoot_target_x,//Enemy[i]->shoot_target_x,
                         shoot_target_y,//Enemy[i]->shoot_target_y,
+                        tmp_oscilating_delta,
+                        deg2rad(((float)saved_enemy_type_bullet_oscilating_max[q])/100.0),
                         tmp_angle
                     );
 
@@ -1357,6 +1368,8 @@ void MapEditorAct()
             }
           }
         }
+
+
         for (int i=0;i<ENEMY_BULLET_NUM;i++) {
           BulletAct(i);
             //printf("%d: hello:\n",i);

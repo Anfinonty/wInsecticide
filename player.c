@@ -1561,6 +1561,8 @@ void PlayerActMouseClick()
 	        grad_y1,
 	        grad_x2,
 	        grad_y2,
+            0,
+            0,
             tmp_angle //angle            
          );
         if (player.knives_per_throw>4 && q%5==0) {
@@ -1632,6 +1634,8 @@ void PlayerActMouseClick()
 	        grad_y1,
 	        grad_x2,
 	        grad_y2,
+            0,
+            0,
             0
       );
       current_bullet_id++; //public
@@ -2815,6 +2819,8 @@ void PlayerAct()
 	            player.y,
 	            player.x+RandNum(-50,50,&player.death_bullet_rng_i,seed),
 	            player.y+RandNum(-30,30,&player.death_bullet_rng_i,seed),
+                0,
+                0,
                 0         
             );
             player.bullet_shot_num++;

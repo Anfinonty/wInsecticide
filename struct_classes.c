@@ -600,6 +600,8 @@ void ShootBullet(
   float source_y,
   float target_x,
   float target_y,
+  float oscilating_angle_delta,
+  float oscilating_angle_max,
   float off_angle);
 void BulletDamagePlayerAct(int bullet_id);
 
@@ -701,7 +703,8 @@ typedef struct enemy
   bool sprite_in_water;
 
   //bool Bullet Shooting attributes
-  bool is_aim_at_player;
+  //bool is_aim_at_player; (scrapped attribute)
+  bool is_alternate_oscilating_bullet;
   bool is_still_when_shooting;
 
 
@@ -743,6 +746,7 @@ typedef struct enemy
   int last_seen_timer;
   int sprite_flip_timer;
   int sprite_timer;
+  int sprite_timer2;
   int search_timer;
   int idle_timer;
   int forgor_timer;

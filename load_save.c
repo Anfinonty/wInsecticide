@@ -209,14 +209,14 @@ int *enemy_type_int_pointer[S_ENEMY_TYPE_INT_NUM]=
 
 //Load EnemyType Bool Segment
 bool saved_enemy_type_time_breaker_immune[ENEMY_TYPE_NUM];
-bool saved_enemy_type_is_aim_at_player[ENEMY_TYPE_NUM];
+bool saved_enemy_type_is_alternate_oscilating_bullet[ENEMY_TYPE_NUM];
 bool saved_enemy_type_is_still_when_shooting[ENEMY_TYPE_NUM];
 
 #define S_ENEMY_TYPE_BOOL_NUM 3
 bool *enemy_type_bool_pointer[S_ENEMY_TYPE_BOOL_NUM]=
 {
   saved_enemy_type_time_breaker_immune,
-  saved_enemy_type_is_aim_at_player,
+  saved_enemy_type_is_alternate_oscilating_bullet,
   saved_enemy_type_is_still_when_shooting
 };
 
