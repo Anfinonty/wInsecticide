@@ -1229,7 +1229,7 @@ void PlayerActSwinging(int grav_speed)
             move_y(sin(-player.pivot_angle+M_PI_2));
             player.last_left=TRUE;
           }*/
-        } else if (player.rst_up){ //Retract Web
+        } else if (player.rst_up){ //Retract Web 2026-06-27 (investigate issue causes invalid player positioning)
           move_x(-cos(-player.pivot_angle));
           move_y(sin(-player.pivot_angle));
         } else if (player.rst_down && (!yes_rubberband || player.pivot_length<NODE_SIZE*DEFAULT_PLAYER_BUILD_RANGE/2)) {

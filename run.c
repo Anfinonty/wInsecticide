@@ -2567,6 +2567,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       load_background_sprite[2] = LoadRLE8CompressedBitmap(L"sprites/backgrounds/background_snowhill_ld.bmp");
       load_background_sprite[3] = LoadRLE8CompressedBitmap(L"sprites/backgrounds/background_windmills_ld.bmp");
       load_background_sprite[4] = LoadRLE8CompressedBitmap(L"sprites/backgrounds/background_treebranches_ld.bmp");
+      load_background_sprite[5] = LoadRLE8CompressedBitmap(L"sprites/backgrounds/background_sandcave_ld.bmp");
 
       for (int i=0;i<BACKGROUND_FOREGROUND_SPRITE_NUM;i++) {
         GenerateDrawSprite(&draw_background_sprite[i],load_background_sprite[i]);

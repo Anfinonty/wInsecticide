@@ -1460,7 +1460,7 @@ BYTE *publicScreenPixels,*publicScreenMirrorPixels, *publicBackgroundPixels;// *
 
 //Loaded Background
 
-#define BACKGROUND_FOREGROUND_SPRITE_NUM    5
+#define BACKGROUND_FOREGROUND_SPRITE_NUM    6
 #define BACKGROUND_FULL_SPRITE_NUM  2
 #define BACKGROUND_NUM  BACKGROUND_FOREGROUND_SPRITE_NUM+BACKGROUND_FULL_SPRITE_NUM
 

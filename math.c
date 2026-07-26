@@ -224,11 +224,17 @@ float GetDistance(float x1,float y1,float x2,float y2)
 
 float GetSinAngle(float height,float length)
 {
+  if (length<=0.01) {
+    length=0.01;
+  }
   return asin(height/length);
 }
 
 float GetCosAngle(float vertical_distance,float length)
 {
+  if (length<=0.01) {
+    length=0.01;
+  }
   return acos(vertical_distance/length);
 }
 
