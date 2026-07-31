@@ -375,7 +375,7 @@ int MELVL_bgattr_type[S_LVL_ATTR_NUM]={
 0, //weather type
 0, //weather grad rise
 0, //weather grad run
-0, //palette rightness type
+0, //palette brightness type
 0, //palette darkness level
 };
 
@@ -973,6 +973,8 @@ void InitMEBackground()
 
   flag_draw_game_background_spriteII=TRUE;
   flag_draw_game_background_sprite=TRUE;
+
+  MapEditor.init_palettes=FALSE; //re-init palettes
 }
 
 

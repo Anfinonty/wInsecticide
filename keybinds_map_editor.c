@@ -705,7 +705,7 @@ void MapEditorKeypressDown(WPARAM wParam)
                     =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].oreach_end_type-1,0,2);
                 break;
               case 15: //dist begin
-                if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //darken
+                if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
                   F_GROUND[MapEditor.selected_fground_id].odist_start
                     =LimitValue(F_GROUND[MapEditor.selected_fground_id].odist_start-1,0,F_GROUND[MapEditor.selected_fground_id].travel_dist_max);
                 } else {
@@ -1073,7 +1073,7 @@ void MapEditorKeypressDown(WPARAM wParam)
                     =LimitValueInt(F_GROUND[MapEditor.selected_fground_id].oreach_end_type+1,0,2);
                 break;
               case 15: //dist begin
-                if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //darken
+                if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) {
                   F_GROUND[MapEditor.selected_fground_id].odist_start
                       =LimitValue(F_GROUND[MapEditor.selected_fground_id].odist_start+1,0,F_GROUND[MapEditor.selected_fground_id].travel_dist_max);
                 } else {
@@ -1293,7 +1293,7 @@ void MapEditorKeypressUp(WPARAM wParam, HWND hwnd, HDC hdc)
 {
   switch (wParam) {
     // 0 key to lighten, shift 0 to darken
-      case '0': {
+      /*case '0': {
         int gcolor_i;
         if (keydown(VK_LSHIFT) || keydown(VK_RSHIFT)) { //darken
           for (int i=0;i<GROUND_NUM;i++) {
@@ -1330,7 +1330,7 @@ void MapEditorKeypressUp(WPARAM wParam, HWND hwnd, HDC hdc)
           }          
         }
         }
-        break;
+        break;*/
     //Release S or Down key
       case 'S':
       case VK_DOWN:

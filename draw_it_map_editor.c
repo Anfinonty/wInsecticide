@@ -576,6 +576,14 @@ void DrawMapEditorPlayer(HDC hdc,HDC hdc2)
     for (int i=0;i<ENEMY_TYPE_NUM;i++) {
       BitmapPalette(hdc,hdc2,MEEnemySprite[i]->draw_sprite_1.sprite_paint,MEEnemySprite[i]->enemyPalette);
     }
+    /*for (int i=0;i<PLATFORM_GRID_NUM;i++) {
+      BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsBrightness[lvl_map_background.dark_lvl]);
+    }*/
+    //printf("darklvl:%d\n",lvl_map_background.dark_lvl);
+    BitmapPalette(hdc,hdc2,draw_background_sprite_stretched_paint,rgbColorsBrightness[MapEditor.bg_attr_dark_lvl]);
+    flag_draw_game_background_spriteII=TRUE;
+    flag_draw_game_background_sprite=TRUE;
+
     MapEditor.init_palettes=TRUE;
   }
 }

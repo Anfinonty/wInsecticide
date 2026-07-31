@@ -3076,30 +3076,15 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
     InitPlayerSpritesObjColor(hdc,hdc2);
     InitPlayerCursorColor(hdc,hdc2);
 
-    /*for (int i=0;i<9;i++) {
-      BitmapPalette(hdc,hdc2,texture_water[i],waterPalette);
-    }*/
-    /*for (int i=0;i<PLATFORM_GRID_NUM;i++) {
-      if (map_background!=1) {
-        if (map_weather==0)
-          BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsDefault);
-        else
-          BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsDarker2);
-      } else {
-        BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsNight);
-      }
-    }*/
-    /*for (int i=0;i<FOREGROUND_GRID_NUM;i++) {
-      BitmapPalette(hdc,hdc2,TileMapForeground[i]->sprite_paint,rgbColorsDefault);
-    }*/
-
     //if (lvl_map_background.brightness_type==1 && lvl_map_background.dark_lvl>=0 && lvl_map_background.dark_lvl<=4) { //static lighting
     for (int i=0;i<PLATFORM_GRID_NUM;i++) {
       BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsBrightness[lvl_map_background.dark_lvl]);
     }
     BitmapPalette(hdc,hdc2,draw_background_sprite_stretched_paint,rgbColorsBrightness[lvl_map_background.dark_lvl]);
-
+    flag_draw_game_background_spriteII=TRUE;
+    flag_draw_game_background_sprite=TRUE;
     //} 
+
     Sun.flag_overcast=TRUE;
     player.flag_revert_palette=FALSE;
     player.time_breaker_tick=0;
@@ -3122,6 +3107,9 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
       /*for (int i=0;i<FOREGROUND_GRID_NUM;i++) {
         BitmapPalette(hdc,hdc2,TileMapForeground[i]->sprite_paint,rgbColorsNoir);
       }*/
+      BitmapPalette(hdc,hdc2,draw_background_sprite_stretched_paint,rgbColorsNoir);
+      flag_draw_game_background_spriteII=TRUE;
+      flag_draw_game_background_sprite=TRUE;
 
       player.flag_noir_palette=FALSE;
     }

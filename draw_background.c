@@ -774,12 +774,10 @@ void DrawSunRays(HDC hdc,HDC hdc2)
             for (int i=0;i<PLATFORM_GRID_NUM;i++) {
               BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsBrightness[Sun.overcast_lvl]);
             }
-            //BitmapPalette(hdc,hdc2,draw_background_sprite_stretched_paint,rgbColorsBrightness[Sun.overcast_lvl]);
           } else {
             for (int i=0;i<PLATFORM_GRID_NUM;i++) {
               BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsDefault);
             }
-            //BitmapPalette(hdc,hdc2,draw_background_sprite_stretched_paint,rgbColorsDefault);
           }
         }
         Sun.flag_overcast=FALSE;
@@ -1075,82 +1073,6 @@ void InitMoon()
 
 
 /*
-void MoonAct()
-{
-  //DrawGameMoon.x++;
-  //DrawGameMoon.y=MoonF(DrawGameMoon.x);
-  //Action after moon leaves visibility
-  /*if (DrawGameMoon.x>GR_WIDTH) { //reset moon position after out of view (width)
-      DrawGameMoon.x=0;
-      DrawGameMoon.y=GR_HEIGHT;
-
-      DrawGameMoon.pivot_x=GR_WIDTH/2;
-      DrawGameMoon.pivot_y=GR_HEIGHT;
-
-      DrawGameMoon.angle=GetCosAngle(DrawGameMoon.x-DrawGameMoon.pivot_x,DrawGameMoon.dist_l);    
-      for (int i=0;i<STAR_NUM;i++) {
-        Star.angle[i]=Star.oangle[i];
-      }
-
-      current_moon_phase_id++;
-      if (current_moon_phase_id>=8)
-        current_moon_phase_id=0;
-  }*/
-/*  int cmp_id=current_moon_phase_id;
-  if (cmp_id==7)
-    cmp_id=3;
-
-  if (cmp_id!=-1) {
-    if (DrawGameMoon.angle<MoonAngle[cmp_id].lunar_angle && DrawGameMoon.x+64<GR_WIDTH-48) {
-      DrawGameMoon.angle+=0.025;//0.005;
-      for (int i=0;i<STAR_NUM;i++) {
-        Star.angle[i]+=0.0125;//0.0025;
-      }
-    } /*else { //continuously draw moon and stars moving slowly
-      DrawGameMoon.angle+=0.025/1000;
-      for (int i=0;i<STAR_NUM;i++) {
-        Star.angle[i]+=0.0125/1000;
-      }
-    }*/
-/*  } else if (DrawGameMoon.angle<M_PI+M_PI_2) {
-    DrawGameMoon.angle+=0.025;//0.005;    
-    for (int i=0;i<STAR_NUM;i++) {
-      Star.angle[i]+=0.0125;//0.0025;
-    }
-  }
-
-  //if (DrawGameMoon.x+64>GR_WIDTH-48)
-    //DrawGameMoon.x=GR_WIDTH-48;
-  if (lvl_map_background.latitude<0)
-    DrawGameMoon.x=DrawGameMoon.pivot_x-DrawGameMoon.dist_l*cos(DrawGameMoon.angle);
-  else
-    DrawGameMoon.x=DrawGameMoon.pivot_x+DrawGameMoon.dist_l*cos(DrawGameMoon.angle);
-
-  DrawGameMoon.y=DrawGameMoon.pivot_y+DrawGameMoon.dist_l*sin(DrawGameMoon.angle);
-  if (DrawGameMoon.y<128) {
-    DrawGameMoon.y=128;
-  }
-
-  if (DrawGameMoon.x>DrawGameMoon.phase_range_x[0]) { //new-cresent moon, rightside
-    DrawGameMoon.current_angle_id=0;
-  } else if (DrawGameMoon.x<DrawGameMoon.phase_range_x[7]) { //old-cresent moon, leftside
-    DrawGameMoon.current_angle_id=6;    
-  } else {
-    if (DrawGameMoon.x>=GR_WIDTH/4+GR_WIDTH/8&& DrawGameMoon.x<=GR_WIDTH/2+GR_WIDTH/4-GR_WIDTH/8) {
-      DrawGameMoon.current_angle_id=3;
-    } else {
-      for (int k=1;k<6;k++) { //Decending
-        if (DrawGameMoon.x<=DrawGameMoon.phase_range_x[k] && DrawGameMoon.x>=DrawGameMoon.phase_range_x[k+1]) {
-          DrawGameMoon.current_angle_id=k;
-          break;
-        }
-      }
-    }
-  }
-}*/
-
-
-/*
   Draws -Background-background, runs once on start unless explicitly called.
         -it is a large bitmap
   https://www.astronomy.com/observing/twilights-glow-is-calling/
@@ -1341,87 +1263,73 @@ void DrawGameBackgroundSpriteII(HDC hdc1,HDC hdc2)
 
 
   //Draw Sun
-  if (lvl_map_background.is_sun && Sun.horizon_lvl<3)
-    DrawSun(hdc2,hdcBG);
+    if (lvl_map_background.is_sun && Sun.horizon_lvl<3)
+      DrawSun(hdc2,hdcBG);
 
   //========Draw Moon (flipped or not)=============
   //Stretch (upsidedown + flipped) .sprite_paint to target .sprite_paint only
   //Extra condition: flip moon upside down and face it leftwards if latitude <= 0degs is south
-  if (DrawGameMoon.day_moon_phase_id!=-1 && DrawGameMoon.day_moon_angle_id!=-1 && lvl_map_background.is_moon) {
-    SelectObject(hdc2,Moon[DrawGameMoon.day_moon_phase_id].draw_moon_sprite[DrawGameMoon.day_moon_angle_id].sprite_paint); //select moon
-    SelectObject(hdcBG,DrawGameMoon.draw_moon_sprite_lvl); //select 
+    if (DrawGameMoon.day_moon_phase_id!=-1 && DrawGameMoon.day_moon_angle_id!=-1 && lvl_map_background.is_moon) {
+      SelectObject(hdc2,Moon[DrawGameMoon.day_moon_phase_id].draw_moon_sprite[DrawGameMoon.day_moon_angle_id].sprite_paint); //select moon
+      SelectObject(hdcBG,DrawGameMoon.draw_moon_sprite_lvl); //select 
 
-    BITMAP bm;
-    GetObject(Moon[DrawGameMoon.day_moon_phase_id].draw_moon_sprite[DrawGameMoon.day_moon_angle_id].sprite_paint,sizeof(BITMAP),&bm);
-    int size=bm.bmWidth;
-    GrRect(hdcBG,0,0,257,257,BLACK);
+      BITMAP bm;
+      GetObject(Moon[DrawGameMoon.day_moon_phase_id].draw_moon_sprite[DrawGameMoon.day_moon_angle_id].sprite_paint,sizeof(BITMAP),&bm);
+      int size=bm.bmWidth;
+      GrRect(hdcBG,0,0,257,257,BLACK);
 
-    if (lvl_map_background.latitude<0) {
-      StretchBlt(hdcBG,size,size,-size,-size,hdc2,0,0,size,size,SRCCOPY);
-    } else {
-      BitBlt(hdcBG,0,0,size,size,hdc2,0,0,SRCCOPY);
+      if (lvl_map_background.latitude<0) {
+        StretchBlt(hdcBG,size,size,-size,-size,hdc2,0,0,size,size,SRCCOPY);
+      } else {
+        BitBlt(hdcBG,0,0,size,size,hdc2,0,0,SRCCOPY);
+      }
     }
-  }
 
   //===============================================
   //Draw Background type
-  if (lvl_map_background.background_id>0 && lvl_map_background.background_id<=BACKGROUND_FOREGROUND_SPRITE_NUM) {
-    SelectObject(hdcBG,draw_background_sprite_stretched_mask);
-    SelectObject(hdc2,draw_background_sprite[lvl_map_background.background_id-1].sprite_mask);
-    GrRect(hdcBG,0,0,GR_WIDTH,GR_HEIGHT,BLACK);
-    StretchBlt(hdcBG,0,0,GR_WIDTH,GR_HEIGHT,hdc2,0,0,800,480,SRCCOPY);
+    if (lvl_map_background.background_id>0 && lvl_map_background.background_id<=BACKGROUND_FOREGROUND_SPRITE_NUM) {
+      SelectObject(hdcBG,draw_background_sprite_stretched_mask);
+      SelectObject(hdc2,draw_background_sprite[lvl_map_background.background_id-1].sprite_mask);
+      GrRect(hdcBG,0,0,GR_WIDTH,GR_HEIGHT,BLACK);
+      StretchBlt(hdcBG,0,0,GR_WIDTH,GR_HEIGHT,hdc2,0,0,800,480,SRCCOPY);
   
-    SelectObject(hdcBG,draw_background_sprite_stretched_paint);
-    SelectObject(hdc2,draw_background_sprite[lvl_map_background.background_id-1].sprite_paint);
-    GrRect(hdcBG,0,0,GR_WIDTH,GR_HEIGHT,BLACK);
-    StretchBlt(hdcBG,0,0,GR_WIDTH,GR_HEIGHT,hdc2,0,0,800,480,SRCCOPY);
-  }
+      SelectObject(hdcBG,draw_background_sprite_stretched_paint);
+      SelectObject(hdc2,draw_background_sprite[lvl_map_background.background_id-1].sprite_paint);
+      GrRect(hdcBG,0,0,GR_WIDTH,GR_HEIGHT,BLACK);
+      StretchBlt(hdcBG,0,0,GR_WIDTH,GR_HEIGHT,hdc2,0,0,800,480,SRCCOPY);
+    }
   //===============================================
 
-  SelectObject(hdcBG,game_background_deco_sprite);
+    SelectObject(hdcBG,game_background_deco_sprite);
 
   //Draw Moon **
-  if (DrawGameMoon.day_moon_phase_id!=-1 && DrawGameMoon.day_moon_angle_id!=-1 && lvl_map_background.is_moon) {
-    BITMAP bm;
-    GetObject(Moon[DrawGameMoon.day_moon_phase_id].draw_moon_sprite[DrawGameMoon.day_moon_angle_id].sprite_paint,sizeof(BITMAP),&bm);
-    int size=bm.bmWidth;
-    SelectObject(hdc2,DrawGameMoon.draw_moon_sprite_lvl);
-    BitBlt(hdcBG,DrawGameMoon.day_moon_x-size/2,DrawGameMoon.day_moon_y-size/2,size,size,hdc2,0,0,SRCPAINT); //draw to background
-  }
+    if (DrawGameMoon.day_moon_phase_id!=-1 && DrawGameMoon.day_moon_angle_id!=-1 && lvl_map_background.is_moon) {
+      BITMAP bm;
+      GetObject(Moon[DrawGameMoon.day_moon_phase_id].draw_moon_sprite[DrawGameMoon.day_moon_angle_id].sprite_paint,sizeof(BITMAP),&bm);
+      int size=bm.bmWidth;
+      SelectObject(hdc2,DrawGameMoon.draw_moon_sprite_lvl);
+      BitBlt(hdcBG,DrawGameMoon.day_moon_x-size/2,DrawGameMoon.day_moon_y-size/2,size,size,hdc2,0,0,SRCPAINT); //draw to background
+    }
 
   //}
   //End of Draw Moon
   //===================)===========================
 
 
-  if (lvl_map_background.background_id>0 && lvl_map_background.background_id<BACKGROUND_FOREGROUND_SPRITE_NUM){
+    if (lvl_map_background.background_id>0 && lvl_map_background.background_id<BACKGROUND_FOREGROUND_SPRITE_NUM){
   //Draw Background infront of clouds and skies
-    SelectObject(hdc2,draw_background_sprite_stretched_mask);
-    BitBlt(hdcBG,0,0,GR_WIDTH,GR_HEIGHT,hdc2,0,0,SRCAND);
+      SelectObject(hdc2,draw_background_sprite_stretched_mask);
+      BitBlt(hdcBG,0,0,GR_WIDTH,GR_HEIGHT,hdc2,0,0,SRCAND);
 
-    SelectObject(hdc2,draw_background_sprite_stretched_paint);
-    BitBlt(hdcBG,0,0,GR_WIDTH,GR_HEIGHT,hdc2,0,0,SRCPAINT);
-  }
+      SelectObject(hdc2,draw_background_sprite_stretched_paint);
+      BitBlt(hdcBG,0,0,GR_WIDTH,GR_HEIGHT,hdc2,0,0,SRCPAINT);
+    }
   }
   DeleteDC(hdcBG);
 }
 
 //int64_t funnyrun;
-/*void DrawMoon(HDC hdc,HDC hdc2)
-{
-  if (current_moon_phase_id>=0 && current_moon_phase_id<=7) {
-    DrawSprite(hdc, hdc2,DrawGameMoon.x,DrawGameMoon.y,&Moon[current_moon_phase_id].draw_moon_sprite[DrawGameMoon.current_angle_id],FALSE);
-  }
 
-  //init palette nighttime
-  if (DrawGameMoon.flag_nightshade && level_loaded) {
-    for (int i=0;i<PLATFORM_GRID_NUM;i++) {
-      BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsNight);
-    }
-    DrawGameMoon.flag_nightshade=FALSE;
-  }
-}
-*/
 
 //loads 120 cnt delay 
 void DrawGameBackgroundSprite(HDC hdcMain,HDC hdc2)
