@@ -938,7 +938,8 @@ void EnemyActSuffocate(int i)
         //Enemy[i]->current_suffocate_ngid_n=0; //reset search surrounding
         //Enemy[i]->suffocate_timer=0;
         Enemy[i]->suffocate_timer=0;
-
+        Enemy[i]->in_non_solid_x=Enemy[i]->x;
+        Enemy[i]->in_non_solid_y=Enemy[i]->y;
         /*if (Enemy[i]->suffocate_timer<0) {
           Enemy[i]->suffocate_timer=0;
         }*/
@@ -2079,10 +2080,14 @@ void EnemyAct(int i)
             Enemy[i]->true_dead=TRUE;
           }
         }
+        //suffocate handle go back to non-solid 
         if (Enemy[i]->suffocate_timer>=150) {
           //teleport back to original position
-          Enemy[i]->x=saved_enemy_x[i];
-          Enemy[i]->y=saved_enemy_y[i];
+          //Enemy[i]->x=saved_enemy_x[i];
+          //Enemy[i]->y=saved_enemy_y[i];
+
+          Enemy[i]->x=Enemy[i]->in_non_solid_x;
+          Enemy[i]->y=Enemy[i]->in_non_solid_y;
           Enemy[i]->suffocate_timer=0;
         }
         if (NodeGrid[tmp_ngid]->node_water) {
@@ -2134,19 +2139,19 @@ void EnemyAct(int i)
 
 
       for (slash_time_i=0;slash_time_i<slash_time;slash_time_i++) {
-          Enemy[i]->in_node_grid_id=GetGridId(Enemy[i]->x,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);      
-          if (!(Enemy[i]->species>=5 && Enemy[i]->species<=7)) {
-            Enemy[i]->on_ground_id=GetOnGroundId(Enemy[i]->x,Enemy[i]->y,33,32);
-          }
-          if (Enemy[i]->is_in_ground_edge) {
-            Enemy[i]->draw_falling=FALSE;
-          }
-          if ((Enemy[i]->species==1 || Enemy[i]->species==3) && Enemy[i]->on_ground_id!=-1) {//<------ source of major error
-            EnemySpriteOnGroundId(i,Enemy[i]->on_ground_id);
-          }
-          if (Enemy[i]->on_ground_id==-1 && !(Enemy[i]->species>=5 && Enemy[i]->species<=7)) {
-            Enemy[i]->is_in_ground_edge=FALSE;
-          }
+        Enemy[i]->in_node_grid_id=GetGridId(Enemy[i]->x,Enemy[i]->y,MAP_WIDTH,NODE_SIZE,MAP_NODE_NUM);      
+        if (!(Enemy[i]->species>=5 && Enemy[i]->species<=7)) {
+          Enemy[i]->on_ground_id=GetOnGroundId(Enemy[i]->x,Enemy[i]->y,33,32);
+        }
+        if (Enemy[i]->is_in_ground_edge) {
+          Enemy[i]->draw_falling=FALSE;
+        }
+        if ((Enemy[i]->species==1 || Enemy[i]->species==3) && Enemy[i]->on_ground_id!=-1) {//<------ source of major error
+          EnemySpriteOnGroundId(i,Enemy[i]->on_ground_id);
+        }
+        if (Enemy[i]->on_ground_id==-1 && !(Enemy[i]->species>=5 && Enemy[i]->species<=7)) {
+          Enemy[i]->is_in_ground_edge=FALSE;
+        }
 
       //check state web stuck
         EnemyActWebStuck(i);
@@ -3050,6 +3055,10 @@ void InitEnemy()
     Enemy[i]->force_fall=FALSE;
     Enemy[i]->x=saved_enemy_x[i];
     Enemy[i]->y=saved_enemy_y[i];
+
+    Enemy[i]->in_non_solid_x=Enemy[i]->x;
+    Enemy[i]->in_non_solid_y=Enemy[i]->y;
+
     Enemy[i]->sprite_x=
     Enemy[i]->sprite_y=-20;
     Enemy[i]->true_dead=FALSE;

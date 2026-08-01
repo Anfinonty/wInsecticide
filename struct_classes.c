@@ -807,6 +807,13 @@ typedef struct enemy
 
   int antannae_timer;
 
+  float x;
+  float y;
+
+  //go here when enter solid
+  float in_non_solid_x;
+  float in_non_solid_y;
+
   float health;
   float max_health;
   float LOS_x;
@@ -817,8 +824,6 @@ typedef struct enemy
   float bullet_speed;
   float shoot_target_x;
   float shoot_target_y;
-  float x;
-  float y;
   float angle;
   float sprite_angle;
   float dist_from_player;
