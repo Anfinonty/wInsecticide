@@ -921,7 +921,7 @@ void EnemyActWebStuck(int i)
 void EnemyActSuffocate(int i)
 {
   int nx,ny,sub_tmp_ngid;
-  if (Enemy[i]->suffocate_timer<450) {
+  if (Enemy[i]->suffocate_timer<250) {
     //for (int j=0;j<9;j++) {
     nx=Enemy[i]->x-NODE_SIZE+GetXFromId(/*j*/Enemy[i]->current_suffocate_ngid_n,3)*NODE_SIZE; //     1 2 3   
     ny=Enemy[i]->y-NODE_SIZE+GetYFromId(/*j*/Enemy[i]->current_suffocate_ngid_n,3)*NODE_SIZE; //     4 5 6  
@@ -2081,7 +2081,8 @@ void EnemyAct(int i)
           }
         }
         //suffocate handle go back to non-solid 
-        if (Enemy[i]->suffocate_timer>=150) {
+        //if (Enemy[i]->suffocate_timer>=150) {
+        if (Enemy[i]->suffocate_timer>=250) {
           //teleport back to original position
           //Enemy[i]->x=saved_enemy_x[i];
           //Enemy[i]->y=saved_enemy_y[i];
