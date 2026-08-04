@@ -481,7 +481,7 @@ void Prelude()
   if (i==0 && j==0) {
 
     //Create Mask for clouds
-    for (int k=0;k<4;k++) {
+    for (int k=0;k<6;k++) {
       DrawGameCloudsBackground[k].sprite_mask1=CreateBitmapMask(DrawGameCloudsBackground[k].sprite_paint1,YELLOW,NULL); //Reference to Self
       DrawGameCloudsBackground[k].sprite_mask2=CreateBitmapMask(DrawGameCloudsBackground[k].sprite_paint2,YELLOW,NULL);
     }
@@ -1871,7 +1871,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //draw_background_sprite_cnt_i=0;
       //Loading Bar
       loading_numerator=0;
-      loading_denominator=ROTATED_SPRITE_NUM*7+DRAW_CLOUDS_NUM+DRAW_CLOUDY_CLOUDS_NUM+(PLAYER_ROTATED_SPRITE_NUM*9+4)+(7*9+1); //(2roach,2toebiter,2ant,extratoebiter ,, Clouds, player, moon)
+      loading_denominator=ROTATED_SPRITE_NUM*7+DRAW_CLOUDS_NUM1+DRAW_CLOUDS_NUM2+DRAW_CLOUDY_CLOUDS_NUM+(PLAYER_ROTATED_SPRITE_NUM*9+4)+(7*9+1); //(2roach,2toebiter,2ant,extratoebiter ,, Clouds, player, moon)
 
 
       AddFontResource(L"fonts/unifont-8.0.01.ttf");

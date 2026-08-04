@@ -1274,16 +1274,19 @@ HBITMAP texture_water[9];
 
 //=============CLOUDS===============
 #define LOADED_CLOUD_NUM 9
-#define DRAW_CLOUDS_NUM     20
+#define DRAW_CLOUDS_NUM1     20
+#define DRAW_CLOUDS_NUM2     10 //Fixed size: 1600x800, for smaller res
 #define DRAW_CLOUDY_CLOUDS_NUM  100//500
+
+#define SMALL_SCREEN_CLOUD_WIDTH    800
+#define SMALL_SCREEN_CLOUD_HEIGHT   600
 //#define CLOUD_NUM    30//100//30//10//20
 int cloud_src_x[LOADED_CLOUD_NUM]={ 11,   3,  0,  0, 282,462, 42,440,464};
 int cloud_src_y[LOADED_CLOUD_NUM]={ 62, 255,  0,411, 171,  8,178,450,553};
 int cloud_l[LOADED_CLOUD_NUM]=    {504,532,442,417, 325,190,196,190,138};
 int cloud_w[LOADED_CLOUD_NUM]=    {165,258,164,258, 250,170,156, 94,70};
 
-
-
+//Loaded in .bmp
 HBITMAP cloudwhite8bit_sprite_1;
 HBITMAP cloudwhite8bit_sprite_2;
 HBITMAP cloudgrey8bit_sprite_1;
@@ -1308,6 +1311,8 @@ struct GameCloudsBackground
   int timer;
 } GameCloudsBackground;
 
+
+//Drawn Clouds for Background
 typedef struct DrawGameCloudBackground
 {
   HBITMAP sprite_paint1;
@@ -1317,16 +1322,10 @@ typedef struct DrawGameCloudBackground
 } DrawGameCloudsBackgroundA;
 
 
-DrawGameCloudsBackgroundA DrawGameCloudsBackground[4];
+DrawGameCloudsBackgroundA DrawGameCloudsBackground[6];
 //0,1 ---> normal day/night clouds
 //2,3 ---> cloudy day/night clouds
-
-/*struct GameBackground {
-  int timer;
-} GameBackground;*/
-
-
-
+//4,5 ---> little day/night clouds (only toggled at low res)
 
 
 

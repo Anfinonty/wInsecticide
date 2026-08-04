@@ -164,13 +164,13 @@ void PreludeLoadCloudBackgroundSprite(HDC hdc,HDC hdc2)
   //Create Bitmap and Begin placing clouds on bitmap
   if (prelude_clouds_i==0) {
     if (prelude_clouds_paint==0) { //Create sprite paint 1
-      for (int k=0;k<4;k++) {
+      for (int k=0;k<6;k++) {
         DrawGameCloudsBackground[k].sprite_paint1=CreateCrunchyBitmap(SCREEN_WIDTH,(SCREEN_HEIGHT/2+SCREEN_HEIGHT/4)); //max size
         SelectObject(hdc,DrawGameCloudsBackground[k].sprite_paint1);
         GrRect(hdc,0,0,SCREEN_WIDTH+1,SCREEN_HEIGHT/2+SCREEN_HEIGHT/4+1,YELLOW);
       }
     } else if (prelude_clouds_paint==1) { //Create sprite paint 2
-      for (int k=0;k<4;k++) {
+      for (int k=0;k<6;k++) {
         DrawGameCloudsBackground[k].sprite_paint2=CreateCrunchyBitmap(SCREEN_WIDTH,(SCREEN_HEIGHT/2+SCREEN_HEIGHT/4));
         SelectObject(hdc,DrawGameCloudsBackground[k].sprite_paint2);
         GrRect(hdc,0,0,SCREEN_WIDTH+1,SCREEN_HEIGHT/2+SCREEN_HEIGHT/4+1,YELLOW);
@@ -185,95 +185,77 @@ void PreludeLoadCloudBackgroundSprite(HDC hdc,HDC hdc2)
     int y;
     int type;
     int flipped;
+    int e,f,max_screen_width;
 
-    if (prelude_clouds_i>=DRAW_CLOUDS_NUM) { //after normal clouds are drawn, draw cloudy clouds
+    if (prelude_clouds_i>=DRAW_CLOUDS_NUM1+DRAW_CLOUDS_NUM2) { //after normal clouds are drawn, draw cloudy clouds
       type=RandNum(0,LOADED_CLOUD_NUM-1,&cloud_rng_i,-1);
       y=-cloud_w[type]+RandNum(0,SCREEN_HEIGHT/2+SCREEN_HEIGHT/8,&cloud_rng_i,-1);
       x=RandNum(0,SCREEN_WIDTH*2,&cloud_rng_i,-1);
-      flipped=(bool)RandNum(0,1,&cloud_rng_i,-1);
-
-      if (x<SCREEN_WIDTH) { //sprite1 cross over to sprite 2, draw on sprite 2 as well (left to right)  S1 [] S2
-        if (x+cloud_l[type]>=SCREEN_WIDTH) {
-          BitBlt8BitTransparent(DrawGameCloudsBackground[2].sprite_paint1, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[0][type].sprite_cache, 0, 0, BLACK,flipped);
-          BitBlt8BitTransparent(DrawGameCloudsBackground[3].sprite_paint1, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[1][type].sprite_cache, 0, 0, BLACK,flipped);
-          x-=(SCREEN_WIDTH);
-          BitBlt8BitTransparent(DrawGameCloudsBackground[2].sprite_paint2, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[0][type].sprite_cache, 0, 0, BLACK,flipped);
-          BitBlt8BitTransparent(DrawGameCloudsBackground[3].sprite_paint2, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[1][type].sprite_cache, 0, 0, BLACK,flipped);
-        } else {
-          BitBlt8BitTransparent(DrawGameCloudsBackground[2].sprite_paint1, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[0][type].sprite_cache, 0, 0, BLACK,flipped);
-          BitBlt8BitTransparent(DrawGameCloudsBackground[3].sprite_paint1, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[1][type].sprite_cache, 0, 0, BLACK,flipped);
-        }
-       } else {  //sprite2 cross over to sprite , draw on sprite 1 as well (left to right)   ] S1 S2 [
-         if (x+cloud_l[type]>SCREEN_WIDTH*2) {
-           x-=SCREEN_WIDTH;
-           BitBlt8BitTransparent(DrawGameCloudsBackground[2].sprite_paint2, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[0][type].sprite_cache, 0, 0, BLACK,flipped);
-           BitBlt8BitTransparent(DrawGameCloudsBackground[3].sprite_paint2, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[1][type].sprite_cache, 0, 0, BLACK,flipped);
-           x-=SCREEN_WIDTH;
-           BitBlt8BitTransparent(DrawGameCloudsBackground[2].sprite_paint1, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[0][type].sprite_cache, 0, 0, BLACK,flipped);
-           BitBlt8BitTransparent(DrawGameCloudsBackground[3].sprite_paint1, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[1][type].sprite_cache, 0, 0, BLACK,flipped);
-         } else {
-           x-=SCREEN_WIDTH;
-           BitBlt8BitTransparent(DrawGameCloudsBackground[2].sprite_paint2, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[0][type].sprite_cache, 0, 0, BLACK,flipped);
-           BitBlt8BitTransparent(DrawGameCloudsBackground[3].sprite_paint2, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[1][type].sprite_cache, 0, 0, BLACK,flipped);
-         }
-       }
-
-      prelude_cloudy_clouds_i++;
-      loading_numerator++;
-      if (prelude_cloudy_clouds_i>=DRAW_CLOUDY_CLOUDS_NUM) {
-        prelude_clouds_loaded=TRUE; //completed
-      }
-    } else { // normal cloud amount
-      if (SCREEN_WIDTH<960) { //large clouds are rarer on smaller width screens
-        if (prelude_clouds_i<2
-            || (DRAW_CLOUDS_NUM-3<prelude_clouds_i && prelude_clouds_i<DRAW_CLOUDS_NUM)) {
-          //spawn big cloud
-          type=RandNum(0,4,&cloud_rng_i,-1);
-        } else { //spawn small cloud
-          if (prelude_clouds_i!=12) {
-            type=RandNum(5,LOADED_CLOUD_NUM-1,&cloud_rng_i,-1);
-          } else {
-            type=RandNum(8,8,&cloud_rng_i,-1);
-          }
-        }
+      e=2;
+      f=3;
+      max_screen_width=SCREEN_WIDTH;
+    } else { //draw less, normal clouds
+      if (prelude_clouds_i%2==0) {
+        type=RandNum(5,LOADED_CLOUD_NUM-1,&cloud_rng_i,-1);
       } else {
         type=RandNum(0,LOADED_CLOUD_NUM-1,&cloud_rng_i,-1);
       }
-      y=-cloud_w[type]+RandNum(0,SCREEN_HEIGHT/2+SCREEN_HEIGHT/8,&cloud_rng_i,-1);
-      x=RandNum(0,SCREEN_WIDTH*2,&cloud_rng_i,-1);
-      flipped=(bool)RandNum(0,1,&cloud_rng_i,-1);
-
-      if (x<SCREEN_WIDTH) { //sprite1 cross over to sprite 2, draw on sprite 2 as well (left to right)  S1 [] S2
-        if (x+cloud_l[type]>=SCREEN_WIDTH) {
-          BitBlt8BitTransparent(DrawGameCloudsBackground[0].sprite_paint1, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[0][type].sprite_cache, 0, 0, BLACK,flipped);
-          BitBlt8BitTransparent(DrawGameCloudsBackground[1].sprite_paint1, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[1][type].sprite_cache, 0, 0, BLACK,flipped);
-          x-=(SCREEN_WIDTH);
-          BitBlt8BitTransparent(DrawGameCloudsBackground[0].sprite_paint2, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[0][type].sprite_cache, 0, 0, BLACK,flipped);
-          BitBlt8BitTransparent(DrawGameCloudsBackground[1].sprite_paint2, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[1][type].sprite_cache, 0, 0, BLACK,flipped);
-        } else {
-          BitBlt8BitTransparent(DrawGameCloudsBackground[0].sprite_paint1, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[0][type].sprite_cache, 0, 0, BLACK,flipped);
-          BitBlt8BitTransparent(DrawGameCloudsBackground[1].sprite_paint1, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[1][type].sprite_cache, 0, 0, BLACK,flipped);
-        }
-      } else {  //sprite2 cross over to sprite , draw on sprite 1 as well (left to right)   ] S1 S2 [
-        if (x+cloud_l[type]>SCREEN_WIDTH*2) {
-          x-=SCREEN_WIDTH;
-          BitBlt8BitTransparent(DrawGameCloudsBackground[0].sprite_paint2, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[0][type].sprite_cache, 0, 0, BLACK,flipped);
-          BitBlt8BitTransparent(DrawGameCloudsBackground[1].sprite_paint2, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[1][type].sprite_cache, 0, 0, BLACK,flipped);
-          x-=SCREEN_WIDTH;
-          BitBlt8BitTransparent(DrawGameCloudsBackground[0].sprite_paint1, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[0][type].sprite_cache, 0, 0, BLACK,flipped);
-          BitBlt8BitTransparent(DrawGameCloudsBackground[1].sprite_paint1, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[1][type].sprite_cache, 0, 0, BLACK,flipped);
-        } else {
-          x-=SCREEN_WIDTH;
-          BitBlt8BitTransparent(DrawGameCloudsBackground[0].sprite_paint2, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[0][type].sprite_cache, 0, 0, BLACK,flipped);
-          BitBlt8BitTransparent(DrawGameCloudsBackground[1].sprite_paint2, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[1][type].sprite_cache, 0, 0, BLACK,flipped);
-        }
+      if (prelude_clouds_i<DRAW_CLOUDS_NUM1) { //big screen
+        y=-cloud_w[type]+(SCREEN_HEIGHT/2+SCREEN_HEIGHT/4)-RandNum(0,(SCREEN_HEIGHT/2+SCREEN_HEIGHT/4),&cloud_rng_i,-1);
+        e=0;
+        f=1;
+        int sx=prelude_clouds_i;
+        x=(SCREEN_WIDTH*2)/DRAW_CLOUDS_NUM1 * sx;
+        max_screen_width=SCREEN_WIDTH;
+      } else { //small fixed 1600x600 screen
+        y=-cloud_w[type]+(SCREEN_HEIGHT/2+SCREEN_HEIGHT/4)-RandNum(0,SMALL_SCREEN_CLOUD_HEIGHT,&cloud_rng_i,-1);
+        e=4;
+        f=5;
+        int sx=prelude_clouds_i-DRAW_CLOUDS_NUM1; 
+        x=(SMALL_SCREEN_CLOUD_WIDTH*2)/DRAW_CLOUDS_NUM2 * sx;
+        max_screen_width=SMALL_SCREEN_CLOUD_WIDTH;
       }
-      prelude_clouds_i++;
-      loading_numerator++;
     }
- 
- }
-  //BitmapPalette(hdc,hdc2,GameCloudsBackground.sprite_paint,rgbColorsNoir);
+    flipped=(bool)RandNum(0,1,&cloud_rng_i,-1);
+
+  //Begin drawing clouds onto canvas
+    if (x<max_screen_width) { //sprite1 cross over to sprite 2, draw on sprite 2 as well (left to right)  S1 [] S2
+      if (x+cloud_l[type]>=max_screen_width) {
+        BitBlt8BitTransparent(DrawGameCloudsBackground[e].sprite_paint1, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[0][type].sprite_cache, 0, 0, BLACK,flipped);
+        BitBlt8BitTransparent(DrawGameCloudsBackground[f].sprite_paint1, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[1][type].sprite_cache, 0, 0, BLACK,flipped);
+        x-=(max_screen_width);
+        BitBlt8BitTransparent(DrawGameCloudsBackground[e].sprite_paint2, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[0][type].sprite_cache, 0, 0, BLACK,flipped);
+        BitBlt8BitTransparent(DrawGameCloudsBackground[f].sprite_paint2, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[1][type].sprite_cache, 0, 0, BLACK,flipped);
+      } else {
+        BitBlt8BitTransparent(DrawGameCloudsBackground[e].sprite_paint1, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[0][type].sprite_cache, 0, 0, BLACK,flipped);
+        BitBlt8BitTransparent(DrawGameCloudsBackground[f].sprite_paint1, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[1][type].sprite_cache, 0, 0, BLACK,flipped);
+      }
+    } else {  //sprite2 cross over to sprite , draw on sprite 1 as well (left to right)   ] S1 S2 [
+      if (x+cloud_l[type]>max_screen_width*2) {
+        x-=max_screen_width;
+        BitBlt8BitTransparent(DrawGameCloudsBackground[e].sprite_paint2, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[0][type].sprite_cache, 0, 0, BLACK,flipped);
+        BitBlt8BitTransparent(DrawGameCloudsBackground[f].sprite_paint2, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[1][type].sprite_cache, 0, 0, BLACK,flipped);
+        x-=max_screen_width;
+        BitBlt8BitTransparent(DrawGameCloudsBackground[e].sprite_paint1, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[0][type].sprite_cache, 0, 0, BLACK,flipped);
+        BitBlt8BitTransparent(DrawGameCloudsBackground[f].sprite_paint1, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[1][type].sprite_cache, 0, 0, BLACK,flipped);
+      } else {
+        x-=max_screen_width;
+        BitBlt8BitTransparent(DrawGameCloudsBackground[e].sprite_paint2, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[0][type].sprite_cache, 0, 0, BLACK,flipped);
+        BitBlt8BitTransparent(DrawGameCloudsBackground[f].sprite_paint2, x,y, cloud_l[type], cloud_w[type], DrawGameClouds[1][type].sprite_cache, 0, 0, BLACK,flipped);
+      }
+    }
+
+    loading_numerator++;
+    if (prelude_clouds_i<DRAW_CLOUDS_NUM1+DRAW_CLOUDS_NUM2) {
+      prelude_clouds_i++;
+    } else {
+      prelude_cloudy_clouds_i++;
+      if (prelude_cloudy_clouds_i>=DRAW_CLOUDY_CLOUDS_NUM) {
+        prelude_clouds_loaded=TRUE; //completed
+      }
+    }
+  }
+
 }
 
 
@@ -286,8 +268,14 @@ void CloudAct()
     GameCloudsBackground.timer=0;
     flag_draw_game_background_sprite=TRUE;
     GameCloudsBackground.cam_x+=1;//10;//10;
-    if (GameCloudsBackground.cam_x>SCREEN_WIDTH*2)
-      GameCloudsBackground.cam_x=0;
+
+    if (GR_WIDTH<1000 && lvl_map_background.clouds_type<=1) {
+      if (GameCloudsBackground.cam_x>SMALL_SCREEN_CLOUD_WIDTH*2)
+        GameCloudsBackground.cam_x=0;
+    } else {
+      if (GameCloudsBackground.cam_x>SCREEN_WIDTH*2)
+        GameCloudsBackground.cam_x=0;
+    }
   }
 
   if (lvl_map_background.background_id==4) {
@@ -444,34 +432,46 @@ void DrawClouds(HDC hdc, HDC hdc2)
     clouds_type=lvl_map_background.clouds_type;
   }
 
-  if (clouds_type>=0 && clouds_type<=3) { //only draw valid clouds
-  if (x1>SCREEN_WIDTH) { //paint 2 only
-    if (x2<SCREEN_WIDTH*2) {//paint 2 only
+  int max_screen_width=SCREEN_WIDTH;
+  if (clouds_type>=0 && clouds_type<=5) { //only draw valid clouds
+
+  if (clouds_type>=0 && clouds_type<=1) {
+    if (GR_WIDTH<1000) {
+      if (clouds_type==0)
+        clouds_type=4;
+      else
+        clouds_type=5;        
+      max_screen_width=SMALL_SCREEN_CLOUD_WIDTH;
+    }
+  }
+
+  if (x1>max_screen_width) { //paint 2 only
+    if (x2<max_screen_width*2) {//paint 2 only
       SelectObject(hdc2,DrawGameCloudsBackground[clouds_type].sprite_paint2);
-      BitBlt(hdc, 0, 0, GR_WIDTH,_h, hdc2, x1-SCREEN_WIDTH, h,  SRCPAINT);
+      BitBlt(hdc, 0, 0, GR_WIDTH,_h, hdc2, x1-max_screen_width, h,  SRCPAINT);
 
     } else { //paint 2 loopback to paint 1
-      int x_remaining=SCREEN_WIDTH*2-x1;
+      int x_remaining=max_screen_width*2-x1;
       SelectObject(hdc2,DrawGameCloudsBackground[clouds_type].sprite_paint2);
-      BitBlt(hdc, 0, 0, x_remaining,_h, hdc2, x1-SCREEN_WIDTH, h,  SRCPAINT);
+      BitBlt(hdc, 0, 0, x_remaining,_h, hdc2, x1-max_screen_width, h,  SRCPAINT);
 
-      int x_loop_back=x2-SCREEN_WIDTH*2;
+      int x_loop_back=x2-max_screen_width*2;
       SelectObject(hdc2,DrawGameCloudsBackground[clouds_type].sprite_paint1);
       BitBlt(hdc, x_remaining, 0, x_loop_back,_h, hdc2, 0, h,  SRCPAINT);
 
       //GrRect(hdc,x_remaining,0,5,GR_HEIGHT,BLACK);
     }
   } else { //paint 1 only
-    if (x2<SCREEN_WIDTH) { //paint 1 only
+    if (x2<max_screen_width) { //paint 1 only
       SelectObject(hdc2,DrawGameCloudsBackground[clouds_type].sprite_paint1);
       BitBlt(hdc, 0, 0, GR_WIDTH,_h, hdc2, x1, h,  SRCPAINT);
 
     } else { //paint 1 crossing into paint 2
-      int x_remaining=SCREEN_WIDTH-x1;
+      int x_remaining=max_screen_width-x1;
       SelectObject(hdc2,DrawGameCloudsBackground[clouds_type].sprite_paint1);
       BitBlt(hdc, 0, 0, x_remaining,_h, hdc2, x1, h,  SRCPAINT);
 
-      int x_loop_back=x2-SCREEN_WIDTH;
+      int x_loop_back=x2-max_screen_width;
       SelectObject(hdc2,DrawGameCloudsBackground[clouds_type].sprite_paint2);
       BitBlt(hdc, x_remaining, 0, x_loop_back,_h, hdc2, 0, h,  SRCPAINT);
 
