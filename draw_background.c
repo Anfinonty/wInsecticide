@@ -269,7 +269,7 @@ void CloudAct()
     flag_draw_game_background_sprite=TRUE;
     GameCloudsBackground.cam_x+=1;//10;//10;
 
-    if (GR_WIDTH<1000 && lvl_map_background.clouds_type<=1) {
+    if (GR_WIDTH<1000 && lvl_map_background.clouds_type>=1 && lvl_map_background.clouds_type<=2) {
       if (GameCloudsBackground.cam_x>SMALL_SCREEN_CLOUD_WIDTH*2)
         GameCloudsBackground.cam_x=0;
     } else {
@@ -425,21 +425,21 @@ void DrawClouds(HDC hdc, HDC hdc2)
 
   if (lvl_map_background.is_real_time) {
     if (lvl_map_background.weather_type>0)
-      clouds_type=3;
+      clouds_type=3; //dark cloudy
     else if (!(Sun.horizon_lvl>=-1 && Sun.horizon_lvl<=0))
-      clouds_type=1;
+      clouds_type=1; //dark cloud ltitle
   } else {
     clouds_type=lvl_map_background.clouds_type;
   }
 
   int max_screen_width=SCREEN_WIDTH;
-  if (clouds_type>=0 && clouds_type<=5) { //only draw valid clouds
+  if (clouds_type>=0 && clouds_type<=3) { //only draw valid clouds
 
   if (clouds_type>=0 && clouds_type<=1) {
     if (GR_WIDTH<1000) {
-      if (clouds_type==0)
+      if (clouds_type==0) //light some
         clouds_type=4;
-      else
+      else //dark some
         clouds_type=5;        
       max_screen_width=SMALL_SCREEN_CLOUD_WIDTH;
     }
@@ -1315,6 +1315,27 @@ void DrawGameBackgroundSpriteII(HDC hdc1,HDC hdc2)
   //End of Draw Moon
   //===================)===========================
 
+
+    /*if (lvl_map_background.is_real_time) {
+      switch (Sun.horizon_lvl) {
+        case -1: //brightest
+          lvl_map_background.dark_lvl=0;
+          break;
+        case 0:
+          lvl_map_background.dark_lvl=2;
+          break;
+        case 1: //darkest
+          lvl_map_background.dark_lvl=3;
+          break;
+         case 2: //nighttime
+         case 3:
+         case 4:
+           lvl_map_background.dark_lvl=4;
+           break;
+      }
+      player.flag_revert_palette=TRUE;
+      player.time_breaker_tick=0;
+    }*/
 
     if (lvl_map_background.background_id>0 && lvl_map_background.background_id<BACKGROUND_FOREGROUND_SPRITE_NUM){
   //Draw Background infront of clouds and skies

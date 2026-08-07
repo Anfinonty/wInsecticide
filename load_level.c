@@ -300,7 +300,7 @@ void InitLevel(bool load_lvl)
     in_main_menu=FALSE;
   } else { //going to main menu
     int dice=abs(RandNum(0,100,&misc_rng_i,-1)); //random weather
-    if (dice<30) {
+    if (dice<30) {//Weather event
       if (map_sunrise_time<=seconds_since_midnight && seconds_since_midnight<=map_sunset_time) {
         //lvl_map_background.background_id=0;
         lvl_map_background.day_sky_color=RGB(25,25,25);
@@ -308,22 +308,25 @@ void InitLevel(bool load_lvl)
       } else {
         lvl_map_background.day_sky_color=RGB(0,0,0);
         lvl_map_background.night_sky_color=RGB(0,0,0);
+        lvl_map_background.dark_lvl=4;
       }
       lvl_map_background.is_sun=FALSE;
       lvl_map_background.is_moon=FALSE;
       lvl_map_background.is_stars=FALSE;
       if (dice>15) {
-        lvl_map_background.dark_lvl=3;
+        if (lvl_map_background.dark_lvl!=4)
+          lvl_map_background.dark_lvl=3;
         lvl_map_background.weather_type=1; //rain
       } else if (dice<7) {
         lvl_map_background.dark_lvl=4;
         lvl_map_background.weather_type=2; //snow
       } else {
-        lvl_map_background.dark_lvl=3;
+        if (lvl_map_background.dark_lvl!=4)
+          lvl_map_background.dark_lvl=3;
         lvl_map_background.weather_type=3; //hailstorm
       }
-    } else {
-      lvl_map_background.dark_lvl=4;
+    } else { //non weather event
+
       lvl_map_background.weather_type=0; //clear
     }
   }
