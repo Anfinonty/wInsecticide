@@ -117,8 +117,8 @@ void Init() { //Repeatable
 
 
   //Start level
-  OLD_GR_WIDTH=0;
-  OLD_GR_HEIGHT=0;
+  //OLD_GR_WIDTH=0;
+  //OLD_GR_HEIGHT=0;
   game_timer=0;
   enemy_kills=0;
   game_over=FALSE;
@@ -126,14 +126,8 @@ void Init() { //Repeatable
   //global_update_reflection_timer=501;
 
   //fire_rng_i=0;
-
   //Initialize Level
-  InitClouds();
-  InitSun();
-  InitMoon();
-  InitStars();
   InitFallingGrounds();
-  //InitStarsIfMoon();
   InitBullet(BULLET_NUM);
 
   if (!run_once_only) { //only run once.
@@ -176,9 +170,16 @@ void Init() { //Repeatable
   mem_snd_interrupt[5]=TRUE;
   waveOutReset(hWaveOut[5]);
 
+
+  //flag_draw_game_background_spriteII=TRUE;
+  //Init Backgrounds
+  InitClouds();
+  InitSun();
+  InitMoon();
+  InitStars();
+  SunAct();
   flag_draw_game_background_sprite=TRUE;
 
-  flag_draw_game_background_spriteII=TRUE;
   if (!run_once_only) {
     run_once_only=TRUE;
   }
@@ -246,16 +247,16 @@ void InitLevel(bool load_lvl)
     blank_level=FALSE;
   }
 
-  flag_update_background=TRUE;
-  OLD_GR_WIDTH=0;
-  OLD_GR_HEIGHT=0;
+  //flag_update_background=TRUE;
+  //OLD_GR_WIDTH=0;
+  //OLD_GR_HEIGHT=0;
+  //GR_WIDTH=SCREEN_WIDTH;
+  //GR_HEIGHT=SCREEN_HEIGHT;
   
 
   srand(time(NULL));
   timeBeginPeriod(1);
 
-  GR_WIDTH=SCREEN_WIDTH;
-  GR_HEIGHT=SCREEN_HEIGHT;
 
   player.cam_move_x=0;
   player.cam_move_y=0;
@@ -265,7 +266,31 @@ void InitLevel(bool load_lvl)
   player_load_pupil_color=player_pupil_color;
   player_bullet_color=WHITE;
 
-  Init(); //Repeatable, Load Save via \n key
+
+
+  //Map Background
+  if (lvl_map_background.is_real_time) {
+    global_timenow=int64_current_timestamp();
+  } else {
+    global_timenow=lvl_map_background.unix_time;
+  }
+  //global_timenow=demo_timenow;
+  PersiaSolarTime(global_timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);
+  PersiaLunarTime(global_timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);
+
+  global_lhd0=GetLunarHijriDays(1,lunar_month,lunar_year)*24*60*60;
+
+  sun_ctx_t sun_riseset;
+  sun_riseset.in_latitude  = lvl_map_background.latitude; 
+  sun_riseset.in_longitude = lvl_map_background.longitude;
+  sun_compute(&sun_riseset,&planet_earth,solar_day,solar_month,solar_year);
+  map_sunrise_time= sun_riseset.out_sunrise_mins*60 + lvl_map_background.utc_offset*60*60;
+  map_sunset_time= sun_riseset.out_sunset_mins*60  + lvl_map_background.utc_offset*60*60;
+  seconds_since_midnight=solar_hour*60*60 + solar_min*60 + solar_sec;
+  map_sunlight_seconds=map_sunset_time-map_sunrise_time;
+  map_darkness_seconds=60*60*24 - map_sunlight_seconds;
+
+  Sun.horizon_lvl=0;
 
   lvl_map_background.day_sky_color=rgbPaint[lvl_map_background.day_sky_color_i];
   lvl_map_background.night_sky_color=rgbPaint[lvl_map_background.night_sky_color_i];
@@ -277,35 +302,16 @@ void InitLevel(bool load_lvl)
   }
   lvl_map_background.day_sky_dkcolor=rgbPaint[lvl_map_background.day_sky_dkcolor_i];
 
-
-  if (lvl_map_background.weather_run==0) { //denominator cannot be 0  or it crashes
-    lvl_map_background.weather_run=1;
-  }
-
-  //Load nalloc-able objects
-  InitGroundWaterObj();
-  InitGroundFireObj();
-  InitGridTiles(lvl_name);
-  InitEnemySprites();
-
-  //declare size of denominator
-  loading_denominator=PLATFORM_GRID_NUM+ENEMY_TYPE_NUM+(LARGE_ENEMY_TYPE_NUM*ROTATED_SPRITE_NUM*2)+LARGER_ENEMY_TYPE_NUM*ROTATED_SPRITE_NUM;
-
-  //Load malloc part 2 after calculating loading denominator
-  InitEnemySpritesObj();
-  InitPFEnemyObj();
-  InitEnemyPathfindingNodes();
-
   if (load_lvl) { //not in main menu
     in_main_menu=FALSE;
   } else { //going to main menu
     int dice=abs(RandNum(0,100,&misc_rng_i,-1)); //random weather
     if (dice<30) {//Weather event
-      if (map_sunrise_time<=seconds_since_midnight && seconds_since_midnight<=map_sunset_time) {
+      if (map_sunrise_time<=seconds_since_midnight && seconds_since_midnight<=map_sunset_time) { //weather event at day/night,,, day
         //lvl_map_background.background_id=0;
         lvl_map_background.day_sky_color=RGB(25,25,25);
         lvl_map_background.night_sky_color=RGB(25,25,25);
-      } else {
+      } else { //night weather event
         lvl_map_background.day_sky_color=RGB(0,0,0);
         lvl_map_background.night_sky_color=RGB(0,0,0);
         lvl_map_background.dark_lvl=4;
@@ -332,29 +338,27 @@ void InitLevel(bool load_lvl)
   }
 
 
-  //Map Background
-  if (lvl_map_background.is_real_time) {
-    global_timenow=int64_current_timestamp();
-  } else {
-    global_timenow=lvl_map_background.unix_time;
+  if (lvl_map_background.weather_run==0) { //denominator cannot be 0  or it crashes
+    lvl_map_background.weather_run=1;
   }
-  //global_timenow=demo_timenow;
-  PersiaSolarTime(global_timenow,&solar_sec,&solar_min,&solar_hour,&solar_day,&solar_month,&solar_year,&solar_day_of_week,&solar_angle_day);
-  PersiaLunarTime(global_timenow,&lunar_sec,&lunar_min,&lunar_hour,&lunar_day,&lunar_month,&lunar_year,&lunar_day_of_week,&moon_angle_shift,&lunar_leap_year);
 
-  global_lhd0=GetLunarHijriDays(1,lunar_month,lunar_year)*24*60*60;
+  Init(); //Repeatable, Load Save via \n key
 
-  sun_ctx_t sun_riseset;
-  sun_riseset.in_latitude  = lvl_map_background.latitude; 
-  sun_riseset.in_longitude = lvl_map_background.longitude;
-  sun_compute(&sun_riseset,&planet_earth,solar_day,solar_month,solar_year);
-  map_sunrise_time= sun_riseset.out_sunrise_mins*60 + lvl_map_background.utc_offset*60*60;
-  map_sunset_time= sun_riseset.out_sunset_mins*60  + lvl_map_background.utc_offset*60*60;
-  seconds_since_midnight=solar_hour*60*60 + solar_min*60 + solar_sec;
-  map_sunlight_seconds=map_sunset_time-map_sunrise_time;
-  map_darkness_seconds=60*60*24 - map_sunlight_seconds;
 
-  Sun.horizon_lvl=0;
+  //Load nalloc-able objects
+  InitGroundWaterObj();
+  InitGroundFireObj();
+  InitGridTiles(lvl_name);
+  InitEnemySprites();
+
+  //declare size of denominator
+  loading_denominator=PLATFORM_GRID_NUM+ENEMY_TYPE_NUM+(LARGE_ENEMY_TYPE_NUM*ROTATED_SPRITE_NUM*2)+LARGER_ENEMY_TYPE_NUM*ROTATED_SPRITE_NUM;
+
+  //Load malloc part 2 after calculating loading denominator
+  InitEnemySpritesObj();
+  InitPFEnemyObj();
+  InitEnemyPathfindingNodes();
+
 
   flag_begin_drawing_tiles=TRUE; //flag draw level tiles using screen 
 

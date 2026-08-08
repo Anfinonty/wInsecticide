@@ -1333,13 +1333,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             CameraInit(player.x+player.cam_x,player.y+player.cam_y);
             PlayerCameraLimiterBorder();
           }
+
           InitRDGrid();
           InitClouds();
           InitSun();
           InitMoon();
-          InitStars();
-          //InitStarsIfMoon();
-          ResetBulletRain();
+          InitStars(); //!
+          SunAct();
+          ResetBulletRain();          
           if (lvl_map_background.weather_type>0) {
             InitBulletRain();
             InitScreenRainDrop();
@@ -1351,7 +1352,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
             flag_update_background=FALSE;
           }
           //flag_draw_game_background_spriteIII=TRUE;
-          flag_draw_game_background_spriteII=TRUE;
+          //flag_draw_game_background_spriteII=TRUE; //Done by SunAct()
           flag_draw_game_background_sprite=TRUE;
 
           OLD_GR_WIDTH = GR_WIDTH;
@@ -1366,15 +1367,6 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                mb_val=lvl_map_background.background_id;
              }
             if (mb_val>=0 && mb_val<=4) {
-              /*if (lvl_map_background.background_id_sprite!=NULL) { //renew and scale upwards
-                DeleteObject(lvl_map_background.background_id_sprite);
-              }
-              HBITMAP tmp_lvl_map_background.background_id_sprite;
-
-              wchar_t lvl_background_bmp[64];
-              swprintf(lvl_background_bmp,64,L"saves/%ls/images/background.bmp",level_names[level_chosen]);
-              tmp_lvl_map_background.background_id_sprite=(HBITMAP) LoadImageW(NULL, lvl_background_bmp, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);*/
-
               if ((in_main_menu && !level_loading && !in_map_editor) || back_to_menu) {
                 //if (tmp_lvl_map_background.background_id_sprite==NULL) {  //custom overwrites regular
                   if (map_sunrise_time<=seconds_since_midnight && seconds_since_midnight<=map_sunset_time) { //day
