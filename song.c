@@ -1048,7 +1048,7 @@ DWORD WINAPI SoundTask(LPVOID lpArg) {
                   if (!skip_song[z] && !skipping_song[z]) {
                     switch (song_mode[z]) {
                       case 0: //play songs shuffle
-                        song_rand_num[z]=RandNum(0,song_num-1,&misc_rng_i,-1);
+                        song_rand_num[z]=RandNum(0,song_num-1,&misc_rng_i,(int)int64_current_timestamp());
                         break;
                       case 1: //Play Songs acending
                         song_rand_num[z]=LimitValue(song_rand_num[z]+1,0,song_num);

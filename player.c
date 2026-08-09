@@ -2970,6 +2970,20 @@ void PlayerCameraShake()
 
 void InitPlayerSpritesObjColor(HDC hdc,HDC hdc2)
 {
+  //CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,rgbColorsDefault,167,rgbPaint[player_color]); //old
+  CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,rgbColorsBrightness[lvl_map_background.dark_lvl],167,rgbPaintBrightness[lvl_map_background.dark_lvl][player_color]);
+
+  //CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,PlayerSprite[0].PlayerPalette,151,LTGRAY); //border
+  CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,PlayerSprite[0].PlayerPalette,151,BLACK); //border
+  CopyReplaceColorPalette(PlayerSprite[0].PlayerPalette,PlayerSprite[0].PlayerPalette,199,rgbPaint[player_iris_color]);
+
+//  CopyReplaceColorPalette(PlayerSprite[0].PlayerBlurPalette,rgbColorsDefault,167,rgbPaint[player_color]);
+  CopyReplaceColorPalette(PlayerSprite[0].PlayerBlurPalette,rgbColorsBrightness[lvl_map_background.dark_lvl],167,rgbPaintBrightness[lvl_map_background.dark_lvl][player_color]);
+  //CopyReplaceColorPalette(PlayerSprite[0].PlayerBlurPalette,PlayerSprite[0].PlayerBlurPalette,151,LTGRAY); //border
+  CopyReplaceColorPalette(PlayerSprite[0].PlayerBlurPalette,PlayerSprite[0].PlayerBlurPalette,151,BLACK); //border
+  CopyReplaceColorPalette(PlayerSprite[0].PlayerBlurPalette,PlayerSprite[0].PlayerBlurPalette,199,rgbPaintBrightness[lvl_map_background.dark_lvl][player_pupil_color]);
+
+
   for (int i=0;i<PLAYER_ROTATED_SPRITE_NUM;i++) {
     BitmapPalette(hdc,hdc2,PlayerSprite[0].sprite_1[i].sprite_paint,PlayerSprite[0].PlayerPalette);
     BitmapPalette(hdc,hdc2,PlayerSprite[0].sprite_2[i].sprite_paint,PlayerSprite[0].PlayerPalette);
@@ -2992,12 +3006,11 @@ void InitPlayerSpritesObjColor(HDC hdc,HDC hdc2)
     BitmapPalette(hdc,hdc2,PlayerSprite[0].dithered_block_sprite_2[i].sprite_paint,PlayerSprite[0].PlayerPalette);
     BitmapPalette(hdc,hdc2,PlayerSprite[0].dithered_block_sprite_3[i].sprite_paint,PlayerSprite[0].PlayerPalette);
   }
-/*
-  BitmapPalette(hdc,hdc2,PlayerSprite[0].sprite_bee_1.sprite_paint,PlayerSprite[0].PlayerPalette);
-  BitmapPalette(hdc,hdc2,PlayerSprite[0].sprite_bee_2.sprite_paint,PlayerSprite[0].PlayerPalette);
-  BitmapPalette(hdc,hdc2,PlayerSprite[0].sprite_bee_aero_1.sprite_paint,PlayerSprite[0].PlayerPalette);
-  BitmapPalette(hdc,hdc2,PlayerSprite[0].sprite_bee_aero_2.sprite_paint,PlayerSprite[0].PlayerPalette);
-*/
+
+  //BitmapPalette(hdc,hdc2,PlayerSprite[0].sprite_bee_1.sprite_paint,PlayerSprite[0].PlayerPalette);
+  //BitmapPalette(hdc,hdc2,PlayerSprite[0].sprite_bee_2.sprite_paint,PlayerSprite[0].PlayerPalette);
+  //BitmapPalette(hdc,hdc2,PlayerSprite[0].sprite_bee_aero_1.sprite_paint,PlayerSprite[0].PlayerPalette);
+  //BitmapPalette(hdc,hdc2,PlayerSprite[0].sprite_bee_aero_2.sprite_paint,PlayerSprite[0].PlayerPalette);
 
   BitmapPalette(hdc,hdc2,PlayerSprite[0].sprite_jump.sprite_paint,PlayerSprite[0].PlayerPalette);
   BitmapPalette(hdc,hdc2,PlayerSprite[0].blur_sprite_jump.sprite_paint,PlayerSprite[0].PlayerBlurPalette);

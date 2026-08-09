@@ -864,6 +864,26 @@ void SunAct()
     } else { //Post Astronomical , darkest
       Sun.horizon_lvl=3;
     }
+
+    if (lvl_map_background.is_real_time && lvl_map_background.weather_type==0) {
+      switch (Sun.horizon_lvl) {
+        case -1: //brightest
+          lvl_map_background.dark_lvl=0;
+          break;
+        case 0:
+          lvl_map_background.dark_lvl=2;
+          break;
+        case 1: //darkest
+          lvl_map_background.dark_lvl=3;
+          break;
+         case 2: //nighttime
+         case 3:
+         case 4:
+           lvl_map_background.dark_lvl=4;
+           break;
+      }    
+    }
+
     flag_draw_game_background_spriteII=TRUE;
   }
   if (Sun.y<128) {
@@ -1316,29 +1336,9 @@ void DrawGameBackgroundSpriteII(HDC hdc1,HDC hdc2)
   //===================)===========================
 
 
-    /*if (lvl_map_background.is_real_time) {
-      switch (Sun.horizon_lvl) {
-        case -1: //brightest
-          lvl_map_background.dark_lvl=0;
-          break;
-        case 0:
-          lvl_map_background.dark_lvl=2;
-          break;
-        case 1: //darkest
-          lvl_map_background.dark_lvl=3;
-          break;
-         case 2: //nighttime
-         case 3:
-         case 4:
-           lvl_map_background.dark_lvl=4;
-           break;
-      }
-      player.flag_revert_palette=TRUE;
-      player.time_breaker_tick=0;
-    }*/
-
     if (lvl_map_background.background_id>0 && lvl_map_background.background_id<BACKGROUND_FOREGROUND_SPRITE_NUM){
   //Draw Background infront of clouds and skies
+      //BitmapPalette(hdcBG,hdc2,draw_background_sprite_stretched_paint,rgbColorsBrightness[lvl_map_background.dark_lvl]);
       SelectObject(hdc2,draw_background_sprite_stretched_mask);
       BitBlt(hdcBG,0,0,GR_WIDTH,GR_HEIGHT,hdc2,0,0,SRCAND);
 

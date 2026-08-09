@@ -171,13 +171,14 @@ void Init() { //Repeatable
   waveOutReset(hWaveOut[5]);
 
 
-  //flag_draw_game_background_spriteII=TRUE;
   //Init Backgrounds
   InitClouds();
   InitSun();
   InitMoon();
   InitStars();
   SunAct();
+  //flag_draw_game_background_spriteII=TRUE;
+
   flag_draw_game_background_sprite=TRUE;
 
   if (!run_once_only) {
@@ -302,33 +303,30 @@ void InitLevel(bool load_lvl)
   }
   lvl_map_background.day_sky_dkcolor=rgbPaint[lvl_map_background.day_sky_dkcolor_i];
 
+  int dice=abs(RandNum(0,100,&misc_rng_i,-1)); //random weather
   if (load_lvl) { //not in main menu
     in_main_menu=FALSE;
   } else { //going to main menu
-    int dice=abs(RandNum(0,100,&misc_rng_i,-1)); //random weather
     if (dice<30) {//Weather event
       if (map_sunrise_time<=seconds_since_midnight && seconds_since_midnight<=map_sunset_time) { //weather event at day/night,,, day
         //lvl_map_background.background_id=0;
         lvl_map_background.day_sky_color=RGB(25,25,25);
         lvl_map_background.night_sky_color=RGB(25,25,25);
+        lvl_map_background.dark_lvl=2;
       } else { //night weather event
         lvl_map_background.day_sky_color=RGB(0,0,0);
         lvl_map_background.night_sky_color=RGB(0,0,0);
-        lvl_map_background.dark_lvl=4;
+        lvl_map_background.dark_lvl=3;
       }
       lvl_map_background.is_sun=FALSE;
       lvl_map_background.is_moon=FALSE;
       lvl_map_background.is_stars=FALSE;
       if (dice>15) {
-        if (lvl_map_background.dark_lvl!=4)
-          lvl_map_background.dark_lvl=3;
         lvl_map_background.weather_type=1; //rain
       } else if (dice<7) {
         lvl_map_background.dark_lvl=4;
         lvl_map_background.weather_type=2; //snow
       } else {
-        if (lvl_map_background.dark_lvl!=4)
-          lvl_map_background.dark_lvl=3;
         lvl_map_background.weather_type=3; //hailstorm
       }
     } else { //non weather event

@@ -2885,13 +2885,10 @@ void InitEnemySpritesObj()
 
   //set flysprite palettes
   for (int i=0;i<ENEMY_TYPE_NUM;i++) { //init small flysprites
-    CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,rgbColorsDefault,167,rgbPaint[saved_enemy_type_wing_color[i]]); //set normal palette
-    //if (map_background==0 || map_background==2) {
-      //CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,151,RGB(16,16,16)); //set outline color
-    //} else {
-    //CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,151,BLACK); //set outline color ltblue to BLACK
-    //}
-    //CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,151,LTGRAY); //set outline color ltblue go LTGRAY
+    //CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,rgbColorsDefault,167,rgbPaint[saved_enemy_type_wing_color[i]]); //set normal palette
+    CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,rgbColorsBrightness[lvl_map_background.dark_lvl],167,rgbPaintBrightness[lvl_map_background.dark_lvl][saved_enemy_type_wing_color[i]]); //set normal palette
+
+
     CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,151,BLACK); //set outline color ltblue go LTGRAY
     if (free_will) {
       CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,199,DKRLTGREEN); //set freewill to normal palette
