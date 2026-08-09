@@ -3076,12 +3076,14 @@ void DrawPlayer(HDC hdc,HDC hdc2,int ptype)
     InitPlayerSpritesObjColor(hdc,hdc2);
     InitPlayerCursorColor(hdc,hdc2);
 
+    //if (lvl_map_background.brightness_type==1 && lvl_map_background.dark_lvl>=0 && lvl_map_background.dark_lvl<=4) { //static lighting
     for (int i=0;i<PLATFORM_GRID_NUM;i++) {
       BitmapPalette(hdc,hdc2,TileMapPlatform[i]->sprite_paint,rgbColorsBrightness[lvl_map_background.dark_lvl]);
     }
     BitmapPalette(hdc,hdc2,draw_background_sprite_stretched_paint,rgbColorsBrightness[lvl_map_background.dark_lvl]);
     flag_draw_game_background_spriteII=TRUE;
     flag_draw_game_background_sprite=TRUE;
+    //} 
 
     Sun.flag_overcast=TRUE;
     player.flag_revert_palette=FALSE;
