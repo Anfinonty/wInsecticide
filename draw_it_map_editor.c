@@ -554,9 +554,9 @@ void DrawMapEditorEnemy(HDC hdc,HDC hdc2)
       DrawSprite(hdc,hdc2,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y+GR_HEIGHT/2,&MEEnemySprite[type]->draw_sprite_1,TRUE);
     }
 
-    if (saved_enemy_type_species[type]==1) { //cockroach draw antannae
-      DrawEnemyAntannae(hdc,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y+GR_HEIGHT/2,rgbPaint[saved_enemy_type_wing_color[type]],FALSE);
-    }
+    //if (saved_enemy_type_species[type]==1) { //cockroach draw antannae
+      //DrawEnemyAntannae(hdc,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y+GR_HEIGHT/2,rgbPaint[saved_enemy_type_bodypart_color[type]],FALSE);
+    //}
   }
 }
 
@@ -843,9 +843,9 @@ void DrawMapEditorUI(HDC hdc,HDC hdc2)
 
         //Draw 
         DrawSprite(hdc,hdc2,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey,&MEEnemySprite[MapEditor.selected_enemy_type_id]->draw_sprite_1,MapEditor.demo_enemy_spriteisleft);
-        if (saved_enemy_type_species[MapEditor.selected_enemy_type_id]==1) {
-          DrawEnemyAntannae(hdc,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey, rgbPaint[saved_enemy_type_wing_color[MapEditor.selected_enemy_type_id]],MapEditor.demo_enemy_spriteisleft);
-        }
+        //if (saved_enemy_type_species[MapEditor.selected_enemy_type_id]==1) {
+          //DrawEnemyAntannae(hdc,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey, rgbPaint[saved_enemy_type_bodypart_color[MapEditor.selected_enemy_type_id]],MapEditor.demo_enemy_spriteisleft);
+        //}
 
 
         //draw bullet frequency

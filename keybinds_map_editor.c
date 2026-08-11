@@ -14,13 +14,13 @@ void UpdateMEDrawSprite()
         MEEnemySprite[ei]->sprite_1=CopyCrunchyBitmap(enemy1_sprite_1,SRCCOPY);
         break;
       case 1:
-        MEEnemySprite[ei]->sprite_1=CopyCrunchyBitmap(enemy2_sprite_1,SRCCOPY);
+        MEEnemySprite[ei]->sprite_1=CopyCrunchyBitmap(enemy2_sprite_3,SRCCOPY);
         break;
       case 2:
         MEEnemySprite[ei]->sprite_1=CopyCrunchyBitmap(enemy3_sprite_1,SRCCOPY);
         break;
       case 3:
-        MEEnemySprite[ei]->sprite_1=CopyCrunchyBitmap(enemy4_sprite_1,SRCCOPY);
+        MEEnemySprite[ei]->sprite_1=CopyCrunchyBitmap(enemy4_sprite_3,SRCCOPY);
         break;
       case 4:
         MEEnemySprite[ei]->sprite_1=CopyCrunchyBitmap(enemy5_sprite_1,SRCCOPY);
@@ -39,8 +39,10 @@ void UpdateMEDrawSprite()
     GenerateDrawSprite(&MEEnemySprite[ei]->draw_sprite_1,MEEnemySprite[ei]->sprite_1);
 
     //Update Palette!!
-    CopyReplaceColorPalette(MEEnemySprite[ei]->enemyPalette,rgbColorsDefault,167,rgbPaint[saved_enemy_type_wing_color[ei]]); //set normal palette
-    CopyReplaceColorPalette(MEEnemySprite[ei]->enemyPalette,MEEnemySprite[ei]->enemyPalette,151,LTGRAY); //set outline color ltblue go LTGRAY
+    CopyReplaceColorPalette(MEEnemySprite[ei]->enemyPalette,rgbColorsBrightness[lvl_map_background.dark_lvl],167,rgbPaint[saved_enemy_type_wing_color[ei]]); //set normal palette
+    CopyReplaceColorPalette(MEEnemySprite[ei]->enemyPalette,MEEnemySprite[ei]->enemyPalette,215,rgbPaint[saved_enemy_type_bodypart_color[ei]]); //set bodypart color ltpurple to target color
+    CopyReplaceColorPalette(MEEnemySprite[ei]->enemyPalette,MEEnemySprite[ei]->enemyPalette,199,rgbPaint[saved_enemy_type_eye_color[ei]]);  //set eye color ltred to target color
+    CopyReplaceColorPalette(MEEnemySprite[ei]->enemyPalette,MEEnemySprite[ei]->enemyPalette,151,rgbPaint[saved_enemy_type_border_color[ei]]); //set outline color ltblue go LTGRAY
 
     MapEditor.flag_enemy_palette_i=ei;
 }
@@ -53,7 +55,20 @@ void MEColorPickKeypressDown(WPARAM wParam)
       ColorKeypressDown(wParam,&Ground[MapEditor.selected_ground_id]->color_id);
       break;
     case 1: //Enemy Type color
-      ColorKeypressDown(wParam,&saved_enemy_type_wing_color[MapEditor.selected_enemy_type_id]);
+      switch (MapEditor.selected_enemy_type_option) {
+        case 5:
+          ColorKeypressDown(wParam,&saved_enemy_type_wing_color[MapEditor.selected_enemy_type_id]);
+          break;
+        case 6:
+          ColorKeypressDown(wParam,&saved_enemy_type_eye_color[MapEditor.selected_enemy_type_id]);
+          break;
+        case 7:
+          ColorKeypressDown(wParam,&saved_enemy_type_border_color[MapEditor.selected_enemy_type_id]);
+          break;
+        case 8:
+          ColorKeypressDown(wParam,&saved_enemy_type_bodypart_color[MapEditor.selected_enemy_type_id]);
+          break;
+      }
       break;
     case 2: //Enemy Type bulllet color
       ColorKeypressDown(wParam,&saved_enemy_type_bullet_color[MapEditor.selected_enemy_type_id]);
@@ -82,8 +97,24 @@ void MEColorPickKeypressUp(WPARAM wParam)
       ColorKeypressUp(wParam,&Ground[MapEditor.selected_ground_id]->color_id);
       break;
     case 1: //Enemy Type color
-      ColorKeypressUp(wParam,&saved_enemy_type_wing_color[MapEditor.selected_enemy_type_id]);
-      UpdateMEDrawSprite();
+      switch (MapEditor.selected_enemy_type_option) {
+        case 5:
+          ColorKeypressUp(wParam,&saved_enemy_type_wing_color[MapEditor.selected_enemy_type_id]);
+          UpdateMEDrawSprite();
+          break;
+        case 6:
+          ColorKeypressUp(wParam,&saved_enemy_type_eye_color[MapEditor.selected_enemy_type_id]);
+          UpdateMEDrawSprite();
+          break;
+        case 7:
+          ColorKeypressUp(wParam,&saved_enemy_type_border_color[MapEditor.selected_enemy_type_id]);
+          UpdateMEDrawSprite();
+          break;
+        case 8:
+          ColorKeypressUp(wParam,&saved_enemy_type_bodypart_color[MapEditor.selected_enemy_type_id]);
+          UpdateMEDrawSprite();
+          break;
+      }
       break;
     case 2: //Enemy Type bulllet color
       ColorKeypressUp(wParam,&saved_enemy_type_bullet_color[MapEditor.selected_enemy_type_id]);

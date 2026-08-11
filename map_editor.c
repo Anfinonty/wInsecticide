@@ -721,13 +721,13 @@ void InitMapEditorEnemy()
         MEEnemySprite[i]->sprite_1=CopyCrunchyBitmap(enemy1_sprite_1,SRCCOPY);
         break;
       case 1:
-        MEEnemySprite[i]->sprite_1=CopyCrunchyBitmap(enemy2_sprite_1,SRCCOPY);
+        MEEnemySprite[i]->sprite_1=CopyCrunchyBitmap(enemy2_sprite_3,SRCCOPY);
         break;
       case 2:
         MEEnemySprite[i]->sprite_1=CopyCrunchyBitmap(enemy3_sprite_1,SRCCOPY);
         break;
       case 3:
-        MEEnemySprite[i]->sprite_1=CopyCrunchyBitmap(enemy4_sprite_1,SRCCOPY);
+        MEEnemySprite[i]->sprite_1=CopyCrunchyBitmap(enemy4_sprite_3,SRCCOPY);
         break;
       case 4:
         MEEnemySprite[i]->sprite_1=CopyCrunchyBitmap(enemy5_sprite_1,SRCCOPY);
@@ -744,8 +744,11 @@ void InitMapEditorEnemy()
     loading_numerator++;
     GenerateDrawSprite(&MEEnemySprite[i]->draw_sprite_1,MEEnemySprite[i]->sprite_1);
 
-    CopyReplaceColorPalette(MEEnemySprite[i]->enemyPalette,rgbColorsDefault,167,rgbPaint[saved_enemy_type_wing_color[i]]); //set normal palette
-    CopyReplaceColorPalette(MEEnemySprite[i]->enemyPalette,MEEnemySprite[i]->enemyPalette,151,LTGRAY); //set outline color
+    CopyReplaceColorPalette(MEEnemySprite[i]->enemyPalette,rgbColorsBrightness[lvl_map_background.dark_lvl],167,rgbPaint[saved_enemy_type_wing_color[i]]); //set normal palette
+    CopyReplaceColorPalette(MEEnemySprite[i]->enemyPalette,MEEnemySprite[i]->enemyPalette,215,rgbPaint[saved_enemy_type_bodypart_color[i]]); //set bodypart color ltpurple to target color
+    CopyReplaceColorPalette(MEEnemySprite[i]->enemyPalette,MEEnemySprite[i]->enemyPalette,199,rgbPaint[saved_enemy_type_eye_color[i]]);  //set eye color ltred to target color
+    CopyReplaceColorPalette(MEEnemySprite[i]->enemyPalette,MEEnemySprite[i]->enemyPalette,151,rgbPaint[saved_enemy_type_border_color[i]]); //set outline color ltblue go LTGRAY
+
     //BitmapPalette(hdc,hdc2,MEEnemySprite[i]->draw_sprite_1.sprite_paint,MEEnemySprite[i]->enemyPalette);
   }
 }

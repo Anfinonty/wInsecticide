@@ -1146,15 +1146,15 @@ void OptionKeyPressRight(HWND hwnd, int option_choose)
              PlaySound(keySoundEffectCache[3].audio,NULL,SND_MEMORY | SND_ASYNC); //true
          }
          free_will=!free_will;
-         if (!free_will) {
+         /*if (!free_will) {
           for (int i=0;i<ENEMY_TYPE_NUM;i++) {
             CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,199,LTRED); 
           }
          } else {
           for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-            CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,199,LTCYAN); 
+            CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,199,LTRLTGREEN); 
           }
-         }
+         }*/
          player.time_breaker_tick=0;
          player.flag_revert_palette=TRUE;
          break;

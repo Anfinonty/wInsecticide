@@ -326,7 +326,7 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
 
 
 //Lighter values
-      case 9: //LTBLUE
+      case 9: //LTBLUE  16*9 = 144->159,, 151<---- LTBLUE  
         if (index_range<=8) { //1->7 Darker values, 8 is true value
           rgbColors[i].rgbRed = 0;
           rgbColors[i].rgbGreen = 0;
@@ -338,7 +338,7 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
         }
         rgbColors[i].rgbReserved = 0;
         break;
-      case 10: //LTGREEN 160->175 , 167
+      case 10: //LTGREEN 160->175 , 167 ---> LTGREEN
         if (index_range<=8) { //1->7 Darker values, 8 is true value
           rgbColors[i].rgbRed = 0;
           rgbColors[i].rgbBlue = 0;
@@ -377,7 +377,7 @@ void Init8BitRGBColorsDefault(RGBQUAD *rgbColors)
         }
         rgbColors[i].rgbReserved = 0;
         break;
-      case 13: //LTPURPLE 16*13 = 208, 208+7 =215
+      case 13: //LTPURPLE 16*13 = 208, 208+7 =215 <----- ltpurple
         if (index_range<=8) { //1->7 Darker values, 8 is true value
           rgbColors[i].rgbRed = ceil(index_range*255/8);
           rgbColors[i].rgbGreen = 0;
