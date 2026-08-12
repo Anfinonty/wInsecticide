@@ -859,7 +859,10 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
     { //within eclipse season
       if (lunar_day>=13 && lunar_day<=15) { //lunar eclipse
         current_moon_phase_id=7; //blood moon
-        is_blood_moon=TRUE;
+        if (!is_blood_moon) {
+          is_blood_moon=TRUE;
+          InitMoon();
+        }
       } else { // solar eclipse
         if (is_between(mcalendar_x,mcalendar_y,
                     pierogi_x1,pierogi_y1,
