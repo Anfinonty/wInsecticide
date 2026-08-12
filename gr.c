@@ -416,8 +416,11 @@ int rgbPaint[256];
 int rgbPaintDark[256];
 int rgbPaintDarker[256];
 int rgbPaintDarkest[256];
+int rgbPaintDarkestII[256];
 int rgbPaintNight[256];
-int* rgbPaintBrightness[5]={rgbPaint,rgbPaintDark,rgbPaintDarker,rgbPaintDarkest,rgbPaintNight};
+int* rgbPaintBrightness[6]={rgbPaint,rgbPaintDark,rgbPaintDarker,rgbPaintDarkest,rgbPaintNight,rgbPaintDarkestII};
+//int* rgbPaintBrightness[5]={rgbPaint,rgbPaintDark,rgbPaintDarker,rgbPaintDarkest,rgbPaintNight};
+
 int rgbPaint_i[256];
 void Init8BitRGBPaintDefault(int *rgbPaint_dest,int *rgbPaint_i_dest,RGBQUAD *rgbColors_src,bool is_ascending,int start_paint_index)
 {
@@ -457,19 +460,13 @@ void Init8BitRGBPaintDefault(int *rgbPaint_dest,int *rgbPaint_i_dest,RGBQUAD *rg
 RGBQUAD rgbColorsDarker1[256];
 RGBQUAD rgbColorsDarker2[256];
 RGBQUAD rgbColorsDarker3[256];
+RGBQUAD rgbColorsDarker4[256];
 RGBQUAD rgbColorsNight[256];
-RGBQUAD* rgbColorsBrightness[5]={rgbColorsDefault,rgbColorsDarker1,rgbColorsDarker2,rgbColorsDarker3,rgbColorsNight};
+//RGBQUAD* rgbColorsBrightness[5]={rgbColorsDefault,rgbColorsDarker1,rgbColorsDarker2,rgbColorsDarker3,rgbColorsNight};
+RGBQUAD* rgbColorsBrightness[6]={rgbColorsDefault,rgbColorsDarker1,rgbColorsDarker2,rgbColorsDarker3,rgbColorsNight,rgbColorsDarker4};
 
 void Init8BitRGBPaintDarker(RGBQUAD *rgbColors,RGBQUAD *rgbColorsSrc,float dark)
 {
-  /*dark=abs(dark);
-  if (dark==0)
-    dark=1;
-  for (int i=0;i<256;i++) {
-    rgbColors[i].rgbRed = rgbColorsSrc[i].rgbRed/dark;
-    rgbColors[i].rgbGreen = rgbColorsSrc[i].rgbGreen/dark;
-    rgbColors[i].rgbBlue = rgbColorsSrc[i].rgbBlue/dark;
-  }*/
   // Clamp dark between 0.0 and 1.0
   if (dark < 0.0f) dark = 0.0f;
   if (dark > 1.0f) dark = 1.0f;

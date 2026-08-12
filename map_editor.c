@@ -350,7 +350,7 @@ BACKGROUND_NUM+1, //background type id:
 101, //weather grad rise
 101, //weather grad run
 2,
-5
+6 //background darkness lvl
 };
 
 
@@ -745,7 +745,7 @@ void InitMapEditorEnemy()
     GenerateDrawSprite(&MEEnemySprite[i]->draw_sprite_1,MEEnemySprite[i]->sprite_1);
 
     CopyReplaceColorPalette(MEEnemySprite[i]->enemyPalette,rgbColorsBrightness[lvl_map_background.dark_lvl],167,rgbPaint[saved_enemy_type_wing_color[i]]); //set normal palette
-    CopyReplaceColorPalette(MEEnemySprite[i]->enemyPalette,MEEnemySprite[i]->enemyPalette,215,rgbPaint[saved_enemy_type_bodypart_color[i]]); //set bodypart color ltpurple to target color
+    CopyReplaceColorPalette(MEEnemySprite[i]->enemyPalette,MEEnemySprite[i]->enemyPalette,215,rgbPaintBrightness[lvl_map_background.dark_lvl][saved_enemy_type_bodypart_color[i]]); //set bodypart color ltpurple to target color
     CopyReplaceColorPalette(MEEnemySprite[i]->enemyPalette,MEEnemySprite[i]->enemyPalette,199,rgbPaint[saved_enemy_type_eye_color[i]]);  //set eye color ltred to target color
     CopyReplaceColorPalette(MEEnemySprite[i]->enemyPalette,MEEnemySprite[i]->enemyPalette,151,rgbPaint[saved_enemy_type_border_color[i]]); //set outline color ltblue go LTGRAY
 
@@ -833,7 +833,7 @@ void InitMapEditor()
   MapEditor.bg_attr_weather_grad_rise=lvl_map_background.weather_rise;
   MapEditor.bg_attr_weather_grad_run=lvl_map_background.weather_run;
   MapEditor.bg_attr_brightness_type=lvl_map_background.brightness_type; //static,dynamic
-  MapEditor.bg_attr_dark_lvl=lvl_map_background.dark_lvl; //0,dark,darker,darkest,night
+  MapEditor.bg_attr_dark_lvl=lvl_map_background.dark_lvl; //0,dark,darker,darkest,darkestii,night
 
 
   MapEditor.clipboard_ground_id=0;

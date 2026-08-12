@@ -312,11 +312,11 @@ void InitLevel(bool load_lvl)
         //lvl_map_background.background_id=0;
         lvl_map_background.day_sky_color=RGB(25,25,25);
         lvl_map_background.night_sky_color=RGB(25,25,25);
-        lvl_map_background.dark_lvl=2;
+        lvl_map_background.dark_lvl=3;
       } else { //night weather event
         lvl_map_background.day_sky_color=RGB(0,0,0);
         lvl_map_background.night_sky_color=RGB(0,0,0);
-        lvl_map_background.dark_lvl=3;
+        lvl_map_background.dark_lvl=5;
       }
       lvl_map_background.is_sun=FALSE;
       lvl_map_background.is_moon=FALSE;

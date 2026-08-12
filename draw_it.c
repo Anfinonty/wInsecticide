@@ -37,45 +37,6 @@ void DrawStar(HDC hdc,int x, int y, int size, float angl,int color)
 }
 
 
-/*
-void DrawWaterPlatformsReflection(HDC hdc, HDC hdc2,HBITMAP mirror_screen)
-{
-  if (WATER_GROUND_NUM>0) {
-  int 
-    px=player.x,
-    py=player.y,
-    cx1=player.cam_mouse_move_x,
-    cy1=player.cam_mouse_move_y,
-    cx2=player.cam_move_x,
-    cy2=player.cam_move_y,
-    cx3=player.cam_limiter_x,
-    cy3=player.cam_limiter_y;
-  int x1,y1,x2,y2,x3,y3;
-  int i;
-  if (mirror_screen!=NULL) {
-  for (int k=0;k<WATER_GROUND_NUM;k++) {
-    i = rendered_water_ground[k];
-    if (i!=-1) {
-      if (Ground[i]->type==1) {
-        if (!IsOutOfBounds(Ground[i]->x1,Ground[i]->y1,1,MAP_WIDTH,MAP_HEIGHT) &&
-            !IsOutOfBounds(Ground[i]->x2,Ground[i]->y2,1,MAP_WIDTH,MAP_HEIGHT)) {
-            x1=GR_WIDTH/2+(int)Ground[i]->x1-px+cx1+cx2+cx3;
-            y1=GR_HEIGHT/2+(int)Ground[i]->y1-py+cy1+cy2+cy3;
-            x2=GR_WIDTH/2+(int)Ground[i]->x2-px+cx1+cx2+cx3;
-            y2=GR_HEIGHT/2+(int)Ground[i]->y2-py+cy1+cy2+cy3;
-            x3=GR_WIDTH/2+(int)Ground[i]->x3-px+cx1+cx2+cx3;
-            y3=GR_HEIGHT/2+(int)Ground[i]->y3-py+cy1+cy2+cy3;
-            DrawTexturedTriangle(hdc,hdc2,x1,y1,x2,y2,x3,y3,mirror_screen);
-        }
-      }
-    }
-  }
-  }
-  }
-}*/
-
-
-
 
 
 void DrawWaterPlatformsTexture(HDC hdc,HDC hdc2)

@@ -2622,7 +2622,7 @@ void SetEnemyByType(int i,int type)
   Enemy[i]->wing_color=rgbPaint[saved_enemy_type_wing_color[type]];
   Enemy[i]->eye_color=rgbPaint[saved_enemy_type_eye_color[type]];
   Enemy[i]->border_color=rgbPaint[saved_enemy_type_border_color[type]];
-  Enemy[i]->bodypart_color=rgbPaint[saved_enemy_type_bodypart_color[type]];
+  Enemy[i]->bodypart_color=rgbPaintBrightness[lvl_map_background.dark_lvl][saved_enemy_type_bodypart_color[type]];
 
   Enemy[i]->ospeed=saved_enemy_type_speed[type];
   Enemy[i]->speed=saved_enemy_type_speed[type];
@@ -2888,23 +2888,11 @@ void InitEnemySpritesObj()
     //CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,rgbColorsDefault,167,rgbPaint[saved_enemy_type_wing_color[i]]); //set normal palette
     CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,rgbColorsBrightness[lvl_map_background.dark_lvl],167,rgbPaint[saved_enemy_type_wing_color[i]]); //set wing color tmp_ltgreen to target color
     CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,151,rgbPaint[saved_enemy_type_border_color[i]]); //set outline color ltblue to target color
-    CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,215,rgbPaint[saved_enemy_type_bodypart_color[i]]); //set bodypart color ltpurple to target color
+    CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,215,rgbPaintBrightness[lvl_map_background.dark_lvl][saved_enemy_type_bodypart_color[i]]); //set bodypart color ltpurple to target color
     CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,199,rgbPaint[saved_enemy_type_eye_color[i]]);  //set eye color ltred to target color
 
 
     CopyReplaceColorPaletteNoir(EnemyTypeSprite[i].enemyPaletteNoir,rgbColorsDefault,167,rgbPaint_i[saved_enemy_type_wing_color[i]]); //set noir palette
-
-     //Eyes Glow In The Dark
-     /*if (!free_will) {
-      for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-        CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,199,LTRED); 
-      }
-     } else {
-      for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-        CopyReplaceColorPalette(EnemyTypeSprite[i].enemyPalette,EnemyTypeSprite[i].enemyPalette,199,LTRLTGREEN); 
-      }
-     }*/
-
   }
 
 
@@ -3694,7 +3682,7 @@ void DrawEnemy(HDC hdc,HDC hdc2)
         int ay2_1=ay1+sin(l_angle+moving_ang_offset)*115;
         int ax2_2=ax1+cos(l_angle+0.05-moving_ang_offset)*115;
         int ay2_2=ay1+sin(l_angle+0.05-moving_ang_offset)*115;
-        int ac=Enemy[i]->bodypart_color;
+        int ac=rgbPaintBrightness[lvl_map_background.dark_lvl][saved_enemy_type_bodypart_color[Enemy[i]->type]];//Enemy[i]->bodypart_color;
         GrLine(hdc,ax1,ay1,ax2_1,ay2_1,ac);
         GrLine(hdc,ax1,ay1,ax2_2,ay2_2,ac); 
       }       

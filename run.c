@@ -2075,6 +2075,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       Init8BitRGBPaintDarker(rgbColorsDarker1,rgbColorsDefault,0.25);
       Init8BitRGBPaintDarker(rgbColorsDarker2,rgbColorsDefault,0.50);
       Init8BitRGBPaintDarker(rgbColorsDarker3,rgbColorsDefault,0.75);
+      Init8BitRGBPaintDarker(rgbColorsDarker4,rgbColorsDefault,0.90);
 
       Init8BitRGBColorsInvert(rgbColorsInvert,rgbColorsDefault);
 
@@ -2088,6 +2089,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       Init8BitRGBPaintDefault(rgbPaintDark,rgbPaint_i,rgbColorsDarker1,TRUE,8);
       Init8BitRGBPaintDefault(rgbPaintDarker,rgbPaint_i,rgbColorsDarker2,TRUE,8);
       Init8BitRGBPaintDefault(rgbPaintDarkest,rgbPaint_i,rgbColorsDarker3,TRUE,8);
+      Init8BitRGBPaintDefault(rgbPaintDarkestII,rgbPaint_i,rgbColorsDarker4,TRUE,8);
       Init8BitRGBPaintDefault(rgbPaintNight,rgbPaint_i,rgbColorsNight,TRUE,8);
 
 
