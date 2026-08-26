@@ -3316,12 +3316,14 @@ void DrawEnemy(HDC hdc,HDC hdc2)
         //Add to player stats after defeat
         if (!IsSpeedBreaking()) {
           if (player.time_breaker_units<player.time_breaker_units_max-2 && !player.time_breaker) {
+            player.time_breaker_units_highlight=player.time_breaker_units;
             player.time_breaker_units+=2;
+            player.time_breaker_units_highlight_timer=200;
           }
         } else {
-          if (!player.time_breaker && player.type==0) {
-            player.speed+=2;
-          }
+          //if (!player.time_breaker && player.type==0) {
+            //player.speed+=2;
+          //}
         }
       }
 

@@ -2811,10 +2811,15 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       for (int i=0;i<4;i++) { //main menu
         wchar_t mm0khtxt[32];
         swprintf(mm0khtxt,32,L"sprites/khmai/mm0kh_%d.bmp",i);
-        mm0_kh[i]=(HBITMAP) LoadImageW(NULL, mm0khtxt, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-        mm0_kh_white[i]=RotateSprite(NULL, mm0_kh[i],0,LTGREEN,BLACK,WHITE,-1);
-        mm0_kh_green[i]=RotateSprite(NULL, mm0_kh[i],0,LTGREEN,BLACK,LLTGREEN,-1);
-        mm0_kh_mask[i]= CreateBitmapMask(mm0_kh[i],LTGREEN,NULL);
+        mm0_kh[i]=LoadRLE8CompressedBitmap(mm0khtxt);
+        ReplaceBitmapColor(mm0_kh[i],BLACK,WHITE);
+        ReplaceBitmapColor(mm0_kh[i],LTGREEN,BLACK);
+
+        mm0_kh_white[i]=CopyCrunchyBitmap(mm0_kh[i],SRCCOPY);
+        mm0_kh_green[i]=CopyCrunchyBitmap(mm0_kh[i],SRCCOPY);
+        ReplaceBitmapColor(mm0_kh_green[i],WHITE,LTGREEN);
+
+        mm0_kh_mask[i]=CreateBitmapMask(mm0_kh[i],BLACK,NULL);
       }
 
       for (int i=0;i<2;i++) { //hijiri
@@ -2852,20 +2857,30 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       for (int i=0;i<2;i++) {//khmer bool
         wchar_t khbooltxt[32];
         swprintf(khbooltxt,32,L"sprites/khmai/kh_bool%d.bmp",i);
-        kh_bool[i]=(HBITMAP) LoadImageW(NULL, khbooltxt, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-        kh_bool_white[i]=RotateSprite(NULL, kh_bool[i],0,LTGREEN,BLACK,WHITE,-1);
-        kh_bool_green[i]=RotateSprite(NULL, kh_bool[i],0,LTGREEN,BLACK,LLTGREEN,-1);
-        kh_bool_mask[i]= CreateBitmapMask(kh_bool[i],LTGREEN,NULL);
+        kh_bool[i]=LoadRLE8CompressedBitmap(khbooltxt);
+        ReplaceBitmapColor(kh_bool[i],BLACK,WHITE);
+        ReplaceBitmapColor(kh_bool[i],LTGREEN,BLACK);
+        kh_bool_white[i]=CopyCrunchyBitmap(kh_bool[i],SRCCOPY);
+        kh_bool_green[i]=CopyCrunchyBitmap(kh_bool[i],SRCCOPY);
+
+        ReplaceBitmapColor(kh_bool_green[i],WHITE,LTGREEN);
+        kh_bool_mask[i]= CreateBitmapMask(kh_bool[i],BLACK,NULL);
       }
 
 
       for (int i=0;i<2;i++) {//khmer difficulty
         wchar_t khdiffictxt[32];
-        swprintf(khdiffictxt,32,L"sprites/khmai/kh_difficult%d.bmp",i);
-        kh_difficulty[i]=(HBITMAP) LoadImageW(NULL, khdiffictxt, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-        kh_difficulty_white[i]=RotateSprite(NULL, kh_difficulty[i],0,LTGREEN,BLACK,WHITE,-1);
-        kh_difficulty_green[i]=RotateSprite(NULL, kh_difficulty[i],0,LTGREEN,BLACK,LLTGREEN,-1);
-        kh_difficulty_mask[i]= CreateBitmapMask(kh_difficulty[i],LTGREEN,NULL);
+        swprintf(khdiffictxt,32,L"sprites/khmai/kh_difficult%d.bmp",i);        
+        kh_difficulty[i]=LoadRLE8CompressedBitmap(khdiffictxt);
+        ReplaceBitmapColor(kh_difficulty[i],BLACK,WHITE);
+        ReplaceBitmapColor(kh_difficulty[i],LTGREEN,BLACK);
+
+        kh_difficulty_white[i]=CopyCrunchyBitmap(kh_difficulty[i],SRCCOPY);
+        kh_difficulty_green[i]=CopyCrunchyBitmap(kh_difficulty[i],SRCCOPY);
+
+        ReplaceBitmapColor(kh_difficulty_green[i],WHITE,LTGREEN);
+        kh_difficulty_mask[i]= CreateBitmapMask(kh_difficulty[i],BLACK,NULL);
+
       }
 
       kh_cornmid= LoadImageW(NULL, L"sprites/khmai/kh_cornmid.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);

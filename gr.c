@@ -1744,7 +1744,7 @@ void ReplaceBitmapColor(HBITMAP hBitmap, COLORREF oldColor, COLORREF newColor)//
     DeleteDC(hdc);
 
     // Find indices for oldColor and newColor
-    BYTE oldColorIndex = 0xFF, newColorIndex = 0xFF; // Invalid initially
+    BYTE oldColorIndex = 0xFE, newColorIndex = 0xFE; // Invalid initially
     for (int i = 0; i < 256; i++) {
         if (RGB(palette[i].rgbRed, palette[i].rgbGreen, palette[i].rgbBlue) == oldColor) {
             oldColorIndex = (BYTE)i;
@@ -1768,7 +1768,7 @@ void ReplaceBitmapColor(HBITMAP hBitmap, COLORREF oldColor, COLORREF newColor)//
     }
 
     // Check if both colors are in the palette
-    if (oldColorIndex == 0xFF || newColorIndex == 0xFF) {
+    if (oldColorIndex == 0xFE || newColorIndex == 0xFE) {
         return; // Color not found
     }
 

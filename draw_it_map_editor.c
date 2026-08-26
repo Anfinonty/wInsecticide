@@ -762,41 +762,43 @@ void DrawMapEditorUI(HDC hdc,HDC hdc2)
               GrPrintThick(hdc,8,32+16*i,print_enemy_type_int_pointer,c,BLACK);
             }
           } else {
-            GrRect(hdc,8*14+1,32+16*i,16,16,WHITE);
-            GrRect(hdc,8*18,32+16*i,16,16,WHITE);
             int di=MapEditor.selected_enemy_type_option-1;
             if ((i>=4 && i<=7)) {
+              GrRect(hdc,8*20+1,32+16*i+2,16,16,WHITE);
+              GrRect(hdc,8*24,32+16*i+2,16,16,WHITE);
               switch (i) {
                 case 4:
-                  GrRect(hdc,8*14+2+1,32+16*i+2,12,12,rgbPaint[saved_enemy_type_wing_color[MapEditor.selected_enemy_type_id]]);
+                  GrRect(hdc,8*20+2+1,32+16*i+4,12,12,rgbPaint[saved_enemy_type_wing_color[MapEditor.selected_enemy_type_id]]);
+                  GrRect(hdc,8*24+2,32+16*i+4,12,12,rgbPaint[saved_enemy_type_wing_color[MapEditor.clipboard_enemy_type_id]]);
                   GrPrintThick(hdc,8,32+16*i,"Enemy Wings Color:",c,BLACK);
-                  GrRect(hdc,8*18+2,32+16*i+2,12,12,rgbPaint[saved_enemy_type_wing_color[MapEditor.clipboard_enemy_type_id]]);
                   break;
                 case 5:
-                  GrRect(hdc,8*14+2+1,32+16*i+2,12,12,rgbPaint[saved_enemy_type_eye_color[MapEditor.selected_enemy_type_id]]);
+                  GrRect(hdc,8*20+2+1,32+16*i+4,12,12,rgbPaint[saved_enemy_type_eye_color[MapEditor.selected_enemy_type_id]]);
+                  GrRect(hdc,8*24+2,32+16*i+4,12,12,rgbPaint[saved_enemy_type_eye_color[MapEditor.clipboard_enemy_type_id]]);
                   GrPrintThick(hdc,8,32+16*i,"Enemy Eye Color:",c,BLACK);
-                  GrRect(hdc,8*18+2,32+16*i+2,12,12,rgbPaint[saved_enemy_type_eye_color[MapEditor.clipboard_enemy_type_id]]);
                   break;
                 case 6:
-                  GrRect(hdc,8*14+2+1,32+16*i+2,12,12,rgbPaint[saved_enemy_type_border_color[MapEditor.selected_enemy_type_id]]);
+                  GrRect(hdc,8*20+2+1,32+16*i+4,12,12,rgbPaint[saved_enemy_type_border_color[MapEditor.selected_enemy_type_id]]);
+                  GrRect(hdc,8*24+2,32+16*i+4,12,12,rgbPaint[saved_enemy_type_border_color[MapEditor.clipboard_enemy_type_id]]);
                   GrPrintThick(hdc,8,32+16*i,"Enemy Border Color:",c,BLACK);
-                  GrRect(hdc,8*18+2,32+16*i+2,12,12,rgbPaint[saved_enemy_type_border_color[MapEditor.clipboard_enemy_type_id]]);
                   break;
                 case 7:
-                  GrRect(hdc,8*14+2+1,32+16*i+2,12,12,rgbPaint[saved_enemy_type_bodypart_color[MapEditor.selected_enemy_type_id]]);
+                  GrRect(hdc,8*20+2+1,32+16*i+4,12,12,rgbPaint[saved_enemy_type_bodypart_color[MapEditor.selected_enemy_type_id]]);
+                  GrRect(hdc,8*24+2,32+16*i+4,12,12,rgbPaint[saved_enemy_type_bodypart_color[MapEditor.clipboard_enemy_type_id]]);
                   GrPrintThick(hdc,8,32+16*i,"Enemy Bodypart Color:",c,BLACK);
-                  GrRect(hdc,8*18+2,32+16*i+2,12,12,rgbPaint[saved_enemy_type_bodypart_color[MapEditor.clipboard_enemy_type_id]]);
                   break;
               }
-              GrPrintThick(hdc,8*13,32+16*i,"[      ]",c,BLACK);
+              GrPrintThick(hdc,8*19,32+16*i,"[      ]",c,BLACK);
+              GrPrintThick(hdc,8*23,32+16*i,"{     }",c,BLACK);
 
-              GrPrintThick(hdc,8*17,32+16*i,"{     }",c,BLACK);
             } else {
-              GrRect(hdc,8*14+2+1,32+16*i+2,12,12,rgbPaint[saved_enemy_type_bullet_color[MapEditor.selected_enemy_type_id]]);
+              GrRect(hdc,8*14+1,32+16*i+2,16,16,WHITE);
+              GrRect(hdc,8*18,32+16*i+2,16,16,WHITE);
+              GrRect(hdc,8*14+2+1,32+16*i+4,12,12,rgbPaint[saved_enemy_type_bullet_color[MapEditor.selected_enemy_type_id]]);
+              GrRect(hdc,8*18+2,32+16*i+4,12,12,rgbPaint[saved_enemy_type_bullet_color[MapEditor.clipboard_enemy_type_id]]);
+
               GrPrintThick(hdc,8,32+16*i,"Bullet Color:",c,BLACK);
               GrPrintThick(hdc,8*13,32+16*i,"[      ]",c,BLACK);
-
-              GrRect(hdc,8*18+2,32+16*i+2,12,12,rgbPaint[saved_enemy_type_bullet_color[MapEditor.clipboard_enemy_type_id]]);
               GrPrintThick(hdc,8*17,32+16*i,"{     }",c,BLACK);
             }
 

@@ -243,6 +243,10 @@ struct player
   int time_breaker_recharge_timer_max;
   int time_breaker_units_tick;
   int time_breaker_units_tick_max;
+
+  int time_breaker_units_highlight;
+  int time_breaker_units_highlight_timer;
+
   int spin_timer;
   int in_water_timer;
 

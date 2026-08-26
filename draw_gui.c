@@ -1328,18 +1328,18 @@ void DrawMusicWav(HDC hdc)
 void DrawKhBool(HDC hdc,HDC hdc2,int x,int y,bool t,bool sel)
 {
   if (t) { //on
-    DrawBitmap(hdc,hdc2,x,y,0,0,34,14,kh_bool_mask[1],SRCAND,FALSE,FALSE);
+    DrawBitmap(hdc,hdc2,x,y,0,0,36,16,kh_bool_mask[1],SRCAND,FALSE,FALSE);
     if (sel) {
-      DrawBitmap(hdc,hdc2,x,y,0,0,34,14,kh_bool_green[1],SRCPAINT,FALSE,FALSE);
+      DrawBitmap(hdc,hdc2,x,y,0,0,36,16,kh_bool_green[1],SRCPAINT,FALSE,FALSE);
     } else {
-      DrawBitmap(hdc,hdc2,x,y,0,0,34,14,kh_bool_white[1],SRCPAINT,FALSE,FALSE);
+      DrawBitmap(hdc,hdc2,x,y,0,0,36,16,kh_bool_white[1],SRCPAINT,FALSE,FALSE);
     }
   } else { //off
-    DrawBitmap(hdc,hdc2,x,y+1,0,0,30,13,kh_bool_mask[0],SRCAND,FALSE,FALSE);
+    DrawBitmap(hdc,hdc2,x,y+1,0,0,32,16,kh_bool_mask[0],SRCAND,FALSE,FALSE);
     if (sel) {
-      DrawBitmap(hdc,hdc2,x,y+1,0,0,30,13,kh_bool_green[0],SRCPAINT,FALSE,FALSE);
+      DrawBitmap(hdc,hdc2,x,y+1,0,0,32,16,kh_bool_green[0],SRCPAINT,FALSE,FALSE);
     } else {
-      DrawBitmap(hdc,hdc2,x,y+1,0,0,30,13,kh_bool_white[0],SRCPAINT,FALSE,FALSE);
+      DrawBitmap(hdc,hdc2,x,y+1,0,0,32,16,kh_bool_white[0],SRCPAINT,FALSE,FALSE);
     }
   }
 }
@@ -1347,19 +1347,19 @@ void DrawKhBool(HDC hdc,HDC hdc2,int x,int y,bool t,bool sel)
 
 void DrawKhDiffic(HDC hdc,HDC hdc2,int x,int y,bool t,bool sel)
 {
-  if (t) { //on
-    DrawBitmap(hdc,hdc2,x,y,0,0,43,14,kh_difficulty_mask[1],SRCAND,FALSE,FALSE);
+  if (t) { //hard
+    DrawBitmap(hdc,hdc2,x,y,0,0,44,16,kh_difficulty_mask[1],SRCAND,FALSE,FALSE);
     if (sel) {
-      DrawBitmap(hdc,hdc2,x,y,0,0,43,14,kh_difficulty_green[1],SRCPAINT,FALSE,FALSE);
+      DrawBitmap(hdc,hdc2,x,y,0,0,44,16,kh_difficulty_green[1],SRCPAINT,FALSE,FALSE);
     } else {
-      DrawBitmap(hdc,hdc2,x,y,0,0,43,14,kh_difficulty_white[1],SRCPAINT,FALSE,FALSE);
+      DrawBitmap(hdc,hdc2,x,y,0,0,44,16,kh_difficulty_white[1],SRCPAINT,FALSE,FALSE);
     }
-  } else { //off
-    DrawBitmap(hdc,hdc2,x,y+3,0,0,43,18,kh_difficulty_mask[0],SRCAND,FALSE,FALSE);
+  } else { //normal
+    DrawBitmap(hdc,hdc2,x,y+3,0,0,44,20,kh_difficulty_mask[0],SRCAND,FALSE,FALSE);
     if (sel) {
-      DrawBitmap(hdc,hdc2,x,y+3,0,0,43,18,kh_difficulty_green[0],SRCPAINT,FALSE,FALSE);
+      DrawBitmap(hdc,hdc2,x,y+3,0,0,44,20,kh_difficulty_green[0],SRCPAINT,FALSE,FALSE);
     } else {
-      DrawBitmap(hdc,hdc2,x,y+3,0,0,43,18,kh_difficulty_white[0],SRCPAINT,FALSE,FALSE);
+      DrawBitmap(hdc,hdc2,x,y+3,0,0,44,20,kh_difficulty_white[0],SRCPAINT,FALSE,FALSE);
     }
   }
 }
@@ -1491,28 +1491,28 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
       if (is_khmer) {
 
         //Level
-        DrawBitmap(hdc,hdc2,GR_WIDTH/2-121/2,GR_HEIGHT/2-16*4-main_menu_y2-31/2-3,0,0,121,31,mm0_kh_mask[0],SRCAND,FALSE,FALSE);
+        DrawBitmap(hdc,hdc2,GR_WIDTH/2-121/2-1,GR_HEIGHT/2-16*4-main_menu_y2-31/2-3,0,0,124,32,mm0_kh_mask[0],SRCAND,FALSE,FALSE);
         if (select_main_menu==0) {
-          DrawBitmap(hdc,hdc2,GR_WIDTH/2-121/2,GR_HEIGHT/2-16*4-main_menu_y2-31/2-3,0,0,121,31,mm0_kh_green[0],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,GR_WIDTH/2-121/2-1,GR_HEIGHT/2-16*4-main_menu_y2-31/2-3,0,0,124,32,mm0_kh_green[0],SRCPAINT,FALSE,FALSE);
         } else {
-          DrawBitmap(hdc,hdc2,GR_WIDTH/2-121/2,GR_HEIGHT/2-16*4-main_menu_y2-31/2-3,0,0,121,31,mm0_kh_white[0],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,GR_WIDTH/2-121/2-1,GR_HEIGHT/2-16*4-main_menu_y2-31/2-3,0,0,124,32,mm0_kh_white[0],SRCPAINT,FALSE,FALSE);
         }
         
         //Options
-        DrawBitmap(hdc,hdc2,GR_WIDTH/2-114/2,GR_HEIGHT/2-16*2-main_menu_y2-36/2,0,0,145,36,mm0_kh_mask[1],SRCAND,FALSE,FALSE);
+        DrawBitmap(hdc,hdc2,GR_WIDTH/2-114/2,GR_HEIGHT/2-16*2-main_menu_y2-36/2+2,0,0,116,20,mm0_kh_mask[1],SRCAND,FALSE,FALSE);
         if (select_main_menu==1) {
-          DrawBitmap(hdc,hdc2,GR_WIDTH/2-114/2,GR_HEIGHT/2-16*2-main_menu_y2-36/2,0,0,145,36,mm0_kh_green[1],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,GR_WIDTH/2-114/2,GR_HEIGHT/2-16*2-main_menu_y2-36/2+2,0,0,116,20,mm0_kh_green[1],SRCPAINT,FALSE,FALSE);
         } else {
-          DrawBitmap(hdc,hdc2,GR_WIDTH/2-114/2,GR_HEIGHT/2-16*2-main_menu_y2-36/2,0,0,145,36,mm0_kh_white[1],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,GR_WIDTH/2-114/2,GR_HEIGHT/2-16*2-main_menu_y2-36/2+2,0,0,116,20,mm0_kh_white[1],SRCPAINT,FALSE,FALSE);
         }
 
 
         //Exit
-        DrawBitmap(hdc,hdc2,GR_WIDTH/2-82/2-2,GR_HEIGHT/2-main_menu_y2-36/2,0,0,145,36,mm0_kh_mask[2],SRCAND,FALSE,FALSE);
+        DrawBitmap(hdc,hdc2,GR_WIDTH/2-82/2-2,GR_HEIGHT/2-main_menu_y2-36/2,0,0,84,20,mm0_kh_mask[2],SRCAND,FALSE,FALSE);
         if (select_main_menu==2) {
-          DrawBitmap(hdc,hdc2,GR_WIDTH/2-82/2-2,GR_HEIGHT/2-main_menu_y2-36/2,0,0,145,36,mm0_kh_green[2],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,GR_WIDTH/2-82/2-2,GR_HEIGHT/2-main_menu_y2-36/2,0,0,84,20,mm0_kh_green[2],SRCPAINT,FALSE,FALSE);
         } else {
-          DrawBitmap(hdc,hdc2,GR_WIDTH/2-82/2-2,GR_HEIGHT/2-main_menu_y2-36/2,0,0,145,36,mm0_kh_white[2],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,GR_WIDTH/2-82/2-2,GR_HEIGHT/2-main_menu_y2-36/2,0,0,84,20,mm0_kh_white[2],SRCPAINT,FALSE,FALSE);
         }
 
         //Language
@@ -1528,14 +1528,14 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
         GrPrint(hdc,GR_WIDTH/2-7*8/2-1,GR_HEIGHT/2-16*2-12-main_menu_y2,"OPTIONS",c);
 
         c=Highlight((select_main_menu==2),WHITE,LTGREEN);
-        GrPrint(hdc,GR_WIDTH/2-8*4/2+2,GR_HEIGHT/2-12-main_menu_y2,"EXIT",c);
+        GrPrint(hdc,GR_WIDTH/2-8*4/2,GR_HEIGHT/2-12-main_menu_y2,"EXIT",c);
 
 
-        DrawBitmap(hdc,hdc2,GR_WIDTH/2-71/2,GR_HEIGHT/2-main_menu_y2+24-25/2,0,0,145,36,mm0_kh_mask[3],SRCAND,FALSE,FALSE);
+        DrawBitmap(hdc,hdc2,GR_WIDTH/2-71/2-2,GR_HEIGHT/2-main_menu_y2+24-25/2,0,0,72,28,mm0_kh_mask[3],SRCAND,FALSE,FALSE);
         if (select_main_menu==3) {
-          DrawBitmap(hdc,hdc2,GR_WIDTH/2-71/2,GR_HEIGHT/2-main_menu_y2+24-25/2,0,0,145,36,mm0_kh_green[3],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,GR_WIDTH/2-71/2-2,GR_HEIGHT/2-main_menu_y2+24-25/2,0,0,72,28,mm0_kh_green[3],SRCPAINT,FALSE,FALSE);
         } else {
-          DrawBitmap(hdc,hdc2,GR_WIDTH/2-71/2,GR_HEIGHT/2-main_menu_y2+24-25/2,0,0,145,36,mm0_kh_white[3],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,GR_WIDTH/2-71/2-2,GR_HEIGHT/2-main_menu_y2+24-25/2,0,0,72,28,mm0_kh_white[3],SRCPAINT,FALSE,FALSE);
         }
       }
       
@@ -1919,7 +1919,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
         if (game_hard) {
           DrawKhDiffic(hdc,hdc2,30+20*8,10+soptions_y+16*14-2,1,(option_choose==14));
         } else {
-          DrawKhDiffic(hdc,hdc2,30+20*8,10+soptions_y+16*14-2,0,(option_choose==14));
+          DrawKhDiffic(hdc,hdc2,30+20*8,10+soptions_y+16*14-2-4,0,(option_choose==14));
         }
       } else {
         if (game_hard) {
@@ -2566,40 +2566,45 @@ void DrawUI(HDC hdc,HDC hdc2)
 
   //===-- Draw Timebreaker Circle ---===
   if (!game_hard) {
-    c5 = Highlight(player.time_breaker,LTPURPLE,YELLOW);
+    c5 = Highlight(player.time_breaker,WHITE,YELLOW);
   } else {
     c5 = Highlight(player.time_breaker,LTCYAN,YELLOW);
   }
 
-  int c6 = Highlight(game_hard,PURPLE,LTBLUE);
+  int c6 = Highlight(game_hard,LTPURPLE,LTBLUE);
 
   //draw player time breaker
   const int tb_circle_r=8;
   if (player.time_breaker_units<player.time_breaker_units_max || (player.time_breaker_units==player.time_breaker_units_max && frame_tick%16<8)) {
-  for (i=0;i<player.time_breaker_units;i++) {
-    float tb_angle=M_PI_2+2*M_PI_2/player.time_breaker_units_max*i*2;
-    if (player.time_breaker || (IsSpeedBreaking() && game_hard)) {
-      if ((player.time_breaker_units<=4 && frame_tick%10<5) || player.time_breaker_units>4) {
-        GrCircle(hdc,
-          player.sprite_x-32*cos(tb_angle),
-          player.sprite_y-32*sin(tb_angle),
-          3,c5,BLACK); //player centric
+    for (i=0;i<player.time_breaker_units;i++) {
+      float tb_angle=M_PI_2+2*M_PI_2/player.time_breaker_units_max*i*2;
+      if (player.time_breaker || (IsSpeedBreaking() && game_hard)) {
+        if ((player.time_breaker_units<=4 && frame_tick%10<5) || player.time_breaker_units>4) {
+          GrCircle(hdc,
+            player.sprite_x-32*cos(tb_angle),
+            player.sprite_y-32*sin(tb_angle),
+            3,c5,BLACK); //player centric
+        }
       }
-    }
 
     //on cursor
-    if (!player.time_breaker) {
-        GrCircle(hdc,
-          mouse_x-tb_circle_r*cos(tb_angle),
-          mouse_y-tb_circle_r*sin(tb_angle),
-          2,c5,BLACK);
-    } else {
-        GrCircle(hdc,
-          mouse_x-tb_circle_r*cos(tb_angle),
-          mouse_y-tb_circle_r*sin(tb_angle),
-          3,c5,c5);
+      int c_c=Highlight((i>player.time_breaker_units_highlight && player.time_breaker_units_highlight_timer>0), c5, YELLOW);
+      int c_units_size=2;
+      if (player.time_breaker_units_highlight_timer>0 && i>player.time_breaker_units_highlight) {
+        c_units_size=4;
+      }
+      if (!player.time_breaker) {
+          GrCircle(hdc,
+            mouse_x-tb_circle_r*cos(tb_angle),
+            mouse_y-tb_circle_r*sin(tb_angle),
+            c_units_size,c_c,BLACK);
+      } else {
+          GrCircle(hdc,
+            mouse_x-tb_circle_r*cos(tb_angle),
+            mouse_y-tb_circle_r*sin(tb_angle),
+            3,c5,c5);
+      }
     }
-  }
   }
 
   if (player.time_breaker_units==player.time_breaker_units_max && !player.time_breaker) {

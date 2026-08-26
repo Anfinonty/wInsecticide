@@ -430,6 +430,10 @@ void InitPlayer() {
   player.below_ground_edge_timer=0;
   player.below_fground_ground_edge_timer=0;
 
+
+  player.time_breaker_units_highlight=0;
+  player.time_breaker_units_highlight_timer=0;
+
 //  player.on_ground_id_u1=-1;
   player.on_ground_id_u2=-1;
 //  player.on_ground_id_d1=-1;
@@ -2590,6 +2594,10 @@ void PlayerAct()
         player.on_fground_ground_id=-1;
         player.saved_ground_id=-1;
         player.saved_fground_ground_id=-1;
+      }
+
+      if (player.time_breaker_units_highlight_timer>0) {
+        player.time_breaker_units_highlight_timer--;
       }
 
 
