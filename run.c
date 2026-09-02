@@ -2440,6 +2440,20 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       utc_offset=8;
 
 
+      /*GEOID geoId = GetUserGeoID(GEOCLASS_NATION);
+      if (geoId != GEOID_NOT_AVAILABLE) {
+        wchar_t isoCode[3] = {0};
+        int result = GetGeoInfoW(geoId, GEO_ISO2, isoCode, 3, 0);
+        if (result > 0) {
+          wprintf(L"\nCountry ISO Code: %ls\n", isoCode);
+        } else {
+          wprintf(L"\nFailed to retrieve geographic info.\n");
+        }
+      } else {
+        wprintf(L"\nGeoID not available.\n");
+      }*/
+
+
       //Texas
       //sun_riseset.in_latitude  = 31.9686;
       //sun_riseset.in_longitude = -99.9018;
@@ -2654,29 +2668,11 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       //SetTexturePalette(166,waterPalette);
       //SetTexturePalette(16*9+8,waterPalette); //ltblue water (default perfered)
 
-      /*for (int i=0;i<9;i++) {
-        wchar_t fname[48];
-        swprintf(fname,48,L"sprites/textures/water_texture%d.bmp",i);        
-        //HBITMAP tmp_bitmap = (HBITMAP) LoadImageW(NULL, fname, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);//LoadRLE8CompressedBitmap(fname);
-        //texture_water[i] =  CopyCrunchyBitmap(tmp_bitmap,SRCCOPY);
-        //DeleteObject(tmp_bitmap);
-
-        //tricky working with 32-bit like sprites, expection'
-        texture_water[i] =(HBITMAP) LoadImageW(NULL, fname, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
-      }*/
-
-
      for (int i=0;i<9;i++) {
         wchar_t fname[48];
         swprintf(fname,48,L"sprites/textures/water_texture%d.bmp",i);
-        //HBITMAP tmp_bitmap = (HBITMAP) LoadImageW(NULL, fname, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION);
-        //texture_water[i] = CopyBitmapWithBuffer(tmp_bitmap,&ptexture_water[i],SRCCOPY,global_screen_bits); //Convert to appropriate bits
-        //DeleteObject(tmp_bitmap);
          texture_water[i]=(HBITMAP) LoadImageW(NULL, fname, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION); //loaded to system screne bits accordingly 16-bit/32-bit
       }
-
-      //dkrdkgray_shadow_tile = LoadRLE8CompressedBitmap(L"sprites/shadow_dkrdkgray.bmp");//(HBITMAP) LoadImageW(NULL, L"sprites/shadow_dkrdkgray.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      //ltgray_shadow_tile = LoadRLE8CompressedBitmap(L"sprites/shadow_ltgray.bmp");//(HBITMAP) LoadImageW(NULL, L"sprites/shadow_ltgray.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 
       //Load mouse cursor sprite
       //player cursor
@@ -2784,34 +2780,26 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         LoadedPlatformTextures[k]=LoadRLE8CompressedBitmap(texture_name);
       }
     
-      kh_pressanykey = (HBITMAP) LoadImageW(NULL, L"sprites/kh_pressanykey.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      kh_pressanykey_mask = CreateBitmapMask(kh_pressanykey,LTGREEN,NULL);
+     kh_pressanykey=LoadRLE8CompressedBitmap(L"sprites/kh_pressanykey.bmp");
+     kh_pressanykey_mask = CreateBitmapMask(kh_pressanykey,LTGREEN,NULL);
 
-      HBITMAP tmp_title_sprite= (HBITMAP) LoadImageW(NULL, L"sprites/title.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      HBITMAP tmp_small_title_sprite= (HBITMAP) LoadImageW(NULL, L"sprites/title_small.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+     title_sprite[0]=LoadRLE8CompressedBitmap(L"sprites/title.bmp");
+     title_small_sprite[0]=LoadRLE8CompressedBitmap(L"sprites/title_small.bmp");
 
-      title_sprite[0] = CopyCrunchyBitmap(tmp_title_sprite,SRCCOPY);
-      title_small_sprite[0] = CopyCrunchyBitmap(tmp_small_title_sprite,SRCCOPY);
-      title_sprite_mask[0]= CreateBitmapMask(title_sprite[0],LTGREEN,NULL);
-      title_small_sprite_mask[0]=CreateBitmapMask(title_small_sprite[0],LTGREEN,NULL);
-      DeleteObject(tmp_title_sprite);
-      DeleteObject(tmp_small_title_sprite);
+     title_sprite[1]=LoadRLE8CompressedBitmap(L"sprites/title_english.bmp");
+     title_small_sprite[1]=LoadRLE8CompressedBitmap(L"sprites/title_english_small.bmp");
 
-      tmp_title_sprite= (HBITMAP) LoadImageW(NULL, L"sprites/title_english.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      tmp_small_title_sprite= (HBITMAP) LoadImageW(NULL, L"sprites/title_english_small.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      title_sprite[1] = CopyCrunchyBitmap(tmp_title_sprite,SRCCOPY);
-      title_small_sprite[1] = CopyCrunchyBitmap(tmp_small_title_sprite,SRCCOPY);
-      title_sprite_mask[1]=CreateBitmapMask(title_sprite[1],LTGREEN,NULL);
-      title_small_sprite_mask[1]=CreateBitmapMask(title_small_sprite[1],LTGREEN,NULL);
-      DeleteObject(tmp_title_sprite);
-      DeleteObject(tmp_small_title_sprite);
-
+     for (int i=0;i<2;i++) {
+       title_sprite_mask[i]=CreateBitmapMask(title_sprite[i],LTGREEN,NULL);
+       title_small_sprite_mask[i]=CreateBitmapMask(title_small_sprite[i],LTGREEN,NULL);
+     }
 
       //KHMER
       for (int i=0;i<4;i++) { //main menu
         wchar_t mm0khtxt[32];
         swprintf(mm0khtxt,32,L"sprites/khmai/mm0kh_%d.bmp",i);
         mm0_kh[i]=LoadRLE8CompressedBitmap(mm0khtxt);
+        ReplaceBitmapColor(mm0_kh[i],LTBLUE,LTRED);
         ReplaceBitmapColor(mm0_kh[i],BLACK,WHITE);
         ReplaceBitmapColor(mm0_kh[i],LTGREEN,BLACK);
 
@@ -2825,7 +2813,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       for (int i=0;i<2;i++) { //hijiri
         wchar_t mm0khtxth[32];
         swprintf(mm0khtxth,32,L"sprites/khmai/mm0kh_4_%d.bmp",i);
-        mm0_kh_hijri[i]=(HBITMAP) LoadImageW(NULL, mm0khtxth, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        mm0_kh_hijri[i]=LoadRLE8CompressedBitmap(mm0khtxth);
         mm0_kh_hijri_mask[i]= CreateBitmapMask(mm0_kh_hijri[i],LTGREEN,NULL);
       }
 
@@ -2851,7 +2839,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         wchar_t ga0khtxt[32];
         swprintf(ga0khtxt,32,L"sprites/khmai/kmaigametxt%d.bmp",i);
         ga0_kh[i]=(HBITMAP) LoadImageW(NULL, ga0khtxt, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-        ga0_kh_mask[i]= CreateBitmapMask(ga0_kh[i],/*LTBLUE*/BLACK,NULL);
+        ga0_kh_mask[i]= CreateBitmapMask(ga0_kh[i],BLACK,NULL);
       }
 
       for (int i=0;i<2;i++) {//khmer bool
@@ -2883,13 +2871,16 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       }
 
-      kh_cornmid= LoadImageW(NULL, L"sprites/khmai/kh_cornmid.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-      kh_cornmid_white=RotateSprite(NULL, kh_cornmid,0,LTGREEN,BLACK,WHITE,-1);
-      kh_cornmid_green=RotateSprite(NULL, kh_cornmid,0,LTGREEN,BLACK,LLTGREEN,-1);
-      kh_cornmid_mask=CreateBitmapMask(kh_cornmid,LTGREEN,NULL);
+      kh_cornmid= LoadRLE8CompressedBitmap(L"sprites/khmai/kh_cornmid.bmp");
+      ReplaceBitmapColor(kh_cornmid,BLACK,WHITE);
+      ReplaceBitmapColor(kh_cornmid,LTGREEN,BLACK);
 
+      kh_cornmid_white=CopyCrunchyBitmap(kh_cornmid,SRCCOPY);
+      kh_cornmid_green=CopyCrunchyBitmap(kh_cornmid,SRCCOPY);
+      ReplaceBitmapColor(kh_cornmid_green,WHITE,LTGREEN);
+      kh_cornmid_mask=CreateBitmapMask(kh_cornmid,BLACK,NULL);
 
-      kh_goback= LoadImageW(NULL, L"sprites/khmai/kh_back.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+      kh_goback=LoadRLE8CompressedBitmap(L"sprites/khmai/kh_back.bmp");
       kh_goback_mask=CreateBitmapMask(kh_goback,LTGREEN,NULL);
 
       prelude=TRUE;

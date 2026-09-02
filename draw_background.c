@@ -1433,7 +1433,7 @@ void DrawBackground(HDC hdc,HDC hdc2)
   FastDrawTexturedRect(publicScreenPixels,SCREEN_WIDTH,publicBackgroundPixels,GR_WIDTH,dbg_height,global_screen_bits); //Draw Background giant rect infront of skies
 
   //Draw shooting stars, live according to tick
-  if ((lvl_map_background.is_stars && Sun.y>=GR_HEIGHT+GR_HEIGHT/7)) {
+  if ((lvl_map_background.is_stars && (Sun.horizon_lvl>=2 || Sun.eclipse_type==2 || Sun.eclipse_type==4))) {
     for (int i=0;i<SSTAR_NUM;i++) {
       if (SStar[i].lifetime>0) {
         GrCircle(hdc,SStar[i].x-GR_WIDTH/16*_ppx,SStar[i].y-GR_HEIGHT/16*_ppy,1,WHITE,WHITE);
