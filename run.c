@@ -2821,10 +2821,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       for (int i=0;i<16;i++) { //options
         wchar_t mm2khtxt[32];
         swprintf(mm2khtxt,32,L"sprites/khmai/mm2kh_%d.bmp",i);
-        mm2_kh[i]=(HBITMAP) LoadImageW(NULL, mm2khtxt, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-        mm2_kh_white[i]=RotateSprite(NULL, mm2_kh[i],0,LTGREEN,BLACK,WHITE,-1);
-        mm2_kh_green[i]=RotateSprite(NULL, mm2_kh[i],0,LTGREEN,BLACK,LLTGREEN,-1);
-        mm2_kh_mask[i]= CreateBitmapMask(mm2_kh[i],LTGREEN,NULL);
+        mm2_kh[i]=LoadRLE8CompressedBitmap(mm2khtxt);
+        ReplaceBitmapColor(mm2_kh[i],BLACK,WHITE);
+        ReplaceBitmapColor(mm2_kh[i],LTGREEN,BLACK);
+        mm2_kh_white[i]=CopyCrunchyBitmap(mm2_kh[i],SRCCOPY);
+        mm2_kh_green[i]=CopyCrunchyBitmap(mm2_kh[i],SRCCOPY);
+
+        ReplaceBitmapColor(mm2_kh_green[i],WHITE,LTGREEN);
+        mm2_kh_mask[i]= CreateBitmapMask(mm2_kh[i],BLACK,NULL);
       }
 
 
