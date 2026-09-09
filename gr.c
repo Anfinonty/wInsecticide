@@ -1352,11 +1352,11 @@ void GrPrintW(HDC hdc, int x1, int y1, wchar_t *_txt, char *_atxt, int color, in
 
 void GrPrintWThick(HDC hdc, int x, int y, wchar_t *_txt, char *_atxt, int color1, int color2,int _height, bool A,bool is_unifont) 
 {
-  GrPrintW(hdc,x   ,y  ,_txt,"",color2,_height,A,is_unifont);
-  GrPrintW(hdc,x+2 ,y  ,_txt,"",color2,_height,A,is_unifont);
-  GrPrintW(hdc,x   ,y+2,_txt,"",color2,_height,A,is_unifont);
-  GrPrintW(hdc,x+2 ,y+2,_txt,"",color2,_height,A,is_unifont);
-  GrPrintW(hdc,x+1 ,y+1,_txt,"",color1,_height,A,is_unifont);
+  GrPrintW(hdc,x   ,y  ,_txt,_atxt,color2,_height,A,is_unifont);
+  GrPrintW(hdc,x+2 ,y  ,_txt,_atxt,color2,_height,A,is_unifont);
+  GrPrintW(hdc,x   ,y+2,_txt,_atxt,color2,_height,A,is_unifont);
+  GrPrintW(hdc,x+2 ,y+2,_txt,_atxt,color2,_height,A,is_unifont);
+  GrPrintW(hdc,x+1 ,y+1,_txt,_atxt,color1,_height,A,is_unifont);
 }
 
 

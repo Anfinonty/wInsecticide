@@ -516,6 +516,7 @@ int is_between(double cx, double cy,
 //int64_t funnyrun=0;
 void DrawPersianClock(HDC hdc,HDC hdc2)
 {
+  int d=Highlight(game_hard,LTRED,BLUE);
   //Moon Pos
   int mcalendar_l=70;//64;
   int mcalendartxt_l=64;
@@ -968,7 +969,7 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
   );
 
   if ((main_menu_chosen==-1 || (GR_WIDTH>=800 && GR_HEIGHT>=600)) && show_hijiri) {
-    GrPrintW(hdc,mcalendar_x-mcalendartxt_l*7-24,mcalendar_y-64+4,time_row1,"",WHITE,16,FALSE,yes_unifont);
+    GrPrintWThick(hdc,mcalendar_x-mcalendartxt_l*7-24,mcalendar_y-64+4,time_row1,"",WHITE,d,16,FALSE,yes_unifont);
 
     if (is_khmer) {
       DrawBitmap(hdc,hdc2,mcalendar_x-mcalendartxt_l*7-24,
@@ -985,12 +986,12 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
                      119,
                      27,
                     mm0_kh_hijri[0],SRCPAINT,FALSE,FALSE);
-      GrPrintW(hdc,mcalendar_x-mcalendartxt_l*7-24+8*16,mcalendar_y-32+4,L"","*",WHITE,16,TRUE,yes_unifont);
+      GrPrintWThick(hdc,mcalendar_x-mcalendartxt_l*7-24+8*16,mcalendar_y-32+4,L"","*",WHITE,d,16,TRUE,yes_unifont);
     } else {
-      GrPrintW(hdc,mcalendar_x-mcalendartxt_l*7-24,mcalendar_y-32+4,L"",s_hijri_row1,WHITE,16,TRUE,yes_unifont);
+      GrPrintWThick(hdc,mcalendar_x-mcalendartxt_l*7-24,mcalendar_y-32+4,L"",s_hijri_row1,WHITE,d,16,TRUE,yes_unifont);
     }
 
-    GrPrintW(hdc,mcalendar_x-mcalendartxt_l*7-24,mcalendar_y-16+4,s_hijri_row2,"",WHITE,16,FALSE,yes_unifont);
+    GrPrintWThick(hdc,mcalendar_x-mcalendartxt_l*7-24,mcalendar_y-16+4,s_hijri_row2,"",WHITE,d,16,FALSE,yes_unifont);
 
     if (is_khmer) {
       DrawBitmap(hdc,hdc2,mcalendar_x-mcalendartxt_l*7-24,
@@ -1008,14 +1009,15 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
                      90,
                      27,
                     mm0_kh_hijri[1],SRCPAINT,FALSE,FALSE);
-      GrPrintW(hdc,mcalendar_x-mcalendartxt_l*7-24+8*12,mcalendar_y+13,L"",l_hijri_row1,WHITE,16,TRUE,yes_unifont);
+      GrPrintWThick(hdc,mcalendar_x-mcalendartxt_l*7-24+8*12,mcalendar_y+13,L"",l_hijri_row1,WHITE,d,16,TRUE,yes_unifont);
     } else {
-      GrPrintW(hdc,mcalendar_x-mcalendartxt_l*7-24,mcalendar_y+16,L"",l_hijri_row1,WHITE,16,TRUE,yes_unifont);
+      GrPrintWThick(hdc,mcalendar_x-mcalendartxt_l*7-24,mcalendar_y+16,L"",l_hijri_row1,WHITE,d,16,TRUE,yes_unifont);
     }
 
-    GrPrintW(hdc,mcalendar_x-mcalendartxt_l*7-24,mcalendar_y+32,l_hijri_row2,"",WHITE,16,FALSE,yes_unifont);
+    GrPrintWThick(hdc,mcalendar_x-mcalendartxt_l*7-24,mcalendar_y+32,l_hijri_row2,"",WHITE,d,16,FALSE,yes_unifont);
   }
 
+  //Legacy, back when the moon was static in a corner and not moving
   //x=GR_WIDTH-8*18
   //y=8*23
   //DrawCrosses(hdc,GR_WIDTH-8*18,8*23);
@@ -1031,7 +1033,7 @@ void DrawPersianClock(HDC hdc,HDC hdc2)
   GrLine(hdc,GR_WIDTH-8*17-4,8*25+10,GR_WIDTH-8*17-4+8*8,8*25+12,WHITE);)*/
 
 
-  //SunRise Map
+  //Debug: SunRise Map
   /*int _k=50;
   sun_ctx_t tmp_sun_riseset;
 
@@ -1464,6 +1466,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
 
 
 
+  int d=Highlight(game_hard,LTRED,BLUE);
 
   //int max_lvl_rows=15;
   int max_lvl_rows=10;
@@ -1481,12 +1484,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
 [SHIFT_ESC]: Exit."
         ,WHITE);*/
       int c;
-      /*c=Highlight((select_main_menu==0),WHITE,LTGREEN);
-      GrPrint(hdc,30,main_menu_y+10+16*2,"Levels.",c);
-
-      c=Highlight((select_main_menu==1),WHITE,LTGREEN);
-      GrPrint(hdc,30,main_menu_y+10+16*3,"Options.",c);*/
-
+      //Debug: Center line
       //GrLine(hdc,GR_WIDTH/2,0,GR_WIDTH/2,GR_HEIGHT,WHITE);
       if (is_khmer) {
 
@@ -1517,18 +1515,18 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
 
         //Language
         c=Highlight((select_main_menu==3),WHITE,LTGREEN);
-        GrPrint(hdc,GR_WIDTH/2-8*7/2-4,GR_HEIGHT/2-main_menu_y2+16,"ENGLISH",c);
+        GrPrintThick(hdc,GR_WIDTH/2-8*7/2-4,GR_HEIGHT/2-main_menu_y2+16,"ENGLISH",c,d);
 
 
       } else {
         c=Highlight((select_main_menu==0),WHITE,LTGREEN);
-        GrPrint(hdc,GR_WIDTH/2-7*6/2-4,GR_HEIGHT/2-16*4-12-main_menu_y2,"LEVELS",c);
+        GrPrintThick(hdc,GR_WIDTH/2-7*6/2-4,GR_HEIGHT/2-16*4-12-main_menu_y2,"LEVELS",c,d);
 
         c=Highlight((select_main_menu==1),WHITE,LTGREEN);
-        GrPrint(hdc,GR_WIDTH/2-7*8/2-1,GR_HEIGHT/2-16*2-12-main_menu_y2,"OPTIONS",c);
+        GrPrintThick(hdc,GR_WIDTH/2-7*8/2-1,GR_HEIGHT/2-16*2-12-main_menu_y2,"OPTIONS",c,d);
 
         c=Highlight((select_main_menu==2),WHITE,LTGREEN);
-        GrPrint(hdc,GR_WIDTH/2-8*4/2,GR_HEIGHT/2-12-main_menu_y2,"EXIT",c);
+        GrPrintThick(hdc,GR_WIDTH/2-8*4/2,GR_HEIGHT/2-12-main_menu_y2,"EXIT",c,d);
 
 
         DrawBitmap(hdc,hdc2,GR_WIDTH/2-71/2-2,GR_HEIGHT/2-main_menu_y2+24-25/2,0,0,72,28,mm0_kh_mask[3],SRCAND,FALSE,FALSE);
@@ -1554,7 +1552,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
       int current_page=(level_chosen/max_lvl_rows)+1;
       float max_page=ceil(((float)(level_num)/max_lvl_rows));
       sprintf(page_num,"Levels - [%d/%1.0f]",current_page,max_page);
-      GrPrint(hdc,30,main_menu_y+10+32,page_num,WHITE);
+      GrPrintThick(hdc,30,main_menu_y+10+32,page_num,WHITE,d);
 
       int lvls_y=10+16*4+4;
       int lvl_i=0;
@@ -1564,34 +1562,34 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
 
 
       if (current_page>1) {
-        GrPrint(hdc,20,lvls_y-16,"- ...",WHITE);
+        GrPrintThick(hdc,20,lvls_y-16,"- ...",WHITE,d);
       }
       for (int i=0;i<max_lvl_rows;i++) { //Print Levels
          lvl_i=i+max_lvl_rows*(level_chosen/max_lvl_rows);
-         GrPrint(hdc,20,lvls_y+16*i,"-",WHITE);
+         GrPrintThick(hdc,20,lvls_y+16*i,"-",WHITE,d);
          if (lvl_i<level_num) {
            if (level_chosen!=lvl_i) {
-             GrPrintW(hdc,30,lvls_y+16*i,level_names[lvl_i],"",WHITE,16,FALSE,yes_unifont);
+             GrPrintWThick(hdc,30,lvls_y+16*i,level_names[lvl_i],"",WHITE,d,16,FALSE,yes_unifont);
            } else {
-             GrPrint(hdc,20,lvls_y+16*i,"-",LTGREEN);
-             GrPrintW(hdc,30,lvls_y+16*i,level_names[lvl_i],"",LTGREEN,16,FALSE,yes_unifont);
+             GrPrintThick(hdc,20,lvls_y+16*i,"-",LTGREEN,d);
+             GrPrintWThick(hdc,30,lvls_y+16*i,level_names[lvl_i],"",LTGREEN,d,16,FALSE,yes_unifont);
            }
          } else {
-           GrPrint(hdc,20,lvls_y+16*i,"__________",WHITE);
+           GrPrintThick(hdc,20,lvls_y+16*i,"__________",WHITE,d);
          }
       }
       if (current_page<max_page && max_page>1) {
-        GrPrint(hdc,20,lvls_y+16*max_lvl_rows,"- ...",WHITE);
+        GrPrintThick(hdc,20,lvls_y+16*max_lvl_rows,"- ...",WHITE,d);
       }
 
 
       //Draw Level Selector
-      GrPrint(hdc,20,2+lvls_y+16*(level_chosen%max_lvl_rows),"*",LTGREEN);
-      GrPrint(hdc,30,main_menu_y+10+16*16,"'1': Create New Level.",WHITE);
-      GrPrint(hdc,30,main_menu_y+10+16*17,"'2': Change Selected Level Limits.",WHITE);
-      GrPrint(hdc,30,main_menu_y+10+16*18,"'3': Build Selected Level.",WHITE);
-      GrPrint(hdc,30,main_menu_y+10+16*19,"[SHIFT]+[BACKSPACE]: Delete Map.",WHITE);
-      GrPrint(hdc,30,main_menu_y+10+16*21,"[SHIFT_ESC]: Back.",WHITE);
+      GrPrintThick(hdc,20,2+lvls_y+16*(level_chosen%max_lvl_rows),"*",LTGREEN,d);
+      GrPrintThick(hdc,30,main_menu_y+10+16*16,"'1': Create New Level.",WHITE,d);
+      GrPrintThick(hdc,30,main_menu_y+10+16*17,"'2': Change Selected Level Limits.",WHITE,d);
+      GrPrintThick(hdc,30,main_menu_y+10+16*18,"'3': Build Selected Level.",WHITE,d);
+      GrPrintThick(hdc,30,main_menu_y+10+16*19,"[SHIFT]+[BACKSPACE]: Delete Map.",WHITE,d);
+      GrPrintThick(hdc,30,main_menu_y+10+16*21,"[SHIFT_ESC]: Back.",WHITE,d);
       }
       break;
 
@@ -1602,7 +1600,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
         DrawBitmap(hdc,hdc2,30,main_menu_y+10+16*2,0,0,145,36,mm0_kh_mask[1],SRCAND,FALSE,FALSE);
         DrawBitmap(hdc,hdc2,30,main_menu_y+10+16*2,0,0,145,36,mm0_kh_white[1],SRCPAINT,FALSE,FALSE);
       } else {
-        GrPrint(hdc,30,main_menu_y+10+16*2,"OPTIONS",WHITE); 
+        GrPrintThick(hdc,30,main_menu_y+10+16*2,"OPTIONS",WHITE,d); 
       }
       int c,soptions_y=16*4;
       if (hide_taskbar)
@@ -1617,11 +1615,11 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
       if (is_khmer) {
         DrawMM2Kh(hdc,hdc2,30,mm2y1,87,14,0);
       } else {
-        GrPrint(hdc,30,mm2y2,"Player Color:",c);
+        GrPrintThick(hdc,30,mm2y2,"Player Color:",c,d);
       }
 
 
-      GrPrint(hdc,30+20*8,mm2y2,"[      ]",c);
+      GrPrintThick(hdc,30+20*8,mm2y2,"[      ]",c,d);
       GrRect(hdc,30+8*21,mm2y2,16,16,WHITE);
       if (color_chooser.is_choosing_color && option_choose==0) {
         if (color_chooser.color_id_choosing<256 && color_chooser.color_id_choosing>-1)
@@ -1639,11 +1637,11 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
       if (is_khmer) {
         DrawMM2Kh(hdc,hdc2,30,mm2y1,79,18,1);
       } else {
-        GrPrint(hdc,30,mm2y2,"Iris:",c);
+        GrPrintThick(hdc,30,mm2y2,"Iris:",c,d);
       }
 
 
-      GrPrint(hdc,30+20*8,mm2y2,"[      ]",c);
+      GrPrintThick(hdc,30+20*8,mm2y2,"[      ]",c,d);
       GrRect(hdc,30+8*21,mm2y2,16,16,WHITE);
       if (color_chooser.is_choosing_color && option_choose==1) {
         if (color_chooser.color_id_choosing<256 && color_chooser.color_id_choosing>-1)
@@ -1660,11 +1658,11 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
       if (is_khmer) {
         DrawMM2Kh(hdc,hdc2,30,mm2y1,74,18,2);
       } else {
-        GrPrint(hdc,30,mm2y2,"Pupil:",c);
+        GrPrintThick(hdc,30,mm2y2,"Pupil:",c,d);
       }
 
 
-      GrPrint(hdc,30+20*8,mm2y2,"[      ]",c);
+      GrPrintThick(hdc,30+20*8,mm2y2,"[      ]",c,d);
       GrRect(hdc,30+8*21,mm2y2,16,16,WHITE);
       if (color_chooser.is_choosing_color && option_choose==2) {
         if (color_chooser.color_id_choosing<256 && color_chooser.color_id_choosing>-1)
@@ -1687,7 +1685,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
       if (is_khmer) {
         DrawMM2Kh(hdc,hdc2,30,mm2y1,52,18,3);
       } else {
-        GrPrint(hdc,30,mm2y2,"Camera Shake:",c);
+        GrPrintThick(hdc,30,mm2y2,"Camera Shake:",c,d);
       }
 
 
@@ -1699,9 +1697,9 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
         }        
       } else {
         if (game_cam_shake) {
-          GrPrint(hdc,30+20*8,mm2y2,"<ON>",c);
+          GrPrintThick(hdc,30+20*8,mm2y2,"<ON>",c,d);
         } else {
-          GrPrint(hdc,30+20*8,mm2y2,"<OFF>",c);
+          GrPrintThick(hdc,30+20*8,mm2y2,"<OFF>",c,d);
         }
       }
 
@@ -1713,7 +1711,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
       if (is_khmer) {
         DrawMM2Kh(hdc,hdc2,30,mm2y1,38,18,4);
       } else {
-        GrPrint(hdc,30,10+soptions_y+16*4,"Audio:",c);
+        GrPrintThick(hdc,30,10+soptions_y+16*4,"Audio:",c,d);
       }
 
 
@@ -1725,9 +1723,9 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
         }        
       } else {
         if (game_audio) {
-          GrPrint(hdc,30+20*8,10+soptions_y+16*4,"<ON>",c);
+          GrPrintThick(hdc,30+20*8,10+soptions_y+16*4,"<ON>",c,d);
         } else {
-          GrPrint(hdc,30+20*8,10+soptions_y+16*4,"<OFF>",c);
+          GrPrintThick(hdc,30+20*8,10+soptions_y+16*4,"<OFF>",c,d);
         }
       }
 
@@ -1736,17 +1734,17 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
       if (is_khmer) {
         DrawMM2Kh(hdc,hdc2,30,10+soptions_y+16*5-2,101,18,5);
       } else {
-        GrPrint(hdc,30,10+soptions_y+16*5,"Sound Effects Volume:",c);
+        GrPrintThick(hdc,30,10+soptions_y+16*5,"Sound Effects Volume:",c,d);
       }
       if (is_khmer) {
         wchar_t wprint_volume[8];
         swprintf(wprint_volume,8,L"<%1.0f%>",game_volume*100);
         ReplaceToKhmerNum(wprint_volume);
-        GrPrintW(hdc,30+20*8,10+soptions_y+16*5-4,wprint_volume,"",c,16,FALSE,yes_unifont);
+        GrPrintWThick(hdc,30+20*8,10+soptions_y+16*5-4,wprint_volume,"",c,d,16,FALSE,yes_unifont);
       } else {
         char print_volume[8];
         sprintf(print_volume,"<%1.0f%>",game_volume*100);
-        GrPrint(hdc,30+20*8,10+soptions_y+16*5,print_volume,c);
+        GrPrintThick(hdc,30+20*8,10+soptions_y+16*5,print_volume,c,d);
       }
 
 
@@ -1754,11 +1752,11 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
       if (is_khmer) {
         DrawMM2Kh(hdc,hdc2,30,10+soptions_y+16*6-2,101,18,6);
       } else {
-        GrPrint(hdc,30,10+soptions_y+16*6,"Raw Wav Volume:",c);
+        GrPrint-(hdc,30,10+soptions_y+16*6,"Raw Wav Volume:",c);
       }
       char print_wav_out_volume[7];
       sprintf(print_wav_out_volume,"<%1.0f%%>",wav_out_volume*100);
-      GrPrint(hdc,30+20*8,10+soptions_y+16*6,print_wav_out_volume,c);*/
+      GrPrint-(hdc,30+20*8,10+soptions_y+16*6,print_wav_out_volume,c);*/
 
 
 
@@ -1767,7 +1765,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
       if (is_khmer) {
         DrawMM2Kh(hdc,hdc2,30,10+soptions_y+16*7-2,43,19,7);
       } else {
-        GrPrint(hdc,30,10+soptions_y+16*7,"Unifont:",c);
+        GrPrintThick(hdc,30,10+soptions_y+16*7,"Unifont:",c,d);
       }
       if (is_khmer) {
         if (yes_unifont) {
@@ -1777,9 +1775,9 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
         }        
       } else {
         if (yes_unifont) {
-          GrPrint(hdc,30+20*8,10+soptions_y+16*7,"<ON>",c);
+          GrPrintThick(hdc,30+20*8,10+soptions_y+16*7,"<ON>",c,d);
         } else {
-          GrPrint(hdc,30+20*8,10+soptions_y+16*7,"<OFF>",c);
+          GrPrintThick(hdc,30+20*8,10+soptions_y+16*7,"<OFF>",c,d);
         }
       }
 
@@ -1787,7 +1785,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
       if (is_khmer) {
         DrawMM2Kh(hdc,hdc2,30,10+soptions_y+16*8+1,49,14,8);
       } else {
-        GrPrint(hdc,30,10+soptions_y+16*8,"Shadows:",c);
+        GrPrintThick(hdc,30,10+soptions_y+16*8,"Shadows:",c,d);
       }
       if (is_khmer) {
         if (game_shadow) {
@@ -1797,9 +1795,9 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
         }        
       } else {
         if (game_shadow) {
-          GrPrint(hdc,30+20*8,10+soptions_y+16*8,"<ON>",c);
+          GrPrintThick(hdc,30+20*8,10+soptions_y+16*8,"<ON>",c,d);
         } else {
-          GrPrint(hdc,30+20*8,10+soptions_y+16*8,"<OFF>",c);
+          GrPrintThick(hdc,30+20*8,10+soptions_y+16*8,"<OFF>",c,d);
         }
       }
 
@@ -1810,7 +1808,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
       if (is_khmer) {
         DrawMM2Kh(hdc,hdc2,30,10+soptions_y+16*9-2,48,20,9);
       } else {
-        GrPrint(hdc,30,10+soptions_y+16*9,"Window Borders:",c);
+        GrPrintThick(hdc,30,10+soptions_y+16*9,"Window Borders:",c,d);
       }
       if (is_khmer) {
         if (!hide_taskbar) {
@@ -1820,9 +1818,9 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
         }        
       } else {
         if (!hide_taskbar) {
-          GrPrint(hdc,30+20*8,10+soptions_y+16*9,"<ON>",c);
+          GrPrintThick(hdc,30+20*8,10+soptions_y+16*9,"<ON>",c,d);
         } else {
-          GrPrint(hdc,30+20*8,10+soptions_y+16*9,"<OFF>",c);
+          GrPrintThick(hdc,30+20*8,10+soptions_y+16*9,"<OFF>",c,d);
         }
       }
 
@@ -1831,18 +1829,18 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
       if (is_khmer) {
         DrawMM2Kh(hdc,hdc2,30,10+soptions_y+16*10-2,62,22,10);
       } else {
-        GrPrint(hdc,30,10+soptions_y+16*10,"Resolution:",c);
+        GrPrintThick(hdc,30,10+soptions_y+16*10,"Resolution:",c,d);
       }
       
       if (is_khmer) {
         wchar_t wprintres[32];
         swprintf(wprintres,32,L"<%dx%d> [%ls]",RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],WRESOLUTION_NAME[resolution_choose]);
         ReplaceToKhmerNum(wprintres);
-        GrPrintW(hdc,30+20*8,10+soptions_y+16*10-4,wprintres,"",c,16,FALSE,yes_unifont);
+        GrPrintWThick(hdc,30+20*8,10+soptions_y+16*10-4,wprintres,"",c,d,16,FALSE,yes_unifont);
       } else {
         char printres[32];
         sprintf(printres,"<%dx%d> [%s]",RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],RESOLUTION_NAME[resolution_choose]);
-        GrPrint(hdc,30+20*8,10+soptions_y+16*10,printres,c);
+        GrPrintThick(hdc,30+20*8,10+soptions_y+16*10,printres,c,d);
       }
 
 
@@ -1851,12 +1849,12 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
       if (is_khmer) {
         DrawMM2Kh(hdc,hdc2,30,10+soptions_y+16*11-2,66,22,11);
       } else {
-        GrPrint(hdc,30,10+soptions_y+16*11,"Window Align Position:",c);
+        GrPrintThick(hdc,30,10+soptions_y+16*11,"Window Align Position:",c,d);
       }
       if (is_khmer) {
         DrawKhCornMid(hdc,hdc2,30+20*8,10+soptions_y+16*11-2,(option_choose==11));
       } else {
-        GrPrint(hdc,30+20*8,10+soptions_y+16*11,"<Corner || Middle>",c);
+        GrPrintThick(hdc,30+20*8,10+soptions_y+16*11,"<Corner || Middle>",c,d);
       }
 
 
@@ -1865,7 +1863,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
       if (is_khmer) {
         DrawMM2Kh(hdc,hdc2,30,10+soptions_y+16*12-2,141,22,12);
       } else {
-        GrPrint(hdc,30,10+soptions_y+16*12,"Show FPS:",c);
+        GrPrintThick(hdc,30,10+soptions_y+16*12,"Show FPS:",c,d);
       }
       if (is_khmer) {
         if (show_fps) {
@@ -1875,9 +1873,9 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
         }        
       } else {
         if (show_fps) {
-          GrPrint(hdc,30+20*8,10+soptions_y+16*12,"<ON>",c);
+          GrPrintThick(hdc,30+20*8,10+soptions_y+16*12,"<ON>",c,d);
         } else {
-          GrPrint(hdc,30+20*8,10+soptions_y+16*12,"<OFF>",c);
+          GrPrintThick(hdc,30+20*8,10+soptions_y+16*12,"<OFF>",c,d);
         }
       }
 
@@ -1886,7 +1884,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
       if (is_khmer) {
         DrawMM2Kh(hdc,hdc2,30,10+soptions_y+16*13-2,52,18,13);
       } else {
-        GrPrint(hdc,30,10+soptions_y+16*13,"Show Hijiri:",c);
+        GrPrintThick(hdc,30,10+soptions_y+16*13,"Show Hijiri:",c,d);
       }
       if (is_khmer) {
         if (show_hijiri) {
@@ -1896,9 +1894,9 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
         }        
       } else {
         if (show_hijiri) {
-          GrPrint(hdc,30+20*8,10+soptions_y+16*13,"<ON>",c);
+          GrPrintThick(hdc,30+20*8,10+soptions_y+16*13,"<ON>",c,d);
         } else {
-          GrPrint(hdc,30+20*8,10+soptions_y+16*13,"<OFF>",c);
+          GrPrintThick(hdc,30+20*8,10+soptions_y+16*13,"<OFF>",c,d);
         }
       }
 
@@ -1912,7 +1910,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
       if (is_khmer) {
         DrawMM2Kh(hdc,hdc2,30,10+soptions_y+16*14-2,129,22,14);
       } else {
-        GrPrint(hdc,30,10+soptions_y+16*14,"Difficulty:",c);
+        GrPrintThick(hdc,30,10+soptions_y+16*14,"Difficulty:",c,d);
       }
 
       if (is_khmer) {
@@ -1923,9 +1921,9 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
         }
       } else {
         if (game_hard) {
-          GrPrint(hdc,30+20*8,10+soptions_y+16*14,"<HARD>",c);
+          GrPrintThick(hdc,30+20*8,10+soptions_y+16*14,"<HARD>",c,d);
         } else {
-          GrPrint(hdc,30+20*8,10+soptions_y+16*14,"<NORMAL>",c);
+          GrPrintThick(hdc,30+20*8,10+soptions_y+16*14,"<NORMAL>",c,d);
         }
       }
 
@@ -1936,7 +1934,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
       if (is_khmer) {
         DrawMM2Kh(hdc,hdc2,30,10+soptions_y+16*15,34,11,15);
       } else {
-        GrPrint(hdc,30,10+soptions_y+16*15,"Free Will:",c);
+        GrPrintThick(hdc,30,10+soptions_y+16*15,"Randomness:",c,d);
       }
 
       if (is_khmer) {
@@ -1947,9 +1945,9 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
         }        
       } else {
         if (free_will) {
-          GrPrint(hdc,30+20*8,10+soptions_y+16*15,"<ON>",c);
+          GrPrintThick(hdc,30+20*8,10+soptions_y+16*15,"<HIGH>",c,d);
         } else {
-          GrPrint(hdc,30+20*8,10+soptions_y+16*15,"<OFF>",c);
+          GrPrintThick(hdc,30+20*8,10+soptions_y+16*15,"<FIXED>",c,d);
         }
       }
 
@@ -1963,24 +1961,24 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
       //} else if (option_choose>3) {
         //add_option_choose=16;
       //}
-      GrPrint(hdc,20,10+soptions_y+16*option_choose/*+add_option_choose*/,"*",LTGREEN);
+      GrPrintThick(hdc,20,10+soptions_y+16*option_choose/*+add_option_choose*/,"*",LTGREEN,d);
 
 
       if (is_khmer) {
         if (hide_taskbar) {
-          GrPrint(hdc,30,main_menu_y+10+16*21+8,"[SHIFT_ESC]:",WHITE);
+          GrPrintThick(hdc,30,main_menu_y+10+16*21+8,"[SHIFT_ESC]:",WHITE,d);
           DrawBitmap(hdc,hdc2,30+8*13,main_menu_y+10+16*21+8,0,0,47,19,kh_goback_mask,SRCAND,FALSE,FALSE);
           DrawBitmap(hdc,hdc2,30+8*13,main_menu_y+10+16*21+8,0,0,47,19,kh_goback,SRCPAINT,FALSE,FALSE);
         } else {
-          GrPrint(hdc,30,main_menu_y+10+16*20+8,"[SHIFT_ESC]:",WHITE);
+          GrPrintThick(hdc,30,main_menu_y+10+16*20+8,"[SHIFT_ESC]:",WHITE,d);
           DrawBitmap(hdc,hdc2,30+8*13,main_menu_y+10+16*20+8,0,0,47,19,kh_goback_mask,SRCAND,FALSE,FALSE);
           DrawBitmap(hdc,hdc2,30+8*13,main_menu_y+10+16*20+8,0,0,47,19,kh_goback,SRCPAINT,FALSE,FALSE);
         }
       } else {
         if (hide_taskbar)
-          GrPrint(hdc,30,main_menu_y+10+16*21+8,"[SHIFT_ESC]: Back.",WHITE);
+          GrPrintThick(hdc,30,main_menu_y+10+16*21+8,"[SHIFT_ESC]: Back.",WHITE,d);
         else
-          GrPrint(hdc,30,main_menu_y+10+16*20+8,"[SHIFT_ESC]: Back.",WHITE);
+          GrPrintThick(hdc,30,main_menu_y+10+16*20+8,"[SHIFT_ESC]: Back.",WHITE,d);
       }
 
       break;
@@ -1993,7 +1991,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
     case 3:
        GrRect(hdc,0,0,GR_WIDTH+1,GR_HEIGHT+1,BLACK);
       if (main_menu_chosen==2)
-        GrPrint(hdc,30,main_menu_y+10+16*2,"Create New Level",WHITE);
+        GrPrintThick(hdc,30,main_menu_y+10+16*2,"Create New Level",WHITE,d);
       else
         GrPrint(hdc,30,main_menu_y+10+16*2,"Edit Level Limits",WHITE);
      // GrPrintW(hdc,30,main_menu_y+10+16*5,L"[SHIFT] + 'L': Unifont [ពេលរាត្រី]","",WHITE,16,FALSE,yes_unifont);
@@ -2130,9 +2128,9 @@ void DrawUI(HDC hdc,HDC hdc2)
   //GrPrint(hdc,8,100,leprinttest,LTBLUE);
 
 
-  int c = WHITE;//Highlight(IsInvertedBackground(),WHITE,BLACK);
-  int c4 = BLACK;//Highlight(IsInvertedBackground(),BLACK,WHITE);
-
+  int c = WHITE;
+  int c4 = BLACK;
+  int d = Highlight(game_hard,LTRED,BLUE);
 
   int help_y=GR_HEIGHT-128;
   if (!hide_taskbar) { //task bar is shown
@@ -2399,7 +2397,7 @@ void DrawUI(HDC hdc,HDC hdc2)
         swprintf(txt,16,L"%d",print_health);
         int sprite_x_health=(int)player.sprite_x-wcslen(txt)*12/2;
         ReplaceToKhmerNum(txt);
-        GrPrintW(hdc,sprite_x_health,player.sprite_y-48,txt,"",c,16,FALSE,yes_unifont);
+        GrPrintWThick(hdc,sprite_x_health,player.sprite_y-48,txt,"",c,d,16,FALSE,yes_unifont);
       } else {
         char txt[16];
         sprintf(txt,"%d",print_health);
@@ -2545,11 +2543,11 @@ void DrawUI(HDC hdc,HDC hdc2)
   if (is_khmer) {
     ReplaceToKhmerNum(bulletlefttxt2);
     ReplaceToKhmerNum(bulletlefttxt);
-    GrPrintW(hdc,knifethrowstxtx-32-30-8,knifethrowstxty-4-loffset,bulletlefttxt2,"",bc2,16,FALSE,yes_unifont);
-    GrPrintW(hdc,knifethrowstxtx-32-30-8,knifethrowstxty-4-loffset,bulletlefttxt,"",bc,16,FALSE,yes_unifont);
+    GrPrintWThick(hdc,knifethrowstxtx-32-30-8,knifethrowstxty-4-loffset,bulletlefttxt2,"",bc2,d,16,FALSE,yes_unifont);
+    GrPrintWThick(hdc,knifethrowstxtx-32-30-8,knifethrowstxty-4-loffset,bulletlefttxt,"",bc,d,16,FALSE,yes_unifont);
   } else {
-    GrPrintW(hdc,knifethrowstxtx-32-8,knifethrowstxty-4-loffset,bulletlefttxt2,"",bc2,16,FALSE,yes_unifont);
-    GrPrintW(hdc,knifethrowstxtx-32-8,knifethrowstxty-4-loffset,bulletlefttxt,"",bc,16,FALSE,yes_unifont);
+    GrPrintWThick(hdc,knifethrowstxtx-32-8,knifethrowstxty-4-loffset,bulletlefttxt2,"",bc2,d,16,FALSE,yes_unifont);
+    GrPrintWThick(hdc,knifethrowstxtx-32-8,knifethrowstxty-4-loffset,bulletlefttxt,"",bc,d,16,FALSE,yes_unifont);
   }
 
   /*if (player.show_exp_timer>0) {
@@ -2622,27 +2620,27 @@ void DrawUI(HDC hdc,HDC hdc2)
     }
   }
 
-
+  int d=Highlight(game_hard,LTRED,BLUE);
   //======= Draw controls are on ========
   if (player.uppercut)
-    GrPrint(hdc,mouse_x-16,mouse_y-48,"E",LTGREEN);
+    GrPrintThick(hdc,mouse_x-16,mouse_y-48,"E",LTGREEN,d);
   else
-    GrPrint(hdc,mouse_x-16,mouse_y-48,"E",LTRED);
+    GrPrintThick(hdc,mouse_x-16,mouse_y-48,"E",LTRED,d);
 
   if (player.low_jump)
-    GrPrint(hdc,mouse_x-32,mouse_y-48,"3",LTGREEN);
+    GrPrintThick(hdc,mouse_x-32,mouse_y-48,"3",LTGREEN,d);
   else
-    GrPrint(hdc,mouse_x-32,mouse_y-48,"3",LTRED);
+    GrPrintThick(hdc,mouse_x-32,mouse_y-48,"3",LTRED,d);
 
   if (player.block_timer>0) {
     if (player.block_timer<=23) {
-      //GrPrint(hdc,mouse_x+20,mouse_y-48,"{__}",WHITE);
-      GrPrint(hdc,mouse_x+17,mouse_y-48,"S",LTGREEN);
+      //GrPrintThick(hdc,mouse_x+20,mouse_y-48,"{__}",WHITE);
+      GrPrintThick(hdc,mouse_x+17,mouse_y-48,"S",LTGREEN,d);
     } else {
-      GrPrint(hdc,mouse_x+17,mouse_y-48,"S",CYAN);
+      GrPrintThick(hdc,mouse_x+17,mouse_y-48,"S",CYAN,d);
     }
   } else {
-    GrPrint(hdc,mouse_x+17,mouse_y-48,"S",LTRED);
+    GrPrintThick(hdc,mouse_x+17,mouse_y-48,"S",LTRED,d);
   }
 
   if ((!game_hard) ||
@@ -2650,21 +2648,21 @@ void DrawUI(HDC hdc,HDC hdc2)
     )
   {
     if (IsSpeedBreaking())
-      GrPrint(hdc,mouse_x+48,mouse_y-48,"C",LTGREEN);
+      GrPrintThick(hdc,mouse_x+48,mouse_y-48,"C",LTGREEN,d);
     else
-      GrPrint(hdc,mouse_x+48,mouse_y-48,"C",LTRED);
+      GrPrintThick(hdc,mouse_x+48,mouse_y-48,"C",LTRED,d);
   }
 
   if (player.time_breaker_units==player.time_breaker_units_max && !player.time_breaker) {
     if (frame_tick%16<8) {
-      GrPrint(hdc,mouse_x,mouse_y-48,"Z",LTCYAN);
+      GrPrintThick(hdc,mouse_x,mouse_y-48,"Z",LTCYAN,d);
     }
   } else {
-    GrPrint(hdc,mouse_x,mouse_y-48,"Z",LTRED);
+    GrPrintThick(hdc,mouse_x,mouse_y-48,"Z",LTRED,d);
   }
 
   if (player.time_breaker) {
-    GrPrint(hdc,mouse_x,mouse_y-48,"Z",YELLOW);
+    GrPrintThick(hdc,mouse_x,mouse_y-48,"Z",YELLOW,d);
   }
   }
 

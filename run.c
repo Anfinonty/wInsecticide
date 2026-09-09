@@ -1684,11 +1684,51 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
               BitmapPalette(hdcBackbuff,hdcBackbuff2,title_small_sprite[0],rgbColorsRedToBlue);
               BitmapPalette(hdcBackbuff,hdcBackbuff2,title_sprite[1],rgbColorsRedToBlue);
               BitmapPalette(hdcBackbuff,hdcBackbuff2,title_small_sprite[1],rgbColorsRedToBlue);
+              for (int w=0;w<16;w++) {
+                BitmapPalette(hdcBackbuff,hdcBackbuff2,mm2_kh_white[w],rgbColorsRedToBlue);
+                BitmapPalette(hdcBackbuff,hdcBackbuff2,mm2_kh_green[w],rgbColorsRedToBlue);
+              }
+              for (int w=0;w<2;w++) {
+                BitmapPalette(hdcBackbuff,hdcBackbuff2,kh_bool_white[w],rgbColorsRedToBlue);
+                BitmapPalette(hdcBackbuff,hdcBackbuff2,kh_bool_green[w],rgbColorsRedToBlue);              
+                BitmapPalette(hdcBackbuff,hdcBackbuff2,kh_difficulty_white[w],rgbColorsRedToBlue);
+                BitmapPalette(hdcBackbuff,hdcBackbuff2,kh_difficulty_green[w],rgbColorsRedToBlue);
+              }
+              for (int w=0;w<2;w++) {
+                BitmapPalette(hdcBackbuff,hdcBackbuff2,mm0_kh_hijri[w],rgbColorsRedToBlue);
+              }
+              for (int w=0;w<4;w++) {
+                BitmapPalette(hdcBackbuff,hdcBackbuff2,mm0_kh_white[w],rgbColorsRedToBlue);                
+                BitmapPalette(hdcBackbuff,hdcBackbuff2,mm0_kh_green[w],rgbColorsRedToBlue);                
+              }
+              BitmapPalette(hdcBackbuff,hdcBackbuff2,kh_cornmid_white,rgbColorsRedToBlue);
+              BitmapPalette(hdcBackbuff,hdcBackbuff2,kh_cornmid_green,rgbColorsRedToBlue);              
+              BitmapPalette(hdcBackbuff,hdcBackbuff2,kh_goback,rgbColorsRedToBlue);             
             } else {
-              BitmapPalette(hdcBackbuff,hdcBackbuff2,title_sprite[0],rgbColorsNoir);
-              BitmapPalette(hdcBackbuff,hdcBackbuff2,title_small_sprite[0],rgbColorsNoir);
-              BitmapPalette(hdcBackbuff,hdcBackbuff2,title_sprite[1],rgbColorsNoir);
-              BitmapPalette(hdcBackbuff,hdcBackbuff2,title_small_sprite[1],rgbColorsNoir);
+              BitmapPalette(hdcBackbuff,hdcBackbuff2,title_sprite[0],rgbColorsDefault);
+              BitmapPalette(hdcBackbuff,hdcBackbuff2,title_small_sprite[0],rgbColorsDefault);
+              BitmapPalette(hdcBackbuff,hdcBackbuff2,title_sprite[1],rgbColorsDefault);
+              BitmapPalette(hdcBackbuff,hdcBackbuff2,title_small_sprite[1],rgbColorsDefault);
+              for (int w=0;w<16;w++) {
+                BitmapPalette(hdcBackbuff,hdcBackbuff2,mm2_kh_white[w],rgbColorsDefault);
+                BitmapPalette(hdcBackbuff,hdcBackbuff2,mm2_kh_green[w],rgbColorsDefault);
+              }
+              for (int w=0;w<2;w++) {
+                BitmapPalette(hdcBackbuff,hdcBackbuff2,kh_bool_white[w],rgbColorsDefault);
+                BitmapPalette(hdcBackbuff,hdcBackbuff2,kh_bool_green[w],rgbColorsDefault);              
+                BitmapPalette(hdcBackbuff,hdcBackbuff2,kh_difficulty_white[w],rgbColorsDefault);
+                BitmapPalette(hdcBackbuff,hdcBackbuff2,kh_difficulty_green[w],rgbColorsDefault);              
+              }
+              for (int w=0;w<2;w++) {
+                BitmapPalette(hdcBackbuff,hdcBackbuff2,mm0_kh_hijri[w],rgbColorsDefault);
+              }
+              for (int w=0;w<4;w++) {
+                BitmapPalette(hdcBackbuff,hdcBackbuff2,mm0_kh_white[w],rgbColorsDefault);                
+                BitmapPalette(hdcBackbuff,hdcBackbuff2,mm0_kh_green[w],rgbColorsDefault);                
+              }
+              BitmapPalette(hdcBackbuff,hdcBackbuff2,kh_cornmid_white,rgbColorsDefault);
+              BitmapPalette(hdcBackbuff,hdcBackbuff2,kh_cornmid_green,rgbColorsDefault);              
+              BitmapPalette(hdcBackbuff,hdcBackbuff2,kh_goback,rgbColorsDefault);
             }
           }
 
@@ -2104,7 +2144,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
 
 
-      CopyReplaceColorPalette(rgbColorsRedToBlue,rgbColorsDefault,199,LTBLUE);
+      CopyReplaceColorPalette(rgbColorsRedToBlue,rgbColorsDefault,199,BLUE);
 
 
       small_entity_canvas=CreateCrunchyBitmap(64,-64);
@@ -2671,7 +2711,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
      for (int i=0;i<9;i++) {
         wchar_t fname[48];
         swprintf(fname,48,L"sprites/textures/water_texture%d.bmp",i);
-         texture_water[i]=(HBITMAP) LoadImageW(NULL, fname, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION); //loaded to system screne bits accordingly 16-bit/32-bit
+        texture_water[i]=(HBITMAP) LoadImageW(NULL, fname, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION); //loaded to system screne bits accordingly 16-bit/32-bit
       }
 
       //Load mouse cursor sprite
@@ -2685,8 +2725,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       /*for (int i=0;i<5;i++) {
         wchar_t fname[32];
         swprintf(fname,32,L"sprites/player_cursorbee%d.bmp",i);
-        player_cursorbee[i]=LoadRLE8CompressedBitmap(fname);
-            //LoadImageW(NULL,fname,IMAGE_BITMAP,0,0,LR_LOADFROMFILE);
+        player_cursorbee[i]=LoadRLE8CompressedBitmap(fname);           
         player_cursorbee_cache[i]=CopyCrunchyBitmap(player_cursorbee[i],SRCCOPY);
         ReplaceBitmapColor2(player_cursorbee_cache[i],LTGREEN,BLACK,8,LTGREEN);
         GenerateDrawSprite(&draw_player_cursorbee[i],player_cursorbee_cache[i]);
