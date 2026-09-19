@@ -2171,13 +2171,13 @@ void DrawUI(HDC hdc,HDC hdc2)
         c_kh2=LTBLUE;
       }
     //Draw Best Score
-        if (!game_hard) {
-          DrawBitmap(hdc,hdc2,16+8,1+8+16+digit_num4,0,0,65,19,ga0_kh_mask[0],SRCAND,FALSE,FALSE);
-          DrawBitmap(hdc,hdc2,16+8,1+8+16+digit_num4,0,0,65,19,ga0_kh[0],SRCPAINT,FALSE,FALSE);
-        } else {
-          DrawBitmap(hdc,hdc2,16+8,1+8+16+digit_num4,0,0,65,19,ga0_khhard_mask[0],SRCAND,FALSE,FALSE);
-          DrawBitmap(hdc,hdc2,16+8,1+8+16+digit_num4,0,0,65,19,ga0_khhard[0],SRCPAINT,FALSE,FALSE);
-        }
+      if (!game_hard) {
+        DrawBitmap(hdc,hdc2,16+4,1+6+16+digit_num4,0,0,52,28,ga0_kh_mask[0],SRCAND,FALSE,FALSE);
+        DrawBitmap(hdc,hdc2,16+4,1+6+16+digit_num4,0,0,52,28,ga0_kh[0],SRCPAINT,FALSE,FALSE);
+      } else {
+        DrawBitmap(hdc,hdc2,16+4,1+6+16+digit_num4,0,0,52,28,ga0_khhard_mask[0],SRCAND,FALSE,FALSE);
+        DrawBitmap(hdc,hdc2,16+4,1+6+16+digit_num4,0,0,52,28,ga0_khhard[0],SRCPAINT,FALSE,FALSE);
+      }
 
       if (best_time<2147483.645) {
         swprintf(wgamebesttimetxt,32,L"%5.3f",best_time);
@@ -2190,12 +2190,12 @@ void DrawUI(HDC hdc,HDC hdc2)
 
     //Draw Current Time/Congrats
       if (!game_over) {
-        if (!game_hard) {
-          DrawBitmap(hdc,hdc2,GR_WIDTH-69-32,8+16+4+digit_num4,0,0,69,16,ga0_kh_mask[1],SRCAND,FALSE,FALSE);
-          DrawBitmap(hdc,hdc2,GR_WIDTH-69-32,8+16+4+digit_num4,0,0,69,16,ga0_kh[1],SRCPAINT,FALSE,FALSE);
+        if (!game_hard) { //draw time
+          DrawBitmap(hdc,hdc2,GR_WIDTH-28-32,8+16+2+digit_num4,0,0,28,20,ga0_kh_mask[1],SRCAND,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,GR_WIDTH-28-32,8+16+2+digit_num4,0,0,28,20,ga0_kh[1],SRCPAINT,FALSE,FALSE);
         } else {
-          DrawBitmap(hdc,hdc2,GR_WIDTH-69-32,8+16+4+digit_num4,0,0,69,16,ga0_khhard_mask[1],SRCAND,FALSE,FALSE);
-          DrawBitmap(hdc,hdc2,GR_WIDTH-69-32,8+16+4+digit_num4,0,0,69,16,ga0_khhard[1],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,GR_WIDTH-28-32,8+16+2+digit_num4,0,0,28,20,ga0_khhard_mask[1],SRCAND,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,GR_WIDTH-28-32,8+16+2+digit_num4,0,0,28,20,ga0_khhard[1],SRCPAINT,FALSE,FALSE);
         }
 
         swprintf(wgametimetxt,32,L"%5.3f",print_time_ms);
@@ -2204,27 +2204,27 @@ void DrawUI(HDC hdc,HDC hdc2)
         GrPrintWThick(hdc,digit_num-4,24+8+16+digit_num4,wgametimetxt,"",c_kh2,c_kh1,16,FALSE,yes_unifont);
 
       } else { //game is over
-        if (game_timer<int_best_score) { //New Score :D
-          DrawBitmap(hdc,hdc2,GR_WIDTH-106-32,8+16+digit_num4,0,0,123,37,ga0_kh_mask[2],SRCAND,FALSE,FALSE);
-          DrawBitmap(hdc,hdc2,GR_WIDTH-106-32,8+16+digit_num4,0,0,123,37,ga0_kh[2],SRCPAINT,FALSE,FALSE);
+        if (game_timer<int_best_score) { //New Score :D , same for normal and hard
+          DrawBitmap(hdc,hdc2,GR_WIDTH-72-32,8+16+digit_num4,0,0,72,44,ga0_kh_mask[2],SRCAND,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,GR_WIDTH-72-32,8+16+digit_num4,0,0,72,44,ga0_kh[2],SRCPAINT,FALSE,FALSE);
 
 
           swprintf(wgametimetxt,32,L"%5.3f",print_time_ms);
           digit_num=GR_WIDTH-wcslen(wgametimetxt)*12-16-24;
-          ReplaceToKhmerNum(wgamebesttimetxt);
+          ReplaceToKhmerNum(wgametimetxt);
           GrPrintWThick(hdc,digit_num-4,16+24+8+16+digit_num4,wgametimetxt,"",LTPURPLE,PURPLE,16,FALSE,yes_unifont);
         } else {
           if (!game_hard) {
-            DrawBitmap(hdc,hdc2,GR_WIDTH-69-32,8+16+4+digit_num4,0,0,69,16,ga0_kh_mask[1],SRCAND,FALSE,FALSE);
-            DrawBitmap(hdc,hdc2,GR_WIDTH-69-32,8+16+4+digit_num4,0,0,69,16,ga0_kh[1],SRCPAINT,FALSE,FALSE);
+            DrawBitmap(hdc,hdc2,GR_WIDTH-28-32,8+16+2+digit_num4,0,0,28,20,ga0_kh_mask[1],SRCAND,FALSE,FALSE);
+            DrawBitmap(hdc,hdc2,GR_WIDTH-28-32,8+16+2+digit_num4,0,0,28,20,ga0_kh[1],SRCPAINT,FALSE,FALSE);
           } else {
-            DrawBitmap(hdc,hdc2,GR_WIDTH-69-32,8+16+4+digit_num4,0,0,69,16,ga0_khhard_mask[1],SRCAND,FALSE,FALSE);
-            DrawBitmap(hdc,hdc2,GR_WIDTH-69-32,8+16+4+digit_num4,0,0,69,16,ga0_khhard[1],SRCPAINT,FALSE,FALSE);
+            DrawBitmap(hdc,hdc2,GR_WIDTH-28-32,8+16+2+digit_num4,0,0,28,20,ga0_khhard_mask[1],SRCAND,FALSE,FALSE);
+            DrawBitmap(hdc,hdc2,GR_WIDTH-28-32,8+16+2+digit_num4,0,0,28,20,ga0_khhard[1],SRCPAINT,FALSE,FALSE);
           }
 
           swprintf(wgametimetxt,32,L"%5.3f",print_time_ms);
           digit_num=GR_WIDTH-wcslen(wgametimetxt)*12-16-24;
-          ReplaceToKhmerNum(wgamebesttimetxt);
+          ReplaceToKhmerNum(wgametimetxt);
           GrPrintWThick(hdc,digit_num-4,24+8+16+digit_num4,wgametimetxt,"",c_kh2,c_kh1,16,FALSE,yes_unifont);
         }
       }
@@ -2232,13 +2232,13 @@ void DrawUI(HDC hdc,HDC hdc2)
 
     //Draw Enemy Num/game Over
       if (printenemykills>0) {
-        digit_num1=GR_WIDTH/2-133/2+4;//-(12*8)/2+4+4;
+        digit_num1=GR_WIDTH/2-136/2+4;//-(12*8)/2+4+4;
         if (!game_hard) {
-          DrawBitmap(hdc,hdc2,digit_num1,16+10+digit_num4-4,0,0,133,26,ga0_kh_mask[3],SRCAND,FALSE,FALSE);
-          DrawBitmap(hdc,hdc2,digit_num1,16+10+digit_num4-4,0,0,133,26,ga0_kh[3],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,digit_num1,16+10+digit_num4-4,0,0,136,28,ga0_kh_mask[3],SRCAND,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,digit_num1,16+10+digit_num4-4,0,0,136,28,ga0_kh[3],SRCPAINT,FALSE,FALSE);
         } else {
-          DrawBitmap(hdc,hdc2,digit_num1,16+10+digit_num4-4,0,0,133,26,ga0_khhard_mask[2],SRCAND,FALSE,FALSE);
-          DrawBitmap(hdc,hdc2,digit_num1,16+10+digit_num4-4,0,0,133,26,ga0_khhard[2],SRCPAINT,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,digit_num1,16+10+digit_num4-4,0,0,136,26,ga0_khhard_mask[2],SRCAND,FALSE,FALSE);
+          DrawBitmap(hdc,hdc2,digit_num1,16+10+digit_num4-4,0,0,136,26,ga0_khhard[2],SRCPAINT,FALSE,FALSE);
         }
         //print enemy kills below
         swprintf(wenemykills,10,L"%d",printenemykills);
@@ -2249,11 +2249,11 @@ void DrawUI(HDC hdc,HDC hdc2)
         digit_num3=-32;//16;
         if (frame_tick<FPS/2) {
           if (!game_hard) {
-            DrawBitmap(hdc,hdc2,GR_WIDTH/2-52/2+4,16+10+32+digit_num3+digit_num4,0,0,52,22,ga0_kh_mask[4],SRCAND,FALSE,FALSE);
-            DrawBitmap(hdc,hdc2,GR_WIDTH/2-52/2+4,16+10+32+digit_num3+digit_num4,0,0,52,22,ga0_kh[4],SRCPAINT,FALSE,FALSE);
+            DrawBitmap(hdc,hdc2,GR_WIDTH/2-56/2+4,16+10+32+digit_num3+digit_num4,0,0,56,24,ga0_kh_mask[4],SRCAND,FALSE,FALSE);
+            DrawBitmap(hdc,hdc2,GR_WIDTH/2-56/2+4,16+10+32+digit_num3+digit_num4,0,0,56,24,ga0_kh[4],SRCPAINT,FALSE,FALSE);
           } else {
-            DrawBitmap(hdc,hdc2,GR_WIDTH/2-52/2+4,16+10+32+digit_num3+digit_num4,0,0,52,22,ga0_khhard_mask[3],SRCAND,FALSE,FALSE);
-            DrawBitmap(hdc,hdc2,GR_WIDTH/2-52/2+4,16+10+32+digit_num3+digit_num4,0,0,52,22,ga0_khhard[3],SRCPAINT,FALSE,FALSE);
+            DrawBitmap(hdc,hdc2,GR_WIDTH/2-56/2+4,16+10+32+digit_num3+digit_num4,0,0,56,24,ga0_khhard_mask[3],SRCAND,FALSE,FALSE);
+            DrawBitmap(hdc,hdc2,GR_WIDTH/2-56/2+4,16+10+32+digit_num3+digit_num4,0,0,56,24,ga0_khhard[3],SRCPAINT,FALSE,FALSE);
           }
         }
       }

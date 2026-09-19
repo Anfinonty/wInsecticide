@@ -2712,6 +2712,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         wchar_t fname[48];
         swprintf(fname,48,L"sprites/textures/water_texture%d.bmp",i);
         texture_water[i]=(HBITMAP) LoadImageW(NULL, fname, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION); //loaded to system screne bits accordingly 16-bit/32-bit
+        //LIVE Draw textures are faster on 16/32 screenbits instead of 8bit -> 16/32screenbit
       }
 
       //Load mouse cursor sprite
@@ -2871,19 +2872,31 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
       }
 
 
-      for (int i=0;i<4;i++) { //ingame
-        wchar_t ga0khhardtxt[32];
-        swprintf(ga0khhardtxt,32,L"sprites/khmai/kmaigametxth%d.bmp",i);
-        ga0_khhard[i]=(HBITMAP) LoadImageW(NULL, ga0khhardtxt, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
-        ga0_khhard_mask[i]= CreateBitmapMask(ga0_khhard[i],BLACK,NULL);
-      }
-
+      int current_khhard_i=0;
       for (int i=0;i<5;i++) { //ingame
         wchar_t ga0khtxt[32];
         swprintf(ga0khtxt,32,L"sprites/khmai/kmaigametxt%d.bmp",i);
-        ga0_kh[i]=(HBITMAP) LoadImageW(NULL, ga0khtxt, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+        ga0_kh[i]=LoadRLE8CompressedBitmap(ga0khtxt);
+        if (i!=2) {         //except for i==2
+          ga0_khhard[current_khhard_i]=CopyCrunchyBitmap(ga0_kh[i],SRCCOPY);
+
+           //hard mode: ltred->ltcyan
+           ReplaceBitmapColor(ga0_khhard[current_khhard_i],LTRED,LTCYAN);
+           ga0_khhard_mask[current_khhard_i]= CreateBitmapMask(ga0_khhard[current_khhard_i],BLACK,NULL);
+           current_khhard_i++;
+
+           //normal mode: ltred->yellow, ltblue->brown
+           ReplaceBitmapColor(ga0_kh[i],LTRED,YELLOW);
+           ReplaceBitmapColor(ga0_kh[i],LTBLUE,BROWN);
+
+        } else { //at i==2, color swap is different and not copied to khhard
+          //ltred->ltpurple,ltblue->blue
+           ReplaceBitmapColor(ga0_kh[i],LTRED,LTPURPLE);
+           ReplaceBitmapColor(ga0_kh[i],LTBLUE,BLUE);          
+        }
         ga0_kh_mask[i]= CreateBitmapMask(ga0_kh[i],BLACK,NULL);
       }
+
 
       for (int i=0;i<2;i++) {//khmer bool
         wchar_t khbooltxt[32];
