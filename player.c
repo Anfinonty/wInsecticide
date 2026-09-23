@@ -671,12 +671,12 @@ void PlayerActGroundEdgeMovement()
               player.above_ground_edge=TRUE;
               player.below_ground_edge=FALSE;
               if (player.rst_right) { //clockwize
-                move_x(cos(-player.edge_angle+M_PI_2)*0.25);
-                move_y(sin(-player.edge_angle+M_PI_2)*0.25);
+                move_x(cos(-player.edge_angle+M_PI_2)*0.15);
+                move_y(sin(-player.edge_angle+M_PI_2)*0.15);
                 player.last_left=FALSE;
               } else if (player.rst_left) { //anticlockwize
-                move_x(-cos(-player.edge_angle+M_PI_2)*0.25);
-                move_y(-sin(-player.edge_angle+M_PI_2)*0.25);
+                move_x(-cos(-player.edge_angle+M_PI_2)*0.15);
+                move_y(-sin(-player.edge_angle+M_PI_2)*0.15);
                 player.last_left=TRUE;
               }
           } else { //below pivot
@@ -684,12 +684,12 @@ void PlayerActGroundEdgeMovement()
               player.below_ground_edge=TRUE;
               player.below_ground_edge_timer=5;
               if (player.rst_right) { //clockwize
-                move_x(-cos(-player.edge_angle+M_PI_2)*0.25);
-                move_y(sin(-player.edge_angle+M_PI_2)*0.25);
+                move_x(-cos(-player.edge_angle+M_PI_2)*0.15);
+                move_y(sin(-player.edge_angle+M_PI_2)*0.15);
                 player.last_left=TRUE;
               } else if (player.rst_left) { //anticlockwize
-                move_x(cos(-player.edge_angle+M_PI_2)*0.25);
-                move_y(-sin(-player.edge_angle+M_PI_2)*0.25);
+                move_x(cos(-player.edge_angle+M_PI_2)*0.15);
+                move_y(-sin(-player.edge_angle+M_PI_2)*0.15);
                 player.last_left=FALSE;
               }
           }
@@ -707,12 +707,12 @@ void PlayerActGroundEdgeMovement()
               player.above_ground_edge=TRUE;
               player.below_ground_edge=FALSE;
               if (player.rst_right) { //clockwize
-                move_x(cos(-player.edge_angle+M_PI_2)*0.25);
-                move_y(sin(-player.edge_angle+M_PI_2)*0.25);
+                move_x(cos(-player.edge_angle+M_PI_2)*0.15);
+                move_y(sin(-player.edge_angle+M_PI_2)*0.15);
                 player.last_left=FALSE;
               } else if (player.rst_left) { //anticlockwize
-                move_x(-cos(-player.edge_angle+M_PI_2)*0.25);
-                move_y(-sin(-player.edge_angle+M_PI_2)*0.25);
+                move_x(-cos(-player.edge_angle+M_PI_2)*0.15);
+                move_y(-sin(-player.edge_angle+M_PI_2)*0.15);
                 player.last_left=TRUE;
               }
           } else { //below pivot
@@ -720,12 +720,12 @@ void PlayerActGroundEdgeMovement()
               player.below_ground_edge=TRUE;
               player.below_ground_edge_timer=5;
               if (player.rst_right) { //clockwize
-                move_x(-cos(-player.edge_angle+M_PI_2)*0.25);
-                move_y(sin(-player.edge_angle+M_PI_2)*0.25);
+                move_x(-cos(-player.edge_angle+M_PI_2)*0.15);
+                move_y(sin(-player.edge_angle+M_PI_2)*0.15);
                 player.last_left=TRUE;
               } else if (player.rst_left) { //anticlockwize
-                move_x(cos(-player.edge_angle+M_PI_2)*0.25);
-                move_y(-sin(-player.edge_angle+M_PI_2)*0.25);
+                move_x(cos(-player.edge_angle+M_PI_2)*0.15);
+                move_y(-sin(-player.edge_angle+M_PI_2)*0.15);
                 player.last_left=FALSE;
               }
           }

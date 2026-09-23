@@ -679,6 +679,7 @@ typedef struct enemy
   bool is_clockwize; //: for ants, is it the cloockwize type ant
   bool true_dead; //: for cockroach__ is it truly dead in hard mode
   bool draw_falling; //: for cockroach adn toe_biter__ is it falling and forced to be drawn its flying sprite
+  bool going_updown;
 
   //Attacked
   bool knockback_left;
@@ -742,9 +743,7 @@ typedef struct enemy
   //int bullet_opivot_y;
 
  //rotation movement for crawler
-  int mleft_streak;
-  int mright_streak;
-
+  int mfacing_score;
 
  //timers
   int last_seen_timer;
@@ -755,6 +754,8 @@ typedef struct enemy
   int idle_timer;
   int forgor_timer;
   int render_distance_timer;
+
+  int retarget_cooldown;
   //int in_ground_edge_timer;
 
   //suffocate in solid trifills

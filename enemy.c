@@ -61,6 +61,11 @@ void InitEnemyPathfinding(int enemy_id,float target_x,float target_y)
       current_x=Enemy[enemy_id]->x,
       current_y=Enemy[enemy_id]->y;
  //Init enemy fixed
+  if (Enemy[enemy_id]->mfacing_score>0)
+    Enemy[enemy_id]->mfacing_score=40;
+  else
+    Enemy[enemy_id]->mfacing_score=-40;
+
   Enemy[enemy_id]->sprite_timer=0;
   Enemy[enemy_id]->search_timer=0;
   Enemy[enemy_id]->idle_timer=0;
@@ -433,7 +438,7 @@ void EnemySpriteOnGroundId(int enemy_id,int ground_id)
         Enemy[enemy_id]->in_air_timer=0;
         Enemy[enemy_id]->flying_timer=0;
         Enemy[enemy_id]->force_fall=FALSE;
-        if (height_from_ground>-1/*-5*/) {    //species 1 above ground (positive)
+        if (height_from_ground>-3/*-1*//*-5*/) {    //species 1 above ground (positive)
           Enemy[enemy_id]->angle=Ground[ground_id]->angle;
           Enemy[enemy_id]->above_ground=TRUE;
           Enemy[enemy_id]->below_ground=FALSE;
@@ -565,16 +570,46 @@ void EnemyMove(int enemy_id)
   //enemy movement
     if (Enemy[enemy_id]->x<path_node_center_x) { //move right
       Enemy[enemy_id]->x+=Enemy[enemy_id]->speed;
+      //
+      Enemy[enemy_id]->mfacing_score+=1;
+      if (Enemy[enemy_id]->going_updown) {
+        Enemy[enemy_id]->going_updown=FALSE;
+        Enemy[enemy_id]->mfacing_score+=5;        
+      }
     } else { // move left
       Enemy[enemy_id]->x-=Enemy[enemy_id]->speed;  
+     //
+      Enemy[enemy_id]->mfacing_score-=1;
+      if (Enemy[enemy_id]->going_updown) {
+        Enemy[enemy_id]->going_updown=FALSE;
+        Enemy[enemy_id]->mfacing_score-=5;        
+      }
     }
 
     if (Enemy[enemy_id]->y<path_node_center_y) { //move down
       Enemy[enemy_id]->y+=Enemy[enemy_id]->speed;
+      Enemy[enemy_id]->going_updown=TRUE;
     } else { //move up
       //Enemy[enemy_id]->draw_falling=FALSE;
       Enemy[enemy_id]->y-=Enemy[enemy_id]->speed;
+      Enemy[enemy_id]->going_updown=TRUE;
     }
+
+
+
+     if (Enemy[enemy_id]->mfacing_score>300) {
+        Enemy[enemy_id]->mfacing_score=300;
+      } else if (Enemy[enemy_id]->mfacing_score<-300) {
+        Enemy[enemy_id]->mfacing_score=-300;
+      }
+
+      if (Enemy[enemy_id]->mfacing_score>=0) { //right scores more than left
+        Enemy[enemy_id]->flag_last_left=FALSE;
+        Enemy[enemy_id]->flag_last_right=TRUE;
+      } else if (Enemy[enemy_id]->mfacing_score<0) { //left scores more than right
+        Enemy[enemy_id]->flag_last_left=TRUE;
+        Enemy[enemy_id]->flag_last_right=FALSE;
+      }
 
 
   if (path_node_center_y-1<=Enemy[enemy_id]->y && Enemy[enemy_id]->y<=path_node_center_y+1 &&
@@ -599,34 +634,7 @@ void EnemyMove(int enemy_id)
         next_path_node_center_y=EnemyPathfinding[pfi]->node_y[next_path_node_id]+NODE_SIZE/2;
       }
 
-      if (next_path_node_arr_id!=-1) {
-        if (next_path_node_center_x<path_node_center_x) { //next node is left of current
-          Enemy[enemy_id]->mleft_streak++;
-          if (Enemy[enemy_id]->mright_streak>0)
-            Enemy[enemy_id]->mright_streak--;
-        } else if (next_path_node_center_x>path_node_center_x) { //next node is right of current    
-          Enemy[enemy_id]->mright_streak++;
-          if (Enemy[enemy_id]->mleft_streak>0)
-            Enemy[enemy_id]->mleft_streak--;
-        } else { //x is the same, updown
-          if (Enemy[enemy_id]->mleft_streak>0)
-            Enemy[enemy_id]->mleft_streak--;
-          if (Enemy[enemy_id]->mright_streak>0)
-            Enemy[enemy_id]->mright_streak--;
-        }
-      }
 
-      if (Enemy[enemy_id]->mright_streak>1) {
-        Enemy[enemy_id]->mleft_streak=0;
-        Enemy[enemy_id]->mright_streak=0;
-        Enemy[enemy_id]->flag_last_left=FALSE;
-        Enemy[enemy_id]->flag_last_right=TRUE;
-      } else  if (Enemy[enemy_id]->mleft_streak>1) {
-        Enemy[enemy_id]->mleft_streak=0; 
-        Enemy[enemy_id]->mright_streak=0;
-        Enemy[enemy_id]->flag_last_left=TRUE;
-        Enemy[enemy_id]->flag_last_right=FALSE;
-      }
     }
   }
   }
@@ -1473,15 +1481,18 @@ void EnemyAct(int i)
   //cockroach quirk, small chance to revive after presume dead
   /*if (Enemy[i]->species==1 && Enemy[i]->health<=0 && !Enemy[i]->true_dead) {
   }*/
+
+  if (Enemy[i]->flag_last_right) {
+    Enemy[i]->flag_last_right=FALSE;
+    Enemy[i]->flag_last_left=FALSE;
+    Enemy[i]->last_left=FALSE;
+  }
+
   if (Enemy[i]->flag_last_left) {
     Enemy[i]->flag_last_left=FALSE;
     Enemy[i]->last_left=TRUE;
   }
 
-  if (Enemy[i]->flag_last_right) {
-    Enemy[i]->flag_last_right=FALSE;
-    Enemy[i]->last_left=FALSE;
-  }
 
   if (Enemy[i]->flag_flip_sprite) {
     Enemy[i]->flag_flip_sprite=FALSE;
@@ -2536,7 +2547,8 @@ void EnemyAct(int i)
           }*/
               if (!Enemy[i]->idling) {
                 //Re-target if crossing past
-                //if (!Enemy[i]->search_target) { // not actively searching, added in 2026-05-16 due to suspected fps drop (not the cause)
+                if (!Enemy[i]->search_target && Enemy[i]->retarget_cooldown<=0) { // not actively searching, added in 2026-05-16 due to suspected fps drop (not the cause)
+                Enemy[i]->retarget_cooldown=100;
                 if (player.x<Enemy[i]->x) {
                   Enemy[i]->player_at_left=TRUE;
                 } else if (Enemy[i]->x<=player.x) {
@@ -2572,12 +2584,15 @@ void EnemyAct(int i)
                   Enemy[i]->in_unchase_range=FALSE;
                 }
 
-                //}
+                }
               }
             }
           }
         }//end of slash_time
       //other
+        if (Enemy[i]->retarget_cooldown>0)
+          Enemy[i]->retarget_cooldown--;
+
         if (!Enemy[i]->web_stuck) {
           if (Enemy[i]->sprite_timer2>10) {
             if (Enemy[i]->species==0 || Enemy[i]->species==2 || (Enemy[i]->species==4 && (!player.time_breaker || Enemy[i]->time_breaker_immune)) || (Enemy[i]->species>=5 && Enemy[i]->species<=7)) {
@@ -3019,9 +3034,8 @@ void InitEnemy()
         break;
     }
 
-    Enemy[i]->mleft_streak=0;
-    Enemy[i]->mright_streak=0;
     //Enemy[i]->in_ground_edge_timer=0;
+    Enemy[i]->mfacing_score=0;
 
     Enemy[i]->rng_i=
     Enemy[i]->flying_rng_i=
@@ -3105,6 +3119,7 @@ void InitEnemy()
     Enemy[i]->shoot_target_x=0;
     Enemy[i]->shoot_target_y=0;
     Enemy[i]->draw_falling=FALSE;
+    Enemy[i]->going_updown=FALSE;
     Enemy[i]->in_node_grid_id=FALSE;
     Enemy[i]->sprite_in_water=FALSE;
     Enemy[i]->in_water=FALSE;
@@ -3145,6 +3160,7 @@ void InitEnemy()
     Enemy[i]->is_clockwize=FALSE;
     Enemy[i]->play_death_snd=FALSE;
   //init default int 
+    Enemy[i]->retarget_cooldown=0;
     Enemy[i]->last_seen_timer=0;
     Enemy[i]->sprite_timer=0;
     Enemy[i]->sprite_timer2=0;
@@ -3356,6 +3372,12 @@ void DrawEnemy(HDC hdc,HDC hdc2)
     //char etxt[16];
     //sprintf(etxt,"%d",Enemy[i]->suffocate_timer);                
     //GrPrint(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y-64-16,etxt,RED);
+
+    //DEBUG check mleft mright
+//    char etxt[16];
+//    sprintf(etxt,"mfacing:%d",Enemy[i]->mfacing_score);                
+//    GrPrint(hdc,Enemy[i]->sprite_x,Enemy[i]->sprite_y-64-16,etxt,LTPURPLE);
+
 
     if (allow_act) {
     
