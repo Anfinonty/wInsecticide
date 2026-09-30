@@ -1746,6 +1746,8 @@ DRAWSPRITE draw_snowflake_sprite;
 //===============================
 
 //======== GAME TITLES ==========
+HBITMAP intro_screen_bitmap;
+
 //main menu title
 HBITMAP title_sprite[2];
 HBITMAP title_sprite_mask[2];
@@ -1753,8 +1755,8 @@ HBITMAP title_small_sprite[2];
 HBITMAP title_small_sprite_mask[2];
 
 //Khmer main menu
-HBITMAP intro_msg;
-HBITMAP intro_msg_mask;
+//HBITMAP intro_msg;
+//HBITMAP intro_msg_mask;
 
 
 HBITMAP mm0_kh[4];

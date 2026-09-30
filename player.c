@@ -1296,14 +1296,16 @@ void PlayerActGravityMovement(int grav_speed,int speed)
           if (player.in_air_timer%14/*20*/==0 && player.grav<=100) {
             player.grav+=2;
           }
-          if (player.fling_distance==0 && !player.is_rebounding && player.in_air_timer>74 && player.in_air_timer%25==0 && player.speed<15) {
+          //if (player.fling_distance==0 && !player.is_rebounding && player.in_air_timer>74 && player.in_air_timer%25==0 && player.speed<15) {
+          if (player.fling_distance==0 && !player.is_rebounding && player.in_air_timer>74 && player.in_air_timer%25==0 && player.speed<6) {
             player.speed++;
           }
         } else {
           if (player.in_air_timer%7/*12*/==0 && player.grav<=100 && player.in_water_timer==0) {
             player.grav+=2;
           }
-          if (player.fling_distance<-200 && !player.is_rebounding && player.in_air_timer%50==0 && player.speed<9) {
+          //if (player.fling_distance<-200 && !player.is_rebounding && player.in_air_timer%50==0 && player.speed<9) {
+          if (player.fling_distance<-200 && !player.is_rebounding && player.in_air_timer%50==0 && player.speed<6) {
             player.speed++;
           }
         }

@@ -2786,6 +2786,8 @@ void DrawLoading(HDC hDC/*,int max_marbles*/)
   float grectl=(GR_WIDTH-34-34)*loading_percentage;
   if (!hide_taskbar) {
     extra_y=32;
+  } else if (prelude) {
+    extra_y=32;
   }
   //if (flag_display_long_loading) {
     //GrPrintThick(hDC,34,GR_HEIGHT-46-extra_y-32,"Loading shadows, this will take a while...",WHITE,BLACK);

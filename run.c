@@ -825,7 +825,7 @@ DWORD WINAPI AnimateTask02(LPVOID lpArg) { //FPS counter
 
 
     } else { //intro prelude
-        if (loading_numerator>=loading_denominator) {
+        /*if (loading_numerator>=loading_denominator) {
             BYTE* pDIB = (BYTE*) AVIStreamGetFrame(pFrame, global_frames);
             if (global_frames%2!=0) {
               DeleteObject(global_avi_bitmap2);
@@ -843,7 +843,8 @@ DWORD WINAPI AnimateTask02(LPVOID lpArg) { //FPS counter
             Sleep(70);
         } else {
           Sleep(1000);
-        }
+        }*/
+        Sleep(1000);
     }
   }
 }
@@ -1313,7 +1314,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           SetWindowPos(hwnd,HWND_TOPMOST,0,0,SCREEN_WIDTH,SCREEN_HEIGHT, SWP_FRAMECHANGED);
           //SetDesktopScreenRes(RESOLUTION_X[resolution_choose],RESOLUTION_Y[resolution_choose],global_screen_bits);
         }
-        if (hide_taskbar) {
+        if (hide_taskbar && !prelude) {
           GR_WIDTH=RESOLUTION_X[resolution_choose];
           GR_HEIGHT=RESOLUTION_Y[resolution_choose];
         } else {
@@ -1399,10 +1400,14 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
           SelectObject(hdcBackbuff,screen);
 
           GrRect(hdcBackbuff,0,0,GR_WIDTH,GR_HEIGHT,BLACK);
-          DrawMovingAVI(hdcBackbuff,hdcBackbuff2);
+          //scrapped AVI as of 2026-09-29 
+            //DrawMovingAVI(hdcBackbuff,hdcBackbuff2);
 
-          DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-370/2,GR_HEIGHT/2-370/2-48,0,0,370,370,intro_msg_mask,SRCAND,FALSE,FALSE);
-          DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-370/2,GR_HEIGHT/2-370/2-48,0,0,370,370,intro_msg,SRCPAINT,FALSE,FALSE);
+          SelectObject(hdcBackbuff2,intro_screen_bitmap);
+          StretchBlt(hdcBackbuff, 0, 0, GR_WIDTH, GR_HEIGHT, hdcBackbuff2, 0,0, 800, 600, SRCCOPY);
+
+          //DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-370/2,GR_HEIGHT/2-370/2-48,0,0,370,370,intro_msg_mask,SRCAND,FALSE,FALSE);
+          //DrawBitmap(hdcBackbuff,hdcBackbuff2,GR_WIDTH/2-370/2,GR_HEIGHT/2-370/2-48,0,0,370,370,intro_msg,SRCPAINT,FALSE,FALSE);
 
 
           if (loading_numerator<loading_denominator) {
@@ -2163,8 +2168,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
      // waveOutOpen(&audioData[1].hWaveOut, WAVE_MAPPER, &audioData[1].awfx_music, (DWORD_PTR)waveOutProc1, (DWORD_PTR)&audioData[1], CALLBACK_FUNCTION);
 
       //Load AVI Frames intro
-      InitExtractAVIFrames(L"avi/intro_.avi",0);
-
+      //InitExtractAVIFrames(L"avi/intro_.avi",0);
+      
+      
 
       //Load Song Audio
       //waveOutGetVolume(audioData[0].hWaveOut,&wav_out_original_volume);
@@ -2715,6 +2721,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         //LIVE Draw textures are faster on 16/32 screenbits instead of 8bit -> 16/32screenbit
       }
 
+      intro_screen_bitmap=(HBITMAP) LoadImageW(NULL, L"sprites/TitleScreen.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE | LR_CREATEDIBSECTION); //loaded to system screne bits accordingly 16-bit/32-bit
+
       //Load mouse cursor sprite
       //player cursor
       for (int i=0;i<16;i++) { //open: 0,,3; 4..7;   closed:  8..11; 12..15
@@ -2810,8 +2818,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
       //
       //
-      intro_msg = LoadRLE8CompressedBitmap(L"sprites/intro_msg.bmp");
-      intro_msg_mask = CreateBitmapMask(intro_msg,BLACK,NULL);
+      //intro_msg = LoadRLE8CompressedBitmap(L"sprites/intro_msg.bmp");
+      //intro_msg_mask = CreateBitmapMask(intro_msg,BLACK,NULL);
 
 
       for (int k=0;k<PLATFORM_TEXTURES_NUM;k++) {
