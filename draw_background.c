@@ -5,6 +5,35 @@
 
 #define SUN_SIZE    32
 
+//=======Draw Lightning===========
+void InitLightning()
+{
+  lvl_map_background.lightning_timer=0;
+  lvl_map_background.is_lightning=FALSE;
+}
+
+
+void LightningAct()
+{
+  if (lvl_map_background.lightning_timer>0) {
+    lvl_map_background.lightning_timer--;
+  }
+}
+
+
+void DrawLightning(HDC hdc)
+{
+  if (lvl_map_background.is_lightning) {
+    if (lvl_map_background.lightning_timer<=20 && lvl_map_background.lightning_timer%6==0) {
+      GrRect(hdc,0,0,GR_WIDTH,GR_HEIGHT,WHITE);
+    }
+    if (lvl_map_background.lightning_timer<=0) {
+      lvl_map_background.lightning_timer=500+RandNum(0,5000,&weather_rng_i,-1);
+    } 
+  }
+}
+
+
 //=======Draw Stars===============
 void InitShootingStars()
 {

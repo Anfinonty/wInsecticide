@@ -1419,6 +1419,7 @@ void DrawMainMenu(HDC hdc,HDC hdc2)
           DrawRain(hdc,hdc2);
           DrawRainShader3(hdc);
         }
+        DrawLightning(hdc);
       }
     } /*else {
       if (flag_draw_game_background_spriteII) {

@@ -176,6 +176,7 @@ void Init() { //Repeatable
   InitSun();
   InitMoon();
   InitStars();
+  InitLightning();
   SunAct();
   //flag_draw_game_background_spriteII=TRUE;
 
@@ -341,6 +342,11 @@ void InitLevel(bool load_lvl)
   }
 
   Init(); //Repeatable, Load Save via \n key
+
+  if (!load_lvl && dice>7 && dice<30) {
+    lvl_map_background.is_lightning=TRUE;
+    lvl_map_background.lightning_timer=500;
+  }
 
 
   //Load nalloc-able objects

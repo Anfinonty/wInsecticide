@@ -354,6 +354,11 @@ struct lvl_map_background
   
   int brightness_type; //dynamic/static
   int dark_lvl; //
+
+  //lightning
+  bool is_lightning;
+  int lightning_timer;
+
 } lvl_map_background;
 
 #define S_LVL_ATTR_NUM    18
