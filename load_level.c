@@ -311,8 +311,10 @@ void InitLevel(bool load_lvl)
     if (dice<30) {//Weather event
       if (map_sunrise_time<=seconds_since_midnight && seconds_since_midnight<=map_sunset_time) { //weather event at day/night,,, day
         //lvl_map_background.background_id=0;
-        lvl_map_background.day_sky_color=RGB(25,25,25);
-        lvl_map_background.night_sky_color=RGB(25,25,25);
+        //lvl_map_background.day_sky_color=RGB(25,25,25);
+        //lvl_map_background.night_sky_color=RGB(25,25,25);
+        lvl_map_background.day_sky_color=RGB(0,0,0);
+        lvl_map_background.night_sky_color=RGB(0,0,0);
         lvl_map_background.dark_lvl=3;
       } else { //night weather event
         lvl_map_background.day_sky_color=RGB(0,0,0);

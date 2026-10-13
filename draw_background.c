@@ -454,7 +454,11 @@ void DrawClouds(HDC hdc, HDC hdc2)
 
   if (lvl_map_background.is_real_time) {
     if (lvl_map_background.weather_type>0)
-      clouds_type=3; //dark cloudy
+      if (map_sunrise_time<=seconds_since_midnight && seconds_since_midnight<=map_sunset_time) {
+        clouds_type=3; //dark cloudy
+      } else {
+        clouds_type=4; //dark no clouds 
+      }
     else if (!(Sun.horizon_lvl>=-1 && Sun.horizon_lvl<=0))
       clouds_type=1; //dark cloud ltitle
   } else {
