@@ -478,6 +478,8 @@ void Prelude()
   int i=prelude_sprite_id;
   //for (int j=0;j<4;j++) {
     //for (int i=0;i<ROTATED_SPRITE_NUM;i++) {
+
+  CreateAnewMEEnemySprites(); //mapeditor objects spawned in prelude
   if (i==0 && j==0) {
 
     //Create Mask for clouds
@@ -689,6 +691,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
                 //StarAct();
                 ShootingStarAct();
               }
+              LightningAct();
             }
             if (lvl_map_background.weather_type>0) {
               RainAct();
@@ -749,6 +752,7 @@ DWORD WINAPI AnimateTask01(LPVOID lpArg) {
                 SunAct();
                 //StarAct();
                 ShootingStarAct();
+                LightningAct();
               }
               if (lvl_map_background.weather_type>0) {
                 RainAct();
@@ -1558,6 +1562,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
                 call_help_timer=0;
               }
             }
+
+            DrawLightning(hdcBackbuff);
 
             //if (!player.is_on_ground_edge) {
             //RotateBitmapArbitraryAngle(publicScreenModPixels,SCREEN_WIDTH,SCREEN_HEIGHT,publicScreenPixels,SCREEN_WIDTH,SCREEN_HEIGHT,global_screen_bits,player.angle);

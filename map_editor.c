@@ -28,6 +28,9 @@ struct MapEditor
   //enemy palette change
   int flag_enemy_palette_i;
 
+  //enemy species change
+  int flag_enemy_species_i;
+
   //===== Ground ===== 
   int selected_ground_option; //0:ground_id, 1:type, 2:color, 3:is_ghost
   int selected_ground_id; //0 -> GROUND_NUM
@@ -136,7 +139,8 @@ void freeMEEnemy(AMEEnemy *myEnemy)
 AMEEnemy **MEEnemy;
 
 
-
+//Old map editor enemy sprite:
+/*
 typedef struct MEEnemySprite
 {
   RGBQUAD enemyPalette[256];
@@ -169,7 +173,31 @@ void CleanUpMEEnemySprites()
       FreeDrawSprite(&MEEnemySprite[i]->draw_sprite_1);
     }
   }
+}*/
+
+
+//2026-10-15
+//Create large map editor enemy sprites
+struct newMEEnemySprite
+{
+  RGBQUAD enemyPalette[256];
+  HBITMAP sprite_paint; //large sprite by default 256*256
+  HBITMAP sprite_mask; //large sprite by default 256*256
+} newMEEnemySprite[ENEMY_TYPE_NUM]; //10 => EnemyTypeNum
+
+
+
+void CreateAnewMEEnemySprites()
+{
+  for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+    newMEEnemySprite[i].sprite_paint = CreateCrunchyBitmap(256,256);
+    newMEEnemySprite[i].sprite_mask = CreateBitmap(256,256, 1, 1, NULL);
+  }
 }
+//Copy from DRAWSPRITES via direct BitBlt SRCCOPY -->
+    //LoadEnemyFlySprite[5].sprite_paint, sprite_mask; //mosquito, flying-termite, fly, cockroach, toe biter
+    //LoadEnemyRotatedSprite[3],sprite_paint, sprite_mask; //cockroach, toe biter and ant (2)
+
 
 
 /*Set Enemy Type will be in the stack to be consistent with Saved Enemy Type being in the stack*/
@@ -193,6 +221,9 @@ int enemy_int_attr_min[ENEMY_TYPE_INT_ATTR_NUM]=
 1, //speed multiplier*
 1, //health
 1, //shoot at player range
+
+
+
 0, //aim random
 1, //bullet cool down
 0, //bullet fire cool down
@@ -715,8 +746,9 @@ void InitMapEditorEnemy()
   //init set enemy type
 
   //Generate Sprites for 10 enemy types
+  //Replaced with new version as of 2026-10-15
   for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-    switch (saved_enemy_type_species[i]) {
+    /*switch (saved_enemy_type_species[i]) {
       case 0:
         MEEnemySprite[i]->sprite_1=CopyCrunchyBitmap(enemy1_sprite_1,SRCCOPY);
         break;
@@ -737,20 +769,21 @@ void InitMapEditorEnemy()
       case 7:
         MEEnemySprite[i]->sprite_1=CopyCrunchyBitmap(enemy6_sprite_1,SRCCOPY);
         break;
-    }
+    }*/
 
-    ReplaceBitmapColor2(MEEnemySprite[i]->sprite_1,BLACK,YELLOW,LTGREEN,BLACK);
-    ReplaceBitmapColor(MEEnemySprite[i]->sprite_1,YELLOW,LTGREEN);
+    //ReplaceBitmapColor2(MEEnemySprite[i]->sprite_1,BLACK,YELLOW,LTGREEN,BLACK);
+    //ReplaceBitmapColor(MEEnemySprite[i]->sprite_1,YELLOW,LTGREEN);
     loading_numerator++;
-    GenerateDrawSprite(&MEEnemySprite[i]->draw_sprite_1,MEEnemySprite[i]->sprite_1);
+    //GenerateDrawSprite(&MEEnemySprite[i]->draw_sprite_1,MEEnemySprite[i]->sprite_1);
 
-    CopyReplaceColorPalette(MEEnemySprite[i]->enemyPalette,rgbColorsBrightness[lvl_map_background.dark_lvl],167,rgbPaint[saved_enemy_type_wing_color[i]]); //set normal palette
-    CopyReplaceColorPalette(MEEnemySprite[i]->enemyPalette,MEEnemySprite[i]->enemyPalette,215,rgbPaintBrightness[lvl_map_background.dark_lvl][saved_enemy_type_bodypart_color[i]]); //set bodypart color ltpurple to target color
-    CopyReplaceColorPalette(MEEnemySprite[i]->enemyPalette,MEEnemySprite[i]->enemyPalette,199,rgbPaint[saved_enemy_type_eye_color[i]]);  //set eye color ltred to target color
-    CopyReplaceColorPalette(MEEnemySprite[i]->enemyPalette,MEEnemySprite[i]->enemyPalette,151,rgbPaint[saved_enemy_type_border_color[i]]); //set outline color ltblue go LTGRAY
+    //CopyReplaceColorPalette(newMEEnemySprite[i].enemyPalette,rgbColorsBrightness[lvl_map_background.dark_lvl],167,rgbPaint[saved_enemy_type_wing_color[i]]); //set normal palette
+    //CopyReplaceColorPalette(newMEEnemySprite[i].enemyPalette,newMEEnemySprite[i].enemyPalette,215,rgbPaintBrightness[lvl_map_background.dark_lvl][saved_enemy_type_bodypart_color[i]]); //set bodypart color ltpurple to target color
+    //CopyReplaceColorPalette(newMEEnemySprite[i].enemyPalette,newMEEnemySprite[i].enemyPalette,199,rgbPaint[saved_enemy_type_eye_color[i]]);  //set eye color ltred to target color
+    //CopyReplaceColorPalette(newMEEnemySprite[i].enemyPalette,newMEEnemySprite[i].enemyPalette,151,rgbPaint[saved_enemy_type_border_color[i]]); //set outline color ltblue go LTGRAY
 
     //BitmapPalette(hdc,hdc2,MEEnemySprite[i]->draw_sprite_1.sprite_paint,MEEnemySprite[i]->enemyPalette);
   }
+  //UpdateMEDrawSprite();
 }
 
 
@@ -858,7 +891,7 @@ void InitMapEditor()
   Ground = calloc(GROUND_NUM,sizeof(AGround*));
   VGrid = calloc(VGRID_NUM,sizeof(struct AVGrid*));
   MEEnemy = calloc(ENEMY_NUM,sizeof(AMEEnemy*));
-  MEEnemySprite = calloc(ENEMY_TYPE_NUM,sizeof(AMEEnemySprite*));
+  //MEEnemySprite = calloc(ENEMY_TYPE_NUM,sizeof(AMEEnemySprite*));
 
   for (int i=0;i<GROUND_NUM;i++) {
     AGround *newGround = createGround();
@@ -877,10 +910,10 @@ void InitMapEditor()
     MEEnemy[i] = newMEEnemy;
   }
 
-  for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+  /*for (int i=0;i<ENEMY_TYPE_NUM;i++) {
     AMEEnemySprite *newMEEnemySprite = createMEEnemySprite();
     MEEnemySprite[i] = newMEEnemySprite;
-  }
+  }*/
 
 
   //Init
@@ -1028,6 +1061,7 @@ void InitLevelMapEditor()
   OLD_GR_HEIGHT=0;
 
   MapEditor.flag_enemy_palette_i=-1;
+  MapEditor.flag_enemy_species_i=-1;
   MapEditor.init_palettes=FALSE;
 
   MapEditor.demo_enemy_spriteisleft=FALSE;
@@ -1489,7 +1523,7 @@ void CleanupMapEditorAll()
       FreeDrawSprite(&player.draw_sprite_1);
     }*/
 
-    CleanUpMEEnemySprites();
+    //CleanUpMEEnemySprites();
     CleanupPlayerAttributes();
     save_level[0]='\0';
     call_help_timer=0;
@@ -1538,15 +1572,15 @@ void CleanupMapEditorAll()
       freeMEEnemy(MEEnemy[i]);
     }
 
-    for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      freeMEEnemySprite(MEEnemySprite[i]);
-    }
+    //for (int i=0;i<ENEMY_TYPE_NUM;i++) {
+      //freeMEEnemySprite(MEEnemySprite[i]);
+    //}
 
 
     free(Ground); //free pointer to pointers
     free(VGrid); //free pointer to pointers
     free(MEEnemy);
-    free(MEEnemySprite);
+    //free(MEEnemySprite);
 
 
     //DeleteObject(map_background_sprite);

@@ -1,11 +1,16 @@
 
 
+void UpdateMEDrawSpriteSpecies()
+{
+  MapEditor.flag_enemy_species_i=MapEditor.selected_enemy_type_id;
+}
 
-void UpdateMEDrawSprite()
+void UpdateMEDrawSpriteColor()
 {
     int ei=MapEditor.selected_enemy_type_id;
     //creating new sprite :o
-    DeleteObject(MEEnemySprite[ei]->sprite_1); //delete old sprite
+        //^---- depracated to non-memleak version 2025-10-15
+    /*DeleteObject(MEEnemySprite[ei]->sprite_1); //delete old sprite
     MEEnemySprite[ei]->sprite_1=NULL;
     FreeDrawSprite(&MEEnemySprite[ei]->draw_sprite_1);
     //Create New Sprite
@@ -35,14 +40,7 @@ void UpdateMEDrawSprite()
     ReplaceBitmapColor2(MEEnemySprite[ei]->sprite_1,BLACK,YELLOW,LTGREEN,BLACK);
     ReplaceBitmapColor(MEEnemySprite[ei]->sprite_1,YELLOW,LTGREEN);
 
-    //loading_numerator++;
-    GenerateDrawSprite(&MEEnemySprite[ei]->draw_sprite_1,MEEnemySprite[ei]->sprite_1);
-
-    //Update Palette!!
-    CopyReplaceColorPalette(MEEnemySprite[ei]->enemyPalette,rgbColorsBrightness[lvl_map_background.dark_lvl],167,rgbPaint[saved_enemy_type_wing_color[ei]]); //set normal palette
-    CopyReplaceColorPalette(MEEnemySprite[ei]->enemyPalette,MEEnemySprite[ei]->enemyPalette,215,rgbPaint[saved_enemy_type_bodypart_color[ei]]); //set bodypart color ltpurple to target color
-    CopyReplaceColorPalette(MEEnemySprite[ei]->enemyPalette,MEEnemySprite[ei]->enemyPalette,199,rgbPaint[saved_enemy_type_eye_color[ei]]);  //set eye color ltred to target color
-    CopyReplaceColorPalette(MEEnemySprite[ei]->enemyPalette,MEEnemySprite[ei]->enemyPalette,151,rgbPaint[saved_enemy_type_border_color[ei]]); //set outline color ltblue go LTGRAY
+    GenerateDrawSprite(&MEEnemySprite[ei]->draw_sprite_1,MEEnemySprite[ei]->sprite_1);*/
 
     MapEditor.flag_enemy_palette_i=ei;
 }
@@ -100,19 +98,19 @@ void MEColorPickKeypressUp(WPARAM wParam)
       switch (MapEditor.selected_enemy_type_option) {
         case 5:
           ColorKeypressUp(wParam,&saved_enemy_type_wing_color[MapEditor.selected_enemy_type_id]);
-          UpdateMEDrawSprite();
+          UpdateMEDrawSpriteColor();
           break;
         case 6:
           ColorKeypressUp(wParam,&saved_enemy_type_eye_color[MapEditor.selected_enemy_type_id]);
-          UpdateMEDrawSprite();
+          UpdateMEDrawSpriteColor();
           break;
         case 7:
           ColorKeypressUp(wParam,&saved_enemy_type_border_color[MapEditor.selected_enemy_type_id]);
-          UpdateMEDrawSprite();
+          UpdateMEDrawSpriteColor();
           break;
         case 8:
           ColorKeypressUp(wParam,&saved_enemy_type_bodypart_color[MapEditor.selected_enemy_type_id]);
-          UpdateMEDrawSprite();
+          UpdateMEDrawSpriteColor();
           break;
       }
       break;
@@ -288,7 +286,7 @@ void MapEditorKeypressDown(WPARAM wParam)
               saved_enemy_type_time_breaker_immune[k]=saved_enemy_type_time_breaker_immune[l];
               saved_enemy_type_is_alternate_oscilating_bullet[k]=saved_enemy_type_is_alternate_oscilating_bullet[l];
               saved_enemy_type_is_still_when_shooting[k]=saved_enemy_type_is_still_when_shooting[l];
-              UpdateMEDrawSprite();
+              UpdateMEDrawSpriteColor();
             }
               break;
             case 6: //Falling Ground              
@@ -381,7 +379,7 @@ void MapEditorKeypressDown(WPARAM wParam)
     //Tab
       case 0x09:
         /*if (MapEditor.selected_option==3) {
-          UpdateMEDrawSprite();
+          UpdateMEDrawSpriteColor();
         }*/
         if (!MapEditor.is_typing_search && !MapEditor.is_ground_txt_typing) {
           MapEditor.selected_option=LimitValueInt(MapEditor.selected_option+1,0,7);
@@ -1380,9 +1378,9 @@ void MapEditorKeypressUp(WPARAM wParam, HWND hwnd, HDC hdc)
       case VK_RIGHT:
         player.rst_right=FALSE;
         switch (MapEditor.selected_option) {
-          case 3: //Enemy Type
+          case 3: //Enemy Type && species
             if (MapEditor.selected_enemy_type_option==1) {
-              UpdateMEDrawSprite();
+              UpdateMEDrawSpriteSpecies();
             }
             break;
         }
@@ -1396,7 +1394,7 @@ void MapEditorKeypressUp(WPARAM wParam, HWND hwnd, HDC hdc)
         switch (MapEditor.selected_option) {
           case 3: //Enemy Type && species
             if (MapEditor.selected_enemy_type_option==1) {
-              UpdateMEDrawSprite();
+              UpdateMEDrawSpriteSpecies();
             }
             break;
         }

@@ -534,6 +534,104 @@ void DrawEnemyAntannae(HDC hdc, int le_x, int le_y,int ac,bool flip_bool)
 
 }
 
+
+int MEGetEnemySpriteSizeFromSpecies[8] = {
+  36, //mosquito
+  128, //cockroach
+  32, //flying termite
+  176, //toe biter
+  32, //fly
+  32,//ant  
+  32,//ant  
+  32 //ant
+};
+
+
+void MEInitEnemyTypeSprite(HDC hdc2, int i)
+{//i = enemy_type_ID
+  HDC hdc3=CreateCompatibleDC(hdc2);
+  HDC hdc4=CreateCompatibleDC(hdc2);
+
+  //Blank out target enemy type sprite
+  SelectObject(hdc2,newMEEnemySprite[i].sprite_mask);
+  GrRect(hdc2,0,0,257,257,BLACK);
+
+  SelectObject(hdc2,newMEEnemySprite[i].sprite_paint);
+  GrRect(hdc2,0,0,257,257,BLACK);
+
+
+  Init8BitRGBColorsDefault(newMEEnemySprite[i].enemyPalette); //set to default palette before copying over
+  BitmapPalette(hdc3,hdc2,newMEEnemySprite[i].sprite_paint,newMEEnemySprite[i].enemyPalette);
+
+  int species=saved_enemy_type_species[i];
+  int size=MEGetEnemySpriteSizeFromSpecies[species];
+
+  //based on species see struct_classes.c
+//} LoadEnemyFlySprite[5].draw_fly_sprite_1.sprite_paint, LoadEnemyFlySprite[5].draw_fly_sprite_1.sprite_mask; //mosquito, flying-termite, fly, cockroach, toe biter (size ascending)
+//} LoadEnemyRotatedSprite[3].draw_rotated_sprite1[7].sprite_paint, LoadEnemyRotatedSprite[3].draw_rotated_sprite1[7].sprite_mask; //cockroach, toe biter and ant ("yo mr.bodiangamedev did size order stopped mattering?? 2026-10-15") 
+
+  switch (species) {
+    case 0: //mosquito
+      SelectObject(hdc3,LoadEnemyFlySprite[0].draw_fly_sprite_1.sprite_mask);
+      SelectObject(hdc4,LoadEnemyFlySprite[0].draw_fly_sprite_1.sprite_paint);
+      break;
+    case 1: //cockroach
+      SelectObject(hdc3,LoadEnemyFlySprite[3].draw_fly_sprite_1.sprite_mask);
+      SelectObject(hdc4,LoadEnemyFlySprite[3].draw_fly_sprite_1.sprite_paint);
+      break;
+    case 2: //flying-termite
+      SelectObject(hdc3,LoadEnemyFlySprite[1].draw_fly_sprite_1.sprite_mask);
+      SelectObject(hdc4,LoadEnemyFlySprite[1].draw_fly_sprite_1.sprite_paint);
+      break;
+    case 3: //toe-biter
+      SelectObject(hdc3,LoadEnemyFlySprite[4].draw_fly_sprite_1.sprite_mask);
+      SelectObject(hdc4,LoadEnemyFlySprite[4].draw_fly_sprite_1.sprite_paint);
+      break;
+    case 4: //fly
+      SelectObject(hdc3,LoadEnemyFlySprite[2].draw_fly_sprite_1.sprite_mask);
+      SelectObject(hdc4,LoadEnemyFlySprite[2].draw_fly_sprite_1.sprite_paint);
+      break;
+    case 5: //ant
+    case 6: //ant
+    case 7: //ant
+      SelectObject(hdc3,LoadEnemyRotatedSprite[2].draw_rotated_sprite1[8].sprite_mask);
+      SelectObject(hdc4,LoadEnemyRotatedSprite[2].draw_rotated_sprite1[8].sprite_paint);
+      break;
+  }
+
+  //copy sprite mask over
+  SelectObject(hdc2,newMEEnemySprite[i].sprite_mask);
+  BitBlt(hdc2, 0, 0, size, size, hdc3, 0, 0, SRCCOPY);
+
+  //copy sprite paint over
+  SelectObject(hdc2,newMEEnemySprite[i].sprite_paint);
+  BitBlt(hdc2, 0, 0, size, size, hdc4, 0, 0, SRCCOPY);
+
+
+  DeleteDC(hdc4);
+  DeleteDC(hdc3);
+}
+
+void MEDrawEnemyTypeSprite(HDC hdc, HDC hdc2,int x, int y,bool is_left,int i)
+{ //i = enemy_type_ID
+  int species=saved_enemy_type_species[i];
+  int size=MEGetEnemySpriteSizeFromSpecies[species];
+
+  if (!is_left) {
+    SelectObject(hdc2,newMEEnemySprite[i].sprite_mask);
+    BitBlt(hdc, x-size/2, y-size/2, size, size, hdc2, 0, 0, SRCAND);
+    SelectObject(hdc2,newMEEnemySprite[i].sprite_paint);
+    BitBlt(hdc, x-size/2, y-size/2, size, size, hdc2, 0, 0, SRCPAINT);
+  } else {
+    SelectObject(hdc2,newMEEnemySprite[i].sprite_mask);
+    StretchBlt(hdc, x-size/2+size, y-size/2, -size-1, size, hdc2, 0,0, size,size, SRCAND);
+    SelectObject(hdc2,newMEEnemySprite[i].sprite_paint);
+    StretchBlt(hdc, x-size/2+size, y-size/2, -size-1, size, hdc2, 0,0, size,size, SRCPAINT);
+  }
+}
+
+
+
 void DrawMapEditorEnemy(HDC hdc,HDC hdc2)
 {
   int c;
@@ -549,12 +647,17 @@ void DrawMapEditorEnemy(HDC hdc,HDC hdc2)
 
 
     //GrSprite(hdc,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y+GR_HEIGHT/2,MEEnemySprite[type]->sprite_1,FALSE);
-    if (saved_enemy_type_species[type]!=6) {
-      DrawSprite(hdc,hdc2,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y+GR_HEIGHT/2,&MEEnemySprite[type]->draw_sprite_1,FALSE);
-    } else {
-      DrawSprite(hdc,hdc2,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y+GR_HEIGHT/2,&MEEnemySprite[type]->draw_sprite_1,TRUE);
-    }
-
+    //if (saved_enemy_type_species[type]!=6) {
+      //DrawSprite(hdc,hdc2,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y+GR_HEIGHT/2,&MEEnemySprite[type]->draw_sprite_1,FALSE);
+    //} else {
+      //DrawSprite(hdc,hdc2,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y+GR_HEIGHT/2,&MEEnemySprite[type]->draw_sprite_1,TRUE);
+    //}
+    MEDrawEnemyTypeSprite(hdc,hdc2,
+        MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,
+        MEEnemy[i]->y+player.cam_y+GR_HEIGHT/2,
+        (saved_enemy_type_species[type]!=6),//if species is not 6
+        type
+    );
     //if (saved_enemy_type_species[type]==1) { //cockroach draw antannae
       //DrawEnemyAntannae(hdc,MEEnemy[i]->x+player.cam_x+GR_WIDTH/2,MEEnemy[i]->y+player.cam_y+GR_HEIGHT/2,rgbPaint[saved_enemy_type_bodypart_color[type]],FALSE);
     //}
@@ -568,15 +671,49 @@ void DrawMapEditorPlayer(HDC hdc,HDC hdc2)
   //GrSprite(hdc,player.x+player.cam_x+GR_WIDTH/2,player.y+player.cam_y+GR_HEIGHT/2,player.sprite_1_cache,FALSE);
   DrawSprite(hdc,hdc2,player.x+player.cam_x+GR_WIDTH/2,player.y+player.cam_y+GR_HEIGHT/2,&PlayerSprite[0].sprite_1[16],FALSE);
 
+
+  //change enemy color
   if (MapEditor.flag_enemy_palette_i!=-1) {
-    BitmapPalette(hdc,hdc2,MEEnemySprite[MapEditor.flag_enemy_palette_i]->draw_sprite_1.sprite_paint,MEEnemySprite[MapEditor.flag_enemy_palette_i]->enemyPalette);
+    int ei=MapEditor.flag_enemy_palette_i;
+    Init8BitRGBColorsDefault(newMEEnemySprite[ei].enemyPalette); //set to default palette before copying over
+    BitmapPalette(hdc,hdc2,newMEEnemySprite[ei].sprite_paint,newMEEnemySprite[ei].enemyPalette);
+
+    CopyReplaceColorPalette(newMEEnemySprite[ei].enemyPalette,rgbColorsBrightness[lvl_map_background.dark_lvl],167,rgbPaint[saved_enemy_type_wing_color[ei]]); //set normal palette
+    CopyReplaceColorPalette(newMEEnemySprite[ei].enemyPalette,newMEEnemySprite[ei].enemyPalette,215,rgbPaint[saved_enemy_type_bodypart_color[ei]]); //set bodypart color ltpurple to target color
+    CopyReplaceColorPalette(newMEEnemySprite[ei].enemyPalette,newMEEnemySprite[ei].enemyPalette,199,rgbPaint[saved_enemy_type_eye_color[ei]]);  //set eye color ltred to target color
+    CopyReplaceColorPalette(newMEEnemySprite[ei].enemyPalette,newMEEnemySprite[ei].enemyPalette,151,rgbPaint[saved_enemy_type_border_color[ei]]); //set outline color ltblue go LTGRAY
+    BitmapPalette(hdc,hdc2,newMEEnemySprite[ei].sprite_paint,newMEEnemySprite[ei].enemyPalette);
+
     MapEditor.flag_enemy_palette_i=-1;
   }
 
+  //change enemy species
+  if (MapEditor.flag_enemy_species_i!=-1) {
+    int ei=MapEditor.flag_enemy_species_i;
+    MEInitEnemyTypeSprite(hdc2, ei); //(enemy_type_id)
+
+    //update color
+    CopyReplaceColorPalette(newMEEnemySprite[ei].enemyPalette,rgbColorsBrightness[lvl_map_background.dark_lvl],167,rgbPaint[saved_enemy_type_wing_color[ei]]); //set normal palette
+    CopyReplaceColorPalette(newMEEnemySprite[ei].enemyPalette,newMEEnemySprite[ei].enemyPalette,215,rgbPaint[saved_enemy_type_bodypart_color[ei]]); //set bodypart color ltpurple to target color
+    CopyReplaceColorPalette(newMEEnemySprite[ei].enemyPalette,newMEEnemySprite[ei].enemyPalette,199,rgbPaint[saved_enemy_type_eye_color[ei]]);  //set eye color ltred to target color
+    CopyReplaceColorPalette(newMEEnemySprite[ei].enemyPalette,newMEEnemySprite[ei].enemyPalette,151,rgbPaint[saved_enemy_type_border_color[ei]]); //set outline color ltblue go LTGRAY
+    BitmapPalette(hdc,hdc2,newMEEnemySprite[ei].sprite_paint,newMEEnemySprite[ei].enemyPalette);
+
+    MapEditor.flag_enemy_species_i=-1;
+  }
+
   if (!MapEditor.init_palettes) {
+    //init palette enemy
     for (int i=0;i<ENEMY_TYPE_NUM;i++) {
-      BitmapPalette(hdc,hdc2,MEEnemySprite[i]->draw_sprite_1.sprite_paint,MEEnemySprite[i]->enemyPalette);
+      MEInitEnemyTypeSprite(hdc2, i); //(enemy_type_id)
+
+      CopyReplaceColorPalette(newMEEnemySprite[i].enemyPalette,rgbColorsBrightness[lvl_map_background.dark_lvl],167,rgbPaint[saved_enemy_type_wing_color[i]]); //set normal palette
+      CopyReplaceColorPalette(newMEEnemySprite[i].enemyPalette,newMEEnemySprite[i].enemyPalette,215,rgbPaintBrightness[lvl_map_background.dark_lvl][saved_enemy_type_bodypart_color[i]]); //set bodypart color ltpurple to target color
+      CopyReplaceColorPalette(newMEEnemySprite[i].enemyPalette,newMEEnemySprite[i].enemyPalette,199,rgbPaint[saved_enemy_type_eye_color[i]]);  //set eye color ltred to target color
+      CopyReplaceColorPalette(newMEEnemySprite[i].enemyPalette,newMEEnemySprite[i].enemyPalette,151,rgbPaint[saved_enemy_type_border_color[i]]); //set outline color ltblue go LTGRAY
+      BitmapPalette(hdc,hdc2,newMEEnemySprite[i].sprite_paint,newMEEnemySprite[i].enemyPalette);
     }
+    //init palette background
     BitmapPalette(hdc,hdc2,draw_background_sprite_stretched_paint,rgbColorsBrightness[MapEditor.bg_attr_dark_lvl]);
     flag_draw_game_background_spriteII=TRUE;
     flag_draw_game_background_sprite=TRUE;
@@ -841,11 +978,12 @@ void DrawMapEditorUI(HDC hdc,HDC hdc2)
         GrCircle(hdc,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey,NODE_SIZE*saved_enemy_type_unchase_range[MapEditor.selected_enemy_type_id]/2,LTBLUE,-1);
 
         //Draw 
-        DrawSprite(hdc,hdc2,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey,&MEEnemySprite[MapEditor.selected_enemy_type_id]->draw_sprite_1,MapEditor.demo_enemy_spriteisleft);
+        //DrawSprite(hdc,hdc2,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey,&MEEnemySprite[MapEditor.selected_enemy_type_id]->draw_sprite_1,MapEditor.demo_enemy_spriteisleft);
+        MEDrawEnemyTypeSprite(hdc,hdc2,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey,MapEditor.demo_enemy_spriteisleft,MapEditor.selected_enemy_type_id);
+
         //if (saved_enemy_type_species[MapEditor.selected_enemy_type_id]==1) {
           //DrawEnemyAntannae(hdc,MapEditor.demo_enemy_spritex,MapEditor.demo_enemy_spritey, rgbPaint[saved_enemy_type_bodypart_color[MapEditor.selected_enemy_type_id]],MapEditor.demo_enemy_spriteisleft);
         //}
-
 
         //draw bullet frequency
         GrLine(hdc,MapEditor.demo_enemy_spritex+NODE_SIZE*saved_enemy_type_shoot_at_player_range[MapEditor.selected_enemy_type_id]/2,MapEditor.demo_enemy_spritey+24,
